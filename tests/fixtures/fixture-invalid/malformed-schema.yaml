@@ -1,0 +1,11 @@
+// Test content fixture: malformed schema
+// This file has YAML syntax errors or missing required fields
+
+id: item.weapon.malformed
+kind: item.weapon
+schema: 1
+display_key: item.weapon.malformed.name
+tags: [weapon, sword, metal]
+# Missing required fields for item.weapon
+
+notes: This file is intentionally malformed for testing validation errors.

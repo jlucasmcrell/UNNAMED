@@ -1,0 +1,72 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 25000,
+    "texture_size": 2048,
+    "category": "auto",
+    "lod_faces": "8000,2500,600",
+    "seed": null
+  },
+  "total_seconds": 3.4,
+  "verified": 1,
+  "attempted": 1,
+  "assets": [
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\tool_blacksmith_hammer.png",
+      "stem": "tool_blacksmith_hammer",
+      "stages": [
+        {
+          "stage": "cleanup",
+          "seconds": 3.2,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.2,
+          "returncode": 0
+        }
+      ],
+      "category": "tool",
+      "cleanup": {
+        "name": "tool_blacksmith_hammer",
+        "base_faces": 24578,
+        "base_tris": 24578,
+        "dimensions": [
+          0.249,
+          0.1723,
+          0.6
+        ],
+        "lods": {
+          "tool_blacksmith_hammer_lod1": {
+            "faces": 8000,
+            "requested_faces": 8000,
+            "ratio": 0.3255
+          },
+          "tool_blacksmith_hammer_lod2": {
+            "faces": 2499,
+            "requested_faces": 2500,
+            "ratio": 0.1017
+          },
+          "tool_blacksmith_hammer_lod3": {
+            "faces": 599,
+            "requested_faces": 600,
+            "ratio": 0.0244
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 283,
+          "box_dimensions": [
+            0.249,
+            0.1723,
+            0.6
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\tool_blacksmith_hammer\\tool_blacksmith_hammer_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\tool_blacksmith_hammer",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\tool_blacksmith_hammer\\tool_blacksmith_hammer.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\tool_blacksmith_hammer.glb"
+    }
+  ]
+}

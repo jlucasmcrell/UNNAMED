@@ -1,0 +1,208 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 40000,
+    "texture_size": 4096,
+    "category": "auto",
+    "lod_faces": "12000,4000,1000",
+    "seed": null,
+    "only": "race_"
+  },
+  "total_seconds": 28.5,
+  "verified": 8,
+  "attempted": 8,
+  "assets": [
+    {
+      "stem": "race_constructed_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24935,
+        "base_tris": 24935
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_constructed_representative",
+      "rig": {
+        "asset": "race_constructed_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_constructed_representative\\race_constructed_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 18571,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_kal_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24535,
+        "base_tris": 24535
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_kal_representative",
+      "rig": {
+        "asset": "race_kal_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_kal_representative\\race_kal_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 20808,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_mor_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24994,
+        "base_tris": 24994
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_mor_representative",
+      "rig": {
+        "asset": "race_mor_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_mor_representative\\race_mor_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 18337,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_ondrek_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24814,
+        "base_tris": 24814
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_ondrek_representative",
+      "rig": {
+        "asset": "race_ondrek_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_ondrek_representative\\race_ondrek_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 23460,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_orenth_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24558,
+        "base_tris": 24558
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_orenth_representative",
+      "rig": {
+        "asset": "race_orenth_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_orenth_representative\\race_orenth_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 21621,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_siann_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24531,
+        "base_tris": 24531
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_siann_representative",
+      "rig": {
+        "asset": "race_siann_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_siann_representative\\race_siann_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 22614,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_vaskaal_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24931,
+        "base_tris": 24931
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_vaskaal_representative",
+      "rig": {
+        "asset": "race_vaskaal_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_vaskaal_representative\\race_vaskaal_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 19506,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "race_veth_representative",
+      "skipped": true,
+      "verified": true,
+      "category": "character",
+      "cleanup": {
+        "base_faces": 24512,
+        "base_tris": 24512
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\race_veth_representative",
+      "rig": {
+        "asset": "race_veth_representative",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\race_veth_representative\\race_veth_representative_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 21090,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    }
+  ]
+}

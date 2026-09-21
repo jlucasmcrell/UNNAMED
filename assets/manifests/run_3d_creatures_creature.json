@@ -1,0 +1,1468 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 40000,
+    "texture_size": 4096,
+    "category": "auto",
+    "lod_faces": "12000,4000,1000",
+    "seed": null,
+    "only": "creature_"
+  },
+  "total_seconds": 11592.7,
+  "verified": 47,
+  "attempted": 51,
+  "assets": [
+    {
+      "stem": "creature_ancient_bog_tortoise",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24817,
+        "base_tris": 24817
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_ancient_bog_tortoise",
+      "rig": {
+        "asset": "creature_ancient_bog_tortoise",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_ancient_bog_tortoise\\creature_ancient_bog_tortoise_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 19973,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_animated_armour",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 21064,
+        "base_tris": 21064
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_animated_armour",
+      "rig": {
+        "asset": "creature_animated_armour",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_animated_armour\\creature_animated_armour_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 19663,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_arctic_frost_wolf",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24482,
+        "base_tris": 24482
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_arctic_frost_wolf",
+      "rig": {
+        "asset": "creature_arctic_frost_wolf",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_arctic_frost_wolf\\creature_arctic_frost_wolf_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 24547,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_armoured_thorn_lizard",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24912,
+        "base_tris": 24912
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_armoured_thorn_lizard",
+      "rig": {
+        "asset": "creature_armoured_thorn_lizard",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_armoured_thorn_lizard\\creature_armoured_thorn_lizard_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21996,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_ash_ember_hound",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24976,
+        "base_tris": 24976
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_ash_ember_hound",
+      "rig": {
+        "asset": "creature_ash_ember_hound",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_ash_ember_hound\\creature_ash_ember_hound_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 18711,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_barrow_wight_lord",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24962,
+        "base_tris": 24962
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_barrow_wight_lord",
+      "rig": {
+        "asset": "creature_barrow_wight_lord",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_barrow_wight_lord\\creature_barrow_wight_lord_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 21558,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_bog_lurker_beast",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 18811,
+        "base_tris": 18811
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_bog_lurker_beast",
+      "rig": {
+        "asset": "creature_bog_lurker_beast",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_bog_lurker_beast\\creature_bog_lurker_beast_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 22307,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_bog_raven_scout",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24778,
+        "base_tris": 24778
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_bog_raven_scout",
+      "rig": {
+        "asset": "creature_bog_raven_scout",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_bog_raven_scout\\creature_bog_raven_scout_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 22348,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_bone_walker_husk",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24802,
+        "base_tris": 24802
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_bone_walker_husk",
+      "rig": {
+        "asset": "creature_bone_walker_husk",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_bone_walker_husk\\creature_bone_walker_husk_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 23348,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_bristleback_boar",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 20394,
+        "base_tris": 20394
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_bristleback_boar",
+      "rig": {
+        "asset": "creature_bristleback_boar",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_bristleback_boar\\creature_bristleback_boar_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 23040,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_bronze_serpent_sentry",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24823,
+        "base_tris": 24823
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_bronze_serpent_sentry",
+      "rig": {
+        "asset": "creature_bronze_serpent_sentry",
+        "plan": "worm",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_bronze_serpent_sentry\\creature_bronze_serpent_sentry_rigged.glb",
+        "bones": 5,
+        "bones_with_weights": 5,
+        "vertices": 20597,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_cave_hunting_spider",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24319,
+        "base_tris": 24319
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_cave_hunting_spider",
+      "rig": {
+        "asset": "creature_cave_hunting_spider",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_cave_hunting_spider\\creature_cave_hunting_spider_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21899,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_cave_marsh_bat",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24740,
+        "base_tris": 24740
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_cave_marsh_bat",
+      "rig": {
+        "asset": "creature_cave_marsh_bat",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_cave_marsh_bat\\creature_cave_marsh_bat_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 20327,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_cave_salamander",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24933,
+        "base_tris": 24933
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_cave_salamander",
+      "rig": {
+        "asset": "creature_cave_salamander",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_cave_salamander\\creature_cave_salamander_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 20352,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_clay_servitor",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24847,
+        "base_tris": 24847
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_clay_servitor",
+      "rig": {
+        "asset": "creature_clay_servitor",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_clay_servitor\\creature_clay_servitor_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 18899,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_cliff_hawk_hunter",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 23824,
+        "base_tris": 23824
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_cliff_hawk_hunter",
+      "rig": {
+        "asset": "creature_cliff_hawk_hunter",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_cliff_hawk_hunter\\creature_cliff_hawk_hunter_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21200,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_crystal_antler_stag",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24840,
+        "base_tris": 24840
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_crystal_antler_stag",
+      "rig": {
+        "asset": "creature_crystal_antler_stag",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_crystal_antler_stag\\creature_crystal_antler_stag_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 19935,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_desert_camel_drover",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 23291,
+        "base_tris": 23291
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_desert_camel_drover",
+      "rig": {
+        "asset": "creature_desert_camel_drover",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_desert_camel_drover\\creature_desert_camel_drover_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 22372,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_desert_vulture",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24634,
+        "base_tris": 24634
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_desert_vulture",
+      "rig": {
+        "asset": "creature_desert_vulture",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_desert_vulture\\creature_desert_vulture_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21767,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_drowned_hound",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24926,
+        "base_tris": 24926
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_drowned_hound",
+      "rig": {
+        "asset": "creature_drowned_hound",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_drowned_hound\\creature_drowned_hound_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 19727,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_dune_armoured_scorpion",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 22350,
+        "base_tris": 22350
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_dune_armoured_scorpion",
+      "rig": {
+        "asset": "creature_dune_armoured_scorpion",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_dune_armoured_scorpion\\creature_dune_armoured_scorpion_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 21396,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_dune_jackal_scout",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24980,
+        "base_tris": 24980
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_dune_jackal_scout",
+      "rig": {
+        "asset": "creature_dune_jackal_scout",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_dune_jackal_scout\\creature_dune_jackal_scout_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 18826,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_fey_thorn_cat",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24698,
+        "base_tris": 24698
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_fey_thorn_cat",
+      "rig": {
+        "asset": "creature_fey_thorn_cat",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_fey_thorn_cat\\creature_fey_thorn_cat_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 20422,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_forest_praying_mantis",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24519,
+        "base_tris": 24519
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_forest_praying_mantis",
+      "rig": {
+        "asset": "creature_forest_praying_mantis",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_forest_praying_mantis\\creature_forest_praying_mantis_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 20282,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_frost_hare_fey",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 18463,
+        "base_tris": 18463
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_frost_hare_fey",
+      "rig": {
+        "asset": "creature_frost_hare_fey",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_frost_hare_fey\\creature_frost_hare_fey_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 20213,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_frost_wolf",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 23901,
+        "base_tris": 23901
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_frost_wolf",
+      "rig": {
+        "asset": "creature_frost_wolf",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_frost_wolf\\creature_frost_wolf_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 25540,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_frost_wolf_side",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24606,
+        "base_tris": 24606
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_frost_wolf_side",
+      "rig": {
+        "asset": "creature_frost_wolf_side",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_frost_wolf_side\\creature_frost_wolf_side_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 25116,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_giant_stag_beetle",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24491,
+        "base_tris": 24491
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_giant_stag_beetle",
+      "rig": {
+        "asset": "creature_giant_stag_beetle",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_giant_stag_beetle\\creature_giant_stag_beetle_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21528,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_glacier_seal_hunter",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24994,
+        "base_tris": 24994
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_glacier_seal_hunter",
+      "rig": {
+        "asset": "creature_glacier_seal_hunter",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_glacier_seal_hunter\\creature_glacier_seal_hunter_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 18107,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_great_horned_owl",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24815,
+        "base_tris": 24815
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_great_horned_owl",
+      "rig": {
+        "asset": "creature_great_horned_owl",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_great_horned_owl\\creature_great_horned_owl_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 23560,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_great_river_serpent",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24992,
+        "base_tris": 24992
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_great_river_serpent",
+      "rig": {
+        "asset": "creature_great_river_serpent",
+        "plan": "worm",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_great_river_serpent\\creature_great_river_serpent_rigged.glb",
+        "bones": 5,
+        "bones_with_weights": 5,
+        "vertices": 18740,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_grey_badger_warden",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 12759,
+        "base_tris": 12759
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_grey_badger_warden",
+      "rig": {
+        "asset": "creature_grey_badger_warden",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_grey_badger_warden\\creature_grey_badger_warden_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 14806,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_grove_bound_dryad_ox",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 23610,
+        "base_tris": 23610
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_grove_bound_dryad_ox",
+      "rig": {
+        "asset": "creature_grove_bound_dryad_ox",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_grove_bound_dryad_ox\\creature_grove_bound_dryad_ox_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 25254,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_highland_brown_bear",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 39687,
+        "base_tris": 39687
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_highland_brown_bear",
+      "rig": {
+        "asset": "creature_highland_brown_bear",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_highland_brown_bear\\creature_highland_brown_bear_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 36831,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_iron_boar_automaton",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24320,
+        "base_tris": 24320
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_iron_boar_automaton",
+      "rig": {
+        "asset": "creature_iron_boar_automaton",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_iron_boar_automaton\\creature_iron_boar_automaton_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 24844,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_marsh_giant_wasp",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24913,
+        "base_tris": 24913
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_marsh_giant_wasp",
+      "rig": {
+        "asset": "creature_marsh_giant_wasp",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_marsh_giant_wasp\\creature_marsh_giant_wasp_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21260,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_marsh_heron_stalker",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24281,
+        "base_tris": 24281
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_marsh_heron_stalker",
+      "rig": {
+        "asset": "creature_marsh_heron_stalker",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_marsh_heron_stalker\\creature_marsh_heron_stalker_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 19664,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_mountain_ram_goat",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24174,
+        "base_tris": 24174
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_mountain_ram_goat",
+      "rig": {
+        "asset": "creature_mountain_ram_goat",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_mountain_ram_goat\\creature_mountain_ram_goat_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 26854,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_plains_antelope_doe",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24915,
+        "base_tris": 24915
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_plains_antelope_doe",
+      "rig": {
+        "asset": "creature_plains_antelope_doe",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_plains_antelope_doe\\creature_plains_antelope_doe_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 19808,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_red_fox_scavenger",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24717,
+        "base_tris": 24717
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_red_fox_scavenger",
+      "rig": {
+        "asset": "creature_red_fox_scavenger",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_red_fox_scavenger\\creature_red_fox_scavenger_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 22298,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_ridgeback_lizard",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24773,
+        "base_tris": 24773
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_ridgeback_lizard",
+      "rig": {
+        "asset": "creature_ridgeback_lizard",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_ridgeback_lizard\\creature_ridgeback_lizard_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 21102,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "stem": "creature_rotting_revenant",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 24891,
+        "base_tris": 24891
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_rotting_revenant",
+      "rig": {
+        "asset": "creature_rotting_revenant",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_rotting_revenant\\creature_rotting_revenant_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 24408,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_sand_skink_runner.png",
+      "stem": "creature_sand_skink_runner",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 0.1,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 217.3,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": null,
+        "seconds": 217.3
+      },
+      "error": "generation produced no GLB:   ...   77s running=1 pending=1\n  ...   92s running=1 pending=1\n  ...  107s running=1 pending=1\n  ...  123s running=1 pending=1\n  ...  138s running=1 pending=1\n  ...  153s running=1 pending=1\n  ...  168s running=1 pending=1\n  ...  184s running=1 pending=1\n  ...  199s running=1 pending=1\n  ComfyUI restarted (pid 24864 -> 19488); this prompt was lost, abandoning it"
+    },
+    {
+      "stem": "creature_skeleton_hound",
+      "skipped": true,
+      "verified": true,
+      "category": "creature",
+      "cleanup": {
+        "base_faces": 39842,
+        "base_tris": 39842
+      },
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_skeleton_hound",
+      "rig": {
+        "asset": "creature_skeleton_hound",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_skeleton_hound\\creature_skeleton_hound_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 37696,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_slime_marsh_frog.png",
+      "stem": "creature_slime_marsh_frog",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 2.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2.2,
+          "returncode": 1
+        }
+      ],
+      "generate": {
+        "status": null,
+        "seconds": 2.2
+      },
+      "error": "generation produced no GLB:     result = self._call_chain(self.handle_open, protocol, protocol +\n                              '_open', req)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 464, in _call_chain\n    result = func(*args)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1350, in http_open\n    return self.do_open(http.client.HTTPConnection, req)\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1324, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_small_ember_drake.png",
+      "stem": "creature_small_ember_drake",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 2.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2.2,
+          "returncode": 1
+        }
+      ],
+      "generate": {
+        "status": null,
+        "seconds": 2.2
+      },
+      "error": "generation produced no GLB:     result = self._call_chain(self.handle_open, protocol, protocol +\n                              '_open', req)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 464, in _call_chain\n    result = func(*args)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1350, in http_open\n    return self.do_open(http.client.HTTPConnection, req)\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1324, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_snow_hare_hopper.png",
+      "stem": "creature_snow_hare_hopper",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 2.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2.2,
+          "returncode": 1
+        }
+      ],
+      "generate": {
+        "status": null,
+        "seconds": 2.2
+      },
+      "error": "generation produced no GLB:     result = self._call_chain(self.handle_open, protocol, protocol +\n                              '_open', req)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 464, in _call_chain\n    result = func(*args)\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1350, in http_open\n    return self.do_open(http.client.HTTPConnection, req)\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Python314\\Lib\\urllib\\request.py\", line 1324, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_snow_lynx_stalker.png",
+      "stem": "creature_snow_lynx_stalker",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 2.1,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2736.1,
+          "returncode": 0
+        },
+        {
+          "stage": "cleanup",
+          "seconds": 3.9,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.3,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "success",
+        "seconds": 2736.1
+      },
+      "category": "creature",
+      "cleanup": {
+        "name": "creature_snow_lynx_stalker",
+        "base_faces": 39733,
+        "base_tris": 39733,
+        "dimensions": [
+          1.7854,
+          1.6661,
+          1.8
+        ],
+        "lods": {
+          "creature_snow_lynx_stalker_lod1": {
+            "faces": 12000,
+            "requested_faces": 12000,
+            "ratio": 0.302
+          },
+          "creature_snow_lynx_stalker_lod2": {
+            "faces": 4000,
+            "requested_faces": 4000,
+            "ratio": 0.1007
+          },
+          "creature_snow_lynx_stalker_lod3": {
+            "faces": 1000,
+            "requested_faces": 1000,
+            "ratio": 0.0252
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 278,
+          "box_dimensions": [
+            1.7854,
+            1.6661,
+            1.8
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\creature_snow_lynx_stalker\\creature_snow_lynx_stalker_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_snow_lynx_stalker",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\creature_snow_lynx_stalker\\creature_snow_lynx_stalker.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\creature_snow_lynx_stalker.glb",
+      "rig": {
+        "asset": "creature_snow_lynx_stalker",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_snow_lynx_stalker\\creature_snow_lynx_stalker_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 30991,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_spotted_hyena_brute.png",
+      "stem": "creature_spotted_hyena_brute",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 0.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2764.0,
+          "returncode": 0
+        },
+        {
+          "stage": "cleanup",
+          "seconds": 4.5,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.4,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "success",
+        "seconds": 2764.0
+      },
+      "category": "creature",
+      "cleanup": {
+        "name": "creature_spotted_hyena_brute",
+        "base_faces": 39523,
+        "base_tris": 39523,
+        "dimensions": [
+          1.6396,
+          1.5401,
+          1.8
+        ],
+        "lods": {
+          "creature_spotted_hyena_brute_lod1": {
+            "faces": 12000,
+            "requested_faces": 12000,
+            "ratio": 0.3036
+          },
+          "creature_spotted_hyena_brute_lod2": {
+            "faces": 4000,
+            "requested_faces": 4000,
+            "ratio": 0.1012
+          },
+          "creature_spotted_hyena_brute_lod3": {
+            "faces": 3072,
+            "requested_faces": 1000,
+            "ratio": 0.0253
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 256,
+          "box_dimensions": [
+            1.6396,
+            1.5401,
+            1.8
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\creature_spotted_hyena_brute\\creature_spotted_hyena_brute_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_spotted_hyena_brute",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\creature_spotted_hyena_brute\\creature_spotted_hyena_brute.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\creature_spotted_hyena_brute.glb",
+      "rig": {
+        "asset": "creature_spotted_hyena_brute",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_spotted_hyena_brute\\creature_spotted_hyena_brute_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 42457,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_steppe_bison_bull.png",
+      "stem": "creature_steppe_bison_bull",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 0.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2932.3,
+          "returncode": 0
+        },
+        {
+          "stage": "cleanup",
+          "seconds": 4.1,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.3,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "success",
+        "seconds": 2932.3
+      },
+      "category": "creature",
+      "cleanup": {
+        "name": "creature_steppe_bison_bull",
+        "base_faces": 39681,
+        "base_tris": 39681,
+        "dimensions": [
+          1.7616,
+          1.6194,
+          1.8
+        ],
+        "lods": {
+          "creature_steppe_bison_bull_lod1": {
+            "faces": 12000,
+            "requested_faces": 12000,
+            "ratio": 0.3024
+          },
+          "creature_steppe_bison_bull_lod2": {
+            "faces": 4000,
+            "requested_faces": 4000,
+            "ratio": 0.1008
+          },
+          "creature_steppe_bison_bull_lod3": {
+            "faces": 1211,
+            "requested_faces": 1000,
+            "ratio": 0.0252
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 260,
+          "box_dimensions": [
+            1.7616,
+            1.6194,
+            1.8
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\creature_steppe_bison_bull\\creature_steppe_bison_bull_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_steppe_bison_bull",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\creature_steppe_bison_bull\\creature_steppe_bison_bull.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\creature_steppe_bison_bull.glb",
+      "rig": {
+        "asset": "creature_steppe_bison_bull",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_steppe_bison_bull\\creature_steppe_bison_bull_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 35838,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    },
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_stone_guardian.png",
+      "stem": "creature_stone_guardian",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 0.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 2703.2,
+          "returncode": 0
+        },
+        {
+          "stage": "cleanup",
+          "seconds": 4.1,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.3,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "success",
+        "seconds": 2703.2
+      },
+      "category": "creature",
+      "cleanup": {
+        "name": "creature_stone_guardian",
+        "base_faces": 39753,
+        "base_tris": 39753,
+        "dimensions": [
+          1.24,
+          1.0582,
+          1.8
+        ],
+        "lods": {
+          "creature_stone_guardian_lod1": {
+            "faces": 12000,
+            "requested_faces": 12000,
+            "ratio": 0.3019
+          },
+          "creature_stone_guardian_lod2": {
+            "faces": 4000,
+            "requested_faces": 4000,
+            "ratio": 0.1006
+          },
+          "creature_stone_guardian_lod3": {
+            "faces": 1000,
+            "requested_faces": 1000,
+            "ratio": 0.0252
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 261,
+          "box_dimensions": [
+            1.24,
+            1.0582,
+            1.8
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\creature_stone_guardian\\creature_stone_guardian_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_stone_guardian",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\creature_stone_guardian\\creature_stone_guardian.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\creature_stone_guardian.glb",
+      "rig": {
+        "asset": "creature_stone_guardian",
+        "plan": "humanoid",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_stone_guardian\\creature_stone_guardian_rigged.glb",
+        "bones": 20,
+        "bones_with_weights": 20,
+        "vertices": 34613,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    }
+  ]
+}

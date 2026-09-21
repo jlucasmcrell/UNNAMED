@@ -1,0 +1,19 @@
+{
+  "comment": "Retry only the assets that failed. Upsample resolution is capped at 1024, which is what stopped the server hanging; a hung ComfyUI produces client timeouts that look like generation failures.",
+  "stages": [
+    {
+      "name": "retry: creatures",
+      "kind": "assets3d",
+      "only": "creature_",
+      "force": true,
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "upsample_resolution": 1024,
+      "lod_faces": "12000,4000,1000",
+      "rig": true
+    }
+  ]
+}

@@ -1,0 +1,4327 @@
+{
+  "generated": "2026-09-21 10:39:16",
+  "asset_count": 98,
+  "total_triangles": 2369391,
+  "total_bytes": 1195809152,
+  "categories": {
+    "character": 16,
+    "creature": 42,
+    "prop": 26,
+    "tool": 4,
+    "weapon": 10
+  },
+  "assets": [
+    {
+      "id": "creature_ancient_bog_tortoise",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_ancient_bog_tortoise\\creature_ancient_bog_tortoise.glb",
+      "base_bytes": 14765256,
+      "triangles": 24817,
+      "vertices": 19888,
+      "dimensions_m": [
+        1.8,
+        1.7677,
+        1.2992
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_ancient_bog_tortoise_lod1": 8000,
+        "creature_ancient_bog_tortoise_lod2": 2500,
+        "creature_ancient_bog_tortoise_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 259,
+        "box_dimensions": [
+          1.8,
+          1.7677,
+          1.2992
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_ancient_bog_tortoise.glb",
+        "creature_ancient_bog_tortoise_collision_box.glb",
+        "creature_ancient_bog_tortoise_collision_hull.glb",
+        "creature_ancient_bog_tortoise_lod1.glb",
+        "creature_ancient_bog_tortoise_lod2.glb",
+        "creature_ancient_bog_tortoise_lod3.glb",
+        "creature_ancient_bog_tortoise_meta.json"
+      ]
+    },
+    {
+      "id": "creature_animated_armour",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_animated_armour\\creature_animated_armour.glb",
+      "base_bytes": 13247324,
+      "triangles": 21064,
+      "vertices": 19293,
+      "dimensions_m": [
+        1.0102,
+        0.6196,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_animated_armour_lod1": 8000,
+        "creature_animated_armour_lod2": 2500,
+        "creature_animated_armour_lod3": 1284
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          1.0102,
+          0.6196,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_animated_armour.glb",
+        "creature_animated_armour_collision_box.glb",
+        "creature_animated_armour_collision_hull.glb",
+        "creature_animated_armour_lod1.glb",
+        "creature_animated_armour_lod2.glb",
+        "creature_animated_armour_lod3.glb",
+        "creature_animated_armour_meta.json"
+      ]
+    },
+    {
+      "id": "creature_arctic_frost_wolf",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_arctic_frost_wolf\\creature_arctic_frost_wolf.glb",
+      "base_bytes": 12992904,
+      "triangles": 24482,
+      "vertices": 23997,
+      "dimensions_m": [
+        1.7781,
+        1.8,
+        1.7738
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_arctic_frost_wolf_lod1": 7999,
+        "creature_arctic_frost_wolf_lod2": 2500,
+        "creature_arctic_frost_wolf_lod3": 2209
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          1.7781,
+          1.8,
+          1.7738
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_arctic_frost_wolf.glb",
+        "creature_arctic_frost_wolf_collision_box.glb",
+        "creature_arctic_frost_wolf_collision_hull.glb",
+        "creature_arctic_frost_wolf_lod1.glb",
+        "creature_arctic_frost_wolf_lod2.glb",
+        "creature_arctic_frost_wolf_lod3.glb",
+        "creature_arctic_frost_wolf_meta.json"
+      ]
+    },
+    {
+      "id": "creature_armoured_thorn_lizard",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_armoured_thorn_lizard\\creature_armoured_thorn_lizard.glb",
+      "base_bytes": 12952380,
+      "triangles": 24912,
+      "vertices": 21888,
+      "dimensions_m": [
+        1.8,
+        1.5132,
+        1.5197
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_armoured_thorn_lizard_lod1": 7999,
+        "creature_armoured_thorn_lizard_lod2": 2500,
+        "creature_armoured_thorn_lizard_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 247,
+        "box_dimensions": [
+          1.8,
+          1.5132,
+          1.5197
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_armoured_thorn_lizard.glb",
+        "creature_armoured_thorn_lizard_collision_box.glb",
+        "creature_armoured_thorn_lizard_collision_hull.glb",
+        "creature_armoured_thorn_lizard_lod1.glb",
+        "creature_armoured_thorn_lizard_lod2.glb",
+        "creature_armoured_thorn_lizard_lod3.glb",
+        "creature_armoured_thorn_lizard_meta.json"
+      ]
+    },
+    {
+      "id": "creature_ash_ember_hound",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_ash_ember_hound\\creature_ash_ember_hound.glb",
+      "base_bytes": 12484180,
+      "triangles": 24976,
+      "vertices": 18703,
+      "dimensions_m": [
+        1.3474,
+        1.1448,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_ash_ember_hound_lod1": 8000,
+        "creature_ash_ember_hound_lod2": 2500,
+        "creature_ash_ember_hound_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          1.3474,
+          1.1448,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_ash_ember_hound.glb",
+        "creature_ash_ember_hound_collision_box.glb",
+        "creature_ash_ember_hound_collision_hull.glb",
+        "creature_ash_ember_hound_lod1.glb",
+        "creature_ash_ember_hound_lod2.glb",
+        "creature_ash_ember_hound_lod3.glb",
+        "creature_ash_ember_hound_meta.json"
+      ]
+    },
+    {
+      "id": "creature_barrow_wight_lord",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_barrow_wight_lord\\creature_barrow_wight_lord.glb",
+      "base_bytes": 13111412,
+      "triangles": 24962,
+      "vertices": 21540,
+      "dimensions_m": [
+        0.7301,
+        0.475,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_barrow_wight_lord_lod1": 8000,
+        "creature_barrow_wight_lord_lod2": 2500,
+        "creature_barrow_wight_lord_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.7301,
+          0.475,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_barrow_wight_lord.glb",
+        "creature_barrow_wight_lord_collision_box.glb",
+        "creature_barrow_wight_lord_collision_hull.glb",
+        "creature_barrow_wight_lord_lod1.glb",
+        "creature_barrow_wight_lord_lod2.glb",
+        "creature_barrow_wight_lord_lod3.glb",
+        "creature_barrow_wight_lord_meta.json"
+      ]
+    },
+    {
+      "id": "creature_bog_lurker_beast",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_bog_lurker_beast\\creature_bog_lurker_beast.glb",
+      "base_bytes": 17107612,
+      "triangles": 18811,
+      "vertices": 21744,
+      "dimensions_m": [
+        1.6043,
+        1.1899,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_bog_lurker_beast_lod1": 8000,
+        "creature_bog_lurker_beast_lod2": 2500,
+        "creature_bog_lurker_beast_lod3": 1665
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          1.6043,
+          1.1899,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_bog_lurker_beast.glb",
+        "creature_bog_lurker_beast_collision_box.glb",
+        "creature_bog_lurker_beast_collision_hull.glb",
+        "creature_bog_lurker_beast_lod1.glb",
+        "creature_bog_lurker_beast_lod2.glb",
+        "creature_bog_lurker_beast_lod3.glb",
+        "creature_bog_lurker_beast_meta.json"
+      ]
+    },
+    {
+      "id": "creature_bog_raven_scout",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_bog_raven_scout\\creature_bog_raven_scout.glb",
+      "base_bytes": 14088068,
+      "triangles": 24778,
+      "vertices": 21988,
+      "dimensions_m": [
+        1.2504,
+        1.3312,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_bog_raven_scout_lod1": 8000,
+        "creature_bog_raven_scout_lod2": 2500,
+        "creature_bog_raven_scout_lod3": 1419
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          1.2504,
+          1.3312,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_bog_raven_scout.glb",
+        "creature_bog_raven_scout_collision_box.glb",
+        "creature_bog_raven_scout_collision_hull.glb",
+        "creature_bog_raven_scout_lod1.glb",
+        "creature_bog_raven_scout_lod2.glb",
+        "creature_bog_raven_scout_lod3.glb",
+        "creature_bog_raven_scout_meta.json"
+      ]
+    },
+    {
+      "id": "creature_bone_walker_husk",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_bone_walker_husk\\creature_bone_walker_husk.glb",
+      "base_bytes": 12506304,
+      "triangles": 24802,
+      "vertices": 23327,
+      "dimensions_m": [
+        0.6405,
+        0.4285,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_bone_walker_husk_lod1": 7999,
+        "creature_bone_walker_husk_lod2": 2500,
+        "creature_bone_walker_husk_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          0.6405,
+          0.4285,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_bone_walker_husk.glb",
+        "creature_bone_walker_husk_collision_box.glb",
+        "creature_bone_walker_husk_collision_hull.glb",
+        "creature_bone_walker_husk_lod1.glb",
+        "creature_bone_walker_husk_lod2.glb",
+        "creature_bone_walker_husk_lod3.glb",
+        "creature_bone_walker_husk_meta.json"
+      ]
+    },
+    {
+      "id": "creature_bristleback_boar",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_bristleback_boar\\creature_bristleback_boar.glb",
+      "base_bytes": 15025684,
+      "triangles": 20394,
+      "vertices": 22390,
+      "dimensions_m": [
+        1.7525,
+        1.8,
+        1.5001
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_bristleback_boar_lod1": 7999,
+        "creature_bristleback_boar_lod2": 2500,
+        "creature_bristleback_boar_lod3": 2134
+      },
+      "collision": {
+        "hull_faces": 259,
+        "box_dimensions": [
+          1.7525,
+          1.8,
+          1.5001
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_bristleback_boar.glb",
+        "creature_bristleback_boar_collision_box.glb",
+        "creature_bristleback_boar_collision_hull.glb",
+        "creature_bristleback_boar_lod1.glb",
+        "creature_bristleback_boar_lod2.glb",
+        "creature_bristleback_boar_lod3.glb",
+        "creature_bristleback_boar_meta.json"
+      ]
+    },
+    {
+      "id": "creature_bronze_serpent_sentry",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_bronze_serpent_sentry\\creature_bronze_serpent_sentry.glb",
+      "base_bytes": 13088032,
+      "triangles": 24823,
+      "vertices": 20506,
+      "dimensions_m": [
+        0.9517,
+        1.3655,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_bronze_serpent_sentry_lod1": 8000,
+        "creature_bronze_serpent_sentry_lod2": 2499,
+        "creature_bronze_serpent_sentry_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.9517,
+          1.3655,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_bronze_serpent_sentry.glb",
+        "creature_bronze_serpent_sentry_collision_box.glb",
+        "creature_bronze_serpent_sentry_collision_hull.glb",
+        "creature_bronze_serpent_sentry_lod1.glb",
+        "creature_bronze_serpent_sentry_lod2.glb",
+        "creature_bronze_serpent_sentry_lod3.glb",
+        "creature_bronze_serpent_sentry_meta.json"
+      ]
+    },
+    {
+      "id": "creature_cave_hunting_spider",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_cave_hunting_spider\\creature_cave_hunting_spider.glb",
+      "base_bytes": 14229684,
+      "triangles": 24319,
+      "vertices": 21690,
+      "dimensions_m": [
+        1.8,
+        1.5917,
+        1.2943
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_cave_hunting_spider_lod1": 8000,
+        "creature_cave_hunting_spider_lod2": 2500,
+        "creature_cave_hunting_spider_lod3": 779
+      },
+      "collision": {
+        "hull_faces": 197,
+        "box_dimensions": [
+          1.8,
+          1.5917,
+          1.2943
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_cave_hunting_spider.glb",
+        "creature_cave_hunting_spider_collision_box.glb",
+        "creature_cave_hunting_spider_collision_hull.glb",
+        "creature_cave_hunting_spider_lod1.glb",
+        "creature_cave_hunting_spider_lod2.glb",
+        "creature_cave_hunting_spider_lod3.glb",
+        "creature_cave_hunting_spider_meta.json"
+      ]
+    },
+    {
+      "id": "creature_cave_marsh_bat",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_cave_marsh_bat\\creature_cave_marsh_bat.glb",
+      "base_bytes": 11969476,
+      "triangles": 24740,
+      "vertices": 20255,
+      "dimensions_m": [
+        1.8,
+        0.892,
+        1.1997
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_cave_marsh_bat_lod1": 8000,
+        "creature_cave_marsh_bat_lod2": 2500,
+        "creature_cave_marsh_bat_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 131,
+        "box_dimensions": [
+          1.8,
+          0.892,
+          1.1997
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_cave_marsh_bat.glb",
+        "creature_cave_marsh_bat_collision_box.glb",
+        "creature_cave_marsh_bat_collision_hull.glb",
+        "creature_cave_marsh_bat_lod1.glb",
+        "creature_cave_marsh_bat_lod2.glb",
+        "creature_cave_marsh_bat_lod3.glb",
+        "creature_cave_marsh_bat_meta.json"
+      ]
+    },
+    {
+      "id": "creature_cave_salamander",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_cave_salamander\\creature_cave_salamander.glb",
+      "base_bytes": 11488976,
+      "triangles": 24933,
+      "vertices": 20325,
+      "dimensions_m": [
+        1.8,
+        1.0645,
+        1.3424
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_cave_salamander_lod1": 8000,
+        "creature_cave_salamander_lod2": 2500,
+        "creature_cave_salamander_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          1.8,
+          1.0645,
+          1.3424
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_cave_salamander.glb",
+        "creature_cave_salamander_collision_box.glb",
+        "creature_cave_salamander_collision_hull.glb",
+        "creature_cave_salamander_lod1.glb",
+        "creature_cave_salamander_lod2.glb",
+        "creature_cave_salamander_lod3.glb",
+        "creature_cave_salamander_meta.json"
+      ]
+    },
+    {
+      "id": "creature_clay_servitor",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_clay_servitor\\creature_clay_servitor.glb",
+      "base_bytes": 8631720,
+      "triangles": 24847,
+      "vertices": 18889,
+      "dimensions_m": [
+        0.9714,
+        0.7255,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_clay_servitor_lod1": 8000,
+        "creature_clay_servitor_lod2": 2500,
+        "creature_clay_servitor_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 271,
+        "box_dimensions": [
+          0.9714,
+          0.7255,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_clay_servitor.glb",
+        "creature_clay_servitor_collision_box.glb",
+        "creature_clay_servitor_collision_hull.glb",
+        "creature_clay_servitor_lod1.glb",
+        "creature_clay_servitor_lod2.glb",
+        "creature_clay_servitor_lod3.glb",
+        "creature_clay_servitor_meta.json"
+      ]
+    },
+    {
+      "id": "creature_cliff_hawk_hunter",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_cliff_hawk_hunter\\creature_cliff_hawk_hunter.glb",
+      "base_bytes": 12824692,
+      "triangles": 23824,
+      "vertices": 20837,
+      "dimensions_m": [
+        1.8,
+        1.38,
+        1.3445
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_cliff_hawk_hunter_lod1": 8000,
+        "creature_cliff_hawk_hunter_lod2": 2500,
+        "creature_cliff_hawk_hunter_lod3": 1320
+      },
+      "collision": {
+        "hull_faces": 70,
+        "box_dimensions": [
+          1.8,
+          1.38,
+          1.3445
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_cliff_hawk_hunter.glb",
+        "creature_cliff_hawk_hunter_collision_box.glb",
+        "creature_cliff_hawk_hunter_collision_hull.glb",
+        "creature_cliff_hawk_hunter_lod1.glb",
+        "creature_cliff_hawk_hunter_lod2.glb",
+        "creature_cliff_hawk_hunter_lod3.glb",
+        "creature_cliff_hawk_hunter_meta.json"
+      ]
+    },
+    {
+      "id": "creature_crystal_antler_stag",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_crystal_antler_stag\\creature_crystal_antler_stag.glb",
+      "base_bytes": 10181168,
+      "triangles": 24840,
+      "vertices": 19918,
+      "dimensions_m": [
+        0.9026,
+        1.0666,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_crystal_antler_stag_lod1": 7999,
+        "creature_crystal_antler_stag_lod2": 2500,
+        "creature_crystal_antler_stag_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.9026,
+          1.0666,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_crystal_antler_stag.glb",
+        "creature_crystal_antler_stag_collision_box.glb",
+        "creature_crystal_antler_stag_collision_hull.glb",
+        "creature_crystal_antler_stag_lod1.glb",
+        "creature_crystal_antler_stag_lod2.glb",
+        "creature_crystal_antler_stag_lod3.glb",
+        "creature_crystal_antler_stag_meta.json"
+      ]
+    },
+    {
+      "id": "creature_desert_camel_drover",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_desert_camel_drover\\creature_desert_camel_drover.glb",
+      "base_bytes": 13782176,
+      "triangles": 23291,
+      "vertices": 21915,
+      "dimensions_m": [
+        1.4451,
+        1.0332,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_desert_camel_drover_lod1": 8000,
+        "creature_desert_camel_drover_lod2": 2500,
+        "creature_desert_camel_drover_lod3": 1566
+      },
+      "collision": {
+        "hull_faces": 200,
+        "box_dimensions": [
+          1.4451,
+          1.0332,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_desert_camel_drover.glb",
+        "creature_desert_camel_drover_collision_box.glb",
+        "creature_desert_camel_drover_collision_hull.glb",
+        "creature_desert_camel_drover_lod1.glb",
+        "creature_desert_camel_drover_lod2.glb",
+        "creature_desert_camel_drover_lod3.glb",
+        "creature_desert_camel_drover_meta.json"
+      ]
+    },
+    {
+      "id": "creature_desert_vulture",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_desert_vulture\\creature_desert_vulture.glb",
+      "base_bytes": 14794396,
+      "triangles": 24634,
+      "vertices": 21570,
+      "dimensions_m": [
+        1.8,
+        0.9011,
+        1.1107
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_desert_vulture_lod1": 8000,
+        "creature_desert_vulture_lod2": 2500,
+        "creature_desert_vulture_lod3": 796
+      },
+      "collision": {
+        "hull_faces": 168,
+        "box_dimensions": [
+          1.8,
+          0.9011,
+          1.1107
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_desert_vulture.glb",
+        "creature_desert_vulture_collision_box.glb",
+        "creature_desert_vulture_collision_hull.glb",
+        "creature_desert_vulture_lod1.glb",
+        "creature_desert_vulture_lod2.glb",
+        "creature_desert_vulture_lod3.glb",
+        "creature_desert_vulture_meta.json"
+      ]
+    },
+    {
+      "id": "creature_drowned_hound",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_drowned_hound\\creature_drowned_hound.glb",
+      "base_bytes": 13622272,
+      "triangles": 24926,
+      "vertices": 19714,
+      "dimensions_m": [
+        1.7892,
+        1.8,
+        1.7374
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_drowned_hound_lod1": 7999,
+        "creature_drowned_hound_lod2": 2500,
+        "creature_drowned_hound_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 270,
+        "box_dimensions": [
+          1.7892,
+          1.8,
+          1.7374
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_drowned_hound.glb",
+        "creature_drowned_hound_collision_box.glb",
+        "creature_drowned_hound_collision_hull.glb",
+        "creature_drowned_hound_lod1.glb",
+        "creature_drowned_hound_lod2.glb",
+        "creature_drowned_hound_lod3.glb",
+        "creature_drowned_hound_meta.json"
+      ]
+    },
+    {
+      "id": "creature_dune_armoured_scorpion",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_dune_armoured_scorpion\\creature_dune_armoured_scorpion.glb",
+      "base_bytes": 14795600,
+      "triangles": 22350,
+      "vertices": 21006,
+      "dimensions_m": [
+        1.8,
+        1.5716,
+        1.2965
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_dune_armoured_scorpion_lod1": 8000,
+        "creature_dune_armoured_scorpion_lod2": 2500,
+        "creature_dune_armoured_scorpion_lod3": 1336
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          1.8,
+          1.5716,
+          1.2965
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_dune_armoured_scorpion.glb",
+        "creature_dune_armoured_scorpion_collision_box.glb",
+        "creature_dune_armoured_scorpion_collision_hull.glb",
+        "creature_dune_armoured_scorpion_lod1.glb",
+        "creature_dune_armoured_scorpion_lod2.glb",
+        "creature_dune_armoured_scorpion_lod3.glb",
+        "creature_dune_armoured_scorpion_meta.json"
+      ]
+    },
+    {
+      "id": "creature_dune_jackal_scout",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_dune_jackal_scout\\creature_dune_jackal_scout.glb",
+      "base_bytes": 8741572,
+      "triangles": 24980,
+      "vertices": 18821,
+      "dimensions_m": [
+        1.2584,
+        1.2027,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_dune_jackal_scout_lod1": 8000,
+        "creature_dune_jackal_scout_lod2": 2500,
+        "creature_dune_jackal_scout_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          1.2584,
+          1.2027,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_dune_jackal_scout.glb",
+        "creature_dune_jackal_scout_collision_box.glb",
+        "creature_dune_jackal_scout_collision_hull.glb",
+        "creature_dune_jackal_scout_lod1.glb",
+        "creature_dune_jackal_scout_lod2.glb",
+        "creature_dune_jackal_scout_lod3.glb",
+        "creature_dune_jackal_scout_meta.json"
+      ]
+    },
+    {
+      "id": "creature_fey_thorn_cat",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_fey_thorn_cat\\creature_fey_thorn_cat.glb",
+      "base_bytes": 10393532,
+      "triangles": 24698,
+      "vertices": 20339,
+      "dimensions_m": [
+        1.8,
+        1.2612,
+        1.7615
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_fey_thorn_cat_lod1": 8000,
+        "creature_fey_thorn_cat_lod2": 2500,
+        "creature_fey_thorn_cat_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 257,
+        "box_dimensions": [
+          1.8,
+          1.2612,
+          1.7615
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_creatures_creature.json"
+      },
+      "files": [
+        "creature_fey_thorn_cat.glb",
+        "creature_fey_thorn_cat_collision_box.glb",
+        "creature_fey_thorn_cat_collision_hull.glb",
+        "creature_fey_thorn_cat_lod1.glb",
+        "creature_fey_thorn_cat_lod2.glb",
+        "creature_fey_thorn_cat_lod3.glb",
+        "creature_fey_thorn_cat_meta.json"
+      ]
+    },
+    {
+      "id": "creature_forest_praying_mantis",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_forest_praying_mantis\\creature_forest_praying_mantis.glb",
+      "base_bytes": 10287628,
+      "triangles": 24519,
+      "vertices": 20199,
+      "dimensions_m": [
+        1.5523,
+        1.5426,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_forest_praying_mantis_lod1": 7999,
+        "creature_forest_praying_mantis_lod2": 2500,
+        "creature_forest_praying_mantis_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 158,
+        "box_dimensions": [
+          1.5523,
+          1.5426,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_forest_praying_mantis.glb",
+        "creature_forest_praying_mantis_collision_box.glb",
+        "creature_forest_praying_mantis_collision_hull.glb",
+        "creature_forest_praying_mantis_lod1.glb",
+        "creature_forest_praying_mantis_lod2.glb",
+        "creature_forest_praying_mantis_lod3.glb",
+        "creature_forest_praying_mantis_meta.json"
+      ]
+    },
+    {
+      "id": "creature_frost_hare_fey",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_frost_hare_fey\\creature_frost_hare_fey.glb",
+      "base_bytes": 15334328,
+      "triangles": 18463,
+      "vertices": 19773,
+      "dimensions_m": [
+        1.2018,
+        0.9945,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_frost_hare_fey_lod1": 8000,
+        "creature_frost_hare_fey_lod2": 2500,
+        "creature_frost_hare_fey_lod3": 1492
+      },
+      "collision": {
+        "hull_faces": 212,
+        "box_dimensions": [
+          1.2018,
+          0.9945,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_frost_hare_fey.glb",
+        "creature_frost_hare_fey_collision_box.glb",
+        "creature_frost_hare_fey_collision_hull.glb",
+        "creature_frost_hare_fey_lod1.glb",
+        "creature_frost_hare_fey_lod2.glb",
+        "creature_frost_hare_fey_lod3.glb",
+        "creature_frost_hare_fey_meta.json"
+      ]
+    },
+    {
+      "id": "creature_frost_wolf",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_frost_wolf\\creature_frost_wolf.glb",
+      "base_bytes": 14679852,
+      "triangles": 23901,
+      "vertices": 24952,
+      "dimensions_m": [
+        1.8,
+        1.4872,
+        1.651
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_frost_wolf_lod1": 8000,
+        "creature_frost_wolf_lod2": 2500,
+        "creature_frost_wolf_lod3": 1954
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          1.8,
+          1.4872,
+          1.651
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\creature_frost_wolf.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "creature_frost_wolf.glb",
+        "creature_frost_wolf_collision_box.glb",
+        "creature_frost_wolf_collision_hull.glb",
+        "creature_frost_wolf_lod1.glb",
+        "creature_frost_wolf_lod2.glb",
+        "creature_frost_wolf_lod3.glb",
+        "creature_frost_wolf_meta.json"
+      ]
+    },
+    {
+      "id": "creature_frost_wolf_side",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_frost_wolf_side\\creature_frost_wolf_side.glb",
+      "base_bytes": 13767884,
+      "triangles": 24606,
+      "vertices": 24462,
+      "dimensions_m": [
+        1.8,
+        0.8576,
+        1.1939
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_frost_wolf_side_lod1": 8000,
+        "creature_frost_wolf_side_lod2": 2718,
+        "creature_frost_wolf_side_lod3": 2718
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          1.8,
+          0.8576,
+          1.1939
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\creature_frost_wolf_side.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "creature_frost_wolf_side.glb",
+        "creature_frost_wolf_side_collision_box.glb",
+        "creature_frost_wolf_side_collision_hull.glb",
+        "creature_frost_wolf_side_lod1.glb",
+        "creature_frost_wolf_side_lod2.glb",
+        "creature_frost_wolf_side_lod3.glb",
+        "creature_frost_wolf_side_meta.json"
+      ]
+    },
+    {
+      "id": "creature_giant_stag_beetle",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_giant_stag_beetle\\creature_giant_stag_beetle.glb",
+      "base_bytes": 13589232,
+      "triangles": 24491,
+      "vertices": 21464,
+      "dimensions_m": [
+        1.4827,
+        0.6861,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_giant_stag_beetle_lod1": 8000,
+        "creature_giant_stag_beetle_lod2": 2500,
+        "creature_giant_stag_beetle_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 227,
+        "box_dimensions": [
+          1.4827,
+          0.6861,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_giant_stag_beetle.glb",
+        "creature_giant_stag_beetle_collision_box.glb",
+        "creature_giant_stag_beetle_collision_hull.glb",
+        "creature_giant_stag_beetle_lod1.glb",
+        "creature_giant_stag_beetle_lod2.glb",
+        "creature_giant_stag_beetle_lod3.glb",
+        "creature_giant_stag_beetle_meta.json"
+      ]
+    },
+    {
+      "id": "creature_glacier_seal_hunter",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_glacier_seal_hunter\\creature_glacier_seal_hunter.glb",
+      "base_bytes": 9947440,
+      "triangles": 24994,
+      "vertices": 18104,
+      "dimensions_m": [
+        1.8,
+        1.3,
+        1.5471
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_glacier_seal_hunter_lod1": 8000,
+        "creature_glacier_seal_hunter_lod2": 2500,
+        "creature_glacier_seal_hunter_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 275,
+        "box_dimensions": [
+          1.8,
+          1.3,
+          1.5471
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_glacier_seal_hunter.glb",
+        "creature_glacier_seal_hunter_collision_box.glb",
+        "creature_glacier_seal_hunter_collision_hull.glb",
+        "creature_glacier_seal_hunter_lod1.glb",
+        "creature_glacier_seal_hunter_lod2.glb",
+        "creature_glacier_seal_hunter_lod3.glb",
+        "creature_glacier_seal_hunter_meta.json"
+      ]
+    },
+    {
+      "id": "creature_great_horned_owl",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_great_horned_owl\\creature_great_horned_owl.glb",
+      "base_bytes": 12607268,
+      "triangles": 24815,
+      "vertices": 23121,
+      "dimensions_m": [
+        0.8924,
+        1.0958,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_great_horned_owl_lod1": 7999,
+        "creature_great_horned_owl_lod2": 2500,
+        "creature_great_horned_owl_lod3": 1750
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          0.8924,
+          1.0958,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_great_horned_owl.glb",
+        "creature_great_horned_owl_collision_box.glb",
+        "creature_great_horned_owl_collision_hull.glb",
+        "creature_great_horned_owl_lod1.glb",
+        "creature_great_horned_owl_lod2.glb",
+        "creature_great_horned_owl_lod3.glb",
+        "creature_great_horned_owl_meta.json"
+      ]
+    },
+    {
+      "id": "creature_great_river_serpent",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_great_river_serpent\\creature_great_river_serpent.glb",
+      "base_bytes": 12507224,
+      "triangles": 24992,
+      "vertices": 18734,
+      "dimensions_m": [
+        1.8,
+        1.2187,
+        1.3803
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_great_river_serpent_lod1": 8000,
+        "creature_great_river_serpent_lod2": 2500,
+        "creature_great_river_serpent_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 280,
+        "box_dimensions": [
+          1.8,
+          1.2187,
+          1.3803
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_great_river_serpent.glb",
+        "creature_great_river_serpent_collision_box.glb",
+        "creature_great_river_serpent_collision_hull.glb",
+        "creature_great_river_serpent_lod1.glb",
+        "creature_great_river_serpent_lod2.glb",
+        "creature_great_river_serpent_lod3.glb",
+        "creature_great_river_serpent_meta.json"
+      ]
+    },
+    {
+      "id": "creature_grey_badger_warden",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_grey_badger_warden\\creature_grey_badger_warden.glb",
+      "base_bytes": 12700292,
+      "triangles": 12759,
+      "vertices": 14475,
+      "dimensions_m": [
+        1.5924,
+        1.8,
+        1.6647
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_grey_badger_warden_lod1": 8000,
+        "creature_grey_badger_warden_lod2": 2500,
+        "creature_grey_badger_warden_lod3": 833
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          1.5924,
+          1.8,
+          1.6647
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_grey_badger_warden.glb",
+        "creature_grey_badger_warden_collision_box.glb",
+        "creature_grey_badger_warden_collision_hull.glb",
+        "creature_grey_badger_warden_lod1.glb",
+        "creature_grey_badger_warden_lod2.glb",
+        "creature_grey_badger_warden_lod3.glb",
+        "creature_grey_badger_warden_meta.json"
+      ]
+    },
+    {
+      "id": "creature_grove_bound_dryad_ox",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_grove_bound_dryad_ox\\creature_grove_bound_dryad_ox.glb",
+      "base_bytes": 14158276,
+      "triangles": 23610,
+      "vertices": 24624,
+      "dimensions_m": [
+        1.8,
+        1.5564,
+        1.7964
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_grove_bound_dryad_ox_lod1": 8000,
+        "creature_grove_bound_dryad_ox_lod2": 2499,
+        "creature_grove_bound_dryad_ox_lod3": 2179
+      },
+      "collision": {
+        "hull_faces": 166,
+        "box_dimensions": [
+          1.8,
+          1.5564,
+          1.7964
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_grove_bound_dryad_ox.glb",
+        "creature_grove_bound_dryad_ox_collision_box.glb",
+        "creature_grove_bound_dryad_ox_collision_hull.glb",
+        "creature_grove_bound_dryad_ox_lod1.glb",
+        "creature_grove_bound_dryad_ox_lod2.glb",
+        "creature_grove_bound_dryad_ox_lod3.glb",
+        "creature_grove_bound_dryad_ox_meta.json"
+      ]
+    },
+    {
+      "id": "creature_iron_boar_automaton",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_iron_boar_automaton\\creature_iron_boar_automaton.glb",
+      "base_bytes": 14833804,
+      "triangles": 24320,
+      "vertices": 24370,
+      "dimensions_m": [
+        1.6044,
+        1.8,
+        1.7779
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_iron_boar_automaton_lod1": 8000,
+        "creature_iron_boar_automaton_lod2": 2500,
+        "creature_iron_boar_automaton_lod3": 1622
+      },
+      "collision": {
+        "hull_faces": 213,
+        "box_dimensions": [
+          1.6044,
+          1.8,
+          1.7779
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_iron_boar_automaton.glb",
+        "creature_iron_boar_automaton_collision_box.glb",
+        "creature_iron_boar_automaton_collision_hull.glb",
+        "creature_iron_boar_automaton_lod1.glb",
+        "creature_iron_boar_automaton_lod2.glb",
+        "creature_iron_boar_automaton_lod3.glb",
+        "creature_iron_boar_automaton_meta.json"
+      ]
+    },
+    {
+      "id": "creature_marsh_giant_wasp",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_marsh_giant_wasp\\creature_marsh_giant_wasp.glb",
+      "base_bytes": 13489024,
+      "triangles": 24913,
+      "vertices": 21220,
+      "dimensions_m": [
+        1.8,
+        0.6772,
+        1.341
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_marsh_giant_wasp_lod1": 8000,
+        "creature_marsh_giant_wasp_lod2": 2500,
+        "creature_marsh_giant_wasp_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 192,
+        "box_dimensions": [
+          1.8,
+          0.6772,
+          1.341
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_marsh_giant_wasp.glb",
+        "creature_marsh_giant_wasp_collision_box.glb",
+        "creature_marsh_giant_wasp_collision_hull.glb",
+        "creature_marsh_giant_wasp_lod1.glb",
+        "creature_marsh_giant_wasp_lod2.glb",
+        "creature_marsh_giant_wasp_lod3.glb",
+        "creature_marsh_giant_wasp_meta.json"
+      ]
+    },
+    {
+      "id": "creature_marsh_heron_stalker",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_marsh_heron_stalker\\creature_marsh_heron_stalker.glb",
+      "base_bytes": 8544416,
+      "triangles": 24281,
+      "vertices": 19580,
+      "dimensions_m": [
+        1.0702,
+        0.5939,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_marsh_heron_stalker_lod1": 8000,
+        "creature_marsh_heron_stalker_lod2": 2500,
+        "creature_marsh_heron_stalker_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 247,
+        "box_dimensions": [
+          1.0702,
+          0.5939,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_marsh_heron_stalker.glb",
+        "creature_marsh_heron_stalker_collision_box.glb",
+        "creature_marsh_heron_stalker_collision_hull.glb",
+        "creature_marsh_heron_stalker_lod1.glb",
+        "creature_marsh_heron_stalker_lod2.glb",
+        "creature_marsh_heron_stalker_lod3.glb",
+        "creature_marsh_heron_stalker_meta.json"
+      ]
+    },
+    {
+      "id": "creature_mountain_ram_goat",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_mountain_ram_goat\\creature_mountain_ram_goat.glb",
+      "base_bytes": 12698952,
+      "triangles": 24174,
+      "vertices": 26225,
+      "dimensions_m": [
+        1.565,
+        1.5041,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_mountain_ram_goat_lod1": 7998,
+        "creature_mountain_ram_goat_lod2": 2500,
+        "creature_mountain_ram_goat_lod3": 1950
+      },
+      "collision": {
+        "hull_faces": 148,
+        "box_dimensions": [
+          1.565,
+          1.5041,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_mountain_ram_goat.glb",
+        "creature_mountain_ram_goat_collision_box.glb",
+        "creature_mountain_ram_goat_collision_hull.glb",
+        "creature_mountain_ram_goat_lod1.glb",
+        "creature_mountain_ram_goat_lod2.glb",
+        "creature_mountain_ram_goat_lod3.glb",
+        "creature_mountain_ram_goat_meta.json"
+      ]
+    },
+    {
+      "id": "creature_plains_antelope_doe",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_plains_antelope_doe\\creature_plains_antelope_doe.glb",
+      "base_bytes": 9650936,
+      "triangles": 24915,
+      "vertices": 19793,
+      "dimensions_m": [
+        1.0662,
+        0.9129,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_plains_antelope_doe_lod1": 8000,
+        "creature_plains_antelope_doe_lod2": 2500,
+        "creature_plains_antelope_doe_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 249,
+        "box_dimensions": [
+          1.0662,
+          0.9129,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_plains_antelope_doe.glb",
+        "creature_plains_antelope_doe_collision_box.glb",
+        "creature_plains_antelope_doe_collision_hull.glb",
+        "creature_plains_antelope_doe_lod1.glb",
+        "creature_plains_antelope_doe_lod2.glb",
+        "creature_plains_antelope_doe_lod3.glb",
+        "creature_plains_antelope_doe_meta.json"
+      ]
+    },
+    {
+      "id": "creature_red_fox_scavenger",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_red_fox_scavenger\\creature_red_fox_scavenger.glb",
+      "base_bytes": 11415972,
+      "triangles": 24717,
+      "vertices": 21975,
+      "dimensions_m": [
+        1.8,
+        1.4947,
+        1.645
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_red_fox_scavenger_lod1": 7999,
+        "creature_red_fox_scavenger_lod2": 2500,
+        "creature_red_fox_scavenger_lod3": 1711
+      },
+      "collision": {
+        "hull_faces": 258,
+        "box_dimensions": [
+          1.8,
+          1.4947,
+          1.645
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_red_fox_scavenger.glb",
+        "creature_red_fox_scavenger_collision_box.glb",
+        "creature_red_fox_scavenger_collision_hull.glb",
+        "creature_red_fox_scavenger_lod1.glb",
+        "creature_red_fox_scavenger_lod2.glb",
+        "creature_red_fox_scavenger_lod3.glb",
+        "creature_red_fox_scavenger_meta.json"
+      ]
+    },
+    {
+      "id": "creature_ridgeback_lizard",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_ridgeback_lizard\\creature_ridgeback_lizard.glb",
+      "base_bytes": 14313512,
+      "triangles": 24773,
+      "vertices": 21050,
+      "dimensions_m": [
+        1.8,
+        1.419,
+        1.3595
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_ridgeback_lizard_lod1": 7999,
+        "creature_ridgeback_lizard_lod2": 2500,
+        "creature_ridgeback_lizard_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 199,
+        "box_dimensions": [
+          1.8,
+          1.419,
+          1.3595
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_ridgeback_lizard.glb",
+        "creature_ridgeback_lizard_collision_box.glb",
+        "creature_ridgeback_lizard_collision_hull.glb",
+        "creature_ridgeback_lizard_lod1.glb",
+        "creature_ridgeback_lizard_lod2.glb",
+        "creature_ridgeback_lizard_lod3.glb",
+        "creature_ridgeback_lizard_meta.json"
+      ]
+    },
+    {
+      "id": "creature_rotting_revenant",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_rotting_revenant\\creature_rotting_revenant.glb",
+      "base_bytes": 15242552,
+      "triangles": 24891,
+      "vertices": 24336,
+      "dimensions_m": [
+        0.8187,
+        0.5853,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_rotting_revenant_lod1": 7999,
+        "creature_rotting_revenant_lod2": 2500,
+        "creature_rotting_revenant_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 210,
+        "box_dimensions": [
+          0.8187,
+          0.5853,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "creature_rotting_revenant.glb",
+        "creature_rotting_revenant_collision_box.glb",
+        "creature_rotting_revenant_collision_hull.glb",
+        "creature_rotting_revenant_lod1.glb",
+        "creature_rotting_revenant_lod2.glb",
+        "creature_rotting_revenant_lod3.glb",
+        "creature_rotting_revenant_meta.json"
+      ]
+    },
+    {
+      "id": "creature_skeleton_hound",
+      "category": "creature",
+      "status": "engine_ready",
+      "base_glb": "creature_skeleton_hound\\creature_skeleton_hound.glb",
+      "base_bytes": 32451088,
+      "triangles": 39842,
+      "vertices": 37643,
+      "dimensions_m": [
+        1.6073,
+        1.6581,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "creature_skeleton_hound_lod1": 8000,
+        "creature_skeleton_hound_lod2": 2499,
+        "creature_skeleton_hound_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          1.6073,
+          1.6581,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\creature_skeleton_hound.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_recover_hound_rig_creature_skeleton_hound.json"
+      },
+      "files": [
+        "creature_skeleton_hound.glb",
+        "creature_skeleton_hound_collision_box.glb",
+        "creature_skeleton_hound_collision_hull.glb",
+        "creature_skeleton_hound_lod1.glb",
+        "creature_skeleton_hound_lod2.glb",
+        "creature_skeleton_hound_lod3.glb",
+        "creature_skeleton_hound_meta.json"
+      ]
+    },
+    {
+      "id": "npc_constructed_engineer",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_constructed_engineer\\npc_constructed_engineer.glb",
+      "base_bytes": 9470256,
+      "triangles": 24873,
+      "vertices": 19861,
+      "dimensions_m": [
+        0.5468,
+        0.8058,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_constructed_engineer_lod1": 8000,
+        "npc_constructed_engineer_lod2": 2499,
+        "npc_constructed_engineer_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 261,
+        "box_dimensions": [
+          0.5468,
+          0.8058,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": null,
+        "faces_budget": null,
+        "texture_size": null,
+        "manifest": null
+      },
+      "files": [
+        "npc_constructed_engineer.glb",
+        "npc_constructed_engineer_collision_box.glb",
+        "npc_constructed_engineer_collision_hull.glb",
+        "npc_constructed_engineer_lod1.glb",
+        "npc_constructed_engineer_lod2.glb",
+        "npc_constructed_engineer_lod3.glb",
+        "npc_constructed_engineer_meta.json"
+      ]
+    },
+    {
+      "id": "npc_kal_smith",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_kal_smith\\npc_kal_smith.glb",
+      "base_bytes": 13524144,
+      "triangles": 23143,
+      "vertices": 20320,
+      "dimensions_m": [
+        0.9242,
+        0.6493,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_kal_smith_lod1": 8000,
+        "npc_kal_smith_lod2": 2500,
+        "npc_kal_smith_lod3": 1447
+      },
+      "collision": {
+        "hull_faces": 143,
+        "box_dimensions": [
+          0.9242,
+          0.6493,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_kal_smith.glb",
+        "npc_kal_smith_collision_box.glb",
+        "npc_kal_smith_collision_hull.glb",
+        "npc_kal_smith_lod1.glb",
+        "npc_kal_smith_lod2.glb",
+        "npc_kal_smith_lod3.glb",
+        "npc_kal_smith_meta.json"
+      ]
+    },
+    {
+      "id": "npc_mor_witness",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_mor_witness\\npc_mor_witness.glb",
+      "base_bytes": 3892252,
+      "triangles": 24983,
+      "vertices": 18271,
+      "dimensions_m": [
+        0.5122,
+        0.3278,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_mor_witness_lod1": 8000,
+        "npc_mor_witness_lod2": 2500,
+        "npc_mor_witness_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 277,
+        "box_dimensions": [
+          0.5122,
+          0.3278,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_mor_witness.glb",
+        "npc_mor_witness_collision_box.glb",
+        "npc_mor_witness_collision_hull.glb",
+        "npc_mor_witness_lod1.glb",
+        "npc_mor_witness_lod2.glb",
+        "npc_mor_witness_lod3.glb",
+        "npc_mor_witness_meta.json"
+      ]
+    },
+    {
+      "id": "npc_ondrek_stonecarver",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_ondrek_stonecarver\\npc_ondrek_stonecarver.glb",
+      "base_bytes": 14255516,
+      "triangles": 24791,
+      "vertices": 21815,
+      "dimensions_m": [
+        1.5685,
+        1.8,
+        1.6893
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_ondrek_stonecarver_lod1": 8000,
+        "npc_ondrek_stonecarver_lod2": 2500,
+        "npc_ondrek_stonecarver_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          1.5685,
+          1.8,
+          1.6893
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_ondrek_stonecarver.glb",
+        "npc_ondrek_stonecarver_collision_box.glb",
+        "npc_ondrek_stonecarver_collision_hull.glb",
+        "npc_ondrek_stonecarver_lod1.glb",
+        "npc_ondrek_stonecarver_lod2.glb",
+        "npc_ondrek_stonecarver_lod3.glb",
+        "npc_ondrek_stonecarver_meta.json"
+      ]
+    },
+    {
+      "id": "npc_orenth_guide",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_orenth_guide\\npc_orenth_guide.glb",
+      "base_bytes": 14694276,
+      "triangles": 24607,
+      "vertices": 21794,
+      "dimensions_m": [
+        0.748,
+        0.6143,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_orenth_guide_lod1": 8000,
+        "npc_orenth_guide_lod2": 2500,
+        "npc_orenth_guide_lod3": 1182
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.748,
+          0.6143,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_orenth_guide.glb",
+        "npc_orenth_guide_collision_box.glb",
+        "npc_orenth_guide_collision_hull.glb",
+        "npc_orenth_guide_lod1.glb",
+        "npc_orenth_guide_lod2.glb",
+        "npc_orenth_guide_lod3.glb",
+        "npc_orenth_guide_meta.json"
+      ]
+    },
+    {
+      "id": "npc_siann_archivist",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_siann_archivist\\npc_siann_archivist.glb",
+      "base_bytes": 10231152,
+      "triangles": 23189,
+      "vertices": 22147,
+      "dimensions_m": [
+        0.5123,
+        0.7508,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_siann_archivist_lod1": 7998,
+        "npc_siann_archivist_lod2": 2500,
+        "npc_siann_archivist_lod3": 1189
+      },
+      "collision": {
+        "hull_faces": 172,
+        "box_dimensions": [
+          0.5123,
+          0.7508,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_siann_archivist.glb",
+        "npc_siann_archivist_collision_box.glb",
+        "npc_siann_archivist_collision_hull.glb",
+        "npc_siann_archivist_lod1.glb",
+        "npc_siann_archivist_lod2.glb",
+        "npc_siann_archivist_lod3.glb",
+        "npc_siann_archivist_meta.json"
+      ]
+    },
+    {
+      "id": "npc_vaskaal_envoy",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_vaskaal_envoy\\npc_vaskaal_envoy.glb",
+      "base_bytes": 10121392,
+      "triangles": 24837,
+      "vertices": 19936,
+      "dimensions_m": [
+        0.606,
+        0.3857,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_vaskaal_envoy_lod1": 8000,
+        "npc_vaskaal_envoy_lod2": 2500,
+        "npc_vaskaal_envoy_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 257,
+        "box_dimensions": [
+          0.606,
+          0.3857,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_vaskaal_envoy.glb",
+        "npc_vaskaal_envoy_collision_box.glb",
+        "npc_vaskaal_envoy_collision_hull.glb",
+        "npc_vaskaal_envoy_lod1.glb",
+        "npc_vaskaal_envoy_lod2.glb",
+        "npc_vaskaal_envoy_lod3.glb",
+        "npc_vaskaal_envoy_meta.json"
+      ]
+    },
+    {
+      "id": "npc_veth_magistrate",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "npc_veth_magistrate\\npc_veth_magistrate.glb",
+      "base_bytes": 9702480,
+      "triangles": 24542,
+      "vertices": 21314,
+      "dimensions_m": [
+        0.7558,
+        0.568,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "npc_veth_magistrate_lod1": 8000,
+        "npc_veth_magistrate_lod2": 2500,
+        "npc_veth_magistrate_lod3": 1077
+      },
+      "collision": {
+        "hull_faces": 236,
+        "box_dimensions": [
+          0.7558,
+          0.568,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_npcs_npc.json"
+      },
+      "files": [
+        "npc_veth_magistrate.glb",
+        "npc_veth_magistrate_collision_box.glb",
+        "npc_veth_magistrate_collision_hull.glb",
+        "npc_veth_magistrate_lod1.glb",
+        "npc_veth_magistrate_lod2.glb",
+        "npc_veth_magistrate_lod3.glb",
+        "npc_veth_magistrate_meta.json"
+      ]
+    },
+    {
+      "id": "prop_apothecary_jar_rack",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_apothecary_jar_rack\\prop_apothecary_jar_rack.glb",
+      "base_bytes": 11612428,
+      "triangles": 24857,
+      "vertices": 21277,
+      "dimensions_m": [
+        0.5,
+        0.4065,
+        0.3908
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_apothecary_jar_rack_lod1": 8000,
+        "prop_apothecary_jar_rack_lod2": 2499,
+        "prop_apothecary_jar_rack_lod3": 646
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.5,
+          0.4065,
+          0.3908
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_apothecary_jar_rack.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_apothecary_jar_rack.glb",
+        "prop_apothecary_jar_rack_collision_box.glb",
+        "prop_apothecary_jar_rack_collision_hull.glb",
+        "prop_apothecary_jar_rack_lod1.glb",
+        "prop_apothecary_jar_rack_lod2.glb",
+        "prop_apothecary_jar_rack_lod3.glb",
+        "prop_apothecary_jar_rack_meta.json"
+      ]
+    },
+    {
+      "id": "prop_banded_ash_sea_chest",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_banded_ash_sea_chest\\prop_banded_ash_sea_chest.glb",
+      "base_bytes": 13131228,
+      "triangles": 22691,
+      "vertices": 20643,
+      "dimensions_m": [
+        0.4644,
+        0.5,
+        0.33
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_banded_ash_sea_chest_lod1": 7999,
+        "prop_banded_ash_sea_chest_lod2": 2500,
+        "prop_banded_ash_sea_chest_lod3": 1242
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.4644,
+          0.5,
+          0.33
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_banded_ash_sea_chest.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_banded_ash_sea_chest.glb",
+        "prop_banded_ash_sea_chest_collision_box.glb",
+        "prop_banded_ash_sea_chest_collision_hull.glb",
+        "prop_banded_ash_sea_chest_lod1.glb",
+        "prop_banded_ash_sea_chest_lod2.glb",
+        "prop_banded_ash_sea_chest_lod3.glb",
+        "prop_banded_ash_sea_chest_meta.json"
+      ]
+    },
+    {
+      "id": "prop_banded_writing_desk",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_banded_writing_desk\\prop_banded_writing_desk.glb",
+      "base_bytes": 12984684,
+      "triangles": 23123,
+      "vertices": 20227,
+      "dimensions_m": [
+        0.5,
+        0.358,
+        0.4245
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_banded_writing_desk_lod1": 8000,
+        "prop_banded_writing_desk_lod2": 2500,
+        "prop_banded_writing_desk_lod3": 1292
+      },
+      "collision": {
+        "hull_faces": 49,
+        "box_dimensions": [
+          0.5,
+          0.358,
+          0.4245
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_banded_writing_desk.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_banded_writing_desk.glb",
+        "prop_banded_writing_desk_collision_box.glb",
+        "prop_banded_writing_desk_collision_hull.glb",
+        "prop_banded_writing_desk_lod1.glb",
+        "prop_banded_writing_desk_lod2.glb",
+        "prop_banded_writing_desk_lod3.glb",
+        "prop_banded_writing_desk_meta.json"
+      ]
+    },
+    {
+      "id": "prop_blacksmith_anvil_stump",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_blacksmith_anvil_stump\\prop_blacksmith_anvil_stump.glb",
+      "base_bytes": 13182472,
+      "triangles": 24634,
+      "vertices": 19670,
+      "dimensions_m": [
+        0.5,
+        0.4645,
+        0.4713
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_blacksmith_anvil_stump_lod1": 8000,
+        "prop_blacksmith_anvil_stump_lod2": 2500,
+        "prop_blacksmith_anvil_stump_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          0.5,
+          0.4645,
+          0.4713
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_blacksmith_anvil_stump.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_blacksmith_anvil_stump.glb",
+        "prop_blacksmith_anvil_stump_collision_box.glb",
+        "prop_blacksmith_anvil_stump_collision_hull.glb",
+        "prop_blacksmith_anvil_stump_lod1.glb",
+        "prop_blacksmith_anvil_stump_lod2.glb",
+        "prop_blacksmith_anvil_stump_lod3.glb",
+        "prop_blacksmith_anvil_stump_meta.json"
+      ]
+    },
+    {
+      "id": "prop_brass_balance_scales",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_brass_balance_scales\\prop_brass_balance_scales.glb",
+      "base_bytes": 13220324,
+      "triangles": 24787,
+      "vertices": 21699,
+      "dimensions_m": [
+        0.4644,
+        0.2003,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_brass_balance_scales_lod1": 8000,
+        "prop_brass_balance_scales_lod2": 2500,
+        "prop_brass_balance_scales_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 247,
+        "box_dimensions": [
+          0.4644,
+          0.2003,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_brass_balance_scales.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_brass_balance_scales.glb",
+        "prop_brass_balance_scales_collision_box.glb",
+        "prop_brass_balance_scales_collision_hull.glb",
+        "prop_brass_balance_scales_lod1.glb",
+        "prop_brass_balance_scales_lod2.glb",
+        "prop_brass_balance_scales_lod3.glb",
+        "prop_brass_balance_scales_meta.json"
+      ]
+    },
+    {
+      "id": "prop_brass_hand_bell",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_brass_hand_bell\\prop_brass_hand_bell.glb",
+      "base_bytes": 11930244,
+      "triangles": 23921,
+      "vertices": 19307,
+      "dimensions_m": [
+        0.2403,
+        0.2397,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_brass_hand_bell_lod1": 8000,
+        "prop_brass_hand_bell_lod2": 2500,
+        "prop_brass_hand_bell_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 257,
+        "box_dimensions": [
+          0.2403,
+          0.2397,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_brass_hand_bell.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_brass_hand_bell.glb",
+        "prop_brass_hand_bell_collision_box.glb",
+        "prop_brass_hand_bell_collision_hull.glb",
+        "prop_brass_hand_bell_lod1.glb",
+        "prop_brass_hand_bell_lod2.glb",
+        "prop_brass_hand_bell_lod3.glb",
+        "prop_brass_hand_bell_meta.json"
+      ]
+    },
+    {
+      "id": "prop_brass_processional_lantern",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_brass_processional_lantern\\prop_brass_processional_lantern.glb",
+      "base_bytes": 10693112,
+      "triangles": 24257,
+      "vertices": 20493,
+      "dimensions_m": [
+        0.168,
+        0.1711,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_brass_processional_lantern_lod1": 8000,
+        "prop_brass_processional_lantern_lod2": 2500,
+        "prop_brass_processional_lantern_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 152,
+        "box_dimensions": [
+          0.168,
+          0.1711,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_brass_processional_lantern.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_brass_processional_lantern.glb",
+        "prop_brass_processional_lantern_collision_box.glb",
+        "prop_brass_processional_lantern_collision_hull.glb",
+        "prop_brass_processional_lantern_lod1.glb",
+        "prop_brass_processional_lantern_lod2.glb",
+        "prop_brass_processional_lantern_lod3.glb",
+        "prop_brass_processional_lantern_meta.json"
+      ]
+    },
+    {
+      "id": "prop_brass_tinder_box",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_brass_tinder_box\\prop_brass_tinder_box.glb",
+      "base_bytes": 11759036,
+      "triangles": 24849,
+      "vertices": 19066,
+      "dimensions_m": [
+        0.4479,
+        0.3572,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_brass_tinder_box_lod1": 7999,
+        "prop_brass_tinder_box_lod2": 2500,
+        "prop_brass_tinder_box_lod3": 681
+      },
+      "collision": {
+        "hull_faces": 247,
+        "box_dimensions": [
+          0.4479,
+          0.3572,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_brass_tinder_box.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_brass_tinder_box.glb",
+        "prop_brass_tinder_box_collision_box.glb",
+        "prop_brass_tinder_box_collision_hull.glb",
+        "prop_brass_tinder_box_lod1.glb",
+        "prop_brass_tinder_box_lod2.glb",
+        "prop_brass_tinder_box_lod3.glb",
+        "prop_brass_tinder_box_meta.json"
+      ]
+    },
+    {
+      "id": "prop_broken_masonry_pile",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_broken_masonry_pile\\prop_broken_masonry_pile.glb",
+      "base_bytes": 13854688,
+      "triangles": 20638,
+      "vertices": 23531,
+      "dimensions_m": [
+        0.5,
+        0.4885,
+        0.4534
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_broken_masonry_pile_lod1": 8000,
+        "prop_broken_masonry_pile_lod2": 2499,
+        "prop_broken_masonry_pile_lod3": 1870
+      },
+      "collision": {
+        "hull_faces": 132,
+        "box_dimensions": [
+          0.5,
+          0.4885,
+          0.4534
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_broken_masonry_pile.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_broken_masonry_pile.glb",
+        "prop_broken_masonry_pile_collision_box.glb",
+        "prop_broken_masonry_pile_collision_hull.glb",
+        "prop_broken_masonry_pile_lod1.glb",
+        "prop_broken_masonry_pile_lod2.glb",
+        "prop_broken_masonry_pile_lod3.glb",
+        "prop_broken_masonry_pile_meta.json"
+      ]
+    },
+    {
+      "id": "prop_bundle_of_grain_sacks",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_bundle_of_grain_sacks\\prop_bundle_of_grain_sacks.glb",
+      "base_bytes": 12307296,
+      "triangles": 25340,
+      "vertices": 23273,
+      "dimensions_m": [
+        0.4147,
+        0.3758,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_bundle_of_grain_sacks_lod1": 8000,
+        "prop_bundle_of_grain_sacks_lod2": 2500,
+        "prop_bundle_of_grain_sacks_lod3": 1359
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          0.4147,
+          0.3758,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_bundle_of_grain_sacks.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_bundle_of_grain_sacks.glb",
+        "prop_bundle_of_grain_sacks_collision_box.glb",
+        "prop_bundle_of_grain_sacks_collision_hull.glb",
+        "prop_bundle_of_grain_sacks_lod1.glb",
+        "prop_bundle_of_grain_sacks_lod2.glb",
+        "prop_bundle_of_grain_sacks_lod3.glb",
+        "prop_bundle_of_grain_sacks_meta.json"
+      ]
+    },
+    {
+      "id": "prop_bundled_firewood_stack",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_bundled_firewood_stack\\prop_bundled_firewood_stack.glb",
+      "base_bytes": 13863848,
+      "triangles": 19955,
+      "vertices": 20588,
+      "dimensions_m": [
+        0.4415,
+        0.5,
+        0.4701
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_bundled_firewood_stack_lod1": 8000,
+        "prop_bundled_firewood_stack_lod2": 2500,
+        "prop_bundled_firewood_stack_lod3": 1300
+      },
+      "collision": {
+        "hull_faces": 159,
+        "box_dimensions": [
+          0.4415,
+          0.5,
+          0.4701
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_bundled_firewood_stack.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_bundled_firewood_stack.glb",
+        "prop_bundled_firewood_stack_collision_box.glb",
+        "prop_bundled_firewood_stack_collision_hull.glb",
+        "prop_bundled_firewood_stack_lod1.glb",
+        "prop_bundled_firewood_stack_lod2.glb",
+        "prop_bundled_firewood_stack_lod3.glb",
+        "prop_bundled_firewood_stack_meta.json"
+      ]
+    },
+    {
+      "id": "prop_butter_churn_with_dasher",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_butter_churn_with_dasher\\prop_butter_churn_with_dasher.glb",
+      "base_bytes": 10092620,
+      "triangles": 24782,
+      "vertices": 17685,
+      "dimensions_m": [
+        0.1946,
+        0.2643,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_butter_churn_with_dasher_lod1": 8000,
+        "prop_butter_churn_with_dasher_lod2": 2499,
+        "prop_butter_churn_with_dasher_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 261,
+        "box_dimensions": [
+          0.1946,
+          0.2643,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_butter_churn_with_dasher.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_butter_churn_with_dasher.glb",
+        "prop_butter_churn_with_dasher_collision_box.glb",
+        "prop_butter_churn_with_dasher_collision_hull.glb",
+        "prop_butter_churn_with_dasher_lod1.glb",
+        "prop_butter_churn_with_dasher_lod2.glb",
+        "prop_butter_churn_with_dasher_lod3.glb",
+        "prop_butter_churn_with_dasher_meta.json"
+      ]
+    },
+    {
+      "id": "prop_campfire_tripod",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_campfire_tripod\\prop_campfire_tripod.glb",
+      "base_bytes": 10698492,
+      "triangles": 24960,
+      "vertices": 19618,
+      "dimensions_m": [
+        0.2797,
+        0.2359,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_campfire_tripod_lod1": 8000,
+        "prop_campfire_tripod_lod2": 2500,
+        "prop_campfire_tripod_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          0.2797,
+          0.2359,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_campfire_tripod.glb",
+        "prop_campfire_tripod_collision_box.glb",
+        "prop_campfire_tripod_collision_hull.glb",
+        "prop_campfire_tripod_lod1.glb",
+        "prop_campfire_tripod_lod2.glb",
+        "prop_campfire_tripod_lod3.glb",
+        "prop_campfire_tripod_meta.json"
+      ]
+    },
+    {
+      "id": "prop_canvas_haversack",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_canvas_haversack\\prop_canvas_haversack.glb",
+      "base_bytes": 15688468,
+      "triangles": 19009,
+      "vertices": 20269,
+      "dimensions_m": [
+        0.3713,
+        0.3869,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_canvas_haversack_lod1": 8000,
+        "prop_canvas_haversack_lod2": 2500,
+        "prop_canvas_haversack_lod3": 1492
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.3713,
+          0.3869,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_canvas_haversack.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_canvas_haversack.glb",
+        "prop_canvas_haversack_collision_box.glb",
+        "prop_canvas_haversack_collision_hull.glb",
+        "prop_canvas_haversack_lod1.glb",
+        "prop_canvas_haversack_lod2.glb",
+        "prop_canvas_haversack_lod3.glb",
+        "prop_canvas_haversack_meta.json"
+      ]
+    },
+    {
+      "id": "prop_canvas_rolled_bedroll",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_canvas_rolled_bedroll\\prop_canvas_rolled_bedroll.glb",
+      "base_bytes": 12000552,
+      "triangles": 21667,
+      "vertices": 19673,
+      "dimensions_m": [
+        0.5,
+        0.4972,
+        0.3893
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_canvas_rolled_bedroll_lod1": 8000,
+        "prop_canvas_rolled_bedroll_lod2": 2500,
+        "prop_canvas_rolled_bedroll_lod3": 1236
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.5,
+          0.4972,
+          0.3893
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_canvas_rolled_bedroll.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_canvas_rolled_bedroll.glb",
+        "prop_canvas_rolled_bedroll_collision_box.glb",
+        "prop_canvas_rolled_bedroll_collision_hull.glb",
+        "prop_canvas_rolled_bedroll_lod1.glb",
+        "prop_canvas_rolled_bedroll_lod2.glb",
+        "prop_canvas_rolled_bedroll_lod3.glb",
+        "prop_canvas_rolled_bedroll_meta.json"
+      ]
+    },
+    {
+      "id": "prop_carpenters_workbench",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_carpenters_workbench\\prop_carpenters_workbench.glb",
+      "base_bytes": 8742492,
+      "triangles": 24875,
+      "vertices": 17754,
+      "dimensions_m": [
+        0.4906,
+        0.5,
+        0.4473
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_carpenters_workbench_lod1": 8000,
+        "prop_carpenters_workbench_lod2": 2500,
+        "prop_carpenters_workbench_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          0.4906,
+          0.5,
+          0.4473
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_carpenters_workbench.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_carpenters_workbench.glb",
+        "prop_carpenters_workbench_collision_box.glb",
+        "prop_carpenters_workbench_collision_hull.glb",
+        "prop_carpenters_workbench_lod1.glb",
+        "prop_carpenters_workbench_lod2.glb",
+        "prop_carpenters_workbench_lod3.glb",
+        "prop_carpenters_workbench_meta.json"
+      ]
+    },
+    {
+      "id": "prop_carved_oak_armchair",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_carved_oak_armchair\\prop_carved_oak_armchair.glb",
+      "base_bytes": 11693748,
+      "triangles": 24883,
+      "vertices": 19651,
+      "dimensions_m": [
+        0.3452,
+        0.3698,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_carved_oak_armchair_lod1": 8000,
+        "prop_carved_oak_armchair_lod2": 2500,
+        "prop_carved_oak_armchair_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 202,
+        "box_dimensions": [
+          0.3452,
+          0.3698,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_carved_oak_armchair.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_props_prop.json"
+      },
+      "files": [
+        "prop_carved_oak_armchair.glb",
+        "prop_carved_oak_armchair_collision_box.glb",
+        "prop_carved_oak_armchair_collision_hull.glb",
+        "prop_carved_oak_armchair_lod1.glb",
+        "prop_carved_oak_armchair_lod2.glb",
+        "prop_carved_oak_armchair_lod3.glb",
+        "prop_carved_oak_armchair_meta.json"
+      ]
+    },
+    {
+      "id": "prop_clay_water_jug",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_clay_water_jug\\prop_clay_water_jug.glb",
+      "base_bytes": 9366244,
+      "triangles": 23939,
+      "vertices": 20740,
+      "dimensions_m": [
+        0.3965,
+        0.2942,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_clay_water_jug_lod1": 8000,
+        "prop_clay_water_jug_lod2": 2500,
+        "prop_clay_water_jug_lod3": 1666
+      },
+      "collision": {
+        "hull_faces": 268,
+        "box_dimensions": [
+          0.3965,
+          0.2942,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_clay_water_jug.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_clay_water_jug.glb",
+        "prop_clay_water_jug_collision_box.glb",
+        "prop_clay_water_jug_collision_hull.glb",
+        "prop_clay_water_jug_lod1.glb",
+        "prop_clay_water_jug_lod2.glb",
+        "prop_clay_water_jug_lod3.glb",
+        "prop_clay_water_jug_meta.json"
+      ]
+    },
+    {
+      "id": "prop_iron_brazier",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_iron_brazier\\prop_iron_brazier.glb",
+      "base_bytes": 14681816,
+      "triangles": 24759,
+      "vertices": 21559,
+      "dimensions_m": [
+        0.4532,
+        0.458,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_iron_brazier_lod1": 7999,
+        "prop_iron_brazier_lod2": 2500,
+        "prop_iron_brazier_lod3": 1022
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          0.4532,
+          0.458,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_iron_brazier.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_iron_brazier.glb",
+        "prop_iron_brazier_collision_box.glb",
+        "prop_iron_brazier_collision_hull.glb",
+        "prop_iron_brazier_lod1.glb",
+        "prop_iron_brazier_lod2.glb",
+        "prop_iron_brazier_lod3.glb",
+        "prop_iron_brazier_meta.json"
+      ]
+    },
+    {
+      "id": "prop_iron_lantern",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_iron_lantern\\prop_iron_lantern.glb",
+      "base_bytes": 14279848,
+      "triangles": 24269,
+      "vertices": 20105,
+      "dimensions_m": [
+        0.1854,
+        0.153,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_iron_lantern_lod1": 8000,
+        "prop_iron_lantern_lod2": 2500,
+        "prop_iron_lantern_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.1854,
+          0.153,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_iron_lantern.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_iron_lantern.glb",
+        "prop_iron_lantern_collision_box.glb",
+        "prop_iron_lantern_collision_hull.glb",
+        "prop_iron_lantern_lod1.glb",
+        "prop_iron_lantern_lod2.glb",
+        "prop_iron_lantern_lod3.glb",
+        "prop_iron_lantern_meta.json"
+      ]
+    },
+    {
+      "id": "prop_sacks_and_grain",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_sacks_and_grain\\prop_sacks_and_grain.glb",
+      "base_bytes": 12685892,
+      "triangles": 24859,
+      "vertices": 20012,
+      "dimensions_m": [
+        0.5,
+        0.2507,
+        0.4293
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_sacks_and_grain_lod1": 8000,
+        "prop_sacks_and_grain_lod2": 2500,
+        "prop_sacks_and_grain_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 265,
+        "box_dimensions": [
+          0.5,
+          0.2507,
+          0.4293
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_sacks_and_grain.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_sacks_and_grain.glb",
+        "prop_sacks_and_grain_collision_box.glb",
+        "prop_sacks_and_grain_collision_hull.glb",
+        "prop_sacks_and_grain_lod1.glb",
+        "prop_sacks_and_grain_lod2.glb",
+        "prop_sacks_and_grain_lod3.glb",
+        "prop_sacks_and_grain_meta.json"
+      ]
+    },
+    {
+      "id": "prop_stack_of_firewood",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_stack_of_firewood\\prop_stack_of_firewood.glb",
+      "base_bytes": 11968016,
+      "triangles": 20584,
+      "vertices": 20240,
+      "dimensions_m": [
+        0.4131,
+        0.5,
+        0.3399
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_stack_of_firewood_lod1": 8000,
+        "prop_stack_of_firewood_lod2": 2500,
+        "prop_stack_of_firewood_lod3": 1383
+      },
+      "collision": {
+        "hull_faces": 154,
+        "box_dimensions": [
+          0.4131,
+          0.5,
+          0.3399
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_stack_of_firewood.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_stack_of_firewood.glb",
+        "prop_stack_of_firewood_collision_box.glb",
+        "prop_stack_of_firewood_collision_hull.glb",
+        "prop_stack_of_firewood_lod1.glb",
+        "prop_stack_of_firewood_lod2.glb",
+        "prop_stack_of_firewood_lod3.glb",
+        "prop_stack_of_firewood_meta.json"
+      ]
+    },
+    {
+      "id": "prop_wooden_barrel",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_wooden_barrel\\prop_wooden_barrel.glb",
+      "base_bytes": 13419820,
+      "triangles": 22478,
+      "vertices": 21254,
+      "dimensions_m": [
+        0.3347,
+        0.4578,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_wooden_barrel_lod1": 7999,
+        "prop_wooden_barrel_lod2": 2500,
+        "prop_wooden_barrel_lod3": 1344
+      },
+      "collision": {
+        "hull_faces": 253,
+        "box_dimensions": [
+          0.3347,
+          0.4578,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_wooden_barrel.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_wooden_barrel.glb",
+        "prop_wooden_barrel_collision_box.glb",
+        "prop_wooden_barrel_collision_hull.glb",
+        "prop_wooden_barrel_lod1.glb",
+        "prop_wooden_barrel_lod2.glb",
+        "prop_wooden_barrel_lod3.glb",
+        "prop_wooden_barrel_meta.json"
+      ]
+    },
+    {
+      "id": "prop_wooden_bench",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_wooden_bench\\prop_wooden_bench.glb",
+      "base_bytes": 8980448,
+      "triangles": 24843,
+      "vertices": 17852,
+      "dimensions_m": [
+        0.5,
+        0.4271,
+        0.3653
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_wooden_bench_lod1": 7998,
+        "prop_wooden_bench_lod2": 2500,
+        "prop_wooden_bench_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 249,
+        "box_dimensions": [
+          0.5,
+          0.4271,
+          0.3653
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_wooden_bench.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_wooden_bench.glb",
+        "prop_wooden_bench_collision_box.glb",
+        "prop_wooden_bench_collision_hull.glb",
+        "prop_wooden_bench_lod1.glb",
+        "prop_wooden_bench_lod2.glb",
+        "prop_wooden_bench_lod3.glb",
+        "prop_wooden_bench_meta.json"
+      ]
+    },
+    {
+      "id": "prop_wooden_cart_wheel",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_wooden_cart_wheel\\prop_wooden_cart_wheel.glb",
+      "base_bytes": 12313500,
+      "triangles": 24921,
+      "vertices": 20328,
+      "dimensions_m": [
+        0.4726,
+        0.3292,
+        0.5
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_wooden_cart_wheel_lod1": 8000,
+        "prop_wooden_cart_wheel_lod2": 2500,
+        "prop_wooden_cart_wheel_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 282,
+        "box_dimensions": [
+          0.4726,
+          0.3292,
+          0.5
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_wooden_cart_wheel.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_wooden_cart_wheel.glb",
+        "prop_wooden_cart_wheel_collision_box.glb",
+        "prop_wooden_cart_wheel_collision_hull.glb",
+        "prop_wooden_cart_wheel_lod1.glb",
+        "prop_wooden_cart_wheel_lod2.glb",
+        "prop_wooden_cart_wheel_lod3.glb",
+        "prop_wooden_cart_wheel_meta.json"
+      ]
+    },
+    {
+      "id": "prop_wooden_crate",
+      "category": "prop",
+      "status": "engine_ready",
+      "base_glb": "prop_wooden_crate\\prop_wooden_crate.glb",
+      "base_bytes": 12941696,
+      "triangles": 23909,
+      "vertices": 22182,
+      "dimensions_m": [
+        0.5,
+        0.4632,
+        0.3902
+      ],
+      "target_size_m": 0.5,
+      "lods": {
+        "prop_wooden_crate_lod1": 7999,
+        "prop_wooden_crate_lod2": 2500,
+        "prop_wooden_crate_lod3": 1528
+      },
+      "collision": {
+        "hull_faces": 110,
+        "box_dimensions": [
+          0.5,
+          0.4632,
+          0.3902
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\prop_wooden_crate.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "prop_wooden_crate.glb",
+        "prop_wooden_crate_collision_box.glb",
+        "prop_wooden_crate_collision_hull.glb",
+        "prop_wooden_crate_lod1.glb",
+        "prop_wooden_crate_lod2.glb",
+        "prop_wooden_crate_lod3.glb",
+        "prop_wooden_crate_meta.json"
+      ]
+    },
+    {
+      "id": "race_constructed_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_constructed_representative\\race_constructed_representative.glb",
+      "base_bytes": 9480592,
+      "triangles": 24935,
+      "vertices": 18568,
+      "dimensions_m": [
+        1.8,
+        0.339,
+        1.6045
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_constructed_representative_lod1": 8000,
+        "race_constructed_representative_lod2": 2499,
+        "race_constructed_representative_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 252,
+        "box_dimensions": [
+          1.8,
+          0.339,
+          1.6045
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_constructed_representative.glb",
+        "race_constructed_representative_collision_box.glb",
+        "race_constructed_representative_collision_hull.glb",
+        "race_constructed_representative_lod1.glb",
+        "race_constructed_representative_lod2.glb",
+        "race_constructed_representative_lod3.glb",
+        "race_constructed_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_kal_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_kal_representative\\race_kal_representative.glb",
+      "base_bytes": 13563072,
+      "triangles": 24535,
+      "vertices": 20711,
+      "dimensions_m": [
+        1.0654,
+        0.6209,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_kal_representative_lod1": 7999,
+        "race_kal_representative_lod2": 2500,
+        "race_kal_representative_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 257,
+        "box_dimensions": [
+          1.0654,
+          0.6209,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_kal_representative.glb",
+        "race_kal_representative_collision_box.glb",
+        "race_kal_representative_collision_hull.glb",
+        "race_kal_representative_lod1.glb",
+        "race_kal_representative_lod2.glb",
+        "race_kal_representative_lod3.glb",
+        "race_kal_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_mor_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_mor_representative\\race_mor_representative.glb",
+      "base_bytes": 4821604,
+      "triangles": 24994,
+      "vertices": 18337,
+      "dimensions_m": [
+        1.8,
+        0.3433,
+        1.6241
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_mor_representative_lod1": 8000,
+        "race_mor_representative_lod2": 2500,
+        "race_mor_representative_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 263,
+        "box_dimensions": [
+          1.8,
+          0.3433,
+          1.6241
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_mor_representative.glb",
+        "race_mor_representative_collision_box.glb",
+        "race_mor_representative_collision_hull.glb",
+        "race_mor_representative_lod1.glb",
+        "race_mor_representative_lod2.glb",
+        "race_mor_representative_lod3.glb",
+        "race_mor_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_ondrek_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_ondrek_representative\\race_ondrek_representative.glb",
+      "base_bytes": 15981236,
+      "triangles": 24814,
+      "vertices": 23100,
+      "dimensions_m": [
+        1.5339,
+        1.1975,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_ondrek_representative_lod1": 7998,
+        "race_ondrek_representative_lod2": 2500,
+        "race_ondrek_representative_lod3": 1487
+      },
+      "collision": {
+        "hull_faces": 259,
+        "box_dimensions": [
+          1.5339,
+          1.1975,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_ondrek_representative.glb",
+        "race_ondrek_representative_collision_box.glb",
+        "race_ondrek_representative_collision_hull.glb",
+        "race_ondrek_representative_lod1.glb",
+        "race_ondrek_representative_lod2.glb",
+        "race_ondrek_representative_lod3.glb",
+        "race_ondrek_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_orenth_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_orenth_representative\\race_orenth_representative.glb",
+      "base_bytes": 15086212,
+      "triangles": 24558,
+      "vertices": 21410,
+      "dimensions_m": [
+        0.6883,
+        0.5085,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_orenth_representative_lod1": 8000,
+        "race_orenth_representative_lod2": 2500,
+        "race_orenth_representative_lod3": 886
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          0.6883,
+          0.5085,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_orenth_representative.glb",
+        "race_orenth_representative_collision_box.glb",
+        "race_orenth_representative_collision_hull.glb",
+        "race_orenth_representative_lod1.glb",
+        "race_orenth_representative_lod2.glb",
+        "race_orenth_representative_lod3.glb",
+        "race_orenth_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_siann_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_siann_representative\\race_siann_representative.glb",
+      "base_bytes": 11102164,
+      "triangles": 24531,
+      "vertices": 22288,
+      "dimensions_m": [
+        0.6964,
+        0.8758,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_siann_representative_lod1": 7999,
+        "race_siann_representative_lod2": 2500,
+        "race_siann_representative_lod3": 1140
+      },
+      "collision": {
+        "hull_faces": 235,
+        "box_dimensions": [
+          0.6964,
+          0.8758,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_siann_representative.glb",
+        "race_siann_representative_collision_box.glb",
+        "race_siann_representative_collision_hull.glb",
+        "race_siann_representative_lod1.glb",
+        "race_siann_representative_lod2.glb",
+        "race_siann_representative_lod3.glb",
+        "race_siann_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_vaskaal_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_vaskaal_representative\\race_vaskaal_representative.glb",
+      "base_bytes": 9565032,
+      "triangles": 24931,
+      "vertices": 19495,
+      "dimensions_m": [
+        0.549,
+        0.3188,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_vaskaal_representative_lod1": 8000,
+        "race_vaskaal_representative_lod2": 2500,
+        "race_vaskaal_representative_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 266,
+        "box_dimensions": [
+          0.549,
+          0.3188,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_vaskaal_representative.glb",
+        "race_vaskaal_representative_collision_box.glb",
+        "race_vaskaal_representative_collision_hull.glb",
+        "race_vaskaal_representative_lod1.glb",
+        "race_vaskaal_representative_lod2.glb",
+        "race_vaskaal_representative_lod3.glb",
+        "race_vaskaal_representative_meta.json"
+      ]
+    },
+    {
+      "id": "race_veth_representative",
+      "category": "character",
+      "status": "engine_ready",
+      "base_glb": "race_veth_representative\\race_veth_representative.glb",
+      "base_bytes": 13764104,
+      "triangles": 24512,
+      "vertices": 20853,
+      "dimensions_m": [
+        0.6867,
+        0.3979,
+        1.8
+      ],
+      "target_size_m": 1.8,
+      "lods": {
+        "race_veth_representative_lod1": 7999,
+        "race_veth_representative_lod2": 2500,
+        "race_veth_representative_lod3": 858
+      },
+      "collision": {
+        "hull_faces": 249,
+        "box_dimensions": [
+          0.6867,
+          0.3979,
+          1.8
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 40000,
+        "texture_size": 4096,
+        "manifest": "run_3d_characters_race.json"
+      },
+      "files": [
+        "race_veth_representative.glb",
+        "race_veth_representative_collision_box.glb",
+        "race_veth_representative_collision_hull.glb",
+        "race_veth_representative_lod1.glb",
+        "race_veth_representative_lod2.glb",
+        "race_veth_representative_lod3.glb",
+        "race_veth_representative_meta.json"
+      ]
+    },
+    {
+      "id": "tool_blacksmith_hammer",
+      "category": "tool",
+      "status": "engine_ready",
+      "base_glb": "tool_blacksmith_hammer\\tool_blacksmith_hammer.glb",
+      "base_bytes": 11480340,
+      "triangles": 24578,
+      "vertices": 17613,
+      "dimensions_m": [
+        0.249,
+        0.1723,
+        0.6
+      ],
+      "target_size_m": 0.6,
+      "lods": {
+        "tool_blacksmith_hammer_lod1": 8000,
+        "tool_blacksmith_hammer_lod2": 2499,
+        "tool_blacksmith_hammer_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 283,
+        "box_dimensions": [
+          0.249,
+          0.1723,
+          0.6
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_tools_tool.json"
+      },
+      "files": [
+        "tool_blacksmith_hammer.glb",
+        "tool_blacksmith_hammer_collision_box.glb",
+        "tool_blacksmith_hammer_collision_hull.glb",
+        "tool_blacksmith_hammer_lod1.glb",
+        "tool_blacksmith_hammer_lod2.glb",
+        "tool_blacksmith_hammer_lod3.glb",
+        "tool_blacksmith_hammer_meta.json"
+      ]
+    },
+    {
+      "id": "tool_blacksmith_tongs",
+      "category": "tool",
+      "status": "engine_ready",
+      "base_glb": "tool_blacksmith_tongs\\tool_blacksmith_tongs.glb",
+      "base_bytes": 11156440,
+      "triangles": 24910,
+      "vertices": 18208,
+      "dimensions_m": [
+        0.5349,
+        0.1826,
+        0.6
+      ],
+      "target_size_m": 0.6,
+      "lods": {
+        "tool_blacksmith_tongs_lod1": 7999,
+        "tool_blacksmith_tongs_lod2": 2500,
+        "tool_blacksmith_tongs_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 267,
+        "box_dimensions": [
+          0.5349,
+          0.1826,
+          0.6
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\tool_blacksmith_tongs.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260921_041016_tool_blacksmith_tongs.json"
+      },
+      "files": [
+        "tool_blacksmith_tongs.glb",
+        "tool_blacksmith_tongs_collision_box.glb",
+        "tool_blacksmith_tongs_collision_hull.glb",
+        "tool_blacksmith_tongs_lod1.glb",
+        "tool_blacksmith_tongs_lod2.glb",
+        "tool_blacksmith_tongs_lod3.glb",
+        "tool_blacksmith_tongs_meta.json"
+      ]
+    },
+    {
+      "id": "tool_hand_saw",
+      "category": "tool",
+      "status": "engine_ready",
+      "base_glb": "tool_hand_saw\\tool_hand_saw.glb",
+      "base_bytes": 10269728,
+      "triangles": 24994,
+      "vertices": 19559,
+      "dimensions_m": [
+        0.6,
+        0.1866,
+        0.5833
+      ],
+      "target_size_m": 0.6,
+      "lods": {
+        "tool_hand_saw_lod1": 8000,
+        "tool_hand_saw_lod2": 2500,
+        "tool_hand_saw_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 265,
+        "box_dimensions": [
+          0.6,
+          0.1866,
+          0.5833
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\tool_hand_saw.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260921_041353_tool_hand_saw.json"
+      },
+      "files": [
+        "tool_hand_saw.glb",
+        "tool_hand_saw_collision_box.glb",
+        "tool_hand_saw_collision_hull.glb",
+        "tool_hand_saw_lod1.glb",
+        "tool_hand_saw_lod2.glb",
+        "tool_hand_saw_lod3.glb",
+        "tool_hand_saw_meta.json"
+      ]
+    },
+    {
+      "id": "tool_mining_pick",
+      "category": "tool",
+      "status": "engine_ready",
+      "base_glb": "tool_mining_pick\\tool_mining_pick.glb",
+      "base_bytes": 8994576,
+      "triangles": 24713,
+      "vertices": 17320,
+      "dimensions_m": [
+        0.487,
+        0.2022,
+        0.6
+      ],
+      "target_size_m": 0.6,
+      "lods": {
+        "tool_mining_pick_lod1": 8000,
+        "tool_mining_pick_lod2": 2500,
+        "tool_mining_pick_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 266,
+        "box_dimensions": [
+          0.487,
+          0.2022,
+          0.6
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_tools_tool.json"
+      },
+      "files": [
+        "tool_mining_pick.glb",
+        "tool_mining_pick_collision_box.glb",
+        "tool_mining_pick_collision_hull.glb",
+        "tool_mining_pick_lod1.glb",
+        "tool_mining_pick_lod2.glb",
+        "tool_mining_pick_lod3.glb",
+        "tool_mining_pick_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_apprentice_staff",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_apprentice_staff\\weapon_apprentice_staff.glb",
+      "base_bytes": 9294620,
+      "triangles": 24966,
+      "vertices": 20097,
+      "dimensions_m": [
+        0.2336,
+        0.1817,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_apprentice_staff_lod1": 8000,
+        "weapon_apprentice_staff_lod2": 2500,
+        "weapon_apprentice_staff_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.2336,
+          0.1817,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_weapons_weapon.json"
+      },
+      "files": [
+        "weapon_apprentice_staff.glb",
+        "weapon_apprentice_staff_collision_box.glb",
+        "weapon_apprentice_staff_collision_hull.glb",
+        "weapon_apprentice_staff_lod1.glb",
+        "weapon_apprentice_staff_lod2.glb",
+        "weapon_apprentice_staff_lod3.glb",
+        "weapon_apprentice_staff_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_arming_sword",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_arming_sword\\weapon_arming_sword.glb",
+      "base_bytes": 8456248,
+      "triangles": 24958,
+      "vertices": 17109,
+      "dimensions_m": [
+        0.2706,
+        0.3596,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_arming_sword_lod1": 7999,
+        "weapon_arming_sword_lod2": 2500,
+        "weapon_arming_sword_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          0.2706,
+          0.3596,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": null,
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_weapons_weapon.json"
+      },
+      "files": [
+        "weapon_arming_sword.glb",
+        "weapon_arming_sword_collision_box.glb",
+        "weapon_arming_sword_collision_hull.glb",
+        "weapon_arming_sword_lod1.glb",
+        "weapon_arming_sword_lod2.glb",
+        "weapon_arming_sword_lod3.glb",
+        "weapon_arming_sword_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_arming_sword_frontier",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_arming_sword_frontier\\weapon_arming_sword_frontier.glb",
+      "base_bytes": 9031336,
+      "triangles": 24550,
+      "vertices": 18629,
+      "dimensions_m": [
+        1.1279,
+        0.3029,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_arming_sword_frontier_lod1": 7999,
+        "weapon_arming_sword_frontier_lod2": 2500,
+        "weapon_arming_sword_frontier_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 255,
+        "box_dimensions": [
+          1.1279,
+          0.3029,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_arming_sword_frontier.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_weapons_weapon.json"
+      },
+      "files": [
+        "weapon_arming_sword_frontier.glb",
+        "weapon_arming_sword_frontier_collision_box.glb",
+        "weapon_arming_sword_frontier_collision_hull.glb",
+        "weapon_arming_sword_frontier_lod1.glb",
+        "weapon_arming_sword_frontier_lod2.glb",
+        "weapon_arming_sword_frontier_lod3.glb",
+        "weapon_arming_sword_frontier_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_ash_wand_copper",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_ash_wand_copper\\weapon_ash_wand_copper.glb",
+      "base_bytes": 8659196,
+      "triangles": 24668,
+      "vertices": 18701,
+      "dimensions_m": [
+        0.1044,
+        0.2852,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_ash_wand_copper_lod1": 8000,
+        "weapon_ash_wand_copper_lod2": 2500,
+        "weapon_ash_wand_copper_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 262,
+        "box_dimensions": [
+          0.1044,
+          0.2852,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_ash_wand_copper.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_weapons_weapon.json"
+      },
+      "files": [
+        "weapon_ash_wand_copper.glb",
+        "weapon_ash_wand_copper_collision_box.glb",
+        "weapon_ash_wand_copper_collision_hull.glb",
+        "weapon_ash_wand_copper_lod1.glb",
+        "weapon_ash_wand_copper_lod2.glb",
+        "weapon_ash_wand_copper_lod3.glb",
+        "weapon_ash_wand_copper_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_bardiche_cleaver",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_bardiche_cleaver\\weapon_bardiche_cleaver.glb",
+      "base_bytes": 8443420,
+      "triangles": 24970,
+      "vertices": 15799,
+      "dimensions_m": [
+        0.2257,
+        0.3353,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_bardiche_cleaver_lod1": 8000,
+        "weapon_bardiche_cleaver_lod2": 2500,
+        "weapon_bardiche_cleaver_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 276,
+        "box_dimensions": [
+          0.2257,
+          0.3353,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_bardiche_cleaver.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_3d_weapons_weapon.json"
+      },
+      "files": [
+        "weapon_bardiche_cleaver.glb",
+        "weapon_bardiche_cleaver_collision_box.glb",
+        "weapon_bardiche_cleaver_collision_hull.glb",
+        "weapon_bardiche_cleaver_lod1.glb",
+        "weapon_bardiche_cleaver_lod2.glb",
+        "weapon_bardiche_cleaver_lod3.glb",
+        "weapon_bardiche_cleaver_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_cutlass_salt_stained",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_cutlass_salt_stained\\weapon_cutlass_salt_stained.glb",
+      "base_bytes": 10710288,
+      "triangles": 24881,
+      "vertices": 17722,
+      "dimensions_m": [
+        1.1946,
+        0.3577,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_cutlass_salt_stained_lod1": 8000,
+        "weapon_cutlass_salt_stained_lod2": 2500,
+        "weapon_cutlass_salt_stained_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 276,
+        "box_dimensions": [
+          1.1946,
+          0.3577,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_cutlass_salt_stained.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_202428.json"
+      },
+      "files": [
+        "weapon_cutlass_salt_stained.glb",
+        "weapon_cutlass_salt_stained_collision_box.glb",
+        "weapon_cutlass_salt_stained_collision_hull.glb",
+        "weapon_cutlass_salt_stained_lod1.glb",
+        "weapon_cutlass_salt_stained_lod2.glb",
+        "weapon_cutlass_salt_stained_lod3.glb",
+        "weapon_cutlass_salt_stained_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_iron_war_axe",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_iron_war_axe\\weapon_iron_war_axe.glb",
+      "base_bytes": 9348188,
+      "triangles": 24990,
+      "vertices": 18573,
+      "dimensions_m": [
+        0.486,
+        0.2722,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_iron_war_axe_lod1": 8000,
+        "weapon_iron_war_axe_lod2": 2499,
+        "weapon_iron_war_axe_lod3": 599
+      },
+      "collision": {
+        "hull_faces": 256,
+        "box_dimensions": [
+          0.486,
+          0.2722,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_iron_war_axe.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "weapon_iron_war_axe.glb",
+        "weapon_iron_war_axe_collision_box.glb",
+        "weapon_iron_war_axe_collision_hull.glb",
+        "weapon_iron_war_axe_lod1.glb",
+        "weapon_iron_war_axe_lod2.glb",
+        "weapon_iron_war_axe_lod3.glb",
+        "weapon_iron_war_axe_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_two_handed_greatsword",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_two_handed_greatsword\\weapon_two_handed_greatsword.glb",
+      "base_bytes": 8803948,
+      "triangles": 24968,
+      "vertices": 18799,
+      "dimensions_m": [
+        0.2739,
+        0.2697,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_two_handed_greatsword_lod1": 8000,
+        "weapon_two_handed_greatsword_lod2": 2500,
+        "weapon_two_handed_greatsword_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 250,
+        "box_dimensions": [
+          0.2739,
+          0.2697,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_two_handed_greatsword.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "weapon_two_handed_greatsword.glb",
+        "weapon_two_handed_greatsword_collision_box.glb",
+        "weapon_two_handed_greatsword_collision_hull.glb",
+        "weapon_two_handed_greatsword_lod1.glb",
+        "weapon_two_handed_greatsword_lod2.glb",
+        "weapon_two_handed_greatsword_lod3.glb",
+        "weapon_two_handed_greatsword_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_viking_rune_axe",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_viking_rune_axe\\weapon_viking_rune_axe.glb",
+      "base_bytes": 15535616,
+      "triangles": 24502,
+      "vertices": 21466,
+      "dimensions_m": [
+        1.2,
+        0.2662,
+        1.1633
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_viking_rune_axe_lod1": 8000,
+        "weapon_viking_rune_axe_lod2": 2500,
+        "weapon_viking_rune_axe_lod3": 827
+      },
+      "collision": {
+        "hull_faces": 254,
+        "box_dimensions": [
+          1.2,
+          0.2662,
+          1.1633
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_viking_rune_axe.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "weapon_viking_rune_axe.glb",
+        "weapon_viking_rune_axe_collision_box.glb",
+        "weapon_viking_rune_axe_collision_hull.glb",
+        "weapon_viking_rune_axe_lod1.glb",
+        "weapon_viking_rune_axe_lod2.glb",
+        "weapon_viking_rune_axe_lod3.glb",
+        "weapon_viking_rune_axe_meta.json"
+      ]
+    },
+    {
+      "id": "weapon_woodcutter_hatchet",
+      "category": "weapon",
+      "status": "engine_ready",
+      "base_glb": "weapon_woodcutter_hatchet\\weapon_woodcutter_hatchet.glb",
+      "base_bytes": 9232612,
+      "triangles": 25000,
+      "vertices": 17332,
+      "dimensions_m": [
+        0.4809,
+        0.3346,
+        1.2
+      ],
+      "target_size_m": 1.2,
+      "lods": {
+        "weapon_woodcutter_hatchet_lod1": 8000,
+        "weapon_woodcutter_hatchet_lod2": 2500,
+        "weapon_woodcutter_hatchet_lod3": 600
+      },
+      "collision": {
+        "hull_faces": 274,
+        "box_dimensions": [
+          0.4809,
+          0.3346,
+          1.2
+        ]
+      },
+      "source": {
+        "concept": "W:\\UNNAMED\\assets\\concepts\\weapon_woodcutter_hatchet.png",
+        "model": "Pixal3D",
+        "faces_budget": 25000,
+        "texture_size": 2048,
+        "manifest": "run_20260920_200103.json"
+      },
+      "files": [
+        "weapon_woodcutter_hatchet.glb",
+        "weapon_woodcutter_hatchet_collision_box.glb",
+        "weapon_woodcutter_hatchet_collision_hull.glb",
+        "weapon_woodcutter_hatchet_lod1.glb",
+        "weapon_woodcutter_hatchet_lod2.glb",
+        "weapon_woodcutter_hatchet_lod3.glb",
+        "weapon_woodcutter_hatchet_meta.json"
+      ]
+    }
+  ]
+}

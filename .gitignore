@@ -1,0 +1,57 @@
+# Godot
+.godot/
+
+# .NET
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Runtime logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ============================================
+# Generated / local asset pipeline outputs
+# ============================================
+assets/raw/
+assets/rigged/
+assets/ready/
+assets/generated/
+assets/output/
+
+# Runtime logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# .NET build output
+bin/
+obj/
+
+# Godot generated data
+.godot/
+
+# IDE / local user state
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS junk
+Thumbs.db
+.DS_Store

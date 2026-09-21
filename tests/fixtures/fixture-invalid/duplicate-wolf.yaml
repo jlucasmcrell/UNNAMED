@@ -1,0 +1,11 @@
+id: creature.beast.wolf_grey.01
+kind: creature
+schema: 1
+display_key: creature.beast.wolf_grey.01.name
+tags: [creature, beast, wolf, predator, wild]
+stats:
+  hp: 35
+  attack: 7
+  defense: 5
+  speed: 1.3
+notes: This file has a DUPLICATE ID - it matches creature.beast.wolf_grey.01 in the same directory

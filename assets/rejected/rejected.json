@@ -1,0 +1,18 @@
+[
+  {
+    "id": "creature_forest_marten_runner",
+    "reason": "Deterministic Trellis2 failure: the shape model returns an empty voxel field, so UpsampleStage raises 'max(): Expected reduction dim 0 to have non-zero size' after 77s. Reproduced identically at 1536 and 1024 upsample resolution, with a fresh 1536/24-step concept, and with a different sampler seed. The failure also wedges the ComfyUI server, which then aborts whatever stage is running. Needs a different source image or a reference-guided retry."
+  },
+  {
+    "id": "creature_musk_ox_herder",
+    "reason": "Deterministic renderer stall: QEM simplify hangs at 99/100 on the 14.15M-face intermediate mesh and never completes. Reproduced 2/2 attempts at upsample 1024, with CPU time frozen at 0s/25s and the GPU spinning at 100% while the ComfyUI log goes static. The concept image is a clean, well-formed musk ox, so this is a decimation pathology on this specific geometry rather than a bad source. Needs a different source image or a lower resolution pass."
+  },
+  {
+    "id": "tool_iron_shovel",
+    "reason": "concept is an abstract blade-like object with the shaft running through it, not a shovel"
+  },
+  {
+    "id": "weapon_hand_crossbow_pistol",
+    "reason": "bow arms mounted across the stock instead of perpendicular at the front; string runs to a floating point"
+  }
+]

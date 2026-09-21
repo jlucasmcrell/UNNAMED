@@ -1,0 +1,6 @@
+id: item.weapon.nonexistent_dagger_ref
+kind: item.weapon
+schema: 1
+display_key: item.weapon.nonexistent_dagger_ref.name
+tags: [weapon, sword, metal, spell.nonexistent.fireball, item.weapon.nonexistent_dagger, creature.beast.nonexistent_beast]
+notes: This file has multiple dangling references to non-existent definitions

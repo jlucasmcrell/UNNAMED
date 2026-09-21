@@ -1,0 +1,8 @@
+creature_forest_marten_runner
+creature_highland_brown_bear
+creature_musk_ox_herder
+creature_sand_skink_runner
+creature_skeleton_hound
+creature_slime_marsh_frog
+creature_small_ember_drake
+creature_snow_hare_hopper

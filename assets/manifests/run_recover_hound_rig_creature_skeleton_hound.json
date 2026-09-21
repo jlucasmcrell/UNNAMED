@@ -1,0 +1,86 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 25000,
+    "texture_size": 2048,
+    "category": "auto",
+    "lod_faces": "8000,2500,600",
+    "seed": null,
+    "only": "creature_skeleton_hound"
+  },
+  "total_seconds": 9.5,
+  "verified": 1,
+  "attempted": 1,
+  "assets": [
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_skeleton_hound.png",
+      "stem": "creature_skeleton_hound",
+      "stages": [
+        {
+          "stage": "cleanup",
+          "seconds": 4.1,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.4,
+          "returncode": 0
+        }
+      ],
+      "category": "creature",
+      "cleanup": {
+        "name": "creature_skeleton_hound",
+        "base_faces": 39842,
+        "base_tris": 39842,
+        "dimensions": [
+          1.6073,
+          1.6581,
+          1.8
+        ],
+        "lods": {
+          "creature_skeleton_hound_lod1": {
+            "faces": 8000,
+            "requested_faces": 8000,
+            "ratio": 0.2008
+          },
+          "creature_skeleton_hound_lod2": {
+            "faces": 2499,
+            "requested_faces": 2500,
+            "ratio": 0.0627
+          },
+          "creature_skeleton_hound_lod3": {
+            "faces": 600,
+            "requested_faces": 600,
+            "ratio": 0.0151
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 252,
+          "box_dimensions": [
+            1.6073,
+            1.6581,
+            1.8
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\creature_skeleton_hound\\creature_skeleton_hound_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\creature_skeleton_hound",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\creature_skeleton_hound\\creature_skeleton_hound.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\creature_skeleton_hound.glb",
+      "rig": {
+        "asset": "creature_skeleton_hound",
+        "plan": "quadruped",
+        "method": "distance-fallback",
+        "out": "W:\\UNNAMED\\assets\\rigged\\creature_skeleton_hound\\creature_skeleton_hound_rigged.glb",
+        "bones": 18,
+        "bones_with_weights": 18,
+        "vertices": 37696,
+        "unweighted_vertices": 0,
+        "unweighted_percent": 0.0,
+        "max_influences": 4,
+        "ok": true
+      }
+    }
+  ]
+}

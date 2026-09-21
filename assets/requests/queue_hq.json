@@ -1,0 +1,80 @@
+{
+  "comment": "High-quality pass with the mesh intermediate capped. Texture size, bake resolution and sampler steps stay at maximum; upsample_resolution is 1024 because at 1536 the shape stage produced a 35M-face mesh that exhausted memory during unwrap and hung the ComfyUI server.",
+  "stages": [
+    {
+      "name": "prompt files sync",
+      "kind": "promptfiles"
+    },
+    {
+      "name": "3d: characters",
+      "kind": "assets3d",
+      "only": "race_",
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "lod_faces": "12000,4000,1000",
+      "rig": true,
+      "max_seconds": 5400,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: npcs",
+      "kind": "assets3d",
+      "only": "npc_",
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "lod_faces": "12000,4000,1000",
+      "rig": true,
+      "max_seconds": 5400,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: creatures",
+      "kind": "assets3d",
+      "only": "creature_",
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "lod_faces": "12000,4000,1000",
+      "rig": true,
+      "max_seconds": 14400,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: props",
+      "kind": "assets3d",
+      "only": "prop_",
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "lod_faces": "12000,4000,1000",
+      "max_seconds": 7200,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: tools",
+      "kind": "assets3d",
+      "only": "tool_",
+      "faces": 40000,
+      "texture_size": 4096,
+      "steps": 30,
+      "bake_resolution": 4096,
+      "ao_samples": 256,
+      "lod_faces": "12000,4000,1000",
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "catalog",
+      "kind": "catalog"
+    }
+  ]
+}

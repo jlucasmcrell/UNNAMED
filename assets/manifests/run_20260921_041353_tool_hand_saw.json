@@ -1,0 +1,82 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 25000,
+    "texture_size": 2048,
+    "category": "auto",
+    "lod_faces": "8000,2500,600",
+    "seed": null,
+    "only": "tool_hand_saw"
+  },
+  "total_seconds": 186.3,
+  "verified": 1,
+  "attempted": 1,
+  "assets": [
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\tool_hand_saw.png",
+      "stem": "tool_hand_saw",
+      "stages": [
+        {
+          "stage": "generate",
+          "seconds": 182.6,
+          "returncode": 0
+        },
+        {
+          "stage": "cleanup",
+          "seconds": 3.4,
+          "returncode": 0
+        },
+        {
+          "stage": "verify",
+          "seconds": 0.2,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "success",
+        "seconds": 182.6
+      },
+      "category": "tool",
+      "cleanup": {
+        "name": "tool_hand_saw",
+        "base_faces": 24994,
+        "base_tris": 24994,
+        "dimensions": [
+          0.6,
+          0.1866,
+          0.5833
+        ],
+        "lods": {
+          "tool_hand_saw_lod1": {
+            "faces": 8000,
+            "requested_faces": 8000,
+            "ratio": 0.3201
+          },
+          "tool_hand_saw_lod2": {
+            "faces": 2500,
+            "requested_faces": 2500,
+            "ratio": 0.1
+          },
+          "tool_hand_saw_lod3": {
+            "faces": 600,
+            "requested_faces": 600,
+            "ratio": 0.024
+          }
+        },
+        "collision": {
+          "convex_hull_faces": 265,
+          "box_dimensions": [
+            0.6,
+            0.1866,
+            0.5833
+          ]
+        },
+        "meta": "W:\\UNNAMED\\assets\\ready\\tool_hand_saw\\tool_hand_saw_meta.json"
+      },
+      "verified": true,
+      "asset_dir": "W:\\UNNAMED\\assets\\ready\\tool_hand_saw",
+      "base_glb": "W:\\UNNAMED\\assets\\ready\\tool_hand_saw\\tool_hand_saw.glb",
+      "raw_glb": "W:\\UNNAMED\\assets\\raw\\tool_hand_saw.glb"
+    }
+  ]
+}

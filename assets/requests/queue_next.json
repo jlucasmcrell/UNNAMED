@@ -1,0 +1,65 @@
+{
+  "comment": "Overnight queue. Characters first (rigging path is new and unproven at scale), then creatures, then props. Every 3D stage rigs, since rigging costs ~4 s against a 3-5 minute build. Each stage is capped so one category cannot consume the whole budget.",
+  "stages": [
+    {
+      "name": "prompt files sync",
+      "kind": "promptfiles"
+    },
+    {
+      "name": "3d: characters",
+      "kind": "assets3d",
+      "only": "race_",
+      "faces": 25000,
+      "texture_size": 2048,
+      "lod_faces": "8000,2500,600",
+      "rig": true,
+      "max_seconds": 3600,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: npcs",
+      "kind": "assets3d",
+      "only": "npc_",
+      "faces": 25000,
+      "texture_size": 2048,
+      "lod_faces": "8000,2500,600",
+      "rig": true,
+      "max_seconds": 3600,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: creatures",
+      "kind": "assets3d",
+      "only": "creature_",
+      "faces": 25000,
+      "texture_size": 2048,
+      "lod_faces": "8000,2500,600",
+      "rig": true,
+      "max_seconds": 7200,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: props",
+      "kind": "assets3d",
+      "only": "prop_",
+      "faces": 25000,
+      "texture_size": 2048,
+      "lod_faces": "8000,2500,600",
+      "max_seconds": 7200,
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "3d: tools",
+      "kind": "assets3d",
+      "only": "tool_",
+      "faces": 25000,
+      "texture_size": 2048,
+      "lod_faces": "8000,2500,600",
+      "upsample_resolution": 1024
+    },
+    {
+      "name": "catalog",
+      "kind": "catalog"
+    }
+  ]
+}

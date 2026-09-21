@@ -1,0 +1,242 @@
+[
+  {
+    "id": "creature_arctic_frost_wolf",
+    "prompt": "arctic frost wolf, large lean quadruped with a narrow chest and long legs, dense white and pale grey double coat with frost-rimed guard hairs, wedge-shaped muzzle, erect triangular ears, pale blue eyes, bushy tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_highland_brown_bear",
+    "prompt": "highland brown bear, hulking heavy-bodied quadruped with massive shoulders and short thick legs, shaggy dark brown fur, broad rounded head with small round ears, blunt snout, long pale claws, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_snow_lynx_stalker",
+    "prompt": "snow lynx stalker, medium compact feline with long powerful hind legs, thick pale grey spotted coat, dense neck ruff, broad flat face with black ear tufts, short bobbed tail, oversized paws, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_tawny_cave_panther",
+    "prompt": "tawny cave panther, sleek muscular big cat with a long low body and heavy forelimbs, short sandy gold coat with faint darker rosettes, broad skull, short rounded ears, amber eyes, long tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_bristleback_boar",
+    "prompt": "bristleback boar, stocky low-slung quadruped with a deep barrel chest and short sturdy legs, coarse dark grey bristles over leathery hide, long snout with curved tusks, small deep-set eyes, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_grey_badger_warden",
+    "prompt": "grey badger warden, low heavy-bodied quadruped with short powerful legs and broad shoulders, coarse black and white striped fur, wedge-shaped head with a pointed snout, heavy digging claws, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_tundra_wolverine",
+    "prompt": "tundra wolverine, thickset muscular quadruped with a broad chest and stout bandy legs, shaggy dark brown fur with a pale yellow flank stripe, blunt broad head, small rounded ears, bushy tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_red_fox_scavenger",
+    "prompt": "red fox scavenger, small slender quadruped with a narrow body and long thin legs, rusty orange coat with a white chest and black leg stockings, sharp pointed muzzle, large triangular ears, bushy white-tipped tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_forest_marten_runner",
+    "prompt": "forest marten runner, small elongated mustelid with a low body and short legs, soft chocolate brown fur with a cream throat patch, rounded head with a pointed muzzle, long bushy tail, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_spotted_hyena_brute",
+    "prompt": "spotted hyena brute, medium-large quadruped with a sloping back and heavy forequarters, coarse sandy coat with dark blotches, broad blunt head, rounded ears, powerful bone-crushing jaws, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_glacier_seal_hunter",
+    "prompt": "glacier seal hunter, sleek amphibious quadruped with a heavy torpedo-shaped body and short flipper-like legs, smooth silver-grey spotted hide, rounded head with a whiskered snout, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_dune_jackal_scout",
+    "prompt": "dune jackal scout, small lean quadruped with a light frame and long slender legs, short pale tan coat with a darker saddle, narrow pointed muzzle, tall upright ears, thin drooping tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_timber_stag_elk",
+    "prompt": "timber stag elk, tall heavy ungulate with a deep chest and long slender legs, thick reddish brown coat with a darker shaggy mane, long muzzle, branching antlers, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_mountain_ram_goat",
+    "prompt": "mountain ram goat, stocky sure-footed quadruped with a broad chest and short muscular legs, shaggy grey-white fleece over leathery hide, blunt muzzle, heavy spiralling horns, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_musk_ox_herder",
+    "prompt": "musk ox herder, massive low-slung quadruped with a humped shoulder and short thick legs, long shaggy dark brown coat over dense underwool, wide flat head with curved horns, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_woolly_highland_sheep",
+    "prompt": "woolly highland sheep, round-bodied quadruped with short sturdy legs, dense cream fleece with a dark face and dark legs, narrow muzzle, curled ram horns, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_snow_hare_hopper",
+    "prompt": "snow hare hopper, small rounded quadruped with very long powerful hind legs and short forelegs, thick white winter coat, short blunt muzzle, long ears with black tips, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_plains_antelope_doe",
+    "prompt": "plains antelope doe, slender elegant ungulate with a deep narrow chest and long thin legs, short fawn coat with a white underbelly, narrow muzzle, short backswept horns, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_desert_camel_drover",
+    "prompt": "desert camel drover, tall long-legged quadruped with a single hump and a deep narrow chest, short sandy wool over leathery hide, long curved neck, small head with heavy brows, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_steppe_bison_bull",
+    "prompt": "steppe bison bull, hulking quadruped with an enormous humped shoulder and short stout legs, dense dark brown curly coat, broad low head with short curved horns, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_ridgeback_lizard",
+    "prompt": "ridgeback lizard, medium low-slung quadruped with a broad flat body and splayed legs, dry olive green scaled hide with a spiny dorsal ridge, wedge-shaped head with a blunt snout, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_great_river_serpent",
+    "prompt": "great river serpent, long heavy serpentine reptile with four short clawed limbs set far apart along the front of the body, wet dark green banded scales, broad flat head, tapering whip tail, standing in a neutral pose with all four limbs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_ancient_bog_tortoise",
+    "prompt": "ancient bog tortoise, large heavy quadruped with a domed mottled shell and thick columnar legs, dark green leathery skin with mossy patches, beaked wrinkled head on a long neck, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_wart_toad_brute",
+    "prompt": "wart toad brute, squat broad amphibian with a wide flat body and short splayed legs, wet mottled green and brown warty skin, enormous wide mouth, bulging amber eyes, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_cave_salamander",
+    "prompt": "cave salamander, elongate amphibian with four stubby splayed legs and a long finned tail, glossy pale pink skin with darker speckles, flat broad head with feathery external gills, standing in a neutral pose with all four limbs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_armoured_thorn_lizard",
+    "prompt": "armoured thorn lizard, medium squat quadruped with a wide plated body and short bowed legs, dry ochre scaled hide studded with bony spikes, blunt armoured head with a heavy brow, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_sand_skink_runner",
+    "prompt": "sand skink runner, small sleek lizard with a long smooth body and four slender legs, pale golden sand-coloured scales with darker bands, narrow pointed snout, long tapering tail, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_slime_marsh_frog",
+    "prompt": "slime marsh frog, small rounded amphibian with a compact body and long folded hind legs, slick olive green skin with dark speckles, wide flat head with bulging eyes, pale throat sac, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_cliff_hawk_hunter",
+    "prompt": "cliff hawk hunter, medium raptor with a compact streamlined body and long broad wings folded at the sides, brown barred plumage with a pale barred chest, hooked yellow beak, heavy talons, standing in a neutral pose with both legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_bog_raven_scout",
+    "prompt": "bog raven scout, medium corvid with a heavy body and long black wings folded at the sides, glossy blue-black plumage with shaggy throat feathers, thick straight beak, standing in a neutral pose with both legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_great_horned_owl",
+    "prompt": "great horned owl, stout round-bodied raptor with a large head and an upright posture, mottled brown and cream plumage, prominent ear tufts, hooked beak, thick feathered legs, standing in a neutral pose with both legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_cave_marsh_bat",
+    "prompt": "cave marsh bat, small furry flying mammal with a compact body and long leathery wings folded along the flanks, dark brown fur, flat upturned snout with pointed ears, standing in a neutral pose with both clawed feet visible and clearly separated from the wings, three-quarter view"
+  },
+  {
+    "id": "creature_small_ember_drake",
+    "prompt": "small ember drake, compact winged reptile with a deep chest and short powerful hind legs, glossy charcoal scales with glowing orange cracks along the belly, wedge-shaped horned head, folded leathery wings, standing in a neutral pose with all four limbs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_marsh_heron_stalker",
+    "prompt": "marsh heron stalker, tall slender wading bird with a long neck and very long thin legs, grey-blue plumage with a dark crest, long dagger beak, standing in a neutral pose with both legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_storm_falcon",
+    "prompt": "storm falcon, sleek small raptor with a narrow body and long pointed swept wings held folded, slate grey plumage with a dark barred chest, short hooked beak, standing in a neutral pose with both legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_desert_vulture",
+    "prompt": "desert vulture, large heavy scavenger bird with a broad body and long broad wings folded at the sides, dusty brown plumage, bare wrinkled head, heavy hooked beak, standing in a neutral pose with both legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_giant_stag_beetle",
+    "prompt": "giant stag beetle, bulky armoured insect with a thick segmented abdomen and six sturdy legs, glossy black-brown chitin, oversized serrated mandibles on a broad flat head, standing in a neutral pose with all six legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_cave_hunting_spider",
+    "prompt": "cave hunting spider, large arachnid with a rounded abdomen and eight long jointed legs, dark grey bristled chitin, pale eye clusters, prominent fangs, standing in a neutral pose with all eight legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_dune_armoured_scorpion",
+    "prompt": "dune armoured scorpion, low flat arachnid with a segmented tail and eight walking legs, sandy ochre chitin plates, heavy pincers, curved stinger, standing in a neutral pose with all eight legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_marsh_giant_wasp",
+    "prompt": "marsh giant wasp, slender flying insect with a narrow waist and a long segmented abdomen, glossy black and yellow banded chitin, translucent wings folded flat, large compound eyes, standing in a neutral pose with all six legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_forest_praying_mantis",
+    "prompt": "forest praying mantis, tall slender insect with a long triangular body and six spined legs, bright leaf-green chitin, triangular head with large compound eyes, folded raptorial forelimbs, standing in a neutral pose with all six legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_tunnel_centipede_brute",
+    "prompt": "tunnel centipede brute, long low myriapod with a segmented armoured body and many paired legs, dark red-brown glossy chitin, flat head with curved venomous fangs, standing in a neutral pose with the body extended and all legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_crystal_antler_stag",
+    "prompt": "crystal antler stag, tall slender ungulate with a deep chest and long legs, translucent pale blue crystalline hide over muscle, long muzzle, branching antlers of raw glowing quartz, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_ash_ember_hound",
+    "prompt": "ash ember hound, lean muscular quadruped with a narrow chest and long legs, cracked blackened hide glowing with orange magma veins, long narrow skull, smoking nostrils, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_bog_lurker_beast",
+    "prompt": "bog lurker beast, heavy hunched quadruped with a broad body and short thick legs, dripping green-black slime-slick hide with hanging moss, wide toad-like head, glowing yellow eyes, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_frost_hare_fey",
+    "prompt": "frost hare fey, small fey quadruped with very long hind legs and a compact body, pale blue-white fur tipped with ice crystals, short muzzle, long ears ending in frozen tufts, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_grove_bound_dryad_ox",
+    "prompt": "grove-bound dryad ox, large heavy quadruped with broad shoulders and short stout legs, bark-textured brown hide with green shoots along the spine, blunt horned head, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_twilight_moth",
+    "prompt": "twilight moth, large moth with a plump furry thorax and broad patterned wings spread flat, dusty violet and silver scales, feathered antennae, six slender legs, standing in a neutral pose with all six legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_fey_thorn_cat",
+    "prompt": "fey thorn cat, medium feline with a lean body and long legs, pale grey-green hide studded with small bark-like thorns, narrow muzzle, tufted ears, long vine-like tail, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_storm_charged_ram",
+    "prompt": "storm-charged ram, stocky quadruped with a broad chest and short powerful legs, dense slate-grey fleece crackling with pale static sparks, blunt muzzle, great spiralling horns, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_skeleton_hound",
+    "prompt": "skeleton hound, gaunt undead quadruped of bare yellowed bone with a narrow ribcage and long stiff legs, no hide, fanged skull with empty glowing sockets, standing in a neutral pose with all four legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_rotting_revenant",
+    "prompt": "rotting revenant, heavy stooped humanoid undead with long thick arms hanging clear of the torso, grey-green necrotic skin over exposed ribs, sunken eyeless face with a slack jaw, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_bone_walker_husk",
+    "prompt": "bone walker husk, tall skeletal undead with a narrow ribcage and very long thin legs, dry brown bone plating with scraps of rotted cloth, elongated horned skull, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_barrow_wight_lord",
+    "prompt": "barrow wight lord, gaunt undead humanoid with a stiff upright torso and long bony arms held clear of the body, leathery grey skin drawn tight over bone, crowned skull with cold blue eye lights, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_drowned_hound",
+    "prompt": "drowned hound, bloated undead quadruped with a swollen barrel body and short splayed legs, waterlogged grey skin peeling from bone, hairless skull with bared teeth, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_stone_guardian",
+    "prompt": "stone guardian, hulking humanoid construct carved from rough grey granite blocks, massive shoulders and thick columnar limbs held apart from the torso, featureless blocky head with a carved eye slit, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_animated_armour",
+    "prompt": "animated armour, hollow plate construct with a broad steel cuirass and thick jointed limbs, dented dark iron plates with brass rivets, closed helm with a narrow visor slit, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_clay_servitor",
+    "prompt": "clay servitor, stocky humanoid construct of fired terracotta with a rounded torso and thick stubby limbs held clear of the body, cracked reddish clay surface, blunt featureless head with a carved rune, standing in a neutral pose with both arms and legs visible and clearly separated, three-quarter view"
+  },
+  {
+    "id": "creature_iron_boar_automaton",
+    "prompt": "iron boar automaton, heavy quadruped construct with a wedge-shaped armoured body and four stout piston legs, riveted dark iron plating over brass gears, blunt metal snout with glowing amber eye lenses, standing in a neutral pose with all four legs visible and clearly separated, side profile view"
+  },
+  {
+    "id": "creature_bronze_serpent_sentry",
+    "prompt": "bronze serpent sentry, long construct with a coiled lower body and a raised head, weathered green bronze plates over an iron core, four clawed metal limbs along the body, wedge-shaped head with white eye lights, standing in a neutral pose with all four limbs visible and clearly separated, three-quarter view"
+  }
+]

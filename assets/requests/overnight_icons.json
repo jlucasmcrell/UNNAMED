@@ -1,0 +1,502 @@
+[
+  {
+    "id": "icon_flame_orb_burst",
+    "prompt": "game UI icon of a fire spell, a round orange flame orb with a short tail of sparks",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_burning_hand_cast",
+    "prompt": "game UI icon of a fire spell, an open hand with small flames rising from the palm",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_fire_rune_talisman",
+    "prompt": "game UI icon of a fire rune, a carved stone tablet bearing a jagged flame symbol",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_lightning_bolt_strike",
+    "prompt": "game UI icon of a lightning spell, one zigzag bolt splitting into two short forks",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_frost_shard_lance",
+    "prompt": "game UI icon of an ice spell, a sharp blue crystal shard shaped like a spearhead",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_stone_spike_eruption",
+    "prompt": "game UI icon of an earth spell, three jagged rock spikes bursting up from a crack",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_gale_wind_slash",
+    "prompt": "game UI icon of a wind spell, two curved white crescents of air crossing each other",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_poison_bolt_hurl",
+    "prompt": "game UI icon of a poison spell, a dripping green droplet shaped like a thrown dart",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_arcane_missile_volley",
+    "prompt": "game UI icon of an arcane spell, three small glowing purple orbs flying in a row",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_shadow_bolt_dagger",
+    "prompt": "game UI icon of a dark spell, a black dagger of smoke with a violet edge",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_holy_smite_hammer",
+    "prompt": "game UI icon of a holy spell, a golden warhammer striking down with short rays",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_thunder_clap_shockwave",
+    "prompt": "game UI icon of a thunder ability, a ground pound ring of cracked earth and sparks",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_cleaving_axe_swing",
+    "prompt": "game UI icon of a melee technique, a heavy axe head mid swing with a white arc",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_piercing_spear_thrust",
+    "prompt": "game UI icon of a melee technique, a spear point thrusting forward through a metal ring",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_whirlwind_spin_strike",
+    "prompt": "game UI icon of a melee ability, two crossed swords spinning inside a circular blur",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_meteor_falling_strike",
+    "prompt": "game UI icon of a fire spell, a flaming boulder falling with a trailing smoke streak",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_acid_spray_cone",
+    "prompt": "game UI icon of an acid spell, a wide cone of yellow-green droplets fanning out from a point",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_ice_storm_shards",
+    "prompt": "game UI icon of an ice spell, four small crystal shards scattered around a single snowflake",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_blade_dance_flurry",
+    "prompt": "game UI icon of a melee technique, three thin dagger blades fanned out in a row",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_soul_drain_grasp",
+    "prompt": "game UI icon of a dark spell, a skeletal hand pulling pale wisps from a hazy orb",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_iron_shield_block",
+    "prompt": "game UI icon of a defensive ability, a round iron shield with a raised centre boss",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_evasive_dodge_roll",
+    "prompt": "game UI icon of a dodge ability, a crouched figure leaping sideways with motion streaks",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_blessing_of_might",
+    "prompt": "game UI icon of a buff spell, a clenched fist glowing with golden light from above",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_healing_light_touch",
+    "prompt": "game UI icon of a healing spell, a rounded glowing blue cross above a shallow bowl",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_cleansing_purge_rite",
+    "prompt": "game UI icon of a cleanse ability, a white droplet washing away a cluster of dark spots",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_shadow_cloak_veil",
+    "prompt": "game UI icon of a stealth ability, a hooded cloak fading into a swirl of shadow",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_swift_sprint_boots",
+    "prompt": "game UI icon of a sprint ability, a single winged boot with speed lines behind it",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_stone_skin_plating",
+    "prompt": "game UI icon of a defensive buff, a curved plate of cracked grey stone slabs",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_arcane_ward_bubble",
+    "prompt": "game UI icon of a protective spell, a glowing blue hexagonal shield shell around an orb",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_nimble_reflex_parry",
+    "prompt": "game UI icon of a parry technique, a small sword deflecting an incoming red blade",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_life_link_transfer",
+    "prompt": "game UI icon of a utility spell, two linked hearts joined by a single glowing thread",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_haste_time_warp",
+    "prompt": "game UI icon of a haste buff, an hourglass leaking sand upward in a golden streak",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_poison_status_mark",
+    "prompt": "game UI icon of a poison status effect, a green droplet inside a small skull",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_bleed_status_wound",
+    "prompt": "game UI icon of a bleed status effect, three red droplets falling from a thin slash",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_burn_status_flame",
+    "prompt": "game UI icon of a burn status effect, a curling orange flame with a red core",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_frozen_status_shard",
+    "prompt": "game UI icon of a frozen status effect, a solid ice block encasing a small figure",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_stunned_status_stars",
+    "prompt": "game UI icon of a stun status effect, three small yellow stars circling a spiral",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_cursed_status_skull",
+    "prompt": "game UI icon of a curse status effect, a cracked skull wrapped in purple smoke",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_weakened_status_arm",
+    "prompt": "game UI icon of a weakened debuff, a thin arm with a downward red arrow beside it",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_hasted_status_boots",
+    "prompt": "game UI icon of a haste effect, a running hare with three speed lines behind it",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_silenced_status_seal",
+    "prompt": "game UI icon of a silence debuff, a mouth sealed by a thick horizontal bar",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_rooted_status_vines",
+    "prompt": "game UI icon of a root debuff, green vines coiled tightly around a pair of ankles",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_necromancy",
+    "prompt": "game UI icon of a necromancy school, a green glowing skull floating above a bone pile",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_druidic_nature",
+    "prompt": "game UI icon of a druidic school, an oak leaf with a small acorn at its base",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_divine_light",
+    "prompt": "game UI icon of a divine school, a glowing sunburst behind a slender stone tower",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_arcane_study",
+    "prompt": "game UI icon of an arcane school, a floating open book with a purple rune above",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_blood_magic",
+    "prompt": "game UI icon of a blood magic school, a red droplet shaped like a carved rune",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_runic_carving",
+    "prompt": "game UI icon of a runic school, a chiselled stone disc carved with a single rune",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_elemental_fire",
+    "prompt": "game UI icon of an elemental school, four small orbs of fire, water, stone and air in a diamond",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_school_shadow_arts",
+    "prompt": "game UI icon of a shadow school, a crescent moon half hidden behind a dark cloud",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_profession_blacksmith",
+    "prompt": "game UI icon of a blacksmithing profession, a heavy hammer resting on a small anvil",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_profession_alchemy",
+    "prompt": "game UI icon of an alchemy profession, a round flask of bubbling green liquid over a flame",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_profession_tailoring",
+    "prompt": "game UI icon of a tailoring profession, a needle and thread looping through folded cloth",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "icon_profession_enchanting",
+    "prompt": "game UI icon of an enchanting profession, a wand tip touching a floating glowing rune",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_iron_ore_chunk",
+    "prompt": "game UI icon of raw iron ore, an angular grey rock studded with metallic lumps",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_gold_ore_nugget",
+    "prompt": "game UI icon of raw gold ore, a small rock holding three bright yellow nuggets",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_steel_ingot_bar",
+    "prompt": "game UI icon of a steel ingot, a single trapezoid metal bar with a polished face",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_ironwood_log",
+    "prompt": "game UI icon of a hardwood log, a short cut branch showing its growth rings",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_oak_plank_bundle",
+    "prompt": "game UI icon of wooden planks, two stacked cut boards seen at a slight angle",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_rawhide_pelt_fold",
+    "prompt": "game UI icon of a raw hide, a folded tan pelt with a rough fur edge",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_cured_leather_roll",
+    "prompt": "game UI icon of cured leather, a rolled brown hide tied with a thin cord",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_linen_fibre_bundle",
+    "prompt": "game UI icon of linen fibres, a small tied bundle of soft pale twisted strands",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_silk_thread_spool",
+    "prompt": "game UI icon of silk thread, a wooden spool tightly wound with pale blue thread",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_healing_herb_leaf",
+    "prompt": "game UI icon of a healing herb, a bright green three-lobed leaf with a stem",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_moonpetal_flower",
+    "prompt": "game UI icon of a rare flower, a pale blue blossom with five rounded petals",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_ruby_gem_crystal",
+    "prompt": "game UI icon of a cut ruby, a red faceted gem shaped like a fat teardrop",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_dragon_bone_shard",
+    "prompt": "game UI icon of a bone shard, a curved pale fragment with a jagged broken end",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "resource_arcane_essence_vial",
+    "prompt": "game UI icon of arcane essence, a small glass vial holding swirling bright purple mist",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_crusty_bread_loaf",
+    "prompt": "game UI icon of a bread loaf, a rounded brown crusty loaf with two slash marks",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_roast_meat_haunch",
+    "prompt": "game UI icon of roast meat, a large drumstick with the bone pointing to the left",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_hearty_stew_bowl",
+    "prompt": "game UI icon of a stew, a round bowl with a spoon and a rising steam curl",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_cheese_wedge_wheel",
+    "prompt": "game UI icon of a wedge of cheese, a yellow block with three round holes",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_red_apple_fruit",
+    "prompt": "game UI icon of a red apple, a round fruit with a single leaf and stem",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_grilled_river_fish",
+    "prompt": "game UI icon of a cooked fish, a simple whole fish pierced by a short skewer",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_frothy_ale_tankard",
+    "prompt": "game UI icon of a mug of ale, a wooden tankard topped with a thick foam head",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_sweet_berry_pie",
+    "prompt": "game UI icon of a berry pie, a round pastry with a lattice top and one berry",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_health_potion_flask",
+    "prompt": "game UI icon of a healing potion, a round flask of red liquid with a cork",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_mana_elixir_bottle",
+    "prompt": "game UI icon of a mana elixir, a tall thin bottle of glowing blue liquid",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_stamina_tonic_vial",
+    "prompt": "game UI icon of a stamina tonic, a small vial of green liquid with a leaf",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_invisibility_draught",
+    "prompt": "game UI icon of an invisibility potion, a glass flask that fades clear at the neck",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_giant_strength_brew",
+    "prompt": "game UI icon of a strength brew, a squat jug of orange liquid beside a clenched fist",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_antidote_potion_vial",
+    "prompt": "game UI icon of an antidote, a small vial of white liquid with a green droplet",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_venom_coating_flask",
+    "prompt": "game UI icon of a poison coating, a flask of dark green liquid dripping over a blade",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_blinding_powder_pouch",
+    "prompt": "game UI icon of blinding powder, a small tied pouch puffing out a grey cloud",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_iron_longsword_blade",
+    "prompt": "game UI icon of a sword, a straight steel longsword with a simple crossguard and grip",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_oak_round_shield",
+    "prompt": "game UI icon of a shield, a round wooden shield banded with iron around the rim",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_steel_plate_helm",
+    "prompt": "game UI icon of a helmet, a closed steel helm with one narrow vertical eye slit",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_leather_boots_pair",
+    "prompt": "game UI icon of leather boots, one sturdy tall boot with a folded cuff at the top",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_silver_ring_band",
+    "prompt": "game UI icon of a silver ring, a plain band set with a small blue stone",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_amulet_ruby_pendant",
+    "prompt": "game UI icon of an amulet, a red gem hanging from a thin chain loop",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_mining_pick_tool",
+    "prompt": "game UI icon of a mining pick, a wooden handle with a curved iron head",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_fishing_rod_tool",
+    "prompt": "game UI icon of a fishing rod, a bent pole with a hanging line and hook",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_gold_coin_stack",
+    "prompt": "game UI icon of gold coins, three round coins stacked in a small leaning pile",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_silver_coin_pouch",
+    "prompt": "game UI icon of a coin pouch, a small drawstring bag spilling three silver coins",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_brass_skeleton_key",
+    "prompt": "game UI icon of a key, an old brass key with a round bow and square teeth",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_iron_lockpick_set",
+    "prompt": "game UI icon of lockpicks, two slim bent metal picks crossed over each other in an X",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_ancient_scroll_map",
+    "prompt": "game UI icon of a treasure map, a rolled parchment marked with a red cross",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_sealed_quest_letter",
+    "prompt": "game UI icon of a sealed letter, a folded parchment with a red wax seal",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_guild_token_badge",
+    "prompt": "game UI icon of a guild token, a round bronze badge with a raised star",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  },
+  {
+    "id": "item_cursed_relic_idol",
+    "prompt": "game UI icon of a cursed relic, a small stone idol with glowing violet eyes",
+    "suffix": ", bold simple shape filling most of the frame, strong readable silhouette, thick dark outline, flat painted shading, high contrast, game UI icon art, no text, no watermark, no border"
+  }
+]

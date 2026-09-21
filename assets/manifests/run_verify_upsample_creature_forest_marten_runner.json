@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "model": "Pixal3D",
+    "faces": 40000,
+    "texture_size": 4096,
+    "category": "auto",
+    "lod_faces": "8000,2500,600",
+    "seed": null,
+    "only": "creature_forest_marten_runner"
+  },
+  "total_seconds": 78.1,
+  "verified": 0,
+  "attempted": 1,
+  "assets": [
+    {
+      "concept": "W:\\UNNAMED\\assets\\concepts\\creature_forest_marten_runner.png",
+      "stem": "creature_forest_marten_runner",
+      "stages": [
+        {
+          "stage": "health",
+          "seconds": 0.2,
+          "returncode": 0
+        },
+        {
+          "stage": "generate",
+          "seconds": 77.9,
+          "returncode": 0
+        }
+      ],
+      "generate": {
+        "status": "error",
+        "seconds": 77.9
+      },
+      "error": "generation produced no GLB:     \"  File \\\"C:\\\\Users\\\\jluca\\\\ComfyUI\\\\comfy_api\\\\latest\\\\_io.py\\\", line 1990, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\ComfyUI\\\\comfy_extras\\\\nodes_trellis2.py\\\", line 350, in execute\\n    sample_hr_coords.append(shape_vae.upsample_shape(slat_i.to(vae.vae_dtype), upsample_times=4))\\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\ComfyUI\\\\comfy\\\\ldm\\\\trellis2\\\\vae.py\\\", line 1070, in upsample_shape\\n    return self.shape_dec.upsample(slat, upsample_times)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\ComfyUI\\\\comfy\\\\ldm\\\\trellis2\\\\vae.py\\\", line 811, in upsample\\n    h, sub = block(h)\\n             ^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\comfyenv\\\\Lib\\\\site-packages\\\\torch\\\\nn\\\\modules\\\\module.py\\\", line 1773, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\comfyenv\\\\Lib\\\\site-packages\\\\torch\\\\nn\\\\modules\\\\module.py\\\", line 1784, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\ComfyUI\\\\comfy\\\\ldm\\\\trellis2\\\\vae.py\\\", line 199, in forward\\n    h = self.conv2(h)\\n        ^^^^^^^^^^^^^\\n\",\n    \"  File \\\"C:\\\\Users\\\\jluca\\\\comfyenv\\\\Lib\\\\site-packages\\\\torch\\\\nn\\\\modules\\\\module.py\\\", line 1773, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^\n\n=== artifacts ==="
+    }
+  ]
+}

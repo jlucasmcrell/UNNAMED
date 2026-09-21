@@ -1,0 +1,31 @@
+{
+  "started": "2026-09-21 06:48:32",
+  "stages": {
+    "prompt files sync": {
+      "status": "done",
+      "exit": 0,
+      "seconds": 0.1,
+      "finished": "06:48:32"
+    },
+    "3d: characters": {
+      "status": "done",
+      "exit": 0,
+      "seconds": 29.0,
+      "finished": "06:49:12"
+    },
+    "3d: npcs": {
+      "status": "done",
+      "exit": 0,
+      "seconds": 25.5,
+      "finished": "06:49:49"
+    },
+    "3d: creatures": {
+      "status": "running",
+      "started": "13:30:51"
+    },
+    "3d: props": {
+      "status": "running",
+      "started": "10:39:29"
+    }
+  }
+}
