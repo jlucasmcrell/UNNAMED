@@ -1,6 +1,6 @@
 ﻿# UNNAMED
 
-An experimental single-player, first-person open-world fantasy RPG being developed with heavy AI-assisted engineering and asset production.
+An experimental single-player, first-person open-world fantasy RPG with plans to expand with LAN/WAN and MMORPG capabilities.
 
 The project draws inspiration from the exploration, progression, danger, crafting, long-form quests, and persistent-world feel of classic MMORPGs such as Asheron's Call and EverQuest II, while being designed as an entirely original single-player RPG.
 
