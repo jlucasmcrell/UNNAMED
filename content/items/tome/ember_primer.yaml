@@ -1,0 +1,13 @@
+id: item.tome.ember_primer
+kind: item
+schema: 1
+display_key: item.tome.ember_primer.name
+tags: [item]
+name: Ember Primer
+notes: Read once to learn two formulas; its grants are added with the spells (M3e).
+category: book
+stack_max: 1
+weight: 1.0
+value_base: 120
+rarity: uncommon
+use: { consume: true }

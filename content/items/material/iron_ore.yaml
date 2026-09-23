@@ -1,0 +1,12 @@
+id: item.material.iron_ore
+kind: item
+schema: 1
+display_key: item.material.iron_ore.name
+tags: [item]
+name: Iron Ore
+notes: Mined from the iron seam.
+category: material
+stack_max: 20
+weight: 1.0
+value_base: 5
+rarity: common

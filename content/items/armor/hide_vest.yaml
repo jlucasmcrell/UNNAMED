@@ -1,0 +1,15 @@
+id: item.armor.hide_vest
+kind: item.armor
+schema: 1
+display_key: item.armor.hide_vest.name
+tags: [item]
+name: Hide Vest
+notes: Body armor (PROTOTYPE.md §4.2).
+category: armor
+stack_max: 1
+weight: 4.0
+value_base: 30
+rarity: common
+slot: chest
+armor_value: 6
+material_class: leather

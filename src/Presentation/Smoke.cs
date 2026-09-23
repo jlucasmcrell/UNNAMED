@@ -59,9 +59,9 @@ public sealed class Smoke
 
         if (!_controller.IsOpen("door.longhouse"))
         {
-            if (!_asked && _controller.Focus(_camera) is { } door)
+            if (!_asked && _controller.FocusOn(_camera) is { Kind: FocusKind.Door } door)
             {
-                _controller.Interact(door);
+                _controller.Interact(door.Key);
                 _asked = true;
             }
             return null;

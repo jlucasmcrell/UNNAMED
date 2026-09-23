@@ -1,0 +1,11 @@
+id: merchant.smith_orren
+kind: merchant
+schema: 1
+display_key: merchant.smith_orren.name
+tags: [merchant]
+notes: The smith's stock (PROTOTYPE.md §5 step 8, §7.4) - a stub merchant, no economy (ROADMAP M3b). Trade opens with the NPC (M4).
+stock_mode: fixed
+stock:
+  - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
+  - { item_ref: item.armor.hide_vest, count: 1, price_bias: 1.0 }
+buys_tags: [material, consumable, weapon, armor, misc]   # Phase 1 matches these against the item category

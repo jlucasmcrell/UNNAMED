@@ -14,6 +14,12 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
 /// <summary>A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it.</summary>
 public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp);
 
+/// <summary>
+/// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,
+/// rolled the same way every time; the key is its identity in saves.
+/// </summary>
+public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -32,7 +38,12 @@ public sealed record RegionLayout(
     Body Spawn,
     RegionGeneration Generation)
 {
+    /// <summary>The region's authored containers.</summary>
+    public ImmutableArray<ContainerSite> Containers { get; init; } = ImmutableArray<ContainerSite>.Empty;
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
+
+    public ContainerSite? FindContainer(string key) => Containers.FirstOrDefault(c => c.Key == key);
 
     /// <summary>The footprints that block movement given which doors are open.</summary>
     public ImmutableArray<Blocker> ClosedDoors(Func<DoorSite, bool> isOpen) =>

@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Progression;
+using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -150,11 +151,36 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.Player.Discoveries);
         }
 
+        // Schema 6's equipment, purse, dropped stack and changed container; the renamed potion reaches the world too.
+        var dropped = loaded.World.CreatedIn(CellKey.Parse("r_0_0:c_00_08"));
+        var chest = loaded.World.Container("container.fixture_chest");
+        if (schema >= 6)
+        {
+            Assert.Equal(M2Fixtures.Historical.SwordId, loaded.Player.Equipment[Domain.Items.EquipSlot.MainHand]);
+            Assert.Equal(40, loaded.Player.Currency);
+            Assert.Equal(("item.potion.minor_healing", 3), (Assert.Single(dropped).DefId, dropped[0].Count));
+            Assert.NotNull(chest);
+            Assert.Equal(new[] { ("item.potion.minor_healing", 4), ("item.weapon.iron_sword", 1) },
+                chest.Items.Select(i => (i.DefId, i.Count)).OrderBy(i => i.DefId, StringComparer.Ordinal));
+        }
+        else
+        {
+            Assert.Empty(loaded.Player.Equipment);
+            Assert.Equal(0, loaded.Player.Currency);
+            Assert.Empty(dropped);
+            Assert.Null(chest);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
-            >= 5 => new[]
+            >= 6 => new[]
+            {
+                "item.potion.healing_draught -> item.potion.minor_healing x4", "location.wolf_den -> location.den_mouth",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            5 => new[]
             {
                 "item.potion.healing_draught -> item.potion.minor_healing x2", "location.wolf_den -> location.den_mouth",
                 "spell.ember.firebolt -> spell.ember.bolt",
@@ -163,7 +189,7 @@ public class HistoricalFixtureTests
             _ => new[] { "item.potion.healing_draught -> item.potion.minor_healing" },
         };
         Assert.Equal(aliases, loaded.Report.Aliases);
-        Assert.Equal(schema >= 3 ? 7 : 6, loaded.Report.CellsMatched);
+        Assert.Equal(schema switch { >= 6 => 9, >= 3 => 7, _ => 6 }, loaded.Report.CellsMatched);
         Assert.Empty(loaded.Report.Loss);
     }
 

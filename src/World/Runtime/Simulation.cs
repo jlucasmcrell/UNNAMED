@@ -3,13 +3,18 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
 
 /// <summary>The rules a simulation runs under, built from content at boot.</summary>
-public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement, ProgressionRules Progression, TierRules Tiers, int TickMilliseconds);
+public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement, ProgressionRules Progression, TierRules Tiers, int TickMilliseconds)
+{
+    /// <summary>Items, loot tables, carrying rules and the starting kit (M3b).</summary>
+    public ItemSetup Items { get; init; } = ItemSetup.Empty;
+}
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
 public sealed record PlayerView(
@@ -19,7 +24,13 @@ public sealed record PlayerView(
     MoveIntent Intent,
     CharacterProgression Progression,
     DerivedStats Stats,
-    ImmutableArray<DiscoveryRecord> Discoveries);
+    ImmutableArray<DiscoveryRecord> Discoveries,
+    ImmutableArray<InventoryEntry> Inventory,
+    ImmutableSortedDictionary<EquipSlot, EntityId> Equipment,
+    long Currency,
+    long CarriedGrams,
+    long CarryLimitGrams,
+    int Armor);
 
 /// <summary>A door and whether it is open.</summary>
 public sealed record DoorView(DoorSite Site, bool Open);
@@ -45,6 +56,8 @@ public sealed class Simulation
     private readonly ProgressionSystem _progression;
     private readonly DiscoverySystem _discovery;
     private readonly TierSystem _tiers;
+    private readonly InventorySystem _inventory;
+    private readonly EquipmentSystem _equipment;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -54,9 +67,15 @@ public sealed class Simulation
         Setup = setup;
         _identity = player;
         _cells = setup.Layout.CellKeys.Select(CellKey.Parse).OrderBy(c => c).ToImmutableArray();
-        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg),
-            player.Progression, player.Discoveries);
+        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player);
         _context = new SystemContext(_state, setup, events, Dispatch);
+        // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
+        foreach (var entry in player.Inventory)
+        {
+            if (world.Registry.Exists(entry.ItemId))
+                throw new InvalidOperationException($"{entry.ItemId} is carried and also somewhere in the world");
+            world.Registry.CreateEntity(DefinitionId.Parse(entry.DefId), entry.ItemId);
+        }
 
         // The composition root: an explicit, ordered list, and every state slice claimed exactly once (§4.2, §5).
         _clock = new ClockSystem(_context, _state.Claim(nameof(ClockSystem), StateSlice.Clock));
@@ -66,6 +85,8 @@ public sealed class Simulation
         _progression = new ProgressionSystem(_context, _state.Claim(nameof(ProgressionSystem), StateSlice.PlayerProgression));
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells);
+        _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
+        _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _tiers.Settle();
@@ -79,12 +100,18 @@ public sealed class Simulation
         return new Simulation(setup, player, world, worldTick, events);
     }
 
-    /// <summary>A new character standing at the region's spawn point, with the starting package (PROGRESSION.md §5).</summary>
+    /// <summary>
+    /// A new character standing at the region's spawn point, with the starting package (PROGRESSION.md §5) and the
+    /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped).
+    /// </summary>
     public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed)
     {
         var spawn = setup.Layout.Spawn;
-        return new PlayerRecord(id, name, spawn.XMm, spawn.YMm, spawn.ZMm, appearanceSeed, Array.Empty<InventoryEntry>(),
-            ProgressionEngine.Create(setup.Progression), spawn.FacingMdeg);
+        var kit = setup.Items.StartingKit.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count))).ToList();
+        var equipment = kit.Where(k => k.Item.Equip)
+            .Select(k => KeyValuePair.Create(setup.Items.Catalog.Get(k.Item.ItemId).Slot!.Value, k.Entry.ItemId));
+        return new PlayerRecord(id, name, spawn.XMm, spawn.YMm, spawn.ZMm, appearanceSeed, kit.Select(k => k.Entry),
+            ProgressionEngine.Create(setup.Progression), spawn.FacingMdeg, equipment: equipment);
     }
 
     /// <summary>The cell a door stands in: its flag lives in that cell's delta.</summary>
@@ -102,7 +129,15 @@ public sealed class Simulation
     public WorldDelta World => _state.World;
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
-        ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray());
+        ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
+        _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
+        Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor());
+
+    /// <summary>Every authored container and what it holds now.</summary>
+    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Select(_inventory.View).ToImmutableArray();
+
+    /// <summary>Items lying in the region.</summary>
+    public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
 
     public ImmutableArray<DoorView> Doors => Setup.Layout.Doors.Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
 
@@ -131,6 +166,9 @@ public sealed class Simulation
             {
                 MoveCommand move => _movement.Handle(move),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
+                MoveItemCommand item => _inventory.Handle(item, WorldTick),
+                EquipCommand equip => _equipment.Handle(equip, WorldTick),
+                UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -167,8 +205,8 @@ public sealed class Simulation
     public PlayerRecord CaptureRecord()
     {
         var body = _state.Body;
-        return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _identity.Inventory,
-            _state.Progression, body.FacingMdeg, _state.Discoveries.Values);
+        return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
+            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency);
     }
 
     /// <summary>

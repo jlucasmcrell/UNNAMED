@@ -51,7 +51,22 @@ public sealed record EntityDeltaRecord(
 /// anchored to its host cell, and proven against that cell's baseline like a slot record: a changed
 /// host cell needs a registered transition before the instance is placed in it again.
 /// </summary>
-public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, string HostCell, int XCm, int ZCm, string? BaselineHash = null);
+public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, string HostCell, int XCm, int ZCm, string? BaselineHash = null)
+{
+    /// <summary>How many: a dropped stack keeps its count (schema 6; older saves held single items).</summary>
+    public int Count { get; init; } = 1;
+}
+
+/// <summary>An item inside a world container.</summary>
+public sealed record ContainerItem(EntityId ItemId, string DefId, int Count);
+
+/// <summary>
+/// An authored world container whose contents changed (SYSTEMS.md S-14: "contents of world containers that changed from
+/// baseline"). Until it changes, a container's contents are its content-defined baseline and nothing is saved; the first
+/// change gives it and everything in it an identity, and from then on the record holds its whole contents. It is proven
+/// against its host cell's baseline like a created instance.
+/// </summary>
+public sealed record ContainerRecord(string Key, EntityId InstanceId, string HostCell, ImmutableArray<ContainerItem> Items, string? BaselineHash = null);
 
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
 public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
@@ -60,6 +75,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>Created instances, sorted by instance ID.</summary>
     public ImmutableArray<CreatedEntityRecord> Created { get; init; } = ImmutableArray<CreatedEntityRecord>.Empty;
+
+    /// <summary>Changed world containers, sorted by key (schema 6).</summary>
+    public ImmutableArray<ContainerRecord> Containers { get; init; } = ImmutableArray<ContainerRecord>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -82,6 +100,7 @@ public sealed class WorldDelta
     private readonly Dictionary<CellKey, MutableCell> _cells = new();
     private readonly Dictionary<string, EntityDeltaRecord> _entities = new(StringComparer.Ordinal);
     private readonly Dictionary<EntityId, CreatedEntityRecord> _created = new();
+    private readonly SortedDictionary<string, ContainerRecord> _containers = new(StringComparer.Ordinal);
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -93,6 +112,9 @@ public sealed class WorldDelta
     public ICellBaselineGenerator Generator { get; }
 
     public ulong WorldSeed { get; }
+
+    /// <summary>The identity authority this world registers its instances with (D-10). Only the runtime reaches it.</summary>
+    internal Registry Registry => _registry;
 
     /// <summary>The regenerated baseline. A transient cache: never persisted, always reproducible.</summary>
     public CellBaseline Baseline(CellKey cell)
@@ -205,6 +227,39 @@ public sealed class WorldDelta
         return instance.InstanceId;
     }
 
+    /// <summary>
+    /// Place an existing item instance in the world (a drop): it keeps its identity, which the caller has already
+    /// registered, and its count.
+    /// </summary>
+    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm)
+    {
+        if (!InCell(xCm) || !InCell(zCm))
+            throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
+        if (count <= 0)
+            throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count };
+    }
+
+    /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>
+    internal CreatedEntityRecord TakeCreated(EntityId instanceId) =>
+        _created.Remove(instanceId, out var record) ? record : throw new InvalidOperationException($"{instanceId} is not in the world");
+
+    public CreatedEntityRecord? FindCreated(EntityId instanceId) => _created.GetValueOrDefault(instanceId);
+
+    // ── world containers (schema 6) ─────────────────────────────────────────
+
+    /// <summary>A changed container's record, or null while it still holds its baseline contents.</summary>
+    public ContainerRecord? Container(string key) => _containers.GetValueOrDefault(key);
+
+    /// <summary>Record a container's whole current contents; the runtime has registered every identity in it.</summary>
+    internal void SetContainer(ContainerRecord record) => _containers[record.Key] = record;
+
+    public IReadOnlyList<ContainerRecord> ContainersIn(CellKey cell)
+    {
+        string key = cell.ToString();
+        return _containers.Values.Where(c => c.HostCell == key).ToList();
+    }
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -285,7 +340,13 @@ public sealed class WorldDelta
             .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
             .ToImmutableArray();
 
-        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created };
+        // A changed container stays recorded even if its contents come back to what they were: its baseline is content,
+        // which this layer never sees, and one small record per touched container is the cost.
+        var containers = _containers.Values
+            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .ToImmutableArray();
+
+        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created, Containers = containers };
     }
 
     /// <summary>
@@ -325,6 +386,13 @@ public sealed class WorldDelta
                 problems.Add(new RejectedRecord("entities", record.InstanceId.Value, reason));
         }
 
+        foreach (var record in snapshot.Containers)
+        {
+            string? reason = world.TryApplyContainer(record, seenIds);
+            if (reason is not null)
+                problems.Add(new RejectedRecord("entities", record.Key, reason));
+        }
+
         rejected = problems.ToImmutable();
         return world;
     }
@@ -356,7 +424,16 @@ public sealed class WorldDelta
         var created = CreatedIn(cell);
         h.Add(created.Count);
         foreach (var c in created)
-            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm);
+            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count);
+
+        var containers = ContainersIn(cell);
+        h.Add(containers.Count);
+        foreach (var c in containers)
+        {
+            h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
+            foreach (var item in c.Items)
+                h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count);
+        }
 
         foreach (var population in baseline.Populations)
         {
@@ -491,9 +568,40 @@ public sealed class WorldDelta
             return $"instance ID {record.InstanceId} appears twice";
         if (_registry.Exists(record.InstanceId))
             return $"instance ID {record.InstanceId} is already registered";
+        if (record.Count <= 0)
+            return $"count {record.Count} is not positive";
 
         _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
         _created[record.InstanceId] = record;
+        return null;
+    }
+
+    private string? TryApplyContainer(ContainerRecord record, HashSet<EntityId> seenIds)
+    {
+        if (!CellKey.TryParse(record.HostCell, out var cell))
+            return "unparseable host cell";
+        string hostBaseline = Baseline(cell).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
+        if (!DefinitionId.IsValid(record.Key) || _containers.ContainsKey(record.Key))
+            return $"container key '{record.Key}' is invalid or appears twice";
+        if (record.InstanceId.Kind != EntityKind.Container)
+            return $"{record.InstanceId} is not a container ID";
+        var ids = record.Items.Select(i => i.ItemId).Prepend(record.InstanceId).ToList();
+        foreach (var id in ids)
+        {
+            if (!seenIds.Add(id))
+                return $"instance ID {id} appears twice";
+            if (_registry.Exists(id))
+                return $"instance ID {id} is already registered";
+        }
+        if (record.Items.Any(i => i.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(i.DefId) || i.Count <= 0))
+            return "an item in it is malformed";
+
+        _registry.CreateEntity(DefinitionId.Parse(record.Key), record.InstanceId);
+        foreach (var item in record.Items)
+            _registry.CreateEntity(DefinitionId.Parse(item.DefId), item.ItemId);
+        _containers[record.Key] = record;
         return null;
     }
 

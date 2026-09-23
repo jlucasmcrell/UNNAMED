@@ -110,3 +110,6 @@ structures:
 doors:
   - { key: door.longhouse, flag_ref: world.hollow.longhouse_door_open, box_m: [53.6, 43.2, 54, 44.8], height_m: 2.4 }
   - { key: door.forge_shed, flag_ref: world.hollow.forge_shed_door_open, box_m: [60, 33.2, 60.4, 34.8], height_m: 2.4 }
+# Authored world containers: their contents are a loot table until the player first changes them.
+containers:
+  - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [25, 183], stack_slots: 12 }

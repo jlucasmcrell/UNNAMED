@@ -47,7 +47,9 @@
         "cluster_kills": {}
       }
     },
-    "discoveries": []
+    "discoveries": [],
+    "equipment": {},
+    "currency": 0
   },
   "cells": [
     {
@@ -111,5 +113,6 @@
       "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b"
     }
   ],
-  "created": []
+  "created": [],
+  "containers": []
 }

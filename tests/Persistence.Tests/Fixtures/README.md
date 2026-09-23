@@ -57,6 +57,9 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | Health 87, Focus 40, Strain 6; three wolf kills on day 0 at the wolves' cluster | player progression | Pools (a nil pool is full) and the AG-2/AG-3 guard memory |
 | Facing 123456 millidegrees | player | Schema 5. v1-v4 migrate to 0 (+Z) |
 | Discovered `location.wolf_den` (visited, tick 3000) | player discoveries | Schema 5. The place was **renamed** to `location.den_mouth` in content 0.2.2: the rename must reach the discovery record. v1-v4 migrate to none |
+| The sword in `main_hand`; 40 coin | player equipment, purse | Schema 6. v1-v5 migrate to nothing equipped and no coin |
+| `item.potion.healing_draught` x3 dropped | created instance in `r_0_0:c_00_08` | Schema 6: a created instance keeps its count, and the renamed potion must be renamed in the world too |
+| `container.fixture_chest`: a sword and `healing_draught` x4 | changed container in `r_0_0:c_00_09` | Schema 6: a changed container's whole contents, with identities; the potion is renamed inside it |
 
 ## Provenance
 
@@ -67,6 +70,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v3/` | The M2b schema-3 writer | `M2.Probe fixture <dir>` |
 | `v4/` | The M2c schema-4 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.1) |
 | `v5/` | The M3 schema-5 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
+| `v6/` | The M3b schema-6 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

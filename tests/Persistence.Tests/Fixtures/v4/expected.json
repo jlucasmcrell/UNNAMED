@@ -98,7 +98,9 @@
         }
       }
     },
-    "discoveries": []
+    "discoveries": [],
+    "equipment": {},
+    "currency": 0
   },
   "cells": [
     {
@@ -169,7 +171,9 @@
       "host_cell": "r_0_0:c_00_06",
       "x_cm": 500,
       "z_cm": 600,
+      "count": 1,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
-  ]
+  ],
+  "containers": []
 }

@@ -99,9 +99,10 @@ public sealed class PerfRun
         }
 
         // The obstruction route passes through the longhouse: open its door the first time it is in reach.
-        if (segment.Route == Obstructed && !_doorRequested && controller.Focus(camera) is { Key: "door.longhouse" } door && !controller.IsOpen(door.Key))
+        if (segment.Route == Obstructed && !_doorRequested && controller.FocusOn(camera) is { Kind: FocusKind.Door, Key: "door.longhouse" } door
+            && !controller.IsOpen(door.Key))
         {
-            controller.Interact(door);
+            controller.Interact(door.Key);
             _doorRequested = true;
         }
 

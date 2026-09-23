@@ -97,9 +97,13 @@ internal static class SemanticRebase
         var rebasedCreated = delta.Created
             .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
             .ToImmutableArray();
+        // A changed container is authored, not generated: like a created instance it moves to the new baseline as it is.
+        var rebasedContainers = delta.Containers
+            .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
+            .ToImmutableArray();
 
         foreach (string cell in cellsToRebase.OrderBy(c => c, StringComparer.Ordinal))
             report.CellsRebased.Add($"{cell} ({transition.Name})");
-        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable()) { Created = rebasedCreated };
+        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable()) { Created = rebasedCreated, Containers = rebasedContainers };
     }
 }

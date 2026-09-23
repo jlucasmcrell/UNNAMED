@@ -1,0 +1,13 @@
+id: config.inventory
+kind: config
+schema: 1
+display_key: config.inventory.name
+tags: [config]
+notes: Carrying limits and the starting kit (PROTOTYPE.md §5 step 1 - spawn with the sword equipped).
+stack_slots: 24            # stacks carried
+carry_base_kg: 30
+carry_kg_per_might: 2      # Might is one of Phase 1's three live attributes
+starting_items:
+  - { item_ref: item.weapon.rusted_sword, count: 1, equip: true }
+  - { item_ref: item.weapon.hunting_bow, count: 1 }
+  - { item_ref: item.tool.water_flask, count: 1 }

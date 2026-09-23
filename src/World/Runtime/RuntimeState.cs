@@ -2,6 +2,8 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
@@ -31,6 +33,15 @@ public enum StateSlice
 
     /// <summary>Per-cell simulation tier (S-21). Transient: derived from position, never saved.</summary>
     CellTiers,
+
+    /// <summary>The player's carried stacks and purse (S-14: "sole writer of item placement").</summary>
+    PlayerInventory,
+
+    /// <summary>The player's equipment slots (S-15).</summary>
+    PlayerEquipment,
+
+    /// <summary>Items lying in the world and the contents of changed world containers (S-14).</summary>
+    WorldItems,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -54,13 +65,16 @@ internal sealed class RuntimeState
 {
     private readonly Dictionary<StateSlice, string> _owners = new();
 
-    public RuntimeState(WorldDelta world, long worldTick, Body body, CharacterProgression progression, IEnumerable<DiscoveryRecord> discoveries)
+    public RuntimeState(WorldDelta world, long worldTick, Body body, PlayerRecord player)
     {
         World = world;
         WorldTick = worldTick;
         Body = body;
-        Progression = progression;
-        Discoveries = discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
+        Progression = player.Progression;
+        Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
+        Inventory = player.Inventory;
+        Equipment = player.Equipment;
+        Currency = player.Currency;
     }
 
     public WorldDelta World { get; }
@@ -70,6 +84,9 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =
         ImmutableSortedDictionary.Create<string, SimulationTier>(StringComparer.Ordinal);
+    public ImmutableArray<InventoryEntry> Inventory { get; private set; }
+    public ImmutableSortedDictionary<EquipSlot, EntityId> Equipment { get; private set; }
+    public long Currency { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -128,6 +145,42 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.CellTiers);
         Tiers = Tiers.SetItem(cellKey, tier);
+    }
+
+    public void SetInventory(SliceOwner owner, IEnumerable<InventoryEntry> inventory)
+    {
+        Require(owner, StateSlice.PlayerInventory);
+        Inventory = inventory.OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToImmutableArray();
+    }
+
+    public void SetCurrency(SliceOwner owner, long currency)
+    {
+        Require(owner, StateSlice.PlayerInventory);
+        Currency = currency >= 0 ? currency : throw new InvalidOperationException("The purse cannot go negative");
+    }
+
+    public void SetEquipment(SliceOwner owner, ImmutableSortedDictionary<EquipSlot, EntityId> equipment)
+    {
+        Require(owner, StateSlice.PlayerEquipment);
+        Equipment = equipment;
+    }
+
+    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm)
+    {
+        Require(owner, StateSlice.WorldItems);
+        World.PlaceItem(cell, itemId, defId, count, xCm, zCm);
+    }
+
+    public CreatedEntityRecord TakeItem(SliceOwner owner, EntityId itemId)
+    {
+        Require(owner, StateSlice.WorldItems);
+        return World.TakeCreated(itemId);
+    }
+
+    public void SetContainer(SliceOwner owner, ContainerRecord record)
+    {
+        Require(owner, StateSlice.WorldItems);
+        World.SetContainer(record);
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

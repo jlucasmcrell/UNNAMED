@@ -516,9 +516,14 @@ public class ContentLoaderTests
         Assert.Equal(
             new[]
             {
-                "config.base_speeds", "config.level_cap", "config.progression", "config.simulation_tiers", "config.time", "config.xp_curve",
+                "config.base_speeds", "config.economy", "config.inventory", "config.level_cap", "config.progression",
+                "config.simulation_tiers", "config.time", "config.xp_curve",
+                "item.ammo.arrow_rough", "item.armor.hide_cap", "item.armor.hide_vest", "item.consumable.salve_minor",
+                "item.material.herb_ashbloom", "item.material.iron_ingot", "item.material.iron_ore", "item.material.raw_meat",
+                "item.material.wolf_hide", "item.quest.halda_token", "item.tome.ember_primer", "item.tool.water_flask",
+                "item.trinket.wolf_fang", "item.weapon.hunting_bow", "item.weapon.rusted_sword",
                 "location.den_mouth", "location.herb_patch", "location.iron_shelf", "location.outpost",
-                "region.ashen_hollow", "skill.athletics", "skill.one_hand_blade", "skill.survival",
+                "loot.den_cache", "loot.wolf_grey", "merchant.smith_orren", "region.ashen_hollow", "skill.athletics", "skill.one_hand_blade", "skill.survival",
                 "world.hollow.forge_shed_door_open", "world.hollow.longhouse_door_open",
             },
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));

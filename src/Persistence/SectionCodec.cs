@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using MessagePack;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Sections;
@@ -31,6 +32,19 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 5. The 4 -> 5 step gives older saves no discoveries.</summary>
     [Key("discoveries")] public DiscoveryDto[]? Discoveries { get; set; }
+
+    /// <summary>Required from schema 6. The 5 -> 6 step gives older saves nothing equipped.</summary>
+    [Key("equipment")] public EquipmentDto[]? Equipment { get; set; }
+
+    /// <summary>Required from schema 6. The 5 -> 6 step gives older saves an empty purse.</summary>
+    [Key("currency")] public long? Currency { get; set; }
+}
+
+[MessagePackObject]
+public sealed class EquipmentDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("item_id")] public string ItemId { get; set; } = "";
 }
 
 [MessagePackObject]
@@ -98,6 +112,26 @@ public sealed class EntitiesSectionDto
 
     /// <summary>The baseline hash of every cell hosting a record: each record is proven against its host cell.</summary>
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
+
+    /// <summary>Changed world containers with their whole contents. Required from schema 6.</summary>
+    [Key("containers")] public ContainerDto[]? Containers { get; set; }
+}
+
+[MessagePackObject]
+public sealed class ContainerDto
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("items")] public ContainerItemDto[] Items { get; set; } = Array.Empty<ContainerItemDto>();
+}
+
+[MessagePackObject]
+public sealed class ContainerItemDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("count")] public int Count { get; set; }
 }
 
 [MessagePackObject]
@@ -108,6 +142,9 @@ public sealed class CreatedDto
     [Key("host_cell")] public string HostCell { get; set; } = "";
     [Key("x_cm")] public int XCm { get; set; }
     [Key("z_cm")] public int ZCm { get; set; }
+
+    /// <summary>Required from schema 6: a dropped stack keeps its count. The 5 -> 6 step gives older records 1.</summary>
+    [Key("count")] public int? Count { get; set; }
 }
 
 [MessagePackObject]
@@ -172,6 +209,10 @@ public static class SectionCodec
         Discoveries = player.Discoveries
             .Select(d => new DiscoveryDto { LocationId = d.LocationId, Method = DiscoveryMethods.Key(d.Method), Tick = d.Tick })
             .ToArray(),
+        Equipment = player.Equipment
+            .Select(kv => new EquipmentDto { Slot = EquipSlots.Key(kv.Key), ItemId = kv.Value.Value })
+            .ToArray(),
+        Currency = player.Currency,
     }, Options);
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
@@ -180,10 +221,13 @@ public static class SectionCodec
         var progression = dto.Progression ?? throw new FormatException("player.msgpack has no progression record (required from schema 4)");
         int facing = dto.FacingMdeg ?? throw new FormatException("player.msgpack has no facing (required from schema 5)");
         var discoveries = dto.Discoveries ?? throw new FormatException("player.msgpack has no discovery records (required from schema 5)");
+        var equipment = dto.Equipment ?? throw new FormatException("player.msgpack has no equipment (required from schema 6)");
+        long currency = dto.Currency ?? throw new FormatException("player.msgpack has no currency (required from schema 6)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)),
             ProgressionCodec.FromDto(progression), facing,
-            discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)));
+            discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
+            equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency);
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto
@@ -227,6 +271,8 @@ public static class SectionCodec
             Prove(HostCell(e.SlotKey), e.BaselineHash, e.InstanceId);
         foreach (var c in snapshot.Created)
             Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+        foreach (var c in snapshot.Containers)
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
 
         return MessagePackSerializer.Serialize(new EntitiesSectionDto
         {
@@ -246,13 +292,22 @@ public static class SectionCodec
                 HostCell = c.HostCell,
                 XCm = c.XCm,
                 ZCm = c.ZCm,
+                Count = c.Count,
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
+            Containers = snapshot.Containers.Select(c => new ContainerDto
+            {
+                Key = c.Key,
+                InstanceId = c.InstanceId.Value,
+                HostCell = c.HostCell,
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count }).ToArray(),
+            }).ToArray(),
         }, Options);
     }
 
-    /// <summary>The entities section: slot-keyed records and created instances, each with its host cell's baseline hash.</summary>
-    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created) DecodeEntitySection(byte[] bytes)
+    /// <summary>The entities section: slot-keyed records, created instances and changed containers, each with its host cell's baseline hash.</summary>
+    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created, ImmutableArray<ContainerRecord> Containers)
+        DecodeEntitySection(byte[] bytes)
     {
         var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
         var baselines = section.Baselines.ToDictionary(b => b.CellKey, b => b.BaselineHash, StringComparer.Ordinal);
@@ -264,9 +319,18 @@ public static class SectionCodec
             .ToImmutableArray();
         var created = section.Created
             .Select(c => new CreatedEntityRecord(
-                EntityId.Parse(c.InstanceId), c.DefId, c.HostCell, c.XCm, c.ZCm, baselines.GetValueOrDefault(c.HostCell)))
+                EntityId.Parse(c.InstanceId), c.DefId, c.HostCell, c.XCm, c.ZCm, baselines.GetValueOrDefault(c.HostCell))
+            {
+                Count = c.Count ?? throw new FormatException($"created instance {c.InstanceId} has no count (required from schema 6)"),
+            })
             .ToImmutableArray();
-        return (entities, created);
+        var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
+            .Select(c => new ContainerRecord(
+                c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count)).ToImmutableArray(),
+                baselines.GetValueOrDefault(c.HostCell)))
+            .ToImmutableArray();
+        return (entities, created, containers);
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;

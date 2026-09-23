@@ -145,7 +145,6 @@ public class ContentChecksTests : IDisposable
     }
 
     [Theory]
-    [InlineData("skill_ref: skill.one_hand_blade\n", "", "SEM001", "skill_ref")]
     [InlineData("stack_max: 1\n", "stack_max: 0\n", "SEM003", "stack_max")]
     [InlineData("damage: [7, 7]\n", "damage: [11, 7]\n", "SEM003", "damage")]
     [InlineData("rarity: common\n", "rarity: shiny\n", "SEM002", "rarity")]
@@ -154,7 +153,10 @@ public class ContentChecksTests : IDisposable
     [InlineData("weight: 3.0\n", "weight: -1\n", "SEM003", "weight")]
     public void WeaponSemantics_AreChecked(string find, string replace, string code, string field)
     {
-        var errors = Lint(("skills/one_hand_blade.yaml", Skill), ("items/weapon/rusted_sword.yaml", (Sword + "\n").Replace(find, replace)));
+        // Normalised first: a raw string literal carries the line endings of the checkout.
+        string sword = (Sword + "\n").Replace("\r\n", "\n");
+        Assert.Contains(find, sword);
+        var errors = Lint(("skills/one_hand_blade.yaml", Skill), ("items/weapon/rusted_sword.yaml", sword.Replace(find, replace)));
         Assert.Contains(errors, e => e.Code == code && e.Message.Contains($" {field} ", StringComparison.Ordinal));
     }
 

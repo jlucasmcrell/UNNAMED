@@ -155,12 +155,13 @@ content/
   quests/       hollow_lost_token.yaml
   dialogue/     3 graphs
   locations/    4 named locations (outpost, den_mouth, iron_shelf, herb_patch)
-  regions/      1 region: ashen_hollow - the 4 cells, the terrain grid, structures and doors (M3)
+  regions/      1 region: ashen_hollow - the 4 cells, the terrain grid, structures, doors and the den cache (M3, M3b)
+  merchants/    1: the smith's stock (M3b)
   world_flags/  2 door flags (M3)
   config/       xp_curve, level_cap, base_speeds, damage_constants, time, progression, simulation_tiers
 ```
 
-39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 reconciliation:** `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
+39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
 
 ## 5. Core loop the player actually performs
 

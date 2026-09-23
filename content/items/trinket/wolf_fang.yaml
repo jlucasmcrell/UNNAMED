@@ -1,0 +1,13 @@
+id: item.trinket.wolf_fang
+kind: item
+schema: 1
+display_key: item.trinket.wolf_fang.name
+tags: [item]
+name: Wolf Fang
+notes: +2% crit (applied by combat, M3c). Proves a non-armor, non-weapon equipment slot (PROTOTYPE.md §4.2).
+category: misc
+stack_max: 1
+weight: 0.05
+value_base: 10
+rarity: uncommon
+equip_slot: amulet

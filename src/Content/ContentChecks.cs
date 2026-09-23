@@ -263,7 +263,7 @@ internal static class PhaseOneSchemas
             f.Number("attack_speed", required: false, min: 0.01);
             f.Number("reach", required: false, min: 0.01);
             f.Number("stamina_cost", required: false, min: 0);
-            f.Present("skill_ref", "a weapon names its weapon-family skill (PROGRESSION.md §6)");
+            // skill_ref names the weapon-family skill when there is one; Phase 1 trains only one_hand_blade (PROTOTYPE.md §4.1).
         }
         else if (kind == "item.armor")
         {

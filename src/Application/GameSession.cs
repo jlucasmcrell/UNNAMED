@@ -79,8 +79,14 @@ public sealed class GameSession : IDomainEvents
             throw new ContentBootException(loader.Errors.ToList());
 
         var layout = WorldContent.BuildLayout(loader, options.RegionId);
-        var setup = new SimulationSetup(layout, WorldContent.BuildMovement(loader), ProgressionContent.BuildRules(loader),
-            WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader));
+        var movement = WorldContent.BuildMovement(loader);
+        var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
+            WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))
+        {
+            Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
+                ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
+                ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
+        };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
         var terrain = layout.Generation;

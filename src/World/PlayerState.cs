@@ -4,6 +4,7 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.World;
@@ -55,7 +56,8 @@ public static class DiscoveryMethods
 public sealed record PlayerRecord
 {
     public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory,
-        CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null)
+        CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
+        IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -90,6 +92,18 @@ public sealed record PlayerRecord
         }
         if (Discoveries.Select(d => d.LocationId).Distinct(StringComparer.Ordinal).Count() != Discoveries.Length)
             throw new ArgumentException("A location is discovered only once", nameof(discoveries));
+        Equipment = (equipment ?? Array.Empty<KeyValuePair<EquipSlot, EntityId>>()).ToImmutableSortedDictionary();
+        var held = Inventory.Select(e => e.ItemId).ToHashSet();
+        foreach (var (slot, item) in Equipment)
+        {
+            if (!held.Contains(item))
+                throw new ArgumentException($"The {EquipSlots.Key(slot)} slot holds {item}, which is not in the inventory", nameof(equipment));
+        }
+        if (Equipment.Values.Distinct().Count() != Equipment.Count)
+            throw new ArgumentException("One item fills two equipment slots", nameof(equipment));
+        if (currency < 0)
+            throw new ArgumentOutOfRangeException(nameof(currency), currency, "Currency is never negative");
+        Currency = currency;
     }
 
     /// <summary>
@@ -104,16 +118,22 @@ public sealed record PlayerRecord
     }
 
     /// <summary>The same player holding a different inventory (the definition-ID pass rewrites stored IDs).</summary>
-    public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, inventory, Progression, FacingMdeg, Discoveries);
+    public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory)
+    {
+        var entries = inventory.ToList();
+        var held = entries.Select(e => e.ItemId).ToHashSet();
+        // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
+        return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency);
+    }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency);
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -135,18 +155,28 @@ public sealed record PlayerRecord
     /// <summary>Discovered-location records, sorted by location ID (PERSISTENCE.md §5.1). Schema 5.</summary>
     public ImmutableArray<DiscoveryRecord> Discoveries { get; }
 
+    /// <summary>Equipment slots, each naming an item the inventory holds (SYSTEMS.md S-15). Schema 6.</summary>
+    public ImmutableSortedDictionary<EquipSlot, EntityId> Equipment { get; }
+
+    /// <summary>The purse (PROTOTYPE.md: coin is not an item). Schema 6.</summary>
+    public long Currency { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v4").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v5").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
+            h.Add(Equipment.Count);
+            foreach (var (slot, item) in Equipment)
+                h.Add(EquipSlots.Key(slot)).Add(item.Value);
+            h.Add(Currency);
             return h.Finish();
         }
     }

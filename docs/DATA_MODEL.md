@@ -205,6 +205,8 @@ use:
 
 The same mechanism carries `ability`, `recipe`, `title`, `access`, `world_flag`, `permanent_ability` and `transformation` grants without further schema work — a tome that teaches a recipe and a shrine that grants a title are the same field with a different `kind`. **`custom_scripted` remains deliberately absent** (see §4.11): if a desired grant cannot be expressed as one of the closed kinds, the correct response is to add a kind, not to add scripting.
 
+**M3b reconciliation (the prototype's items).** A plain item may be worn in a jewelry slot with `equip_slot: ring|amulet`, as the wolf fang is: the prototype's "non-armor, non-weapon equipment slot". `requirements` holds only `attribute.<name>` and `skill.<id>` minima, never a level (`PROGRESSION.md` §11.1). Ammunition is a `misc` item that its weapon names with `ammo_item_ref`. A ranged weapon may give `draw_time` instead of `reach`. Coin is not an item in Phase 1: it is a purse on the character.
+
 ### 4.2 WeaponDefinition — `kind: item.weapon` (extends ItemDefinition)
 
 ```yaml
@@ -573,6 +575,8 @@ once_per_source: true
 
 An elite table (`loot.undead.barrow_wight.rare`) adds `guaranteed:` with a **quest-state-gated** quest item, so the artifact fragment cannot be farmed before the chain reaches it.
 
+**As implemented (M3b).** An entry with `weight` joins the weighted draw made `rolls` times; an entry with `chance` (in (0, 1]) rolls on its own, which is how a wolf drops meat 70%, hide 45% and fang 15% independently; `guaranteed` entries always resolve. A table is rolled from a source keyed by `(seed, cell, "loot", source key)`, so the same source always gives the same result. Conditions and currency ranges arrive with the content that needs them.
+
 ### 4.15 MerchantProfile — `kind: merchant` (referenced by `npc.*`)
 
 ```yaml
@@ -593,6 +597,8 @@ trade_skill_effect: 0.02
 repair_service: false
 # note: Rural pricing: sells metal dear, buys weapons cheap — deliberately worse than the city so travel has economic value.
 ```
+
+Phase 1 (M3b) matches `buys_tags` against the item's `category`; the tag vocabulary arrives later. A merchant buys at `config.economy`'s `sell_ratio` of `value_base` and sells at `value_base × price_bias`.
 
 ### 4.16 NodeDefinition — `kind: node`
 

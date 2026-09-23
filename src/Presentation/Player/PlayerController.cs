@@ -8,6 +8,16 @@ using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Player;
 
+public enum FocusKind
+{
+    Door,
+    Container,
+    Item,
+}
+
+/// <summary>What the player means to use: a door, a container, or an item lying in the world.</summary>
+public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm);
+
 /// <summary>
 /// Turns the player's wishes into the same two commands at every camera distance - a movement intent and an
 /// interaction - and draws the body a fraction of a tick ahead of the simulation with the simulation's own movement
@@ -79,32 +89,58 @@ public sealed class PlayerController
     }
 
     /// <summary>
-    /// The interactable the player means: within reach of the body (the rule the simulation applies), and the one the
-    /// camera faces most directly. In first person it must be roughly under the crosshair.
+    /// What the player means to use: within reach of the body (the rule the simulation applies), and the one the camera
+    /// faces most directly. In first person it must be roughly under the crosshair.
     /// </summary>
-    public DoorSite? Focus(CameraRig camera)
+    public Focus? FocusOn(CameraRig camera)
     {
-        long reach = _session.Setup.Movement.InteractReachMm;
-        DoorSite? best = null;
-        float bestAlignment = float.MinValue;
+        var simulation = _session.Simulation!;
+        long doorReach = _session.Setup.Movement.InteractReachMm, itemReach = _session.Setup.Items.Inventory.ReachMm;
+        var candidates = new List<(Focus Focus, double Distance)>();
         foreach (var door in _session.Setup.Layout.Doors)
         {
-            if (door.ClosedFootprint.DistanceTo(_body.XMm, _body.ZMm) > reach)
+            candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
+                door.ClosedFootprint.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+        }
+        foreach (var site in _session.Setup.Layout.Containers)
+            candidates.Add((new Focus(FocusKind.Container, site.Key, site.Key, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
+        foreach (var item in simulation.WorldItems)
+            candidates.Add((new Focus(FocusKind.Item, item.Id.Value, item.DefId, item.XMm, item.ZMm), Distance(item.XMm, item.ZMm) - itemReach));
+
+        Focus? best = null;
+        float bestAlignment = float.MinValue;
+        foreach (var (focus, beyondReach) in candidates)
+        {
+            if (beyondReach > 0)
                 continue;
-            var to = new Vector3(door.ClosedFootprint.CenterXMm - _body.XMm, 0, door.ClosedFootprint.CenterZMm - _body.ZMm);
+            var to = new Vector3(focus.XMm - _body.XMm, 0, focus.ZMm - _body.ZMm);
             float alignment = to.LengthSquared() < 1 ? 1 : to.Normalized().Dot(camera.GroundForward);
             if (camera.IsFirstPerson && alignment < 0.5f)
                 continue;
             if (alignment > bestAlignment)
             {
                 bestAlignment = alignment;
-                best = door;
+                best = focus;
             }
         }
         return best;
     }
 
-    public void Interact(DoorSite door) => _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, door.Key));
+    public void Interact(string doorKey) => _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+
+    /// <summary>Pick up everything in a stack lying within reach.</summary>
+    public void PickUp(string itemId)
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.WorldItems.FirstOrDefault(i => i.Id.Value == itemId) is { } item)
+            _session.Submit(new MoveItemCommand(simulation.PlayerId, itemId, ItemPlace.Ground, ItemPlace.Carried, item.Count));
+    }
+
+    private double Distance(long xMm, long zMm)
+    {
+        double dx = _body.XMm - xMm, dz = _body.ZMm - zMm;
+        return Math.Sqrt(dx * dx + dz * dz);
+    }
 
     /// <summary>Millidegrees from +Z towards +X, the simulation's facing convention.</summary>
     public static int FacingOf(Vector3 direction)

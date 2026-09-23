@@ -12,6 +12,7 @@ using V1 = UNNAMED.Persistence.Sections.V1;
 using V2 = UNNAMED.Persistence.Sections.V2;
 using V3 = UNNAMED.Persistence.Sections.V3;
 using V4 = UNNAMED.Persistence.Sections.V4;
+using V5 = UNNAMED.Persistence.Sections.V5;
 
 namespace UNNAMED.Persistence;
 
@@ -63,7 +64,8 @@ public static class SchemaMigrations
         new SchemaV1ToV2(),
         new SchemaV2ToV3(),
         new SchemaV3ToV4(),
-        new SchemaV4ToV5());
+        new SchemaV4ToV5(),
+        new SchemaV5ToV6());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -343,6 +345,44 @@ public sealed class SchemaV4ToV5 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V4.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V5.Player
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new V5.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Progression = old.Progression,
+                FacingMdeg = 0,
+                Discoveries = Array.Empty<V5.Discovery>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 5 to 6 (M3b): the player gains equipment slots and a purse, a created instance gains its count, and the
+/// entities section gains changed world containers. An older save had nothing equipped (equipment did not exist), no
+/// coin, single created items, and untouched containers.
+/// </summary>
+public sealed class SchemaV5ToV6 : SchemaMigration
+{
+    public override int From => 5;
+
+    public override string Summary =>
+        "schema 5 -> 6: the player gains equipment (none) and currency (0); created instances gain a count (1); " +
+        "the entities section gains changed world containers (none before M3b)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V5.Player>(player, options);
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
             {
                 InstanceId = old.InstanceId,
@@ -353,8 +393,33 @@ public sealed class SchemaV4ToV5 : SchemaMigration
                 AppearanceSeed = old.AppearanceSeed,
                 Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
                 Progression = old.Progression,
-                FacingMdeg = 0,
-                Discoveries = Array.Empty<DiscoveryDto>(),
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = (old.Discoveries ?? Array.Empty<V5.Discovery>())
+                    .Select(d => new DiscoveryDto { LocationId = d.LocationId, Method = d.Method, Tick = d.Tick }).ToArray(),
+                Equipment = Array.Empty<EquipmentDto>(),
+                Currency = 0,
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V3.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records.Select(e => new EntityDto
+                {
+                    InstanceId = e.InstanceId,
+                    SlotKey = e.SlotKey,
+                    GenerationSeq = e.GenerationSeq,
+                    DefId = e.DefId,
+                    DirtyMask = e.DirtyMask,
+                    State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                }).ToArray(),
+                Created = old.Created.Select(c => new CreatedDto
+                {
+                    InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = 1,
+                }).ToArray(),
+                Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+                Containers = Array.Empty<ContainerDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

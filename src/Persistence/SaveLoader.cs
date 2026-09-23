@@ -138,9 +138,9 @@ internal static class SaveLoader
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }
         var cells = DecodeOrQuarantine(sections[SaveFormat.Cells], SaveFormat.Cells, SectionCodec.DecodeCells, quarantined, report);
-        var (entities, created) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
-            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created };
+        var (entities, created, containers) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
+            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty, ImmutableArray<ContainerRecord>.Empty));
+        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers };
         PlayerRecord player;
         try
         {
@@ -264,6 +264,19 @@ internal static class SaveLoader
                 created.Add(record with { DefId = id });
         }
 
+        // Items in changed world containers (schema 6). An item whose definition was removed leaves its container.
+        var containers = delta.Containers.Select(container =>
+        {
+            var items = ImmutableArray.CreateBuilder<ContainerItem>();
+            foreach (var item in container.Items)
+            {
+                string? id = Resolve(item.DefId, $"item {item.ItemId} in container {container.Key}");
+                if (id is not null)
+                    items.Add(item with { DefId = id });
+            }
+            return container with { Items = items.ToImmutable() };
+        }).ToImmutableArray();
+
         // Skills, known techniques, first-time records and kill records name definitions too (schema 4).
         var progression = player.Progression.RewriteDefinitionIds((id, role) => Resolve(id, $"player {role}"));
 
@@ -278,7 +291,7 @@ internal static class SaveLoader
         }
 
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values),
-            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable() });
+            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers });
     }
 
     private static DeltaSnapshot ProveBaselines(
@@ -305,6 +318,8 @@ internal static class SaveLoader
         foreach (var record in delta.Entities)
             Check(SectionCodec.HostCell(record.SlotKey), record.BaselineHash);
         foreach (var record in delta.Created)
+            Check(record.HostCell, record.BaselineHash);
+        foreach (var record in delta.Containers)
             Check(record.HostCell, record.BaselineHash);
         proven.ExceptWith(mismatched.Keys);
         report.CellsMatched = proven.Count;

@@ -53,6 +53,11 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            json.WriteStartObject("equipment");
+            foreach (var (slot, item) in player.Equipment)
+                json.WriteString(Domain.Items.EquipSlots.Key(slot), item.Value);
+            json.WriteEndObject();
+            json.WriteNumber("currency", player.Currency);
             json.WriteEndObject();
 
             json.WriteStartArray("cells");
@@ -107,7 +112,30 @@ internal static class CanonicalState
                 json.WriteString("host_cell", created.HostCell);
                 json.WriteNumber("x_cm", created.XCm);
                 json.WriteNumber("z_cm", created.ZCm);
+                json.WriteNumber("count", created.Count);
                 json.WriteString("baseline_hash", created.BaselineHash);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+
+            json.WriteStartArray("containers");
+            foreach (var container in snapshot.Containers)
+            {
+                json.WriteStartObject();
+                json.WriteString("key", container.Key);
+                json.WriteString("instance_id", container.InstanceId.Value);
+                json.WriteString("host_cell", container.HostCell);
+                json.WriteString("baseline_hash", container.BaselineHash);
+                json.WriteStartArray("items");
+                foreach (var item in container.Items)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("item_id", item.ItemId.Value);
+                    json.WriteString("def_id", item.DefId);
+                    json.WriteNumber("count", item.Count);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
                 json.WriteEndObject();
             }
             json.WriteEndArray();

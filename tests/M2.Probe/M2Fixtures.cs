@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Persistence;
 using UNNAMED.World;
@@ -113,7 +114,12 @@ public static class M2Fixtures
             Progression(),
             facingMdeg: 123_456,
             // Schema 5. Written with content 0.1.2, which calls the place location.wolf_den; the current pack renames it.
-            discoveries: new[] { new DiscoveryRecord("location.wolf_den", DiscoveryMethod.Visited, 3_000) });
+            discoveries: new[] { new DiscoveryRecord("location.wolf_den", DiscoveryMethod.Visited, 3_000) },
+            // Schema 6: the sword in the main hand, and a purse.
+            equipment: new[] { KeyValuePair.Create(EquipSlot.MainHand, SwordId) },
+            currency: 40);
+
+        public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 
         /// <summary>
         /// Progression in every field (schema 4). Written with content 0.1.1, so it names the formula
@@ -171,6 +177,16 @@ public static class M2Fixtures
             // A created persistent instance. Schema 3 is the first that can record one, so the v1 and v2
             // fixtures, written before it, have none.
             world.PlaceCreated(cells[6], "item.weapon.iron_sword", 500, 600);
+            // Schema 6: a dropped stack keeps its count, and a changed world container holds its whole contents.
+            // Both name the potion by its 0.1.x ID, so the load renames it in the world as well as in the inventory.
+            var stack = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
+            world.PlaceItem(TenCells[8], stack, "item.potion.healing_draught", 3, 700, 800);
+            var chest = registry.CreateEntity(DefinitionId.Parse("container.fixture_chest"), EntityKind.Container).InstanceId;
+            var blade = registry.CreateEntity(DefinitionId.Parse("item.weapon.iron_sword")).InstanceId;
+            var potions = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
+            world.SetContainer(new ContainerRecord("container.fixture_chest", chest, TenCells[9].ToString(), ImmutableArray.Create(
+                new ContainerItem(blade, "item.weapon.iron_sword", 1),
+                new ContainerItem(potions, "item.potion.healing_draught", 4))));
             return world;
         }
 

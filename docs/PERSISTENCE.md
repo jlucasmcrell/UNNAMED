@@ -153,7 +153,7 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 ```jsonc
 {
   "save_format": 1,                       // CONTAINER version; never changes for small layout edits
-  "schema_version": 5,                    // GAMEPLAY STATE schema; drives the migration chain
+  "schema_version": 6,                    // GAMEPLAY STATE schema; drives the migration chain
   "content_version": "0.4.2",             // content pack version; a human label
   "content_hash": "sha256:9f3c…",         // exact identity of the compiled content pack; NOT a generation input
   "world_seed": "0x5C1A9E7B4D2F0083",     // frozen; 0 means random
@@ -189,7 +189,7 @@ These are the only fully-serialized sections. A character is not regenerable, so
 
 **Rebase does not apply here.** There is no baseline to return to, so every field is authoritative and T-01 asserts full equality after reload.
 
-Implemented so far (schema 5): the character's ULID, name, position in integer millimetres, facing in millidegrees (from schema 5), `appearance_seed` (required from schema 3), inventory stacks by item ULID, the progression record (from schema 4; `PROGRESSION.md` §3-§4), and discovered-location records - location, method, world tick (from schema 5). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and its definition IDs - skills, known techniques, first-time records, kill records, discovered locations - go through the definition-ID pass like the inventory's. The rest of the list above arrives with the systems that own it.
+Implemented so far (schema 6): the character's ULID, name, position in integer millimetres, facing in millidegrees (from schema 5), `appearance_seed` (required from schema 3), inventory stacks by item ULID, equipment slots naming carried items and the purse (from schema 6), the progression record (from schema 4; `PROGRESSION.md` §3-§4), and discovered-location records - location, method, world tick (from schema 5). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and its definition IDs - skills, known techniques, first-time records, kill records, discovered locations - go through the definition-ID pass like the inventory's. The rest of the list above arrives with the systems that own it.
 
 ### 5.2 `cells.msgpack` — sparse cell delta
 
@@ -229,7 +229,9 @@ A slot whose persisted state has returned to baseline is **rebased** (§5.6), no
 
 **Baseline proof.** A slot is part of its host cell's baseline, so the section also records the `baseline_hash` of every host cell it references (the `baselines` table, schema 2+), and a record is merged only into a host cell whose regenerated baseline has that hash (§6.4).
 
-**Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, and position. It is proven against its host cell's baseline like a slot record.
+**Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, position, and (from schema 6) `count`. It is proven against its host cell's baseline like a slot record.
+
+**Changed world containers (schema 6).** An authored container's contents are its loot table's result, rolled from its semantic key, until the player first changes them. From then on the section's `containers` list holds its `key`, its `instance_id`, its `host_cell`, and its whole contents (`item_id`, `def_id`, `count`), proven against the host cell's baseline like a created instance. Its item definition IDs go through the definition-ID pass.
 
 ### 5.4 `buildings.msgpack` — player structures
 
@@ -333,6 +335,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 2 -> 3 | The player gains the required `appearance_seed`, derived from the player's ULID for older saves. The entities section gains `created` instances; older saves have none |
 | 3 -> 4 | The player gains the progression record (M2c). A save that predates progression gets its empty value: level 1, no XP or debt, nothing allocated, learned or practised, full pools, no guard history. The step needs no content |
 | 4 -> 5 | The player gains facing and discovered-location records (M3). An older save faces +Z (0) and has discovered nothing, since nothing could be discovered before M3 |
+| 5 -> 6 | The player gains equipment slots and a purse; a created instance gains its count; the entities section gains changed containers (M3b). An older save had nothing equipped, no coin, single created items and untouched containers |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

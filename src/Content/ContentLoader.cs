@@ -161,6 +161,11 @@ public class ContentLoader
             _errors.AddRange(contentErrors);
             success &= contentErrors.Count == 0;
 
+            // Items, loot tables, merchants, carrying rules and the starting kit (ITM codes)
+            var itemErrors = ItemContent.Validate(this);
+            _errors.AddRange(itemErrors);
+            success &= itemErrors.Count == 0;
+
             // Regions, places, world flags and movement config (WLD codes)
             var worldErrors = WorldContent.Validate(this);
             _errors.AddRange(worldErrors);

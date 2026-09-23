@@ -167,6 +167,20 @@ public static class WorldContent
                 locations.Add(site);
             }
 
+            var containers = ImmutableArray.CreateBuilder<ContainerSite>();
+            foreach (var (entry, i) in (map.ContainsKey("containers") ? List(map, "containers") : new List<object>()).Select((c, i) => (c, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"containers[{i}] must be a map");
+                var (cx, cz) = Pair(site, "position_m");
+                var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"));
+                Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");
+                Check(container.StackSlots >= 1, "WLD009", $"{container.Key} needs at least one stack slot");
+                Check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD009", $"{container.Key} lies outside the walkable bounds");
+                Check(loader.GetByKind("loot").ContainsKey(container.LootTableId), "WLD009", $"{container.Key} names loot table '{container.LootTableId}', which is not defined");
+                containers.Add(container);
+            }
+            Check(containers.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() == containers.Count, "WLD009", "two containers share a key");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -174,7 +188,10 @@ public static class WorldContent
 
             var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures);
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
-                locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration);
+                locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
+            {
+                Containers = containers.ToImmutable(),
+            };
 
             // The spawn must stand clear with every door shut, the harshest case.
             var closed = layout.ClosedDoors(_ => false);

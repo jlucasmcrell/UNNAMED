@@ -31,9 +31,12 @@ public partial class Main : Node3D
     private CameraRig _camera = null!;
     private PlayerController _controller = null!;
     private Hud _hud = null!;
+    private ItemsView _items = null!;
+    private InventoryPanel _inventory = null!;
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
+    private UiShots? _shots;
     private string _perfOut = string.Empty;
     private Vector3 _lastFeet;
     private double _lastAlpha;
@@ -48,7 +51,7 @@ public partial class Main : Node3D
         }
 
         string contentRoot = Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", "..", "content"));
-        string profile = _flags.Contains("--smoke") || _flags.Contains("--perf")
+        string profile = _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         try
@@ -74,6 +77,12 @@ public partial class Main : Node3D
         AddChild(_camera);
         _hud = new Hud { Name = "Hud" };
         AddChild(_hud);
+        _items = new ItemsView { Name = "Items" };
+        AddChild(_items);
+        _items.BuildContainers(_session.Setup.Layout);
+        _inventory = new InventoryPanel { Name = "Inventory" };
+        _inventory.Bind(_session);
+        AddChild(_inventory);
         _controller = new PlayerController(_session);
         Subscribe();
         Resync();
@@ -82,6 +91,10 @@ public partial class Main : Node3D
         if (_flags.Contains("--smoke"))
         {
             _smoke = new Smoke(_session, _controller, _camera, profile);
+        }
+        else if (_options.TryGetValue("--ui-shots", out string? shots))
+        {
+            _shots = new UiShots(_session, _controller, _camera, _inventory, shots);
         }
         else if (_flags.Contains("--perf"))
         {
@@ -118,6 +131,19 @@ public partial class Main : Node3D
                 return;
             }
         }
+        else if (_shots is not null)
+        {
+            switch (_shots.Update())
+            {
+                case "done":
+                    GD.Print($"UNNAMED ui shots written to {_shots.Directory}");
+                    GetTree().Quit(0);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_shots.Directory, shot);
+                    break;
+            }
+        }
         else
         {
             ReadInput();
@@ -138,11 +164,11 @@ public partial class Main : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _perf is not null || _smoke is not null)
+        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null)
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured:
+            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible:
                 _camera.Look(motion.Relative);
                 break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
@@ -151,7 +177,7 @@ public partial class Main : Node3D
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
                 _camera.Zoom(0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible:
                 Input.MouseMode = Input.MouseModeEnum.Captured;
                 break;
         }
@@ -165,8 +191,33 @@ public partial class Main : Node3D
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
         _controller.Steer(_camera, stick, gait);
 
-        if (Input.IsActionJustPressed("interact") && _controller.Focus(_camera) is { } door)
-            _controller.Interact(door);
+        if (Input.IsActionJustPressed("interact") && _controller.FocusOn(_camera) is { } focus)
+        {
+            switch (focus.Kind)
+            {
+                case FocusKind.Door:
+                    _controller.Interact(focus.Key);
+                    break;
+                case FocusKind.Container:
+                    OpenInventory(focus.Key);
+                    break;
+                case FocusKind.Item:
+                    _controller.PickUp(focus.Key);
+                    break;
+            }
+        }
+        if (Input.IsActionJustPressed("inventory"))
+        {
+            if (_inventory.Visible)
+                CloseInventory();
+            else
+                OpenInventory(null);
+        }
+        // A container stays open only while it is in reach.
+        if (_inventory.OpenContainer is { } open && _session.Setup.Layout.FindContainer(open) is { } site
+            && Math.Sqrt(Math.Pow(site.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(site.ZMm - _controller.Authoritative.ZMm, 2))
+               > _session.Setup.Items.Inventory.ReachMm)
+            CloseInventory();
         if (Input.IsActionJustPressed("jump"))
             _avatar.Hop();
         if (Input.IsActionJustPressed("first_person"))
@@ -199,8 +250,13 @@ public partial class Main : Node3D
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetCrosshair(_camera.IsFirstPerson);
 
-        var focus = _controller.Focus(_camera);
-        _hud.SetPrompt(focus is null ? null : $"[E] {(_controller.IsOpen(focus.Key) ? "Close" : "Open")} the {Describe(focus.Key)}");
+        _hud.SetPrompt(_controller.FocusOn(_camera) switch
+        {
+            null => null,
+            { Kind: FocusKind.Door } door => $"[E] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Container } container => $"[E] Open the {Describe(container.Key)}",
+            { } item => $"[E] Pick up {_session.DisplayName(item.DefId)}",
+        });
 
         var view = _session.Simulation!.Player;
         var stats = view.Stats;
@@ -209,7 +265,8 @@ public partial class Main : Node3D
             $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             $"\nHealth {pools.Health ?? stats.HealthMax}/{stats.HealthMax}   Stamina {pools.Stamina ?? stats.StaminaMax}/{stats.StaminaMax}" +
-            $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}");
+            $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}" +
+            $"\nCoin {view.Currency}   Armor {view.Armor}   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
 
         if (_hud.DebugVisible)
         {
@@ -238,9 +295,17 @@ public partial class Main : Node3D
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is InteractCommand)
+            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand)
                 _hud.Toast(e.Reason, 3);
         });
+        _session.Subscribe<ItemMoved>(e =>
+        {
+            _inventory.Refresh();
+            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground)
+                _items.Refresh(_session.Simulation!);
+        });
+        _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
+        _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
     }
 
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
@@ -249,6 +314,8 @@ public partial class Main : Node3D
         _controller.Resync();
         foreach (var door in _session.Simulation!.Doors)
             _hollow.SetDoor(door.Site.Key, door.Open);
+        _items.Refresh(_session.Simulation!);
+        _inventory.Refresh();
         var body = _controller.Authoritative;
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
@@ -311,18 +378,32 @@ public partial class Main : Node3D
 
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
-    private string Describe(string doorKey) => doorKey switch
+    private void OpenInventory(string? container)
     {
-        "door.longhouse" => "longhouse door",
-        "door.forge_shed" => "forge shed door",
-        _ => doorKey,
+        _inventory.Open(container);
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
+    private void CloseInventory()
+    {
+        _inventory.Close();
+        if (DisplayServer.GetName() != "headless")
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+    }
+
+    /// <summary>A door or container key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
+    internal static string Describe(string key) => key switch
+    {
+        _ when key.StartsWith("door.", StringComparison.Ordinal) => key["door.".Length..].Replace('_', ' ') + " door",
+        _ when key.StartsWith("container.", StringComparison.Ordinal) => key["container.".Length..].Replace('_', ' '),
+        _ => key,
     };
 
     private void ParseArguments(string[] arguments)
     {
         for (int i = 0; i < arguments.Length; i++)
         {
-            if (arguments[i] is "--perf-out" or "--perf-seconds" && i + 1 < arguments.Length)
+            if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
                 _flags.Add(arguments[i]);
@@ -359,5 +440,6 @@ public partial class Main : Node3D
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
         Bind("release_mouse", Key.Escape);
+        Bind("inventory", Key.Tab, Key.I);
     }
 }

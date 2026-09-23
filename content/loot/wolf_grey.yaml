@@ -1,0 +1,11 @@
+id: loot.wolf_grey
+kind: loot
+schema: 1
+display_key: loot.wolf_grey.name
+tags: [loot]
+notes: A grey wolf's drops (PROTOTYPE.md §4.1) - each entry rolls its own chance.
+rolls: 0
+entries:
+  - { item_ref: item.material.raw_meat, chance: 0.70, count_range: [1, 1] }
+  - { item_ref: item.material.wolf_hide, chance: 0.45, count_range: [1, 1] }
+  - { item_ref: item.trinket.wolf_fang, chance: 0.15, count_range: [1, 1] }
