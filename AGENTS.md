@@ -4,7 +4,14 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 
 ## Current status
 
-- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`). Next: M2c - Progression Spine (`docs/ROADMAP.md`), after its progression-axis review (M2b spec §23).
+- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`). Next: the Phase-1 run through M6 per `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`, starting with the progression-axis audit that gates M2c. It stops after M6 for the owner's playtest.
+
+## Roles and worktrees (owner ruling, 2026-09-23)
+
+- Claude is the primary gameplay/code agent through M6. It works only in the `G:\UNNAMED_CLAUDE` worktree on branch `claude/phase1`, pushes that branch, and keeps a draft PR into `main` open (the draft PR is what runs CI). It never merges to `main`; the owner merges at milestone gates.
+- DeepSeek/DSH owns asset generation, rigging, animation and asset-pipeline tooling. Qwen is paused from gameplay implementation.
+- DeepSeek-owned paths - never stage, edit or commit them from a gameplay branch; read them for context only: `tools/asset_pipeline/**`, `tools/godot_validate/**`, `docs/WAVE_0_*.md`, `docs/ANIMATION_*.md`, `docs/CANONICAL_BODY_AND_SKELETON.md`, `docs/ASTRAL_HOST.md`, `assets/`.
+- The GitHub repository is public: anything pushed is published.
 
 ## Build and test (from the repository root)
 
@@ -42,9 +49,10 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 
 ## Documentation - large files: grep a heading, then read that range
 
-- Authority order: `PROJECT_CHARTER.md` > `PHASE_0.md` > `DECISIONS.md` > everything else. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right.
+- Authority: `docs/IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md` restates the hierarchy of `PHASE_0_COMPLETE.md` §1 together with the owner's current rulings. Read it before any Phase-1 work. `PROTOTYPE.md` governs what is in Phase 1; `ROADMAP.md` governs when. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right.
+- Phase-1 execution brief: `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`. Orientation: `docs/OTHERREACH_MASTER_HANDOFF_2026-09-23_V3.md`. Neither is design authority.
 - Core technical docs and sizes: `ARCHITECTURE.md` ~26 KB, `DECISIONS.md` ~28 KB, `PERSISTENCE.md` ~60 KB, `SYSTEMS.md` ~54 KB, `ROADMAP.md` ~54 KB, `DATA_MODEL.md` ~60 KB. `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` is the owner-approved M2b refinement.
-- `docs/00_DESIGN_PACK_INDEX.md` lists the design extension pack. It is directional, NOT normative: do not change the M2 identity or persistence contracts (D-04 IDs, the `PERSISTENCE.md` save format) to match it.
+- `docs/INDEX.md` lists every design-extension document with its owning milestone. They are directional, NOT normative, until their milestone reconciles them: do not change the identity or persistence contracts (D-04 IDs, the `PERSISTENCE.md` save format) to match them.
 
 ## Godot
 

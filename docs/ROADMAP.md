@@ -1,6 +1,6 @@
 # ROADMAP.md — Incremental Development Roadmap
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture (STEP 17, plus STEP 1/STEP 15/STEP 16 sequencing)
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision. `DECISIONS.md` records settled decisions. Where this document and the charter disagree, the charter wins and this document is wrong.
 

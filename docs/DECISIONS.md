@@ -1,6 +1,6 @@
 # DECISIONS.md — Architectural Decision Records
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture
 **Status:** Draft for owner review
 **Authority:** PROJECT_CHARTER.md is the authoritative creative vision. This file records *how* we implement it and *why*. Where this file and the charter disagree, the charter wins and this file is wrong.
@@ -243,7 +243,7 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 Only questions where no reasonable default exists are listed. Per `PHASE_0.md`, this list is deliberately short.
 
-1. **Working title and setting temperature.** The charter mandates an original setting but does not fix tone (grim-dark / classic high fantasy / weird-ancient / bronze-age mythic). World *architecture* does not depend on this, but *content* does, and Phase-1 needs *some* flavor text. Default if unanswered: a **melancholic, ancient, low-magic-feeling high fantasy** tuned for "the world is the primary character". Reversible, and cheap to change while content volume is near zero.
+1. **Working title and setting temperature.** **Title answered (owner, 2026-09-23): Otherreach.** The codename `UNNAMED` remains for the repository, solution and namespaces. The setting-temperature part stays open; the approved setting direction is in `OTHERREACH_COSMOLOGY.md`. The charter mandates an original setting but does not fix tone (grim-dark / classic high fantasy / weird-ancient / bronze-age mythic). World *architecture* does not depend on this, but *content* does, and Phase-1 needs *some* flavor text. Default if unanswered: a **melancholic, ancient, low-magic-feeling high fantasy** tuned for "the world is the primary character". Reversible, and cheap to change while content volume is near zero.
 2. **Target platform baseline.** Affects the streaming and LOD budget in `WORLD_ARCHITECTURE.md`, and it is the platform on which `RK-13`'s atomic-save-commit test must be run. Default if unanswered: **Windows desktop, 16 GB RAM, mid-range discrete GPU**, i.e. not a VR or console target in Phase 0–2.
 3. **Visual fidelity target.** Whether "readable and atmospheric" (Godot-comfortable) is acceptable in place of AAA fidelity. Default if unanswered: readable and atmospheric, per D-01.
 4. **The "while you were away" policy.** Raised by `RK-12` and by `D-06`'s offline catch-up. When a save is loaded after a long absence, world time has advanced and abstract tiers must converge. The *mechanism* is specified (`D-06`); the *policy* is not — how much elapsed time is honoured, whether it is capped, and whether the player is shown a summary of what changed in their absence. Default if unanswered: **honour a bounded catch-up window, clamp all abstract values to their authored `[min, max]`, and present no "while you were away" report in Phase 1–2.** Deferrable until settlement simulation exists (Phase 2+), and reversible at any point before then.

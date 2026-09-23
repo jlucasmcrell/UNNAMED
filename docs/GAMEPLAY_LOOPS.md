@@ -1,6 +1,6 @@
 # GAMEPLAY_LOOPS.md — Phase 0 Gameplay Loop Definition
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision. `DECISIONS.md` records settled architecture as `D-01`..`D-12`; this file never contradicts a decision.
 **Audience:** another AI coding session implementing Phase 1 from these documents alone.

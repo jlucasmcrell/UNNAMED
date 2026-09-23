@@ -1,6 +1,6 @@
 # VERTICAL_SLICE.md — Phase 2 Vertical Slice
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 2 — Vertical Slice
 **Status:** Specification for implementation
 **Authority:** `PROJECT_CHARTER.md` (creative vision), `DECISIONS.md` (settled architecture, cited by ID), `PHASE_0.md` STEP 16 (required shape). `PROTOTYPE.md` remains the Phase 1 contract; **the slice does not renegotiate the prototype's architecture, it adds content and systems through it.**

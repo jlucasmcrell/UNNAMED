@@ -1,6 +1,6 @@
 # WORLD_ARCHITECTURE.md — Spatial Structure and Tiered Simulation (Phase 0)
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Status:** Phase 0 design. No implementation exists. This document is the contract for whoever implements world streaming, cell state, and tiered simulation first.
 **Normative decisions:** `D-06` (four simulation tiers + a global tick), `D-05` (sparse deltas over a deterministic baseline), `D-04` (identity namespaces), `D-12` (region by region; no MMO infrastructure), `D-08` (player building is socket/snap, not physics), `D-11` (presentation never mutates state).
 **Normative charter text:** "region by region rather than generating a gigantic world first"; a **2×2 km** area containing one excellent town, wilderness, 3–5 dungeons, secrets, crafting, building, companions, a boss and an epic quest.

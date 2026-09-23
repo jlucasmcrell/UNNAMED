@@ -1,5 +1,8 @@
 # OTHERREACH — Post-M2 Documentation Reconciliation Plan
 
+> **SUPERSEDED — HISTORICAL RECORD. DO NOT USE AS GUIDANCE.**
+> Superseded on 2026-09-23 by `IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md`, whose §11 carries this plan's open items. It stays in the repository only because it is part of the repository's history.
+
 **Purpose:** Capture exactly what should be updated after M2 is complete and audited, without destabilizing M2 while it is in progress.
 
 ## 1. Do not change during M2 merely for brainstorming

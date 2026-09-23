@@ -1,6 +1,6 @@
 # UNNAMED — Phase 0 Document Index
 
-**Project:** UNNAMED (working title) — an original full-body third-person (with seamless first-person zoom), solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — an original full-body third-person (with seamless first-person zoom), solo-first, open-world fantasy RPG
 **Phase:** 1 — Playable Prototype. M0, M1, M1b, M2 and M2b are complete; M2c is next (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 
@@ -13,7 +13,7 @@
 | 3 | `DECISIONS.md` | **Technical authority** | Settled architectural decisions `D-01`…`D-12`, each with alternatives, consequences, and the condition that would justify revisiting it |
 | 4 | `ARCHITECTURE.md` | Runtime design | Layers, repository structure, command/event model, state ownership, boot sequence |
 
-**Conflict resolution:** charter beats decisions; decisions beat everything else. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right and `ARCHITECTURE.md` has a bug.
+**Conflict resolution:** the hierarchy is `PHASE_0_COMPLETE.md` §1, restated with the owner's current rulings in `IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md`. Charter beats decisions; decisions beat everything else; each specialist document wins for its own topic; `PROTOTYPE.md` governs what is in Phase 1 and `ROADMAP.md` governs when. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right and `ARCHITECTURE.md` has a bug.
 
 ## Phase 0 deliverables
 
@@ -53,6 +53,52 @@ Line counts are approximate and drift as documents are revised; they are recorde
 | `D-11` | **Presentation never mutates state**; it submits commands and observes events |
 | `D-12` | **Scope discipline**: region by region, no MMO infrastructure, working single-player wins every tie |
 
+## Phase-1 execution and orientation
+
+| Document | Role |
+|---|---|
+| `IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md` | The authority order restated with the owner's current rulings (progression, Phase-1 scope, performance gate, roles). Read it before any Phase-1 work |
+| `CLAUDE_PHASE1_EXECUTION_PROMPT.md` | The owner-approved execution brief for the Phase-1 run (M2c through M6). Orientation, not design authority |
+| `OTHERREACH_MASTER_HANDOFF_2026-09-23_V3.md` | Snapshot for a fresh design or implementation session. Orientation, not design authority |
+| `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` | The owner-approved M2b refinement, now folded into `PERSISTENCE.md` |
+| `M1_STATUS.md`, `M2_STATUS.md`, `M2B_STATUS.md` | Milestone evidence |
+| `POST_M2_DOCUMENTATION_RECONCILIATION.md` | **Superseded — historical record only.** Its open items are carried in the precedence document §11 |
+
+## Design-extension documents
+
+Owner-approved design direction. **Directional/future unless their milestone owns them**: a milestone that reaches one reconciles it into the normative documents first, and nothing here overrides a normative document before that. `00_DESIGN_PACK_INDEX.md` and `00_BATCH_2_INDEX.md` introduce the two design packs.
+
+| Document | Owning milestone or phase |
+|---|---|
+| `CAMERA_PERSPECTIVE_AND_PRESENTATION.md` | M3 |
+| `HUD_INPUT_AND_ACTIONS.md` | M3 onward |
+| `MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md` | M3 (map data); the knowledge model later |
+| `ENGINE_VALIDATION.md` | M3 performance gate; its dressed scene is later |
+| `SKILLS_AND_DISCIPLINES.md` | M2c progression audit, M3f |
+| `CHARACTER_CREATION_AND_LINEAGE.md`, `RACES.md`, `RACES_UPDATE_NOTES.md` | M2c audit; Phase 1 has one playable race |
+| `INVENTORY_STORAGE_AND_LOGISTICS.md` | M3b |
+| `CRAFTING_AND_ITEMIZATION.md` | M3b (items), M3f (two-recipe proof); the full grammar later |
+| `COMBAT_DAMAGE_ARMOR_AND_DEATH.md` | M3c |
+| `STEALTH_DETECTION_AND_THREAT.md` | M3d |
+| `MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md` | M3e (three tiny domains in Phase 1) |
+| `NPC_SIMULATION.md` | M4 (a small, fully simulated population in Phase 1); the rest is Phase 2+ |
+| `SOCIAL_INTERACTION_LANGUAGES_AND_KNOWLEDGE.md` | M4: structured dialogue and minimal continuity only; all deeper social systems are future |
+| `QUESTS_DUNGEONS_WORLD_EVENTS_AND_REPOPULATION.md` | M5 (quest framework); dungeons M8 |
+| `COMPANIONS_HIRELINGS_RELATIONSHIPS_AND_PARTIES.md`, `COMPANION_MATRIX.md` | M6 (one companion); player + 3 later |
+| `CRIME_LAW_REPUTATION_AND_JUSTICE.md` | M7 (factions, reputation); crime is Phase 3 |
+| `WORLD_BUILDING_AND_PROPERTY_DESIGN.md` | M7 (Building v1) |
+| `ECONOMY.md` | M10 regional economy (M3b has only a currency stub) |
+| `WEATHER_SEASONS_SURVIVAL_AND_ENVIRONMENT.md` | Phase 2+ |
+| `PETS_ANIMALS_AND_ECOLOGY.md` | Phase 2+ |
+| `TRAVEL_AND_TRAVERSAL.md` | Phase 3 (mounts, boats, caravans) |
+| `ENDGAME_MASTERY_LEGACY_AND_GREAT_WORKS.md`, `ENDGAME_QUESTLINES.md` | M12/M13 and later |
+| `SOULS_DEATH_REINCARNATION_AND_LEGACY.md` | Future |
+| `MODDING_COMMUNITY_SERVERS_FEDERATION_AND_PVP_SEAMS.md` | Seams only; M15 validates the cooperative seam |
+| `AI_NARRATIVE_SERVICE.md` | Future, optional |
+| `OTHERREACH_COSMOLOGY.md`, `MYTHOLOGY.md`, `STONE_QUESTION.md`, `WORLD_MATERIALS.md` | Setting and content direction |
+| `FEATURE_DELIVERY_STAGING.md` | Planning guidance; `ROADMAP.md` schedules |
+| `ASSET_GENERATION_PLAN.md`, `AUDIO_DESIGN.md`, `AUDIO_PIPELINE.md`, `QUALITY_TIERS.md`, `WAVE_0_*.md` | Asset and audio track (asset pipeline owned by DeepSeek) |
+
 ## Status
 
 - **Phase 0: complete and mechanically reconciled.** All twelve deliverables exist. Three adversarial passes raised 26 defects; all are fixed or ruled. A **fourth propagation pass** then verified each fix *in the authoritative document* and found 8 further defects caused by the earlier passes — including a **truncated `PERSISTENCE.md`** that had lost §6–§11, and **two documents claiming authority over the load sequence** with different orders. All 8 are corrected. See `REVIEW.md` §B-ter.
@@ -60,7 +106,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 - **Risk register:** `RK-01`..`RK-16`. `RK-01`..`RK-10` are the ten `PHASE_0.md` STEP 18 requires; `RK-11`..`RK-14` were promoted from document-local tables; `RK-15` and `RK-16` cover enforcement gaps (cross-slice mutation, read-path correctness). `RISK_REGISTER.md` is the single risk authority, and `PERSISTENCE.md` now carries `RK-P01`..`RK-P14`.
 - **Single-authority map:** `PERSISTENCE.md` §7.4 owns the load sequence (not `ARCHITECTURE.md` §8.2); `ARCHITECTURE.md` §3 owns repository structure; `DATA_MODEL.md` §1 owns the content kind list; `PROTOTYPE.md` owns Phase-1 scope; `ROADMAP.md` owns scheduling.
 - **Phase 1 M1 complete.** Domain skeleton, command/event bus, and headless test harness implemented. See `M1_STATUS.md` for full verification evidence.
-- **Open owner input:** four items in `DECISIONS.md` §"Open questions for the project owner" — working title/setting tone, target platform baseline, visual fidelity target, and the "while you were away" offline catch-up policy. All four have documented defaults and none blocks Phase 1; only the platform baseline carries a soft dependency (the frame-budget spike cannot be judged pass/fail without it).
+- **Open owner input:** `DECISIONS.md` §"Open questions for the project owner" — setting tone, target platform baseline, visual fidelity target, and the "while you were away" offline catch-up policy. The title is answered: **Otherreach**. The owner's Phase-1 performance ruling (RAZER RTX 4070 Ti, 1080p, sustained 60 FPS) is recorded in `IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md` §4 and is written into `DECISIONS.md` before M3. None of the remaining items blocks Phase 1.
 - **Phase 0 was documentation-only, by instruction.** Implementation began in Phase 1: source is in `src/`, headless tests in `tests/`.
 - **M1 implementation status:** `docs/M1_STATUS.md` — complete with objective evidence for all exit criteria.
 - **Phase 1 M2 complete.** Entity registry and D-04 identity, deterministic cell baseline (`RK-01` measured), and sparse-delta saves with atomic write, quarantine, backup rotation and crash recovery. `docs/M2_STATUS.md` has the evidence per exit criterion, the acceptance audit, and the deferrals.
@@ -68,6 +114,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 
 ## Where to start reading
 
+0. **`IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md`** — the authority order and the owner's current rulings. Read this before any Phase-1 work.
 1. **`PHASE_0_COMPLETE.md`** — the implementation handoff. Read this first if you are about to write code.
 2. `PROJECT_CHARTER.md` — the vision, and the only document that outranks the rest.
 3. `DECISIONS.md` — `D-01`..`D-12`, the settled technical spine. Everything else cites these by ID.

@@ -1,6 +1,6 @@
 # PROGRESSION.md — Progression Architecture
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture (STEP 13)
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision. `DECISIONS.md` records settled implementation decisions. Where this document and the charter disagree, the charter wins and this document is wrong. This document is the normative reference for progression; implementation sessions must cite the axis IDs below (`AX-LVL`, `AX-ATTR`, ...) rather than restating the rules.
 

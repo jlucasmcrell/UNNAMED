@@ -1,6 +1,6 @@
 # SYSTEMS.md — Runtime Systems and Responsibilities
 
-**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Architecture. **Status:** Draft for owner review.
 **Reads:** `PROJECT_CHARTER.md` (authoritative vision), `PHASE_0.md` (instructions), `DECISIONS.md` (D-01..D-12).
 **Audience:** an implementation session that must build these systems from this document plus `DATA_MODEL.md` and `PERSISTENCE.md`.
