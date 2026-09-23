@@ -1,6 +1,6 @@
 # UNNAMED — Phase 0 Document Index
 
-**Project:** UNNAMED (working title) — an original first-person, solo-first, open-world fantasy RPG
+**Project:** UNNAMED (working title) — an original full-body third-person (with seamless first-person zoom), solo-first, open-world fantasy RPG
 **Phase:** 1 — Playable Prototype. M0, M1, M1b, M2 and M2b are complete; M2c is next (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 

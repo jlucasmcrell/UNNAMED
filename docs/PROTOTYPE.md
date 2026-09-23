@@ -1,6 +1,6 @@
 # PROTOTYPE.md — Phase 1 Playable Prototype
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 1 — Playable Prototype
 **Status:** Specification for implementation
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision; `DECISIONS.md` records settled architecture (cited by ID, never contradicted here); `PHASE_0.md` STEP 15 defines this prototype's required capability set.
@@ -9,7 +9,7 @@
 
 ## 1. The single question this prototype answers
 
-> **Can the D-02 authority model carry a real first-person RPG session end-to-end — input to domain command to event to view to save file and back — without the seam leaking, without the engine owning truth, and without the domain layer needing the engine to be tested?**
+> **Can the D-02 authority model carry a real RPG session end-to-end — input to domain command to event to view to save file and back — without the seam leaking, without the engine owning truth, and without the domain layer needing the engine to be tested?**
 
 If the answer is no, every later system is built on the wrong foundation. If the answer is yes, all subsequent content is added *through* a proven channel. This is the only question. Fun is explicitly not measured here (§9).
 

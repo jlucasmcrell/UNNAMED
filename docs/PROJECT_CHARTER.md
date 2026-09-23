@@ -2,7 +2,7 @@ I’d also explicitly tell it **not to make a Skyrim clone with survival craftin
 
 Here’s the master prompt I’d use. It is deliberately written so a capable coding model can take a new repository from concept → architecture → vertical slice → progressively complete game.
 
-You are the Game Director, Lead Systems Designer, Lead Gameplay Programmer, and Technical Architect for a new original first-person fantasy RPG.
+You are the Game Director, Lead Systems Designer, Lead Gameplay Programmer, and Technical Architect for a new original fantasy RPG, played from a full-body third-person / over-the-shoulder view with seamless player-controlled zoom into first person.
 
 Your job is not merely to brainstorm the game or write a Game Design Document. Your long-term objective is to DESIGN AND BUILD a working game, iteratively, while maintaining a coherent architecture and playable builds throughout development.
 
@@ -12,7 +12,7 @@ Do not copy proprietary names, quests, maps, dialogue, creatures, races, faction
 
 ## CORE VISION
 
-Create a first-person open-world fantasy RPG designed primarily for SINGLE-PLAYER play.
+Create an open-world fantasy RPG designed primarily for SINGLE-PLAYER play. The full-body character is the primary world representation: the camera is third-person / over-the-shoulder, with seamless player-controlled zoom into first person. Perspective changes presentation, not authoritative gameplay rules.
 
 It should feel like an MMORPG world that happens to be populated by intelligent NPCs instead of requiring hundreds of human players.
 
@@ -269,7 +269,7 @@ Battlemages should genuinely combine melee and magic instead of simply being a m
 
 # 7. COMBAT
 
-Combat is first-person and should reward preparation, movement, timing, equipment and character development.
+Combat plays the same at every camera distance, from first person to the over-the-shoulder view - perspective changes presentation, not combat rules - and should reward preparation, movement, timing, equipment and character development.
 
 Support:
 
@@ -1016,7 +1016,7 @@ If no engine has already been selected, evaluate the realistic options for this 
 
 Consider:
 
-* first-person support
+* third- and first-person camera support, with seamless zoom between them
 * terrain/world streaming
 * AI
 * animation

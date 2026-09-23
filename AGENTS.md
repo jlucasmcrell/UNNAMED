@@ -1,6 +1,6 @@
 # Otherreach (codename UNNAMED) - agent guide
 
-Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Authoritative game state lives in an engine-independent domain layer; Godot is presentation only.
+Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder, with seamless zoom into first person. Godot 4 + C# (.NET 8). Authoritative game state lives in an engine-independent domain layer; Godot is presentation only.
 
 ## Current status
 

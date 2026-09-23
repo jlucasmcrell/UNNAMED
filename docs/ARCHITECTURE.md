@@ -1,6 +1,6 @@
 # ARCHITECTURE.md — Runtime Architecture
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture
 **Engine:** Godot 4.x, C# (decision `D-01`)
 **Authority:** `PROJECT_CHARTER.md` governs creative intent. `DECISIONS.md` governs technical intent. This document describes *how the pieces fit together* and defers to both.

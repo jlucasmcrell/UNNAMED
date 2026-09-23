@@ -1,6 +1,6 @@
 # PERSISTENCE.md — Save Architecture (Phase 0)
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Status:** Normative, and implemented through M2b (`src/Persistence`, `src/World`; evidence in `M2_STATUS.md` and `M2B_STATUS.md`). M2b refined this document per `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`: **exact content identity and baseline procedural compatibility are related, but they are not the same thing** (§1.3, §6.4).
 
 **Normative decisions:** `D-05` (sparse deltas over a deterministic baseline), `D-04` (ULID instance IDs, dotted definition IDs), `D-10` (Entity Registry owns identity), `D-02`/`D-11` (authoritative state is engine-agnostic C#; presentation never writes state), `D-03` (content is data), `D-12` (no speculative multi-actor persistence).

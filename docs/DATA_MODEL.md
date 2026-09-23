@@ -1,6 +1,6 @@
 # DATA_MODEL.md — Content Definitions, Identity, and Runtime State
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** UNNAMED (working title) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Architecture. **Status:** Draft for owner review.
 **Reads:** `PROJECT_CHARTER.md`, `PHASE_0.md`, `DECISIONS.md` (D-03, D-04, D-05, D-07, D-09, D-10), `SYSTEMS.md` (S-18 loads this data; S-02 assigns runtime identity).
 **Audience:** an implementation session writing the C# schema types, the YAML loader, the validator, and the sample content.
