@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
@@ -97,7 +98,8 @@ public sealed record PlayerRespawned(Body Body, long Tick);
 /// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2).</summary>
 public sealed record SkillPracticed(string SkillId, long Xp, int Level, long Tick);
 
-public sealed record ItemUsed(EntityId Actor, string DefId, string EffectId, long Tick);
+/// <summary>A carried item was used: a consumable's effect (the salve's mending), or none for a book that taught.</summary>
+public sealed record ItemUsed(EntityId Actor, string DefId, string? EffectId, long Tick);
 
 public sealed record ItemConsumed(EntityId Actor, string DefId, int Count, long Tick);
 
@@ -115,7 +117,22 @@ public enum CombatPhase
 
 /// <summary>The player in combat: what they are doing, with what, and their pools.</summary>
 public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? AttackSource, bool Blocking, AttackProfile Weapon,
-    int Health, int MaxHealth, int Stamina, int MaxStamina, ImmutableArray<ActiveEffect> Effects);
+    int Health, int MaxHealth, int Stamina, int MaxStamina, ImmutableArray<ActiveEffect> Effects)
+{
+    public int Focus { get; init; }
+
+    public int MaxFocus { get; init; }
+
+    public int Strain { get; init; }
+
+    public int StrainTolerance { get; init; }
+
+    /// <summary>Strain at or past the Strained share of tolerance: the next working may cost health.</summary>
+    public bool Strained { get; init; }
+
+    /// <summary>The formula being cast, while the working runs.</summary>
+    public string? Casting { get; init; }
+}
 
 // ── state (internal) ────────────────────────────────────────────────────────
 
@@ -128,6 +145,9 @@ internal enum ActionKind
 
     /// <summary>A committed run: windup, then straight on until it hits, runs its distance, or meets something solid.</summary>
     Charge,
+
+    /// <summary>A working (M3e): the cast time is its tell, then it is released, then the body recovers.</summary>
+    Cast,
 }
 
 /// <summary>What a body is doing, from which tick. The phases follow from the start tick; nothing counts down.</summary>
@@ -143,6 +163,9 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
 
     /// <summary>A stagger that lasts longer than the usual (a charger stunned against a wall); 0 takes the usual.</summary>
     public int LastsTicks { get; init; }
+
+    /// <summary>The formula a cast is working.</summary>
+    public FormulaDefinition? Formula { get; init; }
 
     /// <summary>The phase at a tick. Tick <c>StartTick + 1</c> is the action's first.</summary>
     public (CombatPhase Phase, int TicksLeft) PhaseAt(long tick, CombatConstants constants)
@@ -185,6 +208,17 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
                     return (CombatPhase.Recovery, (int)(a.RecoveryTicks - (tick - EndedTick)));
                 break;
             }
+            case ActionKind.Cast:
+            {
+                var f = Formula!;
+                if (elapsed <= f.CastTicks)
+                    return (CombatPhase.Windup, (int)(f.CastTicks - elapsed));
+                if (elapsed == f.CastTicks + 1)
+                    return (CombatPhase.Active, 0);
+                if (elapsed <= f.CastTicks + 1 + f.RecoveryTicks)
+                    return (CombatPhase.Recovery, (int)(f.CastTicks + 1 + f.RecoveryTicks - elapsed));
+                break;
+            }
         }
         return (CombatPhase.Idle, 0);
     }
@@ -205,12 +239,22 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
     public int SprintMilli { get; init; }
     public int StaminaMilli { get; init; }
     public int HealthMilli { get; init; }
+    public int FocusMilli { get; init; }
+    public int StrainMilli { get; init; }
+
+    /// <summary>The last working begun or released: Focus and Strain return only after a pause from it.</summary>
+    public long LastCast { get; init; } = -1_000_000;
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
 
-/// <summary>To <see cref="ProgressionSystem"/>: move the current pools, clamped to their derived maxima.</summary>
-internal sealed record ChangePools(int Health, int Stamina) : InternalCommand;
+/// <summary>To <see cref="ProgressionSystem"/>: move the current pools, clamped to their derived maxima (Strain to tolerance).</summary>
+internal sealed record ChangePools(int Health, int Stamina) : InternalCommand
+{
+    public int Focus { get; init; }
+
+    public int Strain { get; init; }
+}
 
 /// <summary>To <see cref="ProgressionSystem"/>: one use of a skill.</summary>
 internal sealed record PracticeSkill(SkillPractice Practice) : InternalCommand;
@@ -247,7 +291,7 @@ internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
 /// what it did - the player's pools through the progression system, a creature's health through the creature system.
 /// Effect ticks enter the same way. A blow needs reach, the front arc and no wall between; timing decides when it lands.
 /// </summary>
-internal sealed class CombatSystem
+internal sealed partial class CombatSystem
 {
     private const double SampleScale = 18446744073709551616.0;
 
@@ -332,6 +376,7 @@ internal sealed class CombatSystem
         }
         double length = Math.Sqrt(dx * dx + dz * dz);
         int x = (int)Math.Round(dx / length * 1000), z = (int)Math.Round(dz / length * 1000);
+        BreakCast(combat.Action, "dodged", tick);
         Exert(C.DodgeStaminaCost, tick);
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = ActionState.Begin(ActionKind.Dodge, tick, dirX: x, dirZ: z), Blocking = false });
         return null;
@@ -342,7 +387,7 @@ internal sealed class CombatSystem
         CombatPhase.Idle => State.PlayerCombat.Defeated ? "dead" : null,
         CombatPhase.Staggered => "staggered",
         CombatPhase.Dodge => "dodging",
-        var phase => $"already attacking ({phase.ToString().ToLowerInvariant()})",
+        var phase => $"already {(action.Kind == ActionKind.Cast ? "casting" : "attacking")} ({phase.ToString().ToLowerInvariant()})",
     };
 
     /// <summary>What the player attacks with: the main-hand weapon, or bare hands.</summary>
@@ -395,6 +440,12 @@ internal sealed class CombatSystem
         if (phase == CombatPhase.Idle)
         {
             State.SetPlayerCombat(_owner, combat with { Action = ActionState.Idle });
+            return;
+        }
+        if (action.Kind == ActionKind.Cast)
+        {
+            if (phase == CombatPhase.Active)
+                Release(action.Formula!, tick);
             return;
         }
         if (action.Kind != ActionKind.Attack || phase != CombatPhase.Active)
@@ -477,7 +528,13 @@ internal sealed class CombatSystem
             _context.Dispatch(new ApplyEffect(creature.Id, effect));
         // Weapon skill only from effective contribution: a blow that wounded something that fights back (ROADMAP.md M3c).
         if (attack.SkillId is { } skill && result.Final > 0)
-            _context.Dispatch(new PracticeSkill(new SkillPractice(skill, definition.Level, PracticeOutcome.Success, tick)));
+        {
+            // A formula's first wounding working is also its novelty (PROGRESSION.md §4.2).
+            _context.Dispatch(new PracticeSkill(new SkillPractice(skill, definition.Level, PracticeOutcome.Success, tick)
+            {
+                NoveltyKey = attack.Magic ? attack.Source : null,
+            }));
+        }
     }
 
     /// <summary>True when the attacker stands behind the body: more than 110 degrees off its facing.</summary>
@@ -496,7 +553,9 @@ internal sealed class CombatSystem
     {
         var rules = _context.Setup.Progression;
         double multiplier = EffectRules.DamageDealtMultiplier(EffectsOf(_player), Setup.Effects);
-        if (DamageTypes.IsPhysical(attack.DamageType))
+        if (attack.Magic)
+            multiplier *= MagicRules.ResonanceMultiplier(Stats().Resonance, M);
+        else if (DamageTypes.IsPhysical(attack.DamageType))
             multiplier *= CombatRules.MightMultiplier(ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Might, rules), rules.AttributeBase, C);
         double stagger = 1.0;
         foreach (var passive in Setup.Passives)
@@ -540,6 +599,12 @@ internal sealed class CombatSystem
             Exert(C.BlockStaminaPerHit, tick);
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
+        // Concentration under damage: a wound breaks a working still in its tell.
+        if (result.Final > 0 && combat.Action.Kind == ActionKind.Cast && combat.Action.PhaseAt(tick, C).Phase == CombatPhase.Windup)
+        {
+            BreakCast(combat.Action, "wounded", tick);
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = ActionState.Idle });
+        }
         bool knocked = attack.ForcesStagger && !result.Blocked && !result.Dodged;
         bool staggered = (result.Staggered || knocked) && health > 0 && StaggerPlayer(tick, force: false);
         _context.Events.Publish(new HitResolved(creature.Id, creature.Definition.Id, _player, attack.Source, result.Region, result.Final,
@@ -672,8 +737,22 @@ internal sealed class CombatSystem
             healthDelta += milli / 1000;
             next = next with { HealthMilli = milli % 1000 };
         }
-        if (staminaDelta != 0 || healthDelta != 0)
-            _context.Dispatch(new ChangePools(healthDelta, staminaDelta));
+        // After a pause from the last working, Focus returns and Strain ebbs.
+        int focusDelta = 0, strainDelta = 0;
+        if (Focus() < MaxFocus() && tick - combat.LastCast >= M.FocusRegenDelayTicks)
+        {
+            int milli = combat.FocusMilli + M.FocusRegenPerSecond * TickMs;
+            focusDelta += milli / 1000;
+            next = next with { FocusMilli = milli % 1000 };
+        }
+        if (Strain() > 0 && tick - combat.LastCast >= M.StrainRecoveryDelayTicks)
+        {
+            int milli = combat.StrainMilli + M.StrainRecoveryPerSecond * TickMs;
+            strainDelta -= milli / 1000;
+            next = next with { StrainMilli = milli % 1000 };
+        }
+        if (staminaDelta != 0 || healthDelta != 0 || focusDelta != 0 || strainDelta != 0)
+            _context.Dispatch(new ChangePools(healthDelta, staminaDelta) { Focus = focusDelta, Strain = strainDelta });
         if (next != combat)
             State.SetPlayerCombat(_owner, next);
     }
@@ -704,7 +783,15 @@ internal sealed class CombatSystem
         var combat = State.PlayerCombat;
         var (phase, left) = combat.Action.PhaseAt(State.WorldTick, C);
         return new CombatView(phase, left, combat.Action.Attack?.Source, combat.Blocking, PlayerAttack(), Health(), MaxHealth(), Stamina(),
-            MaxStamina(), EffectsOf(_player));
+            MaxStamina(), EffectsOf(_player))
+        {
+            Focus = Focus(),
+            MaxFocus = MaxFocus(),
+            Strain = Strain(),
+            StrainTolerance = StrainTolerance(),
+            Strained = MagicRules.Strained(Strain(), StrainTolerance(), M),
+            Casting = combat.Action.Kind == ActionKind.Cast && phase != CombatPhase.Idle ? combat.Action.Formula!.Id : null,
+        };
     }
 }
 
@@ -744,6 +831,17 @@ internal sealed class StatusEffectSystem
         _context.State.SetEffects(_owner, command.Target, next);
         var applied = next.Single(e => e.EffectId == definition.Id);
         _context.Events.Publish(new EffectApplied(command.Target, definition.Id, applied.Stacks, applied.ExpiresTick, tick));
+        return null;
+    }
+
+    /// <summary>Lift one effect: a mending that stops a bleed (M3e).</summary>
+    public string? Handle(RemoveEffect command, long tick)
+    {
+        var current = _context.State.Effects.GetValueOrDefault(command.Target, ImmutableArray<ActiveEffect>.Empty);
+        if (!current.Any(e => e.EffectId == command.EffectId))
+            return null;
+        _context.State.SetEffects(_owner, command.Target, current.RemoveAll(e => e.EffectId == command.EffectId));
+        _context.Events.Publish(new EffectExpired(command.Target, command.EffectId, tick));
         return null;
     }
 

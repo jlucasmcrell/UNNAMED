@@ -113,3 +113,4 @@ doors:
 # Authored world containers: their contents are a loot table until the player first changes them.
 containers:
   - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [25, 183], stack_slots: 12 }
+  - { key: container.longhouse_shelf, loot_ref: loot.longhouse_shelf, position_m: [40, 46], stack_slots: 4 }

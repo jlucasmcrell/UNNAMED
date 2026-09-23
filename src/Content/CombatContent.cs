@@ -414,17 +414,17 @@ public static class CombatContent
             .Where(d => d.Use?.GetValueOrDefault("effect_ref") is string)
             .ToImmutableSortedDictionary(d => d.Id, d => (string)d.Use!["effect_ref"], StringComparer.Ordinal);
 
-    // ── reading ─────────────────────────────────────────────────────────────
+    // ── reading (shared with MagicContent) ─────────────────────────────────
 
     private static double GameMinuteSeconds(ContentLoader loader) => Number(Config(loader, "config.time"), "seconds_per_game_minute");
 
-    private static int ToTicks(double seconds, int tickMs) =>
+    internal static int ToTicks(double seconds, int tickMs) =>
         seconds >= 0 ? (int)Math.Round(seconds * 1000 / tickMs, MidpointRounding.AwayFromZero) : throw new FormatException("durations are never negative");
 
-    private static string Damage(string type) =>
+    internal static string Damage(string type) =>
         DamageTypes.All.Contains(type) ? type : throw new FormatException($"'{type}' is not a damage type ({string.Join(", ", DamageTypes.All)})");
 
-    private static IEnumerable<Dictionary<object, object>> Rows(Dictionary<object, object> map, string key, string id) =>
+    internal static IEnumerable<Dictionary<object, object>> Rows(Dictionary<object, object> map, string key, string id) =>
         map.TryGetValue(key, out var value) && value is List<object> rows
             ? rows.Select((row, i) => row as Dictionary<object, object> ?? throw new FormatException($"{id} {key}[{i}] must be a map"))
             : Enumerable.Empty<Dictionary<object, object>>();
@@ -441,38 +441,38 @@ public static class CombatContent
         }
     }
 
-    private static Dictionary<object, object> Config(ContentLoader loader, string id) =>
+    internal static Dictionary<object, object> Config(ContentLoader loader, string id) =>
         loader.Definitions.TryGetValue(id, out var definition)
             ? Read(definition.YamlSource)
             : throw new KeyNotFoundException($"{id} is missing (DATA_MODEL.md §4.19)");
 
-    private static Dictionary<object, object> Read(string? yaml) =>
+    internal static Dictionary<object, object> Read(string? yaml) =>
         string.IsNullOrEmpty(yaml) ? new Dictionary<object, object>() : Yaml.Deserialize<Dictionary<object, object>>(yaml) ?? new Dictionary<object, object>();
 
-    private static Dictionary<object, object> Map(Dictionary<object, object> map, string key) =>
+    internal static Dictionary<object, object> Map(Dictionary<object, object> map, string key) =>
         map.TryGetValue(key, out var value) && value is Dictionary<object, object> inner ? inner : throw new KeyNotFoundException($"'{key}' must be a map");
 
-    private static List<object> List(Dictionary<object, object> map, string key) =>
+    internal static List<object> List(Dictionary<object, object> map, string key) =>
         map.TryGetValue(key, out var value) && value is List<object> list ? list : throw new KeyNotFoundException($"'{key}' must be a list");
 
-    private static string Text(Dictionary<object, object> map, string key) =>
+    internal static string Text(Dictionary<object, object> map, string key) =>
         map.TryGetValue(key, out var value) && value is string text && text.Length > 0 ? text : throw new KeyNotFoundException($"'{key}' is missing");
 
-    private static int Int(Dictionary<object, object> map, string key) => ParseInt(map.GetValueOrDefault(key), key);
+    internal static int Int(Dictionary<object, object> map, string key) => ParseInt(map.GetValueOrDefault(key), key);
 
     private static long Long(Dictionary<object, object> map, string key) =>
         long.TryParse(map.GetValueOrDefault(key) as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out long value)
             ? value
             : throw new FormatException($"'{key}' must be a whole number");
 
-    private static double Number(Dictionary<object, object> map, string key) => ParseNumber(map.GetValueOrDefault(key), key);
+    internal static double Number(Dictionary<object, object> map, string key) => ParseNumber(map.GetValueOrDefault(key), key);
 
     /// <summary>Metres in content, whole millimetres in the domain.</summary>
-    private static long Mm(Dictionary<object, object> map, string key) => (long)Math.Round(Number(map, key) * 1000, MidpointRounding.AwayFromZero);
+    internal static long Mm(Dictionary<object, object> map, string key) => (long)Math.Round(Number(map, key) * 1000, MidpointRounding.AwayFromZero);
 
     private static long ToMm(object value, string what) => (long)Math.Round(ParseNumber(value, what) * 1000, MidpointRounding.AwayFromZero);
 
-    private static int IntOf(List<object> cells, int i, string what) =>
+    internal static int IntOf(List<object> cells, int i, string what) =>
         i < cells.Count ? ParseInt(cells[i], what) : throw new FormatException($"'{what}' needs {i + 1} values");
 
     private static int ParseInt(object? value, string what) =>

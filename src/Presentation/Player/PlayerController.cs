@@ -120,6 +120,27 @@ public sealed class PlayerController
 
     public void Attack() => _session.Submit(new AttackCommand(_session.Simulation!.PlayerId));
 
+    /// <summary>Begin a working (M3e): its tell, then its release.</summary>
+    public void Cast(string formulaId) => _session.Submit(new CastCommand(_session.Simulation!.PlayerId, formulaId));
+
+    /// <summary>
+    /// The formulas on keys 4 to 6: those the character knows, in the order they were learned - and formulas learned from
+    /// one book in the book's own order. No formula is named here; the knowledge record and the content decide.
+    /// </summary>
+    public string[] Formulas()
+    {
+        var magic = _session.Setup.Magic;
+        var known = _session.Simulation!.Player.Progression.Known;
+        return known.Where(k => magic.Formulas.ContainsKey(k.Key))
+            .OrderBy(k => k.Value.Tick)
+            .ThenBy(k => k.Value.SourceRef is { } book && magic.Teaches.TryGetValue(book, out var taught) && taught.Contains(k.Key)
+                ? taught.IndexOf(k.Key)
+                : int.MaxValue)
+            .ThenBy(k => k.Key, StringComparer.Ordinal)
+            .Select(k => k.Key)
+            .ToArray();
+    }
+
     public void Guard(bool raised) => _session.Submit(new BlockCommand(_session.Simulation!.PlayerId, raised));
 
     /// <summary>Dodge along a world-space direction; no direction dodges backwards.</summary>

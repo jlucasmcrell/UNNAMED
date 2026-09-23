@@ -203,6 +203,8 @@ use:
 # which is why it is the worked example rather than a contrived one.
 ```
 
+**As implemented (M3e).** The tome is `item.tome.resonance_primer`, teaching the content bible's three formulas (the Ember Primer's grants predate the bible, and no build ever let a player hold it). Phase 1 builds `grants` of kind `spell` on a book with `consume: true`: reading it is a learning event (`book`), and a book with nothing new in it cannot be read. `teach_requires` is not built.
+
 The same mechanism carries `ability`, `recipe`, `title`, `access`, `world_flag`, `permanent_ability` and `transformation` grants without further schema work — a tome that teaches a recipe and a shrine that grants a title are the same field with a different `kind`. **`custom_scripted` remains deliberately absent** (see §4.11): if a desired grant cannot be expressed as one of the closed kinds, the correct response is to add a kind, not to add scripting.
 
 **M3b reconciliation (the prototype's items).** A plain item may be worn in a jewelry slot with `equip_slot: ring|amulet`, as the wolf fang is: the prototype's "non-armor, non-weapon equipment slot". `requirements` holds only `attribute.<name>` and `skill.<id>` minima, never a level (`PROGRESSION.md` §11.1). Ammunition is a `misc` item that its weapon names with `ammo_item_ref`. A ranged weapon may give `draw_time` instead of `reach`. Coin is not an item in Phase 1: it is a purse on the character.
@@ -325,6 +327,8 @@ interrupt_priority: 2
 ```
 
 **Closed payload vocabulary** — the only legal `payload[].type` values (shared by spells, abilities, and status-effect triggers): `damage`, `heal`, `restore_pool`, `apply_effect`, `remove_effect`, `dispel`, `summon`, `teleport`, `reveal`, `create_item`, `modify_stat`, `taunt`, `absorb`, `reflect`, `resurrect_temporary`, `harvest_corpse`. Schools differ mechanically through this vocabulary plus definition data — never through new engine code per school.
+
+**As implemented (M3e).** A formula names its `domain` (a skill with `family: magic`, checked as a reference), `complexity`, `cost: { focus, strain }` - nothing else: there is no mana, and Phase 1 builds no contextual costs - `cast_time_s` (the tell), `targeting` (`self` or `projectile`, with `range_m`), and a `payload`: a projectile's single `damage` entry (`amount: [min, max]`, `damage_type`), or a self formula's `apply_effect` and `remove_effect` entries. The recovery after a release is `config.magic`'s. `cooldown_s`, `resist_type`, `interrupt_priority`, `scaling` and `channel` are not built; the MAG001 lint refuses what Phase 1 cannot cast. The three formulas are `spell.force.impulse_bolt`, `spell.warding.brace_ward` and `spell.vital.mending_thread` (the content bible's §13, whose `formula.*` names are placeholders for this kind).
 
 A second authored case, `spell.necromancy.bind_lesser_servant` (`cost: { focus: 10, strain: 18 }` plus an essence charge harvested from corpses, `targeting: summon`, payloads `harvest_corpse` + `summon … permanent: true, cap: 2`, `required_reagents: [item.material.corrupted_marrow]`), shows that a domain's identity lives in its contextual costs, targeting, and payload shape.
 
@@ -723,6 +727,8 @@ level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the 
 
 
 
+`config.magic` (M3e) holds the tuning of casting: `focus` (`regen_per_s`, `regen_delay_s`), `strain` (`recovery_per_s`, `recovery_delay_s`, `strained_percent`, `backlash_per_point`), `skill` (`strain_percent_per_point`, `min_strain_percent`, `fizzle_percent_per_point`), `resonance` (`reference`, `damage_percent_per_point`) and `casting` (`recovery_s`).
+
 `config.creature_behaviour` (M3d) holds how creatures perceive and behave: `awareness` (the suspicious level, sight gain at range and close, decay, what a heard noise and a call set, the search time), `noise_m` (how far a walk, run, sprint, swing, blow and call carry), `corpse` (`decay_s`, `stack_slots`), and the `roles` - each an `unaware` behaviour (`hold`, `wander`, `patrol`, `sleep`) with optional `territory_m`, `wander_m`, `calls_for_help`, `answers_calls`, `keep_distance_m`, `strike_within_m`, `flee_below_percent`, `sleep_hearing_percent`, `flank_m` and `pounce_on_noise`.
 
 `config.damage_constants` (M3c) holds the combat tuning: armor `k`, the share of armor a pierce ignores, criticals, region weights and multipliers, stagger threshold and immunity, the guard, the dodge, stamina costs and regeneration, health regeneration out of combat, the split of a swing into windup, active window and recovery, ranged range, bare hands, a creature's leash, and the effect a death applies.
@@ -754,6 +760,8 @@ display_key: skill.one_hand_blade.name
 #       stagger at 3; M3f adds athletics and survival)
 # note: Competence only. What the character can attempt at all is AX-TEC (abilities, spells, recipes).
 ```
+
+**As implemented (M3e).** The magic domains are skills of `family: magic`: `skill.force`, `skill.warding` and `skill.vital`. A formula's domain skill against its complexity sets its Strain and its chance to fizzle.
 
 The progression constants live in one config group, alongside `config.time`, `config.xp_curve` and `config.level_cap` (§4.19):
 

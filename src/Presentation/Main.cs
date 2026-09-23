@@ -24,6 +24,9 @@ namespace UNNAMED.Presentation;
 /// </summary>
 public partial class Main : Node3D
 {
+    /// <summary>Input actions for the formula keys, 4 to 6.</summary>
+    private static readonly string[] CastKeys = { "cast_1", "cast_2", "cast_3" };
+
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
@@ -204,9 +207,19 @@ public partial class Main : Node3D
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible;
         bool holding = captured && Input.IsActionPressed("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
-        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || combat.Phase == CombatPhase.Windup);
+        int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
+        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || slot >= 0 || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
+        if (slot >= 0)
+        {
+            // A working goes where the camera looks, like a swing (M3e).
+            var hotbar = _controller.Formulas();
+            if (slot < hotbar.Length)
+                _controller.Cast(hotbar[slot]);
+            else
+                _hud.Toast("No formula known for that key", 2);
+        }
         bool guard = holding && !combat.Weapon.Ranged;
         if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
             _controller.Guard(guard);
@@ -305,10 +318,15 @@ public partial class Main : Node3D
             $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
-            $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}" +
+            $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{_session.DisplayName(combat.Weapon.Source)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
             $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
+        _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
+        var formulas = _controller.Formulas();
+        _hud.SetMagic((combat.Casting is { } casting ? $"Casting {_session.DisplayName(casting)}\n" : "") +
+            string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {_session.DisplayName(f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
+            (combat.Strained ? "   Strained" : ""));
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
             $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")));
         if (Target(simulation) is { } target)
@@ -378,9 +396,14 @@ public partial class Main : Node3D
         });
         _session.Subscribe<HealthChanged>(e =>
         {
-            if (e.Target == _session.Simulation!.PlayerId)
+            if (e.Target == _session.Simulation!.PlayerId && e.Source != "strain")
                 _hud.Log($"{Name(e.Source)}: {(e.Delta > 0 ? "+" : "")}{e.Delta}");
         });
+        _session.Subscribe<CastCompleted>(e => _hud.Log($"You work {Name(e.FormulaId)} (+{e.Strain} Strain)"));
+        _session.Subscribe<CastFizzled>(e => _hud.Log($"Your {Name(e.FormulaId)} fizzles (+{e.Strain} Strain)"));
+        _session.Subscribe<CastInterrupted>(e => _hud.Log($"Your {Name(e.FormulaId)} is broken off ({e.Reason})"));
+        _session.Subscribe<StrainBacklash>(e => _hud.Log($"Strain backlash: -{e.Damage} health"));
+        _session.Subscribe<TechniqueLearned>(e => _hud.Toast($"Learned {Name(e.DefinitionId)}", 4));
         _session.Subscribe<EffectApplied>(e =>
         {
             if (e.Target == _session.Simulation!.PlayerId)
@@ -393,7 +416,7 @@ public partial class Main : Node3D
             if (e.Xp > 0)
                 _hud.Log($"{Name(e.SkillId)} +{e.Xp} XP (level {e.Level})");
         });
-        _session.Subscribe<ItemUsed>(e => _hud.Toast($"Used {Name(e.DefId)}", 2));
+        _session.Subscribe<ItemUsed>(e => _hud.Toast(e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
         _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());
         _session.Subscribe<PlayerDied>(e =>
         {
@@ -405,7 +428,7 @@ public partial class Main : Node3D
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
                 _hud.Toast(e.Reason, 2);
         });
@@ -433,8 +456,12 @@ public partial class Main : Node3D
     {
         var constants = _session.Setup.Combat.Constants;
         var weapon = combat.Weapon;
+        var working = combat.Casting is { } casting ? _session.Setup.Magic.Formulas[casting] : null;
         int length = combat.Phase switch
         {
+            CombatPhase.Windup when working is not null => working.CastTicks,
+            CombatPhase.Active when working is not null => 1,
+            CombatPhase.Recovery when working is not null => working.RecoveryTicks,
             CombatPhase.Windup => weapon.WindupTicks,
             CombatPhase.Active => weapon.ActiveTicks,
             CombatPhase.Recovery => combat.AttackSource is null ? constants.DodgeRecoveryTicks : weapon.RecoveryTicks,
@@ -444,7 +471,7 @@ public partial class Main : Node3D
         };
         float progress = (float)((length - combat.PhaseTicksLeft + alpha) / Math.Max(1, length));
         var held = weapon.Ranged ? Held.Bow : weapon.Source == "unarmed" ? Held.Nothing : Held.Sword;
-        return new CombatStance(combat.Phase, progress, held, combat.Blocking);
+        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null);
     }
 
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
@@ -587,6 +614,8 @@ public partial class Main : Node3D
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
         Bind("use", Key.H);
+        for (int i = 0; i < CastKeys.Length; i++)
+            Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))

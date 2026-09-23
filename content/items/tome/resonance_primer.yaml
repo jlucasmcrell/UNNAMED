@@ -1,0 +1,18 @@
+id: item.tome.resonance_primer
+kind: item
+schema: 1
+display_key: item.tome.resonance_primer.name
+tags: [item]
+name: Resonance Primer
+notes: A survey scholar's primer on three small workings (content bible §13 - Force, Warding, Vital). Read once, it teaches the formulas without a single cast (study, PROGRESSION.md §4.4); it proves content can grant capabilities (PROTOTYPE.md C7).
+category: book
+stack_max: 1
+weight: 1.0
+value_base: 120
+rarity: uncommon
+use:
+  consume: true
+  grants:
+    - { kind: spell, ref: spell.force.impulse_bolt }
+    - { kind: spell, ref: spell.warding.brace_ward }
+    - { kind: spell, ref: spell.vital.mending_thread }

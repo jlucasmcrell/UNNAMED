@@ -87,6 +87,7 @@ public sealed class GameSession : IDomainEvents
                 ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
                 ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
             Combat = CombatContent.Build(loader, options.RegionId),
+            Magic = MagicContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

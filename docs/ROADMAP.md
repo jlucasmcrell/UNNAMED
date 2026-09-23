@@ -229,9 +229,9 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M3c, M3d.
 - **Entry:** Damage types and status effects exist.
-- **Work:** One school to full depth (`elemental`, chosen because its reaction chains exercise the damage-type system maximally) rather than six shallow ones; Focus/Strain costs, casting, concentration-under-damage; school mastery research/study loop (`PROGRESSION.md` §7); attunement slots with the level-10 threshold; two schools present but depth-gated (content stub only).
-- **Exit criteria:** Elemental reaction chains work and are legible; research at a study station advances school mastery while repeated casting does not (a testable assertion of the two-mechanic split); attunement switching costs are enforced.
-- **Proof:** Test asserting that 500 casts grant zero school mastery and one research session grants credit.
+- **Work (Phase-1 scope, owner ruling):** three tiny representative magic domains with one formula each - the content bible's Impulse Bolt (Force), Brace Ward (Warding) and Mending Thread (Vital) (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §13), where `PROTOTYPE.md` had Ember, Mend and Ward - costed in Focus and Strain, with Resonance scaling their force; there is no mana. Casting with a tell and concentration under damage; Strain accumulating per working and recovering at rest, with backlash rather than a lockout past the character's tolerance (`MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md` "Unsafe casting"); domain skill (`PROGRESSION.md` §7) making a formula steadier and cheaper; formulas known through learning events such as study; clear feedback in the HUD. Not built: attunement slots or any level-10 threshold (removed by the ratified progression model), more domains, reaction chains, a spell editor, Great Works, Otherwhen, divine systems.
+- **Exit criteria:** The three formulas cast from content and do different things (damage at range, a timed protection, a recovery that stops bleeding); Strain accumulates and recovers, and casting past tolerance costs health; a wound during the tell breaks the cast; trivial repeated casting grants no domain skill and no formula, while study yields a formula without casting (the two-mechanic split, `PROGRESSION_AXIS_RECONCILIATION.md` §4.6).
+- **Proof:** Tests asserting that 500 trivial casts grant zero domain skill and no formula and that reading a primer teaches formulas never cast; Strain, backlash and interruption tests; a windowed capture of the casting UI.
 
 ### M3f — Skills, Gathering, One Profession — `FEATURE`
 

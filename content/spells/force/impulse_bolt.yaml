@@ -1,0 +1,15 @@
+id: spell.force.impulse_bolt
+kind: spell
+schema: 1
+display_key: spell.force.impulse_bolt.name
+tags: [spell]
+name: Impulse Bolt
+notes: Short-ranged kinetic projection (content bible §13) - a blunt blow thrown along the facing, as far as a bow reaches in half the time. Force's teaching formula.
+domain: skill.force
+complexity: 4
+cost: { focus: 10, strain: 8 }
+cast_time_s: 0.6
+range_m: 20
+targeting: projectile
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [9, 13] }

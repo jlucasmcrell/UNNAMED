@@ -1,0 +1,8 @@
+id: skill.force
+kind: skill
+schema: 1
+display_key: skill.force.name
+tags: [skill]
+name: Force
+family: magic
+notes: The magic domain of kinetic force, heat, cold and concussion (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md "Force / Evocation"; content bible §13). Competence only - a steadier working for less Strain (PROGRESSION.md §7); what can be worked at all is the formulas known.

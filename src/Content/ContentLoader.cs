@@ -175,6 +175,11 @@ public class ContentLoader
             var combatErrors = CombatContent.Validate(this);
             _errors.AddRange(combatErrors);
             success &= combatErrors.Count == 0;
+
+            // Formulas, the tuning of casting, and what books teach (MAG codes)
+            var magicErrors = MagicContent.Validate(this);
+            _errors.AddRange(magicErrors);
+            success &= magicErrors.Count == 0;
         }
         
         return success;

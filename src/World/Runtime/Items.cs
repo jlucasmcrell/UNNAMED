@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -175,17 +176,31 @@ internal sealed class InventorySystem
         return null;
     }
 
-    /// <summary>Use a carried consumable: one leaves its stack and its effect applies (the salve's mending, M3c).</summary>
+    /// <summary>
+    /// Use a carried item: a consumable leaves its stack and its effect applies (the salve's mending, M3c); a book is read
+    /// once and teaches what it holds - study, a formula known without ever casting it (M3e).
+    /// </summary>
     public string? Handle(UseItemCommand command, long tick)
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
         if (State.Inventory.FirstOrDefault(e => e.ItemId == command.Item) is not { } entry)
             return $"{command.Item} is not carried";
-        if (!_context.Setup.Combat.UseEffects.TryGetValue(entry.DefId, out var effect))
-            return $"{entry.DefId} has no use";
         if (State.PlayerCombat.Defeated)
             return "dead";
+        if (_context.Setup.Magic.Teaches.TryGetValue(entry.DefId, out var formulas))
+        {
+            var fresh = formulas.Where(f => !ProgressionEngine.Knows(State.Progression, f)).ToList();
+            if (fresh.Count == 0)
+                return $"nothing in {entry.DefId} is new";
+            Remove(new[] { (entry, 1) });
+            foreach (string formula in fresh)
+                _context.Dispatch(new LearnTechnique(new TechniqueLearning(formula, LearningSource.Book, tick) { SourceRef = entry.DefId }));
+            _context.Events.Publish(new ItemUsed(_player, entry.DefId, null, tick));
+            return null;
+        }
+        if (!_context.Setup.Combat.UseEffects.TryGetValue(entry.DefId, out var effect))
+            return $"{entry.DefId} has no use";
         Remove(new[] { (entry, 1) });
         _context.Dispatch(new ApplyEffect(_player, effect));
         _context.Events.Publish(new ItemUsed(_player, entry.DefId, effect, tick));

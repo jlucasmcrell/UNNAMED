@@ -240,17 +240,39 @@ internal sealed class ProgressionSystem
         return null;
     }
 
-    /// <summary>The current pools move, clamped to their derived maxima; a full pool is stored as full (null), never as a number.</summary>
+    /// <summary>
+    /// The current pools move, clamped to their derived maxima; a full pool is stored as full (null), never as a number.
+    /// Strain moves between zero and the character's tolerance.
+    /// </summary>
     public string? Handle(ChangePools command)
     {
         var progression = _context.State.Progression;
         var stats = ProgressionEngine.Derive(progression, _context.Setup.Progression);
-        int maxHealth = (int)stats.HealthMax, maxStamina = (int)stats.StaminaMax;
+        int maxHealth = (int)stats.HealthMax, maxStamina = (int)stats.StaminaMax, maxFocus = (int)stats.FocusMax;
         int health = Math.Clamp((progression.Pools.Health ?? maxHealth) + command.Health, 0, maxHealth);
         int stamina = Math.Clamp((progression.Pools.Stamina ?? maxStamina) + command.Stamina, 0, maxStamina);
-        var pools = progression.Pools with { Health = health >= maxHealth ? null : health, Stamina = stamina >= maxStamina ? null : stamina };
+        int focus = Math.Clamp((progression.Pools.Focus ?? maxFocus) + command.Focus, 0, maxFocus);
+        int strain = Math.Clamp(progression.Pools.Strain + command.Strain, 0, (int)Math.Max(0, stats.StrainTolerance));
+        var pools = progression.Pools with
+        {
+            Health = health >= maxHealth ? null : health,
+            Stamina = stamina >= maxStamina ? null : stamina,
+            Focus = focus >= maxFocus ? null : focus,
+            Strain = strain,
+        };
         if (pools != progression.Pools)
             _context.State.SetProgression(_owner, progression with { Pools = pools });
+        return null;
+    }
+
+    /// <summary>A learning event (PROGRESSION.md §4.4): the only way a formula becomes known.</summary>
+    public string? Handle(LearnTechnique command)
+    {
+        var result = ProgressionEngine.Learn(_context.State.Progression, command.Learning);
+        if (!result.Learned)
+            return $"{command.Learning.DefinitionId} is already known";
+        _context.State.SetProgression(_owner, result.Progression);
+        _context.Events.Publish(new TechniqueLearned(command.Learning.DefinitionId, ProgressionKeys.Key(command.Learning.Source), command.Learning.Tick));
         return null;
     }
 

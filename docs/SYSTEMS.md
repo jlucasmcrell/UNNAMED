@@ -107,6 +107,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Current values, regen remainder, alive/dead flag, death cause and time.
 - **Transient.** Accumulators, status flags, damage-number bookkeeping.
 - **Events/interfaces.** `Spend(id, pool, amount) → bool`, `Restore`; emits `PoolChanged`, `Downed`, `Died`. Death is a state transition here; consequences (corpse, penalties) are decided by S-07's consumer rules, not here.
+- **M3e reconciliation.** Focus returns and Strain ebbs after a pause from the last working (`config.magic`); both are on the progression record's pools, saved since schema 4, with Strain held between zero and the tolerance. As with stamina, the pause itself is not saved: a load starts at rest.
 
 ### S-07 Death & Recovery
 
@@ -171,6 +172,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Currently active summons (as entity refs), lingering conjured effects that outlive logout.
 - **Transient.** Cast bars, pending payloads, channel state.
 - **Events/interfaces.** `BeginCast(casterId, spellId, target)`, `Interrupt(reason)`; emits `CastStarted`, `CastCompleted`, `CastInterrupted`, `Summoned`, `SpellResisted`. Domains may differ mechanically (charter §6) but must express differences through definition data + the same closed payload vocabulary, not new domain code per domain. Known formulas stay castable above the caster's skill, at higher Strain and failure risk; there are no attunement slots.
+- **M3e reconciliation.** Casting is the player's action, so its cast-in-progress state lives with the rest of the player's combat state (`CombatSystem`, `StateSlice.Combat`), and a working's blow goes through S-12's one pipeline. `CastCommand` spends the formula's Focus and starts its tell (the cast time). At release the working takes its Strain - more above the domain skill, less below it - then fizzles (a chance only above one's skill) or takes hold; past tolerance the excess is paid in health (`StrainBacklash`), never refused. A wound during the tell breaks the cast (`CastInterrupted`, reason `wounded`), and a dodge abandons it (`dodged`); a blow on the guard or a dodged blow does not. Its domain skill learns only from a working that mattered: a bolt that wounded, or a working cast in the thick of a fight. Resonance, not Might, scales a working's force. Phase 1 builds `self` and `projectile` targeting and the `damage`, `apply_effect` and `remove_effect` payloads; the content bible's three formulas, one per domain, are the whole set.
 
 ### S-14 Inventory & Containers
 

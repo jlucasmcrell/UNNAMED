@@ -9,7 +9,8 @@ namespace UNNAMED.Presentation.Ui;
 /// One HUD for every camera distance (CAMERA_PERSPECTIVE_AND_PRESENTATION.md §19): pools and level, the interaction
 /// prompt, short-lived notices, a crosshair in first person, and the F3 overlay with frame timing and every cell's tier.
 /// Combat (M3c) adds health and stamina bars, active effects, the target's health, a short combat log, and a death recap
-/// that names what killed the character (ROADMAP.md M3c: a tester can name what killed them).
+/// that names what killed the character (ROADMAP.md M3c: a tester can name what killed them). Magic (M3e) adds Focus and
+/// Strain bars - Strain marked once the character is Strained - and the formulas on keys 4 to 6, with the one being cast.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
@@ -21,6 +22,9 @@ public partial class Hud : CanvasLayer
     private readonly List<(Label Label, double Expires)> _live = new();
     private readonly ProgressBar _health = Bar(new Color(0.75f, 0.16f, 0.14f));
     private readonly ProgressBar _stamina = Bar(new Color(0.85f, 0.7f, 0.2f));
+    private readonly ProgressBar _focus = Bar(new Color(0.25f, 0.45f, 0.85f));
+    private readonly ProgressBar _strain = Bar(new Color(0.55f, 0.3f, 0.7f));
+    private readonly Label _magic = Text(17);
     private readonly Label _effects = Text(17);
     private readonly Label _targetName = Text(18);
     private readonly ProgressBar _target = Bar(new Color(0.7f, 0.2f, 0.18f));
@@ -60,10 +64,13 @@ public partial class Hud : CanvasLayer
 
         var vitals = new VBoxContainer();
         vitals.SetAnchorsPreset(Control.LayoutPreset.BottomLeft);
-        vitals.Position = new Vector2(24, -150);
+        vitals.Position = new Vector2(24, -230);
+        vitals.AddChild(_magic);
         vitals.AddChild(_effects);
         vitals.AddChild(_health);
         vitals.AddChild(_stamina);
+        vitals.AddChild(_focus);
+        vitals.AddChild(_strain);
         AddChild(vitals);
 
         var target = new VBoxContainer();
@@ -100,6 +107,19 @@ public partial class Hud : CanvasLayer
         _stamina.Value = stamina;
         _health.TooltipText = $"{health}/{maxHealth}";
     }
+
+    /// <summary>Focus, and Strain against its tolerance: past three-quarters the bar turns red, and the next working may cost health.</summary>
+    public void SetMagicPools(int focus, int maxFocus, int strain, int tolerance, bool strained)
+    {
+        _focus.MaxValue = Math.Max(1, maxFocus);
+        _focus.Value = focus;
+        _strain.MaxValue = Math.Max(1, tolerance);
+        _strain.Value = strain;
+        _strain.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = strained ? new Color(0.9f, 0.2f, 0.3f) : new Color(0.55f, 0.3f, 0.7f) });
+    }
+
+    /// <summary>The formulas on their keys, and the one being cast.</summary>
+    public void SetMagic(string text) => _magic.Text = text;
 
     public void SetEffects(string text) => _effects.Text = text;
 
@@ -143,6 +163,13 @@ public partial class Hud : CanvasLayer
 
     public void Toast(string text, double seconds = 4)
     {
+        // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
+        int live = _live.FindIndex(t => t.Label.Text == text);
+        if (live >= 0)
+        {
+            _live[live] = (_live[live].Label, Math.Max(_live[live].Expires, _clock + seconds));
+            return;
+        }
         var label = Text(20);
         label.Text = text;
         label.HorizontalAlignment = HorizontalAlignment.Center;
@@ -170,7 +197,7 @@ public partial class Hud : CanvasLayer
 
     private static ProgressBar Bar(Color fill)
     {
-        var bar = new ProgressBar { CustomMinimumSize = new Vector2(320, 22), ShowPercentage = false, Step = 1 };
+        var bar = new ProgressBar { CustomMinimumSize = new Vector2(320, 22), ShowPercentage = false, Step = 1, SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
         bar.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = fill });
         bar.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.55f) });
         return bar;

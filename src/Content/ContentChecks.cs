@@ -49,6 +49,7 @@ public static class ContentChecks
         ["attack_set"] = new[] { "ability" },
         ["moveset"] = new[] { "ability" },
         ["affix_pool"] = new[] { "affix" },
+        ["domain"] = new[] { "skill" },   // a formula's magic-domain skill (§4.6)
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>

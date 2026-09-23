@@ -134,7 +134,7 @@ Target: readable, preparation-rewarding, non-spongy (charter §7). Attack resolu
 
 ### 5.2 Magic
 
-Five schools, five *different* mechanics (charter §6):
+Five schools, five *different* mechanics (charter §6). **Reconciled (M3e, owner-approved magic model):** there is no mana; read "Mana" below as Focus and Strain (`MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md`, `PROGRESSION.md` §4.1). Essence and the scrap component stay as contextual costs.
 
 | School | Resource | Core mechanic | Proof spell |
 |---|---|---|---|

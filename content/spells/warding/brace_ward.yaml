@@ -1,0 +1,14 @@
+id: spell.warding.brace_ward
+kind: spell
+schema: 1
+display_key: spell.warding.brace_ward.name
+tags: [spell]
+name: Brace Ward
+notes: Brief local protection against intrusion and impact (content bible §13) - the body braced for 10 s. Quick to cast, so it can answer a charge's tell.
+domain: skill.warding
+complexity: 3
+cost: { focus: 12, strain: 10 }
+cast_time_s: 0.4
+targeting: self
+payload:
+  - { type: apply_effect, effect_ref: effect.braced }

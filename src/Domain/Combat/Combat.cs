@@ -94,6 +94,9 @@ public sealed record AttackProfile(
     /// <summary>The attacker keeps running at its target through the windup (the hound bites on the run), so fleeing does not open the gap.</summary>
     public bool Advances { get; init; }
 
+    /// <summary>A working's blow (M3e): Resonance, not Might, gives it its force.</summary>
+    public bool Magic { get; init; }
+
     public bool IsCharge => ChargeSpeedMmPerSecond > 0;
 
     public int TotalTicks => WindupTicks + ActiveTicks + RecoveryTicks;

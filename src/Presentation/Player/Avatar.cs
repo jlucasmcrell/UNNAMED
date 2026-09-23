@@ -30,6 +30,9 @@ public partial class Avatar : Node3D
     private readonly List<MeshInstance3D> _head = new();
     private readonly MeshInstance3D _sword = Part(new BoxMesh { Size = new Vector3(0.04f, 0.05f, 0.85f) }, Palette.Metal, new Vector3(0, -0.3f, 0.36f));
     private readonly MeshInstance3D _bow = Part(new BoxMesh { Size = new Vector3(0.03f, 1.15f, 0.05f) }, Palette.Leather, new Vector3(0, -0.3f, 0.04f));
+    private readonly MeshInstance3D _working = Part(new SphereMesh { Radius = 0.07f, Height = 0.14f },
+        new StandardMaterial3D { AlbedoColor = new Color(0.6f, 0.75f, 1f), EmissionEnabled = true, Emission = new Color(0.4f, 0.6f, 1f) },
+        new Vector3(0, -0.34f, 0.04f));
     private CombatStance _stance = CombatStance.AtRest;
     private double _phase;
     private double _jumpTime = -1;
@@ -65,6 +68,7 @@ public partial class Avatar : Node3D
         }
         _rightElbow.AddChild(_sword);
         _leftElbow.AddChild(_bow);
+        _leftElbow.AddChild(_working);
     }
 
     /// <summary>What the body is doing in combat this frame: a phase, how far through it, and what it holds.</summary>
@@ -122,17 +126,28 @@ public partial class Avatar : Node3D
     /// <summary>
     /// Combat poses over the walk. Rotation about X swings a limb: negative raises it forward. A sword rises through the
     /// windup and falls through the active window; a bow is held out and drawn through the windup and loosed at release.
+    /// A working (M3e) gathers in the open left hand through its tell - the glow is the tell - and is thrown at release.
     /// </summary>
     private void Fight()
     {
         var s = _stance;
         _sword.Visible = s.Holds == Held.Sword;
-        _bow.Visible = s.Holds == Held.Bow;
+        _bow.Visible = s.Holds == Held.Bow && !s.Casting;
+        _working.Visible = s.Casting && s.Phase is CombatPhase.Windup or CombatPhase.Active;
         float t = Mathf.Clamp(s.Progress, 0, 1);
         // Held out, the bow stands upright against the raised arm; at rest it hangs along it.
         _bow.Rotation = new Vector3(s.Phase is CombatPhase.Windup or CombatPhase.Active ? 1.5f : 0, 0, 0);
         switch (s.Phase)
         {
+            case CombatPhase.Windup when s.Casting:
+                _leftShoulder.Rotation = new Vector3(-1.1f - 0.3f * t, 0, 0.05f);
+                _leftElbow.Rotation = new Vector3(-0.9f * (1 - t), 0, 0);
+                _working.Scale = Vector3.One * (0.5f + t);
+                break;
+            case CombatPhase.Active or CombatPhase.Recovery when s.Casting:
+                _leftShoulder.Rotation = new Vector3(-1.5f * (s.Phase == CombatPhase.Active ? 1 : 1 - t), 0, 0.05f);
+                _leftElbow.Rotation = Vector3.Zero;
+                break;
             case CombatPhase.Windup when s.Holds == Held.Bow:
                 _leftShoulder.Rotation = new Vector3(-1.5f, 0, 0.05f);
                 _leftElbow.Rotation = Vector3.Zero;
@@ -186,8 +201,8 @@ public enum Held
     Bow,
 }
 
-/// <summary>A frame's combat pose: the phase from the simulation, how far through it (0-1), what the hands hold, the guard.</summary>
-public readonly record struct CombatStance(CombatPhase Phase, float Progress, Held Holds, bool Guarding)
+/// <summary>A frame's combat pose: the phase from the simulation, how far through it (0-1), what the hands hold, the guard, and whether it is a working.</summary>
+public readonly record struct CombatStance(CombatPhase Phase, float Progress, Held Holds, bool Guarding, bool Casting = false)
 {
     public static CombatStance AtRest => new(CombatPhase.Idle, 0, Held.Nothing, false);
 }

@@ -18,6 +18,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
     public CombatSetup Combat { get; init; } = CombatSetup.Empty;
+
+    /// <summary>The formulas, the tuning of casting, and what books teach (M3e).</summary>
+    public MagicSetup Magic { get; init; } = MagicSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -192,6 +195,7 @@ public sealed class Simulation
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _combat.Handle(dodge, WorldTick),
+                CastCommand cast => _combat.Handle(cast, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
@@ -263,10 +267,12 @@ public sealed class Simulation
         AwardExperience award => _progression.Handle(award),
         ChangePools pools => _progression.Handle(pools),
         PracticeSkill practice => _progression.Handle(practice),
+        LearnTechnique learn => _progression.Handle(learn),
         RecordDeath death => _progression.Handle(death),
         Relocate relocate => _movement.Handle(relocate, Now),
         ApplyEffect apply => _effects.Handle(apply, Now),
         ClearEffects clear => _effects.Handle(clear, Now),
+        RemoveEffect remove => _effects.Handle(remove, Now),
         Harm harm => _combat.Handle(harm, Now),
         Heal heal => _combat.Handle(heal, Now),
         EndFight end => _combat.Handle(end),
