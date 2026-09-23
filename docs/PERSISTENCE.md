@@ -185,7 +185,7 @@ Each subsection defines a section's persisted shape and the reconstruction path.
 
 ### 5.1 `player.msgpack` / `companions.msgpack` — fully serialized
 
-These are the only fully-serialized sections. A character is not regenerable, so nothing here is a delta. Includes: identity (ULID, name, species ref, appearance seed, archetype), the XP/skill/attribute ledgers, unspent points, equipment slots and per-instance state, inventory contents by ULID, quest instances, faction reputation and crime records, relationship values and the memory log, discovered-location records, and per-axis advancement telemetry.
+These are the only fully-serialized sections. A character is not regenerable, so nothing here is a delta. Includes: identity (ULID, name, species ref, appearance seed, archetype), the progression record (from schema 4: level and progress, XP debt, attribute allocation, one-time grants and unspent attribute points, skill levels and progress, the technique/formula knowledge record with learning sources, current Health/Stamina/Focus/Strain, the anti-farm guard state — `PROGRESSION.md` §3–§4), equipment slots and per-instance state, inventory contents by ULID, quest instances, faction reputation and crime records, relationship values and the memory log, discovered-location records, and lifetime XP totals per source kind. The detailed per-axis advancement telemetry is a separate, non-shipped log (`PROGRESSION.md` §13.2), never part of a save.
 
 **Rebase does not apply here.** There is no baseline to return to, so every field is authoritative and T-01 asserts full equality after reload.
 
@@ -521,7 +521,7 @@ The main-thread budget is met by serializing off-thread and committing on-thread
 |---|---|---|
 | `manifest.json` | < 4 KB | Fixed |
 | `player.msgpack` | 20–200 KB | Inventory, quest count, journal |
-| `companions.msgpack` | 10–100 KB | Roster size (max 6 active) |
+| `companions.msgpack` | 10–100 KB | Roster size (player + up to 3 active; the prototype has one) |
 | `entities.msgpack` | 2–40 MB | **Diverged instances** (loot, corpses, NPC changes) |
 | `cells.msgpack` | 1–20 MB | Visited/diverged cells |
 | `buildings.msgpack` | 10 KB–5 MB | Player structures |

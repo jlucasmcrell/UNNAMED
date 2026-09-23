@@ -89,11 +89,11 @@ Justification column is mandatory: **any count above 3 must be argued here or it
 | Armor pieces | 2 | `item.armor.hide_vest` (body), `item.armor.hide_cap` (head) | 2 slots is the minimum proving equipment is a *set of slots*, not a single `equippedItem` field. |
 | Spells | **3** | `spell.ember.bolt` (direct damage), `spell.mend.salve` (heal self over 6 s), `spell.ward.oakskin` (10 s armor buff) | 3 is the minimum proving spells are data-driven rows with (a) a damage effect, (b) a healing effect, (c) a timed status effect. A single damage spell could be a hardcoded projectile. |
 | Magic schools | **3** | `magic.ember`, `magic.mend`, `magic.ward` — one spell each | 3 is the minimum proving a school is a data row with its own identity, not a colour on a damage number. |
-| Skills | 2 | `skill.survival` (gathering yield +1 at level 3), `skill.athletics` (move speed +8 % at level 3) | 2 proves skills are separate from level and from attributes (D-09), and that a skill level *does* something observable. |
+| Skills | 2 + 1 weapon skill | `skill.survival` (gathering yield +1 at level 3), `skill.athletics` (move speed +8 % at level 3), and the weapon skill below | 2 proves skills are separate from level and from attributes (D-09), and that a skill level *does* something observable. |
 | Attributes | **7** | The canonical set from `PROGRESSION.md` §4.1: Might, Endurance, Agility, Precision, Will, Insight, Presence — of which only Might, Endurance and Will have any observable effect at level cap 5. | The *count* is not a prototype scope choice: attributes are persisted per character, so shipping three now and seven later is a save migration, and `DATA_MODEL.md`'s schemas and `VERTICAL_SLICE.md` both commit to the seven. The prototype exercises all seven **in the schema** while only three are **mechanically live**, which is the honest minimum: the plumbing is proven, the balance is not pretended. |
 | Levels | Cap 5 | XP curve on config | Level cap 5 keeps the curve testable by hand. |
-| Abilities/talents | 0 | — | Deferred to the slice; no talent tree in the prototype. |
-| Weapon mastery | 1 track | `mastery.one_handed` only, 3 ranks | 1 track proves the mastery axis exists separately from skill and level without opening a second content surface. |
+| Techniques (martial) | 0 | — | Deferred to the slice; no talent tree and no point pool. The knowledge record (`PROGRESSION.md` §4.4) still exists: it holds the known formulas and recipes. |
+| Weapon skill | 1 | `skill.one_hand_blade` only (+5 % stagger consistency at level 3) | Proves weapon competence advances only from effective use, separately from level, without opening a second content surface. It replaces the `mastery.one_handed` track: the progression-axis audit merged weapon mastery into weapon-family skills (`PROGRESSION_AXIS_RECONCILIATION.md`). |
 | Recipes | **2** | `recipe.alchemy.salve_minor` (herb ×2 + 1 flask charge), `recipe.smithing.sword_temper` (iron ×1 + salve_minor ×1 → +2 damage on a *specific item instance*) | 2 is the minimum proving (a) resource consumption and (b) that crafting can mutate an existing item instance rather than only create new ones. A third recipe repeats both. |
 | Crafting stations | 1 | `station.forge_shed` (in the forge shed) | Recipes are station-gated by `station_type` from day one, or the gate becomes a refactor. |
 | Gathering resources | **2** | `node.herb.ashbloom` (respawns at +1 `world_time` day), `node.ore.iron_seam` (finite, 3 charges, does not respawn in prototype) | 2 proves both respawn classes. Also required: the salve recipe consumes one material and one flask charge, so consumption is non-trivial. |
@@ -104,7 +104,7 @@ Justification column is mandatory: **any count above 3 must be argued here or it
 | Item definitions | **15** total | listed in §4.2 | 15 is the smallest set that covers every category in §4.1 exactly once. |
 | Status effects | 3 | `effect.burning` (DoT), `effect.oakskin` (armor buff), `effect.bleeding` (DoT, player+companion) | Bleeding is applied by the wolf; burning by the player spell. |
 | Factions | 0 defined, 1 structural slot | `faction_id` field exists on NPCs and is saved; no faction has reputation logic. | Cost of the field is zero; adding it later to a shipped save schema is not. |
-| UI panels | 6 | Health/stamina/spell resource bar, interaction prompt, inventory, equipment, character sheet (level/XP/attributes/skills/mastery), journal (quest + objectives) | Journal is required because the quest must be *readable* even in the prototype; it is also where "no quest markers" starts (the journal stores text directions, not waypoints). |
+| UI panels | 6 | Health/Stamina/Focus bars with Strain (no mana), interaction prompt, inventory, equipment, character sheet (level/XP/XP debt/attributes/skills/known techniques), journal (quest + objectives) | Journal is required because the quest must be *readable* even in the prototype; it is also where "no quest markers" starts (the journal stores text directions, not waypoints). |
 
 ### 4.2 The complete item list (all 15)
 
@@ -171,7 +171,7 @@ The prototype's loop is a *horizontal* version of the final game's explore → f
 | 3 | Talks to Halda; picks **1 of 2** opening replies | `DialogueSystem`, `QuestSystem` (O1) | conversation node visited, quest accepted |
 | 4 | Reads journal: *"the den is northwest, up the rock shelf above the stream."* Walks out. No waypoint. | journal only | — |
 | 5 | Gathers 2× ashbloom and refills the water flask at the stream | `GatheringSystem`, `InventorySystem` | node charge count decremented; `world_time` recorded per node |
-| 6 | Hears a wolf; fights 1 stray wolf with the sword. Takes damage. Uses `ember.bolt` to finish it at range. | `CombatSystem`, `DamageSystem`, `StatusEffectSystem`, `LootSystem` | wolf entity → dead; corpse lootable; XP granted; `mastery.one_handed` +1 tick |
+| 6 | Hears a wolf; fights 1 stray wolf with the sword. Takes damage. Uses `ember.bolt` to finish it at range. | `CombatSystem`, `DamageSystem`, `StatusEffectSystem`, `LootSystem` | wolf entity → dead; corpse lootable; XP granted; `skill.one_hand_blade` XP granted |
 | 7 | Fights the den pack of 4; dies once (deliberate tuning — the first attempt with a level-1 character and a rusted sword is intended to be survivable but costly) | `DeathSystem` | death event: −10 % XP debt (not lost XP), respawn at outpost, 60 s of `effect.weakened` |
 | 8 | Recovers corpse-less death penalty, buys nothing, kills the pack, loots 3 wolves + the den cache | `InventorySystem`, `ContainerSystem`, `LootSystem` | chest entity marked emptied; wolf corpses removed |
 | 9 | Returns to the outpost; recruits Kesh (a companion conversation with one accept/decline branch) | `CompanionSystem`, `RelationshipSystem` | companion entity created with ULID, `state: following` |
@@ -309,7 +309,7 @@ A save must round-trip this **exact** scenario, asserted field-by-field:
 
 After load, all of the following must be true, and the prototype fails if any is false:
 
-- Player position, facing, health, stamina, and spell resource are equal to the values at save time.
+- Player position, facing, Health, Stamina, Focus and Strain are equal to the values at save time.
 - Inventory contents (counts, order-insensitive multiset) and equipped slots are identical.
 - The tempered sword has the modifier; the other sword does not.
 - The den chest contains exactly the two items left behind, at the same container entity ID.
@@ -317,7 +317,7 @@ After load, all of the following must be true, and the prototype fails if any is
 - 2 wolves at the den are alive at their spawn-adjacent positions; 1 corpse is present and unlooted; 1 wolf entity is gone.
 - Kesh exists, is at the same position, in `wait`.
 - Quest state places O1 and O2 complete, O3 in progress with the exact kill/acquire counters.
-- XP, level, attribute spends, skill levels, and `mastery.one_handed` ticks are identical.
+- XP, level, XP debt, attribute spends, skill levels (including `skill.one_hand_blade`) and known techniques are identical.
 - `relationship.keeper_halda` is identical.
 - `world_time` is identical (not reset to 0, not advanced by the load).
 - Save load completes in ≤ 2 s on the baseline machine, and the save file is ≤ 256 KB for this state (D-05 sparse deltas).
@@ -351,7 +351,7 @@ Why it is first:
 | P5 | **The vertical thread:** one item, one node, one wolf, one command each for gather/kill/loot/equip → save → load, all headless | C1–C5 |
 | P6 | Godot presentation shell: first-person controller, one view per system, content-driven spawn | D-11 proven under real input latency |
 | P7 | Breadth: the remaining 14 items, 3 spells, 2 recipes, 1 quest, 3 NPCs, 1 companion | §4 complete |
-| P8 | Death, XP/level, skills, mastery | §7.3 |
+| P8 | Death, XP/level, skills, techniques | §7.3 |
 | P9 | Acceptance run per §7.3 and §7.4, recorded | §9 |
 
 Steps P1–P5 involve **no Godot gameplay code at all** and should be completed and green in `dotnet test` before P6 begins. If P5 cannot be made to pass, the correct response is to fix the seam — not to skip to P6.

@@ -173,9 +173,15 @@ Rationale for each link:
 ### M2c — Progression Spine — `FEATURE`
 
 - **Class:** FEATURE. **Depends on:** M1, M2.
-- **Entry:** Registry and save baseline work; `PROGRESSION.md` ratified.
-- **Work:** XP ledger with `source_kind` tagging and the `AG-1..AG-8` anti-farm guards as data-driven constants; level curve and tier table; seven attributes and derived pools; skill list with use-based competence XP and the difficulty gate; ability point pool; the non-conversion law enforced as a typed API (`IAxisAdvancement` accepts only its own currency type — a compile-time guard where possible, a runtime assertion where not); per-axis advancement telemetry.
-- **Exit criteria:** Headless tests prove (a) XP per hour stays inside the `AG-6` band across four scripted activity profiles; (b) a scripted 6-hour farm at one spawn cluster yields ≥0.10× but <0.30× XP after saturation while yielding **undiminished** mastery, material, and faction credit (`AG-4`); (c) no API exists by which gold or items can advance a non-equipment axis.
+- **Entry:** Registry and save baseline work; `PROGRESSION.md` ratified by the progression-axis audit (`PROGRESSION_AXIS_RECONCILIATION.md`, 2026-09-23).
+- **Work:** XP ledger with `source_kind` tagging and the `AG-1..AG-8` anti-farm guards as data-driven constants; level curve and tier table; a level-up grants attribute points only; seven attributes and the derived values (Health/Stamina/Focus maxima, Resonance, Strain tolerance — no mana); the skill model with use-under-challenge XP, the difficulty gate and the common ceiling; the technique/formula knowledge record, learned only through typed learning events, with a default starting package; the non-conversion law enforced as a typed API (each axis accepts only its own currency type — a compile-time guard where possible, a runtime assertion where not); per-axis advancement telemetry; `schema_version` 4 through the M2b migration harness, with a v4 historical fixture.
+- **Exit criteria** (rewritten by the progression-axis audit: the old (b) required "undiminished mastery", an axis that no longer exists). Headless tests prove:
+  - (a) XP per hour stays inside the `AG-6` band across four scripted activity profiles;
+  - (b) a scripted 6-hour farm at one spawn cluster yields ≥0.10× but <0.30× level XP after saturation, while `AG-1..AG-3` change no other currency. Weapon-skill progress is identical with and without them (only its own difficulty gate applies), and material yield and objective credit are unchanged (`AG-4`);
+  - (c) no API exists by which gold, items or another axis's currency can advance level XP, attributes or skill; knowledge enters only through a typed learning event, which changes nothing else;
+  - (d) every retained neighboring pair of axes passes its independence test (`PROGRESSION.md` §2);
+  - (e) a level-up grants exactly the configured attribute points and nothing else;
+  - (f) every historical save fixture migrates to schema 4 with the documented defaults, and the v4 fixture round-trips.
 - **Proof:** A telemetry report from a scripted run showing per-axis advancement rates and the absence of cross-axis conversion.
 - **Notes:** The charter requires that killing creatures not be the only path. This milestone is where that is proven in math before it is proven in content.
 
@@ -204,9 +210,9 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M3b. **Requires:** at least 3 weapons and 3 creature stubs to tune against (R-2).
 - **Entry:** Items, equipment, and damage-relevant item properties exist.
-- **Work:** Attack resolution for melee, ranged, and unarmed; blocking, dodging, armor mitigation, resistances, critical hits, stagger, status effects, buffs/debuffs, damage types, weapon reach, stamina and spell resources (Charter §7); three weapon families implemented to full quality (`one_hand_blade`, `bow`, `staff`) rather than eleven done badly; weapon mastery advancement wired to `PROGRESSION.md` §6.
-- **Exit criteria:** A tuning spreadsheet, generated *from* the build rather than authored by hand, shows time-to-kill within design bands across level bands 1–3; combat is readable (a tester can name what killed them); no out-of-band HP sponges (an over-band creature must be lethal by damage, not by health pool); weapon mastery XP accrues only from effective contribution.
-- **Proof:** Playable combat build; generated TTK table; mastery accrual telemetry.
+- **Work:** Attack resolution for melee, ranged, and unarmed; blocking, dodging, armor mitigation, resistances, critical hits, stagger, status effects, buffs/debuffs, damage types, weapon reach, Stamina, Focus and Strain (Charter §7; there is no mana); three weapon families implemented to full quality (`one_hand_blade`, `bow`, `staff`) rather than eleven done badly; weapon-skill advancement wired to `PROGRESSION.md` §6.
+- **Exit criteria:** A tuning spreadsheet, generated *from* the build rather than authored by hand, shows time-to-kill within design bands across level bands 1–3; combat is readable (a tester can name what killed them); no out-of-band HP sponges (an over-band creature must be lethal by damage, not by health pool); weapon-skill XP accrues only from effective contribution.
+- **Proof:** Playable combat build; generated TTK table; weapon-skill accrual telemetry.
 - **Playable state at exit:** You can fight, die, and be rewarded.
 
 ### M3d — Creature Framework, AI Baseline, Loot — `FEATURE`
@@ -221,7 +227,7 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M3c, M3d.
 - **Entry:** Damage types and status effects exist.
-- **Work:** One school to full depth (`elemental`, chosen because its reaction chains exercise the damage-type system maximally) rather than six shallow ones; spell resources, casting, concentration-under-damage; school mastery research/study loop (`PROGRESSION.md` §7); attunement slots with the level-10 threshold; two schools present but depth-gated (content stub only).
+- **Work:** One school to full depth (`elemental`, chosen because its reaction chains exercise the damage-type system maximally) rather than six shallow ones; Focus/Strain costs, casting, concentration-under-damage; school mastery research/study loop (`PROGRESSION.md` §7); attunement slots with the level-10 threshold; two schools present but depth-gated (content stub only).
 - **Exit criteria:** Elemental reaction chains work and are legible; research at a study station advances school mastery while repeated casting does not (a testable assertion of the two-mechanic split); attunement switching costs are enforced.
 - **Proof:** Test asserting that 500 casts grant zero school mastery and one research session grants credit.
 
@@ -314,7 +320,7 @@ Rationale for each link:
 
 - **Class:** FEATURE + GATE. **Depends on:** M11.
 - **Entry:** Region 2 complete; M9 loop still validated.
-- **Work:** Remaining magic schools with genuinely distinct mechanics (illusion, alteration, blood, runic, divine, enchanting, protection/summoning depth); the six archetypes' Phase-3 expansions; post-cap progression tracks per `PROGRESSION.md` §8 (weapon insight ranks, school deep study, profession mastery projects, faction apex, prestige projects); races' full ability packages; the D-09 duplication telemetry audit (correlation of axis advancement rates) with a written verdict.
+- **Work:** Remaining magic schools with genuinely distinct mechanics (illusion, alteration, blood, runic, divine, enchanting, protection/summoning depth); the six archetypes' Phase-3 expansions; post-cap progression per `PROGRESSION.md` §8 (mastery designations and deep technique chains, formula refinement, artifact-level crafting, faction apex, Great Works); races' full ability packages; the D-09 duplication telemetry audit (correlation of axis advancement rates) with a written verdict.
 - **Exit criteria:** Level 50 is reached by a scripted player in the target 65–85 hour window; post-cap tracks demonstrably do **not** produce strictly larger raw damage than a well-built level-50 character; no two axes show correlation above the D-09 threshold without a recorded justification.
 - **Proof:** Pacing report; endgame power audit; D-09 telemetry verdict.
 - **Gate question:** *Is the progression system still orthogonal after real content exists, or must two axes be merged?* D-09's revisit condition is exactly this test, and it belongs here rather than in a document review.

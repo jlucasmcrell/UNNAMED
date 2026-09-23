@@ -93,7 +93,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 ### S-05 Character Stats & Attributes
 
 - **Responsibility.** Compute derived character values from a base-plus-modifiers graph.
-- **Owns.** For every character: base attribute values, the modifier list, and the cached derived stat block (max health, max stamina, max mana, armor mitigation, carry capacity, resistances).
+- **Owns.** For every character: base attribute values, the modifier list, and the cached derived stat block (max Health, max Stamina, max Focus, Resonance, Strain tolerance, armor mitigation, carry capacity, resistances). There is no mana (`PROGRESSION.md` §4.1).
 - **Reads.** Equipment (equipped item modifiers), Status Effects (active modifiers), Skills (passive contributions), Species/Race definition, Blessings/world modifiers.
 - **Persistent.** Base attributes, allocated attribute points, unspent points.
 - **Transient.** Modifier list and derived stat cache; fully recomputed on load and on any dependency event.
@@ -101,7 +101,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 ### S-06 Health & Resource Pools
 
-- **Responsibility.** Track current/max for health, stamina, mana, and any defined secondary pool, and decide depletion outcomes.
+- **Responsibility.** Track current/max for Health, Stamina and Focus, accumulated Strain against its tolerance, and any contextual resource a definition declares (charges, essence), and decide depletion outcomes.
 - **Owns.** Current values, regeneration accumulators, downed/dead state, death cause record.
 - **Reads.** S-05 (maxima), S-04 (time for regen).
 - **Persistent.** Current values, regen remainder, alive/dead flag, death cause and time.
@@ -119,30 +119,30 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 ### S-08 Experience & Level
 
-- **Responsibility.** Award experience and convert thresholds into character levels and points.
-- **Owns.** XP total, level, unspent attribute/skill/talent points, XP debt.
+- **Responsibility.** Award experience and convert thresholds into character levels and attribute points.
+- **Owns.** Level and progress within it, unspent attribute points, XP debt, and the `AG-2`/`AG-3` guard state.
 - **Reads.** S-12 (kill events), S-29 (quest completion), S-30 (discovery), S-17 (crafting), S-32 (building).
-- **Persistent.** XP, level, unspent point counters, XP debt, per-source diminishing-returns records for repeatable turn-ins.
+- **Persistent.** Level, progress, unspent attribute points, XP debt, lifetime XP per source kind, the anti-farm guard state, per-source diminishing-returns records for repeatable turn-ins.
 - **Transient.** Pending award buffer for the current tick.
-- **Events/interfaces.** `AwardXp(characterId, amount, source)`; emits `XpGained`, `LevelGained`, `PointGranted`. Anti-exploit: repeatable sources declare an `xp_award` with a decay key (see `DATA_MODEL.md` quest schema). Levels grant **breadth only** (D-09).
+- **Events/interfaces.** `AwardXp(characterId, amount, source)`; emits `XpGained`, `LevelGained`, `PointGranted`. Anti-exploit: repeatable sources declare an `xp_award` with a decay key (see `DATA_MODEL.md` quest schema). Levels grant **breadth only** (D-09): a level-up grants attribute points and nothing else — no skill, technique or talent points.
 
-### S-09 Skills & Masteries
+### S-09 Skills & Disciplines
 
-- **Responsibility.** Track learned capability and per-family proficiency, and expose skill checks.
-- **Owns.** Skill values and their use-based progression counters; weapon-family mastery values; magic-school mastery values; known-skill set.
-- **Reads.** S-08 (skill points), S-12 (weapon use events), S-13 (spell cast events), S-17 (crafting profession practice).
-- **Persistent.** Skill levels, progress-to-next, mastery values, learned-skill set.
-- **Transient.** Practice accumulators, check modifiers cache.
-- **Events/interfaces.** `LearnSkill(id)`, `Train(id, amount)`, `Check(characterId, skillId, difficulty) → RollResult`; emits `SkillImproved`, `MasteryImproved`. Skills answer *competence*; masteries answer *specialization* (D-09).
+- **Responsibility.** Track per-discipline competence — weapon families, magic domains, crafting, gathering, world and social skills (`PROGRESSION.md` §4.2) — and expose skill checks.
+- **Owns.** Skill values and progress; the common ceiling; (from M12) mastery designations.
+- **Reads.** S-12 (weapon use events), S-13 (casting events), S-17 (crafting practice), S-19 (gathering), S-22 (world actions).
+- **Persistent.** Skill levels and progress-to-next.
+- **Transient.** Check modifiers cache.
+- **Events/interfaces.** `Practice(characterId, skillId, difficulty, outcome, novelty)` — grants XP only past the difficulty gate; `Check(characterId, skillId, difficulty) → RollResult`; emits `SkillImproved`. Every discipline exists at 0; nothing is "learned" here, and no other system can grant skill. Skills answer *competence* (D-09); specialization is the mastery band.
 
-### S-10 Abilities & Talent Trees
+### S-10 Techniques & Formulas
 
-- **Responsibility.** Own which active/passive abilities a character has and whether an ability may be used right now.
-- **Owns.** Known ability set, hotbar/binding assignment, talent allocations, per-ability cooldown timers, charge counts.
-- **Reads.** S-09 (prerequisites and mastery gates), S-06 (resource cost feasibility), S-11 (status gates such as silence/stun), S-05 (scaling inputs).
-- **Persistent.** Known abilities, talent node allocations, unspent talent points.
+- **Responsibility.** Own what a character knows how to do — techniques (`ability`), formulas (`spell`) and craft techniques/recipes (`recipe`) — how it was learned, and whether one may be used right now (`PROGRESSION.md` §4.4).
+- **Owns.** The knowledge record (known IDs with their learning source), hotbar/binding assignment, per-technique cooldown timers, charge counts.
+- **Reads.** S-09 (skill prerequisites), S-06 (resource cost feasibility), S-11 (status gates such as silence/stun), S-05 (scaling inputs).
+- **Persistent.** The knowledge record.
 - **Transient.** Cooldown timers, charge state, pending-cast state (rebuilt from zero on load; cooldowns do **not** survive except where a definition marks them `persist_cooldown`).
-- **Events/interfaces.** `LearnAbility`, `AllocateTalent`, `TryUse(abilityId, target)`, `GetCooldown(id)`; emits `AbilityUsed`, `AbilityFailed(reason)`, `TalentAllocated`.
+- **Events/interfaces.** `Learn(characterId, definitionId, source)` — the only way knowledge enters, with a typed learning source; `TryUse(abilityId, target)`, `GetCooldown(id)`; emits `TechniqueLearned`, `AbilityUsed`, `AbilityFailed(reason)`. There are no talent points and no level-granted techniques.
 
 ### S-11 Status Effects
 
@@ -164,12 +164,12 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 ### S-13 Magic & Spellcasting
 
-- **Responsibility.** Govern casting: school rules, resource cost, cast time, interruption, and the delivery of a spell's effect payload.
-- **Owns.** School mastery interactions at cast time, cast-in-progress state, interruption resolution, spell-specific resource bookkeeping (essence, reagents if a school uses them), summon lifetime bookkeeping.
-- **Reads.** S-09 (school mastery), S-10 (known spell/ability gating), S-06 (mana/essence), S-11 (silence/confusion), S-12 (to submit damage packets), S-02 (summoned entity creation via registry).
-- **Persistent.** Learned spells, school mastery, currently active summons (as entity refs), lingering conjured effects that outlive logout.
+- **Responsibility.** Govern casting: domain rules, Focus and Strain cost, cast time, interruption, and the delivery of a formula's effect payload.
+- **Owns.** Domain-skill interactions at cast time (efficiency, stability, Strain), cast-in-progress state, interruption resolution, contextual resource bookkeeping (essence, reagents, charges if a formula declares them), summon lifetime bookkeeping.
+- **Reads.** S-09 (domain skill), S-10 (known formulas), S-06 (Focus, Strain, contextual resources), S-11 (silence/confusion), S-12 (to submit damage packets), S-02 (summoned entity creation via registry).
+- **Persistent.** Currently active summons (as entity refs), lingering conjured effects that outlive logout.
 - **Transient.** Cast bars, pending payloads, channel state.
-- **Events/interfaces.** `BeginCast(casterId, spellId, target)`, `Interrupt(reason)`; emits `CastStarted`, `CastCompleted`, `CastInterrupted`, `Summoned`, `SpellResisted`. Schools may differ mechanically (charter §6) but must express differences through definition data + the same closed payload vocabulary, not new domain code per school.
+- **Events/interfaces.** `BeginCast(casterId, spellId, target)`, `Interrupt(reason)`; emits `CastStarted`, `CastCompleted`, `CastInterrupted`, `Summoned`, `SpellResisted`. Domains may differ mechanically (charter §6) but must express differences through definition data + the same closed payload vocabulary, not new domain code per domain. Known formulas stay castable above the caster's skill, at higher Strain and failure risk; there are no attunement slots.
 
 ### S-14 Inventory & Containers
 
@@ -198,14 +198,14 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Transient.** Loot roll working state, RNG stream cursors.
 - **Events/interfaces.** `CreateItem(defId, overrides) → InstanceId`, `RollLoot(tableId, context) → [InstanceId]`; emits `ItemCreated`, `LootGenerated`, `RareDrop`. Item generation must be reproducible from `(rngSeed, tableId, context)` so a save reload before looting yields the same result.
 
-### S-17 Crafting & Professions
+### S-17 Crafting
 
-- **Responsibility.** Convert inputs into outputs under skill, station, and knowledge constraints, and decide quality.
-- **Owns.** Profession values and practice, learned recipe set, station capability state, craft-in-progress jobs (for timed crafts), experimentation/discovery records.
-- **Reads.** S-14 (material availability and consumption), S-18 (recipe/resource/item definitions), S-09 (profession skill), S-32 (station buildings), S-04 (craft timers).
-- **Persistent.** Profession skill and practice, learned recipes, discovered experimental results, queued/in-progress jobs with remaining time, station state if modified.
+- **Responsibility.** Convert inputs into outputs under skill, station, and knowledge constraints, and decide quality (`PROGRESSION.md` §9).
+- **Owns.** Station capability state, craft-in-progress jobs (for timed crafts), experimentation/discovery records.
+- **Reads.** S-14 (material availability and consumption), S-18 (recipe/resource/item definitions), S-09 (crafting skill), S-10 (known craft techniques and recipes), S-32 (station buildings), S-04 (craft timers).
+- **Persistent.** Discovered experimental results, queued/in-progress jobs with remaining time, station state if modified.
 - **Transient.** Craft progress bars, preview computation, available-recipe filtering.
-- **Events/interfaces.** `StartCraft(recipeId, context)`, `CancelCraft`, `Experiment`; emits `CraftStarted`, `CraftCompleted(outputItems, quality)`, `CraftFailed(reason)`, `RecipeLearned`, `ExperimentDiscovered`. Outputs are created via S-16 and inserted via S-14; crafting never writes inventory slots directly.
+- **Events/interfaces.** `StartCraft(recipeId, context)`, `CancelCraft`, `Experiment`; emits `CraftStarted`, `CraftCompleted(outputItems, quality)`, `CraftFailed(reason)`, `ExperimentDiscovered`. A discovery teaches through S-10's `Learn`; there are no profession ranks. Outputs are created via S-16 and inserted via S-14; crafting never writes inventory slots directly.
 
 ### S-18 Content Definitions (Item/Weapon/Armor/Resource/Recipe)
 
@@ -295,7 +295,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Reads.** S-26 (individual memories), S-24 (faction of each witness), S-22 (player actions), S-28 (dialogue consequences), S-12 (assault/kill events).
 - **Persistent.** Reputation values and tiers, faction-state flags (e.g. at-war, alliance broken), crime records and bounties, pardons.
 - **Transient.** Witness-propagation working set, service-availability cache, guard-alert state per settlement.
-- **Events/interfaces.** `AddReputation(factionId, delta, reason)`, `ReportCrime(offense)`, `Pardon`, `SetFactionState`; emits `ReputationChanged`, `FactionStateChanged`, `BountyPlaced`, `BountyCleared`, `HostileToPlayerChanged`. Reputation answers *access* (D-09) — it gates services, dialogue, and territory, and is never converted into character power directly.
+- **Events/interfaces.** `AddReputation(factionId, delta, reason)`, `ReportCrime(offense)`, `Pardon`, `SetFactionState`; emits `ReputationChanged`, `StandingTierChanged`, `FactionStateChanged`, `BountyPlaced`, `BountyCleared`. Reputation answers *access* (D-09) — it gates services, dialogue, and territory, and is never converted into character power directly. **It never decides who attacks:** tactical hostility and attack legality are derived from faction relation, war state, legal status, identity knowledge and perception, not from a standing tier (`PROGRESSION.md` §10).
 
 ### S-28 Dialogue
 
@@ -337,7 +337,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 - **Responsibility.** Own player-placed structures, ownership, and per-piece condition.
 - **Owns.** Building instance records (piece definition ref, socket graph position/rotation, owner, cell), per-piece health and damage state, repair state, stations and storage attached to a building, NPC/companion assignment to anchors, garden/farm plots, defense structures and their ammunition/cooldown state, settlement-level aggregates (population capacity, services offered).
-- **Reads.** S-18 (piece definitions and socket compatibility), S-14 (materials to consume and storage contents), S-20 (cell delta), S-09/S-17 (construction profession), S-29 (construction objectives), S-25 (assignees), S-12 (raid damage events), S-24 (NPC housing).
+- **Reads.** S-18 (piece definitions and socket compatibility), S-14 (materials to consume and storage contents), S-20 (cell delta), S-09/S-10 (masonry skill and known construction techniques), S-29 (construction objectives), S-25 (assignees), S-12 (raid damage events), S-24 (NPC housing).
 - **Persistent.** Every building instance (these are pure player-authored state and are never regenerable), piece damage, assignments, container contents via S-14, farm plot crops and growth deadlines, defense state.
 - **Transient.** Ghost/preview placement, snap candidates, navmesh dirty regions, construction progress.
 - **Events/interfaces.** `PlacePiece(pieceDefId, socketId, rotation)`, `RemovePiece`, `DamagePiece`, `RepairPiece`, `AssignOccupant`, `IsValidPlacement`; emits `PiecePlaced`, `PieceRemoved`, `PieceDamaged`, `PieceDestroyed`, `BuildingCompleted`, `SettlementStateChanged`, `HomeAttacked`. **No structural simulation** (D-08): snapping guarantees navigability and persistence; "destruction" is per-piece health applied by explicit rules. Attack frequency is a player-facing option and defaults low (charter §14).
@@ -397,7 +397,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 - **Responsibility.** Own travel nodes, their discovery/unlock state, and executing travel.
 - **Owns.** Network nodes (teleport stones, mage portals, caravan routes, boat routes, mount-friendly roads, settlement network links), unlock records per node and per link, costs (gold, item, spell, time), and player-created anchors (their instance IDs, anchor cell, and expiry).
-- **Reads.** S-30 (discovery), S-27 (faction access), S-28 (dialogue-obtained access), S-09 (recall/teleport spell mastery), S-04 (travel time elapsed), S-21 (destination must be streamable), S-32 (settlement network membership).
+- **Reads.** S-30 (discovery), S-27 (faction access), S-28 (dialogue-obtained access), S-10 (known recall/teleport formulas), S-04 (travel time elapsed), S-21 (destination must be streamable), S-32 (settlement network membership).
 - **Persistent.** Unlocked nodes and links, discovered-but-locked nodes, player-created anchors, paid-access records, network membership changes.
 - **Transient.** Route computation, travel cinematic/progress state, destination validation.
 - **Events/interfaces.** `UnlockNode(nodeId, method)`, `Travel(fromNodeId, toNodeId)`, `CreateAnchor`, `DestroyAnchor`; emits `TravelNodeUnlocked`, `TravelStarted`, `TravelCompleted`, `TravelRejected(reason)`, `AnchorCreated`, `AnchorExpired`. Fast travel is **earned** (charter §3); unlock methods are discovery, purchase, reputation, spell, or construction, and each is recorded so UI can explain how a node was earned.
@@ -408,9 +408,9 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 | Phase | Systems |
 |---|---|
-| **Phase 1 (playable prototype)** | S-01 Bus, S-02 Registry, S-03 World Store, **S-04 Time — clock half only**, S-05 Stats, S-06 Pools, S-07 Death, S-08 XP/Level, S-09 Skills, S-10 Abilities, S-11 Status Effects, S-12 Combat, S-13 Magic, S-14 Inventory, S-15 Equipment, S-16 Items/Loot, S-17 Crafting (one profession), S-18 Definitions, S-19 Resources, S-20 Persistence/cell deltas, S-21 Streaming (single region), S-22 Player, S-23 Combat AI, S-24 NPCs (small count), S-25 Companions (one), S-28 Dialogue, S-29 Quests (one chain), S-31 Spawning, S-33 Save/Load |
+| **Phase 1 (playable prototype)** | S-01 Bus, S-02 Registry, S-03 World Store, **S-04 Time — clock half only**, S-05 Stats, S-06 Pools, S-07 Death, S-08 XP/Level, S-09 Skills, S-10 Techniques, S-11 Status Effects, S-12 Combat, S-13 Magic, S-14 Inventory, S-15 Equipment, S-16 Items/Loot, S-17 Crafting (two recipes), S-18 Definitions, S-19 Resources, S-20 Persistence/cell deltas, S-21 Streaming (single region), S-22 Player, S-23 Combat AI, S-24 NPCs (small count), S-25 Companions (one), S-28 Dialogue, S-29 Quests (one chain), S-31 Spawning, S-33 Save/Load |
 | **Phase 2 (vertical slice)** | **S-04 Time — calendar half**, S-26 Relationships, S-27 Factions/Reputation, S-30 Exploration/Discovery, S-32 Buildings, S-34 Dungeons, S-35 Bosses, S-36 Merchants/Economy, S-37 Weather, S-38 Fast Travel |
-| **Deferred (post-slice, unscheduled)** | Mounts, farming/crop simulation beyond garden plots, settlement population growth simulation, creature taming, crime/trial/court systems beyond bounties, regional economic simulation beyond merchant modifier flags, cartography as a player-facing map editor, ship/boat travel, prestige/paragon progression past level cap, world-event director, LAN/WAN co-op and any networking code (D-12) |
+| **Deferred (post-slice, unscheduled)** | Mounts, farming/crop simulation beyond garden plots, settlement population growth simulation, creature taming, crime/trial/court systems beyond bounties, regional economic simulation beyond merchant modifier flags, cartography as a player-facing map editor, ship/boat travel, post-cap mastery and Great Works (`ENDGAME_MASTERY_LEGACY_AND_GREAT_WORKS.md`), world-event director, LAN/WAN co-op and any networking code (D-12) |
 
 Phase 1 exists to prove the loop: move → fight → loot → equip → progress → craft → talk → quest → save. Do not build a Phase 2 system to "get it out of the way".
 

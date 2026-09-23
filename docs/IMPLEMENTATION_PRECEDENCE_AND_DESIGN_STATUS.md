@@ -71,6 +71,8 @@ Do not regress these.
 
 ## Progression-axis reconciliation
 
+**Status: resolved 2026-09-23.** The audit ratified the model in `PROGRESSION_AXIS_RECONCILIATION.md`, and `PROGRESSION.md`, D-09, `DATA_MODEL.md`, `SYSTEMS.md`, `ROADMAP.md` (M2c), `PROTOTYPE.md`, `PERSISTENCE.md` and `GAMEPLAY_LOOPS.md` were reconciled to it. The record below is kept for traceability.
+
 Do not implement M2c directly from the current `PROGRESSION.md` without a fresh audit (`CLAUDE_PHASE1_EXECUTION_PROMPT.md` §5).
 
 **Owner rulings (apply; do not re-open):**

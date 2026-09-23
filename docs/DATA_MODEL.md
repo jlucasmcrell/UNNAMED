@@ -53,6 +53,7 @@ Load order (S-18): read all files → parse → resolve `kind` to a C# schema vi
 | `effect` | StatusEffectDefinition | `effect.` | `affix` | AffixDefinition (§4.20) | `affix.` |
 | `node` | NodeDefinition (§4.16) | `node.` | `spawn` | SpawnDefinition (§4.17) | `spawn.` |
 | `location` | LocationDefinition (§4.18) | `location.` | `config` | ConfigDefinition (§4.19) | `config.` |
+| `skill` | SkillDefinition (§4.21) | `skill.` | | | |
 
 **Referenced kinds — minimum shape.** These seven are the kinds `§5`'s cross-reference table resolves and `Assumptions` 1–2 previously left "implied". They are **in the closed table**, because a reference that resolves to a kind the validator does not know is a reference the validator cannot check. Each is specified to the minimum depth references require; full specification belongs to `WORLD_ARCHITECTURE.md` (regions, anchors, schedules) and `PROGRESSION.md` (attributes).
 
@@ -133,13 +134,13 @@ Three tests decide every field, applied in order:
 
 | Thing | Definition (content) | Instance state (persisted when non-baseline) |
 |---|---|---|
-| Weapon | base damage, damage type, reach, attack speed, stamina cost, scaling ratios, mastery family, requirements, model, base value | current durability, rolled quality, enchantments/sockets applied, rolled affix magnitudes, crafter signature, display-name override |
+| Weapon | base damage, damage type, reach, attack speed, stamina cost, scaling ratios, weapon skill (`skill_ref`), requirements, model, base value | current durability, rolled quality, enchantments/sockets applied, rolled affix magnitudes, crafter signature, display-name override |
 | Armor | armor value, slot, weight, movement penalty, material class, requirements, set membership | current durability, enchantments, upgrades, rolled quality |
 | Creature | species stats, attack set, habitat, fixed level band, loot table ref, faction, perception, abstract-schedule profile | current health, active effects, aggro, position, alive/dead, looted flag, named flag, morale |
 | NPC | role, services, schedule template, dialogue ref, faction, home/work anchor refs, greeting policy | generated identity (name, voice), current phase and coarse position if diverged, disposition, relationship memory, alive/dead/moved state, merchant stock |
-| Spell | school, mastery gate, cost, cast time, range, payload, cooldown, visual | remaining cooldown (only if `persist_cooldown`), learned flag and school mastery (on the character) |
+| Spell (formula) | magic-domain skill, complexity, Focus/Strain cost plus contextual costs, cast time, range, payload, cooldown, visual | remaining cooldown (only if `persist_cooldown`); the known flag lives in the character's knowledge record (`PROGRESSION.md` §4.4), and domain competence is a skill |
 | Status effect | duration, stack policy, tick interval, contributed modifiers, dispel category, immunity tags | stacks, remaining duration, caster ref, tick cursor |
-| Recipe | inputs, outputs, station, profession gate, difficulty, quality curve | learned flag (character), discovered experimental variants, in-progress job timers |
+| Recipe | inputs, outputs, station, technique/skill requirements, difficulty, quality curve | known flag (the character's knowledge record), discovered experimental variants, in-progress job timers |
 | Resource node | yield range, tool requirement, respawn window, biome placement rule | remaining yield, depleted flag, regrowth deadline, planted-by-player flag |
 | Quest | objectives, branches, failure conditions, time limits, level band, rewards | state, per-objective progress, chosen branches, absolute deadlines, repeat counters |
 | Building piece | sockets, material cost, health, nav footprint, station capability | transform, owner, current health, repair state, attached storage, occupant assignment |
@@ -196,7 +197,7 @@ use:
   consume: true               # reading the tome destroys it
   grants:
     - { kind: spell,    ref: spell.ember.bolt }      # deliberate: one offensive, one defensive
-    - { kind: spell,    ref: spell.ward.oakskin }    # so the proof covers two schools at once
+    - { kind: spell,    ref: spell.ward.oakskin }    # so the proof covers two magic domains at once
   teach_requires: { skill: { skill.research: 10 } }  # optional gate; absent = usable immediately
 # note: Reading a tome is the only path in Phase 1 by which content grants a permanent capability,
 # which is why it is the worked example rather than a contrived one.
@@ -221,7 +222,7 @@ attack_speed: 1.1             # swings per second
 reach: 1.8                    # meters; drives S-12 hit resolution
 stamina_cost: 14
 scaling: { might: 0.8, agility: 0.2 }
-mastery_family: weapon.sword  # S-09 per-family mastery
+skill_ref: skill.one_hand_blade  # S-09 weapon-family skill (PROGRESSION.md §6)
 hands: one                    # one|two|offhand
 moveset: [ability.moveset.sword_light, ability.moveset.sword_heavy]
 affix_pool: [affix.weapon.keen, affix.weapon.balanced]
@@ -246,7 +247,7 @@ resistances: { physical_blunt: 1 }     # damage_type -> flat or percent
 movement_penalty: 0.0
 stealth_penalty: 0.0
 material_class: leather       # cloth|leather|mail|plate|chitin|exotic
-mastery_family: armor.light
+# no armour mastery axis: armour use is gated by attribute minima (PROGRESSION.md §11.1); M3b reconciles armour
 # note: Cheap first upgrade: the first craft teaches the crafting loop without a resource wall.
 # also: set_ref? | layering_rules? (which slot groups may combine)
 ```
@@ -258,7 +259,7 @@ mastery_family: armor.light
 family: undead
 archetype: undead              # predator|prey|scavenger|humanoid|undead|construct|spirit|apex
 level_band: [22, 26]           # AUTHORED band; never scaled to the player (charter §1)
-pools: { health: 320, mana: 80 }
+pools: { health: 320, focus: 80 }   # Health/Stamina/Focus; there is no mana (PROGRESSION.md §4.1)
 attributes: { might: 16, endurance: 18, agility: 7, precision: 6, will: 20, insight: 6, presence: 12 }  # the canonical seven (PROGRESSION.md §4.1)
 attack_set: [ability.creature.grave_touch, ability.creature.wail_of_rot]
 behavior_profile: ai.profile.relentless_undead          # S-23
@@ -299,38 +300,40 @@ Generic hostiles (`npc.bandit.road_cutter`) set `unique: false` with a `name_poo
 ### 4.6 SpellDefinition — `kind: spell`
 
 ```yaml
-# id: spell.elemental.ember_bolt
-school: school.elemental
-school_requirement: 1         # mastery gate (S-09)
-cost: { pool: mana, amount: 10 }        # pools: mana, or essence for necromancy
+# id: spell.force.ember_bolt
+domain: skill.force           # the magic-domain skill (PROGRESSION.md §7)
+complexity: 12                # against domain skill: Strain, stability, cast speed, and skill XP via the difficulty gate
+cost: { focus: 6, strain: 8 } # no mana; contextual costs (reagents, charges) are listed below
 cast_time_s: 0.9
 cooldown_s: 1.5
 range_m: 24
 targeting: projectile         # self|touch|projectile|aoe_ground|aoe_cone|beam|summon|ritual
 payload:
-  - { type: damage, damage_type: fire, amount: [14, 20], scaling: { wit: 0.9, school.elemental: 0.4 } }
+  - { type: damage, damage_type: fire, amount: [14, 20], scaling: { insight: 0.9, skill.force: 0.4 } }
   - { type: apply_effect, effect_ref: effect.burning.minor, chance: 0.25, duration_min: 0.5 }
 resist_type: fire
 interrupt_priority: 2
-# note: The teaching spell: fast, cheap, and weak enough that it never replaces weapon play at low mastery.
-# also: channel: bool | duration_min | required_reagents?: [item.*] (consumed via S-14) | persist_cooldown (default false)
+# note: The teaching formula: fast, cheap, and weak enough that it never replaces weapon play at low skill.
+# also: channel: bool | duration_min | required_reagents?: [item.*] (consumed via S-14) | charges? | persist_cooldown (default false)
+# A formula is known through a learning event (PROGRESSION.md §4.4). Casting above one's skill is allowed, at higher Strain and failure risk.
 ```
 
 **Closed payload vocabulary** — the only legal `payload[].type` values (shared by spells, abilities, and status-effect triggers): `damage`, `heal`, `restore_pool`, `apply_effect`, `remove_effect`, `dispel`, `summon`, `teleport`, `reveal`, `create_item`, `modify_stat`, `taunt`, `absorb`, `reflect`, `resurrect_temporary`, `harvest_corpse`. Schools differ mechanically through this vocabulary plus definition data — never through new engine code per school.
 
-A second authored case, `spell.necromancy.bind_lesser_servant` (`cost: {pool: essence}`, `targeting: summon`, payloads `harvest_corpse` + `summon … permanent: true, cap: 2`, `required_reagents: [item.material.corrupted_marrow]`), shows that a school's identity lives in cost pool, targeting, and payload shape.
+A second authored case, `spell.necromancy.bind_lesser_servant` (`cost: { focus: 10, strain: 18 }` plus an essence charge harvested from corpses, `targeting: summon`, payloads `harvest_corpse` + `summon … permanent: true, cap: 2`, `required_reagents: [item.material.corrupted_marrow]`), shows that a domain's identity lives in its contextual costs, targeting, and payload shape.
 
-### 4.7 AbilityDefinition — `kind: ability`
+### 4.7 AbilityDefinition — `kind: ability` (a technique)
+
+`ability` is the **technique** kind (`PROGRESSION.md` §4.4). There is no tree, no tier and no point cost: a technique is known only through a learning event (starting package, teacher, book, quest, study, experiment, discovery, artifact, culture). Its prerequisites are skills and other known techniques, never level.
 
 ```yaml
 # id: ability.martial.power_strike
 class: active                 # active|passive|reaction|moveset|ritual|creature
-tree_ref: tree.martial.arms
-tier: 1
-cost_points: 1
-prerequisites: [ability.martial.weapon_focus]
-requirements: { level: 2, attribute.might: 10, mastery.weapon.sword: 1 }
-cost: { pool: stamina, amount: 22 }
+discipline: skill.one_hand_blade   # the skill that performs it and earns its use XP
+prerequisites: [ability.martial.weapon_focus]   # known techniques
+requirements: { skill.one_hand_blade: 20, attribute.might: 10 }   # to learn it; never level
+learn_from: [teacher, book, discovery]   # typed learning sources
+cost: { stamina: 22 }
 cooldown_s: 6
 range_m: 2.0
 targeting: aoe_cone
@@ -342,7 +345,7 @@ animation_key: anim.attack.sword_heavy          # presentation binding only
 # passives instead carry modifiers: [{target, op: add|add_pct|multiply|set, value, condition?}]
 ```
 
-`ability.martial.weapon_focus` (`class: passive`, `tier: 0`, `cost_points: 0`, `modifiers: [{target: stat.stamina_regen, op: multiply, value: 1.15}]`) is the free root node every martial build takes.
+`ability.martial.weapon_focus` (`class: passive`, `modifiers: [{target: stat.stamina_regen, op: multiply, value: 1.15}]`) is in the default starting package: every martial character knows it from creation.
 
 ### 4.8 StatusEffectDefinition — `kind: effect`
 
@@ -395,7 +398,7 @@ A refining recipe (`recipe.smithing.iron_ingot`: `station_ref: station.smelter`,
 yields:
   - { item_ref: item.material.iron_ore, count_range: [1, 3], quality_roll: true, chance: 1.0 }
   - { item_ref: item.material.rough_gemstone, count_range: [1, 1], quality_roll: false, chance: 0.04 }
-gathering_skill: skill.gathering.mining
+gathering_skill: skill.mining
 skill_requirement: 1
 tool_ref: item.tool.mining_pick
 node_kind: ore_vein           # ore_vein|tree|herb|hide_source|fishing_spot|essence_well|salvage
@@ -694,7 +697,7 @@ total_to_level_50_expected: 2448025
 
 ```yaml
 id: config.level_cap
-soft_cap: 50                      # PROGRESSION.md §3.2; mastery tiers continue past it
+soft_cap: 50                      # PROGRESSION.md §3.2; designated masteries continue past it (§8)
 level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the game's cap
 ```
 
@@ -713,6 +716,31 @@ weight: 100
 modifiers:
   - { target: stat.crit_chance, op: add, value: 0.04 }
 # note: Cheap, common, legible: the first affix a player ever sees should be understandable in one line.
+```
+
+### 4.21 SkillDefinition — `kind: skill`
+
+A discipline of `AX-SKL` (`PROGRESSION.md` §4.2): weapon families, magic domains, crafting, gathering, world and social skills are all this one kind. Skill IDs are flat (`skill.<name>`, file `content/skills/<name>.yaml`) so a discipline never changes ID when families are reorganised.
+
+```yaml
+id: skill.one_hand_blade
+family: combat                # combat|magic|crafting|gathering|world|social
+display_key: skill.one_hand_blade.name
+# also: use_xp_multiplier? (default 1.0; per-discipline pacing) | passives?: [{at, modifiers}] (from M3f)
+# note: Competence only. What the character can attempt at all is AX-TEC (abilities, spells, recipes).
+```
+
+The progression constants live in one config group, alongside `config.time`, `config.xp_curve` and `config.level_cap` (§4.19):
+
+```yaml
+id: config.progression
+attribute_base: 10                # every attribute starts here; allocation adds to it
+attribute_points_per_level: 1     # the only thing a level-up grants (PROGRESSION.md §3.1)
+skill_difficulty_margin: 15       # use grants skill XP only when difficulty > skill - 15
+skill_common_ceiling: 60          # designated masteries (M12) continue to 100
+xp_debt_fraction: 0.10            # AG-8, of the current level's XP span
+# also: derived-pool coefficients (Health/Stamina/Focus maxima, Resonance, Strain tolerance) | the AG-1..AG-3
+#       tables | skill XP curve | novelty bonus | the default starting package (attributes, skills, techniques)
 ```
 
 ---

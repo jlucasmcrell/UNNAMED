@@ -58,6 +58,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 | Document | Role |
 |---|---|
 | `IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md` | The authority order restated with the owner's current rulings (progression, Phase-1 scope, performance gate, roles). Read it before any Phase-1 work |
+| `PROGRESSION_AXIS_RECONCILIATION.md` | The M2c progression-axis audit (2026-09-23): the ratified axes, keep/merge/remove decisions, independence tests, rejected alternatives. `PROGRESSION.md` carries the result |
 | `CLAUDE_PHASE1_EXECUTION_PROMPT.md` | The owner-approved execution brief for the Phase-1 run (M2c through M6). Orientation, not design authority |
 | `OTHERREACH_MASTER_HANDOFF_2026-09-23_V3.md` | Snapshot for a fresh design or implementation session. Orientation, not design authority |
 | `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` | The owner-approved M2b refinement, now folded into `PERSISTENCE.md` |

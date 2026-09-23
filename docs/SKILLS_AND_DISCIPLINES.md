@@ -1,8 +1,7 @@
 # OTHERREACH — Skills, Disciplines & Knowledge
 
-**Status:** Design extension requiring reconciliation with `PROGRESSION.md`  
-**M2 impact:** None  
-**Important:** Do not alter AX-* progression contracts while M2 is in progress.
+**Status:** Reconciled 2026-09-23 (`PROGRESSION_AXIS_RECONCILIATION.md`). Skills & disciplines are `AX-SKL`, including weapon families, magic domains and crafting; techniques are `AX-TEC`. `PROGRESSION.md` is normative.  
+**M2 impact:** None
 
 ## 1. Direction
 
@@ -157,6 +156,8 @@ Existing `PROGRESSION.md` currently separates:
 This document does not override those axes.
 
 Post-M2 reconciliation must decide how “techniques,” “discipline webs,” and broad learnable cultural systems map onto existing AX-SKL / AX-WM / AX-MM / AX-ABL / AX-PRF without duplicating currencies.
+
+**Resolved 2026-09-23.** `AX-WM`, `AX-MM` and `AX-PRF` merged into skills (competence) and techniques (capability); `AX-ABL` became the technique web, learned rather than bought. See `PROGRESSION_AXIS_RECONCILIATION.md`.
 
 ## 8. Race rule
 

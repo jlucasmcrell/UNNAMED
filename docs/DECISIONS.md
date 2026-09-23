@@ -197,6 +197,22 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Revisit if.** Playtest shows two axes always move together — that is evidence they are one axis and should be merged.
 
+**Amended 2026-09-23 (M2c progression audit, `PROGRESSION_AXIS_RECONCILIATION.md`).** The revisit test was applied on paper before the first progression save schema, as `PROGRESSION.md` required.
+
+- **Merged into skills and techniques:** weapon mastery, magic mastery and professions. Each measured a competence that is now a skill, and a capability that is now a technique. Weapon mastery and weapon-family skills advanced from the same event.
+- **Removed:** abilities/talents as a point-bought axis. By owner ruling, techniques are learned in the world.
+- **The sanctioned axes are now:**
+  - character level (breadth; a level-up grants attribute points only);
+  - attributes (build shape — the allocation of level);
+  - skills & disciplines (competence, including weapon families, magic domains and crafting);
+  - techniques & formulas (capability — known through learning events);
+  - reputation (access only; never hostility);
+  - equipment (immediate power);
+  - companions (party growth).
+- **The verbs are now:** level grants *breadth*, attributes *shape*, skills *competence*, techniques *capability*, reputation *access*.
+- **Specialization** is the mastery band inside skills, not a separate axis.
+- **The non-conversion law is unchanged.** A character still cannot convert one axis into another.
+
 ---
 
 ## D-10 — Entity Registry as the single identity and lookup authority
