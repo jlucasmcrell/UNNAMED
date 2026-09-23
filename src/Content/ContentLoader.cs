@@ -118,7 +118,7 @@ public class ContentLoader
         // Load definitions from all kind directories
         // Track which directories have been processed to avoid duplicate processing
         var processedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var kindDef in ContentKindRegistry.Kinds.Values)
+        foreach (var kindDef in ContentKindRegistry.Kinds)
         {
             string kindPath = Path.Combine(rootPath, kindDef.Directory);
             if (!Directory.Exists(kindPath))
@@ -380,14 +380,25 @@ public class ContentLoader
     /// </summary>
     private bool ValidateKindDirectoryMatch(string kind, string sourceFile, ContentKindDefinition expectedKindDef)
     {
-        var actualKindDef = ContentKindRegistry.GetKind(kind);
-        if (actualKindDef == null)
+        ContentKindDefinition actualKindDef;
+        try
         {
+            actualKindDef = ContentKindRegistry.GetFromKind(kind);
+        }
+        catch (KeyNotFoundException)
+        {
+            _errors.Add(new ValidationError
+            {
+                SeverityLevel = ValidationError.Severity.Error,
+                Code = "DIR001",
+                Message = $"Kind '{kind}' has no associated directory in ContentKindRegistry",
+                FilePath = sourceFile
+            });
             return false;
         }
         
         // Extract expected directory from kind
-        string? actualDir = actualKindDef.Directory;
+        string actualDir = actualKindDef.Directory;
         if (string.IsNullOrEmpty(actualDir))
         {
             _errors.Add(new ValidationError
@@ -537,7 +548,7 @@ public class ContentLoader
             }
             
             _aliasMapValidator.LoadAliasMap(aliases, removed);
-            _aliasMapValidator.RegisterKnownIds(_definitions.Keys);
+            _aliasMapValidator.RegisterKnownIds(new HashSet<string>(_definitions.Keys));
             
             // Validate alias targets exist
             _aliasMapValidator.ValidateAliasTargets();
@@ -567,7 +578,7 @@ public class ContentLoader
     private bool ValidateCrossReferences()
     {
         // Register all known IDs first
-        _crossReferenceValidator.RegisterKnownIds(_definitions.Keys);
+        _crossReferenceValidator.RegisterKnownIds(new HashSet<string>(_definitions.Keys));
         
         bool success = true;
         
