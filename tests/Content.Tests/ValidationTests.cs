@@ -514,7 +514,12 @@ public class ContentLoaderTests
         Assert.True(success, string.Join("\n", loader.Errors));
         Assert.Empty(loader.Errors);
         Assert.Equal(
-            new[] { "creature.beast.wolf_grey", "item.potion.heal_dangling", "item.weapon.iron_sword" },
+            new[]
+            {
+                "config.level_cap", "config.progression", "config.time", "config.xp_curve",
+                "creature.beast.wolf_grey", "item.potion.heal_dangling", "item.weapon.iron_sword",
+                "skill.athletics", "skill.one_hand_blade", "skill.survival",
+            },
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
 

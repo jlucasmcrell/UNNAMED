@@ -1,0 +1,54 @@
+id: config.progression
+kind: config
+schema: 1
+display_key: config.progression.name
+tags: [config]
+# PROGRESSION.md §3-§5, as data (D-03). Initial balance values: tuned in play, never hard-coded.
+attribute_base: 10                # every attribute starts here; allocation and grants add to it
+attribute_points_per_level: 1     # the only thing a level-up grants (§3.1)
+attribute_grant_cap_fraction: 0.08   # §11.3: post-creation grants total at most 8% of level-earned points
+derived:                          # §4.1: base + integer coefficients per attribute point; there is no mana
+  # Phase 1 makes only might, endurance and will mechanically live (PROTOTYPE.md); the other four join later.
+  health_max:       { base: 50, per_point: { endurance: 5, might: 2 } }
+  stamina_max:      { base: 50, per_point: { endurance: 5 } }
+  focus_max:        { base: 20, per_point: { will: 6 } }
+  resonance:        { base: 0,  per_point: { will: 2 } }
+  strain_tolerance: { base: 10, per_point: { will: 2, endurance: 1 } }
+skills:                           # §4.2: use under challenge
+  difficulty_margin: 15           # a use grants XP only when difficulty > skill - 15
+  common_ceiling: 60              # designated masteries (M12) continue to 100
+  xp_per_level_base: 20           # XP from level L to L+1 = base + growth * L
+  xp_per_level_growth: 4
+  use_xp: 10                      # XP for a use exactly one margin past the gate
+  failure_factor: 0.5             # a failure still teaches, at this rate
+  max_challenge_factor: 2.0
+  novelty_bonus_xp: 25            # the first success of a technique, formula or output
+guards:                           # §3.4
+  level_band:                     # AG-1: [min, max, multiplier] on creature_level - player_level
+    - [-999, -16, 0.00]
+    - [-15, -11, 0.05]
+    - [-10, -6, 0.25]
+    - [-5, -1, 0.60]
+    - [0, 0, 1.00]
+    - [1, 5, 1.15]
+    - [6, 10, 1.30]
+    - [11, 999, 1.15]
+  new_species_floor: 0.05         # AG-1 never zeroes a species the character has never killed
+  species_decay: 0.9              # AG-2: 0.9^k per earlier kill of the species that world day
+  species_floor: 0.10
+  cluster_threshold: 25           # AG-3: kills at one spawn cluster inside the window
+  cluster_window_ticks: 36000     # 30 minutes of simulated play at 20 Hz
+  cluster_floor: 0.10
+  debt_fraction: 0.10             # AG-8: of the current level's XP span, per death
+  max_debt_spans: 1.0
+tier_targets:                     # §3.2 pacing: [from_level, to_level, min_hours, max_hours]; AG-6 bands on these
+  - [1, 10, 4, 6]
+  - [11, 20, 8, 12]
+  - [21, 30, 13, 18]
+  - [31, 40, 16, 22]
+  - [41, 50, 20, 28]
+starting_package:                 # §5: Phase 1 has no archetype choice, so one default package
+  attribute_bias: {}
+  skills: {}
+  techniques: []
+notes: Progression constants. The content lint checks them (PRG codes) and the domain reads them as ProgressionRules.

@@ -1,0 +1,7 @@
+id: skill.athletics
+kind: skill
+schema: 1
+display_key: skill.athletics.name
+tags: [skill]
+family: world
+notes: Movement competence. PROTOTYPE.md - move speed +8% at level 3 (wired in M3f).

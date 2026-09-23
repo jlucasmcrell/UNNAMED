@@ -126,7 +126,7 @@ All windows are measured in **world time or world ticks, never wall-clock time**
 
 | ID | Guard | Rule | What it must not do |
 |---|---|---|---|
-| `AG-1` | Level-band reward | XP multiplier by `(creature_level − player_level)`: `+4..0 → 1.00`, `−1..−5 → 0.60`, `−6..−10 → 0.25`, `−11..−15 → 0.05`, `≤−16 → 0.00`. Above player level: `+1..+5 → 1.15`, `+6..+10 → 1.30`, `>+10 → 1.15` (capped, to discourage suicidal farming) | Must not zero out a *new* creature type a player has never killed, regardless of level |
+| `AG-1` | Level-band reward | XP multiplier by `(creature_level − player_level)`: `0 → 1.00`, `−1..−5 → 0.60`, `−6..−10 → 0.25`, `−11..−15 → 0.05`, `≤−16 → 0.00`. Above player level: `+1..+5 → 1.15`, `+6..+10 → 1.30`, `>+10 → 1.15` (capped, to discourage suicidal farming) | Must not zero out a *new* creature type a player has never killed, regardless of level |
 | `AG-2` | Species novelty | First kill of a species per **world_time day**: full value. Each subsequent kill of the same species that day multiplies XP by `0.9^k` to a floor of 0.10 | Must not affect loot, hides, or skill gain — only `AX-LVL` XP |
 | `AG-3` | Spawn-site saturation | Per spawn cluster, after 25 kills inside a rolling window of 30 minutes of simulated play (36,000 world ticks at 20 Hz), XP decays to floor 0.10. The spawner (S-31) doubles the respawn interval until the window empties | Must not change creature behaviour, loot table, or drops |
 | `AG-4` | Kill-share neutrality | No rule in `AG-1..AG-3` may reduce any other axis's gain. Skill gain (governed only by its own difficulty gate), material yield, quest/faction objective credit, and hunting/skinning skill progress are unaffected | Prevents "anti-farm" from silently nerfing the sanctioned reasons to grind |

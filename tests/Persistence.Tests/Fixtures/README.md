@@ -22,14 +22,17 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.0) and `worldgen_profile.json`. Those are
-   test data, not game content. `content-0.1.0/` is the pack the fixtures were written with.
+4. The fixtures load against `content/` (fixture content 0.2.1) and `worldgen_profile.json`. Those are
+   test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
+   0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
+   was written with. Content 0.2.0 renamed the potion; 0.2.1 renamed the formula.
 
 ## The fixture world
 
 The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile in
 `worldgen_profile.json`, and fixture content 0.1.0 (content hash
-`sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d`).
+`sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d`); v4 used 0.1.1
+(`sha256:0a46ac0214a763a5af84d68d7a83ae69a57fab4d749574f3480e7232819c1f61`), which adds only definitions.
 
 | What | Where | Why it is here |
 |---|---|---|
@@ -42,7 +45,12 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `world.lever.mill_gate = 3` | cell `r_0_0:c_00_07` | A second flag |
 | Wolf slot 00 killed | entity in `r_0_0:c_00_02` | A **tombstoned baseline entity**: it must stay dead |
 | Deer slot 01 moved to (1234, 5678) cm | entity in `r_0_0:c_00_04` | Positional state carried as-is |
-| `item.weapon.iron_sword` placed at (500, 600) cm | created instance in `r_0_0:c_00_06` | A **created persistent entity**. v3 only: schema 3 is the first that can record one |
+| `item.weapon.iron_sword` placed at (500, 600) cm | created instance in `r_0_0:c_00_06` | A **created persistent entity**. v3 and later: schema 3 is the first that can record one |
+| Level 3 (120 progress, 35 XP debt), might +1, 1 unspent point, a quest grant of endurance +1 | player progression | The **progression record**. v4 and later: schema 4 is the first that can record one; v1-v3 migrate to its empty value |
+| `skill.one_hand_blade` 5, `skill.athletics` 2 | player progression | Skills, resolved by the definition-ID pass |
+| Knows `spell.ember.firebolt` (teacher) and `recipe.alchemy.salve_minor` (book) | player progression | The formula was **renamed** to `spell.ember.bolt` in content 0.2.1: the rename must reach the knowledge record |
+| First-produced `item.potion.healing_draught`; novelty claimed for the recipe | player progression | The production record names the renamed potion too, so the load applies that alias twice |
+| Health 87, Focus 40, Strain 6; three wolf kills on day 0 at the wolves' cluster | player progression | Pools (a nil pool is full) and the AG-2/AG-3 guard memory |
 
 ## Provenance
 
@@ -51,6 +59,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v1/` | M2's writer, commit `7ff4c57` | In a scratch worktree of `7ff4c57`, with the one-off probe addition below: `M2.Probe fixture <dir> sha256:7f522a30...` |
 | `v2/` | The M2b schema-2 writer, commit `b310979` | `M2.Probe fixture <dir>` (`M2Fixtures.Historical`) |
 | `v3/` | The M2b schema-3 writer | `M2.Probe fixture <dir>` |
+| `v4/` | The M2c schema-4 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.1) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

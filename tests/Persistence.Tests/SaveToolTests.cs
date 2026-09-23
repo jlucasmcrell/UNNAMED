@@ -46,7 +46,7 @@ public class SaveToolTests
         Assert.Equal(0, code);
         Assert.Contains("Save format: 1 (this build reads 1)", output);
         Assert.Contains($"Schema: 1 -> {SaveFormat.SchemaVersion}", output);
-        Assert.Contains("Content version: 0.1.0 -> 0.2.0", output);
+        Assert.Contains($"Content version: 0.1.0 -> {Fixtures.ContentVersion}", output);
         Assert.Contains("Content hash: changed", output);
         Assert.Contains($"Worldgen: 1 -> {World.CellBaselineGenerator.Version}, RNG contract 1 -> 2", output);
         Assert.Contains("Worldgen fingerprint: not recorded (schema 1)", output);

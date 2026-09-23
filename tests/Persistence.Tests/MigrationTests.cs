@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using UNNAMED.Domain.Progression;
 using UNNAMED.M2Probe;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
@@ -73,10 +74,31 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.StartsWith("schema 2 -> 3:", Assert.Single(report.Steps));
+        Assert.Equal(2, report.Steps.Count);
+        Assert.StartsWith("schema 2 -> 3:", report.Steps[0]);
+        Assert.StartsWith("schema 3 -> 4:", report.Steps[1]);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // Reference/worldgen_v2_reference.py
         Assert.Equal(PlayerRecord.DerivedAppearanceSeed(player.Id), player.AppearanceSeed);
+    }
+
+    // ── required record in player state, schema 3 -> 4 (M2c) ────────────────
+
+    [Fact]
+    public void Schema3To4_AddsTheProgressionRecord_AtItsEmptyValue()
+    {
+        using var profile = Fixtures.Copy(3);
+        var store = new SaveStore(profile.Root);
+        var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
+
+        Assert.StartsWith("schema 3 -> 4:", Assert.Single(report.Steps));
+        var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
+        Assert.Equal(CharacterProgression.Empty.Digest, player.Progression.Digest);
+        Assert.Equal(1, player.Progression.Level);
+        Assert.Empty(player.Progression.Skills);
+        Assert.Empty(player.Progression.Known);
+        Assert.Equal(PoolState.Full, player.Progression.Pools);
+        Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // everything schema 3 held is kept
     }
 
     // ── 12.2 multi-hop ──────────────────────────────────────────────────────
@@ -86,9 +108,10 @@ public class MigrationTests
     {
         var loaded = LoadFixture(1, Fixtures.Context(new Registry()));
 
-        Assert.Equal(2, loaded.Report.Steps.Count);
+        Assert.Equal(3, loaded.Report.Steps.Count);
         Assert.StartsWith("schema 1 -> 2:", loaded.Report.Steps[0]);
         Assert.StartsWith("schema 2 -> 3:", loaded.Report.Steps[1]);
+        Assert.StartsWith("schema 3 -> 4:", loaded.Report.Steps[2]);
         Assert.Equal(File.ReadAllText(Fixtures.Expected(1)).Replace("\r\n", "\n"), CanonicalState.Render(loaded));
     }
 
@@ -106,7 +129,7 @@ public class MigrationTests
     {
         var context = Fixtures.Context(new Registry()) with { Migrations = ImmutableArray.Create<SchemaMigration>(new SchemaV1ToV2()) };
 
-        Assert.Contains("no registered migration chain from schema 1 to schema 3", Assert.Single(RefuseFixture(1, context).Report.Blockers));
+        Assert.Contains("no registered migration chain from schema 1 to schema 4", Assert.Single(RefuseFixture(1, context).Report.Blockers));
     }
 
     // ── created persistent instances (schema 3) ─────────────────────────────
@@ -189,6 +212,35 @@ public class MigrationTests
         var blocker = Assert.Single(refused.Report.Blockers);
         Assert.Contains($"unresolved definition ID '{Draught}'", blocker);
         Assert.Contains("player inventory", blocker);
+    }
+
+    // ── definition IDs inside the progression record (schema 4, M2c) ────────
+
+    [Fact]
+    public void TheProgressionRecord_GoesThroughTheDefinitionPass_RenamesAndRemovals()
+    {
+        // The v4 fixture knows spell.ember.firebolt (renamed by the pack) and a recipe this content discards.
+        var content = ContentWith(remove: new[] { "recipe.alchemy.salve_minor" }, aliases: Fixtures.Content().Aliases,
+            discarded: new[] { "recipe.alchemy.salve_minor" });
+
+        var loaded = LoadFixture(4, Fixtures.Context(new Registry(), content));
+
+        var progression = loaded.Player.Progression;
+        Assert.True(ProgressionEngine.Knows(progression, "spell.ember.bolt"));
+        Assert.False(ProgressionEngine.Knows(progression, "recipe.alchemy.salve_minor"));
+        Assert.DoesNotContain("recipe.alchemy.salve_minor", progression.NoveltyFirsts);
+        Assert.Contains(loaded.Report.Loss, l => l.StartsWith("player known technique: 'recipe.alchemy.salve_minor'", StringComparison.Ordinal));
+        Assert.Contains(loaded.Report.Loss, l => l.StartsWith("player novelty record: 'recipe.alchemy.salve_minor'", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AnUnresolvedSkill_FailsTheLoad_NamingIt()
+    {
+        var content = ContentWith(remove: new[] { "skill.one_hand_blade" }, aliases: Fixtures.Content().Aliases);
+
+        var refused = RefuseFixture(4, Fixtures.Context(new Registry(), content));
+
+        Assert.Contains(refused.Report.Blockers, b => b.Contains("unresolved definition ID 'skill.one_hand_blade' (player skill)"));
     }
 
     /// <summary>

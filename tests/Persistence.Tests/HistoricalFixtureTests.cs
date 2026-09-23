@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Progression;
 using UNNAMED.SaveTool;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -7,7 +8,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.0";
+    public const string ContentVersion = "0.2.1";
 
     public static string Root { get; } = FindRoot();
 
@@ -121,8 +122,27 @@ public class HistoricalFixtureTests
         else
             Assert.Empty(created);
 
+        // Schema 4's progression record: written by v4 and renamed on load like the inventory; empty for v1-v3.
+        var progression = loaded.Player.Progression;
+        if (schema >= 4)
+        {
+            Assert.Equal(3, progression.Level);
+            Assert.True(ProgressionEngine.Knows(progression, "spell.ember.bolt"));   // renamed via _aliases.yaml
+            Assert.False(ProgressionEngine.Knows(progression, "spell.ember.firebolt"));
+            Assert.Contains("item.potion.minor_healing", progression.ProductionFirsts);
+            Assert.Equal(5, ProgressionEngine.SkillLevel(progression, "skill.one_hand_blade"));
+        }
+        else
+        {
+            Assert.Equal(CharacterProgression.Empty.Digest, progression.Digest);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
-        Assert.Equal(new[] { "item.potion.healing_draught -> item.potion.minor_healing" }, loaded.Report.Aliases);
+        // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
+        var aliases = schema >= 4
+            ? new[] { "item.potion.healing_draught -> item.potion.minor_healing x2", "spell.ember.firebolt -> spell.ember.bolt" }
+            : new[] { "item.potion.healing_draught -> item.potion.minor_healing" };
+        Assert.Equal(aliases, loaded.Report.Aliases);
         Assert.Equal(schema >= 3 ? 7 : 6, loaded.Report.CellsMatched);
         Assert.Empty(loaded.Report.Loss);
     }

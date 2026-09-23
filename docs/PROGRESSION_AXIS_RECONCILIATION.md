@@ -276,7 +276,8 @@ The player section gains a progression record. Everything is fully serialized (`
 | Field | Content |
 |---|---|
 | `level`, `level_progress_xp`, `xp_debt` | Level, progress within it, and the `AG-8` debt. Level and progress are stored separately so a later balance change to the curve never silently changes an existing level |
-| `lifetime_xp_by_source` | Five totals, one per source kind, for the character sheet and telemetry checks |
+| `lifetime_xp` | One total per source kind, for the character sheet and telemetry checks |
+| `production_firsts`, `novelty_firsts` | Definitions whose first-time production XP (AG-7) or one-time skill novelty bonus has been claimed |
 | `attribute_allocation`, `unspent_attribute_points`, `attribute_grants` | Points spent per attribute (the base comes from `config.progression`), unspent points, and each one-time grant with its source (for the ≤8 % cap) |
 | `skills` | Per discipline: level and progress XP |
 | `known` | Per technique, formula or recipe ID: the learning source kind, the source reference and the tick |

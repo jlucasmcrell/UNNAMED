@@ -1,7 +1,7 @@
 # UNNAMED — Phase 0 Document Index
 
 **Project:** Otherreach (codename UNNAMED) — an original full-body third-person (with seamless first-person zoom), solo-first, open-world fantasy RPG
-**Phase:** 1 — Playable Prototype. M0, M1, M1b, M2 and M2b are complete; M2c is next (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
+**Phase:** 1 — Playable Prototype. M0, M1, M1b, M2, M2b and M2c are complete; M3 is next (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 
 ## Authoritative documents (read in this order)
@@ -62,7 +62,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 | `CLAUDE_PHASE1_EXECUTION_PROMPT.md` | The owner-approved execution brief for the Phase-1 run (M2c through M6). Orientation, not design authority |
 | `OTHERREACH_MASTER_HANDOFF_2026-09-23_V3.md` | Snapshot for a fresh design or implementation session. Orientation, not design authority |
 | `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` | The owner-approved M2b refinement, now folded into `PERSISTENCE.md` |
-| `M1_STATUS.md`, `M2_STATUS.md`, `M2B_STATUS.md` | Milestone evidence |
+| `M1_STATUS.md`, `M2_STATUS.md`, `M2B_STATUS.md`, `M2C_STATUS.md` | Milestone evidence |
 | `POST_M2_DOCUMENTATION_RECONCILIATION.md` | **Superseded — historical record only.** Its open items are carried in the precedence document §11 |
 
 ## Design-extension documents
@@ -111,6 +111,7 @@ Owner-approved design direction. **Directional/future unless their milestone own
 - **Phase 0 was documentation-only, by instruction.** Implementation began in Phase 1: source is in `src/`, headless tests in `tests/`.
 - **M1 implementation status:** `docs/M1_STATUS.md` — complete with objective evidence for all exit criteria.
 - **Phase 1 M2 complete.** Entity registry and D-04 identity, deterministic cell baseline (`RK-01` measured), and sparse-delta saves with atomic write, quarantine, backup rotation and crash recovery. `docs/M2_STATUS.md` has the evidence per exit criterion, the acceptance audit, and the deferrals.
+- **Phase 1 M2c complete.** The progression spine on the audited model (`PROGRESSION_AXIS_RECONCILIATION.md`): level, attributes, skills and techniques as pure domain rules driven by content config, the anti-farm guards, the typed non-conversion API, independence tests for every neighboring pair of axes, and save schema 4 with its historical fixture. Evidence: `docs/M2C_STATUS.md`.
 - **Phase 1 M2b complete.** Ordered schema migrations (v1 -> v2 -> v3) with committed historical fixtures, definition-ID rename/removal maps, and `save:migrate --dry-run`. It also adds baseline compatibility: content identity no longer seeds generation, randomness is addressed by semantic key, every changed cell proves the baseline it was made against, and generator drift is detected. Specification: `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`; evidence: `docs/M2B_STATUS.md`.
 
 ## Where to start reading

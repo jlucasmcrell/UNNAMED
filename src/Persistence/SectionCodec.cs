@@ -22,6 +22,9 @@ public sealed class PlayerDto
     [Key("z_mm")] public long ZMm { get; set; }
     [Key("appearance_seed")] public ulong AppearanceSeed { get; set; }
     [Key("inventory")] public InventoryDto[] Inventory { get; set; } = Array.Empty<InventoryDto>();
+
+    /// <summary>Required from schema 4. The 3 -> 4 step gives older saves the empty record.</summary>
+    [Key("progression")] public ProgressionDto? Progression { get; set; }
 }
 
 [MessagePackObject]
@@ -150,13 +153,16 @@ public static class SectionCodec
         Inventory = player.Inventory
             .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count })
             .ToArray(),
+        Progression = ProgressionCodec.ToDto(player.Progression),
     }, Options);
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
         var dto = MessagePackSerializer.Deserialize<PlayerDto>(bytes, Options);
+        var progression = dto.Progression ?? throw new FormatException("player.msgpack has no progression record (required from schema 4)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)));
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)),
+            ProgressionCodec.FromDto(progression));
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

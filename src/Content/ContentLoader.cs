@@ -150,6 +150,11 @@ public class ContentLoader
             
             // Duplicate ID check
             success &= ValidateDuplicateIds();
+
+            // Skill families, and the progression config when the pack has one (PRG codes)
+            var progressionErrors = ProgressionContent.Validate(this);
+            _errors.AddRange(progressionErrors);
+            success &= progressionErrors.Count == 0;
         }
         
         return success;

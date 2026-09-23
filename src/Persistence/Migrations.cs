@@ -10,6 +10,7 @@ using UNNAMED.World;
 using UNNAMED.World.Legacy;
 using V1 = UNNAMED.Persistence.Sections.V1;
 using V2 = UNNAMED.Persistence.Sections.V2;
+using V3 = UNNAMED.Persistence.Sections.V3;
 
 namespace UNNAMED.Persistence;
 
@@ -59,7 +60,8 @@ public static class SchemaMigrations
     /// <summary>The single ordered table (§6.2). A schema bump adds exactly one step here, plus a fixture.</summary>
     public static readonly ImmutableArray<SchemaMigration> Production = ImmutableArray.Create<SchemaMigration>(
         new SchemaV1ToV2(),
-        new SchemaV2ToV3());
+        new SchemaV2ToV3(),
+        new SchemaV3ToV4());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -250,7 +252,7 @@ public sealed class SchemaV2ToV3 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V2.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V3.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -258,25 +260,62 @@ public sealed class SchemaV2ToV3 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = PlayerRecord.DerivedAppearanceSeed(EntityId.Parse(old.InstanceId)),
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Inventory = old.Inventory.Select(i => new V3.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
             }, options);
         }
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V2.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V3.EntitiesSection
             {
-                Records = old.Records.Select(e => new EntityDto
+                Records = old.Records.Select(e => new V3.Entity
                 {
                     InstanceId = e.InstanceId,
                     SlotKey = e.SlotKey,
                     GenerationSeq = e.GenerationSeq,
                     DefId = e.DefId,
                     DirtyMask = e.DirtyMask,
-                    State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                    State = new V3.EntityState { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
                 }).ToArray(),
-                Created = Array.Empty<CreatedDto>(),
-                Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+                Created = Array.Empty<V3.Created>(),
+                Baselines = old.Baselines.Select(b => new V3.CellBaseline { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 3 to 4 (M2c): the player gains the progression record (PROGRESSION.md §3-§4). A save that predates
+/// progression had none, so its character becomes what the record's empty value says - level 1, no XP or
+/// debt, nothing allocated, no skills, nothing known, full pools, no guard history. The step needs no content:
+/// attribute bases and pool maxima are derived at run time, never stored.
+/// </summary>
+public sealed class SchemaV3ToV4 : SchemaMigration
+{
+    public override int From => 3;
+
+    public override string Summary =>
+        "schema 3 -> 4: the player gains the progression record (level 1, nothing learned or allocated, full pools, " +
+        "for saves that predate progression)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V3.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Progression = ProgressionCodec.ToDto(UNNAMED.Domain.Progression.CharacterProgression.Empty),
             }, options);
         }
         document.Manifest["schema_version"] = To;

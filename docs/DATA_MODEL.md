@@ -669,10 +669,10 @@ ticks_per_second: 20              # the fixed domain tick (SYSTEMS.md §1)
 seconds_per_game_minute: 2.0      # 1 game minute = 2 real seconds
 game_minutes_per_hour: 60
 game_hours_per_day: 24
-# => one game day = 2880 game minutes = 5760 real seconds = 96 real minutes at 1x.
-# A player who plays a 40-minute prototype session therefore experiences ~10 game hours,
+# => one game day = 1440 game minutes = 2880 real seconds = 48 real minutes at 1x (57600 ticks).
+# A player who plays a 40-minute prototype session therefore experiences ~20 game hours,
 # which is why PROTOTYPE C12's "refill after one in-game day" needs the rest/wait
-# fast-forward in config.rest below rather than 96 real minutes of waiting.
+# fast-forward in config.rest below rather than 48 real minutes of waiting.
 ```
 
 ```yaml

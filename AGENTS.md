@@ -4,7 +4,8 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 
 ## Current status
 
-- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`). Next: the Phase-1 run through M6 per `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`, starting with the progression-axis audit that gates M2c. It stops after M6 for the owner's playtest.
+- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`), M2c - progression spine (`docs/M2C_STATUS.md`; the ratified model is `docs/PROGRESSION_AXIS_RECONCILIATION.md`). Next: the camera/presentation reconciliation, then M3, per `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`. The run stops after M6 for the owner's playtest.
+- Progression rules live in `src/Domain/Progression` as pure functions (`ProgressionEngine`); their numbers are content (`content/config/progression.yaml` and friends, built by `ProgressionContent`). Each axis advances only through its own currency type - never add an overload that takes gold, items or another axis's currency.
 
 ## Roles and worktrees (owner ruling, 2026-09-23)
 

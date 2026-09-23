@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Progression;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -88,8 +90,13 @@ public static class M2Fixtures
     /// </summary>
     public static class Historical
     {
+        /// <summary>The pack the v1-v3 fixtures were written with (Fixtures/content-0.1.0).</summary>
         public const string ContentVersion = "0.1.0";
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
+
+        /// <summary>The pack the current fixture is written with (Fixtures/content-0.1.1: 0.1.0 plus the progression definitions).</summary>
+        public const string WriterContentVersion = "0.1.1";
+        public const string WriterContentHash = "sha256:0a46ac0214a763a5af84d68d7a83ae69a57fab4d749574f3480e7232819c1f61";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -99,7 +106,49 @@ public static class M2Fixtures
                     "item.weapon.iron_sword", 1),
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
-            });
+            },
+            Progression());
+
+        /// <summary>
+        /// Progression in every field (schema 4). Written with content 0.1.1, so it names the formula
+        /// <c>spell.ember.firebolt</c> and the potion <c>item.potion.healing_draught</c>; the current fixture pack renames
+        /// both, and the load must carry the rename into the knowledge record and the production record.
+        /// </summary>
+        public static CharacterProgression Progression() => new()
+        {
+            Level = 3,
+            LevelProgressXp = 120,
+            XpDebt = 35,
+            LifetimeXp = ImmutableSortedDictionary.CreateRange(new[]
+            {
+                KeyValuePair.Create(XpSource.Discovery, 400L),
+                KeyValuePair.Create(XpSource.Combat, 395L),
+                KeyValuePair.Create(XpSource.Production, 100L),
+            }),
+            Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 1) }),
+            UnspentAttributePoints = 1,
+            Grants = ImmutableArray.Create(new AttributeGrant(CharacterAttribute.Endurance, 1, GrantSource.Quest, "quest.fixture.rescue")),
+            Skills = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+            {
+                KeyValuePair.Create("skill.athletics", new SkillState(2, 0)),
+                KeyValuePair.Create("skill.one_hand_blade", new SkillState(5, 12)),
+            }),
+            Known = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+            {
+                KeyValuePair.Create("recipe.alchemy.salve_minor", new KnownTechnique(LearningSource.Book, "item.book.alchemy_primer", 2_400)),
+                KeyValuePair.Create("spell.ember.firebolt", new KnownTechnique(LearningSource.Teacher, "npc_01HF7YAT0T0000000000000001", 1_200)),
+            }),
+            ProductionFirsts = ImmutableSortedSet.Create(StringComparer.Ordinal, "item.potion.healing_draught"),
+            NoveltyFirsts = ImmutableSortedSet.Create(StringComparer.Ordinal, "recipe.alchemy.salve_minor"),
+            Pools = new PoolState(87, null, 40, 6),
+            Guards = new XpGuardState(
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("creature.beast.wolf_grey", new SpeciesDay(0, 3)) }),
+                ImmutableSortedSet.Create(StringComparer.Ordinal, "creature.beast.deer", "creature.beast.wolf_grey"),
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("pop.r_0_0.c_00_02.wolves", ImmutableArray.Create(4_000L, 4_200L, 4_500L)),
+                })),
+        };
 
         public static WorldDelta World(Registry registry)
         {
@@ -119,8 +168,8 @@ public static class M2Fixtures
             return world;
         }
 
-        public const string CurrentContentVersion = "0.2.0";
-        public const string CurrentContentHash = "sha256:eb203d32f2d04344cdb2d2cd0a4c8323422c28df87ffbb178353fba62faf082f";
+        public const string CurrentContentVersion = "0.2.1";
+        public const string CurrentContentHash = "sha256:2d645f2ab426fac77bab6ea1359c4e1fbdecfe92237f99252b5acf4ce9b5155c";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -131,16 +180,21 @@ public static class M2Fixtures
             new[]
             {
                 "creature.beast.deer", "creature.beast.wolf_grey", "item.potion.minor_healing", "item.weapon.iron_sword",
+                "recipe.alchemy.salve_minor", "skill.athletics", "skill.one_hand_blade", "spell.ember.bolt",
                 "world.door.cellar_open", "world.lever.mill_gate",
             },
-            new Dictionary<string, string> { ["item.potion.healing_draught"] = "item.potion.minor_healing" });
+            new Dictionary<string, string>
+            {
+                ["item.potion.healing_draught"] = "item.potion.minor_healing",
+                ["spell.ember.firebolt"] = "spell.ember.bolt",
+            });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);
 
         /// <summary>Write the fixture with this build's writer.</summary>
         public static void Write(string profileRoot) =>
             new SaveStore(profileRoot).Save(SaveSlots.Quick, SaveDocuments.Capture(
-                World(new Registry()), Player(), new ContentIdentity(ContentVersion, ContentHash, Array.Empty<string>()),
+                World(new Registry()), Player(), new ContentIdentity(WriterContentVersion, WriterContentHash, Array.Empty<string>()),
                 5_000, playtimeSeconds: 321.5));
     }
 

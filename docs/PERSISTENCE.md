@@ -153,7 +153,7 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 ```jsonc
 {
   "save_format": 1,                       // CONTAINER version; never changes for small layout edits
-  "schema_version": 3,                    // GAMEPLAY STATE schema; drives the migration chain
+  "schema_version": 4,                    // GAMEPLAY STATE schema; drives the migration chain
   "content_version": "0.4.2",             // content pack version; a human label
   "content_hash": "sha256:9f3c…",         // exact identity of the compiled content pack; NOT a generation input
   "world_seed": "0x5C1A9E7B4D2F0083",     // frozen; 0 means random
@@ -189,7 +189,7 @@ These are the only fully-serialized sections. A character is not regenerable, so
 
 **Rebase does not apply here.** There is no baseline to return to, so every field is authoritative and T-01 asserts full equality after reload.
 
-Implemented so far (schema 3): the character's ULID, name, position in integer millimetres, `appearance_seed` (required from schema 3), and inventory stacks by item ULID. The rest of the list above arrives with the systems that own it.
+Implemented so far (schema 4): the character's ULID, name, position in integer millimetres, `appearance_seed` (required from schema 3), inventory stacks by item ULID, and the progression record (from schema 4; `PROGRESSION.md` §3-§4). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and its definition IDs - skills, known techniques, first-time records, kill records - go through the definition-ID pass like the inventory's. The rest of the list above arrives with the systems that own it.
 
 ### 5.2 `cells.msgpack` — sparse cell delta
 
@@ -331,6 +331,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 |---|---|
 | 1 -> 2 | Worldgen 1 -> 2. Regenerates worldgen 1 frozen (after checking the save's `worldgen_digest`), maps each index-keyed node to its rule and ordinal, rebases every record onto worldgen 2 by semantic identity, and records each cell's `baseline_hash`. A target with no worldgen-2 counterpart is dropped as reported loss |
 | 2 -> 3 | The player gains the required `appearance_seed`, derived from the player's ULID for older saves. The entities section gains `created` instances; older saves have none |
+| 3 -> 4 | The player gains the progression record (M2c). A save that predates progression gets its empty value: level 1, no XP or debt, nothing allocated, learned or practised, full pools, no guard history. The step needs no content |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

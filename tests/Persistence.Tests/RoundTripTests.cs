@@ -59,6 +59,34 @@ public class RoundTripTests : IDisposable
     }
 
     [Fact]
+    public void T01_Progression_RoundTripsEveryField_ByteStable()
+    {
+        // Schema 4: the historical fixture's progression sets every field of the record.
+        var player = M2Fixtures.Player("Brannoc").WithProgression(M2Fixtures.Historical.Progression());
+        var world = M2Fixtures.NewWorld(new Registry());
+        _store.Save(M2Fixtures.Slot, SaveDocuments.Capture(world, player, M2Fixtures.Content(), worldTick: 5_000, playtimeSeconds: 60));
+
+        var loaded = _store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry()));
+        Assert.Equal(player.Progression.Digest, loaded.Player.Progression.Digest);
+        Assert.Equal(player.Digest, loaded.Player.Digest);
+
+        _store.Save(SaveSlots.Manual("again"), SaveDocuments.Capture(loaded.World, loaded.Player, M2Fixtures.Content(), worldTick: 5_000, playtimeSeconds: 60));
+        Assert.Equal(Section(M2Fixtures.Slot, SaveFormat.Player), Section(SaveSlots.Manual("again"), SaveFormat.Player));
+    }
+
+    [Fact]
+    public void AProgressionRecordOutOfRange_OrMissing_IsCorruption()
+    {
+        var options = MessagePack.MessagePackSerializerOptions.Standard;
+        var dto = MessagePack.MessagePackSerializer.Deserialize<PlayerDto>(SectionCodec.EncodePlayer(M2Fixtures.Player("Brannoc")), options);
+
+        dto.Progression!.Level = 0;
+        Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(MessagePack.MessagePackSerializer.Serialize(dto, options)));
+        dto.Progression = null;
+        Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(MessagePack.MessagePackSerializer.Serialize(dto, options)));
+    }
+
+    [Fact]
     public void T01_T18_EntityDivergence_RoundTrips_AndTheDeadStayDead()
     {
         var world = M2Fixtures.NewWorld(new Registry());

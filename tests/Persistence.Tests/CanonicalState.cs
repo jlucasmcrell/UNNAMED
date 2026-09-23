@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.Persistence.Tests;
 
@@ -40,6 +41,7 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            WriteProgression(json, player.Progression);
             json.WriteEndObject();
 
             json.WriteStartArray("cells");
@@ -101,5 +103,92 @@ internal static class CanonicalState
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";
+    }
+
+    /// <summary>The progression record (schema 4), every field, in canonical order.</summary>
+    private static void WriteProgression(Utf8JsonWriter json, CharacterProgression p)
+    {
+        json.WriteStartObject("progression");
+        json.WriteNumber("level", p.Level);
+        json.WriteNumber("level_progress_xp", p.LevelProgressXp);
+        json.WriteNumber("xp_debt", p.XpDebt);
+        json.WriteStartObject("lifetime_xp");
+        foreach (var (source, xp) in p.LifetimeXp)
+            json.WriteNumber(ProgressionKeys.Key(source), xp);
+        json.WriteEndObject();
+        json.WriteStartObject("attribute_allocation");
+        foreach (var (attribute, points) in p.Allocation)
+            json.WriteNumber(ProgressionKeys.Key(attribute), points);
+        json.WriteEndObject();
+        json.WriteNumber("unspent_attribute_points", p.UnspentAttributePoints);
+        json.WriteStartArray("attribute_grants");
+        foreach (var g in p.Grants)
+        {
+            json.WriteStartObject();
+            json.WriteString("attribute", ProgressionKeys.Key(g.Attribute));
+            json.WriteNumber("amount", g.Amount);
+            json.WriteString("source", ProgressionKeys.Key(g.Source));
+            json.WriteString("source_ref", g.SourceRef);
+            json.WriteEndObject();
+        }
+        json.WriteEndArray();
+        json.WriteStartObject("skills");
+        foreach (var (id, skill) in p.Skills)
+        {
+            json.WriteStartObject(id);
+            json.WriteNumber("level", skill.Level);
+            json.WriteNumber("progress_xp", skill.ProgressXp);
+            json.WriteEndObject();
+        }
+        json.WriteEndObject();
+        json.WriteStartObject("known");
+        foreach (var (id, technique) in p.Known)
+        {
+            json.WriteStartObject(id);
+            json.WriteString("source", ProgressionKeys.Key(technique.Source));
+            if (technique.SourceRef is { } sourceRef) json.WriteString("source_ref", sourceRef); else json.WriteNull("source_ref");
+            json.WriteNumber("tick", technique.Tick);
+            json.WriteEndObject();
+        }
+        json.WriteEndObject();
+        json.WriteStartArray("production_firsts");
+        foreach (var id in p.ProductionFirsts)
+            json.WriteStringValue(id);
+        json.WriteEndArray();
+        json.WriteStartArray("novelty_firsts");
+        foreach (var id in p.NoveltyFirsts)
+            json.WriteStringValue(id);
+        json.WriteEndArray();
+        json.WriteStartObject("pools");
+        if (p.Pools.Health is int health) json.WriteNumber("health", health); else json.WriteNull("health");
+        if (p.Pools.Stamina is int stamina) json.WriteNumber("stamina", stamina); else json.WriteNull("stamina");
+        if (p.Pools.Focus is int focus) json.WriteNumber("focus", focus); else json.WriteNull("focus");
+        json.WriteNumber("strain", p.Pools.Strain);
+        json.WriteEndObject();
+        json.WriteStartObject("guards");
+        json.WriteStartObject("species_today");
+        foreach (var (species, day) in p.Guards.SpeciesToday)
+        {
+            json.WriteStartObject(species);
+            json.WriteNumber("day", day.Day);
+            json.WriteNumber("kills", day.Kills);
+            json.WriteEndObject();
+        }
+        json.WriteEndObject();
+        json.WriteStartArray("species_ever_killed");
+        foreach (var species in p.Guards.SpeciesEverKilled)
+            json.WriteStringValue(species);
+        json.WriteEndArray();
+        json.WriteStartObject("cluster_kills");
+        foreach (var (cluster, ticks) in p.Guards.ClusterKills)
+        {
+            json.WriteStartArray(cluster);
+            foreach (long tick in ticks)
+                json.WriteNumberValue(tick);
+            json.WriteEndArray();
+        }
+        json.WriteEndObject();
+        json.WriteEndObject();
+        json.WriteEndObject();
     }
 }

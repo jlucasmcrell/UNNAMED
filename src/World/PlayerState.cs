@@ -4,6 +4,7 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.World;
 
@@ -17,7 +18,8 @@ public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count);
 /// </summary>
 public sealed record PlayerRecord
 {
-    public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory)
+    public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory,
+        CharacterProgression? progression = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -39,6 +41,7 @@ public sealed record PlayerRecord
         }
         if (Inventory.Select(e => e.ItemId).Distinct().Count() != Inventory.Length)
             throw new ArgumentException("An item instance can be held only once", nameof(inventory));
+        Progression = (progression ?? CharacterProgression.Empty).Validate();
     }
 
     /// <summary>
@@ -53,7 +56,10 @@ public sealed record PlayerRecord
     }
 
     /// <summary>The same player holding a different inventory (the definition-ID pass rewrites stored IDs).</summary>
-    public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory) => new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, inventory);
+    public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory) => new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, inventory, Progression);
+
+    /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
+    public PlayerRecord WithProgression(CharacterProgression progression) => new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -66,15 +72,19 @@ public sealed record PlayerRecord
 
     public ImmutableArray<InventoryEntry> Inventory { get; }
 
+    /// <summary>Level, attributes, skills, known techniques, pools and guards (PROGRESSION.md §3-§4). Schema 4.</summary>
+    public CharacterProgression Progression { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v2").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v3").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count);
+            h.Add(Progression.Digest);
             return h.Finish();
         }
     }

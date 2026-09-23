@@ -264,7 +264,10 @@ internal static class SaveLoader
                 created.Add(record with { DefId = id });
         }
 
-        return (player.WithInventory(inventory),
+        // Skills, known techniques, first-time records and kill records name definitions too (schema 4).
+        var progression = player.Progression.RewriteDefinitionIds((id, role) => Resolve(id, $"player {role}"));
+
+        return (player.WithInventory(inventory).WithProgression(progression),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable() });
     }
 
