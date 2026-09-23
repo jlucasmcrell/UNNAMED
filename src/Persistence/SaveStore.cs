@@ -36,6 +36,16 @@ public static class SaveSlots
         || (slot is not null && Enumerable.Range(1, AutosaveCount).Any(n => slot == $"auto_{n:00}"));
 }
 
+/// <summary>Autosave cadence (§8.2): every five minutes of PLAYTIME; real time does not count.</summary>
+public static class AutosaveCadence
+{
+    public const double IntervalSeconds = 300;
+
+    /// <summary>Major transitions also autosave; the caller triggers those directly.</summary>
+    public static bool IsDue(double playtimeSeconds, double lastAutosavePlaytimeSeconds) =>
+        playtimeSeconds - lastAutosavePlaytimeSeconds >= IntervalSeconds;
+}
+
 /// <summary>Builds a <see cref="SaveDocument"/> from live state: the save-time diff runs here (§5.2).</summary>
 public static class SaveDocuments
 {
@@ -49,7 +59,9 @@ public static class SaveDocuments
 /// <summary>
 /// One profile's saves: <c>saves/&lt;profile&gt;/&lt;slot&gt;/</c>. Implements the atomic write sequence
 /// (§7.1), integrity and quarantine (§7.2), backup rotation (§7.3), the load sequence (§7.4) and the
-/// boot-time recovery of interrupted commits.
+/// boot-time recovery of interrupted commits. Capture a <see cref="SaveDocument"/> on the simulation
+/// thread; <see cref="Save"/> may then run on any thread (§8.2). Use one store per profile root: its
+/// operations are serialized, so an autosave in flight and a quicksave cannot interleave.
 /// </summary>
 public sealed class SaveStore
 {
@@ -58,6 +70,7 @@ public sealed class SaveStore
 
     private readonly Action<SaveStep>? _onStep;
     private readonly Func<DateTimeOffset> _clock;
+    private readonly object _gate = new();
 
     /// <param name="profileRoot">The profile directory. Per §3.2 it must sit outside cloud-sync roots.</param>
     /// <param name="onStep">Called at each §7.1 step boundary; tests use it to crash the process there.</param>
@@ -68,9 +81,13 @@ public sealed class SaveStore
         Directory.CreateDirectory(Root);
         _onStep = onStep;
         _clock = clock ?? (() => DateTimeOffset.UtcNow);
+        CloudSyncRoot = SaveLocation.CloudSyncRootOf(Root);
     }
 
     public string Root { get; }
+
+    /// <summary>Non-null when <see cref="Root"/> is inside a cloud-sync folder: the game must warn (§3.2).</summary>
+    public string? CloudSyncRoot { get; }
 
     public string SlotPath(string slot) => Path.Combine(Root, slot);
 
@@ -87,11 +104,41 @@ public sealed class SaveStore
     public ImmutableArray<int> AvailableBackups(string slot) =>
         new[] { 1, 2 }.Where(g => Directory.Exists(BackupPath(slot, g))).ToImmutableArray();
 
+    /// <summary>
+    /// The rolling autosave slot to write next (§8.2): an empty one if any, else the least recently
+    /// written. A slot whose manifest cannot be read counts as oldest, so it is replaced first.
+    /// </summary>
+    public string NextAutosaveSlot()
+    {
+        var slots = Enumerable.Range(1, SaveSlots.AutosaveCount).Select(SaveSlots.Auto).ToList();
+        return slots.FirstOrDefault(s => !Directory.Exists(SlotPath(s)))
+               ?? slots.OrderBy(WrittenAt).ThenBy(s => s, StringComparer.Ordinal).First();
+    }
+
+    private DateTimeOffset WrittenAt(string slot)
+    {
+        try
+        {
+            var manifest = SectionCodec.DecodeManifest(File.ReadAllBytes(Path.Combine(SlotPath(slot), SaveFormat.Manifest)));
+            return DateTimeOffset.Parse(manifest.BuildTimestamp, CultureInfo.InvariantCulture);
+        }
+        catch (Exception e) when (e is IOException or JsonException or FormatException or NotSupportedException or UnauthorizedAccessException)
+        {
+            return DateTimeOffset.MinValue;
+        }
+    }
+
     // ── §7.1 atomic write ───────────────────────────────────────────────────
 
     public void Save(string slot, SaveDocument document)
     {
         RequireValidSlot(slot);
+        lock (_gate)
+            Commit(slot, document);
+    }
+
+    private void Commit(string slot, SaveDocument document)
+    {
         string token = EntityId.NewId(EntityKind.WorldEvent).Ulid;
         string staging = Path.Combine(Root, $".staging-{slot}-{token}");
         string trash = Path.Combine(Root, $".trash-{slot}-{token}");
@@ -148,14 +195,16 @@ public sealed class SaveStore
     public LoadResult Load(string slot, LoadContext context)
     {
         RequireValidSlot(slot);
-        return LoadFrom(SlotPath(slot), slot, context, isBackup: false);
+        lock (_gate)
+            return LoadFrom(SlotPath(slot), slot, context, isBackup: false);
     }
 
     /// <summary>Load a backup generation. Never automatic: the player chooses it (§7.2).</summary>
     public LoadResult LoadBackup(string slot, int generation, LoadContext context)
     {
         RequireValidSlot(slot);
-        return LoadFrom(BackupPath(slot, generation), slot, context, isBackup: true);
+        lock (_gate)
+            return LoadFrom(BackupPath(slot, generation), slot, context, isBackup: true);
     }
 
     private LoadResult LoadFrom(string directory, string slot, LoadContext context, bool isBackup)
@@ -269,11 +318,14 @@ public sealed class SaveStore
     public void Delete(string slot)
     {
         RequireValidSlot(slot);
-        foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2) }.Concat(Leftovers(slot)))
-            DeleteWithRetry(path);
-        var rotation = ReadRotation();
-        if (rotation.Remove(slot))
-            WriteRotation(rotation);
+        lock (_gate)
+        {
+            foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2) }.Concat(Leftovers(slot)))
+                DeleteWithRetry(path);
+            var rotation = ReadRotation();
+            if (rotation.Remove(slot))
+                WriteRotation(rotation);
+        }
     }
 
     // ── boot sweep ──────────────────────────────────────────────────────────
@@ -284,6 +336,12 @@ public sealed class SaveStore
     /// never a partial one. Returns what was done, one line per action.
     /// </summary>
     public ImmutableArray<string> RecoverInterruptedCommits()
+    {
+        lock (_gate)
+            return Recover();
+    }
+
+    private ImmutableArray<string> Recover()
     {
         var actions = ImmutableArray.CreateBuilder<string>();
         var slots = Directory.EnumerateDirectories(Root, ".staging-*").Concat(Directory.EnumerateDirectories(Root, ".trash-*"))

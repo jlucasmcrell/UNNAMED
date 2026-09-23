@@ -16,7 +16,7 @@ public class ExitCriteriaTests
     /// load it and verify world equality."
     /// </summary>
     [Fact]
-    public void ME1_TenCellWorld_SavesOnlyTheTwoChangedCells_AndLoadsEqual()
+    public void ME1_ME2_TenCellWorld_SavesOnlyTheTwoChangedCells_AndLoadsEqual()
     {
         using var profile = new TempProfile();
         var store = new SaveStore(profile.Root);
@@ -41,7 +41,7 @@ public class ExitCriteriaTests
 
     /// <summary>"Verify (seed, content_version) determinism across two fresh processes."</summary>
     [Fact]
-    public void ME2_Determinism_AcrossTwoFreshProcesses()
+    public void ME3_Determinism_AcrossTwoFreshProcesses()
     {
         string seed = BaselineTuple.FormatSeed(M2Fixtures.Seed);
         var first = Probe.Run("digest", seed, M2Fixtures.ContentHash, "5");
@@ -66,7 +66,7 @@ public class ExitCriteriaTests
     [InlineData(SaveStep.StagingPromoted)]
     [InlineData(SaveStep.Verified)]
     [InlineData(SaveStep.Rotated)]
-    public void ME3_AtomicWrite_SurvivesAKillAtEveryStep(SaveStep killAt)
+    public void ME4_AtomicWrite_SurvivesAKillAtEveryStep(SaveStep killAt)
     {
         using var profile = new TempProfile();
         Assert.Equal(0, Probe.Run("save", profile.Root, "old").ExitCode);
@@ -92,7 +92,7 @@ public class ExitCriteriaTests
     [InlineData(SaveStep.StagingWritten)]
     [InlineData(SaveStep.IntegrityRootWritten)]
     [InlineData(SaveStep.StagingPromoted)]
-    public void ME3_FirstEverSave_KilledMidWrite_LeavesNoCorruptSlot(SaveStep killAt)
+    public void ME4_FirstEverSave_KilledMidWrite_LeavesNoCorruptSlot(SaveStep killAt)
     {
         using var profile = new TempProfile();
         Assert.NotEqual(0, Probe.Run("save", profile.Root, "new", killAt.ToString()).ExitCode);

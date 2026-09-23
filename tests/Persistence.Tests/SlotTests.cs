@@ -49,6 +49,51 @@ public class SlotTests
     }
 
     [Fact]
+    public void Autosaves_RollThroughFiveSlots_OverwritingTheOldest()
+    {
+        using var profile = new TempProfile();
+        var now = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var store = new SaveStore(profile.Root, clock: () => now);
+
+        var written = new List<string>();
+        for (int i = 0; i < 7; i++)
+        {
+            string slot = store.NextAutosaveSlot();
+            store.Save(slot, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry()), tick: i));
+            written.Add(slot);
+            now = now.AddMinutes(5);
+        }
+
+        Assert.Equal(new[] { "auto_01", "auto_02", "auto_03", "auto_04", "auto_05", "auto_01", "auto_02" }, written);
+    }
+
+    [Fact]
+    public void AnUnreadableAutosave_IsReplacedFirst()
+    {
+        using var profile = new TempProfile();
+        var now = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var store = new SaveStore(profile.Root, clock: () => now);
+        for (int i = 1; i <= SaveSlots.AutosaveCount; i++)
+        {
+            store.Save(SaveSlots.Auto(i), M2Fixtures.Document(M2Fixtures.OldWorld(new Registry())));
+            now = now.AddMinutes(5);
+        }
+
+        File.WriteAllText(Path.Combine(store.SlotPath("auto_04"), SaveFormat.Manifest), "{");
+
+        Assert.Equal("auto_04", store.NextAutosaveSlot());
+    }
+
+    [Theory]
+    [InlineData(0, 0, false)]
+    [InlineData(299.9, 0, false)]
+    [InlineData(300, 0, true)]
+    [InlineData(1_000, 800, false)]
+    [InlineData(1_100, 800, true)]
+    public void Autosave_IsDueEveryFiveMinutesOfPlaytime(double playtime, double lastAutosave, bool due) =>
+        Assert.Equal(due, AutosaveCadence.IsDue(playtime, lastAutosave));
+
+    [Fact]
     public void AnInvalidOrEmptySlot_IsRefused()
     {
         using var profile = new TempProfile();
