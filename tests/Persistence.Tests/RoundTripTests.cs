@@ -134,6 +134,24 @@ public class RoundTripTests : IDisposable
     }
 
     [Fact]
+    public void SaveBytes_AreTheSameUnderEveryCulture()
+    {
+        Cultures.Run("tr-TR", () => _store.Save(SaveSlots.Manual("turkish"), M2Fixtures.Document(M2Fixtures.NewWorld(new Registry()))));
+        Cultures.Run("de-DE", () => _store.Save(SaveSlots.Manual("german"), M2Fixtures.Document(M2Fixtures.NewWorld(new Registry()))));
+
+        foreach (string file in SaveFormat.CheckedFiles.Append(SaveFormat.IntegrityRoot))
+            Assert.Equal(Section("manual_turkish", file), Section("manual_german", file));
+
+        Cultures.Run("th-TH", () =>
+        {
+            var loaded = _store.Load(SaveSlots.Manual("turkish"), M2Fixtures.Context(new Registry()));
+            Assert.True(loaded.IsComplete);
+            Assert.Equal(321.5, loaded.Manifest.PlaytimeSeconds);
+            Assert.Equal(M2Fixtures.WorldDigest(M2Fixtures.NewWorld(new Registry())), M2Fixtures.WorldDigest(loaded.World));
+        });
+    }
+
+    [Fact]
     public void T03_AnUntouchedWorld_SavesEmptySections()
     {
         var world = new WorldDelta(M2Fixtures.Generator(), M2Fixtures.Tuple(), new Registry());

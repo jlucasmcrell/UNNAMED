@@ -73,7 +73,7 @@ public class ExitCriteriaTests
 
         var killed = Probe.Run("save", profile.Root, "new", killAt.ToString());
         Assert.NotEqual(0, killed.ExitCode);
-        Assert.DoesNotContain("saved", killed.Output);
+        Assert.Equal($"KILL {killAt}", killed.Output);   // killed at exactly this step, nothing after it
 
         var store = new SaveStore(profile.Root);
         store.RecoverInterruptedCommits();
@@ -95,7 +95,9 @@ public class ExitCriteriaTests
     public void ME4_FirstEverSave_KilledMidWrite_LeavesNoCorruptSlot(SaveStep killAt)
     {
         using var profile = new TempProfile();
-        Assert.NotEqual(0, Probe.Run("save", profile.Root, "new", killAt.ToString()).ExitCode);
+        var killed = Probe.Run("save", profile.Root, "new", killAt.ToString());
+        Assert.NotEqual(0, killed.ExitCode);
+        Assert.Equal($"KILL {killAt}", killed.Output);
 
         var store = new SaveStore(profile.Root);
         store.RecoverInterruptedCommits();

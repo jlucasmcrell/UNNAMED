@@ -9,4 +9,9 @@
     <AssemblyName>UNNAMED.Domain</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- The writer is internal (ARCHITECTURE.md §5); only Domain's own tests may stand in for a system. -->
+    <InternalsVisibleTo Include="Domain.Tests" />
+  </ItemGroup>
+
 </Project>

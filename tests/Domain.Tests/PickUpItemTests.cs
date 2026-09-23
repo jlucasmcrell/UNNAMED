@@ -52,7 +52,7 @@ public class PickUpItemTests : IDisposable
         // Act: Process the command (in M1, this goes through command bus → system)
         // For M1 demonstration, we call the handler directly
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             // For testing, we can pass null for bus since we don't cross-system commands
             _commandBus,
             _eventBus,
@@ -103,7 +103,7 @@ public class PickUpItemTests : IDisposable
 
         // Act: Pick up partial quantity
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,
@@ -139,7 +139,7 @@ public class PickUpItemTests : IDisposable
 
         // Act & Assert
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,
@@ -169,7 +169,7 @@ public class PickUpItemTests : IDisposable
 
         // Act & Assert
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,

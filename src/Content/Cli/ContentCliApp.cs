@@ -65,18 +65,18 @@ public static class ContentCliApp
     /// </summary>
     public static int SchemaDump(string contentRoot, string format)
     {
-        var kinds = ContentKindRegistry.Kinds.ToDictionary(k => k.Kind, k => k);
+        var kinds = ContentKindRegistry.Kinds;
         
         if (format == "json")
         {
             var schema = new
             {
                 totalKinds = kinds.Count,
-                kinds = kinds.Select(kvp => new {
-                    kind = kvp.Key,
-                    fullKind = kvp.Value.FullKind,
-                    directory = kvp.Value.Directory,
-                    idPrefix = kvp.Value.IdPrefix
+                kinds = kinds.Select(k => new {
+                    kind = k.Key,
+                    fullKind = k.Value.FullKind,
+                    directory = k.Value.Directory,
+                    idPrefix = k.Value.IdPrefix
                 }).ToList()
             };
             Console.WriteLine(SerializeToJson(schema));
@@ -92,11 +92,10 @@ public static class ContentCliApp
             Console.WriteLine("-----------------");
             foreach (var kvp in kinds)
             {
-                var def = kvp.Value;
-                Console.WriteLine($"Kind: {def.Kind}");
-                Console.WriteLine($"  Full: {def.FullKind}");
-                Console.WriteLine($"  Directory: {def.Directory}");
-                Console.WriteLine($"  ID Prefix: {def.IdPrefix}");
+                Console.WriteLine($"Kind: {kvp.Key}");
+                Console.WriteLine($"  Full: {kvp.Value.FullKind}");
+                Console.WriteLine($"  Directory: {kvp.Value.Directory}");
+                Console.WriteLine($"  ID Prefix: {kvp.Value.IdPrefix}");
                 Console.WriteLine();
             }
         }

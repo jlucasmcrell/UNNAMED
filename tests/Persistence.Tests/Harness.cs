@@ -17,6 +17,26 @@ internal sealed class TempProfile : IDisposable
     }
 }
 
+internal static class Cultures
+{
+    /// <summary>Run an action with the thread's culture set, as if on a machine configured that way.</summary>
+    public static void Run(string culture, Action action)
+    {
+        var (previous, previousUi) = (System.Globalization.CultureInfo.CurrentCulture, System.Globalization.CultureInfo.CurrentUICulture);
+        try
+        {
+            System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo(culture);
+            System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo(culture);
+            action();
+        }
+        finally
+        {
+            System.Globalization.CultureInfo.CurrentCulture = previous;
+            System.Globalization.CultureInfo.CurrentUICulture = previousUi;
+        }
+    }
+}
+
 internal static class Tamper
 {
     /// <summary>Corrupt one byte of a file in place, as disk or transfer damage would.</summary>

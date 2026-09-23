@@ -56,6 +56,9 @@ public sealed record OccupantView(string SlotKey, EntityId? InstanceId, bool Ali
 /// <summary>
 /// The authoritative sparse world delta. Load = generate(baseline) + apply(delta); save = diff against
 /// the regenerated baseline (PERSISTENCE.md §1.2). Nothing that equals the baseline is stored.
+/// Reading is public; mutation is internal (ARCHITECTURE.md §5: nothing but the owning system writes
+/// authoritative state). The systems that own node and spawn state receive write access when they
+/// are built; until then only World and its tests can mutate a world.
 /// </summary>
 public sealed class WorldDelta
 {
@@ -89,7 +92,7 @@ public sealed class WorldDelta
     // ── world flags ─────────────────────────────────────────────────────────
 
     /// <summary>Set a cell-level world flag; 0 is the baseline and removes the entry.</summary>
-    public void SetFlag(CellKey cell, string flagId, long value)
+    internal void SetFlag(CellKey cell, string flagId, long value)
     {
         if (!DefinitionId.IsValid(flagId) || !flagId.StartsWith("world.", StringComparison.Ordinal))
             throw new ArgumentException($"World flags are 'world.*' definition IDs (DATA_MODEL.md §1), got '{flagId}'", nameof(flagId));
@@ -105,7 +108,7 @@ public sealed class WorldDelta
 
     // ── resource nodes ──────────────────────────────────────────────────────
 
-    public void HarvestNode(CellKey cell, string nodeKey, long tick)
+    internal void HarvestNode(CellKey cell, string nodeKey, long tick)
     {
         if (Baseline(cell).FindNode(nodeKey) is null)
             throw new InvalidOperationException($"Cell {cell} has no node '{nodeKey}'");
@@ -116,7 +119,7 @@ public sealed class WorldDelta
     }
 
     /// <summary>Return a node to its baseline (available), which retires its record.</summary>
-    public void RegrowNode(CellKey cell, string nodeKey)
+    internal void RegrowNode(CellKey cell, string nodeKey)
     {
         if (_cells.TryGetValue(cell, out var state))
             state.Nodes.Remove(nodeKey);
@@ -131,7 +134,7 @@ public sealed class WorldDelta
     /// Set a population's alive count. The only persisted quantity for an undiverged population
     /// (WORLD_ARCHITECTURE.md §5.5); its target is the baseline and removes the entry.
     /// </summary>
-    public void SetPopulationAlive(CellKey cell, string populationId, int alive)
+    internal void SetPopulationAlive(CellKey cell, string populationId, int alive)
     {
         var population = Baseline(cell).FindPopulation(populationId)
             ?? throw new InvalidOperationException($"Cell {cell} has no population '{populationId}'");
@@ -156,14 +159,14 @@ public sealed class WorldDelta
     // ── slot occupants (entities) ───────────────────────────────────────────
 
     /// <summary>Kill a population member. It is promoted to an individual record and stays dead.</summary>
-    public EntityId KillOccupant(string slotKey) =>
+    internal EntityId KillOccupant(string slotKey) =>
         Diverge(slotKey, r => r with { Alive = false }).InstanceId;
 
-    public EntityId MoveOccupant(string slotKey, int xCm, int zCm) =>
+    internal EntityId MoveOccupant(string slotKey, int xCm, int zCm) =>
         Diverge(slotKey, r => r with { XCm = xCm, ZCm = zCm }).InstanceId;
 
     /// <summary>Return an occupant to its baseline state; the next save rebases its record away.</summary>
-    public void RestoreOccupant(string slotKey)
+    internal void RestoreOccupant(string slotKey)
     {
         if (_entities.TryGetValue(slotKey, out var record))
             _entities[slotKey] = record with { Alive = null, XCm = null, ZCm = null };

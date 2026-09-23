@@ -76,3 +76,7 @@ tools/godot/
 tools/godot_validate/assets/
 # dotnet test output
 TestResults/
+
+# Local project archives: kept on disk, not in the repository
+/UNNAMED.rar
+/_UNNAMED.rar

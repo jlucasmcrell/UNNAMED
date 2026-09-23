@@ -11,20 +11,20 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 - Build: `dotnet build src/UNNAMED.sln`
 - Test: `dotnet test src/UNNAMED.sln` (runs every test project, including Persistence.Tests)
 - One test: `dotnet test tests/<Project>.Tests --filter "FullyQualifiedName~<TestName>"`
-- Content lint: build Content in Release, then `dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root=content --verbose`
+- Content lint: build Content in Release, then `dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content --verbose` (a space, not `=`: the tool ignores `--content-root=...` and lints `./content`)
 
 ## Where the code is
 
 - Source: `src/<Project>/`. Tests: `tests/<Project>.Tests/`. Content definitions (YAML): `content/`.
 - Projects: Domain, Application, Content, EntityRegistry, World, Persistence, Presentation.
 - `tests/M2.Probe` is a console app that Persistence.Tests runs as a separate process (cross-process determinism, a real kill mid-save). It is part of the test suite, not scratch.
-- Ignore - these are not the code: the empty `Application/`, `Domain/`, `Presentation/` directories at the repository root; root-level `bin/`, `obj/`, `temp_test/`, `test_definition_id.*`; the `.rar` archives and `M1b_changes.patch`.
+- The `.rar` archives at the repository root are local backups, ignored by git. They are not the code; do not read them.
 - `assets/` is generated asset-pipeline output, written by another machine. It is not code; do not read it for coding tasks.
 
 ## Architecture rules (`docs/ARCHITECTURE.md`)
 
 - Only `src/Presentation` may reference Godot. `Domain` and `Application` must not - a compile-time boundary.
-- `IWorldStateWriter` is internal to Domain. Systems receive it through `Register(...)`; nothing else can write authoritative state.
+- `IWorldStateWriter` is internal to Domain; systems receive it through `ISystem.Configure`, which is internal too. `WorldDelta`'s mutators are internal to World. Nothing else can write authoritative state, and `tests/Architecture.Tests` fails the build if that changes.
 - One system, one responsibility. A system changes another system's state only by submitting a command or reacting to an event - never by reaching into its state. Events are not commands: a listener responds by submitting a command.
 - Domain never references Application or Presentation, and never reads files to load content - it receives a built catalogue. Content is referenced by string ID.
 - No static or singleton mutable state: two world instances in one process must not share anything mutable.

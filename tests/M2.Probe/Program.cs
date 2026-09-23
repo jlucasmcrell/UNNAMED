@@ -2,7 +2,7 @@
 // determinism across fresh processes and survival of a real process kill mid-write.
 //
 //   digest <world-seed-hex> <content-hash> <wolf-target>   print the region r_0_0 digest
-//   save <profile-root> <old|new> [<SaveStep>]             save a fixture world; FailFast at the step
+//   save <profile-root> <old|new> [<SaveStep>]             save a fixture world; killed at the step
 
 using UNNAMED.M2Probe;
 using UNNAMED.Persistence;
@@ -26,8 +26,13 @@ switch (args.FirstOrDefault())
         // raise an error-reporting dialog that stalls an unattended test run.)
         var store = new SaveStore(args[1], onStep: step =>
         {
-            if (step == crashAt)
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
+            if (step != crashAt)
+                return;
+            // Announce the step first, so the test can prove the kill landed exactly here and not in
+            // some earlier crash that would also leave a non-zero exit code.
+            Console.Out.Write($"KILL {step}");
+            Console.Out.Flush();
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
         });
         var world = args[2] == "new" ? M2Fixtures.NewWorld(new Registry()) : M2Fixtures.OldWorld(new Registry());
         store.Save(M2Fixtures.Slot, M2Fixtures.Document(world));

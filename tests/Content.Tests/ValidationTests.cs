@@ -2,7 +2,7 @@
 // Tests for M1b: Content Validation Tooling
 // No Godot references
 
-using UNNAMED.Domain;
+using UNNAMED.Content;
 
 namespace UNNAMED.Content.Tests;
 
@@ -31,9 +31,7 @@ public class DefinitionIdValidationTests
         bool result = DefinitionIdValidator.IsValidId(invalidId);
         
         // Assert
-        // DefinitionIdValidator uses ToLowerInvariant, so uppercase is accepted
-        // This test verifies the validation is case-insensitive
-        Assert.True(result);
+        Assert.False(result);
     }
     
     [Fact]
@@ -73,22 +71,6 @@ public class DefinitionIdValidationTests
         
         // Assert
         Assert.True(result);
-    }
-    
-    [Fact]
-    public void IsValidId_Returns_False_For_Item_123()
-    {
-        // This test ensures item.123 is correctly rejected
-        // Per D-04: non-first segments must contain at least one letter or underscore
-        // "123" is purely numeric, so it's invalid
-        // Arrange
-        string invalidId = "item.123";
-        
-        // Act
-        bool result = DefinitionIdValidator.IsValidId(invalidId);
-        
-        // Assert
-        Assert.False(result);
     }
 }
 
@@ -152,295 +134,371 @@ public class DuplicateIdTrackerTests
         // Arrange
         var tracker = new DuplicateIdTracker();
         string id = "item.weapon.iron_sword";
-        string file1 = "content/items/weapon/iron_sword.yaml";
-        string file2 = "content/items/other/duplicate.yaml";
-        tracker.RegisterId(id, file1);
-        tracker.RegisterId(id, file2);
+        tracker.RegisterId(id, "file1.yaml");
+        tracker.RegisterId(id, "file2.yaml");
         
         // Act
-        bool result = tracker.HasDuplicates();
+        bool hasDuplicates = tracker.HasDuplicates;
         
         // Assert
-        Assert.True(result);
+        Assert.True(hasDuplicates);
+    }
+    
+    [Fact]
+    public void GetAllDuplicates_Returns_Empty_When_No_Duplicates()
+    {
+        // Arrange
+        var tracker = new DuplicateIdTracker();
+        tracker.RegisterId("id1", "file1.yaml");
+        tracker.RegisterId("id2", "file2.yaml");
+        
+        // Act
+        var duplicates = tracker.GetAllDuplicates();
+        
+        // Assert
+        Assert.Empty(duplicates);
     }
 }
 
 public class CrossReferenceValidatorTests
 {
     [Fact]
-    public void ValidateCrossReferences_CorrectReferences_Passes()
+    public void ValidateReference_Returns_True_For_Known_Id()
     {
         // Arrange
         var validator = new CrossReferenceValidator();
-        var refs = new Dictionary<string, string>
-        {
-            { "item.weapon.iron_sword", "content/items/weapon/iron_sword.yaml" },
-            { "creature.beast.wolf_grey.01", "content/creatures/beast/wolf_grey.01.yaml" }
-        };
+        validator.RegisterKnownIds(new[] { "item.weapon.iron_sword", "spell.fireball" });
         
         // Act
-        bool result = validator.ValidateCrossReferences(refs);
+        bool result = validator.ValidateReference("item.weapon.iron_sword", "test.yaml");
         
         // Assert
         Assert.True(result);
+        Assert.False(validator.HasErrors);
     }
     
     [Fact]
-    public void ValidateCrossReferences_MissingReference_Fails()
+    public void ValidateReference_Returns_False_For_Unknown_Id()
     {
         // Arrange
         var validator = new CrossReferenceValidator();
-        var refs = new Dictionary<string, string>
-        {
-            { "item.weapon.iron_sword", "content/items/weapon/iron_sword.yaml" }
-        };
-        var content = new HashSet<string> { "item.weapon.iron_sword" };
+        validator.RegisterKnownIds(new[] { "item.weapon.iron_sword" });
         
         // Act
-        bool result = validator.ValidateCrossReferences(refs, content);
+        bool result = validator.ValidateReference("spell.nonexistent", "test.yaml", 42);
         
         // Assert
-        // All refs point to valid IDs, so validation passes
-        Assert.True(result);
+        Assert.False(result);
+        Assert.True(validator.HasErrors);
+        
+        // Check error details
+        Assert.Single(validator.Errors);
+        Assert.Equal("XREF001", validator.Errors[0].Code);
+        Assert.Contains("dangling", validator.Errors[0].Message.ToLower());
+        Assert.Equal(42, validator.Errors[0].LineNumber);
     }
     
     [Fact]
-    public void ValidateCrossReferences_CyclicReference_Passes()
+    public void ValidateReferences_Reports_Multiple_Errors()
     {
         // Arrange
         var validator = new CrossReferenceValidator();
-        var refs = new Dictionary<string, string>
-        {
-            { "item.weapon.iron_sword", "content/items/weapon/iron_sword.yaml" },
-            { "item.award.sword_of_iron", "content/items/award/sword_of_iron.yaml" }
-        };
-        var content = new HashSet<string> { "item.weapon.iron_sword", "item.award.sword_of_iron" };
+        validator.RegisterKnownIds(new[] { "item.weapon.iron_sword" });
         
         // Act
-        bool result = validator.ValidateCrossReferences(refs, content);
+        bool result = validator.ValidateReferences(
+            new[] { "spell.fireball", "spell.ice_spear" }, 
+            "test.yaml");
         
         // Assert
-        // CrossReferenceValidator doesn't check for cyclic references
-        // it only checks for missing references
-        Assert.True(result);
+        Assert.False(result);
+        Assert.Equal(2, validator.Errors.Count);
     }
 }
 
 public class AliasMapValidatorTests
 {
     [Fact]
-    public void ValidateAliasMap_ValidMap_Passes()
+    public void ResolveAlias_Returns_Resolved_Id_When_Alias_Exists()
     {
         // Arrange
         var validator = new AliasMapValidator();
-        var aliases = new Dictionary<string, string>
-        {
-            { "item.weapon.old_sword", "item.weapon.iron_sword" }
-        };
+        validator.LoadAliasMap(
+            new Dictionary<string, string> { { "old_id", "new_id" } },
+            new Dictionary<string, string>());
         
         // Act
-        bool result = validator.ValidateAliasMap(aliases);
+        var (resolved, wasAlias, aliasSource) = validator.ResolveAlias("old_id");
         
         // Assert
-        Assert.True(result);
+        Assert.Equal("new_id", resolved);
+        Assert.True(wasAlias);
+        Assert.Equal("old_id", aliasSource);
     }
     
     [Fact]
-    public void ValidateAliasMap_AddsAlias()
+    public void ValidateAliasTargets_Reports_Error_For_Missing_Target()
     {
         // Arrange
         var validator = new AliasMapValidator();
-        var aliases = new Dictionary<string, string>();
+        validator.LoadAliasMap(
+            new Dictionary<string, string> { { "old_id", "nonexistent" } },
+            new Dictionary<string, string>());
+        validator.RegisterKnownIds(new[] { "item.weapon.iron_sword" });
         
         // Act
-        validator.AddAlias("item.weapon.old_sword", "item.weapon.iron_sword", aliases);
+        bool result = validator.ValidateAliasTargets();
         
         // Assert
-        Assert.Contains("item.weapon.old_sword", aliases.Keys);
-        Assert.Equal("item.weapon.iron_sword", aliases["item.weapon.old_sword"]);
+        Assert.False(result);
+        Assert.True(validator.HasErrors);
+        Assert.Single(validator.Errors);
+        Assert.Equal("ALIAS001", validator.Errors[0].Code);
     }
 }
 
 public class ValidationErrorTests
 {
     [Fact]
-    public void ValidationError_HasExpectedFields()
+    public void ToString_Includes_Severity_Code_Message_And_File()
     {
         // Arrange
-        var error = new ValidationError("VAL001", "Validation failed", "test.yaml", 10);
+        var error = new ValidationError
+        {
+            SeverityLevel = ValidationError.Severity.Error,
+            Code = "TEST001",
+            Message = "Test error message",
+            FilePath = "content/test.yaml",
+            LineNumber = 10
+        };
         
-        // Act & Assert
-        Assert.Equal("VAL001", error.Code);
-        Assert.Equal("Validation failed", error.Message);
-        Assert.Equal("test.yaml", error.File);
-        Assert.Equal(10, error.Line);
+        // Act
+        string result = error.ToString();
+        
+        // Assert
+        Assert.Contains("ERROR", result);
+        Assert.Contains("TEST001", result);
+        Assert.Contains("Test error message", result);
+        Assert.Contains("content/test.yaml", result);
+        Assert.Contains(":10", result);
     }
 }
 
 public class ContentKindRegistryTests
 {
     [Fact]
-    public void GetKind_ForValidKind_ReturnsCorrectValue()
+    public void GetKind_Returns_Kind_Definition()
     {
-        // Arrange & Act
-        string kind = ContentKindRegistry.GetKind("items");
+        // Act
+        var kindDef = ContentKindRegistry.GetKind("item.weapon");
         
         // Assert
-        Assert.Equal("item", kind);
+        Assert.NotNull(kindDef);
+        Assert.Equal("item.weapon", kindDef!.FullKind);
+        Assert.Equal("items", kindDef.Directory);
     }
     
     [Fact]
-    public void GetDirectory_ForValidKind_ReturnsCorrectValue()
+    public void GetKind_Returns_Null_For_Unknown_Kind()
     {
-        // Arrange & Act
-        string directory = ContentKindRegistry.GetDirectory("item");
+        // Act
+        var kindDef = ContentKindRegistry.GetKind("unknown.kind");
         
         // Assert
-        Assert.Equal("items", directory);
+        Assert.Null(kindDef);
     }
     
     [Fact]
-    public void GetKind_UnknownDirectory_Throws()
+    public void IsValidKind_Returns_True_For_Known_Kind()
     {
-        // Arrange & Act & Assert
-        Assert.Throws<KeyNotFoundException>(() => ContentKindRegistry.GetKind("unknown"));
-    }
-    
-    [Fact]
-    public void GetDirectory_UnknownKind_Throws()
-    {
-        // Arrange & Act & Assert
-        Assert.Throws<KeyNotFoundException>(() => ContentKindRegistry.GetDirectory("unknown_kind"));
-    }
-    
-    [Fact]
-    public void GetAllKinds_ReturnsAllKinds()
-    {
-        // Arrange & Act
-        var kinds = ContentKindRegistry.GetAllKinds();
+        // Act
+        bool result = ContentKindRegistry.IsValidKind("item.weapon");
         
         // Assert
-        Assert.NotEmpty(kinds);
-        Assert.Contains("item", kinds);
-        Assert.Contains("creature", kinds);
+        Assert.True(result);
+    }
+    
+    [Fact]
+    public void IsValidKind_Returns_False_For_Unknown_Kind()
+    {
+        // Act
+        bool result = ContentKindRegistry.IsValidKind("unknown.kind");
+        
+        // Assert
+        Assert.False(result);
+    }
+    
+    [Fact]
+    public void KnownDirectories_Is_Closed_Set()
+    {
+        // Act
+        var dirs = ContentKindRegistry.KnownDirectories;
+        
+        // Assert
+        Assert.Contains("items", dirs);
+        Assert.Contains("creatures", dirs);
+        Assert.Contains("npcs", dirs);
+        Assert.Contains("spells", dirs);
+        Assert.Contains("abilities", dirs);
+        Assert.Contains("effects", dirs);
+        Assert.Contains("recipes", dirs);
+        Assert.Contains("resources", dirs);
+        Assert.Contains("quests", dirs);
+        Assert.Contains("dialogue", dirs);
+        Assert.Contains("factions", dirs);
+        Assert.Contains("loot", dirs);
     }
 }
 
 public class SchemaTypeMapperTests
 {
     [Fact]
-    public void GetSchema_ForValidKind_ReturnsCorrectType()
+    public void GetSchemaType_Returns_Specialized_Type_For_Kind()
     {
-        // Arrange & Act
-        Type? schemaType = SchemaTypeMapper.GetSchema("item");
+        // Act
+        var schemaType = SchemaTypeMapper.GetSchemaType("item.weapon");
         
-        // Assert
-        Assert.NotNull(schemaType);
+        // Assert - item.weapon has a specialized schema
+        Assert.Equal(typeof(ItemWeaponSchema), schemaType);
     }
     
     [Fact]
-    public void GetKind_ForValidSchema_ReturnsCorrectKind()
+    public void GetKind_Returns_Kind_For_SchemaType()
     {
-        // Arrange & Act
-        string? kind = SchemaTypeMapper.GetKind(typeof(ItemDefinition));
+        // Act
+        var kind = SchemaTypeMapper.GetKind(typeof(ContentEnvelope));
         
-        // Assert
-        Assert.Equal("item", kind);
+        // Assert - ContentEnvelope is the base type, returns "zone" as placeholder
+        Assert.NotNull(kind);
+        Assert.Equal("zone", kind);
     }
 }
 
 public class ContentYamlDeserializerTests
 {
     [Fact]
-    public void DeserializeItem_YamlString_ReturnsItemDefinition()
+    public void Deserialize_Parses_Minimal_ContentEnvelope()
     {
-        // Arrange - YAML without weapon-specific fields since ItemDefinition doesn't have them
+        // Arrange
         string yaml = """
-            kind: item
             id: item.weapon.iron_sword
-            display_key: item_iron_sword
-            tags: []
-            value: 10
-            weight: 2.5
-            type: weapon
+            kind: item.weapon
+            display_key: item.weapon.iron_sword.name
+            tags: [weapon, sword, metal]
             """;
         
-        // Act - deserialize directly as ItemDefinition
-        var result = ContentYamlDeserializer.Deserialize<ItemDefinition>(yaml, "item");
+        // Act
+        var envelope = ContentYamlDeserializer.Deserialize(yaml, "test.yaml");
         
         // Assert
-        Assert.NotNull(result);
-        Assert.IsType<ItemDefinition>(result);
-        Assert.Equal(10, result.Value);
-        Assert.Equal(2.5f, result.Weight);
-        Assert.Equal("weapon", result.Type);
+        Assert.Equal("item.weapon.iron_sword", envelope.Id);
+        Assert.Equal("item.weapon", envelope.Kind);
+        Assert.Equal("item.weapon.iron_sword.name", envelope.DisplayKey);
+        Assert.Equal(3, envelope.Tags.Length);
+        Assert.Contains("weapon", envelope.Tags);
+        Assert.Contains("sword", envelope.Tags);
+        Assert.Contains("metal", envelope.Tags);
     }
     
     [Fact]
-    public void Deserialize_YamlWithInvalidKind_DoesNotThrow()
+    public void Deserialize_Sets_SourceFile()
     {
         // Arrange
-        string yaml = "kind: invalid";
+        string yaml = """
+            id: test.id
+            kind: item
+            display_key: test.display
+            tags: []
+            """;
         
         // Act
-        var envelope = ContentYamlDeserializer.Deserialize(yaml, "invalid");
+        var envelope = ContentYamlDeserializer.Deserialize(yaml, "content/test.yaml");
         
         // Assert
-        // Deserializer never validates kinds - it just parses YAML
-        // Validation happens at the ContentLoader layer
-        Assert.NotNull(envelope);
-        Assert.Equal("invalid", envelope.Kind);
+        Assert.Equal("content/test.yaml", envelope.SourceFile);
     }
     
     [Fact]
-    public void Deserialize_YamlWithMissingKind_DoesNotThrow()
+    public void Deserialize_Detects_Unknown_Kind()
     {
         // Arrange
-        string yaml = "kind: item\nid: item.test.name\ndisplay_key: test_name\ntags: []";
+        string yaml = """
+            id: item.weapon.test_item
+            kind: item.unknown_kind
+            display_key: item.weapon.test_item.name
+            tags: []
+            """;
         
         // Act
-        var envelope = ContentYamlDeserializer.Deserialize(yaml, "item");
+        var envelope = ContentYamlDeserializer.Deserialize(yaml, "test.yaml");
         
-        // Assert
-        // Deserializer doesn't require all fields during deserialization
-        Assert.NotNull(envelope);
-        Assert.Equal("item", envelope.Kind);
+        // Assert - unknown kind should still deserialize but ContentKindRegistry will reject it
+        Assert.Equal("item.weapon.test_item", envelope.Id);
+        Assert.Equal("item.unknown_kind", envelope.Kind);
     }
+}
+
+internal static class RepoPaths
+{
+    /// <summary>The repository root, found from the test binaries so no machine-specific path is baked in.</summary>
+    public static string Root()
+    {
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "src", "UNNAMED.sln")))
+                return dir.FullName;
+        }
+        throw new DirectoryNotFoundException("Repository root (src/UNNAMED.sln) not found above " + AppContext.BaseDirectory);
+    }
+
+    public static string InvalidFixture => Path.Combine(Root(), "tests", "fixtures", "fixture-invalid");
 }
 
 public class ContentLoaderXrefValidationTests
 {
     [Fact]
-    public void LoadAll_ValidContent_Passes()
+    public void LoadAll_Detects_DanglingReferences_In_RootLevel_File()
     {
         // Arrange
         var loader = new ContentLoader();
-        var testPath = Path.Combine(Path.GetTempPath(), "unnamed_test_valid");
-        
-        // Create test directory if it doesn't exist
-        Directory.CreateDirectory(testPath);
-        
-        // Act
-        bool success = loader.LoadAll(testPath);
-        
-        // Assert
-        // This test will succeed if directory exists (even if empty)
-        Assert.True(success);
-    }
-    
-    [Fact]
-    public void LoadAll_DuplicateIds_Fails()
-    {
-        // Arrange
-        var loader = new ContentLoader();
-        var testPath = Path.Combine(Path.GetTempPath(), "unnamed_test_duplicates");
-        
+        string testPath = RepoPaths.InvalidFixture;
+
         // Act
         bool success = loader.LoadAll(testPath);
         var summary = loader.GetSummary();
+
+        // Assert - validation should fail due to dangling references
+        Assert.False(success);
+        Assert.True(summary.HasErrors);
         
+        // Check for XREF001 errors
+        var xrefErrors = summary.Errors.Where(e => e.Code == "XREF001").ToList();
+        Assert.NotEmpty(xrefErrors);
+        
+        // Verify at least one dangling reference error
+        Assert.Contains(xrefErrors, e => e.Message.Contains("spell.nonexistent") || e.Message.Contains("nonexistent"));
+    }
+    
+    [Fact]
+    public void LoadAll_Detects_DuplicateIds()
+    {
+        // Arrange
+        var loader = new ContentLoader();
+        string testPath = RepoPaths.InvalidFixture;
+
+        // Act
+        bool success = loader.LoadAll(testPath);
+        var summary = loader.GetSummary();
+
         // Assert - validation should fail due to duplicate IDs
-        Assert.False(summary.IsValid);
+        Assert.True(summary.HasErrors);
+        
+        // Check for DUP001/DUP002 errors
+        var dupErrors = summary.Errors.Where(e => e.Code == "DUP001" || e.Code == "DUP002").ToList();
+        Assert.NotEmpty(dupErrors);
+        
+        // Verify at least one duplicate ID error for wolf_grey.01
+        Assert.Contains(dupErrors, e => e.Message.Contains("wolf_grey.01"));
     }
 }
 
@@ -449,12 +507,75 @@ public class ContentLoaderTests
     [Fact]
     public void LoadAll_Loads_Yaml_Files()
     {
-        // Arrange
         var loader = new ContentLoader();
-        
-        // Act
-        
-        // Assert
-        
+
+        bool success = loader.LoadAll(Path.Combine(RepoPaths.Root(), "content"));
+
+        Assert.True(success, string.Join("\n", loader.Errors));
+        Assert.Empty(loader.Errors);
+        Assert.Equal(
+            new[] { "creature.beast.wolf_grey", "item.potion.heal_dangling", "item.weapon.iron_sword" },
+            loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
+
+    [Fact]
+    public void LoadAll_ReportsAMalformedFile_InsteadOfSkippingIt()
+    {
+        // M1b printed a DEBUG line and dropped the file, so validation "passed" without it.
+        var loader = new ContentLoader();
+
+        loader.LoadAll(RepoPaths.InvalidFixture);
+
+        Assert.Contains(loader.Errors, e => e.Code == "LOAD003" && e.FilePath.EndsWith("malformed-schema.yaml", StringComparison.Ordinal));
+    }
+}
+
+public class AliasFileTests : IDisposable
+{
+    private readonly string _root = Path.Combine(Path.GetTempPath(), "unnamed-aliases-" + Guid.NewGuid().ToString("N"));
+
+    public AliasFileTests()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "items", "weapon"));
+        File.WriteAllText(Path.Combine(_root, "items", "weapon", "iron_sword.yaml"),
+            "id: item.weapon.iron_sword\nkind: item.weapon\nschema: 1\ndisplay_key: item.weapon.iron_sword.name\ntags: [weapon]\n");
+    }
+
+    public void Dispose() => Directory.Delete(_root, recursive: true);
+
+    private ContentLoader Load(string aliases)
+    {
+        File.WriteAllText(Path.Combine(_root, "_aliases.yaml"), aliases);
+        var loader = new ContentLoader();
+        loader.LoadAll(_root);
+        return loader;
+    }
+
+    [Fact]
+    public void Aliases_Removals_AndDiscards_AreRead_CommentsAndAll()
+    {
+        var loader = Load(
+            "aliases:                        # renamed IDs, kept forever\n" +
+            "  item.weapon.ironsword: item.weapon.iron_sword   # typo fix\n" +
+            "removed:\n" +
+            "  item.weapon.bronze_sword: item.weapon.iron_sword\n" +
+            "  item.weapon.wooden_sword: ~\n");
+
+        Assert.Empty(loader.Errors);
+        Assert.Equal("item.weapon.iron_sword", loader.Aliases["item.weapon.ironsword"]);
+        Assert.Equal("item.weapon.iron_sword", loader.Removed["item.weapon.bronze_sword"]);
+        Assert.Equal(new[] { "item.weapon.wooden_sword" }, loader.Discarded);
+    }
+
+    [Fact]
+    public void AReplacementThatDoesNotExist_IsAnError() =>
+        Assert.Contains(Load("removed:\n  item.weapon.bronze_sword: item.weapon.steel_sword\n").Errors, e => e.Code == "ALIAS003");
+
+    [Fact]
+    public void ARenamedIdThatIsStillDefined_IsAnError() =>
+        Assert.Contains(Load("aliases:\n  item.weapon.iron_sword: item.weapon.iron_sword\n").Errors, e => e.Code == "ALIAS004");
+
+    [Fact]
+    public void AnUnknownSection_IsAnError() =>
+        Assert.Contains(Load("renamed:\n  item.weapon.ironsword: item.weapon.iron_sword\n").Errors, e => e.Code == "ALIAS005");
 }

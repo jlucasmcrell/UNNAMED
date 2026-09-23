@@ -14,4 +14,11 @@
     <ProjectReference Include="..\EntityRegistry\EntityRegistry.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- World mutation is internal (ARCHITECTURE.md §5); tests and the M2 probe build fixture worlds. -->
+    <InternalsVisibleTo Include="World.Tests" />
+    <InternalsVisibleTo Include="Persistence.Tests" />
+    <InternalsVisibleTo Include="M2.Probe" />
+  </ItemGroup>
+
 </Project>
