@@ -24,13 +24,14 @@ public class CultureTests
     }
 
     private static string Fingerprint() => string.Join("|",
-        RegionDigest.Compute(TestWorlds.Generator(), TestWorlds.Tuple(), new RegionKey(-1, 2)),
+        RegionDigest.Compute(TestWorlds.Generator(), TestWorlds.Seed, new RegionKey(-1, 2)),
+        TestWorlds.Generator().Fingerprint,
         EntityId.Parse("itm_01arz3ndektsv4rrffq69g5fav").Value,
         EntityId.Create(EntityKind.Item, 1_469_922_850_259, new byte[10]).Value,
         DefinitionId.IsValid("item.weapon.iron_sword"),
         DefinitionId.IsValid("Item.Weapon.Iron_Sword"),
         CellKey.Parse("r_neg1_2:c_07_11").ToString(),
-        BaselineTuple.FormatSeed(0x5C1A9E7B4D2F0083));
+        WorldSeed.Format(0x5C1A9E7B4D2F0083));
 
     private static T InCulture<T>(CultureInfo culture, Func<T> action)
     {

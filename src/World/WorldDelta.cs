@@ -13,9 +13,11 @@ public sealed record NodeHarvest(string NodeKey, long LastHarvestTick, int Harve
 /// <summary>
 /// One diverged cell, as persisted in <c>cells.msgpack</c> (PERSISTENCE.md §5.2). Every collection is
 /// sorted by key and holds only non-baseline values, so equal worlds serialize to equal bytes.
+/// <see cref="BaselineHash"/> names the exact baseline the delta was made against (M2b).
 /// </summary>
 public sealed record CellDeltaRecord(
     string CellKey,
+    string BaselineHash,
     ImmutableArray<string> DirtyReasons,
     ImmutableArray<KeyValuePair<string, long>> Flags,
     ImmutableArray<NodeHarvest> HarvestedNodes,
@@ -24,7 +26,8 @@ public sealed record CellDeltaRecord(
 /// <summary>
 /// One diverged entity, as persisted in <c>entities.msgpack</c> (PERSISTENCE.md §5.3). It replaces the
 /// baseline slot it names on load. Null state fields are unchanged from the baseline; only the
-/// diverged fields are stored.
+/// diverged fields are stored. <see cref="BaselineHash"/> is the host cell's baseline hash: the
+/// slot is part of that baseline, so the record is proven against it exactly as a cell record is.
 /// </summary>
 public sealed record EntityDeltaRecord(
     EntityId InstanceId,
@@ -33,7 +36,8 @@ public sealed record EntityDeltaRecord(
     string DefId,
     bool? Alive,
     int? XCm,
-    int? ZCm)
+    int? ZCm,
+    string? BaselineHash = null)
 {
     public const int DirtyAlive = 1;
     public const int DirtyPosition = 2;
@@ -67,25 +71,22 @@ public sealed class WorldDelta
     private readonly Dictionary<CellKey, MutableCell> _cells = new();
     private readonly Dictionary<string, EntityDeltaRecord> _entities = new(StringComparer.Ordinal);
 
-    public WorldDelta(ICellBaselineGenerator generator, BaselineTuple tuple, Registry registry)
+    public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
-        if (tuple.WorldgenVersion != generator.WorldgenVersion)
-            throw new ArgumentException(
-                $"Baseline tuple is worldgen_version {tuple.WorldgenVersion}, generator is v{generator.WorldgenVersion}");
         Generator = generator;
-        Tuple = tuple;
+        WorldSeed = worldSeed;
         _registry = registry;
     }
 
     public ICellBaselineGenerator Generator { get; }
 
-    public BaselineTuple Tuple { get; }
+    public ulong WorldSeed { get; }
 
     /// <summary>The regenerated baseline. A transient cache: never persisted, always reproducible.</summary>
     public CellBaseline Baseline(CellKey cell)
     {
         if (!_baselines.TryGetValue(cell, out var baseline))
-            _baselines[cell] = baseline = Generator.Generate(Tuple, cell);
+            _baselines[cell] = baseline = Generator.Generate(WorldSeed, cell);
         return baseline;
     }
 
@@ -209,8 +210,9 @@ public sealed class WorldDelta
                     _registry.DestroyEntity(record.InstanceId);
                 continue;
             }
-            _entities[slotKey] = normalized;
-            entities.Add(normalized);
+            var proven = normalized with { BaselineHash = Baseline(CellOfSlot(slotKey)).Digest };
+            _entities[slotKey] = proven;
+            entities.Add(proven);
         }
 
         var entityCells = entities.Select(e => CellOfSlot(e.SlotKey)).ToHashSet();
@@ -232,6 +234,7 @@ public sealed class WorldDelta
 
             cells.Add(new CellDeltaRecord(
                 cell.ToString(),
+                Baseline(cell).Digest,
                 reasons.ToImmutableArray(),
                 state.Flags.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToImmutableArray(),
                 state.Nodes.Values.OrderBy(n => n.NodeKey, StringComparer.Ordinal).ToImmutableArray(),
@@ -243,14 +246,17 @@ public sealed class WorldDelta
 
     /// <summary>
     /// Rebuild a world from a persisted delta: regenerate the baseline, apply the cell delta, then merge
-    /// the entity delta on slot key (PERSISTENCE.md §7.4 g-i). Records that fail invariant validation
-    /// are dropped and reported rather than trusted or silently ignored (§7.2).
+    /// the entity delta on slot key (PERSISTENCE.md §7.4). Records that fail invariant validation are
+    /// dropped and reported rather than trusted or silently ignored (§7.2) - including any record whose
+    /// baseline_hash is not the hash of the baseline regenerated here. The loader proves baselines
+    /// before it gets this far; this check is the last line, so no path can apply a delta to a
+    /// baseline it was not made against.
     /// </summary>
     public static WorldDelta FromSnapshot(
-        ICellBaselineGenerator generator, BaselineTuple tuple, Registry registry, DeltaSnapshot snapshot,
+        ICellBaselineGenerator generator, ulong worldSeed, Registry registry, DeltaSnapshot snapshot,
         out ImmutableArray<RejectedRecord> rejected)
     {
-        var world = new WorldDelta(generator, tuple, registry);
+        var world = new WorldDelta(generator, worldSeed, registry);
         var problems = ImmutableArray.CreateBuilder<RejectedRecord>();
 
         foreach (var record in snapshot.Cells)
@@ -352,6 +358,8 @@ public sealed class WorldDelta
         if (_cells.ContainsKey(cell))
             return "duplicate cell record";
         var baseline = Baseline(cell);
+        if (record.BaselineHash != baseline.Digest)
+            return $"baseline_hash {record.BaselineHash} is not the regenerated baseline {baseline.Digest}";
         var state = new MutableCell();
         foreach (var (flag, value) in record.Flags)
         {
@@ -393,6 +401,9 @@ public sealed class WorldDelta
         }
         if (slot is null)
             return "slot does not exist in the regenerated baseline";
+        string hostBaseline = Baseline(CellOfSlot(record.SlotKey)).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
         if (!string.Equals(slot.FamilyDefId, record.DefId, StringComparison.Ordinal))
             return $"def_id '{record.DefId}' does not match the slot's family '{slot.FamilyDefId}'";
         if (_entities.ContainsKey(record.SlotKey))

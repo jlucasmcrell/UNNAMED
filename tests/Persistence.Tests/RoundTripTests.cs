@@ -31,7 +31,7 @@ public class RoundTripTests : IDisposable
     {
         var player = M2Fixtures.Player("Brannoc");
         var world = M2Fixtures.NewWorld(new Registry());
-        _store.Save(M2Fixtures.Slot, SaveDocuments.Capture(world, player, "0.1.0", worldTick: 98_765,
+        _store.Save(M2Fixtures.Slot, SaveDocuments.Capture(world, player, M2Fixtures.Content(), worldTick: 98_765,
             playtimeSeconds: 4_321.25, worldTimeAdvancedTicks: 1_234));
 
         var loaded = _store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry()));
@@ -46,8 +46,9 @@ public class RoundTripTests : IDisposable
         Assert.Equal(SaveFormat.SchemaVersion, manifest.SchemaVersion);
         Assert.Equal("0.1.0", manifest.ContentVersion);
         Assert.Equal(M2Fixtures.ContentHash, manifest.ContentHash);
-        Assert.Equal(CellBaselineGeneratorV1.Version, manifest.WorldgenVersion);
-        Assert.Equal(M2Fixtures.Generator().WorldgenDigest, manifest.WorldgenDigest);
+        Assert.Equal(CellBaselineGenerator.Version, manifest.WorldgenVersion);
+        Assert.Equal(M2Fixtures.Generator().Fingerprint, manifest.WorldgenFingerprint);
+        Assert.Equal(RngContract.V2, manifest.RngContractVersion);
         Assert.Equal("0x5C1A9E7B4D2F0083", manifest.WorldSeed);
         Assert.Equal(98_765, manifest.WorldTick);
         Assert.Equal(1_234, manifest.WorldTimeAdvancedTicks);
@@ -154,7 +155,7 @@ public class RoundTripTests : IDisposable
     [Fact]
     public void T03_AnUntouchedWorld_SavesEmptySections()
     {
-        var world = new WorldDelta(M2Fixtures.Generator(), M2Fixtures.Tuple(), new Registry());
+        var world = new WorldDelta(M2Fixtures.Generator(), M2Fixtures.Seed, new Registry());
         foreach (var cell in M2Fixtures.TenCells)
             _ = world.EffectiveCellDigest(cell);
 

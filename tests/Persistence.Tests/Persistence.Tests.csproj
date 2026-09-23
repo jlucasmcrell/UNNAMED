@@ -26,6 +26,7 @@
     <!-- The probe runs as a separate process in the cross-process tests; referencing it also shares
          its fixtures and guarantees it is built before these tests launch it. -->
     <ProjectReference Include="..\M2.Probe\M2.Probe.csproj" />
+    <ProjectReference Include="..\..\src\SaveTool\SaveTool.csproj" />
   </ItemGroup>
 
   <ItemGroup>

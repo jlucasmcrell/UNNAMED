@@ -43,15 +43,15 @@ public class ExitCriteriaTests
     [Fact]
     public void ME3_Determinism_AcrossTwoFreshProcesses()
     {
-        string seed = BaselineTuple.FormatSeed(M2Fixtures.Seed);
-        var first = Probe.Run("digest", seed, M2Fixtures.ContentHash, "5");
-        var second = Probe.Run("digest", seed, M2Fixtures.ContentHash, "5");
+        string seed = WorldSeed.Format(M2Fixtures.Seed);
+        var first = Probe.Run("digest", seed, "5");
+        var second = Probe.Run("digest", seed, "5");
 
         Assert.Equal(0, first.ExitCode);
         Assert.Equal(0, second.ExitCode);
         Assert.StartsWith("sha256:", first.Output);
         Assert.Equal(first.Output, second.Output);
-        Assert.Equal(RegionDigest.Compute(M2Fixtures.Generator(), M2Fixtures.Tuple(), new RegionKey(0, 0)), first.Output);
+        Assert.Equal(RegionDigest.Compute(M2Fixtures.Generator(), M2Fixtures.Seed, new RegionKey(0, 0)), first.Output);
     }
 
     /// <summary>
@@ -112,24 +112,29 @@ public class ExitCriteriaTests
     }
 
     /// <summary>
-    /// The M2 risk spike: "generate from (seed, v1) then (seed, v2) and confirm the version-mismatch
-    /// path triggers migration rather than silent regeneration."
+    /// The M2 risk spike, as M2b resolves it: "generate from (seed, v1) then (seed, v2) and confirm the
+    /// version-mismatch path triggers migration rather than silent regeneration". A content-only
+    /// change (a new content_hash, same IDs) no longer moves the baseline, so the save loads through the
+    /// content check with every changed cell proven against an unchanged baseline.
     /// </summary>
     [Fact]
-    public void RiskSpike_ContentChange_RoutesToMigration_NotSilentRegeneration()
+    public void RiskSpike_ContentOnlyChange_LoadsWithoutReshuffling()
     {
         using var profile = new TempProfile();
         var store = new SaveStore(profile.Root);
-        store.Save(M2Fixtures.Slot, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry())));
+        var world = M2Fixtures.OldWorld(new Registry());
+        store.Save(M2Fixtures.Slot, M2Fixtures.Document(world));
 
         string v2 = "sha256:" + string.Concat(Enumerable.Repeat("cd", 32));
-        var mismatch = Assert.Throws<BaselineMismatchException>(() =>
-            store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry(), contentHash: v2)));
+        var loaded = store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry(), M2Fixtures.Content(v2)));
 
-        Assert.Equal("content_hash", mismatch.Field);
-        Assert.True(mismatch.Migratable);
+        Assert.True(loaded.Report.ContentChanged);
+        Assert.Equal(2, loaded.Report.CellsMatched);
+        Assert.Empty(loaded.Report.CellsMismatched);
+        Assert.Equal(M2Fixtures.WorldDigest(M2Fixtures.OldWorld(new Registry())), M2Fixtures.WorldDigest(loaded.World));
     }
 
+    /// <summary>A generation change is caught per changed cell, and refused without a registered transition.</summary>
     [Fact]
     public void RiskSpike_GenerationChange_IsRefused_NeverAppliedToAnotherBaseline()
     {
@@ -137,24 +142,24 @@ public class ExitCriteriaTests
         var store = new SaveStore(profile.Root);
         store.Save(M2Fixtures.Slot, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry())));
 
-        var mismatch = Assert.Throws<BaselineMismatchException>(() =>
+        var refused = Assert.Throws<SaveCompatibilityException>(() =>
             store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry(), wolfTarget: 4)));
 
-        Assert.Equal("worldgen_digest", mismatch.Field);
-        Assert.False(mismatch.Migratable);
+        Assert.Equal(MigrationResult.Blocked, refused.Report.Result);
+        Assert.Equal(2, refused.Report.CellsMismatched.Count);
+        Assert.Contains(refused.Report.Blockers, b => b.Contains("no transition is registered"));
     }
 
     [Fact]
-    public void SchemaChange_RoutesToMigration()
+    public void ASchemaWithNoRegisteredChain_IsRefused()
     {
         using var profile = new TempProfile();
         var store = new SaveStore(profile.Root);
         store.Save(M2Fixtures.Slot, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry())));
 
-        var context = M2Fixtures.Context(new Registry()) with { SchemaVersion = SaveFormat.SchemaVersion + 1 };
-        var mismatch = Assert.Throws<BaselineMismatchException>(() => store.Load(M2Fixtures.Slot, context));
+        var future = M2Fixtures.Context(new Registry()) with { SchemaVersion = SaveFormat.SchemaVersion + 1 };
+        var refused = Assert.Throws<SaveCompatibilityException>(() => store.Load(M2Fixtures.Slot, future));
 
-        Assert.Equal("schema_version", mismatch.Field);
-        Assert.True(mismatch.Migratable);
+        Assert.Contains(refused.Report.Blockers, b => b.Contains("no registered migration chain"));
     }
 }

@@ -66,7 +66,7 @@ public class ArchitectureTests
             nameof(WorldDelta.Baseline), nameof(WorldDelta.GetFlag), nameof(WorldDelta.IsHarvested),
             nameof(WorldDelta.GetPopulationAlive), nameof(WorldDelta.Occupant), nameof(WorldDelta.TakeSnapshot),
             nameof(WorldDelta.EffectiveCellDigest), nameof(WorldDelta.FromSnapshot),
-            "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.Tuple),
+            "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed),
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

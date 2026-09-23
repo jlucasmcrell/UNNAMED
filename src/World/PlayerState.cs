@@ -39,6 +39,9 @@ public sealed record PlayerRecord
             throw new ArgumentException("An item instance can be held only once", nameof(inventory));
     }
 
+    /// <summary>The same player holding a different inventory (the definition-ID pass rewrites stored IDs).</summary>
+    public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory) => new(Id, Name, XMm, YMm, ZMm, inventory);
+
     public EntityId Id { get; }
     public string Name { get; }
     public long XMm { get; }

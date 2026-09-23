@@ -84,7 +84,7 @@ public class WorldDeltaTests
     public void KillingAnOccupant_PromotesItWithARegistryId()
     {
         var registry = new Registry();
-        var world = new WorldDelta(TestWorlds.Generator(), TestWorlds.Tuple(), registry);
+        var world = new WorldDelta(TestWorlds.Generator(), TestWorlds.Seed, registry);
         string slot = FirstWolfSlot(world);
 
         EntityId id = world.KillOccupant(slot);
@@ -101,7 +101,7 @@ public class WorldDeltaTests
     public void RestoringAnOccupant_RetiresItsRecordAndIdentity()
     {
         var registry = new Registry();
-        var world = new WorldDelta(TestWorlds.Generator(), TestWorlds.Tuple(), registry);
+        var world = new WorldDelta(TestWorlds.Generator(), TestWorlds.Seed, registry);
         string slot = FirstWolfSlot(world);
         EntityId id = world.KillOccupant(slot);
 
@@ -124,7 +124,7 @@ public class WorldDeltaTests
         world.MoveOccupant($"{other}.pop.r_0_0.c_03_04.wolves.02", 1234, 5678);
 
         var snapshot = world.TakeSnapshot();
-        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Tuple(), new Registry(), snapshot, out var rejected);
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), snapshot, out var rejected);
 
         Assert.Empty(rejected);
         foreach (var cell in new[] { TestWorlds.Home, other })
@@ -139,7 +139,7 @@ public class WorldDeltaTests
         string slot = FirstWolfSlot(world);
         EntityId id = world.KillOccupant(slot);
 
-        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Tuple(), new Registry(), world.TakeSnapshot(), out _);
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), world.TakeSnapshot(), out _);
 
         var occupant = restored.Occupant(slot);
         Assert.False(occupant.Alive);
@@ -155,7 +155,7 @@ public class WorldDeltaTests
         var snapshot = world.TakeSnapshot();
         Assert.Empty(snapshot.Cells);
 
-        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Tuple(), new Registry(), snapshot, out _);
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), snapshot, out _);
         Assert.Equal((10, 20), (restored.Occupant(FirstWolfSlot(world)).XCm, restored.Occupant(FirstWolfSlot(world)).ZCm));
     }
 
@@ -167,23 +167,60 @@ public class WorldDeltaTests
         world.SetFlag(TestWorlds.Home, Door, 1);
         var good = world.TakeSnapshot();
 
-        var badCell = new CellDeltaRecord("r_0_0:c_01_01", ImmutableArray.Create("nodes"),
+        string Baseline(string cell) => TestWorlds.Generator().Generate(TestWorlds.Seed, CellKey.Parse(cell)).Digest;
+        var badCell = new CellDeltaRecord("r_0_0:c_01_01", Baseline("r_0_0:c_01_01"), ImmutableArray.Create("nodes"),
             ImmutableArray<KeyValuePair<string, long>>.Empty,
             ImmutableArray.Create(new NodeHarvest("node.r_0_0:c_01_01.99", 1, 1)),
             ImmutableArray<KeyValuePair<string, int>>.Empty);
         var id = EntityId.NewId(EntityKind.Creature);
-        var wrongFamily = new EntityDeltaRecord(id, wolf, 0, "creature.beast.deer", false, null, null);
+        var wrongFamily = new EntityDeltaRecord(id, wolf, 0, "creature.beast.deer", false, null, null, Baseline("r_0_0:c_07_11"));
         var noSuchSlot = new EntityDeltaRecord(EntityId.NewId(EntityKind.Creature), "r_0_0:c_07_11.pop.r_0_0.c_07_11.wolves.42", 0,
             "creature.beast.wolf_grey", false, null, null);
 
         var snapshot = new DeltaSnapshot(good.Cells.Add(badCell), ImmutableArray.Create(wrongFamily, noSuchSlot));
-        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Tuple(), new Registry(), snapshot, out var rejected);
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), snapshot, out var rejected);
 
         Assert.Equal(3, rejected.Length);
         Assert.Contains(rejected, r => r.Key == "r_0_0:c_01_01" && r.Reason.Contains("does not exist"));
         Assert.Contains(rejected, r => r.Key == wolf && r.Reason.Contains("does not match"));
         Assert.Contains(rejected, r => r.Reason.Contains("slot does not exist"));
         Assert.Equal(1, restored.GetFlag(TestWorlds.Home, Door));   // the valid record still applied
+    }
+
+    [Fact]
+    public void EverySnapshotRecord_NamesTheBaselineItWasMadeAgainst()
+    {
+        var world = TestWorlds.NewWorld();
+        world.SetFlag(TestWorlds.Home, Door, 1);
+        world.KillOccupant(FirstWolfSlot(world));
+
+        var snapshot = world.TakeSnapshot();
+
+        string home = world.Baseline(TestWorlds.Home).Digest;
+        Assert.Equal(home, Assert.Single(snapshot.Cells).BaselineHash);
+        Assert.Equal(home, Assert.Single(snapshot.Entities).BaselineHash);
+    }
+
+    /// <summary>
+    /// M2b's last line of defence: whatever the loader decided, a record whose baseline_hash is not the
+    /// regenerated baseline is rejected with a reason, never applied to the wrong baseline.
+    /// </summary>
+    [Fact]
+    public void ARecordMadeAgainstAnotherBaseline_IsRejected_NeverApplied()
+    {
+        var world = TestWorlds.NewWorld();
+        world.SetFlag(TestWorlds.Home, Door, 1);
+        string wolf = FirstWolfSlot(world);
+        world.KillOccupant(wolf);
+        var snapshot = world.TakeSnapshot();
+
+        // The same records, loaded under a generator whose baseline for this cell differs.
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(wolfTarget: 4), TestWorlds.Seed, new Registry(), snapshot, out var rejected);
+
+        Assert.Equal(2, rejected.Length);
+        Assert.All(rejected, r => Assert.Contains("baseline_hash", r.Reason));
+        Assert.Equal(0, restored.GetFlag(TestWorlds.Home, Door));
+        Assert.True(restored.Occupant(wolf).Alive);
     }
 
     private static string FirstWolfSlot(WorldDelta world) =>

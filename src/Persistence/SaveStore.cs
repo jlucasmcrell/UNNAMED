@@ -3,9 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using UNNAMED.Domain;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
@@ -50,16 +49,16 @@ public static class AutosaveCadence
 public static class SaveDocuments
 {
     public static SaveDocument Capture(
-        WorldDelta world, PlayerRecord player, string contentVersion, long worldTick, double playtimeSeconds,
+        WorldDelta world, PlayerRecord player, ContentIdentity content, long worldTick, double playtimeSeconds,
         long worldTimeAdvancedTicks = 0) =>
-        new(world.Tuple, world.Generator.WorldgenDigest, contentVersion, worldTick, worldTimeAdvancedTicks,
-            playtimeSeconds, player, world.TakeSnapshot());
+        new(world.WorldSeed, WorldgenIdentity.Of(world.Generator), content.Version, content.Hash, worldTick,
+            worldTimeAdvancedTicks, playtimeSeconds, player, world.TakeSnapshot());
 }
 
 /// <summary>
 /// One profile's saves: <c>saves/&lt;profile&gt;/&lt;slot&gt;/</c>. Implements the atomic write sequence
-/// (§7.1), integrity and quarantine (§7.2), backup rotation (§7.3), the load sequence (§7.4) and the
-/// boot-time recovery of interrupted commits. Capture a <see cref="SaveDocument"/> on the simulation
+/// (§7.1), integrity and quarantine (§7.2), backup rotation (§7.3), the load sequence (§7.4), the
+/// boot-time recovery of interrupted commits, and migration (§6.2) through that same write sequence. Capture a <see cref="SaveDocument"/> on the simulation
 /// thread; <see cref="Save"/> may then run on any thread (§8.2). Use one store per profile root: its
 /// operations are serialized, so an autosave in flight and a quicksave cannot interleave.
 /// </summary>
@@ -119,10 +118,10 @@ public sealed class SaveStore
     {
         try
         {
-            var manifest = SectionCodec.DecodeManifest(File.ReadAllBytes(Path.Combine(SlotPath(slot), SaveFormat.Manifest)));
-            return DateTimeOffset.Parse(manifest.BuildTimestamp, CultureInfo.InvariantCulture);
+            var manifest = JsonNode.Parse(File.ReadAllBytes(Path.Combine(SlotPath(slot), SaveFormat.Manifest)));
+            return DateTimeOffset.Parse(manifest?["build_timestamp"]?.GetValue<string>() ?? "", CultureInfo.InvariantCulture);
         }
-        catch (Exception e) when (e is IOException or JsonException or FormatException or NotSupportedException or UnauthorizedAccessException)
+        catch (Exception e) when (e is IOException or JsonException or FormatException or InvalidOperationException or UnauthorizedAccessException)
         {
             return DateTimeOffset.MinValue;
         }
@@ -160,7 +159,7 @@ public sealed class SaveStore
         Step(SaveStep.StagingWritten);
 
         // 4. The integrity root, hashed from what is ON DISK, so a write that corrupted data is caught.
-        WriteDurably(Path.Combine(staging, SaveFormat.IntegrityRoot), BuildIntegrityRoot(staging));
+        WriteDurably(Path.Combine(staging, SaveFormat.IntegrityRoot), SaveIntegrity.BuildRoot(staging));
         Step(SaveStep.IntegrityRootWritten);
 
         // 5. Commit. Never delete first: the previous save is moved aside, then the new one promoted.
@@ -174,7 +173,7 @@ public sealed class SaveStore
         Step(SaveStep.StagingPromoted);
 
         // 6. Verify the committed slot by re-reading and re-hashing it.
-        string? problem = VerifyIntegrity(slotPath);
+        string? problem = SaveIntegrity.Verify(slotPath);
         if (problem is not null)
         {
             MoveWithRetry(slotPath, Path.Combine(Root, $".failed-{slot}-{token}"));
@@ -209,86 +208,78 @@ public sealed class SaveStore
 
     private LoadResult LoadFrom(string directory, string slot, LoadContext context, bool isBackup)
     {
-        if (!Directory.Exists(directory))
-            throw new SaveException($"There is no save at '{directory}'");
-        var backups = AvailableBackups(slot);
+        var report = SaveLoader.NewReport(slot, context);
+        var result = SaveLoader.Run(directory, slot, context, AvailableBackups(slot), report)
+                     ?? throw new SaveCompatibilityException(report);
 
-        // a. Read and validate manifest.json; save_format must match exactly, else refuse.
-        SaveManifest manifest;
-        try
-        {
-            manifest = SectionCodec.DecodeManifest(File.ReadAllBytes(Path.Combine(directory, SaveFormat.Manifest)));
-        }
-        catch (Exception e) when (e is IOException or JsonException or NotSupportedException or UnauthorizedAccessException)
-        {
-            throw new SaveCorruptionException($"manifest.json in '{slot}' is unreadable; the slot cannot be loaded", backups, e);
-        }
-        if (manifest.SaveFormatVersion != SaveFormat.Current)
-            throw new SaveFormatMismatchException(manifest.SaveFormatVersion, SaveFormat.Current);
-
-        // b. Verify sections.sha256 per section. Quarantine what can be dropped; the rest is fatal.
-        var expected = TryReadIntegrityRoot(directory);
-        bool rederived = expected is null;   // §3.3: an unreadable integrity root is re-derived, and reported
-        expected ??= SaveFormat.CheckedFiles.ToDictionary(f => f, f => HashFileOrNull(Path.Combine(directory, f)) ?? "", StringComparer.Ordinal);
-        var quarantined = new List<string>();
-        foreach (string file in SaveFormat.CheckedFiles)
-        {
-            if (HashFileOrNull(Path.Combine(directory, file)) == expected[file])
-                continue;
-            switch (file)
-            {
-                case SaveFormat.Manifest:
-                    throw new SaveCorruptionException($"manifest.json in '{slot}' fails its integrity check", backups);
-                case SaveFormat.Player:
-                    throw new SaveCorruptionException(
-                        $"player.msgpack in '{slot}' is corrupt. " + (backups.IsEmpty ? "No backup exists." : $"Backups available: {string.Join(", ", backups)}."),
-                        backups);
-                default:
-                    quarantined.Add(SectionName(file));
-                    break;
-            }
-        }
-
-        // c. The baseline this save was made against must be this build's baseline.
-        if (manifest.WorldgenDigest != context.Generator.WorldgenDigest || manifest.WorldgenVersion != context.Generator.WorldgenVersion)
-            throw new BaselineMismatchException("worldgen_digest", manifest.WorldgenDigest, context.Generator.WorldgenDigest, migratable: false);
-        if (manifest.SchemaVersion != context.SchemaVersion)
-            throw new BaselineMismatchException("schema_version", manifest.SchemaVersion.ToString(CultureInfo.InvariantCulture),
-                context.SchemaVersion.ToString(CultureInfo.InvariantCulture), migratable: true);
-        if (manifest.ContentHash != context.ContentHash)
-            throw new BaselineMismatchException("content_hash", manifest.ContentHash, context.ContentHash, migratable: true);
-
-        // d-e. Alias/tombstone resolution and the migration chain belong to M2b. With every identity
-        // check above passing, there is nothing for them to do.
-
-        // f-i. Regenerate the baseline (lazily, per cell), apply the cell delta, merge entities on slot key.
-        var cells = DecodeOrQuarantine(directory, SaveFormat.Cells, SectionCodec.DecodeCells, quarantined);
-        var entities = DecodeOrQuarantine(directory, SaveFormat.Entities, SectionCodec.DecodeEntities, quarantined);
-        var tuple = new BaselineTuple(BaselineTuple.ParseSeed(manifest.WorldSeed), manifest.WorldgenVersion, manifest.ContentHash);
-        var world = WorldDelta.FromSnapshot(context.Generator, tuple, context.Registry, new DeltaSnapshot(cells, entities), out var rejected);
-
-        // k. Player state.
-        PlayerRecord player;
-        try
-        {
-            player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(directory, SaveFormat.Player)));
-        }
-        catch (Exception e) when (e is IOException or MessagePack.MessagePackSerializationException or FormatException or ArgumentException)
-        {
-            throw new SaveCorruptionException($"player.msgpack in '{slot}' could not be decoded", backups, e);
-        }
-
-        // l-m. Invariant failures were rejected in FromSnapshot and are reported, not hidden. One result.
-        var quarantinedSections = quarantined.Distinct().OrderBy(s => s, StringComparer.Ordinal).ToImmutableArray();
-        var result = new LoadResult(
-            manifest with { Flags = new ManifestFlags { QuarantinedSections = quarantinedSections } },
-            player, world, quarantinedSections, rejected, rederived);
-
-        // A complete, clean load proves this save good: it may now become a backup (§7.3).
-        if (!isBackup && result.IsComplete)
-            MarkLoadVerified(slot, IntegrityRootDigest(directory));
+        // A complete, clean load of the bytes as they are on disk proves this save good: it may become a
+        // backup (§7.3). A save that needed migrating is proven only once the migrated form is written.
+        if (!isBackup && result.IsComplete && report.Result == MigrationResult.UpToDate)
+            MarkLoadVerified(slot, SaveIntegrity.RootDigest(directory));
         return result;
     }
+
+    // ── §6.2 migration ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// The dry run: what loading and migrating the slot under this build would do. Reads only; writes
+    /// nothing, not even the rotation metadata a load records.
+    /// </summary>
+    public MigrationReport PlanMigration(string slot, LoadContext context)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+            return SaveLoader.Plan(SlotPath(slot), slot, context);
+    }
+
+    /// <summary>The dry run for any save directory, without a store: for tools (<c>save:migrate --dry-run</c>).</summary>
+    public static MigrationReport PlanMigrationAt(string saveDirectory, LoadContext context)
+    {
+        string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(saveDirectory));
+        return SaveLoader.Plan(full, Path.GetFileName(full), context);
+    }
+
+    /// <summary>
+    /// Migrate the slot to the current schema, content and baseline, and commit it through the §7.1
+    /// write sequence - the same staging, verification and recovery as any save - so an interruption
+    /// leaves the original or the migrated save, never a partial one. The original is kept as
+    /// <c>pre_migration_&lt;schema&gt;_&lt;slot&gt;</c>. A save that cannot be proven compatible is refused
+    /// with its report; one that loaded with quarantine or invalid records is refused too, because
+    /// committing it would make that loss permanent.
+    /// </summary>
+    public MigrationReport Migrate(string slot, LoadContext context)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+        {
+            var report = SaveLoader.NewReport(slot, context);
+            var result = SaveLoader.Run(SlotPath(slot), slot, context, AvailableBackups(slot), report)
+                         ?? throw new SaveCompatibilityException(report);
+            if (report.Result == MigrationResult.UpToDate)
+                return report;
+            if (!result.QuarantinedSections.IsEmpty || !result.RejectedRecords.IsEmpty || result.IntegrityRootRederived)
+                throw new SaveException(
+                    $"'{slot}' did not load cleanly (a quarantined section or invalid records); migrating it would make that loss " +
+                    "permanent. Load it in the game and save to accept the loss.");
+
+            Commit(slot, SaveDocuments.Capture(result.World, result.Player, context.Content,
+                result.Manifest.WorldTick, result.Manifest.PlaytimeSeconds, result.Manifest.WorldTimeAdvancedTicks));
+            return report;
+        }
+    }
+
+    /// <summary>Null when every file of a save directory matches its <c>sections.sha256</c>; otherwise what failed.</summary>
+    public static string? VerifyIntegrity(string saveDirectory) => SaveIntegrity.Verify(saveDirectory);
+
+    /// <summary><c>pre_migration_&lt;schema&gt;_&lt;slot&gt;</c> (§3.2, §7.3): the original of a migrated save.</summary>
+    public string PreMigrationPath(string slot, int schema) =>
+        Path.Combine(Root, $"pre_migration_{schema.ToString(CultureInfo.InvariantCulture)}_{slot}");
+
+    public IReadOnlyList<string> PreMigrationBackups(string slot) =>
+        Directory.EnumerateDirectories(Root, "pre_migration_*_" + slot)
+            .Where(p => Path.GetFileName(p).EndsWith("_" + slot, StringComparison.Ordinal))
+            .OrderBy(p => p, StringComparer.Ordinal)
+            .ToList();
 
     // ── §7.3 backup rotation ────────────────────────────────────────────────
 
@@ -300,8 +291,16 @@ public sealed class SaveStore
     /// </summary>
     private void RetirePrevious(string slot, string trash)
     {
+        // A save displaced by a newer schema is the original of a migration: kept once, as its
+        // pre-migration copy (§6.2), rather than rotated or dropped.
+        if (SchemaOf(trash) is int schema && schema < SaveFormat.SchemaVersion && !Directory.Exists(PreMigrationPath(slot, schema)))
+        {
+            MoveWithRetry(trash, PreMigrationPath(slot, schema));
+            return;
+        }
+
         var rotation = ReadRotation();
-        if (rotation.TryGetValue(slot, out string? verified) && verified == IntegrityRootDigest(trash))
+        if (rotation.TryGetValue(slot, out string? verified) && verified == SaveIntegrity.RootDigest(trash))
         {
             string first = BackupPath(slot, 1), second = BackupPath(slot, 2);
             DeleteWithRetry(second);
@@ -320,7 +319,8 @@ public sealed class SaveStore
         RequireValidSlot(slot);
         lock (_gate)
         {
-            foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2) }.Concat(Leftovers(slot)))
+            foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2) }
+                         .Concat(PreMigrationBackups(slot)).Concat(Leftovers(slot)))
                 DeleteWithRetry(path);
             var rotation = ReadRotation();
             if (rotation.Remove(slot))
@@ -360,7 +360,7 @@ public sealed class SaveStore
             if (!Directory.Exists(slotPath))
             {
                 // Interrupted between moving the old save aside and promoting the new one.
-                string? complete = stagings.LastOrDefault(s => VerifyIntegrity(s) is null);
+                string? complete = stagings.LastOrDefault(s => SaveIntegrity.Verify(s) is null);
                 if (complete is not null)
                 {
                     MoveWithRetry(complete, slotPath);
@@ -380,7 +380,7 @@ public sealed class SaveStore
             else if (trashes.Count > 0)
             {
                 // The new save was promoted; verification or rotation had not finished.
-                if (VerifyIntegrity(slotPath) is null)
+                if (SaveIntegrity.Verify(slotPath) is null)
                 {
                     foreach (string t in trashes)
                         RetirePrevious(slot, t);
@@ -403,80 +403,6 @@ public sealed class SaveStore
         }
         return actions.ToImmutable();
     }
-
-    // ── integrity helpers ───────────────────────────────────────────────────
-
-    /// <summary>
-    /// <c>sections.sha256</c>: one <c>&lt;sha256&gt;  &lt;file&gt;</c> line per checked file, in canonical
-    /// order (the <c>sha256sum</c> layout, so it can be checked with standard tools).
-    /// </summary>
-    private static byte[] BuildIntegrityRoot(string directory)
-    {
-        var text = new StringBuilder();
-        foreach (string file in SaveFormat.CheckedFiles)
-            text.Append(HashFile(Path.Combine(directory, file))).Append("  ").Append(file).Append('\n');
-        return Encoding.UTF8.GetBytes(text.ToString());
-    }
-
-    private static Dictionary<string, string>? TryReadIntegrityRoot(string directory)
-    {
-        try
-        {
-            var entries = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (string line in File.ReadAllLines(Path.Combine(directory, SaveFormat.IntegrityRoot)))
-            {
-                int gap = line.IndexOf("  ", StringComparison.Ordinal);
-                if (gap != 64 || !line[..64].All(c => char.IsAsciiDigit(c) || c is >= 'a' and <= 'f'))
-                    return null;
-                entries[line[(gap + 2)..]] = line[..64];
-            }
-            return SaveFormat.CheckedFiles.All(entries.ContainsKey) ? entries : null;
-        }
-        catch (IOException)
-        {
-            return null;
-        }
-    }
-
-    /// <summary>Null when every checked file matches the integrity root; otherwise what failed.</summary>
-    private static string? VerifyIntegrity(string directory)
-    {
-        var expected = TryReadIntegrityRoot(directory);
-        if (expected is null)
-            return "integrity root missing or malformed";
-        foreach (string file in SaveFormat.CheckedFiles)
-        {
-            if (HashFileOrNull(Path.Combine(directory, file)) != expected[file])
-                return $"{file} does not match its recorded hash";
-        }
-        return null;
-    }
-
-    private static string IntegrityRootDigest(string directory) =>
-        "sha256:" + (HashFileOrNull(Path.Combine(directory, SaveFormat.IntegrityRoot)) ?? "missing");
-
-    private static string HashFile(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
-
-    private static string? HashFileOrNull(string path) => File.Exists(path) ? HashFile(path) : null;
-
-    private static ImmutableArray<T> DecodeOrQuarantine<T>(
-        string directory, string file, Func<byte[], ImmutableArray<T>> decode, List<string> quarantined)
-    {
-        if (quarantined.Contains(SectionName(file)))
-            return ImmutableArray<T>.Empty;
-        try
-        {
-            return decode(File.ReadAllBytes(Path.Combine(directory, file)));
-        }
-        catch (Exception e) when (e is IOException or MessagePack.MessagePackSerializationException or FormatException)
-        {
-            // Hash-valid but undecodable (for example written by a buggy build): drop it, and say so.
-            quarantined.Add(SectionName(file));
-            return ImmutableArray<T>.Empty;
-        }
-    }
-
-    private static string SectionName(string file) => Path.GetFileNameWithoutExtension(file);
 
     // ── IO helpers ──────────────────────────────────────────────────────────
 
@@ -538,10 +464,11 @@ public sealed class SaveStore
         SaveFormatVersion = SaveFormat.Current,
         SchemaVersion = SaveFormat.SchemaVersion,
         ContentVersion = document.ContentVersion,
-        ContentHash = document.Baseline.ContentHash,
-        WorldgenVersion = document.Baseline.WorldgenVersion,
-        WorldgenDigest = document.WorldgenDigest,
-        WorldSeed = BaselineTuple.FormatSeed(document.Baseline.WorldSeed),
+        ContentHash = document.ContentHash,
+        WorldSeed = WorldSeed.Format(document.WorldSeed),
+        WorldgenVersion = document.Worldgen.Version,
+        WorldgenFingerprint = document.Worldgen.Fingerprint,
+        RngContractVersion = document.Worldgen.RngContractVersion,
         WorldTick = document.WorldTick,
         WorldTimeAdvancedTicks = document.WorldTimeAdvancedTicks,
         CommandLogSha256 = null,
@@ -551,6 +478,18 @@ public sealed class SaveStore
     };
 
     private void Step(SaveStep step) => _onStep?.Invoke(step);
+
+    private static int? SchemaOf(string directory)
+    {
+        try
+        {
+            return JsonNode.Parse(File.ReadAllBytes(Path.Combine(directory, SaveFormat.Manifest)))?["schema_version"]?.GetValue<int>();
+        }
+        catch (Exception e) when (e is IOException or JsonException or FormatException or InvalidOperationException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
 
     private static void RequireValidSlot(string slot)
     {

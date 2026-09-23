@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M2.Probe", "..\tests\M2.Pro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Architecture.Tests", "..\tests\Architecture.Tests\Architecture.Tests.csproj", "{8BF932EC-671D-4585-9B27-6544A3D995ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveTool", "SaveTool\SaveTool.csproj", "{1F49A2C8-852E-42E6-8E17-6115A8E41603}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{8BF932EC-671D-4585-9B27-6544A3D995ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BF932EC-671D-4585-9B27-6544A3D995ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BF932EC-671D-4585-9B27-6544A3D995ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F49A2C8-852E-42E6-8E17-6115A8E41603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F49A2C8-852E-42E6-8E17-6115A8E41603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F49A2C8-852E-42E6-8E17-6115A8E41603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F49A2C8-852E-42E6-8E17-6115A8E41603}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
