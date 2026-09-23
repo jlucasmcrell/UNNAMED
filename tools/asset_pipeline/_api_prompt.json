@@ -177,7 +177,7 @@
   "288": {
     "class_type": "PrimitiveInt",
     "inputs": {
-      "value": 4096
+      "value": 2048
     }
   },
   "238": {
@@ -435,8 +435,8 @@
         "241",
         0
       ],
-      "resolution": 4096,
-      "samples": 256,
+      "resolution": 1024,
+      "samples": 128,
       "max_distance": 0.71,
       "strength": 1,
       "bias": 0.01
@@ -453,7 +453,7 @@
         "241",
         0
       ],
-      "resolution": 4096,
+      "resolution": 1024,
       "cage_distance": 0.05,
       "ignore_backfaces": true
     }
@@ -695,7 +695,7 @@
   "122": {
     "class_type": "LoadImage",
     "inputs": {
-      "image": "creature_storm_charged_ram (1).png"
+      "image": "herb_bitterroot.png"
     }
   },
   "312": {
@@ -778,7 +778,7 @@
         "285",
         0
       ],
-      "filename_prefix": "3d/raw/creature_storm_charged_ram",
+      "filename_prefix": "3d/raw/herb_bitterroot",
       "viewport_state": "",
       "width": 1024,
       "height": 1024

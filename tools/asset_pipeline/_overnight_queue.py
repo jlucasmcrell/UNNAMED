@@ -37,12 +37,23 @@ COMFY_LOG = os.environ.get("UNNAMED_COMFY_LOG", r"C:\Users\jluca\ComfyUI\user\co
 COMFY_LAUNCHER = os.environ.get("UNNAMED_COMFY_LAUNCHER",
                                 r"C:\Users\jluca\Desktop\start-comfyui.bat")
 # Measured against a healthy run: ComfyUI writes a timestamped line every few seconds
-# throughout a build, and the whole log contains no gap of 20s or more. A quarter of an
-# hour of silence is therefore not caution, it is lost time, because the watchdog also has
-# to finish waiting before the stalled asset can be abandoned. Three minutes is still far
-# above anything a working build produces.
-STALL_SECONDS = int(os.environ.get("UNNAMED_STALL_SECONDS", 180))
+# throughout a build, and the whole log contains no gap of 20s or more. So the length of
+# the silence does not have to distinguish a stall from a slow step - there is no slow
+# step that goes quiet.
+#
+# The threshold is set well above that anyway, because of a complication: a stalled asset
+# leaves its prompt in ComfyUI's queue for ever, so "the queue is busy" cannot be used to
+# avoid restarting a healthy server mid-prompt. A short threshold combined with a busy
+# check would therefore never fire, and a short threshold without one destroys innocent
+# assets queued behind it. Ten minutes of total log silence is unambiguous, and far longer
+# than anything observed during real work.
+STALL_SECONDS = int(os.environ.get("UNNAMED_STALL_SECONDS", 600))
 WATCH_INTERVAL = 30
+# How long to sample ComfyUI's CPU time for, to tell a slow bake from a wedge. This was
+# referenced in StallWatchdog.run() but never defined here, so the watchdog thread raised
+# NameError on its first cycle and died silently - a 31-minute stall went unnoticed while the
+# GPU sat at 46% and the log stopped at "Bake texture: finalize".
+CPU_SAMPLE_SECONDS = 20
 
 
 def log_idle_seconds():
@@ -68,6 +79,26 @@ def comfy_processes():
     except (OSError, subprocess.SubprocessError):
         return []
     return [int(line.strip()) for line in out.splitlines() if line.strip().isdigit()]
+
+
+def comfy_cpu_seconds(pids):
+    """Total user-mode CPU seconds across the given processes, or None if unreadable.
+
+    Used to tell a long GPU bake (which writes no log output but burns CPU handing work
+    to the device) from a genuinely wedged server (which gains no CPU at all).
+    """
+    if not pids:
+        return None
+    script = ("Get-Process -Id " + ",".join(str(p) for p in pids) +
+              " -ErrorAction SilentlyContinue | "
+              "Measure-Object -Property CPU -Sum | "
+              "Select-Object -ExpandProperty Sum")
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command", script],
+                             capture_output=True, text=True, timeout=60).stdout.strip()
+        return float(out) if out else None
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
 
 
 def restart_comfy():
@@ -116,10 +147,21 @@ class StallWatchdog(threading.Thread):
             idle = log_idle_seconds()
             if idle is None or idle < STALL_SECONDS:
                 continue
-            if not comfy_processes():
+            pids = comfy_processes()
+            if not pids:
                 continue
-            log(f"    watchdog: ComfyUI log idle {idle:.0f}s with the server up - "
-                f"restarting it", self.handle)
+            # Log silence alone does NOT mean stalled. A bake is a long GPU operation that
+            # writes nothing to the log, so a busy server looks silent: one observation
+            # showed 92% GPU utilisation and 31.6s of CPU time gained across 40s while the
+            # log sat untouched. CPU time is the signal that separates working from wedged,
+            # and a genuinely hung server gains no CPU because nothing is executing.
+            before = comfy_cpu_seconds(pids)
+            time.sleep(CPU_SAMPLE_SECONDS)
+            after = comfy_cpu_seconds(comfy_processes())
+            if before is not None and after is not None and after - before > 0.5:
+                continue
+            log(f"    watchdog: ComfyUI log idle {idle:.0f}s AND no CPU progress "
+                f"({before} -> {after}) - restarting it", self.handle)
             self.fired = True
             if restart_comfy():
                 log("    watchdog: ComfyUI is back; the stalled asset is lost, "
@@ -226,7 +268,11 @@ def main():
         # "partial" means an earlier run did some of the work and stopped on purpose;
         # it must not be picked up again ahead of stages that have not run at all,
         # or a deliberately deprioritised stage would jump the queue.
-        settled = ("done", "partial")
+        #
+        # Naming a stage with --only overrides that, and only "done" still blocks. A
+        # supervisor retrying a partial stage by name previously matched nothing and the
+        # queue exited reporting no work, so the stage could never be retried.
+        settled = ("done",) if args.only else ("done", "partial")
         skipped = settled if args.only else settled + ("failed",)
         with open(args.plan, encoding="utf-8") as plan_handle:
             stages = json.load(plan_handle)["stages"]

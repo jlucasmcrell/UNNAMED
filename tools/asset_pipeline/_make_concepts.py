@@ -45,11 +45,16 @@ DEFAULT_HEIGHT = 1536
 
 # Every concept goes to the 3D pass, which needs one clean isolated subject on a
 # plain background. These are appended so individual prompts stay about the asset.
+# Z-Image Turbo does not honour negation in a positive prompt, so "no text" here is
+# close to decorative: a labelled object still came back with gibberish lettering. The
+# prohibition is therefore written positively as well, and any prompt that mentions a
+# label, ledger, sign or inscription describes it as blank or unmarked instead.
 CONCEPT_SUFFIX = (
     ", single object centred in frame, whole object visible with margin, "
     "isolated on a plain flat light grey background, even neutral studio lighting, "
-    "sharp focus, high detail, game asset concept art, no text, no watermark, "
-    "no border, no extra objects"
+    "sharp focus, high detail, game asset concept art, the surface entirely plain and "
+    "unmarked, a completely blank bare finish with no lettering of any kind, "
+    "no text, no watermark, no border, no extra objects"
 )
 
 # Icons are not 3D sources: they have to fill the frame and read at small sizes, so
@@ -136,6 +141,36 @@ def wait_for(prompt_id, label):
         time.sleep(5)
 
 
+def write_atomically(target, data, attempts=4):
+    """Write bytes to target, replacing it only once the write has fully succeeded.
+
+    Writing straight to the destination has failed twice on this project with
+    `OSError: [Errno 22] Invalid argument` while writing to a network share, and both
+    times it left a truncated file behind that looked like a normal render. Writing to a
+    temporary file and renaming means a failure leaves the previous version intact
+    instead of a corrupt one, and the retry covers the transient case.
+    """
+    directory = os.path.dirname(target)
+    temporary = os.path.join(directory, f".{os.path.basename(target)}.part")
+    for attempt in range(1, attempts + 1):
+        try:
+            with open(temporary, "wb") as handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+            return True
+        except OSError as exc:
+            print(f"    write attempt {attempt}/{attempts} failed on "
+                  f"{os.path.basename(target)}: {exc}")
+            time.sleep(2 * attempt)
+    try:
+        os.remove(temporary)
+    except OSError:
+        pass
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("requests", help="JSON file listing assets to concept")
@@ -192,8 +227,10 @@ def main():
             images[0].get("subfolder") or "", images[0]["filename"])
         with open(source, "rb") as handle:
             data = handle.read()
-        with open(target, "wb") as handle:
-            handle.write(data)
+        if not write_atomically(target, data):
+            print(f"[{index}/{len(requests)}] {asset_id}: RENDER LOST, could not write "
+                  f"{os.path.basename(target)}")
+            continue
         try:
             os.remove(source)
         except OSError:

@@ -311,6 +311,7 @@ def main():
             return None
 
     pid_at_start = _pid()
+    missing_for = 0
 
     while produced is None:
         # A restart wipes ComfyUI's prompt history, so a prompt submitted before the
@@ -327,11 +328,24 @@ def main():
         # minutes per stall for a result that was lost the moment the server went down.
         if pid_at_start is not None:
             current = _pid()
-            if current is not None and current != pid_at_start:
-                print(f"  ComfyUI restarted (pid {pid_at_start} -> {current}); this "
-                      f"prompt was lost, abandoning it")
-                stop_event.set()
-                return
+            if current is None:
+                # The server process is gone, not restarted. Some inputs (an empty shape
+                # latent) kill ComfyUI outright rather than failing one prompt, and the
+                # process id never comes back as a different value for the check below to
+                # notice. Without this the client polls for the full ceiling while the
+                # guard quietly relaunches the server, and the queue looks idle.
+                missing_for += 15
+                if missing_for >= 180:
+                    print("  ComfyUI is gone; the prompt died with it, abandoning it")
+                    stop_event.set()
+                    return
+            else:
+                missing_for = 0
+                if current != pid_at_start:
+                    print(f"  ComfyUI restarted (pid {pid_at_start} -> {current}); this "
+                          f"prompt was lost, abandoning it")
+                    stop_event.set()
+                    return
 
         try:
             history = get(f"/history/{prompt_id}")

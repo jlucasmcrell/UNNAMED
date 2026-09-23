@@ -68,14 +68,27 @@ def rig_plan_for(stem, category):
 # "<category>_<name>", which is a stronger signal than any keyword in the name.
 CATEGORY_KEYWORDS = [
     # Characters are the tall case: a human is ~1.8 m, and mistaking one for a prop
-    # scales it to half height. These prefixes must be tested before the rest.
-    ("character", ("race_", "npc_", "char_", "character_")),
+    # scales it to half height. EVERY character prefix must appear here and this rule
+    # must stay first. A missing prefix does not fail loudly - it falls through to the
+    # prop default and yields a correctly built character at 0.5 m. That happened to
+    # seven race2_ assets before race2_, racebody_ and raceclass_ were added.
+    ("character", ("race_", "race2_", "racebody_", "raceclass_", "npc_",
+                   "char_", "character_")),
+    # Modular components. Sized absolutely by their socket definition at the modular stage,
+    # so the category only needs to be distinct rather than a size default.
+    ("weapon_component", ("weaponcomp_",)),
+    ("armour", ("armour_", "armor_")),
+    ("magic_component", ("magiccomp_",)),
     ("weapon", ("weapon_",)),
     ("tool", ("tool_",)),
     ("prop", ("prop_",)),
     ("creature", ("creature_",)),
     ("icon", ("icon_",)),
-    ("character", ("char_", "character_", "npc_")),
+    ("item", ("item_",)),
+    ("herb", ("herb_",)),
+    ("flora", ("flora_",)),
+    ("reagent", ("reagent_",)),
+    ("resource", ("resource_",)),
     ("building", ("building_",)),
     ("material", ("material_",)),
     ("creature", ("dragon", "wolf", "beast", "monster", "animal", "spider", "bear")),
@@ -392,11 +405,18 @@ def main():
             health, _elapsed, health_code = run(
                 [PYTHON, HEALTH], "health", record["stages"])
             if health_code != 0:
+                # A server that is merely restarting is not a reason to skip the rest of the
+                # batch. `_comfy_health.py` already waits for a starting server to come back,
+                # so reaching here means it was down for longer than that wait. Skipping
+                # onwards would fail every remaining asset in about two seconds each, which
+                # is how one guard restart cost seven assets in a row. Stop the stage instead
+                # and let the supervisor's next pass pick it up once the server is healthy.
                 record["error"] = f"ComfyUI unusable: {health.strip()[-400:]}"
-                print("    FAIL  ComfyUI unhealthy; skipping this asset and continuing")
+                print("    FAIL  ComfyUI unhealthy and did not recover; stopping this stage "
+                      "so the remaining assets are not skipped")
                 records.append(record)
                 write_manifest(records, args, batch_started)
-                continue
+                return 1
 
             prefix = f"3d/raw/{stem}"
             command = [PYTHON, GENERATOR, concept,
