@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -14,6 +15,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 {
     /// <summary>Items, loot tables, carrying rules and the starting kit (M3b).</summary>
     public ItemSetup Items { get; init; } = ItemSetup.Empty;
+
+    /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
+    public CombatSetup Combat { get; init; } = CombatSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -58,6 +62,9 @@ public sealed class Simulation
     private readonly TierSystem _tiers;
     private readonly InventorySystem _inventory;
     private readonly EquipmentSystem _equipment;
+    private readonly CombatSystem _combat;
+    private readonly StatusEffectSystem _effects;
+    private readonly DeathSystem _death;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -87,8 +94,13 @@ public sealed class Simulation
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
+        _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Intent);
+        _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
+        _death = new DeathSystem(_context, player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
+        _effects.Seed(player.Id, player.Effects);
+        _combat.Populate();
         _tiers.Settle();
     }
 
@@ -141,10 +153,16 @@ public sealed class Simulation
 
     public ImmutableArray<DoorView> Doors => Setup.Layout.Doors.Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
 
+    /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
+    public CombatView Combat => _combat.View();
+
+    /// <summary>Every creature the region holds, living or dead.</summary>
+    public ImmutableArray<CreatureView> Creatures => _combat.Creatures();
+
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
-    /// <summary>The footprints that currently block movement besides the static ones: closed doors. Prediction needs them.</summary>
-    public ImmutableArray<Blocker> DynamicBlockers => _context.ClosedDoors();
+    /// <summary>The footprints that currently block movement besides the static ones: closed doors and living creatures. Prediction needs them.</summary>
+    public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
     /// <summary>Which system owns each slice of state (ARCHITECTURE.md §5).</summary>
     public IReadOnlyDictionary<StateSlice, string> SliceOwners => _state.Owners;
@@ -169,6 +187,10 @@ public sealed class Simulation
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
+                AttackCommand attack => _combat.Handle(attack, WorldTick),
+                BlockCommand block => _combat.Handle(block, WorldTick),
+                DodgeCommand dodge => _combat.Handle(dodge, WorldTick),
+                UseItemCommand use => _inventory.Handle(use, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -179,7 +201,10 @@ public sealed class Simulation
         return applied;
     }
 
-    /// <summary>Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, discovery, clock.</summary>
+    /// <summary>
+    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, combat, status effects,
+    /// death, discovery, clock.
+    /// </summary>
     public void Step()
     {
         if (_stepping)
@@ -192,6 +217,9 @@ public sealed class Simulation
             _tiers.Tick(tick);
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
+            _combat.Tick(tick);
+            _effects.Tick(tick);
+            _death.Tick(tick);
             _discovery.Tick(tick);
             _clock.Tick();
         }
@@ -206,7 +234,8 @@ public sealed class Simulation
     {
         var body = _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
-            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency);
+            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
+            _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty));
     }
 
     /// <summary>
@@ -222,10 +251,23 @@ public sealed class Simulation
         return h.Finish();
     }
 
+    /// <summary>The tick an internal command belongs to: the one being stepped, or the boundary commands apply at.</summary>
+    private long Now => _stepping ? WorldTick + 1 : WorldTick;
+
     private string? Dispatch(InternalCommand command) => command switch
     {
-        SetWorldFlag set => _flags.Handle(set, _stepping ? WorldTick + 1 : WorldTick),
+        SetWorldFlag set => _flags.Handle(set, Now),
         AwardExperience award => _progression.Handle(award),
+        ChangePools pools => _progression.Handle(pools),
+        PracticeSkill practice => _progression.Handle(practice),
+        RecordDeath death => _progression.Handle(death),
+        Relocate relocate => _movement.Handle(relocate, Now),
+        ApplyEffect apply => _effects.Handle(apply, Now),
+        ClearEffects clear => _effects.Handle(clear, Now),
+        Harm harm => _combat.Handle(harm, Now),
+        Heal heal => _combat.Handle(heal, Now),
+        EndFight end => _combat.Handle(end),
+        ConsumeItem consume => _inventory.Handle(consume, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

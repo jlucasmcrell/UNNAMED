@@ -22,14 +22,16 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.3) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.4) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
-   movement and tier config a region needs - is the pack v5 was written with. Content 0.2.0 renamed the
-   potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their
-   Phase-1 schema fields, which today's content checks require. The writer packs are historical and are
-   never edited, so they need not pass today's checks; the current pack must.
+   movement and tier config a region needs - is the pack v5 and v6 were written with; `content-0.1.3/` - 0.1.2
+   plus the two effects the effect record names - is the pack v7 was written with. Content 0.2.0 renamed the
+   potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
+   schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
+   and renamed the weakness. The writer packs are historical and are never edited, so they need not pass today's
+   checks; the current pack must.
 
 ## The fixture world
 
@@ -60,6 +62,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | The sword in `main_hand`; 40 coin | player equipment, purse | Schema 6. v1-v5 migrate to nothing equipped and no coin |
 | `item.potion.healing_draught` x3 dropped | created instance in `r_0_0:c_00_08` | Schema 6: a created instance keeps its count, and the renamed potion must be renamed in the world too |
 | `container.fixture_chest`: a sword and `healing_draught` x4 | changed container in `r_0_0:c_00_09` | Schema 6: a changed container's whole contents, with identities; the potion is renamed inside it |
+| `effect.bleeding` x2 (expires tick 5100, next tick 5020); `effect.weakness` (expires 5600) | player effects | Schema 7. The weakness was **renamed** to `effect.weakened` in content 0.2.4: the rename must reach the effect record. v1-v6 migrate to none |
 
 ## Provenance
 
@@ -71,6 +74,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v4/` | The M2c schema-4 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.1) |
 | `v5/` | The M3 schema-5 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
 | `v6/` | The M3b schema-6 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
+| `v7/` | The M3c schema-7 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.3) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

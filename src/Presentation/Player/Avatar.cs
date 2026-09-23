@@ -3,13 +3,16 @@
 
 using Godot;
 using UNNAMED.Presentation.Greybox;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Player;
 
 /// <summary>
 /// One full body, used by every camera distance: first person hides only the head (it keeps casting its shadow) and
 /// leaves the torso and legs visible when looking down.
-/// Greybox proof motion only - a procedural walk cycle - until Animation Wave 0's rig is handed over.
+/// Greybox proof motion only - a procedural walk cycle and combat poses - until Animation Wave 0's rig is handed over. The
+/// poses follow the simulation's attack phases (windup, active window, recovery), so a clip that replaces them is timed
+/// to the same numbers.
 /// </summary>
 public partial class Avatar : Node3D
 {
@@ -25,6 +28,9 @@ public partial class Avatar : Node3D
     private readonly Node3D _leftElbow = new() { Position = new Vector3(0, -0.3f, 0) };
     private readonly Node3D _rightElbow = new() { Position = new Vector3(0, -0.3f, 0) };
     private readonly List<MeshInstance3D> _head = new();
+    private readonly MeshInstance3D _sword = Part(new BoxMesh { Size = new Vector3(0.04f, 0.05f, 0.85f) }, Palette.Metal, new Vector3(0, -0.3f, 0.36f));
+    private readonly MeshInstance3D _bow = Part(new BoxMesh { Size = new Vector3(0.03f, 1.15f, 0.05f) }, Palette.Leather, new Vector3(0, -0.3f, 0.04f));
+    private CombatStance _stance = CombatStance.AtRest;
     private double _phase;
     private double _jumpTime = -1;
     private float _yaw;
@@ -57,7 +63,12 @@ public partial class Avatar : Node3D
             shoulder.AddChild(elbow);
             elbow.AddChild(Part(new CapsuleMesh { Radius = 0.05f, Height = 0.3f }, Palette.Skin, new Vector3(0, -0.14f, 0)));
         }
+        _rightElbow.AddChild(_sword);
+        _leftElbow.AddChild(_bow);
     }
+
+    /// <summary>What the body is doing in combat this frame: a phase, how far through it, and what it holds.</summary>
+    public void SetStance(CombatStance stance) => _stance = stance;
 
     public void SetFirstPerson(bool firstPerson)
     {
@@ -104,8 +115,79 @@ public partial class Avatar : Node3D
         _rightElbow.Rotation = new Vector3(-0.25f - 0.2f * stride, 0, 0);
         float bob = stride > 0 ? Mathf.Abs(Mathf.Cos((float)_phase)) * 0.04f * stride : Mathf.Sin((float)Time.GetTicksMsec() / 700f) * 0.005f;
         _hips.Position = new Vector3(0, 0.95f + bob, 0);
+        _hips.Rotation = Vector3.Zero;
+        Fight();
+    }
+
+    /// <summary>
+    /// Combat poses over the walk. Rotation about X swings a limb: negative raises it forward. A sword rises through the
+    /// windup and falls through the active window; a bow is held out and drawn through the windup and loosed at release.
+    /// </summary>
+    private void Fight()
+    {
+        var s = _stance;
+        _sword.Visible = s.Holds == Held.Sword;
+        _bow.Visible = s.Holds == Held.Bow;
+        float t = Mathf.Clamp(s.Progress, 0, 1);
+        // Held out, the bow stands upright against the raised arm; at rest it hangs along it.
+        _bow.Rotation = new Vector3(s.Phase is CombatPhase.Windup or CombatPhase.Active ? 1.5f : 0, 0, 0);
+        switch (s.Phase)
+        {
+            case CombatPhase.Windup when s.Holds == Held.Bow:
+                _leftShoulder.Rotation = new Vector3(-1.5f, 0, 0.05f);
+                _leftElbow.Rotation = Vector3.Zero;
+                _rightShoulder.Rotation = new Vector3(-1.5f, 0, -0.1f);
+                _rightElbow.Rotation = new Vector3(-2.4f * t, 0, 0);
+                break;
+            case CombatPhase.Active or CombatPhase.Recovery when s.Holds == Held.Bow:
+                _leftShoulder.Rotation = new Vector3(-1.5f * (s.Phase == CombatPhase.Active ? 1 : 1 - t), 0, 0.05f);
+                _rightShoulder.Rotation = new Vector3(-0.9f * (s.Phase == CombatPhase.Active ? 1 : 1 - t), 0, -0.1f);
+                break;
+            case CombatPhase.Windup:
+                _rightShoulder.Rotation = new Vector3(-2.7f * t, 0, -0.15f);
+                _rightElbow.Rotation = new Vector3(-0.6f * t, 0, 0);
+                break;
+            case CombatPhase.Active:
+                _rightShoulder.Rotation = new Vector3(Mathf.Lerp(-2.7f, -0.5f, t), 0, -0.15f);
+                _rightElbow.Rotation = new Vector3(-0.2f, 0, 0);
+                break;
+            case CombatPhase.Recovery:
+                _rightShoulder.Rotation = new Vector3(Mathf.Lerp(-0.5f, 0, t), 0, -0.1f);
+                break;
+            case CombatPhase.Dodge:
+                _hips.Position = new Vector3(0, 0.72f, 0);
+                _hips.Rotation = new Vector3(0.35f, 0, 0);
+                break;
+            case CombatPhase.Staggered:
+                _hips.Rotation = new Vector3(-0.3f, 0, Mathf.Sin((float)Time.GetTicksMsec() / 45f) * 0.12f);
+                _leftShoulder.Rotation = new Vector3(0.6f, 0, 0.6f);
+                _rightShoulder.Rotation = new Vector3(0.6f, 0, -0.6f);
+                break;
+            default:
+                if (s.Guarding)
+                {
+                    _rightShoulder.Rotation = new Vector3(-1.2f, 0.3f, -0.1f);
+                    _rightElbow.Rotation = new Vector3(-1.1f, 0, 0);
+                    _leftShoulder.Rotation = new Vector3(-1.1f, -0.3f, 0.1f);
+                    _leftElbow.Rotation = new Vector3(-1.3f, 0, 0);
+                }
+                break;
+        }
     }
 
     private static MeshInstance3D Part(Mesh mesh, Material material, Vector3 position) =>
         new() { Mesh = mesh, MaterialOverride = material, Position = position };
+}
+
+public enum Held
+{
+    Nothing,
+    Sword,
+    Bow,
+}
+
+/// <summary>A frame's combat pose: the phase from the simulation, how far through it (0-1), what the hands hold, the guard.</summary>
+public readonly record struct CombatStance(CombatPhase Phase, float Progress, Held Holds, bool Guarding)
+{
+    public static CombatStance AtRest => new(CombatPhase.Idle, 0, Held.Nothing, false);
 }

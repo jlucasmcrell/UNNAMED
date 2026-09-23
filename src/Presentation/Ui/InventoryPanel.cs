@@ -74,6 +74,8 @@ public partial class InventoryPanel : CanvasLayer
                     ? new UnequipCommand(simulation.PlayerId, slot.Key)
                     : new EquipCommand(simulation.PlayerId, entry.ItemId))));
             }
+            if (simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId))
+                row.AddChild(Button("Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
             if (OpenContainer is { } key)
                 row.AddChild(Button("Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
             row.AddChild(Button("Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count))));

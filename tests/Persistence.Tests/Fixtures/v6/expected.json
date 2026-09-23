@@ -108,7 +108,8 @@
     "equipment": {
       "main_hand": "itm_01HF7YAT01144GJ289144GJ281"
     },
-    "currency": 40
+    "currency": 40,
+    "effects": []
   },
   "cells": [
     {

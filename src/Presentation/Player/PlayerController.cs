@@ -19,15 +19,17 @@ public enum FocusKind
 public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm);
 
 /// <summary>
-/// Turns the player's wishes into the same two commands at every camera distance - a movement intent and an
-/// interaction - and draws the body a fraction of a tick ahead of the simulation with the simulation's own movement
-/// function. It keeps a copy of what it was told (events and the load snapshot), never the truth, and writes nothing.
+/// Turns the player's wishes into the same commands at every camera distance - a movement intent, an interaction, and
+/// (M3c) an attack, a guard, a dodge or a use - and draws the body a fraction of a tick ahead of the simulation with the
+/// simulation's own movement function. It keeps a copy of what it was told (events and the load snapshot), never the
+/// truth, and writes nothing.
 /// </summary>
 public sealed class PlayerController
 {
     private readonly GameSession _session;
     private readonly Dictionary<string, bool> _open = new(StringComparer.Ordinal);
     private Body _body = new(0, 0, 0, 0);
+    private (long X, long Z) _lastStep;
     private MoveIntent _intent;
 
     public PlayerController(GameSession session) => _session = session;
@@ -48,7 +50,11 @@ public sealed class PlayerController
             _open[door.Site.Key] = door.Open;
     }
 
-    public void OnBodyMoved(BodyMoved moved) => _body = moved.To;
+    public void OnBodyMoved(BodyMoved moved)
+    {
+        _lastStep = (moved.To.XMm - moved.From.XMm, moved.To.ZMm - moved.From.ZMm);
+        _body = moved.To;
+    }
 
     public void OnDoorToggled(DoorToggled toggled) => _open[toggled.DoorKey] = toggled.Open;
 
@@ -56,19 +62,20 @@ public sealed class PlayerController
 
     /// <summary>
     /// Submit a movement intent if the wish changed. <paramref name="stick"/> is camera-relative (x right, y forward).
-    /// In first person the body faces where the camera looks; in third person it faces where it walks.
+    /// In first person the body faces where the camera looks; in third person it faces where it walks, except while it
+    /// fights (<paramref name="faceCamera"/>: a swing, a raised guard, a drawn bow go where the camera looks).
     /// </summary>
-    public void Steer(CameraRig camera, Vector2 stick, Gait gait)
+    public void Steer(CameraRig camera, Vector2 stick, Gait gait, bool faceCamera = false)
     {
         if (stick.LengthSquared() > 1)
             stick = stick.Normalized();
-        SteerWorld(camera.GroundForward * stick.Y + camera.GroundRight * stick.X, gait, camera);
+        SteerWorld(camera.GroundForward * stick.Y + camera.GroundRight * stick.X, gait, camera, faceCamera);
     }
 
     /// <summary>Submit a world-space movement wish (length at most 1) if it changed. Scripted runs steer this way.</summary>
-    public void SteerWorld(Vector3 direction, Gait gait, CameraRig camera)
+    public void SteerWorld(Vector3 direction, Gait gait, CameraRig camera, bool faceCamera = false)
     {
-        int facing = camera.IsFirstPerson
+        int facing = camera.IsFirstPerson || faceCamera
             ? FacingOf(camera.GroundForward)
             : direction.LengthSquared() > 0.0001f ? FacingOf(direction) : _intent.FacingMdeg;
         var wish = new MoveIntent(
@@ -80,12 +87,54 @@ public sealed class PlayerController
         _session.Submit(new MoveCommand(_session.Simulation!.PlayerId, wish));
     }
 
-    /// <summary>Where to draw the body this frame: the last tick advanced by the frame's fraction of the next one.</summary>
+    /// <summary>
+    /// Where to draw the body this frame: the last tick advanced by the frame's fraction of the next one, moving the way
+    /// the simulation will - a dodge carries on as it went, a stagger holds still, an attack or a guard walks, and an
+    /// empty stamina pool runs rather than sprints.
+    /// </summary>
     public Body Predict(double alpha)
     {
         var setup = _session.Setup;
-        var closed = setup.Layout.ClosedDoors(d => IsOpen(d.Key));
-        return Kinematics.Step(_body, _intent, setup.Movement, setup.Layout.Space, closed, (int)Math.Round(alpha * setup.TickMilliseconds));
+        var simulation = _session.Simulation!;
+        var combat = simulation.Combat;
+        var intent = _intent;
+        switch (combat.Phase)
+        {
+            case CombatPhase.Dodge:
+                return _body with { XMm = _body.XMm + (long)(_lastStep.X * alpha), ZMm = _body.ZMm + (long)(_lastStep.Z * alpha) };
+            case CombatPhase.Staggered:
+            case CombatPhase.Recovery when combat.AttackSource is null:
+                return _body;
+            case CombatPhase.Windup or CombatPhase.Active or CombatPhase.Recovery:
+                intent = intent with { Gait = Gait.Walk };
+                break;
+            default:
+                if (combat.Blocking)
+                    intent = intent with { Gait = Gait.Walk };
+                else if (intent.Gait == Gait.Sprint && combat.Stamina == 0)
+                    intent = intent with { Gait = Gait.Run };
+                break;
+        }
+        return Kinematics.Step(_body, intent, setup.Movement, setup.Layout.Space, simulation.DynamicBlockers, (int)Math.Round(alpha * setup.TickMilliseconds));
+    }
+
+    public void Attack() => _session.Submit(new AttackCommand(_session.Simulation!.PlayerId));
+
+    public void Guard(bool raised) => _session.Submit(new BlockCommand(_session.Simulation!.PlayerId, raised));
+
+    /// <summary>Dodge along a world-space direction; no direction dodges backwards.</summary>
+    public void Dodge(Vector3 direction) =>
+        _session.Submit(new DodgeCommand(_session.Simulation!.PlayerId, (int)Mathf.Round(direction.X * 1000), (int)Mathf.Round(direction.Z * 1000)));
+
+    /// <summary>Use the first carried item that has a use (the salve). False when there is none.</summary>
+    public bool UseConsumable()
+    {
+        var simulation = _session.Simulation!;
+        var uses = _session.Setup.Combat.UseEffects;
+        if (simulation.Player.Inventory.FirstOrDefault(e => uses.ContainsKey(e.DefId)) is not { } item)
+            return false;
+        _session.Submit(new UseItemCommand(simulation.PlayerId, item.ItemId));
+        return true;
     }
 
     /// <summary>

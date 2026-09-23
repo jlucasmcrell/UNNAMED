@@ -1,7 +1,8 @@
 # Fixture content 0.2.0 renamed item.potion.healing_draught; 0.2.1 renamed spell.ember.firebolt; 0.2.2 renamed
-# location.wolf_den; 0.2.3 gave the items and creatures their Phase-1 schema fields. Saves written with 0.1.0,
-# 0.1.1 or 0.1.2 resolve through here.
+# location.wolf_den; 0.2.3 gave the items and creatures their Phase-1 schema fields; 0.2.4 gave the sword its attack
+# timing and renamed effect.weakness. Saves written with 0.1.0, 0.1.1, 0.1.2 or 0.1.3 resolve through here.
 aliases:
   item.potion.healing_draught: item.potion.minor_healing
   spell.ember.firebolt: spell.ember.bolt
   location.wolf_den: location.den_mouth
+  effect.weakness: effect.weakened

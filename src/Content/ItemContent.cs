@@ -89,7 +89,16 @@ public static class ItemContent
             string hands = Text(map, "hands");
             weapon = new WeaponStats(IntOf(damage, 0, "damage"), IntOf(damage, 1, "damage"), Text(map, "damage_type"),
                 map.ContainsKey("reach") ? Grams(map, "reach") : 0, hands == "two",
-                map.GetValueOrDefault("skill_ref") as string, map.GetValueOrDefault("ammo_item_ref") as string);
+                map.GetValueOrDefault("skill_ref") as string, map.GetValueOrDefault("ammo_item_ref") as string)
+            {
+                AttackMs = map.ContainsKey("attack_speed") ? (int)Math.Round(1000 / Number(map, "attack_speed"), MidpointRounding.AwayFromZero) : 0,
+                DrawMs = map.ContainsKey("draw_time") ? (int)Grams(map, "draw_time") : 0,
+                StaminaCost = map.ContainsKey("stamina_cost") ? Int(map, "stamina_cost") : null,
+            };
+            if (weapon.AttackMs <= 0 && weapon.DrawMs <= 0)
+                throw new FormatException($"{id}: a weapon gives attack_speed (melee) or draw_time (ranged)");
+            if (weapon.DrawMs <= 0 && weapon.ReachMm <= 0)
+                throw new FormatException($"{id}: a melee weapon gives its reach");
             slot = hands == "offhand" ? EquipSlot.OffHand : EquipSlot.MainHand;
         }
         else if (definition.Kind == "item.armor")

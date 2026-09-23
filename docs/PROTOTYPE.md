@@ -149,7 +149,9 @@ Structure is declarative (D-07). Each objective is a `type` + parameters; state 
 content/
   items/        15 files (or one file per kind, one entry each)
   creatures/    wolf_grey.yaml
-  spawns/       3 spawner definitions
+  spawns/       3 spawner definitions (the valley strays from M3c; the den pack and the respawning pack with M3d)
+  effects/      bleeding, weakened, mending (M3c); burning, oakskin (M3e)
+  abilities/    1: the wolf's bite (M3c)
   spells/       3        skills/       2        recipes/      2
   nodes/        2        loot/         2 tables
   quests/       hollow_lost_token.yaml
@@ -161,7 +163,7 @@ content/
   config/       xp_curve, level_cap, base_speeds, damage_constants, time, progression, simulation_tiers
 ```
 
-39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
+39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. **M3c reconciliation:** `effects/` holds bleeding, the weakness §5 step 7 applies on death, and the mending the salve (§4.2) and the mend spell share - five effects once M3e adds burning and oakskin, where §4.1 counts three. `abilities/` holds the wolf's bite, because `DATA_MODEL.md` §4.4 names a creature's attacks by ability. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
 
 ## 5. Core loop the player actually performs
 

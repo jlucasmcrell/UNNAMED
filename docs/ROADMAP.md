@@ -214,6 +214,7 @@ Rationale for each link:
 - **Exit criteria:** A tuning spreadsheet, generated *from* the build rather than authored by hand, shows time-to-kill within design bands across level bands 1–3; combat is readable (a tester can name what killed them); no out-of-band HP sponges (an over-band creature must be lethal by damage, not by health pool); weapon-skill XP accrues only from effective contribution.
 - **Proof:** Playable combat build; generated TTK table; weapon-skill accrual telemetry.
 - **Playable state at exit:** You can fight, die, and be rewarded.
+- **Phase-1 reconciliation (M3c):** the three families are `PROTOTYPE.md`'s sword (`one_hand_blade`), bow and spell; the spell family (`staff` above) is built with M3e's magic, and so are Focus and Strain, which only casting spends. The design bands are `VERTICAL_SLICE.md` §5.1's. "Aggro" is local and perception-derived (`SYSTEMS.md` S-12, S-23).
 
 ### M3d — Creature Framework, AI Baseline, Loot — `FEATURE`
 

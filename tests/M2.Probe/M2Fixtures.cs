@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Persistence;
@@ -96,11 +97,12 @@ public static class M2Fixtures
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
         /// <summary>
-        /// The pack the current fixture is written with (Fixtures/content-0.1.2: 0.1.1 plus a region, the place the
-        /// discovery record names, and the movement and tier config a region needs).
+        /// The pack the current fixture is written with (Fixtures/content-0.1.3: 0.1.2 - itself 0.1.1 plus a region, the
+        /// place the discovery record names, and the movement and tier config a region needs - plus the two effects the
+        /// player's record names).
         /// </summary>
-        public const string WriterContentVersion = "0.1.2";
-        public const string WriterContentHash = "sha256:fb2c40b931277ea239fdda4f03779a2d062e5c1b2f242721ce6fc06a9848d698";
+        public const string WriterContentVersion = "0.1.3";
+        public const string WriterContentHash = "sha256:b8a1d3adec7317ba3b1060761c991f46fa2880300e62c524d459a3407273b6ca";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -117,7 +119,10 @@ public static class M2Fixtures
             discoveries: new[] { new DiscoveryRecord("location.wolf_den", DiscoveryMethod.Visited, 3_000) },
             // Schema 6: the sword in the main hand, and a purse.
             equipment: new[] { KeyValuePair.Create(EquipSlot.MainHand, SwordId) },
-            currency: 40);
+            currency: 40,
+            // Schema 7: two effects mid-course. Written with content 0.1.3, which calls the second effect.weakness; the
+            // current pack renames it.
+            effects: new[] { new ActiveEffect("effect.bleeding", 2, 5_100, 5_020), new ActiveEffect("effect.weakness", 1, 5_600, 4_801) });
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 
@@ -190,8 +195,8 @@ public static class M2Fixtures
             return world;
         }
 
-        public const string CurrentContentVersion = "0.2.3";
-        public const string CurrentContentHash = "sha256:77c8a1ed866e6ac4d29dfe60ef576850b3293f4856668a0897e13a76c283b0e7";
+        public const string CurrentContentVersion = "0.2.4";
+        public const string CurrentContentHash = "sha256:98722011aa383b652d380f8f24c5abd5d36a603863ddbdd4bff1782ee34de193";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -202,7 +207,8 @@ public static class M2Fixtures
             new[]
             {
                 "config.base_speeds", "config.simulation_tiers",
-                "creature.beast.deer", "creature.beast.wolf_grey", "item.potion.minor_healing", "item.weapon.iron_sword",
+                "creature.beast.deer", "creature.beast.wolf_grey", "effect.bleeding", "effect.weakened", "item.potion.minor_healing",
+                "item.weapon.iron_sword",
                 "location.den_mouth", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics", "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",
             },
@@ -211,6 +217,7 @@ public static class M2Fixtures
                 ["item.potion.healing_draught"] = "item.potion.minor_healing",
                 ["spell.ember.firebolt"] = "spell.ember.bolt",
                 ["location.wolf_den"] = "location.den_mouth",
+                ["effect.weakness"] = "effect.weakened",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

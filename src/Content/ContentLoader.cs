@@ -170,6 +170,11 @@ public class ContentLoader
             var worldErrors = WorldContent.Validate(this);
             _errors.AddRange(worldErrors);
             success &= worldErrors.Count == 0;
+
+            // Damage constants, effects, creatures and their attacks, spawn sites, passives, item uses (CMB codes)
+            var combatErrors = CombatContent.Validate(this);
+            _errors.AddRange(combatErrors);
+            success &= combatErrors.Count == 0;
         }
         
         return success;

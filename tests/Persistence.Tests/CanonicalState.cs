@@ -58,6 +58,17 @@ internal static class CanonicalState
                 json.WriteString(Domain.Items.EquipSlots.Key(slot), item.Value);
             json.WriteEndObject();
             json.WriteNumber("currency", player.Currency);
+            json.WriteStartArray("effects");
+            foreach (var effect in player.Effects)
+            {
+                json.WriteStartObject();
+                json.WriteString("effect_id", effect.EffectId);
+                json.WriteNumber("stacks", effect.Stacks);
+                json.WriteNumber("expires_tick", effect.ExpiresTick);
+                json.WriteNumber("next_tick_at", effect.NextTickAt);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

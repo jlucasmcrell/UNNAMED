@@ -28,6 +28,7 @@ public class ContentChecksTests : IDisposable
         damage_type: physical_slash
         hands: one
         reach: 1.8
+        attack_speed: 1.43
         skill_ref: skill.one_hand_blade
         """;
 

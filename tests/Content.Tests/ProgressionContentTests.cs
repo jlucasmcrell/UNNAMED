@@ -13,13 +13,13 @@ public class ProgressionContentTests : IDisposable
 
     public ProgressionContentTests()
     {
-        // A copy of the game's progression content: its config and skills. The inventory config names items, which
-        // this copy does not carry, so it stays behind.
+        // A copy of the game's progression content: its config and skills. The inventory and damage configs name items
+        // and effects, which this copy does not carry, so they stay behind.
         foreach (string dir in new[] { "config", "skills" })
         {
             Directory.CreateDirectory(Path.Combine(_root, dir));
             foreach (string file in Directory.EnumerateFiles(Path.Combine(RepoPaths.Root(), "content", dir))
-                         .Where(f => Path.GetFileName(f) != "inventory.yaml"))
+                         .Where(f => Path.GetFileName(f) is not ("inventory.yaml" or "damage_constants.yaml")))
                 File.Copy(file, Path.Combine(_root, dir, Path.GetFileName(file)));
         }
     }

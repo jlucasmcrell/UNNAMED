@@ -516,14 +516,17 @@ public class ContentLoaderTests
         Assert.Equal(
             new[]
             {
-                "config.base_speeds", "config.economy", "config.inventory", "config.level_cap", "config.progression",
+                "ability.creature.wolf_bite",
+                "config.base_speeds", "config.damage_constants", "config.economy", "config.inventory", "config.level_cap", "config.progression",
                 "config.simulation_tiers", "config.time", "config.xp_curve",
+                "creature.beast.wolf_grey", "effect.bleeding", "effect.mending", "effect.weakened",
                 "item.ammo.arrow_rough", "item.armor.hide_cap", "item.armor.hide_vest", "item.consumable.salve_minor",
                 "item.material.herb_ashbloom", "item.material.iron_ingot", "item.material.iron_ore", "item.material.raw_meat",
                 "item.material.wolf_hide", "item.quest.halda_token", "item.tome.ember_primer", "item.tool.water_flask",
                 "item.trinket.wolf_fang", "item.weapon.hunting_bow", "item.weapon.rusted_sword",
                 "location.den_mouth", "location.herb_patch", "location.iron_shelf", "location.outpost",
                 "loot.den_cache", "loot.wolf_grey", "merchant.smith_orren", "region.ashen_hollow", "skill.athletics", "skill.one_hand_blade", "skill.survival",
+                "spawn.hollow.valley_strays",
                 "world.hollow.forge_shed_door_open", "world.hollow.longhouse_door_open",
             },
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
@@ -552,7 +555,7 @@ public class AliasFileTests : IDisposable
         File.WriteAllText(Path.Combine(_root, "items", "weapon", "iron_sword.yaml"),
             "id: item.weapon.iron_sword\nkind: item.weapon\nschema: 1\ndisplay_key: item.weapon.iron_sword.name\ntags: [weapon]\n" +
             "category: weapon\nstack_max: 1\nweight: 3.2\nvalue_base: 90\nrarity: common\ndamage: [7, 11]\n" +
-            "damage_type: physical_slash\nhands: one\nskill_ref: skill.one_hand_blade\n");
+            "damage_type: physical_slash\nhands: one\nattack_speed: 1.2\nreach: 1.9\nskill_ref: skill.one_hand_blade\n");
         File.WriteAllText(Path.Combine(_root, "skills", "one_hand_blade.yaml"),
             "id: skill.one_hand_blade\nkind: skill\nschema: 1\ndisplay_key: skill.one_hand_blade.name\ntags: [skill]\nfamily: combat\n");
     }

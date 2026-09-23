@@ -1,0 +1,21 @@
+id: creature.beast.wolf_grey
+kind: creature
+schema: 1
+display_key: creature.beast.wolf_grey.name
+tags: [creature]
+name: Grey Wolf
+notes: The prototype's one archetype (PROTOTYPE.md §4.1) at its authored level. Dangerous in a pack by numbers and bleeding, never by a health pool.
+family: beast
+archetype: predator
+level_band: [2, 2]
+pools: { health: 50, stamina: 60 }
+attributes: { might: 10, endurance: 10, agility: 14, precision: 10, will: 6, insight: 8, presence: 6 }
+attack_set: [ability.creature.wolf_bite]
+armor: { head: 1, torso: 2, limbs: 1 }   # fur
+move_speed_m_s: 4.5        # faster than a run, slower than a sprint
+body_radius_m: 0.45
+xp_value: 30
+loot_table: loot.wolf_grey # drops with corpses (M3d)
+perception: { sight_m: 25, hearing_m: 30 }   # read from M3d
+tier_hint: A
+tameable: false

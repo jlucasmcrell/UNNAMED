@@ -1,0 +1,17 @@
+id: effect.bleeding
+kind: effect
+schema: 1
+display_key: effect.bleeding.name
+tags: [effect]
+name: Bleeding
+notes: The wolf's bite (PROTOTYPE.md §4.1). Pressure, not lethality - a point a second per stack for 6 s, and stamina returns slower.
+category: dot
+stack_policy: stack_intensity
+max_stacks: 3
+duration_min: 3.0          # game minutes (config.time): 6 s
+tick_interval_min: 0.5     # 1 s
+on_tick:
+  - { type: damage, damage_type: physical_pierce, amount: 1, per_stack: true }
+modifiers:
+  - { target: stat.stamina_regen, op: multiply, value: 0.8, per_stack: true }
+dispel_category: injury

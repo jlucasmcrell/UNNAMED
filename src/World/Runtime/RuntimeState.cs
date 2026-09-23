@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -42,6 +43,15 @@ public enum StateSlice
 
     /// <summary>Items lying in the world and the contents of changed world containers (S-14).</summary>
     WorldItems,
+
+    /// <summary>
+    /// The player's combat state (attacking, guarding, dodging, staggered) and every creature combatant (S-12). Transient:
+    /// a load starts at rest, and creatures are placed afresh until M3d saves them.
+    /// </summary>
+    Combat,
+
+    /// <summary>Status effects on every combatant (S-11). The player's are saved (schema 7).</summary>
+    Effects,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -87,6 +97,10 @@ internal sealed class RuntimeState
     public ImmutableArray<InventoryEntry> Inventory { get; private set; }
     public ImmutableSortedDictionary<EquipSlot, EntityId> Equipment { get; private set; }
     public long Currency { get; private set; }
+    public PlayerCombat PlayerCombat { get; private set; } = PlayerCombat.Rested;
+    public ImmutableSortedDictionary<EntityId, CreatureState> Creatures { get; private set; } = ImmutableSortedDictionary<EntityId, CreatureState>.Empty;
+    public ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>> Effects { get; private set; } =
+        ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>>.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -181,6 +195,24 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.WorldItems);
         World.SetContainer(record);
+    }
+
+    public void SetPlayerCombat(SliceOwner owner, PlayerCombat combat)
+    {
+        Require(owner, StateSlice.Combat);
+        PlayerCombat = combat;
+    }
+
+    public void SetCreature(SliceOwner owner, CreatureState creature)
+    {
+        Require(owner, StateSlice.Combat);
+        Creatures = Creatures.SetItem(creature.Id, creature);
+    }
+
+    public void SetEffects(SliceOwner owner, EntityId body, ImmutableArray<ActiveEffect> effects)
+    {
+        Require(owner, StateSlice.Effects);
+        Effects = effects.IsEmpty ? Effects.Remove(body) : Effects.SetItem(body, EffectRules.Sorted(effects));
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

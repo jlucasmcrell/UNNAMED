@@ -13,3 +13,5 @@ damage: [7, 11]
 damage_type: physical_slash
 hands: one
 skill_ref: skill.one_hand_blade
+attack_speed: 1.2
+reach: 1.9

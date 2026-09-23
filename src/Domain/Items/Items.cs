@@ -50,8 +50,20 @@ public sealed record Requirements(
         ImmutableSortedDictionary<CharacterAttribute, int>.Empty, ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal));
 }
 
-/// <summary>A weapon's numbers (DATA_MODEL.md §4.2). Combat (M3c) reads them; M3b only carries them.</summary>
-public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType, long ReachMm, bool TwoHanded, string? SkillId, string? AmmoDefId);
+/// <summary>A weapon's numbers (DATA_MODEL.md §4.2), as combat (M3c) reads them.</summary>
+public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType, long ReachMm, bool TwoHanded, string? SkillId, string? AmmoDefId)
+{
+    /// <summary>One swing, from <c>attack_speed</c> (swings per second); 0 when the weapon gives none.</summary>
+    public int AttackMs { get; init; }
+
+    /// <summary>A ranged weapon's draw, from <c>draw_time</c>; 0 for a melee weapon.</summary>
+    public int DrawMs { get; init; }
+
+    /// <summary>Stamina per attack, from <c>stamina_cost</c>; null takes the combat default.</summary>
+    public int? StaminaCost { get; init; }
+
+    public bool Ranged => DrawMs > 0;
+}
 
 /// <summary>
 /// One item definition as the simulation uses it. Weight is in grams. <see cref="Slot"/> is null for anything that

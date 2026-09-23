@@ -4,6 +4,7 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 
@@ -57,7 +58,7 @@ public sealed record PlayerRecord
 {
     public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory,
         CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
-        IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0)
+        IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -104,6 +105,15 @@ public sealed record PlayerRecord
         if (currency < 0)
             throw new ArgumentOutOfRangeException(nameof(currency), currency, "Currency is never negative");
         Currency = currency;
+        Effects = EffectRules.Sorted(effects ?? Array.Empty<ActiveEffect>());
+        foreach (var effect in Effects)
+        {
+            if (!DefinitionId.IsValid(effect.EffectId) || !effect.EffectId.StartsWith("effect.", StringComparison.Ordinal)
+                || effect.Stacks < 1 || effect.ExpiresTick < 0 || effect.NextTickAt < 0)
+                throw new ArgumentException($"Invalid active effect {effect}", nameof(effects));
+        }
+        if (Effects.Select(e => e.EffectId).Distinct(StringComparer.Ordinal).Count() != Effects.Length)
+            throw new ArgumentException("An effect is active only once; stacks count repeats", nameof(effects));
     }
 
     /// <summary>
@@ -124,16 +134,20 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency);
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects);
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects);
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects);
+
+    /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
+    public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -161,13 +175,19 @@ public sealed record PlayerRecord
     /// <summary>The purse (PROTOTYPE.md: coin is not an item). Schema 6.</summary>
     public long Currency { get; }
 
+    /// <summary>
+    /// Status effects on the character, with absolute deadlines in world ticks (SYSTEMS.md S-11: a save mid-fight keeps
+    /// its bleeding, and dying's weakness cannot be saved away). Sorted by effect ID. Schema 7.
+    /// </summary>
+    public ImmutableArray<ActiveEffect> Effects { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v5").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v6").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -176,7 +196,9 @@ public sealed record PlayerRecord
             h.Add(Equipment.Count);
             foreach (var (slot, item) in Equipment)
                 h.Add(EquipSlots.Key(slot)).Add(item.Value);
-            h.Add(Currency);
+            h.Add(Currency).Add(Effects.Length);
+            foreach (var e in Effects)
+                h.Add(e.EffectId).Add(e.Stacks).Add(e.ExpiresTick).Add(e.NextTickAt);
             return h.Finish();
         }
     }

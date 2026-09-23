@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using MessagePack;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -290,7 +291,18 @@ internal static class SaveLoader
                 discoveries[id] = record with { LocationId = id };
         }
 
-        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values),
+        // Active effects (schema 7). Two that resolve to one effect keep the later deadline and the higher stack count.
+        var effects = new SortedDictionary<string, ActiveEffect>(StringComparer.Ordinal);
+        foreach (var effect in player.Effects)
+        {
+            if (Resolve(effect.EffectId, "player effect") is not { } id)
+                continue;
+            effects[id] = effects.TryGetValue(id, out var existing)
+                ? existing with { Stacks = Math.Max(existing.Stacks, effect.Stacks), ExpiresTick = Math.Max(existing.ExpiresTick, effect.ExpiresTick) }
+                : effect with { EffectId = id };
+        }
+
+        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers });
     }
 

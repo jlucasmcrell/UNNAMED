@@ -106,7 +106,8 @@
       }
     ],
     "equipment": {},
-    "currency": 0
+    "currency": 0,
+    "effects": []
   },
   "cells": [
     {

@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
@@ -32,6 +33,7 @@ public partial class Main : Node3D
     private PlayerController _controller = null!;
     private Hud _hud = null!;
     private ItemsView _items = null!;
+    private CreaturesView _creatures = null!;
     private InventoryPanel _inventory = null!;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -80,6 +82,8 @@ public partial class Main : Node3D
         _items = new ItemsView { Name = "Items" };
         AddChild(_items);
         _items.BuildContainers(_session.Setup.Layout);
+        _creatures = new CreaturesView { Name = "Creatures" };
+        AddChild(_creatures);
         _inventory = new InventoryPanel { Name = "Inventory" };
         _inventory.Bind(_session);
         AddChild(_inventory);
@@ -139,6 +143,9 @@ public partial class Main : Node3D
                     GD.Print($"UNNAMED ui shots written to {_shots.Directory}");
                     GetTree().Quit(0);
                     return;
+                case "failed":
+                    GetTree().Quit(1);
+                    return;
                 case { } shot:
                     SaveScreenshot(_shots.Directory, shot);
                     break;
@@ -189,7 +196,26 @@ public partial class Main : Node3D
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
-        _controller.Steer(_camera, stick, gait);
+
+        // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
+        // A swing, a guard and an aimed bow all go where the camera looks.
+        var combat = _session.Simulation!.Combat;
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible;
+        bool holding = captured && Input.IsActionPressed("guard");
+        bool swing = captured && Input.IsActionJustPressed("attack");
+        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || combat.Phase == CombatPhase.Windup);
+        if (swing)
+            _controller.Attack();
+        bool guard = holding && !combat.Weapon.Ranged;
+        if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
+            _controller.Guard(guard);
+        if (captured && Input.IsActionJustPressed("dodge"))
+        {
+            var wish = stick.LengthSquared() > 0.01f ? stick.Normalized() : Vector2.Zero;
+            _controller.Dodge(_camera.GroundForward * wish.Y + _camera.GroundRight * wish.X);
+        }
+        if (Input.IsActionJustPressed("use") && !_controller.UseConsumable())
+            _hud.Toast("Nothing to use", 2);
 
         if (Input.IsActionJustPressed("interact") && _controller.FocusOn(_camera) is { } focus)
         {
@@ -245,7 +271,11 @@ public partial class Main : Node3D
         _lastFeet = feet;
         _lastAlpha = alpha;
 
+        var simulation = _session.Simulation!;
+        var combat = simulation.Combat;
+        _avatar.SetStance(Stance(combat, alpha));
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
+        _creatures.Draw(simulation, alpha, delta);
         _camera.Follow(_avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetCrosshair(_camera.IsFirstPerson);
@@ -258,20 +288,27 @@ public partial class Main : Node3D
             { } item => $"[E] Pick up {_session.DisplayName(item.DefId)}",
         });
 
-        var view = _session.Simulation!.Player;
+        var view = simulation.Player;
         var stats = view.Stats;
         var pools = view.Progression.Pools;
         _hud.SetStatus(
             $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
-            $"\nHealth {pools.Health ?? stats.HealthMax}/{stats.HealthMax}   Stamina {pools.Stamina ?? stats.StaminaMax}/{stats.StaminaMax}" +
+            $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}" +
-            $"\nCoin {view.Currency}   Armor {view.Armor}   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
+            $"\n{_session.DisplayName(combat.Weapon.Source)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
+            $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
+        _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
+        _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
+            $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")));
+        if (Target(simulation) is { } target)
+            _hud.SetTarget(_session.DisplayName(target.DefId), target.Health, target.MaxHealth);
+        else
+            _hud.SetTarget(null, 0, 0);
 
         if (_hud.DebugVisible)
         {
             var body = _controller.Authoritative;
-            var simulation = _session.Simulation;
             _hud.SetDebug(
                 $"{Engine.GetFramesPerSecond()} fps   {delta * 1000:0.0} ms\n" +
                 $"tick {simulation.WorldTick}   alpha {alpha:0.00}   pending {simulation.PendingCommands}\n" +
@@ -306,12 +343,105 @@ public partial class Main : Node3D
         });
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
+        SubscribeCombat();
+    }
+
+    /// <summary>Combat reads in words as well as poses: every blow, effect, kill and death goes to the log (ROADMAP.md M3c).</summary>
+    private void SubscribeCombat()
+    {
+        string Name(string id) => _session.DisplayName(id);
+        _session.Subscribe<HitResolved>(e =>
+        {
+            var player = _session.Simulation!.PlayerId;
+            string how = (e.Critical ? ", critical" : "") + (e.Blocked ? ", blocked" : "") + (e.Staggered ? ", staggered" : "");
+            if (e.Attacker == player)
+                _hud.Log($"You hit the {Name(CreatureDef(e.Target))} ({BodyRegions.Key(e.Region)}) for {e.Damage}{how}");
+            else if (e.Dodged)
+                _hud.Log($"You dodge the {Name(e.AttackerDefId)}'s {Name(e.Source).ToLowerInvariant()}");
+            else
+                _hud.Log($"The {Name(e.AttackerDefId)}'s {Name(e.Source).ToLowerInvariant()} hits your {BodyRegions.Key(e.Region)} for {e.Damage}{how}");
+        });
+        _session.Subscribe<AttackMissed>(e =>
+        {
+            if (e.Attacker == _session.Simulation!.PlayerId)
+                _hud.Log(e.Source == "item.weapon.hunting_bow" ? "Your arrow finds nothing" : "Your swing finds nothing");
+        });
+        _session.Subscribe<HealthChanged>(e =>
+        {
+            if (e.Target == _session.Simulation!.PlayerId)
+                _hud.Log($"{Name(e.Source)}: {(e.Delta > 0 ? "+" : "")}{e.Delta}");
+        });
+        _session.Subscribe<EffectApplied>(e =>
+        {
+            if (e.Target == _session.Simulation!.PlayerId)
+                _hud.Log($"You are {Name(e.EffectId).ToLowerInvariant()}{(e.Stacks > 1 ? $" (x{e.Stacks})" : "")}");
+        });
+        _session.Subscribe<GuardBroken>(_ => _hud.Toast("Guard broken - no stamina behind it", 2));
+        _session.Subscribe<CreatureKilled>(e => _hud.Log($"The {Name(e.DefId)} dies"));
+        _session.Subscribe<SkillPracticed>(e =>
+        {
+            if (e.Xp > 0)
+                _hud.Log($"{Name(e.SkillId)} +{e.Xp} XP (level {e.Level})");
+        });
+        _session.Subscribe<ItemUsed>(e => _hud.Toast($"Used {Name(e.DefId)}", 2));
+        _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());
+        _session.Subscribe<PlayerDied>(e =>
+        {
+            string recap = string.Join("\n", e.Recap.Select(r =>
+                r.AttackerDefId == r.Source ? $"{Name(r.Source)}: {r.Damage}" : $"{Name(r.AttackerDefId)}, {Name(r.Source).ToLowerInvariant()}: {r.Damage}"));
+            string killer = e.KillerDefId == e.Cause ? Name(e.Cause) : $"the {Name(e.KillerDefId)} ({Name(e.Cause).ToLowerInvariant()})";
+            _hud.ShowDeath($"You died - killed by {killer}.\n\nThe last blows:\n{recap}\n\nXP debt +{e.DebtAdded} (nothing earned is lost). " +
+                           "You wake at the outpost, weakened for a minute.");
+        });
+        _session.Subscribe<CommandRejected>(e =>
+        {
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+                && e.Reason is not ("staggered" or "dodging" or "dead"))
+                _hud.Toast(e.Reason, 2);
+        });
+    }
+
+    private string CreatureDef(Domain.EntityId id) =>
+        _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == id)?.DefId ?? "creature";
+
+    /// <summary>The creature to show: the nearest one hunting the character, or the nearest living one the camera faces.</summary>
+    private CreatureView? Target(Simulation simulation)
+    {
+        var body = _controller.Authoritative;
+        double Distance(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - body.XMm, 2) + Math.Pow(c.Body.ZMm - body.ZMm, 2));
+        var living = simulation.Creatures.Where(c => c.Alive).ToList();
+        var hunting = living.Where(c => c.Hostile && Distance(c) < 30_000).OrderBy(Distance).FirstOrDefault();
+        if (hunting is not null)
+            return hunting;
+        return living.Where(c => Distance(c) < 20_000)
+            .Where(c => new Vector3(c.Body.XMm - body.XMm, 0, c.Body.ZMm - body.ZMm).Normalized().Dot(_camera.GroundForward) > 0.85f)
+            .OrderBy(Distance).FirstOrDefault();
+    }
+
+    /// <summary>How far the body is through its combat phase, from the simulation's own phase lengths, for the pose.</summary>
+    private CombatStance Stance(CombatView combat, double alpha)
+    {
+        var constants = _session.Setup.Combat.Constants;
+        var weapon = combat.Weapon;
+        int length = combat.Phase switch
+        {
+            CombatPhase.Windup => weapon.WindupTicks,
+            CombatPhase.Active => weapon.ActiveTicks,
+            CombatPhase.Recovery => combat.AttackSource is null ? constants.DodgeRecoveryTicks : weapon.RecoveryTicks,
+            CombatPhase.Dodge => constants.DodgeTicks,
+            CombatPhase.Staggered => constants.StaggerTicks,
+            _ => 1,
+        };
+        float progress = (float)((length - combat.PhaseTicksLeft + alpha) / Math.Max(1, length));
+        var held = weapon.Ranged ? Held.Bow : weapon.Source == "unarmed" ? Held.Nothing : Held.Sword;
+        return new CombatStance(combat.Phase, progress, held, combat.Blocking);
     }
 
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
     private void Resync()
     {
         _controller.Resync();
+        _creatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
             _hollow.SetDoor(door.Site.Key, door.Open);
         _items.Refresh(_session.Simulation!);
@@ -441,5 +571,13 @@ public partial class Main : Node3D
         Bind("quickload", Key.F9);
         Bind("release_mouse", Key.Escape);
         Bind("inventory", Key.Tab, Key.I);
+        Bind("dodge", Key.C);
+        Bind("use", Key.H);
+        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
+        {
+            if (!InputMap.HasAction(action))
+                InputMap.AddAction(action);
+            InputMap.ActionAddEvent(action, new InputEventMouseButton { ButtonIndex = button });
+        }
     }
 }

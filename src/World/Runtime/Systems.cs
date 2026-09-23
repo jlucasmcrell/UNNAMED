@@ -41,6 +41,11 @@ internal sealed class SystemContext
     public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(door), door.FlagId) != 0;
 
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen);
+
+    /// <summary>What the player's body cannot pass besides the static blockers: closed doors and living creatures.</summary>
+    public ImmutableArray<Blocker> Obstacles() =>
+        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)
+            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
 }
 
 /// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>
@@ -88,15 +93,58 @@ internal sealed class MovementSystem
         return null;
     }
 
+    /// <summary>
+    /// One tick of movement. What the body is doing in combat shapes it: a dodge dashes along its own direction, a stagger
+    /// or a dodge's recovery roots the feet, an attack or a raised guard slows them to a walk (and a landed blow holds
+    /// its facing), and an empty stamina pool turns a sprint into a run.
+    /// </summary>
     public void Tick(long tick)
     {
         var from = _context.State.Body;
-        var to = Kinematics.Step(from, Intent, _context.Setup.Movement, _context.Setup.Layout.Space, _context.ClosedDoors(),
-            _context.Setup.TickMilliseconds);
+        var combat = _context.State.PlayerCombat;
+        var constants = _context.Setup.Combat.Constants;
+        var rules = _context.Setup.Movement;
+        var intent = Intent;
+        var (phase, _) = combat.Action.PhaseAt(tick, constants);
+        if (combat.Defeated || phase == CombatPhase.Staggered || (phase == CombatPhase.Recovery && combat.Action.Kind == ActionKind.Dodge))
+        {
+            intent = MoveIntent.Idle(from.FacingMdeg);
+        }
+        else if (phase == CombatPhase.Dodge)
+        {
+            intent = new MoveIntent(combat.Action.DirXPermille, combat.Action.DirZPermille, Gait.Run, from.FacingMdeg);
+            rules = rules with
+            {
+                BaseSpeedMmPerSecond = constants.DodgeDistanceMm * 1000 / Math.Max(1, constants.DodgeTicks * _context.Setup.TickMilliseconds),
+            };
+        }
+        else if (phase is CombatPhase.Windup or CombatPhase.Active or CombatPhase.Recovery)
+        {
+            intent = intent with { Gait = Gait.Walk, FacingMdeg = phase == CombatPhase.Windup ? intent.FacingMdeg : from.FacingMdeg };
+        }
+        else if (combat.Blocking)
+        {
+            intent = intent with { Gait = Gait.Walk };
+        }
+        else if (intent.Gait == Gait.Sprint && _context.State.Progression.Pools.Stamina == 0)
+        {
+            intent = intent with { Gait = Gait.Run };
+        }
+
+        var to = Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (to == from)
             return;
         _context.State.SetBody(_owner, to);
         _context.Events.Publish(new BodyMoved(_player, from, to, tick));
+    }
+
+    public string? Handle(Relocate command, long tick)
+    {
+        var from = _context.State.Body;
+        _context.State.SetBody(_owner, command.Body);
+        Intent = MoveIntent.Idle(command.Body.FacingMdeg);
+        _context.Events.Publish(new BodyMoved(_player, from, command.Body, tick));
+        return null;
     }
 }
 
@@ -179,6 +227,37 @@ internal sealed class ProgressionSystem
         _context.State.SetProgression(_owner, result.Progression);
         _context.Events.Publish(new ExperienceGained(command.Award.Source, result.Awarded, result.Repaid, result.LevelsGained,
             result.Progression.Level, command.Award.Tick));
+        return null;
+    }
+
+    /// <summary>The current pools move, clamped to their derived maxima; a full pool is stored as full (null), never as a number.</summary>
+    public string? Handle(ChangePools command)
+    {
+        var progression = _context.State.Progression;
+        var stats = ProgressionEngine.Derive(progression, _context.Setup.Progression);
+        int maxHealth = (int)stats.HealthMax, maxStamina = (int)stats.StaminaMax;
+        int health = Math.Clamp((progression.Pools.Health ?? maxHealth) + command.Health, 0, maxHealth);
+        int stamina = Math.Clamp((progression.Pools.Stamina ?? maxStamina) + command.Stamina, 0, maxStamina);
+        var pools = progression.Pools with { Health = health >= maxHealth ? null : health, Stamina = stamina >= maxStamina ? null : stamina };
+        if (pools != progression.Pools)
+            _context.State.SetProgression(_owner, progression with { Pools = pools });
+        return null;
+    }
+
+    public string? Handle(PracticeSkill command)
+    {
+        var result = ProgressionEngine.Practice(_context.State.Progression, command.Practice, _context.Setup.Progression);
+        _context.State.SetProgression(_owner, result.Progression);
+        _context.Events.Publish(new SkillPracticed(command.Practice.SkillId, result.XpGained,
+            ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), command.Practice.Tick));
+        return null;
+    }
+
+    /// <summary>AG-8: a death owes XP debt and takes nothing earned; the body comes back whole.</summary>
+    public string? Handle(RecordDeath command)
+    {
+        var result = ProgressionEngine.Die(_context.State.Progression, _context.Setup.Progression);
+        _context.State.SetProgression(_owner, result.Progression with { Pools = PoolState.Full });
         return null;
     }
 }

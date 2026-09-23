@@ -175,6 +175,65 @@ internal sealed class InventorySystem
         return null;
     }
 
+    /// <summary>Use a carried consumable: one leaves its stack and its effect applies (the salve's mending, M3c).</summary>
+    public string? Handle(UseItemCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == command.Item) is not { } entry)
+            return $"{command.Item} is not carried";
+        if (!_context.Setup.Combat.UseEffects.TryGetValue(entry.DefId, out var effect))
+            return $"{entry.DefId} has no use";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        Remove(new[] { (entry, 1) });
+        _context.Dispatch(new ApplyEffect(_player, effect));
+        _context.Events.Publish(new ItemUsed(_player, entry.DefId, effect, tick));
+        return null;
+    }
+
+    /// <summary>Spend carried items by definition, oldest stacks first: an arrow at release. Equipped items are never spent.</summary>
+    public string? Handle(ConsumeItem command, long tick)
+    {
+        var stacks = State.Inventory.Where(e => e.DefId == command.DefId && !State.Equipment.ContainsValue(e.ItemId))
+            .OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList();
+        if (command.Count < 1 || stacks.Sum(e => e.Count) < command.Count)
+            return $"not enough {command.DefId}";
+        var taking = new List<(InventoryEntry, int)>();
+        int left = command.Count;
+        foreach (var stack in stacks)
+        {
+            int take = Math.Min(left, stack.Count);
+            taking.Add((stack, take));
+            left -= take;
+            if (left == 0)
+                break;
+        }
+        Remove(taking);
+        _context.Events.Publish(new ItemConsumed(_player, command.DefId, command.Count, tick));
+        return null;
+    }
+
+    /// <summary>Take counts out of carried stacks. A stack used up is gone, and so is its identity (D-10).</summary>
+    private void Remove(IEnumerable<(InventoryEntry Entry, int Count)> taking)
+    {
+        var entries = State.Inventory.ToList();
+        foreach (var (entry, count) in taking)
+        {
+            int index = entries.FindIndex(e => e.ItemId == entry.ItemId);
+            if (count >= entries[index].Count)
+            {
+                entries.RemoveAt(index);
+                Retire(entry.ItemId);
+            }
+            else
+            {
+                entries[index] = entries[index] with { Count = entries[index].Count - count };
+            }
+        }
+        State.SetInventory(_owner, entries);
+    }
+
     // ── views ───────────────────────────────────────────────────────────────
 
     public ContainerView View(ContainerSite site)
@@ -482,7 +541,7 @@ internal sealed class EquipmentSystem
         return null;
     }
 
-    /// <summary>The armour worn, summed (combat reads it in M3c).</summary>
+    /// <summary>The armor worn, summed, for the character sheet; combat reads it per region.</summary>
     public int Armor() =>
         _context.State.Equipment.Values
             .Select(id => _context.State.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId)

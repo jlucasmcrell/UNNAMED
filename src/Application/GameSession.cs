@@ -86,6 +86,7 @@ public sealed class GameSession : IDomainEvents
             Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
                 ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
                 ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
+            Combat = CombatContent.Build(loader, options.RegionId),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

@@ -6,13 +6,15 @@ using UNNAMED.Application;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Player;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
 
 /// <summary>
 /// <c>godot --headless --path src/Presentation -- --smoke</c>: the project boots, content loads, the world is built and
-/// ticks, the player walks to the longhouse through the real command path and opens its door, and a quicksave loads
-/// back to the identical state. Exit code 0 on success, 1 on failure; the scratch save profile is removed either way.
+/// ticks, the player walks to the longhouse through the real command path and opens its door, swings the sword at
+/// nothing (M3c: the attack runs its phases and misses), and a quicksave loads back to the identical state. Exit code 0
+/// on success, 1 on failure; the scratch save profile is removed either way.
 /// </summary>
 public sealed class Smoke
 {
@@ -25,6 +27,9 @@ public sealed class Smoke
     private int _frames;
     private int _waypoint;
     private bool _asked;
+    private bool _swung;
+    private bool _started;
+    private bool _missed;
 
     public Smoke(GameSession session, PlayerController controller, CameraRig camera, string profile)
     {
@@ -32,6 +37,8 @@ public sealed class Smoke
         _controller = controller;
         _camera = camera;
         _profile = profile;
+        _session.Subscribe<AttackStarted>(e => _started |= e.Attacker == _session.Simulation!.PlayerId);
+        _session.Subscribe<AttackMissed>(e => _missed |= e.Attacker == _session.Simulation!.PlayerId);
     }
 
     /// <summary>Advance one frame; returns the exit code when the smoke is over.</summary>
@@ -67,6 +74,17 @@ public sealed class Smoke
             return null;
         }
 
+        if (!_swung)
+        {
+            if (_session.Simulation!.Creatures.Count(c => c.Alive) != 2)
+                return Fail($"expected the two valley strays, found {_session.Simulation.Creatures.Length} creatures");
+            _controller.Attack();
+            _swung = true;
+            return null;
+        }
+        if (!_started || !_missed)
+            return null;
+
         var before = _session.Simulation!;
         string digest = before.StateDigest();
         long tick = before.WorldTick;
@@ -77,7 +95,7 @@ public sealed class Smoke
             || !after.Doors.Single(d => d.Site.Key == "door.longhouse").Open)
             return Fail($"the quicksave did not load back to the same state (digest {after.StateDigest()} vs {digest}, tick {after.WorldTick} vs {tick})");
 
-        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, door opened, save/load digest {digest[..23]}... identical");
+        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, door opened, a swing ran and missed, save/load digest {digest[..23]}... identical");
         Cleanup();
         return 0;
     }

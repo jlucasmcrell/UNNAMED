@@ -1,0 +1,16 @@
+id: effect.weakened
+kind: effect
+schema: 1
+display_key: effect.weakened.name
+tags: [effect]
+name: Weakened
+notes: What dying costs besides XP debt (PROTOTYPE.md §5 step 7) - 60 s of three-quarter blows and half-speed stamina.
+category: debuff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 30.0         # game minutes (config.time): 60 s
+tick_interval_min: 0
+modifiers:
+  - { target: stat.damage_dealt, op: multiply, value: 0.75 }
+  - { target: stat.stamina_regen, op: multiply, value: 0.5 }
+dispel_category: none

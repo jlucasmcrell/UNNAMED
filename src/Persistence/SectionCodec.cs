@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using MessagePack;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.World;
 
@@ -38,6 +39,18 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 6. The 5 -> 6 step gives older saves an empty purse.</summary>
     [Key("currency")] public long? Currency { get; set; }
+
+    /// <summary>Required from schema 7. The 6 -> 7 step gives older saves no effects.</summary>
+    [Key("effects")] public EffectDto[]? Effects { get; set; }
+}
+
+[MessagePackObject]
+public sealed class EffectDto
+{
+    [Key("effect_id")] public string EffectId { get; set; } = "";
+    [Key("stacks")] public int Stacks { get; set; }
+    [Key("expires_tick")] public long ExpiresTick { get; set; }
+    [Key("next_tick_at")] public long NextTickAt { get; set; }
 }
 
 [MessagePackObject]
@@ -213,6 +226,9 @@ public static class SectionCodec
             .Select(kv => new EquipmentDto { Slot = EquipSlots.Key(kv.Key), ItemId = kv.Value.Value })
             .ToArray(),
         Currency = player.Currency,
+        Effects = player.Effects
+            .Select(e => new EffectDto { EffectId = e.EffectId, Stacks = e.Stacks, ExpiresTick = e.ExpiresTick, NextTickAt = e.NextTickAt })
+            .ToArray(),
     }, Options);
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
@@ -223,11 +239,13 @@ public static class SectionCodec
         var discoveries = dto.Discoveries ?? throw new FormatException("player.msgpack has no discovery records (required from schema 5)");
         var equipment = dto.Equipment ?? throw new FormatException("player.msgpack has no equipment (required from schema 6)");
         long currency = dto.Currency ?? throw new FormatException("player.msgpack has no currency (required from schema 6)");
+        var effects = dto.Effects ?? throw new FormatException("player.msgpack has no effects (required from schema 7)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
-            equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency);
+            equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
+            effects.Select(e => new ActiveEffect(e.EffectId, e.Stacks, e.ExpiresTick, e.NextTickAt)));
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

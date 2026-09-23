@@ -13,6 +13,7 @@ using V2 = UNNAMED.Persistence.Sections.V2;
 using V3 = UNNAMED.Persistence.Sections.V3;
 using V4 = UNNAMED.Persistence.Sections.V4;
 using V5 = UNNAMED.Persistence.Sections.V5;
+using V6 = UNNAMED.Persistence.Sections.V6;
 
 namespace UNNAMED.Persistence;
 
@@ -65,7 +66,8 @@ public static class SchemaMigrations
         new SchemaV2ToV3(),
         new SchemaV3ToV4(),
         new SchemaV4ToV5(),
-        new SchemaV5ToV6());
+        new SchemaV5ToV6(),
+        new SchemaV6ToV7());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -383,7 +385,7 @@ public sealed class SchemaV5ToV6 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V5.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V6.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -391,12 +393,12 @@ public sealed class SchemaV5ToV6 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Inventory = old.Inventory.Select(i => new V6.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
                 Progression = old.Progression,
                 FacingMdeg = old.FacingMdeg,
                 Discoveries = (old.Discoveries ?? Array.Empty<V5.Discovery>())
-                    .Select(d => new DiscoveryDto { LocationId = d.LocationId, Method = d.Method, Tick = d.Tick }).ToArray(),
-                Equipment = Array.Empty<EquipmentDto>(),
+                    .Select(d => new V6.Discovery { LocationId = d.LocationId, Method = d.Method, Tick = d.Tick }).ToArray(),
+                Equipment = Array.Empty<V6.Equipment>(),
                 Currency = 0,
             }, options);
         }
@@ -420,6 +422,46 @@ public sealed class SchemaV5ToV6 : SchemaMigration
                 }).ToArray(),
                 Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
                 Containers = Array.Empty<ContainerDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 6 to 7 (M3c): the player gains active status effects (SYSTEMS.md S-11). A save that predates them had none,
+/// since nothing could apply one before M3c.
+/// </summary>
+public sealed class SchemaV6ToV7 : SchemaMigration
+{
+    public override int From => 6;
+
+    public override string Summary => "schema 6 -> 7: the player gains active status effects (none before M3c)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V6.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = (old.Discoveries ?? Array.Empty<V6.Discovery>())
+                    .Select(d => new DiscoveryDto { LocationId = d.LocationId, Method = d.Method, Tick = d.Tick }).ToArray(),
+                Equipment = (old.Equipment ?? Array.Empty<V6.Equipment>())
+                    .Select(e => new EquipmentDto { Slot = e.Slot, ItemId = e.ItemId }).ToArray(),
+                Currency = old.Currency,
+                Effects = Array.Empty<EffectDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

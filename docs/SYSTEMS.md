@@ -156,11 +156,12 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 ### S-12 Combat & Damage Resolution
 
 - **Responsibility.** Decide the outcome of an attack: hit or miss, how much damage, of what type, applied where.
-- **Owns.** The damage pipeline, hit resolution, critical determination, block/parry/dodge resolution, stagger/poise state, threat/aggro table, combat-state flags (in-combat timer).
+- **Owns.** The damage pipeline, hit resolution, critical determination, block/parry/dodge resolution, stagger/poise state, combat-state flags (in-combat timer). There is no threat or aggro table: who an actor fights is that actor's own record, derived from what it perceived, inferred or was told, and owned by S-23 (`STEALTH_DETECTION_AND_THREAT.md` §1, §6).
 - **Reads.** S-05 (stats), S-15 (equipped weapon and armor), S-11 (offensive/defensive effects), S-13 (spell damage packets), S-02 (target identity), S-22 (positioning/reach).
 - **Persistent.** In-combat timers and poise are transient; only outcomes that mutate other systems' state persist (health via S-06, durability via S-15, death via S-06/S-07).
-- **Transient.** Full pipeline working set, RNG stream cursor (seeded, per-cell, so replay is deterministic), aggro table.
+- **Transient.** Full pipeline working set, RNG stream cursor (seeded, per-cell, so replay is deterministic).
 - **Events/interfaces.** `ResolveAttack(AttackRequest) → DamageResult`, `ApplyDamagePacket(packet)`; emits `AttackResolved`, `DamageApplied`, `CriticalHit`, `Blocked`, `Dodged`, `Staggered`, `Killed`, `CombatStarted`, `CombatEnded`. Exactly **one** system computes damage; spells, abilities, traps, and environmental hazards all submit damage packets to this pipeline rather than computing their own.
+- **M3c reconciliation** (with `COMBAT_DAMAGE_ARMOR_AND_DEATH.md` and `STEALTH_DETECTION_AND_THREAT.md`). The pipeline is `CombatRules.Resolve` in `Domain.Combat`, run by the runtime `CombatSystem`: attack, contact region (head, torso, limbs), that region's armor, penetration, then damage, stagger and on-hit effect (COMBAT §18). Level is never an input, so no level makes a body immune to a physical blow (§32); reach, the front arc, walls between, and the timing of windup, active window and recovery decide whether a blow lands at all. Effect ticks submit their harm to the same system, the one place health falls and death is noticed. The current pools stay on the progression record, where M2c put them (S-06's persistent current values); S-07's death consequences are XP debt (AG-8), a respawn at the region's spawn and `effect.weakened`. Until S-23 arrives (M3d), a creature knows only what it has felt: it turns on whoever wounds it and gives up past its leash.
 
 ### S-13 Magic & Spellcasting
 
@@ -256,8 +257,8 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 - **Responsibility.** Choose what a hostile/neutral actor does each decision interval, given perception and its role.
 - **Owns.** Behavior profile selection, perception records (seen/heard targets with timestamps), decision timers, ability selection policy, morale/flee state, group-coordination role, patrol/leash state.
-- **Reads.** S-05, S-12 (aggro and in-combat state), S-21 (tier — only tier A/B actors run full decisions), S-22 (movement target), S-27 (NPC faction and disposition), S-04 (schedule phase for behavior mode).
-- **Persistent.** Only durable divergence: morale-broken state for a named NPC, aggro against the player that outlives a cell unload, and any scripted behavior flags.
+- **Reads.** S-05, S-12 (in-combat state and the blows an actor has taken), S-21 (tier — only tier A/B actors run full decisions), S-22 (movement target), S-27 (NPC faction and disposition), S-04 (schedule phase for behavior mode).
+- **Persistent.** Only durable divergence: morale-broken state for a named NPC, a target an actor still hunts after a cell unload (its own perception record, never a shared table), and any scripted behavior flags.
 - **Transient.** Perception, decision timers, path requests, role assignment. Rebuilt at load; an actor with no transient AI state behaves as its definition and tier dictate.
 - **Events/interfaces.** `SetBehaviorProfile(entityId, profileId)`, `SetAlarmed(entityId, bool)`, `ForceTarget(entityId, targetId)`; emits `TargetAcquired`, `TargetLost`, `Fleeing`, `CalledForHelp`, `BehaviorChanged`. Tier C/D actors **do not** run this system; they run S-27's abstract model (D-06).
 

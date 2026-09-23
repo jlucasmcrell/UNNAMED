@@ -3,5 +3,6 @@ kind: skill
 schema: 1
 display_key: skill.survival.name
 tags: [skill]
+name: Survival
 family: world
 notes: Wilderness competence. PROTOTYPE.md - gathering yield +1 at level 3 (wired in M3f).

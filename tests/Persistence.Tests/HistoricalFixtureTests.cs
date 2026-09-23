@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
@@ -9,7 +10,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.3";
+    public const string ContentVersion = "0.2.4";
 
     public static string Root { get; } = FindRoot();
 
@@ -171,11 +172,28 @@ public class HistoricalFixtureTests
             Assert.Null(chest);
         }
 
+        // Schema 7's active effects: deadlines in world ticks, and the renamed effect renamed on load; none before.
+        if (schema >= 7)
+        {
+            Assert.Equal(new[] { new ActiveEffect("effect.bleeding", 2, 5_100, 5_020), new ActiveEffect("effect.weakened", 1, 5_600, 4_801) },
+                loaded.Player.Effects);
+        }
+        else
+        {
+            Assert.Empty(loaded.Player.Effects);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
-            >= 6 => new[]
+            >= 7 => new[]
+            {
+                "effect.weakness -> effect.weakened",
+                "item.potion.healing_draught -> item.potion.minor_healing x4", "location.wolf_den -> location.den_mouth",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            6 => new[]
             {
                 "item.potion.healing_draught -> item.potion.minor_healing x4", "location.wolf_den -> location.den_mouth",
                 "spell.ember.firebolt -> spell.ember.bolt",

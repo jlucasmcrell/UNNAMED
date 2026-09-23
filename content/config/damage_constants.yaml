@@ -1,0 +1,25 @@
+id: config.damage_constants
+kind: config
+schema: 1
+display_key: config.damage_constants.name
+tags: [config]
+notes: Combat tuning (PROTOTYPE.md §4.4, M3c). Placeholder values with a stated shape (PROTOTYPE.md A-5); the generated TTK table checks them.
+armor_k: 50                        # a region's armor mitigates armor / (armor + k) of a physical blow landing there
+pierce_armor_ignored: 0.3          # piercing blows find the gaps in a third of it
+crit_multiplier: 1.5
+base_crit_percent: 5
+might_damage_percent_per_point: 4  # Might above (or below) the base adds to (or takes from) physical blows
+regions:                           # COMBAT_DAMAGE_ARMOR_AND_DEATH.md §17: where blows land, and how much the place matters
+  head: { weight: 10, multiplier: 1.5 }
+  torso: { weight: 60, multiplier: 1.0 }
+  limbs: { weight: 30, multiplier: 0.75 }
+stagger: { threshold_percent: 14.5, duration_s: 0.6, immunity_s: 2.0 }   # impact of 14.5% of max health staggers; never a stun-lock
+block: { mitigation_percent: 70, stamina_per_hit: 10, arc_deg: 120 }  # a guard holds only to the front, and only with stamina
+dodge: { stamina: 20, iframes_s: 0.25, recovery_s: 0.25, distance_m: 2.5 }
+stamina: { regen_per_s: 20, regen_delay_s: 1.0, sprint_per_s: 10, attack_default: 8 }
+health: { regen_per_s: 1, out_of_combat_s: 8 }
+melee: { arc_deg: 90, windup_percent: 40, active_percent: 20 }   # a swing: windup, then the active window, then recovery
+ranged: { range_m: 40, recovery_s: 0.3 }                         # a shot resolves at release; recovery is the nock
+unarmed: { damage: [2, 3], damage_type: physical_blunt, reach: 1.2, attack_time: 0.6, stamina_cost: 4 }
+creature_leash_m: 40               # a creature gives up a chase this far from home
+death: { effect_ref: effect.weakened }   # PROTOTYPE.md §5 step 7: respawn at the outpost, weakened for 60 s
