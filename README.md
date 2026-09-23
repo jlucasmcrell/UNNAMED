@@ -1,4 +1,6 @@
-﻿# Otherreach
+﻿<p align="center"><img src="assets/branding/otherreach_banner.webp" alt="Otherreach: A Solo-First Open-World Fantasy RPG" width="100%"></p>
+
+# Otherreach
 
 > **Beyond where. Beyond when.**
 
