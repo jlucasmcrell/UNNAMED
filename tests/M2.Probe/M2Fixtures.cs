@@ -94,9 +94,12 @@ public static class M2Fixtures
         public const string ContentVersion = "0.1.0";
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
-        /// <summary>The pack the current fixture is written with (Fixtures/content-0.1.1: 0.1.0 plus the progression definitions).</summary>
-        public const string WriterContentVersion = "0.1.1";
-        public const string WriterContentHash = "sha256:0a46ac0214a763a5af84d68d7a83ae69a57fab4d749574f3480e7232819c1f61";
+        /// <summary>
+        /// The pack the current fixture is written with (Fixtures/content-0.1.2: 0.1.1 plus a region, the place the
+        /// discovery record names, and the movement and tier config a region needs).
+        /// </summary>
+        public const string WriterContentVersion = "0.1.2";
+        public const string WriterContentHash = "sha256:fb2c40b931277ea239fdda4f03779a2d062e5c1b2f242721ce6fc06a9848d698";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -107,7 +110,10 @@ public static class M2Fixtures
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
             },
-            Progression());
+            Progression(),
+            facingMdeg: 123_456,
+            // Schema 5. Written with content 0.1.2, which calls the place location.wolf_den; the current pack renames it.
+            discoveries: new[] { new DiscoveryRecord("location.wolf_den", DiscoveryMethod.Visited, 3_000) });
 
         /// <summary>
         /// Progression in every field (schema 4). Written with content 0.1.1, so it names the formula
@@ -168,8 +174,8 @@ public static class M2Fixtures
             return world;
         }
 
-        public const string CurrentContentVersion = "0.2.1";
-        public const string CurrentContentHash = "sha256:2d645f2ab426fac77bab6ea1359c4e1fbdecfe92237f99252b5acf4ce9b5155c";
+        public const string CurrentContentVersion = "0.2.2";
+        public const string CurrentContentHash = "sha256:e7ebf74e86e2d42c6b2a779effcbcc7ee208ec13fa57386a6f169bc1a1a036b2";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -179,14 +185,16 @@ public static class M2Fixtures
             CurrentContentVersion, CurrentContentHash,
             new[]
             {
+                "config.base_speeds", "config.simulation_tiers",
                 "creature.beast.deer", "creature.beast.wolf_grey", "item.potion.minor_healing", "item.weapon.iron_sword",
-                "recipe.alchemy.salve_minor", "skill.athletics", "skill.one_hand_blade", "spell.ember.bolt",
-                "world.door.cellar_open", "world.lever.mill_gate",
+                "location.den_mouth", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics", "skill.one_hand_blade",
+                "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",
             },
             new Dictionary<string, string>
             {
                 ["item.potion.healing_draught"] = "item.potion.minor_healing",
                 ["spell.ember.firebolt"] = "spell.ember.bolt",
+                ["location.wolf_den"] = "location.den_mouth",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

@@ -22,10 +22,12 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.1) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.2) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
-   was written with. Content 0.2.0 renamed the potion; 0.2.1 renamed the formula.
+   was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
+   movement and tier config a region needs - is the pack v5 was written with. Content 0.2.0 renamed the
+   potion; 0.2.1 renamed the formula; 0.2.2 renamed the place.
 
 ## The fixture world
 
@@ -51,6 +53,8 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | Knows `spell.ember.firebolt` (teacher) and `recipe.alchemy.salve_minor` (book) | player progression | The formula was **renamed** to `spell.ember.bolt` in content 0.2.1: the rename must reach the knowledge record |
 | First-produced `item.potion.healing_draught`; novelty claimed for the recipe | player progression | The production record names the renamed potion too, so the load applies that alias twice |
 | Health 87, Focus 40, Strain 6; three wolf kills on day 0 at the wolves' cluster | player progression | Pools (a nil pool is full) and the AG-2/AG-3 guard memory |
+| Facing 123456 millidegrees | player | Schema 5. v1-v4 migrate to 0 (+Z) |
+| Discovered `location.wolf_den` (visited, tick 3000) | player discoveries | Schema 5. The place was **renamed** to `location.den_mouth` in content 0.2.2: the rename must reach the discovery record. v1-v4 migrate to none |
 
 ## Provenance
 
@@ -60,6 +64,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v2/` | The M2b schema-2 writer, commit `b310979` | `M2.Probe fixture <dir>` (`M2Fixtures.Historical`) |
 | `v3/` | The M2b schema-3 writer | `M2.Probe fixture <dir>` |
 | `v4/` | The M2c schema-4 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.1) |
+| `v5/` | The M3 schema-5 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

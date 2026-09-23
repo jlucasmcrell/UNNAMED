@@ -516,9 +516,11 @@ public class ContentLoaderTests
         Assert.Equal(
             new[]
             {
-                "config.level_cap", "config.progression", "config.time", "config.xp_curve",
+                "config.base_speeds", "config.level_cap", "config.progression", "config.simulation_tiers", "config.time", "config.xp_curve",
                 "creature.beast.wolf_grey", "item.potion.heal_dangling", "item.weapon.iron_sword",
-                "skill.athletics", "skill.one_hand_blade", "skill.survival",
+                "location.den_mouth", "location.herb_patch", "location.iron_shelf", "location.outpost",
+                "region.ashen_hollow", "skill.athletics", "skill.one_hand_blade", "skill.survival",
+                "world.hollow.forge_shed_door_open", "world.hollow.longhouse_door_open",
             },
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }

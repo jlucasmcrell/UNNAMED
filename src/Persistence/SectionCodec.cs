@@ -25,6 +25,20 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 4. The 3 -> 4 step gives older saves the empty record.</summary>
     [Key("progression")] public ProgressionDto? Progression { get; set; }
+
+    /// <summary>Required from schema 5. The 4 -> 5 step gives older saves facing 0 (+Z).</summary>
+    [Key("facing_mdeg")] public int? FacingMdeg { get; set; }
+
+    /// <summary>Required from schema 5. The 4 -> 5 step gives older saves no discoveries.</summary>
+    [Key("discoveries")] public DiscoveryDto[]? Discoveries { get; set; }
+}
+
+[MessagePackObject]
+public sealed class DiscoveryDto
+{
+    [Key("location_id")] public string LocationId { get; set; } = "";
+    [Key("method")] public string Method { get; set; } = "";
+    [Key("tick")] public long Tick { get; set; }
 }
 
 [MessagePackObject]
@@ -154,15 +168,22 @@ public static class SectionCodec
             .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
+        FacingMdeg = player.FacingMdeg,
+        Discoveries = player.Discoveries
+            .Select(d => new DiscoveryDto { LocationId = d.LocationId, Method = DiscoveryMethods.Key(d.Method), Tick = d.Tick })
+            .ToArray(),
     }, Options);
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
         var dto = MessagePackSerializer.Deserialize<PlayerDto>(bytes, Options);
         var progression = dto.Progression ?? throw new FormatException("player.msgpack has no progression record (required from schema 4)");
+        int facing = dto.FacingMdeg ?? throw new FormatException("player.msgpack has no facing (required from schema 5)");
+        var discoveries = dto.Discoveries ?? throw new FormatException("player.msgpack has no discovery records (required from schema 5)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)),
-            ProgressionCodec.FromDto(progression));
+            ProgressionCodec.FromDto(progression), facing,
+            discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)));
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

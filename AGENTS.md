@@ -4,7 +4,8 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 
 ## Current status
 
-- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`), M2c - progression spine (`docs/M2C_STATUS.md`; the ratified model is `docs/PROGRESSION_AXIS_RECONCILIATION.md`). Next: the camera/presentation reconciliation, then M3, per `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`. The run stops after M6 for the owner's playtest.
+- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`), M2c - progression spine (`docs/M2C_STATUS.md`; the ratified model is `docs/PROGRESSION_AXIS_RECONCILIATION.md`), M3 - player, camera, movement, interaction, world cells (`docs/M3_STATUS.md`; its performance gate waits on the owner's RAZER measurement window). Next: content-validation hardening, then M3b, per `docs/CLAUDE_PHASE1_EXECUTION_PROMPT.md`. The run stops after M6 for the owner's playtest.
+- The running world is `src/World/Runtime`: `Simulation` (the composition root, command queue and fixed 20 Hz tick) and its systems, each owning declared `StateSlice`s. Movement, terrain, collision and tiers are pure functions in `src/Domain/Spatial`; `Kinematics.Step` is the one movement function, shared by the simulation and presentation's prediction. `src/Application/GameSession.cs` boots content, runs new game / load / save, and the frame loop.
 - Progression rules live in `src/Domain/Progression` as pure functions (`ProgressionEngine`); their numbers are content (`content/config/progression.yaml` and friends, built by `ProgressionContent`). Each axis advances only through its own currency type - never add an overload that takes gold, items or another axis's currency.
 
 ## Roles and worktrees (owner ruling, 2026-09-23)
@@ -57,4 +58,5 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 
 ## Godot
 
-- `src/Presentation` references `GodotSharp` / `GodotSharpEditor` 4.7.2, matching the installed editor. Change both together, and only to match the editor version.
+- `src/Presentation` is the Godot project (`project.godot`, `Godot.NET.Sdk/4.7.2`, matching the installed editor; change it only to match the editor version). It renders and submits commands; it never writes state (`tests/Architecture.Tests` scans its sources). Commit the `.uid` files; `.godot/` is ignored.
+- Build it with `dotnet build src/Presentation/Presentation.csproj`, then, with the console editor binary: headless smoke `godot --headless --path src/Presentation -- --smoke` (exit 0 = pass), boot check `godot --headless --path src/Presentation --quit-after 300`, performance capture `godot --path src/Presentation -- --perf [--perf-out <dir>] [--perf-seconds <n>]`, 2x2 km spike `... -- --spike`. A capture belongs on RAZER, in a window the owner agrees (`docs/M3_STATUS.md`).

@@ -30,6 +30,7 @@ internal static class CanonicalState
             json.WriteNumber("x_mm", player.XMm);
             json.WriteNumber("y_mm", player.YMm);
             json.WriteNumber("z_mm", player.ZMm);
+            json.WriteNumber("facing_mdeg", player.FacingMdeg);
             json.WriteString("appearance_seed", World.WorldSeed.Format(player.AppearanceSeed));
             json.WriteStartArray("inventory");
             foreach (var entry in player.Inventory)
@@ -42,6 +43,16 @@ internal static class CanonicalState
             }
             json.WriteEndArray();
             WriteProgression(json, player.Progression);
+            json.WriteStartArray("discoveries");
+            foreach (var discovery in player.Discoveries)
+            {
+                json.WriteStartObject();
+                json.WriteString("location_id", discovery.LocationId);
+                json.WriteString("method", World.DiscoveryMethods.Key(discovery.Method));
+                json.WriteNumber("tick", discovery.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

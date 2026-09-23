@@ -1,5 +1,6 @@
-# Fixture content 0.2.0 renamed item.potion.healing_draught; 0.2.1 renamed spell.ember.firebolt.
-# Saves written with 0.1.0 or 0.1.1 resolve through here.
+# Fixture content 0.2.0 renamed item.potion.healing_draught; 0.2.1 renamed spell.ember.firebolt; 0.2.2 renamed
+# location.wolf_den. Saves written with 0.1.0, 0.1.1 or 0.1.2 resolve through here.
 aliases:
   item.potion.healing_draught: item.potion.minor_healing
   spell.ember.firebolt: spell.ember.bolt
+  location.wolf_den: location.den_mouth

@@ -1,0 +1,21 @@
+id: region.fixture_vale
+kind: region
+schema: 1
+display_key: region.fixture_vale.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+region_key: r_0_0
+cells: [r_0_0:c_00_00]
+bounds_m: { min: [0, 0], max: [100, 100] }
+spawn: { position_m: [50, 50], facing_deg: 0 }
+generation: { terrain: { base_height_mm: 12000, amplitude_mm: 800, samples_per_axis: 11 } }
+terrain:
+  origin_m: [0, 0]
+  spacing_m: 100
+  columns: 2
+  rows: 2
+  heights_m:
+    - [12, 12]
+    - [12, 12]
+structures: []
+doors: []

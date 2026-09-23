@@ -133,7 +133,7 @@ Structure is declarative (D-07). Each objective is a `type` + parameters; state 
 | # | Objective | Type | Predicate |
 |---|---|---|---|
 | O1 | "Hear what Halda wants." | `talk_to` | `npc.keeper_halda` conversation node `dlg.keeper_halda.offer` visited |
-| O2 | "Find where the wolves den." | `visit_location` | player enters `loc.den_mouth` radius (8 m) → fires `location.discovered` |
+| O2 | "Find where the wolves den." | `visit_location` | player enters `location.den_mouth` radius (8 m) → fires `location.discovered` (IDs take `DATA_MODEL.md`'s `location.` prefix; an earlier draft wrote `loc.`) |
 | O3 | "Recover Halda's token from the pack." | `acquire_item` | instance of `item.quest.halda_token` is in player inventory, AND `creature.beast.wolf_grey` kill count at `loc.den_mouth` ≥ 3 |
 | O4 | "Bring Halda a salve for her brother's leg." | `craft` + `deliver` | `recipe.alchemy.salve_minor` crafted ≥ 1 since O1, AND 1× `item.consumable.salve_minor` handed to `npc.keeper_halda` |
 
@@ -155,10 +155,12 @@ content/
   quests/       hollow_lost_token.yaml
   dialogue/     3 graphs
   locations/    4 named locations (outpost, den_mouth, iron_shelf, herb_patch)
-  config/       xp_curve, level_cap, base_speeds, damage_constants
+  regions/      1 region: ashen_hollow - the 4 cells, the terrain grid, structures and doors (M3)
+  world_flags/  2 door flags (M3)
+  config/       xp_curve, level_cap, base_speeds, damage_constants, time, progression, simulation_tiers
 ```
 
-39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind.
+39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 reconciliation:** `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
 
 ## 5. Core loop the player actually performs
 

@@ -267,7 +267,17 @@ internal static class SaveLoader
         // Skills, known techniques, first-time records and kill records name definitions too (schema 4).
         var progression = player.Progression.RewriteDefinitionIds((id, role) => Resolve(id, $"player {role}"));
 
-        return (player.WithInventory(inventory).WithProgression(progression),
+        // Discovered locations (schema 5). Two records that resolve to one place keep the earliest discovery.
+        var discoveries = new SortedDictionary<string, DiscoveryRecord>(StringComparer.Ordinal);
+        foreach (var record in player.Discoveries)
+        {
+            if (Resolve(record.LocationId, "player discovery") is not { } id)
+                continue;
+            if (!discoveries.TryGetValue(id, out var existing) || record.Tick < existing.Tick)
+                discoveries[id] = record with { LocationId = id };
+        }
+
+        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable() });
     }
 

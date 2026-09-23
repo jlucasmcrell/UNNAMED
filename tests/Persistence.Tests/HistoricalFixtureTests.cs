@@ -8,7 +8,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.1";
+    public const string ContentVersion = "0.2.2";
 
     public static string Root { get; } = FindRoot();
 
@@ -137,11 +137,31 @@ public class HistoricalFixtureTests
             Assert.Equal(CharacterProgression.Empty.Digest, progression.Digest);
         }
 
+        // Schema 5's facing and discovery record: written by v5, the place renamed on load like everything else; absent before.
+        if (schema >= 5)
+        {
+            Assert.Equal(123_456, loaded.Player.FacingMdeg);
+            var discovery = Assert.Single(loaded.Player.Discoveries);
+            Assert.Equal(("location.den_mouth", DiscoveryMethod.Visited, 3_000L), (discovery.LocationId, discovery.Method, discovery.Tick));
+        }
+        else
+        {
+            Assert.Equal(0, loaded.Player.FacingMdeg);
+            Assert.Empty(loaded.Player.Discoveries);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
-        var aliases = schema >= 4
-            ? new[] { "item.potion.healing_draught -> item.potion.minor_healing x2", "spell.ember.firebolt -> spell.ember.bolt" }
-            : new[] { "item.potion.healing_draught -> item.potion.minor_healing" };
+        var aliases = schema switch
+        {
+            >= 5 => new[]
+            {
+                "item.potion.healing_draught -> item.potion.minor_healing x2", "location.wolf_den -> location.den_mouth",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            4 => new[] { "item.potion.healing_draught -> item.potion.minor_healing x2", "spell.ember.firebolt -> spell.ember.bolt" },
+            _ => new[] { "item.potion.healing_draught -> item.potion.minor_healing" },
+        };
         Assert.Equal(aliases, loaded.Report.Aliases);
         Assert.Equal(schema >= 3 ? 7 : 6, loaded.Report.CellsMatched);
         Assert.Empty(loaded.Report.Loss);

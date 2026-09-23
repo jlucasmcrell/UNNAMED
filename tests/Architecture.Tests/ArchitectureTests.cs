@@ -102,6 +102,92 @@ public class ArchitectureTests
         Assert.True(offenders.Count == 0, "Static mutable state:\n" + string.Join("\n", offenders));
     }
 
+    /// <summary>
+    /// The running simulation is authoritative state too. Presentation can read it and queue commands; stepping time is
+    /// the session's job. A new public member must be added here deliberately.
+    /// </summary>
+    [Fact]
+    public void TheSimulation_ExposesOnlyReadsAndTheCommandPath()
+    {
+        string[] allowed =
+        {
+            nameof(UNNAMED.World.Runtime.Simulation.Start), nameof(UNNAMED.World.Runtime.Simulation.NewCharacter),
+            nameof(UNNAMED.World.Runtime.Simulation.CellOf), nameof(UNNAMED.World.Runtime.Simulation.Enqueue),
+            nameof(UNNAMED.World.Runtime.Simulation.DrainCommands), nameof(UNNAMED.World.Runtime.Simulation.Step),
+            nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
+        };
+        var exposed = typeof(UNNAMED.World.Runtime.Simulation)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+            .Where(m => !m.IsSpecialName)
+            .Select(m => m.Name)
+            .Distinct()
+            .OrderBy(n => n, StringComparer.Ordinal);
+        Assert.Equal(allowed.OrderBy(n => n, StringComparer.Ordinal), exposed);
+        Assert.All(typeof(UNNAMED.World.Runtime.Simulation).GetProperties(), p => Assert.Null(p.SetMethod));
+    }
+
+    /// <summary>What presentation is handed - views and events - is immutable: a view that writes to one changes a copy.</summary>
+    [Fact]
+    public void ViewsAndEvents_HaveNoPublicSetters()
+    {
+        // Every public record of the runtime (views, events, commands) and of the spatial rules (bodies, intents, layouts).
+        var records = typeof(UNNAMED.World.Runtime.Simulation).Assembly.GetTypes()
+            .Where(t => t.IsPublic && t.Namespace == "UNNAMED.World.Runtime")
+            .Concat(typeof(UNNAMED.Domain.Spatial.Body).Assembly.GetTypes().Where(t => t.IsPublic && t.Namespace == "UNNAMED.Domain.Spatial"))
+            .Where(t => t.GetMethod("<Clone>$") is not null || (t.IsValueType && !t.IsEnum))
+            .ToList();
+        Assert.Contains(typeof(UNNAMED.World.Runtime.PlayerView), records);
+        Assert.Contains(typeof(UNNAMED.World.Runtime.BodyMoved), records);
+        Assert.Contains(typeof(UNNAMED.Domain.Spatial.MoveIntent), records);
+        foreach (var type in records)
+        {
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var setter = property.SetMethod;
+                bool initOnly = setter is not null && setter.ReturnParameter.GetRequiredCustomModifiers().Contains(typeof(IsExternalInit));
+                Assert.True(setter is null || !setter.IsPublic || initOnly, $"{type.Name}.{property.Name} has a public setter");
+            }
+        }
+    }
+
+    /// <summary>
+    /// PROTOTYPE.md C4's static-analysis pass: presentation cannot name a writer (they are internal, and no assembly
+    /// grants it internals), so the only ways left to write are reflection into non-public members or driving the tick
+    /// itself. Neither may appear in src/Presentation.
+    /// </summary>
+    [Fact]
+    public void PresentationSource_NeverReachesPastThePublicReadAndCommandSurface()
+    {
+        string presentation = Path.Combine(RepositoryRoot(), "src", "Presentation");
+        string[] forbidden =
+        {
+            "BindingFlags.NonPublic", "UnsafeAccessor", "InternalsVisibleTo", ".SetValue(", "Activator.CreateInstance",
+            "System.Runtime.CompilerServices.Unsafe", ".Step()", ".DrainCommands()", "IWorldStateWriter", "SaveStore",
+        };
+        var offenders = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(presentation, "*.cs", SearchOption.AllDirectories)
+                     .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}.godot{Path.DirectorySeparatorChar}", StringComparison.Ordinal)))
+        {
+            string[] lines = File.ReadAllLines(file);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                foreach (string pattern in forbidden.Where(p => lines[i].Contains(p, StringComparison.Ordinal)))
+                    offenders.Add($"{Path.GetRelativePath(presentation, file)}:{i + 1}: {pattern}");
+            }
+        }
+        Assert.True(offenders.Count == 0, "Presentation reaches past the command path:\n" + string.Join("\n", offenders));
+    }
+
+    private static string RepositoryRoot()
+    {
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "src", "UNNAMED.sln")))
+                return dir.FullName;
+        }
+        throw new DirectoryNotFoundException("Repository root not found");
+    }
+
     [Fact]
     public void TheRegistry_OwnsIdentityOnly_AndDependsOnNothingButDomain()
     {

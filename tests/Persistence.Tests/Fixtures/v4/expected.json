@@ -9,6 +9,7 @@
     "x_mm": 150250,
     "y_mm": 12000,
     "z_mm": -40125,
+    "facing_mdeg": 0,
     "appearance_seed": "0x32599743E39279EF",
     "inventory": [
       {
@@ -96,7 +97,8 @@
           ]
         }
       }
-    }
+    },
+    "discoveries": []
   },
   "cells": [
     {

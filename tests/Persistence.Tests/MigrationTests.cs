@@ -74,9 +74,10 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(2, report.Steps.Count);
+        Assert.Equal(3, report.Steps.Count);
         Assert.StartsWith("schema 2 -> 3:", report.Steps[0]);
         Assert.StartsWith("schema 3 -> 4:", report.Steps[1]);
+        Assert.StartsWith("schema 4 -> 5:", report.Steps[2]);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // Reference/worldgen_v2_reference.py
         Assert.Equal(PlayerRecord.DerivedAppearanceSeed(player.Id), player.AppearanceSeed);
@@ -91,7 +92,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.StartsWith("schema 3 -> 4:", Assert.Single(report.Steps));
+        Assert.Equal(new[] { "schema 3 -> 4:", "schema 4 -> 5:" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(CharacterProgression.Empty.Digest, player.Progression.Digest);
         Assert.Equal(1, player.Progression.Level);
@@ -101,6 +102,34 @@ public class MigrationTests
         Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // everything schema 3 held is kept
     }
 
+    // ── required fields in player state, schema 4 -> 5 (M3) ─────────────────
+
+    [Fact]
+    public void Schema4To5_AddsFacingAndDiscoveries_AtTheirEmptyValues()
+    {
+        using var profile = Fixtures.Copy(4);
+        var store = new SaveStore(profile.Root);
+        var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
+
+        Assert.StartsWith("schema 4 -> 5:", Assert.Single(report.Steps));
+        var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
+        Assert.Equal(0, player.FacingMdeg);
+        Assert.Empty(player.Discoveries);
+        Assert.Equal(3, player.Progression.Level);   // everything schema 4 held is kept
+        Assert.Equal((150_250L, 12_000L, -40_125L), (player.XMm, player.YMm, player.ZMm));
+    }
+
+    [Fact]
+    public void ASchema5PlayerWithoutFacing_IsCorrupt_NotDefaulted()
+    {
+        var dto = MessagePack.MessagePackSerializer.Deserialize<PlayerDto>(
+            SectionCodec.EncodePlayer(M2Fixtures.Historical.Player()), MessagePack.MessagePackSerializerOptions.Standard);
+        dto.FacingMdeg = null;
+        var bytes = MessagePack.MessagePackSerializer.Serialize(dto, MessagePack.MessagePackSerializerOptions.Standard);
+
+        Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(bytes));
+    }
+
     // ── 12.2 multi-hop ──────────────────────────────────────────────────────
 
     [Fact]
@@ -108,10 +137,11 @@ public class MigrationTests
     {
         var loaded = LoadFixture(1, Fixtures.Context(new Registry()));
 
-        Assert.Equal(3, loaded.Report.Steps.Count);
+        Assert.Equal(4, loaded.Report.Steps.Count);
         Assert.StartsWith("schema 1 -> 2:", loaded.Report.Steps[0]);
         Assert.StartsWith("schema 2 -> 3:", loaded.Report.Steps[1]);
         Assert.StartsWith("schema 3 -> 4:", loaded.Report.Steps[2]);
+        Assert.StartsWith("schema 4 -> 5:", loaded.Report.Steps[3]);
         Assert.Equal(File.ReadAllText(Fixtures.Expected(1)).Replace("\r\n", "\n"), CanonicalState.Render(loaded));
     }
 
@@ -129,7 +159,7 @@ public class MigrationTests
     {
         var context = Fixtures.Context(new Registry()) with { Migrations = ImmutableArray.Create<SchemaMigration>(new SchemaV1ToV2()) };
 
-        Assert.Contains("no registered migration chain from schema 1 to schema 4", Assert.Single(RefuseFixture(1, context).Report.Blockers));
+        Assert.Contains("no registered migration chain from schema 1 to schema 5", Assert.Single(RefuseFixture(1, context).Report.Blockers));
     }
 
     // ── created persistent instances (schema 3) ─────────────────────────────
@@ -445,6 +475,13 @@ public class MigrationTests
         Assert.Equal(pack.DefinitionIds.OrderBy(i => i, StringComparer.Ordinal), mirror.DefinitionIds.OrderBy(i => i, StringComparer.Ordinal));
         Assert.Equal(pack.Aliases, mirror.Aliases);
         Assert.Equal(WorldgenProfileDigest(), M2Fixtures.Profile().Digest);
+    }
+
+    [Fact]
+    public void TheWritersContentIdentity_IsItsFixturePack()
+    {
+        var pack = Fixtures.Content(Path.Combine(Fixtures.Root, "content-0.1.2"));
+        Assert.Equal(pack.Hash, M2Fixtures.Historical.WriterContentHash);
     }
 
     private static string WorldgenProfileDigest() => SaveTool.WorldgenProfileFile.Read(Fixtures.Profile).Digest;

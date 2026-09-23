@@ -11,6 +11,7 @@ using UNNAMED.World.Legacy;
 using V1 = UNNAMED.Persistence.Sections.V1;
 using V2 = UNNAMED.Persistence.Sections.V2;
 using V3 = UNNAMED.Persistence.Sections.V3;
+using V4 = UNNAMED.Persistence.Sections.V4;
 
 namespace UNNAMED.Persistence;
 
@@ -61,7 +62,8 @@ public static class SchemaMigrations
     public static readonly ImmutableArray<SchemaMigration> Production = ImmutableArray.Create<SchemaMigration>(
         new SchemaV1ToV2(),
         new SchemaV2ToV3(),
-        new SchemaV3ToV4());
+        new SchemaV3ToV4(),
+        new SchemaV4ToV5());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -306,6 +308,41 @@ public sealed class SchemaV3ToV4 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V3.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V4.Player
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new V4.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Progression = ProgressionCodec.ToDto(UNNAMED.Domain.Progression.CharacterProgression.Empty),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 4 to 5 (M3): the player gains facing and discovered-location records (PROTOTYPE.md §7.4, PERSISTENCE.md
+/// §5.1). A save that predates them faced +Z (0) - nothing recorded otherwise - and had discovered nothing, because
+/// nothing could be discovered before M3.
+/// </summary>
+public sealed class SchemaV4ToV5 : SchemaMigration
+{
+    public override int From => 4;
+
+    public override string Summary =>
+        "schema 4 -> 5: the player gains facing (0, +Z, for saves that predate it) and discovered-location records (none before M3)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V4.Player>(player, options);
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
             {
                 InstanceId = old.InstanceId,
@@ -315,7 +352,9 @@ public sealed class SchemaV3ToV4 : SchemaMigration
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
                 Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
-                Progression = ProgressionCodec.ToDto(UNNAMED.Domain.Progression.CharacterProgression.Empty),
+                Progression = old.Progression,
+                FacingMdeg = 0,
+                Discoveries = Array.Empty<DiscoveryDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

@@ -1,0 +1,13 @@
+id: location.herb_patch
+kind: location
+schema: 1
+display_key: location.herb_patch.name
+tags: [location]
+notes: Where ashbloom grows by the stream (PROTOTYPE.md §3).
+name: The Ashbloom Patch
+region_ref: region.ashen_hollow
+anchor: { world: [135.0, 0.0, 92.0] }          # exact placement, metres; height comes from the terrain
+kind_of_place: landmark
+discovery: { methods: [visited], radius_m: 10, xp: 25 }
+map: { reveals_radius_m: 30, marker: none }   # no quest markers (charter §3)
+fast_travel: { node: false }

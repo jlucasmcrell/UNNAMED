@@ -1,0 +1,6 @@
+id: item.weapon.iron_sword
+kind: item.weapon
+schema: 1
+display_key: item.weapon.iron_sword.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.

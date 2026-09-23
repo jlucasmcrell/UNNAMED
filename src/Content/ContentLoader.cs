@@ -155,6 +155,11 @@ public class ContentLoader
             var progressionErrors = ProgressionContent.Validate(this);
             _errors.AddRange(progressionErrors);
             success &= progressionErrors.Count == 0;
+
+            // Regions, places, world flags and movement config (WLD codes)
+            var worldErrors = WorldContent.Validate(this);
+            _errors.AddRange(worldErrors);
+            success &= worldErrors.Count == 0;
         }
         
         return success;
