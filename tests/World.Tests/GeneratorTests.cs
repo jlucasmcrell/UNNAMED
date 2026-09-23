@@ -22,10 +22,10 @@ public class GeneratorTests
     [Fact]
     public void RK01_RegionDigest_IsIdenticalAcrossRuns()
     {
+        // PERSISTENCE.md T-02: "across processes and 100 runs". The processes half is Persistence.Tests' ME3.
         string first = RegionDigest.Compute(TestWorlds.Generator(), TestWorlds.Tuple(), Region);
-        string second = RegionDigest.Compute(TestWorlds.Generator(), TestWorlds.Tuple(), Region);
-
-        Assert.Equal(first, second);
+        for (int run = 2; run <= 100; run++)
+            Assert.Equal(first, RegionDigest.Compute(TestWorlds.Generator(), TestWorlds.Tuple(), Region));
     }
 
     [Fact]

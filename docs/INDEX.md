@@ -63,6 +63,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 - **Open owner input:** four items in `DECISIONS.md` §"Open questions for the project owner" — working title/setting tone, target platform baseline, visual fidelity target, and the "while you were away" offline catch-up policy. All four have documented defaults and none blocks Phase 1; only the platform baseline carries a soft dependency (the frame-budget spike cannot be judged pass/fail without it).
 - **Phase 0 was documentation-only, by instruction.** Implementation began in Phase 1: source is in `src/`, headless tests in `tests/`.
 - **M1 implementation status:** `docs/M1_STATUS.md` — complete with objective evidence for all exit criteria.
+- **Phase 1 M2 complete.** Entity registry and D-04 identity, deterministic cell baseline (`RK-01` measured), and sparse-delta saves with atomic write, quarantine, backup rotation and crash recovery. `docs/M2_STATUS.md` has the evidence per exit criterion, the decisions taken where documents disagree, and the deferrals.
 
 ## Where to start reading
 

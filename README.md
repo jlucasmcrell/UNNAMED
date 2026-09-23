@@ -47,8 +47,9 @@ Completed:
 - M0 - Repository and architecture bootstrap
 - M1 - Domain skeleton, command/event flow, and headless testing
 - M1b - Data-driven content loading and validation tooling
+- M2 - Entity registry and instance identity, deterministic world baseline, and crash-safe sparse-delta saves
 
-The next major foundation work covers runtime identity, persistence, migration, and progression before full gameplay implementation begins.
+The next foundation work covers save migration and progression before full gameplay implementation begins.
 
 The project is not yet a finished or generally playable game.
 

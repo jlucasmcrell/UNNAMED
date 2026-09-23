@@ -4,7 +4,7 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 
 ## Current status
 
-- Phase 1 (Playable Prototype). Done: M0, M1, M1b. In progress: M2 - Entity Registry, Identity, Persistence Baseline (`docs/ROADMAP.md`).
+- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (evidence, decisions and deferrals: `docs/M2_STATUS.md`). Unblocked next: M2b - Save Migration Harness, and M2c - Progression Spine (`docs/ROADMAP.md`).
 
 ## Build and test (from the repository root)
 
@@ -16,7 +16,8 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 ## Where the code is
 
 - Source: `src/<Project>/`. Tests: `tests/<Project>.Tests/`. Content definitions (YAML): `content/`.
-- Projects: Domain, Application, Content, EntityRegistry, Persistence, Presentation.
+- Projects: Domain, Application, Content, EntityRegistry, World, Persistence, Presentation.
+- `tests/M2.Probe` is a console app that Persistence.Tests runs as a separate process (cross-process determinism, a real kill mid-save). It is part of the test suite, not scratch.
 - Ignore - these are not the code: the empty `Application/`, `Domain/`, `Presentation/` directories at the repository root; root-level `bin/`, `obj/`, `temp_test/`, `test_definition_id.*`; the `.rar` archives and `M1b_changes.patch`.
 - `assets/` is generated asset-pipeline output, written by another machine. It is not code; do not read it for coding tasks.
 
@@ -27,7 +28,8 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 - One system, one responsibility. A system changes another system's state only by submitting a command or reacting to an event - never by reaching into its state. Events are not commands: a listener responds by submitting a command.
 - Domain never references Application or Presentation, and never reads files to load content - it receives a built catalogue. Content is referenced by string ID.
 - No static or singleton mutable state: two world instances in one process must not share anything mutable.
-- Save/load order is owned by `docs/PERSISTENCE.md` section 7.4.
+- Save/load order is owned by `docs/PERSISTENCE.md` section 7.4. All save I/O goes through `SaveStore` (src/Persistence). A load never falls back to a backup silently, and never regenerates a world whose baseline differs from the save's.
+- Instance IDs are `<prefix>_<ULID>` from `EntityId.NewId(kind)` or the registry; never build one by hand.
 
 ## Conventions
 
@@ -38,7 +40,7 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 
 - Authority order: `PROJECT_CHARTER.md` > `PHASE_0.md` > `DECISIONS.md` > everything else. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right.
 - Core technical docs and sizes: `ARCHITECTURE.md` ~25 KB, `DECISIONS.md` ~26 KB, `PERSISTENCE.md` ~45 KB, `SYSTEMS.md` ~52 KB, `ROADMAP.md` ~52 KB, `DATA_MODEL.md` ~58 KB.
-- `docs/00_DESIGN_PACK_INDEX.md` lists the design extension pack. It is directional, NOT normative while M2 is in progress: do not change M2 identity or persistence contracts to match it.
+- `docs/00_DESIGN_PACK_INDEX.md` lists the design extension pack. It is directional, NOT normative: do not change the M2 identity or persistence contracts (D-04 IDs, the `PERSISTENCE.md` save format) to match it.
 
 ## Godot
 
