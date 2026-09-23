@@ -108,13 +108,16 @@ aliases:                                              # renamed IDs, kept foreve
   item.weapon.ironsword: item.weapon.iron_sword
 removed:                                              # merged/removed IDs, mapped forward
   quest.artifact.shattered_crown.09: quest.artifact.shattered_crown.10
+  item.junk.cracked_bottle: ~                         # removed with no replacement: references are dropped, as reported loss
 ```
 
-The loader resolves an alias on read and logs a deprecation warning. A save referencing a removed ID must resolve through `removed` or fail load loudly — never a silent drop (D-05).
+The loader resolves an alias on read and logs a deprecation warning. A save referencing a removed ID must resolve through `removed` or fail load loudly — never a silent drop (D-05). A removal mapped to `~` is the explicit `destroy` disposition of `PERSISTENCE.md` §6.3. It is declared here and reported by every load and dry run, so it is not a silent drop. Renames may chain; a cycle is an error. The validator also rejects: an alias target or replacement that is not defined (`ALIAS001`, `ALIAS003`); an ID listed as renamed or removed that is still defined (`ALIAS004`); and anything in the file that is not a definition-ID mapping (`ALIAS005`). The map is part of `content_hash`.
+
+**The CI guard.** The committed historical save fixtures (`tests/Persistence.Tests/Fixtures`) load against their content pack in CI. Renaming or removing an ID they reference, without an entry here, fails the build (M2b).
 
 ### 2.2 Instance IDs (D-04, D-10)
 
-Format `<prefix>_<ULID>`, lowercase and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance.
+Format `<prefix>_<ULID>`: a lowercase kind prefix and a canonical 26-character Crockford-base32 ULID, which is uppercase, and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Parsing accepts a lowercase ULID and normalizes it; comparison is ordinal. (An earlier wording said "lowercase" for the whole ID while its own example was uppercase.) Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance, `chr` player character (added by M2).
 
 ---
 
@@ -123,7 +126,7 @@ Format `<prefix>_<ULID>`, lowercase and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6
 Three tests decide every field, applied in order:
 
 1. **Sharing test.** If two instances could hold different values, it cannot be a shared definition field for those instances — it is instance state (or an authored definition variant, if the difference is designed rather than earned).
-2. **Baseline test.** If a value is recomputable identically from `(seed, content_version)` with no player input, it does not belong in the save; it belongs to the deterministic baseline (D-05). If it is not recomputable, it must be persisted.
+2. **Baseline test.** If a value is recomputable identically from the baseline tuple - the world seed and the generator contract, including its placement data (`PERSISTENCE.md` §1.3) - with no player input, it does not belong in the save; it belongs to the deterministic baseline (D-05). If it is not recomputable, it must be persisted.
 3. **Authority test.** If a value is read as truth by more than one system (health, position, ownership, quest progress), it lives in the World State Store (S-03) and nowhere else.
 
 ### 3.1 Where the line sits
@@ -744,8 +747,8 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 | Axis | Where | Meaning | Mismatch behaviour |
 |---|---|---|---|
 | Definition `schema:` | `schema:` in every definition | Shape of the one YAML/C# record | Loader rejects the file: a content bug, not a save bug |
-| `content_version` / `content_hash` | save manifest + compiled cache | Which content the baseline used | Alias/tombstone pass; **tuning** changes additionally require migration (`PERSISTENCE.md` §5.5) |
-| `worldgen_version` / `worldgen_digest` | save manifest | Which **generation code and placement data** the baseline came from | **Refuse, or offer the localized-full-serialization fallback.** Never apply a delta to a different baseline |
+| `content_version` / `content_hash` | save manifest + compiled cache | Which exact content pack wrote the save. **Not a generation input** (M2b) | Definition-ID pass; **tuning** changes additionally require migration (`PERSISTENCE.md` §5.5) |
+| `worldgen_version` / `worldgen_fingerprint` / `rng_contract_version`, and per-cell `baseline_hash` | save manifest; `baseline_hash` with every changed cell | Which **generation contract and placement data** the baseline came from, and exactly which baseline each changed cell was made against | Per changed cell: equal hash applies the delta; a different hash needs a registered transition or **refuses**. Never apply a delta to a different baseline (`PERSISTENCE.md` §6.4) |
 | `schema_version` | save manifest | Shape of **persisted** state | Migration chain, one version per step. A `save_format` mismatch refuses; a corrupt section is quarantined and loaded without (`PERSISTENCE.md` §7.2) |
 
 **There is no field named `save_version`.** The persisted-state axis is `schema_version`; `save_format` is the *container* layout and is a different field with a different failure mode. An earlier revision of this document used `save_version` and `content_version` for the same concepts (`PERSISTENCE.md` §6.1 records the reconciliation).
@@ -757,9 +760,9 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 1. **Additive changes with a default are migration-free** — add the field, document the default, keep the same `schema_version`.
 2. **Structural changes require an ordered, pure, testable migration step** (rename, split, merge, type change, meaning change). Every shipped version needs a fixture save exercised by `Migrate(from, to)`.
 3. **Deleting content is never a silent drop** (D-05): either map forward in `_aliases.yaml` or record the loss explicitly in the migration with a player-facing recovery action.
-4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently.
-5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on `(seed, content_version)`. Changing world-generation code or `placement` data requires a content-version bump, and a bump with an existing save requires a migration or an explicit player-facing warning that a region regenerates — `RK-01` (D-05).
-6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (temp + rename) with at least one rolling backup, and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
+4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently. (As implemented, M2b supports remap (`removed: old: new`) and an explicit, reported destroy (`removed: old: ~`). Relic conversion arrives with item instance records that carry rolled properties.)
+5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on the baseline tuple: the world seed and the generator contract, including its placement data. Changing generation code or `placement` data changes the baseline hash of every cell it affects. A save with changed cells there needs a registered transition (`PERSISTENCE.md` §6.4), or it refuses to load - never a silent regeneration (`RK-01`, D-05). A runtime-only content change (a creature's stats, an item's price) is not a generation input and moves no baseline.
+6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (staging + rename + verify) with two backup generations (`PERSISTENCE.md` §7.3), and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
 
 ---
 

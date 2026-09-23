@@ -64,6 +64,102 @@ public class MigrationTests
             generator.Generate(M2Fixtures.Seed, CellKey.Parse(SectionCodec.HostCell(e.SlotKey))).Digest, e.BaselineHash));
     }
 
+    // ── 12.1 required field in player state, schema 2 -> 3 ──────────────────
+
+    [Fact]
+    public void Schema2To3_AddsTheRequiredAppearanceSeed_DerivedFromTheUlid()
+    {
+        using var profile = Fixtures.Copy(2);
+        var store = new SaveStore(profile.Root);
+        var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
+
+        Assert.StartsWith("schema 2 -> 3:", Assert.Single(report.Steps));
+        var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
+        Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // Reference/worldgen_v2_reference.py
+        Assert.Equal(PlayerRecord.DerivedAppearanceSeed(player.Id), player.AppearanceSeed);
+    }
+
+    // ── 12.2 multi-hop ──────────────────────────────────────────────────────
+
+    [Fact]
+    public void Schema1_MigratesStepByStep_ThroughEveryVersion_ToTheCanonicalState()
+    {
+        var loaded = LoadFixture(1, Fixtures.Context(new Registry()));
+
+        Assert.Equal(2, loaded.Report.Steps.Count);
+        Assert.StartsWith("schema 1 -> 2:", loaded.Report.Steps[0]);
+        Assert.StartsWith("schema 2 -> 3:", loaded.Report.Steps[1]);
+        Assert.Equal(File.ReadAllText(Fixtures.Expected(1)).Replace("\r\n", "\n"), CanonicalState.Render(loaded));
+    }
+
+    [Fact]
+    public void TheProductionChain_HasOneStepPerVersion_InOrder()
+    {
+        Assert.Equal(
+            Enumerable.Range(SaveFormat.OldestSupportedSchema, SaveFormat.SchemaVersion - SaveFormat.OldestSupportedSchema),
+            SchemaMigrations.Production.Select(m => m.From));
+        Assert.All(SchemaMigrations.Production, m => Assert.Equal(m.From + 1, m.To));
+    }
+
+    [Fact]
+    public void AGapInTheChain_IsRefused_NotSkipped()
+    {
+        var context = Fixtures.Context(new Registry()) with { Migrations = ImmutableArray.Create<SchemaMigration>(new SchemaV1ToV2()) };
+
+        Assert.Contains("no registered migration chain from schema 1 to schema 3", Assert.Single(RefuseFixture(1, context).Report.Blockers));
+    }
+
+    // ── created persistent instances (schema 3) ─────────────────────────────
+
+    [Fact]
+    public void ACreatedInstance_RoundTrips_WithItsIdentity()
+    {
+        using var profile = new TempProfile();
+        var store = new SaveStore(profile.Root);
+        var world = M2Fixtures.OldWorld(new Registry());
+        var id = world.PlaceCreated(M2Fixtures.TenCells[6], "item.weapon.iron_sword", 9_999, 0);
+        store.Save(M2Fixtures.Slot, M2Fixtures.Document(world));
+
+        var registry = new Registry();
+        var loaded = store.Load(M2Fixtures.Slot, M2Fixtures.Context(registry));
+
+        var created = Assert.Single(loaded.World.CreatedIn(M2Fixtures.TenCells[6]));
+        Assert.Equal((id, "item.weapon.iron_sword", 9_999, 0), (created.InstanceId, created.DefId, created.XCm, created.ZCm));
+        Assert.True(registry.Exists(id));
+        Assert.Equal(M2Fixtures.WorldDigest(world), M2Fixtures.WorldDigest(loaded.World));
+    }
+
+    [Fact]
+    public void ACreatedInstancesDefinition_ResolvesLikeEveryOtherReference()
+    {
+        var content = ContentWith(add: new[] { "item.weapon.iron_blade" }, remove: new[] { "item.weapon.iron_sword" },
+            aliases: new Dictionary<string, string>
+            {
+                [Draught] = "item.potion.minor_healing",
+                ["item.weapon.iron_sword"] = "item.weapon.iron_blade",
+            });
+
+        var loaded = LoadFixture(3, Fixtures.Context(new Registry(), content));
+
+        Assert.Equal("item.weapon.iron_blade", Assert.Single(loaded.World.CreatedIn(CellKey.Parse("r_0_0:c_00_06"))).DefId);
+        Assert.Contains(loaded.Player.Inventory, e => e.DefId == "item.weapon.iron_blade");
+        Assert.Contains("item.weapon.iron_sword -> item.weapon.iron_blade x2", loaded.Report.Aliases);
+    }
+
+    [Fact]
+    public void ACreatedInstance_IsProvenAgainstItsHostCell_AndRebasedOnlyByATransition()
+    {
+        var trimmed = new LoadContext(M2Fixtures.Generator(wolfTarget: 4), Fixtures.Content(), new Registry());
+
+        var refused = RefuseFixture(3, trimmed);
+        Assert.Contains(refused.Report.CellsMismatched, c => c.StartsWith("r_0_0:c_00_06:", StringComparison.Ordinal));
+
+        var loaded = LoadFixture(3, trimmed with { Transitions = ImmutableArray.Create(WolvesTrimmed(dropVanished: false)) });
+        var created = Assert.Single(loaded.World.CreatedIn(CellKey.Parse("r_0_0:c_00_06")));
+        Assert.Equal((500, 600), (created.XCm, created.ZCm));
+        Assert.Equal(7, loaded.Report.CellsRebased.Count);
+    }
+
     // ── 12.3 rename ─────────────────────────────────────────────────────────
 
     [Fact]

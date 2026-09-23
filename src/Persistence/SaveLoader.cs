@@ -138,7 +138,9 @@ internal static class SaveLoader
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }
         var cells = DecodeOrQuarantine(sections[SaveFormat.Cells], SaveFormat.Cells, SectionCodec.DecodeCells, quarantined, report);
-        var entities = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntities, quarantined, report);
+        var (entities, created) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
+            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty));
+        var delta = new DeltaSnapshot(cells, entities) { Created = created };
         PlayerRecord player;
         try
         {
@@ -151,7 +153,7 @@ internal static class SaveLoader
 
         // e. Definition IDs (§6.3): a changed content pack resolves every stored ID, or the load stops.
         if (manifest.ContentHash != context.Content.Hash)
-            (player, cells, entities) = ResolveDefinitions(player, cells, entities, context.Content, report);
+            (player, delta) = ResolveDefinitions(player, delta, context.Content, report);
         if (report.Blockers.Count > 0)
             return null;
 
@@ -168,12 +170,12 @@ internal static class SaveLoader
 
         // g. Baseline proof: every changed cell's delta targets exactly the baseline generated now.
         ulong seed = WorldSeed.Parse(manifest.WorldSeed);
-        (cells, entities) = ProveBaselines(cells, entities, seed, manifest.WorldgenFingerprint, context, report);
+        delta = ProveBaselines(delta, seed, manifest.WorldgenFingerprint, context, report);
         if (report.Blockers.Count > 0)
             return null;
 
         // h-i. Regenerate, apply the cell delta, merge entities on slot key. Invalid records are reported.
-        var world = WorldDelta.FromSnapshot(generator, seed, context.Registry, new DeltaSnapshot(cells, entities), out var rejected);
+        var world = WorldDelta.FromSnapshot(generator, seed, context.Registry, delta, out var rejected);
         foreach (var r in rejected)
             report.Warnings.Add($"invalid {r.Section} record '{r.Key}' dropped: {r.Reason}");
 
@@ -198,12 +200,8 @@ internal static class SaveLoader
         return report;
     }
 
-    private static (PlayerRecord, ImmutableArray<CellDeltaRecord>, ImmutableArray<EntityDeltaRecord>) ResolveDefinitions(
-        PlayerRecord player,
-        ImmutableArray<CellDeltaRecord> cells,
-        ImmutableArray<EntityDeltaRecord> entities,
-        ContentIdentity content,
-        MigrationReport report)
+    private static (PlayerRecord, DeltaSnapshot) ResolveDefinitions(
+        PlayerRecord player, DeltaSnapshot delta, ContentIdentity content, MigrationReport report)
     {
         string? Resolve(string id, string referencedBy)
         {
@@ -237,9 +235,8 @@ internal static class SaveLoader
             if (id is not null)
                 inventory.Add(entry with { DefId = id });
         }
-        var resolvedPlayer = player.WithInventory(inventory);
 
-        var resolvedCells = cells.Select(cell =>
+        var cells = delta.Cells.Select(cell =>
         {
             var flags = new List<KeyValuePair<string, long>>();
             foreach (var (flag, value) in cell.Flags)
@@ -251,23 +248,28 @@ internal static class SaveLoader
             return cell with { Flags = flags.OrderBy(f => f.Key, StringComparer.Ordinal).ToImmutableArray() };
         }).ToImmutableArray();
 
-        var resolvedEntities = ImmutableArray.CreateBuilder<EntityDeltaRecord>();
-        foreach (var record in entities)
+        var entities = ImmutableArray.CreateBuilder<EntityDeltaRecord>();
+        foreach (var record in delta.Entities)
         {
             string? id = Resolve(record.DefId, $"entity {record.InstanceId} in slot {record.SlotKey}");
             if (id is not null)
-                resolvedEntities.Add(record with { DefId = id });
+                entities.Add(record with { DefId = id });
         }
-        return (resolvedPlayer, resolvedCells, resolvedEntities.ToImmutable());
+
+        var created = ImmutableArray.CreateBuilder<CreatedEntityRecord>();
+        foreach (var record in delta.Created)
+        {
+            string? id = Resolve(record.DefId, $"created instance {record.InstanceId} in cell {record.HostCell}");
+            if (id is not null)
+                created.Add(record with { DefId = id });
+        }
+
+        return (player.WithInventory(inventory),
+            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable() });
     }
 
-    private static (ImmutableArray<CellDeltaRecord>, ImmutableArray<EntityDeltaRecord>) ProveBaselines(
-        ImmutableArray<CellDeltaRecord> cells,
-        ImmutableArray<EntityDeltaRecord> entities,
-        ulong seed,
-        string saveFingerprint,
-        LoadContext context,
-        MigrationReport report)
+    private static DeltaSnapshot ProveBaselines(
+        DeltaSnapshot delta, ulong seed, string saveFingerprint, LoadContext context, MigrationReport report)
     {
         var cache = new Dictionary<CellKey, CellBaseline>();
         CellBaseline Baseline(CellKey cell) =>
@@ -285,14 +287,16 @@ internal static class SaveLoader
             else
                 mismatched.TryAdd(cellKey, $"saved baseline_hash {saved ?? "(none)"}, generated now {now}");
         }
-        foreach (var record in cells)
+        foreach (var record in delta.Cells)
             Check(record.CellKey, record.BaselineHash);
-        foreach (var record in entities)
+        foreach (var record in delta.Entities)
             Check(SectionCodec.HostCell(record.SlotKey), record.BaselineHash);
+        foreach (var record in delta.Created)
+            Check(record.HostCell, record.BaselineHash);
         proven.ExceptWith(mismatched.Keys);
         report.CellsMatched = proven.Count;
         if (mismatched.Count == 0)
-            return (cells, entities);
+            return delta;
 
         var transition = context.Transitions.FirstOrDefault(t =>
             t.FromFingerprint == saveFingerprint && t.ToFingerprint == context.Generator.Fingerprint);
@@ -304,16 +308,20 @@ internal static class SaveLoader
                 $"{mismatched.Count} changed cell(s) were saved against a baseline this build no longer generates, and no transition " +
                 $"is registered from worldgen fingerprint {saveFingerprint} to {context.Generator.Fingerprint}. " +
                 "Their deltas are not applied to a different baseline.");
-            return (cells, entities);
+            return delta;
         }
-        return SemanticRebase.Apply(transition, mismatched.Keys.ToHashSet(StringComparer.Ordinal), cells, entities, Baseline, report);
+        return SemanticRebase.Apply(transition, mismatched.Keys.ToHashSet(StringComparer.Ordinal), delta, Baseline, report);
     }
 
     private static ImmutableArray<T> DecodeOrQuarantine<T>(
-        byte[]? bytes, string file, Func<byte[], ImmutableArray<T>> decode, List<string> quarantined, MigrationReport report)
+        byte[]? bytes, string file, Func<byte[], ImmutableArray<T>> decode, List<string> quarantined, MigrationReport report) =>
+        DecodeOrQuarantine(bytes, file, decode, quarantined, report, ImmutableArray<T>.Empty);
+
+    private static T DecodeOrQuarantine<T>(
+        byte[]? bytes, string file, Func<byte[], T> decode, List<string> quarantined, MigrationReport report, T empty)
     {
         if (bytes is null)
-            return ImmutableArray<T>.Empty;
+            return empty;
         try
         {
             return decode(bytes);
@@ -323,7 +331,7 @@ internal static class SaveLoader
             // Hash-valid but undecodable (for example written by a buggy build): drop it, and say so.
             quarantined.Add(SectionName(file));
             report.Warnings.Add($"section '{SectionName(file)}' could not be decoded and is loaded without: {e.Message}");
-            return ImmutableArray<T>.Empty;
+            return empty;
         }
     }
 

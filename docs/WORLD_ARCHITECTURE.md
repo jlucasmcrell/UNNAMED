@@ -83,15 +83,22 @@ Every conversion must be tested at `x,z ∈ {-200.0, -100.0, -0.001, 0, 0.001, 1
 
 Three of the six mandated values fail under the naive operator. `regionOf` uses `floor` with no modulo and therefore has no analogous trap, but it must still be tested at the same values.
 
-### 3.4 Deterministic streams are keyed by cell, never by traversal order
+### 3.4 Deterministic randomness is addressed by semantic key, never by call order
 
-Every procedural decision (vegetation placement, prop scatter, minor encounter roll, resource node jitter, cosmetic variation) draws from a stream derived as:
+Every procedural decision (vegetation placement, prop scatter, minor encounter roll, resource node jitter, cosmetic variation) reads a value addressed by what it is for (RNG contract 2, M2b):
 
 ```
-stream(cell_key, purpose) = PRNG( hash(world_seed, worldgen_version, content_hash, cell_key, purpose) )
+Random(world_seed, cell_key, subsystem, semantic_key, sample_index)
+  e.g. Random(seed, cell, "wildlife",  "wolves/04",     0)   // a spawn slot's x
+       Random(seed, cell, "resources", "iron_vein/01",  1)   // a node slot's z
+       Random(seed, cell, "terrain",   "height",       37)   // one height sample
 ```
 
-This is the mechanism that makes `D-05` delta saves possible: a cell's baseline is a pure function of its key, so it can be regenerated on demand, in any order, on any machine, in any session. **A generator that consumes a shared global stream in traversal order is a save-corrupting bug**, because loading a different subset of cells changes every subsequent draw.
+The channel seed is a hash of the key fields; sample `n` is a counter-based function of that seed and `n`. So a value is **addressed, not drawn in sequence**: reading samples in any order, or adding a new subsystem, a new slot or a new sample, moves nothing that already exists.
+
+This is the mechanism that makes `D-05` delta saves possible: a cell's baseline is a pure function of its key, so it can be regenerated on demand, in any order, on any machine, in any session. **A generator that consumes a shared global stream in traversal order is a save-corrupting bug**, because loading a different subset of cells changes every subsequent draw. So is one that consumes a per-cell stream in call order: a new draw in one subsystem would shift every later draw in the others.
+
+**Content identity is not an input.** An earlier revision keyed every stream on `(world_seed, worldgen_version, content_hash, cell_key, purpose)`, so any content edit - a wolf's hit points - reseeded every draw in the world (`PERSISTENCE.md` `RK-P14`). Generation reads its placement data, which is part of the generator contract, and nothing else from the content pack. `worldgen_version` is not an input either: bumping the epoch does not reshuffle channels whose meaning did not change. The encoding itself is versioned as `rng_contract_version`; changing it is a generator-contract change (`PERSISTENCE.md` §6.1, class D).
 
 ---
 
@@ -112,7 +119,7 @@ The charter: "Procedural generation may assist development but should NOT replac
 | Loot variation, cosmetic variation, name suffixes | Procedural from authored tables | Persisted RNG streams (`PERSISTENCE.md` §5.5) |
 | NPC schedules | Authored as schedule definitions + anchors | Anchors are hand-placed; timing is authored |
 
-**Consequence for tooling.** Because procedural output is a pure function of `(seed, content, key)`, the editor must support "re-roll this cell with a different local seed" as a *content-authoring* action that writes an authored override into the content pack — not as a runtime-only variation. Otherwise a designer's hand-tuned cell would silently change on every run.
+**Consequence for tooling.** Because procedural output is a pure function of `(seed, placement data, key)`, the editor must support "re-roll this cell with a different local seed" as a *content-authoring* action that writes an authored override into the content pack — not as a runtime-only variation. Otherwise a designer's hand-tuned cell would silently change on every run.
 
 **Authoring artifact.** Each region has a `region.yaml` declaring: region key, biome palette, cell-level generation parameters, the list of authored cells, interiors anchored in it, spawn population tables, world-event hooks, and the region's content-completeness checklist (town, wilderness, 3–5 dungeons, secrets, boss, epic quest). That checklist is a validator, not prose.
 
@@ -169,8 +176,10 @@ The residual risk is therefore **performance, not correctness**, and `PERSISTENC
 A resource node is a **property of the world**, not an owned instance, so it does not get a ULID (`D-04` distinguishes exactly this case). Its identity is:
 
 ```
-node_key = "node.<cell_key>.<index>"     // index assigned by the cell's deterministic generator
+node_key = "node.<cell_key>.<rule>.<ordinal>"   // placement rule's semantic name, two-digit ordinal within it
 ```
+
+The key names a semantic slot, not a position in the generator's output list. An earlier revision used `node.<cell_key>.<index>`, where adding a placement rule re-keyed every later node in the cell. The node's position comes from its own channel (§3.4), so a rule's count can change without moving the nodes it keeps.
 
 Stored state per harvested node: `state`, `last_harvest_tick`, `harvest_seq` (see `PERSISTENCE.md` §5.5). The ready time is a pure function of persisted data plus world time, with jitter drawn from `hash(node_key, harvest_seq, world_seed)`. Therefore:
 

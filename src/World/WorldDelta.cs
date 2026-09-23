@@ -45,10 +45,21 @@ public sealed record EntityDeltaRecord(
     public int DirtyMask => (Alive is null ? 0 : DirtyAlive) | (XCm is null ? 0 : DirtyPosition);
 }
 
+/// <summary>
+/// A persistent instance that no baseline slot generates - a dropped item, a placed chest (M2b §6
+/// "player-created instance added", PERSISTENCE.md §5.6). It is persisted whole, keyed by its ULID and
+/// anchored to its host cell, and proven against that cell's baseline like a slot record: a changed
+/// host cell needs a registered transition before the instance is placed in it again.
+/// </summary>
+public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, string HostCell, int XCm, int ZCm, string? BaselineHash = null);
+
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
 public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
 {
     public static DeltaSnapshot Empty { get; } = new(ImmutableArray<CellDeltaRecord>.Empty, ImmutableArray<EntityDeltaRecord>.Empty);
+
+    /// <summary>Created instances, sorted by instance ID.</summary>
+    public ImmutableArray<CreatedEntityRecord> Created { get; init; } = ImmutableArray<CreatedEntityRecord>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -70,6 +81,7 @@ public sealed class WorldDelta
     private readonly Dictionary<CellKey, CellBaseline> _baselines = new();
     private readonly Dictionary<CellKey, MutableCell> _cells = new();
     private readonly Dictionary<string, EntityDeltaRecord> _entities = new(StringComparer.Ordinal);
+    private readonly Dictionary<EntityId, CreatedEntityRecord> _created = new();
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -181,6 +193,33 @@ public sealed class WorldDelta
         return new OccupantView(slotKey, record.InstanceId, record.Alive ?? true, record.XCm ?? slot.XCm, record.ZCm ?? slot.ZCm);
     }
 
+    // ── created instances ───────────────────────────────────────────────────
+
+    /// <summary>Place a new persistent instance in a cell; the registry assigns its identity (D-10).</summary>
+    internal EntityId PlaceCreated(CellKey hostCell, string defId, int xCm, int zCm)
+    {
+        if (!InCell(xCm) || !InCell(zCm))
+            throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
+        var instance = _registry.CreateEntity(DefinitionId.Parse(defId));
+        _created[instance.InstanceId] = new CreatedEntityRecord(instance.InstanceId, defId, hostCell.ToString(), xCm, zCm);
+        return instance.InstanceId;
+    }
+
+    /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
+    internal void RemoveCreated(EntityId instanceId)
+    {
+        if (_created.Remove(instanceId) && _registry.Exists(instanceId))
+            _registry.DestroyEntity(instanceId);
+    }
+
+    public IReadOnlyList<CreatedEntityRecord> CreatedIn(CellKey cell)
+    {
+        string key = cell.ToString();
+        return _created.Values.Where(c => c.HostCell == key).OrderBy(c => c.InstanceId.Value, StringComparer.Ordinal).ToList();
+    }
+
+    private static bool InCell(int cm) => cm >= 0 && cm < WorldMath.CellSizeCm;
+
     // ── save / load ─────────────────────────────────────────────────────────
 
     /// <summary>
@@ -241,7 +280,12 @@ public sealed class WorldDelta
                 state.PopulationAlive.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToImmutableArray()));
         }
 
-        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable());
+        var created = _created.Values
+            .OrderBy(c => c.InstanceId.Value, StringComparer.Ordinal)
+            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .ToImmutableArray();
+
+        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created };
     }
 
     /// <summary>
@@ -274,6 +318,13 @@ public sealed class WorldDelta
                 problems.Add(new RejectedRecord("entities", record.SlotKey, reason));
         }
 
+        foreach (var record in snapshot.Created)
+        {
+            string? reason = world.TryApplyCreated(record, seenIds);
+            if (reason is not null)
+                problems.Add(new RejectedRecord("entities", record.InstanceId.Value, reason));
+        }
+
         rejected = problems.ToImmutable();
         return world;
     }
@@ -301,6 +352,11 @@ public sealed class WorldDelta
             else
                 h.Add(false);
         }
+
+        var created = CreatedIn(cell);
+        h.Add(created.Count);
+        foreach (var c in created)
+            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm);
 
         foreach (var population in baseline.Populations)
         {
@@ -417,6 +473,27 @@ public sealed class WorldDelta
 
         _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
         _entities[record.SlotKey] = record;
+        return null;
+    }
+
+    private string? TryApplyCreated(CreatedEntityRecord record, HashSet<EntityId> seenIds)
+    {
+        if (!CellKey.TryParse(record.HostCell, out var cell))
+            return "unparseable host cell";
+        string hostBaseline = Baseline(cell).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
+        if (!DefinitionId.IsValid(record.DefId))
+            return $"invalid definition ID '{record.DefId}'";
+        if (!InCell(record.XCm) || !InCell(record.ZCm))
+            return $"position ({record.XCm}, {record.ZCm}) is outside the host cell";
+        if (!seenIds.Add(record.InstanceId))
+            return $"instance ID {record.InstanceId} appears twice";
+        if (_registry.Exists(record.InstanceId))
+            return $"instance ID {record.InstanceId} is already registered";
+
+        _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
+        _created[record.InstanceId] = record;
         return null;
     }
 

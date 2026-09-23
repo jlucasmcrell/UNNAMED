@@ -98,7 +98,7 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 **Decision.** Two strictly separate identity namespaces.
 
 - **Definition IDs** — human-authored, stable, dotted, lowercase, namespaced by kind: `item.weapon.iron_sword`, `creature.beast.wolf_grey`, `quest.artifact.shattered_crown.03`. These live in content files and **never change once shipped** (renaming requires a migration map).
-- **Instance IDs** — generated at runtime as **ULIDs** (lexicographically sortable, collision-resistant, lowercase): `itm_01J8ZC4K9P...`. These identify a *specific* sword, NPC, building, or container in a save.
+- **Instance IDs** — generated at runtime as **ULIDs** (lexicographically sortable, collision-resistant) behind a lowercase kind prefix: `itm_01J8ZC4K9P...`, the ULID in its canonical uppercase Crockford form (`DATA_MODEL.md` §2.2). These identify a *specific* sword, NPC, building, or container in a save.
 
 **Alternatives considered.** Integer handles (fast, compact, but require a central counter that must persist and can collide across save/merge); GUIDv4 (opaque, non-sortable, hostile to debugging and save diffing); raw object references (explicitly forbidden by the charter — "do not serialize fragile raw runtime pointers"); content definition path used as instance identity (breaks the moment two iron swords exist).
 
@@ -117,7 +117,7 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 ## D-05 — Persistence: sparse deltas over a deterministic baseline
 
 **Decision.** A save is **not** a snapshot of the world. It is:
-1. a small **manifest** (save version, content version, seed, playtime, screenshot, checksum),
+1. a small **manifest** (container and schema versions, content identity, seed, generator contract, playtime; `PERSISTENCE.md` §4.2),
 2. **player/companion state** (small, fully serialized),
 3. a **sparse world delta**: only entities and world cells that *differ from their deterministic baseline*.
 
@@ -127,9 +127,16 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Consequences.**
 
-- **Hard requirement:** world generation from `(seed, content_version)` must be **deterministic and version-stable**. This is the single most dangerous constraint in the project. If generation is not stable, deltas apply to a baseline that no longer matches and the world corrupts. Mitigations: generation code is frozen per content version, the seed is recorded in the manifest, and a content-version mismatch triggers migration rather than silent regeneration. Tracked as `RK-01` in `RISK_REGISTER.md`.
+- **Hard requirement:** world generation from the baseline tuple - the seed and the generator contract (`PERSISTENCE.md` §1.3) - must be **deterministic and version-stable**. This is the single most dangerous constraint in the project. If generation is not stable, deltas apply to a baseline that no longer matches and the world corrupts. Tracked as `RK-01` in `RISK_REGISTER.md`.
+- **Amended by M2b (2026-09-23): content identity is not procedural entropy.** M2 found that keying generation on the whole `content_hash` made every content edit move the entire world. Now:
+  - generation reads only its seed and generator contract;
+  - randomness is addressed by semantic key (`WORLD_ARCHITECTURE.md` §3.4);
+  - every changed cell's delta records the `baseline_hash` it was made against, and is applied only to that baseline or through a registered transition;
+  - a computed `worldgen_fingerprint` with pinned canonical probes catches generator drift that nobody versioned.
+
+  So a content-only edit loads with no reshuffle, and a baseline change can never silently corrupt a save (`PERSISTENCE.md` §6.4, `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`).
 - Deleted/changed definitions between versions must be handled by a migration map, never by silent drops. Required by the charter's save-versioning clause.
-- Save must be written **atomically** (temp file + rename) with at least one rolling backup slot, because corruption recovery is explicitly in scope.
+- Save must be written **atomically** (staging + rename + verify) with rolling backups - two generations, retired on a verified load (`PERSISTENCE.md` §7.3) - because corruption recovery is explicitly in scope.
 
 **Revisit if.** Determinism proves impossible to hold across content versions for some subsystem. The fallback is to promote *that subsystem's* cells to full serialization while keeping deltas elsewhere — a local, contained degradation rather than a redesign.
 

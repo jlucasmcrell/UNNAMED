@@ -51,9 +51,11 @@ public static class M2Fixtures
     public static LoadContext Context(Registry registry, ContentIdentity? content = null, int wolfTarget = 5) =>
         new(Generator(wolfTarget), content ?? Content(), registry);
 
+    public static readonly EntityId PlayerId =
+        EntityId.Create(EntityKind.Character, 1_700_000_000_000, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+
     public static PlayerRecord Player(string name = "Aelin") => new(
-        EntityId.Create(EntityKind.Character, 1_700_000_000_000, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }),
-        name, 150_250, 12_000, -40_125,
+        PlayerId, name, 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
         new[]
         {
             new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }),
@@ -90,7 +92,7 @@ public static class M2Fixtures
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
         public static PlayerRecord Player() => new(
-            M2Fixtures.Player().Id, "Aelin", 150_250, 12_000, -40_125,
+            PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
             new[]
             {
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }),
@@ -111,6 +113,9 @@ public static class M2Fixtures
             world.KillOccupant(wolves.Slots[0].SlotKey);
             var deer = world.Baseline(cells[4]).Populations.Single(p => p.PopulationId.EndsWith(".deer", StringComparison.Ordinal));
             world.MoveOccupant(deer.Slots[1].SlotKey, 1_234, 5_678);
+            // A created persistent instance. Schema 3 is the first that can record one, so the v1 and v2
+            // fixtures, written before it, have none.
+            world.PlaceCreated(cells[6], "item.weapon.iron_sword", 500, 600);
             return world;
         }
 

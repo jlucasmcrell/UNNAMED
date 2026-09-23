@@ -13,6 +13,8 @@ one under the current code and migrates every one through the real commit path
    - keeps every older fixture unchanged;
    - adds `vN/`, written by the new writer (`dotnet tests/M2.Probe/bin/Debug/net8.0/M2.Probe.dll fixture <dir>`, then copy `<dir>/quick` to `vN/quick`);
    - adds the `N-1 -> N` step to `SchemaMigrations.Production`;
+   - freezes the previous current section shapes as `Sections/V{N-1}` and repoints the step that
+     produces schema N-1 at the frozen types, so every step stays a fixed `V(n) -> V(n+1)` function;
    - updates every `expected.json` whose current state gained or changed a field.
    `EveryShippedSchemaVersion_HasAFixture_AndNoneFromTheFuture` fails until all of this is done.
 3. **`expected.json` is the current state the fixture must load to.** Change it only when the
@@ -32,6 +34,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | What | Where | Why it is here |
 |---|---|---|
 | Player "Aelin", `chr_01HF7YAT00041061050R3GG28A`, position (150250, 12000, -40125) mm | player | Fully serialized state |
+| Appearance seed `0x32599743E39279EF` | player | Required from schema 3. The v1 and v2 saves predate it, so the 2 -> 3 step derives it from the ULID. The v3 writer wrote the same value |
 | `item.weapon.iron_sword` x1, `item.potion.healing_draught` x3 | player inventory | The potion was **renamed** to `item.potion.minor_healing` in content 0.2.0 (`content/_aliases.yaml`) |
 | `world.door.cellar_open = 1` | cell `r_0_0:c_00_00` | A changed cell (flag) |
 | First node of the cell harvested at tick 1000 | cell `r_0_0:c_00_03` | Keyed `node.<cell>.0` in schema 1; `node.<cell>.iron_vein.00` from schema 2 |
@@ -39,13 +42,15 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `world.lever.mill_gate = 3` | cell `r_0_0:c_00_07` | A second flag |
 | Wolf slot 00 killed | entity in `r_0_0:c_00_02` | A **tombstoned baseline entity**: it must stay dead |
 | Deer slot 01 moved to (1234, 5678) cm | entity in `r_0_0:c_00_04` | Positional state carried as-is |
+| `item.weapon.iron_sword` placed at (500, 600) cm | created instance in `r_0_0:c_00_06` | A **created persistent entity**. v3 only: schema 3 is the first that can record one |
 
 ## Provenance
 
 | Version | Written by | How |
 |---|---|---|
 | `v1/` | M2's writer, commit `7ff4c57` | In a scratch worktree of `7ff4c57`, with the one-off probe addition below: `M2.Probe fixture <dir> sha256:7f522a30...` |
-| `v2/` | The M2b schema-2 writer | `M2.Probe fixture <dir>` (`M2Fixtures.Historical`) |
+| `v2/` | The M2b schema-2 writer, commit `b310979` | `M2.Probe fixture <dir>` (`M2Fixtures.Historical`) |
+| `v3/` | The M2b schema-3 writer | `M2.Probe fixture <dir>` |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

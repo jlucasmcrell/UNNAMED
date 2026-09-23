@@ -49,15 +49,29 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 
 **Risk.** **World-generation determinism cannot be held version-stable, so sparse-delta saves (`D-05`) apply to a baseline that no longer matches.**
 
-**Why it matters.** Per `D-05`, unchanged world costs zero bytes and a cell is persisted only when it diverges from its deterministic baseline. That makes determinism a *hard prerequisite* of the save format, not an optimization: if `(seed, content_version)` stops reproducing the same world, every existing save silently interprets deltas against the wrong cells and corrupts. This is the most dangerous constraint in the project, and `D-05` already names it `RK-01`.
+**Why it matters.** Per `D-05`, unchanged world costs zero bytes and a cell is persisted only when it diverges from its deterministic baseline. That makes determinism a *hard prerequisite* of the save format, not an optimization: if the baseline tuple (`PERSISTENCE.md` §1.3) stops reproducing the same world, every existing save silently interprets deltas against the wrong cells and corrupts. This is the most dangerous constraint in the project, and `D-05` already names it `RK-01`.
 
-**Earliest inexpensive validation.** Headless test in Phase 1: generate a 2×2 km region twice from one fixed seed and byte-compare a stable digest of (cell terrain hashes + sorted spawn/entity list). Then rerun the **same** digest test twice across a *deliberately trivial* content change to prove the failure is detectable rather than silent. No engine, no art, no gameplay systems needed — this can be the first test in the repository.
+**Earliest inexpensive validation.** Headless test in Phase 1: generate a 2×2 km region twice from one fixed seed and byte-compare a stable digest of (cell terrain hashes + sorted spawn/entity list). Then rerun it across two *deliberately trivial* changes:
+- a change to a **generation input** (placement data or generator code), to prove the change is detectable rather than silent;
+- a change to **runtime-only content** (a creature's stats), to prove it does *not* move the world.
 
-**Fails if.** The two digests differ, or the deliberately-trivial content change produces *no* detectable difference — the second outcome is the more dangerous one, because it means the check is blind rather than that the world is stable.
+No engine, no art, no gameplay systems needed — this can be the first test in the repository.
 
-**Mitigation.** Generation code frozen per `content_version`; seed recorded in the save manifest (`D-05`); content-version mismatch triggers migration instead of silent regeneration; digest test runs in CI on every commit touching generation; `D-03` content validated at load so a definition typo fails loudly at startup, not mid-quest.
+**Fails if.**
+- The two digests differ.
+- The trivial generation-input change produces *no* detectable difference. This is the more dangerous outcome: it means the check is blind, not that the world is stable.
+- The runtime-only content change moves the baseline. M2's first cut did exactly that: it keyed generation on the whole `content_hash`.
 
-**Alignment note.** `PERSISTENCE.md` strengthens this by making `worldgen_version` an explicit field distinct from the content version, so generation may change only via a version bump plus a tested re-anchoring tool — never by editing generation code under an unchanged version. That is a strictly tighter anchor than `D-05` alone requires and does not contradict it; adopt it.
+**Mitigation (as implemented through M2b).**
+- Content identity is not a generation input, and randomness is addressed by semantic key, so unrelated edits and new draws move nothing (`WORLD_ARCHITECTURE.md` §3.4).
+- Every changed-cell delta records its `baseline_hash` and is applied only to that baseline, or through a registered transition (`PERSISTENCE.md` §6.4).
+- `worldgen_fingerprint` includes the output of four canonical probe cells; the probe digest, the fingerprint and a region digest are pinned in CI against an independent implementation, so an unversioned generator edit fails CI.
+- The seed is recorded in the save manifest (`D-05`).
+- `D-03` content is validated at load, so a definition typo fails loudly at startup, not mid-quest.
+
+**Status: measured.** M2 proved generation bit-stable across 100 runs and across processes. M2b re-measured it under RNG contract 2, pinned to an independent Python implementation, and added culture-independence tests (`M2_STATUS.md`, `M2B_STATUS.md`). Still to observe: the first Linux CI run.
+
+**Alignment note.** `PERSISTENCE.md` makes `worldgen_version` an explicit field distinct from the content version: generation may change only via a version bump plus a registered transition, never by editing generation code under an unchanged version. M2b added per-cell proof, so an unversioned edit is caught even when nobody remembers the rule.
 
 ### RK-02 — Engine frame budget in a 2×2 km slice
 
@@ -88,6 +102,8 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 **Earliest inexpensive validation.** Phase 1: fuzz-test the migration path while it is still trivial. Author one quest and one item, save, then rename a definition ID and delete another; assert the loader reports the renamed ID as *migrated* and the deleted ID as an explicit **error with file and line** rather than a null. This is a unit test with no engine and no content volume.
 
 **Fails if.** A renamed definition loads as a silent null, or a deleted definition aborts the load with no file and line. Either means the migration path is already broken while it is still trivial to fix.
+
+**Status (M2b).** Validated. The definition-ID pass resolves renames and removals through `content/_aliases.yaml`, and an unmapped ID refuses the load with a blocker naming it. The committed historical fixtures load against their content pack in CI, so a rename without a map fails the build.
 
 **Mitigation.** Renames ship only as migration-map entries plus an alias, never as bare edits; a CI check fails any diff that removes a definition ID without a matching migration entry; the `D-10` registry is the only place instance IDs are minted so the mismatch class is bounded; deleted definitions are retained as tombstoned aliases, never dropped.
 
@@ -255,6 +271,8 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 
 **Mitigation.** Write to a staging path and commit via the platform's atomic primitive, verified empirically rather than assumed; keep the previous save intact until the new one has been verified and fsynced; retain a rolling backup that is only ever replaced after a verified-good commit; run the process-kill test in CI on the target OS. `PERSISTENCE.md` §7's integrity table and quarantine path are the fallback if atomicity cannot be achieved, but a quarantine is a degraded guarantee and should not be the primary plan.
 
+**Status (M2, M2b).** Validated on Windows. A real process kill at each of the six commit steps, for both saves and migrations, always leaves the old or the new complete save once the boot sweep has run; each test proves the kill landed at the intended step. Open: interference from real OneDrive/Dropbox sync engines (the save root is checked for them and the game can warn).
+
 **Cross-reference.** Detailed row: `PERSISTENCE.md` `RK-P06`; mechanism: `PERSISTENCE.md` §7.
 
 ### RK-14 — Navmesh stitching at cell seams under player buildings
@@ -386,7 +404,7 @@ Consolidated summary required by `PHASE_0.md` FINAL REVIEW. This section is the 
 - All mutation flows through a **command/event bus**. The presentation layer submits commands and subscribes to domain events; it never writes state and never owns truth. Presentation-side prediction is for feel only and is never permitted to write state (`D-11`).
 - **Content is YAML data** under `content/`, validated at load time against C# schemas, referenced by dotted string definition IDs (`D-03`).
 - **Identity is dual-namespace** (`D-04`): stable dotted definition IDs (public API, renamed only via migration map) and ULID instance IDs minted by the **Entity Registry** (`D-10`), which stores no gameplay state and holds no game rules.
-- **Persistence is sparse deltas over a deterministic baseline** (`D-05`): a small manifest (save version, content version, seed, playtime, screenshot, checksum) plus fully serialized player/companion state plus only those entities and cells that differ from the deterministic baseline. Saves are written atomically (temp file + rename) with at least one rolling backup slot.
+- **Persistence is sparse deltas over a deterministic baseline** (`D-05`): a small manifest (`PERSISTENCE.md` §4.2) plus fully serialized player/companion state plus only those entities and cells that differ from the deterministic baseline, each changed cell recording the baseline it was made against. Saves are written atomically (staging + rename + verify) with two backup generations.
 - **Simulation is tiered** (`D-06`): Tier A full, Tier B simplified regional, Tier C abstract schedule/economy, Tier D stored state only. Abstract tiers advance schedules and coarse position only, never combat or inventory.
 - **Scope discipline** (`D-12`): one region completely before a second; no networking code, no dedicated server, no speculative MMO abstraction.
 

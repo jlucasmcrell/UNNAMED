@@ -113,9 +113,17 @@ public class HistoricalFixtureTests
         var deer = loaded.World.Occupant("r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01");
         Assert.Equal((1_234, 5_678), (deer.XCm, deer.ZCm));
 
+        // Schema 3's required field: written by v3, derived from the ULID for v1 and v2 (value from Reference/worldgen_v2_reference.py).
+        Assert.Equal(0x32599743E39279EFUL, loaded.Player.AppearanceSeed);
+        var created = loaded.World.CreatedIn(CellKey.Parse("r_0_0:c_00_06"));
+        if (schema >= 3)
+            Assert.Equal(("item.weapon.iron_sword", 500, 600), (Assert.Single(created).DefId, created[0].XCm, created[0].ZCm));
+        else
+            Assert.Empty(created);
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         Assert.Equal(new[] { "item.potion.healing_draught -> item.potion.minor_healing" }, loaded.Report.Aliases);
-        Assert.Equal(6, loaded.Report.CellsMatched);
+        Assert.Equal(schema >= 3 ? 7 : 6, loaded.Report.CellsMatched);
         Assert.Empty(loaded.Report.Loss);
     }
 

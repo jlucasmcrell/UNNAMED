@@ -1,7 +1,7 @@
 # UNNAMED — Phase 0 Document Index
 
 **Project:** UNNAMED (working title) — an original first-person, solo-first, open-world fantasy RPG
-**Phase:** 1 — Playable Prototype. M0, M1 and M1b are complete; M2 is in progress (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
+**Phase:** 1 — Playable Prototype. M0, M1, M1b, M2 and M2b are complete; M2c is next (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 
 ## Authoritative documents (read in this order)
@@ -57,13 +57,14 @@ Line counts are approximate and drift as documents are revised; they are recorde
 
 - **Phase 0: complete and mechanically reconciled.** All twelve deliverables exist. Three adversarial passes raised 26 defects; all are fixed or ruled. A **fourth propagation pass** then verified each fix *in the authoritative document* and found 8 further defects caused by the earlier passes — including a **truncated `PERSISTENCE.md`** that had lost §6–§11, and **two documents claiming authority over the load sequence** with different orders. All 8 are corrected. See `REVIEW.md` §B-ter.
 - **Start here for implementation:** **`PHASE_0_COMPLETE.md`** — hierarchy, engine, `D-01`…`D-12`, risks, owner defaults, starting milestone, and reading order.
-- **Risk register:** `RK-01`..`RK-16`. `RK-01`..`RK-10` are the ten `PHASE_0.md` STEP 18 requires; `RK-11`..`RK-14` were promoted from document-local tables; `RK-15` and `RK-16` cover enforcement gaps (cross-slice mutation, read-path correctness). `RISK_REGISTER.md` is the single risk authority, and `PERSISTENCE.md` now carries `RK-P01`..`RK-P13`.
+- **Risk register:** `RK-01`..`RK-16`. `RK-01`..`RK-10` are the ten `PHASE_0.md` STEP 18 requires; `RK-11`..`RK-14` were promoted from document-local tables; `RK-15` and `RK-16` cover enforcement gaps (cross-slice mutation, read-path correctness). `RISK_REGISTER.md` is the single risk authority, and `PERSISTENCE.md` now carries `RK-P01`..`RK-P14`.
 - **Single-authority map:** `PERSISTENCE.md` §7.4 owns the load sequence (not `ARCHITECTURE.md` §8.2); `ARCHITECTURE.md` §3 owns repository structure; `DATA_MODEL.md` §1 owns the content kind list; `PROTOTYPE.md` owns Phase-1 scope; `ROADMAP.md` owns scheduling.
 - **Phase 1 M1 complete.** Domain skeleton, command/event bus, and headless test harness implemented. See `M1_STATUS.md` for full verification evidence.
 - **Open owner input:** four items in `DECISIONS.md` §"Open questions for the project owner" — working title/setting tone, target platform baseline, visual fidelity target, and the "while you were away" offline catch-up policy. All four have documented defaults and none blocks Phase 1; only the platform baseline carries a soft dependency (the frame-budget spike cannot be judged pass/fail without it).
 - **Phase 0 was documentation-only, by instruction.** Implementation began in Phase 1: source is in `src/`, headless tests in `tests/`.
 - **M1 implementation status:** `docs/M1_STATUS.md` — complete with objective evidence for all exit criteria.
-- **Phase 1 M2 complete.** Entity registry and D-04 identity, deterministic cell baseline (`RK-01` measured), and sparse-delta saves with atomic write, quarantine, backup rotation and crash recovery. `docs/M2_STATUS.md` has the evidence per exit criterion, the decisions taken where documents disagree, and the deferrals.
+- **Phase 1 M2 complete.** Entity registry and D-04 identity, deterministic cell baseline (`RK-01` measured), and sparse-delta saves with atomic write, quarantine, backup rotation and crash recovery. `docs/M2_STATUS.md` has the evidence per exit criterion, the acceptance audit, and the deferrals.
+- **Phase 1 M2b complete.** Ordered schema migrations (v1 -> v2 -> v3) with committed historical fixtures, definition-ID rename/removal maps, and `save:migrate --dry-run`. It also adds baseline compatibility: content identity no longer seeds generation, randomness is addressed by semantic key, every changed cell proves the baseline it was made against, and generator drift is detected. Specification: `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`; evidence: `docs/M2B_STATUS.md`.
 
 ## Where to start reading
 

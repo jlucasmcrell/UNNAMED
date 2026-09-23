@@ -29,6 +29,7 @@ internal static class CanonicalState
             json.WriteNumber("x_mm", player.XMm);
             json.WriteNumber("y_mm", player.YMm);
             json.WriteNumber("z_mm", player.ZMm);
+            json.WriteString("appearance_seed", World.WorldSeed.Format(player.AppearanceSeed));
             json.WriteStartArray("inventory");
             foreach (var entry in player.Inventory)
             {
@@ -80,6 +81,20 @@ internal static class CanonicalState
                 if (entity.XCm is int x) json.WriteNumber("x_cm", x); else json.WriteNull("x_cm");
                 if (entity.ZCm is int z) json.WriteNumber("z_cm", z); else json.WriteNull("z_cm");
                 json.WriteString("baseline_hash", entity.BaselineHash);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+
+            json.WriteStartArray("created");
+            foreach (var created in snapshot.Created)
+            {
+                json.WriteStartObject();
+                json.WriteString("instance_id", created.InstanceId.Value);
+                json.WriteString("def_id", created.DefId);
+                json.WriteString("host_cell", created.HostCell);
+                json.WriteNumber("x_cm", created.XCm);
+                json.WriteNumber("z_cm", created.ZCm);
+                json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
             json.WriteEndArray();

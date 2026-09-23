@@ -4,10 +4,12 @@
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using MessagePack;
+using UNNAMED.Domain;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using UNNAMED.World.Legacy;
 using V1 = UNNAMED.Persistence.Sections.V1;
+using V2 = UNNAMED.Persistence.Sections.V2;
 
 namespace UNNAMED.Persistence;
 
@@ -56,7 +58,8 @@ public static class SchemaMigrations
 {
     /// <summary>The single ordered table (§6.2). A schema bump adds exactly one step here, plus a fixture.</summary>
     public static readonly ImmutableArray<SchemaMigration> Production = ImmutableArray.Create<SchemaMigration>(
-        new SchemaV1ToV2());
+        new SchemaV1ToV2(),
+        new SchemaV2ToV3());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -140,7 +143,7 @@ public sealed class SchemaV1ToV2 : SchemaMigration
         byte[] bytes, CellBaselineGeneratorV1 legacy, BaselineTuple tuple, Func<CellKey, CellBaseline> current, MigrationReport report)
     {
         var section = MessagePackSerializer.Deserialize<V1.CellsSection>(bytes, SectionCodec.MessagePackOptions);
-        var records = new List<CellDto>();
+        var records = new List<V2.Cell>();
         foreach (var cell in section.Records)
         {
             if (!CellKey.TryParse(cell.CellKey, out var key))
@@ -151,7 +154,7 @@ public sealed class SchemaV1ToV2 : SchemaMigration
             var origins = legacy.NodeOrigins(tuple, key).ToDictionary(o => o.NodeKey, StringComparer.Ordinal);
             var baseline = current(key);
 
-            var nodes = new List<NodeDto>();
+            var nodes = new List<V2.Node>();
             foreach (var node in cell.HarvestedNodes)
             {
                 if (!origins.TryGetValue(node.NodeKey, out var origin))
@@ -165,11 +168,11 @@ public sealed class SchemaV1ToV2 : SchemaMigration
                     report.Loss.Add($"{cell.CellKey}: harvested {origin.Rule.Name} #{origin.Ordinal} ('{node.NodeKey}') has no worldgen-2 counterpart; dropped");
                     continue;
                 }
-                nodes.Add(new NodeDto { NodeKey = semanticKey, LastHarvestTick = node.LastHarvestTick, HarvestSeq = node.HarvestSeq });
+                nodes.Add(new V2.Node { NodeKey = semanticKey, LastHarvestTick = node.LastHarvestTick, HarvestSeq = node.HarvestSeq });
             }
 
-            var flags = cell.Flags.Select(f => new FlagDto { Name = f.Name, Value = f.Value }).ToArray();
-            var populations = cell.PopulationAlive.Select(p => new PopulationDto { PopulationId = p.PopulationId, Alive = p.Alive }).ToArray();
+            var flags = cell.Flags.Select(f => new V2.Flag { Name = f.Name, Value = f.Value }).ToArray();
+            var populations = cell.PopulationAlive.Select(p => new V2.Population { PopulationId = p.PopulationId, Alive = p.Alive }).ToArray();
             if (flags.Length == 0 && nodes.Count == 0 && populations.Length == 0)
                 continue;   // nothing left diverges: the record is rebased away
 
@@ -180,7 +183,7 @@ public sealed class SchemaV1ToV2 : SchemaMigration
             if (cell.DirtyReasons.Contains("entities")) reasons.Add("entities");
             reasons.Sort(StringComparer.Ordinal);
 
-            records.Add(new CellDto
+            records.Add(new V2.Cell
             {
                 CellKey = cell.CellKey,
                 BaselineHash = baseline.Digest,
@@ -190,13 +193,13 @@ public sealed class SchemaV1ToV2 : SchemaMigration
                 PopulationAlive = populations,
             });
         }
-        return MessagePackSerializer.Serialize(new CellsSectionDto { Records = records.ToArray() }, SectionCodec.MessagePackOptions);
+        return MessagePackSerializer.Serialize(new V2.CellsSection { Records = records.ToArray() }, SectionCodec.MessagePackOptions);
     }
 
     private static byte[] MigrateEntities(byte[] bytes, Func<CellKey, CellBaseline> current, MigrationReport report)
     {
         var section = MessagePackSerializer.Deserialize<V1.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
-        var records = new List<EntityDto>();
+        var records = new List<V2.Entity>();
         var hostBaselines = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (var e in section.Records)
         {
@@ -209,20 +212,74 @@ public sealed class SchemaV1ToV2 : SchemaMigration
             // Slot keys name a population and an ordinal, both unchanged by worldgen 2: identity carries
             // over. Positions are absolute, so a moved occupant keeps where it was moved to.
             hostBaselines[host] = current(cell).Digest;
-            records.Add(new EntityDto
+            records.Add(new V2.Entity
             {
                 InstanceId = e.InstanceId,
                 SlotKey = e.SlotKey,
                 GenerationSeq = e.GenerationSeq,
                 DefId = e.DefId,
                 DirtyMask = e.DirtyMask,
-                State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                State = new V2.EntityState { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
             });
         }
-        return MessagePackSerializer.Serialize(new EntitiesSectionDto
+        return MessagePackSerializer.Serialize(new V2.EntitiesSection
         {
             Records = records.ToArray(),
-            Baselines = hostBaselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
+            Baselines = hostBaselines.Select(kv => new V2.CellBaseline { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
         }, SectionCodec.MessagePackOptions);
+    }
+}
+
+/// <summary>
+/// Schema 2 to 3 (M2b): the player gains the required <c>appearance_seed</c> (PERSISTENCE.md §5.1), and
+/// the entities section gains created persistent instances. An older save has no appearance seed, so
+/// it gets the value a character gets when nothing chose one - derived from its ULID, deterministic,
+/// never random - and it has no created instances, because schema 2 could not record any.
+/// </summary>
+public sealed class SchemaV2ToV3 : SchemaMigration
+{
+    public override int From => 2;
+
+    public override string Summary =>
+        "schema 2 -> 3: the player gains the required appearance_seed (derived from the player's ULID for saves " +
+        "that predate it); the entities section gains created persistent instances (none before schema 3)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V2.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = PlayerRecord.DerivedAppearanceSeed(EntityId.Parse(old.InstanceId)),
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V2.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records.Select(e => new EntityDto
+                {
+                    InstanceId = e.InstanceId,
+                    SlotKey = e.SlotKey,
+                    GenerationSeq = e.GenerationSeq,
+                    DefId = e.DefId,
+                    DirtyMask = e.DirtyMask,
+                    State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                }).ToArray(),
+                Created = Array.Empty<CreatedDto>(),
+                Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
     }
 }

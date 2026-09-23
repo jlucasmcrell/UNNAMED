@@ -131,18 +131,43 @@ Rationale for each link:
 
 - **Class:** INFRA (+ one `RISK SPIKE` inside). **Depends on:** M1, M1b.
 - **Entry:** Domain skeleton and content loader pass.
-- **Work:** `EntityRegistry` (D-10) owning creation, ULID assignment, and lookup for every runtime instance, with **no gameplay rules**; definition-ID vs instance-ID namespaces (D-04); deterministic baseline world generation `(seed, content_version)` behind a frozen interface; sparse-delta save (manifest + player state + changed cells) with atomic write (temp + rename) and one rolling backup slot (D-05); corruption-recovery path; autosave/manual save slots.
+- **Work:** `EntityRegistry` (D-10) owning creation, ULID assignment, and lookup for every runtime instance, with **no gameplay rules**; definition-ID vs instance-ID namespaces (D-04); deterministic baseline world generation behind a frozen interface; sparse-delta save (manifest + player state + changed cells) with atomic write (staging + rename + verify) and rolling backups (D-05; two generations per `PERSISTENCE.md` §7.3); corruption-recovery path; autosave/manual save slots.
 - **`RISK SPIKE` inside:** *determinism*. Generate a cell twice from the same seed and diff. Generate from `(seed, v1)` then `(seed, v2)` and confirm the version-mismatch path triggers migration rather than silent regeneration. Fail-fast if generation is not bit-stable.
-- **Exit criteria:** Save in a 10-cell world with 2 changed cells and verify the save contains only the deltas; load it and verify world equality; verify `(seed, content_version)` determinism across two fresh processes; verify atomic write survives a simulated kill during write.
+- **Exit criteria:** Save in a 10-cell world with 2 changed cells and verify the save contains only the deltas; load it and verify world equality; verify `(seed, content_version)` determinism across two fresh processes; verify atomic write survives a simulated kill during write. (Met; `M2_STATUS.md`. M2b later removed content identity from generation, so the determinism under test is of the baseline tuple, `PERSISTENCE.md` §1.3.)
 - **Proof:** `RK-01` (determinism) has a measured answer, not an assumption. D-05 calls this "the single most dangerous constraint in the project"; this milestone is where it is proven or the design changes.
 
-### M2b — Save Migration Harness — `INFRA`
+### M2b — Save Migration Harness and Baseline Compatibility — `INFRA`
 
 - **Class:** INFRA. **Depends on:** M2. **Must exist before any schema change ships.**
+- **Refined by** `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` (owner-approved), after M2 found that the whole `content_hash` seeded every cell's random draws, so a one-value balance edit moved the entire world.
 - **Entry:** Save format v1 exists and round-trips.
-- **Work:** Versioned save manifest; ordered migration chain (`v1→v2→v3...`); a fixture directory of **every historical save version**, generated at each schema change and committed; a CI test that loads every fixture and asserts it migrates cleanly; a migration-map mechanism for renamed/removed definition IDs (D-04, D-05); a `save:migrate --dry-run` CLI that reports what a migration would change.
-- **Exit criteria:** Adding a required field to player state ships with (a) a migration function, (b) a regenerated fixture set, (c) a CI test that loads all prior fixtures. Removing/renaming a content definition without a migration map fails CI.
-- **Proof:** CI loads v1 fixture under v3 code and asserts a correct, non-lossy result.
+- **Work:**
+  - Versioned save manifest; ordered migration chain (`v1→v2→v3...`).
+  - A fixture directory of **every historical save version**, generated at each schema change and committed; a CI test that loads every fixture and asserts it migrates cleanly.
+  - A migration-map mechanism for renamed/removed definition IDs (D-04, D-05).
+  - A `save:migrate --dry-run` CLI that reports what a migration would change.
+  - **Baseline compatibility:**
+    - content identity separated from procedural entropy;
+    - semantic, call-order-isolated random channels;
+    - a per-cell `baseline_hash` on every changed-cell delta;
+    - a computed `worldgen_fingerprint` with canonical probe cells;
+    - registered transitions for baseline changes.
+- **Exit criteria:**
+  - Migration harness:
+    - Adding a required field to player state ships with (a) a migration function, (b) a regenerated fixture set, (c) a CI test that loads all prior fixtures.
+    - A multi-hop migration is tested.
+  - Content identity:
+    - Removing/renaming a content definition without a migration map fails CI.
+    - An unrelated content change (a balance value) changes `content_hash` but does not perturb world generation.
+  - Baseline compatibility:
+    - Changed-cell deltas record and verify their baseline hash.
+    - A baseline mismatch never silently accepts an old delta.
+    - One synthetic baseline-affecting rebase through a registered transition is proven.
+    - Generator drift without a `worldgen_version` bump is detected.
+  - RNG stability: adding an unrelated random draw does not shift any other subsystem's output.
+  - Crash safety: a migrated save commits through the M2 atomic path, so an interruption leaves the old or the new save, never a partial one.
+  - CLI: `save:migrate --dry-run` reports the plan and is proven non-mutating.
+- **Proof:** CI loads the v1 fixture under v3 code, `v1 → v2 → v3`, and asserts a correct, non-lossy result.
 - **Why here:** Retrofitting migrations after months of unversioned schema drift means every existing save is disposable. This is on the critical path (R-7) and is deliberately *not* deferred to Phase 3.
 
 ### M2c — Progression Spine — `FEATURE`
@@ -396,8 +421,8 @@ These are the concrete first tasks after this document is accepted. Each is size
 3. **Command/event bus v1:** synchronous in-process implementation, deterministic test scheduler, unit tests for ordering and re-entrancy.
 4. **Content loader + schema validator v1** for `ItemDefinition` only, with file/line error reporting and a deliberately broken fixture test.
 5. **Entity Registry v1:** ULID assignment, definition/instance namespaces, lookup, and the no-gameplay-rules constraint enforced by an architecture test.
-6. **Deterministic cell generator v1:** `(seed, content_version)` → cell contents, with the repeatability test from M2's risk spike.
-7. **Sparse-delta save v1:** manifest + player state + changed-cell delta, atomic write, one backup slot, round-trip test.
+6. **Deterministic cell generator v1:** `(seed, generator contract)` → cell contents, with the repeatability test from M2's risk spike.
+7. **Sparse-delta save v1:** manifest + player state + changed-cell delta, atomic write, rolling backup, round-trip test.
 8. **Save fixture + migration harness v1:** version field, migration chain interface, committed v1 fixture, CI load test.
 9. **Progression spine v1:** XP ledger with `source_kind`, level curve, seven attributes, derived pools, and the non-conversion API guard.
 10. **Telemetry skeleton:** per-axis advancement events with timestamps and source kinds, written to a non-shipped log, plus the `AG-6` rate-banding report generator.

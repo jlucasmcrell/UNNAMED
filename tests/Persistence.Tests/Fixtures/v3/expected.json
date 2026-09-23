@@ -67,7 +67,7 @@
   ],
   "entities": [
     {
-      "instance_id": "crt_01M377BPWCD9F0H0FTDENBAM78",
+      "instance_id": "crt_01M377X26WFAC8Q3VAYX8H4637",
       "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
       "def_id": "creature.beast.wolf_grey",
       "alive": false,
@@ -76,7 +76,7 @@
       "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
     },
     {
-      "instance_id": "crt_01M377BPWET262SFMK68XEN60P",
+      "instance_id": "crt_01M377X26XRGDWYKP26V9BZSS0",
       "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
       "def_id": "creature.beast.deer",
       "alive": null,
@@ -85,5 +85,14 @@
       "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b"
     }
   ],
-  "created": []
+  "created": [
+    {
+      "instance_id": "itm_01M377X26XRF0MZXJHXSEFV9N7",
+      "def_id": "item.weapon.iron_sword",
+      "host_cell": "r_0_0:c_00_06",
+      "x_cm": 500,
+      "z_cm": 600,
+      "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
+    }
+  ]
 }

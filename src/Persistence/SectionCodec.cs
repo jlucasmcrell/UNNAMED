@@ -20,6 +20,7 @@ public sealed class PlayerDto
     [Key("x_mm")] public long XMm { get; set; }
     [Key("y_mm")] public long YMm { get; set; }
     [Key("z_mm")] public long ZMm { get; set; }
+    [Key("appearance_seed")] public ulong AppearanceSeed { get; set; }
     [Key("inventory")] public InventoryDto[] Inventory { get; set; } = Array.Empty<InventoryDto>();
 }
 
@@ -75,8 +76,21 @@ public sealed class EntitiesSectionDto
 {
     [Key("records")] public EntityDto[] Records { get; set; } = Array.Empty<EntityDto>();
 
+    /// <summary>Persistent instances no baseline slot generates (schema 3).</summary>
+    [Key("created")] public CreatedDto[] Created { get; set; } = Array.Empty<CreatedDto>();
+
     /// <summary>The baseline hash of every cell hosting a record: each record is proven against its host cell.</summary>
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
+}
+
+[MessagePackObject]
+public sealed class CreatedDto
+{
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("x_cm")] public int XCm { get; set; }
+    [Key("z_cm")] public int ZCm { get; set; }
 }
 
 [MessagePackObject]
@@ -132,6 +146,7 @@ public static class SectionCodec
         XMm = player.XMm,
         YMm = player.YMm,
         ZMm = player.ZMm,
+        AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
             .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count })
             .ToArray(),
@@ -140,7 +155,7 @@ public static class SectionCodec
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
         var dto = MessagePackSerializer.Deserialize<PlayerDto>(bytes, Options);
-        return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm,
+        return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)));
     }
 
@@ -175,13 +190,17 @@ public static class SectionCodec
     public static byte[] EncodeEntities(DeltaSnapshot snapshot)
     {
         var baselines = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        foreach (var e in snapshot.Entities)
+        void Prove(string cell, string? hash, EntityId instance)
         {
-            string cell = HostCell(e.SlotKey);
-            if (e.BaselineHash is null || (baselines.TryGetValue(cell, out string? known) && known != e.BaselineHash))
-                throw new InvalidOperationException($"Entity record {e.InstanceId} carries no single baseline hash for its host cell {cell}");
-            baselines[cell] = e.BaselineHash;
+            if (hash is null || (baselines.TryGetValue(cell, out string? known) && known != hash))
+                throw new InvalidOperationException($"Entity record {instance} carries no single baseline hash for its host cell {cell}");
+            baselines[cell] = hash;
         }
+        foreach (var e in snapshot.Entities)
+            Prove(HostCell(e.SlotKey), e.BaselineHash, e.InstanceId);
+        foreach (var c in snapshot.Created)
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+
         return MessagePackSerializer.Serialize(new EntitiesSectionDto
         {
             Records = snapshot.Entities.Select(e => new EntityDto
@@ -193,21 +212,37 @@ public static class SectionCodec
                 DirtyMask = e.DirtyMask,
                 State = new EntityStateDto { Alive = e.Alive, XCm = e.XCm, ZCm = e.ZCm },
             }).ToArray(),
+            Created = snapshot.Created.Select(c => new CreatedDto
+            {
+                InstanceId = c.InstanceId.Value,
+                DefId = c.DefId,
+                HostCell = c.HostCell,
+                XCm = c.XCm,
+                ZCm = c.ZCm,
+            }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
         }, Options);
     }
 
-    public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes)
+    /// <summary>The entities section: slot-keyed records and created instances, each with its host cell's baseline hash.</summary>
+    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created) DecodeEntitySection(byte[] bytes)
     {
         var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
         var baselines = section.Baselines.ToDictionary(b => b.CellKey, b => b.BaselineHash, StringComparer.Ordinal);
-        return section.Records
+        var entities = section.Records
             .Select(e => new EntityDeltaRecord(
                 EntityId.Parse(e.InstanceId), e.SlotKey, e.GenerationSeq, e.DefId,
                 e.State.Alive, e.State.XCm, e.State.ZCm,
                 baselines.GetValueOrDefault(HostCell(e.SlotKey))))
             .ToImmutableArray();
+        var created = section.Created
+            .Select(c => new CreatedEntityRecord(
+                EntityId.Parse(c.InstanceId), c.DefId, c.HostCell, c.XCm, c.ZCm, baselines.GetValueOrDefault(c.HostCell)))
+            .ToImmutableArray();
+        return (entities, created);
     }
+
+    public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>
     public static string HostCell(string slotKey)

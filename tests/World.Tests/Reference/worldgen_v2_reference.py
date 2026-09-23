@@ -132,3 +132,8 @@ print("iron_vein/00 UInt64 samples 0..2:", [raw(iron, i, 0) for i in range(3)])
 print("iron_vein/00 Int(sample, 0, 10000), samples 0..1:", [rint(iron, i, 0, 10000) for i in range(2)])
 heights = channel(SEED, "r_0_0:c_07_11", "terrain", "height")
 print("terrain/height Int(i, -800, 801), i 0..4:", [rint(heights, i, -800, 801) for i in range(5)])
+
+# Schema 3: the appearance seed a character gets when nothing chose one (PlayerRecord.DerivedAppearanceSeed).
+FIXTURE_PLAYER = "chr_01HF7YAT00041061050R3GG28A"
+seed_bytes = canonical("unnamed.appearance-seed/v1", FIXTURE_PLAYER)[:8]
+print("appearance seed of", FIXTURE_PLAYER, ":", "0x%016X" % int.from_bytes(seed_bytes, "big"))

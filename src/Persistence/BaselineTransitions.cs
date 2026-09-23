@@ -30,11 +30,10 @@ public sealed record BaselineTransition(string Name, string FromFingerprint, str
 /// </summary>
 internal static class SemanticRebase
 {
-    public static (ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities) Apply(
+    public static DeltaSnapshot Apply(
         BaselineTransition transition,
         IReadOnlySet<string> cellsToRebase,
-        ImmutableArray<CellDeltaRecord> cells,
-        ImmutableArray<EntityDeltaRecord> entities,
+        DeltaSnapshot delta,
         Func<CellKey, CellBaseline> baseline,
         MigrationReport report)
     {
@@ -47,7 +46,7 @@ internal static class SemanticRebase
         }
 
         var rebasedCells = ImmutableArray.CreateBuilder<CellDeltaRecord>();
-        foreach (var record in cells)
+        foreach (var record in delta.Cells)
         {
             if (!cellsToRebase.Contains(record.CellKey))
             {
@@ -74,7 +73,7 @@ internal static class SemanticRebase
         }
 
         var rebasedEntities = ImmutableArray.CreateBuilder<EntityDeltaRecord>();
-        foreach (var record in entities)
+        foreach (var record in delta.Entities)
         {
             string host = Sections.SectionCodec.HostCell(record.SlotKey);
             if (!cellsToRebase.Contains(host))
@@ -92,8 +91,15 @@ internal static class SemanticRebase
             rebasedEntities.Add(record with { BaselineHash = target.Digest });
         }
 
+        // A created instance targets no generated object, only its host cell: it is carried to the new
+        // baseline where it stands. (Checking that its position is still legal needs terrain geometry,
+        // which the baseline does not have yet.)
+        var rebasedCreated = delta.Created
+            .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
+            .ToImmutableArray();
+
         foreach (string cell in cellsToRebase.OrderBy(c => c, StringComparer.Ordinal))
             report.CellsRebased.Add($"{cell} ({transition.Name})");
-        return (rebasedCells.ToImmutable(), rebasedEntities.ToImmutable());
+        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable()) { Created = rebasedCreated };
     }
 }

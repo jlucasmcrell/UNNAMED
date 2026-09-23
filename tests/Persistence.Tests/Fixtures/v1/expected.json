@@ -9,6 +9,7 @@
     "x_mm": 150250,
     "y_mm": 12000,
     "z_mm": -40125,
+    "appearance_seed": "0x32599743E39279EF",
     "inventory": [
       {
         "item_id": "itm_01HF7YAT01144GJ289144GJ281",
@@ -83,5 +84,6 @@
       "z_cm": 5678,
       "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b"
     }
-  ]
+  ],
+  "created": []
 }

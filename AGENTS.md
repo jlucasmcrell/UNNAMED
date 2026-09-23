@@ -4,7 +4,7 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 
 ## Current status
 
-- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (evidence, decisions and deferrals: `docs/M2_STATUS.md`). Unblocked next: M2b - Save Migration Harness, and M2c - Progression Spine (`docs/ROADMAP.md`).
+- Phase 1 (Playable Prototype). Done: M0, M1, M1b, M2 (`docs/M2_STATUS.md`), M2b - save migration and baseline compatibility (`docs/M2B_STATUS.md`). Next: M2c - Progression Spine (`docs/ROADMAP.md`), after its progression-axis review (M2b spec §23).
 
 ## Build and test (from the repository root)
 
@@ -12,12 +12,15 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 - Test: `dotnet test src/UNNAMED.sln` (runs every test project, including Persistence.Tests)
 - One test: `dotnet test tests/<Project>.Tests --filter "FullyQualifiedName~<TestName>"`
 - Content lint: build Content in Release, then `dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content --verbose` (a space, not `=`: the tool ignores `--content-root=...` and lints `./content`)
+- Save tool: `dotnet src/SaveTool/bin/Debug/net8.0/UNNAMED.SaveTool.dll save:migrate --dry-run <save-dir> --content-root <dir> --worldgen <profile.json>` (also `save:migrate` and `save:inspect`)
 
 ## Where the code is
 
 - Source: `src/<Project>/`. Tests: `tests/<Project>.Tests/`. Content definitions (YAML): `content/`.
-- Projects: Domain, Application, Content, EntityRegistry, World, Persistence, Presentation.
-- `tests/M2.Probe` is a console app that Persistence.Tests runs as a separate process (cross-process determinism, a real kill mid-save). It is part of the test suite, not scratch.
+- Projects: Domain, Application, Content, EntityRegistry, World, Persistence, SaveTool, Presentation. `tests/Architecture.Tests` asserts the architecture rules below.
+- `tests/M2.Probe` is a console app that Persistence.Tests runs as a separate process (cross-process determinism, a real kill mid-save or mid-migration, fixture writing). It is part of the test suite, not scratch.
+- `tests/Persistence.Tests/Fixtures/` holds one committed save per schema version. Never edit them; a schema change follows `Fixtures/README.md`.
+- `src/World/Legacy` is worldgen 1, frozen: the schema 1 -> 2 migration needs it. Never change it, and never generate new content with it.
 - The `.rar` archives at the repository root are local backups, ignored by git. They are not the code; do not read them.
 - `assets/` is generated asset-pipeline output, written by another machine. It is not code; do not read it for coding tasks.
 
@@ -28,7 +31,8 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 - One system, one responsibility. A system changes another system's state only by submitting a command or reacting to an event - never by reaching into its state. Events are not commands: a listener responds by submitting a command.
 - Domain never references Application or Presentation, and never reads files to load content - it receives a built catalogue. Content is referenced by string ID.
 - No static or singleton mutable state: two world instances in one process must not share anything mutable.
-- Save/load order is owned by `docs/PERSISTENCE.md` section 7.4. All save I/O goes through `SaveStore` (src/Persistence). A load never falls back to a backup silently, and never regenerates a world whose baseline differs from the save's.
+- Save/load order is owned by `docs/PERSISTENCE.md` section 7.4. All save I/O goes through `SaveStore` (src/Persistence). A load never falls back to a backup silently, and never regenerates a world whose baseline differs from the save's: every changed cell is proven by its `baseline_hash` (section 6.4).
+- Generation randomness comes only from `RngChannel` (`Random(seed, cell, subsystem, semantic_key, sample)`), never from call order or `System.Random`, and never keyed on `content_hash`. A generator change must keep the pinned probe tests green, or bump `worldgen_version` and register a transition.
 - Instance IDs are `<prefix>_<ULID>` from `EntityId.NewId(kind)` or the registry; never build one by hand.
 
 ## Conventions
@@ -39,7 +43,7 @@ Single-player, first-person open-world fantasy RPG. Godot 4 + C# (.NET 8). Autho
 ## Documentation - large files: grep a heading, then read that range
 
 - Authority order: `PROJECT_CHARTER.md` > `PHASE_0.md` > `DECISIONS.md` > everything else. If `DECISIONS.md` and `ARCHITECTURE.md` disagree, `DECISIONS.md` is right.
-- Core technical docs and sizes: `ARCHITECTURE.md` ~25 KB, `DECISIONS.md` ~26 KB, `PERSISTENCE.md` ~45 KB, `SYSTEMS.md` ~52 KB, `ROADMAP.md` ~52 KB, `DATA_MODEL.md` ~58 KB.
+- Core technical docs and sizes: `ARCHITECTURE.md` ~26 KB, `DECISIONS.md` ~28 KB, `PERSISTENCE.md` ~60 KB, `SYSTEMS.md` ~54 KB, `ROADMAP.md` ~54 KB, `DATA_MODEL.md` ~60 KB. `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` is the owner-approved M2b refinement.
 - `docs/00_DESIGN_PACK_INDEX.md` lists the design extension pack. It is directional, NOT normative: do not change the M2 identity or persistence contracts (D-04 IDs, the `PERSISTENCE.md` save format) to match it.
 
 ## Godot

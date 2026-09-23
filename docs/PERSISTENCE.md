@@ -1,7 +1,7 @@
 # PERSISTENCE.md — Save Architecture (Phase 0)
 
 **Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
-**Status:** Phase 0 design. No implementation exists. This is the contract for whoever implements persistence first.
+**Status:** Normative, and implemented through M2b (`src/Persistence`, `src/World`; evidence in `M2_STATUS.md` and `M2B_STATUS.md`). M2b refined this document per `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`: **exact content identity and baseline procedural compatibility are related, but they are not the same thing** (§1.3, §6.4).
 
 **Normative decisions:** `D-05` (sparse deltas over a deterministic baseline), `D-04` (ULID instance IDs, dotted definition IDs), `D-10` (Entity Registry owns identity), `D-02`/`D-11` (authoritative state is engine-agnostic C#; presentation never writes state), `D-03` (content is data), `D-12` (no speculative multi-actor persistence).
 
@@ -28,19 +28,21 @@ Out of scope in Phase 0: networking, cloud sync, save sharing, anti-cheat, conso
 
 ### 1.1 Invariants (violating any of these is a bug, not a design choice)
 
-- **I-1** A save stores **nothing** derivable from the deterministic baseline `(world_seed, worldgen_version, content_hash)` unless it diverges from it; no content definitions, only definition **IDs**; no raw pointers, object references, memory offsets, or engine node paths (`D-03`, `D-05`, charter SAVE SYSTEM).
+- **I-1** A save stores **nothing** derivable from the deterministic baseline (the world seed and the generator contract, §1.3) unless it diverges from it; no content definitions, only definition **IDs**; no raw pointers, object references, memory offsets, or engine node paths (`D-03`, `D-05`, charter SAVE SYSTEM).
 - **I-2** Every persisted instance carries a ULID assigned at creation by the Entity Registry (`D-04`, `D-10`).
-- **I-3** Generation from `(world_seed, worldgen_version, content_hash)` is deterministic and version-stable; a digest or version mismatch triggers **migration**, never silent regeneration (`D-05`).
+- **I-3** Generation from the baseline tuple (§1.3) is deterministic. **Every saved delta names the baseline it was made against** (its cell's `baseline_hash`) and is applied only to a baseline with that hash, or through a registered transition (§6.4); a mismatch is migrated or refused, never silently regenerated (`D-05`).
 - **I-4** State is written only via domain commands; the save system reads the world-state store, never the scene tree (`D-02`, `D-11`).
 - **I-5** A write is atomic: either the previous save or the complete new save exists, never a half-written one (`D-05`).
 - **I-6** **Derived caches are recomputed exactly once, after migration and alias resolution, and never incrementally during load.** This is a sequencing invariant: a derived value computed from a half-migrated world is wrong in a way that no later step repairs. Enforced by **T-27** (order assertion) and by the gated load-state machine in §7.4.
 - **I-7** **Every persisted record has a defined retirement path.** Presence in the delta implies divergence *from a regenerated baseline*, and a record that has returned to baseline is **rebased** (deleted) rather than retained. A delta format without compaction is a leak with a schema (`RK-P09`).
 - **I-8** **Every persisted world entity carries a derived baseline slot key in addition to its ULID**, so a persisted entity *replaces* its baseline slot on load instead of coexisting with it (`RK-P10`).
-- **I-9** **Randomness is derived, not sequenced.** A random value that must be reproducible is a pure function `hash(world_seed, purpose_key)`; there is **no global RNG counter in the save** (`RK-P11`).
+- **I-9** **Randomness is derived, not sequenced.** A random value that must be reproducible is a pure function of its key: `Random(world_seed, cell, subsystem, semantic_key, sample_index)` for generation (`WORLD_ARCHITECTURE.md` §3.4, RNG contract 2) and `hash(world_seed, purpose_key)` elsewhere. There is **no global RNG counter in the save**, and **content identity is never an input to a random draw** (`RK-P11`, `RK-P14`).
 
 ### 1.2 The one-line model
 
-> Load = `generate(seed, content) + apply(delta) + apply(player_state)`. Save = `diff(store, baseline(seed, content)) + player_state + manifest`.
+> Load = `generate(seed, generator contract) + prove(delta) + apply(delta) + apply(player_state)`. Save = `diff(store, baseline(seed, generator contract)) + player_state + manifest`.
+
+Content enters the model through definition IDs, which the load resolves (§6.3), and through the placement data the generator reads, which is part of the generator contract. The rest of the content pack does not move the baseline.
 
 `diff` is only half-implemented by storing a delta. The other half is **`rebase`** (§5.6): the saved record is the only copy of the divergence, so nothing retires it unless an explicit reconciliation against the regenerated baseline runs. `rebase` ships **before** the delta path is considered complete.
 
@@ -52,10 +54,18 @@ This project has exactly two tuples, and every other document cites them rather 
 
 | Tuple | Fields | Used for |
 |---|---|---|
-| **Baseline tuple** | `(world_seed, worldgen_version, content_hash)` | Regenerating world/cell content exactly |
-| **Replay tuple** | `(world_seed, worldgen_version, content_hash, command_log)` | Reproducing **tick outcomes** from a save |
+| **Baseline tuple** | `(world_seed, generator contract)`: `worldgen_version`, `rng_contract_version` and the placement data the generator reads | Regenerating world/cell content exactly |
+| **Replay tuple** | `(world_seed, generator contract, content_hash, command_log)` | Reproducing **tick outcomes** from a save |
 
-`worldgen_version` is a human label; the **authority** is `worldgen_digest` (§4.2), which is content-addressed over the generation assembly, the placement data, and the runtime/FMA configuration. `SYSTEMS.md` §1 states the replay tuple; §6.1 below states how a mismatch is handled.
+**Content identity is in the replay tuple and not in the baseline tuple.** `content_hash` answers "what exact content pack wrote this save?": simulation reads content (a wolf's hit points), so replay needs it. Generation reads only its placement data. M2 fed the whole `content_hash` into every cell's random streams, so a one-value balance edit moved every rock and every wolf. M2b removed that coupling (`RK-P14`, `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` §2).
+
+Three identities describe the generator, and each has one job:
+
+- `worldgen_version`: the human compatibility epoch, bumped deliberately. Never the only safeguard.
+- `worldgen_fingerprint`: computed from the generator's identity, version, RNG contract, placement data and its **output on a fixed set of canonical probe cells**, so drift that nobody versioned becomes visible (§6.4). It is detection metadata, never procedural entropy.
+- per-cell `baseline_hash`: the digest of one cell's generated output, recorded with every changed cell's delta. It is the **authority** for applying that delta (§6.4).
+
+`SYSTEMS.md` §1 states the replay tuple; §6.1 and §6.4 below state how a mismatch is handled.
 
 ---
 
@@ -65,8 +75,8 @@ The heart of `D-05`. Every row states the reconstruction path, because *"not sav
 
 | Not saved | Reconstructed at load by |
 |---|---|
-| Unchanged terrain, heightfield, biome, water, roads | Deterministic worldgen from `(world_seed, worldgen_version, content_hash)` |
-| Unchanged vegetation, props, decals | Same generator, cell-local RNG stream seeded by cell key |
+| Unchanged terrain, heightfield, biome, water, roads | Deterministic worldgen from the baseline tuple (§1.3) |
+| Unchanged vegetation, props, decals | Same generator, semantic random channels keyed by cell, subsystem and slot (`WORLD_ARCHITECTURE.md` §3.4) |
 | Content definitions (items, creatures, spells, recipes, quests, factions, loot tables, dialogue) | Content loader + validator; only definition **IDs** were stored (`D-03`) |
 | Unmodified creature/NPC instances at spawn defaults | Spawner re-instantiates from the cell's population table **minus persisted slot keys** (§5.3) |
 | Unharvested resource nodes | Node existence/content from worldgen; baseline state is "full" (harvestable) |
@@ -127,7 +137,7 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 | **`journal.jsonl`** | Append-only prose, useful to players and tools | It is not authoritative state and never replayed | Truncate to the last complete line; a partial tail line is not corruption |
 | **`command_log.jsonl`** | A few KB; the enabler of the replay tuple (§1.3) | Loss makes a save unreplayable, not unloadable | Truncate to the last complete line; the save still loads, and the unavailability of replay is reported |
 | **`orphans.msgpack`** | Records quarantined by the tombstone pass | Absent unless a quarantine occurred | Not load-bearing; a corrupt orphan file is reported and discarded |
-| **`sections.sha256`** | The integrity root covering every other file including `manifest.json` | If corrupted, re-derive by re-hashing the directory | Re-derive and re-verify; a mismatch against `manifest.json`'s recorded sizes is a hard error |
+| **`sections.sha256`** | The integrity root covering every other file including `manifest.json` (the `sha256sum` layout) | If corrupted, re-derive by re-hashing the directory | Re-derive and report it. The load then does not count as complete, so the save is not proven good for backup rotation (§7.3). The manifest records no sizes to check against (§4.2); an earlier revision referred to them |
 | **`preview.png`** | Slot-UI affordance only | Not authoritative, not checksummed | Ignore and regenerate |
 
 ---
@@ -143,12 +153,13 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 ```jsonc
 {
   "save_format": 1,                       // CONTAINER version; never changes for small layout edits
-  "schema_version": 14,                   // GAMEPLAY STATE schema; drives the migration chain
+  "schema_version": 3,                    // GAMEPLAY STATE schema; drives the migration chain
   "content_version": "0.4.2",             // content pack version; a human label
-  "content_hash": "sha256:9f3c…",         // computed hash over the compiled content pack
-  "worldgen_version": 3,                  // HUMAN LABEL for worldgen_digest; not the authority
-  "worldgen_digest": "sha256:41ab…",      // AUTHORITY over baseline regeneration (§6.1)
+  "content_hash": "sha256:9f3c…",         // exact identity of the compiled content pack; NOT a generation input
   "world_seed": "0x5C1A9E7B4D2F0083",     // frozen; 0 means random
+  "worldgen_version": 2,                  // human compatibility epoch of the generator contract
+  "worldgen_fingerprint": "sha256:9810…", // computed generator identity incl. canonical probe output (§6.4); detection only
+  "rng_contract_version": 2,              // the key-to-random-value encoding (WORLD_ARCHITECTURE.md §3.4)
   "world_tick": 918273645,                // monotonic domain tick; the only clock (§5.5)
   "world_time_advanced_ticks": 1728000,   // honoured offline advance; PERSISTED, not a load policy
   "command_log_sha256": "sha256:c7d2…",   // digest of command_log.jsonl; absent ⇒ replay unavailable
@@ -162,7 +173,8 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 
 - **No `rng_state` block.** Randomness is derived, not sequenced (`I-9`, `RK-P11`). The previous four-counter block is removed; a global counter would make correctness depend on load order and draw order being identical forever.
 - **No checksum of the manifest itself.** The integrity root is `sections.sha256`, which covers every other file including `manifest.json`. A self-referential checksum is a trap (`DATA_MODEL.md` §5, `RK-P09`).
-- **`worldgen_digest` is the authority, not `worldgen_version`.** A hand-edited integer cannot detect a generation change; a digest computed over the generation assembly, the placement data, and the runtime/FMA configuration can.
+- **No generator field is the authority for applying a delta; each changed cell's `baseline_hash` is (§6.4).** A hand-edited integer cannot detect a generation change, and a whole-generator identity cannot say *which* cells a change touched. `worldgen_fingerprint` detects drift; the per-cell hash decides.
+- **Schema 1 (M2) recorded `worldgen_digest`** (generator identity + placement data). Schema 2 replaced it with `worldgen_fingerprint`, which covers the same inputs plus the RNG contract and the canonical probe output, and added `rng_contract_version`. The 1 -> 2 migration checks the old digest before it trusts a schema-1 save's baseline (§6.2). Other M2 field names were kept.
 - **`world_time_advanced_ticks` replaces a per-load catch-up cap.** The honoured amount is *persisted state*, so one 300-day step and 300 one-day steps agree (§5.5, `RK-12`).
 
 ---
@@ -177,6 +189,8 @@ These are the only fully-serialized sections. A character is not regenerable, so
 
 **Rebase does not apply here.** There is no baseline to return to, so every field is authoritative and T-01 asserts full equality after reload.
 
+Implemented so far (schema 3): the character's ULID, name, position in integer millimetres, `appearance_seed` (required from schema 3), and inventory stacks by item ULID. The rest of the list above arrives with the systems that own it.
+
 ### 5.2 `cells.msgpack` — sparse cell delta
 
 Written **only** for a cell that diverges from its regenerated baseline.
@@ -184,6 +198,7 @@ Written **only** for a cell that diverges from its regenerated baseline.
 | Field | Meaning |
 |---|---|
 | `cell_key` | Canonical cell address (`WORLD_ARCHITECTURE.md` §3); the section's key |
+| `baseline_hash` | The digest of the exact cell baseline this delta was made against (schema 2+). The delta is applied only to a regenerated baseline with the same hash (§6.4) |
 | `dirty_reasons` | Enumerated: `nodes`, `spawns`, `flags`, `entities`, `buildings`, `terrain` |
 | `flags` | Cell-level world flags |
 | `overrides` | Per-cell authored-value overrides (the documented re-roll path) |
@@ -212,6 +227,10 @@ Only entities that differ from their spawn baseline appear here. **Each record c
 
 A slot whose persisted state has returned to baseline is **rebased** (§5.6), not retained.
 
+**Baseline proof.** A slot is part of its host cell's baseline, so the section also records the `baseline_hash` of every host cell it references (the `baselines` table, schema 2+), and a record is merged only into a host cell whose regenerated baseline has that hash (§6.4).
+
+**Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, and position. It is proven against its host cell's baseline like a slot record.
+
 ### 5.4 `buildings.msgpack` — player structures
 
 A building is a ULID-keyed structure with a footprint of one or more cells; pieces are ULID-keyed rows with a `def_id` and a socket path (`WORLD_ARCHITECTURE.md` §10). Nothing here is regenerable: a player structure exists nowhere else, so corruption is unrecoverable rather than merely annoying, and the quarantine path must name every lost structure.
@@ -220,7 +239,7 @@ A building is a ULID-keyed structure with a footprint of one or more cells; piec
 
 ### 5.5 Node, spawn, and time-derived state
 
-**Node keys are derived, not stored ULIDs**, because a resource node is a property of the world rather than an instance the player owns: `node.<cellkey>.<index>`, where `<index>` is assigned by the cell generator. That is what lets a pristine cell cost zero bytes.
+**Node keys are derived, not stored ULIDs**, because a resource node is a property of the world rather than an instance the player owns: `node.<cellkey>.<rule>.<ordinal>`, where `<rule>` is the placement rule's semantic name and `<ordinal>` is the node's two-digit ordinal within that rule (schema 2+). That is what lets a pristine cell cost zero bytes. M2's keys were `node.<cellkey>.<index>`, a position in the generator's output list, so adding a rule re-keyed every later node; the 1 -> 2 migration maps them (§6.2).
 
 Stored state per harvested node: `state`, `last_harvest_tick`, `harvest_seq`. The ready time is:
 
@@ -277,20 +296,43 @@ Events are **not** logged; they are derivable from commands plus the determinist
 |---|---|---|---|
 | `save_format` | Monotonic integer | The **container** layout changes incompatibly | **Refuse to load.** Guessing a container layout is not recoverable |
 | `schema_version` | Monotonic integer | **Gameplay state** shape changes | **Migration chain**, one version per step |
-| `content_hash` | Computed hash | Any content pack change | Alias/tombstone pass; plus the chain if `schema_version` also differs |
-| `worldgen_digest` | Computed hash | Generation assembly, placement data, or runtime/FMA config changes | **Refuse, or offer the localized-full-serialization fallback.** Never silently apply a delta to a different baseline |
+| `content_version` | Human label | Each content release | None: diagnostic and reporting only |
+| `content_hash` | Computed hash of the exact content pack, alias map included | Any content pack change | The definition-ID pass (§6.3). **It never moves the baseline**, because it is not a generation input |
+| `worldgen_version` | Monotonic integer, human-controlled | The generator contract changes on purpose (class D below) | A registered worldgen migration, or **refuse** |
+| `rng_contract_version` | Monotonic integer | The key-to-random-value encoding changes | Part of the generator contract: as `worldgen_version` |
+| `worldgen_fingerprint` | Computed (§1.3) | Anything that changes generator output or placement data | Reported. Changed cells are then decided per cell by `baseline_hash` |
+| `baseline_hash` (per changed cell) | Computed digest of the cell's generated output | That cell's baseline changes | Equal: apply the delta. Different: a registered transition (§6.4), or **refuse**. Never apply a delta to a different baseline |
 
-**`worldgen_digest` is verified *before* any cell delta is applied.** This is the correction to the earlier design, where the only check was a CI digest test that runs in a repository rather than on a player's machine. A generation change that does not bump a human-edited integer produced a world where every manifest field matched, every checksum verified, and every delta applied to the wrong baseline (`RK-01`, `RK-P01`).
+**Every changed cell's `baseline_hash` is verified before its delta is applied.** This is the correction M2b made to the M2 design, where one whole-generator digest decided for every cell at once. A generation change that does not bump a human-edited integer still changes the affected cells' hashes, so their deltas cannot be applied silently. An unrelated change leaves the other cells' hashes equal, so those cells load as before (`RK-01`, `RK-P01`).
 
-**`content_hash` is a mismatch detector, not a migration trigger for tuning.** Equal hash means no alias pass is needed. A differing hash runs the alias/tombstone pass, plus the chain if `schema_version` also differs. But a *tuning* change (§5.5) is not a rename and the alias pass cannot see it, so content that a persisted derived value was computed from is **baseline-locked** and requires an explicit migration step (`RK-P12`).
+**`content_hash` is exact identity, not a migration trigger for tuning.** An equal hash means no definition-ID pass is needed. A differing hash runs the pass, plus the chain if `schema_version` also differs. But a *tuning* change (§5.5) is not a rename and the pass cannot see it, so content that a persisted derived value was computed from is **baseline-locked** and requires an explicit migration step (`RK-P12`).
+
+**Content change classes (M2b §5).** A content hash mismatch is not one thing:
+
+| Class | Example | What happens |
+|---|---|---|
+| **A** Content-only, baseline-neutral | A wolf's hit points 30 -> 31 | `content_hash` changes; every `baseline_hash` stays equal; the save loads with no reshuffle |
+| **B** Definition identity | `creature.wolf` renamed, or a definition removed | The alias map resolves it (§6.3); an unmapped ID refuses, naming the ID |
+| **C** Baseline-affecting content | A spawn table or placement rule changes | Only the affected outputs change; changed cells whose hash differs need a registered transition (§6.4) |
+| **D** Generator contract | A new terrain algorithm, a new RNG encoding | `worldgen_version` bumps, the fingerprint and probe digests change; affected deltas need a registered path, or the load refuses |
+| **E** Schema only | Player state gains a required field | The ordered chain (§6.2) |
 
 **Content-version numbering:** monotonic integer carried as a string (`"0.4.2"` is display; comparison is on the recorded integer). `DATA_MODEL.md` requires only that it is a single value recorded in both the save manifest and the compiled content cache; this document fixes it as monotonic so load-time relationship tests are decidable. `schema_version` is deliberately **not** named `save_version` — the two are different fields with different failure modes (`DATA_MODEL.md` §6).
 
 ### 6.2 The migration chain
 
-**Migrations run on a copy in a staging directory.** A migration never edits a save in place: the original is copied to `staging/`, migrated, verified, and only then committed by §7.1's sequence. The pre-migration save is retained as `pre_migration_<schema>_<slot>`.
+**Migrations run on a copy, never in place.** The chain runs in memory on the save's decoded sections. The migrated save reaches disk only through §7.1's staging, verification and recovery - the same path as every save - so an interruption leaves the original or the complete migrated save, never a partial one. The original is kept as `pre_migration_<schema>_<slot>` (§7.3).
 
-Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, registered in a single ordered table, and tested in isolation against a fixture at version `n`.
+Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, registered in a single ordered table (`SchemaMigrations.Production`), one step per version. It reads version `n`'s frozen section shapes and writes version `n+1`'s. A gap in the table refuses; a version is never skipped. A step must not resolve definition IDs: it treats them as opaque strings, and the definition-ID pass runs once, on the current shape (§7.4). A step that cannot resolve something reports a blocker, never a guess.
+
+**Implemented chain.**
+
+| Step | What it does |
+|---|---|
+| 1 -> 2 | Worldgen 1 -> 2. Regenerates worldgen 1 frozen (after checking the save's `worldgen_digest`), maps each index-keyed node to its rule and ordinal, rebases every record onto worldgen 2 by semantic identity, and records each cell's `baseline_hash`. A target with no worldgen-2 counterpart is dropped as reported loss |
+| 2 -> 3 | The player gains the required `appearance_seed`, derived from the player's ULID for older saves. The entities section gains `created` instances; older saves have none |
+
+**Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 
 ```csharp
 // Values derived from 'might' are NOT recomputed here: they are caches, and the domain layer
@@ -311,11 +353,40 @@ Every stored `def_id` is resolved through the content alias map at load. **`DATA
 
 Dispositions for a removed definition:
 
-1. `convert` → rewrite to the replacement ID.
-2. `destroy` → remove the instance and log it; any quest objective referencing it is marked `failed: content_removed`, never silently completed.
-3. `quarantine` → move the record to `orphans.msgpack` (§3.2) and record the reference disposition of anything pointing at it, so a quarantined record is never a dangling reference.
+1. `convert` → rewrite to the replacement ID (`removed: old: new`).
+2. `destroy` → remove the reference and report it as loss (`removed: old: ~`); any quest objective referencing it is marked `failed: content_removed`, never silently completed. It is declared in content and reported by every load and dry run, so it is never a silent drop.
+3. `quarantine` → move the record to `orphans.msgpack` (§3.2) and record the reference disposition of anything pointing at it, so a quarantined record is never a dangling reference. **Not implemented yet:** it needs `orphans.msgpack`, which arrives with the first system whose records can be orphaned.
 
-**Ordering.** Alias resolution (step d) runs **before** cross-reference validation (step i). If validation ran first, every renamed ID would quarantine player data that a rename would have resolved — which is the single most likely silent data loss in the whole load path.
+Renames and replacements may chain. A cycle, or a chain that ends at no defined ID, is unresolved.
+
+**Ordering.** The definition-ID pass runs **after** the schema chain and **before** baseline proof and invariant validation (§7.4). It needs the current shape to find every stored ID, so migrations treat IDs as opaque. It must precede validation: if validation ran first, every renamed ID would quarantine player data that a rename would have resolved, which is the single most likely silent data loss in the whole load path.
+
+### 6.4 Baseline compatibility (M2b)
+
+**A save is never applied to a baseline it was not proven compatible with.** Per changed cell:
+
+1. **Prove.** Regenerate the cell and hash it. Equal to the saved `baseline_hash`: apply the delta. Proof covers cell records, the host cells of entity records, and the host cells of created instances.
+2. **Or rebase through a registered transition.** A `BaselineTransition` names the exact `worldgen_fingerprint` the save was written with and the running one, so it applies only to the change it was written and tested for. Its rebase is conservative (M2b §7). A record is carried only when its target keeps a stable semantic identity in the new baseline: the same node key, the same population with the stored count inside its budget, the same slot of the same family. Values are carried, never recomputed. A record whose target vanished blocks the load, unless the transition declares that loss, in which case it is reported.
+3. **Or refuse.** Name every mismatched cell and the fingerprints a transition would need. Never regenerate and apply the old delta anyway.
+
+A cell nobody changed has no record and simply uses the current baseline.
+
+**Drift detection.** `worldgen_fingerprint` includes the digests of four canonical probe cells under a fixed seed, and CI pins those digests (and the fingerprint) against an independent implementation. A generator edit that nobody versioned fails CI, and at load it changes the fingerprint and the hash of every changed cell it touches.
+
+**Load decision matrix (M2b §9).**
+
+| Condition | Action |
+|---|---|
+| `save_format` unsupported | Refuse |
+| Checksums fail in the manifest or player | Refuse; offer backups (§7.2) |
+| `schema_version` older, chain registered | Migrate step by step |
+| `schema_version` older without a chain, or newer | Refuse |
+| `content_hash` equal | No definition-ID pass |
+| `content_hash` differs | Definition-ID pass: rename, convert, destroy; unresolved refuses naming the ID |
+| `worldgen_version` or `rng_contract_version` differs | A registered worldgen migration (the schema chain's 1 -> 2 step is the only one), else refuse |
+| Cell `baseline_hash` equal | Apply the delta |
+| Cell `baseline_hash` differs, transition registered | Rebase conservatively, validate |
+| Cell `baseline_hash` differs, no transition | Refuse |
 
 ---
 
@@ -325,16 +396,21 @@ Dispositions for a removed definition:
 
 ```
 1. Serialize every section into memory
-2. Write to a staging directory:  <slot>/.staging-<ulid>/
-3. fsync each staged file, then the staging directory
-4. Compute sections.sha256 over the staged tree
+2. Write to a staging directory beside the slot:  <profile>/.staging-<slot>-<ulid>/
+3. Flush each staged file to disk (write-through, then flush)
+4. Compute sections.sha256 over the staged tree, from the bytes on disk
 5. Commit:
-   5a. Rename the current <slot> to .trash-<ulid>          (never delete first)
-   5b. Rename .staging-<ulid> to <slot>
+   5a. Rename the current <slot> to .trash-<slot>-<ulid>   (never delete first)
+   5b. Rename .staging-<slot>-<ulid> to <slot>
 6. Verify: re-read the committed <slot>, re-hash, compare against sections.sha256
-7. Only after 6 succeeds: update rotation metadata and the "last good save" pointer,
-   then remove .trash-<ulid>
+7. Only after 6 succeeds: retire .trash-<slot>-<ulid> - into the backup chain if a clean
+   load proved it (§7.3), into pre_migration_<schema>_<slot> if a schema migration
+   displaced it, otherwise delete it
 ```
+
+The staging and trash directories sit **beside** the slot and carry its name. An earlier revision put staging inside `<slot>/`, which step 5b could not then rename to `<slot>`. The names let the boot sweep tell which slot a leftover belongs to. **Boot sweep:** with no `<slot>`, a complete (verifiable) staging directory is promoted, or else the newest trash is restored. With a `<slot>` and a trash, a verifiable slot completes the commit and an unverifiable one rolls back. Leftover staging is discarded. Every step boundary is kill-tested on Windows: M2 ME-4 for saves, and the M2b migration kill test for migrations.
+
+**Directory fsync.** .NET on Windows cannot fsync a directory. Step 3 is file-level (write-through and flush), and the step 6 verification plus the boot sweep cover a rename lost to a crash.
 
 **Commit is a retry loop, not a bare rename.** On Windows there is no POSIX rename-over-directory semantics, and the realistic failures are *not* power loss:
 
@@ -348,7 +424,8 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 | Condition | Behaviour |
 |---|---|
 | `save_format` mismatch | **Refuse to load.** Never guess a container layout |
-| `worldgen_digest` mismatch | **Refuse, or offer the localized-full-serialization fallback.** Never apply a delta to a different baseline |
+| A changed cell's `baseline_hash` mismatch, no registered transition | **Refuse**, naming every mismatched cell (§6.4). Never apply a delta to a different baseline. (The localized full-serialization fallback of `D-05` remains a design option; it is not implemented) |
+| Unresolved definition ID | **Refuse**, naming the ID and what referenced it (§6.3) |
 | `manifest.json` unreadable | Hard error; the slot cannot be loaded |
 | `player.msgpack` corrupt | Fatal for the session; offer the rolling backup |
 | `sections.sha256` mismatch on one section | Quarantine that section; load without it if it is `cells`/`entities`/`buildings` |
@@ -365,10 +442,12 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 |---|---|---|
 | `<slot>` | 1 | Current good save |
 | `.bak-<slot>` | **2 generations** | The two previous verified-good saves |
-| `pre_migration_<schema>_<slot>` | 1 per migration event | Until the player confirms the migrated save loads |
-| `.trash-<ulid>` | 0–1 transient | Removed only after §7.1 step 6 verifies |
+| `pre_migration_<schema>_<slot>` | 1 per migration event | The original a schema migration displaced, kept once. Until the player confirms the migrated save loads (removal is a UI action, not yet built) |
+| `.trash-<slot>-<ulid>` | 0–1 transient | Removed only after §7.1 step 6 verifies |
 
 **Two backup generations, retired on a verified _load_, not a verified write.** With one generation retired at the next successful write, a player who saves three times after a silent problem has three bad saves and one good backup that the next write discards. The previous good save the charter promises must survive more than one commit.
+
+As implemented: a displaced save enters the chain only if a **complete, clean load of its bytes as they are on disk** proved it. That means no quarantine, no rejected record, no reported loss, and no migration needed. The proof is recorded in `rotation.json` as the digest of the save's integrity root. An unproven save is dropped when displaced, so it can never push a proven backup out. `ROADMAP.md` M2's "one rolling backup slot" is superseded by these two generations.
 
 ### 7.4 Load sequence (follow exactly — this is the only normative load order)
 
@@ -377,28 +456,35 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 ```
 a. Read and validate manifest.json        → save_format must match exactly, else refuse (§7.2)
 b. Verify sections.sha256                 → per-section; quarantine failures, do not abort (§7.2)
-c. Verify worldgen_digest and content_hash → mismatch is a decision point, never silent regeneration (§6.1)
-d. Resolve aliases and tombstones          → through DATA_MODEL.md §2.1; unresolved is a hard error (§6.3)
-e. Apply the migration chain               → on a staging copy, one version per step (§6.2)
-f. Create the world store and registry      → anchored from the manifest
-g. Regenerate the cell baseline             → (world_seed, worldgen_version, content_hash) per cell
-h. Apply the cell delta                     → per-cell overrides against that baseline (§5.2)
-i. Apply the entity delta                   → MERGE ON slot_key, replacing baseline slots (§5.3)
-j. Recompute derived caches                 → ONLY here, after c–i. Never incrementally (§1.1 I-6)
-k. Deserialise player and companion state
-l. Run invariant validation                 → aware of quarantined_sections (§7.2)
-m. Emit ONE WorldLoaded event                → views rebuild exactly once
+c. Apply the schema migration chain       → in memory, one version per step; a gap refuses (§6.2)
+d. Resolve definition IDs                 → when content_hash differs: rename/convert/destroy; unresolved refuses (§6.3)
+e. Check the generator contract           → worldgen_version and rng_contract_version; fingerprint drift is reported (§6.1)
+f. Prove each changed cell's baseline     → baseline_hash equal, or a registered transition, else refuse (§6.4)
+g. Create the world store and registry     → anchored from the manifest
+h. Regenerate the cell baseline            → from the baseline tuple, per cell (§1.3)
+i. Apply the cell delta                    → per-cell overrides against that baseline (§5.2)
+j. Apply the entity delta                  → MERGE ON slot_key, replacing baseline slots; place created instances (§5.3)
+k. Recompute derived caches                → ONLY here, after c–j. Never incrementally (§1.1 I-6)
+l. Deserialise player and companion state
+m. Run invariant validation                → aware of quarantined_sections (§7.2); a record whose baseline_hash does not match is rejected here too
+n. Emit ONE WorldLoaded event               → views rebuild exactly once
 ```
+
+This order is M2b's authority order (`M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` §16). As implemented, one pipeline serves the load, the dry run and the migration: the stages are private and run in this fixed order. Steps k and n arrive with the first derived caches and the Application wiring. Step l's player decode runs before d, because the definition-ID pass rewrites inventory references.
 
 **Why each ordering constraint exists:**
 
-- **d before e and l.** Aliases must resolve before migration reads IDs and before validation judges references, or renamed data quarantines falsely.
-- **g before h.** A delta is meaningful only against the baseline it is a delta *of*. Applying deltas first is the inversion `ARCHITECTURE.md` §8 originally contained.
-- **i is a merge, not an append** (§5.3), or killed entities resurrect.
-- **j last among the data steps.** A cache computed from a half-migrated world is wrong in a way no later step repairs, and it is invisible because the number is plausible.
-- **m exactly once.** Views that rebuild more than once produce visible flicker and double-subscription bugs.
+- **c before d.** The pass needs the current shape to find every stored ID. Migrations therefore treat IDs as opaque strings. (An earlier revision ran aliases first, so that migrations could read resolved IDs. That required each migration to know every historical shape's ID locations, and M2b chose the opposite.)
+- **d before f and m.** Proof and validation must see resolved IDs, or a renamed slot family would look like a baseline change, and renamed data would quarantine falsely.
+- **f before h-j.** A delta is applied only after its baseline is proven, so no path can apply it to the wrong baseline.
+- **h before i.** A delta is meaningful only against the baseline it is a delta *of*. Applying deltas first is the inversion `ARCHITECTURE.md` §8 originally contained.
+- **j is a merge, not an append** (§5.3), or killed entities resurrect.
+- **k last among the data steps.** A cache computed from a half-migrated world is wrong in a way no later step repairs, and it is invisible because the number is plausible.
+- **n exactly once.** Views that rebuild more than once produce visible flicker and double-subscription bugs.
 
-`T-27` asserts this **order**, not the individual steps. Time not played is folded in via `world_time_advanced_ticks` (§5.5) between i and j.
+`T-27` asserts this **order**, not the individual steps. Time not played is folded in via `world_time_advanced_ticks` (§5.5) between j and k.
+
+**Dry run.** `save:migrate --dry-run <save>` runs steps a-j into a throwaway registry and prints the report. It covers the source and current save format, schema, content version and hash, and worldgen version and fingerprint, plus aliases, removals, matching and mismatching changed cells, migration steps, warnings, blockers and expected loss. It writes nothing, not even the load proof a real load records.
 
 ---
 
@@ -421,7 +507,7 @@ Scoped saves are **unconditional when the trigger fires** — a streamer may not
 | Autosave main-thread cost | **≤ 2 ms P99** | `WORLD_ARCHITECTURE.md` §12 budget line |
 | Scoped-save cadence cap | At most one per 30 s | Prevents boundary thrash from writing continuously |
 | Manual saves | Unthrottled | Player intent wins |
-| Max slots | 10 quick + unlimited manual + 5 rolling auto | Rotation is a policy, not architectural |
+| Max slots | 1 quick + unlimited manual + 5 rolling auto | Rotation is a policy, not architectural: rotating quick slots can be added without a format change. An earlier revision said 10 quick, which contradicted §3.2's single `quick` slot; M2 implemented one (`M2_STATUS.md`) |
 
 The main-thread budget is met by serializing off-thread and committing on-thread; commit is the only main-thread work.
 
@@ -461,7 +547,7 @@ Every test is headless, engine-free, and a domain-layer concern. Gate column: `P
 | # | Test | Assertion sketch | Gate |
 |---|---|---|---|
 | **T-01** | Save/load round-trip | Full authoritative-state equality after load; no field silently defaulted | P1 |
-| **T-02** | Deterministic generation | Same `(world_seed, worldgen_version, content_hash)` yields a byte-identical baseline across processes and 100 runs, under a pinned numeric and comparison policy | P1 |
+| **T-02** | Deterministic generation | Same baseline tuple (§1.3) yields a byte-identical baseline across processes and 100 runs, under a pinned numeric and comparison policy; a runtime-only content change leaves it byte-identical | P1 |
 | **T-03** | Delta minimality and rebase | (a) Saving twice with no mutation yields an identical `cells`/`entities` section. (b) **After mutate-then-revert, the section shrinks back to byte-identical** — a record that has returned to baseline is rebased away (§5.6) | P1 |
 | **T-04** | Inventory transfer | Move stacks between player/container/companion; no duplication nor loss; capacity respected; ULIDs preserved | P1 |
 | **T-05** | Equipment persistence | Equip/unequip updates character, slots, derived stats; durability and charges survive | P1 |
@@ -476,7 +562,7 @@ Every test is headless, engine-free, and a domain-layer concern. Gate column: `P
 | **T-14** | Atomic write crash injection | Kill between every step of §7.1; every resulting slot is either old-complete or new-complete | P1 |
 | **T-15** | Content mismatch handling | A content-pack change with a matching `schema_version` runs the alias pass and no chain; an unresolved ID is a hard error naming the ID | P1 |
 | **T-16** | Migration chain | A fixture at every supported `schema_version` migrates step-by-step to current and passes T-01; a cached value is never migrated (§6.2) | P1 |
-| **T-17** | Baseline regeneration integrity | Unmodified cells and unmodified NPCs regenerate identically; `worldgen_digest` mismatch **refuses** rather than applying a delta (§6.1) | P1 |
+| **T-17** | Baseline regeneration integrity | Unmodified cells and unmodified NPCs regenerate identically; a changed cell whose `baseline_hash` differs **refuses** rather than applying a delta, unless a registered transition rebases it (§6.4) | P1 |
 | **T-18** | Entity identity and slot merge | A persisted entity replaces its baseline slot (§5.3): a killed generic NPC does **not** resurrect, and no slot holds two live occupants | P1 |
 | **T-19** | Loot generation | Generated loot is reproducible from the keyed derivation `hash(world_seed, purpose_key)`; reload cannot reroll a chest; no global counter is read | P1 |
 | **T-20** | Relationship changes | Relationship deltas persist and remain attributable to their source events | P2 |
@@ -499,26 +585,27 @@ Local IDs are retained for detail. Risks promoted to the project register are cr
 
 | ID | Risk | Status |
 |---|---|---|
-| **RK-P01** | Generation-code drift without a version bump silently corrupts every save | **Mitigated** by `worldgen_digest` verified at load (§6.1); promoted as `RK-01` |
+| **RK-P01** | Generation-code drift without a version bump silently corrupts every save | **Mitigated** (M2b): per-cell `baseline_hash` verified at load (§6.4), `worldgen_fingerprint` with canonical probe digests pinned in CI, and the world builder's last-line rejection of any record whose baseline does not match; promoted as `RK-01` |
 | **RK-P02** | Dirty-flag incompleteness loses world changes while the save looks valid | **Reduced**: the flag is a hint, the authoritative set is derived at save time (§5.2) |
 | **RK-P03** | Definition-ID renames break live saves | Mitigated by the alias pass (§6.3); promoted as `RK-03` |
 | **RK-P04** | Building volume exceeds the save budget | Promoted as `RK-06` |
 | **RK-P05** | Offline catch-up semantics: anything not derived from `(state, tick)` breaks | **Mitigated**: honoured advance is persisted, chunking unobservable (§5.5) |
-| **RK-P06** | Windows atomic-rename semantics; AV/indexer sharing violations; sync-folder interference | **Open.** §7.1's retry-and-classify rule is specified; **untested on the target OS.** Validate first during implementation; promoted as `RK-13` |
+| **RK-P06** | Windows atomic-rename semantics; AV/indexer sharing violations; sync-folder interference | **Reduced.** The §7.1 sequence with retry-and-classify is implemented and kill-tested at every step on Windows (M2, M2b). A save root inside OneDrive or Dropbox is detected so the game can warn. Still open: real sync-engine interference is untested; promoted as `RK-13` |
 | **RK-P07** | Migration-chain testability | Bounded by the fixture-per-version requirement (§6.2, T-16) |
 | **RK-P08** | Quarantine UX: what the player is told was lost | **Open, and not merely presentational.** §7.2's reported-loss rule is normative; the player-facing statement is Phase 1 UI work |
 | **RK-P09** | **Delta growth has no bound without rebase** | **Addressed** by §5.6 (`I-7`); retained here because the bound is now a mechanism rather than a hope |
 | **RK-P10** | **Entity-to-baseline identity collision (spawn vs. delta)** | **Addressed** by the slot key and merge-on-load rule (§5.3, `I-8`) |
-| **RK-P11** | **RNG draw-order sensitivity** | **Addressed** by keyed derivation and removing the global counter (§1.1 `I-9`) |
+| **RK-P11** | **RNG draw-order sensitivity** | **Addressed** by keyed derivation and removing the global counter (§1.1 `I-9`), and for generation by RNG contract 2's addressed semantic channels: an added draw moves nothing that exists (M2b) |
 | **RK-P12** | **Content tuning silently reinterprets persisted derived values** | **Addressed** by the shape/tuning split and baseline-locking (§5.5, §6.1) |
 | **RK-P13** | **Scoped saves are a mandatory, unbudgeted side effect** | **Open.** §8.1 caps cadence and budgets separately; the arbiter between the correctness rule and the frame budget is stated but not measured |
+| **RK-P14** | **Content identity used as procedural entropy**: M2 seeded every cell stream with the whole `content_hash`, so any content edit moved the entire world | **Addressed** (M2b): content identity is not a generation input (§1.3); per-cell baseline proof; content change classes (§6.1); a baseline-neutral edit is tested to load with no reshuffle |
 
 ### 11.2 Assumptions
 
-1. The save system runs on Windows desktop; **§7.1's commit sequence is untested on Windows**.
+1. The save system runs on Windows desktop; §7.1's commit sequence is kill-tested at every step on Windows (M2, M2b).
 2. All tests are headless; nothing has been profiled in-engine.
 3. All numbers in §9 and §8.2 are **budgets** rather than measurements; nothing has been proven yet.
-4. `worldgen_digest` can be computed over a stable representation of the generation assembly plus runtime configuration; if the runtime contributes non-reproducible codegen, the digest must exclude it explicitly and the exclusion must be recorded here.
+4. `worldgen_fingerprint` does not hash the generation assembly's bytes, which are not reproducible across builds. It covers the generator's declared identity, its contract versions, its placement data, and its **output** on the canonical probe cells, so a code change is detected by what it does. A change that alters no probe cell's output is still caught at load, by the hash of any changed cell it touches.
 
 ---
 
