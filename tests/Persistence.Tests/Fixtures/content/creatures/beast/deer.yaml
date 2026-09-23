@@ -4,3 +4,7 @@ schema: 1
 display_key: creature.beast.deer.name
 tags: [fixture]
 notes: Historical-fixture content for the save migration tests. Not game content.
+family: beast
+archetype: prey
+level_band: [1, 2]
+pools: { health: 20 }

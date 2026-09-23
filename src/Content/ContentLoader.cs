@@ -156,6 +156,11 @@ public class ContentLoader
             _errors.AddRange(progressionErrors);
             success &= progressionErrors.Count == 0;
 
+            // References at any depth, the reserved mod namespace, Phase-1 semantics (XREF002-005, MOD001, SEM codes)
+            var contentErrors = ContentChecks.Validate(this);
+            _errors.AddRange(contentErrors);
+            success &= contentErrors.Count == 0;
+
             // Regions, places, world flags and movement config (WLD codes)
             var worldErrors = WorldContent.Validate(this);
             _errors.AddRange(worldErrors);

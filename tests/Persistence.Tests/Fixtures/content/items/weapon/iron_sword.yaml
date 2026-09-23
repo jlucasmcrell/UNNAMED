@@ -4,3 +4,12 @@ schema: 1
 display_key: item.weapon.iron_sword.name
 tags: [fixture]
 notes: Historical-fixture content for the save migration tests. Not game content.
+category: weapon
+stack_max: 1
+weight: 3.2
+value_base: 90
+rarity: common
+damage: [7, 11]
+damage_type: physical_slash
+hands: one
+skill_ref: skill.one_hand_blade

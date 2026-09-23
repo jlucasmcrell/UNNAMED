@@ -477,11 +477,16 @@ public class MigrationTests
         Assert.Equal(WorldgenProfileDigest(), M2Fixtures.Profile().Digest);
     }
 
+    /// <summary>
+    /// The writer's pack is historical: it is hashed as it was, and need not pass today's content checks, just as an
+    /// old save need not have today's shape.
+    /// </summary>
     [Fact]
     public void TheWritersContentIdentity_IsItsFixturePack()
     {
-        var pack = Fixtures.Content(Path.Combine(Fixtures.Root, "content-0.1.2"));
-        Assert.Equal(pack.Hash, M2Fixtures.Historical.WriterContentHash);
+        var pack = new UNNAMED.Content.ContentLoader();
+        pack.LoadAll(Path.Combine(Fixtures.Root, "content-0.1.2"));
+        Assert.Equal(M2Fixtures.Historical.WriterContentHash, pack.ComputeContentHash());
     }
 
     private static string WorldgenProfileDigest() => SaveTool.WorldgenProfileFile.Read(Fixtures.Profile).Digest;

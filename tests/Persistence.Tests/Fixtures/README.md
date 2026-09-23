@@ -22,12 +22,14 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.2) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.3) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
    movement and tier config a region needs - is the pack v5 was written with. Content 0.2.0 renamed the
-   potion; 0.2.1 renamed the formula; 0.2.2 renamed the place.
+   potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their
+   Phase-1 schema fields, which today's content checks require. The writer packs are historical and are
+   never edited, so they need not pass today's checks; the current pack must.
 
 ## The fixture world
 

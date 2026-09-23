@@ -174,8 +174,8 @@ public static class M2Fixtures
             return world;
         }
 
-        public const string CurrentContentVersion = "0.2.2";
-        public const string CurrentContentHash = "sha256:e7ebf74e86e2d42c6b2a779effcbcc7ee208ec13fa57386a6f169bc1a1a036b2";
+        public const string CurrentContentVersion = "0.2.3";
+        public const string CurrentContentHash = "sha256:77c8a1ed866e6ac4d29dfe60ef576850b3293f4856668a0897e13a76c283b0e7";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content

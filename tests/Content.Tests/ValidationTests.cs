@@ -517,7 +517,6 @@ public class ContentLoaderTests
             new[]
             {
                 "config.base_speeds", "config.level_cap", "config.progression", "config.simulation_tiers", "config.time", "config.xp_curve",
-                "creature.beast.wolf_grey", "item.potion.heal_dangling", "item.weapon.iron_sword",
                 "location.den_mouth", "location.herb_patch", "location.iron_shelf", "location.outpost",
                 "region.ashen_hollow", "skill.athletics", "skill.one_hand_blade", "skill.survival",
                 "world.hollow.forge_shed_door_open", "world.hollow.longhouse_door_open",
@@ -544,8 +543,13 @@ public class AliasFileTests : IDisposable
     public AliasFileTests()
     {
         Directory.CreateDirectory(Path.Combine(_root, "items", "weapon"));
+        Directory.CreateDirectory(Path.Combine(_root, "skills"));
         File.WriteAllText(Path.Combine(_root, "items", "weapon", "iron_sword.yaml"),
-            "id: item.weapon.iron_sword\nkind: item.weapon\nschema: 1\ndisplay_key: item.weapon.iron_sword.name\ntags: [weapon]\n");
+            "id: item.weapon.iron_sword\nkind: item.weapon\nschema: 1\ndisplay_key: item.weapon.iron_sword.name\ntags: [weapon]\n" +
+            "category: weapon\nstack_max: 1\nweight: 3.2\nvalue_base: 90\nrarity: common\ndamage: [7, 11]\n" +
+            "damage_type: physical_slash\nhands: one\nskill_ref: skill.one_hand_blade\n");
+        File.WriteAllText(Path.Combine(_root, "skills", "one_hand_blade.yaml"),
+            "id: skill.one_hand_blade\nkind: skill\nschema: 1\ndisplay_key: skill.one_hand_blade.name\ntags: [skill]\nfamily: combat\n");
     }
 
     public void Dispose() => Directory.Delete(_root, recursive: true);

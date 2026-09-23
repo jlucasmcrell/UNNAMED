@@ -59,10 +59,11 @@ public class GeneratorTests
         try
         {
             TestWorlds.CopyDirectory(contentRoot, edited);
-            string wolf = Path.Combine(edited, "creatures", "beast", "wolf_grey.yaml");
-            string text = File.ReadAllText(wolf);
-            Assert.Contains("hp: 30", text);
-            File.WriteAllText(wolf, text.Replace("hp: 30", "hp: 31"));
+            // A tuning edit: the walking speed. It changes what the pack is, never where anything was generated.
+            string speeds = Path.Combine(edited, "config", "base_speeds.yaml");
+            string text = File.ReadAllText(speeds);
+            Assert.Contains("base_m_s: 3.2", text);
+            File.WriteAllText(speeds, text.Replace("base_m_s: 3.2", "base_m_s: 3.3"));
 
             Assert.NotEqual(TestWorlds.ContentHashOf(contentRoot), TestWorlds.ContentHashOf(edited));
 
