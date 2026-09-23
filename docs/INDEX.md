@@ -1,7 +1,7 @@
 # UNNAMED — Phase 0 Document Index
 
 **Project:** UNNAMED (working title) — an original first-person, solo-first, open-world fantasy RPG
-**Phase:** 0 — Vision and Architecture. **No implementation has begun, by instruction.**
+**Phase:** 1 — Playable Prototype. M0, M1 and M1b are complete; M2 is in progress (`ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 
 ## Authoritative documents (read in this order)
@@ -61,7 +61,7 @@ Line counts are approximate and drift as documents are revised; they are recorde
 - **Single-authority map:** `PERSISTENCE.md` §7.4 owns the load sequence (not `ARCHITECTURE.md` §8.2); `ARCHITECTURE.md` §3 owns repository structure; `DATA_MODEL.md` §1 owns the content kind list; `PROTOTYPE.md` owns Phase-1 scope; `ROADMAP.md` owns scheduling.
 - **Phase 1 M1 complete.** Domain skeleton, command/event bus, and headless test harness implemented. See `M1_STATUS.md` for full verification evidence.
 - **Open owner input:** four items in `DECISIONS.md` §"Open questions for the project owner" — working title/setting tone, target platform baseline, visual fidelity target, and the "while you were away" offline catch-up policy. All four have documented defaults and none blocks Phase 1; only the platform baseline carries a soft dependency (the frame-budget spike cannot be judged pass/fail without it).
-- **Not implemented, by instruction.** `G:\UNNAMED` contains only `docs\`. No source, project, or build artifact exists anywhere in the repository.
+- **Phase 0 was documentation-only, by instruction.** Implementation began in Phase 1: source is in `src/`, headless tests in `tests/`.
 - **M1 implementation status:** `docs/M1_STATUS.md` — complete with objective evidence for all exit criteria.
 
 ## Where to start reading
