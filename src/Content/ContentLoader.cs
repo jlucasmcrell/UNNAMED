@@ -688,4 +688,22 @@ public class ContentLoader
             HasErrors = _errors.Count > 0
         };
     }
+
+    /// <summary>
+    /// <c>content_hash</c> (PERSISTENCE.md §4.2): a digest over the loaded content pack - every
+    /// definition's ID and YAML source, in ordinal ID order. Line endings and a byte-order mark are
+    /// normalized first, so a checkout that converts LF to CRLF cannot change the hash and thereby
+    /// get every existing save refused as a baseline mismatch.
+    /// </summary>
+    public string ComputeContentHash()
+    {
+        using var hasher = new UNNAMED.Domain.CanonicalHasher();
+        hasher.Add("unnamed.content-hash/v1").Add(_definitions.Count);
+        foreach (var (id, envelope) in _definitions.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+        {
+            string source = (envelope.YamlSource ?? string.Empty).TrimStart('﻿').Replace("\r\n", "\n");
+            hasher.Add(id).Add(source);
+        }
+        return hasher.Finish();
+    }
 }

@@ -595,6 +595,9 @@ public static class ContentKindRegistry
     private static readonly Dictionary<string, string> KindToDirectory = new Dictionary<string, string>
     {
         { "item", "items" },
+        // DATA_MODEL.md §1: weapons and armor are item subkinds and live under items/.
+        { "item.weapon", "items" },
+        { "item.armor", "items" },
         { "creature", "creatures" },
         { "location", "locations" },
         { "quest", "quests" },
@@ -792,8 +795,14 @@ public static class ContentYamlDeserializer
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections)
             .Build();
 
+        // The envelope models only the fields every kind shares. Kind-specific fields (a creature's
+        // `stats`, a potion's `use`) are not envelope properties; rejecting them made the loader fail
+        // on every real definition in content/. They are skipped here, and still covered by
+        // content_hash, which hashes each file's full YAML source. Per-kind schema validation of
+        // those fields is not implemented yet.
         Deserializer = new DeserializerBuilder()
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .IgnoreUnmatchedProperties()
             .Build();
     }
 
