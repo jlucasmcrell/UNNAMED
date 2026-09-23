@@ -44,11 +44,11 @@ public enum StateSlice
     /// <summary>Items lying in the world and the contents of changed world containers (S-14).</summary>
     WorldItems,
 
-    /// <summary>
-    /// The player's combat state (attacking, guarding, dodging, staggered) and every creature combatant (S-12). Transient:
-    /// a load starts at rest, and creatures are placed afresh until M3d saves them.
-    /// </summary>
+    /// <summary>The player's combat state: attacking, guarding, dodging, staggered (S-12). Transient: a load starts at rest.</summary>
     Combat,
+
+    /// <summary>Spawners' creatures and their records in the world delta (S-23, S-31; M3d). A creature's mind is transient.</summary>
+    Creatures,
 
     /// <summary>Status effects on every combatant (S-11). The player's are saved (schema 7).</summary>
     Effects,
@@ -98,7 +98,8 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<EquipSlot, EntityId> Equipment { get; private set; }
     public long Currency { get; private set; }
     public PlayerCombat PlayerCombat { get; private set; } = PlayerCombat.Rested;
-    public ImmutableSortedDictionary<EntityId, CreatureState> Creatures { get; private set; } = ImmutableSortedDictionary<EntityId, CreatureState>.Empty;
+    public ImmutableSortedDictionary<string, CreatureState> Creatures { get; private set; } =
+        ImmutableSortedDictionary.Create<string, CreatureState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>> Effects { get; private set; } =
         ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>>.Empty;
 
@@ -205,8 +206,26 @@ internal sealed class RuntimeState
 
     public void SetCreature(SliceOwner owner, CreatureState creature)
     {
-        Require(owner, StateSlice.Combat);
-        Creatures = Creatures.SetItem(creature.Id, creature);
+        Require(owner, StateSlice.Creatures);
+        Creatures = Creatures.SetItem(creature.Key, creature);
+    }
+
+    public void SetCreatureRecord(SliceOwner owner, CreatureRecord record)
+    {
+        Require(owner, StateSlice.Creatures);
+        World.SetCreature(record);
+    }
+
+    public void RemoveCreatureRecord(SliceOwner owner, string key)
+    {
+        Require(owner, StateSlice.Creatures);
+        World.RemoveCreature(key);
+    }
+
+    public void RemoveContainer(SliceOwner owner, string key)
+    {
+        Require(owner, StateSlice.WorldItems);
+        World.RemoveContainer(key);
     }
 
     public void SetEffects(SliceOwner owner, EntityId body, ImmutableArray<ActiveEffect> effects)

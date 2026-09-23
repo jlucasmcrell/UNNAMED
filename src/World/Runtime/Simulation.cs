@@ -63,6 +63,7 @@ public sealed class Simulation
     private readonly InventorySystem _inventory;
     private readonly EquipmentSystem _equipment;
     private readonly CombatSystem _combat;
+    private readonly CreatureSystem _creatures;
     private readonly StatusEffectSystem _effects;
     private readonly DeathSystem _death;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
@@ -95,12 +96,13 @@ public sealed class Simulation
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
         _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Intent);
+        _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Intent);
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
         _death = new DeathSystem(_context, player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
-        _combat.Populate();
+        _creatures.Populate();
         _tiers.Settle();
     }
 
@@ -146,7 +148,7 @@ public sealed class Simulation
         Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor());
 
     /// <summary>Every authored container and what it holds now.</summary>
-    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Select(_inventory.View).ToImmutableArray();
+    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
@@ -157,7 +159,7 @@ public sealed class Simulation
     public CombatView Combat => _combat.View();
 
     /// <summary>Every creature the region holds, living or dead.</summary>
-    public ImmutableArray<CreatureView> Creatures => _combat.Creatures();
+    public ImmutableArray<CreatureView> Creatures => _creatures.Views();
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
@@ -202,8 +204,8 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, combat, status effects,
-    /// death, discovery, clock.
+    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
+    /// creatures, status effects, death, discovery, clock.
     /// </summary>
     public void Step()
     {
@@ -218,6 +220,7 @@ public sealed class Simulation
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
+            _creatures.Tick(tick);
             _effects.Tick(tick);
             _death.Tick(tick);
             _discovery.Tick(tick);
@@ -267,6 +270,13 @@ public sealed class Simulation
         Harm harm => _combat.Handle(harm, Now),
         Heal heal => _combat.Handle(heal, Now),
         EndFight end => _combat.Handle(end),
+        CreatureStrike strike => _combat.Handle(strike, Now),
+        WoundCreature wound => _creatures.Handle(wound, Now),
+        HarmCreature harm => _creatures.Handle(harm, Now),
+        HealCreature heal => _creatures.Handle(heal, Now),
+        ForgetPlayer forget => _creatures.Handle(forget),
+        CorpseEmptied emptied => _creatures.Handle(emptied, Now),
+        DiscardContainer discard => _inventory.Handle(discard),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };

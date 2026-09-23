@@ -1,10 +1,12 @@
-// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawn sites,
-// skill passives and item uses (DATA_MODEL.md §4.4, §4.7, §4.8, §4.17, §4.19, §4.21; PROTOTYPE.md §4.1, §4.4; M3c)
+// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+// behaviour roles, skill passives and item uses (DATA_MODEL.md §4.4, §4.7, §4.8, §4.17, §4.19, §4.21; PROTOTYPE.md §4.1,
+// §4.4; M3c, M3d)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.World.Runtime;
 using YamlDotNet.Serialization;
 
@@ -41,6 +43,8 @@ public static class CombatContent
         Try(() => BuildCreatures(loader, tickMs), "creatures", errors);
         if (loader.Definitions.ContainsKey("config.damage_constants"))
             Try(() => BuildConstants(loader, tickMs), "config.damage_constants", errors);
+        if (loader.Definitions.ContainsKey("config.creature_behaviour"))
+            Try(() => BuildBehaviour(loader, tickMs), "config.creature_behaviour", errors);
         foreach (string region in loader.GetByKind("region").Keys.OrderBy(k => k, StringComparer.Ordinal))
             Try(() => BuildSpawns(loader, region), "spawns", errors);
         Try(() => BuildPassives(loader), "skills", errors);
@@ -52,11 +56,70 @@ public static class CombatContent
     public static CombatSetup Build(ContentLoader loader, string regionId)
     {
         int tickMs = WorldContent.TickMilliseconds(loader);
-        return new CombatSetup(BuildConstants(loader, tickMs), BuildEffects(loader, tickMs), BuildCreatures(loader, tickMs), BuildSpawns(loader, regionId))
+        var setup = new CombatSetup(BuildConstants(loader, tickMs), BuildEffects(loader, tickMs), BuildCreatures(loader, tickMs), BuildSpawns(loader, regionId))
         {
             UseEffects = BuildUseEffects(loader),
             Passives = BuildPassives(loader),
         };
+        return loader.Definitions.ContainsKey("config.creature_behaviour") ? BuildBehaviour(loader, tickMs)(setup) : setup;
+    }
+
+    /// <summary>
+    /// <c>config.creature_behaviour</c> (M3d): how awareness grows (STEALTH §3), how far sounds carry (§7), how long a
+    /// corpse lies, and the behaviour roles - as a change to apply to a setup.
+    /// </summary>
+    public static Func<CombatSetup, CombatSetup> BuildBehaviour(ContentLoader loader, int tickMs)
+    {
+        var map = Config(loader, "config.creature_behaviour");
+        var awareness = Map(map, "awareness");
+        var noise = Map(map, "noise_m");
+        var corpse = Map(map, "corpse");
+        var rules = new AwarenessRules(Int(awareness, "suspicious"), Int(awareness, "sight_per_s_at_range"), Int(awareness, "sight_per_s_close"),
+            Int(awareness, "decay_per_s"), Int(awareness, "heard_noise"), Int(awareness, "heard_call"), ToTicks(Number(awareness, "search_s"), tickMs));
+        if (rules.Suspicious is <= 0 or >= Perception.Full || rules.HeardNoise < rules.Suspicious || rules.HeardCall < rules.HeardNoise
+            || rules.HeardCall >= Perception.Full || rules.SightPerSecondAtRange <= 0 || rules.SightPerSecondClose < rules.SightPerSecondAtRange)
+            throw new FormatException($"awareness needs 0 < suspicious <= heard_noise <= heard_call < {Perception.Full}, and sight rates rising with closeness");
+        var sounds = new NoiseRules(Mm(noise, "walk"), Mm(noise, "run"), Mm(noise, "sprint"), Mm(noise, "swing"), Mm(noise, "blow"), Mm(noise, "call"));
+        var roles = Map(map, "roles").ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv => Role(kv.Key as string ?? "", kv.Value), StringComparer.Ordinal);
+        long decay = ToTicks(Number(corpse, "decay_s"), tickMs);
+        int slots = Int(corpse, "stack_slots");
+        if (decay < 1 || slots < 1)
+            throw new FormatException("corpse needs decay_s above 0 and at least one stack slot");
+        return setup => setup with { Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots };
+    }
+
+    private static CreatureRole Role(string id, object value)
+    {
+        var map = value as Dictionary<object, object> ?? throw new FormatException($"roles.{id} must be a map");
+        var unaware = Text(map, "unaware") switch
+        {
+            "hold" => UnawareBehaviour.Hold,
+            "wander" => UnawareBehaviour.Wander,
+            "patrol" => UnawareBehaviour.Patrol,
+            "sleep" => UnawareBehaviour.Sleep,
+            var other => throw new FormatException($"roles.{id}: unaware '{other}' is not hold, wander, patrol or sleep"),
+        };
+        long Metres(string key) => map.ContainsKey(key) ? Mm(map, key) : 0;
+        var role = new CreatureRole(id, unaware)
+        {
+            TerritoryMm = Metres("territory_m"),
+            WanderMm = Metres("wander_m"),
+            CallsForHelp = map.GetValueOrDefault("calls_for_help") as string == "true",
+            AnswersCalls = map.GetValueOrDefault("answers_calls") as string == "true",
+            KeepDistanceMm = Metres("keep_distance_m"),
+            StrikeWithinMm = Metres("strike_within_m"),
+            FleeBelowPercent = map.ContainsKey("flee_below_percent") ? Int(map, "flee_below_percent") : 0,
+            SleepHearingPercent = map.ContainsKey("sleep_hearing_percent") ? Int(map, "sleep_hearing_percent") : 100,
+            FlankMm = Metres("flank_m"),
+            PounceOnNoise = map.GetValueOrDefault("pounce_on_noise") as string == "true",
+        };
+        if (role.Unaware == UnawareBehaviour.Wander && role.WanderMm <= 0)
+            throw new FormatException($"roles.{id}: a wandering role gives wander_m");
+        if (role.KeepDistanceMm > 0 && role.StrikeWithinMm >= role.KeepDistanceMm)
+            throw new FormatException($"roles.{id}: strike_within_m is inside keep_distance_m");
+        if (role.FleeBelowPercent is < 0 or >= 100 || role.SleepHearingPercent is < 0 or > 100)
+            throw new FormatException($"roles.{id}: percentages are in [0, 100)");
+        return role;
     }
 
     public static CombatConstants BuildConstants(ContentLoader loader, int tickMs)
@@ -172,11 +235,17 @@ public static class CombatContent
                     var (t, op) => throw new FormatException($"{id}: modifier {t} {op} is not built in Phase 1 ({string.Join(", ", Stats)})"),
                 };
             }
-            return effect;
+            return effect with { ImmuneTags = Tags(map, "immunity_tags") };
         }).ToImmutableSortedDictionary(e => e.Id, e => e, StringComparer.Ordinal);
     }
 
-    /// <summary>Creatures and their attacks: <c>attack_set</c>'s first creature ability, with its timing in ticks.</summary>
+    private static ImmutableSortedSet<string> Tags(Dictionary<object, object> map, string key) =>
+        (map.GetValueOrDefault(key) as List<object> ?? new List<object>()).OfType<string>().ToImmutableSortedSet(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Creatures and their attacks: <c>attack_set</c>'s first creature ability is its blow, with its timing in ticks; a
+    /// second, if it is a charge, is the charge it opens with.
+    /// </summary>
     public static ImmutableSortedDictionary<string, CreatureDefinition> BuildCreatures(ContentLoader loader, int tickMs)
     {
         var abilities = loader.GetByKind("ability");
@@ -185,9 +254,19 @@ public static class CombatContent
             var map = Read(definition.YamlSource);
             string id = definition.Id;
             var band = List(map, "level_band");
-            string abilityId = List(map, "attack_set").FirstOrDefault() as string
-                ?? throw new FormatException($"{id}: attack_set names the creature's attack");
+            var set = List(map, "attack_set").OfType<string>().ToList();
+            string abilityId = set.FirstOrDefault() ?? throw new FormatException($"{id}: attack_set names the creature's attack");
             var ability = abilities.GetValueOrDefault(abilityId) ?? throw new FormatException($"{id}: {abilityId} is not an ability");
+            AttackProfile? charge = null;
+            if (set.Count > 1)
+            {
+                var second = abilities.GetValueOrDefault(set[1]) ?? throw new FormatException($"{id}: {set[1]} is not an ability");
+                charge = Attack(second, tickMs);
+                if (!charge.IsCharge)
+                    throw new FormatException($"{id}: a second attack is a charge (Phase 1 builds one blow and one charge)");
+            }
+            if (set.Count > 2)
+                throw new FormatException($"{id}: Phase 1 builds at most a blow and a charge");
             var armor = map.ContainsKey("armor") ? Map(map, "armor") : new Dictionary<object, object>();
             var resistances = map.ContainsKey("resistances") && map["resistances"] is Dictionary<object, object> r ? r : new Dictionary<object, object>();
             var creature = new CreatureDefinition(id, Text(map, "family"), IntOf(band, 0, "level_band"), Int(Map(map, "pools"), "health"),
@@ -196,7 +275,16 @@ public static class CombatContent
                 Attack(ability, tickMs), Mm(map, "move_speed_m_s"), Mm(map, "body_radius_m"), map.ContainsKey("xp_value") ? Long(map, "xp_value") : 0)
             {
                 LootTableId = map.GetValueOrDefault("loot_table") as string,
+                Senses = Senses(id, map),
+                Charge = charge,
+                TurnMdegPerSecond = map.ContainsKey("turn_deg_s") ? (long)Math.Round(Number(map, "turn_deg_s") * 1000) : 720_000,
+                WeakPoint = map.GetValueOrDefault("weak_point") is Dictionary<object, object> weak
+                    ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
+                    : null,
+                Tags = Tags(map, "tags"),
             };
+            if (creature.Attack.IsCharge)
+                throw new FormatException($"{id}: its first attack is a blow; a charge comes second");
             if (IntOf(band, 0, "level_band") != IntOf(band, 1, "level_band"))
                 throw new FormatException($"{id}: Phase 1 authors one level per creature (level_band [n, n]); rolling in a band arrives with the spawner (M3d)");
             if (creature.MaxHealth < 1 || creature.MoveSpeedMmPerSecond <= 0 || creature.RadiusMm <= 0 || creature.XpValue < 0)
@@ -217,15 +305,25 @@ public static class CombatContent
         var amount = List(damage, "amount");
         var effect = payload.FirstOrDefault(p => p.GetValueOrDefault("type") as string == "apply_effect");
         int stamina = map.GetValueOrDefault("cost") is Dictionary<object, object> cost && cost.ContainsKey("stamina") ? Int(cost, "stamina") : 0;
+        var run = map.GetValueOrDefault("charge") as Dictionary<object, object>;
         var attack = new AttackProfile(id, IntOf(amount, 0, "amount"), IntOf(amount, 1, "amount"), Damage(Text(damage, "damage_type")),
-            Mm(map, "range_m"), Math.Max(1, ToTicks(Number(map, "windup_s"), tickMs)), Math.Max(1, ToTicks(Number(map, "active_s"), tickMs)),
-            ToTicks(Number(map, "recovery_s"), tickMs), stamina)
+            run is null ? Mm(map, "range_m") : Mm(run, "max_distance_m"), Math.Max(1, ToTicks(Number(map, "windup_s"), tickMs)),
+            run is null ? Math.Max(1, ToTicks(Number(map, "active_s"), tickMs)) : 1, ToTicks(Number(map, "recovery_s"), tickMs), stamina)
         {
             OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
             OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
+            LungeMm = map.ContainsKey("lunge_m") ? Mm(map, "lunge_m") : 0,
+            ChargeSpeedMmPerSecond = run is null ? 0 : Mm(run, "speed_m_s"),
+            ChargeMinRangeMm = run is null ? 0 : Mm(run, "min_range_m"),
+            StunTicks = run is null ? 0 : ToTicks(Number(run, "stun_s"), tickMs),
+            CooldownTicks = map.ContainsKey("cooldown_s") ? ToTicks(Number(map, "cooldown_s"), tickMs) : 0,
+            ForcesStagger = map.GetValueOrDefault("forces_stagger") as string == "true",
+            Advances = map.GetValueOrDefault("advance") as string == "true",
         };
-        if (attack.DamageMin < 1 || attack.DamageMin > attack.DamageMax || attack.ReachMm <= 0)
-            throw new FormatException($"{id}: amount is [min, max] with 1 <= min <= max, and range_m is positive");
+        if (attack.DamageMin < 1 || attack.DamageMin > attack.DamageMax || attack.ReachMm <= 0 || attack.LungeMm < 0)
+            throw new FormatException($"{id}: amount is [min, max] with 1 <= min <= max, range_m (or a charge's max_distance_m) is positive, lunge_m is not negative");
+        if (run is not null && (attack.ChargeSpeedMmPerSecond <= 0 || attack.ChargeMinRangeMm >= attack.ReachMm || attack.StunTicks < 1))
+            throw new FormatException($"{id}: a charge has a speed, a min_range_m below its max_distance_m, and a stun");
         return attack;
     }
 
@@ -233,17 +331,19 @@ public static class CombatContent
     public static ImmutableArray<SpawnSite> BuildSpawns(ContentLoader loader, string regionId)
     {
         var creatures = loader.GetByKind("creature");
+        var roles = loader.Definitions.TryGetValue("config.creature_behaviour", out var behaviour)
+            ? (Read(behaviour.YamlSource).GetValueOrDefault("roles") as Dictionary<object, object>)?.Keys.OfType<string>().ToHashSet(StringComparer.Ordinal)
+            : null;
         return loader.GetByKind("spawn").Values
             .Select(definition => (Definition: definition, Map: Read(definition.YamlSource)))
             .Where(s => s.Map.GetValueOrDefault("region_ref") as string == regionId)
             .OrderBy(s => s.Definition.Id, StringComparer.Ordinal)
-            .SelectMany(s =>
+            .Select(s =>
             {
                 string id = s.Definition.Id;
                 var at = Map(s.Map, "at");
                 var position = List(at, "position_m");
-                long radius = Mm(at, "radius_m");
-                return Rows(s.Map, "creatures", id).Select(row =>
+                var members = Rows(s.Map, "creatures", id).SelectMany(row =>
                 {
                     string creature = Text(row, "creature_ref");
                     if (!creatures.ContainsKey(creature))
@@ -251,9 +351,46 @@ public static class CombatContent
                     var count = List(row, "count");
                     if (IntOf(count, 0, "count") != IntOf(count, 1, "count") || IntOf(count, 0, "count") < 1)
                         throw new FormatException($"{id}: Phase 1 places a fixed count (count [n, n], n >= 1)");
-                    return new SpawnSite(id, creature, IntOf(count, 0, "count"), ToMm(position[0], "position_m"), ToMm(position[1], "position_m"), radius);
-                });
+                    string role = row.GetValueOrDefault("role") as string ?? "hold";
+                    if (roles is not null && !roles.Contains(role))
+                        throw new FormatException($"{id}: role '{role}' is not a role config.creature_behaviour defines");
+                    return Enumerable.Repeat(new SpawnMember(creature, role), IntOf(count, 0, "count"));
+                }).ToImmutableArray();
+                long respawn = 0;
+                if (s.Map.GetValueOrDefault("respawn") is Dictionary<object, object> timer)
+                {
+                    respawn = Text(timer, "kind") switch
+                    {
+                        "none" => 0,
+                        "timer" => Long(timer, "window_ticks"),
+                        var other => throw new FormatException($"{id}: respawn kind '{other}' is not built in Phase 1 (timer, none)"),
+                    };
+                    if (respawn < 0)
+                        throw new FormatException($"{id}: window_ticks is not negative");
+                }
+                var route = (s.Map.ContainsKey("route_m") ? List(s.Map, "route_m") : new List<object>()).Select((point, i) =>
+                {
+                    var xz = point as List<object> ?? throw new FormatException($"{id} route_m[{i}] must be [x, z]");
+                    return xz.Count == 2 ? (ToMm(xz[0], "route_m"), ToMm(xz[1], "route_m")) : throw new FormatException($"{id} route_m[{i}] must be [x, z]");
+                }).ToImmutableArray();
+                return new SpawnSite(id, ToMm(position[0], "position_m"), ToMm(position[1], "position_m"), Mm(at, "radius_m"), members)
+                {
+                    RespawnTicks = respawn,
+                    Route = route,
+                };
             }).ToImmutableArray();
+    }
+
+    /// <summary>A creature's senses (DATA_MODEL.md §4.4 <c>perception</c>): sight and hearing in metres, the field of view in degrees.</summary>
+    private static Senses Senses(string id, Dictionary<object, object> map)
+    {
+        if (map.GetValueOrDefault("perception") is not Dictionary<object, object> perception)
+            return new Senses(25_000, 140_000, 30_000);
+        var senses = new Senses(Mm(perception, "sight_m"), perception.ContainsKey("fov_deg") ? (long)Math.Round(Number(perception, "fov_deg") * 1000) : 140_000,
+            Mm(perception, "hearing_m"));
+        if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
+            throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");
+        return senses;
     }
 
     /// <summary>Skill passives (<c>passives: [{at, modifiers}]</c>): the one-hand blade's steadier stagger at level 3.</summary>

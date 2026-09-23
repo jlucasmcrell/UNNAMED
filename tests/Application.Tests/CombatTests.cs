@@ -13,7 +13,8 @@ namespace UNNAMED.Application.Tests;
 
 /// <summary>
 /// A stretch of the hollow with the game's own content and rules, the player placed where a test wants them and wolves
-/// placed exactly (spawn radius 0) instead of the region's spawn sites. Stepped directly, one tick per call.
+/// placed exactly (spawn radius 0), each in a role, instead of the region's spawners - or the region's own spawners when
+/// a test keeps them. Stepped directly, one tick per call.
 /// </summary>
 internal sealed class Arena
 {
@@ -31,15 +32,29 @@ internal sealed class Arena
     public EntityId Player => Simulation.PlayerId;
 
     public static Arena Open(GameSession session, (double X, double Z) player, int facingDeg, IEnumerable<(double X, double Z)> wolves,
-        Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0) =>
-        OpenWith(session, session.Setup, player, facingDeg, wolves, change, seed, startTick);
+        Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0, string role = "pack_hunter", bool keepSpawns = false) =>
+        OpenWith(session, session.Setup, player, facingDeg, wolves, change, seed, startTick, role, keepSpawns);
 
     /// <summary>The same, under changed rules (a different creature table, say).</summary>
     public static Arena OpenWith(GameSession session, SimulationSetup rules, (double X, double Z) player, int facingDeg,
-        IEnumerable<(double X, double Z)> wolves, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0)
+        IEnumerable<(double X, double Z)> wolves, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0,
+        string role = "pack_hunter", bool keepSpawns = false) =>
+        OpenPlaced(session, rules, player, facingDeg, wolves.Select(w => (w.X, w.Z, role)), change, seed, startTick, keepSpawns);
+
+    /// <summary>Wolves placed exactly, each in its own role.</summary>
+    public static Arena OpenPlaced(GameSession session, SimulationSetup rules, (double X, double Z) player, int facingDeg,
+        IEnumerable<(double X, double Z, string Role)> wolves, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0,
+        bool keepSpawns = false) =>
+        OpenCreatures(session, rules, player, facingDeg, wolves.Select(w => (Wolf, w.X, w.Z, w.Role)), change, seed, startTick, keepSpawns);
+
+    /// <summary>Any creatures placed exactly, each in its own role, each its own spawner (<c>spawn.test.creature_N</c>).</summary>
+    public static Arena OpenCreatures(GameSession session, SimulationSetup rules, (double X, double Z) player, int facingDeg,
+        IEnumerable<(string DefId, double X, double Z, string Role)> creatures, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42,
+        long startTick = 0, bool keepSpawns = false, long respawnTicks = 0)
     {
-        var spawns = wolves.Select((w, i) => new SpawnSite($"spawn.test.wolf_{i}", Wolf, 1, (long)(w.X * 1000), (long)(w.Z * 1000), 0)).ToImmutableArray();
-        var setup = rules with { Combat = rules.Combat with { Spawns = spawns } };
+        var spawns = creatures.Select((w, i) => new SpawnSite($"spawn.test.{(w.DefId == Wolf ? "wolf" : "creature")}_{i}", (long)(w.X * 1000),
+            (long)(w.Z * 1000), 0, ImmutableArray.Create(new SpawnMember(w.DefId, w.Role))) { RespawnTicks = respawnTicks }).ToImmutableArray();
+        var setup = keepSpawns ? rules : rules with { Combat = rules.Combat with { Spawns = spawns } };
         var fresh = Simulation.NewCharacter(setup, EntityId.NewId(EntityKind.Character), "Wanderer", 7);
         long x = (long)(player.X * 1000), z = (long)(player.Z * 1000);
         var record = new PlayerRecord(fresh.Id, fresh.Name, x, setup.Layout.Space.Terrain.HeightAtMm(x, z), z, fresh.AppearanceSeed, fresh.Inventory,
@@ -76,7 +91,7 @@ internal sealed class Arena
         }
     }
 
-    public CreatureView Creature(int index = 0) => Simulation.Creatures.OrderBy(c => c.Id).ElementAt(index);
+    public CreatureView Creature(int index = 0) => Simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal).ElementAt(index);
 
     /// <summary>Stand still, facing a creature.</summary>
     public void Face(CreatureView creature)
@@ -92,7 +107,7 @@ internal sealed class Arena
     {
         for (int i = 0; i < maxTicks; i++)
         {
-            var creature = Simulation.Creatures.Single(c => c.Id == target.Id);
+            var creature = Simulation.Creatures.Single(c => c.Key == target.Key);
             if (!creature.Alive)
                 return i;
             var body = Simulation.Player.Body;
@@ -138,12 +153,12 @@ public class CombatTests
     {
         using var profile = new TempProfile();
         var simulation = Harness.Boot(profile).NewGame("Tester", seed: 42);
-        var strays = simulation.Creatures;
-        Assert.Equal(2, strays.Length);
+        var strays = simulation.Creatures.Where(c => c.Key.StartsWith("spawn.hollow.valley_strays#", StringComparison.Ordinal)).ToList();
+        Assert.Equal(2, strays.Count);
         Assert.All(strays, s =>
         {
             Assert.Equal(Arena.Wolf, s.DefId);
-            Assert.Equal((50, 50, true, false), (s.Health, s.MaxHealth, s.Alive, s.Hostile));
+            Assert.Equal((50, 50, true, false, "stray"), (s.Health, s.MaxHealth, s.Alive, s.Hostile, s.RoleId));
             Assert.InRange(Math.Sqrt(Math.Pow(s.Body.XMm - 100_000, 2) + Math.Pow(s.Body.ZMm - 105_000, 2)), 0, 6_000);
         });
         Assert.Equal(50, simulation.Setup.Combat.Creatures[Arena.Wolf].MaxHealth);
@@ -346,7 +361,8 @@ public class CombatTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var bleeding = new[] { new ActiveEffect("effect.bleeding", 2, 120, 20) };
-        var continuous = Arena.Open(session, (60, 50), 0, Array.Empty<(double, double)>(), r => r.WithEffects(bleeding));
+        // The game's own spawners on both sides of the save: the loaded session places the same wolves, doing the same things.
+        var continuous = Arena.Open(session, (60, 50), 0, Array.Empty<(double, double)>(), r => r.WithEffects(bleeding), keepSpawns: true);
         continuous.Tick(50);
 
         new SaveStore(profile.Root).Save(SaveSlots.Manual("bleeding"), SaveDocuments.Capture(continuous.Simulation.World,

@@ -67,7 +67,8 @@ public static class SchemaMigrations
         new SchemaV3ToV4(),
         new SchemaV4ToV5(),
         new SchemaV5ToV6(),
-        new SchemaV6ToV7());
+        new SchemaV6ToV7(),
+        new SchemaV7ToV8());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -405,23 +406,23 @@ public sealed class SchemaV5ToV6 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V3.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V6.EntitiesSection
             {
-                Records = old.Records.Select(e => new EntityDto
+                Records = old.Records.Select(e => new V6.Entity
                 {
                     InstanceId = e.InstanceId,
                     SlotKey = e.SlotKey,
                     GenerationSeq = e.GenerationSeq,
                     DefId = e.DefId,
                     DirtyMask = e.DirtyMask,
-                    State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                    State = new V6.EntityState { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
                 }).ToArray(),
-                Created = old.Created.Select(c => new CreatedDto
+                Created = old.Created.Select(c => new V6.Created
                 {
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = 1,
                 }).ToArray(),
-                Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
-                Containers = Array.Empty<ContainerDto>(),
+                Baselines = old.Baselines.Select(b => new V6.CellBaseline { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+                Containers = Array.Empty<V6.Container>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -462,6 +463,53 @@ public sealed class SchemaV6ToV7 : SchemaMigration
                     .Select(e => new EquipmentDto { Slot = e.Slot, ItemId = e.ItemId }).ToArray(),
                 Currency = old.Currency,
                 Effects = Array.Empty<EffectDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 7 to 8 (M3d): the entities section gains the records of spawners' creatures that left their baseline. A save
+/// that predates them had none: before M3d no creature state was saved, so every creature is where its spawner puts it.
+/// </summary>
+public sealed class SchemaV7ToV8 : SchemaMigration
+{
+    public override int From => 7;
+
+    public override string Summary => "schema 7 -> 8: the entities section gains creature records (none before M3d)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V6.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records.Select(e => new EntityDto
+                {
+                    InstanceId = e.InstanceId,
+                    SlotKey = e.SlotKey,
+                    GenerationSeq = e.GenerationSeq,
+                    DefId = e.DefId,
+                    DirtyMask = e.DirtyMask,
+                    State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
+                }).ToArray(),
+                Created = old.Created.Select(c => new CreatedDto
+                {
+                    InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count,
+                }).ToArray(),
+                Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
+                Containers = (old.Containers ?? Array.Empty<V6.Container>()).Select(c => new ContainerDto
+                {
+                    Key = c.Key,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                }).ToArray(),
+                Creatures = Array.Empty<CreatureDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

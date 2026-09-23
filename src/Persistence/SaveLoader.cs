@@ -139,9 +139,10 @@ internal static class SaveLoader
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }
         var cells = DecodeOrQuarantine(sections[SaveFormat.Cells], SaveFormat.Cells, SectionCodec.DecodeCells, quarantined, report);
-        var (entities, created, containers) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
-            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty, ImmutableArray<ContainerRecord>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers };
+        var (entities, created, containers, creatures) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
+            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty, ImmutableArray<ContainerRecord>.Empty,
+                ImmutableArray<CreatureRecord>.Empty));
+        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures };
         PlayerRecord player;
         try
         {
@@ -302,8 +303,17 @@ internal static class SaveLoader
                 : effect with { EffectId = id };
         }
 
+        // Creature records (schema 8). A creature whose definition was removed is gone from the save; its spawner decides afresh.
+        var creatures = ImmutableArray.CreateBuilder<CreatureRecord>();
+        foreach (var record in delta.Creatures)
+        {
+            string? id = Resolve(record.DefId, $"creature {record.Key}");
+            if (id is not null)
+                creatures.Add(record with { DefId = id });
+        }
+
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values),
-            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers });
+            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable() });
     }
 
     private static DeltaSnapshot ProveBaselines(
@@ -332,6 +342,8 @@ internal static class SaveLoader
         foreach (var record in delta.Created)
             Check(record.HostCell, record.BaselineHash);
         foreach (var record in delta.Containers)
+            Check(record.HostCell, record.BaselineHash);
+        foreach (var record in delta.Creatures)
             Check(record.HostCell, record.BaselineHash);
         proven.ExceptWith(mismatched.Keys);
         report.CellsMatched = proven.Count;

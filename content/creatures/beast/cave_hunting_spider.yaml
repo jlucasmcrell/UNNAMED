@@ -1,0 +1,19 @@
+id: creature.beast.cave_hunting_spider
+kind: creature
+schema: 1
+display_key: creature.beast.cave_hunting_spider.name
+tags: [creature, beast]
+name: Cave Hunting Spider
+notes: Ambush hunter (content bible §10 - perception and avoidance). Near-blind but feels every footfall; a walker passes, a runner is taken. It never leaves its lair, so it can always be gone around.
+family: beast
+archetype: predator
+level_band: [3, 3]
+pools: { health: 40 }
+attack_set: [ability.creature.spider_bite]
+armor: { head: 2, torso: 3, limbs: 2 }
+move_speed_m_s: 5.5
+body_radius_m: 0.5
+xp_value: 40
+perception: { sight_m: 6, hearing_m: 14, fov_deg: 360 }   # it feels, rather than sees
+tier_hint: A
+tameable: false

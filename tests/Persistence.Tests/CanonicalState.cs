@@ -150,6 +150,35 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            json.WriteStartArray("creatures");
+            foreach (var creature in snapshot.Creatures)
+            {
+                json.WriteStartObject();
+                json.WriteString("key", creature.Key);
+                json.WriteString("def_id", creature.DefId);
+                json.WriteString("instance_id", creature.InstanceId.Value);
+                json.WriteString("host_cell", creature.HostCell);
+                json.WriteString("baseline_hash", creature.BaselineHash);
+                json.WriteNumber("generation", creature.Generation);
+                json.WriteString("condition", World.CreatureConditions.Key(creature.Condition));
+                json.WriteNumber("x_mm", creature.XMm);
+                json.WriteNumber("z_mm", creature.ZMm);
+                json.WriteNumber("facing_mdeg", creature.FacingMdeg);
+                json.WriteNumber("health", creature.Health);
+                json.WriteNumber("died_tick", creature.DiedTick);
+                json.WriteNumber("respawn_tick", creature.RespawnTick);
+                json.WriteString("mind", World.CreatureMinds.Key(creature.Mind));
+                json.WriteNumber("awareness", creature.Awareness);
+                json.WriteBoolean("knows", creature.Knows);
+                json.WriteNumber("known_x_mm", creature.KnownXMm);
+                json.WriteNumber("known_z_mm", creature.KnownZMm);
+                json.WriteNumber("last_seen_tick", creature.LastSeenTick);
+                json.WriteNumber("search_until", creature.SearchUntil);
+                json.WriteBoolean("has_called", creature.HasCalled);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";

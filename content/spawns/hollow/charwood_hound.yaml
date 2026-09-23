@@ -1,0 +1,13 @@
+id: spawn.hollow.charwood_hound
+kind: spawn
+schema: 1
+display_key: spawn.hollow.charwood_hound.name
+tags: [spawn]
+notes: The Ash Ember Hound's range in the north-east woods - at the content bible's placement (128, 150).
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.ash_ember_hound, count: [1, 1], role: hunter }
+at: { position_m: [128, 150], radius_m: 1 }
+level_band: [3, 3]
+respawn: { kind: none }
+tier_hint: A

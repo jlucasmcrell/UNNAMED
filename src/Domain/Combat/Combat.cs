@@ -3,6 +3,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Combat;
 
@@ -72,6 +73,29 @@ public sealed record AttackProfile(
     public string? OnHitEffect { get; init; }
     public int OnHitEffectPercent { get; init; }
 
+    /// <summary>A lunge: the attacker carries itself this far forward across the active window, so the blow reaches further.</summary>
+    public long LungeMm { get; init; }
+
+    /// <summary>A charge (M3d): after the windup the attacker runs straight at this speed, committed, until it hits or has run <see cref="ReachMm"/>.</summary>
+    public long ChargeSpeedMmPerSecond { get; init; }
+
+    /// <summary>A charge is only started from at least this far away.</summary>
+    public long ChargeMinRangeMm { get; init; }
+
+    /// <summary>How long a charge that runs into something solid leaves the charger stunned.</summary>
+    public int StunTicks { get; init; }
+
+    /// <summary>Ticks between two uses.</summary>
+    public int CooldownTicks { get; init; }
+
+    /// <summary>The blow knocks its target off balance whatever its size (a charge), unless it is guarded or dodged.</summary>
+    public bool ForcesStagger { get; init; }
+
+    /// <summary>The attacker keeps running at its target through the windup (the hound bites on the run), so fleeing does not open the gap.</summary>
+    public bool Advances { get; init; }
+
+    public bool IsCharge => ChargeSpeedMmPerSecond > 0;
+
     public int TotalTicks => WindupTicks + ActiveTicks + RecoveryTicks;
 }
 
@@ -111,8 +135,14 @@ public sealed record CombatConstants
     public AttackProfile Unarmed { get; init; } = new("unarmed", 2, 3, "physical_blunt", 1_200, 5, 2, 5, 4);
 }
 
-/// <summary>Who strikes, and how: the attack plus what the attacker brings to it (Might, effects, skill).</summary>
-public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int CritPercent, double StaggerPower);
+/// <summary>
+/// Who strikes, and how: the attack plus what the attacker brings to it (Might, effects, skill). <see cref="ForcedRegion"/>
+/// is a blow placed rather than rolled - into a weak point the attacker's position opens.
+/// </summary>
+public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int CritPercent, double StaggerPower)
+{
+    public BodyRegion? ForcedRegion { get; init; }
+}
 
 /// <summary>What stands between the blow and the body. Armor is coverage: each region has its own (COMBAT §11).</summary>
 public sealed record DefenseProfile(
@@ -136,7 +166,7 @@ public static class CombatRules
     public static HitResult Resolve(Strike strike, DefenseProfile defense, CombatConstants constants, Func<uint, double> random)
     {
         var attack = strike.Attack;
-        var region = Region(constants, random(0));
+        var region = strike.ForcedRegion ?? Region(constants, random(0));
         if (defense.Dodging)
             return new HitResult(region, 0, 0, false, false, true, false, false);
 
@@ -210,9 +240,12 @@ public static class CombatRules
     }
 }
 
+/// <summary>A weak point (COMBAT_DAMAGE_ARMOR_AND_DEATH.md §19): a region a blow reaches only from the right side.</summary>
+public sealed record WeakPoint(BodyRegion Region, bool FromBehind);
+
 /// <summary>
 /// A creature as combat knows it (DATA_MODEL.md §4.4): an authored level and stat block that nothing scales to the
-/// player (charter §1). Its one attack comes from its <c>attack_set</c>.
+/// player (charter §1). Its attack comes from its <c>attack_set</c>; a second, charging ability may follow it.
 /// </summary>
 public sealed record CreatureDefinition(
     string Id,
@@ -227,6 +260,20 @@ public sealed record CreatureDefinition(
     long XpValue)
 {
     public string? LootTableId { get; init; }
+
+    /// <summary>What it perceives with (M3d; DATA_MODEL.md §4.4 <c>perception</c>).</summary>
+    public Senses Senses { get; init; } = new(25_000, 140_000, 30_000);
+
+    /// <summary>A charge it can open with (the boar's), or null.</summary>
+    public AttackProfile? Charge { get; init; }
+
+    /// <summary>How fast it turns, in millidegrees a second: a heavy body cannot swing round onto whoever gets behind it.</summary>
+    public long TurnMdegPerSecond { get; init; } = 720_000;
+
+    public WeakPoint? WeakPoint { get; init; }
+
+    /// <summary>Its content tags (<c>undead</c>, <c>construct</c>): effects whose immunity tags meet them do not take.</summary>
+    public ImmutableSortedSet<string> Tags { get; init; } = ImmutableSortedSet<string>.Empty;
 }
 
 public enum StackPolicy
@@ -253,6 +300,9 @@ public sealed record EffectDefinition(
     public double DamageDealtMultiplier { get; init; } = 1.0;
     public double StaminaRegenMultiplier { get; init; } = 1.0;
     public int ArmorBonus { get; init; }
+
+    /// <summary>DATA_MODEL.md §4.8 <c>immunity_tags</c>: a body carrying any of these does not take the effect (no blood, no bleeding).</summary>
+    public ImmutableSortedSet<string> ImmuneTags { get; init; } = ImmutableSortedSet<string>.Empty;
 }
 
 /// <summary>An effect on a body. Deadlines are absolute world ticks, so a save between ticks loses nothing (SYSTEMS.md S-04, S-11).</summary>

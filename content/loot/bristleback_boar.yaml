@@ -1,0 +1,9 @@
+id: loot.bristleback_boar
+kind: loot
+schema: 1
+display_key: loot.bristleback_boar.name
+tags: [loot]
+notes: A boar's carcass - always meat.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [2, 2] }

@@ -1,0 +1,10 @@
+id: creature.beast.ash_ember_hound
+kind: creature
+schema: 1
+display_key: creature.beast.ash_ember_hound.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+family: beast
+archetype: predator
+level_band: [3, 3]
+pools: { health: 35 }

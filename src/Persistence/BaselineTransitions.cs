@@ -102,8 +102,18 @@ internal static class SemanticRebase
             .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
             .ToImmutableArray();
 
+        // A creature record belongs to an authored spawner, not to generation: it moves to the new baseline as it is.
+        var rebasedCreatures = delta.Creatures
+            .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
+            .ToImmutableArray();
+
         foreach (string cell in cellsToRebase.OrderBy(c => c, StringComparer.Ordinal))
             report.CellsRebased.Add($"{cell} ({transition.Name})");
-        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable()) { Created = rebasedCreated, Containers = rebasedContainers };
+        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable())
+        {
+            Created = rebasedCreated,
+            Containers = rebasedContainers,
+            Creatures = rebasedCreatures,
+        };
     }
 }

@@ -42,6 +42,16 @@ internal sealed class SystemContext
 
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen);
 
+    /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
+    public ContainerSite? FindContainer(string key) =>
+        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key);
+
+    /// <summary>Every corpse that can be searched: its body is still there, and its creature has a loot table.</summary>
+    public IEnumerable<ContainerSite> CorpseSites() =>
+        State.Creatures.Values
+            .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
+            .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots));
+
     /// <summary>What the player's body cannot pass besides the static blockers: closed doors and living creatures.</summary>
     public ImmutableArray<Blocker> Obstacles() =>
         ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)

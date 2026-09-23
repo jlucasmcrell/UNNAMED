@@ -128,6 +128,34 @@ public sealed class EntitiesSectionDto
 
     /// <summary>Changed world containers with their whole contents. Required from schema 6.</summary>
     [Key("containers")] public ContainerDto[]? Containers { get; set; }
+
+    /// <summary>Spawners' creatures that left their baseline. Required from schema 8.</summary>
+    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+}
+
+[MessagePackObject]
+public sealed class CreatureDto
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("generation")] public int Generation { get; set; }
+    [Key("condition")] public string Condition { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("health")] public int Health { get; set; }
+    [Key("died_tick")] public long DiedTick { get; set; }
+    [Key("respawn_tick")] public long RespawnTick { get; set; }
+    [Key("mind")] public string Mind { get; set; } = "";
+    [Key("awareness")] public int Awareness { get; set; }
+    [Key("knows")] public bool Knows { get; set; }
+    [Key("known_x_mm")] public long KnownXMm { get; set; }
+    [Key("known_z_mm")] public long KnownZMm { get; set; }
+    [Key("last_seen_tick")] public long LastSeenTick { get; set; }
+    [Key("search_until")] public long SearchUntil { get; set; }
+    [Key("has_called")] public bool HasCalled { get; set; }
 }
 
 [MessagePackObject]
@@ -291,6 +319,8 @@ public static class SectionCodec
             Prove(c.HostCell, c.BaselineHash, c.InstanceId);
         foreach (var c in snapshot.Containers)
             Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+        foreach (var c in snapshot.Creatures)
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
 
         return MessagePackSerializer.Serialize(new EntitiesSectionDto
         {
@@ -320,12 +350,38 @@ public static class SectionCodec
                 HostCell = c.HostCell,
                 Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count }).ToArray(),
             }).ToArray(),
+            Creatures = snapshot.Creatures.Select(c => new CreatureDto
+            {
+                Key = c.Key,
+                DefId = c.DefId,
+                InstanceId = c.InstanceId.Value,
+                HostCell = c.HostCell,
+                Generation = c.Generation,
+                Condition = CreatureConditions.Key(c.Condition),
+                XMm = c.XMm,
+                ZMm = c.ZMm,
+                FacingMdeg = c.FacingMdeg,
+                Health = c.Health,
+                DiedTick = c.DiedTick,
+                RespawnTick = c.RespawnTick,
+                Mind = CreatureMinds.Key(c.Mind),
+                Awareness = c.Awareness,
+                Knows = c.Knows,
+                KnownXMm = c.KnownXMm,
+                KnownZMm = c.KnownZMm,
+                LastSeenTick = c.LastSeenTick,
+                SearchUntil = c.SearchUntil,
+                HasCalled = c.HasCalled,
+            }).ToArray(),
         }, Options);
     }
 
-    /// <summary>The entities section: slot-keyed records, created instances and changed containers, each with its host cell's baseline hash.</summary>
-    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created, ImmutableArray<ContainerRecord> Containers)
-        DecodeEntitySection(byte[] bytes)
+    /// <summary>
+    /// The entities section: slot-keyed records, created instances, changed containers and creature records, each with its
+    /// host cell's baseline hash.
+    /// </summary>
+    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created, ImmutableArray<ContainerRecord> Containers,
+        ImmutableArray<CreatureRecord> Creatures) DecodeEntitySection(byte[] bytes)
     {
         var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
         var baselines = section.Baselines.ToDictionary(b => b.CellKey, b => b.BaselineHash, StringComparer.Ordinal);
@@ -348,7 +404,21 @@ public static class SectionCodec
                 c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count)).ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();
-        return (entities, created, containers);
+        var creatures = (section.Creatures ?? throw new FormatException("entities.msgpack has no creatures list (required from schema 8)"))
+            .Select(c => new CreatureRecord(c.Key, c.DefId, EntityId.Parse(c.InstanceId), c.HostCell, c.Generation, CreatureConditions.Parse(c.Condition),
+                c.XMm, c.ZMm, c.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick, baselines.GetValueOrDefault(c.HostCell))
+            {
+                Mind = CreatureMinds.Parse(c.Mind),
+                Awareness = c.Awareness,
+                Knows = c.Knows,
+                KnownXMm = c.KnownXMm,
+                KnownZMm = c.KnownZMm,
+                LastSeenTick = c.LastSeenTick,
+                SearchUntil = c.SearchUntil,
+                HasCalled = c.HasCalled,
+            })
+            .ToImmutableArray();
+        return (entities, created, containers, creatures);
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;

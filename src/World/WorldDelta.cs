@@ -68,6 +68,115 @@ public sealed record ContainerItem(EntityId ItemId, string DefId, int Count);
 /// </summary>
 public sealed record ContainerRecord(string Key, EntityId InstanceId, string HostCell, ImmutableArray<ContainerItem> Items, string? BaselineHash = null);
 
+public enum CreatureCondition
+{
+    Alive,
+
+    /// <summary>Dead, and its body lies where it fell until it is looted empty or its spawner brings it back.</summary>
+    Corpse,
+
+    /// <summary>Dead and gone: looted, or never to return.</summary>
+    Gone,
+}
+
+/// <summary>What a creature is doing about what it knows (SYSTEMS.md S-23's decision state; saved from schema 8).</summary>
+public enum CreatureMind
+{
+    /// <summary>Knows of nothing: holds, wanders, patrols or sleeps, as its role says.</summary>
+    Unaware,
+
+    /// <summary>Saw or heard something: goes to look.</summary>
+    Suspicious,
+
+    /// <summary>Has found its target and fights it.</summary>
+    Engaged,
+
+    /// <summary>Lost its target: searches where it was last known.</summary>
+    Searching,
+
+    /// <summary>Gave up, or was called home by its leash.</summary>
+    Returning,
+
+    /// <summary>Too hurt to fight on (STEALTH_DETECTION_AND_THREAT.md §16).</summary>
+    Fleeing,
+}
+
+public static class CreatureMinds
+{
+    public static string Key(CreatureMind mind) => mind switch
+    {
+        CreatureMind.Unaware => "unaware",
+        CreatureMind.Suspicious => "suspicious",
+        CreatureMind.Engaged => "engaged",
+        CreatureMind.Searching => "searching",
+        CreatureMind.Returning => "returning",
+        CreatureMind.Fleeing => "fleeing",
+        _ => throw new ArgumentOutOfRangeException(nameof(mind), mind, "Unknown creature mind"),
+    };
+
+    public static CreatureMind Parse(string key)
+    {
+        foreach (var mind in Enum.GetValues<CreatureMind>())
+        {
+            if (Key(mind) == key)
+                return mind;
+        }
+        throw new FormatException($"Unknown creature mind '{key}'");
+    }
+}
+
+public static class CreatureConditions
+{
+    public static string Key(CreatureCondition condition) => condition switch
+    {
+        CreatureCondition.Alive => "alive",
+        CreatureCondition.Corpse => "corpse",
+        CreatureCondition.Gone => "gone",
+        _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown creature condition"),
+    };
+
+    public static CreatureCondition Parse(string key) => key switch
+    {
+        "alive" => CreatureCondition.Alive,
+        "corpse" => CreatureCondition.Corpse,
+        "gone" => CreatureCondition.Gone,
+        _ => throw new FormatException($"Unknown creature condition '{key}'"),
+    };
+}
+
+/// <summary>
+/// A spawner's creature that has left its baseline - alive where it was placed, whole, unaware, first of its line
+/// (SYSTEMS.md S-31, M3d). Until then nothing is saved; from then on the record holds where it is, how hurt, whether it
+/// lives, when its spawner brings it back, and what it knows: its mind, its awareness, where its target was last known
+/// (S-23's durable divergence - "a target an actor still hunts"). <see cref="Key"/> is its stable name,
+/// <c>spawner#member</c>; <see cref="Generation"/> counts its respawns, and each generation has its own identity. It is
+/// proven against its home cell's baseline.
+/// </summary>
+public sealed record CreatureRecord(
+    string Key,
+    string DefId,
+    EntityId InstanceId,
+    string HostCell,
+    int Generation,
+    CreatureCondition Condition,
+    long XMm,
+    long ZMm,
+    int FacingMdeg,
+    int Health,
+    long DiedTick,
+    long RespawnTick,
+    string? BaselineHash = null)
+{
+    public CreatureMind Mind { get; init; }
+    public int Awareness { get; init; }
+    public bool Knows { get; init; }
+    public long KnownXMm { get; init; }
+    public long KnownZMm { get; init; }
+    public long LastSeenTick { get; init; }
+    public long SearchUntil { get; init; }
+    public bool HasCalled { get; init; }
+}
+
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
 public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
 {
@@ -78,6 +187,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>Changed world containers, sorted by key (schema 6).</summary>
     public ImmutableArray<ContainerRecord> Containers { get; init; } = ImmutableArray<ContainerRecord>.Empty;
+
+    /// <summary>Spawners' creatures that left their baseline, sorted by key (schema 8).</summary>
+    public ImmutableArray<CreatureRecord> Creatures { get; init; } = ImmutableArray<CreatureRecord>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -101,6 +213,7 @@ public sealed class WorldDelta
     private readonly Dictionary<string, EntityDeltaRecord> _entities = new(StringComparer.Ordinal);
     private readonly Dictionary<EntityId, CreatedEntityRecord> _created = new();
     private readonly SortedDictionary<string, ContainerRecord> _containers = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, CreatureRecord> _creatures = new(StringComparer.Ordinal);
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -260,6 +373,47 @@ public sealed class WorldDelta
         return _containers.Values.Where(c => c.HostCell == key).ToList();
     }
 
+    /// <summary>A container that no longer exists - a corpse looted empty. Its identity retires with it.</summary>
+    internal void RemoveContainer(string key)
+    {
+        if (_containers.Remove(key, out var record))
+        {
+            foreach (var id in record.Items.Select(i => i.ItemId).Prepend(record.InstanceId))
+            {
+                if (_registry.Exists(id))
+                    _registry.DestroyEntity(id);
+            }
+        }
+    }
+
+    // ── spawners' creatures ─────────────────────────────────────────────────
+
+    /// <summary>A creature's record, or null while it is still its spawner's baseline.</summary>
+    public CreatureRecord? Creature(string key) => _creatures.GetValueOrDefault(key);
+
+    public IReadOnlyList<CreatureRecord> CreaturesIn(CellKey cell)
+    {
+        string key = cell.ToString();
+        return _creatures.Values.Where(c => c.HostCell == key).ToList();
+    }
+
+    /// <summary>Record a creature's divergence. A new generation's identity is registered and the old one's retired.</summary>
+    internal void SetCreature(CreatureRecord record)
+    {
+        if (_creatures.TryGetValue(record.Key, out var previous) && previous.InstanceId != record.InstanceId && _registry.Exists(previous.InstanceId))
+            _registry.DestroyEntity(previous.InstanceId);
+        if (!_registry.Exists(record.InstanceId))
+            _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
+        _creatures[record.Key] = record;
+    }
+
+    /// <summary>The creature is its baseline again: its record, and its individual identity, go.</summary>
+    internal void RemoveCreature(string key)
+    {
+        if (_creatures.Remove(key, out var record) && _registry.Exists(record.InstanceId))
+            _registry.DestroyEntity(record.InstanceId);
+    }
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -346,7 +500,11 @@ public sealed class WorldDelta
             .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
             .ToImmutableArray();
 
-        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created, Containers = containers };
+        var creatures = _creatures.Values
+            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .ToImmutableArray();
+
+        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created, Containers = containers, Creatures = creatures };
     }
 
     /// <summary>
@@ -393,6 +551,13 @@ public sealed class WorldDelta
                 problems.Add(new RejectedRecord("entities", record.Key, reason));
         }
 
+        foreach (var record in snapshot.Creatures)
+        {
+            string? reason = world.TryApplyCreature(record, seenIds);
+            if (reason is not null)
+                problems.Add(new RejectedRecord("entities", record.Key, reason));
+        }
+
         rejected = problems.ToImmutable();
         return world;
     }
@@ -433,6 +598,15 @@ public sealed class WorldDelta
             h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
             foreach (var item in c.Items)
                 h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count);
+        }
+
+        var creatures = CreaturesIn(cell);
+        h.Add(creatures.Count);
+        foreach (var c in creatures)
+        {
+            h.Add(c.Key).Add(c.DefId).Add(c.InstanceId.Value).Add(c.Generation).Add((int)c.Condition).Add(c.XMm).Add(c.ZMm).Add(c.FacingMdeg)
+                .Add(c.Health).Add(c.DiedTick).Add(c.RespawnTick).Add((int)c.Mind).Add(c.Awareness).Add(c.Knows).Add(c.KnownXMm).Add(c.KnownZMm)
+                .Add(c.LastSeenTick).Add(c.SearchUntil).Add(c.HasCalled);
         }
 
         foreach (var population in baseline.Populations)
@@ -602,6 +776,31 @@ public sealed class WorldDelta
         foreach (var item in record.Items)
             _registry.CreateEntity(DefinitionId.Parse(item.DefId), item.ItemId);
         _containers[record.Key] = record;
+        return null;
+    }
+
+    private string? TryApplyCreature(CreatureRecord record, HashSet<EntityId> seenIds)
+    {
+        if (!CellKey.TryParse(record.HostCell, out var cell))
+            return "unparseable host cell";
+        string hostBaseline = Baseline(cell).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
+        int hash = record.Key.LastIndexOf('#');
+        if (hash <= 0 || !int.TryParse(record.Key[(hash + 1)..], out int member) || member < 0 || _creatures.ContainsKey(record.Key))
+            return $"creature key '{record.Key}' is not spawner#member, or appears twice";
+        if (record.InstanceId.Kind != EntityKind.Creature || !DefinitionId.IsValid(record.DefId))
+            return $"{record.InstanceId} of {record.DefId} is not a creature";
+        if (!Enum.IsDefined(record.Condition) || !Enum.IsDefined(record.Mind) || record.Generation < 0 || record.Health < 0 || record.DiedTick < 0
+            || record.RespawnTick < 0 || record.FacingMdeg is < 0 or >= 360_000 || record.Awareness is < 0 or > 100 || record.LastSeenTick < 0
+            || record.SearchUntil < 0)
+            return "its state is out of range";
+        if (!seenIds.Add(record.InstanceId))
+            return $"instance ID {record.InstanceId} appears twice";
+        if (_registry.Exists(record.InstanceId))
+            return $"instance ID {record.InstanceId} is already registered";
+        _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
+        _creatures[record.Key] = record;
         return null;
     }
 

@@ -127,7 +127,7 @@ internal sealed class InventorySystem
         }
         else if (command.To.Kind == PlaceKind.Container)
         {
-            var site = _context.Setup.Layout.FindContainer(command.To.ContainerKey!)!;
+            var site = _context.FindContainer(command.To.ContainerKey!)!;
             var stacks = ContentsOf(site).Select(i => (i.Id ?? default!, i.DefId, i.Count)).ToList();
             if (Room(stacks, definition, command.Count, site.StackSlots) is { } full)
                 return full;
@@ -189,6 +189,13 @@ internal sealed class InventorySystem
         Remove(new[] { (entry, 1) });
         _context.Dispatch(new ApplyEffect(_player, effect));
         _context.Events.Publish(new ItemUsed(_player, entry.DefId, effect, tick));
+        return null;
+    }
+
+    /// <summary>A container stops existing - a corpse that decayed or whose creature returned - and whatever it held with it.</summary>
+    public string? Handle(DiscardContainer command)
+    {
+        State.RemoveContainer(_owner, command.Key);
         return null;
     }
 
@@ -263,7 +270,7 @@ internal sealed class InventorySystem
     {
         if (place.Kind != PlaceKind.Container)
             return null;
-        if (_context.Setup.Layout.FindContainer(place.ContainerKey ?? string.Empty) is not { } site)
+        if (_context.FindContainer(place.ContainerKey ?? string.Empty) is not { } site)
             return $"there is no container '{place.ContainerKey}'";
         return Distance(site.XMm, site.ZMm) > Items.Inventory.ReachMm ? $"{site.Key} is out of reach" : null;
     }
@@ -284,7 +291,7 @@ internal sealed class InventorySystem
             }
             default:
             {
-                var site = _context.Setup.Layout.FindContainer(place.ContainerKey!)!;
+                var site = _context.FindContainer(place.ContainerKey!)!;
                 return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm))
                     .FirstOrDefault(l => l.Ref == itemRef);
             }
@@ -355,11 +362,17 @@ internal sealed class InventorySystem
             }
             default:
             {
-                var site = _context.Setup.Layout.FindContainer(place.ContainerKey!)!;
+                var site = _context.FindContainer(place.ContainerKey!)!;
                 var record = Materialize(site);
                 var item = record.Items[source.Id is null ? source.Index : record.Items.IndexOf(record.Items.Single(i => i.ItemId == source.Id))];
                 var items = whole ? record.Items.Remove(item) : record.Items.Replace(item, item with { Count = item.Count - count });
                 State.SetContainer(_owner, record with { Items = items });
+                // A corpse searched to the last item is gone (PROTOTYPE.md §5 step 8: "wolf corpses removed").
+                if (items.IsEmpty && _context.Setup.Layout.FindContainer(site.Key) is null)
+                {
+                    State.RemoveContainer(_owner, site.Key);
+                    _context.Dispatch(new CorpseEmptied(site.Key));
+                }
                 return whole ? item.ItemId : null;
             }
         }
@@ -394,7 +407,7 @@ internal sealed class InventorySystem
             }
             default:
             {
-                var site = _context.Setup.Layout.FindContainer(place.ContainerKey!)!;
+                var site = _context.FindContainer(place.ContainerKey!)!;
                 var record = Materialize(site);
                 var items = record.Items.ToList();
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),

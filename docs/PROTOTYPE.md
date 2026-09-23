@@ -148,10 +148,11 @@ Structure is declarative (D-07). Each objective is a `type` + parameters; state 
 ```
 content/
   items/        15 files (or one file per kind, one entry each)
-  creatures/    wolf_grey.yaml
-  spawns/       3 spawner definitions (the valley strays from M3c; the den pack and the respawning pack with M3d)
-  effects/      bleeding, weakened, mending (M3c); burning, oakskin (M3e)
-  abilities/    1: the wolf's bite (M3c)
+  creatures/    wolf_grey.yaml; the content bible's five archetypes (M3d)
+  spawns/       3 spawner definitions (the valley strays from M3c; the den pack and the respawning pack with M3d);
+                one per archetype (M3d)
+  effects/      bleeding, weakened, mending (M3c); venom (M3d); burning, oakskin (M3e)
+  abilities/    1: the wolf's bite (M3c); the archetypes' six (M3d)
   spells/       3        skills/       2        recipes/      2
   nodes/        2        loot/         2 tables
   quests/       hollow_lost_token.yaml
@@ -163,7 +164,7 @@ content/
   config/       xp_curve, level_cap, base_speeds, damage_constants, time, progression, simulation_tiers
 ```
 
-39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. **M3c reconciliation:** `effects/` holds bleeding, the weakness §5 step 7 applies on death, and the mending the salve (§4.2) and the mend spell share - five effects once M3e adds burning and oakskin, where §4.1 counts three. `abilities/` holds the wolf's bite, because `DATA_MODEL.md` §4.4 names a creature's attacks by ability. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
+39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. **M3c reconciliation:** `effects/` holds bleeding, the weakness §5 step 7 applies on death, and the mending the salve (§4.2) and the mend spell share - five effects once M3e adds burning and oakskin, where §4.1 counts three. `abilities/` holds the wolf's bite, because `DATA_MODEL.md` §4.4 names a creature's attacks by ability. **M3d reconciliation:** the content bible (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md`, the owner-approved destination for Phase 1's content) adds five creature archetypes beside the wolf, each with its abilities, one spawner and, for the boar and the armour, a loot table; `effect.venom` is the spider's; `config.creature_behaviour` holds perception and roles. Their placement in the M3 layout, and the bible layout not yet adopted, are in `M3D_STATUS.md`. The counts above predate M2c and M3 and are recounted when the content set is complete (M5).
 
 ## 5. Core loop the player actually performs
 

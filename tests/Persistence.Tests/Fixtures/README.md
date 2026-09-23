@@ -22,15 +22,16 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.4) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.5) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
    movement and tier config a region needs - is the pack v5 and v6 were written with; `content-0.1.3/` - 0.1.2
-   plus the two effects the effect record names - is the pack v7 was written with. Content 0.2.0 renamed the
+   plus the two effects the effect record names - is the pack v7 was written with; `content-0.1.4/` - 0.1.3 plus the
+   creature a creature record names - is the pack v8 was written with. Content 0.2.0 renamed the
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
-   and renamed the weakness. The writer packs are historical and are never edited, so they need not pass today's
+   and renamed the weakness; 0.2.5 renamed the ash hound. The writer packs are historical and are never edited, so they need not pass today's
    checks; the current pack must.
 
 ## The fixture world
@@ -63,6 +64,9 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `item.potion.healing_draught` x3 dropped | created instance in `r_0_0:c_00_08` | Schema 6: a created instance keeps its count, and the renamed potion must be renamed in the world too |
 | `container.fixture_chest`: a sword and `healing_draught` x4 | changed container in `r_0_0:c_00_09` | Schema 6: a changed container's whole contents, with identities; the potion is renamed inside it |
 | `effect.bleeding` x2 (expires tick 5100, next tick 5020); `effect.weakness` (expires 5600) | player effects | Schema 7. The weakness was **renamed** to `effect.weakened` in content 0.2.4: the rename must reach the effect record. v1-v6 migrate to none |
+| `spawn.fixture.den#0`: a grey wolf moved to (12345, 67890) mm, facing 90000, health 21, searching where it last saw its target at tick 4990 (awareness 45, search until 5110, has called) | creature record in `r_0_0:c_00_01` | Schema 8: a creature's body and mind. v1-v7 migrate to no creature records |
+| `spawn.fixture.den#1`: a corpse since tick 4800, half searched - `corpse.fixture_den.m1_g0` holds one `healing_draught` | creature record and changed container in `r_0_0:c_00_01` | Schema 8: a corpse is a creature record plus an ordinary changed container; the potion inside is renamed |
+| `spawn.fixture.ridge#0`: `creature.beast.ash_hound`, generation 2, gone since tick 4900, due back at tick 30000 | creature record in `r_0_0:c_00_02` | Schema 8. The species was **renamed** to `creature.beast.ash_ember_hound` in content 0.2.5: the rename must reach the creature record |
 
 ## Provenance
 
@@ -75,6 +79,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v5/` | The M3 schema-5 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
 | `v6/` | The M3b schema-6 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.2) |
 | `v7/` | The M3c schema-7 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.3) |
+| `v8/` | The M3d schema-8 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.4) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

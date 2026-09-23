@@ -66,8 +66,33 @@ public class CombatContentTests
         Assert.Equal("effect.weakened", constants.DeathEffect);
         Assert.Equal(60, constants.RegionWeights[BodyRegion.Torso]);
 
-        var strays = Assert.Single(setup.Spawns);
-        Assert.Equal(("spawn.hollow.valley_strays", 2, 100_000L, 105_000L), (strays.Key, strays.Count, strays.XMm, strays.ZMm));
+        var spawns = setup.Spawns.ToDictionary(s => s.Key);
+        Assert.Equal(8, spawns.Count);
+        var strays = spawns["spawn.hollow.valley_strays"];
+        Assert.Equal((2, 100_000L, 105_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
+        Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
+        Assert.Equal(new[] { "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
+        Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes
+        Assert.Equal(new[] { "ambusher", "den_guardian", "hunter", "pack_hunter", "roamer", "sentinel", "sleeper", "stray", "territorial" }, setup.Roles.Keys);
+
+        // The content bible's five archetypes, each a creature of its own with its own body and blow (§10).
+        Assert.Equal(new[]
+            {
+                "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.cave_hunting_spider", "creature.beast.wolf_grey",
+                "creature.construct.animated_armour", "creature.undead.bone_walker_husk",
+            }, setup.Creatures.Keys);
+        var hound = setup.Creatures["creature.beast.ash_ember_hound"];
+        Assert.Equal(("fire", 2_200L, 6_000L), (hound.Attack.DamageType, hound.Attack.LungeMm, hound.MoveSpeedMmPerSecond));
+        var boar = setup.Creatures["creature.beast.bristleback_boar"].Charge!;
+        Assert.Equal((9_000L, 5_000L, 14_000L, 40, 120, true), (boar.ChargeSpeedMmPerSecond, boar.ChargeMinRangeMm, boar.ReachMm, boar.StunTicks, boar.CooldownTicks, boar.ForcesStagger));
+        Assert.Equal(new WeakPoint(BodyRegion.Head, true), setup.Creatures["creature.construct.animated_armour"].WeakPoint);
+        Assert.Contains("undead", setup.Creatures["creature.undead.bone_walker_husk"].Tags);
+        Assert.Equal((6_000L, 360_000L, 14_000L), (setup.Creatures["creature.beast.cave_hunting_spider"].Senses.SightMm,
+            setup.Creatures["creature.beast.cave_hunting_spider"].Senses.FieldOfViewMdeg, setup.Creatures["creature.beast.cave_hunting_spider"].Senses.HearingMm));
+        Assert.Equal(new[] { "construct", "undead" }, setup.Effects["effect.bleeding"].ImmuneTags);
+        Assert.True(setup.Roles["ambusher"].PounceOnNoise);
+        Assert.Equal((25_000L, 140_000L, 30_000L), (wolf.Senses.SightMm, wolf.Senses.FieldOfViewMdeg, wolf.Senses.HearingMm));
+        Assert.Equal((120, 12_000L), (setup.Awareness.SearchTicks, setup.CorpseDecayTicks));
         Assert.Equal("effect.mending", setup.UseEffects["item.consumable.salve_minor"]);
         var passive = Assert.Single(setup.Passives);
         Assert.Equal(("skill.one_hand_blade", 3, "stat.stagger_power", 1.05), (passive.SkillId, passive.FromLevel, passive.Stat, passive.Multiplier));

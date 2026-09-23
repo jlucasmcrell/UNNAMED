@@ -151,8 +151,12 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
         }
-        foreach (var site in _session.Setup.Layout.Containers)
-            candidates.Add((new Focus(FocusKind.Container, site.Key, site.Key, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
+        foreach (var site in simulation.Containers.Select(c => c.Site))
+        {
+            // A corpse is searched like a chest, and named for the creature it was.
+            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId ?? site.Key;
+            candidates.Add((new Focus(FocusKind.Container, site.Key, defId, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
+        }
         foreach (var item in simulation.WorldItems)
             candidates.Add((new Focus(FocusKind.Item, item.Id.Value, item.DefId, item.XMm, item.ZMm), Distance(item.XMm, item.ZMm) - itemReach));
 

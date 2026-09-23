@@ -1,0 +1,21 @@
+id: creature.undead.bone_walker_husk
+kind: creature
+schema: 1
+display_key: creature.undead.bone_walker_husk.name
+tags: [creature, undead]
+name: Bone Walker Husk
+notes: Basic humanoid (content bible §10 - readable melee and reach). Slow, with the longest reach in the hollow behind a long, readable windup; arrows pass through bone, and it has no blood to lose.
+family: undead
+archetype: undead
+level_band: [3, 3]
+pools: { health: 55 }
+attack_set: [ability.creature.husk_slash]
+armor: { head: 2, torso: 4, limbs: 2 }
+resistances: { physical_pierce: 0.6 }
+move_speed_m_s: 2.2         # a walk the player can outpace
+turn_deg_s: 180   # a stiff, dead turn
+body_radius_m: 0.35
+xp_value: 35
+perception: { sight_m: 18, hearing_m: 20, fov_deg: 120 }
+tier_hint: A
+tameable: false

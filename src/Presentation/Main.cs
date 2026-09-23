@@ -155,6 +155,7 @@ public partial class Main : Node3D
         {
             ReadInput();
         }
+        KeepContainerInReach();
 
         // The smoke runs one tick per frame, so it finishes in a fraction of real time.
         var frame = _session.Frame(_smoke is not null ? _session.TickSeconds : delta);
@@ -239,11 +240,6 @@ public partial class Main : Node3D
             else
                 OpenInventory(null);
         }
-        // A container stays open only while it is in reach.
-        if (_inventory.OpenContainer is { } open && _session.Setup.Layout.FindContainer(open) is { } site
-            && Math.Sqrt(Math.Pow(site.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(site.ZMm - _controller.Authoritative.ZMm, 2))
-               > _session.Setup.Items.Inventory.ReachMm)
-            CloseInventory();
         if (Input.IsActionJustPressed("jump"))
             _avatar.Hop();
         if (Input.IsActionJustPressed("first_person"))
@@ -258,6 +254,18 @@ public partial class Main : Node3D
             QuickLoad();
         if (Input.IsActionJustPressed("release_mouse"))
             Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
+    /// <summary>A container stays open only while it is in reach; one that is gone (an emptied corpse) closes its column.</summary>
+    private void KeepContainerInReach()
+    {
+        if (_inventory.OpenContainer is not { } open)
+            return;
+        if (_session.Simulation!.Containers.FirstOrDefault(c => c.Site.Key == open)?.Site is not { } site)
+            _inventory.Open(null);
+        else if (Math.Sqrt(Math.Pow(site.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(site.ZMm - _controller.Authoritative.ZMm, 2))
+                 > _session.Setup.Items.Inventory.ReachMm)
+            CloseInventory();
     }
 
     private void Draw(double alpha, double delta)
@@ -276,7 +284,7 @@ public partial class Main : Node3D
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
         _creatures.Draw(simulation, alpha, delta);
-        _camera.Follow(_avatar.Position, delta);
+        _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetCrosshair(_camera.IsFirstPerson);
 
@@ -284,7 +292,9 @@ public partial class Main : Node3D
         {
             null => null,
             { Kind: FocusKind.Door } door => $"[E] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
-            { Kind: FocusKind.Container } container => $"[E] Open the {Describe(container.Key)}",
+            { Kind: FocusKind.Container } container => container.DefId == container.Key
+                ? $"[E] Open the {Describe(container.Key)}"
+                : $"[E] Search the {_session.DisplayName(container.DefId)}",
             { } item => $"[E] Pick up {_session.DisplayName(item.DefId)}",
         });
 
@@ -520,6 +530,10 @@ public partial class Main : Node3D
         if (DisplayServer.GetName() != "headless")
             Input.MouseMode = Input.MouseModeEnum.Captured;
     }
+
+    /// <summary>A container read as words; a corpse is named for the creature it was.</summary>
+    internal static string Describe(GameSession session, string key) =>
+        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
 
     /// <summary>A door or container key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
     internal static string Describe(string key) => key switch

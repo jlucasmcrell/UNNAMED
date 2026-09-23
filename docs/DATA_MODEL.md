@@ -280,6 +280,8 @@ A generic pack predator (`creature.beast.wolf_grey`, `level_band: [3, 6]`, with 
 
 **As implemented (M3c).** The prototype's wolf is level 2 (`PROTOTYPE.md` §4.1), authored as `level_band: [2, 2]`: a creature has one level until the spawner rolls within a band (M3d). Combat reads four more fields: `armor: {head, torso, limbs}` (coverage by region), `move_speed_m_s`, `body_radius_m`, and `xp_value`, the kill XP before AG-1..AG-3. Its attack is the first `attack_set` ability, which is `class: creature` (§4.7). Health stays a same-level body's: a creature is made harder by what it does, never by a larger pool (`VERTICAL_SLICE.md` §5.1).
 
+**As implemented (M3d).** `perception: { sight_m, hearing_m, fov_deg }` builds the creature's senses (`fov_deg` defaults to 120). `turn_deg_s` is how fast its body turns (default 720); `weak_point: { region, from_behind }` forces a blow from behind onto that region (the armour's open helm); `tags` are what effects test their `immunity_tags` against (`undead`, `construct`). `attack_set` gives its blow and, optionally, a charge (§4.7). `loot_table` is what its corpse holds. `behavior_profile` is not used: behaviour is a spawner-assigned role (`config.creature_behaviour`, §4.19). The five Phase-1 archetypes are the content bible's; `M3D_BEHAVIOUR_MATRIX.md` is generated from their definitions.
+
 ### 4.5 NPCDefinition — `kind: npc`
 
 ```yaml
@@ -353,6 +355,8 @@ animation_key: anim.attack.sword_heavy          # presentation binding only
 
 **Creature attacks (M3c).** A `class: creature` ability gives `range_m`, `windup_s`, `active_s` and `recovery_s` - the timing combat runs on; an animation clip is scaled so its `hit_window_start` lands on the windup's end, never the reverse - and a `payload` with one `damage` entry (`amount: [min, max]`, `damage_type`) and optionally `apply_effect` with a `chance`. The wolf's bite is `ability.creature.wolf_bite`.
 
+**Creature attacks (M3d).** `lunge_m` carries the attacker forward through the active window. `advance: true` keeps it running at its target through the windup (the hound). `cooldown_s` spaces its uses. `forces_stagger: true` knocks the target down unless guarded or dodged. `charge: { speed_m_s, min_range_m, max_distance_m, stun_s }` makes the ability a charge: after the windup the attacker runs straight at that speed, committed, until it meets the target, has run its distance, or hits something solid, which stuns it for `stun_s` (the boar).
+
 ### 4.8 StatusEffectDefinition — `kind: effect`
 
 ```yaml
@@ -373,7 +377,7 @@ immunity_tags: [construct, incorporeal]
 #       persist (default true; false for sub-second states such as effect.staggered)
 ```
 
-**As implemented (M3c).** `stack_policy` builds `refresh` and `stack_intensity`; `duration_min` and `tick_interval_min` are game minutes (`config.time`), so the wolf's bleeding is `3.0` (6 s) ticking every `0.5` (1 s). `on_tick` builds `damage` (a fixed `amount` per stack, past armor) and `heal`; `modifiers` build `stat.damage_dealt` and `stat.stamina_regen` (`multiply`) and `stat.armor` (`add`). A player's effects are saved with absolute world-tick deadlines (`PERSISTENCE.md` §5.1, schema 7). Anything else is refused by the lint (`CMB001`) until the content that needs it arrives.
+**As implemented (M3c).** `stack_policy` builds `refresh` and `stack_intensity`; `duration_min` and `tick_interval_min` are game minutes (`config.time`), so the wolf's bleeding is `3.0` (6 s) ticking every `0.5` (1 s). `on_tick` builds `damage` (a fixed `amount` per stack, past armor) and `heal`; `modifiers` build `stat.damage_dealt` and `stat.stamina_regen` (`multiply`) and `stat.armor` (`add`). A player's effects are saved with absolute world-tick deadlines (`PERSISTENCE.md` §5.1, schema 7). Anything else is refused by the lint (`CMB001`) until the content that needs it arrives. From M3d `immunity_tags` is live: an effect is refused on a creature carrying any of the tags (bleeding on `undead` and `construct`).
 
 ### 4.9 RecipeDefinition — `kind: recipe`
 
@@ -655,6 +659,8 @@ tier_hint: B                      # preferred simulation tier when unobserved (D
 
 **As implemented (M3c).** A spawner names its `region_ref`, a place (`at: { position_m: [x, z], radius_m }`) and `creatures: [{ creature_ref, count: [n, n] }]`; a fixed count is placed when a world starts, each creature where it fits, from rolls keyed by its spawner and index. `respawn`, population state and its persistence are M3d's.
 
+**As implemented (M3d).** Each `creatures` entry may give a `role` (a key of `config.creature_behaviour`'s `roles`); `route_m: [[x, z], ...]` is the route a patrolling role walks. `respawn: { kind: none }` or `{ kind: timer, window_ticks }`: a timer brings a dead member back once the window has passed and the player is past the leash from home, doubled while the cluster is AG-3-saturated. A member that differs from its baseline is saved as a creature record (`PERSISTENCE.md` §5.3, schema 8).
+
 ### 4.18 LocationDefinition — `kind: location`
 
 A named discoverable place. Feeds S-30 discovery, fast travel, and quest predicates.
@@ -716,6 +722,8 @@ level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the 
 ```
 
 
+
+`config.creature_behaviour` (M3d) holds how creatures perceive and behave: `awareness` (the suspicious level, sight gain at range and close, decay, what a heard noise and a call set, the search time), `noise_m` (how far a walk, run, sprint, swing, blow and call carry), `corpse` (`decay_s`, `stack_slots`), and the `roles` - each an `unaware` behaviour (`hold`, `wander`, `patrol`, `sleep`) with optional `territory_m`, `wander_m`, `calls_for_help`, `answers_calls`, `keep_distance_m`, `strike_within_m`, `flee_below_percent`, `sleep_hearing_percent`, `flank_m` and `pounce_on_noise`.
 
 `config.damage_constants` (M3c) holds the combat tuning: armor `k`, the share of armor a pierce ignores, criticals, region weights and multipliers, stagger threshold and immunity, the guard, the dodge, stamina costs and regeneration, health regeneration out of combat, the split of a swing into windup, active window and recovery, ranged range, bare hands, a creature's leash, and the effect a death applies.
 

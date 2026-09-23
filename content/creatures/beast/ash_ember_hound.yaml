@@ -1,0 +1,19 @@
+id: creature.beast.ash_ember_hound
+kind: creature
+schema: 1
+display_key: creature.beast.ash_ember_hound.name
+tags: [creature, beast]
+name: Ash Ember Hound
+notes: Fast predator (content bible §10 - movement, timing, pursuit). Outruns a sprint; its lunging bite is ember-hot, so no guard or armor takes it - dodge its tell.
+family: beast
+archetype: predator
+level_band: [3, 3]
+pools: { health: 35 }
+attack_set: [ability.creature.hound_lunge]
+armor: { head: 1, torso: 1, limbs: 1 }
+move_speed_m_s: 6.0         # faster than a sprint: it cannot be outrun
+body_radius_m: 0.4
+xp_value: 35
+perception: { sight_m: 30, hearing_m: 35, fov_deg: 160 }
+tier_hint: A
+tameable: false

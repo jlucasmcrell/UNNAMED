@@ -1,21 +1,16 @@
-// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, creature combatants, status effects and
-// death (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c)
+// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects and death
+// (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
-
-/// <summary>
-/// Where creatures stand when a world starts (DATA_MODEL.md §4.17's spawner, M3c's subset). Respawn, population state
-/// and its persistence are M3d's; until then every start places each site's full count.
-/// </summary>
-public sealed record SpawnSite(string Key, string CreatureId, int Count, long XMm, long ZMm, long RadiusMm);
 
 /// <summary>A skill threshold that changes a stat (DATA_MODEL.md §4.21 <c>passives</c>): from a level, the stat multiplies.</summary>
 public sealed record SkillPassive(string SkillId, int FromLevel, string Stat, double Multiplier);
@@ -31,6 +26,18 @@ public sealed record CombatSetup(
     public ImmutableSortedDictionary<string, string> UseEffects { get; init; } = ImmutableSortedDictionary.Create<string, string>(StringComparer.Ordinal);
 
     public ImmutableArray<SkillPassive> Passives { get; init; } = ImmutableArray<SkillPassive>.Empty;
+
+    /// <summary>The behaviour roles creatures play (M3d).</summary>
+    public ImmutableSortedDictionary<string, CreatureRole> Roles { get; init; } = ImmutableSortedDictionary.Create<string, CreatureRole>(StringComparer.Ordinal);
+
+    public AwarenessRules Awareness { get; init; } = new(30, 40, 200, 10, 60, 80, 120);
+
+    public NoiseRules Noise { get; init; } = new(3_000, 8_000, 16_000, 10_000, 20_000, 45_000);
+
+    /// <summary>How long a corpse lies before it is gone, looted or not.</summary>
+    public long CorpseDecayTicks { get; init; } = 12_000;
+
+    public int CorpseStackSlots { get; init; } = 8;
 
     public static CombatSetup Empty { get; } = new(new CombatConstants(),
         ImmutableSortedDictionary.Create<string, EffectDefinition>(StringComparer.Ordinal),
@@ -106,9 +113,6 @@ public enum CombatPhase
     Staggered,
 }
 
-public sealed record CreatureView(EntityId Id, string DefId, Body Body, int Health, int MaxHealth, CombatPhase Phase, int PhaseTicksLeft,
-    bool Hostile, bool Alive);
-
 /// <summary>The player in combat: what they are doing, with what, and their pools.</summary>
 public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? AttackSource, bool Blocking, AttackProfile Weapon,
     int Health, int MaxHealth, int Stamina, int MaxStamina, ImmutableArray<ActiveEffect> Effects);
@@ -121,6 +125,9 @@ internal enum ActionKind
     Attack,
     Dodge,
     Staggered,
+
+    /// <summary>A committed run: windup, then straight on until it hits, runs its distance, or meets something solid.</summary>
+    Charge,
 }
 
 /// <summary>What a body is doing, from which tick. The phases follow from the start tick; nothing counts down.</summary>
@@ -130,6 +137,12 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
 
     public static ActionState Begin(ActionKind kind, long tick, AttackProfile? attack = null, int dirX = 0, int dirZ = 0) =>
         new(kind, tick, attack, dirX, dirZ, ImmutableHashSet<EntityId>.Empty);
+
+    /// <summary>A charge's run ended on this tick (0 while it runs); recovery counts from here.</summary>
+    public long EndedTick { get; init; }
+
+    /// <summary>A stagger that lasts longer than the usual (a charger stunned against a wall); 0 takes the usual.</summary>
+    public int LastsTicks { get; init; }
 
     /// <summary>The phase at a tick. Tick <c>StartTick + 1</c> is the action's first.</summary>
     public (CombatPhase Phase, int TicksLeft) PhaseAt(long tick, CombatConstants constants)
@@ -155,9 +168,23 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
                     return (CombatPhase.Recovery, (int)(constants.DodgeTicks + constants.DodgeRecoveryTicks - elapsed));
                 break;
             case ActionKind.Staggered:
-                if (elapsed <= constants.StaggerTicks)
-                    return (CombatPhase.Staggered, (int)(constants.StaggerTicks - elapsed));
+            {
+                int lasts = LastsTicks > 0 ? LastsTicks : constants.StaggerTicks;
+                if (elapsed <= lasts)
+                    return (CombatPhase.Staggered, (int)(lasts - elapsed));
                 break;
+            }
+            case ActionKind.Charge:
+            {
+                var a = Attack!;
+                if (elapsed <= a.WindupTicks)
+                    return (CombatPhase.Windup, (int)(a.WindupTicks - elapsed));
+                if (EndedTick == 0)
+                    return (CombatPhase.Active, 0);
+                if (tick - EndedTick <= a.RecoveryTicks)
+                    return (CombatPhase.Recovery, (int)(a.RecoveryTicks - (tick - EndedTick)));
+                break;
+            }
         }
         return (CombatPhase.Idle, 0);
     }
@@ -179,13 +206,6 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
     public int StaminaMilli { get; init; }
     public int HealthMilli { get; init; }
 }
-
-/// <summary>
-/// A creature combatant. <see cref="Key"/> (<c>spawn#index</c>) is its stable name: its identity and every roll it makes
-/// derive from it, so a replay meets the same wolves. Transient in M3c; M3d saves creature state.
-/// </summary>
-internal sealed record CreatureState(EntityId Id, string Key, string SpawnKey, CreatureDefinition Definition, long HomeXMm, long HomeZMm,
-    Body Body, int Health, ActionState Action, long StaggerImmuneUntil, EntityId? Target, bool Alive);
 
 // ── internal commands ───────────────────────────────────────────────────────
 
@@ -213,7 +233,7 @@ internal sealed record Harm(EntityId Target, string Source, int Amount) : Intern
 /// <summary>To <see cref="CombatSystem"/>.</summary>
 internal sealed record Heal(EntityId Target, string Source, int Amount) : InternalCommand;
 
-/// <summary>To <see cref="CombatSystem"/>: the player respawned; the fight is over for everyone in it.</summary>
+/// <summary>To <see cref="CombatSystem"/>: the player respawned; their fight is over.</summary>
 internal sealed record EndFight : InternalCommand;
 
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
@@ -222,11 +242,10 @@ internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
 // ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Combat"/> - the player's combat state and every creature combatant. The one damage
-/// pipeline (S-12): every blow resolves through <see cref="CombatRules.Resolve"/> here, and every loss of health -
-/// blows and effect ticks alike - is applied here, where death is noticed. Creatures act only in tier-A cells. Until
-/// M3d brings perception, a creature knows only what it has felt: it turns on whoever wounds it, and gives up past its
-/// leash. There is no shared threat table and no awareness at a distance (STEALTH_DETECTION_AND_THREAT.md §1, §6).
+/// Owns: <see cref="StateSlice.Combat"/> - the player's combat state. The one damage pipeline (S-12): every blow, the
+/// player's and every creature's, resolves here through <see cref="CombatRules.Resolve"/>, and each body's owner applies
+/// what it did - the player's pools through the progression system, a creature's health through the creature system.
+/// Effect ticks enter the same way. A blow needs reach, the front arc and no wall between; timing decides when it lands.
 /// </summary>
 internal sealed class CombatSystem
 {
@@ -249,46 +268,6 @@ internal sealed class CombatSystem
     private CombatConstants C => Setup.Constants;
     private RuntimeState State => _context.State;
     private int TickMs => _context.Setup.TickMilliseconds;
-
-    /// <summary>World start: every spawn site's creatures, placed where they fit, from rolls keyed by their names.</summary>
-    public void Populate()
-    {
-        var space = _context.Setup.Layout.Space;
-        foreach (var site in Setup.Spawns)
-        {
-            var definition = Setup.Creatures[site.CreatureId];
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
-            for (int i = 0; i < site.Count; i++)
-            {
-                string key = $"{site.Key}#{i}";
-                var channel = RngChannel.Open(State.World.WorldSeed, cell, "spawn", key);
-                var others = State.Creatures.Values.Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)).ToList();
-                (long x, long z) = (site.XMm, site.ZMm);
-                for (uint sample = 0; sample < 32; sample += 2)
-                {
-                    double angle = channel.UInt64(sample) / SampleScale * 2 * Math.PI;
-                    double distance = Math.Sqrt(channel.UInt64(sample + 1) / SampleScale) * site.RadiusMm;
-                    long cx = site.XMm + (long)Math.Round(Math.Sin(angle) * distance), cz = site.ZMm + (long)Math.Round(Math.Cos(angle) * distance);
-                    if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others))
-                    {
-                        (x, z) = (cx, cz);
-                        break;
-                    }
-                }
-                int facing = (int)(channel.UInt64(40) % 360_000);
-                var body = new Body(x, space.Terrain.HeightAtMm(x, z), z, facing);
-                State.SetCreature(_owner, new CreatureState(CreatureIdentity(key), key, site.Key, definition, x, z, body, definition.MaxHealth,
-                    ActionState.Idle, 0, null, true));
-            }
-        }
-    }
-
-    /// <summary>A creature's identity from its stable name: the same wolf is the same ID on every start.</summary>
-    private static EntityId CreatureIdentity(string key)
-    {
-        using var h = new CanonicalHasher();
-        return EntityId.Create(EntityKind.Creature, 1, h.Add("unnamed.creature/v1").Add(key).FinishBytes().AsSpan(0, 10));
-    }
 
     // ── the player's commands ───────────────────────────────────────────────
 
@@ -403,8 +382,6 @@ internal sealed class CombatSystem
     public void Tick(long tick)
     {
         PlayerTick(tick);
-        foreach (var key in State.Creatures.Keys.ToList())
-            CreatureTick(key, tick);
         Vitals(tick);
     }
 
@@ -482,34 +459,36 @@ internal sealed class CombatSystem
     private bool Walled(double x0, double z0, double x1, double z1) =>
         _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
 
+    /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
     {
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
-        var result = CombatRules.Resolve(PlayerStrike(attack), defense, C, Random("player", creature.Key, creature.Body, tick));
-        int health = Math.Max(0, creature.Health - result.Final);
-        var action = creature.Action;
-        long immune = creature.StaggerImmuneUntil;
-        bool staggered = result.Staggered && health > 0 && tick >= immune;
-        if (staggered)
-        {
-            action = ActionState.Begin(ActionKind.Staggered, tick);
-            immune = tick + C.StaggerImmunityTicks;
-        }
-        // It felt the wound, so it knows who dealt it (M3c's whole perception; M3d replaces this with S-23's senses).
-        var updated = creature with { Health = health, Action = action, StaggerImmuneUntil = immune, Target = _player };
-        State.SetCreature(_owner, updated);
+        var strike = PlayerStrike(attack);
+        // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
+        if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
+            strike = strike with { ForcedRegion = weak.Region };
+        var result = CombatRules.Resolve(strike, defense, C, Random("player", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
-        _context.Events.Publish(new HitResolved(_player, "player", creature.Id, attack.Source, result.Region, result.Final,
-            result.Critical, result.Blocked, result.Dodged, staggered, health, tick));
-        if (result.EffectApplied && attack.OnHitEffect is { } effect && health > 0)
+        _context.Dispatch(new WoundCreature(creature.Id, result, attack.Source));
+        bool alive = State.Creatures.Values.Any(c => c.Id == creature.Id && c.Alive);
+        if (result.EffectApplied && attack.OnHitEffect is { } effect && alive)
             _context.Dispatch(new ApplyEffect(creature.Id, effect));
         // Weapon skill only from effective contribution: a blow that wounded something that fights back (ROADMAP.md M3c).
         if (attack.SkillId is { } skill && result.Final > 0)
             _context.Dispatch(new PracticeSkill(new SkillPractice(skill, definition.Level, PracticeOutcome.Success, tick)));
-        if (health == 0)
-            Kill(updated, tick);
+    }
+
+    /// <summary>True when the attacker stands behind the body: more than 110 degrees off its facing.</summary>
+    private static bool Behind(Body body, Body attacker)
+    {
+        double dx = attacker.XMm - body.XMm, dz = attacker.ZMm - body.ZMm;
+        double length = Math.Sqrt(dx * dx + dz * dz);
+        if (length < 1)
+            return false;
+        double facing = body.FacingMdeg / 1000.0 * Math.PI / 180;
+        return (dx * Math.Sin(facing) + dz * Math.Cos(facing)) / length < Math.Cos(110 * Math.PI / 180);
     }
 
     /// <summary>What the player brings to a blow: Might for physical blows, effects such as weakness, and skill passives.</summary>
@@ -529,123 +508,25 @@ internal sealed class CombatSystem
         return new Strike(attack, multiplier, C.BaseCritPercent, stagger);
     }
 
-    private void Kill(CreatureState creature, long tick)
+    /// <summary>
+    /// A creature's attack reached the player inside its active window (the creature system checked reach, arc and walls).
+    /// The guard holds only against what is in front of it, and only while there is stamina behind it.
+    /// </summary>
+    public string? Handle(CreatureStrike command, long tick)
     {
-        State.SetCreature(_owner, creature with { Health = 0, Alive = false, Action = ActionState.Idle, Target = null });
-        _context.Dispatch(new ClearEffects(creature.Id));
-        _context.Events.Publish(new CreatureKilled(creature.Id, creature.Definition.Id, _player, tick));
-        var definition = creature.Definition;
-        if (definition.XpValue > 0)
-        {
-            _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, definition.XpValue, tick)
-            {
-                Kill = new KillContext(definition.Id, definition.Level, creature.SpawnKey),
-            }));
-        }
-    }
-
-    // ── creatures ───────────────────────────────────────────────────────────
-
-    private void CreatureTick(EntityId id, long tick)
-    {
-        var creature = State.Creatures[id];
-        if (!creature.Alive || TierOf(creature.Body) != SimulationTier.A)
-            return;
-        var (phase, _) = creature.Action.PhaseAt(tick, C);
-        if (creature.Action.Kind != ActionKind.Idle && phase == CombatPhase.Idle)
-            creature = creature with { Action = ActionState.Idle };
-
-        var body = State.Body;
-        var attack = creature.Definition.Attack;
-        switch (phase)
-        {
-            case CombatPhase.Staggered or CombatPhase.Recovery:
-                break;
-            case CombatPhase.Windup:
-                creature = creature with { Body = creature.Body with { FacingMdeg = CombatRules.FacingTowards(creature.Body.XMm, creature.Body.ZMm, body.XMm, body.ZMm) } };
-                break;
-            case CombatPhase.Active:
-                creature = CreatureStrikes(creature, tick);
-                break;
-            default:
-                creature = Decide(creature, tick);
-                break;
-        }
-        State.SetCreature(_owner, creature);
-    }
-
-    /// <summary>At rest: chase and bite what wounded it, or give up past the leash and go home.</summary>
-    private CreatureState Decide(CreatureState creature, long tick)
-    {
-        var body = State.Body;
-        var definition = creature.Definition;
-        if (creature.Target is not null && (State.PlayerCombat.Defeated || Distance(creature.HomeXMm, creature.HomeZMm, body.XMm, body.ZMm) > C.LeashMm))
-            creature = creature with { Target = null };
-
-        if (creature.Target is null)
-        {
-            if (Distance(creature.Body.XMm, creature.Body.ZMm, creature.HomeXMm, creature.HomeZMm) <= 1_000)
-                return creature;
-            return creature with { Body = Move(creature, creature.HomeXMm, creature.HomeZMm, Gait.Walk) };
-        }
-
-        long reach = definition.Attack.ReachMm + _context.Setup.Movement.BodyRadiusMm;
-        double distance = Distance(creature.Body.XMm, creature.Body.ZMm, body.XMm, body.ZMm);
-        if (distance <= reach - 100 && !Walled(creature.Body.XMm, creature.Body.ZMm, body.XMm, body.ZMm))
-        {
-            var facing = CombatRules.FacingTowards(creature.Body.XMm, creature.Body.ZMm, body.XMm, body.ZMm);
-            _context.Events.Publish(new AttackStarted(creature.Id, definition.Attack.Source, definition.Attack.WindupTicks,
-                definition.Attack.ActiveTicks, definition.Attack.RecoveryTicks, tick));
-            return creature with { Body = creature.Body with { FacingMdeg = facing }, Action = ActionState.Begin(ActionKind.Attack, tick, definition.Attack) };
-        }
-        return creature with { Body = Move(creature, body.XMm, body.ZMm, Gait.Run) };
-    }
-
-    private Body Move(CreatureState creature, long toXMm, long toZMm, Gait gait)
-    {
-        var from = creature.Body;
-        double dx = toXMm - from.XMm, dz = toZMm - from.ZMm;
-        double length = Math.Sqrt(dx * dx + dz * dz);
-        if (length < 1)
-            return from;
-        var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
-            CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm));
-        var rules = new MovementRules(creature.Definition.MoveSpeedMmPerSecond, 50, 100, creature.Definition.RadiusMm, 0);
-        var others = new List<Blocker>(_context.ClosedDoors())
-        {
-            new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
-        };
-        others.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Id != creature.Id)
-            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
-        return Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, others, TickMs);
-    }
-
-    private CreatureState CreatureStrikes(CreatureState creature, long tick)
-    {
-        var action = creature.Action;
-        var attack = action.Attack!;
-        long elapsed = tick - action.StartTick;
+        if (State.Creatures.Values.FirstOrDefault(c => c.Id == command.Attacker) is not { Alive: true } creature)
+            return "no such attacker";
         var combat = State.PlayerCombat;
+        if (combat.Defeated)
+            return "dead";
+        var attack = command.Attack;
         var body = State.Body;
-        bool reaches = !action.Struck.Contains(_player) && !combat.Defeated
-            && CombatRules.InFront(creature.Body.XMm, creature.Body.ZMm, creature.Body.FacingMdeg, body.XMm, body.ZMm,
-                attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
-            && !Walled(creature.Body.XMm, creature.Body.ZMm, body.XMm, body.ZMm);
-        if (!reaches)
-        {
-            if (action.Struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
-                _context.Events.Publish(new AttackMissed(creature.Id, attack.Source, tick));
-            return creature;
-        }
-
-        // The guard holds only against what is in front of it, and only while there is stamina behind it.
         bool guarding = combat.Blocking
             && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
         if (guarding && Stamina() < C.BlockStaminaPerHit)
         {
             guarding = false;
-            combat = combat with { Blocking = false };
-            State.SetPlayerCombat(_owner, combat);
+            State.SetPlayerCombat(_owner, combat with { Blocking = false });
             _context.Events.Publish(new GuardBroken(_player, tick));
             StaggerPlayer(tick, force: true);
             combat = State.PlayerCombat;
@@ -659,12 +540,13 @@ internal sealed class CombatSystem
             Exert(C.BlockStaminaPerHit, tick);
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
-        bool staggered = result.Staggered && health > 0 && StaggerPlayer(tick, force: false);
+        bool knocked = attack.ForcesStagger && !result.Blocked && !result.Dodged;
+        bool staggered = (result.Staggered || knocked) && health > 0 && StaggerPlayer(tick, force: false);
         _context.Events.Publish(new HitResolved(creature.Id, creature.Definition.Id, _player, attack.Source, result.Region, result.Final,
             result.Critical, result.Blocked, result.Dodged, staggered, health, tick));
         if (result.EffectApplied && attack.OnHitEffect is { } effect && health > 0)
             _context.Dispatch(new ApplyEffect(_player, effect));
-        return creature with { Action = action with { Struck = action.Struck.Add(_player) } };
+        return null;
     }
 
     private bool StaggerPlayer(long tick, bool force)
@@ -700,26 +582,16 @@ internal sealed class CombatSystem
     private static ImmutableSortedDictionary<BodyRegion, int> WithBonus(ImmutableSortedDictionary<BodyRegion, int> armor, int bonus) =>
         bonus == 0 ? armor : Enum.GetValues<BodyRegion>().ToImmutableSortedDictionary(r => r, r => armor.GetValueOrDefault(r) + bonus);
 
-    // ── health: the one place it falls ──────────────────────────────────────
+    // ── harm that is not a blow ─────────────────────────────────────────────
 
     public string? Handle(Harm command, long tick)
     {
         if (command.Amount <= 0)
             return null;
-        if (command.Target == _player)
-        {
-            int health = LosePlayerHealth(command.Amount, command.Source, command.Source, tick);
-            _context.Events.Publish(new HealthChanged(_player, command.Source, -command.Amount, health, tick));
-            return null;
-        }
-        if (State.Creatures.GetValueOrDefault(command.Target) is not { Alive: true } creature)
-            return null;
-        int left = Math.Max(0, creature.Health - command.Amount);
-        var updated = creature with { Health = left };
-        State.SetCreature(_owner, updated);
-        _context.Events.Publish(new HealthChanged(creature.Id, command.Source, -command.Amount, left, tick));
-        if (left == 0)
-            Kill(updated, tick);   // in Phase 1 every effect on a creature is the player's doing
+        if (command.Target != _player)
+            return _context.Dispatch(new HarmCreature(command.Target, command.Source, command.Amount));
+        int health = LosePlayerHealth(command.Amount, command.Source, command.Source, tick);
+        _context.Events.Publish(new HealthChanged(_player, command.Source, -command.Amount, health, tick));
         return null;
     }
 
@@ -727,27 +599,18 @@ internal sealed class CombatSystem
     {
         if (command.Amount <= 0)
             return null;
-        if (command.Target == _player)
-        {
-            if (State.PlayerCombat.Defeated)
-                return "the dead do not heal";
-            _context.Dispatch(new ChangePools(command.Amount, 0));
-            _context.Events.Publish(new HealthChanged(_player, command.Source, command.Amount, Health(), tick));
-            return null;
-        }
-        if (State.Creatures.GetValueOrDefault(command.Target) is not { Alive: true } creature)
-            return null;
-        var healed = creature with { Health = Math.Min(creature.Definition.MaxHealth, creature.Health + command.Amount) };
-        State.SetCreature(_owner, healed);
-        _context.Events.Publish(new HealthChanged(creature.Id, command.Source, command.Amount, healed.Health, tick));
+        if (command.Target != _player)
+            return _context.Dispatch(new HealCreature(command.Target, command.Source, command.Amount));
+        if (State.PlayerCombat.Defeated)
+            return "the dead do not heal";
+        _context.Dispatch(new ChangePools(command.Amount, 0));
+        _context.Events.Publish(new HealthChanged(_player, command.Source, command.Amount, Health(), tick));
         return null;
     }
 
     public string? Handle(EndFight command)
     {
         State.SetPlayerCombat(_owner, PlayerCombat.Rested);
-        foreach (var creature in State.Creatures.Values.Where(c => c.Target == _player).ToList())
-            State.SetCreature(_owner, creature with { Target = null, Action = ActionState.Idle });
         return null;
     }
 
@@ -829,15 +692,6 @@ internal sealed class CombatSystem
 
     private ImmutableArray<ActiveEffect> EffectsOf(EntityId body) => State.Effects.GetValueOrDefault(body, ImmutableArray<ActiveEffect>.Empty);
 
-    private SimulationTier TierOf(Body body) =>
-        State.Tiers.GetValueOrDefault(CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0).ToString(), SimulationTier.D);
-
-    private static double Distance(long x0, long z0, long x1, long z1)
-    {
-        double dx = x1 - x0, dz = z1 - z0;
-        return Math.Sqrt(dx * dx + dz * dz);
-    }
-
     /// <summary>The rolls of one blow, keyed by who struck whom on which tick: the same on a replay and after a load.</summary>
     private Func<uint, double> Random(string attacker, string target, Body at, long tick)
     {
@@ -852,17 +706,6 @@ internal sealed class CombatSystem
         return new CombatView(phase, left, combat.Action.Attack?.Source, combat.Blocking, PlayerAttack(), Health(), MaxHealth(), Stamina(),
             MaxStamina(), EffectsOf(_player));
     }
-
-    public ImmutableArray<CreatureView> Creatures() =>
-        State.Creatures.Values.Select(c =>
-        {
-            var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
-            return new CreatureView(c.Id, c.Definition.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Target is not null, c.Alive);
-        }).ToImmutableArray();
-
-    /// <summary>Living creatures' bodies, which the player cannot walk through.</summary>
-    public IEnumerable<Blocker> CreatureBlockers() =>
-        State.Creatures.Values.Where(c => c.Alive).Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0));
 }
 
 /// <summary>
@@ -893,6 +736,9 @@ internal sealed class StatusEffectSystem
     {
         if (!Definitions.TryGetValue(command.EffectId, out var definition))
             return $"{command.EffectId} is not an effect this build knows";
+        // DATA_MODEL.md §4.8 immunity_tags: a bloodless body does not bleed.
+        if (_context.State.Creatures.Values.FirstOrDefault(c => c.Id == command.Target) is { } creature && definition.ImmuneTags.Overlaps(creature.Definition.Tags))
+            return $"{creature.Definition.Id} is immune to {definition.Id}";
         var current = _context.State.Effects.GetValueOrDefault(command.Target, ImmutableArray<ActiveEffect>.Empty);
         var next = EffectRules.Apply(current, definition, tick);
         _context.State.SetEffects(_owner, command.Target, next);
@@ -974,6 +820,7 @@ internal sealed class DeathSystem
         var body = new Body(spawn.XMm, spawn.YMm, spawn.ZMm, spawn.FacingMdeg);
         _context.Dispatch(new Relocate(body));
         _context.Dispatch(new EndFight());
+        _context.Dispatch(new ForgetPlayer());
         if (_context.Setup.Combat.Effects.ContainsKey(_context.Setup.Combat.Constants.DeathEffect))
             _context.Dispatch(new ApplyEffect(_player, _context.Setup.Combat.Constants.DeathEffect));
         _context.Events.Publish(new PlayerRespawned(body, tick));

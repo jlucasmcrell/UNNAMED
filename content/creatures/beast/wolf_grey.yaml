@@ -15,7 +15,7 @@ armor: { head: 1, torso: 2, limbs: 1 }   # fur
 move_speed_m_s: 4.5        # faster than a run, slower than a sprint
 body_radius_m: 0.45
 xp_value: 30
-loot_table: loot.wolf_grey # drops with corpses (M3d)
-perception: { sight_m: 25, hearing_m: 30 }   # read from M3d
+loot_table: loot.wolf_grey # its corpse holds this until searched
+perception: { sight_m: 25, hearing_m: 30, fov_deg: 140 }   # sight in a cone, hearing all round (STEALTH §2)
 tier_hint: A
 tameable: false

@@ -10,7 +10,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.4";
+    public const string ContentVersion = "0.2.5";
 
     public static string Root { get; } = FindRoot();
 
@@ -183,11 +183,34 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.Player.Effects);
         }
 
+        // Schema 8's creature records: where each is, how hurt, whether it lives; the renamed species renamed on load; the
+        // half-searched corpse is a changed container like any other. None before.
+        var creatures = loaded.World.CreaturesIn(CellKey.Parse("r_0_0:c_00_01")).Concat(loaded.World.CreaturesIn(CellKey.Parse("r_0_0:c_00_02"))).ToList();
+        if (schema >= 8)
+        {
+            Assert.Equal(new[] { "spawn.fixture.den#0", "spawn.fixture.den#1", "spawn.fixture.ridge#0" }, creatures.Select(c => c.Key));
+            Assert.Equal((CreatureCondition.Alive, 12_345L, 67_890L, 21), (creatures[0].Condition, creatures[0].XMm, creatures[0].ZMm, creatures[0].Health));
+            Assert.Equal((CreatureCondition.Corpse, 4_800L), (creatures[1].Condition, creatures[1].DiedTick));
+            Assert.Equal(("creature.beast.ash_ember_hound", CreatureCondition.Gone, 2, 30_000L),
+                (creatures[2].DefId, creatures[2].Condition, creatures[2].Generation, creatures[2].RespawnTick));   // renamed via _aliases.yaml
+            Assert.Equal("item.potion.minor_healing", Assert.Single(loaded.World.Container("corpse.fixture_den.m1_g0")!.Items).DefId);
+        }
+        else
+        {
+            Assert.Empty(creatures);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
-            >= 7 => new[]
+            >= 8 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "effect.weakness -> effect.weakened",
+                "item.potion.healing_draught -> item.potion.minor_healing x5", "location.wolf_den -> location.den_mouth",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            7 => new[]
             {
                 "effect.weakness -> effect.weakened",
                 "item.potion.healing_draught -> item.potion.minor_healing x4", "location.wolf_den -> location.den_mouth",
@@ -207,7 +230,7 @@ public class HistoricalFixtureTests
             _ => new[] { "item.potion.healing_draught -> item.potion.minor_healing" },
         };
         Assert.Equal(aliases, loaded.Report.Aliases);
-        Assert.Equal(schema switch { >= 6 => 9, >= 3 => 7, _ => 6 }, loaded.Report.CellsMatched);
+        Assert.Equal(schema switch { >= 8 => 10, >= 6 => 9, >= 3 => 7, _ => 6 }, loaded.Report.CellsMatched);
         Assert.Empty(loaded.Report.Loss);
     }
 

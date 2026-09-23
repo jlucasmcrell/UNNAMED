@@ -1,0 +1,16 @@
+id: ability.creature.boar_charge
+kind: ability
+schema: 1
+display_key: ability.creature.boar_charge.name
+tags: [ability]
+name: Charge
+notes: Head down for 0.8 s (the tell), then a straight 9 m/s run of up to 14 m that knocks down what it meets. It cannot turn; a rock in its line stuns it for 2 s.
+class: creature
+windup_s: 0.8
+recovery_s: 1.2
+cooldown_s: 6
+forces_stagger: true
+charge: { speed_m_s: 9, min_range_m: 5, max_distance_m: 14, stun_s: 2.0 }
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [12, 16] }

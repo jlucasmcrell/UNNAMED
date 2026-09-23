@@ -153,7 +153,7 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 ```jsonc
 {
   "save_format": 1,                       // CONTAINER version; never changes for small layout edits
-  "schema_version": 7,                    // GAMEPLAY STATE schema; drives the migration chain
+  "schema_version": 8,                    // GAMEPLAY STATE schema; drives the migration chain
   "content_version": "0.4.2",             // content pack version; a human label
   "content_hash": "sha256:9f3c…",         // exact identity of the compiled content pack; NOT a generation input
   "world_seed": "0x5C1A9E7B4D2F0083",     // frozen; 0 means random
@@ -232,6 +232,8 @@ A slot whose persisted state has returned to baseline is **rebased** (§5.6), no
 **Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, position, and (from schema 6) `count`. It is proven against its host cell's baseline like a slot record.
 
 **Changed world containers (schema 6).** An authored container's contents are its loot table's result, rolled from its semantic key, until the player first changes them. From then on the section's `containers` list holds its `key`, its `instance_id`, its `host_cell`, and its whole contents (`item_id`, `def_id`, `count`), proven against the host cell's baseline like a created instance. Its item definition IDs go through the definition-ID pass.
+
+**Creature records (schema 8).** A spawner's creature that differs from its baseline - moved, wounded, dead, gone, or holding a mind other than rest - is stored in the section's `creatures` list, keyed by its derived `spawner#member` key and carrying its generation (the `generation_seq` above). It records the `instance_id`, `def_id`, `host_cell` and the host cell's `baseline_hash`, the condition (`alive`, `corpse`, `gone`), position, facing, health, the tick it died and the absolute tick it is due back, and its mind: awareness, whether and where it knows its target to be, when it last saw it, its search deadline, and whether it has called. A record at baseline is not stored (§5.6); load merges on the key, so a dead creature stays dead. A corpse's contents are an ordinary changed container once the player has touched them. Definition IDs go through the definition-ID pass. Idle wander and patrol derive from the world tick, so they need no storage; an attack in its windup is transient, like the player's.
 
 ### 5.4 `buildings.msgpack` — player structures
 
@@ -337,6 +339,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 4 -> 5 | The player gains facing and discovered-location records (M3). An older save faces +Z (0) and has discovered nothing, since nothing could be discovered before M3 |
 | 5 -> 6 | The player gains equipment slots and a purse; a created instance gains its count; the entities section gains changed containers (M3b). An older save had nothing equipped, no coin, single created items and untouched containers |
 | 6 -> 7 | The player gains active status effects (M3c). An older save had none, since nothing could apply one before M3c |
+| 7 -> 8 | The entities section gains creature records (M3d). An older save has none: every creature stands at its spawner's baseline, since no creature state was saved before M3d |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

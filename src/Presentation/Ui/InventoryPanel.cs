@@ -86,7 +86,7 @@ public partial class InventoryPanel : CanvasLayer
         Clear(_container);
         if (OpenContainer is not { } open || simulation.Containers.FirstOrDefault(c => c.Site.Key == open) is not { } view)
             return;
-        _containerHeader.Text = $"{Main.Describe(open)}   {view.Items.Length} / {view.Site.StackSlots} stacks";
+        _containerHeader.Text = $"{Main.Describe(_session, open)}   {view.Items.Length} / {view.Site.StackSlots} stacks";
         foreach (var item in view.Items)
         {
             var row = Row($"{_session.DisplayName(item.DefId)}{(item.Count > 1 ? $" x{item.Count}" : "")}");

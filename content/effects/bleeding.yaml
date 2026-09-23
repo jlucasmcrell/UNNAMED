@@ -15,3 +15,4 @@ on_tick:
 modifiers:
   - { target: stat.stamina_regen, op: multiply, value: 0.8, per_stack: true }
 dispel_category: injury
+immunity_tags: [undead, construct]   # no blood, no bleeding

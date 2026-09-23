@@ -97,12 +97,12 @@ public static class M2Fixtures
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
         /// <summary>
-        /// The pack the current fixture is written with (Fixtures/content-0.1.3: 0.1.2 - itself 0.1.1 plus a region, the
-        /// place the discovery record names, and the movement and tier config a region needs - plus the two effects the
-        /// player's record names).
+        /// The pack the current fixture is written with (Fixtures/content-0.1.4: 0.1.3 - 0.1.2 plus the two effects the
+        /// player's record names - plus the creature a creature record names). 0.1.2 is 0.1.1 plus a region, the place the
+        /// discovery record names, and the movement and tier config a region needs.
         /// </summary>
-        public const string WriterContentVersion = "0.1.3";
-        public const string WriterContentHash = "sha256:b8a1d3adec7317ba3b1060761c991f46fa2880300e62c524d459a3407273b6ca";
+        public const string WriterContentVersion = "0.1.4";
+        public const string WriterContentHash = "sha256:dbe08f2997a2a90ab94a0705384ad38783e34e9e80251695c55f0faac134abc2";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -192,11 +192,30 @@ public static class M2Fixtures
             world.SetContainer(new ContainerRecord("container.fixture_chest", chest, TenCells[9].ToString(), ImmutableArray.Create(
                 new ContainerItem(blade, "item.weapon.iron_sword", 1),
                 new ContainerItem(potions, "item.potion.healing_draught", 4))));
+            // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half
+            // searched (its body is a changed container); one gone, of a renamed species, two generations on and due back.
+            world.SetCreature(new CreatureRecord("spawn.fixture.den#0", "creature.beast.wolf_grey", Creature(1), TenCells[1].ToString(), 0,
+                CreatureCondition.Alive, 12_345, 67_890, 90_000, 21, 0, 0)
+            {
+                // It lost sight of its target at tick 4990 and is searching where it last saw it.
+                Mind = CreatureMind.Searching, Awareness = 45, Knows = true, KnownXMm = 13_000, KnownZMm = 70_000, LastSeenTick = 4_990,
+                SearchUntil = 5_110, HasCalled = true,
+            });
+            world.SetCreature(new CreatureRecord("spawn.fixture.den#1", "creature.beast.wolf_grey", Creature(2), TenCells[1].ToString(), 0,
+                CreatureCondition.Corpse, 14_000, 66_000, 180_000, 0, 4_800, 0));
+            var corpse = registry.CreateEntity(DefinitionId.Parse("corpse.fixture_den.m1_g0"), EntityKind.Container).InstanceId;
+            var meat = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
+            world.SetContainer(new ContainerRecord("corpse.fixture_den.m1_g0", corpse, TenCells[1].ToString(), ImmutableArray.Create(
+                new ContainerItem(meat, "item.potion.healing_draught", 1))));
+            world.SetCreature(new CreatureRecord("spawn.fixture.ridge#0", "creature.beast.ash_hound", Creature(3), TenCells[2].ToString(), 2,
+                CreatureCondition.Gone, 20_000, 30_000, 0, 0, 4_900, 30_000));
             return world;
         }
 
-        public const string CurrentContentVersion = "0.2.4";
-        public const string CurrentContentHash = "sha256:98722011aa383b652d380f8f24c5abd5d36a603863ddbdd4bff1782ee34de193";
+        private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
+
+        public const string CurrentContentVersion = "0.2.5";
+        public const string CurrentContentHash = "sha256:54bf471b866573cb5b8447189c1ec2386d39611a152be2d8643f3562327d7a8c";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -207,7 +226,8 @@ public static class M2Fixtures
             new[]
             {
                 "config.base_speeds", "config.simulation_tiers",
-                "creature.beast.deer", "creature.beast.wolf_grey", "effect.bleeding", "effect.weakened", "item.potion.minor_healing",
+                "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "effect.bleeding", "effect.weakened",
+                "item.potion.minor_healing",
                 "item.weapon.iron_sword",
                 "location.den_mouth", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics", "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",
@@ -218,6 +238,7 @@ public static class M2Fixtures
                 ["spell.ember.firebolt"] = "spell.ember.bolt",
                 ["location.wolf_den"] = "location.den_mouth",
                 ["effect.weakness"] = "effect.weakened",
+                ["creature.beast.ash_hound"] = "creature.beast.ash_ember_hound",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

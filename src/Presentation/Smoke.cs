@@ -76,8 +76,9 @@ public sealed class Smoke
 
         if (!_swung)
         {
-            if (_session.Simulation!.Creatures.Count(c => c.Alive) != 2)
-                return Fail($"expected the two valley strays, found {_session.Simulation.Creatures.Length} creatures");
+            int spawned = _session.Setup.Combat.Spawns.Sum(s => s.Members.Length);
+            if (_session.Simulation!.Creatures.Count(c => c.Alive) != spawned)
+                return Fail($"expected the {spawned} creatures the spawners place, found {_session.Simulation.Creatures.Count(c => c.Alive)} alive");
             _controller.Attack();
             _swung = true;
             return null;
@@ -95,7 +96,8 @@ public sealed class Smoke
             || !after.Doors.Single(d => d.Site.Key == "door.longhouse").Open)
             return Fail($"the quicksave did not load back to the same state (digest {after.StateDigest()} vs {digest}, tick {after.WorldTick} vs {tick})");
 
-        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, door opened, a swing ran and missed, save/load digest {digest[..23]}... identical");
+        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, {after.Creatures.Length} creatures placed, door opened, " +
+                 $"a swing ran and missed, save/load digest {digest[..23]}... identical");
         Cleanup();
         return 0;
     }
