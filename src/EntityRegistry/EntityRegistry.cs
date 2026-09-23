@@ -34,7 +34,6 @@ public sealed class EntityRegistry
     private readonly Dictionary<EntityId, EntityInstance> _instances = new();
     private readonly Dictionary<DefinitionId, List<EntityId>> _definitionInstances = new();
     private readonly HashSet<EntityId> _deadEntities = new();
-    private long _nextOrdinal = 0; // For deterministic ordinal assignment
 
     /// <summary>
     /// Create a new entity instance with a unique ULID.
@@ -67,31 +66,22 @@ public sealed class EntityRegistry
     }
 
     /// <summary>
-    /// Create a new entity instance with a random ULID.
+    /// Create a new entity instance of an explicit kind, with a fresh instance ID.
     /// </summary>
-    /// <param name="definitionId">The definition this entity is an instance of</param>
-    /// <returns>The created entity instance</returns>
-    public EntityInstance CreateEntity(DefinitionId definitionId)
-    {
-        var instanceId = EntityId.NewId();
-        return CreateEntity(definitionId, instanceId);
-    }
+    public EntityInstance CreateEntity(DefinitionId definitionId, EntityKind kind) =>
+        CreateEntity(definitionId, EntityId.NewId(kind));
 
     /// <summary>
-    /// Create an entity instance with a deterministic ordinal (for baseline generation).
+    /// Create a new entity instance whose kind follows from its definition (item, creature, npc,
+    /// quest). Any other instance category must be created with an explicit <see cref="EntityKind"/>.
     /// </summary>
-    /// <param name="definitionId">The definition this entity is an instance of</param>
-    /// <param name="ordinal">The deterministic ordinal for this instance</param>
-    /// <returns>The created entity instance</returns>
-    public EntityInstance CreateEntityWithOrdinal(DefinitionId definitionId, long ordinal)
+    public EntityInstance CreateEntity(DefinitionId definitionId)
     {
-        // For deterministic baseline, we use the ordinal as part of the ULID
-        // This allows reproducible entity generation from baseline
-        var timestamp = GetUnixTimeMilliseconds();
-        // Generate deterministic random from ordinal using EntityId's deterministic method
-        var randomBytes = EntityId.GenerateDeterministicRandomBytes(timestamp, (int)ordinal);
-        var instanceId = EntityId.FromTimestampAndRandom(timestamp, randomBytes);
-        return CreateEntity(definitionId, instanceId);
+        if (!EntityKinds.TryInferFromDefinition(definitionId, out var kind))
+            throw new ArgumentException(
+                $"Cannot infer an instance kind from '{definitionId}'; pass an EntityKind explicitly",
+                nameof(definitionId));
+        return CreateEntity(definitionId, kind);
     }
 
     /// <summary>
@@ -205,26 +195,7 @@ public sealed class EntityRegistry
             _instances.Clear();
             _definitionInstances.Clear();
             _deadEntities.Clear();
-            _nextOrdinal = 0;
         }
-    }
-
-    /// <summary>
-    /// Get the current ordinal counter (for deterministic generation).
-    /// </summary>
-    internal long NextOrdinal => _nextOrdinal;
-
-    /// <summary>
-    /// Increment the ordinal counter.
-    /// </summary>
-    internal void IncrementOrdinal() => _nextOrdinal++;
-
-    /// <summary>
-    /// Get the Unix timestamp in milliseconds since epoch.
-    /// </summary>
-    private static long GetUnixTimeMilliseconds()
-    {
-        return DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
     }
 }
 

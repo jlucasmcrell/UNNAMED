@@ -111,18 +111,18 @@ public class EntityRegistryTests
     }
 }
 
-public class EntityIdDebugTests
+public class EntityIdTests
 {
     [Fact]
     public void NewId_HasTimestampComponent()
     {
         // ULID timestamp has millisecond precision, so we need to wait between calls
         System.Threading.Thread.Sleep(1);
-        
-        var id1 = EntityId.NewId();
+
+        var id1 = EntityId.NewId(EntityKind.Item);
         System.Threading.Thread.Sleep(1);
-        var id2 = EntityId.NewId();
-        
+        var id2 = EntityId.NewId(EntityKind.Item);
+
         // ULIDs should be lexicographically sortable
         // id2 was created after id1, so id2 > id1
         Assert.True(id2 > id1, $"id2 ({id2}) should be greater than id1 ({id1})");
@@ -131,24 +131,75 @@ public class EntityIdDebugTests
     [Fact]
     public void ULID_EncodeDecode_Roundtrip()
     {
-        var original = EntityId.NewId();
+        var original = EntityId.NewId(EntityKind.Creature);
         var encoded = original.ToString();
         var decoded = EntityId.Parse(encoded);
-        
+
         Assert.Equal(original, decoded);
+        Assert.Equal(EntityKind.Creature, decoded.Kind);
     }
 
     [Fact]
-    public void Parse_ValidULID_ParsesCorrectly()
+    public void Parse_ValidId_ParsesCorrectly()
     {
-        var id = EntityId.Parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
-        Assert.Equal("01ARZ3NDEKTSV4RRFFQ69G5FAV", id.ToString());
+        var id = EntityId.Parse("itm_01ARZ3NDEKTSV4RRFFQ69G5FAV");
+        Assert.Equal("itm_01ARZ3NDEKTSV4RRFFQ69G5FAV", id.ToString());
+        Assert.Equal(EntityKind.Item, id.Kind);
+        Assert.Equal("01ARZ3NDEKTSV4RRFFQ69G5FAV", id.Ulid);
     }
 
     [Fact]
-    public void TryParse_InvalidULID_ReturnsFalse()
+    public void TryParse_InvalidId_ReturnsFalse()
     {
         Assert.False(EntityId.TryParse("invalid-ulid", out _));
+        Assert.False(EntityId.TryParse("01ARZ3NDEKTSV4RRFFQ69G5FAV", out _));       // no prefix (D-04)
+        Assert.False(EntityId.TryParse("xyz_01ARZ3NDEKTSV4RRFFQ69G5FAV", out _));   // unknown prefix
+        Assert.False(EntityId.TryParse("itm_81ARZ3NDEKTSV4RRFFQ69G5FAV", out _));   // > 128 bits
+        Assert.False(EntityId.TryParse("itm_01ARZ3NDEKTSV4RRFFQ69G5FAU", out _));   // 'U' is not Crockford
+        Assert.False(EntityId.TryParse(null, out _));
+    }
+
+    [Fact]
+    public void Create_EncodesCanonicalUlid()
+    {
+        // Vector computed independently of this code: the ULID specification's own example.
+        byte[] random = Convert.FromHexString("d6764c61efb99302bd5b");
+        var id = EntityId.Create(EntityKind.Item, 1469922850259, random);
+
+        Assert.Equal("itm_01ARZ3NDEKTSV4RRFFQ69G5FAV", id.Value);
+        Assert.Equal(1469922850259, id.Timestamp);
+    }
+
+    [Fact]
+    public void NewId_FollowsD04Format()
+    {
+        var id = EntityId.NewId(EntityKind.Container);
+
+        Assert.StartsWith("cnt_", id.Value);
+        Assert.Equal(4 + EntityId.UlidLength, id.Value.Length);
+        Assert.InRange(id.Ulid[0], '0', '7');
+        Assert.Equal(id.Ulid, id.Ulid.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void Parse_AcceptsLowercaseUlid_AndNormalizes()
+    {
+        var id = EntityId.Parse("npc_01arz3ndektsv4rrffq69g5fav");
+        Assert.Equal("npc_01ARZ3NDEKTSV4RRFFQ69G5FAV", id.Value);
+    }
+
+    [Fact]
+    public void Equality_IsByValue_AndNullSafe()
+    {
+        var a = EntityId.Parse("itm_01ARZ3NDEKTSV4RRFFQ69G5FAV");
+        var b = EntityId.Parse("itm_01ARZ3NDEKTSV4RRFFQ69G5FAV");
+        EntityId? none = null;
+
+        Assert.True(a == b);
+        Assert.False(a != b);
+        Assert.False(a == none);
+        Assert.True(none == default);   // the comparison that threw NullReferenceException in M1
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
     }
 
     [Fact]
@@ -157,9 +208,32 @@ public class EntityIdDebugTests
         var registry = new HashSet<EntityId>();
         for (int i = 0; i < 1000; i++)
         {
-            var id = EntityId.NewId();
+            var id = EntityId.NewId(EntityKind.Item);
             Assert.True(registry.Add(id), $"Duplicate ID generated: {id}");
         }
+    }
+
+    [Fact]
+    public void KindInference_CoversOnlyUnambiguousContentKinds()
+    {
+        Assert.True(EntityKinds.TryInferFromDefinition(DefinitionId.Parse("item.weapon.iron_sword"), out var k1));
+        Assert.Equal(EntityKind.Item, k1);
+        Assert.True(EntityKinds.TryInferFromDefinition(DefinitionId.Parse("creature.beast.wolf_grey"), out var k2));
+        Assert.Equal(EntityKind.Creature, k2);
+        Assert.False(EntityKinds.TryInferFromDefinition(DefinitionId.Parse("node.ore.iron_vein"), out _));
+    }
+
+    [Fact]
+    public void Registry_RequiresExplicitKind_WhenDefinitionIsAmbiguous()
+    {
+        var registry = new EntityRegistry();
+        var chest = DefinitionId.Parse("item.container.oak_chest");
+
+        Assert.Throws<ArgumentException>(() => registry.CreateEntity(DefinitionId.Parse("node.ore.iron_vein")));
+
+        var asContainer = registry.CreateEntity(chest, EntityKind.Container);
+        Assert.Equal(EntityKind.Container, asContainer.InstanceId.Kind);
+        Assert.StartsWith("cnt_", asContainer.InstanceId.Value);
     }
 
     [Fact]
