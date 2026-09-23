@@ -55,3 +55,24 @@ obj/
 # OS junk
 Thumbs.db
 .DS_Store
+
+# ============================================
+# Debugging debris - remove after recovery
+# ============================================
+temp_test/
+test_definition_id.cs
+test_definition_id.csproj
+EntityIdDebugTest.cs
+SimpleTest.cs
+/assets/concepts
+/assets
+
+# ============================================
+# Large binaries - kept out of history
+# ============================================
+# Godot engine executables (the 181 MB exe exceeds GitHub's 100 MB file limit)
+tools/godot/
+# Generated models, textures and import sidecars for the validation harness
+tools/godot_validate/assets/
+# dotnet test output
+TestResults/
