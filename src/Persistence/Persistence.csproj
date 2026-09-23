@@ -4,14 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>UNNAMED.Persistence</RootNamespace>
+    <AssemblyName>UNNAMED.Persistence</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="3.1.9" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\EntityRegistry\EntityRegistry.csproj" />
+    <ProjectReference Include="..\World\World.csproj" />
   </ItemGroup>
 
 </Project>
