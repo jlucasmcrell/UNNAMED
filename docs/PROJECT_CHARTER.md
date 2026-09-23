@@ -1106,7 +1106,7 @@ Then move on.
 
 Create a tiny playable world containing:
 
-* first-person movement
+* third-person movement with seamless zoom into first person
 * interaction
 * one small wilderness region
 * one small settlement

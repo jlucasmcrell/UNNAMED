@@ -166,7 +166,7 @@ The prototype's loop is a *horizontal* version of the final game's explore → f
 
 | Step | Player action | Systems touched | State written |
 |---|---|---|---|
-| 1 | Spawns at the outpost gate, first-person, sword equipped, no marker on screen | presentation bootstrap, `EquipmentSystem`, journal | save manifest created on first autosave |
+| 1 | Spawns at the outpost gate in the default third-person view, sword equipped, no marker on screen | presentation bootstrap, `EquipmentSystem`, journal | save manifest created on first autosave |
 | 2 | Walks into the longhouse, reads the journal's one line of direction | `InteractionSystem`, dialogue | — |
 | 3 | Talks to Halda; picks **1 of 2** opening replies | `DialogueSystem`, `QuestSystem` (O1) | conversation node visited, quest accepted |
 | 4 | Reads journal: *"the den is northwest, up the rock shelf above the stream."* Walks out. No waypoint. | journal only | — |
@@ -237,7 +237,7 @@ The Domain `.csproj` has **no Godot package reference**. A presentation type use
 | Content validation pass (D-03) | `godot --headless --script res://tools/validate_content.cs` — every definition parses against its C# schema; every referenced ID resolves; every location/creature/item ID used in a quest or loot table exists. Failure prints `file:line`. | Every commit |
 | Boot smoke | `godot --headless --quit-after 300` — project boots, content loads, a headless world is constructed, no errors in the log. | Every commit |
 | View-subscription test | Headless: subscribe a stub view to the event bus, run a scripted 200-command session, assert the view saw exactly the events it should and wrote nothing. (D-11 enforcement.) | Every commit |
-| Frame budget | Windowed run, scripted camera path through the hollow, log frame times. Target: ≥ 60 fps at 1080p on the baseline machine (DECISIONS open question 2 default). | Weekly |
+| Frame budget | Windowed run, scripted camera path through the hollow in the third-person view, the first-person view and a camera-obstruction path; record CPU and GPU frame times, 1% lows, RAM/VRAM and hitches. Target: a sustained ≥ 60 fps at 1080p on the baseline machine, RAZER's RTX 4070 Ti with OBS, H3 and other significant GPU workloads stopped (DECISIONS open question 2; owner ruling, 2026-09-23). | Weekly |
 | Input→command latency | Instrumented: timestamp input, timestamp domain event. Budget ≤ 1 frame + 8 ms. | Weekly |
 
 ### 6.4 Which of the charter's mandatory tests are in scope
@@ -349,7 +349,7 @@ Why it is first:
 | P3 | Command bus + event bus + one command end-to-end (`MovePlayer`) with a stub view | C3, C4, D-02 proven |
 | P4 | Sparse-delta save/load of the *unchanged* world, then of a changed cell | C2, D-05 proven |
 | P5 | **The vertical thread:** one item, one node, one wolf, one command each for gather/kill/loot/equip → save → load, all headless | C1–C5 |
-| P6 | Godot presentation shell: first-person controller, one view per system, content-driven spawn | D-11 proven under real input latency |
+| P6 | Godot presentation shell: one full-body third-person controller with seamless first-person zoom, one view per system, content-driven spawn | D-11 proven under real input latency |
 | P7 | Breadth: the remaining 14 items, 3 spells, 2 recipes, 1 quest, 3 NPCs, 1 companion | §4 complete |
 | P8 | Death, XP/level, skills, techniques | §7.3 |
 | P9 | Acceptance run per §7.3 and §7.4, recorded | §9 |
@@ -367,7 +367,7 @@ The prototype is **done** when, and only when:
 1. All §7.1 and §7.2 criteria pass in CI; all §7.3 criteria pass in a recorded fresh-session run.
 2. §7.4 passes field-by-field, recorded as a diff of expected vs. actual world-state dump.
 3. No §7.5 anti-criterion is true.
-4. The build runs at ≥ 60 fps on the scripted camera path on the baseline machine.
+4. The build runs at a sustained ≥ 60 fps at 1080p on the scripted camera path on the baseline machine (RAZER's RTX 4070 Ti, clean of other GPU workloads).
 5. A `README.md` **written during Phase 1, not Phase 0** states how to build, run the headless tests, run the content validator, and play the prototype in under one page — because the next session is an AI session that must resume without asking. (At the end of Phase 0 no such file exists anywhere in the repository and none is expected: `G:\UNNAMED` contains only `docs\`.)
 6. A single recorded (video or log) **10-minute scripted playthrough** exists that a third party can replay step-by-step to the same end state.
 

@@ -14,7 +14,7 @@ A powerful character should be hard to kill because they are skilled, prepared, 
 
 Target:
 
-**first-person action combat with meaningful timing and positioning, without becoming a mandatory hardcore medieval-combat simulator.**
+**action combat with meaningful timing and positioning, the same at every camera distance from the over-the-shoulder view to first person, without becoming a mandatory hardcore medieval-combat simulator.**
 
 Player skill and character skill both matter.
 

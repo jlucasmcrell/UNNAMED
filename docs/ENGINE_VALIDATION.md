@@ -1,11 +1,12 @@
 # OTHERREACH — Godot Engine Validation Spike
 
 **Status:** Required evidence checkpoint before deep 3D commitment  
+**Phase 1 (owner ruling, 2026-09-23):** the gate is the PROTOTYPE greybox scene at a sustained 1080p / 60 FPS on RAZER's RTX 4070 Ti (`RISK_REGISTER.md` `RK-02`). The fully dressed stress scene below is later work.  
 **Target timing:** After foundational M2/M2b/M2c work and before or at the very beginning of major M3 world/presentation expansion
 
 ## 1. Why this exists
 
-Otherreach is systems-heavy but also intends a large, dense first-person 3D world.
+Otherreach is systems-heavy but also intends a large, dense 3D world, seen from a full-body third-person view with seamless zoom into first person.
 
 Godot remains the working engine, but the decision should be validated with representative load rather than internet reputation or optimism.
 
