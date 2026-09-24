@@ -81,6 +81,9 @@ WHOLE_DIRS = [
     ("sockets", os.path.join(ASSETS, "sockets")),
     ("vfx", os.path.join(ASSETS, "vfx")),
     ("ui", os.path.join(ASSETS, "ui")),
+    # The ten Phase-1 world materials, with their base colour, normal, ORM, `.tres` and metadata.
+    # Absent from the first snapshot, which predated the material pass entirely.
+    ("materials", os.path.join(ASSETS, "materials")),
 ]
 
 # Per-asset trees, keyed by the directory that holds them.
@@ -100,13 +103,22 @@ SUPERSEDED_DIRS = [
     "ashen_hollow_landmarks", "ash_haft_concept", "assembly_wip", "bible_batch_prescale",
     "boar_reconstruction", "kal_prescale", "reconstruction_failed", "rigged_prescale",
     "semantic_dimensions", "vfx_ember_ward_mend",
+    # The pre-regrade base colours. These are the *only* copy of the originals - the weathering grade
+    # overwrote the live files and archived them here - so leaving them out would make the grade
+    # irreversible if anything happened to the working tree.
+    "materials_pre_weather",
+    # The assembly manifest as it stood before the declared/assembled split.
+    "kit_assemblies_prev",
+    # The two buildings as they stood before the roof self-intersection was fixed.
+    "roof_layout_v2",
+    "ui_icons_26slot",
 ]
 
 # Animation is small and entirely Phase-1 relevant.
 ANIMATION_DIRS = ["clips", "ready", "source"]
 
 # Review renders: the judgement images, not the whole 800 MB review tree.
-REVIEW_SUBDIRS = [os.path.join("bible_batch", ""), "ui", "vfx"]
+REVIEW_SUBDIRS = [os.path.join("bible_batch", ""), "ui", "vfx", "buildings", "npc_anim"]
 
 # Single files worth taking.
 SINGLE_FILES = [
@@ -119,6 +131,15 @@ SINGLE_FILES = [
     os.path.join(DOCS, "PHASE1_AUDIO_PROVENANCE.md"),
     os.path.join(DOCS, "PHASE1_AUDIO_EVENT_CONTRACT.md"),
     os.path.join(DOCS, "SCALE_AUDIT_REPORT.md"),
+    # Written during the maintenance pass. These are the record of what was changed and why; a
+    # snapshot of the artefacts without them loses the reasoning.
+    os.path.join(DOCS, "ASSET_PIPELINE_CHECKPOINT_2026-09-24.md"),
+    os.path.join(DOCS, "ASSET_MATERIAL_PASS_2026-09-24.md"),
+    os.path.join(DOCS, "ASSET_NPC_ANIMATION_GAP.md"),
+    os.path.join(DOCS, "ASSET_KNOWN_LIMITATIONS.md"),
+    os.path.join(DOCS, "ASSET_AUDIO_REGENERATION_REQUIRED.md"),
+    os.path.join(DOCS, "ASSET_PROMPT_RISK_AUDIT.md"),
+    os.path.join(DOCS, "SKELETON_CONTRACT_RECONCILIATION.md"),
 ]
 
 
