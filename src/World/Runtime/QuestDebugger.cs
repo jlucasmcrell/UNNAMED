@@ -72,9 +72,11 @@ internal sealed class QuestDebugger
     private readonly Func<string, WaresView?> _wares;
     private readonly Func<ImmutableArray<ContainerView>> _containers;
     private readonly Func<ImmutableArray<CreatureView>> _creatures;
+    private readonly Func<ImmutableArray<WorldItemView>> _worldItems;
 
     public QuestDebugger(SystemContext context, QuestSystem quests, DialogueSystem dialogue, Func<ImmutableArray<NodeView>> nodes,
-        Func<string, WaresView?> wares, Func<ImmutableArray<ContainerView>> containers, Func<ImmutableArray<CreatureView>> creatures)
+        Func<string, WaresView?> wares, Func<ImmutableArray<ContainerView>> containers, Func<ImmutableArray<CreatureView>> creatures,
+        Func<ImmutableArray<WorldItemView>> worldItems)
     {
         _context = context;
         _quests = quests;
@@ -83,6 +85,7 @@ internal sealed class QuestDebugger
         _wares = wares;
         _containers = containers;
         _creatures = creatures;
+        _worldItems = worldItems;
     }
 
     private RuntimeState State => _context.State;
@@ -187,11 +190,20 @@ internal sealed class QuestDebugger
                 break;
             case AcquireItem a:
             {
-                var sources = Sources(a.ItemId, out bool anyNow).ToList();
+                // Any of the counted items will do: the item, or what it is made into (or_item_refs).
+                var counted = a.OrItems.Prepend(a.ItemId).ToList();
+                var sources = new List<string>();
+                bool anyNow = false;
+                foreach (string item in counted)
+                {
+                    var found = Sources(item, out bool now, 0);
+                    anyNow |= now;
+                    sources.AddRange(counted.Count == 1 ? found : found.Select(s => $"{item}: {s}"));
+                }
                 foreach (string source in sources)
                     yield return source;
-                if (!anyNow && _quests.Carried(a.ItemId, a.QualityMin) < a.Count)
-                    problems.Add($"nothing in this world can supply {a.ItemId} now" + (sources.Count == 0 ? " (content has no source for it)" : ""));
+                if (!anyNow && counted.Sum(item => _quests.Carried(item, a.QualityMin)) < a.Count)
+                    problems.Add($"nothing in this world can supply {string.Join(" or ", counted)} now" + (sources.Count == 0 ? " (content has no source for it)" : ""));
                 break;
             }
             case CraftItem c:
@@ -298,8 +310,11 @@ internal sealed class QuestDebugger
             yield return $"set when {quest.Id} completes";
     }
 
-    /// <summary>Where an item can come from now: nodes, recipes, traders, containers, conversations.</summary>
-    private IEnumerable<string> Sources(string itemId, out bool anyNow)
+    /// <summary>
+    /// Where an item can come from now: nodes, recipes whose inputs can be had, traders, containers, the ground, conversations. A recipe
+    /// is a way now only when the character knows it and every input is carried or can itself be had now.
+    /// </summary>
+    private List<string> Sources(string itemId, out bool anyNow, int depth)
     {
         var sources = new List<string>();
         bool now = false;
@@ -310,8 +325,14 @@ internal sealed class QuestDebugger
         }
         foreach (var recipe in Setup.Crafting.Recipes.Values.Where(r => r.OutputItemId == itemId))
         {
-            now |= Domain.Progression.ProgressionEngine.Knows(State.Progression, recipe.Id);
+            now |= Domain.Progression.ProgressionEngine.Knows(State.Progression, recipe.Id) && depth < 4
+                   && recipe.Inputs.All(input => _quests.Carried(input.ItemId, Quality.Crude) >= input.Count || Obtainable(input.ItemId, depth + 1));
             sources.Add("make it: " + Recipe(recipe));
+        }
+        foreach (var item in _worldItems().Where(i => i.DefId == itemId))
+        {
+            now = true;
+            sources.Add($"{item.Count} lying on the ground at ({Point(item.XMm, item.ZMm)})");
         }
         foreach (var npc in Setup.Social.Npcs.Values.Where(n => n.MerchantId is not null))
         {
@@ -344,6 +365,12 @@ internal sealed class QuestDebugger
         }
         anyNow = now;
         return sources;
+    }
+
+    private bool Obtainable(string itemId, int depth)
+    {
+        Sources(itemId, out bool now, depth);
+        return now;
     }
 
     /// <summary>Whether a loot table, or one it nests, can drop the item.</summary>

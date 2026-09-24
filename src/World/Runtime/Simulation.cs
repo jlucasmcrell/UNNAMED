@@ -134,7 +134,7 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
-        _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views);
+        _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);

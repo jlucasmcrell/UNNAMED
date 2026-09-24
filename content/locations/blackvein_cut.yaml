@@ -3,11 +3,11 @@ kind: location
 schema: 1
 display_key: location.blackvein_cut.name
 tags: [location]
-notes: "The old quarry with the iron seam - the content bible's Cell C (§7). Discovered past the upper overlook, on the way down to the floor. Was location.iron_shelf, the M3 layout's rock shelf."
+notes: "The old quarry with the iron seam - the content bible's Cell C (§7). Discovered on entering the quarry: its anchor is the middle of the quarry floor and its radius takes in the whole floor, the seam on the west side, the upper overlook and the rim, so no way into the quarry reaches the seam unseen (the Phase-1 technical audit, C-01; M6 had the overlook (54, 74) with 20 m, which a walk down the west slope to the seam passed by). Was location.iron_shelf, the M3 layout's rock shelf."
 name: Blackvein Cut
 region_ref: region.ashen_hollow
-anchor: { world: [54.0, 0.0, 74.0] }          # exact placement, metres; height comes from the terrain
+anchor: { world: [38.0, 0.0, 48.0] }          # exact placement, metres; height comes from the terrain
 kind_of_place: landmark
-discovery: { methods: [visited], radius_m: 20, xp: 25 }
+discovery: { methods: [visited], radius_m: 38, xp: 25 }
 map: { reveals_radius_m: 40, marker: none }   # no quest markers (charter §3)
 fast_travel: { node: false }
