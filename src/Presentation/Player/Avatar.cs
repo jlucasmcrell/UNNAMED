@@ -36,6 +36,9 @@ public partial class Avatar : Node3D
         new StandardMaterial3D { AlbedoColor = new Color(0.6f, 0.75f, 1f), EmissionEnabled = true, Emission = new Color(0.4f, 0.6f, 1f) },
         new Vector3(0, -0.34f, 0.04f));
     private CombatStance _stance = CombatStance.AtRest;
+
+    /// <summary>What the body and sleeves are made of; set before the figure enters the tree (an NPC's own clothes, M4).</summary>
+    public StandardMaterial3D Clothing { get; init; } = Palette.Cloth;
     private double _phase;
     private double _jumpTime = -1;
     private float _yaw;
@@ -45,7 +48,7 @@ public partial class Avatar : Node3D
     public override void _Ready()
     {
         AddChild(_hips);
-        _hips.AddChild(Part(new CapsuleMesh { Radius = 0.17f, Height = 0.62f }, Palette.Cloth, new Vector3(0, 0.28f, 0)));
+        _hips.AddChild(Part(new CapsuleMesh { Radius = 0.17f, Height = 0.62f }, Clothing, new Vector3(0, 0.28f, 0)));
         var head = Part(new SphereMesh { Radius = 0.12f, Height = 0.26f }, Palette.Skin, new Vector3(0, 0.68f, 0.01f));
         _hips.AddChild(head);
         // A nose, so facing reads in greybox.
@@ -64,7 +67,7 @@ public partial class Avatar : Node3D
         foreach (var (shoulder, elbow) in new[] { (_leftShoulder, _leftElbow), (_rightShoulder, _rightElbow) })
         {
             _hips.AddChild(shoulder);
-            shoulder.AddChild(Part(new CapsuleMesh { Radius = 0.055f, Height = 0.32f }, Palette.Cloth, new Vector3(0, -0.15f, 0)));
+            shoulder.AddChild(Part(new CapsuleMesh { Radius = 0.055f, Height = 0.32f }, Clothing, new Vector3(0, -0.15f, 0)));
             shoulder.AddChild(elbow);
             elbow.AddChild(Part(new CapsuleMesh { Radius = 0.05f, Height = 0.3f }, Palette.Skin, new Vector3(0, -0.14f, 0)));
         }

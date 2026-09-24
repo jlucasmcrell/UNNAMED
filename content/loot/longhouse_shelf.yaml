@@ -1,9 +1,0 @@
-id: loot.longhouse_shelf
-kind: loot
-schema: 1
-display_key: loot.longhouse_shelf.name
-tags: [loot]
-notes: The longhouse shelf (M3e) - the Resonance Primer, until the archivist hands it over in person (content bible, M4).
-rolls: 0
-guaranteed:
-  - { item_ref: item.tome.resonance_primer, count_range: [1, 1] }

@@ -182,6 +182,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Container records and their item placements; contents of world containers that changed from baseline.
 - **Transient.** UI-side sorted views, cached weight totals.
 - **Events/interfaces.** `Transfer(itemId, fromContainer, toContainer, count) → TransferResult`, `Split`, `Merge`, `Discard`; emits `ItemAdded`, `ItemRemoved`, `ItemTransferred`, `TransferRejected(capacity|permission|category)`. This is the **only** sanctioned path for item movement; crafting, loot, merchants, and quests all route through it (mandatory test surface, charter TESTING).
+- **M4 reconciliation (merchants).** A trader's wares are a container at the trader, keyed by their merchant profile: their authored stock until the first trade, then a changed container like any other (schema 6's record, so nothing new is saved). Only a trade moves anything into or out of them: `BuyCommand` and `SellCommand` become one internal `Trade` - the stack's move and the coin the other way, all or nothing. What a trader buys joins their wares; their purse is bottomless in Phase 1.
 
 ### S-15 Equipment
 
@@ -275,6 +276,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Identity, role, schedule assignment, current schedule phase and coarse position if diverged, disposition, alive/dead state and cause, anchor reassignment after building changes.
 - **Transient.** Path state, animation state, interaction cooldowns, nearby-list caches.
 - **Events/interfaces.** `SetSchedulePhase`, `Kill(id, cause)`, `Relocate(id, anchorId)`, `SetDisposition`; emits `NpcSpawned`, `NpcDied`, `NpcPhaseChanged`, `NpcRelocated`, `NpcServiceChanged`, `NpcGreeting`. Important NPCs retain identity, relationships, and history; generic NPCs use cheap archetypes (PHASE_0 STEP 10).
+- **M4 reconciliation.** Phase 1's population is the content bible's three named NPCs, all simulated in full all the time (owner ruling: no tiers, no schedules until they are introduced). The runtime `NpcSystem` owns their bodies (`StateSlice.Npcs`): each stands where the region places them and turns to face whoever talks to them. Their instance IDs are derived from their definitions (`EntityKind.Npc`), so nothing about them needs saving while they are non-combatants who take no harm (`PROTOTYPE.md` §5); their bodies block movement. Life state, relocation and death arrive with the first system that can change them (the companion, M6).
 
 ### S-25 Companions & Hirelings
 
@@ -293,6 +295,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Relationship values and the bounded memory log (cap per pair; eviction is oldest-lowest-weight first and must be deterministic — save-version sensitive).
 - **Transient.** Aggregated disposition cache, dialogue-condition evaluation cache.
 - **Events/interfaces.** `RecordEvent(subjectId, objectId, eventKey, weight, sourceRef)`, `GetRelationship(a, b, dimension)`, `GetDispositionTier(a, b)`; emits `RelationshipChanged`, `MemoryRecorded`, `DispositionTierChanged`. There is **no** single good/evil meter (charter §20); every consequence is attributed per observer.
+- **M4 reconciliation.** The runtime `RelationshipSystem` owns what each NPC thinks of the player (`StateSlice.Relationships`), saved with the player (schema 10): a value per named dimension (trust, respect, affection, fear, grudge) in [-100, 100], zero not stored. A change comes as an internal command naming its reason and is published as `RelationshipChanged(npc, dimension, from, to, event)`. Phase 1 keeps no memory log and no NPC-to-NPC values; the event names are the attribution until the log arrives.
 
 ### S-27 Factions, Reputation & Offense
 
@@ -311,6 +314,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Visited-node sets that gate one-time content, and per-NPC conversation state that must not reset on load (e.g. "already told you about the ruin").
 - **Transient.** The live session, resolved text, choice list, camera/audio state (presentation).
 - **Events/interfaces.** `BeginDialogue(npcId)`, `Choose(choiceId)`, `EndDialogue`; emits `DialogueStarted`, `DialogueNodeEntered`, `ChoiceOffered`, `ChoiceSelected`, `DialogueEnded`, plus whatever consequence commands the node specifies. Dialogue **never** mutates state directly; it emits commands (e.g. `AddReputation`, `StartQuest`, `Transfer`). No visual scripting language (D-07 spirit).
+- **M4 reconciliation.** `TalkCommand`, `ChooseCommand` and `LeaveCommand`; events `ConversationStarted`, `ConversationLine`, `ReplyChosen`, `ConversationEnded` and `ServiceOpened`. The runtime `DialogueSystem` owns the lines each conversation has shown the player (`StateSlice.Conversations`, saved with the player) and the open conversation (transient). Entering a node marks it heard; a `once` node that was heard passes on to its `next_if_exhausted`. Replies are offered while their conditions hold (Phase 1 builds `visited`, `world_state`, `has_item`, `relationship`, `skill`, `level`), and a reply's consequences go to their owners as commands (`transfer_item` to the inventory - first, all or nothing, one a reply - `give_recipe` to progression as a teacher's lesson, `set_world_flag` in the speaker's cell, `record_relationship_event`, `open_service`). A conversation ends when the character walks away or dies. Conversations are deterministic and structured: no runtime language model.
 
 ### S-29 Quests
 

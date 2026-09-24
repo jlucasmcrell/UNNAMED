@@ -10,7 +10,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.6";
+    public const string ContentVersion = "0.2.7";
 
     public static string Root { get; } = FindRoot();
 
@@ -204,6 +204,13 @@ public class HistoricalFixtureTests
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
+            >= 10 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x5",
+                "location.wolf_den -> location.den_mouth", "npc.fixture.warden -> npc.fixture.warden_sera x2",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 8 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "effect.weakness -> effect.weakened",

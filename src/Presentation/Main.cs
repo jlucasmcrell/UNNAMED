@@ -40,7 +40,9 @@ public partial class Main : Node3D
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
     private CraftingView _crafting = null!;
+    private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
+    private DialoguePanel _dialogue = null!;
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
@@ -93,10 +95,15 @@ public partial class Main : Node3D
         _crafting = new CraftingView { Name = "Crafting" };
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
+        _npcs = new NpcsView { Name = "Npcs" };
+        AddChild(_npcs);
         _controller = new PlayerController(_session);
         _inventory = new InventoryPanel { Name = "Inventory" };
         _inventory.Bind(_session, _controller);
         AddChild(_inventory);
+        _dialogue = new DialoguePanel { Name = "Dialogue" };
+        _dialogue.Bind(_session);
+        AddChild(_dialogue);
         Subscribe();
         Resync();
         DefineInput();
@@ -107,7 +114,7 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
-            _shots = new UiShots(_session, _controller, _camera, _inventory, shots);
+            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, shots);
         }
         else if (_flags.Contains("--perf"))
         {
@@ -186,7 +193,7 @@ public partial class Main : Node3D
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible:
+            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible:
                 _camera.Look(motion.Relative);
                 break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
@@ -195,7 +202,8 @@ public partial class Main : Node3D
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
                 _camera.Zoom(0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible
+                && !_dialogue.Visible:
                 Input.MouseMode = Input.MouseModeEnum.Captured;
                 break;
         }
@@ -211,7 +219,18 @@ public partial class Main : Node3D
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
         var combat = _session.Simulation!.Combat;
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible;
+        // In a conversation the number keys answer, and Escape walks away (M4).
+        if (_dialogue.Visible)
+        {
+            for (int n = 1; n <= 9; n++)
+            {
+                if (Input.IsActionJustPressed($"reply_{n}"))
+                    _dialogue.AnswerNumber(n);
+            }
+            if (Input.IsActionJustPressed("release_mouse"))
+                _dialogue.Leave();
+        }
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible;
         bool holding = captured && Input.IsActionPressed("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
@@ -257,6 +276,9 @@ public partial class Main : Node3D
                 case FocusKind.Station:
                     OpenStation(focus.Key);
                     break;
+                case FocusKind.Npc:
+                    _controller.Talk(focus.Key);
+                    break;
             }
         }
         if (Input.IsActionJustPressed("inventory"))
@@ -278,7 +300,7 @@ public partial class Main : Node3D
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse"))
+        if (Input.IsActionJustPressed("release_mouse") && !_dialogue.Visible)
             Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
@@ -288,6 +310,14 @@ public partial class Main : Node3D
     /// </summary>
     private void KeepContainerInReach()
     {
+        if (_inventory.OpenTrader is { } trader)
+        {
+            if (_session.Simulation!.Npcs.FirstOrDefault(n => n.Id == trader) is not { } npc
+                || Math.Sqrt(Math.Pow(npc.Body.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(npc.Body.ZMm - _controller.Authoritative.ZMm, 2))
+                > _session.Setup.Items.Inventory.ReachMm + _session.Setup.Movement.BodyRadiusMm)
+                CloseInventory();
+            return;
+        }
         if (_inventory.OpenStation is { } station)
         {
             if (Math.Sqrt(Math.Pow(station.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(station.ZMm - _controller.Authoritative.ZMm, 2))
@@ -321,6 +351,7 @@ public partial class Main : Node3D
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
         _creatures.Draw(simulation, alpha, delta);
         _crafting.Refresh(simulation.Nodes);
+        _npcs.Draw(simulation, delta);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetCrosshair(_camera.IsFirstPerson);
@@ -334,6 +365,7 @@ public partial class Main : Node3D
                 : $"[E] Search the {_session.DisplayName(container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
             { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[E] Talk to {_session.DisplayName(npc.Key)}",
             { } item => $"[E] Pick up {ItemName(_session, item.DefId, item.Quality)}",
         });
 
@@ -410,7 +442,47 @@ public partial class Main : Node3D
             _inventory.Refresh();
             _hud.Toast($"Made {ItemName(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
+        SubscribeSocial();
         SubscribeCombat();
+    }
+
+    /// <summary>The waystation's people (M4): conversations on their panel, trade on the inventory's, and what they think in the log.</summary>
+    private void SubscribeSocial()
+    {
+        _session.Subscribe<ConversationLine>(_ =>
+        {
+            _dialogue.Refresh();
+            if (DisplayServer.GetName() != "headless")
+                Input.MouseMode = Input.MouseModeEnum.Visible;
+        });
+        _session.Subscribe<ConversationEnded>(_ =>
+        {
+            _dialogue.Refresh();
+            if (!_inventory.Visible && DisplayServer.GetName() != "headless")
+                Input.MouseMode = Input.MouseModeEnum.Captured;
+        });
+        _session.Subscribe<ServiceOpened>(e =>
+        {
+            if (e.Service == Domain.Social.NpcServices.Trade)
+                OpenTrade(e.NpcId);
+        });
+        _session.Subscribe<ItemBought>(e =>
+        {
+            _inventory.Refresh();
+            _hud.Toast($"Bought {_session.DisplayName(e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+        });
+        _session.Subscribe<ItemSold>(e =>
+        {
+            _inventory.Refresh();
+            _hud.Toast($"Sold {_session.DisplayName(e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+        });
+        _session.Subscribe<RelationshipChanged>(e =>
+            _hud.Log($"{_session.DisplayName(e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
+        _session.Subscribe<CommandRejected>(e =>
+        {
+            if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
+                _hud.Toast(e.Reason, 3);
+        });
     }
 
     /// <summary>A node's prompt: what it gives now, or why it gives nothing.</summary>
@@ -608,6 +680,13 @@ public partial class Main : Node3D
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
+    private void OpenTrade(string npcId)
+    {
+        _inventory.OpenTrade(npcId);
+        if (DisplayServer.GetName() != "headless")
+            Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
     private void OpenStation(string key)
     {
         _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
@@ -688,6 +767,8 @@ public partial class Main : Node3D
         Bind("use", Key.H);
         for (int i = 0; i < CastKeys.Length; i++)
             Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
+        for (int n = 1; n <= 9; n++)
+            Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))

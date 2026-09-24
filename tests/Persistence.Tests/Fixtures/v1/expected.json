@@ -52,7 +52,9 @@
     "discoveries": [],
     "equipment": {},
     "currency": 0,
-    "effects": []
+    "effects": [],
+    "relationships": [],
+    "conversations": []
   },
   "cells": [
     {

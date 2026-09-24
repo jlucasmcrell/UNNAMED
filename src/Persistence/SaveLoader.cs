@@ -312,7 +312,26 @@ internal static class SaveLoader
                 creatures.Add(record with { DefId = id });
         }
 
-        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values),
+        // Relationships and conversation memory (schema 10): an NPC or conversation that was removed takes its record with it.
+        var relationships = new SortedDictionary<(string, string), RelationshipValue>();
+        foreach (var value in player.Relationships)
+        {
+            if (Resolve(value.NpcId, "player relationship") is not { } id)
+                continue;
+            relationships[(id, value.Dimension)] = value with { NpcId = id };
+        }
+        var conversations = new SortedDictionary<string, ConversationMemory>(StringComparer.Ordinal);
+        foreach (var memory in player.Conversations)
+        {
+            if (Resolve(memory.DialogueId, "player conversation") is not { } id)
+                continue;
+            conversations[id] = conversations.TryGetValue(id, out var heard)
+                ? heard with { Heard = heard.Heard.Union(memory.Heard, StringComparer.Ordinal).ToImmutableArray() }
+                : memory with { DialogueId = id };
+        }
+
+        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
+                .WithSocial(relationships.Values, conversations.Values),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable() });
     }
 

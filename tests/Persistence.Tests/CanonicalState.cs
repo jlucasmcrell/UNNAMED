@@ -70,6 +70,28 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            json.WriteStartArray("relationships");
+            foreach (var value in player.Relationships)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", value.NpcId);
+                json.WriteString("dimension", value.Dimension);
+                json.WriteNumber("value", value.Value);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("conversations");
+            foreach (var memory in player.Conversations)
+            {
+                json.WriteStartObject();
+                json.WriteString("dialogue_id", memory.DialogueId);
+                json.WriteStartArray("heard");
+                foreach (string node in memory.Heard)
+                    json.WriteStringValue(node);
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

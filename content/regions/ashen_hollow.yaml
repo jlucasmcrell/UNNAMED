@@ -113,7 +113,11 @@ doors:
 # Authored world containers: their contents are a loot table until the player first changes them.
 containers:
   - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [25, 183], stack_slots: 12 }
-  - { key: container.longhouse_shelf, loot_ref: loot.longhouse_shelf, position_m: [40, 46], stack_slots: 4 }
+# The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
+npcs:
+  - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [48.5, 42.2], facing_deg: 90 }    # the longhouse, facing its door
+  - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [40.8, 43.0], facing_deg: 45 }    # the old books' corner of the longhouse
+  - { npc_ref: npc.ashen_hollow.kera_voss, position_m: [68.6, 31.6], facing_deg: 300 }   # the forge shed, by the anvil
 # Authored resource nodes (M3f): a node at a place, keyed by name in the world generator's baseline.
 nodes:
   - { name: iron_seam, node_ref: node.ore.iron_seam, position_m: [64, 178.9] }   # the iron seam rock's south face

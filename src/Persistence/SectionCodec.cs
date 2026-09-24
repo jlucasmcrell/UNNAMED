@@ -42,6 +42,27 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 7. The 6 -> 7 step gives older saves no effects.</summary>
     [Key("effects")] public EffectDto[]? Effects { get; set; }
+
+    /// <summary>Required from schema 10. The 9 -> 10 step gives older saves none: no NPC could think anything of anyone before M4.</summary>
+    [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
+
+    /// <summary>Required from schema 10. The 9 -> 10 step gives older saves none: there was no one to talk to before M4.</summary>
+    [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
+}
+
+[MessagePackObject]
+public sealed class RelationshipDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("dimension")] public string Dimension { get; set; } = "";
+    [Key("value")] public int Value { get; set; }
+}
+
+[MessagePackObject]
+public sealed class ConversationDto
+{
+    [Key("dialogue_id")] public string DialogueId { get; set; } = "";
+    [Key("heard")] public string[] Heard { get; set; } = Array.Empty<string>();
 }
 
 [MessagePackObject]
@@ -266,6 +287,12 @@ public static class SectionCodec
         Effects = player.Effects
             .Select(e => new EffectDto { EffectId = e.EffectId, Stacks = e.Stacks, ExpiresTick = e.ExpiresTick, NextTickAt = e.NextTickAt })
             .ToArray(),
+        Relationships = player.Relationships
+            .Select(r => new RelationshipDto { NpcId = r.NpcId, Dimension = r.Dimension, Value = r.Value })
+            .ToArray(),
+        Conversations = player.Conversations
+            .Select(c => new ConversationDto { DialogueId = c.DialogueId, Heard = c.Heard.ToArray() })
+            .ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -285,12 +312,16 @@ public static class SectionCodec
         var equipment = dto.Equipment ?? throw new FormatException("player.msgpack has no equipment (required from schema 6)");
         long currency = dto.Currency ?? throw new FormatException("player.msgpack has no currency (required from schema 6)");
         var effects = dto.Effects ?? throw new FormatException("player.msgpack has no effects (required from schema 7)");
+        var relationships = dto.Relationships ?? throw new FormatException("player.msgpack has no relationships (required from schema 10)");
+        var conversations = dto.Conversations ?? throw new FormatException("player.msgpack has no conversations (required from schema 10)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
-            effects.Select(e => new ActiveEffect(e.EffectId, e.Stacks, e.ExpiresTick, e.NextTickAt)));
+            effects.Select(e => new ActiveEffect(e.EffectId, e.Stacks, e.ExpiresTick, e.NextTickAt)),
+            relationships.Select(r => new RelationshipValue(r.NpcId, r.Dimension, r.Value)),
+            conversations.Select(c => new ConversationMemory(c.DialogueId, c.Heard.ToImmutableArray())));
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

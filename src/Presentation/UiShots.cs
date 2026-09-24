@@ -13,13 +13,15 @@ using UNNAMED.World.Runtime;
 namespace UNNAMED.Presentation;
 
 /// <summary>
-/// <c>godot --path src/Presentation -- --ui-shots &lt;dir&gt;</c>: opens the inventory; (M3e) opens the longhouse, takes the
-/// book from its shelf, reads it and works a ward, its tell and then its Strain on screen; (M3d) looks at each creature
+/// <c>godot --path src/Presentation -- --ui-shots &lt;dir&gt;</c>: opens the inventory; opens the longhouse and (M4) greets Renn,
+/// then talks with Sel until she lends the primer; (M3e) reads it and works a ward, its tell and then its Strain on screen;
+/// (M3d) looks at each creature
 /// archetype where it lives; walks out to the boar's wallow through the real command path until the boar notices, throws
 /// a bolt at it, fights it to its death, mends, searches the carcass and takes what it holds; (M3f) walks up to the iron
 /// seam and strikes it until it is worked out, crosses to the ash stand and cuts a haft - fighting whatever hunts the
-/// character on the way - comes home to the forge shed, smelts a billet at the hearth, makes the spear at the anvil and
-/// takes it in hand, and wounds a valley stray with it; then walks up to the wolves' den, wounds one of the pack and stands
+/// character on the way - comes home to the forge shed, (M4) asks Kera to teach the forge, smelts a billet at the hearth,
+/// makes the spear at the anvil and takes it in hand, (M4) trades the old sword to Kera for arrows, and wounds a valley stray
+/// with the spear; then walks up to the wolves' den, wounds one of the pack and stands
 /// until the pack kills the character (`PROTOTYPE.md` §5 step 7's deliberate death: a wounded stray only flees, and a
 /// character fighting back with the spear has cleared the den). A screenshot after each step, mid-fight, and of the death
 /// recap. Windowed; exit code 0, or 1 when a step does not happen.
@@ -38,7 +40,6 @@ public sealed class UiShots
     };
 
     private static readonly (double X, double Z)[] ToTheDoor = { (56, 56), (55.5, 44) };
-    private static readonly (double X, double Z)[] ToTheShelf = { (52.5, 44), (41, 45.6) };
     private static readonly (double X, double Z)[] OutOfTheLonghouse = { (52.5, 44), (56, 44), (56, 56) };
     private static readonly (double X, double Z)[] ToTheWallow = { (55, 70), (40, 74), (32, 73), (25, 72) };
     private const string Boar = "spawn.hollow.boar_wallow#0";
@@ -60,6 +61,7 @@ public sealed class UiShots
     private readonly PlayerController _controller;
     private readonly CameraRig _camera;
     private readonly InventoryPanel _inventory;
+    private readonly DialoguePanel _dialogue;
 
     private int _frame;
     private int _waypoint;
@@ -81,13 +83,17 @@ public sealed class UiShots
     private int _craftsAsked;
     private int _crafted;
     private string? _made;
+    private bool _sold;
+    private bool _bought;
 
-    public UiShots(GameSession session, PlayerController controller, CameraRig camera, InventoryPanel inventory, string outDirectory)
+    public UiShots(GameSession session, PlayerController controller, CameraRig camera, InventoryPanel inventory, DialoguePanel dialogue,
+        string outDirectory)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
         _inventory = inventory;
+        _dialogue = dialogue;
         Directory = outDirectory;
         _session.Subscribe<PlayerDied>(_ => _died = true);
         _session.Subscribe<CastCompleted>(e => _released = e.FormulaId);
@@ -99,6 +105,8 @@ public sealed class UiShots
             _crafted++;
             _made = e.ItemId;
         });
+        _session.Subscribe<ItemSold>(_ => _sold = true);
+        _session.Subscribe<ItemBought>(_ => _bought = true);
     }
 
     public string Directory { get; }
@@ -149,23 +157,43 @@ public sealed class UiShots
                 }
                 return Stalled(1_400, "the longhouse door never opened");
             case 3:
-                if (Walk(ToTheShelf))
+                // A word with the steward on the way in: his greeting, and the panel it is on.
+                if (Approach(Renn))
                 {
-                    _inventory.Open(Shelf()?.Site.Key ?? "none");
-                    Then("shelf");
+                    _controller.Talk(Renn);
+                    Then("renn");
                 }
-                return Stalled(1_200, "the character never reached the shelf");
+                return Stalled(1_200, "the character never reached Renn");
             case 4:
-            {
-                var shelf = Shelf();
-                if (shelf is null)
-                    return Fail("no container holds a book that teaches");
-                var book = shelf.Items.First(i => magic.Teaches.ContainsKey(i.DefId));
-                _session.Submit(new MoveItemCommand(simulation.PlayerId, book.Ref, ItemPlace.In(shelf.Site.Key), ItemPlace.Carried, 1));
-                _step++;
+                if (_dialogue.Visible)
+                    _dialogue.Leave();
+                Next();
                 break;
-            }
             case 5:
+                // Sel keeps the old books: she lends the primer when asked.
+                if (Approach(Sel))
+                {
+                    _controller.Talk(Sel);
+                    Then("sel");
+                }
+                return Stalled(1_200, "the character never reached Sel");
+            case 6:
+                _dialogue.Answer("books");
+                Then("sel_primer");
+                break;
+            case 7:
+                if (!_asked)
+                {
+                    _dialogue.Answer("take");
+                    _asked = true;
+                }
+                if (simulation.Player.Inventory.Any(e => magic.Teaches.ContainsKey(e.DefId)))
+                {
+                    _dialogue.Leave();
+                    Next();
+                }
+                return Stalled(200, "Sel never lent the primer");
+            case 8:
             {
                 if (simulation.Player.Inventory.FirstOrDefault(e => magic.Teaches.ContainsKey(e.DefId)) is not { } book)
                     return Fail("the book was not taken");
@@ -174,7 +202,7 @@ public sealed class UiShots
                 Then("learned");
                 break;
             }
-            case 6:
+            case 9:
                 // The ward: a picture in its tell, and one once it holds.
                 if (_released is not null)
                 {
@@ -195,14 +223,14 @@ public sealed class UiShots
                     _wait = 1;
                 }
                 return Stalled(200, "the ward was never worked");
-            case 7:
+            case 10:
                 if (Walk(OutOfTheLonghouse))
                 {
                     _step++;
                     _stepTick = simulation.WorldTick;
                 }
                 return Stalled(1_200, "the character never left the longhouse");
-            case 8:
+            case 11:
                 // The gallery: stand the camera a few metres in front of each archetype and let it settle.
                 if (_look >= Gallery.Length)
                 {
@@ -222,7 +250,7 @@ public sealed class UiShots
                 _pending = name;
                 _wait = 20;
                 break;
-            case 9:
+            case 12:
                 // Out through the gate to the boar's wallow, then straight at the boar, until it notices: a wandering
                 // boar facing away may not see the character arrive, but it hears a run inside 8 m.
                 var wallow = Boarish()!;
@@ -242,7 +270,7 @@ public sealed class UiShots
                     _camera.Yaw = Mathf.Atan2(-toward.X, -toward.Z);
                 }
                 return Stalled(1_200, "the boar never noticed the character");
-            case 10:
+            case 13:
             {
                 // A bolt at the boar before it closes: face it, and work the projectile the book taught.
                 var target = ToCreature(Boarish()!);
@@ -262,7 +290,7 @@ public sealed class UiShots
                 }
                 return Stalled(200, "the bolt was never worked");
             }
-            case 11:
+            case 14:
                 var boar = Boarish()!;
                 if (!boar.Alive)
                 {
@@ -281,7 +309,7 @@ public sealed class UiShots
                     _wait = 1;
                 }
                 return Stalled(1_600, "the boar did not die");
-            case 12:
+            case 15:
                 // Mend after the fight: the last self formula the book taught.
                 if (_released is not null)
                 {
@@ -296,7 +324,7 @@ public sealed class UiShots
                     _casting = true;
                 }
                 return Stalled(400, "the mending was never worked");
-            case 13:
+            case 16:
                 // Up to the carcass; facing it, the prompt offers to search it.
                 var carcass = Boarish()!;
                 if (Walk(new[] { (carcass.Body.XMm / 1000.0, carcass.Body.ZMm / 1000.0 - 1.0) }) || Close(carcass, 1.4))
@@ -309,28 +337,28 @@ public sealed class UiShots
                     Then("corpse_prompt");
                 }
                 break;
-            case 14:
+            case 17:
                 _inventory.Open(Boarish()!.CorpseKey);
                 Then("corpse");
                 break;
-            case 15:
+            case 18:
                 // Take everything: the emptied carcass is gone, and the panel's container column closes.
                 string key = Boarish()!.CorpseKey;
                 foreach (var item in simulation.Containers.Single(c => c.Site.Key == key).Items)
                     _session.Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(key), ItemPlace.Carried, item.Count));
                 Then("after_take");
                 break;
-            case 16:
+            case 19:
                 if (Boarish()!.Condition != CreatureCondition.Gone)
                     return Fail("the emptied carcass is still there");
                 _inventory.Close();
                 Next();
                 break;
-            case 17:
+            case 20:
                 if (Travel(ToTheSeam, Near))
                     Next();
                 return Survived("the iron seam") ?? Stalled(5_000, "the character never reached the iron seam");
-            case 18:
+            case 21:
             {
                 // Face the seam - a picture with its prompt - then strike it, one strike at a time, until it is worked out.
                 var seam = NodeNamed("iron_seam");
@@ -356,11 +384,11 @@ public sealed class UiShots
                 }
                 return Stalled(3_000, "the seam was never worked out");
             }
-            case 19:
+            case 22:
                 if (Travel(ToTheStand, Near))
                     Next();
                 return Survived("the ash stand") ?? Stalled(6_000, "the character never reached the ash stand");
-            case 20:
+            case 23:
             {
                 var stand = NodeNamed("ash_stand");
                 if (Defend())
@@ -378,7 +406,7 @@ public sealed class UiShots
                 }
                 return Stalled(3_000, "no haft was ever cut");
             }
-            case 21:
+            case 24:
                 // Home through the outpost gate to the forge shed, and in at its door.
                 if (Travel(ToTheForgeDoor))
                 {
@@ -395,14 +423,31 @@ public sealed class UiShots
                     }
                 }
                 return Survived("the forge shed") ?? Stalled(8_000, "the character never got into the forge shed");
-            case 22:
+            case 25:
+                // Nobody starts knowing the forge (M4): ask Kera.
+                if (Approach(Kera))
+                {
+                    _controller.Talk(Kera);
+                    Then("kera");
+                }
+                return Stalled(1_200, "the character never reached Kera");
+            case 26:
+                _dialogue.Answer("teach");
+                Then("lesson");
+                break;
+            case 27:
+                if (_dialogue.Visible)
+                    _dialogue.Leave();
+                Next();
+                break;
+            case 28:
                 if (Walk(ToTheHearth, Near) && AtStation("forge") is { } hearth)
                 {
                     _inventory.OpenAt(hearth);
                     Then("hearth");
                 }
                 return Stalled(1_200, "the hearth never came into focus");
-            case 23:
+            case 29:
                 // Smelt one billet: the panel's Make button submits this same command.
                 if (_craftsAsked == _crafted)
                 {
@@ -415,7 +460,7 @@ public sealed class UiShots
                     _craftsAsked++;
                 }
                 return Stalled(200, "no billet was smelted");
-            case 24:
+            case 30:
                 _inventory.Close();
                 if (Walk(ToTheAnvil, Near) && AtStation("anvil") is { } anvil)
                 {
@@ -423,7 +468,7 @@ public sealed class UiShots
                     Then("anvil");
                 }
                 return Stalled(1_200, "the anvil never came into focus");
-            case 25:
+            case 31:
                 if (_craftsAsked == _crafted)
                 {
                     if (_crafted > 1)
@@ -435,7 +480,7 @@ public sealed class UiShots
                     _craftsAsked++;
                 }
                 return Stalled(200, "no spear was made");
-            case 26:
+            case 32:
             {
                 // Take the spear in hand - the panel's Equip button submits this same command - and carry it outside.
                 if (simulation.Combat.Weapon.Source != _made)
@@ -448,22 +493,69 @@ public sealed class UiShots
                     return Stalled(200, "the spear was never taken in hand");
                 }
                 _inventory.Close();
+                Next();
+                break;
+            }
+            case 33:
+                // Back to Kera to trade: her wares open from her conversation, the panel's own buttons submit the trades.
+                if (_inventory.OpenTrader == Kera)
+                {
+                    _asked = false;
+                    Then("trade");
+                    break;
+                }
+                if (Approach(Kera) && !_asked)
+                {
+                    _controller.Talk(Kera);
+                    _dialogue.Answer("trade");
+                    _asked = true;
+                }
+                return Stalled(1_200, "Kera's wares never opened");
+            case 34:
+            {
+                // The old sword, now the spear is in hand, for as many arrows as it fetches.
+                if (!_sold)
+                {
+                    if (!_asked && simulation.Player.Inventory.FirstOrDefault(e => e.DefId == OldSword) is { } sword)
+                    {
+                        _session.Submit(new SellCommand(simulation.PlayerId, Kera, sword.ItemId, 1));
+                        _asked = true;
+                    }
+                    return Stalled(200, "the old sword was never sold");
+                }
+                if (!_bought)
+                {
+                    var arrows = simulation.Wares(Kera)?.Wares.FirstOrDefault(w => w.ItemId == Arrows);
+                    if (arrows is null || arrows.Price > simulation.Player.Currency)
+                        return Fail("no arrows the coin could buy");
+                    if (_asked)
+                    {
+                        _session.Submit(new BuyCommand(simulation.PlayerId, Kera, arrows.Ref,
+                            (int)Math.Min(arrows.Count, simulation.Player.Currency / arrows.Price)));
+                        _asked = false;
+                    }
+                    return Stalled(200, "no arrows were bought");
+                }
+                Then("traded");
+                break;
+            }
+            case 35:
+                _inventory.Close();
                 if (Walk(OutOfTheForge))
                 {
                     _camera.Yaw = PlayerController.FacingRadians(_controller.Authoritative.FacingMdeg) + Mathf.Pi / 4;
                     Then("spear");
                 }
                 return Stalled(1_200, "the character never came out of the forge shed");
-            }
-            case 27:
+            case 36:
                 _waypoint = 0;
                 Next();
                 break;
-            case 28:
+            case 37:
                 if (Travel(ToTheStrays))
                     Next();
                 return Survived("the strays") ?? Stalled(3_000, "the character never reached the strays");
-            case 29:
+            case 38:
             {
                 // Wound the nearer stray with the spear: a picture of the thrust as it lands.
                 var stray = Strays().First();
@@ -477,13 +569,13 @@ public sealed class UiShots
                 _wait = 1;
                 break;
             }
-            case 30:
+            case 39:
                 // Up to the den mouth, past whatever the wounded stray does, to take on the pack: the death recap is the
                 // last picture.
                 if (Walk(ToTheDen))
                     Next();
                 return Survived("the den") ?? Stalled(2_400, "the character never reached the den");
-            case 31:
+            case 40:
                 if (_died)
                 {
                     Then("death");
@@ -498,7 +590,7 @@ public sealed class UiShots
                 return Stalled(1_800, $"the character never died (health {simulation.Combat.Health}/{simulation.Combat.MaxHealth}; " +
                     string.Join(", ", simulation.Creatures.Where(c => c.Alive && ToCreature(c).Length() < 30)
                         .Select(c => $"{c.Key} {c.Mind} {c.Health}/{c.MaxHealth} at {ToCreature(c).Length():0.0} m")) + ")");
-            case 32:
+            case 41:
                 return "done";
         }
         return null;
@@ -513,6 +605,24 @@ public sealed class UiShots
     }
 
     private NodeView NodeNamed(string name) => _session.Simulation!.Nodes.Single(n => n.Name == name);
+
+    private const string Renn = "npc.ashen_hollow.renn_vale";
+    private const string Sel = "npc.ashen_hollow.sel_arien";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
+    private const string OldSword = "item.weapon.rusted_sword";
+    private const string Arrows = "item.ammo.arrow_rough";
+
+    /// <summary>Walk up to within a hand's reach of an NPC, from wherever the character stands, and face them.</summary>
+    private bool Approach(string npcId)
+    {
+        var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
+        var body = _controller.Authoritative;
+        var away = new Vector3(body.XMm - npc.Body.XMm, 0, body.ZMm - npc.Body.ZMm).Normalized() * 1.3f;
+        if (!Walk(new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) }, Near))
+            return false;
+        Face(npc.Body.XMm, npc.Body.ZMm);
+        return true;
+    }
 
     /// <summary>Turn the camera to a point, so what is there comes into focus.</summary>
     private void Face(long xMm, long zMm)
@@ -578,10 +688,6 @@ public sealed class UiShots
     }
 
     private string? Survived(string where) => _died ? Fail($"the character died on the way to {where}") : null;
-
-    /// <summary>The container holding a book that teaches; nothing here names it.</summary>
-    private ContainerView? Shelf() =>
-        _session.Simulation!.Containers.FirstOrDefault(c => c.Items.Any(i => _session.Setup.Magic.Teaches.ContainsKey(i.DefId)));
 
     private CreatureView? Boarish() => _session.Simulation!.Creatures.FirstOrDefault(c => c.Key == Boar);
 

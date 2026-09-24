@@ -14,8 +14,7 @@ public class ProgressionContentTests : IDisposable
     public ProgressionContentTests()
     {
         // A copy of the game's progression content: its config and skills. The inventory and damage configs name items
-        // and effects, which this copy does not carry, so they stay behind; and the starting package's recipes (M3f) are
-        // not in it either, so the copy starts with none.
+        // and effects, which this copy does not carry, so they stay behind.
         foreach (string dir in new[] { "config", "skills" })
         {
             Directory.CreateDirectory(Path.Combine(_root, dir));
@@ -23,10 +22,6 @@ public class ProgressionContentTests : IDisposable
                          .Where(f => Path.GetFileName(f) is not ("inventory.yaml" or "damage_constants.yaml")))
                 File.Copy(file, Path.Combine(_root, dir, Path.GetFileName(file)));
         }
-        string progression = Path.Combine(_root, "config", "progression.yaml");
-        string text = File.ReadAllText(progression).Replace("\r\n", "\n");
-        string techniques = text.Split('\n').Single(l => l.StartsWith("  techniques:", StringComparison.Ordinal));
-        File.WriteAllText(progression, text.Replace(techniques, "  techniques: []"));
     }
 
     public void Dispose() => Directory.Delete(_root, recursive: true);
@@ -65,12 +60,9 @@ public class ProgressionContentTests : IDisposable
         Assert.Equal(0.00, rules.Guards.LevelBandMultiplier(-40));
         Assert.Equal(3, rules.AttributeGrantBudget);                  // §11.3
         Assert.Equal(5, rules.TierTargets.Length);
-
-        // Phase 1's one starting package: the two smithing recipes, until the smith teaches them (M3f; M4), and nothing else.
-        var start = ProgressionEngine.Create(rules);
-        Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear" }, start.Known.Keys);
-        Assert.All(start.Known.Values, k => Assert.Equal(LearningSource.StartingPackage, k.Source));
-        Assert.Equal(CharacterProgression.Empty.Digest, (start with { Known = CharacterProgression.Empty.Known }).Digest);
+        // Phase 1's starting package is empty: the bible's starting character knows no craft and no working - the smith
+        // teaches the forge and the archivist lends the primer (M4).
+        Assert.Equal(CharacterProgression.Empty.Digest, ProgressionEngine.Create(rules).Digest);
     }
 
     [Fact]

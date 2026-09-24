@@ -1,9 +1,9 @@
-id: merchant.smith_orren
+id: merchant.ashen_hollow.kera_voss
 kind: merchant
 schema: 1
-display_key: merchant.smith_orren.name
+display_key: merchant.ashen_hollow.kera_voss.name
 tags: [merchant]
-notes: The smith's stock (PROTOTYPE.md §5 step 8, §7.4) - a stub merchant, no economy (ROADMAP M3b). Trade opens with the NPC (M4).
+notes: Kera Voss's stock (PROTOTYPE.md §5 step 8, §7.4) - a stub merchant, no economy (ROADMAP M3b), opened by Kera in M4. What she buys joins it.
 stock_mode: fixed
 stock:
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }

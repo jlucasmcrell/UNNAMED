@@ -1,0 +1,240 @@
+// UNNAMED Content - NPCs and their conversations from content (DATA_MODEL.md §4.5, §4.12; SYSTEMS.md S-24, S-28; M4)
+// No Godot references - pure C#
+
+using System.Collections.Immutable;
+using System.Globalization;
+using UNNAMED.Domain.Social;
+using static UNNAMED.Content.CombatContent;
+
+namespace UNNAMED.Content;
+
+/// <summary>
+/// Builds the NPCs and their conversations, and lints what the reference and semantic passes cannot see (SOC001): an NPC's role
+/// and services are ones Phase 1 builds and a trader names its stock; a conversation's every way leads to a node that exists, a
+/// spent line never loops, and every condition and consequence is one of the closed set with what it needs.
+/// </summary>
+public static class SocialContent
+{
+    /// <summary>DATA_MODEL.md §4.5's roles.</summary>
+    private static readonly string[] Roles =
+        { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
+
+    private static readonly string[] Conditions = { "visited", "world_state", "has_item", "relationship", "skill", "level" };
+
+    private static readonly string[] Consequences = { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service" };
+
+    public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
+    {
+        var errors = new List<ValidationError>();
+        ImmutableSortedDictionary<string, NpcDefinition>? npcs = null;
+        ImmutableSortedDictionary<string, DialogueDefinition>? dialogues = null;
+        Try(() => npcs = BuildNpcs(loader), "npcs", errors);
+        Try(() => dialogues = BuildDialogues(loader), "dialogues", errors);
+        if (npcs is not null && dialogues is not null)
+            Try(() => CrossCheck(npcs, dialogues), "npcs", errors);
+        return errors;
+    }
+
+    /// <summary>
+    /// NPCs (DATA_MODEL.md §4.5, Phase 1's subset): a <c>name</c>, a <c>role</c>, the <c>services</c> they offer (trade, with its
+    /// <c>merchant_ref</c>), the <c>dialogue_ref</c> they speak, and <c>unique: true</c> - Phase 1's NPCs are all named. Schedules,
+    /// anchors, combat profiles and NPC-to-NPC relationships are not built.
+    /// </summary>
+    public static ImmutableSortedDictionary<string, NpcDefinition> BuildNpcs(ContentLoader loader) =>
+        loader.GetByKind("npc").Values.Select(definition =>
+        {
+            var map = Read(definition.YamlSource);
+            string id = definition.Id;
+            string role = Text(map, "role");
+            if (!Roles.Contains(role))
+                throw new FormatException($"{id}: role '{role}' is not one of DATA_MODEL.md §4.5's ({string.Join(", ", Roles)})");
+            var services = (map.GetValueOrDefault("services") as List<object> ?? new List<object>()).Select(s => s as string ?? "").ToImmutableArray();
+            if (services.FirstOrDefault(s => !NpcServices.Built.Contains(s)) is { } unbuilt)
+                throw new FormatException($"{id}: service '{unbuilt}' is not built in Phase 1 ({string.Join(", ", NpcServices.Built)})");
+            string? merchant = map.GetValueOrDefault("merchant_ref") as string;
+            if (services.Contains(NpcServices.Trade) != merchant is not null)
+                throw new FormatException($"{id}: a trader names its merchant_ref, and only a trader does");
+            if (map.GetValueOrDefault("unique") as string != "true")
+                throw new FormatException($"{id}: Phase 1 builds named NPCs only (unique: true)");
+            foreach (string field in new[] { "schedule_ref", "anchors", "combat_profile", "relationships_init", "name_pool" })
+            {
+                if (map.ContainsKey(field))
+                    throw new FormatException($"{id}: {field} is not built in Phase 1");
+            }
+            return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string);
+        }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    /// <summary>
+    /// Conversations (DATA_MODEL.md §4.12): <c>participants</c>, a <c>root_node</c>, and <c>nodes</c> by ID, each with its
+    /// <c>text</c> (inline until localization), <c>choices</c>, <c>next</c>, <c>once</c> and <c>next_if_exhausted</c>.
+    /// </summary>
+    public static ImmutableSortedDictionary<string, DialogueDefinition> BuildDialogues(ContentLoader loader) =>
+        loader.GetByKind("dialogue").Values.Select(definition =>
+        {
+            var map = Read(definition.YamlSource);
+            string id = definition.Id;
+            var participants = List(map, "participants").Select(p => p as string ?? "").ToImmutableArray();
+            if (participants.IsEmpty || participants.Any(p => !loader.GetByKind("npc").ContainsKey(p)))
+                throw new FormatException($"{id}: participants must name its NPCs");
+            var nodes = Map(map, "nodes").ToImmutableSortedDictionary(
+                kv => kv.Key as string ?? "",
+                kv => Node(id, kv.Key as string ?? "", kv.Value as Dictionary<object, object> ?? throw new FormatException($"{id}: node {kv.Key} must be a map"), loader),
+                StringComparer.Ordinal);
+            var dialogue = new DialogueDefinition(id, participants, Text(map, "root_node"), nodes);
+            CheckGraph(dialogue);
+            return dialogue;
+        }).ToImmutableSortedDictionary(d => d.Id, d => d, StringComparer.Ordinal);
+
+    private static DialogueNode Node(string id, string nodeId, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string where = $"{id} node {nodeId}";
+        var choices = Rows(map, "choices", where).Select(row => Choice(where, row, loader)).ToImmutableArray();
+        if (choices.Select(c => c.Id).Distinct(StringComparer.Ordinal).Count() != choices.Length)
+            throw new FormatException($"{where}: two replies share an id");
+        string? next = map.GetValueOrDefault("next") as string;
+        if (next is not null && !choices.IsEmpty)
+            throw new FormatException($"{where}: a node with replies goes on through them, not through next");
+        return new DialogueNode(nodeId, Text(map, "text"), choices, next, map.GetValueOrDefault("once") as string == "true",
+            map.GetValueOrDefault("next_if_exhausted") as string);
+    }
+
+    private static DialogueChoice Choice(string where, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string at = $"{where} reply {Text(map, "id")}";
+        var consequences = Rows(map, "consequences", at).Select(c => Consequence(at, c, loader)).ToImmutableArray();
+        // An item changing hands is the one consequence that can be refused, so a reply carries at most one and it goes first.
+        if (consequences.OfType<TransferItemConsequence>().Count() > 1)
+            throw new FormatException($"{at}: a reply moves at most one item (transfer_item)");
+        return new DialogueChoice(Text(map, "id"), Text(map, "text"),
+            Rows(map, "conditions", at).Select(c => Condition(at, c, loader)).ToImmutableArray(), consequences,
+            map.GetValueOrDefault("next") as string);
+    }
+
+    private static DialogueCondition Condition(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string kind = Text(map, "kind");
+        bool negated = map.GetValueOrDefault("not") as string == "true";
+        if (negated && kind is not ("visited" or "has_item"))
+            throw new FormatException($"{at}: only visited and has_item conditions take not");
+        return kind switch
+        {
+            "visited" => new VisitedCondition(Text(map, "node"), negated),
+            "world_state" => new WorldStateCondition(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
+                LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue)),
+            "has_item" => new HasItemCondition(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", 1),
+                (int)LongOr(map, "quality_min", -1), negated),
+            "relationship" => new RelationshipCondition(Defined(loader, Text(map, "npc_ref"), "npc", at), Dimension(Text(map, "dimension"), at),
+                (int)LongOr(map, "min", Relationships.Min), (int)LongOr(map, "max", Relationships.Max)),
+            "skill" => new SkillCondition(Defined(loader, Text(map, "skill_ref"), "skill", at), Positive(map, "min", 1)),
+            "level" => new LevelCondition(Positive(map, "min", 1)),
+            _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
+        };
+    }
+
+    private static DialogueConsequence Consequence(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string command = Text(map, "command");
+        return command switch
+        {
+            "transfer_item" => new TransferItemConsequence(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", 1),
+                Text(map, "to") switch
+                {
+                    "player" => true,
+                    "npc" => false,
+                    var to => throw new FormatException($"{at}: transfer_item goes to player or npc, not '{to}'"),
+                }),
+            "give_recipe" => new GiveRecipeConsequence(Defined(loader, Text(map, "recipe_ref"), "recipe", at)),
+            "set_world_flag" => new SetWorldFlagConsequence(Defined(loader, Text(map, "flag_ref"), "world_flag", at), LongOr(map, "value", 1)),
+            "record_relationship_event" => new RelationshipEventConsequence(Defined(loader, Text(map, "npc_ref"), "npc", at),
+                Dimension(Text(map, "dimension"), at),
+                LongOr(map, "delta", 0) is var delta && delta != 0 && Math.Abs(delta) <= Relationships.Max
+                    ? (int)delta
+                    : throw new FormatException($"{at}: a relationship event moves a dimension by a delta of 1 to 100 either way"),
+                Text(map, "event")),
+            "open_service" => new OpenServiceConsequence(NpcServices.Built.Contains(Text(map, "service"))
+                ? Text(map, "service")
+                : throw new FormatException($"{at}: service '{Text(map, "service")}' is not built in Phase 1")),
+            _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
+        };
+    }
+
+    /// <summary>Every way through a conversation leads to a node it has, and no chain of spent lines loops.</summary>
+    private static void CheckGraph(DialogueDefinition dialogue)
+    {
+        string id = dialogue.Id;
+        void Exists(string? node, string what)
+        {
+            if (node is not null && !dialogue.Nodes.ContainsKey(node))
+                throw new FormatException($"{id}: {what} names node '{node}', which it does not have");
+        }
+        Exists(dialogue.Root, "root_node");
+        foreach (var node in dialogue.Nodes.Values)
+        {
+            Exists(node.Next, $"node {node.Id}'s next");
+            Exists(node.NextIfExhausted, $"node {node.Id}'s next_if_exhausted");
+            if (node.NextIfExhausted is not null && !node.Once)
+                throw new FormatException($"{id}: node {node.Id} has next_if_exhausted but is not once");
+            foreach (var choice in node.Choices)
+            {
+                Exists(choice.Next, $"node {node.Id} reply {choice.Id}");
+                foreach (var visited in choice.Conditions.OfType<VisitedCondition>())
+                    Exists(visited.NodeId, $"node {node.Id} reply {choice.Id}'s visited condition");
+            }
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (var at = node; at.Once && at.NextIfExhausted is { } next; at = dialogue.Nodes[next])
+            {
+                if (!seen.Add(at.Id))
+                    throw new FormatException($"{id}: spent lines loop through node {at.Id}");
+            }
+        }
+    }
+
+    /// <summary>An NPC's conversation names it; a conversation that opens a service is spoken by someone who offers it.</summary>
+    private static object CrossCheck(ImmutableSortedDictionary<string, NpcDefinition> npcs, ImmutableSortedDictionary<string, DialogueDefinition> dialogues)
+    {
+        foreach (var npc in npcs.Values.Where(n => n.DialogueId is not null))
+        {
+            if (dialogues.TryGetValue(npc.DialogueId!, out var dialogue) && !dialogue.Participants.Contains(npc.Id))
+                throw new FormatException($"{npc.Id}: {npc.DialogueId} does not name it among its participants");
+        }
+        foreach (var dialogue in dialogues.Values)
+        {
+            foreach (var open in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<OpenServiceConsequence>())
+            {
+                if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Offers(open.Service)))
+                    throw new FormatException($"{dialogue.Id}: opens {open.Service}, which none of its participants offers");
+            }
+        }
+        return npcs;
+    }
+
+    private static string Defined(ContentLoader loader, string id, string kind, string at) =>
+        loader.Definitions.TryGetValue(id, out var definition) && (definition.Kind == kind || definition.Kind.StartsWith(kind + ".", StringComparison.Ordinal))
+            ? id
+            : throw new FormatException($"{at}: {id} is not a defined {kind}");
+
+    private static string Dimension(string dimension, string at) =>
+        Relationships.IsDimension(dimension)
+            ? dimension
+            : throw new FormatException($"{at}: '{dimension}' is not a relationship dimension ({string.Join(", ", Relationships.Dimensions)})");
+
+    private static long LongOr(Dictionary<object, object> map, string key, long fallback) =>
+        !map.TryGetValue(key, out var value) ? fallback
+        : long.TryParse(value as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed) ? parsed
+        : throw new FormatException($"'{key}' must be a whole number");
+
+    private static int Positive(Dictionary<object, object> map, string key, int fallback) =>
+        LongOr(map, key, fallback) is var value && value is >= 1 and <= int.MaxValue ? (int)value : throw new FormatException($"'{key}' must be at least 1");
+
+    private static void Try(Func<object> build, string what, List<ValidationError> errors)
+    {
+        try
+        {
+            build();
+        }
+        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
+        {
+            errors.Add(new ValidationError { SeverityLevel = ValidationError.Severity.Error, Code = "SOC001", Message = $"{what}: {e.Message}" });
+        }
+    }
+}

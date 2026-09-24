@@ -97,12 +97,13 @@ public static class M2Fixtures
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
         /// <summary>
-        /// The pack the current fixture is written with (Fixtures/content-0.1.4: 0.1.3 - 0.1.2 plus the two effects the
-        /// player's record names - plus the creature a creature record names). 0.1.2 is 0.1.1 plus a region, the place the
+        /// The pack the current fixture is written with (Fixtures/content-0.1.5: 0.1.4 plus the NPC and the conversation the
+        /// player's relationship and conversation records name). 0.1.4 is 0.1.3 plus the creature a creature record names;
+        /// 0.1.3 is 0.1.2 plus the two effects the player's record names; 0.1.2 is 0.1.1 plus a region, the place the
         /// discovery record names, and the movement and tier config a region needs.
         /// </summary>
-        public const string WriterContentVersion = "0.1.4";
-        public const string WriterContentHash = "sha256:dbe08f2997a2a90ab94a0705384ad38783e34e9e80251695c55f0faac134abc2";
+        public const string WriterContentVersion = "0.1.5";
+        public const string WriterContentHash = "sha256:9460bd5ea6aabbd24a25882b799ca8b0274bc6c2a4de5bdd2d3d272eeebbece1";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -123,7 +124,11 @@ public static class M2Fixtures
             currency: 40,
             // Schema 7: two effects mid-course. Written with content 0.1.3, which calls the second effect.weakness; the
             // current pack renames it.
-            effects: new[] { new ActiveEffect("effect.bleeding", 2, 5_100, 5_020), new ActiveEffect("effect.weakness", 1, 5_600, 4_801) });
+            effects: new[] { new ActiveEffect("effect.bleeding", 2, 5_100, 5_020), new ActiveEffect("effect.weakness", 1, 5_600, 4_801) },
+            // Schema 10: what the warden thinks of Aelin, both ways, and the lines of the warden's conversation heard. Written
+            // with content 0.1.5, which calls them npc.fixture.warden and dialogue.fixture.warden; the current pack renames both.
+            relationships: new[] { new RelationshipValue("npc.fixture.warden", "respect", -3), new RelationshipValue("npc.fixture.warden", "trust", 12) },
+            conversations: new[] { new ConversationMemory("dialogue.fixture.warden", ImmutableArray.Create("greet", "rumour")) });
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 
@@ -215,8 +220,8 @@ public static class M2Fixtures
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.6";
-        public const string CurrentContentHash = "sha256:79162866169ff639c7d6f8e0cead6dc5c1863654825229d2c133cc979965150b";
+        public const string CurrentContentVersion = "0.2.7";
+        public const string CurrentContentHash = "sha256:a49caa52c219dca191b7e1220dd02abe591b13440c36b8781526943aded578d4";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -227,10 +232,12 @@ public static class M2Fixtures
             new[]
             {
                 "config.base_speeds", "config.simulation_tiers",
-                "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "effect.bleeding", "effect.weakened",
+                "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "dialogue.fixture.warden_sera",
+                "effect.bleeding", "effect.weakened",
                 "item.potion.minor_healing",
                 "item.weapon.iron_sword",
-                "location.den_mouth", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics", "skill.one_hand_blade",
+                "location.den_mouth", "npc.fixture.warden_sera", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics",
+                "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",
             },
             new Dictionary<string, string>
@@ -240,6 +247,8 @@ public static class M2Fixtures
                 ["location.wolf_den"] = "location.den_mouth",
                 ["effect.weakness"] = "effect.weakened",
                 ["creature.beast.ash_hound"] = "creature.beast.ash_ember_hound",
+                ["npc.fixture.warden"] = "npc.fixture.warden_sera",
+                ["dialogue.fixture.warden"] = "dialogue.fixture.warden_sera",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

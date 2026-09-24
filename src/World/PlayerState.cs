@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Social;
 
 namespace UNNAMED.World;
 
@@ -29,6 +30,12 @@ public enum DiscoveryMethod
 
 /// <summary>A discovered-location record (PERSISTENCE.md §5.1): which place, how, and on which world tick.</summary>
 public sealed record DiscoveryRecord(string LocationId, DiscoveryMethod Method, long Tick);
+
+/// <summary>What one NPC thinks of the player on one dimension (SYSTEMS.md S-26; schema 10). A value of 0 is never stored.</summary>
+public sealed record RelationshipValue(string NpcId, string Dimension, int Value);
+
+/// <summary>The lines of one conversation the player has heard, sorted (SYSTEMS.md S-28; schema 10): what keeps a one-time line spent.</summary>
+public sealed record ConversationMemory(string DialogueId, ImmutableArray<string> Heard);
 
 public static class DiscoveryMethods
 {
@@ -62,7 +69,8 @@ public sealed record PlayerRecord
 {
     public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory,
         CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
-        IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null)
+        IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null,
+        IEnumerable<RelationshipValue>? relationships = null, IEnumerable<ConversationMemory>? conversations = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -118,6 +126,27 @@ public sealed record PlayerRecord
         }
         if (Effects.Select(e => e.EffectId).Distinct(StringComparer.Ordinal).Count() != Effects.Length)
             throw new ArgumentException("An effect is active only once; stacks count repeats", nameof(effects));
+        Relationships = (relationships ?? Array.Empty<RelationshipValue>())
+            .OrderBy(r => r.NpcId, StringComparer.Ordinal).ThenBy(r => r.Dimension, StringComparer.Ordinal).ToImmutableArray();
+        foreach (var r in Relationships)
+        {
+            if (!DefinitionId.IsValid(r.NpcId) || !r.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Domain.Social.Relationships.IsDimension(r.Dimension)
+                || r.Value == 0 || r.Value != Domain.Social.Relationships.Clamp(r.Value))
+                throw new ArgumentException($"Invalid relationship value {r}", nameof(relationships));
+        }
+        if (Relationships.Select(r => (r.NpcId, r.Dimension)).Distinct().Count() != Relationships.Length)
+            throw new ArgumentException("An NPC holds one value per dimension", nameof(relationships));
+        Conversations = (conversations ?? Array.Empty<ConversationMemory>())
+            .Select(c => c with { Heard = c.Heard.OrderBy(n => n, StringComparer.Ordinal).ToImmutableArray() })
+            .OrderBy(c => c.DialogueId, StringComparer.Ordinal).ToImmutableArray();
+        foreach (var c in Conversations)
+        {
+            if (!DefinitionId.IsValid(c.DialogueId) || !c.DialogueId.StartsWith("dialogue.", StringComparison.Ordinal) || c.Heard.IsEmpty
+                || c.Heard.Any(string.IsNullOrWhiteSpace) || c.Heard.Distinct(StringComparer.Ordinal).Count() != c.Heard.Length)
+                throw new ArgumentException($"Invalid conversation memory for {c.DialogueId}", nameof(conversations));
+        }
+        if (Conversations.Select(c => c.DialogueId).Distinct(StringComparer.Ordinal).Count() != Conversations.Length)
+            throw new ArgumentException("A conversation is remembered once", nameof(conversations));
     }
 
     /// <summary>
@@ -138,20 +167,24 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects);
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations);
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations);
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations);
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations);
+
+    /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
+    public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -185,13 +218,19 @@ public sealed record PlayerRecord
     /// </summary>
     public ImmutableArray<ActiveEffect> Effects { get; }
 
+    /// <summary>What each NPC thinks of the player, sorted by NPC and dimension (PERSISTENCE.md §5.1: "relationship values"). Schema 10.</summary>
+    public ImmutableArray<RelationshipValue> Relationships { get; }
+
+    /// <summary>The lines of each conversation the player has heard, sorted by conversation (SYSTEMS.md S-28). Schema 10.</summary>
+    public ImmutableArray<ConversationMemory> Conversations { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v6").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v7").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -203,6 +242,16 @@ public sealed record PlayerRecord
             h.Add(Currency).Add(Effects.Length);
             foreach (var e in Effects)
                 h.Add(e.EffectId).Add(e.Stacks).Add(e.ExpiresTick).Add(e.NextTickAt);
+            h.Add(Relationships.Length);
+            foreach (var r in Relationships)
+                h.Add(r.NpcId).Add(r.Dimension).Add(r.Value);
+            h.Add(Conversations.Length);
+            foreach (var c in Conversations)
+            {
+                h.Add(c.DialogueId).Add(c.Heard.Length);
+                foreach (string node in c.Heard)
+                    h.Add(node);
+            }
             return h.Finish();
         }
     }

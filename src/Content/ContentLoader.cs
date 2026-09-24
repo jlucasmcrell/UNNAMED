@@ -185,6 +185,11 @@ public class ContentLoader
             var craftingErrors = CraftingContent.Validate(this);
             _errors.AddRange(craftingErrors);
             success &= craftingErrors.Count == 0;
+
+            // NPCs and their conversations (SOC codes)
+            var socialErrors = SocialContent.Validate(this);
+            _errors.AddRange(socialErrors);
+            success &= socialErrors.Count == 0;
         }
         
         return success;

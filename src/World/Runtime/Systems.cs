@@ -44,7 +44,25 @@ internal sealed class SystemContext
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key);
+        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+
+    /// <summary>How many stacks a trader's wares hold (M4).</summary>
+    public const int WaresStackSlots = 48;
+
+    /// <summary>Every trader's wares (M4): a container keyed by the merchant, standing at the trader.</summary>
+    public IEnumerable<ContainerSite> MerchantSites() =>
+        State.Npcs.Values.Select(WaresOf).OfType<ContainerSite>();
+
+    public ContainerSite? WaresOf(NpcState npc) =>
+        npc.Definition.MerchantId is { } merchant && Setup.Items.Merchants.ContainsKey(merchant)
+            ? new ContainerSite(merchant, string.Empty, npc.Site.XMm, npc.Site.ZMm, WaresStackSlots)
+            : null;
+
+    /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
+    public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;
+
+    public double DistanceToPlayer(Body body) =>
+        Math.Sqrt(Math.Pow(body.XMm - State.Body.XMm, 2) + Math.Pow(body.ZMm - State.Body.ZMm, 2));
 
     /// <summary>Every corpse that can be searched: its body is still there, and its creature has a loot table.</summary>
     public IEnumerable<ContainerSite> CorpseSites() =>
@@ -55,7 +73,8 @@ internal sealed class SystemContext
     /// <summary>What the player's body cannot pass besides the static blockers: closed doors and living creatures.</summary>
     public ImmutableArray<Blocker> Obstacles() =>
         ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)
-            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
+            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
+            .AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
 /// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>

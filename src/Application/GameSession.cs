@@ -91,6 +91,7 @@ public sealed class GameSession : IDomainEvents
             Combat = CombatContent.Build(loader, options.RegionId),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
+            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

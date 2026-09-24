@@ -207,6 +207,21 @@ public static class WorldContent
             }
             Check(stations.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == stations.Count, "WLD011", "two stations share a key");
 
+            // The named NPCs (M4): each where they stand and which way they face; a named NPC stands in one place.
+            var npcs = ImmutableArray.CreateBuilder<NpcSite>();
+            foreach (var (entry, i) in (map.ContainsKey("npcs") ? List(map, "npcs") : new List<object>()).Select((n, i) => (n, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"npcs[{i}] must be a map");
+                var (px, pz) = Pair(site, "position_m");
+                long npcFacing = (long)Math.Round(Number(site, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
+                var npc = new NpcSite(Text(site, "npc_ref"), px, pz, (int)Math.Clamp(npcFacing, 0, MoveIntent.FullTurnMdeg - 1));
+                Check(loader.GetByKind("npc").ContainsKey(npc.NpcId), "WLD012", $"npcs[{i}] names '{npc.NpcId}', which is not an NPC");
+                Check(npcFacing is >= 0 and < MoveIntent.FullTurnMdeg, "WLD012", $"{npc.NpcId}'s facing_deg must be in [0, 360)");
+                Check(px >= minX && px <= maxX && pz >= minZ && pz <= maxZ, "WLD012", $"{npc.NpcId} stands outside the walkable bounds");
+                npcs.Add(npc);
+            }
+            Check(npcs.Select(n => n.NpcId).Distinct(StringComparer.Ordinal).Count() == npcs.Count, "WLD012", "a named NPC stands in one place only");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -219,12 +234,15 @@ public static class WorldContent
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
                 Stations = stations.ToImmutable(),
+                Npcs = npcs.ToImmutable(),
             };
 
             // The spawn must stand clear with every door shut, the harshest case.
             var closed = layout.ClosedDoors(_ => false);
             long radius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
             Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure and door");
+            foreach (var npc in layout.Npcs)
+                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, closed), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
             return errors.Count == before ? layout : null;
         }
         catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)

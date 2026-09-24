@@ -29,6 +29,9 @@ public sealed record NodeSite(string Name, string NodeDefId, long XMm, long ZMm)
 /// <summary>A crafting station (M3f): a place where recipes of its kind are worked - the forge's hearth, its anvil.</summary>
 public sealed record StationSite(string Key, string Kind, long XMm, long ZMm);
 
+/// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
+public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -55,6 +58,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's crafting stations (M3f).</summary>
     public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;
+
+    /// <summary>The region's named NPCs, each where they stand (M4).</summary>
+    public ImmutableArray<NpcSite> Npcs { get; init; } = ImmutableArray<NpcSite>.Empty;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 

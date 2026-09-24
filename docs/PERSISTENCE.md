@@ -189,6 +189,8 @@ These are the only fully-serialized sections. A character is not regenerable, so
 
 **Rebase does not apply here.** There is no baseline to return to, so every field is authoritative and T-01 asserts full equality after reload.
 
+**Relationships and conversation memory (schema 10).** The player section holds what each NPC thinks of the player - `npc_id`, `dimension`, `value`, non-zero values only - and, per conversation, the lines heard (`dialogue_id`, `heard`: node IDs), which keep a one-time line spent across a load. Both go through the definition-ID pass. A trader's wares are not a new record: they are a changed container (schema 6) keyed by the merchant profile, proven against the trader's cell.
+
 Implemented so far (schema 7): the character's ULID, name, position in integer millimetres, facing in millidegrees (from schema 5), `appearance_seed` (required from schema 3), inventory stacks by item ULID, equipment slots naming carried items and the purse (from schema 6), active status effects - effect, stacks, and the world ticks at which it expires and next ticks (from schema 7) - the progression record (from schema 4; `PROGRESSION.md` §3-§4), and discovered-location records - location, method, world tick (from schema 5). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and its definition IDs - skills, known techniques, first-time records, kill records, discovered locations, active effects - go through the definition-ID pass like the inventory's. The rest of the list above arrives with the systems that own it.
 
 ### 5.2 `cells.msgpack` — sparse cell delta
@@ -345,6 +347,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 6 -> 7 | The player gains active status effects (M3c). An older save had none, since nothing could apply one before M3c |
 | 7 -> 8 | The entities section gains creature records (M3d). An older save has none: every creature stands at its spawner's baseline, since no creature state was saved before M3d |
 | 8 -> 9 | Every item stack gains its quality: carried, in a changed container, or created in the world (M3f). An older save's stacks are all standard, since nothing could make another quality before M3f |
+| 9 -> 10 | The player gains relationships and conversation memory (M4). An older save has neither: there was no one to talk to before M4 |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

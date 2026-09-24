@@ -15,6 +15,7 @@ using V4 = UNNAMED.Persistence.Sections.V4;
 using V5 = UNNAMED.Persistence.Sections.V5;
 using V6 = UNNAMED.Persistence.Sections.V6;
 using V8 = UNNAMED.Persistence.Sections.V8;
+using V9 = UNNAMED.Persistence.Sections.V9;
 
 namespace UNNAMED.Persistence;
 
@@ -70,7 +71,8 @@ public static class SchemaMigrations
         new SchemaV5ToV6(),
         new SchemaV6ToV7(),
         new SchemaV7ToV8(),
-        new SchemaV8ToV9());
+        new SchemaV8ToV9(),
+        new SchemaV9ToV10());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -535,7 +537,7 @@ public sealed class SchemaV8ToV9 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V8.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V9.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -571,6 +573,46 @@ public sealed class SchemaV8ToV9 : SchemaMigration
                     Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
                 }).ToArray(),
                 Creatures = old.Creatures,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 9 to 10 (M4): the player gains what each NPC thinks of them and the lines of each conversation they have heard. A
+/// save that predates the waystation's people has neither.
+/// </summary>
+public sealed class SchemaV9ToV10 : SchemaMigration
+{
+    public override int From => 9;
+
+    public override string Summary => "schema 9 -> 10: the player gains relationships and conversation memory (none before M4)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V9.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = Array.Empty<RelationshipDto>(),
+                Conversations = Array.Empty<ConversationDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

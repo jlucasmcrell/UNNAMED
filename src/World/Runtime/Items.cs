@@ -75,10 +75,17 @@ public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XM
 internal sealed record StackTake(EntityId ItemId, int Count);
 
 /// <summary>
-/// To <see cref="InventorySystem"/>: spend these carried stacks and receive what they made (a craft), or only receive (a
-/// harvest) - all or nothing, judged with the spent stacks already gone (M3f).
+/// To <see cref="InventorySystem"/>: spend these carried stacks and receive what they made (a craft), only receive (a harvest,
+/// a gift), or only spend (a gift the other way, <see cref="ItemId"/> null) - all or nothing, judged with the spent stacks
+/// already gone (M3f).
 /// </summary>
-internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string ItemId, int Count, int Quality) : InternalCommand;
+internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? ItemId, int Count, int Quality) : InternalCommand;
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: a trade (M4) - a stack moves between the player and a trader's wares, and coin the
+/// other way (<see cref="Coin"/> is what the player's purse gains, negative when they pay). All or nothing.
+/// </summary>
+internal sealed record Trade(MoveItemCommand Move, long Coin) : InternalCommand;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
@@ -102,7 +109,24 @@ internal sealed class InventorySystem
     private ItemSetup Items => _context.Setup.Items;
     private RuntimeState State => _context.State;
 
-    public string? Handle(MoveItemCommand command, long tick)
+    public string? Handle(MoveItemCommand command, long tick) => Move(command, tick, trading: false);
+
+    /// <summary>A trade: the coin first, then the move; a refused move takes no coin.</summary>
+    public string? Handle(Trade trade, long tick)
+    {
+        if (State.Currency + trade.Coin < 0)
+            return $"not enough coin: {-trade.Coin} asked, {State.Currency} carried";
+        if (Move(trade.Move, tick, trading: true) is { } refused)
+            return refused;
+        State.SetCurrency(_owner, State.Currency + trade.Coin);
+        return null;
+    }
+
+    /// <summary>
+    /// Move a stack. A trader's wares move only in a trade (<paramref name="trading"/>), whose trader has already been found
+    /// within reach; nothing else may take from or put into them.
+    /// </summary>
+    private string? Move(MoveItemCommand command, long tick, bool trading)
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
@@ -110,7 +134,7 @@ internal sealed class InventorySystem
             return "move at least one";
         if (command.From == command.To && command.From.Kind != PlaceKind.Inventory)
             return "the item is already there";
-        if ((Check(command.From) ?? Check(command.To)) is { } placeProblem)
+        if ((Check(command.From, trading) ?? Check(command.To, trading)) is { } placeProblem)
             return placeProblem;
         if (Find(command.From, command.Item) is not { } source)
             return $"there is no '{command.Item}' in the {command.From}";
@@ -229,8 +253,9 @@ internal sealed class InventorySystem
     /// </summary>
     public string? Handle(ExchangeItems command, long tick)
     {
-        if (Items.Catalog.Find(command.ItemId) is not { } definition)
-            return $"{command.ItemId} is not an item this build knows";
+        ItemDefinition? definition = null;
+        if (command.ItemId is { } received && (definition = Items.Catalog.Find(received)) is null)
+            return $"{received} is not an item this build knows";
         var remaining = State.Inventory.ToList();
         long spentGrams = 0;
         foreach (var take in command.Takes)
@@ -242,15 +267,19 @@ internal sealed class InventorySystem
             remaining[index] = remaining[index] with { Count = remaining[index].Count - take.Count };
         }
         remaining.RemoveAll(e => e.Count == 0);
-        if (Room(remaining.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList(), definition, command.Quality, command.Count,
-                Items.Inventory.StackSlots) is { } full)
-            return full;
-        long weight = CarriedGrams() - spentGrams + definition.WeightGrams * command.Count;
-        long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
-        if (weight > limit)
-            return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
+        if (definition is not null)
+        {
+            if (Room(remaining.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList(), definition, command.Quality, command.Count,
+                    Items.Inventory.StackSlots) is { } full)
+                return full;
+            long weight = CarriedGrams() - spentGrams + definition.WeightGrams * command.Count;
+            long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
+            if (weight > limit)
+                return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
+        }
         Remove(command.Takes.Select(t => (State.Inventory.Single(e => e.ItemId == t.ItemId), t.Count)).ToList());
-        Put(ItemPlace.Carried, definition, command.Count, null, command.Quality);
+        if (definition is not null)
+            Put(ItemPlace.Carried, definition, command.Count, null, command.Quality);
         return null;
     }
 
@@ -328,13 +357,16 @@ internal sealed class InventorySystem
     /// <summary>One stack as it is found: its reference, what and how many, its identity if it has one, where it lies, how good.</summary>
     private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm, int Quality);
 
-    private string? Check(ItemPlace place)
+    private string? Check(ItemPlace place, bool trading)
     {
         if (place.Kind != PlaceKind.Container)
             return null;
         if (_context.FindContainer(place.ContainerKey ?? string.Empty) is not { } site)
             return $"there is no container '{place.ContainerKey}'";
-        return Distance(site.XMm, site.ZMm) > Items.Inventory.ReachMm ? $"{site.Key} is out of reach" : null;
+        bool wares = Items.Merchants.ContainsKey(site.Key);
+        if (wares != trading)
+            return wares ? $"{site.Key} is a trader's wares: buy and sell" : $"{site.Key} is not a trader's wares";
+        return !trading && Distance(site.XMm, site.ZMm) > Items.Inventory.ReachMm ? $"{site.Key} is out of reach" : null;
     }
 
     private Located? Find(ItemPlace place, string itemRef)
@@ -373,7 +405,10 @@ internal sealed class InventorySystem
     {
         var cell = CellOf(site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
-        var drops = LootRoller.Roll(Items.LootTables[site.LootTableId], Items.LootTables, sample => channel.UInt64(sample) / 18446744073709551616.0);
+        // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
+        var drops = Items.Merchants.TryGetValue(site.Key, out var merchant)
+            ? merchant.Stock.Select(s => new LootDrop(s.ItemId, s.Count)).ToImmutableArray()
+            : LootRoller.Roll(Items.LootTables[site.LootTableId], Items.LootTables, sample => channel.UInt64(sample) / 18446744073709551616.0);
         var stacks = new List<LootDrop>();
         foreach (var drop in drops)
         {

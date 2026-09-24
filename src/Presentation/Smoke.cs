@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Magic;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Player;
@@ -13,15 +14,16 @@ namespace UNNAMED.Presentation;
 
 /// <summary>
 /// <c>godot --headless --path src/Presentation -- --smoke</c>: the project boots, content loads, the world is built and
-/// ticks, the player walks to the longhouse through the real command path and opens its door; (M3e) walks in to the
-/// shelf, takes the book there, reads it and works the first self formula it taught; swings the sword at nothing (M3c:
-/// the attack runs its phases and misses); and a quicksave loads back to the identical state. Exit code 0 on success, 1
-/// on failure; the scratch save profile is removed either way.
+/// ticks, the player walks to the longhouse through the real command path and opens its door; (M4) walks in to whoever's
+/// conversation hands over a book that teaches, talks until it is given, and (M3e) reads it and works the first self formula
+/// it taught; swings the sword at nothing (M3c: the attack runs its phases and misses); and a quicksave loads back to the
+/// identical state, the conversation remembered. Exit code 0 on success, 1 on failure; the scratch save profile is removed
+/// either way.
 /// </summary>
 public sealed class Smoke
 {
     private static readonly (double X, double Z)[] Route = { (56, 56), (55, 44) };
-    private static readonly (double X, double Z)[] Inside = { (52.5, 44), (41, 45.6) };
+    private static readonly (double X, double Z)[] Inside = { (52.5, 44), (46, 44.6) };
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;
@@ -31,6 +33,7 @@ public sealed class Smoke
     private int _waypoint;
     private int _inside;
     private bool _asked;
+    private bool _talked;
     private bool _taken;
     private bool _read;
     private bool _cast;
@@ -87,14 +90,28 @@ public sealed class Smoke
                 _inside++;
             return null;
         }
+        // Whoever's conversation hands over a book that teaches, and the replies that reach it: found in the data, not named.
+        if (PathToABook(_session.Setup) is not { } path)
+            return Fail("no conversation hands over a book that teaches");
+        var speaker = simulation.Npcs.Single(n => n.Id == path.NpcId);
+        if (!_talked)
+        {
+            // Up to within a hand's reach of them, from where the character stands.
+            var body = _controller.Authoritative;
+            var away = new Vector3(body.XMm - speaker.Body.XMm, 0, body.ZMm - speaker.Body.ZMm).Normalized() * 1.3f;
+            if (!Walk((speaker.Body.XMm / 1000.0 + away.X, speaker.Body.ZMm / 1000.0 + away.Z)))
+                return null;
+            _controller.Talk(path.NpcId);
+            foreach (string reply in path.Replies)
+                _session.Submit(new ChooseCommand(simulation.PlayerId, reply));
+            _talked = true;
+            return null;
+        }
         if (!_taken)
         {
-            // The shelf is whichever container holds a book that teaches; nothing here names it.
-            var shelf = simulation.Containers.FirstOrDefault(c => c.Items.Any(i => magic.Teaches.ContainsKey(i.DefId)));
-            if (shelf is null)
-                return Fail("no container holds a book that teaches");
-            var book = shelf.Items.First(i => magic.Teaches.ContainsKey(i.DefId));
-            _session.Submit(new MoveItemCommand(simulation.PlayerId, book.Ref, ItemPlace.In(shelf.Site.Key), ItemPlace.Carried, 1));
+            if (!simulation.Player.Inventory.Any(e => magic.Teaches.ContainsKey(e.DefId)))
+                return null;
+            _session.Submit(new LeaveCommand(simulation.PlayerId));
             _taken = true;
             return null;
         }
@@ -138,18 +155,50 @@ public sealed class Smoke
         string digest = before.StateDigest();
         long tick = before.WorldTick;
         int strain = before.Combat.Strain;
+        int heard = before.CaptureRecord().Conversations.Sum(c => c.Heard.Length);
         _session.Save(SaveSlots.Quick);
         var loaded = _session.Load(SaveSlots.Quick);
         var after = _session.Simulation!;
         if (!loaded.IsComplete || after.StateDigest() != digest || after.WorldTick != tick
-            || !after.Doors.Single(d => d.Site.Key == "door.longhouse").Open || after.Combat.Strain != strain || strain <= 0)
-            return Fail($"the quicksave did not load back to the same state (digest {after.StateDigest()} vs {digest}, tick {after.WorldTick} vs {tick}, strain {after.Combat.Strain} vs {strain})");
+            || !after.Doors.Single(d => d.Site.Key == "door.longhouse").Open || after.Combat.Strain != strain || strain <= 0
+            || heard == 0 || after.CaptureRecord().Conversations.Sum(c => c.Heard.Length) != heard)
+            return Fail($"the quicksave did not load back to the same state (digest {after.StateDigest()} vs {digest}, tick {after.WorldTick} vs {tick}, strain {after.Combat.Strain} vs {strain}, lines heard {heard})");
 
-        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, {after.Creatures.Length} creatures placed, door opened, " +
-                 $"{_controller.Formulas().Length} formulas read from a book and one worked (+{_worked} Strain), a swing ran and missed, " +
-                 $"save/load digest {digest[..23]}... identical");
+        GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, {after.Creatures.Length} creatures and {after.Npcs.Length} NPCs placed, " +
+                 $"door opened, {PathToABook(_session.Setup)!.Value.NpcId} gave a book in {heard} lines, {_controller.Formulas().Length} formulas read " +
+                 $"from it and one worked (+{_worked} Strain), a swing ran and missed, save/load digest {digest[..23]}... identical");
         Cleanup();
         return 0;
+    }
+
+    /// <summary>
+    /// The first NPC whose conversation hands over a book that teaches, and the replies from its first line to the one that
+    /// does - a walk through the dialogue data, so no NPC, line or book is named here.
+    /// </summary>
+    private static (string NpcId, string[] Replies)? PathToABook(World.Runtime.SimulationSetup setup)
+    {
+        foreach (var npc in setup.Social.Npcs.Values)
+        {
+            if (npc.DialogueId is not { } id || !setup.Social.Dialogues.TryGetValue(id, out var dialogue))
+                continue;
+            var queue = new Queue<(string Node, string[] Path)>();
+            queue.Enqueue((dialogue.Root, Array.Empty<string>()));
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            while (queue.TryDequeue(out var at))
+            {
+                if (!seen.Add(at.Node))
+                    continue;
+                foreach (var choice in dialogue.Nodes[at.Node].Choices)
+                {
+                    var path = at.Path.Append(choice.Id).ToArray();
+                    if (choice.Consequences.OfType<TransferItemConsequence>().Any(t => t.ToPlayer && setup.Magic.Teaches.ContainsKey(t.ItemId)))
+                        return (npc.Id, path);
+                    if (choice.Next is { } next)
+                        queue.Enqueue((next, path));
+                }
+            }
+        }
+        return null;
     }
 
     /// <summary>One frame of walking towards a point at a run; true once there.</summary>

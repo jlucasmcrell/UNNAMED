@@ -55,6 +55,15 @@ public enum StateSlice
 
     /// <summary>The harvest records of the region's resource nodes in the world delta (S-19, PERSISTENCE.md §5.5; M3f).</summary>
     Nodes,
+
+    /// <summary>The named NPCs' bodies (S-24; M4). Transient in Phase 1: identity is derived and nothing moves them.</summary>
+    Npcs,
+
+    /// <summary>What each NPC thinks of the player, per dimension (S-26; M4). Saved with the player (schema 10).</summary>
+    Relationships,
+
+    /// <summary>The lines of each conversation the player has heard (saved, schema 10), and the conversation open now (S-28; M4).</summary>
+    Conversations,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -88,6 +97,12 @@ internal sealed class RuntimeState
         Inventory = player.Inventory;
         Equipment = player.Equipment;
         Currency = player.Currency;
+        Relationships = player.Relationships
+            .GroupBy(r => r.NpcId, StringComparer.Ordinal)
+            .ToImmutableSortedDictionary(g => g.Key, g => g.ToImmutableSortedDictionary(r => r.Dimension, r => r.Value, StringComparer.Ordinal),
+                StringComparer.Ordinal);
+        Conversations = player.Conversations.ToImmutableSortedDictionary(c => c.DialogueId, c => c.Heard.ToImmutableSortedSet(StringComparer.Ordinal),
+            StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -105,6 +120,11 @@ internal sealed class RuntimeState
         ImmutableSortedDictionary.Create<string, CreatureState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>> Effects { get; private set; } =
         ImmutableSortedDictionary<EntityId, ImmutableArray<ActiveEffect>>.Empty;
+    public ImmutableSortedDictionary<string, NpcState> Npcs { get; private set; } =
+        ImmutableSortedDictionary.Create<string, NpcState>(StringComparer.Ordinal);
+    public ImmutableSortedDictionary<string, ImmutableSortedDictionary<string, int>> Relationships { get; private set; }
+    public ImmutableSortedDictionary<string, ImmutableSortedSet<string>> Conversations { get; private set; }
+    public Conversation? Conversation { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -241,6 +261,37 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Effects);
         Effects = effects.IsEmpty ? Effects.Remove(body) : Effects.SetItem(body, EffectRules.Sorted(effects));
+    }
+
+    public void SetNpc(SliceOwner owner, NpcState npc)
+    {
+        Require(owner, StateSlice.Npcs);
+        Npcs = Npcs.SetItem(npc.Definition.Id, npc);
+    }
+
+    public int RelationshipOf(string npcId, string dimension) =>
+        Relationships.TryGetValue(npcId, out var values) ? values.GetValueOrDefault(dimension) : 0;
+
+    /// <summary>A value of 0 is the absence of a relationship on that dimension and is not kept.</summary>
+    public void SetRelationship(SliceOwner owner, string npcId, string dimension, int value)
+    {
+        Require(owner, StateSlice.Relationships);
+        var values = (Relationships.GetValueOrDefault(npcId) ?? ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal));
+        values = value == 0 ? values.Remove(dimension) : values.SetItem(dimension, value);
+        Relationships = values.IsEmpty ? Relationships.Remove(npcId) : Relationships.SetItem(npcId, values);
+    }
+
+    public void MarkVisited(SliceOwner owner, string dialogueId, string nodeId)
+    {
+        Require(owner, StateSlice.Conversations);
+        var heard = Conversations.GetValueOrDefault(dialogueId) ?? ImmutableSortedSet.Create<string>(StringComparer.Ordinal);
+        Conversations = Conversations.SetItem(dialogueId, heard.Add(nodeId));
+    }
+
+    public void SetConversation(SliceOwner owner, Conversation? conversation)
+    {
+        Require(owner, StateSlice.Conversations);
+        Conversation = conversation;
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

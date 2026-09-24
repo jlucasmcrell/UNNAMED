@@ -24,6 +24,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>Resource nodes, recipes, and the tuning of quality (M3f).</summary>
     public CraftingSetup Crafting { get; init; } = CraftingSetup.Empty;
+
+    /// <summary>The named NPCs and their conversations (M4).</summary>
+    public SocialSetup Social { get; init; } = SocialSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -74,6 +77,10 @@ public sealed class Simulation
     private readonly DeathSystem _death;
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
+    private readonly NpcSystem _npcs;
+    private readonly RelationshipSystem _relationships;
+    private readonly DialogueSystem _dialogue;
+    private readonly TradeSystem _trade;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -109,9 +116,14 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id);
+        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
+        _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
+        _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
+        _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
+        _npcs.Populate();
         _creatures.Populate();
         _tiers.Settle();
     }
@@ -174,6 +186,15 @@ public sealed class Simulation
     /// <summary>Every creature the region holds, living or dead.</summary>
     public ImmutableArray<CreatureView> Creatures => _creatures.Views();
 
+    /// <summary>The region's named NPCs (M4).</summary>
+    public ImmutableArray<NpcView> Npcs => _npcs.Views();
+
+    /// <summary>The conversation open now, if any (M4).</summary>
+    public ConversationView? Conversation => _dialogue.View();
+
+    /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
+    public WaresView? Wares(string npcId) => _trade.View(npcId);
+
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
     /// <summary>The footprints that currently block movement besides the static ones: closed doors and living creatures. Prediction needs them.</summary>
@@ -209,6 +230,11 @@ public sealed class Simulation
                 GatherCommand gather => _gathering.Handle(gather, WorldTick),
                 CraftCommand craft => _crafting.Handle(craft, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
+                TalkCommand talk => _dialogue.Handle(talk, WorldTick),
+                ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
+                LeaveCommand leave => _dialogue.Handle(leave, WorldTick),
+                BuyCommand buy => _trade.Handle(buy, WorldTick),
+                SellCommand sell => _trade.Handle(sell, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -221,7 +247,7 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, status effects, death, discovery, clock.
+    /// creatures, NPCs, conversations, status effects, death, discovery, clock.
     /// </summary>
     public void Step()
     {
@@ -237,6 +263,8 @@ public sealed class Simulation
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
             _creatures.Tick(tick);
+            _npcs.Tick(tick);
+            _dialogue.Tick(tick);
             _effects.Tick(tick);
             _death.Tick(tick);
             _discovery.Tick(tick);
@@ -254,7 +282,9 @@ public sealed class Simulation
         var body = _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
             _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
-            _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty));
+            _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
+            _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
+            _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())));
     }
 
     /// <summary>
@@ -297,6 +327,8 @@ public sealed class Simulation
         DiscardContainer discard => _inventory.Handle(discard),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
+        Trade trade => _inventory.Handle(trade, Now),
+        ChangeRelationship change => _relationships.Handle(change, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

@@ -305,6 +305,8 @@ relationships_init:
 
 Generic hostiles (`npc.bandit.road_cutter`) set `unique: false` with a `name_pool`; they carry no memory and persist only a death flag.
 
+**As implemented (M4).** An NPC names its `name`, its `role` (the list above), the `services` Phase 1 builds (`trade`, which needs a `merchant_ref`), its `dialogue_ref`, and `unique: true`: Phase 1's people are all named. `species_ref`, `schedule_ref`, `anchors`, `combat_profile`, `relationships_init` and `name_pool` are not built and the SOC001 lint refuses them. Where each stands is the region's: its `npcs` list (`npc_ref`, `position_m`, `facing_deg`; lint WLD012 - defined, in bounds, clear of structures, placed once). The three are the content bible's: `npc.ashen_hollow.renn_vale` (steward), `npc.ashen_hollow.kera_voss` (smith, trader) and `npc.ashen_hollow.sel_arien` (archivist).
+
 ### 4.6 SpellDefinition — `kind: spell`
 
 ```yaml
@@ -546,6 +548,8 @@ nodes:
 # `once: true` + `next_if_exhausted` mark one-time nodes; dialogue emits commands, never mutates state.
 ```
 
+**As implemented (M4).** A node's line is inline `text` until localization arrives (the `text_key` above is its later form). A node has replies (`choices`) or goes on through `next`, never both; `once` with `next_if_exhausted` is built. Conditions: `visited` (`node`, optionally `not`), `world_state` (`flag_ref`, `min`, `max`; flags in the speaker's cell), `has_item` (`item_ref`, `count`, `quality_min`, optionally `not`), `relationship` (`npc_ref`, `dimension`, `min`, `max`), `skill` (`skill_ref`, `min`) and `level` (`min`). Consequences: `transfer_item` (`item_ref`, `count`, `to: player|npc`; at most one a reply), `give_recipe` (`recipe_ref`), `set_world_flag` (`flag_ref`, `value`), `record_relationship_event` (`npc_ref`, `dimension`, `delta`, `event`) and `open_service` (`service`, offered by a participant). The quest conditions and consequences arrive with M5. The SOC001 lint refuses anything else, a way to a node that is not there, and a loop of spent lines.
+
 ### 4.13 FactionDefinition — `kind: faction`
 
 ```yaml
@@ -617,6 +621,8 @@ repair_service: false
 ```
 
 Phase 1 (M3b) matches `buys_tags` against the item's `category`; the tag vocabulary arrives later. A merchant buys at `config.economy`'s `sell_ratio` of `value_base` and sells at `value_base × price_bias`.
+
+**As implemented (M4).** A profile is opened by the NPC that names it (`merchant_ref`); Phase 1's is `merchant.ashen_hollow.kera_voss` (M3b's `merchant.smith_orren`, renamed before any save could name it). Its `stock` is the trader's wares at the start; what the trader buys joins them, asking `value_base` for anything they did not stock. `restock_min`, `gold_reserve` and `trade_skill_effect` are not built.
 
 ### 4.16 NodeDefinition — `kind: node`
 

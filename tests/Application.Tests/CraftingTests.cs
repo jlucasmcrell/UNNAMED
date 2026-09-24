@@ -23,6 +23,7 @@ public class CraftingTests
     private const string SpearRecipe = "recipe.smithing.march_spear";
     private const string Smithing = "skill.smithing";
     private const string Survival = "skill.survival";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
 
     // Where the player stands to work each place (content/regions/ashen_hollow.yaml): south of the seam rock, in the ash
     // stand, and at the forge shed's hearth and its anvil - which are too far apart to reach both from one spot.
@@ -30,11 +31,20 @@ public class CraftingTests
     private static readonly (double X, double Z) AtStand = (180, 137);
     private static readonly (double X, double Z) AtHearth = (66.5, 35);
     private static readonly (double X, double Z) AtAnvil = (65.2, 33.4);
+    private static readonly (double X, double Z) AtKera = (67.3, 32.3);
 
+    /// <summary>A character Kera has taught - both recipes known (M4: the starting package holds none) - then any change.</summary>
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null, long startTick = 0,
         ICellBaselineGenerator? generator = null) =>
-        Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change, startTick: startTick,
-            generator: generator);
+        Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(),
+            r => change?.Invoke(Taught(r)) ?? Taught(r), startTick: startTick, generator: generator);
+
+    private static PlayerRecord Taught(PlayerRecord r) =>
+        r.WithProgression(r.Progression with
+        {
+            Known = r.Progression.Known.SetItems(new[] { BilletRecipe, SpearRecipe }
+                .Select(id => KeyValuePair.Create(id, new KnownTechnique(LearningSource.Teacher, Kera, 0)))),
+        });
 
     private static PlayerRecord Carrying(PlayerRecord r, params InventoryEntry[] extra) =>
         new(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(extra), r.Progression, r.FacingMdeg, r.Discoveries,
@@ -293,7 +303,8 @@ public class CraftingTests
     /// <summary>
     /// ROADMAP.md M3f's exit: one character in one world, every step through the commands the keys send - strike the seam
     /// until it is worked out, cut a haft at the stand, walk back through the outpost gate to the forge shed and open its
-    /// door, smelt a billet at the hearth, make the spear at the anvil, take it in hand, and kill a wolf with it.
+    /// door, ask Kera to teach the forge (M4: nobody starts knowing it), smelt a billet at the hearth, make the spear at the
+    /// anvil, take it in hand, and kill a wolf with it.
     /// </summary>
     [Fact]
     public void TheLoop_PlaysEndToEnd_GatherSmeltForgeEquipFight()
@@ -320,7 +331,12 @@ public class CraftingTests
 
         Walk((57, 70), (55, 62), (56, 36), (58.8, 34));
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
-        Walk((61.5, 34), AtHearth);
+        Walk((61.5, 34), AtKera);
+        Assert.Equal($"{BilletRecipe} is not known", arena.Submit(new CraftCommand(arena.Player, BilletRecipe)));
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "teach")));
+        Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
+        Walk(AtHearth);
         Craft(arena, BilletRecipe);
         Walk(AtAnvil);
         Craft(arena, SpearRecipe);

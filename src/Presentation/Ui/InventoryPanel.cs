@@ -12,9 +12,10 @@ using UNNAMED.World.Runtime;
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// What the character carries and wears, and - when a container is open - what it holds, or at a crafting station (M3f)
-/// what the character knows to make there and from what. Each row's buttons submit the same commands the headless tests
-/// do; the panel redraws from the simulation's views after every item event.
+/// What the character carries and wears, and - when a container is open - what it holds, at a crafting station (M3f) what
+/// the character knows to make there and from what, or with a trader (M4) their wares at their prices and what they would
+/// pay for what is carried. Each row's buttons submit the same commands the headless tests do; the panel redraws from the
+/// simulation's views after every item event.
 /// </summary>
 public partial class InventoryPanel : CanvasLayer
 {
@@ -32,6 +33,9 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>The crafting station open alongside the inventory, if any.</summary>
     public StationSite? OpenStation { get; private set; }
 
+    /// <summary>The trader whose wares are open alongside the inventory, if any (M4).</summary>
+    public string? OpenTrader { get; private set; }
+
     public void Bind(GameSession session, PlayerController controller)
     {
         _session = session;
@@ -41,7 +45,8 @@ public partial class InventoryPanel : CanvasLayer
     public override void _Ready()
     {
         Visible = false;
-        var root = new HBoxContainer { Position = new Vector2(60, 120) };
+        // Below the notices at the top of the screen, so a trade's toast never covers the wares.
+        var root = new HBoxContainer { Position = new Vector2(60, 250) };
         root.AddThemeConstantOverride("separation", 24);
         AddChild(root);
         root.AddChild(Panel("Carried", _header, _carried, new Vector2(620, 0)));
@@ -54,6 +59,7 @@ public partial class InventoryPanel : CanvasLayer
     {
         OpenContainer = container;
         OpenStation = null;
+        OpenTrader = null;
         Visible = true;
         Refresh();
     }
@@ -62,6 +68,16 @@ public partial class InventoryPanel : CanvasLayer
     {
         OpenContainer = null;
         OpenStation = station;
+        OpenTrader = null;
+        Visible = true;
+        Refresh();
+    }
+
+    public void OpenTrade(string npcId)
+    {
+        OpenContainer = null;
+        OpenStation = null;
+        OpenTrader = npcId;
         Visible = true;
         Refresh();
     }
@@ -70,6 +86,7 @@ public partial class InventoryPanel : CanvasLayer
     {
         OpenContainer = null;
         OpenStation = null;
+        OpenTrader = null;
         Visible = false;
     }
 
@@ -102,15 +119,26 @@ public partial class InventoryPanel : CanvasLayer
                 row.AddChild(Button("Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
             if (OpenContainer is { } key)
                 row.AddChild(Button("Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
+            if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId) is { } each && each > 0 && !equipped)
+            {
+                row.AddChild(Button($"Sell {each * entry.Count}", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, entry.Count))));
+                if (entry.Count > 1)
+                    row.AddChild(Button($"Sell 1 ({each})", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, 1))));
+            }
             row.AddChild(Button("Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count))));
             _carried.AddChild(row);
         }
 
-        _containerPanel.Visible = OpenContainer is not null || OpenStation is not null;
+        _containerPanel.Visible = OpenContainer is not null || OpenStation is not null || OpenTrader is not null;
         Clear(_container);
         if (OpenStation is { } station)
         {
             ShowStation(simulation, station);
+            return;
+        }
+        if (OpenTrader is { } npc)
+        {
+            ShowWares(simulation, npc);
             return;
         }
         if (OpenContainer is not { } open || simulation.Containers.FirstOrDefault(c => c.Site.Key == open) is not { } view)
@@ -149,6 +177,40 @@ public partial class InventoryPanel : CanvasLayer
             row.AddChild(make);
             _container.AddChild(row);
         }
+    }
+
+    /// <summary>A trader's wares at their prices, each to buy one at a time or all at once while the coin allows.</summary>
+    private void ShowWares(Simulation simulation, string npcId)
+    {
+        if (simulation.Wares(npcId) is not { } wares)
+            return;
+        long coin = simulation.Player.Currency;
+        _containerHeader.Text = $"{_session.DisplayName(npcId)}'s wares   Coin {coin}";
+        if (wares.Wares.IsEmpty)
+            _container.AddChild(Row("Nothing left to sell"));
+        foreach (var ware in wares.Wares)
+        {
+            var row = Row($"{Main.ItemName(_session, ware.ItemId, ware.Quality)}{(ware.Count > 1 ? $" x{ware.Count}" : "")}   {ware.Price} each");
+            var one = Button("Buy 1", () => Submit(new BuyCommand(simulation.PlayerId, npcId, ware.Ref, 1)));
+            one.Disabled = ware.Price > coin;
+            row.AddChild(one);
+            if (ware.Count > 1)
+            {
+                var all = Button($"Buy all ({ware.Price * ware.Count})", () => Submit(new BuyCommand(simulation.PlayerId, npcId, ware.Ref, ware.Count)));
+                all.Disabled = ware.Price * ware.Count > coin;
+                row.AddChild(all);
+            }
+            _container.AddChild(row);
+        }
+    }
+
+    /// <summary>What the open trader would pay for one of these, or null when they do not buy it.</summary>
+    private static long? SellPrice(Simulation simulation, string npcId, string defId)
+    {
+        var items = simulation.Setup.Items;
+        return simulation.Wares(npcId) is { } wares && items.Merchants.TryGetValue(wares.MerchantId, out var merchant) && items.Catalog.Find(defId) is { } item
+            ? items.Pricing.SellPrice(item, merchant)
+            : null;
     }
 
     private void Submit(GameCommand command) => _session.Submit(command);

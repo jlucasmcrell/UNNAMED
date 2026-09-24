@@ -15,11 +15,12 @@ public enum FocusKind
     Item,
     Node,
     Station,
+    Npc,
 }
 
 /// <summary>
 /// What the player means to use: a door, a container, an item lying in the world (and its quality), a resource node (its
-/// definition), or a crafting station (its kind).
+/// definition), a crafting station (its kind), or a named NPC (M4).
 /// </summary>
 public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm, int Quality = 0);
 
@@ -190,6 +191,10 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
         foreach (var station in _session.Setup.Layout.Stations)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
+        // An NPC is spoken to within a hand's reach of their body (M4), the rule the simulation applies.
+        long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
+        foreach (var npc in simulation.Npcs)
+            candidates.Add((new Focus(FocusKind.Npc, npc.Id, npc.Id, npc.Body.XMm, npc.Body.ZMm), Distance(npc.Body.XMm, npc.Body.ZMm) - talkReach));
 
         Focus? best = null;
         float bestAlignment = float.MinValue;
@@ -211,6 +216,9 @@ public sealed class PlayerController
     }
 
     public void Interact(string doorKey) => _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+
+    /// <summary>Speak to an NPC within reach (M4).</summary>
+    public void Talk(string npcId) => _session.Submit(new TalkCommand(_session.Simulation!.PlayerId, npcId));
 
     /// <summary>Harvest a node within reach (M3f).</summary>
     public void Gather(string nodeKey) => _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
