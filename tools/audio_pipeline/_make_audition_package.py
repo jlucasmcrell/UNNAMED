@@ -225,10 +225,15 @@ def write_index(rows):
 <div class="note">
   V1 is Stable Audio Open 1.0. V2 is Stable Audio 3 Small SFX. Pick the one you prefer per sound &mdash;
   <b>V1 is a valid choice</b>, and for some sounds it may be the right one. If none of them work, pick
-  <b>none of these</b> and it is queued for a re-render with fresh seeds instead of being forced.
-  Your picks save automatically in this browser. <b>No machine has listened to any of this</b>: technical
-  QA checked duration, level, clipping, silence, channels and loop seams, and nothing else. Whether a
-  sound is convincing is yours.
+  <b>none of these</b> and it is recorded as needing a re-render with fresh seeds instead of being
+  forced. <b>This page cannot generate anything</b> &mdash; it is a plain file with no server behind
+  it. A sound marked for re-render stays marked until new candidates are rendered and this page is
+  rebuilt with them; then a refresh shows them alongside the rejected ones. Your picks live in this
+  browser, not in the page, so rebuilding and refreshing does not clear them. Export a report now and
+  then as a backup anyway, and note that browsers keep storage separate per address &mdash; reopen the
+  page the same way you opened it before.
+  <b>No machine has listened to any of this</b>: technical QA checked duration, level, clipping,
+  silence, channels and loop seams, and nothing else. Whether a sound is convincing is yours.
   <div class="hint" style="margin-top:8px">
     <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> pick V1/A/B/C for the focused sound &nbsp;&middot;&nbsp;
     <kbd>0</kbd> none of these &nbsp;&middot;&nbsp;
@@ -303,6 +308,13 @@ def write_index(rows):
                  '<button onclick="closeReport()">Close</button>'
                  '<span class="status" id="copystat"></span></div>'
                  '<textarea id="reporttext" readonly></textarea>'
+                 '<h1 style="font-size:16px;margin-top:18px">Restore from a report</h1>'
+                 '<div class="hint">Paste a report you exported earlier and it will replace the '
+                 'current picks. Use this if picks are lost, or if you opened the page a different '
+                 'way than last time - browsers keep storage separate per address.</div>'
+                 '<textarea id="importtext" placeholder="paste report JSON here"></textarea>'
+                 '<div style="margin-top:10px"><button onclick="importReport()">Restore picks</button>'
+                 ' <span class="status" id="importstat"></span></div>'
                  '</div></div>')
 
     parts.append("<script>\nconst IDS = " + json.dumps(ids_payload) + ";\n")
@@ -432,6 +444,45 @@ function resetAll(){
   if (!confirm('Clear every pick and note? This cannot be undone.')) return;
   state = {picks:{}, notes:{}}; save(); renderAll();
   document.querySelectorAll('input.notein').forEach(i => i.value = '');
+}
+function importReport(){
+  const raw = document.getElementById('importtext').value.trim();
+  const stat = document.getElementById('importstat');
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (e) { stat.textContent = 'not valid JSON'; stat.style.color = '#ff8f8f'; return; }
+
+  const known = new Set(IDS.map(r => r.id));
+  const picks = {};
+  let skipped = 0;
+  // A report is an external file that may be stale or hand-edited, so anything it names that this
+  // page does not know about is reported rather than silently accepted into the picks.
+  (function(){
+    const s = data.selections || {};
+    Object.keys(s).forEach(function(id){
+      if (known.has(id)) { picks[id] = s[id]; } else { skipped++; }
+    });
+  })();
+  (data.needs_rerender || []).forEach(function(id){
+    if (known.has(id)) { picks[id] = 'NONE'; } else { skipped++; }
+  });
+
+  const n = Object.keys(picks).length;
+  if (!n) { stat.textContent = 'no usable picks found in that report';
+            stat.style.color = '#ff8f8f'; return; }
+  if (!confirm('Replace the current ' + Object.keys(state.picks).length +
+               ' picks with ' + n + ' from this report?')) return;
+
+  state.picks = picks;
+  state.notes = data.notes || {};
+  save();
+  document.querySelectorAll('input.notein').forEach(function(i){
+    const card = i.closest('.id');
+    i.value = (card && state.notes[card.dataset.id]) || '';
+  });
+  renderAll();
+  stat.textContent = 'restored ' + n + ' picks' + (skipped ? (', ignored ' + skipped + ' unknown') : '');
+  stat.style.color = '#8ee08a';
 }
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
