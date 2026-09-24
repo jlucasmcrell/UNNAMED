@@ -8,6 +8,9 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>UNNAMED.Presentation</RootNamespace>
     <AssemblyName>UNNAMED.Presentation</AssemblyName>
+    <!-- The content project is also the lint CLI (an Exe): an export's win-x64 publish meets its apphost and runtime config twice,
+         with and without the runtime identifier. The game loads only its DLL, so either copy will do. -->
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>

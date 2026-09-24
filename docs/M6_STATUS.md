@@ -203,6 +203,11 @@ trade, movement and combat unchanged.
   `PHASE1_ASSET_INTEGRATION.md`.
 - **Audio:** the V3 set (230 IDs) is the current functional set; every entry is `human_auditioned: false`, so it is a working placeholder.
   V1 and V2 stay as history; nothing was regenerated.
-- **The Windows playtest build:** a portable ZIP kept privately on ASTRAL (not published); it finds `content/` and the asset workspace's
-  `assets/` beside its executable (`export_presets.cfg`, "Windows Playtest").
+- **The Windows playtest build:** a portable ZIP kept privately on ASTRAL (not published):
+  `G:\UNNAMED_HISTORY\playtest_build\Otherreach_Phase1_Playtest_2026-09-24.zip`. Unzip anywhere and double-click `Otherreach.exe`; the
+  .NET runtime is bundled. It finds `content/` and a trimmed copy of the asset workspace (`assets/`: the three manifests, the icons, the
+  effects, the V3 sounds and the models and clips the bindings draw, 306 files) beside its executable. Exported with Godot 4.7.2's
+  official templates and the `export_presets.cfg` preset "Windows Playtest"; the export needs the project file named for its assembly,
+  so `Presentation.csproj` is now `UNNAMED.Presentation.csproj` beside a `UNNAMED.Presentation.sln`. Saves go to
+  `%APPDATA%\Godot\app_userdata\Otherreach`.
 - **Still open:** the RAZER performance window (M6's 1080p/60 evidence).
