@@ -29,7 +29,8 @@ MANIFEST = os.path.join(ASSETS, "manifests", "playable_prototype_audio_v2.json")
 V1_DIR = os.path.join(ASSETS, "audio", "v1_stable_audio_open", "delivered")
 DELIVERED = os.path.join(ASSETS, "audio", "v2_delivered")
 
-VALID_KEYS = ("V1", "V2-A", "V2-B", "V2-C", "V2-D", "V2-E", "V2-F", "V2-G", "V2-H", "V2-I")
+VALID_KEYS = ("V1", "V2-A", "V2-B", "V2-C", "V2-D", "V2-E", "V2-F", "V2-G", "V2-H", "V2-I",
+               "V2-J", "V2-K", "V2-L")
 
 # The report's own marker for "I heard these and none of them work". It is a decision, not a
 # non-decision: the sound was auditioned and rejected, so it counts as heard but needs new renders.

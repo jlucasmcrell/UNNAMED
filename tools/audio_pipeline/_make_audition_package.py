@@ -25,7 +25,7 @@ CANDIDATES = os.path.join(ASSETS, "audio", "v2_candidates")
 OUT = os.path.join(ASSETS, "review", "audio_v2")
 
 # Every label a round can produce: a/b/c then d/e/f then g/h/i. The page shows whichever exist.
-ALL_LABELS = tuple(chr(ord("a") + index) for index in range(9))
+ALL_LABELS = tuple(chr(ord("a") + index) for index in range(12))
 
 # Family folders, as the brief lists them.
 FAMILY_OF_CATEGORY = {
@@ -260,7 +260,7 @@ def write_index(rows):
             parts.append('<div class="row">')
 
             order = [k for k in ("V1", "V2-A", "V2-B", "V2-C", "V2-D", "V2-E", "V2-F",
-                                 "V2-G", "V2-H", "V2-I") if k in row["files"]]
+                                 "V2-G", "V2-H", "V2-I", "V2-J", "V2-K", "V2-L") if k in row["files"]]
             for key in order:
                 name = row["files"][key]
                 provisional = (key != "V1" and row["provisional"]

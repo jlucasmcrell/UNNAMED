@@ -68,15 +68,18 @@ LOOP_HEADROOM_S = 3.0
 
 
 def labels_for_round(number):
-    """Three candidate labels per round: a/b/c, then d/e/f, then g/h/i.
+    """Three candidate labels per round: a/b/c, then d/e/f, g/h/i, j/k/l.
 
     A re-render after the owner rejects every take must not overwrite the rejected candidates. They
     are the evidence for why the sound needs another pass, and the owner may want to compare the new
     round against them. New labels also mean the audition page picks the new candidates up with no
     change to its own logic, and a report naming V2-D is unambiguous about which round it came from.
+
+    Four rounds is the ladder's length: the spec prompt plus three mechanical rewrites. A fifth would
+    be another rewrite of a sound that has already had four, which needs a person.
     """
-    if not 1 <= number <= 3:
-        raise SystemExit(f"round must be 1..3 (labels a-i are defined); got {number}")
+    if not 1 <= number <= 4:
+        raise SystemExit(f"round must be 1..4 (labels a-l are defined); got {number}")
     base = 3 * (number - 1)
     return tuple(chr(ord("a") + base + index) for index in range(3))
 
@@ -84,7 +87,8 @@ def labels_for_round(number):
 # alone, so a regeneration of one candidate does not need the state file to know what seed it used.
 SEED_BASE = {"a": 1013904223, "b": 1664525, "c": 22695477,
              "d": 69069, "e": 134775813, "f": 1103515245,
-             "g": 214013, "h": 2531011, "i": 2147483647}
+             "g": 214013, "h": 2531011, "i": 2147483647,
+             "j": 3344921057, "k": 4050554093, "l": 2891336453}
 
 
 def get(path, timeout=90):
