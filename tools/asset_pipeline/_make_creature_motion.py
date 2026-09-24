@@ -213,6 +213,105 @@ def humanoid(kind, frames, fps, size):
                 "shin.L": _rot(-70.0 * ease), "shin.R": _rot(-62.0 * ease),
                 "upper_arm.L": _rot(-30.0 * ease), "upper_arm.R": _rot(-26.0 * ease),
             }
+        elif kind == "talk":
+            # A conversational gesture: the right hand lifts and falls while the torso turns a little
+            # toward the listener. Looping, because an NPC holds a conversation for an arbitrary time
+            # and the clip has to survive being played continuously.
+            beat = math.sin(phase)
+            gesture = math.sin(phase * 2.0 + 0.6)
+            pose = {
+                "spine": _rot(beat * 2.0, 0, beat * 3.0),
+                "chest": _rot(beat * 1.5, beat * 5.0, 0),
+                "neck": _rot(-beat * 2.0, -beat * 4.0, 0),
+                "head": _rot(beat * 3.0, -beat * 6.0, 0),
+                "hips": {"rotation": [0, 0, beat * 1.5], "location": [0, beat * 0.004, 0]},
+                # Right hand up and open, left hand resting low. Asymmetric on purpose: a symmetric
+                # gesture reads as a mannequin rather than a person mid-sentence.
+                "upper_arm.R": _rot(-52.0 + gesture * 14.0, 0, -18.0),
+                "forearm.R": _rot(64.0 + gesture * 20.0),
+                "hand.R": _rot(gesture * 12.0),
+                "upper_arm.L": _rot(6.0 + beat * 2.0, 0, 8.0),
+                "forearm.L": _rot(22.0 + beat * 3.0),
+            }
+        elif kind == "handover":
+            # Offer an object with the right hand and withdraw. One-shot: it has a beginning, a moment
+            # where the object changes hands, and a settled end, which is why it declares an event.
+            duration = 1.35
+            if t < 0.42:
+                k = (t / 0.42) ** 0.8
+            elif t < 0.62:
+                k = 1.0
+            else:
+                k = max(0.0, 1.0 - (t - 0.62) / max(duration - 0.62, 1e-6))
+            pose = {
+                "spine": _rot(6.0 * k, 0, -5.0 * k),
+                "chest": _rot(4.0 * k, -10.0 * k, 0),
+                "neck": _rot(-4.0 * k, 8.0 * k, 0),
+                "head": _rot(6.0 * k, 10.0 * k, 0),
+                "hips": {"rotation": [0, 0, -3.0 * k], "location": [0, 0, 0]},
+                "upper_arm.R": _rot(-64.0 * k, 0, -12.0 * k),
+                "forearm.R": _rot(30.0 + 26.0 * k),
+                "hand.R": _rot(-8.0 * k),
+                "upper_arm.L": _rot(8.0 * k, 0, 6.0 * k),
+                "forearm.L": _rot(26.0 * k),
+                "thigh.L": _rot(-4.0 * k), "thigh.R": _rot(4.0 * k),
+            }
+        elif kind == "work_forge":
+            # Striking down at an anvil. Both arms drive, the torso folds into the blow, and the hips
+            # absorb it - the same shape as the combat attack but two-handed and shallower, because
+            # this is labour rather than a swing.
+            strike = 2 * math.pi * t / period
+            drive = math.sin(strike)
+            fold = max(0.0, math.sin(strike))
+            pose = {
+                "spine": _rot(10.0 + fold * 6.0),
+                "chest": _rot(8.0 + fold * 5.0),
+                "neck": _rot(-6.0 - fold * 3.0),
+                "head": _rot(-4.0 - fold * 4.0),
+                "hips": {"rotation": [4.0 + fold * 3.0, 0, 0],
+                         "location": [0, -0.02 * fold * size, 0]},
+                "upper_arm.R": _rot(-40.0 + drive * 46.0, 0, -10.0),
+                "forearm.R": _rot(40.0 + drive * 24.0),
+                "upper_arm.L": _rot(-30.0 + drive * 38.0, 0, 10.0),
+                "forearm.L": _rot(44.0 + drive * 20.0),
+                "thigh.L": _rot(-8.0), "thigh.R": _rot(8.0),
+                "shin.L": _rot(-12.0), "shin.R": _rot(-6.0),
+            }
+        elif kind == "work_table":
+            # Leaning over a survey table: weight forward, both hands out in front and low, small
+            # working movements. The lean is constant so the pose reads at any frame.
+            busy = math.sin(phase)
+            pose = {
+                "spine": _rot(20.0 + busy * 2.0),
+                "chest": _rot(14.0 + busy * 2.0, busy * 4.0, 0),
+                "neck": _rot(-16.0),
+                "head": _rot(-14.0, busy * 5.0, 0),
+                "hips": {"rotation": [8.0, 0, 0], "location": [0, -0.02 * size, 0]},
+                "upper_arm.R": _rot(-34.0 + busy * 5.0, 0, -16.0),
+                "forearm.R": _rot(58.0 + busy * 7.0),
+                "hand.R": _rot(busy * 10.0),
+                "upper_arm.L": _rot(-30.0 - busy * 5.0, 0, 16.0),
+                "forearm.L": _rot(54.0 - busy * 7.0),
+                "thigh.L": _rot(-14.0), "thigh.R": _rot(-12.0),
+                "shin.L": _rot(-8.0), "shin.R": _rot(-10.0),
+            }
+        elif kind == "sit":
+            # Seated: hips lowered to the seat height declared in the clip metadata, thighs forward and
+            # level, shins down. A relaxed idle on top of that, so it loops.
+            breath = math.sin(phase)
+            pose = {
+                "hips": {"rotation": [0, 0, 0], "location": [0, -0.45 * size, 0]},
+                "thigh.L": _rot(78.0), "thigh.R": _rot(78.0),
+                "shin.L": _rot(-80.0), "shin.R": _rot(-80.0),
+                "foot.L": _rot(6.0), "foot.R": _rot(6.0),
+                "spine": _rot(4.0 + breath * 1.0),
+                "chest": _rot(2.0 + breath * 1.4),
+                "neck": _rot(-2.0 - breath * 1.0),
+                "head": _rot(breath * 2.0, breath * 3.0, 0),
+                "upper_arm.L": _rot(14.0 + breath * 2.0, 0, 4.0),
+                "upper_arm.R": _rot(14.0 + breath * 2.0, 0, -4.0),
+                "forearm.L": _rot(46.0 + breath), "forearm.R": _rot(46.0 + breath),
+            }
         out.append(pose)
     return out
 
@@ -277,6 +376,14 @@ DURATIONS = {
     "attack": 0.9,
     "hit": 0.55,
     "death": 1.9,
+    # NPC social and work motions. The looping ones are long enough to survive being played
+    # continuously without an obvious repeat; `handover` is one-shot and short because it has a
+    # beginning and an end.
+    "talk": 3.2,
+    "handover": 1.35,
+    "work_forge": 1.6,
+    "work_table": 3.0,
+    "sit": 4.0,
 }
 
 # Body-size multipliers so a wolf and a bear do not move with identical amplitude.

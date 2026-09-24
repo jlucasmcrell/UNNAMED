@@ -218,10 +218,13 @@ def main():
                 continue
             clip_path = os.path.join(CLIPS, name)
             clip = json.load(io.open(clip_path, encoding="utf-8"))
-            # Player clips live under humanoid/, creature clips under creatures/. Search both
-            # rather than assuming, so a new clip family does not silently go unverified.
+            # Player clips live under humanoid/, creature clips under creatures/, mechanical clips
+            # under mechanical/, and the shared NPC social/work proof set under npc/. Search every
+            # family rather than assuming, so a new clip family does not silently go unverified: a
+            # family whose folder is not listed here reports "glb missing" for a clip that exists,
+            # which reads as a broken clip rather than an unlisted folder.
             glb = None
-            for family_dir in ("humanoid", "creatures", "mechanical"):
+            for family_dir in ("humanoid", "creatures", "mechanical", "npc"):
                 candidate = os.path.join(READY, family_dir, clip["animation_id"] + ".glb")
                 if os.path.exists(candidate):
                     glb = candidate

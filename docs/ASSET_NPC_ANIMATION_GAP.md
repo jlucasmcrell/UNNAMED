@@ -1,7 +1,7 @@
 # NPC-Specific Animation: the gap, and what is safe to author
 
 **Date:** 2026-09-24
-**Status:** gap documented; a small shared proof set is authorised, mass authoring is not
+**Status:** proof set **built and verified**; mass authoring still not done, and not needed
 
 ## What exists today
 
@@ -9,72 +9,84 @@ All four Phase-1 NPCs are rigged, weighted (`0 unweighted vertices` each) and an
 Locomotion, attack, hit and death come free from the shared clip family, so each NPC walks, runs,
 fights and dies correctly as it stands.
 
-## What is missing
+## The proof set was built (2026-09-24)
 
-The behaviours that make an NPC read as a person rather than a body:
+Five shared clips, `anim.npc.*`, in `assets/animation/ready/npc/`:
+
+| clip | category | type | loop | duration |
+|---|---|---|---|---|
+| `anim.npc.talk` | social | emote | yes | 3.20 s |
+| `anim.npc.handover` | interaction | interact | no | 1.33 s |
+| `anim.npc.work_forge` | profession | emote | yes | 1.60 s |
+| `anim.npc.work_table` | profession | emote | yes | 3.00 s |
+| `anim.npc.sit` | social | idle | yes | 4.00 s |
+
+**Verified, not asserted:**
+
+- **70/70 clips in the whole animation library verify** (`_verify_animation_glb.py --all`), including
+  these five: animation-only (`meshes=0`), 20 bones, 60 channels.
+- **Each clip binds to all four NPCs.** They carry bone-for-bone identical 20-bone skeletons -
+  `npc_veth_magistrate`, `npc_kal_smith`, `npc_siann_archivist` and `npc_orenth_guide` all match
+  exactly - so one shared set serves all four rather than twenty per-NPC clips.
+- **Loops are sealed**: loop delta 0.0004-0.0008, against a 0.001 threshold. `handover` is one-shot and
+  correctly reports no loop delta.
+- **Poses were looked at**, rendered on an actual NPC rig. Talk gesticulates with one hand raised,
+  hand-over reaches forward, work-forge leans and drives both arms down, work-table leans with both
+  hands out, sit lowers the hips with thighs level.
+
+### Why it cannot cause armour lock-in
+
+The clips animate only bones the simplified rig already owns, and reference **no canonical bone, no
+armour attachment and no equipment socket**. The authored motion is joint angles rather than baked
+bone-name bindings, so if the skeleton question is settled the other way the same poses can be re-cut
+against the canonical rig without re-authoring anything. Tavar and the player were **not** migrated
+onto an equippable rig, and no armour work was started.
+
+### A rendering trap this exposed
+
+`_render_anim_preview.py` renders against the **canonical fit body**, whose bones are named
+`upperarm_l`, `calf_l`, `pelvis`. The NPC clips animate `upper_arm.L`, `shin.L`, `hips`. The retargeter
+therefore found nothing to drive and **all four social clips rendered as identical A-poses** - which
+reads as four broken clips and is actually one wrong body. It is
+`docs/SKELETON_CONTRACT_RECONCILIATION.md`'s name mismatch, surfacing as a rendering fault.
+
+`_render_npc_preview.py` renders on a 20-bone NPC rig instead, reusing `_blender_anim_creature`'s own
+`import_rigged` and `apply_motion`, so the preview is applied by the same code that exports the clips.
+Reported `keyed=10..15 missing=0` for all five.
+
+### The seated pose has a garment artefact
+
+`sit` folds the legs correctly, but the NPC's robe was modelled for a standing figure and deforms
+oddly when the thighs come up. That is a garment and skinning concern, not a clip fault, and it is
+recorded here rather than fixed by distorting the pose to suit the clothing.
+
+### Known limitation
+
+`_make_anim_state_machine.py` and `_verify_animation_glb.py` both searched only `humanoid`,
+`creatures` and `mechanical` under `ready/`, so a clip in a new family folder was reported as missing
+rather than unlisted. Both now include `npc`. The same shape of gap would hit the next new family.
+
+## What is still missing
 
 | Missing | Who needs it |
 |---|---|
-| Talk / conversation gestures | all four |
-| Hand-over (giving an item, taking payment) | all four, and the crafting chain |
-| Working at the forge | Kera Voss |
-| Working at the survey table | Sel Arienn |
-| Sitting / social idles | all four, for the waystation interior |
+| Per-NPC bespoke behaviour | nobody yet; the shared set covers the Phase-1 need |
+| Facial animation | out of scope; no facial rig on the simplified skeleton |
+| Conversation-specific beats (nod, shrug, point) | would extend the same set if a quest needs them |
+| The seated pose on a seated *garment* | a modelling task, not animation |
 
-## Why this was not authored immediately
+## Hard boundaries still in force
 
-Because the animation targets a skeleton whose status was ambiguous. The NPC rigs carry **20 bones**
-and the canonical humanoid carries **52** with a 24-bone core, and the two do not share joint names:
-`hips` vs `pelvis`, `upper_arm.L` vs `upperarm_l`, one `spine` vs `spine_01/02/03`. Authoring social
-animation against the wrong one would either need redoing or would quietly lock the NPCs out of the
-canonical armour path.
-
-That is now resolved in `docs/SKELETON_CONTRACT_RECONCILIATION.md`, which establishes three distinct
-contracts and concludes that mass re-rigging is **not** required for M6.
-
-## What is authorised now
-
-The brief permits a **small shared NPC social/work proof set**, on two conditions:
-
-1. it targets the **stable simplified NPC skeleton** (the 20-bone rig), and
-2. it does **not create future armour lock-in**.
-
-Both conditions are satisfied by keeping the proof set to gestures that are *bones-only and
-skeleton-local*: they animate the 20-bone rig's own joints and reference no canonical bone, no
-armour attachment and no equipment socket. That means the clips remain valid whichever way the NPC
-skeleton question is settled later - either they keep playing on the 20-bone rig, or they are re-cut
-against the canonical rig from the same authored poses, which are recorded as joint angles rather
-than as baked bone-name bindings.
-
-## The proof set to author
-
-Deliberately small, and shared rather than per-NPC, because the four NPCs have the same body:
-
-| Clip | Frames | Purpose |
-|---|---|---|
-| `npc_social_idle_a` | 96 | standing conversational idle |
-| `npc_social_talk_a` | 72 | talking gesture, one hand raised |
-| `npc_social_talk_b` | 72 | talking gesture, both hands open |
-| `npc_handover_a` | 48 | offering an object with the right hand |
-| `npc_work_forge_a` | 96 | striking at a forge with both arms |
-| `npc_work_table_a` | 96 | leaning over a table, both hands forward |
-| `npc_sit_idle_a` | 96 | seated social idle |
-
-Seven clips, one shared set, applied to whichever NPC needs them by name.
-
-## Hard boundaries
-
-- **No per-NPC bespoke animation in this pass.** Four NPCs times five behaviours is twenty clips
-  nobody has asked for yet.
+- **No per-NPC bespoke animation.** Four NPCs times five behaviours is twenty clips nobody has asked
+  for; five shared clips do the job.
 - **No new bones, no rig changes.** If a gesture needs a joint the 20-bone rig does not have, the
   gesture is out of scope rather than a reason to extend the skeleton.
 - **No gameplay-code changes.** These are clips and metadata; wiring them to dialogue or a work
-  station is Claude's to do.
-- **Sitting requires a seat height**, which is level design. The seated idle is authored to a
-  documented seat height and the assumption is recorded rather than left implicit.
+  station is Claude's.
+- **Sitting assumes a seat at roughly 0.45 m** above the floor for a 1.80 m NPC. That is level design,
+  recorded rather than left implicit.
 
 ## Blocked on the owner
 
-Nothing here is blocked. The proof set above is authorable now, and the only decision that would
-change it - moving NPCs onto the canonical skeleton - is a stop-and-ask item under the maintenance
-brief and is not being started.
+Nothing. The proof set is authorable and authored; the only decision that would change it - moving
+NPCs onto the canonical skeleton - is a stop-and-ask item and was not started.

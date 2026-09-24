@@ -208,7 +208,7 @@ def main():
     missing = []
     for clip_id in sorted(clips):
         source = None
-        for group in ("humanoid", "creatures"):
+        for group in ("humanoid", "creatures", "npc"):
             candidate = os.path.join(READY, group, f"{clip_id}.glb")
             if os.path.exists(candidate):
                 source = candidate
