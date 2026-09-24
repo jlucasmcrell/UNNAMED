@@ -216,6 +216,14 @@ def deliver(entry, master):
         processor = load_processor()
         segment = processor.resample_fft(segment, int(rate), 48000)
         rate = 48000
+    # Channel policy. Stable Audio 3 emits stereo and 220 of the 228 ids are positional one-shots the
+    # event contract expects in mono. V3 shipped without this step and all 220 failed Godot's channel
+    # check - the same class of omission as the missing gain ceiling, caught by validating the output
+    # rather than by assuming it was right.
+    if entry["channels"] == 1:
+        segment, _downmix = processor.downmix_to_mono(segment)
+    elif segment.shape[1] == 1:
+        segment = np.repeat(segment, 2, axis=1)
     # After the resample, because an FFT resample overshoots slightly on a signal already at full
     # scale: one file went from 1.0000 to 1.0136.
     segment, gain_db = apply_peak_ceiling(segment)
