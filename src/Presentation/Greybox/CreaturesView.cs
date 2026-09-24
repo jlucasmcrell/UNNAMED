@@ -18,8 +18,17 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public partial class CreaturesView : Node3D
 {
-    private readonly Dictionary<EntityId, CreatureFigure> _figures = new();
+    private readonly Dictionary<EntityId, CreatureBody> _figures = new();
     private long _tick = -1;
+    private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
+    private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+
+    /// <summary>The asset library and its bindings (the Phase-1 asset integration); a creature without a usable model stays greybox.</summary>
+    public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
+    {
+        _art = art;
+        _bindings = bindings;
+    }
 
     public void Draw(Simulation simulation, double alpha, double delta)
     {
@@ -30,8 +39,9 @@ public partial class CreaturesView : Node3D
         {
             if (!_figures.TryGetValue(creature.Id, out var figure))
             {
-                figure = new CreatureFigure { Name = creature.Id.Value };
-                figure.Build(simulation.Setup.Combat.Creatures[creature.DefId]);
+                var definition = simulation.Setup.Combat.Creatures[creature.DefId];
+                figure = (CreatureBody?)Art.SkinnedCreature.Create(_art, _bindings, definition) ?? Greybox(definition);
+                figure.Name = creature.Id.Value;
                 AddChild(figure);
                 figure.Place(creature.Body);
                 _figures[creature.Id] = figure;
@@ -50,6 +60,13 @@ public partial class CreaturesView : Node3D
                 _figures.Remove(id);
             }
         }
+    }
+
+    private static CreatureFigure Greybox(CreatureDefinition definition)
+    {
+        var figure = new CreatureFigure();
+        figure.Build(definition);
+        return figure;
     }
 
     /// <summary>After a load or a new game, every creature is placed afresh.</summary>
@@ -86,8 +103,18 @@ internal sealed record PlaceholderLook(BodyPlan Plan, Color Hide, float Width = 
     };
 }
 
+/// <summary>A creature as drawn - greybox or from the asset library. Drawn only; it holds a copy of two ticks' bodies, never the truth.</summary>
+public abstract partial class CreatureBody : Node3D
+{
+    public abstract void Place(Body body);
+
+    public abstract void Advance(Body body);
+
+    public abstract void Pose(CreatureView creature, float alpha, double delta);
+}
+
 /// <summary>One creature's greybox body. Drawn only; it holds a copy of two ticks' bodies, never the truth.</summary>
-internal sealed partial class CreatureFigure : Node3D
+internal sealed partial class CreatureFigure : CreatureBody
 {
     private static readonly StandardMaterial3D Dead = new() { AlbedoColor = new Color(0.22f, 0.2f, 0.19f) };
     private static readonly StandardMaterial3D Tell = new() { AlbedoColor = new Color(1f, 0.8f, 0.2f), EmissionEnabled = true, Emission = new Color(1f, 0.6f, 0.1f) };
@@ -232,19 +259,19 @@ internal sealed partial class CreatureFigure : Node3D
         _mark.Position = new Vector3(0, 0.95f * s, 0);
     }
 
-    public void Place(Body body)
+    public override void Place(Body body)
     {
         _previous = _current = Feet(body);
         _yaw = Facing(body);
     }
 
-    public void Advance(Body body)
+    public override void Advance(Body body)
     {
         _previous = _current;
         _current = Feet(body);
     }
 
-    public void Pose(CreatureView creature, float alpha, double delta)
+    public override void Pose(CreatureView creature, float alpha, double delta)
     {
         if (creature.Condition == CreatureCondition.Gone)
         {

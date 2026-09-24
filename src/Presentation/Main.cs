@@ -36,7 +36,9 @@ public partial class Main : Node3D
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
     private HollowView _hollow = null!;
-    private Avatar _avatar = null!;
+    private Figure _avatar = null!;
+    private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
+    private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
     private CameraRig _camera = null!;
     private PlayerController _controller = null!;
     private Hud _hud = null!;
@@ -51,6 +53,9 @@ public partial class Main : Node3D
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private ProjectilesView _projectiles = null!;
+    private Art.MagicEffects _magicEffects = null!;
+    private Audio.SoundBank _sounds = null!;
+    private Audio.SoundEvents _soundEvents = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -71,8 +76,14 @@ public partial class Main : Node3D
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));
             return;
         }
+        if (_options.TryGetValue("--art-gallery", out string? gallery))
+        {
+            var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
+            return;
+        }
 
-        string contentRoot = Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", "..", "content"));
+        string contentRoot = Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--delta-shots")
@@ -95,30 +106,64 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells, seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}");
 
+        _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
+        GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
+        // The asset library's models, clips and materials, by the presentation's bindings (the Phase-1 asset integration).
+        _art = new Art.ArtLibrary(_assets.Root);
+        _bindings = Art.ArtBindings.Load(Art.ArtBindings.ResourcePath);
+        _art.Withhold(_bindings.Withheld);
+
         _hollow = new HollowView { Name = "Hollow" };
+        _hollow.Bind(_art, _bindings);
         AddChild(_hollow);
         _hollow.Build(_session.Setup.Layout);
-        _avatar = new Avatar { Name = "Player" };
+        if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
+        {
+            _avatar = skinned;
+        }
+        else
+        {
+            var greybox = new Avatar();
+            Art.HeldWeapon.Arm(greybox, _art, _bindings);
+            _avatar = greybox;
+        }
+        _avatar.Name = "Player";
         AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
         _hud = new Hud { Name = "Hud" };
         AddChild(_hud);
         _items = new ItemsView { Name = "Items" };
+        _items.Bind(_art, _bindings);
         AddChild(_items);
         _items.BuildContainers(_session.Setup.Layout);
         _creatures = new CreaturesView { Name = "Creatures" };
+        _creatures.Bind(_art, _bindings);
         AddChild(_creatures);
         _crafting = new CraftingView { Name = "Crafting" };
+        _crafting.Bind(_art, _bindings);
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
         _npcs = new NpcsView { Name = "Npcs" };
+        _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
-        _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
-        GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
+        GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
         _projectiles.Bind(_assets);
+        _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
+        _magicEffects.Bind(_assets, _bindings);
+        AddChild(_magicEffects);
+        if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
+            glowing.WorkingGlow = false;
+        _sounds = new Audio.SoundBank { Name = "Sounds" };
+        _sounds.Load(_assets.Root);
+        AddChild(_sounds);
+        _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
+        AddChild(_soundEvents);
+        _soundEvents.Bind(_session, _bindings, _sounds);
+        _projectiles.Arrived = _soundEvents.Arrived;
+        GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
         _inventory = new InventoryPanel { Name = "Inventory" };
         _inventory.Bind(_session, _controller);
@@ -136,6 +181,8 @@ public partial class Main : Node3D
         _help = new HelpPanel { Name = "Help" };
         AddChild(_help);
         _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
+        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons));
+        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons));
         Subscribe();
         Resync();
         DefineInput();
@@ -265,6 +312,29 @@ public partial class Main : Node3D
             SaveScreenshot(_perfOut, _perf.SegmentName);
             _stats!.SkipNext();
         }
+    }
+
+    /// <summary>
+    /// Where the game's files lie: the repository in the editor (<c>content/</c> and the untracked <c>assets/</c> at its root), and in an
+    /// exported build the executable's own folder, which carries <c>content/</c> and the asset workspace's <c>assets/</c> beside it.
+    /// </summary>
+    private static string Home() => OS.HasFeature("template")
+        ? OS.GetExecutablePath().GetBaseDir()
+        : Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", ".."));
+
+    /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
+    public override void _ExitTree()
+    {
+        if (_sounds is { Count: > 0 })
+            GD.Print($"UNNAMED audio: {_sounds.Played.Count} of {_sounds.Count} sounds played this run; asked for and missing: " +
+                     (_sounds.Unknown.Count == 0 ? "none" : string.Join(", ", _sounds.Unknown)) +
+                     (OS.GetEnvironment("UNNAMED_AUDIO_LOG") is { Length: > 0 } log ? WriteAudioLog(log) : ""));
+    }
+
+    private string WriteAudioLog(string path)
+    {
+        File.WriteAllLines(path, _sounds.Played);
+        return $" (played IDs in {path})";
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -481,11 +551,17 @@ public partial class Main : Node3D
         var simulation = _session.Simulation!;
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
+        _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
         _camera.Crouch = _avatar.Crouch;
         _creatures.Draw(simulation, alpha, delta);
+        _magicEffects.Draw(_avatar, combat.Casting, combat.Phase, combat.Effects.Select(e => e.EffectId),
+            combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
+        _soundEvents.SetStation(_inventory.OpenStation?.Kind);
+        _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
+            _inventory.OpenContainer, _inventory.Visible || _journal.Visible || _character.Visible || _help.Visible, delta);
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
@@ -527,9 +603,10 @@ public partial class Main : Node3D
         var formulas = _controller.Formulas();
         _hud.SetMagic((combat.Casting is { } casting ? $"Casting {_session.DisplayName(casting)}\n" : "") +
             string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {_session.DisplayName(f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
-            (combat.Strained ? "   Strained" : ""));
+            (combat.Strained ? "   Strained" : ""), formulas);
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
-            $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")));
+            $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
+            combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
         if (Target(simulation) is { } target)
             _hud.SetTarget(_session.DisplayName(target.DefId), target.Health, target.MaxHealth);
         else
@@ -539,7 +616,8 @@ public partial class Main : Node3D
         _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
             $"{c.Name} - {c.Doing}, {c.Standing}" +
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
-            (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))));
+            (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
+            simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
         _character.Refresh();
@@ -725,6 +803,12 @@ public partial class Main : Node3D
     private void SubscribeCombat()
     {
         string Name(string id) => _session.DisplayName(id);
+        // A companion's blow lands as it strikes: their figure plays its attack (the Phase-1 asset integration).
+        _session.Subscribe<HitResolved>(e =>
+        {
+            if (_session.Simulation!.Companions.FirstOrDefault(c => c.InstanceId == e.Attacker) is { } companion)
+                _npcs.Strike(companion.NpcId);
+        });
         _session.Subscribe<HitResolved>(e =>
         {
             var player = _session.Simulation!.PlayerId;
@@ -959,6 +1043,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
+                    or "--art-gallery"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

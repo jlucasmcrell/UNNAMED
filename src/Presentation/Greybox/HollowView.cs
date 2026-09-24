@@ -21,15 +21,24 @@ public partial class HollowView : Node3D
     private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
     private Node3D? _debug;
+    private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
+    private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
 
     public static Vector3 ToGodot(long xMm, long yMm, long zMm) => new(xMm / 1000f, yMm / 1000f, zMm / 1000f);
+
+    /// <summary>The asset library and its bindings (the Phase-1 asset integration); without them, or for anything they lack, greybox.</summary>
+    public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
+    {
+        _art = art;
+        _bindings = bindings;
+    }
 
     public void Build(RegionLayout layout)
     {
         var terrain = layout.Space.Terrain;
         AddChild(BuildTerrain(terrain));
         foreach (var blocker in layout.Space.Blockers)
-            AddChild(BuildStructure(blocker, terrain));
+            AddChild(ArtStructure(blocker, terrain) ?? BuildStructure(blocker, terrain));
         foreach (var roof in Roofs(layout))
             AddChild(roof);
         foreach (var door in layout.Doors)
@@ -75,32 +84,79 @@ public partial class HollowView : Node3D
         }
     }
 
-    private static Node3D BuildTerrain(TerrainGrid grid)
+    /// <summary>
+    /// The ground: the domain's triangles, one surface per cell so each cell can wear its own ground material (the bindings'
+    /// <c>terrain</c>); a cell without one, or whose material is unavailable, keeps the greybox colour.
+    /// </summary>
+    private Node3D BuildTerrain(TerrainGrid grid)
     {
-        var tool = new SurfaceTool();
-        tool.Begin(Mesh.PrimitiveType.Triangles);
-        for (int j = 0; j < grid.Rows; j++)
-        for (int i = 0; i < grid.Columns; i++)
-        {
-            long x = grid.OriginXMm + i * grid.SpacingMm, z = grid.OriginZMm + j * grid.SpacingMm;
-            tool.SetUV(new Vector2(i, j));
-            tool.AddVertex(ToGodot(x, grid.HeightAt(i, j), z));
-        }
+        var cells = new SortedDictionary<string, SurfaceTool>(StringComparer.Ordinal);
+        Vector3 At(int i, int j) => ToGodot(grid.OriginXMm + i * grid.SpacingMm, grid.HeightAt(i, j), grid.OriginZMm + j * grid.SpacingMm);
         // The domain's split: every quad along its (0,0)-(1,1) diagonal, clockwise seen from above (Godot's front face).
         for (int j = 0; j < grid.Rows - 1; j++)
         for (int i = 0; i < grid.Columns - 1; i++)
         {
-            int p00 = j * grid.Columns + i, p10 = p00 + 1, p01 = p00 + grid.Columns, p11 = p01 + 1;
-            foreach (int index in new[] { p00, p10, p11, p00, p11, p01 })
-                tool.AddIndex(index);
+            var centre = (At(i, j) + At(i + 1, j + 1)) / 2;
+            string cell = UNNAMED.World.CellKey.OfWorld(centre.X, centre.Z).ToString();
+            if (!cells.TryGetValue(cell, out var tool))
+            {
+                tool = new SurfaceTool();
+                tool.Begin(Mesh.PrimitiveType.Triangles);
+                cells[cell] = tool;
+            }
+            foreach (var (di, dj) in new[] { (0, 0), (1, 0), (1, 1), (0, 0), (1, 1), (0, 1) })
+            {
+                tool.SetUV(new Vector2(i + di, j + dj));
+                tool.AddVertex(At(i + di, j + dj));
+            }
         }
-        tool.GenerateNormals();
-        var mesh = tool.Commit();
-        var node = new MeshInstance3D { Name = "Terrain", Mesh = mesh, MaterialOverride = Palette.Terrain };
+        var mesh = new ArrayMesh();
+        var materials = new List<Material>();
+        foreach (var (cell, tool) in cells)
+        {
+            tool.GenerateNormals();
+            tool.Commit(mesh);
+            materials.Add(_bindings.Terrain.TryGetValue(cell, out string? id) && _art.WorldMaterial(id) is { } ground ? ground : Palette.Terrain);
+        }
+        var node = new MeshInstance3D { Name = "Terrain", Mesh = mesh };
+        for (int s = 0; s < materials.Count; s++)
+            node.SetSurfaceOverrideMaterial(s, materials[s]);
         var body = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
         body.AddChild(new CollisionShape3D { Shape = mesh.CreateTrimeshShape() });
         node.AddChild(body);
         return node;
+    }
+
+    /// <summary>
+    /// A structure drawn with the asset library's model for it (the bindings' <c>structures</c>), sized to the footprint the body
+    /// collides with, and with the same camera collider as its greybox; or its greybox shape wearing a bound surface material. Null
+    /// when the bindings have nothing usable for it, so the greybox is drawn.
+    /// </summary>
+    private Node3D? ArtStructure(Blocker blocker, TerrainGrid terrain)
+    {
+        if (_bindings.Structure(blocker.Id) is not { } look)
+            return null;
+        if (look.Surface is { } surface)
+        {
+            if (_art.WorldMaterial(surface) is not { } material)
+                return null;
+            var greybox = BuildStructure(blocker, terrain);
+            if (greybox is MeshInstance3D mesh)
+                mesh.MaterialOverride = material;
+            return greybox;
+        }
+        if (Art.Fitting.Structure(_art, look, blocker, terrain) is not { } model)
+            return null;
+        // The camera's collider stays the structure's own shape: what the body collides with is the truth.
+        var greyboxShape = BuildStructure(blocker, terrain);
+        if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)
+        {
+            greyboxShape.RemoveChild(body);
+            body.Position = greyboxShape.Position - model.Position;
+            model.AddChild(body);
+        }
+        greyboxShape.Free();
+        return model;
     }
 
     private static Node3D BuildStructure(Blocker blocker, TerrainGrid terrain)
@@ -178,6 +234,18 @@ public partial class HollowView : Node3D
         var panel = Solid(door.Key + "_panel", new BoxMesh { Size = size }, new BoxShape3D { Size = size }, Palette.Door);
         panel.Position = alongZ ? new Vector3(0, height / 2, size.Z / 2) : new Vector3(size.X / 2, height / 2, 0);
         hinge.AddChild(panel);
+        // The door leaf from the asset library, hung from the same hinge and sized to the opening; its collider stays the panel's.
+        if (_bindings.Doors.TryGetValue(door.Key, out var look) && look.Model is { } leafId && _art.Model(leafId) is { } leaf)
+        {
+            var bounds = Art.ArtGallery.Bounds(leaf);
+            float run = alongZ ? size.Z : size.X;
+            leaf.Scale = new Vector3(run / Math.Max(0.01f, bounds.Size.X), height / Math.Max(0.01f, bounds.Size.Y), 2f);
+            // The leaf's hinge edge is its own x = 0; turned so its width runs along the opening from the hinge.
+            leaf.Rotation = new Vector3(0, alongZ ? -Mathf.Pi / 2 : 0, 0);
+            leaf.Position = alongZ ? new Vector3(0, -height / 2, -size.Z / 2) : new Vector3(-size.X / 2, -height / 2, 0);
+            panel.Mesh = null;
+            panel.AddChild(leaf);
+        }
 
         string group = door.Key["door.".Length..].Split('_')[0];
         var walls = layout.Space.Blockers.OfType<BoxBlocker>().Where(b => b.Id.StartsWith(group + "_", StringComparison.Ordinal)).ToList();
