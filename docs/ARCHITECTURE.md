@@ -156,6 +156,7 @@ Rules:
 - Events are **not** commands. A listener must never respond to an event by mutating another system's state directly; it submits a command.
 - Systems may publish and subscribe. Presentation may only subscribe.
 - Events are **not persisted.** Anything that must survive a save is state, not an event. (Conflating these is a classic source of "it worked until we reloaded" bugs.)
+- **A subscriber cannot break the tick** (Phase-1 audit remediation, 2026-09-24, H-02). Events are delivered synchronously, while the tick that published them is still running. So the session's bus isolates each subscriber: one that throws is reported through `GameSession.SubscriberFailed` and skipped, and the tick completes. Before this, a throwing view left the tick half done, and the next frame ran it again, charging Strain or XP debt twice. As implemented, no system of the simulation subscribes to the bus, so every subscriber is an observer. A bare `EventBus` still lets exceptions through, so a test's assertion inside a handler fails loudly.
 
 ### 4.4 World state
 

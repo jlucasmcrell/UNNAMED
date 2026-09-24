@@ -103,6 +103,7 @@ public partial class Main : Node3D
             GetTree().Quit(2);
             return;
         }
+        _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots");
@@ -116,56 +117,38 @@ public partial class Main : Node3D
 
         _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
         GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
+        if (_assets.Problems.Count > 0)
+            GD.PushWarning($"UNNAMED assets: {_assets.Problems.Count} manifest entries withheld, greybox stands in: {string.Join("; ", _assets.Problems)}");
         // The asset library's models, clips and materials, by the presentation's bindings (the Phase-1 asset integration).
         _art = new Art.ArtLibrary(_assets.Root);
         _bindings = Art.ArtBindings.Load(Art.ArtBindings.ResourcePath);
         _art.Withhold(_bindings.Withheld);
 
-        _hollow = new HollowView { Name = "Hollow" };
-        _hollow.Bind(_art, _bindings);
-        AddChild(_hollow);
-        _hollow.Build(_session.Setup.Layout);
-        if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
+        int before = GetChildCount();
+        try
         {
-            _avatar = skinned;
+            BuildScene();
         }
-        else
+        catch (Exception e)
         {
-            var greybox = new Avatar();
-            Art.HeldWeapon.Arm(greybox, _art, _bindings);
-            _avatar = greybox;
+            // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical
+            // audit, H-02). Whatever was built goes, and the scene is built again in greybox.
+            GD.PushError($"UNNAMED art: building the scene from the asset library failed ({e.GetType().Name}: {e.Message}); drawing greybox");
+            for (int i = GetChildCount() - 1; i >= before; i--)
+            {
+                var child = GetChild(i);
+                RemoveChild(child);
+                child.QueueFree();
+            }
+            _art = Art.ArtLibrary.Empty;
+            _bindings = Art.ArtBindings.Empty;
+            _assets = AssetCatalog.Empty;
+            BuildScene();
         }
-        _avatar.Name = "Player";
-        AddChild(_avatar);
-        _camera = new CameraRig { Name = "CameraRig" };
-        AddChild(_camera);
-        _hud = new Hud { Name = "Hud" };
-        AddChild(_hud);
-        _items = new ItemsView { Name = "Items" };
-        _items.Bind(_art, _bindings);
-        AddChild(_items);
-        _items.BuildContainers(_session.Setup.Layout);
-        _creatures = new CreaturesView { Name = "Creatures" };
-        _creatures.Bind(_art, _bindings);
-        AddChild(_creatures);
-        _crafting = new CraftingView { Name = "Crafting" };
-        _crafting.Bind(_art, _bindings);
-        AddChild(_crafting);
-        _crafting.Build(_session.Setup.Layout);
-        _npcs = new NpcsView { Name = "Npcs" };
-        _npcs.Bind(_art, _bindings);
-        AddChild(_npcs);
-        GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
-        _projectiles = new ProjectilesView { Name = "Projectiles" };
-        AddChild(_projectiles);
-        _projectiles.Bind(_assets);
-        _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
-        _magicEffects.Bind(_assets, _bindings);
-        AddChild(_magicEffects);
-        if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
-            glowing.WorkingGlow = false;
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
+        if (_sounds.Problems.Count > 0)
+            GD.PushWarning($"UNNAMED audio: {_sounds.Problems.Count} sound entries left out, malformed: {string.Join(", ", _sounds.Problems)}");
         AddChild(_sounds);
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
@@ -260,6 +243,68 @@ public partial class Main : Node3D
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
             _session.Subscribe<PlayerDied>(_ => _perfDied++);
         }
+    }
+
+    private readonly Dictionary<Type, int> _handlerFailures = new();
+
+    /// <summary>
+    /// A view's handler threw while the tick ran (H-02). The session's bus isolated it, so the tick went on; this says so - the first time
+    /// for each kind of event, then every hundredth.
+    /// </summary>
+    private void SubscriberFailed(Exception exception, object @event)
+    {
+        var kind = @event.GetType();
+        int seen = _handlerFailures[kind] = _handlerFailures.GetValueOrDefault(kind) + 1;
+        if (seen == 1 || seen % 100 == 0)
+            GD.PushError($"UNNAMED: a handler for {kind.Name} threw ({seen} so far); the tick went on without it: {exception}");
+    }
+
+    /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
+    private void BuildScene()
+    {
+        _hollow = new HollowView { Name = "Hollow" };
+        _hollow.Bind(_art, _bindings);
+        AddChild(_hollow);
+        _hollow.Build(_session.Setup.Layout);
+        if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
+        {
+            _avatar = skinned;
+        }
+        else
+        {
+            var greybox = new Avatar();
+            Art.HeldWeapon.Arm(greybox, _art, _bindings);
+            _avatar = greybox;
+        }
+        _avatar.Name = "Player";
+        AddChild(_avatar);
+        _camera = new CameraRig { Name = "CameraRig" };
+        AddChild(_camera);
+        _hud = new Hud { Name = "Hud" };
+        AddChild(_hud);
+        _items = new ItemsView { Name = "Items" };
+        _items.Bind(_art, _bindings);
+        AddChild(_items);
+        _items.BuildContainers(_session.Setup.Layout);
+        _creatures = new CreaturesView { Name = "Creatures" };
+        _creatures.Bind(_art, _bindings);
+        AddChild(_creatures);
+        _crafting = new CraftingView { Name = "Crafting" };
+        _crafting.Bind(_art, _bindings);
+        AddChild(_crafting);
+        _crafting.Build(_session.Setup.Layout);
+        _npcs = new NpcsView { Name = "Npcs" };
+        _npcs.Bind(_art, _bindings);
+        AddChild(_npcs);
+        GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
+        _projectiles = new ProjectilesView { Name = "Projectiles" };
+        AddChild(_projectiles);
+        _projectiles.Bind(_assets);
+        _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
+        _magicEffects.Bind(_assets, _bindings);
+        AddChild(_magicEffects);
+        if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
+            glowing.WorkingGlow = false;
     }
 
     public override void _Process(double delta)

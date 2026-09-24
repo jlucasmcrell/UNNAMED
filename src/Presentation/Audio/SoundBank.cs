@@ -46,10 +46,16 @@ public partial class SoundBank : Node
             using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(assetRoot, "manifests", Manifest)));
             foreach (var sound in json.RootElement.GetProperty("sounds").EnumerateArray())
             {
-                string id = sound.GetProperty("audio_id").GetString()!;
-                bool stereo = sound.GetProperty("channels").GetInt32() == 2;
-                _sounds[id] = new Sound(id, Path.Combine(assetRoot, sound.GetProperty("delivered").GetString()!), stereo,
-                    sound.GetProperty("loop").GetBoolean(), stereo || sound.GetProperty("group").GetString() == "ui");
+                // An entry the manifest got wrong is left out, and said; the rest of the set still plays (the Phase-1 technical audit, H-02).
+                if (Text(sound, "audio_id") is not { } id || Text(sound, "delivered") is not { } delivered
+                    || !sound.TryGetProperty("channels", out var channels) || channels.ValueKind != JsonValueKind.Number
+                    || !sound.TryGetProperty("loop", out var loop) || loop.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                {
+                    _problems.Add(Text(sound, "audio_id") ?? sound.ToString());
+                    continue;
+                }
+                bool stereo = channels.TryGetInt32(out int count) && count == 2;
+                _sounds[id] = new Sound(id, Path.Combine(assetRoot, delivered), stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui");
                 string family = id.LastIndexOf('.') is var dot and > 0 && id[(dot + 1)..].All(char.IsDigit) ? id[..dot] : id;
                 if (!_families.TryGetValue(family, out var members))
                     _families[family] = members = new List<string>();
@@ -63,6 +69,15 @@ public partial class SoundBank : Node
             _families.Clear();
         }
     }
+
+    /// <summary>Manifest entries left out because they are malformed, by ID where they have one.</summary>
+    public IReadOnlyList<string> Problems => _problems;
+
+    private readonly List<string> _problems = new();
+
+    private static string? Text(JsonElement element, string name) =>
+        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
+        && value.GetString() is { Length: > 0 } text ? text : null;
 
     /// <summary>Whether the set has a family (or a single ID) by this name.</summary>
     public bool Has(string family) => _families.ContainsKey(family) || _sounds.ContainsKey(family);

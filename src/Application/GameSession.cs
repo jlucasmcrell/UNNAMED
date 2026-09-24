@@ -64,7 +64,7 @@ public sealed class GameSession : IDomainEvents
     /// <summary>A frame longer than this is clamped, so a stall or a long load cannot spiral (WORLD_ARCHITECTURE.md §6.1).</summary>
     public const double MaxFrameSeconds = 0.25;
 
-    private readonly EventBus _bus = new();
+    private readonly EventBus _bus;
     private readonly SaveStore _store;
     private readonly IReadOnlyDictionary<string, string> _names;
     private readonly ImmutableArray<BaselineTransition> _transitions;
@@ -76,6 +76,7 @@ public sealed class GameSession : IDomainEvents
         IReadOnlyDictionary<string, string> names, ImmutableArray<BaselineTransition> transitions)
     {
         Options = options;
+        _bus = new EventBus(OnSubscriberFailed);
         _transitions = transitions;
         _names = names;
         Setup = setup;
@@ -232,6 +233,21 @@ public sealed class GameSession : IDomainEvents
     public void Subscribe<T>(Action<T> handler) => _bus.Subscribe(handler);
 
     public void Unsubscribe<T>(Action<T> handler) => _bus.Unsubscribe(handler);
+
+    /// <summary>
+    /// A subscriber that threw, and the event it threw on (H-02). It was isolated: the tick completed and nothing in it ran twice. The
+    /// world never sees it; presentation logs it.
+    /// </summary>
+    public event Action<Exception, object>? SubscriberFailed;
+
+    /// <summary>How many times a subscriber has thrown this session.</summary>
+    public int SubscriberFailures { get; private set; }
+
+    private void OnSubscriberFailed(Exception exception, object @event)
+    {
+        SubscriberFailures++;
+        SubscriberFailed?.Invoke(exception, @event);
+    }
 
     private void Begin(Simulation simulation, double playtime)
     {
