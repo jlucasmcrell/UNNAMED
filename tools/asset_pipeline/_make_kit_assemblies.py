@@ -98,24 +98,26 @@ def rectangle(name, width, depth, wall_asset, note, door_on="south", windows=Tru
                            "position": [x, WALL_HEIGHT, sz * (half_d - 0.09)],
                            "rotation_y_deg": 0.0})
 
-    # Two roof slopes, laid from the eaves to the ridge.
+    # Two roof slopes, laid from the ridge out to the eaves.
     #
-    # The original layout put ONE panel per slope with its centre at
-    # `half_d + ROOF_SLOPE/2 - 0.30`, which is 3.7 m from the centre of a 6 m building. A 2 m panel
-    # pitched at 32 degrees only spans 1.70 m horizontally, so that placed the whole roof *outside*
-    # the walls - it covered z 2.85 to 4.55 against a wall line at 2.91 - floating clear, leaving the
-    # ridge wide open, and making a 6 m building measure 9.4 m of depth. It is also why the first
-    # assembled forge shed rendered as slabs rather than a shed.
+    # Two earlier layouts were wrong in different ways, and this is the third. The first put ONE
+    # panel per slope centred at `half_d + ROOF_SLOPE/2 - 0.30` = 3.7 m from the centre of a 6 m
+    # building, while a 2 m panel pitched at 32 degrees only spans 1.70 m horizontally - so the whole
+    # roof sat *outside* the walls, floating clear and leaving the ridge open. The second laid each
+    # slope from the eave inward, which is closer, but two panels cover 3.39 m of a 3.0 m half-depth:
+    # measured on the built asset the two slopes therefore **overlapped by 0.784 m across the ridge**,
+    # intersecting each other and reading as a pile of sheets rather than a roof.
     #
-    # So the panel centres are computed on the roof plane itself: the plane through the eave at
-    # (z = half_d, y = WALL_HEIGHT) rising to the ridge at z = 0, with enough panels per slope to
-    # actually span the half-depth.
+    # Laying from the ridge outward fixes it with no geometry change to the kit. Both slopes now meet
+    # exactly at z = 0, and the surplus 0.39 m per side falls at the eave as an overhang, which is what
+    # a real roof does. The panel size is fixed by the kit, so the surplus has to go somewhere; an
+    # eave overhang is the only place it is not a defect.
     pitch = math.radians(ROOF_PITCH_DEG)
     run = ROOF_SLOPE * math.cos(pitch)
     panels_per_slope = max(1, int(math.ceil(half_d / run)))
     for sz in (-1, 1):
         for row in range(panels_per_slope):
-            z_offset = half_d - run * (row + 0.5)
+            z_offset = run * (row + 0.5)
             height = WALL_HEIGHT + (half_d - z_offset) * math.tan(pitch)
             for index in range(spans):
                 x = -half_w + WALL_MODULE / 2 + index * WALL_MODULE
@@ -123,7 +125,7 @@ def rectangle(name, width, depth, wall_asset, note, door_on="south", windows=Tru
                                "position": [x, height, sz * z_offset],
                                "rotation_y_deg": 0.0,
                                "rotation_x_deg": sz * -ROOF_PITCH_DEG,
-                               "note": "pitched slope, eave to ridge"})
+                               "note": "pitched slope, ridge to eave"})
     return {"name": name, "note": note, "footprint_m": [width, depth],
             "wall_height_m": WALL_HEIGHT, "pieces": pieces}
 
