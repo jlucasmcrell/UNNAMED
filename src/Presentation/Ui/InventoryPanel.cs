@@ -7,6 +7,7 @@ using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
@@ -148,7 +149,8 @@ public partial class InventoryPanel : CanvasLayer
                 row.AddChild(Button("Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
             if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
                 row.AddChild(Button("Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
-            if (OpenContainer is { } key)
+            // Remains take nothing in: the world takes a body away with whatever lies in it.
+            if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
                 row.AddChild(Button("Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
             if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId) is { } each && each > 0 && !equipped)
             {

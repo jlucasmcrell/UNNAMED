@@ -419,4 +419,40 @@ public class NpcTests
         Assert.Equal(arena.Simulation.Wares(Kera)!.Wares.ToList(), again.Simulation.Wares(Kera)!.Wares.ToList());
         Assert.Equal(arena.Simulation.Player.Currency, again.Simulation.Player.Currency);
     }
+
+    /// <summary>
+    /// The Phase-1 technical audit, M-01: a fixed-stock trader bought out is out. Her wares stay an empty record rather than falling back to
+    /// her authored stock, and stay empty across a save and load.
+    /// </summary>
+    [Fact]
+    public void ATraderBoughtOut_StaysEmpty_AcrossASaveAndLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, AtKera, r => With(r, 1000));
+        int stacks = arena.Simulation.Wares(Kera)!.Wares.Length;
+        Assert.Equal(5, stacks);
+        for (int i = 0; i < stacks; i++)
+        {
+            var ware = arena.Simulation.Wares(Kera)!.Wares[0];
+            Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, ware.Count)));
+        }
+        Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
+        Assert.Empty(arena.Simulation.World.Container(Wares)!.Items);
+        Assert.Equal((60, 1, 1), (Carried(arena, Arrows), Carried(arena, "item.armor.hide_vest"), Carried(arena, "item.armor.hide_cap")));
+        arena.Tick(2);
+        Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("bought_out"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("bought_out"), new LoadContext(session.Generator, session.Content, new Registry())));
+
+        Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
+        Assert.Empty(again.Simulation.Wares(Kera)!.Wares);
+        Assert.Empty(again.Simulation.World.Container(Wares)!.Items);
+        // What she is sold afterwards joins her wares, as it always did.
+        Assert.Null(again.Submit(new SellCommand(again.Player, Kera, again.Simulation.Player.Inventory.Single(e => e.DefId == "item.armor.hide_vest").ItemId, 1)));
+        Assert.Equal("item.armor.hide_vest", Assert.Single(again.Simulation.Wares(Kera)!.Wares).ItemId);
+    }
 }

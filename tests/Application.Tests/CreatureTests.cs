@@ -436,6 +436,37 @@ public class CreatureTests
         Assert.Fail("no world in 19 dropped anything");
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, M-04: the world takes a corpse away when it decays or its creature returns, so a body is no place to
+    /// leave things. Nothing may be put into one - ore, a no-drop quest token or anything else - and what was offered is still carried after
+    /// the body has gone.
+    /// </summary>
+    [Fact]
+    public void NothingCanBePutIntoACorpse_SoNothingIsLostWhenItDecays()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var ore = Arena.Stack("item.material.iron_ore", 2);
+        var token = Arena.Stack("item.quest.halda_token", 1);
+        var arena = Arena.OpenCreatures(session, session.Setup, (120, 60), 0, new[] { (Arena.Wolf, 120.0, 62.0, "pack_hunter") },
+            r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Append(ore).Append(token), r.Progression,
+                r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency, r.Effects));
+        arena.Fight(Only(arena), 600);
+        var wolf = Only(arena);
+        Assert.Equal(CreatureCondition.Corpse, wolf.Condition);
+        Walk(arena, (wolf.Body.XMm / 1000.0, wolf.Body.ZMm / 1000.0 - 1), Gait.Walk);
+        int Carried(string defId) => arena.Simulation.Player.Inventory.Where(e => e.DefId == defId).Sum(e => e.Count);
+
+        foreach (var item in new[] { ore, token })
+            Assert.Equal("a body is no place to leave things",
+                arena.Submit(new MoveItemCommand(arena.Player, item.ItemId.Value, ItemPlace.Carried, ItemPlace.In(wolf.CorpseKey), item.Count)));
+        arena.Tick((int)session.Setup.Combat.CorpseDecayTicks + 1);
+
+        Assert.Equal(CreatureCondition.Gone, Only(arena).Condition);
+        Assert.Null(arena.Simulation.World.Container(wolf.CorpseKey));
+        Assert.Equal((2, 1), (Carried("item.material.iron_ore"), Carried("item.quest.halda_token")));
+    }
+
     [Fact]
     public void ACreaturesDeathWoundsAndCorpse_SurviveSaveAndLoad()
     {

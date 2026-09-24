@@ -222,6 +222,9 @@ internal sealed class InventorySystem
             return $"unequip {definition.Id} first";
         if (command.To.Kind == PlaceKind.Ground && definition.NoDrop)
             return $"{definition.Id} cannot be dropped";
+        // A body decays or its creature returns, and what lies in it goes with it: nothing of the character's is left there.
+        if (command.To.Kind == PlaceKind.Container && IsCorpse(command.To.ContainerKey!))
+            return "a body is no place to leave things";
 
         bool whole = command.Count == source.Count;
         if (command.From.Kind == PlaceKind.Inventory && command.To.Kind == PlaceKind.Inventory)
@@ -482,6 +485,9 @@ internal sealed class InventorySystem
         }
     }
 
+    /// <summary>A creature's remains: a container the world takes away again when it decays or its creature returns.</summary>
+    private bool IsCorpse(string key) => _context.CorpseSites().Any(s => s.Key == key);
+
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
     private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality)> ContentsOf(ContainerSite site)
     {
@@ -554,8 +560,9 @@ internal sealed class InventorySystem
                 var item = record.Items[source.Id is null ? source.Index : record.Items.IndexOf(record.Items.Single(i => i.ItemId == source.Id))];
                 var items = whole ? record.Items.Remove(item) : record.Items.Replace(item, item with { Count = item.Count - count });
                 State.SetContainer(_owner, record with { Items = items });
-                // A corpse searched to the last item is gone (PROTOTYPE.md §5 step 8: "wolf corpses removed").
-                if (items.IsEmpty && _context.Setup.Layout.FindContainer(site.Key) is null)
+                // A corpse searched to the last item is gone (PROTOTYPE.md §5 step 8: "wolf corpses removed"). A chest or a trader's wares
+                // bought out keep their empty record: without it their contents would read as the loot table or the authored stock again.
+                if (items.IsEmpty && IsCorpse(site.Key))
                 {
                     State.RemoveContainer(_owner, site.Key);
                     _context.Dispatch(new CorpseEmptied(site.Key));
