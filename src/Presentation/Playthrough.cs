@@ -344,7 +344,7 @@ public sealed class Playthrough
                 return false;
             _phase = 1;
         }
-        return Converse(Sel, "books", "take", "ruin", "tavar", "stones", "back");
+        return Converse(Sel, "books", "take", "back", "ruin", "tavar", "stones", "back");
     }
 
     private bool ReadThePrimer()

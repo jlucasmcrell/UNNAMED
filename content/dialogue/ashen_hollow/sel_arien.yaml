@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.sel_arien.name
 tags: [dialogue]
-notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She hands over the Resonance Primer that lay on the longhouse shelf through M3e, and gives Quest 2, The Three Quiet Stones (M6) - her guide Tavar is caught in the Foldscar.
+notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She hands over the Resonance Primer that lay on the longhouse shelf through M3e, and gives Quest 2, The Three Quiet Stones (M6) - her guide Tavar is caught in the Foldscar. Offering the primer is not a once-only line - hearing the offer is not getting the book - and "primer_given", reached only when the book has changed hands, is what marks it given (the Phase-1 technical audit, H-01).
 participants: [npc.ashen_hollow.sel_arien]
 root_node: greet
 nodes:
@@ -30,16 +30,20 @@ nodes:
   again:
     text: "You again. Good - I was starting to talk to the stones."
     choices:
+      # Offered until the book has changed hands: leaving her at the offer, a full pack or a load in between loses nothing. A save from before
+      # the marker line that already carries the primer is not offered a second.
       - id: books
         text: "Is there anything here I could learn from?"
-        conditions: [{ kind: visited, node: primer, not: true }]
+        conditions:
+          - { kind: visited, node: primer_given, not: true }
+          - { kind: has_item, item_ref: item.tome.resonance_primer, not: true }
         next: primer
       - id: ruin
         text: "Tell me about the ruin."
         next: foldscar
       - id: strain
         text: "The primer said to mind the strain. How far can I push?"
-        conditions: [{ kind: visited, node: primer }]
+        conditions: [{ kind: visited, node: primer_given }]
         next: strain
       - id: tavar
         text: "Something out there is wrong. What is it?"
@@ -67,14 +71,18 @@ nodes:
         text: "Another time."
   primer:
     text: "One. The Resonance Primer - three small workings, one to strike, one to brace, one to mend. It's no use to me in a drawer. Read it, and don't push past what your body can hold."
-    once: true
-    next_if_exhausted: again
     choices:
       - id: take
         text: "Thank you. I'll be careful."
         consequences:
           - { command: transfer_item, item_ref: item.tome.resonance_primer, count: 1, to: player }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: given_the_primer }
+        next: primer_given
+  primer_given:
+    text: "She pushes the book across the table. \"If it ever starts making sense, tell me how.\""
+    choices:
+      - id: back
+        text: "I will."
         next: again
   foldscar:
     text: "Foldscar. Three standing stones around something that isn't there any more - or isn't here. I have guesses about what they were for. I've learned not to trust them."

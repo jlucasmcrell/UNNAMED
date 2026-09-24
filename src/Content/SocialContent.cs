@@ -257,6 +257,33 @@ public static class SocialContent
                     throw new FormatException($"{id}: spent lines loop through node {at.Id}");
             }
         }
+        foreach (var node in dialogue.Nodes.Values.Where(n => n.Once))
+            OnceLineKeepsItsConsequences(dialogue, node);
+    }
+
+    /// <summary>
+    /// A once line is spent when it is heard, not when it is answered: a character who walks away, is refused (a full pack) or loads a save
+    /// before answering never hears it again. So a reply of a once line that does something - gives, teaches, starts, recruits, moves
+    /// what an NPC thinks - must be offered again, the same reply with the same consequences, by a line its <c>next_if_exhausted</c>
+    /// falls back to, gated there on whatever marks it received. Otherwise the line must not be once.
+    /// </summary>
+    private static void OnceLineKeepsItsConsequences(DialogueDefinition dialogue, DialogueNode node)
+    {
+        foreach (var choice in node.Choices.Where(c => !c.Consequences.IsEmpty))
+        {
+            bool offeredAgain = false;
+            var seen = new HashSet<string>(StringComparer.Ordinal) { node.Id };
+            for (string? next = node.NextIfExhausted; next is not null && seen.Add(next) && !offeredAgain; )
+            {
+                var fallback = dialogue.Nodes[next];
+                offeredAgain = fallback.Choices.Any(c => c.Id == choice.Id && c.Consequences.SequenceEqual(choice.Consequences));
+                next = fallback.Once ? fallback.NextIfExhausted : null;
+            }
+            if (!offeredAgain)
+                throw new FormatException($"{dialogue.Id}: node {node.Id} is spent once heard, and its reply {choice.Id} carries consequences - " +
+                                          "a character who leaves before answering would lose them for good; offer the same reply on the line it falls " +
+                                          "back to (next_if_exhausted), gated on what marks it received, or do not make the line once");
+        }
     }
 
     /// <summary>An NPC's conversation names it; a conversation that opens a service is spoken by someone who offers it.</summary>
