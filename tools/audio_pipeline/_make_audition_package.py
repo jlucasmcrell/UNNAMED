@@ -131,60 +131,290 @@ def write_metadata(rows):
 
 
 def write_index(rows):
-    """One page, grouped by family, playing V1 and each candidate inline."""
+    """The listening page: pick a preference per id, then export a report.
+
+    Three things it has to get right, because the owner will spend an hour in it.
+
+    Picks must survive a reload. 228 ids is not a sitting, and losing the work halfway through the
+    list would make the tool worse than paper. State goes to localStorage on every change.
+
+    V1 has to be selectable. The brief says a provisional pick may be replaced, and for some ids the
+    right replacement is the old sound. Offering only "which V2" would quietly force a change
+    everywhere.
+
+    Undecided must stay distinguishable from decided. If every id started on its provisional pick,
+    "I listened and agreed" and "I never reached it" would be the same value in the report, and the
+    report would claim 228 auditions that never happened.
+    """
+    import html as html_module
+
+    ids_payload = [{"id": r["audio_id"], "files": r["files"], "provisional": r["provisional"]}
+                   for r in rows]
+
     by_family = {}
     for row in rows:
         by_family.setdefault(row["family"], []).append(row)
 
-    parts = ["""<!doctype html><html><head><meta charset="utf-8">
+    head = """<!doctype html><html><head><meta charset="utf-8">
 <title>Otherreach Phase-1 audio - V1 vs V2 audition</title>
 <style>
- body{background:#12131a;color:#e6e6ee;font:13px/1.5 system-ui,Segoe UI,sans-serif;margin:0;padding:24px}
- h1{font-size:19px;margin:0 0 4px} h2{font-size:15px;margin:28px 0 8px;color:#9fd0ff}
- .note{color:#9a9aa8;max-width:900px;margin-bottom:18px}
- .id{border-top:1px solid #262838;padding:12px 0}
- .name{font-weight:600;color:#ffd88a;font-size:13px}
- .meta{color:#8b8b9c;font-size:11px;margin:2px 0 6px}
- .prompt{color:#b9b9c8;font-size:11px;margin:4px 0;max-width:1000px}
- .v1{color:#7f8fa6}.prov{color:#8ee08a;font-weight:600}
- .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:6px}
- .cell{background:#1b1d27;border:1px solid #262838;border-radius:6px;padding:6px 8px}
+ :root{--bg:#12131a;--panel:#1b1d27;--line:#262838;--fg:#e6e6ee;--dim:#8b8b9c;
+       --gold:#ffd88a;--green:#8ee08a;--blue:#9fd0ff;--red:#ff8f8f}
+ *{box-sizing:border-box}
+ body{background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,Segoe UI,sans-serif;margin:0}
+ header{position:sticky;top:0;z-index:20;background:#0d0e14;border-bottom:1px solid var(--line);
+        padding:10px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+ h1{font-size:15px;margin:0;font-weight:600}
+ h2{font-size:14px;margin:26px 18px 8px;color:var(--blue)}
+ .grow{flex:1}
+ .prog{font-variant-numeric:tabular-nums;color:var(--dim)}
+ .prog b{color:var(--fg)}
+ button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;
+        padding:5px 11px;font:inherit;cursor:pointer}
+ button:hover{border-color:#3d4160;background:#222533}
+ button.primary{background:#26405c;border-color:#39628c}
+ .note{color:var(--dim);max-width:1000px;margin:12px 18px}
+ .id{border-top:1px solid var(--line);padding:10px 18px}
+ .id.decided{background:#161a20}
+ .id.kept-v1{background:#1d1a16}
+ .name{font-weight:600;color:var(--gold);font-size:13px}
+ .meta{color:var(--dim);font-size:11px;margin:1px 0 4px}
+ .prompt{color:#b9b9c8;font-size:11px;margin:3px 0 6px;max-width:1100px}
+ .prompt b{color:#d8d8e6;font-weight:600}
+ .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+ .cell{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+ .cell.picked{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
+ .cell.picked.prov{border-color:var(--green)}
+ label.cell{cursor:pointer}
  .cell b{display:block;font-size:11px;color:#c9c9d8;margin-bottom:3px}
- audio{height:30px;width:250px}
+ .cell .tag{font-weight:600}
+ .v1 .tag{color:#9fb0c8}.prov .tag{color:var(--green)}
+ audio{height:30px;width:250px;display:block}
+ .pick{display:flex;gap:5px;align-items:center;margin-top:5px;font-size:11px;color:var(--dim)}
+ input[type=radio]{accent-color:#8ee08a;cursor:pointer}
+ .acts{display:flex;gap:8px;align-items:center;margin-top:7px;flex-wrap:wrap}
+ input.notein{background:#0f1016;border:1px solid var(--line);color:var(--fg);border-radius:5px;
+              padding:4px 8px;font:inherit;width:340px}
+ .status{font-size:11px;color:var(--dim)}
+ #panel{position:fixed;inset:0;background:rgba(6,7,10,.92);z-index:50;padding:28px;
+        overflow:auto;display:none}
+ #panel.on{display:block}
+ #panel .box{max-width:1000px;margin:0 auto}
+ textarea{width:100%;height:340px;background:#0f1016;color:#cfe6cf;border:1px solid var(--line);
+          border-radius:8px;padding:12px;font:12px/1.45 ui-monospace,Consolas,monospace}
+ .hint{color:var(--dim);font-size:11px;margin:6px 0 10px}
+ kbd{background:#222533;border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:11px}
 </style></head><body>
-<h1>Otherreach Phase-1 audio &mdash; V1 versus V2</h1>
+<header>
+  <h1>Otherreach Phase-1 audio &mdash; V1 vs V2</h1>
+  <span class="prog" id="prog"></span>
+  <span class="grow"></span>
+  <button onclick="jumpNext()">Next undecided</button>
+  <button class="primary" onclick="openReport()">Export report</button>
+  <button onclick="resetAll()">Reset</button>
+</header>
 <div class="note">
-V1 is Stable Audio Open 1.0. V2 is Stable Audio 3 Small SFX. For each id you get the V1 original
-and three V2 candidates; the one marked <span class="prov">provisional</span> is what an automated
-rule picked, and it can be replaced. <b>No sound here has been listened to by a machine</b> &mdash;
-technical QA checked duration, level, clipping, silence, channels and loop seams, and nothing else.
-</div>"""]
+  V1 is Stable Audio Open 1.0. V2 is Stable Audio 3 Small SFX. Pick the one you prefer per sound &mdash;
+  <b>V1 is a valid choice</b>, and for some sounds it may be the right one. Your picks save automatically
+  in this browser. <b>No machine has listened to any of this</b>: technical QA checked duration, level,
+  clipping, silence, channels and loop seams, and nothing else. Whether a sound is convincing is yours.
+  <div class="hint" style="margin-top:8px">
+    <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> pick V1/A/B/C for the focused sound &nbsp;&middot;&nbsp;
+    <kbd>Space</kbd> play all four in a row &nbsp;&middot;&nbsp; <kbd>n</kbd> next undecided
+  </div>
+</div>
+"""
 
+    parts = [head]
     for family in sorted(by_family):
         parts.append(f"<h2>{family} ({len(by_family[family])})</h2>")
         for row in by_family[family]:
-            parts.append('<div class="id">')
-            parts.append(f'<div class="name">{row["audio_id"]}</div>')
+            audio_id = row["audio_id"]
+            escaped = html_module.escape(audio_id, quote=True)
+            parts.append(f'<div class="id" id="card-{escaped}" data-id="{escaped}">')
+            parts.append(f'<div class="name">{html_module.escape(audio_id)}</div>')
             parts.append(f'<div class="meta">{row["group"]} &middot; {row["seconds"]}s &middot; '
                          f'{row["source"]}</div>')
-            parts.append(f'<div class="prompt"><b>V2 prompt:</b> {row["prompt"]}</div>')
+            if row.get("prompt_v1"):
+                parts.append(f'<div class="prompt"><b>V1 prompt:</b> '
+                             f'{html_module.escape(row["prompt_v1"])}</div>')
+            parts.append(f'<div class="prompt"><b>V2 prompt:</b> '
+                         f'{html_module.escape(row["prompt"])}</div>')
             parts.append('<div class="row">')
-            for key in ("V1", "V2-A", "V2-B", "V2-C"):
-                name = row["files"].get(key)
-                if not name:
-                    continue
-                mark = ""
-                if key == "V1":
-                    mark = '<span class="v1">(original)</span>'
-                elif row["provisional"] and key == f'V2-{row["provisional"].upper()}':
-                    mark = '<span class="prov">provisional</span>'
-                label = f"{key} {mark}"
-                parts.append(f'<div class="cell"><b>{label}</b>'
-                             f'<audio controls preload="none" '
-                             f'src="{row["relative"]}/{name}"></audio></div>')
-            parts.append("</div></div>")
 
-    parts.append("</body></html>")
+            order = [k for k in ("V1", "V2-A", "V2-B", "V2-C") if k in row["files"]]
+            for key in order:
+                name = row["files"][key]
+                provisional = (key != "V1" and row["provisional"]
+                               and key == f'V2-{row["provisional"].upper()}')
+                css = "cell"
+                if key == "V1":
+                    css += " v1"
+                if provisional:
+                    css += " prov"
+                tag = key
+                if key == "V1":
+                    tag += ' <span class="tag">(original)</span>'
+                elif provisional:
+                    tag += ' <span class="tag">provisional</span>'
+                parts.append(f'<div class="{css}" data-key="{key}">')
+                parts.append(f'<b>{tag}</b>')
+                parts.append(f'<audio preload="none" '
+                             f'src="{row["relative"]}/{name}"></audio>')
+                parts.append(f'<div class="pick"><input type="radio" name="pick-{escaped}" '
+                             f'value="{key}" onchange="pick(\'{escaped}\',this.value)">'
+                             f'<span>prefer this</span></div>')
+                parts.append("</div>")
+
+            parts.append("</div>")
+            parts.append('<div class="acts">'
+                         f'<button onclick="playRow(\'{escaped}\')">Play all in order</button>'
+                         f'<span class="status" id="st-{escaped}"></span>'
+                         f'<input class="notein" placeholder="note for this sound (optional)" '
+                         f'oninput="note(\'{escaped}\',this.value)"></div>')
+            parts.append("</div>")
+
+    parts.append('<div id="panel"><div class="box">'
+                 '<h1 style="font-size:16px">Audition report</h1>'
+                 '<div class="hint">Copy this, or download it, and give it back. '
+                 'Undecided sounds are listed as undecided and are not claimed as auditions.</div>'
+                 '<div style="margin-bottom:10px">'
+                 '<button class="primary" onclick="copyReport()">Copy</button> '
+                 '<button onclick="downloadReport()">Download JSON</button> '
+                 '<button onclick="closeReport()">Close</button>'
+                 '<span class="status" id="copystat"></span></div>'
+                 '<textarea id="reporttext" readonly></textarea>'
+                 '</div></div>')
+
+    parts.append("<script>\nconst IDS = " + json.dumps(ids_payload) + ";\n")
+    parts.append(r"""
+const KEY = 'otherreach.audio.v2.audition.v1';
+let state = load();
+
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {picks:{},notes:{}}; }
+                 catch(e){ return {picks:{},notes:{}}; } }
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+// getElementById takes the raw id. Every id here contains dots, and passing CSS.escape() through it
+// yields 'sfx\.ui\.select', which matches nothing - the cards would render but the status line would
+// silently never update and the page would look like it had lost the picks.
+function card(id){ return document.getElementById('card-'+id); }
+
+function pick(id, value){
+  state.picks[id] = value;
+  save(); render(id);
+}
+function note(id, value){
+  if (value.trim()) { state.notes[id] = value.trim(); } else { delete state.notes[id]; }
+  save();
+}
+function render(id){
+  const c = card(id); if (!c) return;
+  const chosen = state.picks[id];
+  c.classList.toggle('decided', !!chosen);
+  c.classList.toggle('kept-v1', chosen === 'V1');
+  c.querySelectorAll('.cell').forEach(cell => {
+    const on = cell.dataset.key === chosen;
+    cell.classList.toggle('picked', on);
+    const radio = cell.querySelector('input[type=radio]');
+    if (radio) radio.checked = on;
+  });
+  const st = document.getElementById('st-'+id);
+  if (st) st.textContent = chosen ? ('your pick: ' + chosen) : 'not decided yet';
+}
+function renderAll(){
+  IDS.forEach(r => render(r.id));
+  const decided = IDS.filter(r => state.picks[r.id]).length;
+  document.getElementById('prog').innerHTML =
+    '<b>' + decided + '</b> / ' + IDS.length + ' decided';
+}
+function playRow(id){
+  const c = card(id); if (!c) return;
+  const audios = Array.from(c.querySelectorAll('audio'));
+  let i = 0;
+  const next = () => {
+    if (i >= audios.length) { return; }
+    const a = audios[i++];
+    a.currentTime = 0; a.play();
+    a.onended = next;
+  };
+  audios.forEach(a => { a.pause(); a.onended = null; });
+  next();
+}
+function focusFirstUndecided(from){
+  const list = IDS.map(r => r.id);
+  const start = from === undefined ? 0 : from + 1;
+  for (let i = start; i < list.length; i++) {
+    if (!state.picks[list[i]]) {
+      const c = card(list[i]);
+      c.scrollIntoView({block:'center'}); c.focus();
+      window.__focus = i;
+      return;
+    }
+  }
+}
+function jumpNext(){ focusFirstUndecided(window.__focus); }
+function openReport(){
+  document.getElementById('reporttext').value = buildReport();
+  document.getElementById('panel').classList.add('on');
+}
+function closeReport(){ document.getElementById('panel').classList.remove('on'); }
+function buildReport(){
+  const picks = {}, notes = {};
+  const undecided = [];
+  IDS.forEach(r => {
+    const p = state.picks[r.id];
+    if (p) { picks[r.id] = p; } else { undecided.push(r.id); }
+  });
+  Object.keys(state.notes).forEach(k => { notes[k] = state.notes[k]; });
+  const counts = {};
+  Object.values(picks).forEach(v => { counts[v] = (counts[v]||0)+1; });
+  return JSON.stringify({
+    kind: 'otherreach.audio.v2.audition-report',
+    version: 1,
+    generated: new Date().toISOString(),
+    human_auditioned: true,
+    total_ids: IDS.length,
+    decided: Object.keys(picks).length,
+    undecided_count: undecided.length,
+    counts_by_selection: counts,
+    kept_v1: Object.keys(picks).filter(k => picks[k] === 'V1'),
+    selections: picks,
+    notes: notes,
+    undecided: undecided
+  }, null, 2);
+}
+function copyReport(){
+  const t = document.getElementById('reporttext');
+  t.select(); navigator.clipboard.writeText(t.value);
+  document.getElementById('copystat').textContent = 'copied';
+}
+function downloadReport(){
+  const blob = new Blob([buildReport()], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'otherreach_audio_v2_audition_report.json';
+  a.click();
+}
+function resetAll(){
+  if (!confirm('Clear every pick and note? This cannot be undone.')) return;
+  state = {picks:{}, notes:{}}; save(); renderAll();
+  document.querySelectorAll('input.notein').forEach(i => i.value = '');
+}
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const c = document.activeElement && document.activeElement.closest
+            ? document.activeElement.closest('.id') : null;
+  if (e.key === 'n') { jumpNext(); return; }
+  if (!c) return;
+  const id = c.dataset.id;
+  if (e.key === ' ') { e.preventDefault(); playRow(id); return; }
+  const map = {'1':'V1','2':'V2-A','3':'V2-B','4':'V2-C'};
+  if (map[e.key]) { pick(id, map[e.key]); }
+});
+renderAll();
+""")
+    parts.append("</script></body></html>")
+
     with io.open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as handle:
         handle.write("\n".join(parts))
 
