@@ -7,6 +7,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
@@ -245,7 +246,7 @@ internal sealed class DialogueSystem : IDialogueFacts
 
         // An item changing hands is the one consequence that can be refused (a full pack, say): it goes first, and a
         // refusal refuses the reply before anything else happens. The content lint allows one a reply.
-        if (choice.Consequences.OfType<TransferItemConsequence>().FirstOrDefault() is { } transfer && Transfer(transfer) is { } refused)
+        if (choice.Consequences.OfType<TransferItemConsequence>().FirstOrDefault() is { } transfer && Transfer(open.NpcId, transfer, tick) is { } refused)
             return refused;
         foreach (var consequence in choice.Consequences)
             Apply(open, consequence, tick);
@@ -308,24 +309,30 @@ internal sealed class DialogueSystem : IDialogueFacts
         _context.Events.Publish(new ConversationEnded(open.NpcId, tick));
     }
 
-    private string? Transfer(TransferItemConsequence transfer)
+    private string? Transfer(string npcId, TransferItemConsequence transfer, long tick)
     {
         if (transfer.ToPlayer)
             return _context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, transfer.ItemId, transfer.Count, Quality.Standard));
         var takes = ImmutableArray.CreateBuilder<StackTake>();
         int left = transfer.Count;
+        int worst = Quality.Fine;
         foreach (var stack in State.Inventory.Where(e => e.DefId == transfer.ItemId && !State.Equipment.ContainsValue(e.ItemId))
                      .OrderBy(e => e.ItemId.Value, StringComparer.Ordinal))
         {
             int take = Math.Min(left, stack.Count);
             takes.Add(new StackTake(stack.ItemId, take));
+            worst = Math.Min(worst, stack.Quality);
             left -= take;
             if (left == 0)
                 break;
         }
-        return left > 0
-            ? $"needs {transfer.Count} {transfer.ItemId}"
-            : _context.Dispatch(new ExchangeItems(takes.ToImmutable(), null, 0, Quality.Standard));
+        if (left > 0)
+            return $"needs {transfer.Count} {transfer.ItemId}";
+        if (_context.Dispatch(new ExchangeItems(takes.ToImmutable(), null, 0, Quality.Standard)) is { } refused)
+            return refused;
+        // Handed over: a quest waiting for this delivery counts it (M5).
+        _context.Dispatch(new RecordDeed(new Deed(DeedKind.Delivered, transfer.ItemId, transfer.Count, worst, npcId, tick)));
+        return null;
     }
 
     private void Apply(Conversation open, DialogueConsequence consequence, long tick)
@@ -344,6 +351,10 @@ internal sealed class DialogueSystem : IDialogueFacts
                 break;
             case OpenServiceConsequence service:
                 _context.Events.Publish(new ServiceOpened(open.NpcId, service.Service, tick));
+                break;
+            case StartQuestConsequence start:
+                // A quest already started is not started again, and that is no failure of the reply.
+                _context.Dispatch(new StartQuest(start.QuestId, open.NpcId));
                 break;
         }
     }
@@ -371,6 +382,50 @@ internal sealed class DialogueSystem : IDialogueFacts
     public int SkillLevel(string skillId) => ProgressionEngine.SkillLevel(State.Progression, skillId);
 
     public int Level => State.Progression.Level;
+
+    public string QuestState(string questId, string? objectiveId)
+    {
+        if (!State.Quests.TryGetValue(questId, out var quest))
+            return objectiveId is null ? QuestKeys.NotStarted : QuestKeys.NotReached;
+        if (objectiveId is null)
+            return QuestKeys.Key(quest.Status);
+        return quest.Objective(objectiveId) is { } objective ? QuestKeys.Key(objective.Status) : QuestKeys.NotReached;
+    }
+
+    /// <summary>Whether each condition of a reply holds now, as it would in a conversation with <paramref name="npcId"/> (the quest debugger).</summary>
+    public ImmutableArray<(DialogueCondition Condition, bool Holds)> Check(string npcId, string dialogueId, DialogueChoice choice)
+    {
+        var facts = new SpeakerFacts(this, npcId);
+        return choice.Conditions.Select(c => (c, DialogueRules.Holds(c, dialogueId, facts))).ToImmutableArray();
+    }
+
+    /// <summary>What a conversation with one NPC would see, without one open: flags in that NPC's cell.</summary>
+    private sealed class SpeakerFacts : IDialogueFacts
+    {
+        private readonly DialogueSystem _system;
+        private readonly string _npcId;
+
+        public SpeakerFacts(DialogueSystem system, string npcId)
+        {
+            _system = system;
+            _npcId = npcId;
+        }
+
+        public bool Visited(string dialogueId, string nodeId) => _system.Visited(dialogueId, nodeId);
+
+        public long WorldFlag(string flagId) =>
+            _system.State.Npcs.ContainsKey(_npcId) ? _system.State.World.GetFlag(_system.SpeakerCell(_npcId), flagId) : 0;
+
+        public int Carried(string itemId, int qualityMin) => _system.Carried(itemId, qualityMin);
+
+        public int Relationship(string npcId, string dimension) => _system.Relationship(npcId, dimension);
+
+        public int SkillLevel(string skillId) => _system.SkillLevel(skillId);
+
+        public int Level => _system.Level;
+
+        public string QuestState(string questId, string? objectiveId) => _system.QuestState(questId, objectiveId);
+    }
 }
 
 /// <summary>

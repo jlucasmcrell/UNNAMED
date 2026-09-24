@@ -532,6 +532,7 @@ public class ContentLoaderTests
                 "loot.animated_armour", "loot.bristleback_boar", "loot.den_cache", "loot.wolf_grey", "merchant.ashen_hollow.kera_voss",
                 "node.ore.iron_seam", "node.wood.ash_stand",
                 "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien",
+                "quest.ashen_hollow.iron_under_ash",
                 "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
                 "region.ashen_hollow", "resource.ore.iron", "resource.wood.ash",
                 "skill.athletics", "skill.force", "skill.one_hand_blade", "skill.smithing", "skill.survival", "skill.vital", "skill.warding",

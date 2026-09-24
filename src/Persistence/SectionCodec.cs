@@ -7,6 +7,7 @@ using MessagePack;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Quests;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Sections;
@@ -48,6 +49,30 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 10. The 9 -> 10 step gives older saves none: there was no one to talk to before M4.</summary>
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
+
+    /// <summary>Required from schema 11. The 10 -> 11 step gives older saves none: there were no quests before M5.</summary>
+    [Key("quests")] public QuestDto[]? Quests { get; set; }
+}
+
+[MessagePackObject]
+public sealed class QuestDto
+{
+    [Key("quest_id")] public string QuestId { get; set; } = "";
+    [Key("status")] public string Status { get; set; } = "";
+    [Key("started_tick")] public long StartedTick { get; set; }
+    [Key("ended_tick")] public long? EndedTick { get; set; }
+    [Key("ended_by")] public string? EndedBy { get; set; }
+    [Key("objectives")] public ObjectiveDto[] Objectives { get; set; } = Array.Empty<ObjectiveDto>();
+}
+
+[MessagePackObject]
+public sealed class ObjectiveDto
+{
+    [Key("id")] public string Id { get; set; } = "";
+    [Key("status")] public string Status { get; set; } = "";
+    [Key("activated_tick")] public long ActivatedTick { get; set; }
+    [Key("ended_tick")] public long? EndedTick { get; set; }
+    [Key("progress")] public int Progress { get; set; }
 }
 
 [MessagePackObject]
@@ -293,6 +318,19 @@ public static class SectionCodec
         Conversations = player.Conversations
             .Select(c => new ConversationDto { DialogueId = c.DialogueId, Heard = c.Heard.ToArray() })
             .ToArray(),
+        Quests = player.Quests
+            .Select(q => new QuestDto
+            {
+                QuestId = q.QuestId,
+                Status = QuestKeys.Key(q.Status),
+                StartedTick = q.StartedTick,
+                EndedTick = q.EndedTick,
+                EndedBy = q.EndedBy,
+                Objectives = q.Objectives
+                    .Select(o => new ObjectiveDto { Id = o.Id, Status = QuestKeys.Key(o.Status), ActivatedTick = o.ActivatedTick, EndedTick = o.EndedTick, Progress = o.Progress })
+                    .ToArray(),
+            })
+            .ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -314,6 +352,7 @@ public static class SectionCodec
         var effects = dto.Effects ?? throw new FormatException("player.msgpack has no effects (required from schema 7)");
         var relationships = dto.Relationships ?? throw new FormatException("player.msgpack has no relationships (required from schema 10)");
         var conversations = dto.Conversations ?? throw new FormatException("player.msgpack has no conversations (required from schema 10)");
+        var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
@@ -321,7 +360,13 @@ public static class SectionCodec
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
             effects.Select(e => new ActiveEffect(e.EffectId, e.Stacks, e.ExpiresTick, e.NextTickAt)),
             relationships.Select(r => new RelationshipValue(r.NpcId, r.Dimension, r.Value)),
-            conversations.Select(c => new ConversationMemory(c.DialogueId, c.Heard.ToImmutableArray())));
+            conversations.Select(c => new ConversationMemory(c.DialogueId, c.Heard.ToImmutableArray())),
+            quests.Select(q => new QuestState(q.QuestId,
+                QuestKeys.ParseQuest(q.Status) ?? throw new FormatException($"quest {q.QuestId} has status '{q.Status}'"),
+                q.StartedTick, q.EndedTick, q.EndedBy,
+                q.Objectives.Select(o => new ObjectiveState(o.Id,
+                    QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
+                    o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())));
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -105,6 +106,8 @@ internal sealed class GatheringSystem
         }));
         _context.Events.Publish(new NodeGathered(node.Key, definition.Id, definition.ItemId, count,
             !Ready(definition, State.World.NodeRecord(node.Cell, node.Key), tick), tick));
+        if (definition.ResourceId is { } resource)
+            _context.Dispatch(new RecordDeed(new Deed(DeedKind.Harvested, resource, count, Quality.Standard, null, tick)));
         return null;
     }
 
@@ -199,6 +202,7 @@ internal sealed class CraftingSystem
         if (recipe.FirstTimeXp > 0)
             _context.Dispatch(new AwardExperience(new XpAward(XpSource.Production, recipe.FirstTimeXp, tick) { FirstKey = recipe.OutputItemId }));
         _context.Events.Publish(new ItemCrafted(recipe.Id, recipe.OutputItemId, recipe.OutputCount, quality, tick));
+        _context.Dispatch(new RecordDeed(new Deed(DeedKind.Crafted, recipe.OutputItemId, recipe.OutputCount, quality, null, tick)));
         return null;
     }
 }

@@ -43,6 +43,8 @@ public partial class Main : Node3D
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
     private DialoguePanel _dialogue = null!;
+    private JournalPanel _journal = null!;
+    private QuestDebugPanel _questDebug = null!;
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
@@ -104,6 +106,10 @@ public partial class Main : Node3D
         _dialogue = new DialoguePanel { Name = "Dialogue" };
         _dialogue.Bind(_session);
         AddChild(_dialogue);
+        _journal = new JournalPanel { Name = "Journal" };
+        AddChild(_journal);
+        _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
+        AddChild(_questDebug);
         Subscribe();
         Resync();
         DefineInput();
@@ -114,7 +120,7 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
-            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, shots);
+            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
         }
         else if (_flags.Contains("--perf"))
         {
@@ -296,6 +302,13 @@ public partial class Main : Node3D
             _camera.SwapShoulder();
         if (Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
+        if (Input.IsActionJustPressed("journal"))
+            _journal.Visible = !_journal.Visible;
+        if (Input.IsActionJustPressed("quest_debug"))
+        {
+            _questDebug.Visible = !_questDebug.Visible;
+            _questDebug.Refresh(_session, 0, now: true);
+        }
         if (Input.IsActionJustPressed("quicksave"))
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
@@ -391,6 +404,10 @@ public partial class Main : Node3D
             _hud.SetTarget(_session.DisplayName(target.DefId), target.Health, target.MaxHealth);
         else
             _hud.SetTarget(null, 0, 0);
+        var quests = simulation.Quests;
+        _hud.SetTracker(JournalPanel.Tracker(quests));
+        _journal.Refresh(_session);
+        _questDebug.Refresh(_session, delta);
 
         if (_hud.DebugVisible)
         {
@@ -443,7 +460,33 @@ public partial class Main : Node3D
             _hud.Toast($"Made {ItemName(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         SubscribeSocial();
+        SubscribeQuests();
         SubscribeCombat();
+    }
+
+    /// <summary>Quests (M5): a toast when one starts, moves or ends; what it pays in the log. The tracker and journal redraw each frame.</summary>
+    private void SubscribeQuests()
+    {
+        var quests = _session.Setup.Quests.Quests;
+        string Title(string id) => quests.TryGetValue(id, out var q) ? q.Title : id;
+        string Step(string quest, string objective) =>
+            quests.TryGetValue(quest, out var q) && q.Objectives.TryGetValue(objective, out var o) ? o.Description : objective;
+        _session.Subscribe<QuestStarted>(e => _hud.Toast($"New quest: {Title(e.QuestId)}", 5));
+        _session.Subscribe<ObjectiveSatisfied>(e =>
+        {
+            if (_session.Simulation!.Quests.FirstOrDefault(q => q.Id == e.QuestId)?.Status == Domain.Quests.QuestStatus.Active)
+                _hud.Toast($"Done: {Step(e.QuestId, e.ObjectiveId)}", 3);
+        });
+        _session.Subscribe<QuestCompleted>(e => _hud.Toast($"Quest complete: {Title(e.QuestId)}", 6));
+        _session.Subscribe<QuestFailed>(e => _hud.Toast($"Quest failed: {Title(e.QuestId)}", 6));
+        // XP, a technique and a relationship already speak for themselves (their own toast or log line); coin and goods do not.
+        _session.Subscribe<RewardGranted>(e =>
+        {
+            if (e.Kind == "currency")
+                _hud.Log($"{Title(e.QuestId)}: +{e.Amount} coin");
+            else if (e.Kind == "item" && e.Ref is { } item)
+                _hud.Log($"{Title(e.QuestId)}: {_session.DisplayName(item)}{(e.Amount > 1 ? $" x{e.Amount}" : "")}");
+        });
     }
 
     /// <summary>The waystation's people (M4): conversations on their panel, trade on the inventory's, and what they think in the log.</summary>
@@ -759,6 +802,8 @@ public partial class Main : Node3D
         Bind("first_person", Key.V);
         Bind("shoulder_swap", Key.Q);
         Bind("debug_overlay", Key.F3);
+        Bind("quest_debug", Key.F4);
+        Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
         Bind("release_mouse", Key.Escape);

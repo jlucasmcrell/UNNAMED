@@ -6,6 +6,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -64,6 +65,9 @@ public enum StateSlice
 
     /// <summary>The lines of each conversation the player has heard (saved, schema 10), and the conversation open now (S-28; M4).</summary>
     Conversations,
+
+    /// <summary>Every quest the player has started, with its objectives (S-29; M5). Saved with the player (schema 11).</summary>
+    Quests,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -103,6 +107,7 @@ internal sealed class RuntimeState
                 StringComparer.Ordinal);
         Conversations = player.Conversations.ToImmutableSortedDictionary(c => c.DialogueId, c => c.Heard.ToImmutableSortedSet(StringComparer.Ordinal),
             StringComparer.Ordinal);
+        Quests = player.Quests.ToImmutableSortedDictionary(q => q.QuestId, q => q, StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -125,6 +130,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, ImmutableSortedDictionary<string, int>> Relationships { get; private set; }
     public ImmutableSortedDictionary<string, ImmutableSortedSet<string>> Conversations { get; private set; }
     public Conversation? Conversation { get; private set; }
+    public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -292,6 +298,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Conversations);
         Conversation = conversation;
+    }
+
+    public void SetQuest(SliceOwner owner, QuestState quest)
+    {
+        Require(owner, StateSlice.Quests);
+        Quests = Quests.SetItem(quest.QuestId, quest);
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

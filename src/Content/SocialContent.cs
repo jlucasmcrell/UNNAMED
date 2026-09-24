@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using static UNNAMED.Content.CombatContent;
 
@@ -19,9 +20,10 @@ public static class SocialContent
     private static readonly string[] Roles =
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
-    private static readonly string[] Conditions = { "visited", "world_state", "has_item", "relationship", "skill", "level" };
+    private static readonly string[] Conditions = { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state" };
 
-    private static readonly string[] Consequences = { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service" };
+    private static readonly string[] Consequences =
+        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -114,8 +116,8 @@ public static class SocialContent
     {
         string kind = Text(map, "kind");
         bool negated = map.GetValueOrDefault("not") as string == "true";
-        if (negated && kind is not ("visited" or "has_item"))
-            throw new FormatException($"{at}: only visited and has_item conditions take not");
+        if (negated && kind is not ("visited" or "has_item" or "quest_state"))
+            throw new FormatException($"{at}: only visited, has_item and quest_state conditions take not");
         return kind switch
         {
             "visited" => new VisitedCondition(Text(map, "node"), negated),
@@ -127,6 +129,7 @@ public static class SocialContent
                 (int)LongOr(map, "min", Relationships.Min), (int)LongOr(map, "max", Relationships.Max)),
             "skill" => new SkillCondition(Defined(loader, Text(map, "skill_ref"), "skill", at), Positive(map, "min", 1)),
             "level" => new LevelCondition(Positive(map, "min", 1)),
+            "quest_state" => QuestState(at, map, loader, negated),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -154,8 +157,21 @@ public static class SocialContent
             "open_service" => new OpenServiceConsequence(NpcServices.Built.Contains(Text(map, "service"))
                 ? Text(map, "service")
                 : throw new FormatException($"{at}: service '{Text(map, "service")}' is not built in Phase 1")),
+            "start_quest" => new StartQuestConsequence(Defined(loader, Text(map, "quest_ref"), "quest", at)),
             _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
         };
+    }
+
+    /// <summary><c>quest_state</c> (M5): a quest's state, or with <c>objective</c> one of its objectives'; the quest lint checks the objective exists.</summary>
+    private static QuestStateCondition QuestState(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
+    {
+        string quest = Defined(loader, Text(map, "quest_ref"), "quest", at);
+        string? objective = map.GetValueOrDefault("objective") as string;
+        string state = Text(map, "is");
+        var states = objective is null ? QuestKeys.QuestStates : QuestKeys.ObjectiveStates;
+        if (!states.Contains(state))
+            throw new FormatException($"{at}: a {(objective is null ? "quest" : "objective")} is {string.Join(", ", states)}, not '{state}'");
+        return new QuestStateCondition(quest, objective, state, negated);
     }
 
     /// <summary>Every way through a conversation leads to a node it has, and no chain of spent lines loops.</summary>

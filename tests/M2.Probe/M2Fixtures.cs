@@ -3,6 +3,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -97,13 +98,14 @@ public static class M2Fixtures
         public const string ContentHash = "sha256:7f522a30f46119bbe25e50c29a9db0a4ff21be31b080dc7a5eba0f225379353d";
 
         /// <summary>
-        /// The pack the current fixture is written with (Fixtures/content-0.1.5: 0.1.4 plus the NPC and the conversation the
-        /// player's relationship and conversation records name). 0.1.4 is 0.1.3 plus the creature a creature record names;
-        /// 0.1.3 is 0.1.2 plus the two effects the player's record names; 0.1.2 is 0.1.1 plus a region, the place the
-        /// discovery record names, and the movement and tier config a region needs.
+        /// The pack the current fixture is written with (Fixtures/content-0.1.6: 0.1.5 plus the two quests the player's quest
+        /// records name, and the warden's replies that start them). 0.1.5 is 0.1.4 plus the NPC and the conversation the
+        /// relationship and conversation records name; 0.1.4 is 0.1.3 plus the creature a creature record names; 0.1.3 is
+        /// 0.1.2 plus the two effects the player's record names; 0.1.2 is 0.1.1 plus a region, the place the discovery record
+        /// names, and the movement and tier config a region needs.
         /// </summary>
-        public const string WriterContentVersion = "0.1.5";
-        public const string WriterContentHash = "sha256:9460bd5ea6aabbd24a25882b799ca8b0274bc6c2a4de5bdd2d3d272eeebbece1";
+        public const string WriterContentVersion = "0.1.6";
+        public const string WriterContentHash = "sha256:37c6725ef94b6c176f111d461690bc4c06b9ac6217d93ad834cf2a10a3e2b5b7";
 
         public static PlayerRecord Player() => new(
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
@@ -128,7 +130,17 @@ public static class M2Fixtures
             // Schema 10: what the warden thinks of Aelin, both ways, and the lines of the warden's conversation heard. Written
             // with content 0.1.5, which calls them npc.fixture.warden and dialogue.fixture.warden; the current pack renames both.
             relationships: new[] { new RelationshipValue("npc.fixture.warden", "respect", -3), new RelationshipValue("npc.fixture.warden", "trust", 12) },
-            conversations: new[] { new ConversationMemory("dialogue.fixture.warden", ImmutableArray.Create("greet", "rumour")) });
+            conversations: new[] { new ConversationMemory("dialogue.fixture.warden", ImmutableArray.Create("greet", "rumour")) },
+            // Schema 11: the warden's errand half done - asked, the den not yet found - and the cull finished, its three wolves
+            // counted. Written with content 0.1.6, which calls the errand quest.fixture.errand; the current pack renames it.
+            quests: new[]
+            {
+                new QuestState("quest.fixture.errand", QuestStatus.Active, 4_000, null, null, ImmutableArray.Create(
+                    new ObjectiveState("o_ask", ObjectiveStatus.Satisfied, 4_000, 4_001, 0),
+                    new ObjectiveState("o_den", ObjectiveStatus.Active, 4_001, null, 0))),
+                new QuestState("quest.fixture.cull", QuestStatus.Completed, 2_000, 3_500, "o_cull", ImmutableArray.Create(
+                    new ObjectiveState("o_cull", ObjectiveStatus.Satisfied, 2_000, 3_500, 3))),
+            });
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 
@@ -220,8 +232,8 @@ public static class M2Fixtures
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.7";
-        public const string CurrentContentHash = "sha256:a49caa52c219dca191b7e1220dd02abe591b13440c36b8781526943aded578d4";
+        public const string CurrentContentVersion = "0.2.8";
+        public const string CurrentContentHash = "sha256:8ebeed4870c4da0c42b7bd58386a90761fb4bd7f7b2cf674c9b45f826791190f";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -236,7 +248,8 @@ public static class M2Fixtures
                 "effect.bleeding", "effect.weakened",
                 "item.potion.minor_healing",
                 "item.weapon.iron_sword",
-                "location.den_mouth", "npc.fixture.warden_sera", "recipe.alchemy.salve_minor", "region.fixture_vale", "skill.athletics",
+                "location.den_mouth", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
+                "region.fixture_vale", "skill.athletics",
                 "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",
             },
@@ -249,6 +262,7 @@ public static class M2Fixtures
                 ["creature.beast.ash_hound"] = "creature.beast.ash_ember_hound",
                 ["npc.fixture.warden"] = "npc.fixture.warden_sera",
                 ["dialogue.fixture.warden"] = "dialogue.fixture.warden_sera",
+                ["quest.fixture.errand"] = "quest.fixture.wardens_errand",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

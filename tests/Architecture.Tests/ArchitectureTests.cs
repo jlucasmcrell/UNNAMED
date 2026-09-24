@@ -117,7 +117,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.CellOf), nameof(UNNAMED.World.Runtime.Simulation.Enqueue),
             nameof(UNNAMED.World.Runtime.Simulation.DrainCommands), nameof(UNNAMED.World.Runtime.Simulation.Step),
             nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
-            nameof(UNNAMED.World.Runtime.Simulation.Wares),
+            nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

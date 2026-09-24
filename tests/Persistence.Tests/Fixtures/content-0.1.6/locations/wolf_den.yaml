@@ -1,0 +1,10 @@
+id: location.wolf_den
+kind: location
+schema: 1
+display_key: location.wolf_den.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+region_ref: region.fixture_vale
+anchor: { world: [30.0, 0.0, 70.0] }
+kind_of_place: cave_entrance
+discovery: { methods: [visited], radius_m: 8, xp: 25 }

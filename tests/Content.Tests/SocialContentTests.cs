@@ -72,7 +72,7 @@ public class SocialContentTests
     [Fact]
     public void AConditionPhaseOneDoesNotBuild_IsRefused() =>
         AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "{ kind: has_item, item_ref: item.material.iron_ore }",
-            "{ kind: quest_state, quest_ref: quest.none }", "condition 'quest_state' is not built");
+            "{ kind: time_of_day, is: night }", "condition 'time_of_day' is not built");
 
     [Fact]
     public void AConsequencePhaseOneDoesNotBuild_IsRefused() =>

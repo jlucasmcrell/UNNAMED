@@ -1,8 +1,8 @@
 # Fixture content 0.2.0 renamed item.potion.healing_draught; 0.2.1 renamed spell.ember.firebolt; 0.2.2 renamed
 # location.wolf_den; 0.2.3 gave the items and creatures their Phase-1 schema fields; 0.2.4 gave the sword its attack
 # timing and renamed effect.weakness; 0.2.5 renamed creature.beast.ash_hound; 0.2.6 gave the recipe the fields today's
-# recipe checks require; 0.2.7 renamed npc.fixture.warden and dialogue.fixture.warden. Saves written with 0.1.0 through
-# 0.1.5 resolve through here.
+# recipe checks require; 0.2.7 renamed npc.fixture.warden and dialogue.fixture.warden; 0.2.8 renamed quest.fixture.errand.
+# Saves written with 0.1.0 through 0.1.6 resolve through here.
 aliases:
   item.potion.healing_draught: item.potion.minor_healing
   spell.ember.firebolt: spell.ember.bolt
@@ -11,3 +11,4 @@ aliases:
   creature.beast.ash_hound: creature.beast.ash_ember_hound
   npc.fixture.warden: npc.fixture.warden_sera
   dialogue.fixture.warden: dialogue.fixture.warden_sera
+  quest.fixture.errand: quest.fixture.wardens_errand

@@ -22,18 +22,19 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.7) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.8) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
    movement and tier config a region needs - is the pack v5 and v6 were written with; `content-0.1.3/` - 0.1.2
    plus the two effects the effect record names - is the pack v7 was written with; `content-0.1.4/` - 0.1.3 plus the
    creature a creature record names - is the pack v8 and v9 were written with; `content-0.1.5/` - 0.1.4 plus the NPC and the
-   conversation the relationship and conversation records name - is the pack v10 was written with. Content 0.2.0 renamed the
+   conversation the relationship and conversation records name - is the pack v10 was written with; `content-0.1.6/` - 0.1.5 plus the two
+   quests the quest records name, and the warden's replies that start them - is the pack v11 was written with. Content 0.2.0 renamed the
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
-   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4). The writer packs are historical and are never edited, so they need not pass today's
+   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5). The writer packs are historical and are never edited, so they need not pass today's
    checks; the current pack must.
 
 ## The fixture world
@@ -71,6 +72,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `spawn.fixture.ridge#0`: `creature.beast.ash_hound`, generation 2, gone since tick 4900, due back at tick 30000 | creature record in `r_0_0:c_00_02` | Schema 8. The species was **renamed** to `creature.beast.ash_ember_hound` in content 0.2.5: the rename must reach the creature record |
 | The carried sword is fine (quality 1); the dropped `healing_draught` x3 is fine; the chest's `healing_draught` x4 is crude (quality -1) | player inventory, created instance, changed container | Schema 9: quality on every kind of stack, both directions. v1-v8 migrate to standard (0) everywhere |
 | `npc.fixture.warden` thinks Aelin trust 12, respect -3; of `dialogue.fixture.warden` Aelin has heard `greet` and `rumour` | player relationships and conversations | Schema 10. The warden and the conversation were **renamed** to `npc.fixture.warden_sera` and `dialogue.fixture.warden_sera` in content 0.2.7: the renames must reach both records. v1-v9 migrate to none |
+| `quest.fixture.errand` active since tick 4000 - `o_ask` satisfied at 4001, `o_den` active - and `quest.fixture.cull` completed at tick 3500 by `o_cull`, its three wolves counted (progress 3) | player quests | Schema 11. The errand was **renamed** to `quest.fixture.wardens_errand` in content 0.2.8: the rename must reach the quest record. v1-v10 migrate to none |
 
 ## Provenance
 
@@ -86,6 +88,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v8/` | The M3d schema-8 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.4) |
 | `v9/` | The M3f schema-9 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.4) |
 | `v10/` | The M4 schema-10 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.5) |
+| `v11/` | The M5 schema-11 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

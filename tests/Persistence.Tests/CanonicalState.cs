@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 
 namespace UNNAMED.Persistence.Tests;
 
@@ -88,6 +89,33 @@ internal static class CanonicalState
                 json.WriteStartArray("heard");
                 foreach (string node in memory.Heard)
                     json.WriteStringValue(node);
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("quests");
+            foreach (var quest in player.Quests)
+            {
+                json.WriteStartObject();
+                json.WriteString("quest_id", quest.QuestId);
+                json.WriteString("status", QuestKeys.Key(quest.Status));
+                json.WriteNumber("started_tick", quest.StartedTick);
+                if (quest.EndedTick is { } ended)
+                    json.WriteNumber("ended_tick", ended);
+                if (quest.EndedBy is { } by)
+                    json.WriteString("ended_by", by);
+                json.WriteStartArray("objectives");
+                foreach (var objective in quest.Objectives)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("id", objective.Id);
+                    json.WriteString("status", QuestKeys.Key(objective.Status));
+                    json.WriteNumber("activated_tick", objective.ActivatedTick);
+                    if (objective.EndedTick is { } over)
+                        json.WriteNumber("ended_tick", over);
+                    json.WriteNumber("progress", objective.Progress);
+                    json.WriteEndObject();
+                }
                 json.WriteEndArray();
                 json.WriteEndObject();
             }

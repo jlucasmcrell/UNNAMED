@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Magic;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
@@ -19,8 +20,9 @@ namespace UNNAMED.Presentation;
 /// archetype where it lives; walks out to the boar's wallow through the real command path until the boar notices, throws
 /// a bolt at it, fights it to its death, mends, searches the carcass and takes what it holds; (M3f) walks up to the iron
 /// seam and strikes it until it is worked out, crosses to the ash stand and cuts a haft - fighting whatever hunts the
-/// character on the way - comes home to the forge shed, (M4) asks Kera to teach the forge, smelts a billet at the hearth,
-/// makes the spear at the anvil and takes it in hand, (M4) trades the old sword to Kera for arrows, and wounds a valley stray
+/// character on the way - comes home to the forge shed, (M4) asks Kera to teach the forge - (M5) which starts Iron Under Ash:
+/// the journal and the quest debugger on screen - smelts a billet at the hearth, makes the spear at the anvil and takes it in
+/// hand, (M4) trades the old sword to Kera for arrows, (M5) shows her the spear and completes the quest, and wounds a valley stray
 /// with the spear; then walks up to the wolves' den, wounds one of the pack and stands
 /// until the pack kills the character (`PROTOTYPE.md` §5 step 7's deliberate death: a wounded stray only flees, and a
 /// character fighting back with the spear has cleared the den). A screenshot after each step, mid-fight, and of the death
@@ -62,6 +64,8 @@ public sealed class UiShots
     private readonly CameraRig _camera;
     private readonly InventoryPanel _inventory;
     private readonly DialoguePanel _dialogue;
+    private readonly JournalPanel _journal;
+    private readonly QuestDebugPanel _questDebug;
 
     private int _frame;
     private int _waypoint;
@@ -87,13 +91,15 @@ public sealed class UiShots
     private bool _bought;
 
     public UiShots(GameSession session, PlayerController controller, CameraRig camera, InventoryPanel inventory, DialoguePanel dialogue,
-        string outDirectory)
+        JournalPanel journal, QuestDebugPanel questDebug, string outDirectory)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
         _inventory = inventory;
         _dialogue = dialogue;
+        _journal = journal;
+        _questDebug = questDebug;
         Directory = outDirectory;
         _session.Subscribe<PlayerDied>(_ => _died = true);
         _session.Subscribe<CastCompleted>(e => _released = e.FormulaId);
@@ -441,13 +447,27 @@ public sealed class UiShots
                 Next();
                 break;
             case 28:
+                // The quest the lesson started (M5): the ore and the shelf are behind the character already (bible §32), so it
+                // asks for a billet now - the tracker at the top right says so, and the journal and the quest debugger say more.
+                _journal.Visible = true;
+                _journal.Refresh(_session);
+                Then("journal");
+                break;
+            case 29:
+                _journal.Visible = false;
+                _questDebug.Visible = true;
+                _questDebug.Refresh(_session, 0, now: true);
+                Then("quest_debug");
+                break;
+            case 30:
+                _questDebug.Visible = false;
                 if (Walk(ToTheHearth, Near) && AtStation("forge") is { } hearth)
                 {
                     _inventory.OpenAt(hearth);
                     Then("hearth");
                 }
                 return Stalled(1_200, "the hearth never came into focus");
-            case 29:
+            case 31:
                 // Smelt one billet: the panel's Make button submits this same command.
                 if (_craftsAsked == _crafted)
                 {
@@ -460,7 +480,7 @@ public sealed class UiShots
                     _craftsAsked++;
                 }
                 return Stalled(200, "no billet was smelted");
-            case 30:
+            case 32:
                 _inventory.Close();
                 if (Walk(ToTheAnvil, Near) && AtStation("anvil") is { } anvil)
                 {
@@ -468,7 +488,7 @@ public sealed class UiShots
                     Then("anvil");
                 }
                 return Stalled(1_200, "the anvil never came into focus");
-            case 31:
+            case 33:
                 if (_craftsAsked == _crafted)
                 {
                     if (_crafted > 1)
@@ -480,7 +500,7 @@ public sealed class UiShots
                     _craftsAsked++;
                 }
                 return Stalled(200, "no spear was made");
-            case 32:
+            case 34:
             {
                 // Take the spear in hand - the panel's Equip button submits this same command - and carry it outside.
                 if (simulation.Combat.Weapon.Source != _made)
@@ -496,7 +516,7 @@ public sealed class UiShots
                 Next();
                 break;
             }
-            case 33:
+            case 35:
                 // Back to Kera to trade: her wares open from her conversation, the panel's own buttons submit the trades.
                 if (_inventory.OpenTrader == Kera)
                 {
@@ -511,7 +531,7 @@ public sealed class UiShots
                     _asked = true;
                 }
                 return Stalled(1_200, "Kera's wares never opened");
-            case 34:
+            case 36:
             {
                 // The old sword, now the spear is in hand, for as many arrows as it fetches.
                 if (!_sold)
@@ -539,23 +559,54 @@ public sealed class UiShots
                 Then("traded");
                 break;
             }
-            case 35:
+            case 37:
+                // Iron Under Ash's last step (M5): show Kera the spear - the reply on offer depends on how the spear came out.
                 _inventory.Close();
+                if (!_asked)
+                {
+                    _controller.Talk(Kera);
+                    _asked = true;
+                    break;
+                }
+                if (_dialogue.Visible && _dialogue.Replies.FirstOrDefault(r => r.StartsWith("show", StringComparison.Ordinal)) is { } show)
+                {
+                    _dialogue.Answer(show);
+                    Then("shown");
+                    break;
+                }
+                return Stalled(200, "Kera was never shown the spear");
+            case 38:
+                if (_dialogue.Visible)
+                    _dialogue.Leave();
+                if (simulation.Quests.Any(q => q.Status == QuestStatus.Completed))
+                {
+                    Then("quest_done");
+                    break;
+                }
+                return Stalled(200, "the quest never completed");
+            case 39:
+                _journal.Visible = true;
+                _journal.Refresh(_session);
+                Then("journal_done");
+                break;
+            case 40:
+                _inventory.Close();
+                _journal.Visible = false;
                 if (Walk(OutOfTheForge))
                 {
                     _camera.Yaw = PlayerController.FacingRadians(_controller.Authoritative.FacingMdeg) + Mathf.Pi / 4;
                     Then("spear");
                 }
                 return Stalled(1_200, "the character never came out of the forge shed");
-            case 36:
+            case 41:
                 _waypoint = 0;
                 Next();
                 break;
-            case 37:
+            case 42:
                 if (Travel(ToTheStrays))
                     Next();
                 return Survived("the strays") ?? Stalled(3_000, "the character never reached the strays");
-            case 38:
+            case 43:
             {
                 // Wound the nearer stray with the spear: a picture of the thrust as it lands.
                 var stray = Strays().First();
@@ -569,13 +620,13 @@ public sealed class UiShots
                 _wait = 1;
                 break;
             }
-            case 39:
+            case 44:
                 // Up to the den mouth, past whatever the wounded stray does, to take on the pack: the death recap is the
                 // last picture.
                 if (Walk(ToTheDen))
                     Next();
                 return Survived("the den") ?? Stalled(2_400, "the character never reached the den");
-            case 40:
+            case 45:
                 if (_died)
                 {
                     Then("death");
@@ -590,7 +641,7 @@ public sealed class UiShots
                 return Stalled(1_800, $"the character never died (health {simulation.Combat.Health}/{simulation.Combat.MaxHealth}; " +
                     string.Join(", ", simulation.Creatures.Where(c => c.Alive && ToCreature(c).Length() < 30)
                         .Select(c => $"{c.Key} {c.Mind} {c.Health}/{c.MaxHealth} at {ToCreature(c).Length():0.0} m")) + ")");
-            case 41:
+            case 46:
                 return "done";
         }
         return null;

@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -330,8 +331,22 @@ internal static class SaveLoader
                 : memory with { DialogueId = id };
         }
 
+        // Quests (schema 11): a quest that was removed takes its record with it. Two records that resolve to one quest keep the one
+        // that went further (completed or failed over active), then the earlier start.
+        var quests = new SortedDictionary<string, QuestState>(StringComparer.Ordinal);
+        foreach (var quest in player.Quests)
+        {
+            if (Resolve(quest.QuestId, "player quest") is not { } id)
+                continue;
+            var resolved = quest with { QuestId = id };
+            if (!quests.TryGetValue(id, out var existing)
+                || (existing.Status == QuestStatus.Active && resolved.Status != QuestStatus.Active)
+                || (existing.Status == QuestStatus.Active) == (resolved.Status == QuestStatus.Active) && resolved.StartedTick < existing.StartedTick)
+                quests[id] = resolved;
+        }
+
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values),
+                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable() });
     }
 

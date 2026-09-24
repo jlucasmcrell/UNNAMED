@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 
 namespace UNNAMED.World;
@@ -70,7 +71,8 @@ public sealed record PlayerRecord
     public PlayerRecord(EntityId id, string name, long xMm, long yMm, long zMm, ulong appearanceSeed, IEnumerable<InventoryEntry> inventory,
         CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
         IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null,
-        IEnumerable<RelationshipValue>? relationships = null, IEnumerable<ConversationMemory>? conversations = null)
+        IEnumerable<RelationshipValue>? relationships = null, IEnumerable<ConversationMemory>? conversations = null,
+        IEnumerable<QuestState>? quests = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -147,6 +149,28 @@ public sealed record PlayerRecord
         }
         if (Conversations.Select(c => c.DialogueId).Distinct(StringComparer.Ordinal).Count() != Conversations.Length)
             throw new ArgumentException("A conversation is remembered once", nameof(conversations));
+        Quests = (quests ?? Array.Empty<QuestState>())
+            .Select(q => q with { Objectives = q.Objectives.OrderBy(o => o.Id, StringComparer.Ordinal).ToImmutableArray() })
+            .OrderBy(q => q.QuestId, StringComparer.Ordinal).ToImmutableArray();
+        foreach (var q in Quests)
+        {
+            bool ended = q.Status != QuestStatus.Active;
+            if (!DefinitionId.IsValid(q.QuestId) || !q.QuestId.StartsWith("quest.", StringComparison.Ordinal) || !Enum.IsDefined(q.Status)
+                || q.StartedTick < 0 || ended != q.EndedTick.HasValue || ended == string.IsNullOrEmpty(q.EndedBy) || q.EndedTick < q.StartedTick
+                || q.Objectives.IsEmpty)
+                throw new ArgumentException($"Invalid quest state for {q.QuestId}", nameof(quests));
+            foreach (var o in q.Objectives)
+            {
+                bool over = o.Status != ObjectiveStatus.Active;
+                if (string.IsNullOrWhiteSpace(o.Id) || !Enum.IsDefined(o.Status) || o.ActivatedTick < q.StartedTick || over != o.EndedTick.HasValue
+                    || o.EndedTick < o.ActivatedTick || o.Progress < 0 || (!over && ended))
+                    throw new ArgumentException($"Invalid objective state {o.Id} of {q.QuestId}", nameof(quests));
+            }
+            if (q.Objectives.Select(o => o.Id).Distinct(StringComparer.Ordinal).Count() != q.Objectives.Length)
+                throw new ArgumentException($"An objective of {q.QuestId} is recorded once", nameof(quests));
+        }
+        if (Quests.Select(q => q.QuestId).Distinct(StringComparer.Ordinal).Count() != Quests.Length)
+            throw new ArgumentException("A quest is recorded once", nameof(quests));
     }
 
     /// <summary>
@@ -167,24 +191,28 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations);
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests);
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests);
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests);
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests);
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests);
+
+    /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
+    public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -224,13 +252,19 @@ public sealed record PlayerRecord
     /// <summary>The lines of each conversation the player has heard, sorted by conversation (SYSTEMS.md S-28). Schema 10.</summary>
     public ImmutableArray<ConversationMemory> Conversations { get; }
 
+    /// <summary>
+    /// Every quest the player has started, sorted by quest, each with its objectives sorted by ID (SYSTEMS.md S-29: status,
+    /// per-objective progress, branches as closed objectives, what ended it). Schema 11.
+    /// </summary>
+    public ImmutableArray<QuestState> Quests { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v7").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v8").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -251,6 +285,13 @@ public sealed record PlayerRecord
                 h.Add(c.DialogueId).Add(c.Heard.Length);
                 foreach (string node in c.Heard)
                     h.Add(node);
+            }
+            h.Add(Quests.Length);
+            foreach (var q in Quests)
+            {
+                h.Add(q.QuestId).Add(QuestKeys.Key(q.Status)).Add(q.StartedTick).Add(q.EndedTick ?? -1).Add(q.EndedBy ?? "").Add(q.Objectives.Length);
+                foreach (var o in q.Objectives)
+                    h.Add(o.Id).Add(QuestKeys.Key(o.Status)).Add(o.ActivatedTick).Add(o.EndedTick ?? -1).Add(o.Progress);
             }
             return h.Finish();
         }

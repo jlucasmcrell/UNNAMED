@@ -54,7 +54,8 @@
     "currency": 0,
     "effects": [],
     "relationships": [],
-    "conversations": []
+    "conversations": [],
+    "quests": []
   },
   "cells": [
     {

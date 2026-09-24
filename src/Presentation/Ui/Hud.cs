@@ -17,6 +17,7 @@ public partial class Hud : CanvasLayer
     private readonly Label _status = Text(18);
     private readonly Label _prompt = Text(22);
     private readonly Label _debug = Text(15);
+    private readonly Label _tracker = Text(18);
     private readonly Label _crosshair = Text(22);
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Label Label, double Expires)> _live = new();
@@ -55,6 +56,13 @@ public partial class Hud : CanvasLayer
         _crosshair.SetAnchorsPreset(Control.LayoutPreset.Center);
         _crosshair.Position = new Vector2(-6, -16);
         AddChild(_crosshair);
+
+        _tracker.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _tracker.Position = new Vector2(-470, 20);
+        _tracker.Size = new Vector2(450, 120);
+        _tracker.HorizontalAlignment = HorizontalAlignment.Right;
+        _tracker.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        AddChild(_tracker);
 
         _debug.SetAnchorsPreset(Control.LayoutPreset.TopRight);
         _debug.Position = new Vector2(-520, 20);
@@ -160,6 +168,13 @@ public partial class Hud : CanvasLayer
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
 
     public void SetDebug(string text) => _debug.Text = text;
+
+    /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
+    public void SetTracker(string? text)
+    {
+        _tracker.Text = text ?? string.Empty;
+        _tracker.Visible = !_debug.Visible;
+    }
 
     public void Toast(string text, double seconds = 4)
     {

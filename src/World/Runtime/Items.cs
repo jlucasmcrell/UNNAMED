@@ -87,6 +87,15 @@ internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? It
 /// </summary>
 internal sealed record Trade(MoveItemCommand Move, long Coin) : InternalCommand;
 
+/// <summary>To <see cref="InventorySystem"/>: coin into the purse - a quest's reward (M5).</summary>
+internal sealed record AddCurrency(long Amount) : InternalCommand;
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: an item given that is never lost - a quest's reward (M5): into the pack, or where the character
+/// stands when the pack has no room or it would be too heavy.
+/// </summary>
+internal sealed record GrantItem(string ItemId, int Count, int Quality) : InternalCommand;
+
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
 /// through here, and every check happens before anything changes: a refused move leaves every stack as it was.
@@ -280,6 +289,23 @@ internal sealed class InventorySystem
         Remove(command.Takes.Select(t => (State.Inventory.Single(e => e.ItemId == t.ItemId), t.Count)).ToList());
         if (definition is not null)
             Put(ItemPlace.Carried, definition, command.Count, null, command.Quality);
+        return null;
+    }
+
+    public string? Handle(AddCurrency command)
+    {
+        if (command.Amount < 0)
+            return "a grant adds coin";
+        State.SetCurrency(_owner, checked(State.Currency + command.Amount));
+        return null;
+    }
+
+    public string? Handle(GrantItem command, long tick)
+    {
+        if (Items.Catalog.Find(command.ItemId) is not { } definition)
+            return $"{command.ItemId} is not an item this build knows";
+        if (Handle(new ExchangeItems(ImmutableArray<StackTake>.Empty, command.ItemId, command.Count, command.Quality), tick) is not null)
+            Put(ItemPlace.Ground, definition, command.Count, null, command.Quality);
         return null;
     }
 

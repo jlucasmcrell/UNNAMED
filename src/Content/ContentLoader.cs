@@ -190,6 +190,11 @@ public class ContentLoader
             var socialErrors = SocialContent.Validate(this);
             _errors.AddRange(socialErrors);
             success &= socialErrors.Count == 0;
+
+            // Quests: objective graphs over world state (QST codes)
+            var questErrors = QuestContent.Validate(this);
+            _errors.AddRange(questErrors);
+            success &= questErrors.Count == 0;
         }
         
         return success;

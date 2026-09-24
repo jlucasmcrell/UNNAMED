@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -683,6 +684,7 @@ internal sealed class CreatureSystem
     {
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, _player, tick));
+        _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
         var definition = c.Definition;
         if (definition.XpValue > 0)
         {

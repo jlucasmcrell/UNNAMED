@@ -83,7 +83,7 @@ public static class CraftingContent
             if (!skills.ContainsKey(skill))
                 throw new FormatException($"{id}: harvest_skill {skill} is not a skill");
             var node = new NodeDefinition(id, Text(yield, "item_ref"), IntOf(range, 0, "count_range"), IntOf(range, 1, "count_range"),
-                Int(map, "charges"), respawn, skill, Int(map, "difficulty"));
+                Int(map, "charges"), respawn, skill, Int(map, "difficulty")) { ResourceId = resourceId };
             if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
             if (node.Respawn == Respawn.Daily && node.Charges != 1)

@@ -3,7 +3,8 @@
 //
 // The exact player shape schema 9 wrote: written by the 8 -> 9 step and read by the 9 -> 10 step; the schema-9 fixture pins
 // it. Its parts that schema 10 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto,
-// EffectDto); the step that next changes one of those must freeze a copy of it first. Schema 10 left the other sections alone.
+// EffectDto); the step that next changes one of those must freeze a copy of it first. Schema 10 left the other sections alone,
+// and so did schema 11.
 
 using MessagePack;
 

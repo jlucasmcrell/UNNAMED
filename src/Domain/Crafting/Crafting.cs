@@ -17,7 +17,11 @@ public enum Respawn
 /// A resource node (DATA_MODEL.md §4.16) with its material's yield folded in (§4.10): what one harvest gives, how many
 /// harvests it holds, how it comes back, and what gathering it trains at what difficulty.
 /// </summary>
-public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int YieldMax, int Charges, Respawn Respawn, string SkillId, int Difficulty);
+public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int YieldMax, int Charges, Respawn Respawn, string SkillId, int Difficulty)
+{
+    /// <summary>The resource the node yields (DATA_MODEL.md §4.16's <c>resource_ref</c>): what a quest's <c>harvest_resource</c> counts (M5).</summary>
+    public string? ResourceId { get; init; }
+}
 
 public sealed record RecipeInput(string ItemId, int Count);
 

@@ -27,6 +27,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The named NPCs and their conversations (M4).</summary>
     public SocialSetup Social { get; init; } = SocialSetup.Empty;
+
+    /// <summary>The quests (M5).</summary>
+    public QuestSetup Quests { get; init; } = QuestSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -81,6 +84,8 @@ public sealed class Simulation
     private readonly RelationshipSystem _relationships;
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
+    private readonly QuestSystem _quests;
+    private readonly QuestDebugger _debugger;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -120,6 +125,8 @@ public sealed class Simulation
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
+        _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
+        _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
@@ -195,6 +202,12 @@ public sealed class Simulation
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
+    /// <summary>The quests the character has started, as the journal shows them: active first (M5).</summary>
+    public ImmutableArray<QuestView> Quests => _quests.Views();
+
+    /// <summary>The quest debugger (M5): what a quest is waiting on right now, every term's value, and its recent trace.</summary>
+    public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
+
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
     /// <summary>The footprints that currently block movement besides the static ones: closed doors and living creatures. Prediction needs them.</summary>
@@ -247,7 +260,7 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, NPCs, conversations, status effects, death, discovery, clock.
+    /// creatures, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
     /// </summary>
     public void Step()
     {
@@ -268,6 +281,7 @@ public sealed class Simulation
             _effects.Tick(tick);
             _death.Tick(tick);
             _discovery.Tick(tick);
+            _quests.Tick(tick);
             _clock.Tick();
         }
         finally
@@ -284,7 +298,8 @@ public sealed class Simulation
             _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
-            _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())));
+            _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
+            _state.Quests.Values);
     }
 
     /// <summary>
@@ -328,7 +343,11 @@ public sealed class Simulation
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
+        AddCurrency add => _inventory.Handle(add),
+        GrantItem grant => _inventory.Handle(grant, Now),
         ChangeRelationship change => _relationships.Handle(change, Now),
+        StartQuest start => _quests.Handle(start, Now),
+        RecordDeed deed => _quests.Handle(deed),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

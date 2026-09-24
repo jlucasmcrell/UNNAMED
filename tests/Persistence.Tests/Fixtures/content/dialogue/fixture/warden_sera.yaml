@@ -18,8 +18,21 @@ nodes:
   again:
     text: "You again."
     choices:
+      - id: errand
+        text: "Need a hand?"
+        consequences: [{ command: start_quest, quest_ref: quest.fixture.wardens_errand }]
+        next: errand
+      - id: cull
+        text: "I'll thin the wolves."
+        consequences: [{ command: start_quest, quest_ref: quest.fixture.cull }]
       - id: leave
         text: "Farewell."
+  errand:
+    text: "Find where the wolves den."
+    choices:
+      - id: back
+        text: "I will."
+        next: again
   rumour:
     text: "Wolves on the ridge."
     choices:

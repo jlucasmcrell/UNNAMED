@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.kera_voss.name
 tags: [dialogue]
-notes: Kera Voss, the smith (content bible §9) - teaches the forge, trades, and has an opinion of what you make. Quest 1 wraps this conversation in M5.
+notes: Kera Voss, the smith (content bible §9) - teaches the forge, trades, and has an opinion of what you make. Asking her to teach starts Quest 1, Iron Under Ash (M5).
 participants: [npc.ashen_hollow.kera_voss]
 root_node: greet
 nodes:
@@ -18,6 +18,7 @@ nodes:
           - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
           - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
       - id: trade
         text: "What do you have for sale?"
@@ -34,7 +35,14 @@ nodes:
           - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
           - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
+      - id: where
+        text: "Where do I find the iron?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, is: active }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, objective: o_ore, is: satisfied, not: true }
+        next: where
       - id: show_fine
         text: "I made a spear. Look."
         conditions:
@@ -56,12 +64,18 @@ nodes:
       - id: leave
         text: "Nothing today."
   lesson:
-    text: "Ore from the seam on the iron shelf goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft make a spear at the anvil. The rest is practice - and don't blame the iron."
+    text: "Then bring me iron. There's a seam on the rock shelf north of the hollow, above the wolves' den - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft make a spear at the anvil. Make one and show me. And don't blame the iron."
     once: true
     next_if_exhausted: again
     choices:
       - id: thanks
         text: "I'll bring you a spear."
+        next: again
+  where:
+    text: "North, past the boulders, up on the shelf above the den. Mind the wolves - or don't, if you're quick. Iron doesn't care how you got to it."
+    choices:
+      - id: back
+        text: "I'll find it."
         next: again
   praised:
     text: "Hm. Straight, and the point holds. Better than I'd have guessed from those hands."

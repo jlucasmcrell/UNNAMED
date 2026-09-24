@@ -51,7 +51,7 @@ public sealed record DialogueNode(string Id, string Text, ImmutableArray<Dialogu
 public sealed record DialogueChoice(string Id, string Text, ImmutableArray<DialogueCondition> Conditions,
     ImmutableArray<DialogueConsequence> Consequences, string? Next);
 
-/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds six kinds).</summary>
+/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds).</summary>
 public abstract record DialogueCondition;
 
 /// <summary><c>visited</c>: whether a node of this conversation has been visited - or, <c>not: true</c>, has not.</summary>
@@ -72,6 +72,12 @@ public sealed record SkillCondition(string SkillId, int Min) : DialogueCondition
 /// <summary><c>level</c>: the character at least this level.</summary>
 public sealed record LevelCondition(int Min) : DialogueCondition;
 
+/// <summary>
+/// <c>quest_state</c> (M5): a quest is <c>not_started</c>, <c>active</c>, <c>completed</c> or <c>failed</c> - or, naming an objective,
+/// the objective is <c>not_reached</c>, <c>active</c>, <c>satisfied</c>, <c>failed</c> or <c>closed</c>; <c>not: true</c> inverts it.
+/// </summary>
+public sealed record QuestStateCondition(string QuestId, string? ObjectiveId, string State, bool Negated) : DialogueCondition;
+
 /// <summary>A closed-set consequence (DATA_MODEL.md §4.12): dialogue emits these as commands and never writes state itself.</summary>
 public abstract record DialogueConsequence;
 
@@ -90,6 +96,9 @@ public sealed record RelationshipEventConsequence(string NpcId, string Dimension
 /// <summary><c>open_service</c>: the speaker opens a service to the player (Phase 1: trade).</summary>
 public sealed record OpenServiceConsequence(string Service) : DialogueConsequence;
 
+/// <summary><c>start_quest</c> (M5): the speaker gives the player a quest. A quest already started is not started again.</summary>
+public sealed record StartQuestConsequence(string QuestId) : DialogueConsequence;
+
 /// <summary>What a condition may ask of the world, answered by the simulation (read only).</summary>
 public interface IDialogueFacts
 {
@@ -104,6 +113,9 @@ public interface IDialogueFacts
     int SkillLevel(string skillId);
 
     int Level { get; }
+
+    /// <summary>A quest's state as a key (<c>not_started</c> before it starts), or, naming an objective, the objective's (<c>not_reached</c>).</summary>
+    string QuestState(string questId, string? objectiveId);
 }
 
 public static class DialogueRules
@@ -116,6 +128,7 @@ public static class DialogueRules
         RelationshipCondition r => facts.Relationship(r.NpcId, r.Dimension) is var value && value >= r.Min && value <= r.Max,
         SkillCondition s => facts.SkillLevel(s.SkillId) >= s.Min,
         LevelCondition l => facts.Level >= l.Min,
+        QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),
     };
 

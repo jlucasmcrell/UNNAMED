@@ -15,6 +15,7 @@ public class DialogueRulesTests
         public List<(string ItemId, int Count, int Quality)> Pack { get; } = new();
         public Dictionary<(string, string), int> Regard { get; } = new();
         public Dictionary<string, int> Skills { get; } = new(StringComparer.Ordinal);
+        public Dictionary<(string, string?), string> Quests { get; } = new();
 
         public bool Visited(string dialogueId, string nodeId) => dialogueId == Talk && Heard.Contains(nodeId);
         public long WorldFlag(string flagId) => Flags.GetValueOrDefault(flagId);
@@ -22,6 +23,8 @@ public class DialogueRulesTests
         public int Relationship(string npcId, string dimension) => Regard.GetValueOrDefault((npcId, dimension));
         public int SkillLevel(string skillId) => Skills.GetValueOrDefault(skillId);
         public int Level { get; set; } = 1;
+        public string QuestState(string questId, string? objectiveId) =>
+            Quests.TryGetValue((questId, objectiveId), out var state) ? state : objectiveId is null ? "not_started" : "not_reached";
     }
 
     private static DialogueNode Node(string id, bool once = false, string? exhausted = null) =>
@@ -59,6 +62,15 @@ public class DialogueRulesTests
         Assert.False(Holds(new SkillCondition("skill.smithing", 5)));
         Assert.True(Holds(new LevelCondition(3)));
         Assert.False(Holds(new LevelCondition(4)));
+
+        facts.Quests[("quest.test.iron", null)] = "active";
+        facts.Quests[("quest.test.iron", "o_ore")] = "satisfied";
+        Assert.True(Holds(new QuestStateCondition("quest.test.iron", null, "active", false)));
+        Assert.False(Holds(new QuestStateCondition("quest.test.iron", null, "completed", false)));
+        Assert.True(Holds(new QuestStateCondition("quest.test.iron", null, "completed", true)));
+        Assert.True(Holds(new QuestStateCondition("quest.test.iron", "o_ore", "satisfied", false)));
+        Assert.True(Holds(new QuestStateCondition("quest.test.iron", "o_show", "not_reached", false)));
+        Assert.True(Holds(new QuestStateCondition("quest.test.other", null, "not_started", false)));
     }
 
     [Fact]

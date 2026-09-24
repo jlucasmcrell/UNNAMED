@@ -51,6 +51,7 @@ public static class ContentChecks
         ["moveset"] = new[] { "ability" },
         ["affix_pool"] = new[] { "affix" },
         ["domain"] = new[] { "skill" },   // a formula's magic-domain skill (§4.6)
+        ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>
