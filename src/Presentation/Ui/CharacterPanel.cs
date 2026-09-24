@@ -64,7 +64,7 @@ public partial class CharacterPanel : CanvasLayer
         var rules = session.Setup.Progression;
         var progression = view.Progression;
         var stats = view.Stats;
-        var text = new StringBuilder("CHARACTER   [K] close\n\n");
+        var text = new StringBuilder($"CHARACTER   [{HelpPanel.Key("character")}] close\n\n");
         text.Append(view.Name).Append(" - no archetype in Phase 1: every character starts from the same package\n");
         text.Append($"Level {progression.Level}   XP {progression.LevelProgressXp} of {rules.Curve.ToReach(progression.Level + 1)} to level {progression.Level + 1}");
         if (progression.XpDebt > 0)

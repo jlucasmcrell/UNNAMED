@@ -128,9 +128,16 @@ public partial class HelpPanel : CanvasLayer
         return string.Join(actions.Length == 1 ? " or " : " ", all.Distinct());
     }
 
+    /// <summary>
+    /// The key an action is on, as this keyboard prints it: the input map binds physical positions, so W's key reads Z on an AZERTY
+    /// keyboard (the Phase-1 technical audit, L-27). For a prompt: "[E] Open the door".
+    /// </summary>
+    public static string Key(string action) =>
+        InputMap.HasAction(action) && InputMap.ActionGetEvents(action).FirstOrDefault() is { } input ? KeyName(input) : "unbound";
+
     private static string KeyName(InputEvent input) => input switch
     {
-        InputEventKey key => OS.GetKeycodeString(key.Keycode != Key.None ? key.Keycode : key.PhysicalKeycode),
+        InputEventKey key => OS.GetKeycodeString(key.Keycode != Godot.Key.None ? key.Keycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode)),
         InputEventMouseButton { ButtonIndex: MouseButton.Left } => "Left mouse",
         InputEventMouseButton { ButtonIndex: MouseButton.Right } => "Right mouse",
         InputEventMouseButton mouse => $"Mouse {mouse.ButtonIndex}",

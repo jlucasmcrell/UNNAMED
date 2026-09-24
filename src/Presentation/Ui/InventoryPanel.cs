@@ -180,7 +180,7 @@ public partial class InventoryPanel : CanvasLayer
         if (view.Items.Length > 0)
         {
             var all = Row(view.Items.Length == 1 ? "One stack" : $"{view.Items.Length} stacks");
-            all.AddChild(Button("Take all  [R]", TakeAll));
+            all.AddChild(Button($"Take all  [{HelpPanel.Key("take_all")}]", TakeAll));
             _container.AddChild(all);
         }
         foreach (var item in view.Items)

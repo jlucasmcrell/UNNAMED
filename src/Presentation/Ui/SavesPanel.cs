@@ -117,7 +117,7 @@ public partial class SavesPanel : CanvasLayer
     private void Render()
     {
         var choice = _session.StartChoice();
-        _title.Text = _atStart ? "Otherreach" : "Load a save   [L] or Escape: back to the game";
+        _title.Text = _atStart ? "Otherreach" : $"Load a save   [{HelpPanel.Key("saves")}] or Escape: back to the game";
         var notes = new List<string>();
         if (_failure is not null)
             notes.Add(_failure);

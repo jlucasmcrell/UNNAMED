@@ -61,6 +61,7 @@ public partial class Main : Node3D
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
+    private InputCheck? _inputCheck;
     private UiShots? _shots;
     private Playthrough? _play;
     private DeltaShots? _delta;
@@ -115,7 +116,8 @@ public partial class Main : Node3D
         string contentRoot = Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--delta-shots")
+            : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+              || _options.ContainsKey("--delta-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -123,9 +125,11 @@ public partial class Main : Node3D
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
-        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+                        || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots");
-        _scripted = scripted || _options.ContainsKey("--resume-shots");   // no run of a harness takes the mouse
+        // No run of a harness takes the mouse - but the input check, which checks who has it.
+        _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
         if (scripted && !verify)
@@ -202,7 +206,7 @@ public partial class Main : Node3D
         };
         _saves.Load = (slot, copy) => LoadChosen(slot, copy);
         _saves.Quit = () => GetTree().Quit(0);
-        _saves.Closed = CloseSaves;
+        _saves.Closed = _saves.Close;
         AddChild(_saves);
         Subscribe();
         DefineInput();
@@ -235,6 +239,11 @@ public partial class Main : Node3D
         if (_flags.Contains("--smoke"))
         {
             _smoke = new Smoke(_session, _controller, _camera, profile);
+        }
+        else if (_flags.Contains("--input-check"))
+        {
+            _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
+                _character, _saves);
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -349,6 +358,16 @@ public partial class Main : Node3D
                 return;
             }
         }
+        else if (_inputCheck is not null)
+        {
+            if (_inputCheck.Update() is { } code)
+            {
+                GetTree().Quit(code);
+                return;
+            }
+            if (_inputCheck.Reading)
+                ReadInput();
+        }
         else if (_shots is not null)
         {
             switch (_shots.Update())
@@ -416,6 +435,7 @@ public partial class Main : Node3D
             _hud.Toast($"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}", 8);
         }
         Draw(frame.Alpha, delta);
+        UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
         {
@@ -447,39 +467,104 @@ public partial class Main : Node3D
         return $" (played IDs in {path})";
     }
 
+    /// <summary>
+    /// A panel that takes the keys and the mouse is open: a conversation, the inventory (on the character, a container, a trader or a
+    /// station), the character sheet or the saves list (the Phase-1 technical audit, L-27). While one is, no gameplay key reaches the world,
+    /// and the world runs on (the owner's ruling: nothing pauses for a panel). The journal, the help and the quest debugger are overlays:
+    /// they take no keys, and play goes on under them.
+    /// </summary>
+    public bool Modal => _inventory.Visible || _dialogue.Visible || _character.Visible || _saves.Visible;
+
+    /// <summary>Escape, outside any panel: the player wants the pointer until they click back into the world.</summary>
+    private bool _mouseFreed;
+
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null || _play is not null || _delta is not null)
+        if (_session?.Simulation is null || _scripted)
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible
-                && !_character.Visible:
+            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !Modal:
                 _camera.Look(motion.Relative);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal:
                 _camera.Zoom(-0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal:
                 _camera.Zoom(0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible
-                && !_dialogue.Visible && !_character.Visible:
-                Input.MouseMode = Input.MouseModeEnum.Captured;
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when _mouseFreed && !Modal:
+                _mouseFreed = false;   // the mouse is taken back at the end of the frame, so this click is not also a swing
                 break;
         }
     }
 
+    /// <summary>
+    /// Who has the mouse, decided once a frame from what is open - never set here and there (L-27): the game's while nothing modal is open
+    /// and the player has not freed it, the pointer's otherwise. A harness run and a headless one leave it alone.
+    /// </summary>
+    private void UpdateMouse()
+    {
+        if (_scripted || DisplayServer.GetName() == "headless")
+            return;
+        var wanted = Modal || _mouseFreed ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        if (Input.MouseMode != wanted)
+            Input.MouseMode = wanted;
+    }
+
     private void ReadInput()
     {
-        if (_saves.Visible)
+        var combat = _session.Simulation!.Combat;
+        bool modal = Modal;
+
+        // A panel's own keys: the saves list's, a conversation's (the number keys answer, Escape walks away - M4), the inventory's and
+        // the sheet's; and the overlays, open over anything.
+        if (_saves.Visible && (Input.IsActionJustPressed("saves") || Input.IsActionJustPressed("release_mouse")))
+            _saves.Close();
+        if (_dialogue.Visible)
         {
-            // The saves list takes the keys; the world runs on behind it, the character standing (B-01).
-            if (Input.IsActionJustPressed("saves") || Input.IsActionJustPressed("release_mouse"))
-                CloseSaves();
+            for (int n = 1; n <= 9; n++)
+            {
+                if (Input.IsActionJustPressed($"reply_{n}"))
+                    _dialogue.AnswerNumber(n);
+            }
+            if (Input.IsActionJustPressed("release_mouse"))
+                _dialogue.Leave();
+        }
+        if (Input.IsActionJustPressed("inventory") && !_dialogue.Visible && !_saves.Visible)
+        {
+            if (_inventory.Visible)
+                CloseInventory();
+            else
+                OpenInventory(null);
+        }
+        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
+            _inventory.TakeAll();
+        if (Input.IsActionJustPressed("character") && !_dialogue.Visible && !_saves.Visible)
+        {
+            _character.Visible = !_character.Visible;
+            _character.Refresh();
+        }
+        if (Input.IsActionJustPressed("help"))
+            _help.Toggle();
+        if (Input.IsActionJustPressed("debug_overlay"))
+            _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
+        if (Input.IsActionJustPressed("journal"))
+            _journal.Visible = !_journal.Visible;
+        if (Input.IsActionJustPressed("quest_debug"))
+        {
+            _questDebug.Visible = !_questDebug.Visible;
+            _questDebug.Refresh(_session, 0, now: true);
+        }
+        if (modal)
+        {
+            // Nothing reaches the world: the character stands, and lowers a raised guard.
             _controller.Steer(_camera, Vector2.Zero, Gait.Run);
+            if (combat.Blocking)
+                _controller.Guard(false);
             return;
         }
+
         if (Input.IsActionJustPressed("saves"))
         {
             _saves.OpenInGame();
@@ -492,19 +577,7 @@ public partial class Main : Node3D
 
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
-        var combat = _session.Simulation!.Combat;
-        // In a conversation the number keys answer, and Escape walks away (M4).
-        if (_dialogue.Visible)
-        {
-            for (int n = 1; n <= 9; n++)
-            {
-                if (Input.IsActionJustPressed($"reply_{n}"))
-                    _dialogue.AnswerNumber(n);
-            }
-            if (Input.IsActionJustPressed("release_mouse"))
-                _dialogue.Leave();
-        }
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
         bool holding = captured && Input.IsActionPressed("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
@@ -570,47 +643,20 @@ public partial class Main : Node3D
             foreach (var companion in up)
                 _controller.Order(companion.NpcId, companion.Order == CompanionOrder.Follow ? CompanionOrder.Wait : CompanionOrder.Follow);
         }
-        if (Input.IsActionJustPressed("inventory"))
-        {
-            if (_inventory.Visible)
-                CloseInventory();
-            else
-                OpenInventory(null);
-        }
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
         if (Input.IsActionJustPressed("crouch"))
             _controller.Crouch(_session.Simulation!.Posture.Stance != UNNAMED.Domain.Spatial.Stance.Crouched);
-        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
-            _inventory.TakeAll();
-        if (Input.IsActionJustPressed("character"))
-        {
-            _character.Visible = !_character.Visible;
-            _character.Refresh();
-            if (DisplayServer.GetName() != "headless")
-                Input.MouseMode = _character.Visible || _inventory.Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
-        }
-        if (Input.IsActionJustPressed("help"))
-            _help.Toggle();
         if (Input.IsActionJustPressed("first_person"))
             _camera.ToggleFirstPerson();
         if (Input.IsActionJustPressed("shoulder_swap"))
             _camera.SwapShoulder();
-        if (Input.IsActionJustPressed("debug_overlay"))
-            _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
-        if (Input.IsActionJustPressed("journal"))
-            _journal.Visible = !_journal.Visible;
-        if (Input.IsActionJustPressed("quest_debug"))
-        {
-            _questDebug.Visible = !_questDebug.Visible;
-            _questDebug.Refresh(_session, 0, now: true);
-        }
         if (Input.IsActionJustPressed("quicksave"))
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse") && !_dialogue.Visible)
-            Input.MouseMode = Input.MouseModeEnum.Visible;
+        if (Input.IsActionJustPressed("release_mouse"))
+            _mouseFreed = true;
     }
 
     /// <summary>
@@ -637,7 +683,7 @@ public partial class Main : Node3D
     private bool Aim(Simulation simulation, CombatView combat)
     {
         long range = 0;
-        bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
+        bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !Modal;
         if (combat.Casting is { } casting && _session.Setup.Magic.Formulas.TryGetValue(casting, out var formula) && formula.Targeting == UNNAMED.Domain.Magic.Targeting.Projectile
             && combat.Phase is CombatPhase.Windup)
             range = formula.Blow!.ReachMm;
@@ -696,17 +742,17 @@ public partial class Main : Node3D
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[E] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
-                ? $"[E] Open the {Describe(container.Key)}"
-                : $"[E] Search the {_session.DisplayName(container.DefId)}",
+                ? $"[{HelpPanel.Key("interact")}] Open the {Describe(container.Key)}"
+                : $"[{HelpPanel.Key("interact")}] Search the {_session.DisplayName(container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
-            { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
-            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[E] Help {_session.DisplayName(npc.Key)} up",
-            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[E] Talk to {_session.DisplayName(npc.Key)}",
-            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[E] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Describe(station.Key)}",
+            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {_session.DisplayName(npc.Key)} up",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
-            { } item => $"[E] Pick up {ItemName(_session, item.DefId, item.Quality)}",
+            { } item => $"[{HelpPanel.Key("interact")}] Pick up {ItemName(_session, item.DefId, item.Quality)}",
         });
 
         var view = simulation.Player;
@@ -715,12 +761,12 @@ public partial class Main : Node3D
         _hud.SetStatus(
             $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
-            (view.Progression.UnspentAttributePoints > 0 ? "   [K] a point to spend" : "") +
+            (view.Progression.UnspentAttributePoints > 0 ? $"   [{HelpPanel.Key("character")}] a point to spend" : "") +
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
-            $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
+            $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [{HelpPanel.Key("inventory")}] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
         _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
         var formulas = _controller.Formulas();
@@ -739,7 +785,7 @@ public partial class Main : Node3D
         _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
             $"{c.Name} - {c.Doing}, {c.Standing}" +
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
-            (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
+            (c.Condition == CompanionCondition.Up ? $"   [{HelpPanel.Key("companion_order")}] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
@@ -778,7 +824,7 @@ public partial class Main : Node3D
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
         _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
-        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press E", 6));
+        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
         _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
         _session.Subscribe<CompanionFell>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
@@ -871,18 +917,8 @@ public partial class Main : Node3D
     /// <summary>The waystation's people (M4): conversations on their panel, trade on the inventory's, and what they think in the log.</summary>
     private void SubscribeSocial()
     {
-        _session.Subscribe<ConversationLine>(_ =>
-        {
-            _dialogue.Refresh();
-            if (DisplayServer.GetName() != "headless")
-                Input.MouseMode = Input.MouseModeEnum.Visible;
-        });
-        _session.Subscribe<ConversationEnded>(_ =>
-        {
-            _dialogue.Refresh();
-            if (!_inventory.Visible && DisplayServer.GetName() != "headless")
-                Input.MouseMode = Input.MouseModeEnum.Captured;
-        });
+        _session.Subscribe<ConversationLine>(_ => _dialogue.Refresh());
+        _session.Subscribe<ConversationEnded>(_ => _dialogue.Refresh());
         _session.Subscribe<ServiceOpened>(e =>
         {
             if (e.Service == Domain.Social.NpcServices.Trade)
@@ -912,7 +948,7 @@ public partial class Main : Node3D
     {
         string name = _session.DisplayName(focus.DefId);
         if (simulation.Nodes.FirstOrDefault(n => n.Key == focus.Key) is { Ready: true })
-            return $"[E] Gather from the {name}";
+            return $"[{HelpPanel.Key("interact")}] Gather from the {name}";
         return _session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
             ? $"The {name} is worked out"
             : $"The {name} has nothing to take until it grows back";
@@ -1044,7 +1080,11 @@ public partial class Main : Node3D
             _hollow.SetDoor(door.Site.Key, door.Open);
         _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
         _items.Refresh(_session.Simulation!);
-        _inventory.Refresh();
+        // Panels open on the world before are closed on this one: a conversation it does not have, a container, a trader or a station
+        // that was the other world's (the Phase-1 technical audit, M-03).
+        _dialogue.Refresh();
+        _inventory.Close();
+        _character.Visible = false;
         var body = _controller.Authoritative;
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
@@ -1096,23 +1136,14 @@ public partial class Main : Node3D
 
     private int _resumeFrame;
 
-    /// <summary>Back to the game from the saves list.</summary>
-    private void CloseSaves()
-    {
-        _saves.Close();
-        if (!_scripted && DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Captured;
-    }
-
     /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
     private void Started()
     {
         _saves.Close();
         _hud.Visible = true;
+        _mouseFreed = false;
         Resync();
         GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
-        if (!_scripted && DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Captured;
     }
 
     /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
@@ -1177,27 +1208,21 @@ public partial class Main : Node3D
     private void OpenInventory(string? container)
     {
         _inventory.Open(container);
-        Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void OpenTrade(string npcId)
     {
         _inventory.OpenTrade(npcId);
-        if (DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void OpenStation(string key)
     {
         _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
-        Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void CloseInventory()
     {
         _inventory.Close();
-        if (DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Captured;
     }
 
     /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
