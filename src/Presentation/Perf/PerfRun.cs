@@ -8,20 +8,22 @@ using UNNAMED.Presentation.Player;
 namespace UNNAMED.Presentation.Perf;
 
 /// <summary>
-/// Walks the player through the hollow through the real command path while the camera follows a script: a third-person
-/// segment, a first-person segment, and a camera-obstruction segment inside and around the buildings (§23: "never only
-/// the cheapest camera path"). Twelve animated stand-in bodies walk the hollow meanwhile - the prototype's entity budget
-/// of 3 NPCs, 1 companion and 8 wolves - drawn by presentation only, since those systems arrive in M3d-M6.
+/// Walks the player through the hollow through the real command path while the camera follows a script: a camera-obstruction
+/// segment inside and around the buildings (§23: "never only the cheapest camera path"), then a third-person and a first-person
+/// segment round all four cells. Both loops keep clear of every creature's senses, so the capture measures the scene rather than a
+/// fight; the creatures live, wander and patrol meanwhile. Twelve animated stand-in bodies walk the hollow too - the prototype's
+/// entity budget of 3 NPCs, 1 companion and 8 wolves, drawn by presentation only before M3d-M6 built them, and kept as a margin.
 /// </summary>
 public sealed class PerfRun
 {
     public const int ProxyActors = 12;
 
-    // M6's layout: a loop through all four cells - the waystation, Charwood, the Foldscar's approach, Blackvein's ramp - and back.
+    // M6's layout: a loop through all four cells - the waystation, Blackvein's mouth and rim, the Foldscar's edge, Charwood's south -
+    // and back, at least 45 m from the hound's home and 20-30 m beyond every other creature's sight, patrol or ground.
     private static readonly (double X, double Z)[] Valley =
     {
-        (30, 158), (60, 156), (90, 150), (130, 146), (160, 150), (175, 120), (150, 95), (130, 70), (100, 100), (64, 104), (54, 74), (40, 60),
-        (54, 74), (64, 104), (60, 128), (44, 138),
+        (30, 158), (60, 156), (68, 150), (68, 128), (66, 112), (63, 98), (86, 78), (112, 74), (135, 62), (140, 85), (160, 106), (180, 118),
+        (150, 100), (100, 100), (66, 112), (58, 130), (44, 138),
     };
 
     // Through the lodge, round the smithy, and through the narrow gap between its fence and its north-west corner (bible §26).
@@ -31,10 +33,16 @@ public sealed class PerfRun
         (58, 148), (52.2, 148.5), (52.2, 141), (47, 137), (44, 138),
     };
 
+    // Both loops pass here: a segment on the other loop joins it at this point, never by a straight line across the buildings.
+    private static readonly (double X, double Z) Junction = (44, 138);
+
     private readonly List<Segment> _segments;
     private readonly List<(Avatar Body, Vector3 Centre, float Radius, float Speed, float Angle)> _proxies = new();
+    private readonly Dictionary<string, int> _reached = new();
     private int _segment = -1;
     private double _elapsed;
+    private (double X, double Z)[] _route = Obstructed;
+    private (double X, double Z)[]? _next;
     private int _waypoint;
     private bool _doorRequested;
     private float _cameraYaw;
@@ -44,14 +52,17 @@ public sealed class PerfRun
     {
         _segments = new List<Segment>
         {
-            new("warmup", 5, 3.5f, Valley),
+            new("warmup", 5, 3.5f, Obstructed),
+            new("obstruction", segmentSeconds, CameraRig.MaxDistance, Obstructed),
             new("third_person", segmentSeconds, 3.5f, Valley),
             new("first_person", segmentSeconds, 0f, Valley),
-            new("obstruction", segmentSeconds, CameraRig.MaxDistance, Obstructed),
         };
     }
 
     public string SegmentName => _segment >= 0 && _segment < _segments.Count ? _segments[_segment].Name : "done";
+
+    /// <summary>Waypoints reached in each segment: a walker stuck on a wall shows here as a count that stopped.</summary>
+    public string Progress => string.Join(", ", _segments.Select(s => $"{s.Name} {_reached.GetValueOrDefault(s.Name)} waypoints"));
 
     /// <summary>True once per segment, halfway through: the moment to keep a screenshot of what was being measured.</summary>
     public bool ScreenshotDue { get; private set; }
@@ -82,10 +93,11 @@ public sealed class PerfRun
             if (++_segment >= _segments.Count)
                 return false;
             _elapsed = 0;
-            _waypoint = 0;
             _shot = false;
             stats.Segment = _segments[_segment].Name;
             camera.TargetDistance = _segments[_segment].CameraDistance;
+            if (_segments[_segment].Route != _route)
+                _next = _segments[_segment].Route;
         }
         _elapsed += delta;
         var segment = _segments[_segment];
@@ -93,17 +105,24 @@ public sealed class PerfRun
         _shot |= ScreenshotDue;
 
         var body = controller.Authoritative;
-        var (wx, wz) = segment.Route[_waypoint];
+        var (wx, wz) = _route[_waypoint];
         var to = new Vector3((float)(wx - body.XMm / 1000.0), 0, (float)(wz - body.ZMm / 1000.0));
         if (to.Length() < 0.5f)
         {
-            _waypoint = (_waypoint + 1) % segment.Route.Length;
-            (wx, wz) = segment.Route[_waypoint];
+            _reached[segment.Name] = _reached.GetValueOrDefault(segment.Name) + 1;
+            if (_next is { } next && _route[_waypoint] == Junction)
+            {
+                _route = next;
+                _next = null;
+                _waypoint = Array.IndexOf(next, Junction);
+            }
+            _waypoint = (_waypoint + 1) % _route.Length;
+            (wx, wz) = _route[_waypoint];
             to = new Vector3((float)(wx - body.XMm / 1000.0), 0, (float)(wz - body.ZMm / 1000.0));
         }
 
         // The obstruction route passes through the longhouse: open its door the first time it is in reach.
-        if (segment.Route == Obstructed && !_doorRequested && controller.FocusOn(camera) is { Kind: FocusKind.Door, Key: "door.longhouse" } door
+        if (_route == Obstructed && !_doorRequested && controller.FocusOn(camera) is { Kind: FocusKind.Door, Key: "door.longhouse" } door
             && !controller.IsOpen(door.Key))
         {
             controller.Interact(door.Key);

@@ -76,7 +76,7 @@ The spike's navmesh bakes as 64 tiles of 250 m in 6.2 s (14,291 polygons). One 2
 Agree a window on RAZER with OBS, H3 and other significant GPU workloads stopped; nothing will interrupt a stream or a render. In that window, from a checkout of this branch:
 
 1. `dotnet build src/Presentation/Presentation.csproj`
-2. `godot --path src/Presentation -- --perf --perf-out <dir>/prototype`: about 5 minutes. A warm-up, then 75 s each of third person, first person and camera obstruction. The player walks the hollow through the real command path, with 12 animated stand-in bodies for the prototype's entity budget.
+2. `godot --path src/Presentation -- --perf --perf-out <dir>/prototype`: about 5 minutes. A warm-up, then 75 s each of camera obstruction (in and round the waystation's buildings), third person and first person (a loop through all four cells). The player walks the hollow through the real command path, clear of every creature's senses (M6), with 12 animated stand-in bodies on top of the world's own people and creatures. The summary's `route` note counts the waypoints reached and any blow that reached the character: a clean capture is struck 0 times.
 3. `godot --path src/Presentation -- --spike --perf-out <dir>/spike`: the navmesh bake, then the same three segments over the 2 x 2 km greybox.
 
 Each run writes `summary.json` (per segment: frame-time distribution, 1% and 0.1% lows, CPU process and render times, GPU time, RAM and VRAM peaks, hitches, and whether the 1% low held 60 FPS), `frames.csv`, and a screenshot per segment. The numbers go into `RISK_REGISTER.md` `RK-02` and here. If either scene cannot sustain 1080p / 60 after reasonable optimization, that is the owner-review stop, before M3b builds on the engine.

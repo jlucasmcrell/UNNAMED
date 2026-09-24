@@ -1,79 +1,79 @@
 {
-  "world_tick": 7162,
+  "world_tick": 7295,
   "player": {
-    "Id": "chr_01M38R7216X4HHDN91G4JV2AC2",
+    "Id": "chr_01M38T7T6BJWKPVBVAKQ8SGW58",
     "Name": "Wanderer",
     "XMm": 48244,
     "YMm": 7200,
     "ZMm": 136879,
-    "AppearanceSeed": 7296185676704990627,
+    "AppearanceSeed": 7529283875608109953,
     "Inventory": [
       {
-        "ItemId": "itm_01M38R72175PFFK0HXRX8T4PAW",
+        "ItemId": "itm_01M38T7T6C2SBQWV0Z2TPD19T0",
         "DefId": "item.tool.water_flask",
         "Count": 1,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38R7217JYPW0QX402MV10ZX",
-        "DefId": "item.weapon.rusted_sword",
-        "Count": 1,
-        "Quality": 0
-      },
-      {
-        "ItemId": "itm_01M38R7217N188SF2ZVJ5CJE0S",
+        "ItemId": "itm_01M38T7T6CFKEQ1J5MEPZYB4R4",
         "DefId": "item.consumable.salve_minor",
         "Count": 2,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38R774H5PP2WJW25H8ZPWQQ",
+        "ItemId": "itm_01M38T7T6CTH6Y5MFBSJKQF7F5",
+        "DefId": "item.weapon.rusted_sword",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm_01M38T7Z9DD63R404WYKNSMR6C",
         "DefId": "item.ammo.arrow_rough",
         "Count": 18,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38R774HKK04DXW3RQ3WYX70",
+        "ItemId": "itm_01M38T7Z9DGD5V0CQVG7CGGH6X",
         "DefId": "item.material.herb_ashbloom",
         "Count": 2,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38R85Q6PN2V491WXXMWANCK",
+        "ItemId": "itm_01M38T8Y0JRHYKD4DJQV2YZV58",
         "DefId": "item.weapon.hunting_bow",
         "Count": 1,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38R9H85NQ8E522RNTKJ1QRF",
+        "ItemId": "itm_01M38TACZRTDMP18HFM7EZ3NBY",
         "DefId": "item.material.iron_ore",
         "Count": 1,
         "Quality": 0
       },
       {
-        "ItemId": "itm_01M38RA8B97SWBW3HBR4BJN02R",
+        "ItemId": "itm_01M38TB3YWS5R4GVM4B349D3PQ",
         "DefId": "item.weapon.march_spear",
         "Count": 1,
         "Quality": 0
       }
     ],
     "Progression": {
-      "Level": 2,
-      "LevelProgressXp": 330,
+      "Level": 3,
+      "LevelProgressXp": 20,
       "XpDebt": 0,
       "LifetimeXp": {
         "Discovery": 65,
         "QuestObjective": 270,
-        "Combat": 40,
+        "Combat": 80,
         "Production": 55
       },
       "Allocation": {},
-      "UnspentAttributePoints": 1,
+      "UnspentAttributePoints": 2,
       "Grants": [],
       "Skills": {
         "skill.one_hand_blade": {
-          "Level": 2,
-          "ProgressXp": 24
+          "Level": 5,
+          "ProgressXp": 14
         },
         "skill.smithing": {
           "Level": 3,
@@ -98,17 +98,17 @@
         "spell.force.impulse_bolt": {
           "Source": "Book",
           "SourceRef": "item.tome.resonance_primer",
-          "Tick": 3855
+          "Tick": 3988
         },
         "spell.vital.mending_thread": {
           "Source": "Book",
           "SourceRef": "item.tome.resonance_primer",
-          "Tick": 3855
+          "Tick": 3988
         },
         "spell.warding.brace_ward": {
           "Source": "Book",
           "SourceRef": "item.tome.resonance_primer",
-          "Tick": 3855
+          "Tick": 3988
         }
       },
       "ProductionFirsts": [
@@ -132,18 +132,26 @@
           "creature.beast.ash_ember_hound": {
             "Day": 0,
             "Kills": 1
+          },
+          "creature.undead.bone_walker_husk": {
+            "Day": 0,
+            "Kills": 1
           }
         },
         "SpeciesEverKilled": [
-          "creature.beast.ash_ember_hound"
+          "creature.beast.ash_ember_hound",
+          "creature.undead.bone_walker_husk"
         ],
         "ClusterKills": {
           "spawn.hollow.charwood_hound": [
             950
+          ],
+          "spawn.hollow.iron_shelf_husk": [
+            2734
           ]
         }
       },
-      "Digest": "sha256:63a83d666241d19f44c4581ca4c31da3b11627119bfff4aa65056af5b33b4f58"
+      "Digest": "sha256:0592736190622ebdae795201dca3fb79bde2ffa0ed9946a2bda0d94f07e8131a"
     },
     "FacingMdeg": 296565,
     "Discoveries": [
@@ -155,7 +163,7 @@
       {
         "LocationId": "location.foldscar",
         "Method": "Visited",
-        "Tick": 4452
+        "Tick": 4585
       },
       {
         "LocationId": "location.outpost",
@@ -169,15 +177,15 @@
       }
     ],
     "Equipment": {
-      "MainHand": "itm_01M38RA8B97SWBW3HBR4BJN02R"
+      "MainHand": "itm_01M38TB3YWS5R4GVM4B349D3PQ"
     },
     "Currency": 25,
     "Effects": [
       {
         "EffectId": "effect.braced",
         "Stacks": 1,
-        "ExpiresTick": 7355,
-        "NextTickAt": 7036
+        "ExpiresTick": 7488,
+        "NextTickAt": 7169
       }
     ],
     "Relationships": [
@@ -237,28 +245,28 @@
         "QuestId": "quest.ashen_hollow.iron_under_ash",
         "Status": "Completed",
         "StartedTick": 342,
-        "EndedTick": 3553,
+        "EndedTick": 3686,
         "EndedBy": "o_show",
         "Objectives": [
           {
             "Id": "o_billet",
             "Status": "Satisfied",
-            "ActivatedTick": 3296,
-            "EndedTick": 3505,
+            "ActivatedTick": 3428,
+            "EndedTick": 3638,
             "Progress": 1
           },
           {
             "Id": "o_ore",
             "Status": "Satisfied",
             "ActivatedTick": 2345,
-            "EndedTick": 2727,
+            "EndedTick": 2859,
             "Progress": 0
           },
           {
             "Id": "o_return",
             "Status": "Satisfied",
-            "ActivatedTick": 2727,
-            "EndedTick": 3296,
+            "ActivatedTick": 2859,
+            "EndedTick": 3428,
             "Progress": 0
           },
           {
@@ -271,8 +279,8 @@
           {
             "Id": "o_show",
             "Status": "Satisfied",
-            "ActivatedTick": 3527,
-            "EndedTick": 3553,
+            "ActivatedTick": 3660,
+            "EndedTick": 3686,
             "Progress": 0
           },
           {
@@ -285,8 +293,8 @@
           {
             "Id": "o_spear",
             "Status": "Satisfied",
-            "ActivatedTick": 3505,
-            "EndedTick": 3527,
+            "ActivatedTick": 3638,
+            "EndedTick": 3660,
             "Progress": 1
           }
         ]
@@ -294,57 +302,57 @@
       {
         "QuestId": "quest.ashen_hollow.three_quiet_stones",
         "Status": "Completed",
-        "StartedTick": 3823,
-        "EndedTick": 6079,
+        "StartedTick": 3956,
+        "EndedTick": 6212,
         "EndedBy": "o_tavar",
         "Objectives": [
           {
             "Id": "o_learn",
             "Status": "Satisfied",
-            "ActivatedTick": 3823,
-            "EndedTick": 3824,
+            "ActivatedTick": 3956,
+            "EndedTick": 3957,
             "Progress": 0
           },
           {
             "Id": "o_north",
             "Status": "Satisfied",
-            "ActivatedTick": 4452,
-            "EndedTick": 4452,
+            "ActivatedTick": 4585,
+            "EndedTick": 4585,
             "Progress": 0
           },
           {
             "Id": "o_reach",
             "Status": "Satisfied",
-            "ActivatedTick": 3824,
-            "EndedTick": 4452,
+            "ActivatedTick": 3957,
+            "EndedTick": 4585,
             "Progress": 0
           },
           {
             "Id": "o_southeast",
             "Status": "Satisfied",
-            "ActivatedTick": 4452,
-            "EndedTick": 5478,
+            "ActivatedTick": 4585,
+            "EndedTick": 5611,
             "Progress": 0
           },
           {
             "Id": "o_southwest",
             "Status": "Satisfied",
-            "ActivatedTick": 4452,
-            "EndedTick": 4746,
+            "ActivatedTick": 4585,
+            "EndedTick": 4879,
             "Progress": 0
           },
           {
             "Id": "o_steady",
             "Status": "Satisfied",
-            "ActivatedTick": 5478,
-            "EndedTick": 6005,
+            "ActivatedTick": 5611,
+            "EndedTick": 6138,
             "Progress": 0
           },
           {
             "Id": "o_tavar",
             "Status": "Satisfied",
-            "ActivatedTick": 6005,
-            "EndedTick": 6079,
+            "ActivatedTick": 6138,
+            "EndedTick": 6212,
             "Progress": 0
           }
         ]
@@ -374,7 +382,7 @@
         ]
       }
     ],
-    "Digest": "sha256:0644f2f0ce75bdaf968b74172a05a8c3c6cd031a903ba58a9a96c8944ca94505"
+    "Digest": "sha256:3ffe8be98a991baa421ecad5ac768c9f0c2e8012d37f8a7c1fd5a9d74242c830"
   },
   "world": {
     "Cells": [
@@ -388,7 +396,7 @@
         "HarvestedNodes": [
           {
             "NodeKey": "node.r_0_0:c_00_00.iron_seam.00",
-            "LastHarvestTick": 2726,
+            "LastHarvestTick": 2858,
             "HarvestSeq": 1
           }
         ],
@@ -458,14 +466,14 @@
     "Containers": [
       {
         "Key": "container.merchant_cart",
-        "InstanceId": "cnt_01M38R85Q6HGRJ1MS21DMFFQM6",
+        "InstanceId": "cnt_01M38T8Y0JPXYXFQMQF5ECNCMG",
         "HostCell": "r_0_0:c_01_01",
         "Items": [],
         "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b"
       },
       {
         "Key": "container.waystation_chest",
-        "InstanceId": "cnt_01M38R774G7PC240DSB1FKDTB7",
+        "InstanceId": "cnt_01M38T7Z9CSM0X1MHAKVJ5ZXD8",
         "HostCell": "r_0_0:c_00_01",
         "Items": [],
         "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9"
@@ -479,9 +487,9 @@
         "HostCell": "r_0_0:c_00_00",
         "Generation": 0,
         "Condition": "Alive",
-        "XMm": 16067,
-        "ZMm": 73028,
-        "FacingMdeg": 164023,
+        "XMm": 18690,
+        "ZMm": 76428,
+        "FacingMdeg": 37330,
         "Health": 70,
         "DiedTick": 0,
         "RespawnTick": 0,
@@ -548,9 +556,9 @@
         "HostCell": "r_0_0:c_01_01",
         "Generation": 0,
         "Condition": "Alive",
-        "XMm": 189771,
-        "ZMm": 185930,
-        "FacingMdeg": 309554,
+        "XMm": 181363,
+        "ZMm": 193288,
+        "FacingMdeg": 297582,
         "Health": 50,
         "DiedTick": 0,
         "RespawnTick": 0,
@@ -570,12 +578,12 @@
         "InstanceId": "crt_0000000001GAZ93WMF1FF9TQH5",
         "HostCell": "r_0_0:c_00_00",
         "Generation": 0,
-        "Condition": "Alive",
-        "XMm": 73087,
-        "ZMm": 169462,
-        "FacingMdeg": 349427,
-        "Health": 55,
-        "DiedTick": 0,
+        "Condition": "Corpse",
+        "XMm": 41556,
+        "ZMm": 53728,
+        "FacingMdeg": 27096,
+        "Health": 0,
+        "DiedTick": 2734,
         "RespawnTick": 0,
         "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
         "Mind": "Unaware",
@@ -583,7 +591,7 @@
         "Knows": false,
         "KnownXMm": 0,
         "KnownZMm": 0,
-        "LastSeenTick": 0,
+        "LastSeenTick": 2734,
         "SearchUntil": 0,
         "HasCalled": false
       },
@@ -594,9 +602,9 @@
         "HostCell": "r_0_0:c_01_01",
         "Generation": 0,
         "Condition": "Alive",
-        "XMm": 116341,
-        "ZMm": 124061,
-        "FacingMdeg": 310965,
+        "XMm": 117408,
+        "ZMm": 127865,
+        "FacingMdeg": 47948,
         "Health": 50,
         "DiedTick": 0,
         "RespawnTick": 0,
@@ -617,9 +625,9 @@
         "HostCell": "r_0_0:c_01_01",
         "Generation": 0,
         "Condition": "Alive",
-        "XMm": 120384,
-        "ZMm": 136036,
-        "FacingMdeg": 344216,
+        "XMm": 120570,
+        "ZMm": 129764,
+        "FacingMdeg": 178165,
         "Health": 50,
         "DiedTick": 0,
         "RespawnTick": 0,

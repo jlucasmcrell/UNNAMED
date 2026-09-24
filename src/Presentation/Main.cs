@@ -53,6 +53,7 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private Playthrough? _play;
     private string _perfOut = string.Empty;
+    private int _perfStruck, _perfDied;
     private Vector3 _lastFeet;
     private double _lastAlpha;
 
@@ -143,6 +144,8 @@ public partial class Main : Node3D
             _stats = new FrameStats(GetViewport());
             _perf = new PerfRun(Seconds());
             _perf.SpawnProxies(this, _session.Setup.Layout);
+            _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
+            _session.Subscribe<PlayerDied>(_ => _perfDied++);
         }
         else if (DisplayServer.GetName() != "headless")
         {
@@ -769,9 +772,12 @@ public partial class Main : Node3D
             ["vsync"] = "disabled for the capture, so frame times show headroom rather than the refresh rate",
             ["screenshots"] = "one per segment, halfway through; the frame after each is left out of the numbers (the capture stalls the GPU)",
             ["gate"] = "owner ruling 2026-09-23: sustained 60 FPS at 1080p on RAZER's RTX 4070 Ti with OBS, H3 and other GPU workloads stopped",
+            ["route"] = $"{_perf.Progress}; the character was struck {_perfStruck} times and died {_perfDied} times (a clean capture: 0 and 0)",
         };
         string summary = _stats!.Write(_perfOut, notes);
         GD.Print($"UNNAMED perf capture written to {_perfOut}\n{summary}");
+        if (_perfStruck + _perfDied > 0)
+            GD.PushWarning($"UNNAMED perf: a creature reached the character ({_perfStruck} blows, {_perfDied} deaths) - the capture measured a fight");
         GetTree().Quit(0);
     }
 
