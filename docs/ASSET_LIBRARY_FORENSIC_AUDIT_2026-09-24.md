@@ -364,6 +364,66 @@ library nobody has actually looked at into one that can be assessed. Until it is
 of these assets - including mine, which is based on 520-700 px images and bounding-box measurements - is
 being made through a window narrower than the problem.
 
+### Concept coverage: 163 three-dimensional concepts were never built
+
+The concept library is 801 images, **all 1536x1536** (768 primary, 33 backups or variants). Only 500
+assets have a LOD0 mesh, and 485 of those match a concept. **That leaves 163 three-dimensional concepts
+with no mesh at all.** (The remaining unmatched concepts are icon x93 and material x60, which are 2D
+artefacts - UI art and textures - and correctly have no mesh.)
+
+| Family | Concepts | Meshes | Unbuilt |
+|---|---|---|---|
+| prop | 116 | 70 | **46** |
+| raceclass | 32 | 0 | **32** |
+| item | 78 | 47 | **31** |
+| herb | 17 | 1 | **16** |
+| race2 | 15 | 2 | **13** |
+| container | 20 | 8 | **12** |
+| pommel / methodA / methodB / test / building | 12 | 0 | 12 |
+| weapon | 109 | 108 | 1 |
+| resource | 22 | 21 | 1 |
+| creature | 62 | 62 | **0** |
+| magic | 40 | 40 | **0** |
+| travel | 36 | 36 | **0** |
+| flora, race, animal, npc, racebody, mount, armour, vehicle, tool, reagent, landmark, rock, weaponcomp | 100 | 100 | **0** |
+
+### The families that are complete are the families that reconstruct well
+
+This is the most strategically useful pattern in the audit, and it is a strong inference rather than a
+measurement, so it is labelled as one.
+
+**Every family with 100% coverage — creature, magic, travel, flora, weapon, armour, vehicle, tool,
+landmark, rock — is a class of subject this pipeline reconstructs acceptably.** Creatures, weapons,
+potions, tools: compact solids, simple silhouettes, forgiving materials.
+
+**Every family with large gaps — prop 46 unbuilt, item 31, container 12, herb 16, raceclass 32 — is a
+compound or thin-membered class.** Props, containers and herbs are exactly the subjects the topology
+measurement showed fragmenting into unwelded shells.
+
+**The most likely reading is that the operator stopped building the subjects that kept failing.** That
+is a rational response to a real capability limit, and it happened without being written down. The
+effect is that the library looks *worse* than its coverage suggests, because the unbuilt props are
+absent rather than present-and-bad — and the ones that were built late were built under pressure to get
+something shipped.
+
+**This also means the 46 unbuilt props should not be commissioned on this pipeline.** They are the same
+class as prop_quarry_winch. Building them would reproduce the failure 46 times. **prop is the family
+that most needs either a kit-based approach or a different reconstruction method, and it is the largest
+remaining gap in the library.**
+
+### Correction: two failures were already caught and archived
+
+ssets/_superseded/reconstruction_failed/ contains **uilding_lodge and uilding_smithy** — the two
+buildings. The pipeline detected both and moved them out of 
+eady/. Their review renders remain in
+ssets/review/bible_batch/, which is how I encountered uilding_smithy and how the owner would have.
+
+**My acceptance list below originally told the owner to discard uilding_smithy. It was already
+discarded.** The pipeline got that one right, and the failure was archived with a name that says exactly
+what it was: 
+econstruction_failed. That is the single best piece of process hygiene in the repository,
+and it should be the model for how the other failures are handled.
+
 ## Part 5 — Root-cause analysis
 
 Ranked by confidence, with the class letter from the brief's taxonomy.
