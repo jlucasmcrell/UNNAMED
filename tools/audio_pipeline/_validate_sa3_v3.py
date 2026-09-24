@@ -57,8 +57,16 @@ def main():
             if name.endswith((".wav", ".import")):
                 os.remove(os.path.join(GODOT_STAGED, name))
                 removed += 1
-        print(f"  cleared {removed} files from the V2 staging")
+        print(f"  cleared {removed} files from the previous staging")
     os.makedirs(GODOT_STAGED, exist_ok=True)
+
+    # Godot caches imported resources under .godot/imported and keys them by the source path. Replacing
+    # a wav without dropping the cache leaves a stale entry, and the engine then reports the file as
+    # unimportable while `--import` claims success. Clearing only the staged wavs is not enough.
+    cache = os.path.join(GODOT_PROJECT, ".godot", "imported")
+    if os.path.isdir(cache):
+        shutil.rmtree(cache, ignore_errors=True)
+        print("  cleared the Godot import cache")
 
     staged = 0
     for entry in spec["sounds"]:
