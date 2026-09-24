@@ -247,7 +247,7 @@ environmental sweeteners across the four cells.
 |---|---|
 | V1 (preserved) | `assets/audio/v1_stable_audio_open/` |
 | V2 candidates (684) | `assets/audio/v2_candidates/<audio_id>/candidate_{a,b,c}.flac` |
-| V2 provisional set (228) | `assets/audio/v2_delivered/<audio_id>/candidate_<x>.wav` |
+| V2 delivered (683) | `assets/audio/v2_delivered/<audio_id>/candidate_<x>.wav` — every technically valid candidate, not only the provisional pick, so a replacement can be taken from disk without re-rendering. The pick is named in the manifest. |
 | V2 manifest | `assets/manifests/playable_prototype_audio_v2.json` |
 | V2 QA | `assets/manifests/audio_qa_v2.json` |
 | V2 spec and prompts | `assets/manifests/audio_spec_v2.json` |
