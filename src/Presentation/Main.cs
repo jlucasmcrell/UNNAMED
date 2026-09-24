@@ -808,6 +808,7 @@ public partial class Main : Node3D
     private void Subscribe()
     {
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
+        _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);

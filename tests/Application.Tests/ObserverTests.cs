@@ -15,16 +15,8 @@ public class ObserverTests
 {
     private const string Bolt = "spell.force.impulse_bolt";
 
-    /// <summary>A session playing the world an arena set up - saved and loaded as the game loads any save - one tick a frame.</summary>
-    private static GameSession Playing(TempProfile profile, (double X, double Z) at, int facingDeg, Func<PlayerRecord, PlayerRecord> change)
-    {
-        var session = Harness.Boot(profile);
-        var arena = Arena.OpenCreatures(session, session.Setup, at, facingDeg, Array.Empty<(string, double, double, string)>(), change, keepSpawns: true);
-        new SaveStore(profile.Root).Save(SaveSlots.Manual("observed"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
-            session.Content, arena.Simulation.WorldTick, 0));
-        Assert.True(session.Load(SaveSlots.Manual("observed")).IsComplete);
-        return session;
-    }
+    private static GameSession Playing(TempProfile profile, (double X, double Z) at, int facingDeg, Func<PlayerRecord, PlayerRecord> change) =>
+        Harness.Playing(profile, at, facingDeg, change);
 
     [Fact]
     public void AShotLoosedSubscriberThatThrows_NeitherRepeatsTheTick_NorChargesStrainTwice()

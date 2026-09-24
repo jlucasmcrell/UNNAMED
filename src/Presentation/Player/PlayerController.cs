@@ -36,33 +36,33 @@ public sealed class PlayerController
 {
     private readonly GameSession _session;
     private readonly Dictionary<string, bool> _open = new(StringComparer.Ordinal);
-    private Body _body = new(0, 0, 0, 0);
-    private (long X, long Z) _lastStep;
-    private MoveIntent _intent;
+    private readonly PlayerMotion _motion;
 
-    public PlayerController(GameSession session) => _session = session;
+    public PlayerController(GameSession session)
+    {
+        _session = session;
+        _motion = new PlayerMotion(session);
+    }
 
     /// <summary>The body as of the last simulated tick.</summary>
-    public Body Authoritative => _body;
+    public Body Authoritative => _motion.Body;
 
-    public MoveIntent Intent => _intent;
+    public MoveIntent Intent => _motion.Sent;
 
     /// <summary>Take a fresh copy after a new game or a load, the only times presentation reads the whole state.</summary>
     public void Resync()
     {
         var simulation = _session.Simulation!;
-        _body = simulation.Player.Body;
-        _intent = simulation.Player.Intent;
+        _motion.Resync();
         _open.Clear();
         foreach (var door in simulation.Doors)
             _open[door.Site.Key] = door.Open;
     }
 
-    public void OnBodyMoved(BodyMoved moved)
-    {
-        _lastStep = (moved.To.XMm - moved.From.XMm, moved.To.ZMm - moved.From.ZMm);
-        _body = moved.To;
-    }
+    public void OnBodyMoved(BodyMoved moved) => _motion.OnBodyMoved(moved);
+
+    /// <summary>Back at the Waystone, standing (M-05, L-14): a key still held is sent again, and the jump there is not a step.</summary>
+    public void OnRespawned(PlayerRespawned respawned) => _motion.OnRespawned(respawned);
 
     public void OnDoorToggled(DoorToggled toggled) => _open[toggled.DoorKey] = toggled.Open;
 
@@ -85,48 +85,15 @@ public sealed class PlayerController
     {
         int facing = camera.IsFirstPerson || faceCamera
             ? FacingOf(camera.GroundForward)
-            : direction.LengthSquared() > 0.0001f ? FacingOf(direction) : _intent.FacingMdeg;
+            : direction.LengthSquared() > 0.0001f ? FacingOf(direction) : _motion.Sent.FacingMdeg;
         var wish = new MoveIntent(
             (int)Mathf.Round(direction.X * MoveIntent.FullDeflection), (int)Mathf.Round(direction.Z * MoveIntent.FullDeflection), gait, facing);
-        bool turned = Math.Abs(Mathf.Wrap(wish.FacingMdeg - _intent.FacingMdeg, -180_000, 180_000)) > 500;
-        if (wish.DirXPermille == _intent.DirXPermille && wish.DirZPermille == _intent.DirZPermille && wish.Gait == _intent.Gait && !turned)
-            return;
-        _intent = wish;
-        _session.Submit(new MoveCommand(_session.Simulation!.PlayerId, wish));
+        if (_motion.Send(wish))
+            _session.Submit(new MoveCommand(_session.Simulation!.PlayerId, wish));
     }
 
-    /// <summary>
-    /// Where to draw the body this frame: the last tick advanced by the frame's fraction of the next one, moving the way
-    /// the simulation will - a dodge carries on as it went, a stagger holds still, an attack or a guard walks, and an
-    /// empty stamina pool runs rather than sprints.
-    /// </summary>
-    public Body Predict(double alpha)
-    {
-        var setup = _session.Setup;
-        var simulation = _session.Simulation!;
-        var combat = simulation.Combat;
-        var intent = _intent;
-        switch (combat.Phase)
-        {
-            case CombatPhase.Dodge:
-                return _body with { XMm = _body.XMm + (long)(_lastStep.X * alpha), ZMm = _body.ZMm + (long)(_lastStep.Z * alpha) };
-            case CombatPhase.Staggered:
-            case CombatPhase.Recovery when combat.AttackSource is null:
-                return _body;
-            case CombatPhase.Windup or CombatPhase.Active or CombatPhase.Recovery:
-                intent = intent with { Gait = Gait.Walk };
-                break;
-            default:
-                if (combat.Blocking)
-                    intent = intent with { Gait = Gait.Walk };
-                else if (intent.Gait == Gait.Sprint && combat.Stamina == 0)
-                    intent = intent with { Gait = Gait.Run };
-                break;
-        }
-        // With the posture (the owner's M6 playtest): a jump's arc and a crouch's pace are drawn as the next tick will have them.
-        return Kinematics.Step(_body, simulation.Posture, intent, setup.Movement, setup.Layout.Space, simulation.DynamicBlockers,
-            (int)Math.Round(alpha * setup.TickMilliseconds)).Body;
-    }
+    /// <summary>Where to draw the body this frame: the last tick advanced by the frame's share of the next (<see cref="PlayerMotion.Predict"/>).</summary>
+    public Body Predict(double alpha) => _motion.Predict(alpha);
 
     public void Attack() => _session.Submit(new AttackCommand(_session.Simulation!.PlayerId));
 
@@ -160,8 +127,11 @@ public sealed class PlayerController
     public void Guard(bool raised) => _session.Submit(new BlockCommand(_session.Simulation!.PlayerId, raised));
 
     /// <summary>Dodge along a world-space direction; no direction dodges backwards.</summary>
-    public void Dodge(Vector3 direction) =>
+    public void Dodge(Vector3 direction)
+    {
+        _motion.OnDodgeAsked();
         _session.Submit(new DodgeCommand(_session.Simulation!.PlayerId, (int)Mathf.Round(direction.X * 1000), (int)Mathf.Round(direction.Z * 1000)));
+    }
 
     /// <summary>Use the first carried item that has a use (the salve). False when there is none.</summary>
     public bool UseConsumable()
@@ -186,7 +156,7 @@ public sealed class PlayerController
         foreach (var door in _session.Setup.Layout.Doors)
         {
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
-                door.ClosedFootprint.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+                door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
         foreach (var site in simulation.Containers.Select(c => c.Site))
         {
@@ -209,13 +179,13 @@ public sealed class PlayerController
         foreach (var view in simulation.Switches.Where(s => !s.Set))
         {
             var (x, z) = Footprints.Center(view.Site.Body);
-            candidates.Add((new Focus(FocusKind.Switch, view.Site.Key, view.Site.FlagId, x, z), view.Site.Body.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+            candidates.Add((new Focus(FocusKind.Switch, view.Site.Key, view.Site.FlagId, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
         // A standing barrier cannot be used, but whoever stands at it is told what it is.
         foreach (var view in simulation.Barriers.Where(b => b.Standing))
         {
             var (x, z) = Footprints.Center(view.Site.Footprint);
-            candidates.Add((new Focus(FocusKind.Barrier, view.Site.Key, view.Site.FlagId, x, z), view.Site.Footprint.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+            candidates.Add((new Focus(FocusKind.Barrier, view.Site.Key, view.Site.FlagId, x, z), view.Site.Footprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
 
         Focus? best = null;
@@ -224,7 +194,7 @@ public sealed class PlayerController
         {
             if (beyondReach > 0)
                 continue;
-            var to = new Vector3(focus.XMm - _body.XMm, 0, focus.ZMm - _body.ZMm);
+            var to = new Vector3(focus.XMm - Authoritative.XMm, 0, focus.ZMm - Authoritative.ZMm);
             float alignment = to.LengthSquared() < 1 ? 1 : to.Normalized().Dot(camera.GroundForward);
             if (camera.IsFirstPerson && alignment < 0.5f)
                 continue;
@@ -272,7 +242,7 @@ public sealed class PlayerController
 
     private double Distance(long xMm, long zMm)
     {
-        double dx = _body.XMm - xMm, dz = _body.ZMm - zMm;
+        double dx = Authoritative.XMm - xMm, dz = Authoritative.ZMm - zMm;
         return Math.Sqrt(dx * dx + dz * dz);
     }
 
