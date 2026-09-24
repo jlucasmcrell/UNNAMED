@@ -1,0 +1,13 @@
+id: effect.weakness
+kind: effect
+schema: 1
+display_key: effect.weakness.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+category: debuff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 30.0
+tick_interval_min: 0
+modifiers:
+  - { target: stat.damage_dealt, op: multiply, value: 0.75 }

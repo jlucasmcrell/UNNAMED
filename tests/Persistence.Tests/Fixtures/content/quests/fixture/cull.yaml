@@ -1,0 +1,12 @@
+id: quest.fixture.cull
+kind: quest
+schema: 1
+display_key: quest.fixture.cull.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+title: Thin the Pack
+summary: Kill three wolves for the warden.
+giver_ref: npc.fixture.warden_sera
+entry_objective: o_cull
+objectives:
+  - { id: o_cull, type: kill_creature, description: Kill three wolves., params: { creature_ref: creature.beast.wolf_grey, count: 3 } }

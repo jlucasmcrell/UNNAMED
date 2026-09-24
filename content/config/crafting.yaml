@@ -1,0 +1,13 @@
+id: config.crafting
+kind: config
+schema: 1
+display_key: config.crafting.name
+tags: [config]
+notes: How crafting decides quality (M3f; DATA_MODEL.md quality_curve). The weakest material caps the work, then the smith's hand moves it a step - up more often the further skill is past the recipe's complexity, down more often the further the recipe is past the skill. No rank gates a recipe.
+quality:
+  fine_percent_at_complexity: 10   # at the recipe's complexity, one piece in ten comes out a step finer
+  fine_percent_per_point: 2        # +2% per point of skill past the complexity
+  fine_percent_max: 60
+  crude_percent_per_point: 3       # +3% per point of complexity past the skill
+  crude_percent_max: 40
+  weapon_damage_per_step: 2        # a fine weapon hits 2 harder, a crude one 2 softer

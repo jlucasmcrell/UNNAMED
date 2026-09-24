@@ -1,0 +1,21 @@
+; Engine configuration file.
+; The Otherreach presentation shell (ARCHITECTURE.md §3): Godot renders the domain's state and turns input into
+; commands. Content is read from the repository's content/ directory; nothing here is game data.
+
+config_version=5
+
+[application]
+
+config/name="Otherreach"
+config/description="Phase-1 playable prototype (codename UNNAMED): Ashen Hollow."
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
+[dotnet]
+
+project/assembly_name="UNNAMED.Presentation"

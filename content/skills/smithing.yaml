@@ -1,0 +1,8 @@
+id: skill.smithing
+kind: skill
+schema: 1
+display_key: skill.smithing.name
+tags: [skill]
+name: Smithing
+family: crafting
+notes: The content bible's first profession proof (§12), with no ranks - competence only, a steadier hand at the forge and anvil (PROGRESSION.md §4.2). What can be made at all is the recipes known.

@@ -30,6 +30,12 @@ UNIT_HINT_MAP = {
     "creature": 1.8,
     "character": 1.8,
     "building": 4.0,
+    # Modular components are sized ABSOLUTELY by their socket definition at the modular
+    # stage, so these defaults are only a first-pass guess for the raw mesh. A real value
+    # comes from nominal_size_m; anything here is overwritten before the production GLB.
+    "weapon_component": 0.30,
+    "armour": 0.40,
+    "magic_component": 0.10,
 }
 
 
@@ -136,6 +142,24 @@ def force_single_sided():
             pass
 
 
+def rename_asset(obj, asset_id):
+    """Give the object, mesh and material stable asset-id names.
+
+    Without this every export lands as `Mesh_0` / `Material_0`, which is what the whole
+    library looked like: 320 of 335 assets carried generic names, so an imported scene was
+    unreadable and nothing could look an asset up by name. The modular standard made this a
+    Wave 0 requirement; this is the bulk production path honouring it too.
+    """
+    obj.name = asset_id
+    obj.data.name = f"{asset_id}_mesh"
+    for index, slot in enumerate(obj.material_slots):
+        material = slot.material
+        if material is None:
+            continue
+        material.name = f"MAT_{asset_id}" if index == 0 else f"MAT_{asset_id}_{index}"
+    return obj
+
+
 def export_glb(objects, path, draco=False, with_materials=True):
     for obj in bpy.context.scene.objects:
         obj.select_set(False)
@@ -174,6 +198,9 @@ def make_lod(source, face_cap, name, outdir):
     lod = source.copy()
     lod.data = source.data.copy()
     lod.name = name
+    # The copied datablock arrives as "<asset>_mesh.001"; without this the LOD exports under
+    # the base asset's name plus Blender's duplicate counter, so no LOD is identifiable.
+    lod.data.name = f"{name}_mesh"
     bpy.context.collection.objects.link(lod)
 
     current_faces = len(source.data.polygons)
@@ -203,7 +230,10 @@ def make_collision(source, hull_faces, name, outdir):
 
     hull = source.copy()
     hull.data = source.data.copy()
-    hull.name = f"{name}_convex"
+    # The file is "<name>_collision_hull.glb", so the object and datablock inside it should
+    # say the same thing rather than "<name>_convex" and "<name>_mesh.004".
+    hull.name = f"{name}_collision_hull"
+    hull.data.name = f"{name}_collision_hull_mesh"
     bpy.context.collection.objects.link(hull)
     for o in bpy.context.scene.objects:
         o.select_set(False)
@@ -236,6 +266,7 @@ def make_collision(source, hull_faces, name, outdir):
     )
     box = bpy.context.active_object
     box.name = f"{name}_collision_box"
+    box.data.name = f"{name}_collision_box_mesh"
     box.scale = (
         max(highs.x - lows.x, 1e-4),
         max(highs.y - lows.y, 1e-4),
@@ -291,6 +322,7 @@ def main():
 
     source_faces = len(merged.data.polygons)
     base_stats = mesh_stats(merged)
+    rename_asset(merged, args.name)
     export_glb([merged], os.path.join(args.outdir, f"{args.name}.glb"))
 
     budgets = [int(b) for b in args.lod_faces.split(",") if b.strip()]

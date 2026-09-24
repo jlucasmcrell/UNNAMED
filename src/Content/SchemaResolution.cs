@@ -219,6 +219,14 @@ public static class ContentKindRegistry
             Directory: "config",
             IdPrefix: "config"
         );
+
+        // 20b. skill - a discipline of AX-SKL (DATA_MODEL.md §4.21, added by the M2c progression audit)
+        kinds["skill"] = new ContentKindDefinition(
+            Kind: "skill",
+            FullKind: "skill",
+            Directory: "skills",
+            IdPrefix: "skill"
+        );
         
         // Referenced kinds from section 1.2
         // 21. species

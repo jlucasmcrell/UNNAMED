@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3]
+
+; Otherreach asset validation gallery.
+;
+; This is NOT gameplay. It is a viewing scene: open it, run it, and judge whether the playable
+; asset set is actually usable in the engine. Everything it draws comes from
+; assets/validation_scene.json, which is generated from the live library.
+;
+; The node tree is deliberately almost empty - the gallery script builds the contents at runtime,
+; so a missing or renamed asset is reported rather than silently absent from a hand-written scene.
+;
+; sub_resource blocks must precede the nodes that reference them; placing the Environment after the
+; WorldEnvironment made Godot fail to load the scene entirely.
+
+[ext_resource type="Script" path="res://asset_gallery.gd" id="1_gallery"]
+
+[sub_resource type="Environment" id="Environment_gallery"]
+background_mode = 1
+background_color = Color(0.16, 0.17, 0.19, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.62, 0.68, 1)
+ambient_light_energy = 0.4
+tonemap_mode = 2
+
+[node name="AssetGallery" type="Node3D"]
+script = ExtResource("1_gallery")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 4, 6, 26)
+fov = 60.0
+near = 0.05
+far = 400.0
+
+[node name="SunLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 20, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866, -0.25, -0.433, 0, 0.866, -0.5, 0.5, -0.433, 0.75, 0, 12, 0)
+light_energy = 0.35
+light_color = Color(0.75, 0.8, 1, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_gallery")

@@ -1,0 +1,16 @@
+id: spell.vital.mending_thread
+kind: spell
+schema: 1
+display_key: spell.vital.mending_thread.name
+tags: [spell]
+name: Mending Thread
+notes: A small recovery and stabilization (content bible §13) - the salve's mending, and a bleed or a venom stopped. Slow to cast, so a wound can break it.
+domain: skill.vital
+complexity: 5
+cost: { focus: 14, strain: 8 }
+cast_time_s: 1.0
+targeting: self
+payload:
+  - { type: remove_effect, effect_ref: effect.bleeding }
+  - { type: remove_effect, effect_ref: effect.venom }
+  - { type: apply_effect, effect_ref: effect.mending }

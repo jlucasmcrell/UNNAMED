@@ -1,6 +1,6 @@
 # ROADMAP.md — Incremental Development Roadmap
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture (STEP 17, plus STEP 1/STEP 15/STEP 16 sequencing)
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision. `DECISIONS.md` records settled decisions. Where this document and the charter disagree, the charter wins and this document is wrong.
 
@@ -131,26 +131,57 @@ Rationale for each link:
 
 - **Class:** INFRA (+ one `RISK SPIKE` inside). **Depends on:** M1, M1b.
 - **Entry:** Domain skeleton and content loader pass.
-- **Work:** `EntityRegistry` (D-10) owning creation, ULID assignment, and lookup for every runtime instance, with **no gameplay rules**; definition-ID vs instance-ID namespaces (D-04); deterministic baseline world generation `(seed, content_version)` behind a frozen interface; sparse-delta save (manifest + player state + changed cells) with atomic write (temp + rename) and one rolling backup slot (D-05); corruption-recovery path; autosave/manual save slots.
+- **Work:** `EntityRegistry` (D-10) owning creation, ULID assignment, and lookup for every runtime instance, with **no gameplay rules**; definition-ID vs instance-ID namespaces (D-04); deterministic baseline world generation behind a frozen interface; sparse-delta save (manifest + player state + changed cells) with atomic write (staging + rename + verify) and rolling backups (D-05; two generations per `PERSISTENCE.md` §7.3); corruption-recovery path; autosave/manual save slots.
 - **`RISK SPIKE` inside:** *determinism*. Generate a cell twice from the same seed and diff. Generate from `(seed, v1)` then `(seed, v2)` and confirm the version-mismatch path triggers migration rather than silent regeneration. Fail-fast if generation is not bit-stable.
-- **Exit criteria:** Save in a 10-cell world with 2 changed cells and verify the save contains only the deltas; load it and verify world equality; verify `(seed, content_version)` determinism across two fresh processes; verify atomic write survives a simulated kill during write.
+- **Exit criteria:** Save in a 10-cell world with 2 changed cells and verify the save contains only the deltas; load it and verify world equality; verify `(seed, content_version)` determinism across two fresh processes; verify atomic write survives a simulated kill during write. (Met; `M2_STATUS.md`. M2b later removed content identity from generation, so the determinism under test is of the baseline tuple, `PERSISTENCE.md` §1.3.)
 - **Proof:** `RK-01` (determinism) has a measured answer, not an assumption. D-05 calls this "the single most dangerous constraint in the project"; this milestone is where it is proven or the design changes.
 
-### M2b — Save Migration Harness — `INFRA`
+### M2b — Save Migration Harness and Baseline Compatibility — `INFRA`
 
 - **Class:** INFRA. **Depends on:** M2. **Must exist before any schema change ships.**
+- **Refined by** `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` (owner-approved), after M2 found that the whole `content_hash` seeded every cell's random draws, so a one-value balance edit moved the entire world.
 - **Entry:** Save format v1 exists and round-trips.
-- **Work:** Versioned save manifest; ordered migration chain (`v1→v2→v3...`); a fixture directory of **every historical save version**, generated at each schema change and committed; a CI test that loads every fixture and asserts it migrates cleanly; a migration-map mechanism for renamed/removed definition IDs (D-04, D-05); a `save:migrate --dry-run` CLI that reports what a migration would change.
-- **Exit criteria:** Adding a required field to player state ships with (a) a migration function, (b) a regenerated fixture set, (c) a CI test that loads all prior fixtures. Removing/renaming a content definition without a migration map fails CI.
-- **Proof:** CI loads v1 fixture under v3 code and asserts a correct, non-lossy result.
+- **Work:**
+  - Versioned save manifest; ordered migration chain (`v1→v2→v3...`).
+  - A fixture directory of **every historical save version**, generated at each schema change and committed; a CI test that loads every fixture and asserts it migrates cleanly.
+  - A migration-map mechanism for renamed/removed definition IDs (D-04, D-05).
+  - A `save:migrate --dry-run` CLI that reports what a migration would change.
+  - **Baseline compatibility:**
+    - content identity separated from procedural entropy;
+    - semantic, call-order-isolated random channels;
+    - a per-cell `baseline_hash` on every changed-cell delta;
+    - a computed `worldgen_fingerprint` with canonical probe cells;
+    - registered transitions for baseline changes.
+- **Exit criteria:**
+  - Migration harness:
+    - Adding a required field to player state ships with (a) a migration function, (b) a regenerated fixture set, (c) a CI test that loads all prior fixtures.
+    - A multi-hop migration is tested.
+  - Content identity:
+    - Removing/renaming a content definition without a migration map fails CI.
+    - An unrelated content change (a balance value) changes `content_hash` but does not perturb world generation.
+  - Baseline compatibility:
+    - Changed-cell deltas record and verify their baseline hash.
+    - A baseline mismatch never silently accepts an old delta.
+    - One synthetic baseline-affecting rebase through a registered transition is proven.
+    - Generator drift without a `worldgen_version` bump is detected.
+  - RNG stability: adding an unrelated random draw does not shift any other subsystem's output.
+  - Crash safety: a migrated save commits through the M2 atomic path, so an interruption leaves the old or the new save, never a partial one.
+  - CLI: `save:migrate --dry-run` reports the plan and is proven non-mutating.
+- **Proof:** CI loads the v1 fixture under v3 code, `v1 → v2 → v3`, and asserts a correct, non-lossy result.
 - **Why here:** Retrofitting migrations after months of unversioned schema drift means every existing save is disposable. This is on the critical path (R-7) and is deliberately *not* deferred to Phase 3.
 
 ### M2c — Progression Spine — `FEATURE`
 
 - **Class:** FEATURE. **Depends on:** M1, M2.
-- **Entry:** Registry and save baseline work; `PROGRESSION.md` ratified.
-- **Work:** XP ledger with `source_kind` tagging and the `AG-1..AG-8` anti-farm guards as data-driven constants; level curve and tier table; seven attributes and derived pools; skill list with use-based competence XP and the difficulty gate; ability point pool; the non-conversion law enforced as a typed API (`IAxisAdvancement` accepts only its own currency type — a compile-time guard where possible, a runtime assertion where not); per-axis advancement telemetry.
-- **Exit criteria:** Headless tests prove (a) XP per hour stays inside the `AG-6` band across four scripted activity profiles; (b) a scripted 6-hour farm at one spawn cluster yields ≥0.10× but <0.30× XP after saturation while yielding **undiminished** mastery, material, and faction credit (`AG-4`); (c) no API exists by which gold or items can advance a non-equipment axis.
+- **Entry:** Registry and save baseline work; `PROGRESSION.md` ratified by the progression-axis audit (`PROGRESSION_AXIS_RECONCILIATION.md`, 2026-09-23).
+- **Work:** XP ledger with `source_kind` tagging and the `AG-1..AG-8` anti-farm guards as data-driven constants; level curve and tier table; a level-up grants attribute points only; seven attributes and the derived values (Health/Stamina/Focus maxima, Resonance, Strain tolerance — no mana); the skill model with use-under-challenge XP, the difficulty gate and the common ceiling; the technique/formula knowledge record, learned only through typed learning events, with a default starting package; the non-conversion law enforced as a typed API (each axis accepts only its own currency type — a compile-time guard where possible, a runtime assertion where not); per-axis advancement telemetry; `schema_version` 4 through the M2b migration harness, with a v4 historical fixture.
+- **Exit criteria** (rewritten by the progression-axis audit: the old (b) required "undiminished mastery", an axis that no longer exists). Headless tests prove:
+  - (a) XP per hour stays inside the `AG-6` band across four scripted activity profiles;
+  - (b) a scripted 6-hour farm at one spawn cluster yields ≥0.10× but <0.30× level XP after saturation, while `AG-1..AG-3` change no other currency. Weapon-skill progress is identical with and without them (only its own difficulty gate applies), and material yield and objective credit are unchanged (`AG-4`);
+  - (c) no API exists by which gold, items or another axis's currency can advance level XP, attributes or skill; knowledge enters only through a typed learning event, which changes nothing else;
+  - (d) every retained neighboring pair of axes passes its independence test (`PROGRESSION.md` §2);
+  - (e) a level-up grants exactly the configured attribute points and nothing else;
+  - (f) every historical save fixture migrates to schema 4 with the documented defaults, and the v4 fixture round-trips.
 - **Proof:** A telemetry report from a scripted run showing per-axis advancement rates and the absence of cross-axis conversion.
 - **Notes:** The charter requires that killing creatures not be the only path. This milestone is where that is proven in math before it is proven in content.
 
@@ -158,11 +189,11 @@ Rationale for each link:
 
 - **Class:** FEATURE (+ `RISK SPIKE`). **Depends on:** M0, M1, M2.
 - **Entry:** C# presentation project builds and can host a scene; domain contracts stable.
-- **Work:** First-person controller with presentation-side prediction for feel only (D-11 — never writing state); interaction system issuing commands; **the prototype's 200 m × 200 m area authored as 4 real 100 m cells** (`PROTOTYPE.md` §3) through the real cell-addressing and per-cell-delta path; four simulation tiers (A/B/C/D per D-06) with at least tier A and tier D implemented and tier B/C stubbed behind the interface; discovery-credit world state; cartography map data. **Streaming the 2×2 km region is Phase 2** (`VERTICAL_SLICE.md`); Phase 1 exercises the cell path at 4 cells, not the streaming path at 400.
-- **`RISK SPIKE`:** Frame budget under a *representative* load, not an empty field — target the vertical slice's entity budget. This is the spike that D-01's first revisit trigger depends on ("we have measured, not guessed"). It is allowed to produce a negative result: a negative result re-opens the engine question *now*, cheaply.
+- **Work:** One full-body third-person controller with seamless zoom into first person, shoulder swap and camera collision, the same authoritative movement and interaction commands at every camera distance (`CAMERA_PERSPECTIVE_AND_PRESENTATION.md` §22), with presentation-side prediction for feel only (D-11 — never writing state); interaction system issuing commands; **the prototype's 200 m × 200 m area authored as 4 real 100 m cells** (`PROTOTYPE.md` §3) through the real cell-addressing and per-cell-delta path; four simulation tiers (A/B/C/D per D-06) with at least tier A and tier D implemented and tier B/C stubbed behind the interface; discovery-credit world state; cartography map data. **Streaming the 2×2 km region is Phase 2** (`VERTICAL_SLICE.md`); Phase 1 exercises the cell path at 4 cells, not the streaming path at 400.
+- **`RISK SPIKE`:** Frame budget under a *representative* load, not an empty field — target the vertical slice's entity budget, measured for the representative player camera: the third-person view, the first-person view and a camera-obstruction path. **It is not D-01's formal revisit gate in Phase 1** (owner ruling, 2026-09-23): that trigger needs the streaming and LOD work, which does not exist yet. The capture is recorded (the number is the deliverable, `RK-02`), and failing to sustain 1080p / 60 FPS on the clean baseline machine after reasonable optimization - in this greybox or in the prototype scene - is an owner-review stop before further engine-dependent systems are built.
   - **The spike is an isolated greybox experiment, explicitly NOT the playable prototype.** It is the scene `RISK_REGISTER.md` `RK-02` specifies: **2×2 km of untextured heightmap plus a few hundred instanced proxies, a navmesh, and the `D-06` tier scaffolding**, measured with a profiler. It needs no content, no player character beyond a debug camera, and no save round-trip. Its only output is a frame-time capture.
   - **Rationale — this distinction is load-bearing.** `PROTOTYPE.md` §2 defines the playable artifact as **200 m × 200 m over 4 exterior cells with streaming explicitly excluded as a Phase-2 risk** ("proving it early would mask seam bugs"). A 2×2 km *playable* build is the vertical slice's job (`VERTICAL_SLICE.md`, Phase 2), not Phase 1's. Folding the two together would silently convert the prototype into a streaming implementation and violate `PHASE_0.md` STEP 16's scope discipline. The spike exists solely to make `D-01`'s revisit trigger measurable.
-- **Exit criteria:** (a) the playable build walks the **200 m × 200 m / 4-cell** prototype area in `PROTOTYPE.md` §3 with stable frame time under the prototype's entity budget on the baseline platform; (b) the isolated risk spike produces a profiler capture for a 2×2 km greybox and the numbers are recorded in the register; (c) player state mutates only through commands (verified by a test that fails if presentation writes domain state); (d) cell save/load preserves world changes.
+- **Exit criteria:** (a) the playable build walks the **200 m × 200 m / 4-cell** prototype area in `PROTOTYPE.md` §3 at a sustained 60 FPS at 1080p on the baseline machine - RAZER's RTX 4070 Ti with OBS, H3 and other significant GPU workloads stopped (owner ruling, 2026-09-23) - under the prototype's entity budget; (b) the isolated risk spike produces a profiler capture for a 2×2 km greybox and the numbers are recorded in the register; (c) player state mutates only through commands (verified by a test that fails if presentation writes domain state); (d) cell save/load preserves world changes.
 - **Proof:** A profiler capture with numbers from the 2×2 km spike; a playable 200 m prototype build. **These are two artifacts, not one.**
 - **Playable state at exit:** You can walk a real landscape, interact with objects, and save/load.
 
@@ -179,10 +210,11 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M3b. **Requires:** at least 3 weapons and 3 creature stubs to tune against (R-2).
 - **Entry:** Items, equipment, and damage-relevant item properties exist.
-- **Work:** Attack resolution for melee, ranged, and unarmed; blocking, dodging, armor mitigation, resistances, critical hits, stagger, status effects, buffs/debuffs, damage types, weapon reach, stamina and spell resources (Charter §7); three weapon families implemented to full quality (`one_hand_blade`, `bow`, `staff`) rather than eleven done badly; weapon mastery advancement wired to `PROGRESSION.md` §6.
-- **Exit criteria:** A tuning spreadsheet, generated *from* the build rather than authored by hand, shows time-to-kill within design bands across level bands 1–3; combat is readable (a tester can name what killed them); no out-of-band HP sponges (an over-band creature must be lethal by damage, not by health pool); weapon mastery XP accrues only from effective contribution.
-- **Proof:** Playable combat build; generated TTK table; mastery accrual telemetry.
+- **Work:** Attack resolution for melee, ranged, and unarmed; blocking, dodging, armor mitigation, resistances, critical hits, stagger, status effects, buffs/debuffs, damage types, weapon reach, Stamina, Focus and Strain (Charter §7; there is no mana); three weapon families implemented to full quality (`one_hand_blade`, `bow`, `staff`) rather than eleven done badly; weapon-skill advancement wired to `PROGRESSION.md` §6.
+- **Exit criteria:** A tuning spreadsheet, generated *from* the build rather than authored by hand, shows time-to-kill within design bands across level bands 1–3; combat is readable (a tester can name what killed them); no out-of-band HP sponges (an over-band creature must be lethal by damage, not by health pool); weapon-skill XP accrues only from effective contribution.
+- **Proof:** Playable combat build; generated TTK table; weapon-skill accrual telemetry.
 - **Playable state at exit:** You can fight, die, and be rewarded.
+- **Phase-1 reconciliation (M3c):** the three families are `PROTOTYPE.md`'s sword (`one_hand_blade`), bow and spell; the spell family (`staff` above) is built with M3e's magic, and so are Focus and Strain, which only casting spends. The design bands are `VERTICAL_SLICE.md` §5.1's. "Aggro" is local and perception-derived (`SYSTEMS.md` S-12, S-23).
 
 ### M3d — Creature Framework, AI Baseline, Loot — `FEATURE`
 
@@ -191,32 +223,34 @@ Rationale for each link:
 - **Work:** Creature definitions (STEP 7); a small number of *excellent* creatures across families — predator, prey, humanoid, undead, magical — each with distinct behaviour rather than reskins (R-2); spawn populations and respawn rules; habitat constraints; lightweight ecological behaviours where cheap; faction hostility rules; loot-table-driven drops; death processing and corpse state.
 - **Exit criteria:** Five creatures that play differently are provably different (a behaviour matrix, not a claim); spawn/respawn persists correctly across save/load; `AG-3` spawn-site saturation is observable; creature AI cost is within the M3 profiling budget at scale.
 - **Proof:** Behaviour matrix; saved/loaded spawn state; profiler capture.
+- **Phase-1 reconciliation (M3d):** the five creatures are the content bible's five archetypes (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §10) - predator (the ash ember hound), humanoid and undead (the bone walker husk), magical construct (the animated armour), charging brute (the bristleback boar), ambush beast (the cave hunting spider) - beside the prototype's wolf; prey and ecology are cheap-only (a boar roots about its wallow, strays wander, wolves sleep). Behaviour roles are a separate data layer over archetypes (owner ruling). Faction hostility is "every creature against the player, indifferent to each other"; habitat is a spawner's place, route and territory. Creature AI cost is measured headless (`M3D_STATUS.md`); the frame-budget capture joins M3's RAZER window.
 
 ### M3e — Basic Magic — `FEATURE`
 
 - **Class:** FEATURE. **Depends on:** M3c, M3d.
 - **Entry:** Damage types and status effects exist.
-- **Work:** One school to full depth (`elemental`, chosen because its reaction chains exercise the damage-type system maximally) rather than six shallow ones; spell resources, casting, concentration-under-damage; school mastery research/study loop (`PROGRESSION.md` §7); attunement slots with the level-10 threshold; two schools present but depth-gated (content stub only).
-- **Exit criteria:** Elemental reaction chains work and are legible; research at a study station advances school mastery while repeated casting does not (a testable assertion of the two-mechanic split); attunement switching costs are enforced.
-- **Proof:** Test asserting that 500 casts grant zero school mastery and one research session grants credit.
+- **Work (Phase-1 scope, owner ruling):** three tiny representative magic domains with one formula each - the content bible's Impulse Bolt (Force), Brace Ward (Warding) and Mending Thread (Vital) (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §13), where `PROTOTYPE.md` had Ember, Mend and Ward - costed in Focus and Strain, with Resonance scaling their force; there is no mana. Casting with a tell and concentration under damage; Strain accumulating per working and recovering at rest, with backlash rather than a lockout past the character's tolerance (`MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md` "Unsafe casting"); domain skill (`PROGRESSION.md` §7) making a formula steadier and cheaper; formulas known through learning events such as study; clear feedback in the HUD. Not built: attunement slots or any level-10 threshold (removed by the ratified progression model), more domains, reaction chains, a spell editor, Great Works, Otherwhen, divine systems.
+- **Exit criteria:** The three formulas cast from content and do different things (damage at range, a timed protection, a recovery that stops bleeding); Strain accumulates and recovers, and casting past tolerance costs health; a wound during the tell breaks the cast; trivial repeated casting grants no domain skill and no formula, while study yields a formula without casting (the two-mechanic split, `PROGRESSION_AXIS_RECONCILIATION.md` §4.6).
+- **Proof:** Tests asserting that 500 trivial casts grant zero domain skill and no formula and that reading a primer teaches formulas never cast; Strain, backlash and interruption tests; a windowed capture of the casting UI.
 
 ### M3f — Skills, Gathering, One Profession — `FEATURE`
 
 - **Class:** FEATURE. **Depends on:** M3b, M3e.
 - **Entry:** Items and resources exist; skill XP framework from M2c exists.
-- **Work:** Skill use-hooks across implemented activities; harvesting nodes and respawn persistence; one full profession (`alchemy`) with ranks 0–2, quality tiers, discovery accumulation, and the rank-vs-skill disambiguation enforced in code; recipe schema and the production-XP first-time-only rule.
-- **Exit criteria:** The rank-vs-skill test passes (a rank-2/skill-90 character cannot brew a rank-3 recipe; a rank-3/skill-20 character fails most attempts); first-time-only production XP verified; harvested-node persistence verified across save/load.
-- **Proof:** Named test cases; playable gather→craft→use loop.
+- **Work (Phase-1 scope, owner ruling):** two recipes and one gather→craft proof loop, with no profession ranks: the content bible's blacksmithing proof (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §12) - raw iron ore smelted into an Iron Billet at the forge, and billet plus an Ash Haft made into the March Spear at the anvil, where `PROTOTYPE.md` had the salve and the sword temper. Harvesting nodes and their persistence, keeping `PROTOTYPE.md` C12's two respawn classes (a finite iron seam; an ash stand that refills each world day). Skill use-hooks: gathering trains survival, crafting trains smithing, both through the difficulty gate. Quality and material properties matter: a crafted item's quality is rolled from the smith's skill against the recipe's complexity and is capped by the weakest material, and a weapon's quality changes its damage (per-instance, saved). The production-XP first-time-only rule. Not built: profession ranks, discoveries and experiments, crafting time, tools, the full combinatorial laboratory.
+- **Exit criteria:** The loop plays end to end: gather both materials, smelt, forge, equip, and fight with the result. A craft consumes exactly its recipe (C13) and needs the recipe known, the station in reach and the inputs carried. Quality varies with skill and materials and lands on the instance, not the definition (C14's point). First-time-only production XP is verified; repeated trivial crafting and gathering teach nothing past the gate. Harvested-node state, including the seam's depletion and the stand's refill, survives save/load.
+- **Proof:** Named test cases; the windowed gather→craft→equip capture.
 
-### M4 — Settlement, NPC Persistence, Dialogue — `FEATURE` (+ `RISK SPIKE`)
+### M4 — Settlement NPCs, Persistence, Dialogue — `FEATURE`
 
-- **Class:** FEATURE + RISK SPIKE. **Depends on:** M3f. **Unlocks:** quests, companions, building.
+- **Class:** FEATURE. **Depends on:** M3f. **Unlocks:** quests, companions, building.
 - **Entry:** Items, crafting, and combat are stable enough that an NPC can exist, act, and be interacted with.
-- **Work:** NPC definitions and instances (STEP 7, STEP 10); NPC tier state (important / generic / companion-ready) with identity, relationships, and history persisted (D-06, D-10); one settlement with authored layout; schedule-based abstract behaviour (tier C) plus full simulation nearby (tier A) and the tier-transition reconciliation rule from D-06; dialogue as data (D-03) with conditions and effects expressed as world-state predicates; merchant interaction on top of the M3b economy stub.
-- **`RISK SPIKE` (tier transitions):** D-06 names tier transitions as the place such systems break. Promote an NPC from C to A and assert it arrives in a *legal, consistent* state ("reconciled", never naively adopted). Test: 200 scripted promotions/demotions across a fast-forwarded clock produce zero discontinuity.
-- **Exit criteria:** NPC identity, relationships, and schedule state survive save/load; the promotion test passes; a settlement NPC occupies different authored anchors in different `world_time` bands (i.e. schedules exist and are persisted), **without requiring a day/night cycle — a plain advancing `world_time` counter suffices in Phase 1** (`PROTOTYPE.md` defers day/night, weather and seasons to the vertical slice).
-- **Deliberately NOT in this milestone (Phase 2):** **faction and reputation state** (`AX-REP`, `S-27`). An earlier draft of this roadmap placed it here, which contradicted `PROTOTYPE.md` (faction reputation is explicitly out of prototype scope) and `SYSTEMS.md` §3 (S-27 is Phase 2). It moves to `M7`. `PHASE_0.md` STEP 15 does not list factions for the prototype.
-- **Proof:** Tier-transition stress report; a saved/loaded settlement whose NPCs are where they should be.
+- **Work (Phase-1 scope, owner ruling):** a small NPC population - the prototype's, as the content bible casts it: the waystation's steward, the smith and the archivist - fully simulated, every one of them all the time, in the one settlement's authored layout. NPC definitions and instances (STEP 7, STEP 10; D-10), each keeping its identity, its relevant life state and basic continuity: what the character has heard of each conversation, and what each NPC thinks of the character (relationship values per dimension, `SYSTEMS.md` S-26). Dialogue as data (D-03), deterministic and structured: its conditions and consequences are closed sets over world state, and a consequence is a command to the system that owns what it changes. Merchant interaction on top of the M3b economy stub: buying and selling through the smith. The game needs no runtime LLM and works with AI narrative disabled.
+- **Deferred (owner ruling):** tier-transition simulation and the 200-promotion risk spike below, to the first milestone that actually introduces simulation tiers; NPC schedules, which `PROTOTYPE.md` puts in the vertical slice.
+- **`RISK SPIKE` (tier transitions) - deferred with the tiers it tests:** D-06 names tier transitions as the place such systems break. When NPC tiers arrive, promote an NPC from C to A and assert it arrives in a *legal, consistent* state ("reconciled", never naively adopted); 200 scripted promotions/demotions across a fast-forwarded clock produce zero discontinuity.
+- **Exit criteria:** Each NPC stands in the world and can be talked to; the conversation's lines and replies follow from their conditions, and its consequences - an item given, a recipe taught, a relationship moved, a flag set, trade opened - happen through their owners' commands. What each NPC has said once stays said, and what each thinks of the character stays thought, across save/load. Buying and selling move coin and goods exactly, refuse cleanly, and the trader's stock survives save/load.
+- **Deliberately NOT in this milestone (Phase 2):** **faction and reputation state** (`AX-REP`, `S-27`). An earlier draft of this roadmap placed it here, which contradicted `PROTOTYPE.md` (faction reputation is explicitly out of prototype scope) and `SYSTEMS.md` §3 (S-27 is Phase 2). It moves to `M7`. `PHASE_0.md` STEP 15 does not list factions for the prototype. Nor persuasion, rumour, languages or knowledge simulation (`SOCIAL_INTERACTION_LANGUAGES_AND_KNOWLEDGE.md` is future direction).
+- **Proof:** Named test cases; a saved and loaded world in which every conversation and relationship continues where it was; the windowed capture of the conversations and a trade.
 - **Forbidden:** settlement *simulation* (economy, growth, production) — that is M10. This milestone proves **persistence and continuity** only (R-3).
 
 ### M5 — Quest Framework + Quest Debugger — `FEATURE` + `INFRA`
@@ -224,6 +258,7 @@ Rationale for each link:
 - **Class:** FEATURE + INFRA. **Depends on:** M4.
 - **Entry:** World state is queryable and NPC state persists (quest objectives are predicates over it — D-07).
 - **Work:** Quest graph definitions in YAML; a **closed set** of objective types with strict schemas (exploration, dialogue, item acquisition, crafting, construction, combat, boss, faction state, relationship, puzzle, hidden, timed, world-state); predicate evaluation against world state with no per-quest engine code (D-07); branching, failure states, and consequence hooks; quest state persistence; journal/UI surface.
+- **Phase-1 build (M5, as implemented):** the closed vocabulary is `DATA_MODEL.md` §4.11's. Phase 1 builds the eleven types whose systems exist - `talk_to`, `visit_location`, `explore_location`, `acquire_item`, `craft_item`, `harvest_resource`, `kill_creature`, `deliver_item`, `world_state`, `relationship_value`, `wait_until` - and the lint names the rest (construction, bosses, factions, puzzles, companions, knowledge, time of day...) and refuses them until their systems arrive. Branching is `branch: first` (the first alternative satisfied closes the others), joins are `all_of`, failure is `fail_if` and timed objectives with `on_fail`; rewards go through their owners' commands, once. One quest is authored, the content bible's Quest 1 (`quest.ashen_hollow.iron_under_ash`); Quest 2 ends in recruiting the companion and lands with M6. `M5_STATUS.md` has the details.
 - **`QUEST DEBUGGER` (same milestone, non-negotiable):** a tool that answers, for any active quest, *what is this quest waiting on right now*, with the current value of every predicate term, the events that would satisfy each unsatisfied term, and a tick-by-tick trace of the last N evaluations. D-07 states this is a Phase-1 tool, "not a luxury", because long artefact quests are undiagnosable without it.
 - **Exit criteria:** The charter's TESTING item "quest state" is green (persistence across save/load, branch integrity, no orphaned objectives); the debugger correctly explains three deliberately-failing quests; a content-validation rule rejects a quest referencing a nonexistent objective type, item, NPC, or faction.
 - **Proof:** Debugger transcript resolving a broken quest; content-validation failure fixture; green quest test suite.
@@ -233,10 +268,11 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M4, M5.
 - **Entry:** NPC persistence and quest objectives work.
-- **Work:** One fully developed companion with its own progression (`AX-CMP`), affinity ladder, opinions, reactions to player decisions, personal quest hooks, inventory/equipment management, and the command set from Charter §15; companion AI reliable enough that bringing them is helpful — the AI must be *boringly* reliable, not clever; companion state persistence; death/parting consequences without forcing reload (Charter §22).
-- **Exit criteria:** A companion survives a 2-hour scripted session without pathing failures, without blocking the player, and without needing micromanagement; affinity changes are driven by player acts and are visible; a failed personal-quest branch produces a consequence rather than a dead end.
+- **Work (Phase-1 scope, owner ruling):** one companion with prototype behaviour - the content bible's Tavar Orr (§9, §17), recruited through the world: the bible's Quest 2, *The Three Quiet Stones* (§16), frees him, and he joins when asked. He follows, waits where he is told, catches up when left behind or snagged, fights beside the character, and is downed and dies as the prototype requires (`PROTOTYPE.md` §6.2: death and revive); his state persists. The companion AI must be *boringly* reliable, not clever. **Not built (owner ruling):** an affinity ladder, a personal quest, a full player+3 party, romance, offscreen marriages, institutions and advanced tactics; the code encodes no permanent maximum party size. **Also in this milestone:** the reconciliation of the M3 layout to the content bible's four cells (the M3d ruling: "before M6 acceptance"), which the bible's second quest and its acceptance route need, and the playable-prototype report of the execution prompt's §19.
+- **Earlier draft (superseded by the ruling above):** one fully developed companion with its own progression (`AX-CMP`), affinity ladder, opinions, reactions to player decisions, personal quest hooks, inventory/equipment management, and the command set from Charter §15; death/parting consequences without forcing reload (Charter §22). Those arrive with the companion roster (Phase 2+).
+- **Exit criteria:** `PROTOTYPE.md` C16 - recruit Tavar, order follow -> wait -> follow, and he paths around the lodge without any snag lasting more than 15 s; the prototype's companion-state tests (follow/wait transitions, distance-based catch-up, downed, death and revive, the behaviour state saved) are green; he walks the bible's acceptance route (§30) with the character without a pathing intervention; his state round-trips through save/load field by field; both of the bible's quests complete.
 - **`EARLY FEEL TEST` (added after adversarial review — do not skip):** the prototype is first *playable end to end* at the end of this milestone, and the fun question must not wait for `M9`. Run `PROTOTYPE.md`'s §9-style protocol here, in its cheapest form: **3–5 blind testers**, the prototype's 40-minute scripted hollow plus **one deliberately differently-shaped second quest bolted on**, scored against `VERTICAL_SLICE.md`'s felt-experience list (F1–F5). This is deliberately *not* a gate and has no pass/fail — its only job is to make a "the core loop is not fun" finding arrive **before** the ~180 content files of `M9` are authored rather than after. If the loop reads as unfun here, fixing it is cheap; the same finding at `M9` is the most expensive outcome in the project.
-- **Proof:** Recorded session log with zero pathing interventions; companion state round-trip through save/load; **the early feel-test transcript and its findings, including a null result.**
+- **Proof:** Recorded session log of the acceptance route with zero pathing interventions; companion state round-trip through save/load; the §19 playable-prototype report; **the early feel-test transcript and its findings, including a null result** (the owner runs the feel test after the playtest).
 - **Notes:** Charter §15 — "hirelings should feel like individuals rather than equipment slots with faces". Hirelings (generic, cheaper) follow in Phase 3; this milestone proves the *hard* case first.
 
 ### M7 — Factions, Reputation, and Building v1 — `FEATURE` — **PHASE 2**
@@ -289,7 +325,7 @@ Rationale for each link:
 
 - **Class:** FEATURE + GATE. **Depends on:** M11.
 - **Entry:** Region 2 complete; M9 loop still validated.
-- **Work:** Remaining magic schools with genuinely distinct mechanics (illusion, alteration, blood, runic, divine, enchanting, protection/summoning depth); the six archetypes' Phase-3 expansions; post-cap progression tracks per `PROGRESSION.md` §8 (weapon insight ranks, school deep study, profession mastery projects, faction apex, prestige projects); races' full ability packages; the D-09 duplication telemetry audit (correlation of axis advancement rates) with a written verdict.
+- **Work:** Remaining magic schools with genuinely distinct mechanics (illusion, alteration, blood, runic, divine, enchanting, protection/summoning depth); the six archetypes' Phase-3 expansions; post-cap progression per `PROGRESSION.md` §8 (mastery designations and deep technique chains, formula refinement, artifact-level crafting, faction apex, Great Works); races' full ability packages; the D-09 duplication telemetry audit (correlation of axis advancement rates) with a written verdict.
 - **Exit criteria:** Level 50 is reached by a scripted player in the target 65–85 hour window; post-cap tracks demonstrably do **not** produce strictly larger raw damage than a well-built level-50 character; no two axes show correlation above the D-09 threshold without a recorded justification.
 - **Proof:** Pacing report; endgame power audit; D-09 telemetry verdict.
 - **Gate question:** *Is the progression system still orthogonal after real content exists, or must two axes be merged?* D-09's revisit condition is exactly this test, and it belongs here rather than in a document review.
@@ -396,8 +432,8 @@ These are the concrete first tasks after this document is accepted. Each is size
 3. **Command/event bus v1:** synchronous in-process implementation, deterministic test scheduler, unit tests for ordering and re-entrancy.
 4. **Content loader + schema validator v1** for `ItemDefinition` only, with file/line error reporting and a deliberately broken fixture test.
 5. **Entity Registry v1:** ULID assignment, definition/instance namespaces, lookup, and the no-gameplay-rules constraint enforced by an architecture test.
-6. **Deterministic cell generator v1:** `(seed, content_version)` → cell contents, with the repeatability test from M2's risk spike.
-7. **Sparse-delta save v1:** manifest + player state + changed-cell delta, atomic write, one backup slot, round-trip test.
+6. **Deterministic cell generator v1:** `(seed, generator contract)` → cell contents, with the repeatability test from M2's risk spike.
+7. **Sparse-delta save v1:** manifest + player state + changed-cell delta, atomic write, rolling backup, round-trip test.
 8. **Save fixture + migration harness v1:** version field, migration chain interface, committed v1 fixture, CI load test.
 9. **Progression spine v1:** XP ledger with `source_kind`, level curve, seven attributes, derived pools, and the non-conversion API guard.
 10. **Telemetry skeleton:** per-axis advancement events with timestamps and source kinds, written to a non-shipped log, plus the `AG-6` rate-banding report generator.

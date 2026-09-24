@@ -1,0 +1,15 @@
+{
+  "asset_id": "prop_carpenters_workbench",
+  "dimensions_m": [
+    1.57,
+    1.4315,
+    1.6
+  ],
+  "sockets": {
+    "SOCK_interact_workbench": [
+      0.0,
+      1.4315,
+      0.0
+    ]
+  }
+}

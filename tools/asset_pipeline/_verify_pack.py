@@ -77,15 +77,56 @@ def main():
     results = []
     for stem in stems:
         asset_dir = os.path.join(ready, stem)
+        # Collision and LOD are both policy-governed. "none" means the files are absent BY DESIGN:
+        # ground cover is walked through, and a 36-face wall panel gains nothing from three
+        # decimations of itself. Demanding files for those would either fail correct assets or push
+        # the build into emitting pointless duplicates.
+        policy = None
+        lod_policy = None
+        meta_path = os.path.join(asset_dir, f"{stem}_meta.json")
+        if os.path.exists(meta_path):
+            try:
+                with open(meta_path, encoding="utf-8") as handle:
+                    meta = json.load(handle)
+                policy = meta.get("collision_policy")
+                lod_policy = meta.get("lod_policy")
+            except (ValueError, OSError):
+                policy = lod_policy = None
+
+        required = list(REQUIRED_SUFFIXES)
+        if policy == "none":
+            required = [s for s in required
+                        if s not in ("_collision_hull", "_collision_box")]
+        elif policy == "box":
+            # Building modules carry a box proxy and no hull.
+            required = [s for s in required if s != "_collision_hull"]
+        if lod_policy == "none":
+            required = [s for s in required if s not in ("_lod1", "_lod2", "_lod3")]
+
         missing = []
-        for suffix in REQUIRED_SUFFIXES:
+        for suffix in required:
             candidate = os.path.join(asset_dir, f"{stem}{suffix}.glb")
             if not os.path.exists(candidate):
                 missing.append(os.path.basename(candidate))
 
+        # ...and the converse: files that the policy says should not exist.
+        forbidden = []
+        if policy == "none":
+            forbidden = ["_collision_hull", "_collision_box"]
+        elif policy == "box":
+            forbidden = ["_collision_hull"]
+        if lod_policy == "none":
+            forbidden += ["_lod1", "_lod2", "_lod3"]
+        for suffix in forbidden:
+            candidate = os.path.join(asset_dir, f"{stem}{suffix}.glb")
+            if os.path.exists(candidate):
+                problems.append(f"{stem}: policy forbids {os.path.basename(candidate)} "
+                                "but it exists")
+
         base = os.path.join(asset_dir, f"{stem}.glb")
         summary = glb_summary(base) if os.path.exists(base) else None
-        entry = {"stem": stem, "missing_files": missing, "base": summary}
+        entry = {"stem": stem, "missing_files": missing, "base": summary,
+                 "collision_policy": policy, "lod_policy": lod_policy}
 
         if missing:
             problems.append(f"{stem}: missing {', '.join(missing)}")

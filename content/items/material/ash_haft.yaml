@@ -1,0 +1,12 @@
+id: item.material.ash_haft
+kind: item
+schema: 1
+display_key: item.material.ash_haft.name
+tags: [item]
+name: Ash Haft
+notes: A straight length of young ash, cut from the stand in the east woods (content bible §6, §12). Feeds the March Spear.
+category: material
+stack_max: 10
+weight: 1.0
+value_base: 6
+rarity: common

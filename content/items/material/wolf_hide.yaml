@@ -1,0 +1,12 @@
+id: item.material.wolf_hide
+kind: item
+schema: 1
+display_key: item.material.wolf_hide.name
+tags: [item]
+name: Wolf Hide
+notes: A wolf drop.
+category: material
+stack_max: 10
+weight: 1.2
+value_base: 8
+rarity: common

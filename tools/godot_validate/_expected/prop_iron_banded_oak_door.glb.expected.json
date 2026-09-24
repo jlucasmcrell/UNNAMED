@@ -1,0 +1,20 @@
+{
+  "asset_id": "prop_iron_banded_oak_door",
+  "dimensions_m": [
+    1.033,
+    2.05,
+    0.06
+  ],
+  "sockets": {
+    "SOCK_hinge": [
+      0.0,
+      1.025,
+      0.0
+    ],
+    "SOCK_interact_handle": [
+      0.8058,
+      1.066,
+      0.03
+    ]
+  }
+}

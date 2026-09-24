@@ -1,0 +1,12 @@
+id: npc.ashen_hollow.kera_voss
+kind: npc
+schema: 1
+display_key: npc.ashen_hollow.kera_voss.name
+tags: [npc]
+name: Kera Voss
+notes: The smith (content bible §9) - first crafting quest, equipment, the resource-to-object loop. Works the forge shed; teaches the two recipes and trades. PROTOTYPE.md's smith.
+role: craftsperson
+services: [trade]
+merchant_ref: merchant.ashen_hollow.kera_voss
+dialogue_ref: dialogue.ashen_hollow.kera_voss
+unique: true

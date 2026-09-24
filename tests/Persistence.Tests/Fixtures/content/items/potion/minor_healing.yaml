@@ -1,0 +1,11 @@
+id: item.potion.minor_healing
+kind: item
+schema: 1
+display_key: item.potion.minor_healing.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+category: consumable
+stack_max: 10
+weight: 0.2
+value_base: 8
+rarity: common

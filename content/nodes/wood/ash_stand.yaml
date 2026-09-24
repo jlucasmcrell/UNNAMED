@@ -1,0 +1,12 @@
+id: node.wood.ash_stand
+kind: node
+schema: 1
+display_key: node.wood.ash_stand.name
+tags: [node]
+name: Ash Stand
+notes: A stand of young ash in the east woods (content bible §6) - one haft a day; it grows back at the world-day boundary (PROTOTYPE.md C12).
+resource_ref: resource.wood.ash
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 2

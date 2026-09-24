@@ -1,0 +1,9 @@
+id: world.foldscar.steadied
+kind: world_flag
+schema: 1
+display_key: world.foldscar.steadied.name
+tags: [world_flag]
+notes: Whether the heart of the Foldscar has been steadied, once all three Quiet Stones were in line (content bible §16). It lifts the fold that holds Tavar. Set once by its switch (M6); persisted in the Foldscar cell's delta.
+type: bool
+default: 0
+owning_system: S-22

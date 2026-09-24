@@ -1,0 +1,95 @@
+id: dialogue.ashen_hollow.kera_voss
+kind: dialogue
+schema: 1
+display_key: dialogue.ashen_hollow.kera_voss.name
+tags: [dialogue]
+notes: Kera Voss, the smith (content bible §9) - teaches the forge, trades, and has an opinion of what you make. Asking her to teach starts Quest 1, Iron Under Ash (M5).
+participants: [npc.ashen_hollow.kera_voss]
+root_node: greet
+nodes:
+  greet:
+    text: "Mind the anvil. I'm Kera. Hands like those have never held a hammer."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Then teach me the forge."
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
+          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
+        next: lesson
+      - id: trade
+        text: "What do you have for sale?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Back. The fire's still going."
+    choices:
+      - id: teach
+        text: "Teach me the forge."
+        conditions: [{ kind: visited, node: lesson, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
+          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
+        next: lesson
+      - id: where
+        text: "Where do I find the iron?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, is: active }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, objective: o_ore, is: satisfied, not: true }
+        next: where
+      - id: show_fine
+        text: "I made a spear. Look."
+        conditions:
+          - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1 }
+          - { kind: visited, node: praised, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: respect, delta: 10, event: showed_fine_work }
+        next: praised
+      - id: show_spear
+        text: "I made a spear. Look."
+        conditions:
+          - { kind: has_item, item_ref: item.weapon.march_spear }
+          - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1, not: true }
+          - { kind: visited, node: judged, not: true }
+        next: judged
+      - id: trade
+        text: "What do you have for sale?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Nothing today."
+  lesson:
+    text: "Then bring me iron. There's a seam in Blackvein Cut, the old quarry south of the road - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft - Charwood's full of ash - make a spear at the anvil. Make one and show me. And don't blame the iron."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: thanks
+        text: "I'll bring you a spear."
+        next: again
+  where:
+    text: "South, down the road to the quarry mouth, then down past the overlook to the floor. The seam's on the west side. Mind what walks down there - or don't, if you're quick. Iron doesn't care how you got to it."
+    choices:
+      - id: back
+        text: "I'll find it."
+        next: again
+  praised:
+    text: "Hm. Straight, and the point holds. Better than I'd have guessed from those hands."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Thank you."
+        next: again
+  judged:
+    text: "It'll hold, mostly. The next one will be better. They always are."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'll try again."
+        next: again

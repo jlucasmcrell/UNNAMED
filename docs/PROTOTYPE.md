@@ -1,6 +1,6 @@
 # PROTOTYPE.md — Phase 1 Playable Prototype
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 1 — Playable Prototype
 **Status:** Specification for implementation
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision; `DECISIONS.md` records settled architecture (cited by ID, never contradicted here); `PHASE_0.md` STEP 15 defines this prototype's required capability set.
@@ -9,7 +9,7 @@
 
 ## 1. The single question this prototype answers
 
-> **Can the D-02 authority model carry a real first-person RPG session end-to-end — input to domain command to event to view to save file and back — without the seam leaking, without the engine owning truth, and without the domain layer needing the engine to be tested?**
+> **Can the D-02 authority model carry a real RPG session end-to-end — input to domain command to event to view to save file and back — without the seam leaking, without the engine owning truth, and without the domain layer needing the engine to be tested?**
 
 If the answer is no, every later system is built on the wrong foundation. If the answer is yes, all subsequent content is added *through* a proven channel. This is the only question. Fun is explicitly not measured here (§9).
 
@@ -69,6 +69,10 @@ Each exclusion is a scope decision, not an oversight. Anything not listed here i
 | Session length | **Target: 18–25 min** for a fresh player to complete the quest. **Hard cap: 40 min** to see everything the prototype contains, including one deliberate save/quit/reload cycle. If a playtester can still find novel content after 40 minutes, the prototype is too big. |
 | Total build-to-playable target | **10 working days** of implementation effort, not counting the domain scaffolding already implied by D-02/D-05/D-10. |
 
+**M6 reconciliation:** the region is the content bible's four cells (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §2-§8), the destination the M3d ruling set for "before M6 acceptance": the waystation in the north-west cell `r_0_0:c_00_01` (the Ashen Waystone where a new character starts, Renn's lodge, Kera's smithy, Sel's survey table, a well, a storage chest), Charwood Verge to the north-east (the hound, the ruined cart with the bow, the ash stand, and the prototype's wolf den kept at its north edge), Blackvein Cut to the south-west (a shallow quarry entered down a ramp past an overlook, the husk, the armour, the boar's wallow on its rim, the iron seam on its floor, a blocked shaft) and the Foldscar to the south-east (a basin with three Quiet Stones on raised ground and the spider). The terrain falls from about 9.6 m at the north-west road ridge to the quarry floor's 1.7 m, so the table's "<= 6 m" is the bible's "about 10 m". The ravine and the edge stop are unchanged. The lodge and the smithy are M3's longhouse and forge shed, moved whole. `M6_STATUS.md` has the details.
+
+**The owner's M6 playtest (jump and crouch):** the jump now carries the body over small obstacles - a running jump clears the fallen timber (0.8 m), and nothing 1.2 m or taller (the fence, the cart, walls, doors, the fold) is ever cleared - and a crouch passes under an overhang (the Woundmoss beam, 1.3 m clear). Neither is load-bearing: every place is reached without either, and there is still no climbing, no standing on a structure and no jump-required geometry. `M6_STATUS.md`'s "Owner Playtest Delta" has the numbers.
+
 ## 4. Scope table — the exact minimum content
 
 Justification column is mandatory: **any count above 3 must be argued here or it is reduced.**
@@ -89,11 +93,11 @@ Justification column is mandatory: **any count above 3 must be argued here or it
 | Armor pieces | 2 | `item.armor.hide_vest` (body), `item.armor.hide_cap` (head) | 2 slots is the minimum proving equipment is a *set of slots*, not a single `equippedItem` field. |
 | Spells | **3** | `spell.ember.bolt` (direct damage), `spell.mend.salve` (heal self over 6 s), `spell.ward.oakskin` (10 s armor buff) | 3 is the minimum proving spells are data-driven rows with (a) a damage effect, (b) a healing effect, (c) a timed status effect. A single damage spell could be a hardcoded projectile. |
 | Magic schools | **3** | `magic.ember`, `magic.mend`, `magic.ward` — one spell each | 3 is the minimum proving a school is a data row with its own identity, not a colour on a damage number. |
-| Skills | 2 | `skill.survival` (gathering yield +1 at level 3), `skill.athletics` (move speed +8 % at level 3) | 2 proves skills are separate from level and from attributes (D-09), and that a skill level *does* something observable. |
+| Skills | 2 + 1 weapon skill | `skill.survival` (gathering yield +1 at level 3), `skill.athletics` (move speed +8 % at level 3), and the weapon skill below | 2 proves skills are separate from level and from attributes (D-09), and that a skill level *does* something observable. |
 | Attributes | **7** | The canonical set from `PROGRESSION.md` §4.1: Might, Endurance, Agility, Precision, Will, Insight, Presence — of which only Might, Endurance and Will have any observable effect at level cap 5. | The *count* is not a prototype scope choice: attributes are persisted per character, so shipping three now and seven later is a save migration, and `DATA_MODEL.md`'s schemas and `VERTICAL_SLICE.md` both commit to the seven. The prototype exercises all seven **in the schema** while only three are **mechanically live**, which is the honest minimum: the plumbing is proven, the balance is not pretended. |
 | Levels | Cap 5 | XP curve on config | Level cap 5 keeps the curve testable by hand. |
-| Abilities/talents | 0 | — | Deferred to the slice; no talent tree in the prototype. |
-| Weapon mastery | 1 track | `mastery.one_handed` only, 3 ranks | 1 track proves the mastery axis exists separately from skill and level without opening a second content surface. |
+| Techniques (martial) | 0 | — | Deferred to the slice; no talent tree and no point pool. The knowledge record (`PROGRESSION.md` §4.4) still exists: it holds the known formulas and recipes. |
+| Weapon skill | 1 | `skill.one_hand_blade` only (+5 % stagger consistency at level 3) | Proves weapon competence advances only from effective use, separately from level, without opening a second content surface. It replaces the `mastery.one_handed` track: the progression-axis audit merged weapon mastery into weapon-family skills (`PROGRESSION_AXIS_RECONCILIATION.md`). |
 | Recipes | **2** | `recipe.alchemy.salve_minor` (herb ×2 + 1 flask charge), `recipe.smithing.sword_temper` (iron ×1 + salve_minor ×1 → +2 damage on a *specific item instance*) | 2 is the minimum proving (a) resource consumption and (b) that crafting can mutate an existing item instance rather than only create new ones. A third recipe repeats both. |
 | Crafting stations | 1 | `station.forge_shed` (in the forge shed) | Recipes are station-gated by `station_type` from day one, or the gate becomes a refactor. |
 | Gathering resources | **2** | `node.herb.ashbloom` (respawns at +1 `world_time` day), `node.ore.iron_seam` (finite, 3 charges, does not respawn in prototype) | 2 proves both respawn classes. Also required: the salve recipe consumes one material and one flask charge, so consumption is non-trivial. |
@@ -104,7 +108,7 @@ Justification column is mandatory: **any count above 3 must be argued here or it
 | Item definitions | **15** total | listed in §4.2 | 15 is the smallest set that covers every category in §4.1 exactly once. |
 | Status effects | 3 | `effect.burning` (DoT), `effect.oakskin` (armor buff), `effect.bleeding` (DoT, player+companion) | Bleeding is applied by the wolf; burning by the player spell. |
 | Factions | 0 defined, 1 structural slot | `faction_id` field exists on NPCs and is saved; no faction has reputation logic. | Cost of the field is zero; adding it later to a shipped save schema is not. |
-| UI panels | 6 | Health/stamina/spell resource bar, interaction prompt, inventory, equipment, character sheet (level/XP/attributes/skills/mastery), journal (quest + objectives) | Journal is required because the quest must be *readable* even in the prototype; it is also where "no quest markers" starts (the journal stores text directions, not waypoints). |
+| UI panels | 6 | Health/Stamina/Focus bars with Strain (no mana), interaction prompt, inventory, equipment, character sheet (level/XP/XP debt/attributes/skills/known techniques), journal (quest + objectives) | Journal is required because the quest must be *readable* even in the prototype; it is also where "no quest markers" starts (the journal stores text directions, not waypoints). |
 
 ### 4.2 The complete item list (all 15)
 
@@ -133,7 +137,7 @@ Structure is declarative (D-07). Each objective is a `type` + parameters; state 
 | # | Objective | Type | Predicate |
 |---|---|---|---|
 | O1 | "Hear what Halda wants." | `talk_to` | `npc.keeper_halda` conversation node `dlg.keeper_halda.offer` visited |
-| O2 | "Find where the wolves den." | `visit_location` | player enters `loc.den_mouth` radius (8 m) → fires `location.discovered` |
+| O2 | "Find where the wolves den." | `visit_location` | player enters `location.den_mouth` radius (8 m) → fires `location.discovered` (IDs take `DATA_MODEL.md`'s `location.` prefix; an earlier draft wrote `loc.`) |
 | O3 | "Recover Halda's token from the pack." | `acquire_item` | instance of `item.quest.halda_token` is in player inventory, AND `creature.beast.wolf_grey` kill count at `loc.den_mouth` ≥ 3 |
 | O4 | "Bring Halda a salve for her brother's leg." | `craft` + `deliver` | `recipe.alchemy.salve_minor` crafted ≥ 1 since O1, AND 1× `item.consumable.salve_minor` handed to `npc.keeper_halda` |
 
@@ -143,22 +147,30 @@ Structure is declarative (D-07). Each objective is a `type` + parameters; state 
 
 **What the quest deliberately is not:** not branching, not timed, not fail-able, not multi-stage, not one of "several quests". `PHASE_0.md` STEP 15 says *one quest*; the charter's PHASE 1 bullet says *several quests*. Where these disagree, the stricter prototype instruction wins, and the "several" requirement is discharged in the vertical slice. **Recorded as assumption A-1 (§10).**
 
+**M5 reconciliation:** the one quest is the content bible's Quest 1, *Iron Under Ash* (`quest.ashen_hollow.iron_under_ash`), which Kera Voss gives when asked to teach the forge: `talk_to` (her lesson heard), `visit_location` (the iron shelf), `acquire_item` (raw iron ore), `explore_location` (back within 20 m of the waystation), `craft_item` twice (a billet, then the March Spear) and `talk_to` again (her word on the spear) - five of the closed types where this section asks four, linear, with no kill objective (bible §15), and tolerant of the shelf visited or the ore got before it is given (bible §32). It pays 120 XP (enough for a fresh character's level 2 on its own, C11), 25 coin and Kera's respect +5, once. The table's token, den and salve objectives are not built; `item.quest.halda_token` stays defined and unused. The bible's Quest 2 ends in the companion's recruitment and lands with M6. C15 is read against Iron Under Ash; the journal (J) tracks it and the quest debugger (F4) explains it (`M5_STATUS.md`).
+
 ### 4.4 Content file layout (D-03)
 
 ```
 content/
   items/        15 files (or one file per kind, one entry each)
-  creatures/    wolf_grey.yaml
-  spawns/       3 spawner definitions
+  creatures/    wolf_grey.yaml; the content bible's five archetypes (M3d)
+  spawns/       3 spawner definitions (the valley strays from M3c; the den pack and the respawning pack with M3d);
+                one per archetype (M3d)
+  effects/      bleeding, weakened, mending (M3c); venom (M3d); burning, oakskin (M3e)
+  abilities/    1: the wolf's bite (M3c); the archetypes' six (M3d)
   spells/       3        skills/       2        recipes/      2
   nodes/        2        loot/         2 tables
   quests/       hollow_lost_token.yaml
   dialogue/     3 graphs
   locations/    4 named locations (outpost, den_mouth, iron_shelf, herb_patch)
-  config/       xp_curve, level_cap, base_speeds, damage_constants
+  regions/      1 region: ashen_hollow - the 4 cells, the terrain grid, structures, doors and the den cache (M3, M3b)
+  merchants/    1: the smith's stock (M3b)
+  world_flags/  2 door flags (M3)
+  config/       xp_curve, level_cap, base_speeds, damage_constants, time, progression, simulation_tiers
 ```
 
-39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind.
+39 definitions total. No other content directory may exist in Phase 1; the validator (§6.3) fails the build on an unknown top-level content kind. **M3 and M3b reconciliation:** `merchants/` holds the smith's stock (§5 step 8); `regions/` and `world_flags/` were added because `DATA_MODEL.md` requires every location's `region_ref` to resolve and every world flag to be declared; both kinds are in its closed table. **M3c reconciliation:** `effects/` holds bleeding, the weakness §5 step 7 applies on death, and the mending the salve (§4.2) and the mend spell share - five effects once M3e adds burning and oakskin, where §4.1 counts three. `abilities/` holds the wolf's bite, because `DATA_MODEL.md` §4.4 names a creature's attacks by ability. **M3e reconciliation:** the three spells and three schools of §4.1 are the content bible's three formulas of three domains (§13) - `spell.force.impulse_bolt` (direct damage), `spell.warding.brace_ward` (a 10 s armor buff) and `spell.vital.mending_thread` (heal over 6 s, which also stops a bleed or venom) - whose domains are the skills `skill.force`, `skill.warding` and `skill.vital`, not a separate school kind. They prove the same three things §4.1 asks: a damage payload, a healing payload and a timed effect as data rows. `effect.burning` and `effect.oakskin` are therefore not built; `effect.braced` is the ward's, and mending is shared with the salve. The tome is `item.tome.resonance_primer` on a shelf in the longhouse, teaching all three (the bible's archivist hands it over once NPCs arrive, M4); the starting package stays empty. C10 is read against these three. **M3d reconciliation:** the content bible (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md`, the owner-approved destination for Phase 1's content) adds five creature archetypes beside the wolf, each with its abilities, one spawner and, for the boar and the armour, a loot table; `effect.venom` is the spider's; `config.creature_behaviour` holds perception and roles. Their placement in the M3 layout, and the bible layout not yet adopted, are in `M3D_STATUS.md`. **M3f reconciliation:** the two recipes of §4.1 are the content bible's blacksmithing proof (§12) under the owner's M3f ruling: `recipe.smithing.iron_billet` (raw ore into a billet at the forge's hearth) and `recipe.smithing.march_spear` (a billet and an ash haft into the March Spear at the anvil), trained by `skill.smithing`. They prove what §4.1's pair proves - resource consumption (C13), and quality that lands on the made instance rather than the definition (C14's point) - so the salve recipe and the sword temper are not built, and the salve stays a found consumable. The gathering pair is `node.ore.iron_seam` (finite, 3 charges) and `node.wood.ash_stand` (one Ash Haft a world day), the stand taking the herb patch's place as C12's daily class; `node.herb.ashbloom` is not built. `resources/` holds the two materials the nodes name (`DATA_MODEL.md` §4.16 makes a node name its resource), and `config.crafting` the quality tuning. §4.1's one station is two in the forge shed, a hearth (`forge`) and an anvil (`anvil`), placed by the region. The spear is a third weapon, made rather than found. Both recipes were known from the starting package until M4 put them in the bible's smith's teaching. Details and divergences: `M3F_STATUS.md`. **M4 reconciliation:** §4.1's three named NPCs are the content bible's (§9), in the M3 outpost: Renn Vale the steward (the keeper and quest giver; his conversation is §4.1's branching one), Kera Voss the smith (the crafting station's owner and the trader - she teaches the two recipes and her wares are M3b's stock) and Sel Arien the archivist, who lends the Resonance Primer that lay on the longhouse shelf through M3e (the shelf and its loot table are gone). The bible's fourth, Tavar Orr, is the companion-to-be (M6). `npcs/` holds the three and `dialogue/` their conversations. The starting package is empty again. Details: `M4_STATUS.md`. **M5 reconciliation:** `quests/` holds `ashen_hollow/iron_under_ash.yaml` (§4.3's M5 note). **M6 reconciliation:** the content bible's four cells (§3) turned the iron shelf into `location.blackvein_cut` (through `content/_aliases.yaml`) and added `location.foldscar` and `location.ruined_cart`, with loot tables for the waystation's chest and the cart; `npcs/` and `dialogue/` gain Tavar Orr, caught in the Foldscar; `quests/` gains `ashen_hollow/three_quiet_stones.yaml`, the bible's Quest 2; `world_flags/` gains the Foldscar's four (its three Quiet Stones and its heart), set by the region's new `switches`, and the region's `barriers` hold the fold that keeps Tavar out of reach until the heart is steadied. Tavar can join the character (his NPC definition's `companion` block), and `config/` gains `config.companion`, how companions behave. For C18, the hide cap is in Kera's wares, dried ashbloom in the waystation's storage chest and Halda's token in the den cache (`ReachabilityTests`). Details: `M6_STATUS.md`. The counts above predate M2c and M3 and are recounted when the content set is complete (M6, with the companion and Quest 2).
 
 ## 5. Core loop the player actually performs
 
@@ -166,12 +178,12 @@ The prototype's loop is a *horizontal* version of the final game's explore → f
 
 | Step | Player action | Systems touched | State written |
 |---|---|---|---|
-| 1 | Spawns at the outpost gate, first-person, sword equipped, no marker on screen | presentation bootstrap, `EquipmentSystem`, journal | save manifest created on first autosave |
+| 1 | Spawns at the outpost gate in the default third-person view, sword equipped, no marker on screen | presentation bootstrap, `EquipmentSystem`, journal | save manifest created on first autosave |
 | 2 | Walks into the longhouse, reads the journal's one line of direction | `InteractionSystem`, dialogue | — |
 | 3 | Talks to Halda; picks **1 of 2** opening replies | `DialogueSystem`, `QuestSystem` (O1) | conversation node visited, quest accepted |
 | 4 | Reads journal: *"the den is northwest, up the rock shelf above the stream."* Walks out. No waypoint. | journal only | — |
 | 5 | Gathers 2× ashbloom and refills the water flask at the stream | `GatheringSystem`, `InventorySystem` | node charge count decremented; `world_time` recorded per node |
-| 6 | Hears a wolf; fights 1 stray wolf with the sword. Takes damage. Uses `ember.bolt` to finish it at range. | `CombatSystem`, `DamageSystem`, `StatusEffectSystem`, `LootSystem` | wolf entity → dead; corpse lootable; XP granted; `mastery.one_handed` +1 tick |
+| 6 | Hears a wolf; fights 1 stray wolf with the sword. Takes damage. Uses `ember.bolt` to finish it at range. | `CombatSystem`, `DamageSystem`, `StatusEffectSystem`, `LootSystem` | wolf entity → dead; corpse lootable; XP granted; `skill.one_hand_blade` XP granted |
 | 7 | Fights the den pack of 4; dies once (deliberate tuning — the first attempt with a level-1 character and a rusted sword is intended to be survivable but costly) | `DeathSystem` | death event: −10 % XP debt (not lost XP), respawn at outpost, 60 s of `effect.weakened` |
 | 8 | Recovers corpse-less death penalty, buys nothing, kills the pack, loots 3 wolves + the den cache | `InventorySystem`, `ContainerSystem`, `LootSystem` | chest entity marked emptied; wolf corpses removed |
 | 9 | Returns to the outpost; recruits Kesh (a companion conversation with one accept/decline branch) | `CompanionSystem`, `RelationshipSystem` | companion entity created with ULID, `state: following` |
@@ -237,7 +249,7 @@ The Domain `.csproj` has **no Godot package reference**. A presentation type use
 | Content validation pass (D-03) | `godot --headless --script res://tools/validate_content.cs` — every definition parses against its C# schema; every referenced ID resolves; every location/creature/item ID used in a quest or loot table exists. Failure prints `file:line`. | Every commit |
 | Boot smoke | `godot --headless --quit-after 300` — project boots, content loads, a headless world is constructed, no errors in the log. | Every commit |
 | View-subscription test | Headless: subscribe a stub view to the event bus, run a scripted 200-command session, assert the view saw exactly the events it should and wrote nothing. (D-11 enforcement.) | Every commit |
-| Frame budget | Windowed run, scripted camera path through the hollow, log frame times. Target: ≥ 60 fps at 1080p on the baseline machine (DECISIONS open question 2 default). | Weekly |
+| Frame budget | Windowed run, scripted camera path through the hollow in the third-person view, the first-person view and a camera-obstruction path; record CPU and GPU frame times, 1% lows, RAM/VRAM and hitches. Target: a sustained ≥ 60 fps at 1080p on the baseline machine, RAZER's RTX 4070 Ti with OBS, H3 and other significant GPU workloads stopped (DECISIONS open question 2; owner ruling, 2026-09-23). | Weekly |
 | Input→command latency | Instrumented: timestamp input, timestamp domain event. Budget ≤ 1 frame + 8 ms. | Weekly |
 
 ### 6.4 Which of the charter's mandatory tests are in scope
@@ -288,6 +300,8 @@ A "fresh session" = delete all saves, launch, no console commands, no debug spaw
 | C12 | gather both resource types, watch a herb node refill after one in-game day, and watch the iron seam *not* refill. | Either node behaves like the other. |
 | C13 | craft both recipes, and observe the ingredient counts in the inventory drop by exactly the recipe cost. | Off-by-one, or a failed craft consumes inputs. |
 | C14 | see the sword's damage number change after `sword_temper` while a second, untempered sword's does not. | The modifier lands on the definition instead of the instance. |
+
+M3f reads C12 with the ash stand as the daily node, and C13 and C14 with the content bible's two recipes: a fine and a crude March Spear hit harder and softer than a standard one, each by its own stack's quality (`M3F_STATUS.md`). M6 reads C16 with the content bible's companion, Tavar Orr, and Renn's lodge (`M6_STATUS.md`).
 | C15 | complete `quest.hollow.lost_token` — all four objectives — in ≤ 30 min of play, with the journal tracking each objective as it completes. | Any objective cannot be completed, or completes without its predicate being true. |
 | C16 | recruit Kesh, then order follow → wait → follow, and have Kesh path around the longhouse without getting permanently stuck. | Kesh requires > 15 s to recover from any single geometry snag. |
 | C17 | die at least once and respawn with the stated penalty applied exactly once (XP debt arithmetic visible in the character sheet). | Penalty applied twice, or not at all, or lost XP instead of XP debt. |
@@ -309,7 +323,7 @@ A save must round-trip this **exact** scenario, asserted field-by-field:
 
 After load, all of the following must be true, and the prototype fails if any is false:
 
-- Player position, facing, health, stamina, and spell resource are equal to the values at save time.
+- Player position, facing, Health, Stamina, Focus and Strain are equal to the values at save time.
 - Inventory contents (counts, order-insensitive multiset) and equipped slots are identical.
 - The tempered sword has the modifier; the other sword does not.
 - The den chest contains exactly the two items left behind, at the same container entity ID.
@@ -317,7 +331,7 @@ After load, all of the following must be true, and the prototype fails if any is
 - 2 wolves at the den are alive at their spawn-adjacent positions; 1 corpse is present and unlooted; 1 wolf entity is gone.
 - Kesh exists, is at the same position, in `wait`.
 - Quest state places O1 and O2 complete, O3 in progress with the exact kill/acquire counters.
-- XP, level, attribute spends, skill levels, and `mastery.one_handed` ticks are identical.
+- XP, level, XP debt, attribute spends, skill levels (including `skill.one_hand_blade`) and known techniques are identical.
 - `relationship.keeper_halda` is identical.
 - `world_time` is identical (not reset to 0, not advanced by the load).
 - Save load completes in ≤ 2 s on the baseline machine, and the save file is ≤ 256 KB for this state (D-05 sparse deltas).
@@ -349,9 +363,9 @@ Why it is first:
 | P3 | Command bus + event bus + one command end-to-end (`MovePlayer`) with a stub view | C3, C4, D-02 proven |
 | P4 | Sparse-delta save/load of the *unchanged* world, then of a changed cell | C2, D-05 proven |
 | P5 | **The vertical thread:** one item, one node, one wolf, one command each for gather/kill/loot/equip → save → load, all headless | C1–C5 |
-| P6 | Godot presentation shell: first-person controller, one view per system, content-driven spawn | D-11 proven under real input latency |
+| P6 | Godot presentation shell: one full-body third-person controller with seamless first-person zoom, one view per system, content-driven spawn | D-11 proven under real input latency |
 | P7 | Breadth: the remaining 14 items, 3 spells, 2 recipes, 1 quest, 3 NPCs, 1 companion | §4 complete |
-| P8 | Death, XP/level, skills, mastery | §7.3 |
+| P8 | Death, XP/level, skills, techniques | §7.3 |
 | P9 | Acceptance run per §7.3 and §7.4, recorded | §9 |
 
 Steps P1–P5 involve **no Godot gameplay code at all** and should be completed and green in `dotnet test` before P6 begins. If P5 cannot be made to pass, the correct response is to fix the seam — not to skip to P6.
@@ -367,7 +381,7 @@ The prototype is **done** when, and only when:
 1. All §7.1 and §7.2 criteria pass in CI; all §7.3 criteria pass in a recorded fresh-session run.
 2. §7.4 passes field-by-field, recorded as a diff of expected vs. actual world-state dump.
 3. No §7.5 anti-criterion is true.
-4. The build runs at ≥ 60 fps on the scripted camera path on the baseline machine.
+4. The build runs at a sustained ≥ 60 fps at 1080p on the scripted camera path on the baseline machine (RAZER's RTX 4070 Ti, clean of other GPU workloads).
 5. A `README.md` **written during Phase 1, not Phase 0** states how to build, run the headless tests, run the content validator, and play the prototype in under one page — because the next session is an AI session that must resume without asking. (At the end of Phase 0 no such file exists anywhere in the repository and none is expected: `G:\UNNAMED` contains only `docs\`.)
 6. A single recorded (video or log) **10-minute scripted playthrough** exists that a third party can replay step-by-step to the same end state.
 

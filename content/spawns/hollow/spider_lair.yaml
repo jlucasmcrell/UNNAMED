@@ -1,0 +1,13 @@
+id: spawn.hollow.spider_lair
+kind: spawn
+schema: 1
+display_key: spawn.hollow.spider_lair.name
+tags: [spawn]
+notes: The Cave Hunting Spider's lair among the south-east trees - at the content bible's placement (172, 48). A quiet walk passes it; the non-kill route goes around.
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.cave_hunting_spider, count: [1, 1], role: ambusher }
+at: { position_m: [172, 48], radius_m: 0 }
+level_band: [3, 3]
+respawn: { kind: none }
+tier_hint: A

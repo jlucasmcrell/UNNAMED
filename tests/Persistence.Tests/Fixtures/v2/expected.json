@@ -1,0 +1,131 @@
+{
+  "world_seed": "0x5C1A9E7B4D2F0083",
+  "world_tick": 5000,
+  "world_time_advanced_ticks": 0,
+  "playtime_seconds": 321.5,
+  "player": {
+    "id": "chr_01HF7YAT00041061050R3GG28A",
+    "name": "Aelin",
+    "x_mm": 150250,
+    "y_mm": 12000,
+    "z_mm": -40125,
+    "facing_mdeg": 0,
+    "appearance_seed": "0x32599743E39279EF",
+    "inventory": [
+      {
+        "item_id": "itm_01HF7YAT01144GJ289144GJ281",
+        "def_id": "item.weapon.iron_sword",
+        "count": 1,
+        "quality": 0
+      },
+      {
+        "item_id": "itm_01HF7YAT02144GJ289144GJ282",
+        "def_id": "item.potion.minor_healing",
+        "count": 3,
+        "quality": 0
+      }
+    ],
+    "progression": {
+      "level": 1,
+      "level_progress_xp": 0,
+      "xp_debt": 0,
+      "lifetime_xp": {},
+      "attribute_allocation": {},
+      "unspent_attribute_points": 0,
+      "attribute_grants": [],
+      "skills": {},
+      "known": {},
+      "production_firsts": [],
+      "novelty_firsts": [],
+      "pools": {
+        "health": null,
+        "stamina": null,
+        "focus": null,
+        "strain": 0
+      },
+      "guards": {
+        "species_today": {},
+        "species_ever_killed": [],
+        "cluster_kills": {}
+      }
+    },
+    "discoveries": [],
+    "equipment": {},
+    "currency": 0,
+    "effects": [],
+    "relationships": [],
+    "conversations": [],
+    "quests": [],
+    "companions": [],
+    "posture": {
+      "stance": "standing",
+      "airborne": false,
+      "air_ms": 0
+    }
+  },
+  "cells": [
+    {
+      "cell_key": "r_0_0:c_00_00",
+      "baseline_hash": "sha256:0e96f61267a5fb32ced534dfad115d39a70e8ac6d3667ddc812003a67b51adfe",
+      "flags": {
+        "world.door.cellar_open": 1
+      },
+      "harvested_nodes": [],
+      "population_alive": {}
+    },
+    {
+      "cell_key": "r_0_0:c_00_03",
+      "baseline_hash": "sha256:d370b5990865dbab37aa08e54c5ebbd0235a787a20bc472394c2a29897cb202d",
+      "flags": {},
+      "harvested_nodes": [
+        {
+          "node_key": "node.r_0_0:c_00_03.iron_vein.00",
+          "last_harvest_tick": 1000,
+          "harvest_seq": 1
+        }
+      ],
+      "population_alive": {}
+    },
+    {
+      "cell_key": "r_0_0:c_00_05",
+      "baseline_hash": "sha256:79df1f88c645abc430ad368b2188420da664aa0fd53147e63c904e13744a79b5",
+      "flags": {},
+      "harvested_nodes": [],
+      "population_alive": {
+        "pop.r_0_0.c_00_05.deer": 1
+      }
+    },
+    {
+      "cell_key": "r_0_0:c_00_07",
+      "baseline_hash": "sha256:502dcec8a8f4779fab9b52aa11a205f8f783230f9423ed5c7fd11e924d636d65",
+      "flags": {
+        "world.lever.mill_gate": 3
+      },
+      "harvested_nodes": [],
+      "population_alive": {}
+    }
+  ],
+  "entities": [
+    {
+      "instance_id": "crt_01M377BPWCD9F0H0FTDENBAM78",
+      "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
+      "def_id": "creature.beast.wolf_grey",
+      "alive": false,
+      "x_cm": null,
+      "z_cm": null,
+      "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
+    },
+    {
+      "instance_id": "crt_01M377BPWET262SFMK68XEN60P",
+      "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
+      "def_id": "creature.beast.deer",
+      "alive": null,
+      "x_cm": 1234,
+      "z_cm": 5678,
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b"
+    }
+  ],
+  "created": [],
+  "containers": [],
+  "creatures": []
+}

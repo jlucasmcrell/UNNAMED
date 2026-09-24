@@ -1,0 +1,16 @@
+id: effect.venom
+kind: effect
+schema: 1
+display_key: effect.venom.name
+tags: [effect]
+name: Venom
+notes: The spider's bite - two points a second for 8 s. A fresh bite restarts it rather than stacking.
+category: dot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 4.0          # game minutes (config.time): 8 s
+tick_interval_min: 0.5
+on_tick:
+  - { type: damage, damage_type: poison, amount: 2 }
+dispel_category: poison
+immunity_tags: [undead, construct]

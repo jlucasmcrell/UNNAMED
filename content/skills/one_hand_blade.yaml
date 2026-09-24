@@ -1,0 +1,10 @@
+id: skill.one_hand_blade
+kind: skill
+schema: 1
+display_key: skill.one_hand_blade.name
+tags: [skill]
+name: One-hand Blade
+family: combat
+notes: The prototype's weapon-family skill (PROTOTYPE.md; replaces the mastery.one_handed track). Effective blows train it; at 3 its stagger comes steadier.
+passives:
+  - { at: 3, modifiers: [{ target: stat.stagger_power, op: multiply, value: 1.05 }] }   # PROTOTYPE.md: +5% stagger consistency

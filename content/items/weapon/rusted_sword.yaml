@@ -1,0 +1,18 @@
+id: item.weapon.rusted_sword
+kind: item.weapon
+schema: 1
+display_key: item.weapon.rusted_sword.name
+tags: [item]
+name: Rusted Sword
+notes: The starting weapon (PROTOTYPE.md §4.2) - one-handed, 7 damage, 1.8 m reach, 0.7 s a swing.
+category: weapon
+stack_max: 1
+weight: 3.0
+value_base: 15
+rarity: common
+damage: [7, 7]
+damage_type: physical_slash
+attack_speed: 1.43        # swings per second (0.7 s a swing)
+reach: 1.8
+hands: one
+skill_ref: skill.one_hand_blade

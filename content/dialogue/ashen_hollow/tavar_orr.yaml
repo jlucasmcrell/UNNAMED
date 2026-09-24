@@ -1,0 +1,90 @@
+id: dialogue.ashen_hollow.tavar_orr
+kind: dialogue
+schema: 1
+display_key: dialogue.ashen_hollow.tavar_orr.name
+tags: [dialogue]
+notes: Tavar Orr (content bible §9, §17). He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2. Asked, he joins the character (M6), and is told to wait or follow here or with the companion key.
+participants: [npc.ashen_hollow.tavar_orr]
+root_node: greet
+nodes:
+  greet:
+    text: "He takes a step towards you, and this time his shadow keeps up. \"You're not Sel. Did she send you, or do you just go about turning stones?\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      # Hearing this line completes Quest 2, so "Sel sent me" asks whether she ever gave it, not whether it is still open.
+      - id: sent
+        text: "Sel sent me."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started, not: true }]
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
+      - id: found
+        text: "The stones were out of line. I put them right."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }]
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
+  caught:
+    text: "\"Three days, Sel will say. For me it was one long afternoon where everything arrived a breath late. I could see the waystation smoke. I heard you coming from the wrong side.\" He opens and closes his hands, as if checking they are his."
+    choices:
+      - id: stones
+        text: "What were the stones for?"
+        next: stones
+      - id: join
+        text: "Walk back with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+        consequences: [{ command: recruit_companion }]
+        next: joined
+      - id: home
+        text: "Sel's been watching for you."
+        next: again
+  stones:
+    text: "\"Holding something shut, or holding it still - I couldn't tell you which. Somebody turned them out of line before we ever came out here. Not me.\""
+    choices:
+      - id: back
+        text: "Then somebody else has been out here."
+        next: again
+  again:
+    text: "\"Still here. Still on time, too.\""
+    choices:
+      - id: stones
+        text: "What were the stones for?"
+        conditions: [{ kind: visited, node: stones, not: true }]
+        next: stones
+      - id: join
+        text: "Walk back with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+        consequences: [{ command: recruit_companion }]
+        next: joined
+      - id: wait
+        text: "Wait here."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: follow }]
+        consequences: [{ command: order_companion, order: wait }]
+        next: waiting
+      - id: follow
+        text: "Come on - with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
+        consequences: [{ command: order_companion, order: follow }]
+        next: following
+      - id: leave
+        text: "Take a moment. I'll see you at the waystation."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+      - id: done
+        text: "Nothing. Let's go on."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  joined:
+    text: "\"Back to the waystation? I'll walk behind you. I've had enough of being in front of things.\""
+    choices:
+      - id: ok
+        text: "Stay close."
+  waiting:
+    text: "\"Here. Fine. Don't make it three days.\""
+    choices:
+      - id: ok
+        text: "I won't."
+  following:
+    text: "\"Lead on.\""
+    choices:
+      - id: ok
+        text: "This way."

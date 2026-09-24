@@ -1,0 +1,41 @@
+id: dialogue.fixture.warden_sera
+kind: dialogue
+schema: 1
+display_key: dialogue.fixture.warden_sera.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+participants: [npc.fixture.warden_sera]
+root_node: greet
+nodes:
+  greet:
+    text: "Halt."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: rumour
+        text: "Any news?"
+        next: rumour
+  again:
+    text: "You again."
+    choices:
+      - id: errand
+        text: "Need a hand?"
+        consequences: [{ command: start_quest, quest_ref: quest.fixture.wardens_errand }]
+        next: errand
+      - id: cull
+        text: "I'll thin the wolves."
+        consequences: [{ command: start_quest, quest_ref: quest.fixture.cull }]
+      - id: leave
+        text: "Farewell."
+  errand:
+    text: "Find where the wolves den."
+    choices:
+      - id: back
+        text: "I will."
+        next: again
+  rumour:
+    text: "Wolves on the ridge."
+    choices:
+      - id: back
+        text: "Thanks."
+        next: again

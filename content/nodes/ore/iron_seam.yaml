@@ -1,0 +1,12 @@
+id: node.ore.iron_seam
+kind: node
+schema: 1
+display_key: node.ore.iron_seam.name
+tags: [node]
+name: Iron Seam
+notes: A finite seam (PROTOTYPE.md C12) - three strikes and it is worked out for good.
+resource_ref: resource.ore.iron
+charges: 3
+respawn: none
+harvest_skill: skill.survival
+difficulty: 5

@@ -1,0 +1,10 @@
+id: skill.survival
+kind: skill
+schema: 1
+display_key: skill.survival.name
+tags: [skill]
+name: Survival
+family: world
+notes: Wilderness competence; gathering trains it. PROTOTYPE.md - gathering yield +1 at level 3.
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives

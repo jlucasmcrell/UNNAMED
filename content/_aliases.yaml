@@ -1,0 +1,4 @@
+# Game content renames (M2b's alias mechanism): a save that names the old ID loads under the new one.
+# M6 moved the region to the content bible's four cells: the M3 iron shelf became Blackvein Cut.
+aliases:
+  location.iron_shelf: location.blackvein_cut

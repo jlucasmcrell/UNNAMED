@@ -1,0 +1,15 @@
+id: ability.creature.husk_slash
+kind: ability
+schema: 1
+display_key: ability.creature.husk_slash.name
+tags: [ability]
+name: Rusted Cleave
+notes: The husk's long, slow cut - more reach than a sword behind a windup you can read.
+class: creature
+range_m: 2.4
+windup_s: 0.8
+active_s: 0.2
+recovery_s: 0.9
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_slash, amount: [6, 9] }

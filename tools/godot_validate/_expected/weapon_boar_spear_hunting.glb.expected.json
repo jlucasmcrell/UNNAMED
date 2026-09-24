@@ -1,0 +1,30 @@
+{
+  "asset_id": "weapon_boar_spear_hunting",
+  "sockets": {
+    "SOCK_grip_primary": [
+      -0.0005,
+      0.704,
+      -0.0193
+    ],
+    "SOCK_grip_secondary": [
+      -0.0001,
+      1.1,
+      0.0042
+    ],
+    "SOCK_head": [
+      -0.0003,
+      1.892,
+      0.0525
+    ],
+    "SOCK_pommel": [
+      -0.001,
+      0.066,
+      -0.0543
+    ],
+    "SOCK_attach": [
+      -0.0005,
+      0.704,
+      -0.0193
+    ]
+  }
+}

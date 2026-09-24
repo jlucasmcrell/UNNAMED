@@ -1,0 +1,8 @@
+id: skill.vital
+kind: skill
+schema: 1
+display_key: skill.vital.name
+tags: [skill]
+name: Vital
+family: magic
+notes: The magic domain of bleeding, tissue and recovery (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md "Vital / Restoration"; content bible §13). Competence only - a steadier working for less Strain (PROGRESSION.md §7); what can be worked at all is the formulas known.

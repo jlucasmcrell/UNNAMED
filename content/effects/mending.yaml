@@ -1,0 +1,15 @@
+id: effect.mending
+kind: effect
+schema: 1
+display_key: effect.mending.name
+tags: [effect]
+name: Mending
+notes: The salve's healing (PROTOTYPE.md §4.2) - 18 health over 6 s. The mend spell (M3e) is meant to apply it too.
+category: hot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 3.0          # game minutes (config.time): 6 s
+tick_interval_min: 0.5     # 1 s: six ticks of 3
+on_tick:
+  - { type: heal, amount: 3 }
+dispel_category: none

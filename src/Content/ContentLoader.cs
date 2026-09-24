@@ -15,11 +15,6 @@ namespace UNNAMED.Content;
 /// </summary>
 public class ContentLoader
 {
-    // Regex for valid definition ID per D-04
-    private static readonly Regex DefinitionIdPattern = new(
-        @"^[a-z0-9]+(\.[a-z0-9_]+)*(\.[0-9]{2})?$",
-        RegexOptions.Compiled);
-    
     // Regex for valid line number in YAML (Comment-based tracking)
     private static readonly Regex LineNumberMarker = new(
         @"^# line:\s*(\d+)",
@@ -155,6 +150,51 @@ public class ContentLoader
             
             // Duplicate ID check
             success &= ValidateDuplicateIds();
+
+            // Skill families, and the progression config when the pack has one (PRG codes)
+            var progressionErrors = ProgressionContent.Validate(this);
+            _errors.AddRange(progressionErrors);
+            success &= progressionErrors.Count == 0;
+
+            // References at any depth, the reserved mod namespace, Phase-1 semantics (XREF002-005, MOD001, SEM codes)
+            var contentErrors = ContentChecks.Validate(this);
+            _errors.AddRange(contentErrors);
+            success &= contentErrors.Count == 0;
+
+            // Items, loot tables, merchants, carrying rules and the starting kit (ITM codes)
+            var itemErrors = ItemContent.Validate(this);
+            _errors.AddRange(itemErrors);
+            success &= itemErrors.Count == 0;
+
+            // Regions, places, world flags and movement config (WLD codes)
+            var worldErrors = WorldContent.Validate(this);
+            _errors.AddRange(worldErrors);
+            success &= worldErrors.Count == 0;
+
+            // Damage constants, effects, creatures and their attacks, spawn sites, passives, item uses (CMB codes)
+            var combatErrors = CombatContent.Validate(this);
+            _errors.AddRange(combatErrors);
+            success &= combatErrors.Count == 0;
+
+            // Formulas, the tuning of casting, and what books teach (MAG codes)
+            var magicErrors = MagicContent.Validate(this);
+            _errors.AddRange(magicErrors);
+            success &= magicErrors.Count == 0;
+
+            // Resources, nodes, recipes and the tuning of quality (CRF codes)
+            var craftingErrors = CraftingContent.Validate(this);
+            _errors.AddRange(craftingErrors);
+            success &= craftingErrors.Count == 0;
+
+            // NPCs and their conversations (SOC codes)
+            var socialErrors = SocialContent.Validate(this);
+            _errors.AddRange(socialErrors);
+            success &= socialErrors.Count == 0;
+
+            // Quests: objective graphs over world state (QST codes)
+            var questErrors = QuestContent.Validate(this);
+            _errors.AddRange(questErrors);
+            success &= questErrors.Count == 0;
         }
         
         return success;
@@ -246,9 +286,18 @@ public class ContentLoader
             
             return true;
         }
-        catch (ContentLoadException)
+        catch (ContentLoadException ex)
         {
-            // Already added error in deserializer
+            // The deserializer is static and cannot record errors itself: a malformed file must be
+            // reported here, or it silently drops out of the load and validation still "passes".
+            _errors.Add(new ValidationError
+            {
+                SeverityLevel = ValidationError.Severity.Error,
+                Code = "LOAD003",
+                Message = ex.Message,
+                FilePath = filePath,
+                LineNumber = ex.LineNumber
+            });
             return false;
         }
         catch (Exception ex)
@@ -315,9 +364,18 @@ public class ContentLoader
             
             return true;
         }
-        catch (ContentLoadException)
+        catch (ContentLoadException ex)
         {
-            // Already added error in deserializer
+            // The deserializer is static and cannot record errors itself: a malformed file must be
+            // reported here, or it silently drops out of the load and validation still "passes".
+            _errors.Add(new ValidationError
+            {
+                SeverityLevel = ValidationError.Severity.Error,
+                Code = "LOAD003",
+                Message = ex.Message,
+                FilePath = filePath,
+                LineNumber = ex.LineNumber
+            });
             return false;
         }
         catch (Exception ex)
@@ -338,7 +396,7 @@ public class ContentLoader
     /// </summary>
     private bool ValidateDefinitionId(string id, string sourceFile)
     {
-        if (!DefinitionIdPattern.IsMatch(id))
+        if (!DefinitionIdValidator.IsValidId(id))
         {
             _errors.Add(new ValidationError
             {
@@ -487,56 +545,63 @@ public class ContentLoader
         
         try
         {
-            string yaml = File.ReadAllText(aliasesPath);
-            
-            // Parse aliases YAML manually
-            // Format:
-            // aliases:
-            //   old_id: new_id
-            // removed:
-            //   old_id: new_id
-            
-            // This is a simplified parser - for full YAML support, use the library
-            // For now, we'll assume simple key-value format
-            
-            var aliases = new Dictionary<string, string>();
-            var removed = new Dictionary<string, string>();
-            
-            string? currentSection = null;
-            foreach (var line in yaml.Split('\n'))
+            // DATA_MODEL.md §2.1:
+            //   aliases:  { old_id: new_id }          renamed IDs, kept forever
+            //   removed:  { old_id: replacement }      merged/removed IDs, mapped forward
+            //             { old_id: ~ }                removed with no replacement: references are discarded
+            var document = new DeserializerBuilder().Build()
+                .Deserialize<Dictionary<string, Dictionary<string, string?>?>?>(File.ReadAllText(aliasesPath))
+                ?? new Dictionary<string, Dictionary<string, string?>?>();
+
+            var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
+            var removed = new Dictionary<string, string>(StringComparer.Ordinal);
+            var discarded = new List<string>();
+            foreach (var (section, entries) in document)
             {
-                line.Trim();
-                if (string.IsNullOrEmpty(line))
-                    continue;
-                
-                if (line.Trim() == "aliases:")
+                if (section is not ("aliases" or "removed"))
                 {
-                    currentSection = "aliases";
-                    continue;
-                }
-                if (line.Trim() == "removed:")
-                {
-                    currentSection = "removed";
-                    continue;
-                }
-                
-                if (currentSection != null && line.Contains(':'))
-                {
-                    var parts = line.Split(':', 2);
-                    if (parts.Length == 2)
+                    _errors.Add(new ValidationError
                     {
-                        string key = parts[0].Trim();
-                        string value = parts[1].Trim();
-                        
-                        if (currentSection == "aliases")
-                            aliases[key] = value;
-                        else if (currentSection == "removed")
-                            removed[key] = value;
+                        SeverityLevel = ValidationError.Severity.Error,
+                        Code = "ALIAS005",
+                        Message = $"Unknown section '{section}' in {aliasesPath}; only 'aliases' and 'removed' are allowed",
+                        FilePath = aliasesPath
+                    });
+                    continue;
+                }
+                foreach (var (from, to) in entries ?? new Dictionary<string, string?>())
+                {
+                    if (!DefinitionIdValidator.IsValidId(from) || (to is not null && !DefinitionIdValidator.IsValidId(to)))
+                    {
+                        _errors.Add(new ValidationError
+                        {
+                            SeverityLevel = ValidationError.Severity.Error,
+                            Code = "ALIAS005",
+                            Message = $"'{from}: {to ?? "~"}' in {aliasesPath} is not a definition ID mapping",
+                            FilePath = aliasesPath,
+                            DefinitionId = from
+                        });
+                        continue;
                     }
+                    if (section == "aliases" && to is not null)
+                        aliases[from] = to;
+                    else if (section == "removed" && to is not null)
+                        removed[from] = to;
+                    else if (section == "removed")
+                        discarded.Add(from);
+                    else
+                        _errors.Add(new ValidationError
+                        {
+                            SeverityLevel = ValidationError.Severity.Error,
+                            Code = "ALIAS005",
+                            Message = $"Alias '{from}' in {aliasesPath} has no target; a removal belongs under 'removed'",
+                            FilePath = aliasesPath,
+                            DefinitionId = from
+                        });
                 }
             }
-            
-            _aliasMapValidator.LoadAliasMap(aliases, removed);
+
+            _aliasMapValidator.LoadAliasMap(aliases, removed, discarded);
             _aliasMapValidator.RegisterKnownIds(_definitions.Keys);
             
             // Validate alias targets exist
@@ -676,5 +741,36 @@ public class ContentLoader
             Errors = _errors,
             HasErrors = _errors.Count > 0
         };
+    }
+
+    /// <summary>Renamed definition IDs from content/_aliases.yaml: old -> new.</summary>
+    public IReadOnlyDictionary<string, string> Aliases => _aliasMapValidator.Aliases;
+
+    /// <summary>Removed definition IDs mapped forward to a replacement.</summary>
+    public IReadOnlyDictionary<string, string> Removed => _aliasMapValidator.Removed;
+
+    /// <summary>Removed definition IDs with no replacement (mapped to <c>~</c>).</summary>
+    public IReadOnlyCollection<string> Discarded => _aliasMapValidator.Discarded;
+
+    /// <summary>
+    /// <c>content_hash</c> (PERSISTENCE.md §4.2): a digest over the loaded content pack - every
+    /// definition's ID and YAML source, in ordinal ID order, then the alias map if the pack has one.
+    /// Line endings and a byte-order mark are normalized first, so a checkout that converts LF to
+    /// CRLF cannot change the hash. It identifies the content exactly; it is not an input to world
+    /// generation (M2b), so a change here alone never moves the world.
+    /// </summary>
+    public string ComputeContentHash()
+    {
+        using var hasher = new UNNAMED.Domain.CanonicalHasher();
+        hasher.Add("unnamed.content-hash/v1").Add(_definitions.Count);
+        foreach (var (id, envelope) in _definitions.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+            hasher.Add(id).Add(Normalize(envelope.YamlSource));
+
+        string aliasesPath = Path.Combine(_contentRootPath ?? string.Empty, "_aliases.yaml");
+        if (_contentRootPath is not null && File.Exists(aliasesPath))
+            hasher.Add("_aliases.yaml").Add(Normalize(File.ReadAllText(aliasesPath)));
+        return hasher.Finish();
+
+        static string Normalize(string? text) => (text ?? string.Empty).TrimStart('﻿').Replace("\r\n", "\n");
     }
 }

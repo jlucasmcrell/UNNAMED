@@ -1,0 +1,10 @@
+id: npc.ashen_hollow.sel_arien
+kind: npc
+schema: 1
+display_key: npc.ashen_hollow.sel_arien.name
+tags: [npc]
+name: Sel Arien
+notes: Archivist and survey scholar (content bible §9) - Foldscar framing, access to basic magic, uncertain knowledge rather than omniscient exposition. Keeps the old books at her survey table outside the lodge, and gives Quest 2 (M6).
+role: scholar
+dialogue_ref: dialogue.ashen_hollow.sel_arien
+unique: true

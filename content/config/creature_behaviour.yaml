@@ -1,0 +1,32 @@
+id: config.creature_behaviour
+kind: config
+schema: 1
+display_key: config.creature_behaviour.name
+tags: [config]
+notes: How creatures perceive and behave (STEALTH_DETECTION_AND_THREAT.md; M3d). Roles are a layer over creature archetypes - each reads its senses the same way and differs in what it does about them.
+awareness:                    # STEALTH §3: awareness is not binary - 0 to 100
+  suspicious: 30              # stops to look
+  sight_per_s_at_range: 40    # seen at the edge of sight: 2.5 s to be sure
+  sight_per_s_close: 200      # seen close: half a second
+  decay_per_s: 10             # unseen, it fades
+  heard_noise: 60             # a sound gives a place to look, never the target itself
+  heard_call: 80              # a packmate's howl brings it at a run
+  search_s: 6                 # how long it searches where the target was last known
+noise_m:                      # STEALTH §7: how far each sound carries
+  walk: 3
+  run: 8
+  sprint: 16
+  swing: 10
+  blow: 20
+  call: 45                    # a howl
+corpse: { decay_s: 600, stack_slots: 8 }
+roles:
+  den_guardian: { unaware: hold, territory_m: 16, calls_for_help: true, answers_calls: true }   # holds the den mouth and howls
+  pack_hunter: { unaware: hold, answers_calls: true, flank_m: 3 }                                 # comes to a howl, closes from the side
+  sleeper: { unaware: sleep, sleep_hearing_percent: 40, answers_calls: true }                   # blind until woken; a sprint wakes it, a walk may not
+  stray: { unaware: wander, wander_m: 8, keep_distance_m: 7, strike_within_m: 3, flee_below_percent: 30 }   # wary loner that runs when badly hurt
+  roamer: { unaware: patrol, answers_calls: true }                                                # walks its spawner's route
+  hunter: { unaware: wander, wander_m: 10 }                                                       # ranges its patch alone
+  sentinel: { unaware: hold, territory_m: 10 }                                                    # guards its post and no further
+  territorial: { unaware: wander, wander_m: 5, territory_m: 15 }                                  # roots about its wallow, defends it
+  ambusher: { unaware: hold, territory_m: 14, pounce_on_noise: true }                             # waits in its lair; goes for what it feels

@@ -1,0 +1,13 @@
+id: effect.bleeding
+kind: effect
+schema: 1
+display_key: effect.bleeding.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+category: dot
+stack_policy: stack_intensity
+max_stacks: 3
+duration_min: 3.0
+tick_interval_min: 0.5
+on_tick:
+  - { type: damage, damage_type: physical_pierce, amount: 1, per_stack: true }

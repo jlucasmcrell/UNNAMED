@@ -1,0 +1,12 @@
+id: config.xp_curve
+kind: config
+schema: 1
+display_key: config.xp_curve.name
+tags: [config]
+# XP(n) = base * (n-1)^exponent, times the band factor inside the band, rounded to round_to (PROGRESSION.md §3.2).
+base: 100
+exponent: 1.85
+round_to: 25
+band_multiplier: { levels: [11, 30], factor: 1.15 }
+total_to_level_50_expected: 2448025   # the content lint re-sums the curve and fails if this drifts
+notes: The level curve. The published total is derived from it, and the lint holds it.

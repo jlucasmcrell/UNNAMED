@@ -45,11 +45,16 @@ DEFAULT_HEIGHT = 1536
 
 # Every concept goes to the 3D pass, which needs one clean isolated subject on a
 # plain background. These are appended so individual prompts stay about the asset.
+# Z-Image Turbo does not honour negation in a positive prompt, so "no text" here is
+# close to decorative: a labelled object still came back with gibberish lettering. The
+# prohibition is therefore written positively as well, and any prompt that mentions a
+# label, ledger, sign or inscription describes it as blank or unmarked instead.
 CONCEPT_SUFFIX = (
     ", single object centred in frame, whole object visible with margin, "
     "isolated on a plain flat light grey background, even neutral studio lighting, "
-    "sharp focus, high detail, game asset concept art, no text, no watermark, "
-    "no border, no extra objects"
+    "sharp focus, high detail, game asset concept art, the surface entirely plain and "
+    "unmarked, a completely blank bare finish with no lettering of any kind, "
+    "no text, no watermark, no border, no extra objects"
 )
 
 # Icons are not 3D sources: they have to fill the frame and read at small sizes, so
@@ -76,12 +81,57 @@ def post(path, payload):
         return json.loads(response.read())
 
 
+_CAPABILITIES = {}
+
+
+def server_capabilities():
+    """Cache the server's declared node schema so the prompt can adapt to it.
+
+    ComfyUI hosts differ in which custom nodes they carry. BEAST and RAZER both have
+    ComfyUI-ZImageTurbo-FlowSampler, which is where `euler_flow` comes from; a host without it
+    rejects the prompt with only "Value not in list". Rather than pin a per-machine sampler,
+    ask the server what it accepts.
+    """
+    if "info" not in _CAPABILITIES:
+        try:
+            _CAPABILITIES["info"] = get("/object_info")
+        except Exception:
+            _CAPABILITIES["info"] = {}
+    return _CAPABILITIES["info"]
+
+
+def resolve_sampler(preferred):
+    """Return (sampler_name, note).
+
+    Falls back when the preferred sampler is not offered by this server, and reports the
+    substitution rather than making it silently - a changed sampler changes the output, so it
+    belongs in the run log.
+    """
+    info = server_capabilities()
+    node = info.get("Z_ImageIntegratedKSampler")
+    if not node:
+        return preferred, ""
+    spec = (node.get("input", {}).get("required", {}) or {}).get("sampler_name")
+    choices = spec[0] if isinstance(spec, list) and spec and isinstance(spec[0], list) else []
+    if not choices or preferred in choices:
+        return preferred, ""
+    # Same family first, then the plainest euler, then whatever the server lists first.
+    for candidate in (preferred.split("_")[0], "euler", "euler_ancestral", choices[0]):
+        if candidate in choices:
+            return candidate, (f"'{preferred}' is not offered by this server; "
+                               f"used '{candidate}' of {len(choices)} available")
+    return choices[0], f"used '{choices[0]}'"
+
+
 def build_prompt(request, prefix):
     width = request.get("width", DEFAULT_WIDTH)
     height = request.get("height", DEFAULT_HEIGHT)
     # A request may override the shared suffix when the target is not a 3D source
     # (icons need to fill the frame rather than sit on a plain backdrop).
     suffix = request.get("suffix", CONCEPT_SUFFIX)
+    sampler, sampler_note = resolve_sampler(CONCEPT_SAMPLER)
+    if sampler_note:
+        print(f"    sampler: {sampler_note}")
     return {
         "1": {"class_type": "DiffusionModelLoaderKJ",
               "inputs": {"model_name": CONCEPT_MODEL, "weight_dtype": "default",
@@ -103,7 +153,7 @@ def build_prompt(request, prefix):
                          "seed": request.get("seed", 0),
                          "steps": request.get("steps", STEPS),
                          "cfg": request.get("cfg", CFG),
-                         "sampler_name": CONCEPT_SAMPLER, "scheduler": "simple",
+                         "sampler_name": sampler, "scheduler": "simple",
                          "denoise": 1.0,
                          # Default is True, which calls an external LLM per image.
                          # Concepts must be reproducible from the request file.
@@ -134,6 +184,36 @@ def wait_for(prompt_id, label):
         if time.time() - started > 900:
             return [], "timeout", time.time() - started
         time.sleep(5)
+
+
+def write_atomically(target, data, attempts=4):
+    """Write bytes to target, replacing it only once the write has fully succeeded.
+
+    Writing straight to the destination has failed twice on this project with
+    `OSError: [Errno 22] Invalid argument` while writing to a network share, and both
+    times it left a truncated file behind that looked like a normal render. Writing to a
+    temporary file and renaming means a failure leaves the previous version intact
+    instead of a corrupt one, and the retry covers the transient case.
+    """
+    directory = os.path.dirname(target)
+    temporary = os.path.join(directory, f".{os.path.basename(target)}.part")
+    for attempt in range(1, attempts + 1):
+        try:
+            with open(temporary, "wb") as handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+            return True
+        except OSError as exc:
+            print(f"    write attempt {attempt}/{attempts} failed on "
+                  f"{os.path.basename(target)}: {exc}")
+            time.sleep(2 * attempt)
+    try:
+        os.remove(temporary)
+    except OSError:
+        pass
+    return False
 
 
 def main():
@@ -192,8 +272,10 @@ def main():
             images[0].get("subfolder") or "", images[0]["filename"])
         with open(source, "rb") as handle:
             data = handle.read()
-        with open(target, "wb") as handle:
-            handle.write(data)
+        if not write_atomically(target, data):
+            print(f"[{index}/{len(requests)}] {asset_id}: RENDER LOST, could not write "
+                  f"{os.path.basename(target)}")
+            continue
         try:
             os.remove(source)
         except OSError:

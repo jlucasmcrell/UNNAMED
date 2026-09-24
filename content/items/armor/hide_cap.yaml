@@ -1,0 +1,15 @@
+id: item.armor.hide_cap
+kind: item.armor
+schema: 1
+display_key: item.armor.hide_cap.name
+tags: [item]
+name: Hide Cap
+notes: Head armor (PROTOTYPE.md §4.2) - the quest reward.
+category: armor
+stack_max: 1
+weight: 1.0
+value_base: 12
+rarity: common
+slot: head
+armor_value: 3
+material_class: leather

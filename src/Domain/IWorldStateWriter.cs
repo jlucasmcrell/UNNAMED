@@ -5,16 +5,12 @@
 namespace UNNAMED.Domain;
 
 /// <summary>
-/// Write interface to authoritative domain state.
-/// This interface is public in the Domain assembly.
-/// Only domain systems receive this interface through their Configure method.
-/// 
-/// IMPORTANT: The implementation of this interface is internal to the Domain assembly.
-/// External assemblies (Application, Presentation) cannot create instances or implement
-/// this interface outside Domain. This ensures that domain state can only be mutated
-/// through the command → system → writer flow defined in the Domain assembly.
+/// Write interface to authoritative domain state (ARCHITECTURE.md §5).
+/// It is internal to the Domain assembly: Application and Presentation cannot name it, so they
+/// cannot write state; only systems receive it, through <see cref="ISystem.Configure"/>, which is
+/// itself internal. The architecture tests assert both.
 /// </summary>
-public interface ISystemWriterInternals
+internal interface IWorldStateWriter
 {
     /// <summary>
     /// Write a state record for the given entity ID.

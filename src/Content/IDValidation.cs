@@ -11,26 +11,14 @@ namespace UNNAMED.Content;
 /// </summary>
 public static class DefinitionIdValidator
 {
-    // Pattern: lowercase alphanumeric + underscore, dot-separated segments
-    // Each segment: [a-z0-9_]+
-    // Ordinal (last segment optionally): .00-99
-    // Case-sensitive to reject uppercase
-    private static readonly Regex IdPattern = new(
-        @"^[a-z0-9]+(\.[a-z0-9_]+)*(\.[0-9]{2})?$",
-        RegexOptions.Compiled);
-
     /// <summary>
     /// Validate definition ID format. Returns true if valid.
     /// Format: <kind>[.<subkind>]*.<snake_case_name>[.<ordinal>]
     /// Example: item.weapon.iron_sword, quest.artifact.shattered_crown.03
+    /// The grammar is Domain's <see cref="UNNAMED.Domain.DefinitionId"/>: content and runtime share
+    /// one contract, so an ID the linter accepts is an ID the game can parse.
     /// </summary>
-    public static bool IsValidId(string? id)
-    {
-        if (string.IsNullOrWhiteSpace(id))
-            return false;
-        
-        return IdPattern.IsMatch(id!);
-    }
+    public static bool IsValidId(string? id) => UNNAMED.Domain.DefinitionId.IsValid(id);
     
     /// <summary>
     /// Validate definition ID format. Returns error message if invalid, null if valid.
@@ -210,22 +198,42 @@ public class AliasMapValidator
 {
     private readonly Dictionary<string, string> _aliases = new Dictionary<string, string>();
     private readonly Dictionary<string, string> _removed = new Dictionary<string, string>();
+    private readonly HashSet<string> _discarded = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> _knownIds = new HashSet<string>();
     private readonly List<ValidationError> _errors = new List<ValidationError>();
-    
+
     /// <summary>
     /// Load alias/removed maps (from content/_aliases.yaml).
     /// </summary>
-    public void LoadAliasMap(Dictionary<string, string> aliases, Dictionary<string, string> removed)
+    public void LoadAliasMap(Dictionary<string, string> aliases, Dictionary<string, string> removed) =>
+        LoadAliasMap(aliases, removed, Array.Empty<string>());
+
+    /// <summary>
+    /// Load alias/removed maps plus discarded IDs: removed entries mapped to <c>~</c> in
+    /// content/_aliases.yaml, whose persisted references are dropped as reported loss.
+    /// </summary>
+    public void LoadAliasMap(Dictionary<string, string> aliases, Dictionary<string, string> removed, IEnumerable<string> discarded)
     {
         _aliases.Clear();
         _removed.Clear();
-        
+        _discarded.Clear();
+
         foreach (var kvp in aliases)
             _aliases[kvp.Key] = kvp.Value;
         foreach (var kvp in removed)
             _removed[kvp.Key] = kvp.Value;
+        foreach (var id in discarded)
+            _discarded.Add(id);
     }
+
+    /// <summary>Renamed IDs: old -> new (content/_aliases.yaml <c>aliases</c>).</summary>
+    public IReadOnlyDictionary<string, string> Aliases => _aliases;
+
+    /// <summary>Removed IDs mapped forward to a replacement (<c>removed</c> with a target).</summary>
+    public IReadOnlyDictionary<string, string> Removed => _removed;
+
+    /// <summary>Removed IDs with no replacement (<c>removed</c> mapped to <c>~</c>).</summary>
+    public IReadOnlyCollection<string> Discarded => _discarded;
     
     /// <summary>
     /// Register all known definition IDs.
@@ -268,7 +276,40 @@ public class AliasMapValidator
                 allValid = false;
             }
         }
-        
+
+        // A removal that names a replacement must name one that exists, or a save that referenced the
+        // removed ID would be "migrated" to a dangling reference.
+        foreach (var kvp in _removed)
+        {
+            if (!_knownIds.Contains(kvp.Value) && !_aliases.ContainsKey(kvp.Value))
+            {
+                _errors.Add(new ValidationError
+                {
+                    SeverityLevel = ValidationError.Severity.Error,
+                    Code = "ALIAS003",
+                    Message = $"Replacement '{kvp.Value}' for removed ID '{kvp.Key}' does not exist",
+                    DefinitionId = kvp.Key
+                });
+                allValid = false;
+            }
+        }
+
+        // A renamed or removed ID that is still defined would make its references ambiguous.
+        foreach (var retired in _aliases.Keys.Concat(_removed.Keys).Concat(_discarded))
+        {
+            if (_knownIds.Contains(retired))
+            {
+                _errors.Add(new ValidationError
+                {
+                    SeverityLevel = ValidationError.Severity.Error,
+                    Code = "ALIAS004",
+                    Message = $"'{retired}' is listed in _aliases.yaml as renamed or removed but is still defined",
+                    DefinitionId = retired
+                });
+                allValid = false;
+            }
+        }
+
         return allValid;
     }
     

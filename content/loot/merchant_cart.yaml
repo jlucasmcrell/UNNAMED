@@ -1,0 +1,10 @@
+id: loot.merchant_cart
+kind: loot
+schema: 1
+display_key: loot.merchant_cart.name
+tags: [loot]
+notes: What the damaged merchant cart still holds (content bible §6, §11 - the bow is found, not carried from the start).
+rolls: 0
+guaranteed:
+  - { item_ref: item.weapon.hunting_bow, count_range: [1, 1] }
+  - { item_ref: item.ammo.arrow_rough, count_range: [12, 12] }

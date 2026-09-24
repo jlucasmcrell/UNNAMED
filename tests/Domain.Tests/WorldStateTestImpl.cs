@@ -9,11 +9,11 @@ using UNNAMED.Domain;
 namespace UNNAMED.Domain.Tests;
 
 /// <summary>
-/// Test implementation of IWorldState and ISystemWriterInternals.
+/// Test implementation of IWorldState and IWorldStateWriter.
 /// Uses a concurrent dictionary for state storage.
 /// This is for testing only - production would have a different implementation.
 /// </summary>
-internal class TestWorldState : IWorldState, ISystemWriterInternals
+internal class TestWorldState : IWorldState, IWorldStateWriter
 {
     private readonly ConcurrentDictionary<(Type Type, EntityId Id), object> _state = new();
 
@@ -54,7 +54,7 @@ internal class TestWorldState : IWorldState, ISystemWriterInternals
 
     /// <summary>
     /// Write a state record for the given entity ID.
-    /// Implements ISystemWriterInternals.
+    /// Implements IWorldStateWriter.
     /// </summary>
     public void Write<T>(EntityId entityId, T value) where T : struct
     {
@@ -63,7 +63,7 @@ internal class TestWorldState : IWorldState, ISystemWriterInternals
 
     /// <summary>
     /// Delete a state record for the given entity ID.
-    /// Implements ISystemWriterInternals.
+    /// Implements IWorldStateWriter.
     /// </summary>
     public void Delete<T>(EntityId entityId) where T : struct
     {

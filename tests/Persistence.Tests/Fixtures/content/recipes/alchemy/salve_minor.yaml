@@ -1,0 +1,13 @@
+id: recipe.alchemy.salve_minor
+kind: recipe
+schema: 1
+display_key: recipe.alchemy.salve_minor.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+station: forge
+skill_ref: skill.athletics    # the pack's one non-combat skill: fixture data, not game content
+complexity: 0
+inputs:
+  - { item_ref: item.potion.minor_healing, count: 1 }
+outputs:
+  - { item_ref: item.potion.minor_healing, count: 1 }

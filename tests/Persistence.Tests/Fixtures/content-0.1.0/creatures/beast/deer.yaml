@@ -1,0 +1,6 @@
+id: creature.beast.deer
+kind: creature
+schema: 1
+display_key: creature.beast.deer.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.

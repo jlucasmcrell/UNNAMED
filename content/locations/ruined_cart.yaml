@@ -1,0 +1,13 @@
+id: location.ruined_cart
+kind: location
+schema: 1
+display_key: location.ruined_cart.name
+tags: [location]
+notes: "The damaged merchant cart in Charwood where the hunting bow lies (content bible §6)."
+name: The Ruined Cart
+region_ref: region.ashen_hollow
+anchor: { world: [157.0, 0.0, 162.0] }          # exact placement, metres; height comes from the terrain
+kind_of_place: landmark
+discovery: { methods: [visited], radius_m: 10, xp: 15 }
+map: { reveals_radius_m: 30, marker: none }   # no quest markers (charter §3)
+fast_travel: { node: false }
