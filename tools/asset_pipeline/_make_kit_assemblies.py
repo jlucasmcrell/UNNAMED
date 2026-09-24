@@ -126,8 +126,34 @@ def rectangle(name, width, depth, wall_asset, note, door_on="south", windows=Tru
                                "rotation_y_deg": 0.0,
                                "rotation_x_deg": sz * -ROOF_PITCH_DEG,
                                "note": "pitched slope, ridge to eave"})
+    # Declared footprint versus assembled envelope.
+    #
+    # `footprint_m` is the modular declaration - the wall run on whole 3 m modules - and it stays as
+    # it is. It is NOT the footprint of the finished building, because the roof overhangs the eaves.
+    # Conflating the two is how a correct building ends up looking like a wrong one: the assembled
+    # forge shed measures 6.0 x 7.102 m while its declared footprint is 6.0 x 6.0.
+    #
+    # The bible fixes Kera's smithy and the communal lodge *placement* and the settlement footprint,
+    # and does not canonise these assembled exterior bounds - they came from this declaration. So the
+    # measured envelope is recorded alongside the declaration rather than replacing it, and the
+    # gameplay placement coordinates are untouched.
+    eave_z = panels_per_slope * run
+    ridge_height = WALL_HEIGHT + half_d * math.tan(pitch)
+    roof = {
+        "pitch_deg": ROOF_PITCH_DEG,
+        "panel_run_m": round(run, 4),
+        "panels_per_slope": panels_per_slope,
+        "eave_overhang_m": round(eave_z - half_d, 4),
+        "eave_z_m": round(eave_z, 4),
+        "ridge_height_m": round(ridge_height, 4),
+        "note": ("Roof laid ridge-to-eave, so the surplus panel run falls at the eave as an overhang. "
+                 "A previous layout laid it eave-to-ridge and the two slopes overlapped by 0.784 m "
+                 "across the ridge, intersecting each other."),
+    }
     return {"name": name, "note": note, "footprint_m": [width, depth],
-            "wall_height_m": WALL_HEIGHT, "pieces": pieces}
+            "wall_height_m": WALL_HEIGHT,
+            "assembled_envelope_m": [width, round(2 * eave_z, 4), round(ridge_height, 4)],
+            "roof": roof, "pieces": pieces}
 
 
 def main():

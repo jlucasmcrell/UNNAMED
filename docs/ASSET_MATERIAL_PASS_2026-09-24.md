@@ -45,6 +45,37 @@ this pass altered something the brief otherwise protects. It is a consequence of
 self-intersection, not a redesign: the walls, floor, doorway, posts, beams and window openings are
 untouched, and the kit pieces are unchanged.
 
+### Owner ruling, 2026-09-24: the corrected roof is approved
+
+The owner checked the Phase-1 bible and confirmed:
+
+- it fixes **Kera's smithy and the communal lodge placement**, and the **overall settlement
+  footprint**;
+- it does **not** canonise the 6 x 6 / 9 x 6 assembled exterior bounds — those came from the modular
+  assembly declaration in `kit_assemblies.json`, not from the bible.
+
+So the corrected non-intersecting roof is kept, and its actual figures are recorded rather than the
+declaration being quietly treated as canonical. `assets/manifests/kit_assemblies.json` now carries the
+declared and assembled figures separately, per assembly:
+
+| | declared footprint (modular wall run) | built envelope (measured, includes eaves) | ridge (roof plane) | eave overhang |
+|---|---|---|---|---|
+| `forge_shed` | 6.0 x 6.0 m | **6.0 x 7.102 x 4.729 m** | 4.4746 m | 0.3922 m |
+| `longhouse` | 9.0 x 6.0 m | **9.0 x 7.102 x 4.729 m** | 4.4746 m | 0.3922 m |
+
+Two figures, both true, and conflating them is precisely how the roof was misdiagnosed in the first
+place:
+
+- **`declared_footprint_m`** is the modular wall run on whole 3 m modules. Unchanged.
+- **`built_envelope_m`** is the measured bounding box of the assembled GLB, which includes the roof's
+  eave overhang *and* the panel thickness. This is the 7.102 m figure.
+- **`assembled_envelope_m` / `ridge_height_m`** describe the roof plane itself — the ridge-to-eave
+  surface, which excludes panel thickness and is therefore slightly smaller than the bounding box.
+
+**No gameplay placement coordinate was modified.** `assets/manifests/ashen_hollow_landmarks.json` is
+byte-identical to its committed state; the smithy remains at (58, 142) in cell A and the lodge at
+(44, 128) in cell A, exactly as the bible places them.
+
 ## 2. The world materials were washed out, and by how much
 
 Measured with the material set's own base colours:

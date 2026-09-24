@@ -53,6 +53,7 @@ def measured(asset_id):
         meta = json.load(handle)
     dims = (meta.get("transform") or {}).get("dimensions") or []
     return {
+        "dimensions": [round(v, 3) for v in dims] if dims else None,
         "longest_m": round(max(dims), 3) if dims else None,
         "triangles": meta.get("triangles"),
         "collision": meta.get("collision_status"),
@@ -117,15 +118,25 @@ def main():
     unbuilt = []
     for name, record in sorted((assemblies.get("assemblies") or {}).items()):
         metrics = measured(name)
+        declared = record.get("footprint_m")
         built = metrics is not None
         if not built:
             unbuilt.append(name)
         buildings.append({
             "assembly_id": name,
             "built": built,
-            "pieces": len(record.get("pieces") or []),
-            "footprint_m": record.get("footprint_m"),
+            # Two different figures, both true, and conflating them is how the roof was misdiagnosed:
+            #   declared_footprint_m - the modular wall run, on whole 3 m modules.
+            #   built_envelope_m     - the measured bounding box of the assembled GLB, which includes
+            #                          the roof's eave overhang and the panel thickness.
+            # The bible fixes the smithy and lodge *placement* and the settlement footprint, and does
+            # not canonise these exterior bounds; they came from the modular declaration.
+            "declared_footprint_m": declared,
+            "built_envelope_m": metrics.get("dimensions") if metrics else None,
             "wall_height_m": record.get("wall_height_m"),
+            "assembled_envelope_m": record.get("assembled_envelope_m"),
+            "roof": record.get("roof"),
+            "pieces": len(record.get("pieces") or []),
             "note": record.get("note"),
             **(metrics or {}),
         })
