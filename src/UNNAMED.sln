@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{EE00CEC0-5431-4E78-8063-96AB99C7B3F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{649F194D-BEEB-4431-B49C-03C906961DDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\UNNAMED.Presentation.csproj", "{649F194D-BEEB-4431-B49C-03C906961DDA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Tests", "..\tests\Domain.Tests\Domain.Tests.csproj", "{4954EBB1-E5E6-4A17-BA25-388F271CB62F}"
 EndProject

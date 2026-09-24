@@ -50,7 +50,7 @@ The architecture exists to satisfy four non-negotiables from the charter:
 
 ### The boundary is a compile-time boundary, not a convention
 
-`src/Domain/Domain.csproj` and `src/Application/Application.csproj` **must not reference Godot**. Only `src/Presentation/Presentation.csproj` may. This matters because conventions erode and compile errors do not: a developer (or an AI session) who tries to reach for `Node` or `Vector3` inside a domain system gets a build failure, not a code review comment.
+`src/Domain/Domain.csproj` and `src/Application/Application.csproj` **must not reference Godot**. Only `src/Presentation/UNNAMED.Presentation.csproj` may. This matters because conventions erode and compile errors do not: a developer (or an AI session) who tries to reach for `Node` or `Vector3` inside a domain system gets a build failure, not a code review comment.
 
 This is the single most important structural rule in the project.
 
