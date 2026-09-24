@@ -42,6 +42,22 @@ public class CombatContentTests
         Assert.Contains(loader.Errors, e => e.Code == "CMB001" && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// A creature gives up a fight farther than its leash from its spawn, so a patrol point beyond the leash is ground it cannot
+    /// fight on. M6's layout move twice left a patrol on M3's coordinates, far from its moved spawn (the east pack, the husk).
+    /// </summary>
+    [Fact]
+    public void EverySpawnersPatrol_StaysOnItsLeash()
+    {
+        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.ashen_hollow");
+
+        var beyond = setup.Spawns.SelectMany(s => s.Route
+            .Where(p => Math.Sqrt(Math.Pow(p.XMm - s.XMm, 2) + Math.Pow(p.ZMm - s.ZMm, 2)) > setup.Constants.LeashMm)
+            .Select(p => $"{s.Key} ({p.XMm / 1000.0}, {p.ZMm / 1000.0})"));
+        Assert.Empty(beyond);
+        Assert.Contains(setup.Spawns, s => !s.Route.IsEmpty);
+    }
+
     [Fact]
     public void TheGamesCombat_BuildsInWholeTicks()
     {
