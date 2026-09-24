@@ -75,6 +75,7 @@ public sealed class Playthrough
     private readonly CameraRig _camera;
     private readonly DialoguePanel _dialogue;
     private readonly bool _verify;
+    private readonly (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private readonly List<Beat> _beats = new();
     private readonly StringBuilder _transcript = new();
     private readonly List<string> _failures = new();
@@ -92,13 +93,15 @@ public sealed class Playthrough
     private bool _respawned;
     private string? _broken;
 
-    public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify)
+    public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify,
+        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
         _dialogue = dialogue;
         _verify = verify;
+        _continued = continued;
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
         Record();
@@ -443,6 +446,10 @@ public sealed class Playthrough
     private bool LoadAndCompare()
     {
         var simulation = _session.Simulation!;
+        // The relaunch went through the start screen's Continue (B-01), which must have picked the save the run made last.
+        Note($"Continue loaded {_continued?.Slot ?? "(nothing)"} ({_continued?.Copy})");
+        if (_continued is not { Slot: var slot, Copy: SaveCopy.Current } || slot != SaveSlots.Manual(Slot))
+            _failures.Add($"Continue loaded {_continued?.Slot ?? "nothing"} ({_continued?.Copy}), not the acceptance save {SaveSlots.Manual(Slot)}");
         string loaded = StateDump.Render(simulation);
         File.WriteAllText(Path.Combine(Directory, "state_loaded.json"), loaded);
         string saved = File.ReadAllText(Path.Combine(Directory, "state_saved.json"));

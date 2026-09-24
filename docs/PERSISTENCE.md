@@ -431,7 +431,7 @@ A cell nobody changed has no record and simply uses the current baseline.
 6. Verify: re-read the committed <slot>, re-hash, compare against sections.sha256
 7. Only after 6 succeeds: retire .trash-<slot>-<ulid> - into the backup chain if a clean
    load proved it (§7.3), into pre_migration_<schema>_<slot> if a schema migration
-   displaced it, otherwise delete it
+   displaced it, otherwise into .prev-<slot> (a quick or manual slot; §7.3) or delete it
 ```
 
 The staging and trash directories sit **beside** the slot and carry its name. An earlier revision put staging inside `<slot>/`, which step 5b could not then rename to `<slot>`. The names let the boot sweep tell which slot a leftover belongs to. **Boot sweep:** with no `<slot>`, a complete (verifiable) staging directory is promoted, or else the newest trash is restored. With a `<slot>` and a trash, a verifiable slot completes the commit and an unverifiable one rolls back. Leftover staging is discarded. Every step boundary is kill-tested on Windows: M2 ME-4 for saves, and the M2b migration kill test for migrations.
@@ -470,10 +470,13 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 | `.bak-<slot>` | **2 generations** | The two previous verified-good saves |
 | `pre_migration_<schema>_<slot>` | 1 per migration event | The original a schema migration displaced, kept once. Until the player confirms the migrated save loads (removal is a UI action, not yet built) |
 | `.trash-<slot>-<ulid>` | 0–1 transient | Removed only after §7.1 step 6 verifies |
+| `.prev-<slot>` | 0–1 (quick and manual slots) | The save last displaced before a load proved it; replaced by the next one (B-01, below) |
 
 **Two backup generations, retired on a verified _load_, not a verified write.** With one generation retired at the next successful write, a player who saves three times after a silent problem has three bad saves and one good backup that the next write discards. The previous good save the charter promises must survive more than one commit.
 
-As implemented: a displaced save enters the chain only if a **complete, clean load of its bytes as they are on disk** proved it. That means no quarantine, no rejected record, no reported loss, and no migration needed. The proof is recorded in `rotation.json` as the digest of the save's integrity root. An unproven save is dropped when displaced, so it can never push a proven backup out. `ROADMAP.md` M2's "one rolling backup slot" is superseded by these two generations.
+As implemented: a displaced save enters the chain only if a **complete, clean load of its bytes as they are on disk** proved it. That means no quarantine, no rejected record, no reported loss, and no migration needed. The proof is recorded in `rotation.json` as the digest of the save's integrity root. An unproven save never enters the chain, so it can never push a proven backup out. `ROADMAP.md` M2's "one rolling backup slot" is superseded by these two generations.
+
+**The previous save (Phase-1 audit remediation, 2026-09-24, B-01).** A quick or manual save displaced before any load proved it is not deleted. It is kept one deep as `.prev-<slot>`, beside the chain and never in it. Otherwise a relaunch's first quicksave destroyed the last session's quick save outright. The next unproven displacement replaces it. An autosave keeps no previous copy, because its four siblings are its history. `Delete(slot)` removes it with the slot. Like a backup, it loads only when the player chooses it, and loading it proves nothing. The start screen lists every slot newest first, read from its manifest and integrity root without loading it, with each slot's backups and previous copy beneath it. Continue loads the newest slot whose copy is whole and readable. A newer one it passes over is shown with the reason, never skipped silently.
 
 ### 7.4 Load sequence (follow exactly — this is the only normative load order)
 

@@ -104,6 +104,71 @@ public sealed class SaveStore
         new[] { 1, 2 }.Where(g => Directory.Exists(BackupPath(slot, g))).ToImmutableArray();
 
     /// <summary>
+    /// <c>.prev-&lt;slot&gt;</c>: the save a quick or manual save displaced before any load had proven it (§7.3). It is kept one deep
+    /// rather than deleted, so a new save never destroys the last one outright (the Phase-1 technical audit, B-01). It stays outside the
+    /// backup chain, so it can never push a proven backup out, and it loads only when the player chooses it.
+    /// </summary>
+    public string PreviousPath(string slot) => Path.Combine(Root, $".prev-{slot}");
+
+    public string CopyPath(string slot, SaveCopy copy) => copy switch
+    {
+        SaveCopy.Current => SlotPath(slot),
+        SaveCopy.Backup1 => BackupPath(slot, 1),
+        SaveCopy.Backup2 => BackupPath(slot, 2),
+        _ => PreviousPath(slot),
+    };
+
+    /// <summary>Every slot's save, newest first, each read without loading it: what the start screen offers (B-01).</summary>
+    public ImmutableArray<SaveSummary> Summaries()
+    {
+        lock (_gate)
+            return ListSlots().Select(slot => Summarize(slot, SaveCopy.Current))
+                .OrderByDescending(s => s.WrittenAt).ThenByDescending(s => s.PlaytimeSeconds).ThenBy(s => s.Slot, StringComparer.Ordinal)
+                .ToImmutableArray();
+    }
+
+    /// <summary>A slot's other copies that exist - its backups, then the save it displaced unproven - each read without loading it.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(string slot)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+            return new[] { SaveCopy.Backup1, SaveCopy.Backup2, SaveCopy.Previous }.Where(c => Directory.Exists(CopyPath(slot, c)))
+                .Select(c => Summarize(slot, c)).ToImmutableArray();
+    }
+
+    private SaveSummary Summarize(string slot, SaveCopy copy)
+    {
+        string directory = CopyPath(slot, copy);
+        JsonNode? manifest;
+        try
+        {
+            manifest = JsonNode.Parse(File.ReadAllBytes(Path.Combine(directory, SaveFormat.Manifest)));
+        }
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
+        {
+            return new SaveSummary(slot, copy, $"its manifest cannot be read ({e.Message})", DateTimeOffset.MinValue, 0, 0);
+        }
+        try
+        {
+            int format = manifest?["save_format"]?.GetValue<int>() ?? 0;
+            int schema = manifest?["schema_version"]?.GetValue<int>() ?? 0;
+            var written = DateTimeOffset.Parse(manifest?["build_timestamp"]?.GetValue<string>() ?? "", CultureInfo.InvariantCulture);
+            double playtime = manifest?["playtime_seconds"]?.GetValue<double>() ?? 0;
+            long tick = manifest?["world_tick"]?.GetValue<long>() ?? 0;
+            string? problem = format != SaveFormat.Current ? $"save format {format} cannot be read by this build"
+                : schema > SaveFormat.SchemaVersion ? $"it was written by a newer build (schema {schema})"
+                : schema < SaveFormat.OldestSupportedSchema ? $"schema {schema} is older than this build reads"
+                : SaveIntegrity.Verify(directory) is { } damage ? $"it is damaged: {damage}"
+                : null;
+            return new SaveSummary(slot, copy, problem, written, playtime, tick);
+        }
+        catch (Exception e) when (e is FormatException or InvalidOperationException)
+        {
+            return new SaveSummary(slot, copy, $"its manifest cannot be read ({e.Message})", DateTimeOffset.MinValue, 0, 0);
+        }
+    }
+
+    /// <summary>
     /// The rolling autosave slot to write next (§8.2): an empty one if any, else the least recently
     /// written. A slot whose manifest cannot be read counts as oldest, so it is replaced first.
     /// </summary>
@@ -204,6 +269,14 @@ public sealed class SaveStore
         RequireValidSlot(slot);
         lock (_gate)
             return LoadFrom(BackupPath(slot, generation), slot, context, isBackup: true);
+    }
+
+    /// <summary>Load one copy of a slot. Any copy but the save itself is loaded only when the player chooses it, and proves nothing.</summary>
+    public LoadResult Load(string slot, SaveCopy copy, LoadContext context)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+            return LoadFrom(CopyPath(slot, copy), slot, context, isBackup: copy != SaveCopy.Current);
     }
 
     private LoadResult LoadFrom(string directory, string slot, LoadContext context, bool isBackup)
@@ -308,6 +381,13 @@ public sealed class SaveStore
                 MoveWithRetry(first, second);
             MoveWithRetry(trash, first);
         }
+        else if (!slot.StartsWith("auto_", StringComparison.Ordinal))
+        {
+            // Unproven, it cannot enter the chain. But it was the player's save until a moment ago - a relaunch's first quicksave displaces
+            // the last session's - so it is kept aside, one deep (B-01). An autosave's history is its four siblings.
+            DeleteWithRetry(PreviousPath(slot));
+            MoveWithRetry(trash, PreviousPath(slot));
+        }
         else
         {
             DeleteWithRetry(trash);
@@ -319,7 +399,7 @@ public sealed class SaveStore
         RequireValidSlot(slot);
         lock (_gate)
         {
-            foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2) }
+            foreach (string path in new[] { SlotPath(slot), BackupPath(slot, 1), BackupPath(slot, 2), PreviousPath(slot) }
                          .Concat(PreMigrationBackups(slot)).Concat(Leftovers(slot)))
                 DeleteWithRetry(path);
             var rotation = ReadRotation();

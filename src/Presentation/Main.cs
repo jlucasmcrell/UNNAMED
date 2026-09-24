@@ -52,6 +52,7 @@ public partial class Main : Node3D
     private QuestDebugPanel _questDebug = null!;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
+    private SavesPanel _saves = null!;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Audio.SoundBank _sounds = null!;
@@ -65,6 +66,8 @@ public partial class Main : Node3D
     private DeltaShots? _delta;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
+    private bool _scripted;
+    private (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private Vector3 _lastFeet;
     private double _lastAlpha;
 
@@ -88,6 +91,7 @@ public partial class Main : Node3D
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--delta-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
+            : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         try
         {
@@ -99,12 +103,16 @@ public partial class Main : Node3D
             GetTree().Quit(2);
             return;
         }
-        // The acceptance playthrough plays one fixed world, so it is the same run every time (M6).
-        _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
-        if (_options.ContainsKey("--playthrough-verify"))
-            _session.Load(SaveSlots.Manual(Playthrough.Slot));
+        bool verify = _options.ContainsKey("--playthrough-verify");
+        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+                        || _options.ContainsKey("--delta-shots");
+        _scripted = scripted || _options.ContainsKey("--resume-shots");   // no run of a harness takes the mouse
+        // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
+        // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
+        if (scripted && !verify)
+            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
-                 $"{_session.Setup.Layout.CellKeys.Length} cells, seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}");
+                 $"{_session.Setup.Layout.CellKeys.Length} cells");
 
         _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
         GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
@@ -183,9 +191,44 @@ public partial class Main : Node3D
         _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
         _hud.UseIcons(new HudIcons(_assets, _bindings.Icons));
         _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons));
+        _saves = new SavesPanel { Name = "Saves" };
+        _saves.Bind(_session);
+        _saves.NewGame = () =>
+        {
+            _session.NewGame("Wanderer");
+            Started();
+        };
+        _saves.Load = (slot, copy) => LoadChosen(slot, copy);
+        _saves.Quit = () => GetTree().Quit(0);
+        _saves.Closed = CloseSaves;
+        AddChild(_saves);
         Subscribe();
-        Resync();
         DefineInput();
+
+        if (verify)
+        {
+            _continued = Continue();
+            if (_continued is null)
+            {
+                GD.PushError("UNNAMED playthrough verification: Continue loaded nothing");
+                GetTree().Quit(1);
+                return;
+            }
+        }
+        else if (!scripted)
+        {
+            var choice = _session.StartChoice();
+            GD.Print(choice.Continue is { } next
+                ? $"UNNAMED start screen: Continue would load {next.Slot} ({next.Copy}); {choice.Saves.Length} saves in {profile}"
+                : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
+            _hud.Visible = false;   // no world yet: nothing to show but the choice
+            _saves.OpenStart();
+            return;
+        }
+        else
+        {
+            Started();
+        }
 
         if (_flags.Contains("--smoke"))
         {
@@ -199,7 +242,7 @@ public partial class Main : Node3D
         {
             // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), _options.ContainsKey("--playthrough-verify"));
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
         {
@@ -217,14 +260,12 @@ public partial class Main : Node3D
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
             _session.Subscribe<PlayerDied>(_ => _perfDied++);
         }
-        else if (DisplayServer.GetName() != "headless")
-        {
-            Input.MouseMode = Input.MouseModeEnum.Captured;
-        }
     }
 
     public override void _Process(double delta)
     {
+        if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
+            ResumeShots(resumeShots);
         if (_session?.Simulation is null)
             return;
 
@@ -362,6 +403,19 @@ public partial class Main : Node3D
 
     private void ReadInput()
     {
+        if (_saves.Visible)
+        {
+            // The saves list takes the keys; the world runs on behind it, the character standing (B-01).
+            if (Input.IsActionJustPressed("saves") || Input.IsActionJustPressed("release_mouse"))
+                CloseSaves();
+            _controller.Steer(_camera, Vector2.Zero, Gait.Run);
+            return;
+        }
+        if (Input.IsActionJustPressed("saves"))
+        {
+            _saves.OpenInGame();
+            return;
+        }
         var stick = new Vector2(
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
@@ -940,23 +994,86 @@ public partial class Main : Node3D
         }
     }
 
-    private void QuickLoad()
+    private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
+
+    /// <summary>
+    /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened
+    /// in the game - each pictured - then quit. The Phase-1 technical audit's B-01, shown.
+    /// </summary>
+    private void ResumeShots(string directory)
     {
+        switch (++_resumeFrame)
+        {
+            case 20:
+                SaveScreenshot(directory, "01_start_screen");
+                if (!_saves.PressContinue())
+                {
+                    GD.PushError("UNNAMED resume shots: the start screen offered no Continue");
+                    GetTree().Quit(1);
+                }
+                break;
+            case 80:
+                SaveScreenshot(directory, "02_continued");
+                _saves.OpenInGame();
+                break;
+            case 100:
+                SaveScreenshot(directory, "03_saves_in_game");
+                GD.Print($"UNNAMED resume shots written to {directory}: continued at world tick {_session.Simulation?.WorldTick}");
+                GetTree().Quit(_session.Simulation is null ? 1 : 0);
+                break;
+        }
+    }
+
+    private int _resumeFrame;
+
+    /// <summary>Back to the game from the saves list.</summary>
+    private void CloseSaves()
+    {
+        _saves.Close();
+        if (!_scripted && DisplayServer.GetName() != "headless")
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+    }
+
+    /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
+    private void Started()
+    {
+        _saves.Close();
+        _hud.Visible = true;
+        Resync();
+        GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
+        if (!_scripted && DisplayServer.GetName() != "headless")
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+    }
+
+    /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
+    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue() =>
+        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy) is { } result ? (next.Slot, next.Copy, result) : null;
+
+    /// <summary>
+    /// Load the copy of a save the player chose. When it cannot be loaded, the saves list opens saying why, with that save's backups and
+    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2).
+    /// </summary>
+    private LoadResult? LoadChosen(string slot, SaveCopy copy)
+    {
+        string what = SavesPanel.Describe(slot, copy);
         try
         {
-            var result = _session.Load(SaveSlots.Quick);
-            Resync();
-            _hud.Toast(result.IsComplete ? "Loaded" : "Loaded, with losses - see the log");
+            var result = _session.Load(slot, copy);
+            Started();
+            _hud.Toast(result.IsComplete ? $"Loaded: {what}" : $"Loaded {what}, with losses - see the log");
             foreach (string problem in result.Report.Loss.Concat(result.Report.Warnings))
                 GD.PushWarning(problem);
+            return result;
         }
-        catch (SaveCorruptionException e)
+        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
         {
-            _hud.Toast(e.BackupGenerations.IsEmpty ? "The save is corrupt" : "The save is corrupt; a backup exists");
-        }
-        catch (SaveException e)
-        {
-            _hud.Toast($"Load failed: {e.Message}");
+            GD.PushError($"UNNAMED load of {slot} ({copy}) failed: {e.Message}");
+            string failure = $"{what} could not be loaded: {e.Message}";
+            if (_session.Simulation is null)
+                _saves.ShowFailure(failure);
+            else
+                _saves.OpenInGame(failure);
+            return null;
         }
     }
 
@@ -1043,6 +1160,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
+                    or "--profile" or "--resume-shots"
                     or "--art-gallery"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
@@ -1086,6 +1204,7 @@ public partial class Main : Node3D
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
+        Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);

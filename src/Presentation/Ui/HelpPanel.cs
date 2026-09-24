@@ -36,7 +36,10 @@ public partial class HelpPanel : CanvasLayer
         }),
         ("COMPANION", new[] { ("Tell them to follow, or to wait", new[] { "companion_order" }) }),
         ("CONVERSATION", new[] { ("Answer", new[] { "reply_1", "reply_9" }), ("Walk away", new[] { "release_mouse" }) }),
-        ("SAVING", new[] { ("Quicksave", new[] { "quicksave" }), ("Quickload", new[] { "quickload" }) }),
+        ("SAVING", new[]
+        {
+            ("Quicksave", new[] { "quicksave" }), ("Quickload", new[] { "quickload" }), ("Every save, backups too", new[] { "saves" }),
+        }),
     };
 
     private static readonly (string Does, string[] Actions)[] Developer =

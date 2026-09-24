@@ -39,6 +39,19 @@ public interface IDomainEvents
     void Unsubscribe<T>(Action<T> handler);
 }
 
+/// <summary>
+/// What the start screen offers (the Phase-1 technical audit, B-01). <see cref="Continue"/> is the newest save that can be loaded, an
+/// autosave as readily as a quick or manual save; nothing starts until the player chooses.
+/// </summary>
+public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSummary> Saves)
+{
+    /// <summary>Newer saves that Continue passes over because they cannot be loaded as they are. They are shown, never skipped silently.</summary>
+    public ImmutableArray<SaveSummary> PassedOver => Saves.TakeWhile(s => s.Problem is not null).ToImmutableArray();
+
+    /// <summary>A new game writes to the same slots as the saves already there, so it is confirmed first when there are any.</summary>
+    public bool NewGameAsksFirst => !Saves.IsEmpty;
+}
+
 /// <summary>One presentation frame's worth of simulation: how many fixed ticks ran, and how far into the next one the frame is.</summary>
 public readonly record struct FrameResult(int TicksRun, double Alpha, string? AutosavedTo);
 
@@ -144,12 +157,28 @@ public sealed class GameSession : IDomainEvents
     }
 
     /// <summary>Load a slot through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
-    public LoadResult Load(string slot)
+    public LoadResult Load(string slot) => Load(slot, SaveCopy.Current);
+
+    /// <summary>
+    /// Load one copy of a slot: the save, a backup, or the save it displaced (B-01). A copy other than the save itself is loaded only
+    /// because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
+    /// </summary>
+    public LoadResult Load(string slot, SaveCopy copy)
     {
-        var result = _store.Load(slot, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
+        var result = _store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
     }
+
+    /// <summary>What the start screen offers: the saves in the profile, newest first, and which one Continue loads (B-01).</summary>
+    public StartChoice StartChoice()
+    {
+        var saves = _store.Summaries();
+        return new StartChoice(saves.FirstOrDefault(s => s.Problem is null), saves);
+    }
+
+    /// <summary>A slot's backups and the save it displaced unproven, for a player choosing one after the save itself failed.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(string slot) => _store.OtherCopies(slot);
 
     /// <summary>Save the running world to a slot (the §7.1 write sequence). The world tick is saved, never reset or advanced.</summary>
     public void Save(string slot)

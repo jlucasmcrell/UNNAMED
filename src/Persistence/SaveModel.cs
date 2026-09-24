@@ -132,6 +132,23 @@ public sealed record LoadResult(
         QuarantinedSections.IsEmpty && RejectedRecords.IsEmpty && !IntegrityRootRederived && Report.Loss.Count == 0;
 }
 
+/// <summary>Which copy of a slot: the save, one of its two proven backups (§7.3), or the save it displaced before any load proved it.</summary>
+public enum SaveCopy
+{
+    Current,
+    Backup1,
+    Backup2,
+
+    /// <summary><c>.prev-&lt;slot&gt;</c>: kept one deep, outside the backup chain (the Phase-1 technical audit, B-01).</summary>
+    Previous,
+}
+
+/// <summary>
+/// One copy of a save, read from its manifest and integrity root without loading it: what a player chooses between. <see cref="Problem"/>
+/// is null when the copy is whole and this build can read it; otherwise it says why not.
+/// </summary>
+public sealed record SaveSummary(string Slot, SaveCopy Copy, string? Problem, DateTimeOffset WrittenAt, double PlaytimeSeconds, long WorldTick);
+
 /// <summary>A step boundary in the §7.1 write sequence. Tests inject a crash at each one.</summary>
 public enum SaveStep
 {
