@@ -127,11 +127,13 @@ CREATURE_ACTION = {
     "death": "collapsing with a final weakening breath",
 }
 
+# Keyed by the ids that actually exist in the spec. V1's UI prompts describe "a panel opening" for
+# several different actions, so each id gets its own physical vocabulary rather than sharing one.
 UI_VOCABULARY = {
     "sfx.ui.menu.open": "a small wooden panel or leather flap opening, dry wood and soft leather",
     "sfx.ui.menu.close": "a small wooden panel closing with a soft leather settle",
-    "sfx.ui.confirm": "a single dry wooden tick, short, mid-frequency, a small hard object tapped once",
-    "sfx.ui.back": "a soft leather and wood return movement, quieter than confirm",
+    "sfx.ui.select": "a single dry wooden tick, a small hard object tapped once",
+    "sfx.ui.back": "a soft leather and wood return movement, quieter and duller than a select",
     "sfx.ui.equip": "leather straps and small metal fittings settling onto a body",
     "sfx.ui.error": "a dull wooden knock, low-mid and short, a refused action, blunt and plain",
 }
@@ -199,6 +201,212 @@ def prompt_for(entry):
             f"{CHARACTER.get(group, 'one clean physical event')}")
 
 
+# New Phase-1 families the owner authorised in section 30A. V1 deliberately shipped no creature
+# locomotion, no equipment foley, no crouch support and no positional world emitters.
+#
+# Section 30A-F is deliberately absent. It asks for impact-severity assets only if Claude's combat
+# model already exposes a meaningful light/heavy or glancing distinction through the event contract,
+# and says plainly that if gameplay does not expose it, new gameplay semantics must not be invented
+# merely to justify audio. Nothing here inspects Claude's branch, so severity is recorded as deferred
+# in the status document rather than guessed at.
+#
+# (audio_id, category, group, seconds, channels, loop, priority, prompt)
+NEW_SOUNDS = [
+    # A. Creature locomotion. Three variations per high-frequency movement family, and no
+    # vocalisation inside a movement sound - the brief is explicit that movement must not become a
+    # constant growl track.
+    ("sfx.creature.ash_ember_hound.walk.01", "creature", "creature.move", 0.55, 1, False, "P0",
+     "a large canine walking slowly on dry earth, four soft paw contacts in sequence, claws touching "
+     "grit, heavy body above the feet, recorded outdoors in open air close to the ground, natural "
+     "animal locomotion, one animal only"),
+    ("sfx.creature.ash_ember_hound.walk.02", "creature", "creature.move", 0.55, 1, False, "P0",
+     "a large canine walking on dry earth, paw pads and loose grit, uneven stride, body weight "
+     "shifting, recorded outdoors at a few metres, natural quadruped locomotion"),
+    ("sfx.creature.ash_ember_hound.walk.03", "creature", "creature.move", 0.55, 1, False, "P0",
+     "a large canine stepping across dry packed ground, soft pads with light claw drag, close "
+     "perspective, outdoors, natural animal gait"),
+    ("sfx.creature.ash_ember_hound.run.01", "creature", "creature.move", 0.5, 1, False, "P0",
+     "a large canine running at speed on dry earth, rapid overlapping paw impacts, grit kicked loose, "
+     "heavy driving body weight, recorded outdoors close to the ground, pursuit pace"),
+    ("sfx.creature.ash_ember_hound.run.02", "creature", "creature.move", 0.5, 1, False, "P0",
+     "a large canine sprinting over dry ground, fast four-beat gallop, earth displaced by each paw, "
+     "outdoors, close and physical"),
+    ("sfx.creature.ash_ember_hound.run.03", "creature", "creature.move", 0.5, 1, False, "P0",
+     "a large canine charging across packed earth, swift heavy pawfalls, loose grit scattering, "
+     "outdoors, pursuit"),
+    ("sfx.creature.bristleback_boar.walk.01", "creature", "creature.move", 0.6, 1, False, "P0",
+     "a heavy wild boar walking on dry earth, cloven hooves making hard split contacts, considerable "
+     "body mass above, coarse bristled hide shifting, recorded outdoors close to the ground"),
+    ("sfx.creature.bristleback_boar.walk.02", "creature", "creature.move", 0.6, 1, False, "P0",
+     "a heavy wild boar moving on dry packed ground, four hard hoof contacts with weight behind them, "
+     "low body, outdoors"),
+    ("sfx.creature.bristleback_boar.walk.03", "creature", "creature.move", 0.6, 1, False, "P0",
+     "a heavy boar plodding across dry earth and gravel, split hooves striking, heavy mass, outdoors, "
+     "close perspective"),
+    ("sfx.creature.bristleback_boar.charge.01", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a large wild boar charging at full weight, fast heavy hoof impacts tearing at dry earth, loose "
+     "gravel thrown, unstoppable forward mass, recorded outdoors close to the ground"),
+    ("sfx.creature.bristleback_boar.charge.02", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a wild boar at a full sprint, hard splitting hooves on dry ground, grit and earth displaced, "
+     "great weight driving forward, outdoors, close"),
+    ("sfx.creature.bristleback_boar.charge.03", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a heavy boar rushing forward over dry ground, dense rapid hoofbeats, loose stone scattering, "
+     "outdoors, physical and immediate"),
+    ("sfx.creature.bone_walker_husk.walk.01", "creature", "creature.move", 0.8, 1, False, "P0",
+     "a human skeleton walking, dry bone foot contacts on stone, restrained articulation of ankle and "
+     "knee joints, brittle hollow resonance in an empty frame, dry and small, indoors stone floor"),
+    ("sfx.creature.bone_walker_husk.walk.02", "creature", "creature.move", 0.8, 1, False, "P0",
+     "a walking skeleton on stone, hard dry bone steps, loose joint movement, hollow ribcage "
+     "resonance, brittle and thin, close perspective"),
+    ("sfx.creature.bone_walker_husk.walk.03", "creature", "creature.move", 0.8, 1, False, "P0",
+     "dry skeletal footsteps on stone with small bone articulation between steps, hollow body, "
+     "restrained, indoors"),
+    ("sfx.creature.bone_walker_husk.move_fast.01", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a skeleton moving quickly, rapid dry bone footfalls on stone, loose joint chatter, hollow "
+     "frame resonating, brittle and hurried, indoors close perspective"),
+    ("sfx.creature.bone_walker_husk.move_fast.02", "creature", "creature.move", 0.7, 1, False, "P0",
+     "fast skeletal movement across stone, quick hard bone contacts, articulation rattling thinly, "
+     "dry hollow body, indoors"),
+    ("sfx.creature.animated_armour.walk.01", "creature", "creature.move", 0.9, 1, False, "P0",
+     "an empty suit of plate armour walking, heavy steel sabatons on stone, articulated knee and hip "
+     "plate moving, hollow enclosed torso resonance, chain mail settling inside, weighted and "
+     "metallic, indoors"),
+    ("sfx.creature.animated_armour.walk.02", "creature", "creature.move", 0.9, 1, False, "P0",
+     "plate armour striding on stone, iron-shod feet landing heavily, joints of articulated steel, "
+     "empty interior resonance, massive and hollow, indoors close"),
+    ("sfx.creature.animated_armour.walk.03", "creature", "creature.move", 0.9, 1, False, "P0",
+     "a hollow suit of armour taking slow heavy steps, steel on stone, plates grinding at the joints, "
+     "loose chain within, indoors, weighted"),
+    ("sfx.creature.animated_armour.move_heavy.01", "creature", "creature.move", 0.8, 1, False, "P0",
+     "heavy plate armour moving at speed, fast pounding steel footfalls on stone, violent joint "
+     "articulation, hollow torso booming, chain rattling inside, indoors, imposing weight"),
+    ("sfx.creature.animated_armour.move_heavy.02", "creature", "creature.move", 0.8, 1, False, "P0",
+     "an armoured figure charging indoors, rapid iron footsteps on stone, plates clashing at the "
+     "joints, empty enclosure resonance, heavy and urgent"),
+    ("sfx.creature.cave_hunting_spider.scuttle.01", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a large hunting spider walking slowly, many chitinous leg tips tapping on dry stone in an "
+     "irregular sequence, faint scraping, thin dry body vibration, restrained and close to the "
+     "ground, indoors"),
+    ("sfx.creature.cave_hunting_spider.scuttle.02", "creature", "creature.move", 0.7, 1, False, "P0",
+     "a large spider stepping across dry stone, multiple hard leg contacts in quick uneven succession, "
+     "light chitin scrape, close and dry, indoors"),
+    ("sfx.creature.cave_hunting_spider.scuttle.03", "creature", "creature.move", 0.7, 1, False, "P0",
+     "slow many-legged movement over dry rock, tapping chitin contacts, faint drag of the body, thin "
+     "and restrained, indoors close perspective"),
+    ("sfx.creature.cave_hunting_spider.scuttle_fast.01", "creature", "creature.move", 0.6, 1, False, "P0",
+     "a large spider scuttling rapidly across dry stone, dense fast chitin leg contacts, sharp dry "
+     "scraping, many legs, urgent and close to the ground, indoors"),
+    ("sfx.creature.cave_hunting_spider.scuttle_fast.02", "creature", "creature.move", 0.6, 1, False, "P0",
+     "rapid many-legged running over dry rock, quick hard leg taps and scrape, thin dry body, close "
+     "perspective, indoors"),
+    ("sfx.creature.cave_hunting_spider.scuttle_fast.03", "creature", "creature.move", 0.6, 1, False, "P0",
+     "a large spider sprinting on stone, fast overlapping chitin contacts, dry scraping, urgent "
+     "movement close to the ground, indoors"),
+
+    # B. Player and equipment foley. Supporting layers, kept restrained.
+    ("sfx.player.gear.cloth.01", "player", "player.gear", 0.5, 1, False, "P0",
+     "light cloth garments shifting on a moving body, soft fabric folds and small settling "
+     "movements, recorded close, quiet and dry"),
+    ("sfx.player.gear.cloth.02", "player", "player.gear", 0.5, 1, False, "P0",
+     "cloth and a light travelling pack shifting as a body turns, quiet fabric movement, close and "
+     "dry, restrained"),
+    ("sfx.player.gear.cloth.03", "player", "player.gear", 0.5, 1, False, "P0",
+     "a coat and soft trousers moving with a slow step, quiet cloth folds, close, dry and small"),
+    ("sfx.player.gear.metal.01", "player", "player.gear", 0.45, 1, False, "P0",
+     "small metal buckles, straps and a hanging blade shifting on a moving body, light steel contact "
+     "with leather, close and dry, restrained"),
+    ("sfx.player.gear.metal.02", "player", "player.gear", 0.45, 1, False, "P0",
+     "metal fittings and a sheathed weapon knocking softly against a belt, small hard contacts, close "
+     "and dry, quiet"),
+    ("sfx.player.gear.metal.03", "player", "player.gear", 0.45, 1, False, "P0",
+     "a light harness of metal buckles moving with the body, brief steel and leather settling, close "
+     "perspective, subdued"),
+    ("sfx.player.weapon.sword.sheath.01", "player", "player.gear", 0.6, 1, False, "P0",
+     "a steel sword sliding fully into a leather scabbard, smooth continuous friction, a soft final "
+     "seat, close and dry, tactile"),
+    ("sfx.player.weapon.bow.nock.01", "player", "player.gear", 0.4, 1, False, "P0",
+     "an arrow nocked onto a wooden bowstring, string tension taken up, light wooden and feather "
+     "contact, close and dry, one clean action"),
+    ("sfx.player.weapon.spear.ready.01", "player", "player.gear", 0.5, 1, False, "P0",
+     "a wooden spear shaft settling into a grip, hands adjusting on dry timber, a light hollow "
+     "knock, close and dry, one clean physical action"),
+
+    # C. Crouch support. Only the garment movement either side of the change, because the brief says
+    # not to build a second footstep library and that crouched locomotion may reuse existing surface
+    # footsteps with runtime gain changes.
+    ("sfx.player.crouch.enter.01", "player", "player.gear", 0.6, 1, False, "P0",
+     "a body lowering into a crouch, cloth and leather compressing and settling, a quiet shift of "
+     "weight downwards, close and dry, restrained"),
+    ("sfx.player.crouch.exit.01", "player", "player.gear", 0.6, 1, False, "P0",
+     "a body rising out of a crouch, garments and gear unfolding and settling upward, light cloth "
+     "and leather movement, close and dry, quiet"),
+
+    # D. Loot and take-all feedback. One cue, not an inventory sound set.
+    ("sfx.interaction.loot.take_all.01", "interaction", "interaction", 0.8, 1, False, "P1",
+     "several small objects being swept up together into a leather pouch, overlapping light contacts "
+     "of metal and wood against cloth, brief and efficient, close and dry, one motion"),
+
+    # E. Positional environmental sweeteners. World emitters rather than additions to the stereo bed,
+    # 2-4 per cell, and Foldscar stays restrained with no horror stingers.
+    ("sfx.amb.ashen_hollow.forge_distant.01", "ambience", "ambience.one_shot", 1.6, 1, False, "P1",
+     "a distant blacksmith hammer striking an anvil somewhere across a settlement, two blows, "
+     "mid-distance outdoors, dulled by air and intervening timber, natural outdoor depth"),
+    ("sfx.amb.ashen_hollow.timber_creak.01", "ambience", "ambience.one_shot", 2.0, 1, False, "P1",
+     "a large timber building creaking as it settles, dry wooden structure under gentle load, close "
+     "outside, quiet and slow, outdoors"),
+    ("sfx.amb.ashen_hollow.settlement_activity.01", "ambience", "ambience.one_shot", 2.5, 1, False, "P1",
+     "muffled distant activity in a small settlement, timber doors and wooden objects moving far "
+     "away, indistinct and wordless, outdoors at long distance, quiet"),
+    ("sfx.amb.charwood.raven_call.01", "ambience", "ambience.one_shot", 1.4, 1, False, "P1",
+     "a single raven calling from a tree in a wood, sharp natural corvid vocalisation at mid "
+     "distance, outdoor forest air, isolated bird"),
+    ("sfx.amb.charwood.branch_movement.01", "ambience", "ambience.one_shot", 1.8, 1, False, "P1",
+     "a branch moving through leaves in a wooded area, dry foliage brushing and a light wooden "
+     "flex, outdoors in forest air at mid distance, quiet"),
+    ("sfx.amb.charwood.stream_detail.01", "ambience", "ambience.one_shot", 2.5, 1, False, "P1",
+     "close water running over small stones in a woodland stream, fine water detail, outdoors, "
+     "continuous small movement"),
+    ("sfx.amb.blackvein.pebble_fall.01", "ambience", "ambience.one_shot", 1.2, 1, False, "P1",
+     "loose pebbles falling and bouncing down a rocky slope, several small hard stone contacts "
+     "scattering to rest, outdoors in exposed air, close"),
+    ("sfx.amb.blackvein.rock_shift.01", "ambience", "ambience.one_shot", 2.0, 1, False, "P1",
+     "a heavy stone settling somewhere in a quarry, low grinding contact between rock surfaces, "
+     "distant outdoors, weighty and slow"),
+    ("sfx.amb.blackvein.winch_creak.01", "ambience", "ambience.one_shot", 1.8, 1, False, "P1",
+     "an old wooden winch and rope creaking under tension, dry timber under load with a light iron "
+     "fitting, outdoors in a quarry, quiet and slow"),
+    ("sfx.amb.foldscar.tone_displacement.01", "ambience", "ambience.one_shot", 2.5, 1, False, "P1",
+     "ordinary outdoor air with a faint unstable tonal drift inside it, a small spatial wobble on an "
+     "otherwise plain wind sound, restrained, quiet, drifting and unsteady"),
+    ("sfx.amb.foldscar.stone_resonance.01", "ambience", "ambience.one_shot", 2.0, 1, False, "P1",
+     "a small stone resonating faintly in open air, dry mineral ring decaying quickly, outdoors "
+     "among ruins, quiet and understated"),
+]
+
+
+def new_sound_entries():
+    """The section 30A additions, as spec entries in the same shape as the replacements."""
+    entries = []
+    for audio_id, category, group, seconds, channels, loop, priority, prompt in NEW_SOUNDS:
+        entries.append({
+            "audio_id": audio_id,
+            "category": category,
+            "group": group,
+            "gameplay_role": "authorised Phase-1 addition (section 30A)",
+            "prompt": prompt,
+            "prompt_v1": None,
+            "seconds": seconds,
+            "channels": channels,
+            "loop": loop,
+            "loudness_lufs": -30.0 if category != "ambience" else -34.0,
+            "priority": priority,
+            "single_transient": not loop,
+            "generation_version": "v2",
+            "source": "new",
+        })
+    return entries
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--audit", action="store_true")
@@ -232,17 +440,32 @@ def main():
             "source": "replacement",
         })
 
+    additions = new_sound_entries()
+    existing = {e["audio_id"] for e in entries}
+    clashes = [e["audio_id"] for e in additions if e["audio_id"] in existing]
+    if clashes:
+        print(f"  ERROR: new ids collide with existing ones: {clashes}")
+        return 1
+    entries.extend(additions)
+
     print(f"  V1 entries        : {len(v1['sounds'])}")
-    print(f"  V2 entries        : {len(entries)}")
-    print(f"  prompts with no negation: {without_negation}/{len(entries)}")
+    print(f"  V2 replacements   : {len(v1['sounds'])}")
+    print(f"  V2 additions      : {len(additions)}  (section 30A)")
+    print(f"  V2 total          : {len(entries)}")
+    bad = []
+    for entry in entries:
+        for word in NEGATION_WORDS:
+            if word in f" {entry['prompt'].lower()} ":
+                bad.append((entry["audio_id"], word.strip()))
+    print(f"  prompts with a negation: {len(bad)}  {bad[:3]}")
     print()
-    for entry in entries[:3]:
+    for entry in entries[:2]:
         print(f"  {entry['audio_id']}")
-        print(f"     V1: {entry['prompt_v1'][:100]}")
-        print(f"     V2: {entry['prompt'][:160]}")
+        print(f"     V1: {(entry['prompt_v1'] or '(new)')[:96]}")
+        print(f"     V2: {entry['prompt'][:150]}")
         print()
-    for audio_id in ("sfx.creature.bristleback_boar.attack.01", "sfx.ui.confirm",
-                     "sfx.magic.strain.high.01"):
+    for audio_id in ("sfx.creature.bristleback_boar.attack.01", "sfx.ui.select",
+                     "sfx.magic.strain.high.01", "sfx.creature.animated_armour.walk.01"):
         entry = next((e for e in entries if e["audio_id"] == audio_id), None)
         if entry:
             print(f"  {audio_id}")
@@ -273,7 +496,8 @@ def main():
         "settings": {"steps": 8, "cfg": 1.0, "sampler": "lcm", "scheduler": "simple",
                      "negative_prompt": None},
         "loudness_targets_lufs": v1.get("loudness_targets_lufs"),
-        "counts": {"replacement": len(entries)},
+        "counts": {"replacement": len(v1["sounds"]), "new": len(additions),
+                   "total": len(entries)},
         "sounds": entries,
     }
     os.makedirs(os.path.dirname(V2_SPEC), exist_ok=True)
