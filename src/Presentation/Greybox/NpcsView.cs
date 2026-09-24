@@ -9,11 +9,13 @@ namespace UNNAMED.Presentation.Greybox;
 
 /// <summary>
 /// Draws each named NPC as the same full-body mannequin the character wears, in clothes of their own, standing where the
-/// simulation has them and turned the way it says. A placeholder until the asset pipeline delivers people.
+/// simulation has them and turned the way it says - a companion (M6) walking as they go, and lying down while downed. A
+/// placeholder until the asset pipeline delivers people.
 /// </summary>
 public partial class NpcsView : Node3D
 {
     private readonly Dictionary<string, Avatar> _figures = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Vector3> _last = new(StringComparer.Ordinal);
 
     public void Draw(Simulation simulation, double delta)
     {
@@ -25,8 +27,14 @@ public partial class NpcsView : Node3D
                 AddChild(figure);
                 _figures[npc.Id] = figure;
             }
+            var feet = HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm);
+            // How fast the body is going, for the stride: its drawn position between ticks is not predicted, only followed.
+            float speed = delta > 0 && _last.TryGetValue(npc.Id, out var was) ? new Vector2(feet.X - was.X, feet.Z - was.Z).Length() / (float)delta : 0;
+            _last[npc.Id] = feet;
             figure.SetStance(CombatStance.AtRest);
-            figure.Pose(HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm), PlayerController.FacingRadians(npc.Body.FacingMdeg), 0, delta);
+            figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), Math.Min(speed, 8f), delta);
+            if (npc.Downed)
+                figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);
         }
     }
 

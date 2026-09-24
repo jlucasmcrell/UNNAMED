@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.tavar_orr.name
 tags: [dialogue]
-notes: Tavar Orr (content bible §9, §17). He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2.
+notes: Tavar Orr (content bible §9, §17). He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2. Asked, he joins the character (M6), and is told to wait or follow here or with the companion key.
 participants: [npc.ashen_hollow.tavar_orr]
 root_node: greet
 nodes:
@@ -30,6 +30,11 @@ nodes:
       - id: stones
         text: "What were the stones for?"
         next: stones
+      - id: join
+        text: "Walk back with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+        consequences: [{ command: recruit_companion }]
+        next: joined
       - id: home
         text: "Sel's been watching for you."
         next: again
@@ -46,5 +51,39 @@ nodes:
         text: "What were the stones for?"
         conditions: [{ kind: visited, node: stones, not: true }]
         next: stones
+      - id: join
+        text: "Walk back with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+        consequences: [{ command: recruit_companion }]
+        next: joined
+      - id: wait
+        text: "Wait here."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: follow }]
+        consequences: [{ command: order_companion, order: wait }]
+        next: waiting
+      - id: follow
+        text: "Come on - with me."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
+        consequences: [{ command: order_companion, order: follow }]
+        next: following
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
+      - id: done
+        text: "Nothing. Let's go on."
+        conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  joined:
+    text: "\"Back to the waystation? I'll walk behind you. I've had enough of being in front of things.\""
+    choices:
+      - id: ok
+        text: "Stay close."
+  waiting:
+    text: "\"Here. Fine. Don't make it three days.\""
+    choices:
+      - id: ok
+        text: "I won't."
+  following:
+    text: "\"Lead on.\""
+    choices:
+      - id: ok
+        text: "This way."

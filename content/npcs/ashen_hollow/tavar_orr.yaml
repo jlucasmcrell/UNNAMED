@@ -8,3 +8,8 @@ notes: Guide and the first companion (content bible §9, §17), Orenth - Sel's s
 role: villager
 dialogue_ref: dialogue.ashen_hollow.tavar_orr
 unique: true
+# He can join the character (M6): a guide's spear, a traveller's health, a leather jerkin.
+companion:
+  health: 100
+  weapon_item_ref: item.weapon.march_spear
+  armor: { head: 0, torso: 3, limbs: 1 }

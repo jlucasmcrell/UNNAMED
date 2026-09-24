@@ -75,11 +75,15 @@ internal sealed class SystemContext
             .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
             .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots));
 
-    /// <summary>What the player's body cannot pass besides the static blockers: closed doors and living creatures.</summary>
+    /// <summary>
+    /// What the player's body cannot pass besides the static blockers: closed doors, standing barriers, living creatures and people - but
+    /// not a companion (M6), who keeps out of the way instead, so a narrow door is never held shut by a friend.
+    /// </summary>
     public ImmutableArray<Blocker> Obstacles() =>
         ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
-            .AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
+            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id))
+                .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
 /// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>

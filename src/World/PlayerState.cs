@@ -5,6 +5,7 @@ using System.Buffers.Binary;
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -37,6 +38,27 @@ public sealed record RelationshipValue(string NpcId, string Dimension, int Value
 
 /// <summary>The lines of one conversation the player has heard, sorted (SYSTEMS.md S-28; schema 10): what keeps a one-time line spent.</summary>
 public sealed record ConversationMemory(string DialogueId, ImmutableArray<string> Heard);
+
+/// <summary>A mark on the character's trail, which a following companion walks (M6).</summary>
+public sealed record TrailMark(long XMm, long ZMm);
+
+/// <summary>
+/// A companion the character has recruited (SYSTEMS.md S-25; schema 12): who, under which order, up or downed, where they stand and
+/// how hurt they are - and what the rest of their day depends on, so a loaded world goes on as the saved one would: when they went
+/// down, the trail they are walking, how long they have made no headway, and when they last fought. Only a blow in progress is not
+/// kept, as with creatures.
+/// </summary>
+public sealed record CompanionRecord(string NpcId, CompanionOrder Order, CompanionCondition Condition, long XMm, long ZMm, int FacingMdeg, int Health)
+{
+    /// <summary>The tick they went down; 0 while up.</summary>
+    public long DownedTick { get; init; }
+
+    public int StuckTicks { get; init; }
+
+    public long LastCombatTick { get; init; }
+
+    public ImmutableArray<TrailMark> Trail { get; init; } = ImmutableArray<TrailMark>.Empty;
+}
 
 public static class DiscoveryMethods
 {
@@ -72,7 +94,7 @@ public sealed record PlayerRecord
         CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
         IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null,
         IEnumerable<RelationshipValue>? relationships = null, IEnumerable<ConversationMemory>? conversations = null,
-        IEnumerable<QuestState>? quests = null)
+        IEnumerable<QuestState>? quests = null, IEnumerable<CompanionRecord>? companions = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -171,6 +193,17 @@ public sealed record PlayerRecord
         }
         if (Quests.Select(q => q.QuestId).Distinct(StringComparer.Ordinal).Count() != Quests.Length)
             throw new ArgumentException("A quest is recorded once", nameof(quests));
+        Companions = (companions ?? Array.Empty<CompanionRecord>()).OrderBy(c => c.NpcId, StringComparer.Ordinal).ToImmutableArray();
+        foreach (var c in Companions)
+        {
+            bool down = c.Condition == CompanionCondition.Downed;
+            if (!DefinitionId.IsValid(c.NpcId) || !c.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Enum.IsDefined(c.Order) || !Enum.IsDefined(c.Condition)
+                || c.FacingMdeg is < 0 or >= 360_000 || c.Health < 0 || down != (c.Health == 0) || c.DownedTick < 0 || (!down && c.DownedTick != 0)
+                || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault)
+                throw new ArgumentException($"Invalid companion record for {c.NpcId}", nameof(companions));
+        }
+        if (Companions.Select(c => c.NpcId).Distinct(StringComparer.Ordinal).Count() != Companions.Length)
+            throw new ArgumentException("A companion is recorded once", nameof(companions));
     }
 
     /// <summary>
@@ -191,28 +224,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests);
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions);
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions);
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions);
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions);
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions);
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests);
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions);
+
+    /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
+    public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions);
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -258,6 +295,9 @@ public sealed record PlayerRecord
     /// </summary>
     public ImmutableArray<QuestState> Quests { get; }
 
+    /// <summary>The companions the character has recruited, sorted by NPC (SYSTEMS.md S-25). Schema 12.</summary>
+    public ImmutableArray<CompanionRecord> Companions { get; }
+
     /// <summary>Full-equality digest over every field (T-01: "no field silently defaulted").</summary>
     public string Digest
     {
@@ -292,6 +332,14 @@ public sealed record PlayerRecord
                 h.Add(q.QuestId).Add(QuestKeys.Key(q.Status)).Add(q.StartedTick).Add(q.EndedTick ?? -1).Add(q.EndedBy ?? "").Add(q.Objectives.Length);
                 foreach (var o in q.Objectives)
                     h.Add(o.Id).Add(QuestKeys.Key(o.Status)).Add(o.ActivatedTick).Add(o.EndedTick ?? -1).Add(o.Progress);
+            }
+            h.Add(Companions.Length);
+            foreach (var c in Companions)
+            {
+                h.Add(c.NpcId).Add(CompanionKeys.Key(c.Order)).Add(CompanionKeys.Key(c.Condition)).Add(c.XMm).Add(c.ZMm).Add(c.FacingMdeg).Add(c.Health)
+                    .Add(c.DownedTick).Add(c.StuckTicks).Add(c.LastCombatTick).Add(c.Trail.Length);
+                foreach (var mark in c.Trail)
+                    h.Add(mark.XMm).Add(mark.ZMm);
             }
             return h.Finish();
         }

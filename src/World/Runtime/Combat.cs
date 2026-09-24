@@ -404,14 +404,20 @@ internal sealed partial class CombatSystem
         return C.Unarmed;
     }
 
-    /// <summary>A weapon's attack in ticks: a swing splits into windup, active and recovery; a bow draws, releases once, and nocks.</summary>
-    private AttackProfile WeaponAttack(string defId, WeaponStats weapon)
+    private AttackProfile WeaponAttack(string defId, WeaponStats weapon) => AttackOf(defId, weapon, C, TickMs);
+
+    /// <summary>
+    /// A weapon's attack in ticks: a swing splits into windup, active and recovery; a bow draws, releases once, and nocks. The player's
+    /// and a companion's weapons (M6) are timed alike.
+    /// </summary>
+    internal static AttackProfile AttackOf(string defId, WeaponStats weapon, CombatConstants constants, int tickMs)
     {
-        int stamina = weapon.StaminaCost ?? C.DefaultStaminaCost;
+        int Ticks(int milliseconds) => (int)Math.Round((double)milliseconds / tickMs, MidpointRounding.AwayFromZero);
+        int stamina = weapon.StaminaCost ?? constants.DefaultStaminaCost;
         if (weapon.Ranged)
         {
-            return new AttackProfile(defId, weapon.DamageMin, weapon.DamageMax, weapon.DamageType, C.RangedRangeMm,
-                Math.Max(1, Ticks(weapon.DrawMs)), 1, C.BowRecoveryTicks, stamina)
+            return new AttackProfile(defId, weapon.DamageMin, weapon.DamageMax, weapon.DamageType, constants.RangedRangeMm,
+                Math.Max(1, Ticks(weapon.DrawMs)), 1, constants.BowRecoveryTicks, stamina)
             {
                 Ranged = true,
                 AmmoDefId = weapon.AmmoDefId,
@@ -419,8 +425,8 @@ internal sealed partial class CombatSystem
             };
         }
         int total = Math.Max(3, Ticks(weapon.AttackMs));
-        int windup = Math.Max(1, (int)Math.Round(total * C.WindupPercent / 100.0, MidpointRounding.AwayFromZero));
-        int active = Math.Max(1, (int)Math.Round(total * C.ActivePercent / 100.0, MidpointRounding.AwayFromZero));
+        int windup = Math.Max(1, (int)Math.Round(total * constants.WindupPercent / 100.0, MidpointRounding.AwayFromZero));
+        int active = Math.Max(1, (int)Math.Round(total * constants.ActivePercent / 100.0, MidpointRounding.AwayFromZero));
         return new AttackProfile(defId, weapon.DamageMin, weapon.DamageMax, weapon.DamageType, weapon.ReachMm, windup, active,
             Math.Max(0, total - windup - active), stamina) { SkillId = weapon.SkillId };
     }
@@ -543,7 +549,7 @@ internal sealed partial class CombatSystem
     }
 
     /// <summary>True when the attacker stands behind the body: more than 110 degrees off its facing.</summary>
-    private static bool Behind(Body body, Body attacker)
+    internal static bool Behind(Body body, Body attacker)
     {
         double dx = attacker.XMm - body.XMm, dz = attacker.ZMm - body.ZMm;
         double length = Math.Sqrt(dx * dx + dz * dz);
@@ -649,7 +655,7 @@ internal sealed partial class CombatSystem
         return WithBonus(armor, EffectRules.ArmorBonus(EffectsOf(_player), Setup.Effects));
     }
 
-    private static ImmutableSortedDictionary<BodyRegion, int> WithBonus(ImmutableSortedDictionary<BodyRegion, int> armor, int bonus) =>
+    internal static ImmutableSortedDictionary<BodyRegion, int> WithBonus(ImmutableSortedDictionary<BodyRegion, int> armor, int bonus) =>
         bonus == 0 ? armor : Enum.GetValues<BodyRegion>().ToImmutableSortedDictionary(r => r, r => armor.GetValueOrDefault(r) + bonus);
 
     // ── harm that is not a blow ─────────────────────────────────────────────

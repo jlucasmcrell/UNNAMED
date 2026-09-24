@@ -518,7 +518,7 @@ public class ContentLoaderTests
             {
                 "ability.creature.armour_slam", "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.hound_lunge",
                 "ability.creature.husk_slash", "ability.creature.spider_bite", "ability.creature.wolf_bite",
-                "config.base_speeds", "config.crafting", "config.creature_behaviour", "config.damage_constants", "config.economy", "config.inventory",
+                "config.base_speeds", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants", "config.economy", "config.inventory",
                 "config.level_cap", "config.magic", "config.progression", "config.simulation_tiers", "config.time", "config.xp_curve",
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.cave_hunting_spider", "creature.beast.wolf_grey",
                 "creature.construct.animated_armour", "creature.undead.bone_walker_husk",

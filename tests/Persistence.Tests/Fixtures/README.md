@@ -30,7 +30,7 @@ one under the current code and migrates every one through the real commit path
    plus the two effects the effect record names - is the pack v7 was written with; `content-0.1.4/` - 0.1.3 plus the
    creature a creature record names - is the pack v8 and v9 were written with; `content-0.1.5/` - 0.1.4 plus the NPC and the
    conversation the relationship and conversation records name - is the pack v10 was written with; `content-0.1.6/` - 0.1.5 plus the two
-   quests the quest records name, and the warden's replies that start them - is the pack v11 was written with. Content 0.2.0 renamed the
+   quests the quest records name, and the warden's replies that start them - is the pack v11 and v12 were written with. Content 0.2.0 renamed the
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
@@ -73,6 +73,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | The carried sword is fine (quality 1); the dropped `healing_draught` x3 is fine; the chest's `healing_draught` x4 is crude (quality -1) | player inventory, created instance, changed container | Schema 9: quality on every kind of stack, both directions. v1-v8 migrate to standard (0) everywhere |
 | `npc.fixture.warden` thinks Aelin trust 12, respect -3; of `dialogue.fixture.warden` Aelin has heard `greet` and `rumour` | player relationships and conversations | Schema 10. The warden and the conversation were **renamed** to `npc.fixture.warden_sera` and `dialogue.fixture.warden_sera` in content 0.2.7: the renames must reach both records. v1-v9 migrate to none |
 | `quest.fixture.errand` active since tick 4000 - `o_ask` satisfied at 4001, `o_den` active - and `quest.fixture.cull` completed at tick 3500 by `o_cull`, its three wolves counted (progress 3) | player quests | Schema 11. The errand was **renamed** to `quest.fixture.wardens_errand` in content 0.2.8: the rename must reach the quest record. v1-v10 migrate to none |
+| `npc.fixture.warden` has joined Aelin: following, up, 64 health, at (148.75, -41.5) facing 45 degrees, two ticks without headway, last in a fight at tick 4950, three trail marks ahead | player companions | Schema 12. The warden was **renamed** to `npc.fixture.warden_sera` in content 0.2.7: the rename must reach the companion record. v1-v11 migrate to none |
 
 ## Provenance
 
@@ -89,6 +90,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v9/` | The M3f schema-9 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.4) |
 | `v10/` | The M4 schema-10 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.5) |
 | `v11/` | The M5 schema-11 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v12/` | The M6 schema-12 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

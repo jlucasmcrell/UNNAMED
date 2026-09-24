@@ -29,6 +29,8 @@ public class DialogueRulesTests
         public int Level { get; set; } = 1;
         public string QuestState(string questId, string? objectiveId) =>
             Quests.TryGetValue((questId, objectiveId), out var state) ? state : objectiveId is null ? "not_started" : "not_reached";
+        public Dictionary<string, UNNAMED.Domain.Companions.CompanionOrder> Companions { get; } = new(StringComparer.Ordinal);
+        public UNNAMED.Domain.Companions.CompanionOrder? CompanionOrderOf(string npcId) => Companions.TryGetValue(npcId, out var order) ? order : null;
     }
 
     private static DialogueNode Node(string id, bool once = false, string? exhausted = null) =>

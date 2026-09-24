@@ -1,14 +1,14 @@
-// UNNAMED Persistence - schema 10 section shapes (M4). FROZEN.
+// UNNAMED Persistence - schema 11 section shapes (M5). FROZEN.
 // No Godot references - pure C#
 //
-// The exact player shape schema 10 wrote: written by the 9 -> 10 step and read by the 10 -> 11 step; the schema-10 fixture pins
-// it. Its parts that schema 11 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto,
-// EffectDto, RelationshipDto, ConversationDto); the step that next changes one of those must freeze a copy of it first. Schema 11
-// left the other sections alone, and so did schema 12.
+// The exact player shape schema 11 wrote: written by the 10 -> 11 step and read by the 11 -> 12 step; the schema-11 fixture pins
+// it. Its parts that schema 12 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto,
+// EffectDto, RelationshipDto, ConversationDto, QuestDto); the step that next changes one of those must freeze a copy of it first.
+// Schema 12 left the other sections alone.
 
 using MessagePack;
 
-namespace UNNAMED.Persistence.Sections.V10;
+namespace UNNAMED.Persistence.Sections.V11;
 
 [MessagePackObject]
 public sealed class Player
@@ -28,4 +28,5 @@ public sealed class Player
     [Key("effects")] public EffectDto[]? Effects { get; set; }
     [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
+    [Key("quests")] public QuestDto[]? Quests { get; set; }
 }

@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.M2Probe;
@@ -216,11 +217,31 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.Player.Quests);
         }
 
+        // Schema 12's companion: the warden, following Aelin mid-trail, renamed on load; none before.
+        if (schema >= 12)
+        {
+            var warden = Assert.Single(loaded.Player.Companions);
+            Assert.Equal(("npc.fixture.warden_sera", CompanionOrder.Follow, CompanionCondition.Up, 64), (warden.NpcId, warden.Order, warden.Condition, warden.Health));
+            Assert.Equal((148_750L, -41_500L, 45_000, 2, 4_950L), (warden.XMm, warden.ZMm, warden.FacingMdeg, warden.StuckTicks, warden.LastCombatTick));
+            Assert.Equal(new[] { new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125) }, warden.Trail);
+        }
+        else
+        {
+            Assert.Empty(loaded.Player.Companions);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
-            >= 11 => new[]
+            >= 12 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x5",
+                "location.wolf_den -> location.den_mouth", "npc.fixture.warden -> npc.fixture.warden_sera x3",
+                "quest.fixture.errand -> quest.fixture.wardens_errand", "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            11 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
                 "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x5",

@@ -94,7 +94,7 @@ public sealed class GameSession : IDomainEvents
             Combat = CombatContent.Build(loader, options.RegionId),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
-            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)),
+            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,

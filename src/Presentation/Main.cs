@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
@@ -283,12 +284,24 @@ public partial class Main : Node3D
                     OpenStation(focus.Key);
                     break;
                 case FocusKind.Npc:
-                    _controller.Talk(focus.Key);
+                    if (DownedCompanion(focus.Key) is not null)
+                        _controller.Revive(focus.Key);
+                    else
+                        _controller.Talk(focus.Key);
                     break;
                 case FocusKind.Switch:
                     _controller.Interact(focus.Key);
                     break;
             }
+        }
+        if (Input.IsActionJustPressed("companion_order"))
+        {
+            // One key for every companion on their feet: those following wait, those waiting follow.
+            var up = _session.Simulation!.Companions.Where(c => c.Condition == CompanionCondition.Up).ToList();
+            if (up.Count == 0)
+                _hud.Toast("No one is with you", 2);
+            foreach (var companion in up)
+                _controller.Order(companion.NpcId, companion.Order == CompanionOrder.Follow ? CompanionOrder.Wait : CompanionOrder.Follow);
         }
         if (Input.IsActionJustPressed("inventory"))
         {
@@ -381,6 +394,7 @@ public partial class Main : Node3D
                 : $"[E] Search the {_session.DisplayName(container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
             { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
+            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[E] Help {_session.DisplayName(npc.Key)} up",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[E] Talk to {_session.DisplayName(npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[E] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
@@ -411,6 +425,10 @@ public partial class Main : Node3D
             _hud.SetTarget(null, 0, 0);
         var quests = simulation.Quests;
         _hud.SetTracker(JournalPanel.Tracker(quests));
+        _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
+            $"{c.Name} - {c.Doing}, {c.Standing}" +
+            (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
+            (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))));
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
 
@@ -444,6 +462,12 @@ public partial class Main : Node3D
         });
         _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers));
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
+        // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
+        _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
+        _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
+        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press E", 6));
+        _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
+        _session.Subscribe<CompanionFell>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -756,6 +780,10 @@ public partial class Main : Node3D
             Input.MouseMode = Input.MouseModeEnum.Captured;
     }
 
+    /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
+    private CompanionView? DownedCompanion(string npcId) =>
+        _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
+
     /// <summary>A container read as words; a corpse is named for the creature it was.</summary>
     internal static string Describe(GameSession session, string key) =>
         session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
@@ -823,6 +851,7 @@ public partial class Main : Node3D
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
         Bind("use", Key.H);
+        Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
         for (int i = 0; i < CastKeys.Length; i++)
             Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         for (int n = 1; n <= 9; n++)

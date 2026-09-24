@@ -2,12 +2,16 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Companions;
 
 namespace UNNAMED.Domain.Social;
 
 /// <summary>A named NPC as the simulation uses it (DATA_MODEL.md §4.5, Phase 1's subset): who they are, their role, what they offer.</summary>
 public sealed record NpcDefinition(string Id, string Name, string Role, ImmutableArray<string> Services, string? MerchantId, string? DialogueId)
 {
+    /// <summary>Set for an NPC who can join the character (M6): how they fight.</summary>
+    public CompanionProfile? Companion { get; init; }
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -84,6 +88,12 @@ public sealed record LevelCondition(int Min) : DialogueCondition;
 /// </summary>
 public sealed record QuestStateCondition(string QuestId, string? ObjectiveId, string State, bool Negated) : DialogueCondition;
 
+/// <summary>
+/// <c>companion_present</c> (M6): the NPC is the character's companion - and, naming an order, under that order; <c>not: true</c>
+/// inverts it.
+/// </summary>
+public sealed record CompanionPresentCondition(string NpcId, CompanionOrder? Order, bool Negated) : DialogueCondition;
+
 /// <summary>A closed-set consequence (DATA_MODEL.md §4.12): dialogue emits these as commands and never writes state itself.</summary>
 public abstract record DialogueConsequence;
 
@@ -105,6 +115,12 @@ public sealed record OpenServiceConsequence(string Service) : DialogueConsequenc
 /// <summary><c>start_quest</c> (M5): the speaker gives the player a quest. A quest already started is not started again.</summary>
 public sealed record StartQuestConsequence(string QuestId) : DialogueConsequence;
 
+/// <summary><c>recruit_companion</c> (M6): the speaker joins the character, following.</summary>
+public sealed record RecruitCompanionConsequence : DialogueConsequence;
+
+/// <summary><c>order_companion</c> (M6): the speaker, already a companion, takes an order - follow or wait.</summary>
+public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;
+
 /// <summary>What a condition may ask of the world, answered by the simulation (read only).</summary>
 public interface IDialogueFacts
 {
@@ -122,6 +138,9 @@ public interface IDialogueFacts
 
     /// <summary>A quest's state as a key (<c>not_started</c> before it starts), or, naming an objective, the objective's (<c>not_reached</c>).</summary>
     string QuestState(string questId, string? objectiveId);
+
+    /// <summary>The order an NPC who is the character's companion is under; null when they are not a companion (M6).</summary>
+    CompanionOrder? CompanionOrderOf(string npcId);
 }
 
 public static class DialogueRules
@@ -135,6 +154,7 @@ public static class DialogueRules
         SkillCondition s => facts.SkillLevel(s.SkillId) >= s.Min,
         LevelCondition l => facts.Level >= l.Min,
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
+        CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),
     };
 

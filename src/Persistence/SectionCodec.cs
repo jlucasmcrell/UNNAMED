@@ -6,6 +6,7 @@ using System.Text.Json;
 using MessagePack;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.World;
@@ -52,6 +53,27 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 11. The 10 -> 11 step gives older saves none: there were no quests before M5.</summary>
     [Key("quests")] public QuestDto[]? Quests { get; set; }
+
+    /// <summary>Required from schema 12. The 11 -> 12 step gives older saves none: no one could join before M6.</summary>
+    [Key("companions")] public CompanionDto[]? Companions { get; set; }
+}
+
+[MessagePackObject]
+public sealed class CompanionDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("order")] public string Order { get; set; } = "";
+    [Key("condition")] public string Condition { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("health")] public int Health { get; set; }
+    [Key("downed_tick")] public long DownedTick { get; set; }
+    [Key("stuck_ticks")] public int StuckTicks { get; set; }
+    [Key("last_combat_tick")] public long LastCombatTick { get; set; }
+
+    /// <summary>The trail being walked, as x, z pairs in millimetres.</summary>
+    [Key("trail_mm")] public long[] TrailMm { get; set; } = Array.Empty<long>();
 }
 
 [MessagePackObject]
@@ -331,6 +353,22 @@ public static class SectionCodec
                     .ToArray(),
             })
             .ToArray(),
+        Companions = player.Companions
+            .Select(c => new CompanionDto
+            {
+                NpcId = c.NpcId,
+                Order = CompanionKeys.Key(c.Order),
+                Condition = CompanionKeys.Key(c.Condition),
+                XMm = c.XMm,
+                ZMm = c.ZMm,
+                FacingMdeg = c.FacingMdeg,
+                Health = c.Health,
+                DownedTick = c.DownedTick,
+                StuckTicks = c.StuckTicks,
+                LastCombatTick = c.LastCombatTick,
+                TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
+            })
+            .ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -353,6 +391,7 @@ public static class SectionCodec
         var relationships = dto.Relationships ?? throw new FormatException("player.msgpack has no relationships (required from schema 10)");
         var conversations = dto.Conversations ?? throw new FormatException("player.msgpack has no conversations (required from schema 10)");
         var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
+        var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
@@ -366,7 +405,24 @@ public static class SectionCodec
                 q.StartedTick, q.EndedTick, q.EndedBy,
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
-                    o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())));
+                    o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
+            companions.Select(Companion));
+    }
+
+    private static CompanionRecord Companion(CompanionDto c)
+    {
+        if (c.TrailMm.Length % 2 != 0)
+            throw new FormatException($"companion {c.NpcId}'s trail is x, z pairs; it has {c.TrailMm.Length} numbers");
+        return new CompanionRecord(c.NpcId,
+            CompanionKeys.ParseOrder(c.Order) ?? throw new FormatException($"companion {c.NpcId} has order '{c.Order}'"),
+            CompanionKeys.ParseCondition(c.Condition) ?? throw new FormatException($"companion {c.NpcId} has condition '{c.Condition}'"),
+            c.XMm, c.ZMm, c.FacingMdeg, c.Health)
+        {
+            DownedTick = c.DownedTick,
+            StuckTicks = c.StuckTicks,
+            LastCombatTick = c.LastCombatTick,
+            Trail = Enumerable.Range(0, c.TrailMm.Length / 2).Select(i => new TrailMark(c.TrailMm[2 * i], c.TrailMm[2 * i + 1])).ToImmutableArray(),
+        };
     }
 
     public static byte[] EncodeCells(DeltaSnapshot snapshot) => MessagePackSerializer.Serialize(new CellsSectionDto

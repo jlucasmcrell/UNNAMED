@@ -18,6 +18,7 @@ public partial class Hud : CanvasLayer
     private readonly Label _prompt = Text(22);
     private readonly Label _debug = Text(15);
     private readonly Label _tracker = Text(18);
+    private readonly Label _companions = Text(18);
     private readonly Label _crosshair = Text(22);
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Label Label, double Expires)> _live = new();
@@ -40,6 +41,9 @@ public partial class Hud : CanvasLayer
     {
         _status.Position = new Vector2(24, 20);
         AddChild(_status);
+
+        _companions.Position = new Vector2(24, 112);
+        AddChild(_companions);
 
         _prompt.SetAnchorsPreset(Control.LayoutPreset.CenterBottom);
         _prompt.HorizontalAlignment = HorizontalAlignment.Center;
@@ -168,6 +172,9 @@ public partial class Hud : CanvasLayer
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
 
     public void SetDebug(string text) => _debug.Text = text;
+
+    /// <summary>The companion HUD (content bible §19): each companion's name, how they are, and follow or wait - nothing more.</summary>
+    public void SetCompanions(string? text) => _companions.Text = text ?? string.Empty;
 
     /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
     public void SetTracker(string? text)

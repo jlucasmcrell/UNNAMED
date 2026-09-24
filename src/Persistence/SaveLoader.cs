@@ -345,8 +345,16 @@ internal static class SaveLoader
                 quests[id] = resolved;
         }
 
+        // Companions (schema 12): a companion whose NPC was removed goes with it; two records that resolve to one NPC keep the first.
+        var companions = new SortedDictionary<string, CompanionRecord>(StringComparer.Ordinal);
+        foreach (var companion in player.Companions)
+        {
+            if (Resolve(companion.NpcId, "player companion") is { } id)
+                companions.TryAdd(id, companion with { NpcId = id });
+        }
+
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values),
+                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values),
             new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable() });
     }
 

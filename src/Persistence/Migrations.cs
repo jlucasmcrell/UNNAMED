@@ -17,6 +17,7 @@ using V6 = UNNAMED.Persistence.Sections.V6;
 using V8 = UNNAMED.Persistence.Sections.V8;
 using V9 = UNNAMED.Persistence.Sections.V9;
 using V10 = UNNAMED.Persistence.Sections.V10;
+using V11 = UNNAMED.Persistence.Sections.V11;
 
 namespace UNNAMED.Persistence;
 
@@ -74,7 +75,8 @@ public static class SchemaMigrations
         new SchemaV7ToV8(),
         new SchemaV8ToV9(),
         new SchemaV9ToV10(),
-        new SchemaV10ToV11());
+        new SchemaV10ToV11(),
+        new SchemaV11ToV12());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -638,7 +640,7 @@ public sealed class SchemaV10ToV11 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V10.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V11.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -656,6 +658,45 @@ public sealed class SchemaV10ToV11 : SchemaMigration
                 Relationships = old.Relationships,
                 Conversations = old.Conversations,
                 Quests = Array.Empty<QuestDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 11 to 12 (M6): the player gains their companions. A save that predates companions has none.</summary>
+public sealed class SchemaV11ToV12 : SchemaMigration
+{
+    public override int From => 11;
+
+    public override string Summary => "schema 11 -> 12: the player gains companions (none before M6)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V11.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = Array.Empty<CompanionDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

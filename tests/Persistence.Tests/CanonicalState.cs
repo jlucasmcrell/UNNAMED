@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 
@@ -115,6 +116,30 @@ internal static class CanonicalState
                         json.WriteNumber("ended_tick", over);
                     json.WriteNumber("progress", objective.Progress);
                     json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("companions");
+            foreach (var companion in player.Companions)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", companion.NpcId);
+                json.WriteString("order", CompanionKeys.Key(companion.Order));
+                json.WriteString("condition", CompanionKeys.Key(companion.Condition));
+                json.WriteNumber("x_mm", companion.XMm);
+                json.WriteNumber("z_mm", companion.ZMm);
+                json.WriteNumber("facing_mdeg", companion.FacingMdeg);
+                json.WriteNumber("health", companion.Health);
+                json.WriteNumber("downed_tick", companion.DownedTick);
+                json.WriteNumber("stuck_ticks", companion.StuckTicks);
+                json.WriteNumber("last_combat_tick", companion.LastCombatTick);
+                json.WriteStartArray("trail_mm");
+                foreach (var mark in companion.Trail)
+                {
+                    json.WriteNumberValue(mark.XMm);
+                    json.WriteNumberValue(mark.ZMm);
                 }
                 json.WriteEndArray();
                 json.WriteEndObject();

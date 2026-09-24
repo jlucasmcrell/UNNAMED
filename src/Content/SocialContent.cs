@@ -3,6 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using static UNNAMED.Content.CombatContent;
@@ -12,7 +14,8 @@ namespace UNNAMED.Content;
 /// <summary>
 /// Builds the NPCs and their conversations, and lints what the reference and semantic passes cannot see (SOC001): an NPC's role
 /// and services are ones Phase 1 builds and a trader names its stock; a conversation's every way leads to a node that exists, a
-/// spent line never loops, and every condition and consequence is one of the closed set with what it needs.
+/// spent line never loops, and every condition and consequence is one of the closed set with what it needs. An NPC who can join
+/// the character names how they fight, and <c>config.companion</c> how companions behave (M6).
 /// </summary>
 public static class SocialContent
 {
@@ -20,10 +23,11 @@ public static class SocialContent
     private static readonly string[] Roles =
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
-    private static readonly string[] Conditions = { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state" };
+    private static readonly string[] Conditions =
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present" };
 
     private static readonly string[] Consequences =
-        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest" };
+        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -34,7 +38,27 @@ public static class SocialContent
         Try(() => dialogues = BuildDialogues(loader), "dialogues", errors);
         if (npcs is not null && dialogues is not null)
             Try(() => CrossCheck(npcs, dialogues), "npcs", errors);
+        // Companions (M6): an NPC who can join needs the rules companions behave by.
+        if (npcs is not null && (npcs.Values.Any(n => n.Companion is not null) || loader.Definitions.ContainsKey("config.companion")))
+            Try(() => BuildCompanionTuning(loader) ?? throw new FormatException("an NPC can join the character, so config.companion is required"), "config.companion", errors);
         return errors;
+    }
+
+    /// <summary>
+    /// How companions behave (<c>config.companion</c>, M6): distances in metres, times in seconds, in the content; millimetres and ticks
+    /// here. Null when the pack has none (a pack in which nobody can join).
+    /// </summary>
+    public static CompanionTuning? BuildCompanionTuning(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.companion"))
+            return null;
+        var map = Config(loader, "config.companion");
+        int tickMs = WorldContent.TickMilliseconds(loader);
+        var tuning = new CompanionTuning(Mm(map, "follow_near_m"), Mm(map, "run_beyond_m"), Mm(map, "sprint_beyond_m"), Mm(map, "catch_up_beyond_m"),
+            ToTicks(Number(map, "snag_s"), tickMs), Mm(map, "trail_step_m"), Int(map, "trail_marks"), Mm(map, "fight_radius_m"), Mm(map, "leash_m"),
+            Mm(map, "guard_radius_m"), ToTicks(Number(map, "attack_pause_s"), tickMs), ToTicks(Number(map, "revive_window_s"), tickMs),
+            Int(map, "revive_percent"), ToTicks(Number(map, "regen_delay_s"), tickMs), Int(map, "regen_per_s"));
+        return tuning.Problem() is { } problem ? throw new FormatException($"config.companion: {problem}") : tuning;
     }
 
     /// <summary>
@@ -63,8 +87,28 @@ public static class SocialContent
                 if (map.ContainsKey(field))
                     throw new FormatException($"{id}: {field} is not built in Phase 1");
             }
-            return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string);
+            return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string)
+            {
+                Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
+            };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    /// <summary>
+    /// <c>companion</c> (M6): what an NPC who can join the character fights with - <c>health</c>, a <c>weapon_item_ref</c> (a melee weapon;
+    /// its damage, reach and speed are the item's) and <c>armor</c> by body region.
+    /// </summary>
+    private static CompanionProfile Profile(string id, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string weapon = Defined(loader, Text(map, "weapon_item_ref"), "item.weapon", $"{id} companion");
+        if (Read(loader.Definitions[weapon].YamlSource).ContainsKey("ammo_item_ref"))
+            throw new FormatException($"{id} companion: {weapon} is a ranged weapon; a Phase-1 companion fights hand to hand");
+        var armor = map.ContainsKey("armor") ? Map(map, "armor") : new Dictionary<object, object>();
+        var profile = new CompanionProfile(Int(map, "health"), weapon,
+            armor.ToImmutableSortedDictionary(kv => BodyRegions.Parse(kv.Key as string ?? ""), kv => Int(armor, kv.Key as string ?? "")));
+        return profile.MaxHealth > 0 && profile.Armor.Values.All(a => a >= 0)
+            ? profile
+            : throw new FormatException($"{id} companion: health is positive and armor is never negative");
+    }
 
     /// <summary>
     /// Conversations (DATA_MODEL.md §4.12): <c>participants</c>, a <c>root_node</c>, and <c>nodes</c> by ID, each with its
@@ -116,8 +160,8 @@ public static class SocialContent
     {
         string kind = Text(map, "kind");
         bool negated = map.GetValueOrDefault("not") as string == "true";
-        if (negated && kind is not ("visited" or "has_item" or "quest_state"))
-            throw new FormatException($"{at}: only visited, has_item and quest_state conditions take not");
+        if (negated && kind is not ("visited" or "has_item" or "quest_state" or "companion_present"))
+            throw new FormatException($"{at}: only visited, has_item, quest_state and companion_present conditions take not");
         return kind switch
         {
             "visited" => new VisitedCondition(Text(map, "node"), negated)
@@ -133,6 +177,8 @@ public static class SocialContent
             "skill" => new SkillCondition(Defined(loader, Text(map, "skill_ref"), "skill", at), Positive(map, "min", 1)),
             "level" => new LevelCondition(Positive(map, "min", 1)),
             "quest_state" => QuestState(at, map, loader, negated),
+            "companion_present" => new CompanionPresentCondition(Defined(loader, Text(map, "npc_ref"), "npc", at),
+                map.GetValueOrDefault("order") is string order ? Order(order, at) : null, negated),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -161,9 +207,14 @@ public static class SocialContent
                 ? Text(map, "service")
                 : throw new FormatException($"{at}: service '{Text(map, "service")}' is not built in Phase 1")),
             "start_quest" => new StartQuestConsequence(Defined(loader, Text(map, "quest_ref"), "quest", at)),
+            "recruit_companion" => new RecruitCompanionConsequence(),
+            "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
         };
     }
+
+    private static CompanionOrder Order(string order, string at) =>
+        CompanionKeys.ParseOrder(order) ?? throw new FormatException($"{at}: a companion's order is follow or wait, not '{order}'");
 
     /// <summary><c>quest_state</c> (M5): a quest's state, or with <c>objective</c> one of its objectives'; the quest lint checks the objective exists.</summary>
     private static QuestStateCondition QuestState(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
@@ -223,6 +274,11 @@ public static class SocialContent
                 if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Offers(open.Service)))
                     throw new FormatException($"{dialogue.Id}: opens {open.Service}, which none of its participants offers");
             }
+            // Only someone who can join is recruited or ordered by their own conversation (M6).
+            bool companionship = dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences)
+                .Any(c => c is RecruitCompanionConsequence or OrderCompanionConsequence);
+            if (companionship && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Companion is not null))
+                throw new FormatException($"{dialogue.Id}: recruits or orders a companion, but none of its participants can join the character");
             // A visited condition about another conversation names a line that conversation has.
             foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions).OfType<VisitedCondition>()
                          .Where(v => v.DialogueId is { } other && other != dialogue.Id))

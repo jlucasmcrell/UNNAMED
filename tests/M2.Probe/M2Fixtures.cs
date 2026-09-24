@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -140,6 +141,17 @@ public static class M2Fixtures
                     new ObjectiveState("o_den", ObjectiveStatus.Active, 4_001, null, 0))),
                 new QuestState("quest.fixture.cull", QuestStatus.Completed, 2_000, 3_500, "o_cull", ImmutableArray.Create(
                     new ObjectiveState("o_cull", ObjectiveStatus.Satisfied, 2_000, 3_500, 3))),
+            },
+            // Schema 12: the warden has joined Aelin and is following, hurt, two ticks without headway, three marks of the trail
+            // still ahead. Written with content 0.1.6, which calls the warden npc.fixture.warden; the current pack renames them.
+            companions: new[]
+            {
+                new CompanionRecord("npc.fixture.warden", CompanionOrder.Follow, CompanionCondition.Up, 148_750, -41_500, 45_000, 64)
+                {
+                    StuckTicks = 2,
+                    LastCombatTick = 4_950,
+                    Trail = ImmutableArray.Create(new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125)),
+                },
             });
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

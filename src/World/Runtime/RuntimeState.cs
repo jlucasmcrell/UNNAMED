@@ -68,6 +68,9 @@ public enum StateSlice
 
     /// <summary>Every quest the player has started, with its objectives (S-29; M5). Saved with the player (schema 11).</summary>
     Quests,
+
+    /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
+    Companions,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -131,6 +134,8 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, ImmutableSortedSet<string>> Conversations { get; private set; }
     public Conversation? Conversation { get; private set; }
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
+    public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
+        ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -304,6 +309,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Quests);
         Quests = Quests.SetItem(quest.QuestId, quest);
+    }
+
+    public void SetCompanion(SliceOwner owner, CompanionState companion)
+    {
+        Require(owner, StateSlice.Companions);
+        Companions = Companions.SetItem(companion.NpcId, companion);
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

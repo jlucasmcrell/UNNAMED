@@ -234,6 +234,13 @@ public sealed class PlayerController
     /// <summary>Speak to an NPC within reach (M4).</summary>
     public void Talk(string npcId) => _session.Submit(new TalkCommand(_session.Simulation!.PlayerId, npcId));
 
+    /// <summary>Tell a companion to follow or to wait (M6).</summary>
+    public void Order(string npcId, Domain.Companions.CompanionOrder order) =>
+        _session.Submit(new OrderCompanionCommand(_session.Simulation!.PlayerId, npcId, order));
+
+    /// <summary>Help a downed companion up (M6).</summary>
+    public void Revive(string npcId) => _session.Submit(new ReviveCommand(_session.Simulation!.PlayerId, npcId));
+
     /// <summary>Harvest a node within reach (M3f).</summary>
     public void Gather(string nodeKey) => _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
 

@@ -65,6 +65,42 @@ public class SocialContentTests
         Assert.Equal(new TransferItemConsequence("item.tome.resonance_primer", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());
     }
 
+    /// <summary>M6: Tavar can join the character - his spear, his health, his jerkin - and config.companion says how companions behave.</summary>
+    [Fact]
+    public void Tavar_CanJoin_AndTheRulesCompanionsKeepAreContent()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Assert.Empty(loader.Errors);
+        var npcs = SocialContent.BuildNpcs(loader);
+
+        var tavar = npcs["npc.ashen_hollow.tavar_orr"].Companion!;
+        Assert.Equal((100, "item.weapon.march_spear"), (tavar.MaxHealth, tavar.WeaponId));
+        Assert.Equal(new[] { 0, 3, 1 }, new[] { UNNAMED.Domain.Combat.BodyRegion.Head, UNNAMED.Domain.Combat.BodyRegion.Torso, UNNAMED.Domain.Combat.BodyRegion.Limbs }
+            .Select(r => tavar.Armor[r]));
+        Assert.All(npcs.Values.Where(n => n.Id != "npc.ashen_hollow.tavar_orr"), n => Assert.Null(n.Companion));
+        // Metres and seconds in the content; millimetres and 20 Hz ticks here.
+        Assert.Equal(new UNNAMED.Domain.Companions.CompanionTuning(2_500, 4_000, 8_000, 30_000, 80, 1_000, 48, 10_000, 16_000, 4_000, 12, 1_200, 40, 200, 2),
+            SocialContent.BuildCompanionTuning(loader));
+    }
+
+    [Fact]
+    public void RecruitingSomeoneWhoCannotJoin_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "companion:\n  health: 100", "sidekick:\n  health: 100",
+            "recruits or orders a companion, but none of its participants can join");
+
+    [Fact]
+    public void ACompanionWithABow_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "weapon_item_ref: item.weapon.march_spear", "weapon_item_ref: item.weapon.hunting_bow",
+            "is a ranged weapon");
+
+    [Fact]
+    public void CompanionRulesThatDoNotNest_AreRefused() =>
+        AssertRefused("config/companion.yaml", "run_beyond_m: 4 ", "run_beyond_m: 2 ", "the follow distances nest");
+
+    [Fact]
+    public void AnOrderThatIsNotFollowOrWait_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "order: wait }]", "order: guard }]", "a companion's order is follow or wait");
+
     [Fact]
     public void AVisitedConditionOnALineAnotherConversationDoesNotHave_IsRefused() =>
         AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet",

@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
@@ -16,6 +17,9 @@ namespace UNNAMED.World.Runtime;
 /// <summary>The NPCs and their conversations, built from content at boot (M4). Where each stands is the region's.</summary>
 public sealed record SocialSetup(ImmutableSortedDictionary<string, NpcDefinition> Npcs, ImmutableSortedDictionary<string, DialogueDefinition> Dialogues)
 {
+    /// <summary>How companions behave (M6); null in a pack where nobody can join.</summary>
+    public CompanionTuning? Companions { get; init; }
+
     public static SocialSetup Empty { get; } = new(ImmutableSortedDictionary.Create<string, NpcDefinition>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, DialogueDefinition>(StringComparer.Ordinal));
 }
@@ -61,7 +65,11 @@ public sealed record ItemSold(string NpcId, string ItemId, int Count, long Price
 // ── views ───────────────────────────────────────────────────────────────────
 
 /// <summary>An NPC as presentation draws them: who, where, and whether the character is talking to them.</summary>
-public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body Body, bool Talking);
+public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body Body, bool Talking)
+{
+    /// <summary>A companion lying downed (M6).</summary>
+    public bool Downed { get; init; }
+}
 
 /// <summary>The open conversation: the line, and the replies offered now.</summary>
 public sealed record ConversationView(string NpcId, string DialogueId, string NodeId, string Text, ImmutableArray<ReplyView> Replies);
@@ -90,8 +98,9 @@ internal sealed record ChangeRelationship(string NpcId, string Dimension, int De
 /// <summary>
 /// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24). Each named NPC stands where the region puts them, turned
 /// the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the vertical slice) and no
-/// simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID (D-10), and
-/// Phase 1's NPCs are non-combatants who take no harm, so nothing about their bodies needs saving.
+/// simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID (D-10). A
+/// companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
+/// everyone else stands where the region puts them, so nothing about their bodies needs saving.
 /// </summary>
 internal sealed class NpcSystem
 {
@@ -129,11 +138,19 @@ internal sealed class NpcSystem
         }
     }
 
+    public string? Handle(PlaceNpc command)
+    {
+        if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
+            return $"there is no one called {command.NpcId} here";
+        State.SetNpc(_owner, npc with { Body = command.Body });
+        return null;
+    }
+
     public void Tick(long tick)
     {
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
-        foreach (var npc in State.Npcs.Values)
+        foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))
         {
             int wanted = npc.Definition.Id == talking
                 ? CombatRules.FacingTowards(npc.Body.XMm, npc.Body.ZMm, player.XMm, player.ZMm)
@@ -147,8 +164,10 @@ internal sealed class NpcSystem
     }
 
     public ImmutableArray<NpcView> Views() =>
-        State.Npcs.Values.Select(n => new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id))
-            .ToImmutableArray();
+        State.Npcs.Values.Select(n => new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id)
+        {
+            Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
+        }).ToImmutableArray();
 }
 
 /// <summary>
@@ -213,6 +232,8 @@ internal sealed class DialogueSystem : IDialogueFacts
             return $"there is no one called {command.NpcId} here";
         if (npc.Definition.DialogueId is not { } dialogueId || !Setup.Dialogues.TryGetValue(dialogueId, out var dialogue))
             return $"{npc.Definition.Name} has nothing to say";
+        if (State.Companions.TryGetValue(command.NpcId, out var companion) && companion.Condition == CompanionCondition.Downed)
+            return $"{npc.Definition.Name} is down";
         if (_context.DistanceToPlayer(npc.Body) > _context.TalkReachMm)
             return $"{npc.Definition.Name} is out of reach";
         if (State.Conversation is { } open)
@@ -356,6 +377,12 @@ internal sealed class DialogueSystem : IDialogueFacts
                 // A quest already started is not started again, and that is no failure of the reply.
                 _context.Dispatch(new StartQuest(start.QuestId, open.NpcId));
                 break;
+            case RecruitCompanionConsequence:
+                _context.Dispatch(new Recruit(open.NpcId));
+                break;
+            case OrderCompanionConsequence order:
+                _context.Dispatch(new OrderCompanion(open.NpcId, order.Order));
+                break;
         }
     }
 
@@ -382,6 +409,8 @@ internal sealed class DialogueSystem : IDialogueFacts
     public int SkillLevel(string skillId) => ProgressionEngine.SkillLevel(State.Progression, skillId);
 
     public int Level => State.Progression.Level;
+
+    public CompanionOrder? CompanionOrderOf(string npcId) => State.Companions.TryGetValue(npcId, out var companion) ? companion.Order : null;
 
     public string QuestState(string questId, string? objectiveId)
     {
@@ -425,6 +454,8 @@ internal sealed class DialogueSystem : IDialogueFacts
         public int Level => _system.Level;
 
         public string QuestState(string questId, string? objectiveId) => _system.QuestState(questId, objectiveId);
+
+        public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
     }
 }
 

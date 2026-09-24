@@ -5,6 +5,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -88,8 +89,17 @@ internal sealed record CreatureState(
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
 }
 
-/// <summary>To <see cref="CreatureSystem"/>: a resolved blow lands on a creature. Its owner applies it.</summary>
-internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Source) : InternalCommand;
+/// <summary>
+/// To <see cref="CreatureSystem"/>: a resolved blow lands on a creature. Its owner applies it. The character struck it unless an
+/// <see cref="Attacker"/> is named - a companion (M6), standing at <see cref="FromXMm"/>, <see cref="FromZMm"/>.
+/// </summary>
+internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Source) : InternalCommand
+{
+    public EntityId? Attacker { get; init; }
+    public string? AttackerDefId { get; init; }
+    public long FromXMm { get; init; }
+    public long FromZMm { get; init; }
+}
 
 /// <summary>To <see cref="CreatureSystem"/>: harm that is not a blow (an effect's tick).</summary>
 internal sealed record HarmCreature(EntityId Target, string Source, int Amount) : InternalCommand;
@@ -460,9 +470,11 @@ internal sealed class CreatureSystem
     /// </summary>
     private CreatureState Engage(CreatureState c, long tick)
     {
-        var player = State.Body;
+        var foe = Foe(c);
+        var player = foe.Body;
         var attack = c.Definition.Attack;
-        long targetX = c.Knows ? c.KnownXMm : player.XMm, targetZ = c.Knows ? c.KnownZMm : player.ZMm;
+        // The character is gone after where they were last perceived; a companion who stands nearer is simply there (M6).
+        long targetX = foe.Companion is null && c.Knows ? c.KnownXMm : player.XMm, targetZ = foe.Companion is null && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
@@ -488,8 +500,8 @@ internal sealed class CreatureSystem
         bool clear = !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
-        // A charge opens from range, committed to its line: only at a target it can see, and not too often.
-        if (c.Definition.Charge is { } charge && seesTarget && clear && tick >= c.NextChargeTick
+        // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
+        if (c.Definition.Charge is { } charge && foe.Companion is null && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
         {
             var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
@@ -533,7 +545,7 @@ internal sealed class CreatureSystem
     /// </summary>
     private CreatureState Aim(CreatureState c)
     {
-        var player = State.Body;
+        var player = c.Action.Kind == ActionKind.Charge ? State.Body : Foe(c).Body;
         var faced = c with
         {
             Body = c.Action.Attack is { Advances: true }
@@ -595,27 +607,30 @@ internal sealed class CreatureSystem
         var action = c.Action;
         var attack = action.Attack!;
         long elapsed = tick - action.StartTick;
-        var player = State.Body;
+        var foe = Foe(c);
+        var player = foe.Body;
         // A lunge carries the body forward through the active window, stopping at whatever is in the way.
-        if (attack.LungeMm > 0 && !action.Struck.Contains(_player))
+        if (attack.LungeMm > 0 && !action.Struck.Contains(foe.Id))
         {
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
                 (int)Math.Round(Math.Cos(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000), Gait.Run, c.Body.FacingMdeg);
             var obstacles = new List<Blocker>(_context.ClosedDoors())
             {
-                new CircleBlocker("player", player.XMm, player.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
+                new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
+            obstacles.AddRange(Companions());
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
         }
-        bool reaches = !action.Struck.Contains(_player) && !State.PlayerCombat.Defeated
+        bool reaches = !action.Struck.Contains(foe.Id) && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
             && !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (reaches && _context.Dispatch(new CreatureStrike(c.Id, attack)) is null)
+        InternalCommand blow = foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
+        if (reaches && _context.Dispatch(blow) is null)
         {
             _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
-            return c with { Action = action with { Struck = action.Struck.Add(_player) } };
+            return c with { Action = action with { Struck = action.Struck.Add(foe.Id) } };
         }
         if (action.Struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
             _context.Events.Publish(new AttackMissed(c.Id, attack.Source, tick));
@@ -632,7 +647,9 @@ internal sealed class CreatureSystem
         var hit = command.Hit;
         int health = Math.Max(0, c.Health - hit.Final);
         bool staggered = hit.Staggered && health > 0 && tick >= c.StaggerImmuneUntil;
-        var player = State.Body;
+        // It knows where the blow came from: the character, or the companion who struck it (M6).
+        var attacker = command.Attacker ?? _player;
+        var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
         var wounded = c with
         {
             Health = health,
@@ -640,8 +657,8 @@ internal sealed class CreatureSystem
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
             Knows = true,
-            KnownXMm = player.XMm,
-            KnownZMm = player.ZMm,
+            KnownXMm = fromX,
+            KnownZMm = fromZ,
             LastSeenTick = tick,
         };
         // It felt the wound: it is on its attacker now, or running from it.
@@ -650,9 +667,9 @@ internal sealed class CreatureSystem
             _context.Events.Publish(new CreatureNoticed(c.Id, c.Key, mind, tick));
         wounded = wounded with { Mind = mind };
         _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
-        _context.Events.Publish(new HitResolved(_player, "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical, hit.Blocked, hit.Dodged,
-            staggered, health, tick));
-        Save(health == 0 ? Die(wounded, tick) : wounded);
+        _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
+            hit.Blocked, hit.Dodged, staggered, health, tick));
+        Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
         return null;
     }
 
@@ -662,7 +679,7 @@ internal sealed class CreatureSystem
             return null;
         int health = Math.Max(0, c.Health - command.Amount);
         _context.Events.Publish(new HealthChanged(c.Id, command.Source, -command.Amount, health, tick));
-        Save(health == 0 ? Die(c with { Health = 0 }, tick) : c with { Health = health });
+        Save(health == 0 ? Die(c with { Health = 0 }, tick, _player) : c with { Health = health });
         return null;
     }
 
@@ -677,16 +694,18 @@ internal sealed class CreatureSystem
     }
 
     /// <summary>
-    /// A death: the body stays as a corpse, the kill earns combat XP (through AG-1..AG-3, the spawner as the cluster), and a
-    /// spawner with a timer schedules the return - twice as long while the cluster is saturated (AG-3).
+    /// A death: the body stays as a corpse, a kill by the character earns combat XP (through AG-1..AG-3, the spawner as the cluster) and
+    /// counts for their quests - a companion's kill does neither (M6) - and a spawner with a timer schedules the return, twice as long
+    /// while the cluster is saturated (AG-3).
     /// </summary>
-    private CreatureState Die(CreatureState c, long tick)
+    private CreatureState Die(CreatureState c, long tick, EntityId killer)
     {
         _context.Dispatch(new ClearEffects(c.Id));
-        _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, _player, tick));
-        _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
+        _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
+        if (killer == _player)
+            _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
         var definition = c.Definition;
-        if (definition.XpValue > 0)
+        if (definition.XpValue > 0 && killer == _player)
         {
             _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, definition.XpValue, tick)
             {
@@ -812,10 +831,40 @@ internal sealed class CreatureSystem
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
+        others.AddRange(Companions());
         others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
         return Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, others, TickMs);
     }
+
+    /// <summary>
+    /// Whom an engaged creature goes for (M6): the character - or a companion on their feet standing nearer to it by more than a step,
+    /// in reach of it, as the one in its way. It is the character it perceives and hunts; a companion is fought because they are there.
+    /// </summary>
+    private (Body Body, EntityId Id, string? Companion) Foe(CreatureState c)
+    {
+        var player = State.Body;
+        double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        (Body, EntityId, string?) foe = (player, _player, null);
+        foreach (var companion in State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up))
+        {
+            if (!State.Npcs.TryGetValue(companion.NpcId, out var npc))
+                continue;
+            double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
+            if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
+                foe = (npc.Body, npc.InstanceId, companion.NpcId);
+        }
+        return foe;
+    }
+
+    /// <summary>A companion stands nearer than the character by more than this before a creature turns on them.</summary>
+    private const long FoeMarginMm = 1_000;
+
+    /// <summary>Companions on their feet, as bodies creatures do not walk through.</summary>
+    private IEnumerable<Blocker> Companions() =>
+        State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(x.NpcId))
+            .Select(x => State.Npcs[x.NpcId])
+            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;
 

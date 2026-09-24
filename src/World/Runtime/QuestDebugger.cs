@@ -381,6 +381,8 @@ internal sealed class QuestDebugger
         SkillCondition s => $"needs {s.SkillId} {s.Min}",
         LevelCondition l => $"needs level {l.Min}; the character is {State.Progression.Level}",
         QuestStateCondition q => $"needs {q.QuestId}{(q.ObjectiveId is { } o ? " " + o : "")} {(q.Negated ? "not " : "")}{q.State}",
+        CompanionPresentCondition p => $"needs {p.NpcId} {(p.Negated ? "not " : "")}with the character" +
+            (p.Order is { } order ? $", {Domain.Companions.CompanionKeys.Key(order)}ing" : ""),
         _ => condition.ToString(),
     };
 

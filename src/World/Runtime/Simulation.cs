@@ -92,6 +92,7 @@ public sealed class Simulation
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
     private readonly QuestDebugger _debugger;
+    private readonly CompanionSystem _companions;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -132,11 +133,13 @@ public sealed class Simulation
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
+        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
+        _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
     }
@@ -218,6 +221,9 @@ public sealed class Simulation
     /// <summary>The region's named NPCs (M4).</summary>
     public ImmutableArray<NpcView> Npcs => _npcs.Views();
 
+    /// <summary>The character's companions (M6).</summary>
+    public ImmutableArray<CompanionView> Companions => _companions.Views();
+
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
 
@@ -270,6 +276,8 @@ public sealed class Simulation
                 LeaveCommand leave => _dialogue.Handle(leave, WorldTick),
                 BuyCommand buy => _trade.Handle(buy, WorldTick),
                 SellCommand sell => _trade.Handle(sell, WorldTick),
+                OrderCompanionCommand order => _companions.Handle(order, WorldTick),
+                ReviveCommand revive => _companions.Handle(revive, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -282,7 +290,7 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
+    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
     /// </summary>
     public void Step()
     {
@@ -298,6 +306,7 @@ public sealed class Simulation
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
             _creatures.Tick(tick);
+            _companions.Tick(tick);
             _npcs.Tick(tick);
             _dialogue.Tick(tick);
             _effects.Tick(tick);
@@ -321,7 +330,7 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values);
+            _state.Quests.Values, _companions.Records());
     }
 
     /// <summary>
@@ -370,6 +379,10 @@ public sealed class Simulation
         ChangeRelationship change => _relationships.Handle(change, Now),
         StartQuest start => _quests.Handle(start, Now),
         RecordDeed deed => _quests.Handle(deed),
+        Recruit recruit => _companions.Handle(recruit, Now),
+        OrderCompanion order => _companions.Handle(order, Now),
+        CompanionStruck struck => _companions.Handle(struck, Now),
+        PlaceNpc place => _npcs.Handle(place),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

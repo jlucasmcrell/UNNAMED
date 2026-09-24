@@ -153,7 +153,7 @@ public static class ObjectiveTypes
         ["solve_puzzle"] = "puzzles (M8)",
         ["faction_reputation"] = "factions (M7)",
         ["faction_state"] = "factions (M7)",
-        ["companion_present"] = "companions (M6)",
+        ["companion_present"] = "a quest that asks after a companion (companions arrived in M6; no quest needs one yet)",
         ["know_fact"] = "knowledge facts",
         ["time_window"] = "the time of day",
     }.ToImmutableSortedDictionary(StringComparer.Ordinal);
