@@ -26,6 +26,12 @@ public sealed class AssetCatalog
     /// <summary>The workspace the art was read from, or null when there was none.</summary>
     public string? Root { get; }
 
+    /// <summary>The Strain overlay's curve (the effect manifest's <c>strain_feedback</c>): Strain as a share of tolerance to the overlay's alpha.</summary>
+    public IReadOnlyList<(double Strain, double Alpha)> StrainOverlay { get; private set; } = Array.Empty<(double, double)>();
+
+    /// <summary>The pulse added to the overlay at full Strain, in hertz (the manifest: from 0.65 up).</summary>
+    public double StrainPulseHz { get; private set; }
+
     public static AssetCatalog Empty { get; } = new(null);
 
     public static AssetCatalog Load(string? explicitRoot, string repositoryRoot)
@@ -51,6 +57,12 @@ public sealed class AssetCatalog
                 using var vfx = JsonDocument.Parse(File.ReadAllText(effects));
                 foreach (var effect in vfx.RootElement.GetProperty("effects").EnumerateObject())
                     catalog._effects[effect.Name] = effect.Value.Clone();
+                if (vfx.RootElement.TryGetProperty("strain_feedback", out var strain))
+                {
+                    catalog.StrainOverlay = strain.GetProperty("points").EnumerateArray()
+                        .Select(p => (p.GetProperty("strain").GetDouble(), p.GetProperty("overlay_alpha").GetDouble())).OrderBy(p => p.Item1).ToList();
+                    catalog.StrainPulseHz = strain.TryGetProperty("pulse_hz_at_max", out var hz) ? hz.GetDouble() : 0;
+                }
             }
         }
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or IOException)

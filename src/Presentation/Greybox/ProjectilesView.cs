@@ -14,7 +14,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public partial class ProjectilesView : Node3D
 {
-    private const float ArrowSpeed = 55f;
+    public const float ArrowSpeed = 55f;
     private const float WorkingSpeed = 38f;
     private const double StuckSeconds = 10;
 
@@ -67,6 +67,9 @@ public partial class ProjectilesView : Node3D
     }
 
     public void Bind(AssetCatalog assets) => _assets = assets;
+
+    /// <summary>Where a shot came to rest as drawn - a working's burst, an arrow in a wall or the ground, or in a creature (struck) - for its sound.</summary>
+    public Action<Vector3, bool, bool>? Arrived { get; set; }
 
     /// <summary>
     /// A shot from <paramref name="from"/> to <paramref name="to"/>: an arrow, or a working (<paramref name="effectStem"/> names its
@@ -131,6 +134,7 @@ public partial class ProjectilesView : Node3D
 
     private void Arrive(Flight flight)
     {
+        Arrived?.Invoke(flight.To, flight.Working, flight.Struck);
         if (flight.Working)
         {
             flight.Node.QueueFree();
@@ -301,7 +305,8 @@ public partial class ProjectilesView : Node3D
         _lingering.Add((spark, _clock + 0.12, null));
     }
 
-    private static MeshInstance3D Quad(string name, Flipbook book, float size)
+    /// <summary>A camera-facing quad showing a flipbook's first frame (shared with the formulas' effects).</summary>
+    public static MeshInstance3D Quad(string name, Flipbook book, float size)
     {
         var material = new StandardMaterial3D
         {
@@ -321,7 +326,7 @@ public partial class ProjectilesView : Node3D
         return quad;
     }
 
-    private static void Frame(MeshInstance3D quad, Flipbook book, int frame)
+    public static void Frame(MeshInstance3D quad, Flipbook book, int frame)
     {
         var material = (StandardMaterial3D)quad.MaterialOverride;
         material.Uv1Offset = new Vector3((float)(frame % book.Columns) / book.Columns, (float)(frame / book.Columns) / book.Rows, 0);

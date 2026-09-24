@@ -1,0 +1,214 @@
+{
+  "comment": [
+    "What the game draws and plays for each thing the simulation has: game IDs on the left, the asset pipeline's stable semantic IDs on the right.",
+    "Presentation data, not game content: nothing here changes a rule, a save or the content hash. An asset that is missing or will not load",
+    "falls back to its greybox. Every model is drawn at its authored size (the asset's semantic size is authoritative; nothing rescales",
+    "one to a collision shape): centred on its structure, its long side along the structure's, stood on the ground. Where the authored",
+    "size and the world's structure disagree by more than half a metre a side (or 0.6 m of height) the greybox stands and the mismatch",
+    "is reported. 'tile' repeats a modular piece (a fence panel) at its own length. Static models are the full files: every _lod1-3 file",
+    "in the library (1,455) carries no material. Weapons are held by their own SOCK_grip_primary. Sources: assets/manifests/",
+    "playable_prototype_assets.json (the player, the weapons, the den chest), phase1_environment.json, ashen_hollow_landmarks.json,",
+    "playable_prototype_audio_v3.json and docs/PHASE1_AUDIO_EVENT_CONTRACT.md."
+  ],
+
+  "withheld": {
+    "material_packed_dirt_ground": "the colour map is a dirt pile photographed on a grey backdrop, not a seamless surface: tiled, it draws a grid of piles",
+    "material_marsh_grass_turf": "the colour map is a round turf patch on a grey backdrop, not a seamless surface",
+    "material_loose_gravel": "the colour map is a ring of stones on a grey backdrop, not a seamless surface",
+    "material_churned_wet_mud": "the colour map is a mud puddle on a grey backdrop, not a seamless surface",
+    "material_rubble_stone_wall": "the colour map is a strip of wall on a grey backdrop, not a seamless surface",
+    "material_plaster_lath_wall": "the colour map is a plaster tile on a grey backdrop, not a seamless surface",
+    "material_oak_plank_floor": "the colour map is planks in perspective on a grey backdrop, not a seamless surface",
+    "material_limestone_ashlar": "the colour map is a single block on a grey backdrop, not a seamless surface",
+    "material_slate_roof_scale": "the colour map is a roof section in perspective on a grey backdrop, not a seamless surface",
+    "material_cast_iron_surface": "the colour map is a cast-iron tray on a grey backdrop, not a seamless surface",
+    "building_wall_timber": "textured with the plaster and plank swatches above: its faces show their grey backdrop as white triangles",
+    "building_wall_stone": "textured with the rubble swatch above: its faces show the swatch's grey backdrop in triangles",
+    "building_roof_panel": "textured with the slate swatch above: the backdrop shows through as white stripes",
+    "building_floor_planks": "textured with the plank swatch above: the backdrop shows through as white shards",
+    "building_fence_panel": "textured with the plank swatch above: the backdrop shows through as white slats",
+    "forge_shed": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
+    "longhouse": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
+    "landmark_foldscar_core": "modelled standing on its edge: a ring of stones round a crater, stood up like a wheel (4.39 m tall, the crater facing sideways)",
+    "prop_long_trestle_table": "modelled tilted: the table top slopes and the legs splay (1.03 m tall, 1.55 m deep for a 1.6 m table)",
+    "flora_birch_tree": "the trunk is a single spike of a few huge triangles, reading as a shard rather than a trunk",
+    "race2_veth_bindpose": "the rig does not fit its mesh: the mesh's arms hang lower than the skeleton's A-pose, so both hand bones sit 0.16 m and the finger bones 0.21-0.26 m from the nearest vertex (bind = rest: the skeleton, not the export); a held weapon floats off the drawn hand and arm clips bend the arms about points off the body",
+    "race2_veth_representative": "the rig does not fit its mesh: an arms-down mesh 0.62 m wide on an A-pose skeleton with its hands at x = +/-0.56 m; no vertex is weighted to either hand bone and 22 to lowerarm_r, so each arm rides its upper-arm bone whole",
+    "creature_ash_ember_hound": "the skeleton does not fit its mesh: 0.88 m tall in a 1.30 m mesh, its spine along +Z; leg bones up to 0.36 m from the nearest vertex",
+    "creature_bristleback_boar": "the skeleton does not fit its mesh: 0.90 m tall in a 1.32 m mesh, its spine along +Z while the body faces -X; leg bones up to 0.39 m from the nearest vertex",
+    "creature_cave_hunting_spider": "the skeleton does not fit its mesh: 0.59 m tall in a 0.86 m mesh, its spine along +Z; leg bones up to 0.32 m from the nearest vertex",
+    "creature_frost_wolf": "the skeleton does not fit its mesh: 0.81 m tall in a 1.19 m mesh, its spine along +Z; leg bones up to 0.45 m from the nearest vertex",
+    "creature_animated_armour": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 2.00 m mesh; foot.R 0.26 m, neck and shoulder.L 0.18 m from the nearest vertex",
+    "npc_kal_smith": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 1.30 m mesh, the head bone 0.30 m above the head; its clips draw the body contorted",
+    "flora_oak_tree": "modelled leaning: the trunk's axis leans 31 degrees and its base plane 20 (the file's nodes are upright; the lean is in the vertices)",
+    "flora_pine_tree": "modelled leaning: the trunk's axis leans 24 degrees and its base plane 37",
+    "flora_dead_tree": "modelled leaning: the trunk's axis leans 17 degrees and its base plane 13",
+    "container_chest_iron_banded": "modelled tilted: its lid and its base both slope about 15 degrees",
+    "prop_blacksmith_anvil_stump": "modelled tilted: its face and its base both slope about 10 degrees",
+    "prop_wooden_crate": "modelled tilted: its top and its base slope 21 and 18 degrees",
+    "resource_ash_haft": "modelled leaning: the haft stands 33 degrees off vertical"
+  },
+
+  "terrain": {
+    "r_0_0:c_00_01": "material_packed_dirt_ground",
+    "r_0_0:c_01_01": "material_marsh_grass_turf",
+    "r_0_0:c_00_00": "material_loose_gravel",
+    "r_0_0:c_01_00": "material_churned_wet_mud"
+  },
+  "cliffs": "material_rubble_stone_wall",
+
+  "structures": {
+    "rock_waystone": { "model": "landmark_ashen_waystone", "material": "stone" },
+    "rock_stone_north": { "model": "landmark_quiet_stone", "material": "stone" },
+    "rock_stone_southwest": { "model": "landmark_quiet_stone", "material": "stone" },
+    "rock_stone_southeast": { "model": "landmark_quiet_stone", "material": "stone" },
+    "rock_foldscar_heart": { "model": "landmark_foldscar_core", "material": "stone" },
+    "cart_wreck": { "model": "prop_cart_damaged_merchant", "material": "wood" },
+    "rock_iron_seam": { "model": "prop_iron_vein_outcrop", "material": "stone" },
+    "rock_blocked_shaft": { "model": "prop_blocked_shaft", "material": "stone" },
+    "rock_rim_01": { "model": "rock_boulder", "material": "stone" },
+    "rock_rim_02": { "model": "rock_boulder", "material": "stone" },
+    "rock_rim_03": { "model": "rock_boulder", "material": "stone" },
+    "rock_rim_04": { "model": "rock_boulder", "material": "stone" },
+    "rock_beam_west": { "model": "rock_boulder", "material": "stone" },
+    "rock_beam_east": { "model": "rock_boulder", "material": "stone" },
+    "survey_table": { "model": "prop_long_trestle_table", "material": "wood" },
+    "rock_well": { "model": "building_well", "material": "stone" },
+    "fence_smithy": { "model": "building_fence_panel", "fit": "tile", "material": "wood" },
+    "fallen_timber": { "surface": "material_oak_plank_floor", "material": "wood" },
+    "beam_woundmoss": { "surface": "material_oak_plank_floor", "material": "wood" },
+    "den_rock_west": { "surface": "material_rubble_stone_wall", "material": "stone" },
+    "den_rock_east": { "surface": "material_rubble_stone_wall", "material": "stone" },
+    "den_rock_back": { "surface": "material_rubble_stone_wall", "material": "stone" }
+  },
+  "structure_prefixes": {
+    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "At their authored 14 m; the full models, since the _lod files carry no material." }
+  },
+  "building_walls": {
+    "longhouse_": { "material": "wood", "note": "The lodge stays greybox: its kit pieces are withheld above. Arrows striking it read as wood." },
+    "forge_": { "material": "stone", "note": "The smithy stays greybox for the same reason." }
+  },
+
+  "doors": {
+    "door.longhouse": { "model": "prop_iron_banded_oak_door" },
+    "door.forge_shed": { "model": "prop_iron_banded_oak_door" }
+  },
+
+  "containers": {
+    "container.waystation_chest": { "model": "container_chest_iron_banded", "sound": "chest" },
+    "container.den_cache": { "model": "container_chest_iron_banded", "sound": "chest", "note": "The playable prototype manifest's den cache chest." },
+    "container.merchant_cart": { "hidden": true }
+  },
+  "ground_item": { "model": "prop_canvas_haversack" },
+  "nodes": {
+    "node.wood.ash_stand": { "model": "resource_ash_haft" },
+    "node.ore.iron_seam": { "hide_ready": true, "sound": "mining" }
+  },
+  "stations": {
+    "anvil": { "model": "prop_blacksmith_anvil_stump", "sound": "anvil" },
+    "forge": { "beside": "prop_forge_double_bellows", "offset": [0.95, 0, 0.1], "sound": "anvil" }
+  },
+
+  "creatures": {
+    "creature.beast.ash_ember_hound": { "model": "creature_ash_ember_hound", "clips": "creature.ash_ember_hound", "voice": "ash_ember_hound", "flesh": "flesh", "steps": { "walk": "walk", "run": "run" } },
+    "creature.beast.bristleback_boar": { "model": "creature_bristleback_boar", "clips": "creature.bristleback_boar", "voice": "bristleback_boar", "flesh": "flesh", "steps": { "walk": "walk", "run": "charge" } },
+    "creature.beast.cave_hunting_spider": { "model": "creature_cave_hunting_spider", "clips": "creature.cave_hunting_spider", "voice": "cave_hunting_spider", "flesh": "flesh", "steps": { "walk": "scuttle", "run": "scuttle_fast" }, "steps_per_sound": 2 },
+    "creature.undead.bone_walker_husk": { "model": "creature_bone_walker_husk", "clips": "creature.bone_walker_husk", "voice": "bone_walker_husk", "flesh": "flesh", "steps": { "walk": "walk", "run": "move_fast" } },
+    "creature.construct.animated_armour": { "model": "creature_animated_armour", "clips": "creature.animated_armour", "voice": "animated_armour", "flesh": "plate", "steps": { "walk": "walk", "run": "move_heavy" } },
+    "creature.beast.wolf_grey": { "model": "creature_frost_wolf", "clips": "creature.frost_wolf", "voice": "ash_ember_hound", "flesh": "flesh", "steps": { "walk": "walk", "run": "run" }, "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists." }
+  },
+
+  "people": {
+    "player": {
+      "model": "race2_veth_bindpose",
+      "note": "The playable prototype manifest's player body (P0). Withheld above: the greybox figure stands in and holds the real weapons.",
+      "hand": "hand_r",
+      "off_hand": "hand_l",
+      "clips": {
+        "idle": "humanoid.locomotion.idle",
+        "walk": "humanoid.locomotion.walk_forward",
+        "run": "humanoid.locomotion.run_forward",
+        "sprint": "humanoid.locomotion.sprint_forward",
+        "sword_ready": "humanoid.sword.ready_01",
+        "sword_attack": "humanoid.sword.attack_01",
+        "sword_block": "humanoid.sword.block_01",
+        "bow_ready": "humanoid.bow.ready_01",
+        "bow_draw": "humanoid.bow.draw_release_01",
+        "spear_ready": "humanoid.polearm.ready_01",
+        "spear_thrust": "humanoid.polearm.thrust_01",
+        "cast": "humanoid.magic.cast_01",
+        "hit": "humanoid.general.hit_react_01",
+        "death": "humanoid.general.death_01",
+        "interact": "humanoid.general.interact_01"
+      }
+    },
+    "npc.ashen_hollow.renn_vale": { "model": "npc_veth_magistrate", "hand": "hand.R", "clips": { "idle": "npc.handover", "talk": "npc.talk" } },
+    "npc.ashen_hollow.kera_voss": { "model": "npc_kal_smith", "hand": "hand.R", "clips": { "idle": "npc.work_forge", "talk": "npc.talk" } },
+    "npc.ashen_hollow.sel_arien": { "model": "npc_siann_archivist", "hand": "hand.R", "clips": { "idle": "npc.work_table", "talk": "npc.talk" } },
+    "npc.ashen_hollow.tavar_orr": {
+      "model": "npc_orenth_guide",
+      "hand": "hand.R",
+      "grip": { "at": [0.03, 0.08, 0.0], "primary": [-0.08, -1.0, 0.0], "secondary": [1.0, -0.08, -0.08], "note": "The NPC rig has no hand sockets: the fist's centre, 8 cm down the hand bone on the palm side, a spear held upright at rest." },
+      "clips": {
+        "idle": "creature.bone_walker_husk.idle",
+        "walk": "creature.bone_walker_husk.walk",
+        "run": "creature.bone_walker_husk.run",
+        "attack": "creature.bone_walker_husk.attack",
+        "hit": "creature.bone_walker_husk.hit",
+        "death": "creature.bone_walker_husk.death",
+        "talk": "npc.talk"
+      },
+      "note": "Tavar walks and fights: the NPC rig has no locomotion clips, so he borrows the humanoid husk's (the same 20-bone rig)."
+    }
+  },
+
+  "weapons": {
+    "item.weapon.rusted_sword": { "model": "weapon_arming_sword", "family": "sword", "note": "The playable prototype manifest's rusted_sword slot." },
+    "item.weapon.hunting_bow": { "model": "weapon_yew_longbow_warbow", "family": "bow", "hand": "off_hand", "note": "The manifest's hunting_bow slot." },
+    "item.weapon.march_spear": { "model": "weapon_boar_spear_hunting", "family": "polearm", "note": "The manifest's polearm family (weapon_march_spear has no grip socket)." }
+  },
+  "companion_weapon": { "model": "weapon_boar_spear_hunting", "family": "polearm" },
+
+  "icons": {
+    "item.consumable.salve_minor": "ui.item.restorative",
+    "item.weapon.hunting_bow": "ui.weapon.bow",
+    "item.weapon.march_spear": "ui.weapon.march_spear",
+    "item.weapon.rusted_sword": "ui.weapon.one_handed",
+    "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
+    "spell.warding.brace_ward": "ui.formula.brace_ward",
+    "spell.vital.mending_thread": "ui.formula.mending_thread",
+    "effect.bleeding": "ui.status.bleeding",
+    "effect.weakened": "ui.status.weakened",
+    "strained": "ui.status.strained",
+    "health": "ui.resource.health",
+    "stamina": "ui.resource.stamina",
+    "focus": "ui.resource.focus",
+    "resonance": "ui.resource.resonance",
+    "follow": "ui.companion.follow",
+    "wait": "ui.companion.wait",
+    "downed": "ui.status.downed"
+  },
+
+  "effects": {
+    "cast_charge": "vfx.magic.cast_charge",
+    "effect.braced": "vfx.warding.brace_ward_shell",
+    "effect.mending": "vfx.vital.mending_thread_restore",
+    "strain": "vfx.resonance.strain_overlay"
+  },
+
+  "audio": {
+    "cells": {
+      "r_0_0:c_00_01": { "bed": "amb.ashen_hollow.waystation.01", "details": ["sfx.amb.ashen_hollow.forge_distant.01", "sfx.amb.ashen_hollow.timber_creak.01", "sfx.amb.ashen_hollow.settlement_activity.01"], "surface": "dirt" },
+      "r_0_0:c_01_01": { "bed": "amb.charwood_verge.01", "details": ["sfx.amb.charwood.branch_movement.01", "sfx.amb.charwood.raven_call.01", "sfx.amb.charwood.stream_detail.01"], "surface": "dirt" },
+      "r_0_0:c_00_00": { "bed": "amb.blackvein_cut.01", "details": ["sfx.amb.blackvein.pebble_fall.01", "sfx.amb.blackvein.rock_shift.01", "sfx.amb.blackvein.winch_creak.01"], "surface": "stone" },
+      "r_0_0:c_01_00": { "bed": "amb.foldscar_ruin.01", "details": ["sfx.amb.foldscar.stone_resonance.01", "sfx.amb.foldscar.tone_displacement.01"], "surface": "dirt" }
+    },
+    "interior_surface": "wood",
+    "formulas": {
+      "spell.force.impulse_bolt": "impulse_bolt",
+      "spell.warding.brace_ward": "brace_ward",
+      "spell.vital.mending_thread": "mending_thread"
+    },
+    "forge_station": "forge"
+  }
+}

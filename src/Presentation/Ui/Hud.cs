@@ -11,7 +11,9 @@ namespace UNNAMED.Presentation.Ui;
 /// Combat (M3c) adds health and stamina bars, active effects, the target's health, a short combat log, and a death recap
 /// that names what killed the character (ROADMAP.md M3c: a tester can name what killed them). Magic (M3e) adds Focus and
 /// Strain bars - Strain marked once the character is Strained - and the formulas on keys 4 to 6, with the one being cast. The owner's M6
-/// playtest adds the heading compass at the top right (the quest tracker moves below it) and the aiming reticle.
+/// playtest adds the heading compass at the top right (the quest tracker moves below it) and the aiming reticle. The Phase-1 asset
+/// integration adds the icon manifest's tiles: each pool's beside its bar, the formulas' on their keys, the active effects', and the
+/// companion's order (<see cref="UseIcons"/>); without the asset workspace the text stands alone.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
@@ -20,6 +22,15 @@ public partial class Hud : CanvasLayer
     private readonly Label _debug = Text(15);
     private readonly Label _tracker = Text(18);
     private readonly Label _companions = Text(18);
+    private readonly TextureRect _companionIcon = new() { CustomMinimumSize = new Vector2(28, 28), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered };
+    private readonly HBoxContainer _formulaIcons = new();
+    private readonly HBoxContainer _effectIcons = new();
+    private readonly Dictionary<string, TextureRect> _poolIcons = new(StringComparer.Ordinal);
+    private HudIcons _icons = HudIcons.None;
+    private string _formulaKeys = string.Empty;
+    private string _effectKeys = string.Empty;
+    private string? _companionKey;
     private readonly Label _crosshair = Text(22);
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Label Label, double Expires)> _live = new();
@@ -45,8 +56,10 @@ public partial class Hud : CanvasLayer
         _status.Position = new Vector2(24, 20);
         AddChild(_status);
 
-        _companions.Position = new Vector2(24, 112);
-        AddChild(_companions);
+        var companions = new HBoxContainer { Position = new Vector2(24, 112) };
+        companions.AddChild(_companionIcon);
+        companions.AddChild(_companions);
+        AddChild(companions);
 
         _prompt.SetAnchorsPreset(Control.LayoutPreset.CenterBottom);
         _prompt.HorizontalAlignment = HorizontalAlignment.Center;
@@ -85,13 +98,23 @@ public partial class Hud : CanvasLayer
 
         var vitals = new VBoxContainer();
         vitals.SetAnchorsPreset(Control.LayoutPreset.BottomLeft);
-        vitals.Position = new Vector2(24, -230);
+        vitals.Position = new Vector2(24, -262);
+        vitals.AddChild(_formulaIcons);
         vitals.AddChild(_magic);
-        vitals.AddChild(_effects);
-        vitals.AddChild(_health);
-        vitals.AddChild(_stamina);
-        vitals.AddChild(_focus);
-        vitals.AddChild(_strain);
+        var effects = new HBoxContainer();
+        effects.AddChild(_effectIcons);
+        effects.AddChild(_effects);
+        vitals.AddChild(effects);
+        foreach (var (key, bar) in new[] { ("health", _health), ("stamina", _stamina), ("focus", _focus), ("strained", _strain) })
+        {
+            var row = new HBoxContainer();
+            var icon = new TextureRect { CustomMinimumSize = new Vector2(20, 20), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Visible = false };
+            _poolIcons[key] = icon;
+            row.AddChild(icon);
+            row.AddChild(bar);
+            vitals.AddChild(row);
+        }
         AddChild(vitals);
 
         var target = new VBoxContainer();
@@ -139,10 +162,52 @@ public partial class Hud : CanvasLayer
         _strain.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = strained ? new Color(0.9f, 0.2f, 0.3f) : new Color(0.55f, 0.3f, 0.7f) });
     }
 
-    /// <summary>The formulas on their keys, and the one being cast.</summary>
-    public void SetMagic(string text) => _magic.Text = text;
+    /// <summary>The icon manifest's tiles, through the art bindings: set once the workspace is known.</summary>
+    public void UseIcons(HudIcons icons)
+    {
+        _icons = icons;
+        foreach (var (key, icon) in _poolIcons)
+        {
+            icon.Texture = icons.For(key);
+            icon.Visible = icon.Texture is not null;
+        }
+        _formulaKeys = _effectKeys = string.Empty;
+        _companionKey = null;
+    }
 
-    public void SetEffects(string text) => _effects.Text = text;
+    /// <summary>The formulas on their keys (their icons, numbered from 4), and the one being cast.</summary>
+    public void SetMagic(string text, IReadOnlyList<string> formulas)
+    {
+        _magic.Text = text;
+        string keys = string.Join(",", formulas);
+        if (keys == _formulaKeys)
+            return;
+        _formulaKeys = keys;
+        foreach (var child in _formulaIcons.GetChildren())
+            child.QueueFree();
+        for (int i = 0; i < formulas.Count; i++)
+        {
+            if (_icons.For(formulas[i]) is null)
+                continue;
+            var tile = _icons.Tile(formulas[i], 40);
+            tile.AddChild(new Label { Text = $"{i + 4}", Position = new Vector2(2, 20) });
+            _formulaIcons.AddChild(tile);
+        }
+    }
+
+    /// <summary>The active effects: their icons (by effect ID, and <c>strained</c>), then their names and time left.</summary>
+    public void SetEffects(string text, IReadOnlyList<string> keys)
+    {
+        _effects.Text = text;
+        string joined = string.Join(",", keys);
+        if (joined == _effectKeys)
+            return;
+        _effectKeys = joined;
+        foreach (var child in _effectIcons.GetChildren())
+            child.QueueFree();
+        foreach (string key in keys.Where(k => _icons.For(k) is not null))
+            _effectIcons.AddChild(_icons.Tile(key, 26));
+    }
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(string? name, int health, int maxHealth)
@@ -192,7 +257,15 @@ public partial class Hud : CanvasLayer
     public void SetDebug(string text) => _debug.Text = text;
 
     /// <summary>The companion HUD (content bible §19): each companion's name, how they are, and follow or wait - nothing more.</summary>
-    public void SetCompanions(string? text) => _companions.Text = text ?? string.Empty;
+    public void SetCompanions(string? text, string? icon = null)
+    {
+        _companions.Text = text ?? string.Empty;
+        if (icon == _companionKey)
+            return;
+        _companionKey = icon;
+        _companionIcon.Texture = _icons.For(icon);
+        _companionIcon.Visible = _companionIcon.Texture is not null;
+    }
 
     /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
     public void SetTracker(string? text)

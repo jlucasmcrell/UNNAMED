@@ -14,7 +14,7 @@ namespace UNNAMED.Presentation.Player;
 /// poses follow the simulation's attack phases (windup, active window, recovery), so a clip that replaces them is timed
 /// to the same numbers.
 /// </summary>
-public partial class Avatar : Node3D
+public partial class Avatar : Figure
 {
     public const float EyeHeight = 1.62f;
 
@@ -32,6 +32,8 @@ public partial class Avatar : Node3D
     private readonly MeshInstance3D _bow = Part(new BoxMesh { Size = new Vector3(0.03f, 1.15f, 0.05f) }, Palette.Leather, new Vector3(0, -0.3f, 0.04f));
     // Along the forearm, from behind the elbow to 1.6 m past the hand: a level forearm holds it level.
     private readonly MeshInstance3D _spear = Part(new BoxMesh { Size = new Vector3(0.035f, 2.1f, 0.035f) }, Palette.Shaft, new Vector3(0, -0.85f, 0.05f));
+    private readonly MeshInstance3D _spearHead = Part(new BoxMesh { Size = new Vector3(0.07f, 0.24f, 0.02f) }, Palette.Metal, new Vector3(0, -1.17f, 0));
+    private readonly HashSet<Held> _armed = new();
     private readonly MeshInstance3D _working = Part(new SphereMesh { Radius = 0.07f, Height = 0.14f },
         new StandardMaterial3D { AlbedoColor = new Color(0.6f, 0.75f, 1f), EmissionEnabled = true, Emission = new Color(0.4f, 0.6f, 1f) },
         new Vector3(0, -0.34f, 0.04f));
@@ -45,7 +47,9 @@ public partial class Avatar : Node3D
     private bool _airborne;
 
     /// <summary>How far into a crouch the body is drawn, 0 standing to 1 crouched, eased so a stance change is not a snap.</summary>
-    public float Crouch { get; private set; }
+    public override float Crouch => _crouch;
+
+    private float _crouch;
 
     public override void _Ready()
     {
@@ -74,16 +78,46 @@ public partial class Avatar : Node3D
             elbow.AddChild(Part(new CapsuleMesh { Radius = 0.05f, Height = 0.3f }, Palette.Skin, new Vector3(0, -0.14f, 0)));
         }
         _rightElbow.AddChild(_sword);
-        _spear.AddChild(Part(new BoxMesh { Size = new Vector3(0.07f, 0.24f, 0.02f) }, Palette.Metal, new Vector3(0, -1.17f, 0)));
+        _spear.AddChild(_spearHead);
         _rightElbow.AddChild(_spear);
         _leftElbow.AddChild(_bow);
         _leftElbow.AddChild(_working);
     }
 
-    /// <summary>What the body is doing in combat this frame: a phase, how far through it, and what it holds.</summary>
-    public void SetStance(CombatStance stance) => _stance = stance;
+    /// <summary>
+    /// A real weapon in place of a greybox one (the Phase-1 asset integration): <paramref name="mount"/> is given this hand's grip frame -
+    /// the point the greybox hand closes on, the way the weapon points - and returns the model laid on it, or null to keep the greybox.
+    /// The first weapon of a family is the one drawn.
+    /// </summary>
+    public void Arm(Held slot, Func<Transform3D, Node3D?> mount)
+    {
+        var (part, grip) = slot switch
+        {
+            // Out ahead of the hand, the blade's flat facing sideways; the spear along the forearm, head past the hand; the bow
+            // along the forearm, its upper limb toward the elbow (upright when drawn), its string toward the archer.
+            Held.Sword => (_sword, Art.HeldWeapon.Frame(new Vector3(0, 0, -0.36f), Vector3.Back, Vector3.Right)),
+            Held.Spear => (_spear, Art.HeldWeapon.Frame(new Vector3(0, 0.55f, -0.05f), Vector3.Down, Vector3.Back)),
+            Held.Bow => (_bow, Art.HeldWeapon.Frame(new Vector3(0, 0, -0.04f), Vector3.Up, Vector3.Back)),
+            _ => ((MeshInstance3D?)null, Transform3D.Identity),
+        };
+        if (part is null || _armed.Contains(slot) || mount(grip) is not { } model)
+            return;
+        _armed.Add(slot);
+        part.Mesh = null;
+        if (slot == Held.Spear)
+            _spearHead.Visible = false;
+        part.AddChild(model);
+    }
 
-    public void SetFirstPerson(bool firstPerson)
+    /// <summary>The greybox tell - a glow gathering in the open hand - or not, when the asset library's cast charge is drawn there instead.</summary>
+    public bool WorkingGlow { get; set; } = true;
+
+    public override Vector3? CastPoint => _working.IsInsideTree() ? _working.GlobalPosition : null;
+
+    /// <summary>What the body is doing in combat this frame: a phase, how far through it, and what it holds.</summary>
+    public override void SetStance(CombatStance stance) => _stance = stance;
+
+    public override void SetFirstPerson(bool firstPerson)
     {
         foreach (var part in _head)
             part.CastShadow = firstPerson ? GeometryInstance3D.ShadowCastingSetting.ShadowsOnly : GeometryInstance3D.ShadowCastingSetting.On;
@@ -93,21 +127,21 @@ public partial class Avatar : Node3D
     /// Crouched or standing, and in the air or not (the owner's M6 playtest): the simulation's posture. The jump's height is already in
     /// the feet it is posed at; this only bends the legs.
     /// </summary>
-    public void SetPosture(bool crouched, bool airborne)
+    public override void SetPosture(bool crouched, bool airborne)
     {
         _crouched = crouched;
         _airborne = airborne;
     }
 
     /// <summary>Place the body where the simulation (plus prediction) says, turned towards its facing, and animate its gait.</summary>
-    public void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
+    public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
         // Turn smoothly towards the authoritative facing: the facing itself is state; the turn is only drawing.
         _yaw = Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-14f * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
 
         Position = feet;
-        Crouch = Mathf.MoveToward(Crouch, _crouched ? 1f : 0f, (float)delta * 5f);
+        _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
 
         float stride = Mathf.Clamp(speedMetresPerSecond / 3.2f, 0, 1.6f);
         _phase += speedMetresPerSecond * delta * Mathf.Tau / 1.5;
@@ -148,7 +182,7 @@ public partial class Avatar : Node3D
         _sword.Visible = s.Holds == Held.Sword;
         _spear.Visible = s.Holds == Held.Spear;
         _bow.Visible = s.Holds == Held.Bow && !s.Casting;
-        _working.Visible = s.Casting && s.Phase is CombatPhase.Windup or CombatPhase.Active;
+        _working.Visible = WorkingGlow && s.Casting && s.Phase is CombatPhase.Windup or CombatPhase.Active;
         float t = Mathf.Clamp(s.Progress, 0, 1);
         // Held out, the bow stands upright against the raised arm; at rest it hangs along it.
         _bow.Rotation = new Vector3(s.Phase is CombatPhase.Windup or CombatPhase.Active ? 1.5f : 0, 0, 0);

@@ -26,6 +26,7 @@ public partial class InventoryPanel : CanvasLayer
     private readonly PanelContainer _containerPanel = new();
     private GameSession _session = null!;
     private PlayerController _controller = null!;
+    private HudIcons _icons = HudIcons.None;
 
     /// <summary>The container open alongside the inventory, if any.</summary>
     public string? OpenContainer { get; private set; }
@@ -47,6 +48,9 @@ public partial class InventoryPanel : CanvasLayer
         _session = session;
         _controller = controller;
     }
+
+    /// <summary>Item icons from the icon manifest (the Phase-1 asset integration); an item without one keeps its row's text.</summary>
+    public void UseIcons(HudIcons icons) => _icons = icons;
 
     public override void _Ready()
     {
@@ -132,7 +136,7 @@ public partial class InventoryPanel : CanvasLayer
             var definition = catalog.Find(entry.DefId);
             var slot = player.Equipment.FirstOrDefault(kv => kv.Value == entry.ItemId);
             bool equipped = player.Equipment.ContainsValue(entry.ItemId);
-            var row = Row($"{Main.ItemName(_session, entry.DefId, entry.Quality)}{(entry.Count > 1 ? $" x{entry.Count}" : "")}" +
+            var row = Row(_icons, entry.DefId, $"{Main.ItemName(_session, entry.DefId, entry.Quality)}{(entry.Count > 1 ? $" x{entry.Count}" : "")}" +
                           (equipped ? $"   [{EquipSlots.Key(slot.Key)}]" : ""));
             if (definition?.Slot is not null)
             {
@@ -179,7 +183,7 @@ public partial class InventoryPanel : CanvasLayer
         }
         foreach (var item in view.Items)
         {
-            var row = Row($"{Main.ItemName(_session, item.DefId, item.Quality)}{(item.Count > 1 ? $" x{item.Count}" : "")}");
+            var row = Row(_icons, item.DefId, $"{Main.ItemName(_session, item.DefId, item.Quality)}{(item.Count > 1 ? $" x{item.Count}" : "")}");
             row.AddChild(Button("Take", () => Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(open), ItemPlace.Carried, item.Count))));
             if (item.Count > 1)
                 row.AddChild(Button("Take 1", () => Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(open), ItemPlace.Carried, 1))));
@@ -223,7 +227,7 @@ public partial class InventoryPanel : CanvasLayer
             _container.AddChild(Row("Nothing left to sell"));
         foreach (var ware in wares.Wares)
         {
-            var row = Row($"{Main.ItemName(_session, ware.ItemId, ware.Quality)}{(ware.Count > 1 ? $" x{ware.Count}" : "")}   {ware.Price} each");
+            var row = Row(_icons, ware.ItemId, $"{Main.ItemName(_session, ware.ItemId, ware.Quality)}{(ware.Count > 1 ? $" x{ware.Count}" : "")}   {ware.Price} each");
             var one = Button("Buy 1", () => Submit(new BuyCommand(simulation.PlayerId, npcId, ware.Ref, 1)));
             one.Disabled = ware.Price > coin;
             row.AddChild(one);
@@ -271,6 +275,16 @@ public partial class InventoryPanel : CanvasLayer
         var label = new Label { Text = text, CustomMinimumSize = new Vector2(300, 0) };
         label.AddThemeFontSizeOverride("font_size", 16);
         row.AddChild(label);
+        return row;
+    }
+
+    /// <summary>An item's row: its icon tile (or the tile's empty space, so the names line up), then its text.</summary>
+    private static HBoxContainer Row(HudIcons icons, string defId, string text)
+    {
+        var row = Row(text);
+        var tile = icons.Tile(defId, 32);
+        row.AddChild(tile);
+        row.MoveChild(tile, 0);
         return row;
     }
 

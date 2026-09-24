@@ -15,6 +15,15 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class CraftingView : Node3D
 {
     private readonly Dictionary<string, (Node3D Ready, Node3D Spent)> _nodes = new(StringComparer.Ordinal);
+    private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
+    private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+
+    /// <summary>The asset library and its bindings (the Phase-1 asset integration); without them, greybox.</summary>
+    public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
+    {
+        _art = art;
+        _bindings = bindings;
+    }
 
     public void Build(RegionLayout layout)
     {
@@ -28,6 +37,20 @@ public partial class CraftingView : Node3D
             };
             // The look follows the node's category (node.<category>.<name>), until the asset pipeline delivers real ones.
             var (ready, spent) = site.NodeDefId.Split('.')[1] == "wood" ? Stand() : Seam();
+            // The asset library's look for a ready node, where the bindings give one; a seam whose rock already shows its vein draws nothing more.
+            if (_bindings.Nodes.GetValueOrDefault(site.NodeDefId) is { } look)
+            {
+                if (look.HideReady)
+                {
+                    ready.Free();
+                    ready = new Node3D();
+                }
+                else if (Art.Fitting.Site(_art, look, Vector3.Zero) is { } model)
+                {
+                    ready.Free();
+                    ready = model;
+                }
+            }
             root.AddChild(ready);
             root.AddChild(spent);
             spent.Visible = false;
@@ -36,12 +59,16 @@ public partial class CraftingView : Node3D
         }
         foreach (var station in layout.Stations)
         {
-            var root = station.Kind switch
+            var look = _bindings.Stations.GetValueOrDefault(station.Kind);
+            var root = (look is not null ? Art.Fitting.Site(_art, look, Vector3.Zero) : null) ?? station.Kind switch
             {
                 "forge" => Hearth(),
                 "anvil" => Anvil(),
                 _ => Part(new BoxMesh { Size = new Vector3(1.2f, 0.8f, 0.6f) }, Palette.Wood, new Vector3(0, 0.4f, 0)),
             };
+            // Something the station's scenery wants beside it (the bellows at the hearth).
+            if (look?.Beside is { } beside && Art.Fitting.Site(_art, new Art.Placement(beside, Offset: look.Offset), Vector3.Zero) is { } extra)
+                root.AddChild(extra);
             root.Name = station.Key;
             root.Position = new Vector3(station.XMm / 1000f, terrain.HeightAtMm(station.XMm, station.ZMm) / 1000f, station.ZMm / 1000f);
             AddChild(root);

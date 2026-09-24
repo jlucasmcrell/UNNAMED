@@ -1,6 +1,6 @@
 # M6 status - Companion v1, and the content bible's four cells
 
-**Date:** 2026-09-24. **Branch:** `claude/phase1`. **State:** complete except the RAZER performance window; the owner's playtest came back, its delta is applied ("Owner Playtest Delta" below), and M6 is stopped again for the owner (execution prompt §19). Part 1 is the layout reconciliation, part 2 Quest 2, part 3 the companion, part 4 the playable-prototype report; the exit criteria are taken one by one at the end.
+**Date:** 2026-09-24. **Branch:** `claude/phase1`. **Closed out 2026-09-24** (owner-authorised; "Phase-1 closeout" at the end): merged to `main`, the asset library integrated, a Windows playtest build. **State:** complete except the RAZER performance window; the owner's playtest came back, its delta is applied ("Owner Playtest Delta" below), and M6 is stopped again for the owner (execution prompt §19). Part 1 is the layout reconciliation, part 2 Quest 2, part 3 the companion, part 4 the playable-prototype report; the exit criteria are taken one by one at the end.
 
 **Entry:** M5 complete (`0eb6247`): quests and the quest debugger work, and NPC state persists.
 
@@ -102,7 +102,7 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 | | Evidence | |
 |---|---|---|
 | C9 walk to the den and back, never stuck | The playthrough crosses all four cells and the relaunch walks to the den; `SessionTests`, the smoke | Met |
-| C10 kill the den pack with sword, bow and all three spells, each needed | The M3f finding stands: a level-2 character with a standard March Spear clears the den at 85/120 health, so no spell is needed | **Open** - the owner's tuning call (overnight report item 2) |
+| C10 kill the den pack with sword, bow and all three spells, each needed | The M3f finding stands: a level-2 character with a standard March Spear clears the den at 85/120 health, so no spell is needed | Was **Open** - the owner's tuning call (overnight report item 2). **Revised by owner ruling (2026-09-24):** the spear is not weakened; C10 now asks that melee, ranged combat and each proof formula work and be meaningfully useful in a fight that suits them, and no single encounter must force every tool (`PROTOTYPE.md` C10). Each works in its tests (the bolt's blow, the ward's armour, the mending's heal and cleared bleed) and in the runs below; how useful each feels is the playtest's judgement |
 | C11 level 2 from the quest alone | Iron Under Ash pays 120 XP, enough alone for level 2 (`QuestTests`); in the playthrough the kills get there first (level 2 at the Bone Walker, 3 with Quest 2) | Met |
 | C12 both resources, the daily one refills, the seam does not | `CraftingTests`; the playthrough gathers both | Met |
 | C13 both recipes, exact counts | `CraftingTests`; the playthrough makes both | Met |
@@ -132,13 +132,14 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 | His state round-trips through save/load field by field | Met - the companion test and the acceptance relaunch (0 differences) |
 | Both of the bible's quests complete | Met - part 2's tests and the playthrough |
 | Proof: a recorded acceptance log with zero pathing interventions; the companion round trip; the §19 report | Met - part 4 |
-| The early feel test (3-5 blind testers) | **The owner's**, after the playtest - its transcript and findings (a null result included) are part of ROADMAP M6's proof, and it is required before Phase 2 |
+| The early feel test (3-5 blind testers) | **The owner's**, after the playtest - its transcript and findings (a null result included) are part of ROADMAP M6's proof, and it is required before Phase 2. **Deferred by owner ruling (2026-09-24)** until a nontechnical Windows playtest build exists; not an M7 entry blocker. Not run; no result recorded |
 | M6 acceptance (bible §35): 1080p/60 FPS evidence | **Waits on RAZER** |
 
 ## Known deferrals
 
 - The RAZER performance window (M3's and the bible's §34).
-- C10's balance - the spear against the den pack - is the owner's call.
+- C10's balance - the spear against the den pack - was the owner's call; ruled 2026-09-24 (C10 revised, the spear unchanged).
+- The early feel test, deferred by the same ruling until a nontechnical Windows playtest build exists.
 - A herb node (the bible's Woundmoss) is not built; the ashbloom herb is found dried in the waystation chest.
 - The wolves (den pack, strays, respawning pack) stay, a divergence from the bible the owner can drop.
 
@@ -184,3 +185,24 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 
 - M6 part 1 `8935b8d`, part 2 `4df79ea`, part 3 `f3a064e`, part 4 `708bb8d` (this report), the feel-test row `6742e24`, the overnight re-check (the husk's patrol, the perf walk, the evidence recorded again), and the owner-playtest delta (one commit) - on `claude/phase1`, draft PR #1; nothing merged to `main`.
 - Next: **stop and report the delta to the owner.** M7 is not authorized, and no M7 work begins.
+
+## Phase-1 closeout
+
+**Date:** 2026-09-24. An owner-authorised closeout and consolidation pass: no M7 work, and the game's rules, dialogue, quests, crafting,
+trade, movement and combat unchanged.
+
+- **The owner's replay** of the M6 delta build succeeded.
+- **Rulings:** the early feel test (G1) is deferred until a nontechnical Windows playtest build exists and is not an M7 entry blocker;
+  C10 (G3) is revised and the March Spear is not weakened (both above, and in `PROTOTYPE.md` and `ROADMAP.md`).
+- **Consolidation:** a verified backup came first (off-repository, with a git bundle). `claude/phase1` (`232049e`) and DeepSeek's
+  asset-maintenance head (`e91890b`) were merged, Claude's first, in an integration worktree from `origin/main`, verified, and merged to
+  `main` through PR #3 (`06d65a5`; PR #1 closed with it). No force push and no rebase. The canonical workspace is `G:\UNNAMED` on `main`,
+  its ignored asset library untouched; the `G:\UNNAMED_CLAUDE` and `G:\UNNAMED_INTEGRATION` worktrees are kept and can be removed later.
+- **Assets:** the library's current stable set is drawn by semantic ID with the greybox as fallback - what is drawn, what is withheld
+  and why (rigs that do not fit their meshes, models built leaning, swatch textures, LOD files without materials), and the audio mapping:
+  `PHASE1_ASSET_INTEGRATION.md`.
+- **Audio:** the V3 set (230 IDs) is the current functional set; every entry is `human_auditioned: false`, so it is a working placeholder.
+  V1 and V2 stay as history; nothing was regenerated.
+- **The Windows playtest build:** a portable ZIP kept privately on ASTRAL (not published); it finds `content/` and the asset workspace's
+  `assets/` beside its executable (`export_presets.cfg`, "Windows Playtest").
+- **Still open:** the RAZER performance window (M6's 1080p/60 evidence).

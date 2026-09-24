@@ -102,6 +102,10 @@ public sealed class DeltaShots
             new Beat("d16_bolt_in_flight", $"{session.DisplayName(bolt)} in flight", 200, () => InFlight(workingOnly: true, metres: 3f)),
             new Beat("d17_bolt_burst", $"{session.DisplayName(bolt)} bursting on the wall", 200, Burst),
             new Beat("d18_character", "K: the character sheet - only what the game has now", 60, ShowCharacter),
+            // The Phase-1 asset integration: what the effect manifest draws for a working (greybox tells without the workspace).
+            new Beat("d19_working_on_the_body", "A self working's effect drawn on the body for as long as it lasts (the ward's shell)", 600, () => Worked(0)),
+            new Beat("d20_second_working", "The second self working's effect, played once and fading", 600, () => Worked(1)),
+            new Beat("d21_strained_overlay", "Worked until Strained: the overlay over the screen at the manifest's curve", 1_500, WorkUntilStrained),
         });
         _beatTick = session.Simulation!.WorldTick;
         _transcript.AppendLine("# The owner's M6 playtest delta, shown").AppendLine()
@@ -441,6 +445,51 @@ public sealed class DeltaShots
             _phase = 2;
         }
         return _phase == 2 && combat.Casting is not null && combat.Phase == CombatPhase.Windup && combat.PhaseTicksLeft <= 2;
+    }
+
+    private string[] SelfWorkings() => _controller.Formulas()
+        .Where(f => _session.Setup.Magic.Formulas[f] is { Targeting: Targeting.Self, Applies.Length: > 0 }).ToArray();
+
+    /// <summary>Cast the nth self working (again, if it fizzles) and hold until its effect has been on the body a moment.</summary>
+    private bool Worked(int which)
+    {
+        _character.Visible = false;
+        _camera.TargetDistance = 3.5f;
+        _camera.Pitch = -0.15f;
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+        string formula = SelfWorkings()[which];
+        string effect = _session.Setup.Magic.Formulas[formula].Applies[0];
+        var combat = _session.Simulation!.Combat;
+        if (_phase == 0 && combat.Phase == CombatPhase.Idle && combat.Casting is null && ++_wait > 15)
+        {
+            _fizzles = 0;
+            _controller.Cast(formula);
+            _wait = 0;
+            _phase = 1;
+        }
+        else if (_phase == 1 && _fizzles > 0 && combat.Phase == CombatPhase.Idle)
+        {
+            _phase = 0;
+        }
+        return _phase == 1 && combat.Effects.Any(e => e.EffectId == effect) && ++_wait > 12;
+    }
+
+    /// <summary>Cast the self workings in turn until the character is Strained, then hold a moment for the overlay's pulse.</summary>
+    private bool WorkUntilStrained()
+    {
+        _camera.TargetDistance = 3.5f;
+        _camera.Pitch = -0.15f;
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+        var combat = _session.Simulation!.Combat;
+        if (combat.Strained)
+            return combat.Phase == CombatPhase.Idle && ++_wait > 20;
+        if (combat.Phase == CombatPhase.Idle && combat.Casting is null && ++_wait > 10)
+        {
+            var self = SelfWorkings();
+            _controller.Cast(self[_phase++ % self.Length]);
+            _wait = 0;
+        }
+        return false;
     }
 
     private bool Burst()
