@@ -22,15 +22,41 @@ A failed bulk build, a bad rescale or a disk fault would have taken all of it wi
 The 13 modified tracked files were all DeepSeek-owned asset-pipeline files and two Wave-0 documents,
 each uncommitted.
 
-### Local `main` was already ahead of `origin/main`
+### Local `main` and `origin/main` have **diverged** — not "ahead"
+
+This document originally said local `main` was "14 commits ahead of `origin/main`". That is the right
+count but the wrong relationship, and the difference matters before any push. They diverged at
+`452a897 Add project README`:
 
 ```
-origin/main  27993f6  Merge pull request #2 from jlucasmcrell/readme-banner
-local main   14 commits ahead of origin/main before this pass
+main       452a897 ─ 14 commits ─> 909c00c
+origin/main 452a897 ─  4 commits ─> 27993f6   (origin/HEAD)
 ```
 
-Pre-existing, not created by this pass, and left alone. It means "unpushed" below is not the same as
-"unpushed by me".
+| side | count | what |
+|---|---|---|
+| `origin/main..main` | **14** | the owner's M2 milestones, Wave 0 asset docs, and `ffb9d9c Stop tracking generated assets` |
+| `main..origin/main` | **4** | `75303b1` revise README, `f6a43b3` rename to Otherreach, `9579f37` banner, `27993f6` merge PR #2 |
+
+`merge-base(main, origin/main)` = `452a897`. `main` is **not** an ancestor of `origin/main`, and
+`origin/main` is **not** an ancestor of `main`.
+
+Consequences, recorded because they are decisions the owner has to make rather than mine:
+
+- Pushing local `main` to `origin/main` would be **rejected as non-fast-forward**. It needs a merge or
+  a force, and neither is mine to do.
+- My branch descends from local `main`, so it inherits the divergence: it does **not** contain
+  `origin/main`'s four commits. Pushing my branch creates a **new remote ref** (verified absent with
+  `ls-remote`), which is a plain create with no history rewrite — but it lands a branch that is not
+  built on `origin/main`.
+- `claude/phase1` is fully pushed (`origin/claude/phase1` = `claude/phase1` = `0461054`, 0 commits
+  difference) and contains `main@909c00c`, so Claude's branch has the M2 work. It does **not** contain
+  `origin/main` either, and does **not** contain any of my seven.
+
+### Local-only commit count
+
+`origin/main..deepseek/asset-maintenance-2026-09-24` = **21** commits — the 14 above plus my 7. An
+earlier report of "18" was correct when this branch held 4 commits; the number is 21 now.
 
 ## 2. Branch created
 
@@ -81,8 +107,9 @@ Deliberately **not** committed, and still untracked:
   `.gitignore`, confirmed not staged
 
 **Branch pushed: no.** The brief permits a push only with working credentials and no generated bulk;
-no credentials were used and no push was attempted. 18 commits exist locally that are not on
-`origin/main` — 14 of them pre-existing.
+no credentials were used and no push was attempted. 21 commits exist locally that are not on
+`origin/main` — 14 of them the owner's pre-existing M2 work, and the graph above records that `main`
+and `origin/main` diverged rather than one simply leading the other.
 
 ## 4. Snapshot
 
@@ -244,7 +271,89 @@ untracked         32   (archives, screenshots, Claude/owner docs, and the new ma
 tracked under assets/   0   (unchanged, by design)
 ```
 
-## 10. How to reverse any of this
+## 11. Git audit, 2026-09-24 (read-only)
+
+Run at the owner's request before any push. Nothing was rewritten, rebased, merged, checked out or
+pushed to produce this.
+
+### Ref tips
+
+```
+main                                       909c00c    2026-09-23 09:51:17 -0400
+origin/main                                27993f6    2026-09-23 17:35:58 -0400
+claude/phase1                              0461054    2026-09-24 00:58:38 -0400
+origin/claude/phase1                       0461054    2026-09-24 00:58:38 -0400
+deepseek/asset-maintenance-2026-09-24      9df6499    2026-09-24 03:40:38 -0400
+readme-banner / origin/readme-banner       9579f37    2026-09-23 17:34:54 -0400
+```
+
+### The seven maintenance commits
+
+All seven sit linearly on top of `main@909c00c`, with **no merge commit and no shared commit with
+`claude/phase1`**:
+
+```
+9df6499  Record the final snapshot and resolve icon concepts from one source
+f6c2930  Add the six HUD icons the UI spec requires and the environment manifest
+9a59dfd  Make validation truth single-sourced and record asset limitations
+4558736  Add Phase-1 asset-pipeline documentation
+29732f8  Extend the Godot asset validators
+1222f25  Add Phase-1 audio pipeline tooling
+1351a13  Add Phase-1 asset pipeline tooling
+```
+
+`main..deepseek/asset-maintenance-2026-09-24` = **7**. `deepseek..main` = **0**, so the branch is a
+strict superset of `main` — `main` was not left behind.
+
+### The 14 pre-existing local-only commits
+
+The owner's work, none of it mine, none of it pushed:
+
+```
+909c00c Install the Otherreach README; camera direction wording in the docs
+2168879 M2b stage 2: schema 3, created instances, normative docs reconciled
+b310979 M2b stage 1: schema 2 - semantic RNG, baseline proofs, migration chain
+4e9523c M2 audit: restore M1b content validation, internal state writers, cleanup
+7ff4c57 M2: status report, T-02 at 100 runs, docs point at M2 complete
+fee81a0 M2: autosave rotation, cloud-sync detection, serialized store operations
+a533e0f M2: rebuild persistence to PERSISTENCE.md
+e683b29 M2 world: deterministic baseline generation, sparse delta, rebase
+51057ff M2 identity: D-04 instance IDs, canonical ULIDs, null-safe equality
+ffb9d9c Stop tracking generated assets
+8ca32f0 Add AI asset-generation pipeline tooling
+815a948 Add Otherreach design extension pack and Wave 0 asset docs
+49282c5 Fix solution coverage, Godot version pin, and stale status
+5e68382 WIP M2: entity registry, identity, persistence baseline
+```
+
+They are the M2 milestone body plus the Wave 0 asset documentation. `ffb9d9c Stop tracking generated
+assets` is the commit that gitignored `assets/`, which is why the snapshot exists at all.
+
+### Relationship between the branches
+
+| check | result |
+|---|---|
+| `origin/main..main` | 14 |
+| `main..origin/main` | 4 |
+| `merge-base(main, origin/main)` | `452a897 Add project README` |
+| `main` an ancestor of `origin/main`? | **no** |
+| `origin/main` an ancestor of `main`? | **no** |
+| `origin/main..deepseek/...` | 21 |
+| `main..deepseek/...` | 7 |
+| `claude/phase1..deepseek/...` | 7 |
+| `origin/claude/phase1..claude/phase1` | 0 (fully pushed) |
+| `main@909c00c` an ancestor of `claude/phase1`? | yes |
+| my `9df6499` an ancestor of `claude/phase1`? | **no** |
+| remote `deepseek/asset-maintenance-2026-09-24` exists? | no (`ls-remote` empty) |
+
+So `main` and `origin/main` **diverged** at `452a897`; neither contains the other. `claude/phase1` is
+pushed, contains the owner's M2 work via `909c00c`, and contains none of my commits. My branch is a
+new ref that would push as a plain create with no rewrite — but it descends from local `main` and
+therefore does not contain `origin/main`'s four commits.
+
+**No push was performed. No branch was modified by this audit.**
+
+## 12. How to reverse any of this
 
 Nothing here is destructive:
 
