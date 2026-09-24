@@ -126,6 +126,21 @@ public partial class SoundBank : Node
         return player;
     }
 
+    /// <summary>At shutdown: stop what still plays (the loops) and let go of the loaded streams, so none outlives the engine.</summary>
+    public override void _ExitTree()
+    {
+        foreach (var child in GetChildren())
+        {
+            if (child is AudioStreamPlayer flat)
+                flat.Stop();
+            else if (child is AudioStreamPlayer3D placed)
+                placed.Stop();
+        }
+        foreach (var stream in _streams.Values)
+            stream?.Dispose();
+        _streams.Clear();
+    }
+
     private Sound? Pick(string family)
     {
         if (_sounds.TryGetValue(family, out var single))
