@@ -259,7 +259,10 @@ def write_index(rows):
                     tag += ' <span class="tag">provisional</span>'
                 parts.append(f'<div class="{css}" data-key="{key}">')
                 parts.append(f'<b>{tag}</b>')
-                parts.append(f'<audio preload="none" '
+                # `controls` is what makes the player visible. It was dropped when this markup was
+                # rewritten for the interactive version, which left 857 audio elements present in the
+                # DOM and not one of them playable - the page looked as though the players had gone.
+                parts.append(f'<audio controls preload="none" '
                              f'src="{row["relative"]}/{name}"></audio>')
                 parts.append(f'<div class="pick"><input type="radio" name="pick-{escaped}" '
                              f'value="{key}" onchange="pick(\'{escaped}\',this.value)">'
@@ -417,6 +420,18 @@ renderAll();
 
     with io.open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as handle:
         handle.write("\n".join(parts))
+
+    # Assert the page is actually usable before declaring success. An <audio> without `controls` is
+    # present in the DOM, counts in every structural check, and cannot be played - so a page that
+    # looks complete can hand the owner 228 sounds they have no way to hear.
+    import re as _re
+    players = _re.findall(r"<audio[^>]*>", "\n".join(parts))
+    without_controls = [p for p in players if "controls" not in p]
+    print(f"  players      : {len(players)}  without controls: {len(without_controls)}")
+    if without_controls or not players:
+        raise SystemExit("refusing to ship an audition page with unplayable audio elements")
+    if len(players) != sum(len(r["files"]) for r in rows):
+        raise SystemExit(f"expected {sum(len(r['files']) for r in rows)} players, found {len(players)}")
 
 
 if __name__ == "__main__":
