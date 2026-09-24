@@ -120,9 +120,13 @@ geometry, which is the transfer the armour bakeoff identified as the remaining w
    (`_blender_fit_shell.py`); Method A produces convincing generated armour. The generated
    surface has not yet been projected onto the canonical fit boundary. The four armour proof
    pieces still use generated fit.
-2. **Weapon attachment points on the skeleton.** The animation doc calls for standardized hand
+2. **Weapon attachment points on the skeleton.** ~~The animation doc calls for standardized hand
    IK targets, weapon attachment points and look/aim helpers. These 24 bones are the core body
-   only.
+   only.~~ **Resolved 2026-09-24:** the contract declares five equipment attachments —
+   `SOCK_hand_l`, `SOCK_hand_r`, `SOCK_attach_back`, `SOCK_attach_hip_l`, `SOCK_attach_hip_r` — and
+   `_verify_character_skeleton.py` reports them "present at contracted positions". They are
+   *attachments*, not bones, which is why a bone-counting check did not see them and this item stayed
+   open after it was done.
 3. **Kal wing bones.** `compact_broad` is the Kal body, but dorsal wings need their own chain.
    The armour standard already reserves `SOCK_wing_channel_L/_R`, and the skeleton needs
    matching bones before Kal is riggable.
@@ -131,12 +135,21 @@ geometry, which is the transfer the armour bakeoff identified as the remaining w
 
 ## Verification
 
+> **Corrected 2026-09-24.** This block previously read `bones=24` for all four families. The bodies on
+> disk are **52 bones**; 24 is the `role: "core"` subset of them, not the whole skeleton. The stale
+> figure is what made the skeleton contract look ambiguous against the 20-bone NPC rigs, so it is
+> recorded here rather than silently overwritten. See `docs/SKELETON_CONTRACT_RECONCILIATION.md`.
+
 ```
-humanoid_standard    bones=24  verts=2688  skinned=True
-compact_broad        bones=24  verts=2688  skinned=True
-tall_narrow          bones=24  verts=2688  skinned=True
-irregular_heavy      bones=24  verts=2688  skinned=True
+humanoid_standard    bones=52  core=24  skinned=True
+compact_broad        bones=52  core=24  skinned=True
+tall_narrow          bones=52  core=24  skinned=True
+irregular_heavy      bones=52  core=24  skinned=True
 ```
+
+Confirmed per family by `_verify_character_skeleton.py`, which reports
+`skin joints: 52`, `core: 24 present, 24 within 0.012 m`, `fingers: 20 deform bones`,
+`ik: 8 helper bones`, and `sockets: 5 present at contracted positions`.
 
 Rendered for inspection in `assets/review/rigs/fit_families.jpg` — all four read as distinct
 humanoids with the intended proportions.

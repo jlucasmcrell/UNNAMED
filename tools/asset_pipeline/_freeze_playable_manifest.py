@@ -187,18 +187,36 @@ def main():
                 else "none" if built else "none"),
             "socket_state": ("sockets present" if built and any("sockets" in f for f in files)
                              else "none" if built else "none"),
-            "godot_validated": asset_id in proofset,
+            # No `godot_validated` here. It used to be written as `asset_id in proofset`, which is a
+            # different fact under a misleading name - and `in_proofset` already records it one line
+            # down. Validation truth belongs to the asset's own metadata, written only by
+            # _godot_validate_assets.py; this manifest reads it into the summary below rather than
+            # storing a second copy that can drift.
             "in_proofset": asset_id in proofset,
             "known_limitations": limitation,
         }
         entries.append(entry_out)
+
+    # Validation is read from the authoritative per-asset metadata, not stored per entry. A summary
+    # count is a consumption of that truth and is recomputed on every freeze, so it cannot go stale
+    # the way a stored boolean does.
+    validated = 0
+    for entry_out in entries:
+        meta_path = os.path.join(READY, entry_out["asset_id"], f"{entry_out['asset_id']}_meta.json")
+        if not os.path.exists(meta_path):
+            continue
+        with io.open(meta_path, encoding="utf-8") as handle:
+            if json.load(handle).get("godot_validated") is True:
+                validated += 1
 
     summary = {
         "total": len(entries),
         "built": sum(1 for e in entries if e["ready_glb"]),
         "not_built": sum(1 for e in entries if not e["ready_glb"]),
         "rigged": sum(1 for e in entries if e["rigged_glb"]),
-        "godot_validated": sum(1 for e in entries if e["godot_validated"]),
+        "godot_validated": validated,
+        "godot_validated_source": ("ready/<id>/<id>_meta.json, written only by "
+                                   "_godot_validate_assets.py"),
         "by_tier": {t: sum(1 for e in entries if e["tier"] == t) for t in ("P0", "P1", "P2")},
         "scale_failures": sum(1 for e in entries
                               if e["scale"]["audit_verdict"] in ("FAIL_SCALE", "SUSPECT_SCALE")),
