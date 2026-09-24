@@ -62,6 +62,18 @@ PHASE1_IDS = [
     "resource_iron_billet", "item_raw_iron_ore", "resource_iron_ore",
 ]
 
+# Icon concepts are named `icon_*` rather than by asset id. Rather than keep a second list here that
+# can fall out of step with the set, read the concept ids from `_promote_ui_icons.SLOTS`, which is the
+# authoritative mapping from slot to concept. This is the same single-source rule the validation
+# reconciliation applied: a snapshot that silently misses an icon is worse than one that fails loudly.
+def icon_concepts():
+    try:
+        import _promote_ui_icons
+    except ImportError:
+        return []
+    return sorted({concept for concept, _source, _note in _promote_ui_icons.SLOTS.values()})
+
+
 # Whole directories that describe every Phase-1 asset and are small enough to take entire.
 WHOLE_DIRS = [
     ("manifests", os.path.join(ASSETS, "manifests")),
@@ -167,7 +179,7 @@ def build_plan():
 
     # Phase-1 concepts only. The other ~750 concepts are backlog and stay out.
     concept_dir = os.path.join(ASSETS, "concepts")
-    for asset_id in PHASE1_IDS:
+    for asset_id in PHASE1_IDS + icon_concepts():
         candidate = os.path.join(concept_dir, f"{asset_id}.png")
         if os.path.exists(candidate):
             sources.append(candidate)

@@ -86,33 +86,51 @@ no credentials were used and no push was attempted. 18 commits exist locally tha
 
 ## 4. Snapshot
 
+Two, because the maintenance pass changed assets after the first one and the point of the net is to
+cover what exists now.
+
+### Final snapshot — covers everything, including this pass
+
 ```
-location    W:\_asset_snapshots\phase1_20260924_031724
-created     2026-09-24T03:17:45
-files       976
-size        1,302,245,169 bytes (1241.9 MB)
+location    W:\_asset_snapshots\phase1_20260924_033946
+files       1024
+size        1,372,254,413 bytes (1308.7 MB)
 failures    0
 readback    24/24 sampled files re-read with matching SHA-256
+verify      1024 verified, 0 missing, 0 mismatched (full re-hash of every file)
 ```
+
+### First snapshot — the state at the start of the pass
+
+```
+location    W:\_asset_snapshots\phase1_20260924_031724
+files       976
+size        1241.9 MB
+verify      24/24 sampled files re-read with matching SHA-256
+```
+
+Kept rather than replaced: it is the only record of the library before the maintenance edits, and it
+costs 1.2 GB against 1271 GB free.
 
 `W:\_asset_snapshots\` is a **sibling of the repository**, not inside it — verified by the tool, which
 refuses to treat a destination inside `W:\UNNAMED` as safe.
 
-Manifest: `W:\_asset_snapshots\phase1_20260924_031724\SNAPSHOT_MANIFEST.json`, listing every file
-with its path, byte size and SHA-256, plus the source root, creation time and the Phase-1 id list.
+Manifests: `SNAPSHOT_MANIFEST.json` in each snapshot directory, listing every file with its path,
+byte size and SHA-256, plus the source root, creation time and the Phase-1 id list.
 
 Re-verify at any time:
 
 ```powershell
-python tools\asset_pipeline\_snapshot_phase1.py --verify W:\_asset_snapshots\phase1_20260924_031724
+python tools\asset_pipeline\_snapshot_phase1.py --verify W:\_asset_snapshots\phase1_20260924_033946
 ```
 
 ### Scope, and what was deliberately left out
 
 Included: the Phase-1 asset ids and everything hanging off them — `ready/`, `rigged/`, `raw/`,
-corresponding `blender_src/`, `animation/`, all `concepts/` for those ids, `manifests/`, `requests/`,
-`sockets/`, `vfx/`, `ui/`, the `review/` judgement images, the Phase-1 `_superseded/` records, the
-catalog, and the governing documents.
+corresponding `blender_src/`, `animation/`, all `concepts/` for those ids **plus the 32 icon concepts
+resolved from `_promote_ui_icons.SLOTS` rather than from a second hardcoded list**, `manifests/`,
+`requests/`, `sockets/`, `vfx/`, `ui/`, the `review/` judgement images, the Phase-1 `_superseded/`
+records, the catalog, and the governing documents.
 
 Excluded: the ~750 non-Phase-1 concepts, the 5 GB `raw/` backlog, the concept-churn superseded
 directories, and the 4 GB staged Godot import tree. The full tree is ~9 GB; copying all of it would
