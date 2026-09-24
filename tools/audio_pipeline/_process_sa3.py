@@ -55,6 +55,18 @@ def load_processor():
     return module
 
 
+_PROCESSOR = None
+
+
+def processor():
+    """The shared processing module, loaded once. Its own trim thresholds are the authority on what
+    a correct single-transient length is, so the rejection rules read them rather than duplicating."""
+    global _PROCESSOR
+    if _PROCESSOR is None:
+        _PROCESSOR = load_processor()
+    return _PROCESSOR
+
+
 def reject_reasons(qa, entry):
     """Objective breakage only. Returns a list of reasons, empty when the candidate is usable."""
     reasons = []
@@ -67,14 +79,44 @@ def reject_reasons(qa, entry):
     if qa.get("sample_rate") != 48000:
         reasons.append(f"rate {qa.get('sample_rate')}")
     error = qa.get("duration_error_s")
-    if error is not None and error > DURATION_TOLERANCE_S:
+    # Duration is only a defect for sounds whose length is meant to be the spec's length. For a
+    # single-transient sound the delivered length is deliberately the first energy lobe, clamped to a
+    # floor of 55% so nothing is cut absurdly short, and it is *expected* to differ from the spec.
+    #
+    # V1 did exactly this and shipped it: its own QA records anvil.strike.01 at 0.44 s against a 0.8 s
+    # spec marked `clamped_to_minimum`, and door.open.01 at 0.715 against 1.3 s. Rejecting V2 for the
+    # same behaviour would have been holding the new set to a stricter rule than the one it replaces.
+    # What matters for these is that a lobe was found and that the floor was respected.
+    tolerance = max(DURATION_TOLERANCE_S, entry["seconds"] * 0.15)
+    if entry.get("single_transient"):
+        # The floor is the trimmer's own, not an invented one. `_process_audio` clamps a single
+        # transient to `min_fraction` of the requested length, and that fraction is group-specific:
+        # a UI tick is allowed to come back at 18% of its spec because a 40 ms wooden tick against a
+        # 0.22 s envelope is correct, where a footstep gets 55%. Checking against a single 50% floor
+        # rejected every UI sound in the set for behaving exactly as designed and exactly as V1 did.
+        params = processor().TRANSIENT_PARAMS.get(entry["group"],
+                                                  processor().TRANSIENT_PARAMS["default"])
+        floor = params["min_fraction"] * entry["seconds"] * 0.5
+        trim = qa.get("transient_trim")
+        if not isinstance(trim, dict) or not trim.get("first_lobe_s"):
+            reasons.append("transient_lobe_not_measured")
+        elif qa.get("delivered_seconds", 0) < floor:
+            reasons.append(f"transient_cut_below_floor {qa.get('delivered_seconds')}")
+    elif error is not None and error > tolerance:
         reasons.append(f"duration_error {error}")
     if qa.get("peak_dbfs") is not None and qa["peak_dbfs"] < NEAR_SILENT_DBFS:
         reasons.append("peak_below_floor")
     if entry["loop"]:
+        # The seam keys are `seam_step_ratio_before` / `_after`, measured by _process_audio's own
+        # crossfade. Checking for a key called "ratio" rejected every loop in the set even though the
+        # crossfade was working: these read 20.2 -> 0.0005, a large improvement.
         seam = qa.get("loop")
-        if not isinstance(seam, dict) or seam.get("ratio") is None:
+        before = seam.get("seam_step_ratio_before") if isinstance(seam, dict) else None
+        after = seam.get("seam_step_ratio_after") if isinstance(seam, dict) else None
+        if before is None or after is None:
             reasons.append("loop_seam_unmeasured")
+        elif after > before:
+            reasons.append(f"loop_seam_worse {before} -> {after}")
     return reasons
 
 

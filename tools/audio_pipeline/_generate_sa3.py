@@ -54,9 +54,16 @@ NEGATIVE = ""
 # EmptyLatentAudio's own floor is 1.0 s, so a 0.3 s UI tick cannot be requested directly. Render with
 # room around the event and trim afterwards. The multiplier gives the model context on either side,
 # which a bare 0.3 s render would not have.
+#
+# Loops are the exception and need a different rule. A 20 s ambience bed cannot be produced by
+# padding a short render - the crossfade needs material beyond the loop length, and a bed that came
+# back at 12 s simply is not the asset that was asked for. This was the cause of the only genuine
+# duration failure in the first batch: GEN_MAX clipped all four beds, and the trim then reported a
+# 9.1 s error rather than a wrong-length bed.
 GEN_MIN = 2.0
-GEN_MAX = 12.0
+GEN_MAX = 40.0
 GEN_PADDING = 2.5
+LOOP_HEADROOM_S = 3.0
 
 CANDIDATE_LABELS = ("a", "b", "c")
 
@@ -83,6 +90,13 @@ def seed_for(audio_id, label):
 
 
 def generation_seconds(entry):
+    """How long to ask the model for.
+
+    A loop needs the loop length plus crossfade headroom, not a multiple of it: asking for 50 s to get
+    a 20 s bed wastes most of the render and, with a cap, silently returns something too short.
+    """
+    if entry["loop"]:
+        return max(GEN_MIN, min(entry["seconds"] + LOOP_HEADROOM_S, GEN_MAX))
     return max(GEN_MIN, min(entry["seconds"] * GEN_PADDING, GEN_MAX))
 
 

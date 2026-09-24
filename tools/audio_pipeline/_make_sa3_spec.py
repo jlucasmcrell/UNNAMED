@@ -384,6 +384,18 @@ NEW_SOUNDS = [
 ]
 
 
+# Which new groups are a single event rather than a sequence. A walk cycle is four paw contacts and
+# must not be trimmed to its first lobe; a raven call or a loot sweep is one event and should be.
+# V1 encodes the same distinction - its footsteps, impacts and UI ticks are single transients and its
+# creature vocalisations are not.
+SINGLE_TRANSIENT_GROUPS = {
+    "creature.move": False,       # multi-step locomotion
+    "player.gear": False,         # continuous garment and gear movement
+    "interaction": True,          # one motion
+    "ambience.one_shot": True,    # one discrete environmental event
+}
+
+
 def new_sound_entries():
     """The section 30A additions, as spec entries in the same shape as the replacements."""
     entries = []
@@ -400,7 +412,7 @@ def new_sound_entries():
             "loop": loop,
             "loudness_lufs": -30.0 if category != "ambience" else -34.0,
             "priority": priority,
-            "single_transient": not loop,
+            "single_transient": SINGLE_TRANSIENT_GROUPS.get(group, not loop),
             "generation_version": "v2",
             "source": "new",
         })
