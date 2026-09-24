@@ -3,9 +3,9 @@ kind: quest
 schema: 1
 display_key: quest.ashen_hollow.iron_under_ash.name
 tags: [quest]
-notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. The bible's Blackvein Cut is the M3 iron shelf until the layout reconciliation.
+notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. Blackvein Cut is the old quarry south of the waystation.
 title: Iron Under Ash
-summary: Kera Voss will make a smith of you if you bring iron down from the shelf north of the hollow and make something worth carrying.
+summary: Kera Voss will make a smith of you if you bring iron up out of Blackvein Cut and make something worth carrying.
 giver_ref: npc.ashen_hollow.kera_voss
 entry_objective: o_speak
 objectives:
@@ -16,8 +16,8 @@ objectives:
     next: [o_shelf]
   - id: o_shelf
     type: visit_location
-    description: Reach the iron shelf north of the hollow.
-    params: { location_ref: location.iron_shelf }
+    description: Reach Blackvein Cut, the old quarry south of the waystation.
+    params: { location_ref: location.blackvein_cut }
     next: [o_ore]
   - id: o_ore
     type: acquire_item
@@ -27,7 +27,7 @@ objectives:
   - id: o_return
     type: explore_location
     description: Return to the waystation.
-    params: { location_ref: location.outpost, within_m: 20 }
+    params: { location_ref: location.outpost, within_m: 25 }
     next: [o_billet]
   - id: o_billet
     type: craft_item

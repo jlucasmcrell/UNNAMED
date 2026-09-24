@@ -52,9 +52,9 @@ public class WorldContentTests
         Assert.Equal((41, 41, 5_000L), (layout.Space.Terrain.Columns, layout.Space.Terrain.Rows, layout.Space.Terrain.SpacingMm));
         Assert.Equal(2, layout.Doors.Length);
         Assert.All(layout.Doors, d => Assert.StartsWith("world.hollow.", d.FlagId));
-        Assert.Equal(4, layout.Locations.Length);
+        Assert.Equal(6, layout.Locations.Length);
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
-        Assert.InRange(layout.Space.Terrain.HeightsMm.Max() - layout.Space.Terrain.HeightsMm.Min(), 0, 6_000);   // PROTOTYPE.md §3: <= 6 m
+        Assert.InRange(layout.Space.Terrain.HeightsMm.Max() - layout.Space.Terrain.HeightsMm.Min(), 6_000, 11_000);   // content bible §3: about 10 m
         Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600), WorldContent.BuildMovement(loader));
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));
         Assert.Equal(50, WorldContent.TickMilliseconds(loader));
@@ -78,7 +78,7 @@ public class WorldContentTests
 
     [Fact]
     public void ASpawnInsideAWall_IsRefused() =>
-        AssertRefused("WLD007", "regions/ashen_hollow.yaml", "spawn: { position_m: [55, 60]", "spawn: { position_m: [46, 40.2]");
+        AssertRefused("WLD007", "regions/ashen_hollow.yaml", "spawn: { position_m: [30, 158]", "spawn: { position_m: [44, 124.2]");   // in the lodge's south wall
 
     [Fact]
     public void BoundsBeyondTheRegionsCells_AreRefused() =>

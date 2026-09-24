@@ -94,8 +94,8 @@ public class QuestContentTests
 
     [Fact]
     public void AnObjectiveTypeNotBuiltYet_IsRefused_SayingWhatItWaitsFor() =>
-        Assert.Contains(ErrorsWith(Quest1, "type: visit_location\n    description: Reach the iron shelf north of the hollow.\n    params: { location_ref: location.iron_shelf }",
-                "type: defeat_boss\n    description: Reach the iron shelf north of the hollow.\n    params: { boss_ref: location.iron_shelf }"),
+        Assert.Contains(ErrorsWith(Quest1, "type: visit_location\n    description: Reach Blackvein Cut, the old quarry south of the waystation.\n    params: { location_ref: location.blackvein_cut }",
+                "type: defeat_boss\n    description: Reach Blackvein Cut, the old quarry south of the waystation.\n    params: { boss_ref: location.blackvein_cut }"),
             e => e.Code == "QST001" && e.Message.Contains("'defeat_boss' is not built in Phase 1 (it waits for bosses (M8))", StringComparison.Ordinal));
 
     [Fact]
@@ -151,7 +151,7 @@ public class QuestContentTests
     public void AGoodGraph_Parses_WithBranchesJoinsTimersAndHiddenObjectives()
     {
         var quest = Parse("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_b, o_c], branch: first }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_b, o_c], branch: first }
               - { id: o_b, type: acquire_item, description: B., params: { item_ref: item.material.iron_ore, count: 2 }, next: [o_d] }
               - { id: o_c, type: kill_creature, description: C., visibility: hidden, params: { creature_ref: creature.beast.wolf_grey, count: 3 }, next: [o_d] }
               - { id: o_d, type: wait_until, description: D., params: { after_min: 1 }, time_limit_min: 2, on_fail: fail_quest }
@@ -167,15 +167,15 @@ public class QuestContentTests
     public void AnOrphan_ALoop_AndAMissingObjective_AreRefused()
     {
         Assert.Contains("nothing leads to objective o_b (an orphan)", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf } }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }
               - { id: o_b, type: visit_location, description: B., params: { location_ref: location.outpost } }
             """));
         Assert.Contains("objectives loop through o_a", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_b] }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_b] }
               - { id: o_b, type: visit_location, description: B., params: { location_ref: location.outpost }, next: [o_a] }
             """));
         Assert.Contains("o_a's next names objective 'o_z'", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_z] }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_z] }
             """));
     }
 
@@ -183,13 +183,13 @@ public class QuestContentTests
     public void AJoinThatCanNeverHappen_IsRefused()
     {
         Assert.Contains("o_d waits on two alternatives of o_a's branch", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_b, o_c], branch: first }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_b, o_c], branch: first }
               - { id: o_b, type: visit_location, description: B., params: { location_ref: location.outpost }, next: [o_d] }
               - { id: o_c, type: visit_location, description: C., params: { location_ref: location.den_mouth }, next: [o_d] }
               - { id: o_d, type: visit_location, description: D., params: { location_ref: location.herb_patch }, all_of: [o_b, o_c] }
             """));
         Assert.Contains("o_c waits on o_b, which does not lead to it", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_b, o_c] }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_b, o_c] }
               - { id: o_b, type: visit_location, description: B., params: { location_ref: location.outpost } }
               - { id: o_c, type: visit_location, description: C., params: { location_ref: location.den_mouth }, all_of: [o_b] }
             """));
@@ -199,20 +199,20 @@ public class QuestContentTests
     public void WhatAnObjectiveSays_IsChecked()
     {
         Assert.Contains("a time_limit_min says where failure goes", Refused(
-            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, time_limit_min: 5 }"""));
+            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, time_limit_min: 5 }"""));
         Assert.Contains("'radius_m' is not a parameter of visit_location", Refused(
-            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf, radius_m: 4 } }"""));
+            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut, radius_m: 4 } }"""));
         Assert.Contains("branches (branch: first) between at least two objectives", Refused("""
-              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf }, next: [o_b], branch: first }
+              - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut }, next: [o_b], branch: first }
               - { id: o_b, type: visit_location, description: B., params: { location_ref: location.outpost } }
             """));
         Assert.Contains("hidden is not built in Phase 1 (visibility: hidden)", Refused(
-            """  - { id: o_a, type: visit_location, description: A., hidden: true, params: { location_ref: location.iron_shelf } }"""));
+            """  - { id: o_a, type: visit_location, description: A., hidden: true, params: { location_ref: location.blackvein_cut } }"""));
         Assert.Contains("fail_if reads the world as it stands; kill_creature counts deeds", Refused(
-            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf } }""",
+            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "fail_if: [{ type: kill_creature, params: { creature_ref: creature.beast.wolf_grey } }]"));
         Assert.Contains("reward kind 'reputation' is not built in Phase 1", Refused(
-            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.iron_shelf } }""",
+            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "rewards: [{ kind: reputation, amount: 5 }]"));
     }
 }

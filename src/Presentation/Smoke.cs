@@ -22,9 +22,10 @@ namespace UNNAMED.Presentation;
 /// </summary>
 public sealed class Smoke
 {
-    private static readonly (double X, double Z)[] Route = { (56, 56), (55, 44) };
-    private static readonly (double X, double Z)[] Inside = { (52.5, 44), (46, 44.6) };
-    private static readonly (double X, double Z)[] ToTheForge = { (52.5, 44), (56.5, 43), (57, 35), (58.8, 34), (61.5, 34) };
+    // M6's layout: from the waystone to the lodge door; in through it and out again; from Sel's table to the smithy's door and in.
+    private static readonly (double X, double Z)[] Route = { (44, 138), (54.5, 134), (53, 128) };
+    private static readonly (double X, double Z)[] Inside = { (50.5, 128), (44, 128.6), (50.5, 128), (53, 128) };
+    private static readonly (double X, double Z)[] ToTheForge = { (60, 134), (51.8, 136), (51.8, 142), (54.5, 142) };
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;

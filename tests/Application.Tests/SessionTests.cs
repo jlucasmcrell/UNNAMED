@@ -16,11 +16,11 @@ public class SessionTests
 
         Assert.Equal(new[] { "r_0_0:c_00_00", "r_0_0:c_00_01", "r_0_0:c_01_00", "r_0_0:c_01_01" }, layout.CellKeys);
         Assert.Equal(new[] { "door.forge_shed", "door.longhouse" }, layout.Doors.Select(d => d.Key).OrderBy(k => k, StringComparer.Ordinal));
-        Assert.Equal(new[] { "location.den_mouth", "location.herb_patch", "location.iron_shelf", "location.outpost" },
+        Assert.Equal(new[] { "location.blackvein_cut", "location.den_mouth", "location.foldscar", "location.herb_patch", "location.outpost", "location.ruined_cart" },
             layout.Locations.Select(l => l.Id));
         Assert.Equal((0L, 0L, 200_000L, 200_000L), (layout.Space.MinXMm, layout.Space.MinZMm, layout.Space.MaxXMm, layout.Space.MaxZMm));
         Assert.Equal(50, session.Setup.TickMilliseconds);
-        Assert.Equal(new Body(55_000, 1_800, 60_000, 180_000), layout.Spawn);   // on the outpost terrace, facing into the outpost
+        Assert.Equal(new Body(30_000, 7_396, 158_000, 90_000), layout.Spawn);   // beside the Ashen Waystone, facing east into the waystation
     }
 
     [Fact]
@@ -103,8 +103,8 @@ public class SessionTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Wanderer", seed: 42);
-        // Out of the gate and east of the palisade, then due south until the edge stops the body.
-        Assert.True(Harness.WalkPath(session, (55, 80), (120, 80)));
+        // Out of the waystation and down the road towards the Foldscar, then due south until the edge stops the body.
+        Assert.True(Harness.WalkPath(session, (44, 138), (60, 128), (100, 100), (120, 80)));
 
         session.Submit(new MoveCommand(simulation.PlayerId, new MoveIntent(0, -1000, Gait.Sprint, 180_000)));
         Harness.Ticks(session, 600);
@@ -119,11 +119,11 @@ public class SessionTests
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Wanderer", seed: 42);
 
-        Assert.True(Harness.WalkPath(session, (55, 80), (70, 110), (75, 150)));
+        Assert.True(Harness.WalkPath(session, (15, 185)));
 
         var body = simulation.Player.Body;
         Assert.Equal(session.Setup.Layout.Space.Terrain.HeightAtMm(body.XMm, body.ZMm), body.YMm);
-        Assert.True(body.YMm > 3_000, $"the rock shelf is high ground; the body is at {body.YMm} mm");
+        Assert.True(body.YMm > 8_000, $"the north-west road ridge is the high ground (content bible §3); the body is at {body.YMm} mm");
     }
 
     [Fact]

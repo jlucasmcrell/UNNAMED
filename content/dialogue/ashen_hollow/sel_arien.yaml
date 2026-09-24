@@ -8,7 +8,7 @@ participants: [npc.ashen_hollow.sel_arien]
 root_node: greet
 nodes:
   greet:
-    text: "Careful with the shelves - half of what's on them is older than the wall. I'm Sel Arien. I survey the ruin east of here, when the spider lets me."
+    text: "Careful with the table - half of what's on it is older than the waystation. I'm Sel Arien. I survey the ruin south-east of here, when the spider lets me."
     once: true
     next_if_exhausted: again
     choices:

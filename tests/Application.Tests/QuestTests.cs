@@ -26,14 +26,16 @@ public class QuestTests
     private const string SpearRecipe = "recipe.smithing.march_spear";
 
     // Where the character stands (content/regions/ashen_hollow.yaml; CraftingTests uses the same places).
-    private static readonly (double X, double Z) AtKera = (67.3, 32.3);
-    private static readonly (double X, double Z) AtHearth = (66.5, 35);
-    private static readonly (double X, double Z) AtAnvil = (65.2, 33.4);
-    private static readonly (double X, double Z) AtSeam = (64, 177.9);
+    private static readonly (double X, double Z) AtKera = (60.3, 140.3);
+    private static readonly (double X, double Z) AtHearth = (59.5, 143);
+    private static readonly (double X, double Z) AtAnvil = (58.2, 141.4);
+    private static readonly (double X, double Z) AtSeam = (28, 44.1);
 
-    // Out of the forge shed and the outpost's north gate to the seam, and back.
-    private static readonly (double X, double Z)[] ToTheSeam = { (61.5, 34), (58.8, 34), (56, 36), (55, 62), (55, 70), (52, 122), (63, 172), AtSeam };
-    private static readonly (double X, double Z)[] BackToTheForge = { (63, 172), (52, 122), (55, 70), (55, 62), (56, 36), (58.8, 34), (61.5, 34) };
+    // Out of the smithy, down the road to the quarry mouth and the ramp past the overlook to the seam, and back.
+    private static readonly (double X, double Z)[] ToTheSeam =
+        { (54.5, 142), (51.8, 142), (51.8, 136), (58, 134), (64, 112), (63, 98), (60, 90), (54, 74), (46, 60), (36, 50), (34, 44), AtSeam };
+    private static readonly (double X, double Z)[] BackToTheForge =
+        { (34, 44), (36, 50), (46, 60), (54, 74), (60, 90), (63, 98), (64, 112), (58, 134), (51.8, 136), (51.8, 142), (54.5, 142) };
 
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null, SimulationSetup? rules = null) =>
         Arena.OpenCreatures(session, rules ?? session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change);
@@ -93,7 +95,7 @@ public class QuestTests
         Assert.Equal(("Iron Under Ash", QuestStatus.Active), (journal.Title, journal.Status));
         // The lesson was heard, so speaking to Kera is done; the rest waits, and the journal shows nothing further ahead.
         Assert.Equal(new[] { ("o_speak", ObjectiveStatus.Satisfied), ("o_shelf", ObjectiveStatus.Active) }, Shown(arena));
-        Assert.Equal("Reach the iron shelf north of the hollow.", journal.Objectives[1].Description);
+        Assert.Equal("Reach Blackvein Cut, the old quarry south of the waystation.", journal.Objectives[1].Description);
         // Knowing the forge is part of the lesson; asking again starts nothing twice.
         Assert.True(ProgressionEngine.Knows(arena.Simulation.Player.Progression, SpearRecipe));
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
@@ -119,7 +121,7 @@ public class QuestTests
         var hits = arena.Record<HitResolved>();
 
         AskKeraToTeach(arena);
-        Walk(arena, (61.5, 34));
+        Walk(arena, (54.5, 142));
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
         Walk(arena, ToTheSeam.Skip(1).ToArray());
         Assert.Null(arena.Submit(new GatherCommand(arena.Player, arena.Simulation.Nodes.Single(n => n.Name == "iron_seam").Key)));
@@ -167,7 +169,7 @@ public class QuestTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = At(session, AtKera, r => Carrying(r, Stack(Ore, 2))
-            .WithDiscoveries(r.Discoveries.Append(new DiscoveryRecord("location.iron_shelf", DiscoveryMethod.Visited, 0))));
+            .WithDiscoveries(r.Discoveries.Append(new DiscoveryRecord("location.blackvein_cut", DiscoveryMethod.Visited, 0))));
 
         AskKeraToTeach(arena);
         arena.Tick();
@@ -186,7 +188,7 @@ public class QuestTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = At(session, AtHearth, r => Carrying(r, Stack(Ore, 1))
-            .WithDiscoveries(r.Discoveries.Append(new DiscoveryRecord("location.iron_shelf", DiscoveryMethod.Visited, 0))));
+            .WithDiscoveries(r.Discoveries.Append(new DiscoveryRecord("location.blackvein_cut", DiscoveryMethod.Visited, 0))));
         Walk(arena, AtKera);
         AskKeraToTeach(arena);
         arena.Tick();
@@ -226,13 +228,13 @@ public class QuestTests
         var now = arena.Simulation.Diagnose(IronUnderAsh);
 
         Assert.Equal("active", now.Status);
-        Assert.Equal("Waiting on o_shelf (Reach the iron shelf north of the hollow.): location.iron_shelf discovered = no, wanted yes.", now.Answer);
+        Assert.Equal("Waiting on o_shelf (Reach Blackvein Cut, the old quarry south of the waystation.): location.blackvein_cut discovered = no, wanted yes.", now.Answer);
         var waiting = Assert.Single(now.Waiting);
-        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 10.0 m of location.iron_shelf (62.0, 176.0); now ", StringComparison.Ordinal));
+        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 20.0 m of location.blackvein_cut (54.0, 74.0); now ", StringComparison.Ordinal));
         Assert.Empty(now.Problems);
         // The trace: the start, the evaluation that moved it, and the evaluations since, collapsed because nothing changed.
         Assert.Contains(now.Trace, t => t.Lines.Contains("-> o_speak satisfied"));
-        Assert.Contains("o_shelf: location.iron_shelf discovered = no (wanted yes) waiting", now.Trace[^1].Lines);
+        Assert.Contains("o_shelf: location.blackvein_cut discovered = no (wanted yes) waiting", now.Trace[^1].Lines);
         Assert.True(now.Trace[^1].Evaluations >= 2);
     }
 
@@ -304,7 +306,7 @@ public class QuestTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var race = Broken("quest.test.race", "The Race",
-            Objective("o_run", "Reach the iron shelf before the fire dies.", new ExploreLocation("location.iron_shelf", 10_000)) with
+            Objective("o_run", "Reach Blackvein Cut before the fire dies.", new ExploreLocation("location.blackvein_cut", 10_000)) with
             {
                 TimeLimitTicks = 40, OnFail = QuestRules.FailQuest,
             });
@@ -319,10 +321,10 @@ public class QuestTests
         Assert.Equal(new QuestFailed(race.Id, "o_run", 40), Assert.Single(failed));
         var diagnosis = arena.Simulation.Diagnose(race.Id);
         Assert.Equal("failed", diagnosis.Status);
-        Assert.Equal("Nothing: failed at tick 40 - o_run (Reach the iron shelf before the fire dies.) was not done within its time limit of 2 s.",
+        Assert.Equal("Nothing: failed at tick 40 - o_run (Reach Blackvein Cut before the fire dies.) was not done within its time limit of 2 s.",
             diagnosis.Answer);
         var waited = diagnosis.Trace.Single(t => t.Evaluations > 1);   // forty evaluations that all said the same
-        Assert.Contains(waited.Lines, l => l.StartsWith("o_run: distance to location.iron_shelf = ", StringComparison.Ordinal) && l.EndsWith("(wanted <= 10.0 m) waiting", StringComparison.Ordinal));
+        Assert.Contains(waited.Lines, l => l.StartsWith("o_run: distance to location.blackvein_cut = ", StringComparison.Ordinal) && l.EndsWith("(wanted <= 10.0 m) waiting", StringComparison.Ordinal));
         Assert.Equal(new[] { "-> o_run failed (time limit)", "-> quest failed by o_run" }, diagnosis.Trace[^1].Lines.TakeLast(2));
     }
 

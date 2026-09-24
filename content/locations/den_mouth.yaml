@@ -3,11 +3,11 @@ kind: location
 schema: 1
 display_key: location.den_mouth.name
 tags: [location]
-notes: PROTOTYPE.md O2 - entering the 8 m radius discovers the den.
-name: The Den Mouth
+notes: "The wolves' den at Charwood's north edge - PROTOTYPE.md's den, kept when M6 moved the layout to the content bible's four cells."
+name: The Wolves' Den
 region_ref: region.ashen_hollow
-anchor: { world: [25.0, 0.0, 170.0] }          # exact placement, metres; height comes from the terrain
-kind_of_place: cave_entrance
+anchor: { world: [134.0, 0.0, 170.0] }          # exact placement, metres; height comes from the terrain
+kind_of_place: landmark
 discovery: { methods: [visited], radius_m: 8, xp: 25 }
-map: { reveals_radius_m: 24, marker: none }   # no quest markers (charter §3)
+map: { reveals_radius_m: 30, marker: none }   # no quest markers (charter §3)
 fast_travel: { node: false }

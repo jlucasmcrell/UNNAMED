@@ -8,14 +8,14 @@ namespace UNNAMED.Application.Tests;
 /// <summary>Doors (interaction against the body, world flags in the cell delta) and discovery credit.</summary>
 public class InteractionAndDiscoveryTests
 {
-    private static readonly CellKey Outpost = CellKey.Parse("r_0_0:c_00_00");
+    private static readonly CellKey Outpost = CellKey.Parse("r_0_0:c_00_01");
     private const string LonghouseFlag = "world.hollow.longhouse_door_open";
 
     /// <summary>Stand just outside the longhouse door, on its east side.</summary>
     private static Simulation AtTheLonghouseDoor(GameSession session)
     {
         var simulation = session.NewGame("Wanderer", seed: 42);
-        Assert.True(Harness.WalkPath(session, (56, 56), (55, 44)));
+        Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         return simulation;
     }
 
@@ -32,7 +32,7 @@ public class InteractionAndDiscoveryTests
         Harness.Ticks(session, 1);
 
         Assert.True(Assert.Single(toggled).Open);
-        Assert.Equal(("r_0_0:c_00_00", LonghouseFlag, 0L, 1L), (flags[0].CellKey, flags[0].FlagId, flags[0].From, flags[0].To));
+        Assert.Equal(("r_0_0:c_00_01", LonghouseFlag, 0L, 1L), (flags[0].CellKey, flags[0].FlagId, flags[0].From, flags[0].To));
         Assert.Equal(1, simulation.World.GetFlag(Outpost, LonghouseFlag));
         Assert.True(simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
     }
@@ -59,12 +59,12 @@ public class InteractionAndDiscoveryTests
         var session = Harness.Boot(profile);
         var simulation = AtTheLonghouseDoor(session);
 
-        Assert.False(Harness.WalkTo(session, 46_000, 44_000, maxTicks: 200));
-        Assert.True(simulation.Player.Body.XMm >= 54_000 + session.Setup.Movement.BodyRadiusMm, "the closed door let the body through");
+        Assert.False(Harness.WalkTo(session, 44_000, 128_000, maxTicks: 200));
+        Assert.True(simulation.Player.Body.XMm >= 52_000 + session.Setup.Movement.BodyRadiusMm, "the closed door let the body through");
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
-        Assert.True(Harness.WalkTo(session, 46_000, 44_000));
-        Assert.True(simulation.Player.Body.XMm < 53_600, "the body is inside the longhouse");
+        Assert.True(Harness.WalkTo(session, 44_000, 128_000));
+        Assert.True(simulation.Player.Body.XMm < 51_600, "the body is inside the longhouse");
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class InteractionAndDiscoveryTests
         var session = Harness.Boot(profile);
         var simulation = AtTheLonghouseDoor(session);
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
-        Assert.True(Harness.WalkTo(session, 53_800, 44_000, toleranceMm: 50));
+        Assert.True(Harness.WalkTo(session, 51_800, 128_000, toleranceMm: 50));
         var rejected = Harness.Record<CommandRejected>(session);
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
@@ -123,8 +123,8 @@ public class InteractionAndDiscoveryTests
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
 
-        Assert.True(Harness.WalkPath(session, (55, 80), (70, 110), (75, 135), (40, 160), (25, 168)));
-        Assert.True(Harness.WalkPath(session, (40, 150), (25, 168)));   // out of the radius and back in
+        Assert.True(Harness.WalkPath(session, (60, 156), (90, 165), (100, 168), (110, 168), (133, 168)));
+        Assert.True(Harness.WalkPath(session, (120, 160), (133, 168)));   // out of the radius and back in
 
         var den = Assert.Single(discovered, d => d.LocationId == "location.den_mouth");
         Assert.Equal(DiscoveryMethod.Visited, den.Method);
@@ -148,10 +148,10 @@ public class InteractionAndDiscoveryTests
         var setup = session.Setup with { Tiers = new TierRules(20_000, 60_000, 150_000, 2_000) };
         var player = Simulation.NewCharacter(setup, UNNAMED.Domain.EntityId.NewId(UNNAMED.Domain.EntityKind.Character), "Wanderer", 7);
         var simulation = Simulation.Start(setup, player, new WorldDelta(session.Generator, 42, new UNNAMED.EntityRegistry.EntityRegistry()), 0, bus);
-        const string denCell = "r_0_0:c_00_01";
+        const string denCell = "r_0_0:c_01_01";
         Assert.NotEqual(SimulationTier.A, simulation.CellTiers[denCell]);
 
-        foreach (var (x, z) in new[] { (55.0, 80.0), (70.0, 110.0), (75.0, 135.0), (40.0, 160.0), (25.0, 168.0) })
+        foreach (var (x, z) in new[] { (60.0, 156.0), (90.0, 165.0), (100.0, 168.0), (110.0, 168.0), (133.0, 168.0) })
         {
             for (int i = 0; i < 2000; i++)
             {

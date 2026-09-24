@@ -7,7 +7,7 @@ notes: The Bone Walker Husk walks the iron shelf. The content bible places it in
 region_ref: region.ashen_hollow
 creatures:
   - { creature_ref: creature.undead.bone_walker_husk, count: [1, 1], role: roamer }
-at: { position_m: [66, 168], radius_m: 1 }
+at: { position_m: [48, 58], radius_m: 1 }
 route_m: [[56, 160], [74, 168], [70, 186]]
 level_band: [3, 3]
 respawn: { kind: none }

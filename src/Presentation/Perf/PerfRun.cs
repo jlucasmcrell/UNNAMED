@@ -17,14 +17,18 @@ public sealed class PerfRun
 {
     public const int ProxyActors = 12;
 
+    // M6's layout: a loop through all four cells - the waystation, Charwood, the Foldscar's approach, Blackvein's ramp - and back.
     private static readonly (double X, double Z)[] Valley =
     {
-        (55, 62), (55, 80), (70, 110), (75, 135), (40, 160), (25, 168), (45, 150), (90, 130), (135, 95), (160, 60), (100, 75), (55, 75),
+        (30, 158), (60, 156), (90, 150), (130, 146), (160, 150), (175, 120), (150, 95), (130, 70), (100, 100), (64, 104), (54, 74), (40, 60),
+        (54, 74), (64, 104), (60, 128), (44, 138),
     };
 
+    // Through the lodge, round the smithy, and through the narrow gap between its fence and its north-west corner (bible §26).
     private static readonly (double X, double Z)[] Obstructed =
     {
-        (56, 56), (55, 44), (46, 44), (40, 46), (40, 42), (50, 44), (56, 44), (58, 34), (65, 28), (72, 34), (65, 40), (56, 56),
+        (44, 138), (54.5, 134), (53, 128), (44, 128), (38, 130), (38, 126), (48, 128), (54, 128), (51.5, 136), (58, 136), (65, 136), (65, 148),
+        (58, 148), (52.2, 148.5), (52.2, 141), (47, 137), (44, 138),
     };
 
     private readonly List<Segment> _segments;

@@ -172,8 +172,10 @@ public class CombatTests
 
     private static PlayerRecord Wielding(PlayerRecord record, string weapon)
     {
-        var item = record.Inventory.Single(e => e.DefId == weapon).ItemId;
-        return new PlayerRecord(record.Id, record.Name, record.XMm, record.YMm, record.ZMm, record.AppearanceSeed, record.Inventory, record.Progression,
+        // The bow is found in the world, not carried from the start (M6): a character without one is handed one.
+        var inventory = record.Inventory.Any(e => e.DefId == weapon) ? record.Inventory : record.Inventory.Add(Arena.Stack(weapon, 1));
+        var item = inventory.Single(e => e.DefId == weapon).ItemId;
+        return new PlayerRecord(record.Id, record.Name, record.XMm, record.YMm, record.ZMm, record.AppearanceSeed, inventory, record.Progression,
             record.FacingMdeg, record.Discoveries, new[] { KeyValuePair.Create(EquipSlot.MainHand, item) }, record.Currency, record.Effects);
     }
 
@@ -188,7 +190,7 @@ public class CombatTests
         {
             Assert.Equal(Arena.Wolf, s.DefId);
             Assert.Equal((50, 50, true, false, "stray"), (s.Health, s.MaxHealth, s.Alive, s.Hostile, s.RoleId));
-            Assert.InRange(Math.Sqrt(Math.Pow(s.Body.XMm - 100_000, 2) + Math.Pow(s.Body.ZMm - 105_000, 2)), 0, 6_000);
+            Assert.InRange(Math.Sqrt(Math.Pow(s.Body.XMm - 118_000, 2) + Math.Pow(s.Body.ZMm - 128_000, 2)), 0, 6_000);
         });
         Assert.Equal(50, simulation.Setup.Combat.Creatures[Arena.Wolf].MaxHealth);
     }
@@ -266,7 +268,7 @@ public class CombatTests
     {
         using var profile = new TempProfile();
         // Inside the longhouse, facing its north wall; the wolf stands outside it.
-        var arena = Arena.Open(Harness.Boot(profile), (46, 44), 0, new[] { (46.0, 50.5) },
+        var arena = Arena.Open(Harness.Boot(profile), (44, 128), 0, new[] { (44.0, 134.5) },
             r => Wielding(Carrying(r, Arena.Stack("item.ammo.arrow_rough", 1)), "item.weapon.hunting_bow"));
         var missed = arena.Record<AttackMissed>();
         var spent = arena.Record<ItemConsumed>();
@@ -416,7 +418,7 @@ public class CombatTests
     {
         using var profile = new TempProfile();
         var arena = Arena.Open(Harness.Boot(profile), Open, 0, Array.Empty<(double, double)>(),
-            r => WithHealth(Carrying(r, Arena.Stack("item.consumable.salve_minor", 1)), 40));
+            r => WithHealth(r, 40));   // the starting kit's salve (content bible §14)
         var healed = arena.Record<HealthChanged>();
         var salve = arena.Simulation.Player.Inventory.Single(e => e.DefId == "item.consumable.salve_minor");
 

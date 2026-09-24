@@ -251,7 +251,7 @@ public partial class HollowView : Node3D
     }
 
     private static StandardMaterial3D MaterialFor(string id) =>
-        id.StartsWith("den_rock", StringComparison.Ordinal) ? Palette.Rock : Palette.Wood;
+        id.StartsWith("den_rock", StringComparison.Ordinal) || id.StartsWith("rock_", StringComparison.Ordinal) ? Palette.Rock : Palette.Wood;
 
     private static float LowestUnder(TerrainGrid terrain, BoxBlocker box) =>
         new[]

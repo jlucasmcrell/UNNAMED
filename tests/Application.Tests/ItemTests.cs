@@ -53,7 +53,12 @@ public class ItemTests
         simulation.Step();
     }
 
-    private static readonly (double X, double Z)[] ToTheDenCache = { (55, 80), (70, 110), (75, 135), (40, 160), (25, 168), (25, 182) };
+    // From the waystone east past the smithy, through Charwood's western trees, and north into the den's mouth (M6's layout).
+    private static readonly (double X, double Z)[] ToTheDenCache = { (60, 156), (90, 165), (100, 168), (110, 168), (133, 168), (134, 176), (134, 182) };
+
+    /// <summary>The bow is found in the world, not carried from the start (content bible §11): a kit with one, for the tests that need it.</summary>
+    private static ItemSetup WithBow(ItemSetup items) =>
+        items with { StartingKit = items.StartingKit.Add(new StartingItem("item.weapon.hunting_bow", 1, false)) };
 
     [Fact]
     public void ANewCharacter_CarriesTheStartingKit_WithTheSwordEquipped()
@@ -62,9 +67,10 @@ public class ItemTests
         var session = Harness.Boot(profile);
         var player = session.NewGame("Wanderer", seed: 42).Player;
 
-        Assert.Equal(new[] { "item.tool.water_flask", "item.weapon.hunting_bow", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
+        // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made.
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
         Assert.Equal(Carried(session.Simulation!, "item.weapon.rusted_sword").ItemId, player.Equipment[EquipSlot.MainHand]);
-        Assert.Equal(5_000, player.CarriedGrams);
+        Assert.Equal(3_700, player.CarriedGrams);
         Assert.Equal(50_000, player.CarryLimitGrams);   // 30 kg + 2 kg per point of Might (10)
     }
 
@@ -73,12 +79,17 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var (simulation, bus) = Custom(session, WithBow);
         var bow = Carried(simulation, "item.weapon.hunting_bow").ItemId;
         var sword = Carried(simulation, "item.weapon.rusted_sword").ItemId;
-        var unequipped = Harness.Record<ItemUnequipped>(session);
+        var unequipped = new List<ItemUnequipped>();
+        var rejected = new List<CommandRejected>();
+        bus.Subscribe<ItemUnequipped>(unequipped.Add);
+        bus.Subscribe<CommandRejected>(rejected.Add);
 
-        Assert.Null(Rejection(session, new EquipCommand(simulation.PlayerId, bow)));
+        simulation.Enqueue(new EquipCommand(simulation.PlayerId, bow));
+        simulation.DrainCommands();
+        Assert.Empty(rejected);
 
         Assert.Equal(bow, simulation.Player.Equipment[EquipSlot.MainHand]);
         Assert.False(simulation.Player.Equipment.ContainsKey(EquipSlot.OffHand));
@@ -93,6 +104,7 @@ public class ItemTests
         var session = Harness.Boot(profile);
         var (simulation, bus) = Custom(session, items =>
         {
+            items = WithBow(items);
             var bow = items.Catalog.Get("item.weapon.hunting_bow");
             var heavy = bow with { Requirements = bow.Requirements with { Attributes = bow.Requirements.Attributes.SetItem(CharacterAttribute.Might, 12) } };
             return items with { Catalog = new ItemCatalog(items.Catalog.Definitions.Values.Where(d => d.Id != bow.Id).Append(heavy)) };
@@ -180,7 +192,7 @@ public class ItemTests
         var simulation = session.NewGame("Wanderer", seed: 42);
         var flask = Carried(simulation, "item.tool.water_flask").ItemId;
         session.Submit(new MoveItemCommand(simulation.PlayerId, flask.Value, ItemPlace.Carried, ItemPlace.Ground, 1));
-        Assert.True(Harness.WalkPath(session, (55, 50)));
+        Assert.True(Harness.WalkPath(session, (30, 140)));
 
         Assert.Contains("out of reach", Rejection(session, new MoveItemCommand(simulation.PlayerId, flask.Value, ItemPlace.Ground, ItemPlace.Carried, 1)));
     }
@@ -235,7 +247,8 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 5_000, CarryGramsPerMight = 0 } });
+        // A limit of exactly what the starting kit weighs: anything more is too heavy.
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 3_700, CarryGramsPerMight = 0 } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
@@ -293,7 +306,7 @@ public class ItemTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Wanderer", seed: 42);
-        session.Submit(new EquipCommand(simulation.PlayerId, Carried(simulation, "item.weapon.hunting_bow").ItemId));
+        session.Submit(new UnequipCommand(simulation.PlayerId, EquipSlot.MainHand));   // equipment changed from the kit's
         session.Submit(new MoveItemCommand(simulation.PlayerId, Carried(simulation, "item.tool.water_flask").ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, 1));
         Assert.True(Harness.WalkPath(session, ToTheDenCache));
         session.Submit(new MoveItemCommand(simulation.PlayerId, $"{Den}#02", ItemPlace.In(Den), ItemPlace.Carried, 3));

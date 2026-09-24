@@ -41,7 +41,7 @@ public class DeterminismAndViewTests
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Wanderer", seed: 42);
         // Start at the longhouse door so the script's door commands land in reach part of the time.
-        Assert.True(Harness.WalkPath(session, (56, 56), (55, 44)));
+        Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Save(SaveSlots.Manual("start"));
     }
 

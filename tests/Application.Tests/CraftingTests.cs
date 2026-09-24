@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Progression;
@@ -27,11 +28,11 @@ public class CraftingTests
 
     // Where the player stands to work each place (content/regions/ashen_hollow.yaml): south of the seam rock, in the ash
     // stand, and at the forge shed's hearth and its anvil - which are too far apart to reach both from one spot.
-    private static readonly (double X, double Z) AtSeam = (64, 177.9);
+    private static readonly (double X, double Z) AtSeam = (28, 44.1);
     private static readonly (double X, double Z) AtStand = (180, 137);
-    private static readonly (double X, double Z) AtHearth = (66.5, 35);
-    private static readonly (double X, double Z) AtAnvil = (65.2, 33.4);
-    private static readonly (double X, double Z) AtKera = (67.3, 32.3);
+    private static readonly (double X, double Z) AtHearth = (59.5, 143);
+    private static readonly (double X, double Z) AtAnvil = (58.2, 141.4);
+    private static readonly (double X, double Z) AtKera = (60.3, 140.3);
 
     /// <summary>A character Kera has taught - both recipes known (M4: the starting package holds none) - then any change.</summary>
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null, long startTick = 0,
@@ -85,7 +86,7 @@ public class CraftingTests
         Assert.Equal(new[] { "ash_stand", "iron_seam" }, nodes.Select(n => n.Name));
         Assert.All(nodes, n => Assert.True(n.Ready));
         Assert.Equal(("node.wood.ash_stand", Haft, 180_000L, 138_000L), (nodes[0].NodeDefId, nodes[0].ItemId, nodes[0].XMm, nodes[0].ZMm));
-        Assert.Equal(("node.ore.iron_seam", Ore, 64_000L, 178_900L), (nodes[1].NodeDefId, nodes[1].ItemId, nodes[1].XMm, nodes[1].ZMm));
+        Assert.Equal(("node.ore.iron_seam", Ore, 28_000L, 45_100L), (nodes[1].NodeDefId, nodes[1].ItemId, nodes[1].XMm, nodes[1].ZMm));
         foreach (var node in nodes)
         {
             // The generator's, so a save proves the node's cell against it like any other baseline.
@@ -311,8 +312,8 @@ public class CraftingTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // A wolf asleep in the outpost's south-west corner, out of earshot of the way to the forge, to try the spear on.
-        var arena = Arena.OpenCreatures(session, session.Setup, AtSeam, 0, new[] { (Arena.Wolf, 44.0, 30.0, "sleeper") });
+        // A wolf asleep west of the smithy, out of earshot of the way to the forge, to try the spear on.
+        var arena = Arena.OpenCreatures(session, session.Setup, AtSeam, 0, new[] { (Arena.Wolf, 37.0, 138.0, "sleeper") });
         var crafted = arena.Record<ItemCrafted>();
         var hits = arena.Record<HitResolved>();
         void Walk(params (double X, double Z)[] route)
@@ -329,9 +330,9 @@ public class CraftingTests
         Assert.Null(arena.Submit(new GatherCommand(arena.Player, Node(arena, "ash_stand").Key)));
         Assert.Equal(1, Carried(arena, Haft));
 
-        Walk((57, 70), (55, 62), (56, 36), (58.8, 34));
+        Walk((160, 140), (120, 140), (100, 142), (88, 145), (70, 135), (51.8, 136), (51.8, 142));
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
-        Walk((61.5, 34), AtKera);
+        Walk((54.5, 142), AtKera);
         Assert.Equal($"{BilletRecipe} is not known", arena.Submit(new CraftCommand(arena.Player, BilletRecipe)));
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "teach")));
@@ -347,7 +348,7 @@ public class CraftingTests
         Assert.Equal(Spear, arena.Simulation.Combat.Weapon.Source);
         Assert.Equal(10 + 2 * spear.Quality, arena.Simulation.Combat.Weapon.DamageMin);   // the spear's own quality
 
-        Walk((61.5, 34), (58.8, 34), (50, 32));
+        Walk((54.5, 142), (51.8, 142), (43, 140));
         Assert.True(arena.Creature().Alive);
         arena.Fight(arena.Creature(), 1_200);
         Assert.False(arena.Creature().Alive);
@@ -419,7 +420,7 @@ public class CraftingTests
         var flask = old.Simulation.Player.Inventory.Single(e => e.DefId == "item.tool.water_flask").ItemId;
         Assert.Null(old.Submit(new MoveItemCommand(old.Player, flask.Value, ItemPlace.Carried, ItemPlace.Ground, 1)));
         Save(session, profile, old, "before");
-        string seamCell = CellKey.OfWorld(64, 178.9).ToString();
+        string seamCell = CellKey.OfWorld(AtSeam.X, AtSeam.Z + 1).ToString();
 
         // Today's baseline of that cell holds the seam, so the save cannot be proven against it without the transition...
         var refused = Assert.Throws<SaveCompatibilityException>(() =>
@@ -432,5 +433,42 @@ public class CraftingTests
         Assert.Empty(loaded.Report.Loss);
         Assert.Contains(session.Simulation!.WorldItems, i => i.DefId == "item.tool.water_flask");
         Assert.True(session.Simulation.Nodes.Single(n => n.Name == "iron_seam").Ready);
+    }
+
+    /// <summary>
+    /// M6 moved the region to the content bible's four cells, and the iron seam from M3's north shelf to Blackvein Cut. A save made
+    /// under M3's layout loads through the transition the session registers: the old seam's cell is rebased, a strike recorded
+    /// against the old seam is declared lost (the seam it names is not there any more), and everything else carries.
+    /// </summary>
+    [Fact]
+    public void ASaveFromTheM3Layout_LoadsOntoTheFourCells_LosingOnlyTheOldSeamsStrike()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var g = session.Setup.Layout.Generation;
+        FixedNode Fixed(string name, string def, double x, double z) => new(name, def, CellKey.OfWorld(x, z),
+            (int)WorldMath.FloorMod((long)(x * 1000) / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod((long)(z * 1000) / 10, WorldMath.CellSizeCm));
+        var m3 = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(),
+            new TerrainRule(g.TerrainBaseHeightMm, g.TerrainAmplitudeMm, g.TerrainSamplesPerAxis),
+            new[] { Fixed("iron_seam", "node.ore.iron_seam", 64, 178.9), Fixed("ash_stand", "node.wood.ash_stand", 180, 138) }));
+        var m3Rules = session.Setup with
+        {
+            Layout = session.Setup.Layout with
+            {
+                Nodes = ImmutableArray.Create(new NodeSite("iron_seam", "node.ore.iron_seam", 64_000, 178_900), new NodeSite("ash_stand", "node.wood.ash_stand", 180_000, 138_000)),
+            },
+        };
+
+        // A world of M3's layout: the old seam struck once.
+        var old = Arena.OpenCreatures(session, m3Rules, (64, 177.9), 0, Array.Empty<(string, double, double, string)>(), Taught, generator: m3);
+        Assert.Null(old.Submit(new GatherCommand(old.Player, Node(old, "iron_seam").Key)));
+        Save(session, profile, old, "m3");
+        string oldSeamCell = CellKey.OfWorld(64, 178.9).ToString();
+
+        var loaded = session.Load(SaveSlots.Manual("m3"));
+        Assert.Contains(loaded.Report.CellsRebased, c => c.StartsWith(oldSeamCell, StringComparison.Ordinal) && c.Contains("four cells", StringComparison.Ordinal));
+        Assert.Contains(loaded.Report.Loss, l => l.Contains("iron_seam", StringComparison.Ordinal) && l.Contains("is not in the new baseline", StringComparison.Ordinal));
+        Assert.True(session.Simulation!.Nodes.Single(n => n.Name == "iron_seam").Ready);   // the seam in Blackvein Cut is untouched
+        Assert.InRange(session.Simulation.Player.Inventory.Where(e => e.DefId == Ore).Sum(e => e.Count), 1, 2);   // the ore carried is kept
     }
 }

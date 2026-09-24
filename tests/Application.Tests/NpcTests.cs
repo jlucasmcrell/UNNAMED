@@ -29,9 +29,9 @@ public class NpcTests
     private const string Hide = "item.material.wolf_hide";
 
     // Where the character stands to speak to each (content/regions/ashen_hollow.yaml).
-    private static readonly (double X, double Z) AtRenn = (50, 42.2);
-    private static readonly (double X, double Z) AtKera = (67.3, 32.3);
-    private static readonly (double X, double Z) AtSel = (42.2, 43.4);
+    private static readonly (double X, double Z) AtRenn = (48, 126.2);
+    private static readonly (double X, double Z) AtKera = (60.3, 140.3);
+    private static readonly (double X, double Z) AtSel = (71, 123);
 
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null) =>
         Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change);
@@ -67,7 +67,7 @@ public class NpcTests
         Assert.Equal(new[] { Kera, Renn, Sel }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien" }, npcs.Select(n => n.Name));
         Assert.All(npcs, n => Assert.False(n.Talking));
-        Assert.Equal((68_600L, 31_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
+        Assert.Equal((61_600L, 139_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
         // A named NPC is the same instance in every world: identity is derived, never rolled (D-10).
         var again = session.NewGame("Tester", seed: 7);
         Assert.Equal(npcs.Select(n => n.InstanceId), again.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId));
@@ -274,7 +274,7 @@ public class NpcTests
         var body = arena.Simulation.Player.Body;
         Assert.Equal(Domain.Combat.CombatRules.FacingTowards(kera.Body.XMm, kera.Body.ZMm, body.XMm, body.ZMm), kera.Body.FacingMdeg);   // she faces who talks
 
-        Assert.True(arena.WalkTo(62, 34.2));
+        Assert.True(arena.WalkTo(55, 142.2));
         Assert.Equal(Kera, Assert.Single(ended).NpcId);
         Assert.Null(arena.Simulation.Conversation);
         arena.Tick(20);

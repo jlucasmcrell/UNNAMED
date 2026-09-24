@@ -8,7 +8,7 @@ participants: [npc.ashen_hollow.renn_vale]
 root_node: greet
 nodes:
   greet:
-    text: "Through the gate in one piece. I'm Renn Vale; I keep this waystation, such as it is."
+    text: "Off the road in one piece. I'm Renn Vale; I keep this waystation, such as it is."
     once: true
     next_if_exhausted: again
     choices:
@@ -30,12 +30,12 @@ nodes:
         text: "Who needs a hand?"
         next: work
       - id: iron
-        text: "I've been up on the iron shelf."
+        text: "I've been down in Blackvein Cut."
         conditions:
           - { kind: has_item, item_ref: item.material.iron_ore }
           - { kind: visited, node: shelf_news, not: true }
         consequences:
-          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.renn_vale, dimension: respect, delta: 5, event: went_to_the_shelf }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.renn_vale, dimension: respect, delta: 5, event: went_to_the_cut }
         next: shelf_news
       - id: spear
         text: "What do you make of this?"
@@ -44,7 +44,7 @@ nodes:
       - id: leave
         text: "Nothing for now."
   place:
-    text: "Ashen Hollow: a stop on the old road, walled against what comes down off the shelf and out of the woods. Kera has the forge shed, south of here. Sel keeps the old books in the corner of this hall."
+    text: "Ashen Hollow: a stop on the old road, between the quarry and the woods. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar."
     choices:
       - id: back
         text: "Thanks."
@@ -56,7 +56,7 @@ nodes:
         text: "I'll ask them."
         next: again
   shelf_news:
-    text: "And came back carrying ore. Then you've met what walks up there, and you're still breathing. Kera will want that iron."
+    text: "And came back carrying ore. Then you've met what walks down there, and you're still breathing. Kera will want that iron."
     once: true
     next_if_exhausted: again
     choices:

@@ -64,7 +64,7 @@ nodes:
       - id: leave
         text: "Nothing today."
   lesson:
-    text: "Then bring me iron. There's a seam on the rock shelf north of the hollow, above the wolves' den - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft make a spear at the anvil. Make one and show me. And don't blame the iron."
+    text: "Then bring me iron. There's a seam in Blackvein Cut, the old quarry south of the road - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft - Charwood's full of ash - make a spear at the anvil. Make one and show me. And don't blame the iron."
     once: true
     next_if_exhausted: again
     choices:
@@ -72,7 +72,7 @@ nodes:
         text: "I'll bring you a spear."
         next: again
   where:
-    text: "North, past the boulders, up on the shelf above the den. Mind the wolves - or don't, if you're quick. Iron doesn't care how you got to it."
+    text: "South, down the road to the quarry mouth, then down past the overlook to the floor. The seam's on the west side. Mind what walks down there - or don't, if you're quick. Iron doesn't care how you got to it."
     choices:
       - id: back
         text: "I'll find it."

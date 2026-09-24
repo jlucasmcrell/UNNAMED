@@ -7,7 +7,7 @@ notes: PROTOTYPE.md §4.1's respawning pack - two roamers walking the east tree 
 region_ref: region.ashen_hollow
 creatures:
   - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: roamer }
-at: { position_m: [158, 140], radius_m: 4 }
+at: { position_m: [175, 175], radius_m: 4 }
 route_m: [[150, 122], [160, 142], [152, 165]]
 level_band: [2, 2]
 respawn: { kind: timer, window_ticks: 24000 }

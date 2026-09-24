@@ -10,13 +10,16 @@ public class SaveLoadTests
 {
     private const string LonghouseFlag = "world.hollow.longhouse_door_open";
 
-    /// <summary>Open the longhouse door, discover the herb patch, and stop facing somewhere particular.</summary>
+    /// <summary>
+    /// Open the longhouse door, go down the road until the Foldscar is discovered, and stop facing somewhere particular - clear of
+    /// every creature, whose minds a load does not keep.
+    /// </summary>
     private static Simulation PlaySomething(GameSession session)
     {
         var simulation = session.NewGame("Wanderer", seed: 42);
-        Assert.True(Harness.WalkPath(session, (56, 56), (55, 44)));
+        Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
-        Assert.True(Harness.WalkPath(session, (56, 56), (55, 80), (130, 90)));
+        Assert.True(Harness.WalkPath(session, (60, 128), (100, 100), (135, 70)));
         session.Submit(new MoveCommand(simulation.PlayerId, UNNAMED.Domain.Spatial.MoveIntent.Idle(123_456)));
         Harness.Ticks(session, 3);
         return simulation;
@@ -41,7 +44,7 @@ public class SaveLoadTests
         Assert.Equal(played.Player.Body, simulation.Player.Body);
         Assert.Equal(123_456, simulation.Player.Body.FacingMdeg);
         Assert.Equal(played.Player.Discoveries.AsEnumerable(), simulation.Player.Discoveries.AsEnumerable());
-        Assert.Contains(simulation.Player.Discoveries, d => d.LocationId == "location.herb_patch");
+        Assert.Contains(simulation.Player.Discoveries, d => d.LocationId == "location.foldscar");
         Assert.Equal(played.Player.Progression.Digest, simulation.Player.Progression.Digest);
         Assert.True(simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
         Assert.Equal(session.PlaytimeSeconds, reloaded.PlaytimeSeconds);
@@ -57,9 +60,9 @@ public class SaveLoadTests
 
         var cells = SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(profile.Root, SaveSlots.Quick, SaveFormat.Cells)));
         var outpost = Assert.Single(cells);
-        Assert.Equal("r_0_0:c_00_00", outpost.CellKey);
+        Assert.Equal("r_0_0:c_00_01", outpost.CellKey);
         Assert.Equal(new[] { KeyValuePair.Create(LonghouseFlag, 1L) }, outpost.Flags);
-        Assert.Equal(simulation.World.Baseline(CellKey.Parse("r_0_0:c_00_00")).Digest, outpost.BaselineHash);
+        Assert.Equal(simulation.World.Baseline(CellKey.Parse("r_0_0:c_00_01")).Digest, outpost.BaselineHash);
     }
 
     [Fact]
@@ -68,7 +71,7 @@ public class SaveLoadTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Wanderer", seed: 42);
-        Assert.True(Harness.WalkPath(session, (56, 56), (55, 44)));
+        Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
         Harness.Ticks(session, 1);
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
@@ -94,7 +97,7 @@ public class SaveLoadTests
         foreach (var session in new[] { first, second })
         {
             var simulation = session.Simulation!;
-            Assert.True(Harness.WalkPath(session, (100, 100)));
+            Assert.True(Harness.WalkPath(session, (44, 138), (60, 128), (100, 100)));
             session.Submit(new MoveCommand(simulation.PlayerId, UNNAMED.Domain.Spatial.MoveIntent.Idle(90_000)));
             Harness.Ticks(session, 2);
         }

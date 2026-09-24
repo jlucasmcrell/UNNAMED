@@ -86,6 +86,8 @@ public class TtkTableTests
         if (arrows > 0)
             inventory.Add(Arena.Stack("item.ammo.arrow_rough", arrows));
         var equipment = new List<KeyValuePair<EquipSlot, EntityId>>();
+        if (weapon != "unarmed" && inventory.All(e => e.DefId != weapon))
+            inventory.Add(Arena.Stack(weapon, 1));   // the bow is found in the world, not carried from the start (M6)
         if (weapon != "unarmed")
             equipment.Add(KeyValuePair.Create(EquipSlot.MainHand, inventory.Single(e => e.DefId == weapon).ItemId));
         if (armored)

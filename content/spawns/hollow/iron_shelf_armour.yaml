@@ -7,7 +7,7 @@ notes: The Animated Armour stands guard over the iron seam. The content bible pl
 region_ref: region.ashen_hollow
 creatures:
   - { creature_ref: creature.construct.animated_armour, count: [1, 1], role: sentinel }
-at: { position_m: [76, 180], radius_m: 0 }
+at: { position_m: [65, 34], radius_m: 0 }
 level_band: [5, 5]
 respawn: { kind: none }
 tier_hint: A

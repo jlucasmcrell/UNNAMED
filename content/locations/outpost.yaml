@@ -3,11 +3,11 @@ kind: location
 schema: 1
 display_key: location.outpost.name
 tags: [location]
-notes: The prototype's one settlement. A new character starts inside it, so its discovery earns no XP.
-name: The Hollow Outpost
+notes: "The prototype's one settlement - the content bible's Cell A waystation (§5). A new character starts inside it, so its discovery earns no XP. The ID predates the bible's name."
+name: Ashen Hollow Waystation
 region_ref: region.ashen_hollow
-anchor: { world: [55.0, 0.0, 45.0] }          # exact placement, metres; height comes from the terrain
+anchor: { world: [55.0, 0.0, 145.0] }          # exact placement, metres; height comes from the terrain
 kind_of_place: settlement
-discovery: { methods: [visited], radius_m: 20, xp: 0 }
+discovery: { methods: [visited], radius_m: 30, xp: 0 }
 map: { reveals_radius_m: 60, marker: none }   # no quest markers (charter §3)
 fast_travel: { node: false }

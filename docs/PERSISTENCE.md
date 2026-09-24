@@ -391,6 +391,8 @@ Renames and replacements may chain. A cycle, or a chain that ends at no defined 
 
 A cell nobody changed has no record and simply uses the current baseline.
 
+**The game's registered transitions.** M3f: saves from before the region placed its resource nodes carry every record onto the baseline that has them (nothing they hold was a node). M6: saves from M3's layout (M3f to M5) carry onto the content bible's four cells; the iron seam moved from the north shelf to Blackvein Cut, so a harvest record against the old seam is declared lost, and containers, creatures and created instances carry as they are. The M3 layout's fingerprint is a frozen constant in `GameSession`.
+
 **Drift detection.** `worldgen_fingerprint` includes the digests of four canonical probe cells under a fixed seed, and CI pins those digests (and the fingerprint) against an independent implementation. A generator edit that nobody versioned fails CI, and at load it changes the fingerprint and the hash of every changed cell it touches.
 
 **Load decision matrix (M2b §9).**

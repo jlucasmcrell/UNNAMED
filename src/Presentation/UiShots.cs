@@ -41,23 +41,26 @@ public sealed class UiShots
         ("spawn.hollow.den_pack", "creature_wolves"),
     };
 
-    private static readonly (double X, double Z)[] ToTheDoor = { (56, 56), (55.5, 44) };
-    private static readonly (double X, double Z)[] OutOfTheLonghouse = { (52.5, 44), (56, 44), (56, 56) };
-    private static readonly (double X, double Z)[] ToTheWallow = { (55, 70), (40, 74), (32, 73), (25, 72) };
+    // M6's layout (the content bible's four cells): the lodge by the waystone, Sel's table outside it, the boar's wallow on
+    // Blackvein's north-west rim.
+    private static readonly (double X, double Z)[] ToTheDoor = { (44, 138), (54.5, 134), (53.5, 128) };
+    private static readonly (double X, double Z)[] OutOfTheLonghouse = { (50.5, 128), (53.5, 128), (60, 126) };
+    private static readonly (double X, double Z)[] ToTheWallow = { (60, 118), (40, 104), (36, 92), (25, 78) };
     private const string Boar = "spawn.hollow.boar_wallow#0";
 
-    // M3f's loop. The seam's armoured sentinel guards 10 m about its post and no further: the way to the seam and away from
-    // it keeps well outside that, and the seam is struck from its south-west face. Each place to work is walked to closely
-    // (Near): the reach is 1.6 m from the body.
+    // M3f's loop, in M6's layout: down from the wallow into Blackvein Cut to the seam on its floor, struck from its south-west
+    // face; up the quarry ramp and east through Charwood to the ash stand; home to the smithy's door. Each place to work is
+    // walked to closely (Near): the reach is 1.6 m from the body.
     private const float Near = 0.2f;
-    private static readonly (double X, double Z)[] ToTheSeam = { (40, 80), (51.5, 105), (51.5, 140), (58, 165), (60, 172), (63.2, 178.2) };
-    private static readonly (double X, double Z)[] ToTheStand = { (62.8, 176), (70, 164), (95, 160), (179, 138.3) };
-    private static readonly (double X, double Z)[] ToTheForgeDoor = { (150, 110), (100, 85), (70, 72), (57, 70), (55, 62), (56, 36), (58.8, 34) };
-    private static readonly (double X, double Z)[] ToTheHearth = { (61.5, 34), (66.5, 35.2) };
-    private static readonly (double X, double Z)[] ToTheAnvil = { (65.2, 33.4) };
-    private static readonly (double X, double Z)[] OutOfTheForge = { (61.5, 34), (58.8, 34), (56, 40) };
-    private static readonly (double X, double Z)[] ToTheStrays = { (55, 62), (57, 70), (60, 88), (88, 102) };
-    private static readonly (double X, double Z)[] ToTheDen = { (70, 112), (51.5, 118), (51.5, 130), (40, 150), (26, 166) };
+    private static readonly (double X, double Z)[] ToTheSeam = { (20, 62), (22, 50), (27.2, 44.2) };
+    private static readonly (double X, double Z)[] ToTheStand = { (27, 50), (46, 60), (54, 74), (60, 90), (64, 104), (80, 118), (100, 125), (120, 135),
+        (150, 140), (179, 138.3) };
+    private static readonly (double X, double Z)[] ToTheForgeDoor = { (150, 140), (120, 140), (100, 142), (88, 145), (70, 135), (51.8, 136), (51.8, 142) };
+    private static readonly (double X, double Z)[] ToTheHearth = { (54.5, 142), (59.5, 143.2) };
+    private static readonly (double X, double Z)[] ToTheAnvil = { (58.2, 141.4) };
+    private static readonly (double X, double Z)[] OutOfTheForge = { (54.5, 142), (51.8, 142), (47, 138) };
+    private static readonly (double X, double Z)[] ToTheStrays = { (60, 128), (90, 124), (106, 126) };
+    private static readonly (double X, double Z)[] ToTheDen = { (110, 140), (104, 160), (110, 168), (133, 166) };
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;
@@ -171,12 +174,14 @@ public sealed class UiShots
                 }
                 return Stalled(1_200, "the character never reached Renn");
             case 4:
+                // Sel keeps her books at her survey table outside (M6's layout): out of the lodge to her.
                 if (_dialogue.Visible)
                     _dialogue.Leave();
-                Next();
-                break;
+                if (Walk(OutOfTheLonghouse))
+                    Next();
+                return Stalled(1_200, "the character never left the longhouse");
             case 5:
-                // Sel keeps the old books: she lends the primer when asked.
+                // She lends the primer when asked.
                 if (Approach(Sel))
                 {
                     _controller.Talk(Sel);
@@ -230,12 +235,10 @@ public sealed class UiShots
                 }
                 return Stalled(200, "the ward was never worked");
             case 10:
-                if (Walk(OutOfTheLonghouse))
-                {
-                    _step++;
-                    _stepTick = simulation.WorldTick;
-                }
-                return Stalled(1_200, "the character never left the longhouse");
+                // (M3's longhouse held Sel, so the character left it here; in M6's layout it already has.)
+                _step++;
+                _stepTick = simulation.WorldTick;
+                break;
             case 11:
                 // The gallery: stand the camera a few metres in front of each archetype and let it settle.
                 if (_look >= Gallery.Length)
@@ -257,7 +260,7 @@ public sealed class UiShots
                 _wait = 20;
                 break;
             case 12:
-                // Out through the gate to the boar's wallow, then straight at the boar, until it notices: a wandering
+                // Down the road and west along Blackvein's rim to the boar's wallow, then straight at the boar, until it notices: a wandering
                 // boar facing away may not see the character arrive, but it hears a run inside 8 m.
                 var wallow = Boarish()!;
                 if (wallow.Mind != CreatureMind.Unaware)
@@ -413,7 +416,7 @@ public sealed class UiShots
                 return Stalled(3_000, "no haft was ever cut");
             }
             case 24:
-                // Home through the outpost gate to the forge shed, and in at its door.
+                // Home through Charwood to the smithy, and in at its door.
                 if (Travel(ToTheForgeDoor))
                 {
                     if (_controller.IsOpen("door.forge_shed"))
@@ -421,7 +424,7 @@ public sealed class UiShots
                         Next();
                         break;
                     }
-                    Face(60_200, 34_000);
+                    Face(53_200, 142_000);
                     if (!_asked && _controller.FocusOn(_camera) is { Kind: FocusKind.Door, Key: "door.forge_shed" } door)
                     {
                         _controller.Interact(door.Key);

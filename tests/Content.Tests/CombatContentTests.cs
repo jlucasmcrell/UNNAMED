@@ -69,7 +69,7 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         Assert.Equal(8, spawns.Count);
         var strays = spawns["spawn.hollow.valley_strays"];
-        Assert.Equal((2, 100_000L, 105_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
+        Assert.Equal((2, 118_000L, 128_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
         Assert.Equal(new[] { "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
         Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes

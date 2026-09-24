@@ -135,6 +135,8 @@ public class BehaviourMatrixTests
     private static PlayerRecord Fighter(PlayerRecord fresh, int level, string weapon)
     {
         var inventory = fresh.Inventory.ToList();
+        if (inventory.All(e => e.DefId != weapon))
+            inventory.Add(Arena.Stack(weapon, 1));   // the bow is found in the world, not carried from the start (M6)
         if (weapon == "item.weapon.hunting_bow")
             inventory.Add(Arena.Stack("item.ammo.arrow_rough", 40));
         var progression = fresh.Progression with

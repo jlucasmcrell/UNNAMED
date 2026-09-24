@@ -69,6 +69,8 @@ Each exclusion is a scope decision, not an oversight. Anything not listed here i
 | Session length | **Target: 18–25 min** for a fresh player to complete the quest. **Hard cap: 40 min** to see everything the prototype contains, including one deliberate save/quit/reload cycle. If a playtester can still find novel content after 40 minutes, the prototype is too big. |
 | Total build-to-playable target | **10 working days** of implementation effort, not counting the domain scaffolding already implied by D-02/D-05/D-10. |
 
+**M6 reconciliation:** the region is the content bible's four cells (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §2-§8), the destination the M3d ruling set for "before M6 acceptance": the waystation in the north-west cell `r_0_0:c_00_01` (the Ashen Waystone where a new character starts, Renn's lodge, Kera's smithy, Sel's survey table, a well, a storage chest), Charwood Verge to the north-east (the hound, the ruined cart with the bow, the ash stand, and the prototype's wolf den kept at its north edge), Blackvein Cut to the south-west (a shallow quarry entered down a ramp past an overlook, the husk, the armour, the boar's wallow on its rim, the iron seam on its floor, a blocked shaft) and the Foldscar to the south-east (a basin with three Quiet Stones on raised ground and the spider). The terrain falls from about 9.6 m at the north-west road ridge to the quarry floor's 1.7 m, so the table's "<= 6 m" is the bible's "about 10 m". The ravine and the edge stop are unchanged. The lodge and the smithy are M3's longhouse and forge shed, moved whole. `M6_STATUS.md` has the details.
+
 ## 4. Scope table — the exact minimum content
 
 Justification column is mandatory: **any count above 3 must be argued here or it is reduced.**

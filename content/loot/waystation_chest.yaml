@@ -1,0 +1,10 @@
+id: loot.waystation_chest
+kind: loot
+schema: 1
+display_key: loot.waystation_chest.name
+tags: [loot]
+notes: The waystation's storage chest (content bible §5) - all static.
+rolls: 0
+guaranteed:
+  - { item_ref: item.consumable.salve_minor, count_range: [1, 1] }
+  - { item_ref: item.ammo.arrow_rough, count_range: [6, 6] }

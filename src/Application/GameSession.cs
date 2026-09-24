@@ -73,6 +73,9 @@ public sealed class GameSession : IDomainEvents
     }
 
     /// <summary>Boot (ARCHITECTURE.md §8.1): load and validate content, build the rules, open the save profile.</summary>
+    /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
+    private const string M3LayoutFingerprint = "sha256:4c97504c3d0db625e2447230087d2eabb56b4427c486a790f541d677a01b9a1b";
+
     public static GameSession Boot(GameOptions options)
     {
         var loader = new ContentLoader();
@@ -107,6 +110,11 @@ public sealed class GameSession : IDomainEvents
         var transitions = before.Fingerprint == generator.Fingerprint
             ? ImmutableArray<BaselineTransition>.Empty
             : ImmutableArray.Create(new BaselineTransition("M3f: the region's resource nodes", before.Fingerprint, generator.Fingerprint));
+        // A save from M3's layout (M3f to M5) carries onto the content bible's four cells (M6). The iron seam moved from the north
+        // shelf to Blackvein Cut, so a strike recorded against the old seam is declared lost; everything else carries as it is.
+        if (generator.Fingerprint != M3LayoutFingerprint)
+            transitions = transitions.Add(new BaselineTransition("M6: the content bible's four cells", M3LayoutFingerprint, generator.Fingerprint,
+                DropVanishedTargets: true));
         return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions);
     }
 

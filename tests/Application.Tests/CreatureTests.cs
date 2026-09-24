@@ -37,6 +37,8 @@ public class CreatureTests
         Arena.OpenCreatures(session, session.Setup, player, facingDeg, creatures, r =>
         {
             var inventory = r.Inventory.Append(Arena.Stack("item.ammo.arrow_rough", 20)).ToList();
+            if (inventory.All(e => e.DefId != weapon))
+                inventory.Add(Arena.Stack(weapon, 1));   // the bow is found in the world, not carried from the start (M6)
             var item = inventory.Single(e => e.DefId == weapon).ItemId;
             return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, inventory, r.Progression, r.FacingMdeg, r.Discoveries,
                 new[] { KeyValuePair.Create(EquipSlot.MainHand, item) }, r.Currency, r.Effects);
@@ -152,13 +154,13 @@ public class CreatureTests
     public void LostBehindADoor_ItSearches_ThenGivesUpAndGoesHome()
     {
         using var profile = new TempProfile();
-        var arena = Armed(Harness.Boot(profile), (55.5, 44), 270, "item.weapon.hunting_bow", (Arena.Wolf, 64, 44, "pack_hunter"));
+        var arena = Armed(Harness.Boot(profile), (53.5, 128), 270, "item.weapon.hunting_bow", (Arena.Wolf, 62, 128, "pack_hunter"));
         var noticed = arena.Record<CreatureNoticed>();
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
         arena.Tick();
-        Walk(arena, (52.6, 44), Gait.Walk);
+        Walk(arena, (50.6, 128), Gait.Walk);
 
-        Shoot(arena, (64, 44));   // through the open door: now it knows where the shot came from
+        Shoot(arena, (62, 128));   // through the open door: now it knows where the shot came from
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));   // and the door shuts
         arena.Tick(700);
 
@@ -167,7 +169,7 @@ public class CreatureTests
         Assert.True(searched >= 0 && minds.Skip(searched).Contains(CreatureMind.Returning), string.Join(" > ", minds));
         var wolf = Only(arena);
         Assert.Equal(CreatureMind.Unaware, wolf.Mind);
-        Assert.InRange(Math.Sqrt(Math.Pow(wolf.Body.XMm - 64_000, 2) + Math.Pow(wolf.Body.ZMm - 44_000, 2)), 0, 800);
+        Assert.InRange(Math.Sqrt(Math.Pow(wolf.Body.XMm - 62_000, 2) + Math.Pow(wolf.Body.ZMm - 128_000, 2)), 0, 800);
     }
 
     // ── roles ───────────────────────────────────────────────────────────────
@@ -324,11 +326,12 @@ public class CreatureTests
     public void ADodgedCharge_RunsTheBoarIntoTheRock_AndStunsIt()
     {
         using var profile = new TempProfile();
-        // South of a boulder, the boar further south on the same line. It holds its ground here (a sentinel, for the test).
-        var arena = Armed(Harness.Boot(profile), (33, 117.8), 180, "item.weapon.hunting_bow", (Boar, 33, 108, "sentinel"));
+        // South of the Foldscar's heart, the boar further south on the same line, on the basin's level floor. It holds its ground here
+        // (a sentinel, for the test).
+        var arena = Armed(Harness.Boot(profile), (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
         var stunned = arena.Record<CreatureStunned>();
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, (33, 108));
+        Shoot(arena, (153, 35.7));
 
         bool dodged = false;
         for (int i = 0; i < 200 && stunned.Count == 0; i++)
@@ -352,15 +355,18 @@ public class CreatureTests
     public void AnUndodgedCharge_KnocksThePlayerDown()
     {
         using var profile = new TempProfile();
-        var arena = Armed(Harness.Boot(profile), (33, 117.8), 180, "item.weapon.hunting_bow", (Boar, 33, 108, "sentinel"));
+        var session = Harness.Boot(profile);
+        var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, (33, 108));
+        Shoot(arena, (153, 35.7));
         for (int i = 0; i < 200 && !hits.Any(h => h.Target == arena.Player); i++)
             arena.Tick();
         var charge = hits.First(h => h.Target == arena.Player);
         Assert.Equal("ability.creature.boar_charge", charge.Source);
         Assert.True(charge.Staggered);
-        Assert.InRange(charge.Damage, 12, 16);
+        // The charge's 12 to 16, as the body region it lands on (and a critical) makes it: no armor stands in the way.
+        double scale = session.Setup.Combat.Constants.RegionMultipliers.GetValueOrDefault(charge.Region, 1.0) * (charge.Critical ? 1.5 : 1.0);
+        Assert.InRange(charge.Damage, (int)Math.Floor(12 * scale), (int)Math.Ceiling(16 * scale));
     }
 
     [Fact]
