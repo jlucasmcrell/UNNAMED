@@ -34,11 +34,7 @@ owner's impression:
 
 **Is the owner's impression substantially correct? Yes on the visual gap, no on the diagnosis.**
 
-
-**Already discarded by the pipeline itself** - no action needed, and it is the model to copy.
-uilding_smithy and uilding_lodge were both detected as failures and archived to
-ssets/_superseded/reconstruction_failed/. Their review renders remain in ible_batch, which
-is how they appear to a reader as current assets. **They are not.**
+The gap is real and in places severe — `building_smithy` is a catastrophic crumpled mass, and
 `prop_blocked_shaft` is a shattered pile with no readable structure. But it is **not an 80% decline
 over time**. Within a single batch built inside three minutes of each other, the same settings produced
 the `creature_ash_ember_hound`, `weapon_march_spear` and `landmark_ashen_waystone` — all clean and
@@ -303,8 +299,8 @@ Concepts and renders are different artefact classes:
 | Artefact | Resolution | Count |
 |---|---|---|
 | Concept images | **1536x1536** | 768 |
-| 3D review renders (ible_batch) | **520-700 px** | 33 assets |
-| 3D review renders (uildings) | 880x880 | 25 |
+| 3D review renders (ible_batch) | **520-700 px** | 33 assets |
+| 3D review renders (uildings) | 880x880 | 25 |
 | Contact sheets | 1600x1116 | 9 |
 | NPC animation frames | 560x560 or 1120x1120 | — |
 
@@ -322,7 +318,7 @@ esource_iron_billet | **good** | 600x600 |
 | prop_quarry_winch | **failed** | 640x640 |
 | creature_ash_ember_hound | **good** | 620x620 |
 | prop_cart_damaged_merchant | **weak** | 620x620 |
-| uilding_smithy | **failed** | 520x520 |
+| uilding_smithy | **failed** | 520x520 |
 | longhouse | box | 620x620 |
 
 Good and bad assets share sizes exactly. 
@@ -417,12 +413,12 @@ remaining gap in the library.**
 
 ### Correction: two failures were already caught and archived
 
-ssets/_superseded/reconstruction_failed/ contains **uilding_lodge and uilding_smithy** — the two
+ssets/_superseded/reconstruction_failed/ contains **uilding_lodge and uilding_smithy** — the two
 buildings. The pipeline detected both and moved them out of 
 eady/. Their review renders remain in
-ssets/review/bible_batch/, which is how I encountered uilding_smithy and how the owner would have.
+ssets/review/bible_batch/, which is how I encountered uilding_smithy and how the owner would have.
 
-**My acceptance list below originally told the owner to discard uilding_smithy. It was already
+**My acceptance list below originally told the owner to discard uilding_smithy. It was already
 discarded.** The pipeline got that one right, and the failure was archived with a name that says exactly
 what it was: 
 econstruction_failed. That is the single best piece of process hygiene in the repository,
@@ -558,8 +554,12 @@ subject class is a poor bet.
 - `prop_quarry_rail_track` — one retry at `mid`, because it is a regular repeating structure rather
   than a compound assembly. If `mid` does not resolve the sleepers, it is not a reconstructable subject.
 
+**Already discarded by the pipeline itself** — no action needed, and it is the model to copy.
+`building_smithy` and `building_lodge` were both detected as failures and archived to
+`assets/_superseded/reconstruction_failed/`. Their review renders remain in `bible_batch`,
+which is how they appear to a reader as current assets. **They are not.**
+
 **Discard or replace** — do not spend more reconstruction on these
-- `building_smithy` — failed; a crumpled sheet
 - `prop_blocked_shaft` — failed; no readable structure
 - `prop_quarry_winch` — failed; structure splayed apart
 - `prop_cart_damaged_merchant` — weak; melted wheels and a detached floating slab. Replace with a kit
@@ -609,3 +609,6 @@ things, and no one looking at the output.**
   `assets/concepts/`.
 - Contact sheets written to `assets/_checkpoint/`: `concept_compare.png`, `review_latebatch.png`.
 - No asset was modified, moved or regenerated.
+
+
+**Discard or replace** — do not spend more reconstruction on these
