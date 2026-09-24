@@ -74,6 +74,9 @@ public sealed class InventoryDto
     [Key("item_id")] public string ItemId { get; set; } = "";
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("count")] public int Count { get; set; }
+
+    /// <summary>Required from schema 9: the stack's quality (-1 crude, 0 standard, 1 fine). The 8 -> 9 step gives older stacks 0.</summary>
+    [Key("quality")] public int? Quality { get; set; }
 }
 
 [MessagePackObject]
@@ -173,6 +176,9 @@ public sealed class ContainerItemDto
     [Key("item_id")] public string ItemId { get; set; } = "";
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("count")] public int Count { get; set; }
+
+    /// <summary>Required from schema 9. The 8 -> 9 step gives older stacks 0.</summary>
+    [Key("quality")] public int? Quality { get; set; }
 }
 
 [MessagePackObject]
@@ -186,6 +192,9 @@ public sealed class CreatedDto
 
     /// <summary>Required from schema 6: a dropped stack keeps its count. The 5 -> 6 step gives older records 1.</summary>
     [Key("count")] public int? Count { get; set; }
+
+    /// <summary>Required from schema 9. The 8 -> 9 step gives older records 0.</summary>
+    [Key("quality")] public int? Quality { get; set; }
 }
 
 [MessagePackObject]
@@ -243,7 +252,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -259,6 +268,14 @@ public static class SectionCodec
             .ToArray(),
     }, Options);
 
+    /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
+    private static int QualityOf(int? quality, string what) => quality switch
+    {
+        null => throw new FormatException($"{what} has no quality (required from schema 9)"),
+        var q when UNNAMED.Domain.Crafting.Quality.IsValid(q.Value) => q.Value,
+        var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0 or 1"),
+    };
+
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
         var dto = MessagePackSerializer.Deserialize<PlayerDto>(bytes, Options);
@@ -269,7 +286,7 @@ public static class SectionCodec
         long currency = dto.Currency ?? throw new FormatException("player.msgpack has no currency (required from schema 6)");
         var effects = dto.Effects ?? throw new FormatException("player.msgpack has no effects (required from schema 7)");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)),
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
@@ -341,6 +358,7 @@ public static class SectionCodec
                 XCm = c.XCm,
                 ZCm = c.ZCm,
                 Count = c.Count,
+                Quality = c.Quality,
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -348,7 +366,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -396,12 +414,14 @@ public static class SectionCodec
                 EntityId.Parse(c.InstanceId), c.DefId, c.HostCell, c.XCm, c.ZCm, baselines.GetValueOrDefault(c.HostCell))
             {
                 Count = c.Count ?? throw new FormatException($"created instance {c.InstanceId} has no count (required from schema 6)"),
+                Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count)).ToImmutableArray(),
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}") })
+                    .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();
         var creatures = (section.Creatures ?? throw new FormatException("entities.msgpack has no creatures list (required from schema 8)"))

@@ -13,6 +13,13 @@ namespace UNNAMED.World;
 /// </summary>
 public sealed record NodeRule(string Name, string DefId, int MinPerCell, int MaxPerCell);
 
+/// <summary>
+/// An authored node (M3f): one node of a definition at a fixed place in a cell - a seam in a rock face, a stand of ash -
+/// rather than a rule's scatter. It is baseline like any other node: keyed by its name, its harvest state saved the same
+/// way (PERSISTENCE.md §5.5). Coordinates are centimetres within the cell.
+/// </summary>
+public sealed record FixedNode(string Name, string DefId, CellKey Cell, int XCm, int ZCm);
+
 /// <summary>A spawn population per cell: a family with a budget (WORLD_ARCHITECTURE.md §5.5).</summary>
 public sealed record PopulationRule(string Name, string FamilyDefId, int Target, int Min, int Max);
 
@@ -26,16 +33,21 @@ public sealed record TerrainRule(int BaseHeightMm, int AmplitudeMm, int SamplesP
 /// </summary>
 public sealed record GenerationProfile
 {
-    public GenerationProfile(IEnumerable<NodeRule> nodes, IEnumerable<PopulationRule> populations, TerrainRule terrain)
+    public GenerationProfile(IEnumerable<NodeRule> nodes, IEnumerable<PopulationRule> populations, TerrainRule terrain,
+        IEnumerable<FixedNode>? fixedNodes = null)
     {
         Nodes = nodes.ToImmutableArray();
         Populations = populations.ToImmutableArray();
         Terrain = terrain;
+        FixedNodes = (fixedNodes ?? Enumerable.Empty<FixedNode>()).ToImmutableArray();
         Validate();
         Digest = ComputeDigest();
     }
 
     public ImmutableArray<NodeRule> Nodes { get; }
+
+    /// <summary>Authored nodes (M3f), each at its place.</summary>
+    public ImmutableArray<FixedNode> FixedNodes { get; }
     public ImmutableArray<PopulationRule> Populations { get; }
     public TerrainRule Terrain { get; }
 
@@ -55,6 +67,17 @@ public sealed record GenerationProfile
                 throw new ArgumentException($"Node rule '{n.Name}' has an invalid definition ID '{n.DefId}'");
             if (n.MinPerCell < 0 || n.MaxPerCell < n.MinPerCell || n.MaxPerCell > 99)
                 throw new ArgumentException($"Node rule '{n.Name}' has an invalid range [{n.MinPerCell}, {n.MaxPerCell}]");
+        }
+        foreach (var f in FixedNodes)
+        {
+            if (!IsName(f.Name))
+                throw new ArgumentException($"Authored node name '{f.Name}' must be lowercase snake_case");
+            if (!nodeNames.Add(f.Name))
+                throw new ArgumentException($"Authored node name '{f.Name}' is also another node's");
+            if (!DefinitionId.IsValid(f.DefId))
+                throw new ArgumentException($"Authored node '{f.Name}' has an invalid definition ID '{f.DefId}'");
+            if (f.XCm is < 0 or >= WorldMath.CellSizeCm || f.ZCm is < 0 or >= WorldMath.CellSizeCm)
+                throw new ArgumentException($"Authored node '{f.Name}' lies outside its cell's square");
         }
         var names = new HashSet<string>(StringComparer.Ordinal);
         foreach (var p in Populations)
@@ -86,6 +109,13 @@ public sealed record GenerationProfile
         foreach (var p in Populations)
             h.Add(p.Name).Add(p.FamilyDefId).Add(p.Target).Add(p.Min).Add(p.Max);
         h.Add(Terrain.BaseHeightMm).Add(Terrain.AmplitudeMm).Add(Terrain.SamplesPerAxis);
+        // Only a profile that places authored nodes digests them, so every earlier profile keeps its digest.
+        if (!FixedNodes.IsEmpty)
+        {
+            h.Add("fixed-nodes").Add(FixedNodes.Length);
+            foreach (var f in FixedNodes)
+                h.Add(f.Name).Add(f.DefId).Add(f.Cell.ToString()).Add(f.XCm).Add(f.ZCm);
+        }
         return h.Finish();
     }
 }
@@ -219,6 +249,9 @@ public sealed class CellBaselineGenerator : ICellBaselineGenerator
                     place.Int(0, 0, WorldMath.CellSizeCm), place.Int(1, 0, WorldMath.CellSizeCm)));
             }
         }
+        // Authored nodes stand where they were put; each is ordinal 00 of its own name.
+        foreach (var f in Profile.FixedNodes.Where(f => f.Cell == cell))
+            nodes.Add(new BaselineNode(Keys.NodeKey(cell, f.Name, 0), f.DefId, f.XCm, f.ZCm));
         return nodes.ToImmutable();
     }
 

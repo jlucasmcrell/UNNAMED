@@ -67,7 +67,7 @@ public class ArchitectureTests
             nameof(WorldDelta.GetPopulationAlive), nameof(WorldDelta.Occupant), nameof(WorldDelta.TakeSnapshot),
             nameof(WorldDelta.EffectiveCellDigest), nameof(WorldDelta.FromSnapshot), nameof(WorldDelta.CreatedIn),
             nameof(WorldDelta.FindCreated), nameof(WorldDelta.Container), nameof(WorldDelta.ContainersIn),
-            nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn),
+            nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed),
         };
         var exposed = typeof(WorldDelta)

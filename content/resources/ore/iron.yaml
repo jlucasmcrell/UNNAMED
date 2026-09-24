@@ -1,0 +1,9 @@
+id: resource.ore.iron
+kind: resource
+schema: 1
+display_key: resource.ore.iron.name
+tags: [resource]
+name: Iron
+notes: The shelf's iron (content bible §12's raw iron ore) - a lump or two a strike.
+yields:
+  - { item_ref: item.material.iron_ore, count_range: [1, 2] }

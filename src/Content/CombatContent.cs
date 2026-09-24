@@ -398,7 +398,9 @@ public static class CombatContent
         loader.GetByKind("skill").Values.OrderBy(d => d.Id, StringComparer.Ordinal).SelectMany(definition =>
         {
             var map = Read(definition.YamlSource);
-            return Rows(map, "passives", definition.Id).SelectMany(passive => Rows(passive, "modifiers", definition.Id).Select(modifier =>
+            // A gathering passive is crafting's to build (M3f), not combat's.
+            return Rows(map, "passives", definition.Id).SelectMany(passive => Rows(passive, "modifiers", definition.Id)
+                .Where(modifier => modifier.GetValueOrDefault("target") as string != CraftingContent.GatherYield).Select(modifier =>
             {
                 string target = Text(modifier, "target");
                 if (!Stats.Contains(target) || Text(modifier, "op") != "multiply")

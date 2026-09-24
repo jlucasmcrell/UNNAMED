@@ -15,12 +15,14 @@
       {
         "item_id": "itm_01HF7YAT01144GJ289144GJ281",
         "def_id": "item.weapon.iron_sword",
-        "count": 1
+        "count": 1,
+        "quality": 0
       },
       {
         "item_id": "itm_01HF7YAT02144GJ289144GJ282",
         "def_id": "item.potion.minor_healing",
-        "count": 3
+        "count": 3,
+        "quality": 0
       }
     ],
     "progression": {
@@ -122,6 +124,7 @@
       "x_cm": 500,
       "z_cm": 600,
       "count": 1,
+      "quality": 0,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
   ],

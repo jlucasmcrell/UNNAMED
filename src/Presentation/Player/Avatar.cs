@@ -30,6 +30,8 @@ public partial class Avatar : Node3D
     private readonly List<MeshInstance3D> _head = new();
     private readonly MeshInstance3D _sword = Part(new BoxMesh { Size = new Vector3(0.04f, 0.05f, 0.85f) }, Palette.Metal, new Vector3(0, -0.3f, 0.36f));
     private readonly MeshInstance3D _bow = Part(new BoxMesh { Size = new Vector3(0.03f, 1.15f, 0.05f) }, Palette.Leather, new Vector3(0, -0.3f, 0.04f));
+    // Along the forearm, from behind the elbow to 1.6 m past the hand: a level forearm holds it level.
+    private readonly MeshInstance3D _spear = Part(new BoxMesh { Size = new Vector3(0.035f, 2.1f, 0.035f) }, Palette.Shaft, new Vector3(0, -0.85f, 0.05f));
     private readonly MeshInstance3D _working = Part(new SphereMesh { Radius = 0.07f, Height = 0.14f },
         new StandardMaterial3D { AlbedoColor = new Color(0.6f, 0.75f, 1f), EmissionEnabled = true, Emission = new Color(0.4f, 0.6f, 1f) },
         new Vector3(0, -0.34f, 0.04f));
@@ -67,6 +69,8 @@ public partial class Avatar : Node3D
             elbow.AddChild(Part(new CapsuleMesh { Radius = 0.05f, Height = 0.3f }, Palette.Skin, new Vector3(0, -0.14f, 0)));
         }
         _rightElbow.AddChild(_sword);
+        _spear.AddChild(Part(new BoxMesh { Size = new Vector3(0.07f, 0.24f, 0.02f) }, Palette.Metal, new Vector3(0, -1.17f, 0)));
+        _rightElbow.AddChild(_spear);
         _leftElbow.AddChild(_bow);
         _leftElbow.AddChild(_working);
     }
@@ -125,13 +129,15 @@ public partial class Avatar : Node3D
 
     /// <summary>
     /// Combat poses over the walk. Rotation about X swings a limb: negative raises it forward. A sword rises through the
-    /// windup and falls through the active window; a bow is held out and drawn through the windup and loosed at release.
+    /// windup and falls through the active window; a bow is held out and drawn through the windup and loosed at release;
+    /// a spear (M3f) is held level in both hands, drawn back through the windup and driven forward through the active window.
     /// A working (M3e) gathers in the open left hand through its tell - the glow is the tell - and is thrown at release.
     /// </summary>
     private void Fight()
     {
         var s = _stance;
         _sword.Visible = s.Holds == Held.Sword;
+        _spear.Visible = s.Holds == Held.Spear;
         _bow.Visible = s.Holds == Held.Bow && !s.Casting;
         _working.Visible = s.Casting && s.Phase is CombatPhase.Windup or CombatPhase.Active;
         float t = Mathf.Clamp(s.Progress, 0, 1);
@@ -157,6 +163,15 @@ public partial class Avatar : Node3D
             case CombatPhase.Active or CombatPhase.Recovery when s.Holds == Held.Bow:
                 _leftShoulder.Rotation = new Vector3(-1.5f * (s.Phase == CombatPhase.Active ? 1 : 1 - t), 0, 0.05f);
                 _rightShoulder.Rotation = new Vector3(-0.9f * (s.Phase == CombatPhase.Active ? 1 : 1 - t), 0, -0.1f);
+                break;
+            case CombatPhase.Windup when s.Holds == Held.Spear:
+                HoldSpear(Mathf.Lerp(-0.5f, -0.15f, t), Mathf.Lerp(-0.95f, -1.35f, t));
+                break;
+            case CombatPhase.Active when s.Holds == Held.Spear:
+                HoldSpear(Mathf.Lerp(-0.15f, -1.25f, t), Mathf.Lerp(-1.35f, -0.25f, t));
+                break;
+            case CombatPhase.Recovery when s.Holds == Held.Spear:
+                HoldSpear(Mathf.Lerp(-1.25f, -0.5f, t), Mathf.Lerp(-0.25f, -0.95f, t));
                 break;
             case CombatPhase.Windup:
                 _rightShoulder.Rotation = new Vector3(-2.7f * t, 0, -0.15f);
@@ -186,8 +201,21 @@ public partial class Avatar : Node3D
                     _leftShoulder.Rotation = new Vector3(-1.1f, -0.3f, 0.1f);
                     _leftElbow.Rotation = new Vector3(-1.3f, 0, 0);
                 }
+                else if (s.Holds == Held.Spear)
+                {
+                    HoldSpear(-0.5f, -0.95f);
+                }
                 break;
         }
+    }
+
+    /// <summary>Both hands on the shaft: the right drives it, the left steadies it ahead. The two angles keep it level.</summary>
+    private void HoldSpear(float shoulder, float elbow)
+    {
+        _rightShoulder.Rotation = new Vector3(shoulder, 0, -0.1f);
+        _rightElbow.Rotation = new Vector3(elbow, 0, 0);
+        _leftShoulder.Rotation = new Vector3(-0.9f, 0, 0.35f);
+        _leftElbow.Rotation = new Vector3(-0.5f, 0, 0);
     }
 
     private static MeshInstance3D Part(Mesh mesh, Material material, Vector3 position) =>
@@ -199,6 +227,7 @@ public enum Held
     Nothing,
     Sword,
     Bow,
+    Spear,
 }
 
 /// <summary>A frame's combat pose: the phase from the simulation, how far through it (0-1), what the hands hold, the guard, and whether it is a working.</summary>

@@ -39,6 +39,7 @@ internal static class CanonicalState
                 json.WriteString("item_id", entry.ItemId.Value);
                 json.WriteString("def_id", entry.DefId);
                 json.WriteNumber("count", entry.Count);
+                json.WriteNumber("quality", entry.Quality);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -124,6 +125,7 @@ internal static class CanonicalState
                 json.WriteNumber("x_cm", created.XCm);
                 json.WriteNumber("z_cm", created.ZCm);
                 json.WriteNumber("count", created.Count);
+                json.WriteNumber("quality", created.Quality);
                 json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
@@ -144,6 +146,7 @@ internal static class CanonicalState
                     json.WriteString("item_id", item.ItemId.Value);
                     json.WriteString("def_id", item.DefId);
                     json.WriteNumber("count", item.Count);
+                    json.WriteNumber("quality", item.Quality);
                     json.WriteEndObject();
                 }
                 json.WriteEndArray();

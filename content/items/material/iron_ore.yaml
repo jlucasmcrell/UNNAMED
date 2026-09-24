@@ -3,8 +3,8 @@ kind: item
 schema: 1
 display_key: item.material.iron_ore.name
 tags: [item]
-name: Iron Ore
-notes: Mined from the iron seam.
+name: Raw Iron Ore
+notes: Struck from the iron seam; smelted into a billet at the forge (content bible §12).
 category: material
 stack_max: 20
 weight: 1.0

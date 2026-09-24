@@ -4,6 +4,8 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
@@ -37,6 +39,7 @@ public partial class Main : Node3D
     private Hud _hud = null!;
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
+    private CraftingView _crafting = null!;
     private InventoryPanel _inventory = null!;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -87,10 +90,13 @@ public partial class Main : Node3D
         _items.BuildContainers(_session.Setup.Layout);
         _creatures = new CreaturesView { Name = "Creatures" };
         AddChild(_creatures);
-        _inventory = new InventoryPanel { Name = "Inventory" };
-        _inventory.Bind(_session);
-        AddChild(_inventory);
+        _crafting = new CraftingView { Name = "Crafting" };
+        AddChild(_crafting);
+        _crafting.Build(_session.Setup.Layout);
         _controller = new PlayerController(_session);
+        _inventory = new InventoryPanel { Name = "Inventory" };
+        _inventory.Bind(_session, _controller);
+        AddChild(_inventory);
         Subscribe();
         Resync();
         DefineInput();
@@ -147,6 +153,7 @@ public partial class Main : Node3D
                     GetTree().Quit(0);
                     return;
                 case "failed":
+                    SaveScreenshot(_shots.Directory, "failed");
                     GetTree().Quit(1);
                     return;
                 case { } shot:
@@ -244,6 +251,12 @@ public partial class Main : Node3D
                 case FocusKind.Item:
                     _controller.PickUp(focus.Key);
                     break;
+                case FocusKind.Node:
+                    _controller.Gather(focus.Key);
+                    break;
+                case FocusKind.Station:
+                    OpenStation(focus.Key);
+                    break;
             }
         }
         if (Input.IsActionJustPressed("inventory"))
@@ -269,9 +282,19 @@ public partial class Main : Node3D
             Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
-    /// <summary>A container stays open only while it is in reach; one that is gone (an emptied corpse) closes its column.</summary>
+    /// <summary>
+    /// A container or a station stays open only while it is in reach; a container that is gone (an emptied corpse) closes
+    /// its column.
+    /// </summary>
     private void KeepContainerInReach()
     {
+        if (_inventory.OpenStation is { } station)
+        {
+            if (Math.Sqrt(Math.Pow(station.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(station.ZMm - _controller.Authoritative.ZMm, 2))
+                > _session.Setup.Items.Inventory.ReachMm)
+                CloseInventory();
+            return;
+        }
         if (_inventory.OpenContainer is not { } open)
             return;
         if (_session.Simulation!.Containers.FirstOrDefault(c => c.Site.Key == open)?.Site is not { } site)
@@ -297,6 +320,7 @@ public partial class Main : Node3D
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
         _creatures.Draw(simulation, alpha, delta);
+        _crafting.Refresh(simulation.Nodes);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetCrosshair(_camera.IsFirstPerson);
@@ -308,7 +332,9 @@ public partial class Main : Node3D
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[E] Open the {Describe(container.Key)}"
                 : $"[E] Search the {_session.DisplayName(container.DefId)}",
-            { } item => $"[E] Pick up {_session.DisplayName(item.DefId)}",
+            { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
+            { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
+            { } item => $"[E] Pick up {ItemName(_session, item.DefId, item.Quality)}",
         });
 
         var view = simulation.Player;
@@ -319,7 +345,7 @@ public partial class Main : Node3D
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
-            $"\n{_session.DisplayName(combat.Weapon.Source)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
+            $"\n{ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
             $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
         _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
@@ -360,7 +386,7 @@ public partial class Main : Node3D
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand)
+            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand)
                 _hud.Toast(e.Reason, 3);
         });
         _session.Subscribe<ItemMoved>(e =>
@@ -371,8 +397,36 @@ public partial class Main : Node3D
         });
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
+        _session.Subscribe<NodeGathered>(e =>
+        {
+            _inventory.Refresh();
+            string spent = !e.Spent ? ""
+                : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {_session.DisplayName(e.NodeDefId)} is worked out"
+                : $" - nothing more until the {_session.DisplayName(e.NodeDefId)} grows back";
+            _hud.Toast($"+{e.Count} {_session.DisplayName(e.ItemId)}{spent}", 3);
+        });
+        _session.Subscribe<ItemCrafted>(e =>
+        {
+            _inventory.Refresh();
+            _hud.Toast($"Made {ItemName(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+        });
         SubscribeCombat();
     }
+
+    /// <summary>A node's prompt: what it gives now, or why it gives nothing.</summary>
+    private string NodePrompt(Simulation simulation, Focus focus)
+    {
+        string name = _session.DisplayName(focus.DefId);
+        if (simulation.Nodes.FirstOrDefault(n => n.Key == focus.Key) is { Ready: true })
+            return $"[E] Gather from the {name}";
+        return _session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
+            ? $"The {name} is worked out"
+            : $"The {name} has nothing to take until it grows back";
+    }
+
+    /// <summary>The carried entry in the main hand, if any.</summary>
+    private static InventoryEntry? Wielded(PlayerView view) =>
+        view.Equipment.TryGetValue(EquipSlot.MainHand, out var id) ? view.Inventory.FirstOrDefault(e => e.ItemId == id) : null;
 
     /// <summary>Combat reads in words as well as poses: every blow, effect, kill and death goes to the log (ROADMAP.md M3c).</summary>
     private void SubscribeCombat()
@@ -470,7 +524,10 @@ public partial class Main : Node3D
             _ => 1,
         };
         float progress = (float)((length - combat.PhaseTicksLeft + alpha) / Math.Max(1, length));
-        var held = weapon.Ranged ? Held.Bow : weapon.Source == "unarmed" ? Held.Nothing : Held.Sword;
+        var held = weapon.Ranged ? Held.Bow
+            : weapon.Source == "unarmed" ? Held.Nothing
+            : _session.Setup.Items.Catalog.Find(weapon.Source)?.Weapon?.TwoHanded == true ? Held.Spear   // the greybox draws a two-hander as a spear
+            : Held.Sword;
         return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null);
     }
 
@@ -551,6 +608,12 @@ public partial class Main : Node3D
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
+    private void OpenStation(string key)
+    {
+        _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
     private void CloseInventory()
     {
         _inventory.Close();
@@ -562,12 +625,21 @@ public partial class Main : Node3D
     internal static string Describe(GameSession session, string key) =>
         session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
 
-    /// <summary>A door or container key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
+    /// <summary>A door, container or station key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
     internal static string Describe(string key) => key switch
     {
         _ when key.StartsWith("door.", StringComparison.Ordinal) => key["door.".Length..].Replace('_', ' ') + " door",
         _ when key.StartsWith("container.", StringComparison.Ordinal) => key["container.".Length..].Replace('_', ' '),
+        _ when key.StartsWith("station.", StringComparison.Ordinal) => key["station.".Length..].Replace('_', ' '),
         _ => key,
+    };
+
+    /// <summary>An item's name with its quality (M3f): a fine or crude one says so; a standard one is just itself.</summary>
+    internal static string ItemName(GameSession session, string defId, int quality) => quality switch
+    {
+        Quality.Fine => "Fine " + session.DisplayName(defId),
+        Quality.Crude => "Crude " + session.DisplayName(defId),
+        _ => session.DisplayName(defId),
     };
 
     private void ParseArguments(string[] arguments)

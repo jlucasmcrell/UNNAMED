@@ -47,10 +47,13 @@ internal sealed class Arena
         bool keepSpawns = false) =>
         OpenCreatures(session, rules, player, facingDeg, wolves.Select(w => (Wolf, w.X, w.Z, w.Role)), change, seed, startTick, keepSpawns);
 
-    /// <summary>Any creatures placed exactly, each in its own role, each its own spawner (<c>spawn.test.creature_N</c>).</summary>
+    /// <summary>
+    /// Any creatures placed exactly, each in its own role, each its own spawner (<c>spawn.test.creature_N</c>) - in a world of the
+    /// session's generator, or of another one (a baseline from before a change).
+    /// </summary>
     public static Arena OpenCreatures(GameSession session, SimulationSetup rules, (double X, double Z) player, int facingDeg,
         IEnumerable<(string DefId, double X, double Z, string Role)> creatures, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42,
-        long startTick = 0, bool keepSpawns = false, long respawnTicks = 0)
+        long startTick = 0, bool keepSpawns = false, long respawnTicks = 0, ICellBaselineGenerator? generator = null)
     {
         var spawns = creatures.Select((w, i) => new SpawnSite($"spawn.test.{(w.DefId == Wolf ? "wolf" : "creature")}_{i}", (long)(w.X * 1000),
             (long)(w.Z * 1000), 0, ImmutableArray.Create(new SpawnMember(w.DefId, w.Role))) { RespawnTicks = respawnTicks }).ToImmutableArray();
@@ -61,7 +64,14 @@ internal sealed class Arena
             fresh.Progression, facingDeg * 1000 % 360_000, equipment: fresh.Equipment);
         record = change?.Invoke(record) ?? record;
         var bus = new EventBus();
-        return new Arena(Simulation.Start(setup, record, new WorldDelta(session.Generator, seed, new Registry()), startTick, bus), bus);
+        return new Arena(Simulation.Start(setup, record, new WorldDelta(generator ?? session.Generator, seed, new Registry()), startTick, bus), bus);
+    }
+
+    /// <summary>A loaded save, stepped the same way.</summary>
+    public static Arena Resume(SimulationSetup setup, LoadResult loaded)
+    {
+        var bus = new EventBus();
+        return new Arena(Simulation.Start(setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, bus), bus);
     }
 
     public List<T> Record<T>()
@@ -101,6 +111,25 @@ internal sealed class Arena
     }
 
     public void TurnTo(int facingDeg) => Simulation.Enqueue(new MoveCommand(Player, MoveIntent.Idle(facingDeg * 1000 % 360_000)));
+
+    /// <summary>Run to a point in metres the way the keys would, and stop there; false when it is not reached in time.</summary>
+    public bool WalkTo(double x, double z, int maxTicks = 3000)
+    {
+        for (int i = 0; i < maxTicks; i++)
+        {
+            var body = Simulation.Player.Body;
+            double dx = x * 1000 - body.XMm, dz = z * 1000 - body.ZMm;
+            if (Math.Sqrt(dx * dx + dz * dz) <= 300)
+            {
+                Simulation.Enqueue(new MoveCommand(Player, MoveIntent.Idle(body.FacingMdeg)));
+                Tick();
+                return true;
+            }
+            Simulation.Enqueue(new MoveCommand(Player, Harness.Toward(dx, dz)));
+            Tick();
+        }
+        return false;
+    }
 
     /// <summary>Fight one creature the simplest competent way: face it, close to reach, swing or shoot whenever free.</summary>
     public int Fight(CreatureView target, int maxTicks, bool stayPut = false)

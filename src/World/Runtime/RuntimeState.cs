@@ -52,6 +52,9 @@ public enum StateSlice
 
     /// <summary>Status effects on every combatant (S-11). The player's are saved (schema 7).</summary>
     Effects,
+
+    /// <summary>The harvest records of the region's resource nodes in the world delta (S-19, PERSISTENCE.md §5.5; M3f).</summary>
+    Nodes,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -156,6 +159,12 @@ internal sealed class RuntimeState
         World.SetFlag(cell, flagId, value);
     }
 
+    public void HarvestNode(SliceOwner owner, CellKey cell, string nodeKey, long tick)
+    {
+        Require(owner, StateSlice.Nodes);
+        World.HarvestNode(cell, nodeKey, tick);
+    }
+
     public void SetTier(SliceOwner owner, string cellKey, SimulationTier tier)
     {
         Require(owner, StateSlice.CellTiers);
@@ -180,10 +189,10 @@ internal sealed class RuntimeState
         Equipment = equipment;
     }
 
-    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm)
+    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0)
     {
         Require(owner, StateSlice.WorldItems);
-        World.PlaceItem(cell, itemId, defId, count, xCm, zCm);
+        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality);
     }
 
     public CreatedEntityRecord TakeItem(SliceOwner owner, EntityId itemId)

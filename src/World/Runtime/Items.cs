@@ -59,11 +59,26 @@ public sealed record ItemEquipped(EntityId Actor, EquipSlot Slot, EntityId Item,
 public sealed record ItemUnequipped(EntityId Actor, EquipSlot Slot, EntityId Item, long Tick);
 
 /// <summary>An item as a view shows it: <see cref="Ref"/> is what a <see cref="MoveItemCommand"/> names it by.</summary>
-public sealed record ItemView(string Ref, string DefId, int Count);
+public sealed record ItemView(string Ref, string DefId, int Count)
+{
+    public int Quality { get; init; }
+}
 
 public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableArray<ItemView> Items);
 
-public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XMm, long ZMm);
+public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XMm, long ZMm)
+{
+    public int Quality { get; init; }
+}
+
+/// <summary>One carried stack to spend, and how many of it.</summary>
+internal sealed record StackTake(EntityId ItemId, int Count);
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: spend these carried stacks and receive what they made (a craft), or only receive (a
+/// harvest) - all or nothing, judged with the spent stacks already gone (M3f).
+/// </summary>
+internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string ItemId, int Count, int Quality) : InternalCommand;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
@@ -118,8 +133,8 @@ internal sealed class InventorySystem
         // Room at the destination, judged as it will be once the items leave their source.
         if (command.To.Kind == PlaceKind.Inventory)
         {
-            var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count)).ToList();
-            if (Room(stacks, definition, command.Count, Items.Inventory.StackSlots) is { } full)
+            var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList();
+            if (Room(stacks, definition, source.Quality, command.Count, Items.Inventory.StackSlots) is { } full)
                 return full;
             long weight = CarriedGrams() + definition.WeightGrams * command.Count;
             long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
@@ -129,14 +144,14 @@ internal sealed class InventorySystem
         else if (command.To.Kind == PlaceKind.Container)
         {
             var site = _context.FindContainer(command.To.ContainerKey!)!;
-            var stacks = ContentsOf(site).Select(i => (i.Id ?? default!, i.DefId, i.Count)).ToList();
-            if (Room(stacks, definition, command.Count, site.StackSlots) is { } full)
+            var stacks = ContentsOf(site).Select(i => (i.Id ?? default!, i.DefId, i.Count, i.Quality)).ToList();
+            if (Room(stacks, definition, source.Quality, command.Count, site.StackSlots) is { } full)
                 return full;
         }
 
         // Everything checked: take from the source, then put at the destination.
         var moving = Take(command.From, source, command.Count, whole);
-        Put(command.To, definition, command.Count, moving);
+        Put(command.To, definition, command.Count, moving, source.Quality);
         _context.Events.Publish(new ItemMoved(_player, definition.Id, command.Count, command.From, command.To, tick));
         return null;
     }
@@ -151,11 +166,12 @@ internal sealed class InventorySystem
             if (entries.Count >= Items.Inventory.StackSlots)
                 return "no free stack slot to split into";
             entries[entries.IndexOf(entry)] = entry with { Count = entry.Count - command.Count };
-            entries.Add(new InventoryEntry(NewItem(definition.Id), definition.Id, command.Count));
+            entries.Add(new InventoryEntry(NewItem(definition.Id), definition.Id, command.Count) { Quality = entry.Quality });
         }
         else
         {
-            var others = entries.Where(e => e.DefId == entry.DefId && e.ItemId != entry.ItemId).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList();
+            var others = entries.Where(e => e.DefId == entry.DefId && e.Quality == entry.Quality && e.ItemId != entry.ItemId)
+                .OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList();
             int room = others.Sum(e => definition.StackMax - e.Count);
             if (others.Count == 0 || room < entry.Count)
                 return others.Count == 0 ? "there is no other stack to merge into" : "the other stacks have no room for all of it";
@@ -204,6 +220,37 @@ internal sealed class InventorySystem
         Remove(new[] { (entry, 1) });
         _context.Dispatch(new ApplyEffect(_player, effect));
         _context.Events.Publish(new ItemUsed(_player, entry.DefId, effect, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Spend carried stacks and receive the result (M3f): room and weight are judged with the spent stacks gone, and a refused
+    /// exchange changes nothing. Equipped stacks are never spent.
+    /// </summary>
+    public string? Handle(ExchangeItems command, long tick)
+    {
+        if (Items.Catalog.Find(command.ItemId) is not { } definition)
+            return $"{command.ItemId} is not an item this build knows";
+        var remaining = State.Inventory.ToList();
+        long spentGrams = 0;
+        foreach (var take in command.Takes)
+        {
+            int index = remaining.FindIndex(e => e.ItemId == take.ItemId);
+            if (index < 0 || take.Count < 1 || take.Count > remaining[index].Count || State.Equipment.ContainsValue(take.ItemId))
+                return $"{take.ItemId} cannot be spent";
+            spentGrams += (Items.Catalog.Find(remaining[index].DefId)?.WeightGrams ?? 0) * take.Count;
+            remaining[index] = remaining[index] with { Count = remaining[index].Count - take.Count };
+        }
+        remaining.RemoveAll(e => e.Count == 0);
+        if (Room(remaining.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList(), definition, command.Quality, command.Count,
+                Items.Inventory.StackSlots) is { } full)
+            return full;
+        long weight = CarriedGrams() - spentGrams + definition.WeightGrams * command.Count;
+        long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
+        if (weight > limit)
+            return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
+        Remove(command.Takes.Select(t => (State.Inventory.Single(e => e.ItemId == t.ItemId), t.Count)).ToList());
+        Put(ItemPlace.Carried, definition, command.Count, null, command.Quality);
         return null;
     }
 
@@ -261,7 +308,7 @@ internal sealed class InventorySystem
     public ContainerView View(ContainerSite site)
     {
         var record = State.World.Container(site.Key);
-        return new ContainerView(site, record?.InstanceId, ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count)).ToImmutableArray());
+        return new ContainerView(site, record?.InstanceId, ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality }).ToImmutableArray());
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
@@ -269,7 +316,7 @@ internal sealed class InventorySystem
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
-                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z);
+                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality };
             }))
             .ToImmutableArray();
 
@@ -278,8 +325,8 @@ internal sealed class InventorySystem
 
     // ── the moving parts ────────────────────────────────────────────────────
 
-    /// <summary>One stack as it is found: its reference, what and how many, its identity if it has one, where it lies.</summary>
-    private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm);
+    /// <summary>One stack as it is found: its reference, what and how many, its identity if it has one, where it lies, how good.</summary>
+    private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm, int Quality);
 
     private string? Check(ItemPlace place)
     {
@@ -296,29 +343,29 @@ internal sealed class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0)).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality)).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell))
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z);
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality);
             }
             default:
             {
                 var site = _context.FindContainer(place.ContainerKey!)!;
-                return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm))
+                return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm, item.Quality))
                     .FirstOrDefault(l => l.Ref == itemRef);
             }
         }
     }
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
-    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id)> ContentsOf(ContainerSite site)
+    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId)).ToList();
-        return Baseline(site).Select((drop, i) => ($"{site.Key}#{i:00}", drop.ItemId, drop.Count, (EntityId?)null)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality)).ToList();
+        return Baseline(site).Select((drop, i) => ($"{site.Key}#{i:00}", drop.ItemId, drop.Count, (EntityId?)null, 0)).ToList();
     }
 
     /// <summary>The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16).</summary>
@@ -372,7 +419,7 @@ internal sealed class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality);
                 return null;
             }
             default:
@@ -393,18 +440,18 @@ internal sealed class InventorySystem
         }
     }
 
-    /// <summary>Add <paramref name="count"/> at the destination, merging into stacks of the same kind first.</summary>
-    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving)
+    /// <summary>Add <paramref name="count"/> at the destination, merging into stacks of the same kind and quality first.</summary>
+    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality)
     {
         switch (place.Kind)
         {
             case PlaceKind.Inventory:
             {
                 var entries = State.Inventory.ToList();
-                int left = MergeInto(entries.Where(e => e.DefId == definition.Id).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
+                int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack));
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
                 Retire(moving);
                 State.SetInventory(_owner, entries);
                 break;
@@ -417,7 +464,7 @@ internal sealed class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10));
+                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality);
                 break;
             }
             default:
@@ -425,10 +472,10 @@ internal sealed class InventorySystem
                 var site = _context.FindContainer(place.ContainerKey!)!;
                 var record = Materialize(site);
                 var items = record.Items.ToList();
-                int left = MergeInto(items.Where(i => i.DefId == definition.Id).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
+                int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack));
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;
@@ -455,10 +502,12 @@ internal sealed class InventorySystem
         return left;
     }
 
-    /// <summary>Why <paramref name="count"/> more cannot fit in these stacks, or null when it can.</summary>
-    private string? Room(List<(EntityId Id, string DefId, int Count)> stacks, ItemDefinition definition, int count, int slots)
+    /// <summary>Why <paramref name="count"/> more cannot fit in these stacks, or null when it can. Only the same quality merges.</summary>
+    private string? Room(List<(EntityId Id, string DefId, int Count, int Quality)> stacks, ItemDefinition definition, int quality, int count, int slots)
     {
-        int free = definition.Stacks ? stacks.Where(s => s.DefId == definition.Id).Sum(s => Math.Max(0, definition.StackMax - s.Count)) : 0;
+        int free = definition.Stacks
+            ? stacks.Where(s => s.DefId == definition.Id && s.Quality == quality).Sum(s => Math.Max(0, definition.StackMax - s.Count))
+            : 0;
         int needed = Stacks(Math.Max(0, count - free), definition.StackMax).Count();
         return stacks.Count + needed > slots ? $"no room: {needed} more stack(s) would not fit in {slots}" : null;
     }

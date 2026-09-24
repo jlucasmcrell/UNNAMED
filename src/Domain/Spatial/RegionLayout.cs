@@ -20,6 +20,15 @@ public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryR
 /// </summary>
 public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots);
 
+/// <summary>
+/// An authored resource node (M3f): a node definition at a fixed place. Its identity and harvest state belong to the world
+/// generator (PERSISTENCE.md §5.5); <see cref="Name"/> is its semantic key there.
+/// </summary>
+public sealed record NodeSite(string Name, string NodeDefId, long XMm, long ZMm);
+
+/// <summary>A crafting station (M3f): a place where recipes of its kind are worked - the forge's hearth, its anvil.</summary>
+public sealed record StationSite(string Key, string Kind, long XMm, long ZMm);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -40,6 +49,12 @@ public sealed record RegionLayout(
 {
     /// <summary>The region's authored containers.</summary>
     public ImmutableArray<ContainerSite> Containers { get; init; } = ImmutableArray<ContainerSite>.Empty;
+
+    /// <summary>The region's authored resource nodes (M3f).</summary>
+    public ImmutableArray<NodeSite> Nodes { get; init; } = ImmutableArray<NodeSite>.Empty;
+
+    /// <summary>The region's crafting stations (M3f).</summary>
+    public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 

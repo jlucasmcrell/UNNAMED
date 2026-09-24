@@ -237,9 +237,9 @@ Rationale for each link:
 
 - **Class:** FEATURE. **Depends on:** M3b, M3e.
 - **Entry:** Items and resources exist; skill XP framework from M2c exists.
-- **Work:** Skill use-hooks across implemented activities; harvesting nodes and respawn persistence; one full profession (`alchemy`) with ranks 0–2, quality tiers, discovery accumulation, and the rank-vs-skill disambiguation enforced in code; recipe schema and the production-XP first-time-only rule.
-- **Exit criteria:** The rank-vs-skill test passes (a rank-2/skill-90 character cannot brew a rank-3 recipe; a rank-3/skill-20 character fails most attempts); first-time-only production XP verified; harvested-node persistence verified across save/load.
-- **Proof:** Named test cases; playable gather→craft→use loop.
+- **Work (Phase-1 scope, owner ruling):** two recipes and one gather→craft proof loop, with no profession ranks: the content bible's blacksmithing proof (`PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §12) - raw iron ore smelted into an Iron Billet at the forge, and billet plus an Ash Haft made into the March Spear at the anvil, where `PROTOTYPE.md` had the salve and the sword temper. Harvesting nodes and their persistence, keeping `PROTOTYPE.md` C12's two respawn classes (a finite iron seam; an ash stand that refills each world day). Skill use-hooks: gathering trains survival, crafting trains smithing, both through the difficulty gate. Quality and material properties matter: a crafted item's quality is rolled from the smith's skill against the recipe's complexity and is capped by the weakest material, and a weapon's quality changes its damage (per-instance, saved). The production-XP first-time-only rule. Not built: profession ranks, discoveries and experiments, crafting time, tools, the full combinatorial laboratory.
+- **Exit criteria:** The loop plays end to end: gather both materials, smelt, forge, equip, and fight with the result. A craft consumes exactly its recipe (C13) and needs the recipe known, the station in reach and the inputs carried. Quality varies with skill and materials and lands on the instance, not the definition (C14's point). First-time-only production XP is verified; repeated trivial crafting and gathering teach nothing past the gate. Harvested-node state, including the seam's depletion and the stand's refill, survives save/load.
+- **Proof:** Named test cases; the windowed gather→craft→equip capture.
 
 ### M4 — Settlement, NPC Persistence, Dialogue — `FEATURE` (+ `RISK SPIKE`)
 

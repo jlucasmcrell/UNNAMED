@@ -14,6 +14,7 @@ using V3 = UNNAMED.Persistence.Sections.V3;
 using V4 = UNNAMED.Persistence.Sections.V4;
 using V5 = UNNAMED.Persistence.Sections.V5;
 using V6 = UNNAMED.Persistence.Sections.V6;
+using V8 = UNNAMED.Persistence.Sections.V8;
 
 namespace UNNAMED.Persistence;
 
@@ -68,7 +69,8 @@ public static class SchemaMigrations
         new SchemaV4ToV5(),
         new SchemaV5ToV6(),
         new SchemaV6ToV7(),
-        new SchemaV7ToV8());
+        new SchemaV7ToV8(),
+        new SchemaV8ToV9());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -446,7 +448,7 @@ public sealed class SchemaV6ToV7 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V6.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V8.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -454,7 +456,7 @@ public sealed class SchemaV6ToV7 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                Inventory = old.Inventory.Select(i => new V8.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
                 Progression = old.Progression,
                 FacingMdeg = old.FacingMdeg,
                 Discoveries = (old.Discoveries ?? Array.Empty<V6.Discovery>())
@@ -486,7 +488,7 @@ public sealed class SchemaV7ToV8 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V6.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V8.EntitiesSection
             {
                 Records = old.Records.Select(e => new EntityDto
                 {
@@ -497,19 +499,78 @@ public sealed class SchemaV7ToV8 : SchemaMigration
                     DirtyMask = e.DirtyMask,
                     State = new EntityStateDto { Alive = e.State.Alive, XCm = e.State.XCm, ZCm = e.State.ZCm },
                 }).ToArray(),
-                Created = old.Created.Select(c => new CreatedDto
+                Created = old.Created.Select(c => new V8.Created
                 {
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count,
                 }).ToArray(),
                 Baselines = old.Baselines.Select(b => new CellBaselineDto { CellKey = b.CellKey, BaselineHash = b.BaselineHash }).ToArray(),
-                Containers = (old.Containers ?? Array.Empty<V6.Container>()).Select(c => new ContainerDto
+                Containers = (old.Containers ?? Array.Empty<V6.Container>()).Select(c => new V8.Container
                 {
                     Key = c.Key,
                     InstanceId = c.InstanceId,
                     HostCell = c.HostCell,
-                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
+                    Items = c.Items.Select(i => new V8.ContainerItem { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
                 }).ToArray(),
                 Creatures = Array.Empty<CreatureDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 8 to 9 (M3f): every item stack gains its quality - carried, in a changed container, or lying in the world. A
+/// save that predates quality held only standard stacks, since nothing could make another before M3f.
+/// </summary>
+public sealed class SchemaV8ToV9 : SchemaMigration
+{
+    public override int From => 8;
+
+    public override string Summary => "schema 8 -> 9: every item stack gains its quality (standard before M3f)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V8.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V8.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created.Select(c => new CreatedDto
+                {
+                    InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = 0,
+                }).ToArray(),
+                Baselines = old.Baselines,
+                Containers = old.Containers?.Select(c => new ContainerDto
+                {
+                    Key = c.Key,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                }).ToArray(),
+                Creatures = old.Creatures,
             }, options);
         }
         document.Manifest["schema_version"] = To;

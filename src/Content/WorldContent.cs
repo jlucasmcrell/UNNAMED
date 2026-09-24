@@ -181,6 +181,32 @@ public static class WorldContent
             }
             Check(containers.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() == containers.Count, "WLD009", "two containers share a key");
 
+            // Authored resource nodes and crafting stations (M3f).
+            var nodes = ImmutableArray.CreateBuilder<NodeSite>();
+            foreach (var (entry, i) in (map.ContainsKey("nodes") ? List(map, "nodes") : new List<object>()).Select((n, i) => (n, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"nodes[{i}] must be a map");
+                var (nx, nz) = Pair(site, "position_m");
+                var node = new NodeSite(Text(site, "name"), Text(site, "node_ref"), nx, nz);
+                Check(node.Name.Length > 0 && node.Name.All(c => char.IsAsciiLetterLower(c) || char.IsAsciiDigit(c) || c == '_'), "WLD010",
+                    $"node name '{node.Name}' must be lowercase snake_case");
+                Check(nx >= minX && nx <= maxX && nz >= minZ && nz <= maxZ, "WLD010", $"node {node.Name} lies outside the walkable bounds");
+                Check(loader.GetByKind("node").ContainsKey(node.NodeDefId), "WLD010", $"node {node.Name} names '{node.NodeDefId}', which is not a node");
+                nodes.Add(node);
+            }
+            Check(nodes.Select(n => n.Name).Distinct(StringComparer.Ordinal).Count() == nodes.Count, "WLD010", "two nodes share a name");
+            var stations = ImmutableArray.CreateBuilder<StationSite>();
+            foreach (var (entry, i) in (map.ContainsKey("stations") ? List(map, "stations") : new List<object>()).Select((s, i) => (s, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"stations[{i}] must be a map");
+                var (sx, sz) = Pair(site, "position_m");
+                var station = new StationSite(Text(site, "key"), Text(site, "kind"), sx, sz);
+                Check(station.Key.StartsWith("station.", StringComparison.Ordinal), "WLD011", $"station key '{station.Key}' must start with 'station.'");
+                Check(sx >= minX && sx <= maxX && sz >= minZ && sz <= maxZ, "WLD011", $"{station.Key} lies outside the walkable bounds");
+                stations.Add(station);
+            }
+            Check(stations.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == stations.Count, "WLD011", "two stations share a key");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -191,6 +217,8 @@ public static class WorldContent
                 locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
                 Containers = containers.ToImmutable(),
+                Nodes = nodes.ToImmutable(),
+                Stations = stations.ToImmutable(),
             };
 
             // The spawn must stand clear with every door shut, the harshest case.

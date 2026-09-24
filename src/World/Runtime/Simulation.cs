@@ -21,6 +21,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The formulas, the tuning of casting, and what books teach (M3e).</summary>
     public MagicSetup Magic { get; init; } = MagicSetup.Empty;
+
+    /// <summary>Resource nodes, recipes, and the tuning of quality (M3f).</summary>
+    public CraftingSetup Crafting { get; init; } = CraftingSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -69,6 +72,8 @@ public sealed class Simulation
     private readonly CreatureSystem _creatures;
     private readonly StatusEffectSystem _effects;
     private readonly DeathSystem _death;
+    private readonly GatheringSystem _gathering;
+    private readonly CraftingSystem _crafting;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -102,6 +107,8 @@ public sealed class Simulation
         _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Intent);
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
         _death = new DeathSystem(_context, player.Id);
+        _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
+        _crafting = new CraftingSystem(_context, player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
@@ -161,6 +168,9 @@ public sealed class Simulation
     /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
     public CombatView Combat => _combat.View();
 
+    /// <summary>The region's resource nodes, and which can be harvested now (M3f).</summary>
+    public ImmutableArray<NodeView> Nodes => _gathering.Views();
+
     /// <summary>Every creature the region holds, living or dead.</summary>
     public ImmutableArray<CreatureView> Creatures => _creatures.Views();
 
@@ -196,6 +206,8 @@ public sealed class Simulation
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _combat.Handle(dodge, WorldTick),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
+                GatherCommand gather => _gathering.Handle(gather, WorldTick),
+                CraftCommand craft => _crafting.Handle(craft, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
@@ -284,6 +296,7 @@ public sealed class Simulation
         CorpseEmptied emptied => _creatures.Handle(emptied, Now),
         DiscardContainer discard => _inventory.Handle(discard),
         ConsumeItem consume => _inventory.Handle(consume, Now),
+        ExchangeItems exchange => _inventory.Handle(exchange, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

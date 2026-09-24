@@ -50,5 +50,5 @@ tier_targets:                     # §3.2 pacing: [from_level, to_level, min_hou
 starting_package:                 # §5: Phase 1 has no archetype choice, so one default package
   attribute_bias: {}
   skills: {}
-  techniques: []
+  techniques: [recipe.smithing.iron_billet, recipe.smithing.march_spear]   # until the smith teaches them (content bible, M4)
 notes: Progression constants. The content lint checks them (PRG codes) and the domain reads them as ProgressionRules.

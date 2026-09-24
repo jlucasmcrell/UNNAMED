@@ -55,10 +55,17 @@ public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, stri
 {
     /// <summary>How many: a dropped stack keeps its count (schema 6; older saves held single items).</summary>
     public int Count { get; init; } = 1;
+
+    /// <summary>The stack's quality (schema 9).</summary>
+    public int Quality { get; init; }
 }
 
 /// <summary>An item inside a world container.</summary>
-public sealed record ContainerItem(EntityId ItemId, string DefId, int Count);
+public sealed record ContainerItem(EntityId ItemId, string DefId, int Count)
+{
+    /// <summary>The stack's quality (schema 9).</summary>
+    public int Quality { get; init; }
+}
 
 /// <summary>
 /// An authored world container whose contents changed (SYSTEMS.md S-14: "contents of world containers that changed from
@@ -256,15 +263,21 @@ public sealed class WorldDelta
 
     // ── resource nodes ──────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Record a harvest: the node's record holds its last harvest tick and how many harvests it has had (its sequence). A
+    /// node with charges is harvested again by the next harvest (M3f); whether it may be is the gathering rules' call.
+    /// </summary>
     internal void HarvestNode(CellKey cell, string nodeKey, long tick)
     {
         if (Baseline(cell).FindNode(nodeKey) is null)
             throw new InvalidOperationException($"Cell {cell} has no node '{nodeKey}'");
         var state = Cell(cell);
-        if (state.Nodes.ContainsKey(nodeKey))
-            throw new InvalidOperationException($"Node '{nodeKey}' is already harvested");
         state.Nodes[nodeKey] = new NodeHarvest(nodeKey, tick, state.NextHarvestSeq(nodeKey));
     }
+
+    /// <summary>A node's harvest record, if it has one.</summary>
+    public NodeHarvest? NodeRecord(CellKey cell, string nodeKey) =>
+        _cells.TryGetValue(cell, out var state) ? state.Nodes.GetValueOrDefault(nodeKey) : null;
 
     /// <summary>Return a node to its baseline (available), which retires its record.</summary>
     internal void RegrowNode(CellKey cell, string nodeKey)
@@ -344,13 +357,13 @@ public sealed class WorldDelta
     /// Place an existing item instance in the world (a drop): it keeps its identity, which the caller has already
     /// registered, and its count.
     /// </summary>
-    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm)
+    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0)
     {
         if (!InCell(xCm) || !InCell(zCm))
             throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
         if (count <= 0)
             throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
-        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count };
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality };
     }
 
     /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>
@@ -589,7 +602,7 @@ public sealed class WorldDelta
         var created = CreatedIn(cell);
         h.Add(created.Count);
         foreach (var c in created)
-            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count);
+            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality);
 
         var containers = ContainersIn(cell);
         h.Add(containers.Count);
@@ -597,7 +610,7 @@ public sealed class WorldDelta
         {
             h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
             foreach (var item in c.Items)
-                h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count);
+                h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality);
         }
 
         var creatures = CreaturesIn(cell);

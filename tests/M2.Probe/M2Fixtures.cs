@@ -108,8 +108,9 @@ public static class M2Fixtures
             PlayerId, "Aelin", 150_250, 12_000, -40_125, PlayerRecord.DerivedAppearanceSeed(PlayerId),
             new[]
             {
+                // Schema 9: the sword is a fine one (quality lands on the instance).
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }),
-                    "item.weapon.iron_sword", 1),
+                    "item.weapon.iron_sword", 1) { Quality = 1 },
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
             },
@@ -185,13 +186,13 @@ public static class M2Fixtures
             // Schema 6: a dropped stack keeps its count, and a changed world container holds its whole contents.
             // Both name the potion by its 0.1.x ID, so the load renames it in the world as well as in the inventory.
             var stack = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
-            world.PlaceItem(TenCells[8], stack, "item.potion.healing_draught", 3, 700, 800);
+            world.PlaceItem(TenCells[8], stack, "item.potion.healing_draught", 3, 700, 800, quality: 1);   // schema 9: fine
             var chest = registry.CreateEntity(DefinitionId.Parse("container.fixture_chest"), EntityKind.Container).InstanceId;
             var blade = registry.CreateEntity(DefinitionId.Parse("item.weapon.iron_sword")).InstanceId;
             var potions = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
             world.SetContainer(new ContainerRecord("container.fixture_chest", chest, TenCells[9].ToString(), ImmutableArray.Create(
                 new ContainerItem(blade, "item.weapon.iron_sword", 1),
-                new ContainerItem(potions, "item.potion.healing_draught", 4))));
+                new ContainerItem(potions, "item.potion.healing_draught", 4) { Quality = -1 })));   // schema 9: crude
             // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half
             // searched (its body is a changed container); one gone, of a renamed species, two generations on and due back.
             world.SetCreature(new CreatureRecord("spawn.fixture.den#0", "creature.beast.wolf_grey", Creature(1), TenCells[1].ToString(), 0,
@@ -214,8 +215,8 @@ public static class M2Fixtures
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.5";
-        public const string CurrentContentHash = "sha256:54bf471b866573cb5b8447189c1ec2386d39611a152be2d8643f3562327d7a8c";
+        public const string CurrentContentVersion = "0.2.6";
+        public const string CurrentContentHash = "sha256:79162866169ff639c7d6f8e0cead6dc5c1863654825229d2c133cc979965150b";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content

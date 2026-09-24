@@ -13,10 +13,15 @@ public enum FocusKind
     Door,
     Container,
     Item,
+    Node,
+    Station,
 }
 
-/// <summary>What the player means to use: a door, a container, or an item lying in the world.</summary>
-public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm);
+/// <summary>
+/// What the player means to use: a door, a container, an item lying in the world (and its quality), a resource node (its
+/// definition), or a crafting station (its kind).
+/// </summary>
+public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm, int Quality = 0);
 
 /// <summary>
 /// Turns the player's wishes into the same commands at every camera distance - a movement intent, an interaction, and
@@ -179,7 +184,12 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Container, site.Key, defId, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
         }
         foreach (var item in simulation.WorldItems)
-            candidates.Add((new Focus(FocusKind.Item, item.Id.Value, item.DefId, item.XMm, item.ZMm), Distance(item.XMm, item.ZMm) - itemReach));
+            candidates.Add((new Focus(FocusKind.Item, item.Id.Value, item.DefId, item.XMm, item.ZMm, item.Quality), Distance(item.XMm, item.ZMm) - itemReach));
+        // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
+        foreach (var node in simulation.Nodes)
+            candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
+        foreach (var station in _session.Setup.Layout.Stations)
+            candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
 
         Focus? best = null;
         float bestAlignment = float.MinValue;
@@ -201,6 +211,19 @@ public sealed class PlayerController
     }
 
     public void Interact(string doorKey) => _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+
+    /// <summary>Harvest a node within reach (M3f).</summary>
+    public void Gather(string nodeKey) => _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
+
+    /// <summary>Work a recipe at the station in reach (M3f).</summary>
+    public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));
+
+    /// <summary>The recipes the character knows that are worked at a station of this kind. None is named here.</summary>
+    public IReadOnlyList<Domain.Crafting.RecipeDefinition> Recipes(string stationKind)
+    {
+        var known = _session.Simulation!.Player.Progression.Known;
+        return _session.Setup.Crafting.Recipes.Values.Where(r => r.StationKind == stationKind && known.ContainsKey(r.Id)).ToList();
+    }
 
     /// <summary>Pick up everything in a stack lying within reach.</summary>
     public void PickUp(string itemId)

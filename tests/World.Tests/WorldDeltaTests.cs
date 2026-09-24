@@ -61,8 +61,22 @@ public class WorldDeltaTests
         string node = world.Baseline(TestWorlds.Home).Nodes[0].NodeKey;
         world.HarvestNode(TestWorlds.Home, node, 1);
 
-        Assert.Throws<InvalidOperationException>(() => world.HarvestNode(TestWorlds.Home, node, 2));
         Assert.Throws<InvalidOperationException>(() => world.HarvestNode(TestWorlds.Home, "node.r_0_0:c_07_11.99", 2));
+    }
+
+    [Fact]
+    public void Node_HarvestedAgain_CountsItsHarvests()
+    {
+        // M3f: a node with charges is worked more than once before it is spent; each harvest replaces its one record.
+        var world = TestWorlds.NewWorld();
+        string node = world.Baseline(TestWorlds.Home).Nodes[0].NodeKey;
+        Assert.Null(world.NodeRecord(TestWorlds.Home, node));
+
+        world.HarvestNode(TestWorlds.Home, node, 10);
+        world.HarvestNode(TestWorlds.Home, node, 25);
+
+        Assert.Equal(new NodeHarvest(node, 25, 2), world.NodeRecord(TestWorlds.Home, node));
+        Assert.Single(world.TakeSnapshot().Cells.Single(c => c.CellKey == TestWorlds.Home.ToString()).HarvestedNodes);
     }
 
     [Fact]

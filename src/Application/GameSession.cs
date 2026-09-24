@@ -54,14 +54,16 @@ public sealed class GameSession : IDomainEvents
     private readonly EventBus _bus = new();
     private readonly SaveStore _store;
     private readonly IReadOnlyDictionary<string, string> _names;
+    private readonly ImmutableArray<BaselineTransition> _transitions;
     private Simulation? _simulation;
     private double _accumulator;
     private double _lastAutosave;
 
     private GameSession(GameOptions options, SimulationSetup setup, ContentIdentity content, ICellBaselineGenerator generator,
-        IReadOnlyDictionary<string, string> names)
+        IReadOnlyDictionary<string, string> names, ImmutableArray<BaselineTransition> transitions)
     {
         Options = options;
+        _transitions = transitions;
         _names = names;
         Setup = setup;
         Content = content;
@@ -88,14 +90,22 @@ public sealed class GameSession : IDomainEvents
                 ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
             Combat = CombatContent.Build(loader, options.RegionId),
             Magic = MagicContent.Build(loader),
+            Crafting = CraftingContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
         var terrain = layout.Generation;
-        var generator = new CellBaselineGenerator(new GenerationProfile(
-            Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(),
-            new TerrainRule(terrain.TerrainBaseHeightMm, terrain.TerrainAmplitudeMm, terrain.TerrainSamplesPerAxis)));
-        return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader));
+        var terrainRule = new TerrainRule(terrain.TerrainBaseHeightMm, terrain.TerrainAmplitudeMm, terrain.TerrainSamplesPerAxis);
+        // The region's authored nodes are part of its baseline (M3f), each where it was put.
+        var fixedNodes = layout.Nodes.Select(site => new FixedNode(site.Name, site.NodeDefId, CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0),
+            (int)WorldMath.FloorMod(site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(site.ZMm / 10, WorldMath.CellSizeCm)));
+        var generator = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule, fixedNodes));
+        // A save from before the region placed its nodes carries onto the baseline that has them: nothing it holds was a node.
+        var before = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule));
+        var transitions = before.Fingerprint == generator.Fingerprint
+            ? ImmutableArray<BaselineTransition>.Empty
+            : ImmutableArray.Create(new BaselineTransition("M3f: the region's resource nodes", before.Fingerprint, generator.Fingerprint));
+        return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions);
     }
 
     public GameOptions Options { get; }
@@ -126,7 +136,7 @@ public sealed class GameSession : IDomainEvents
     /// <summary>Load a slot through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
     public LoadResult Load(string slot)
     {
-        var result = _store.Load(slot, new LoadContext(Generator, Content, new Registry()));
+        var result = _store.Load(slot, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
     }

@@ -1,16 +1,20 @@
-// UNNAMED Presentation - the inventory and container panels (PROTOTYPE.md §4.1 UI panels: inventory, equipment)
+// UNNAMED Presentation - the inventory, container and crafting panels (PROTOTYPE.md §4.1 UI panels: inventory, equipment, crafting)
 // Godot presentation only: every button submits a command; nothing here changes state (D-11)
 
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Spatial;
+using UNNAMED.Presentation.Player;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// What the character carries and wears, and - when a container is open - what it holds. Each row's buttons submit the
-/// same commands the headless tests do; the panel redraws from the simulation's views after every item event.
+/// What the character carries and wears, and - when a container is open - what it holds, or at a crafting station (M3f)
+/// what the character knows to make there and from what. Each row's buttons submit the same commands the headless tests
+/// do; the panel redraws from the simulation's views after every item event.
 /// </summary>
 public partial class InventoryPanel : CanvasLayer
 {
@@ -20,11 +24,19 @@ public partial class InventoryPanel : CanvasLayer
     private readonly Label _containerHeader = new();
     private readonly PanelContainer _containerPanel = new();
     private GameSession _session = null!;
+    private PlayerController _controller = null!;
 
     /// <summary>The container open alongside the inventory, if any.</summary>
     public string? OpenContainer { get; private set; }
 
-    public void Bind(GameSession session) => _session = session;
+    /// <summary>The crafting station open alongside the inventory, if any.</summary>
+    public StationSite? OpenStation { get; private set; }
+
+    public void Bind(GameSession session, PlayerController controller)
+    {
+        _session = session;
+        _controller = controller;
+    }
 
     public override void _Ready()
     {
@@ -41,6 +53,15 @@ public partial class InventoryPanel : CanvasLayer
     public void Open(string? container)
     {
         OpenContainer = container;
+        OpenStation = null;
+        Visible = true;
+        Refresh();
+    }
+
+    public void OpenAt(StationSite station)
+    {
+        OpenContainer = null;
+        OpenStation = station;
         Visible = true;
         Refresh();
     }
@@ -48,6 +69,7 @@ public partial class InventoryPanel : CanvasLayer
     public void Close()
     {
         OpenContainer = null;
+        OpenStation = null;
         Visible = false;
     }
 
@@ -66,7 +88,7 @@ public partial class InventoryPanel : CanvasLayer
             var definition = catalog.Find(entry.DefId);
             var slot = player.Equipment.FirstOrDefault(kv => kv.Value == entry.ItemId);
             bool equipped = player.Equipment.ContainsValue(entry.ItemId);
-            var row = Row($"{_session.DisplayName(entry.DefId)}{(entry.Count > 1 ? $" x{entry.Count}" : "")}" +
+            var row = Row($"{Main.ItemName(_session, entry.DefId, entry.Quality)}{(entry.Count > 1 ? $" x{entry.Count}" : "")}" +
                           (equipped ? $"   [{EquipSlots.Key(slot.Key)}]" : ""));
             if (definition?.Slot is not null)
             {
@@ -84,17 +106,47 @@ public partial class InventoryPanel : CanvasLayer
             _carried.AddChild(row);
         }
 
-        _containerPanel.Visible = OpenContainer is not null;
+        _containerPanel.Visible = OpenContainer is not null || OpenStation is not null;
         Clear(_container);
+        if (OpenStation is { } station)
+        {
+            ShowStation(simulation, station);
+            return;
+        }
         if (OpenContainer is not { } open || simulation.Containers.FirstOrDefault(c => c.Site.Key == open) is not { } view)
             return;
         _containerHeader.Text = $"{Main.Describe(_session, open)}   {view.Items.Length} / {view.Site.StackSlots} stacks";
         foreach (var item in view.Items)
         {
-            var row = Row($"{_session.DisplayName(item.DefId)}{(item.Count > 1 ? $" x{item.Count}" : "")}");
+            var row = Row($"{Main.ItemName(_session, item.DefId, item.Quality)}{(item.Count > 1 ? $" x{item.Count}" : "")}");
             row.AddChild(Button("Take", () => Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(open), ItemPlace.Carried, item.Count))));
             if (item.Count > 1)
                 row.AddChild(Button("Take 1", () => Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(open), ItemPlace.Carried, 1))));
+            _container.AddChild(row);
+        }
+    }
+
+    /// <summary>
+    /// The recipes known for this station's kind: what each makes, its complexity against the smith's skill (the gap moves
+    /// quality), what it takes against what is carried, and a Make button once everything is to hand.
+    /// </summary>
+    private void ShowStation(Simulation simulation, StationSite station)
+    {
+        var player = simulation.Player;
+        var recipes = _controller.Recipes(station.Kind);
+        _containerHeader.Text = $"{Main.Describe(station.Key)}   " + string.Join("   ", recipes.Select(r => r.SkillId).Distinct()
+            .Select(skill => $"{_session.DisplayName(skill)} {ProgressionEngine.SkillLevel(player.Progression, skill)}"));
+        if (recipes.Count == 0)
+            _container.AddChild(Row("You know nothing to make here"));
+        int Carried(string defId) => player.Inventory.Where(e => e.DefId == defId && !player.Equipment.ContainsValue(e.ItemId)).Sum(e => e.Count);
+        foreach (var recipe in recipes)
+        {
+            string needs = string.Join(", ", recipe.Inputs.Select(i => $"{i.Count} {_session.DisplayName(i.ItemId)} ({Carried(i.ItemId)} carried)"));
+            var row = Row($"{_session.DisplayName(recipe.OutputItemId)}{(recipe.OutputCount > 1 ? $" x{recipe.OutputCount}" : "")}   complexity {recipe.Complexity}\n" +
+                          $"  from {needs}");
+            var make = Button("Make", () => Submit(new CraftCommand(simulation.PlayerId, recipe.Id)));
+            make.Disabled = recipe.Inputs.Any(i => Carried(i.ItemId) < i.Count);
+            row.AddChild(make);
             _container.AddChild(row);
         }
     }

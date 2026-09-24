@@ -146,7 +146,7 @@ public sealed class Smoke
             return Fail($"the quicksave did not load back to the same state (digest {after.StateDigest()} vs {digest}, tick {after.WorldTick} vs {tick}, strain {after.Combat.Strain} vs {strain})");
 
         GD.Print($"UNNAMED smoke: PASS - {_frames} frames, world tick {tick}, {after.Creatures.Length} creatures placed, door opened, " +
-                 $"{after.Player.Progression.Known.Count} formulas read from a book and one worked (+{_worked} Strain), a swing ran and missed, " +
+                 $"{_controller.Formulas().Length} formulas read from a book and one worked (+{_worked} Strain), a swing ran and missed, " +
                  $"save/load digest {digest[..23]}... identical");
         Cleanup();
         return 0;

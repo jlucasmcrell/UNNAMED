@@ -229,9 +229,11 @@ A slot whose persisted state has returned to baseline is **rebased** (§5.6), no
 
 **Baseline proof.** A slot is part of its host cell's baseline, so the section also records the `baseline_hash` of every host cell it references (the `baselines` table, schema 2+), and a record is merged only into a host cell whose regenerated baseline has that hash (§6.4).
 
-**Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, position, and (from schema 6) `count`. It is proven against its host cell's baseline like a slot record.
+**Created instances (schema 3).** A persistent instance that no baseline slot generates - a dropped item, a placed chest - is stored whole in the section's `created` list: `instance_id`, `def_id`, `host_cell`, position, (from schema 6) `count`, and (from schema 9) `quality`. It is proven against its host cell's baseline like a slot record.
 
-**Changed world containers (schema 6).** An authored container's contents are its loot table's result, rolled from its semantic key, until the player first changes them. From then on the section's `containers` list holds its `key`, its `instance_id`, its `host_cell`, and its whole contents (`item_id`, `def_id`, `count`), proven against the host cell's baseline like a created instance. Its item definition IDs go through the definition-ID pass.
+**Changed world containers (schema 6).** An authored container's contents are its loot table's result, rolled from its semantic key, until the player first changes them. From then on the section's `containers` list holds its `key`, its `instance_id`, its `host_cell`, and its whole contents (`item_id`, `def_id`, `count`, and from schema 9 `quality`), proven against the host cell's baseline like a created instance. Its item definition IDs go through the definition-ID pass.
+
+**Item quality (schema 9).** Every stack - carried, in a changed container, or lying in the world - records its `quality`: -1 crude, 0 standard, 1 fine (M3f). It is the instance's, never the definition's, and a stack holds one quality: two stacks of one definition at different qualities never merge. A missing or out-of-range quality in a schema-9 save is corruption, never defaulted.
 
 **Creature records (schema 8).** A spawner's creature that differs from its baseline - moved, wounded, dead, gone, or holding a mind other than rest - is stored in the section's `creatures` list, keyed by its derived `spawner#member` key and carrying its generation (the `generation_seq` above). It records the `instance_id`, `def_id`, `host_cell` and the host cell's `baseline_hash`, the condition (`alive`, `corpse`, `gone`), position, facing, health, the tick it died and the absolute tick it is due back, and its mind: awareness, whether and where it knows its target to be, when it last saw it, its search deadline, and whether it has called. A record at baseline is not stored (§5.6); load merges on the key, so a dead creature stays dead. A corpse's contents are an ordinary changed container once the player has touched them. Definition IDs go through the definition-ID pass. Idle wander and patrol derive from the world tick, so they need no storage; an attack in its windup is transient, like the player's.
 
@@ -252,6 +254,8 @@ ready_tick = last_harvest_tick + respawn_window(node_def) ± jitter(hash(node_ke
 ```
 
 Time not played still advances world time (abstract catch-up), so a node harvested before a session break is correctly regrown on return.
+
+**As implemented (M3f).** A node's record is its `last_harvest_tick` and its `harvest_seq` (how many harvests it has had), in its cell's delta; there is no separate `state`. Readiness is derived, never stored: a finite node is ready while `harvest_seq` is below its charges and never refills; a daily node is ready once a world-day boundary has passed since its last harvest (no jitter in Phase 1). Phase 1's nodes are authored in the region (`DATA_MODEL.md` §4.16) and are part of their cells' baselines, so their keys are `node.<cellkey>.<name>.00`. Adding them changed the baseline of the two cells that hold them; the session registers the transition from the baseline without them (`M3f: the region's resource nodes`), so an older save carries onto the new baseline like any other: nothing it holds was a node.
 
 **Catch-up is a pure function of the total `tick_delta`, and chunking is unobservable.** The honoured advance is persisted as `world_time_advanced_ticks` in the manifest:
 
@@ -340,6 +344,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 5 -> 6 | The player gains equipment slots and a purse; a created instance gains its count; the entities section gains changed containers (M3b). An older save had nothing equipped, no coin, single created items and untouched containers |
 | 6 -> 7 | The player gains active status effects (M3c). An older save had none, since nothing could apply one before M3c |
 | 7 -> 8 | The entities section gains creature records (M3d). An older save has none: every creature stands at its spawner's baseline, since no creature state was saved before M3d |
+| 8 -> 9 | Every item stack gains its quality: carried, in a changed container, or created in the world (M3f). An older save's stacks are all standard, since nothing could make another quality before M3f |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

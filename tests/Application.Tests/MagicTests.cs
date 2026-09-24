@@ -321,7 +321,7 @@ public class MagicTests
         Assert.Empty(practised);
         Assert.Empty(learned);
         Assert.Equal(0, ProgressionEngine.SkillLevel(arena.Simulation.Player.Progression, "skill.vital"));
-        Assert.Equal(new[] { Thread }, arena.Simulation.Player.Progression.Known.Keys);
+        Assert.Equal(new[] { Thread }, arena.Simulation.Player.Progression.Known.Keys.Where(k => k.StartsWith("spell.", StringComparison.Ordinal)));
         Assert.DoesNotContain(Thread, arena.Simulation.Player.Progression.NoveltyFirsts);
     }
 
@@ -364,6 +364,6 @@ public class MagicTests
         Assert.Equal((arena.Simulation.Combat.Focus, arena.Simulation.Combat.Strain), (again.Combat.Focus, again.Combat.Strain));
         Assert.Equal(arena.Simulation.Combat.Effects.ToList(), again.Combat.Effects.ToList());
         Assert.Contains(again.Combat.Effects, e => e.EffectId == "effect.braced");
-        Assert.Equal(new[] { Bolt, Thread, Ward }, again.Player.Progression.Known.Keys);
+        Assert.Equal(new[] { Bolt, Thread, Ward }, again.Player.Progression.Known.Keys.Where(k => k.StartsWith("spell.", StringComparison.Ordinal)));
     }
 }

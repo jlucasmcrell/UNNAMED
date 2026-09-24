@@ -180,6 +180,11 @@ public class ContentLoader
             var magicErrors = MagicContent.Validate(this);
             _errors.AddRange(magicErrors);
             success &= magicErrors.Count == 0;
+
+            // Resources, nodes, recipes and the tuning of quality (CRF codes)
+            var craftingErrors = CraftingContent.Validate(this);
+            _errors.AddRange(craftingErrors);
+            success &= craftingErrors.Count == 0;
         }
         
         return success;

@@ -395,7 +395,12 @@ internal sealed partial class CombatSystem
     {
         if (State.Equipment.TryGetValue(EquipSlot.MainHand, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
             && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { } weapon)
-            return WeaponAttack(entry.DefId, weapon);
+        {
+            // A weapon's quality is its own instance's (M3f): a fine one hits harder than its definition says, a crude one softer.
+            var attack = WeaponAttack(entry.DefId, weapon);
+            int step = entry.Quality * _context.Setup.Crafting.Constants.WeaponDamagePerStep;
+            return step == 0 ? attack : attack with { DamageMin = Math.Max(1, attack.DamageMin + step), DamageMax = Math.Max(1, attack.DamageMax + step) };
+        }
         return C.Unarmed;
     }
 

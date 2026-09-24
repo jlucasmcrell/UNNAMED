@@ -1,0 +1,16 @@
+id: recipe.smithing.march_spear
+kind: recipe
+schema: 1
+display_key: recipe.smithing.march_spear.name
+tags: [recipe]
+name: March Spear
+notes: A billet and an ash haft made into a spear at the anvil (content bible §12). Harder than the billet, so a novice's spear is often crude.
+station: anvil
+skill_ref: skill.smithing
+complexity: 10
+inputs:
+  - { item_ref: item.material.iron_ingot, count: 1 }
+  - { item_ref: item.material.ash_haft, count: 1 }
+outputs:
+  - { item_ref: item.weapon.march_spear, count: 1, quality_roll: true }
+xp_award: { xp: 40 }       # level XP for the first spear only (AG-7)

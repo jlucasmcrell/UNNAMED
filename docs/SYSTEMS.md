@@ -209,6 +209,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Discovered experimental results, queued/in-progress jobs with remaining time, station state if modified.
 - **Transient.** Craft progress bars, preview computation, available-recipe filtering.
 - **Events/interfaces.** `StartCraft(recipeId, context)`, `CancelCraft`, `Experiment`; emits `CraftStarted`, `CraftCompleted(outputItems, quality)`, `CraftFailed(reason)`, `ExperimentDiscovered`. A discovery teaches through S-10's `Learn`; there are no profession ranks. Outputs are created via S-16 and inserted via S-14; crafting never writes inventory slots directly.
+- **M3f reconciliation.** Phase 1 builds one instant craft and no jobs, experiments or station state: `CraftCommand` works a known recipe at a station of its kind within reach, from carried materials. The runtime `CraftingSystem` owns no state; it asks the inventory to spend the inputs and receive the output in one all-or-nothing exchange (`ExchangeItems`), so a refused craft spends nothing. The best carried stacks are spent first, the weakest caps the work, and the smith's skill against the recipe's complexity moves the output one quality step at most (`CraftingRules`, `config.crafting`). The quality lands on the made stack. The work trains its skill through the difficulty gate; the first of each output also earns level XP, once (AG-7). The event is `ItemCrafted(recipe, item, count, quality)`.
 
 ### S-18 Content Definitions (Item/Weapon/Armor/Resource/Recipe)
 
@@ -227,6 +228,7 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **Persistent.** Only nodes that **differ from baseline**: depleted nodes with their regrowth deadline, and player-planted/gardened nodes.
 - **Transient.** Node → visual/entity binding, harvest progress.
 - **Events/interfaces.** `Harvest(nodeId, toolId)`, `Plant`; emits `ResourceHarvested`, `NodeDepleted`, `NodeRespawned`. Respawn is computed from the world clock, so it is correct after a long absence without simulating anything.
+- **M3f reconciliation.** The runtime `GatheringSystem` owns the node records (`StateSlice.Nodes`). Phase 1's nodes are authored in the region and are part of their cells' baselines; a node's record is its last harvest tick and its harvest count, and whether it is ready is derived from them and the world clock. `GatherCommand` harvests a node within reach: the yield is rolled from the node and its harvest (not the gatherer), a skill passive adds to it (survival's +1 at 3), the item goes to the pack through the same exchange crafting uses, and the harvest trains its skill through the difficulty gate. There are no tools, planting or harvest progress. The event is `NodeGathered(node, item, count, spent)`.
 
 ### S-20 World Persistence & Cell Delta Store
 

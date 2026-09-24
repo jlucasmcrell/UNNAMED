@@ -137,6 +137,29 @@ public class GeneratorTests
         }
     }
 
+    /// <summary>
+    /// M3f: an authored node is part of its cell's baseline, where it was put, and changes only that cell; a profile without
+    /// authored nodes keeps the fingerprint every earlier save was made under.
+    /// </summary>
+    [Fact]
+    public void AnAuthoredNode_IsInItsCellsBaseline_AndChangesOnlyThatCell()
+    {
+        var plain = TestWorlds.Generator();
+        var profile = TestWorlds.Profile();
+        var authored = new CellBaselineGenerator(new GenerationProfile(profile.Nodes, profile.Populations, profile.Terrain,
+            new[] { new FixedNode("iron_seam", "node.ore.iron_seam", TestWorlds.Home, 1_234, 5_678) }));
+
+        Assert.Equal(FingerprintV2, plain.Fingerprint);
+        Assert.NotEqual(plain.Fingerprint, authored.Fingerprint);
+        var home = authored.Generate(TestWorlds.Seed, TestWorlds.Home);
+        var node = Assert.Single(home.Nodes, n => n.DefId == "node.ore.iron_seam");
+        Assert.Equal(new BaselineNode(Keys.NodeKey(TestWorlds.Home, "iron_seam", 0), "node.ore.iron_seam", 1_234, 5_678), node);
+        Assert.Equal<BaselineNode>(plain.Generate(TestWorlds.Seed, TestWorlds.Home).Nodes, home.Nodes.Remove(node));
+        Assert.NotEqual(plain.Generate(TestWorlds.Seed, TestWorlds.Home).Digest, home.Digest);
+        foreach (var cell in CellKey.AllIn(Region).Take(25).Where(c => c != TestWorlds.Home))
+            Assert.Equal(plain.Generate(TestWorlds.Seed, cell).Digest, authored.Generate(TestWorlds.Seed, cell).Digest);
+    }
+
     /// <summary>M2b §12.8: drift without a version bump is caught by the fingerprint and the pinned probes.</summary>
     [Fact]
     public void AccidentalGeneratorDrift_IsDetected_WithoutAVersionBump()

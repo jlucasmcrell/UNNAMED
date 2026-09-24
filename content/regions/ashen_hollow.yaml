@@ -114,3 +114,11 @@ doors:
 containers:
   - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [25, 183], stack_slots: 12 }
   - { key: container.longhouse_shelf, loot_ref: loot.longhouse_shelf, position_m: [40, 46], stack_slots: 4 }
+# Authored resource nodes (M3f): a node at a place, keyed by name in the world generator's baseline.
+nodes:
+  - { name: iron_seam, node_ref: node.ore.iron_seam, position_m: [64, 178.9] }   # the iron seam rock's south face
+  - { name: ash_stand, node_ref: node.wood.ash_stand, position_m: [180, 138] }   # the east woods (content bible §6)
+# Crafting stations (M3f): where recipes of each kind are worked - both in the forge shed.
+stations:
+  - { key: station.forge_hearth, kind: forge, position_m: [67.5, 35.5] }
+  - { key: station.forge_anvil, kind: anvil, position_m: [64.5, 32.5] }

@@ -407,6 +407,8 @@ repeatable: true
 
 A refining recipe (`recipe.smithing.iron_ingot`: `station_ref: station.smelter`, two ore + one charcoal ⇒ one ingot, `craft_time_min: 6`) is the cheap shared first step of the smithing line.
 
+**As implemented (M3f).** A recipe names the `station` *kind* it is worked at (`forge`, `anvil`: a region places stations of each kind, see §4.16's note) rather than a `station_ref`, the `skill_ref` it trains, a `complexity`, its `inputs` (`item_ref`, `count`; all consumed), exactly one `outputs` entry (`item_ref`, `count`, `quality_roll`), and `xp_award: { xp }` - level XP for the first of that output only (AG-7). What may be attempted is knowing the recipe (`AX-TEC`, the knowledge record); skill never gates it. `profession`, `required_skill`, `tools`, `craft_time_min`, `quality_curve` and `discovery` are not built, and the CRF001 lint refuses them. Quality is decided by `config.crafting` (§4.19). The two recipes are `recipe.smithing.iron_billet` (forge: raw ore into a billet, complexity 0) and `recipe.smithing.march_spear` (anvil: billet and ash haft into the spear, complexity 10), the content bible's §12.
+
 ### 4.10 ResourceDefinition — `kind: resource`
 
 ```yaml
@@ -425,6 +427,8 @@ depletes: true                # false = unlimited (e.g. a river)
 # note: Placed near the starting settlement on purpose: the first crafting loop must be reachable in ten minutes.
 # also: availability?: {time_of_day, moon_phase, weather}
 ```
+
+**As implemented (M3f).** A resource is the material and what one harvest of it yields: exactly one `yields` entry (`item_ref`, `count_range`). The node (§4.16) carries everything about harvesting it. `resource.ore.iron` yields 1-2 Raw Iron Ore; `resource.wood.ash` yields one Ash Haft.
 
 ### 4.11 QuestDefinition — `kind: quest`
 
@@ -643,6 +647,8 @@ tool_tier_min: 1
 placement: { biomes: [rocky_slope], density: 0.15, cluster: [1, 1] }
 ```
 
+**As implemented (M3f).** A node names its `resource_ref`, its `charges`, `respawn` (`none`, or `daily` with exactly one charge), the `harvest_skill` a harvest trains and the `difficulty` it trains it at. There are no tools in Phase 1, so `tool_tier_min` is refused (CRF001), and `placement` is not built: Phase 1's nodes are authored, each at its place in its region's `nodes` list (`name`, `node_ref`, `position_m`, lint WLD010). An authored node is part of its cell's baseline (the generator's fixed nodes), so a harvest is an ordinary node record; a region's `stations` list (`key`, `kind`, `position_m`, lint WLD011) places the crafting stations. A skill passive on `stat.gather_yield` (`op: add`) adds to every harvest of a node that trains that skill: survival's +1 at level 3. `node.ore.iron_seam` (3 charges, never refills) and `node.wood.ash_stand` (one haft a world day) are the two respawn classes of `PROTOTYPE.md` C12.
+
 ### 4.17 SpawnDefinition — `kind: spawn`
 
 A spawner: *what* appears, *where*, *how many*, and *how often*. Owned by S-31.
@@ -727,6 +733,8 @@ level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the 
 
 
 
+`config.crafting` (M3f) holds how crafting decides quality: `quality` (`fine_percent_at_complexity`, `fine_percent_per_point`, `fine_percent_max`, `crude_percent_per_point`, `crude_percent_max`, `weapon_damage_per_step`). A crafted output starts at its weakest input's quality (crude -1, standard 0, fine +1) and moves at most one step: up with the fine chance (at the recipe's complexity, plus a slope per point of skill past it), down with the crude chance (a slope per point of complexity past the skill). A weapon's quality adds its step to both ends of its damage. Quality is stored on each stack, never on the definition.
+
 `config.magic` (M3e) holds the tuning of casting: `focus` (`regen_per_s`, `regen_delay_s`), `strain` (`recovery_per_s`, `recovery_delay_s`, `strained_percent`, `backlash_per_point`), `skill` (`strain_percent_per_point`, `min_strain_percent`, `fizzle_percent_per_point`), `resonance` (`reference`, `damage_percent_per_point`) and `casting` (`recovery_s`).
 
 `config.creature_behaviour` (M3d) holds how creatures perceive and behave: `awareness` (the suspicious level, sight gain at range and close, decay, what a heard noise and a call set, the search time), `noise_m` (how far a walk, run, sprint, swing, blow and call carry), `corpse` (`decay_s`, `stack_slots`), and the `roles` - each an `unaware` behaviour (`hold`, `wander`, `patrol`, `sleep`) with optional `territory_m`, `wander_m`, `calls_for_help`, `answers_calls`, `keep_distance_m`, `strike_within_m`, `flee_below_percent`, `sleep_hearing_percent`, `flank_m` and `pounce_on_noise`.
@@ -762,6 +770,8 @@ display_key: skill.one_hand_blade.name
 ```
 
 **As implemented (M3e).** The magic domains are skills of `family: magic`: `skill.force`, `skill.warding` and `skill.vital`. A formula's domain skill against its complexity sets its Strain and its chance to fizzle.
+
+**As implemented (M3f).** `skill.smithing` (`family: crafting`) is the one crafting skill; a recipe's complexity is its difficulty. Harvests train `skill.survival`, whose passive adds a yield at level 3 (`stat.gather_yield`).
 
 The progression constants live in one config group, alongside `config.time`, `config.xp_curve` and `config.level_cap` (§4.19):
 
