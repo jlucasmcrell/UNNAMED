@@ -11,6 +11,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\EntityRegistry\EntityRegistry.csproj" />
+    <ProjectReference Include="..\World\World.csproj" />
+    <ProjectReference Include="..\Persistence\Persistence.csproj" />
+    <ProjectReference Include="..\Content\Content.csproj" />
   </ItemGroup>
 
 </Project>

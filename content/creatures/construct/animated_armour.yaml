@@ -1,0 +1,23 @@
+id: creature.construct.animated_armour
+kind: creature
+schema: 1
+display_key: creature.construct.animated_armour.name
+tags: [creature, construct]
+name: Animated Armour
+notes: Armored heavy (content bible §10 - armor and weak-point logic). Plate takes most of a blow from the front; the open back of the helm takes all of one from behind. Slow, heavy, bloodless.
+family: construct
+archetype: construct
+level_band: [5, 5]
+pools: { health: 90 }
+attack_set: [ability.creature.armour_slam]
+armor: { head: 0, torso: 45, limbs: 35 }
+resistances: { physical_pierce: 0.5 }
+weak_point: { region: head, from_behind: true }
+move_speed_m_s: 1.8
+turn_deg_s: 90   # a heavy body swings round slowly: get behind it
+body_radius_m: 0.45
+xp_value: 60
+loot_table: loot.animated_armour
+perception: { sight_m: 15, hearing_m: 18, fov_deg: 100 }   # the visor narrows its sight
+tier_hint: A
+tameable: false

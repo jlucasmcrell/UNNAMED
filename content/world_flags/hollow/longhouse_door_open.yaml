@@ -1,0 +1,9 @@
+id: world.hollow.longhouse_door_open
+kind: world_flag
+schema: 1
+display_key: world.hollow.longhouse_door_open.name
+tags: [world_flag]
+notes: Whether the door of the longhouse stands open. Set by interaction (SYSTEMS.md S-22); persisted in its cell's delta.
+type: bool
+default: 0
+owning_system: S-22

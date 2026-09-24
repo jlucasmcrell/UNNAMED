@@ -1,0 +1,15 @@
+id: recipe.smithing.iron_billet
+kind: recipe
+schema: 1
+display_key: recipe.smithing.iron_billet.name
+tags: [recipe]
+name: Iron Billet
+notes: Raw ore smelted into a billet at the forge (content bible §12).
+station: forge
+skill_ref: skill.smithing
+complexity: 0
+inputs:
+  - { item_ref: item.material.iron_ore, count: 1 }
+outputs:
+  - { item_ref: item.material.iron_ingot, count: 1, quality_roll: true }
+xp_award: { xp: 15 }       # level XP for the first billet only (AG-7)

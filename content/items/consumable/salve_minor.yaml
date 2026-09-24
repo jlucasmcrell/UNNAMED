@@ -1,0 +1,13 @@
+id: item.consumable.salve_minor
+kind: item
+schema: 1
+display_key: item.consumable.salve_minor.name
+tags: [item]
+name: Minor Salve
+notes: Heals 18 over 6 s through effect.mending; also an ingredient of sword_temper.
+category: consumable
+stack_max: 5
+weight: 0.2
+value_base: 18
+rarity: common
+use: { effect_ref: effect.mending, consume: true }

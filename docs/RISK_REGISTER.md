@@ -1,6 +1,6 @@
 # RISK_REGISTER.md — Phase 0 Risk Register
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture
 **Authority:** `PROJECT_CHARTER.md` is the authoritative creative vision. `DECISIONS.md` records settled architecture as `D-01`..`D-12`; this file never contradicts a decision — it records what could still go wrong *given* those decisions.
 **Audience:** another AI coding session implementing Phase 1 from these documents alone.
@@ -21,7 +21,7 @@ Likelihood and impact as assessed in this phase. Justification for each rating, 
 | ID | Risk | Likelihood | Impact | Owner |
 |---|---|---|---|---|
 | **RK-01** | World-generation determinism breaks, so sparse-delta saves corrupt (`D-05`) | **High** — any edit to terrain noise, resource scatter, spawn placement, or generation-time RNG call order changes the baseline; several such edits are certain during Phase 1, when the generator is being written. | **Critical** — corruption is silent and can invalidate every player save simultaneously. `D-05` also makes the *revisit* condition a fallback rather than a fix: promoting one subsystem to full serialization is a contained degradation, but only if we detect the divergence. | Technical Director |
-| **RK-02** | Godot cannot hold the first-person frame budget in a 2×2 km slice (`D-01`) | **High** — we are writing bespoke streaming and crowd systems on an engine with no World Partition or Mass AI equivalent; first-pass implementations of exactly this kind of work normally miss budget. | **Critical** — this is the one remaining decision that can restructure the entire codebase, and it is the only condition under which the engine debate legitimately reopens. | Lead Gameplay Engineer |
+| **RK-02** | Godot cannot hold the representative player-camera frame budget in a 2×2 km slice (`D-01`) | **High** — we are writing bespoke streaming and crowd systems on an engine with no World Partition or Mass AI equivalent; first-pass implementations of exactly this kind of work normally miss budget. | **Critical** — this is the one remaining decision that can restructure the entire codebase, and it is the only condition under which the engine debate legitimately reopens. | Lead Gameplay Engineer |
 | **RK-03** | Definition IDs are a public API and get renamed/deleted after saves exist (`D-04`) | **High** — `D-04` itself forecasts this ("before the first content pack ships"), and content churn is highest exactly now, when volume is near zero and every rename is still cheap. | **High** — silent content loss in a save is a trust-destroying class of bug and the charter's SAVE SYSTEM section requires versioning and migrations from early development. Critical-adjacent, stopped short of Critical only because `D-03`'s load-time validator converts most of it from a runtime crash into a startup error. | Lead Systems Designer |
 | **RK-04** | The closed objective-type set cannot express real quests, so per-quest code returns (`D-07`) | **Medium–High** — the charter's quest shapes (crafting, construction, faction state, relationships, puzzles, hidden, timed, world-state) are genuinely diverse, and this class of predicate framework usually leaks on the first three real quests. | **High** — epic multi-stage quests are the charter's defining content; if they need hand code, `D-12`'s region-by-region plan cannot scale and the promise of story-driven artifact rewards degrades. | Lead Systems Designer |
 | **RK-05** | Companion AI is unreliable, or powerful enough to trivialize combat | **High** — companion behaviour spans navigation, combat targeting, inventory, dialogue, morale, and the `D-06` tier handoff simultaneously, and is the single most commonly shipped-broken subsystem in RPGs of this shape. | **Critical** — companions are load-bearing for solo-first design *and* for the RECRUIT loop; a failure here reduces the game to an emptier, lonelier version of the intended experience. | Lead Gameplay Engineer |
@@ -49,15 +49,29 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 
 **Risk.** **World-generation determinism cannot be held version-stable, so sparse-delta saves (`D-05`) apply to a baseline that no longer matches.**
 
-**Why it matters.** Per `D-05`, unchanged world costs zero bytes and a cell is persisted only when it diverges from its deterministic baseline. That makes determinism a *hard prerequisite* of the save format, not an optimization: if `(seed, content_version)` stops reproducing the same world, every existing save silently interprets deltas against the wrong cells and corrupts. This is the most dangerous constraint in the project, and `D-05` already names it `RK-01`.
+**Why it matters.** Per `D-05`, unchanged world costs zero bytes and a cell is persisted only when it diverges from its deterministic baseline. That makes determinism a *hard prerequisite* of the save format, not an optimization: if the baseline tuple (`PERSISTENCE.md` §1.3) stops reproducing the same world, every existing save silently interprets deltas against the wrong cells and corrupts. This is the most dangerous constraint in the project, and `D-05` already names it `RK-01`.
 
-**Earliest inexpensive validation.** Headless test in Phase 1: generate a 2×2 km region twice from one fixed seed and byte-compare a stable digest of (cell terrain hashes + sorted spawn/entity list). Then rerun the **same** digest test twice across a *deliberately trivial* content change to prove the failure is detectable rather than silent. No engine, no art, no gameplay systems needed — this can be the first test in the repository.
+**Earliest inexpensive validation.** Headless test in Phase 1: generate a 2×2 km region twice from one fixed seed and byte-compare a stable digest of (cell terrain hashes + sorted spawn/entity list). Then rerun it across two *deliberately trivial* changes:
+- a change to a **generation input** (placement data or generator code), to prove the change is detectable rather than silent;
+- a change to **runtime-only content** (a creature's stats), to prove it does *not* move the world.
 
-**Fails if.** The two digests differ, or the deliberately-trivial content change produces *no* detectable difference — the second outcome is the more dangerous one, because it means the check is blind rather than that the world is stable.
+No engine, no art, no gameplay systems needed — this can be the first test in the repository.
 
-**Mitigation.** Generation code frozen per `content_version`; seed recorded in the save manifest (`D-05`); content-version mismatch triggers migration instead of silent regeneration; digest test runs in CI on every commit touching generation; `D-03` content validated at load so a definition typo fails loudly at startup, not mid-quest.
+**Fails if.**
+- The two digests differ.
+- The trivial generation-input change produces *no* detectable difference. This is the more dangerous outcome: it means the check is blind, not that the world is stable.
+- The runtime-only content change moves the baseline. M2's first cut did exactly that: it keyed generation on the whole `content_hash`.
 
-**Alignment note.** `PERSISTENCE.md` strengthens this by making `worldgen_version` an explicit field distinct from the content version, so generation may change only via a version bump plus a tested re-anchoring tool — never by editing generation code under an unchanged version. That is a strictly tighter anchor than `D-05` alone requires and does not contradict it; adopt it.
+**Mitigation (as implemented through M2b).**
+- Content identity is not a generation input, and randomness is addressed by semantic key, so unrelated edits and new draws move nothing (`WORLD_ARCHITECTURE.md` §3.4).
+- Every changed-cell delta records its `baseline_hash` and is applied only to that baseline, or through a registered transition (`PERSISTENCE.md` §6.4).
+- `worldgen_fingerprint` includes the output of four canonical probe cells; the probe digest, the fingerprint and a region digest are pinned in CI against an independent implementation, so an unversioned generator edit fails CI.
+- The seed is recorded in the save manifest (`D-05`).
+- `D-03` content is validated at load, so a definition typo fails loudly at startup, not mid-quest.
+
+**Status: measured.** M2 proved generation bit-stable across 100 runs and across processes. M2b re-measured it under RNG contract 2, pinned to an independent Python implementation, and added culture-independence tests (`M2_STATUS.md`, `M2B_STATUS.md`). Still to observe: the first Linux CI run.
+
+**Alignment note.** `PERSISTENCE.md` makes `worldgen_version` an explicit field distinct from the content version: generation may change only via a version bump plus a registered transition, never by editing generation code under an unchanged version. M2b added per-cell proof, so an unversioned edit is caught even when nobody remembers the rule.
 
 ### RK-02 — Engine frame budget in a 2×2 km slice
 
@@ -65,11 +79,13 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 **Impact:** **Critical** — this is the one remaining decision that can restructure the entire codebase, and it is the only condition under which the engine debate legitimately reopens.  
 **Owner:** Lead Gameplay Engineer
 
-**Risk.** **Godot 4.x cannot sustain the first-person frame budget in a 2×2 km slice once streaming, LOD, foliage, and crowd abstraction exist** — which is `D-01`'s own revisit trigger #1.
+**Risk.** **Godot 4.x cannot sustain the representative player-camera frame budget in a 2×2 km slice once streaming, LOD, foliage, and crowd abstraction exist** — which is `D-01`'s own revisit trigger #1. The representative camera is the full-body third-person view, the first-person view and camera obstruction, never only the cheapest path (`CAMERA_PERSPECTIVE_AND_PRESENTATION.md` §23).
 
 **Why it matters.** `D-01` selected Godot knowing its rendering ceiling is lower than UE5, and explicitly made "we have measured, not guessed" the bar for reopening the engine. The consequence accepted in `D-01` is that world streaming, LOD management, crowd abstraction, and layered simulation are **our** responsibility (`D-06`, `WORLD_ARCHITECTURE.md`). If the measured budget fails, the remedy is the most expensive possible change: engine migration after code exists.
 
 **Earliest inexpensive validation.** Phase-1 greybox stress scene, **not** a beautiful one: 2×2 km of untextured heightmap plus a few hundred instanced proxies, a navmesh, the `D-06` tier scaffold, and 50+ tier-A actors. Measure frame time at the target baseline. Greybox is the point — a dressed scene measures the art budget and hides the systems budget.
+
+**Phase-1 gate (owner ruling, 2026-09-23).** The baseline machine is RAZER's RTX 4070 Ti at 1080p, measured with OBS, H3 and other significant GPU workloads stopped. The gate is the PROTOTYPE greybox scene at a sustained 60 FPS, with CPU and GPU frame times, 1% lows, RAM/VRAM and hitches recorded. The isolated 2×2 km greybox is captured and recorded too, but it is **not** the formal `D-01` revisit gate in Phase 1: that trigger needs the streaming and LOD systems. Failure to sustain 1080p / 60 FPS on the clean 4070 Ti after reasonable optimization, in either scene, is an owner-review stop. The fully dressed `ENGINE_VALIDATION.md` scene is later work.
 
 **Fails if.** Frame time at the target baseline misses budget in the greybox scene with streaming and tier scaffolding active. The number produced is the deliverable either way — `D-01` requires a measurement, so a missing number is a worse outcome than a failing one.
 
@@ -88,6 +104,8 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 **Earliest inexpensive validation.** Phase 1: fuzz-test the migration path while it is still trivial. Author one quest and one item, save, then rename a definition ID and delete another; assert the loader reports the renamed ID as *migrated* and the deleted ID as an explicit **error with file and line** rather than a null. This is a unit test with no engine and no content volume.
 
 **Fails if.** A renamed definition loads as a silent null, or a deleted definition aborts the load with no file and line. Either means the migration path is already broken while it is still trivial to fix.
+
+**Status (M2b).** Validated. The definition-ID pass resolves renames and removals through `content/_aliases.yaml`, and an unmapped ID refuses the load with a blocker naming it. The committed historical fixtures load against their content pack in CI, so a rename without a map fails the build.
 
 **Mitigation.** Renames ship only as migration-map entries plus an alias, never as bare edits; a CI check fails any diff that removes a definition ID without a matching migration entry; the `D-10` registry is the only place instance IDs are minted so the mismatch class is bounded; deleted definitions are retained as tombstoned aliases, never dropped.
 
@@ -255,6 +273,8 @@ Each block carries the full case: why the risk matters, the earliest inexpensive
 
 **Mitigation.** Write to a staging path and commit via the platform's atomic primitive, verified empirically rather than assumed; keep the previous save intact until the new one has been verified and fsynced; retain a rolling backup that is only ever replaced after a verified-good commit; run the process-kill test in CI on the target OS. `PERSISTENCE.md` §7's integrity table and quarantine path are the fallback if atomicity cannot be achieved, but a quarantine is a degraded guarantee and should not be the primary plan.
 
+**Status (M2, M2b).** Validated on Windows. A real process kill at each of the six commit steps, for both saves and migrations, always leaves the old or the new complete save once the boot sweep has run; each test proves the kill landed at the intended step. Open: interference from real OneDrive/Dropbox sync engines (the save root is checked for them and the game can warn).
+
 **Cross-reference.** Detailed row: `PERSISTENCE.md` `RK-P06`; mechanism: `PERSISTENCE.md` §7.
 
 ### RK-14 — Navmesh stitching at cell seams under player buildings
@@ -386,7 +406,7 @@ Consolidated summary required by `PHASE_0.md` FINAL REVIEW. This section is the 
 - All mutation flows through a **command/event bus**. The presentation layer submits commands and subscribes to domain events; it never writes state and never owns truth. Presentation-side prediction is for feel only and is never permitted to write state (`D-11`).
 - **Content is YAML data** under `content/`, validated at load time against C# schemas, referenced by dotted string definition IDs (`D-03`).
 - **Identity is dual-namespace** (`D-04`): stable dotted definition IDs (public API, renamed only via migration map) and ULID instance IDs minted by the **Entity Registry** (`D-10`), which stores no gameplay state and holds no game rules.
-- **Persistence is sparse deltas over a deterministic baseline** (`D-05`): a small manifest (save version, content version, seed, playtime, screenshot, checksum) plus fully serialized player/companion state plus only those entities and cells that differ from the deterministic baseline. Saves are written atomically (temp file + rename) with at least one rolling backup slot.
+- **Persistence is sparse deltas over a deterministic baseline** (`D-05`): a small manifest (`PERSISTENCE.md` §4.2) plus fully serialized player/companion state plus only those entities and cells that differ from the deterministic baseline, each changed cell recording the baseline it was made against. Saves are written atomically (staging + rename + verify) with two backup generations.
 - **Simulation is tiered** (`D-06`): Tier A full, Tier B simplified regional, Tier C abstract schedule/economy, Tier D stored state only. Abstract tiers advance schedules and coarse position only, never combat or inventory.
 - **Scope discipline** (`D-12`): one region completely before a second; no networking code, no dedicated server, no speculative MMO abstraction.
 
@@ -412,8 +432,8 @@ Ordered so that no task depends on a later one, and written as the **critical-pa
 6. **Command/event bus and domain event dispatch** (`D-02`, `D-11`; `ROADMAP.md` `M1`). The seam plus the two-player-context test from task 3 made real. Resist optimizing it: `D-02` explicitly expects it to feel like overhead here.
 7. **Deterministic world generation, fixed seed, fixed `content_version`** (`D-05`, `D-06`; `ROADMAP.md` `M2`). Wire task 2's probe to the real generator. Record seed and content version in the manifest. Freeze the generation interface before adding features to it.
 8. **Sparse-delta save/load with atomic write and rolling backup** (`D-05`; `ROADMAP.md` `M2`, migration harness in `M2b`). Manifest, player/companion state, and per-cell delta versus baseline. Round-trip test asserting identical domain state after load. Includes the deliberately-shaped migration seam from `RK-03`, even while there is only one content version.
-9. **Minimal player domain state and progression math** (`D-09`; `ROADMAP.md` `M2c`). Attributes, XP, level, one skill, one ability — the smallest set that lets a command produce a visible state change. Progression math is unit-testable outside the engine, which is the entire reason `D-02` exists; keep it there.
-10. **First playable presentation shell** (`D-01`, `D-11`; `ROADMAP.md` `M3`). Godot first-person movement that submits movement and interaction commands and renders events. No direct state writes. This is the point at which the seam stops being a test fixture and starts carrying a player, and it is the last item before Phase-1 feature work begins.
+9. **Minimal player domain state and progression math** (`D-09`; `ROADMAP.md` `M2c`). Attributes, XP, level, one skill, one technique — the smallest set that lets a command produce a visible state change. Progression math is unit-testable outside the engine, which is the entire reason `D-02` exists; keep it there.
+10. **First playable presentation shell** (`D-01`, `D-11`; `ROADMAP.md` `M3`). Godot full-body third-person movement with seamless first-person zoom that submits movement and interaction commands and renders events. No direct state writes. This is the point at which the seam stops being a test fixture and starts carrying a player, and it is the last item before Phase-1 feature work begins.
 
 **Deliberate differences from `ROADMAP.md` §8**, recorded so a later session does not read them as an inconsistency:
 

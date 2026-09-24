@@ -1,6 +1,6 @@
 # PHASE_0_COMPLETE.md — Implementation Handoff
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Purpose:** The single entry point for an implementation session. Everything below is a pointer or a summary; the normative detail lives in the documents listed in §1.
 
 ---

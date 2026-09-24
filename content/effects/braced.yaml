@@ -1,0 +1,15 @@
+id: effect.braced
+kind: effect
+schema: 1
+display_key: effect.braced.name
+tags: [effect]
+name: Braced
+notes: Brace Ward's protection - every region hardened by 20 armor for 10 s.
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 5.0          # game minutes (config.time): 10 s
+tick_interval_min: 0
+modifiers:
+  - { target: stat.armor, op: add, value: 20 }
+dispel_category: magic

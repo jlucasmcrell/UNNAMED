@@ -80,6 +80,25 @@ def main():
     if age is not None:
         print(f"preflight: log last written {age:.0f}s ago")
 
+    # An unreachable server is usually one that is STARTING UP, not one that is broken.
+    # The memory guard restarts ComfyUI whenever host memory runs away, and a restart takes
+    # roughly a minute. Treating that as permanent failure made a caller skip every
+    # remaining asset in the batch in about two seconds each: one guard restart at 23:27
+    # cost seven assets in a row. So wait for the server to come back before judging it.
+    if not reachable:
+        deadline = time.time() + args.wait
+        while time.time() < deadline:
+            time.sleep(5)
+            try:
+                stats(args.probe_timeout)
+                print(f"preflight: server came back after "
+                      f"{args.wait - (deadline - time.time()):.0f}s")
+                return 0
+            except Exception:
+                continue
+        print(f"preflight: still unreachable after {args.wait:.0f}s of waiting")
+        return 1
+
     # A hung server can still answer /system_stats and /queue instantly while doing no
     # work at all, so responsiveness alone does not prove health. The stronger signal is
     # a queue that claims a running job while the log has gone quiet: work is claimed but

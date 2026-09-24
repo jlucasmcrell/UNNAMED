@@ -1,0 +1,16 @@
+id: ability.creature.spider_bite
+kind: ability
+schema: 1
+display_key: ability.creature.spider_bite.name
+tags: [ability]
+name: Venom Bite
+notes: The spider's strike - quick, and more often than not it leaves venom working.
+class: creature
+range_m: 1.2
+windup_s: 0.35
+active_s: 0.15
+recovery_s: 0.6
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_pierce, amount: [4, 6] }
+  - { type: apply_effect, effect_ref: effect.venom, chance: 0.6, on: hit }

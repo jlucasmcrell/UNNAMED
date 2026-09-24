@@ -35,13 +35,13 @@ public class PickupSystem : ISystem
     private ICommandBus? _bus;
     private IEventBus? _events;
     private IWorldState? _world;
-    private ISystemWriterInternals? _writer;
+    private IWorldStateWriter? _writer;
 
-    public void Configure(
+    void ISystem.Configure(
         ICommandBus bus,
         IEventBus events,
         IWorldState world,
-        ISystemWriterInternals writer)
+        IWorldStateWriter writer)
     {
         _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         _events = events ?? throw new ArgumentNullException(nameof(events));

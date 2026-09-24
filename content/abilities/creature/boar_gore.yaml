@@ -1,0 +1,15 @@
+id: ability.creature.boar_gore
+kind: ability
+schema: 1
+display_key: ability.creature.boar_gore.name
+tags: [ability]
+name: Gore
+notes: The boar up close - a quick hooking tusk.
+class: creature
+range_m: 1.3
+windup_s: 0.5
+active_s: 0.15
+recovery_s: 0.8
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_pierce, amount: [6, 9] }

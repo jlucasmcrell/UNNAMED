@@ -1,0 +1,8 @@
+id: config.level_cap
+kind: config
+schema: 1
+display_key: config.level_cap.name
+tags: [config]
+soft_cap: 50                      # PROGRESSION.md §3.2; designated masteries continue past it (§8)
+level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the game's cap
+notes: The cap in force is level_cap_phase1 while it is present.

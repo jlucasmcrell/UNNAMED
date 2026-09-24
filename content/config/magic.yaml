@@ -1,0 +1,18 @@
+id: config.magic
+kind: config
+schema: 1
+display_key: config.magic.name
+tags: [config]
+notes: How casting spends and recovers (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md "Resonance and Strain", "Unsafe casting"; M3e). There is no mana - a working spends Focus, which returns, and adds Strain, which ebbs; past tolerance the excess is paid in health, never refused.
+focus: { regen_per_s: 4, regen_delay_s: 2 }       # Focus returns 2 s after the last working
+strain:
+  recovery_per_s: 3
+  recovery_delay_s: 3                              # Strain ebbs 3 s after the last working
+  strained_percent: 75                             # the HUD's Strained, from three-quarters of tolerance
+  backlash_per_point: 2                            # health for each point a working pushes past tolerance
+skill:                                             # PROGRESSION.md §7: domain skill is reliability and efficiency
+  strain_percent_per_point: 3                      # +3% Strain per point of complexity above skill, -3% per point below
+  min_strain_percent: 50                           # a master still pays half
+  fizzle_percent_per_point: 3                      # 3% to fizzle per point of complexity above skill
+resonance: { reference: 20, damage_percent_per_point: 2 }   # Will 10 gives Resonance 20: a working hits as authored
+casting: { recovery_s: 0.3 }                       # after a release, before the body can act again

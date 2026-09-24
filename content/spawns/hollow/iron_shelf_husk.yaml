@@ -1,0 +1,14 @@
+id: spawn.hollow.iron_shelf_husk
+kind: spawn
+schema: 1
+display_key: spawn.hollow.iron_shelf_husk.name
+tags: [spawn]
+notes: The Bone Walker Husk patrols Blackvein's quarry floor round the content bible's (48, 58), between the ramp's foot and the iron vein - the first Bone Walker combat of the bible's 10-minute path (§29 7:00), fought or avoided.
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.undead.bone_walker_husk, count: [1, 1], role: roamer }
+at: { position_m: [48, 58], radius_m: 1 }
+route_m: [[40, 52], [54, 52], [54, 62], [40, 62]]
+level_band: [3, 3]
+respawn: { kind: none }
+tier_hint: A

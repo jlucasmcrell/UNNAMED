@@ -1,0 +1,10 @@
+id: config.simulation_tiers
+kind: config
+schema: 1
+display_key: config.simulation_tiers.name
+tags: [config]
+notes: Tier radii (D-06, WORLD_ARCHITECTURE.md §6.2 defaults). Distances are from the player to the nearest point of a cell.
+full_radius_m: 150        # tier A: full simulation
+regional_radius_m: 600    # tier B: simplified regional
+abstract_radius_m: 2000   # tier C: abstract; beyond it, tier D (stored state only)
+hysteresis_m: 10          # WORLD_ARCHITECTURE.md §7.4: cells on a boundary must not thrash

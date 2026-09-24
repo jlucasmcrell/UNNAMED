@@ -1,6 +1,6 @@
 # DATA_MODEL.md — Content Definitions, Identity, and Runtime State
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Architecture. **Status:** Draft for owner review.
 **Reads:** `PROJECT_CHARTER.md`, `PHASE_0.md`, `DECISIONS.md` (D-03, D-04, D-05, D-07, D-09, D-10), `SYSTEMS.md` (S-18 loads this data; S-02 assigns runtime identity).
 **Audience:** an implementation session writing the C# schema types, the YAML loader, the validator, and the sample content.
@@ -53,6 +53,7 @@ Load order (S-18): read all files → parse → resolve `kind` to a C# schema vi
 | `effect` | StatusEffectDefinition | `effect.` | `affix` | AffixDefinition (§4.20) | `affix.` |
 | `node` | NodeDefinition (§4.16) | `node.` | `spawn` | SpawnDefinition (§4.17) | `spawn.` |
 | `location` | LocationDefinition (§4.18) | `location.` | `config` | ConfigDefinition (§4.19) | `config.` |
+| `skill` | SkillDefinition (§4.21) | `skill.` | | | |
 
 **Referenced kinds — minimum shape.** These seven are the kinds `§5`'s cross-reference table resolves and `Assumptions` 1–2 previously left "implied". They are **in the closed table**, because a reference that resolves to a kind the validator does not know is a reference the validator cannot check. Each is specified to the minimum depth references require; full specification belongs to `WORLD_ARCHITECTURE.md` (regions, anchors, schedules) and `PROGRESSION.md` (attributes).
 
@@ -67,6 +68,8 @@ Load order (S-18): read all files → parse → resolve `kind` to a C# schema vi
 | `world_flag` | WorldFlagDefinition | `world.` | `world_flags/` | Declared type (`bool`\|`int`\|`string`), default, and owning system — a flag's type is save-version-sensitive (§6) |
 
 **`world_flag` uses the `world.` prefix, not `flag.`**, and lives in `world_flags/` so the directory name cannot be confused with the kind name. Its IDs are referenced as `world.*` throughout (§4.11 reward kinds, dialogue consequences). The validator enforces the prefix, so the directory/kind pair is unambiguous while the ID namespace stays as authored.
+
+**`region` as implemented (M3-M6).** Phase 1's one region names its `region_key`, the `cells` it covers, the walkable `bounds_m`, a `terrain` height grid, a `spawn`, and lists of what stands in it: `structures` (box or circle footprints), `doors` (WLD004: a footprint that blocks while its `world.*` flag is 0, toggled by hand), `containers` (WLD009), `nodes` (WLD010), `stations` (WLD011) and `npcs` (WLD012). M6 adds two. A **switch** (`key`, `structure` - the footprint it stands on - `flag_ref`, `requires`, and the words `name`, `verb`, `done_text` and `locked_text`; lint WLD013) is worked by hand like a door but sets its flag to 1 once and never unsets it, and only while every flag it `requires` is set in its cell - so something in that cell must set each of them, and a switch with requirements says why it will not work. A **barrier** (`key`, `flag_ref`, a footprint, `prompt`; lint WLD014) blocks like a closed door until its flag is set, and has no handle: a switch in its cell must set it. A switch's or a barrier's flag lives in the delta of the cell its footprint stands in, like a door's. The Foldscar's three Quiet Stones and its heart are switches, and the fold that holds Tavar is a barrier (the content bible's §16).
 
 **`merchant` is a kind without a `merchants/` resolver target** in §5's table; it is referenced by `npc.*` and stored in `merchants/`, and appears in the main table above rather than here.
 
@@ -108,13 +111,16 @@ aliases:                                              # renamed IDs, kept foreve
   item.weapon.ironsword: item.weapon.iron_sword
 removed:                                              # merged/removed IDs, mapped forward
   quest.artifact.shattered_crown.09: quest.artifact.shattered_crown.10
+  item.junk.cracked_bottle: ~                         # removed with no replacement: references are dropped, as reported loss
 ```
 
-The loader resolves an alias on read and logs a deprecation warning. A save referencing a removed ID must resolve through `removed` or fail load loudly — never a silent drop (D-05).
+The loader resolves an alias on read and logs a deprecation warning. A save referencing a removed ID must resolve through `removed` or fail load loudly — never a silent drop (D-05). A removal mapped to `~` is the explicit `destroy` disposition of `PERSISTENCE.md` §6.3. It is declared here and reported by every load and dry run, so it is not a silent drop. Renames may chain; a cycle is an error. The validator also rejects: an alias target or replacement that is not defined (`ALIAS001`, `ALIAS003`); an ID listed as renamed or removed that is still defined (`ALIAS004`); and anything in the file that is not a definition-ID mapping (`ALIAS005`). The map is part of `content_hash`.
+
+**The CI guard.** The committed historical save fixtures (`tests/Persistence.Tests/Fixtures`) load against their content pack in CI. Renaming or removing an ID they reference, without an entry here, fails the build (M2b).
 
 ### 2.2 Instance IDs (D-04, D-10)
 
-Format `<prefix>_<ULID>`, lowercase and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance.
+Format `<prefix>_<ULID>`: a lowercase kind prefix and a canonical 26-character Crockford-base32 ULID, which is uppercase, and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Parsing accepts a lowercase ULID and normalizes it; comparison is ordinal. (An earlier wording said "lowercase" for the whole ID while its own example was uppercase.) Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance, `chr` player character (added by M2).
 
 ---
 
@@ -123,20 +129,20 @@ Format `<prefix>_<ULID>`, lowercase and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6
 Three tests decide every field, applied in order:
 
 1. **Sharing test.** If two instances could hold different values, it cannot be a shared definition field for those instances — it is instance state (or an authored definition variant, if the difference is designed rather than earned).
-2. **Baseline test.** If a value is recomputable identically from `(seed, content_version)` with no player input, it does not belong in the save; it belongs to the deterministic baseline (D-05). If it is not recomputable, it must be persisted.
+2. **Baseline test.** If a value is recomputable identically from the baseline tuple - the world seed and the generator contract, including its placement data (`PERSISTENCE.md` §1.3) - with no player input, it does not belong in the save; it belongs to the deterministic baseline (D-05). If it is not recomputable, it must be persisted.
 3. **Authority test.** If a value is read as truth by more than one system (health, position, ownership, quest progress), it lives in the World State Store (S-03) and nowhere else.
 
 ### 3.1 Where the line sits
 
 | Thing | Definition (content) | Instance state (persisted when non-baseline) |
 |---|---|---|
-| Weapon | base damage, damage type, reach, attack speed, stamina cost, scaling ratios, mastery family, requirements, model, base value | current durability, rolled quality, enchantments/sockets applied, rolled affix magnitudes, crafter signature, display-name override |
+| Weapon | base damage, damage type, reach, attack speed, stamina cost, scaling ratios, weapon skill (`skill_ref`), requirements, model, base value | current durability, rolled quality, enchantments/sockets applied, rolled affix magnitudes, crafter signature, display-name override |
 | Armor | armor value, slot, weight, movement penalty, material class, requirements, set membership | current durability, enchantments, upgrades, rolled quality |
 | Creature | species stats, attack set, habitat, fixed level band, loot table ref, faction, perception, abstract-schedule profile | current health, active effects, aggro, position, alive/dead, looted flag, named flag, morale |
 | NPC | role, services, schedule template, dialogue ref, faction, home/work anchor refs, greeting policy | generated identity (name, voice), current phase and coarse position if diverged, disposition, relationship memory, alive/dead/moved state, merchant stock |
-| Spell | school, mastery gate, cost, cast time, range, payload, cooldown, visual | remaining cooldown (only if `persist_cooldown`), learned flag and school mastery (on the character) |
+| Spell (formula) | magic-domain skill, complexity, Focus/Strain cost plus contextual costs, cast time, range, payload, cooldown, visual | remaining cooldown (only if `persist_cooldown`); the known flag lives in the character's knowledge record (`PROGRESSION.md` §4.4), and domain competence is a skill |
 | Status effect | duration, stack policy, tick interval, contributed modifiers, dispel category, immunity tags | stacks, remaining duration, caster ref, tick cursor |
-| Recipe | inputs, outputs, station, profession gate, difficulty, quality curve | learned flag (character), discovered experimental variants, in-progress job timers |
+| Recipe | inputs, outputs, station, technique/skill requirements, difficulty, quality curve | known flag (the character's knowledge record), discovered experimental variants, in-progress job timers |
 | Resource node | yield range, tool requirement, respawn window, biome placement rule | remaining yield, depleted flag, regrowth deadline, planted-by-player flag |
 | Quest | objectives, branches, failure conditions, time limits, level band, rewards | state, per-objective progress, chosen branches, absolute deadlines, repeat counters |
 | Building piece | sockets, material cost, health, nav footprint, station capability | transform, owner, current health, repair state, attached storage, occupant assignment |
@@ -193,13 +199,17 @@ use:
   consume: true               # reading the tome destroys it
   grants:
     - { kind: spell,    ref: spell.ember.bolt }      # deliberate: one offensive, one defensive
-    - { kind: spell,    ref: spell.ward.oakskin }    # so the proof covers two schools at once
+    - { kind: spell,    ref: spell.ward.oakskin }    # so the proof covers two magic domains at once
   teach_requires: { skill: { skill.research: 10 } }  # optional gate; absent = usable immediately
 # note: Reading a tome is the only path in Phase 1 by which content grants a permanent capability,
 # which is why it is the worked example rather than a contrived one.
 ```
 
+**As implemented (M3e).** The tome is `item.tome.resonance_primer`, teaching the content bible's three formulas (the Ember Primer's grants predate the bible, and no build ever let a player hold it). Phase 1 builds `grants` of kind `spell` on a book with `consume: true`: reading it is a learning event (`book`), and a book with nothing new in it cannot be read. `teach_requires` is not built.
+
 The same mechanism carries `ability`, `recipe`, `title`, `access`, `world_flag`, `permanent_ability` and `transformation` grants without further schema work — a tome that teaches a recipe and a shrine that grants a title are the same field with a different `kind`. **`custom_scripted` remains deliberately absent** (see §4.11): if a desired grant cannot be expressed as one of the closed kinds, the correct response is to add a kind, not to add scripting.
+
+**M3b reconciliation (the prototype's items).** A plain item may be worn in a jewelry slot with `equip_slot: ring|amulet`, as the wolf fang is: the prototype's "non-armor, non-weapon equipment slot". `requirements` holds only `attribute.<name>` and `skill.<id>` minima, never a level (`PROGRESSION.md` §11.1). Ammunition is a `misc` item that its weapon names with `ammo_item_ref`. A ranged weapon may give `draw_time` instead of `reach`. Coin is not an item in Phase 1: it is a purse on the character.
 
 ### 4.2 WeaponDefinition — `kind: item.weapon` (extends ItemDefinition)
 
@@ -218,7 +228,7 @@ attack_speed: 1.1             # swings per second
 reach: 1.8                    # meters; drives S-12 hit resolution
 stamina_cost: 14
 scaling: { might: 0.8, agility: 0.2 }
-mastery_family: weapon.sword  # S-09 per-family mastery
+skill_ref: skill.one_hand_blade  # S-09 weapon-family skill (PROGRESSION.md §6)
 hands: one                    # one|two|offhand
 moveset: [ability.moveset.sword_light, ability.moveset.sword_heavy]
 affix_pool: [affix.weapon.keen, affix.weapon.balanced]
@@ -243,7 +253,7 @@ resistances: { physical_blunt: 1 }     # damage_type -> flat or percent
 movement_penalty: 0.0
 stealth_penalty: 0.0
 material_class: leather       # cloth|leather|mail|plate|chitin|exotic
-mastery_family: armor.light
+# no armour mastery axis: armour use is gated by attribute minima (PROGRESSION.md §11.1); M3b reconciles armour
 # note: Cheap first upgrade: the first craft teaches the crafting loop without a resource wall.
 # also: set_ref? | layering_rules? (which slot groups may combine)
 ```
@@ -255,7 +265,7 @@ mastery_family: armor.light
 family: undead
 archetype: undead              # predator|prey|scavenger|humanoid|undead|construct|spirit|apex
 level_band: [22, 26]           # AUTHORED band; never scaled to the player (charter §1)
-pools: { health: 320, mana: 80 }
+pools: { health: 320, focus: 80 }   # Health/Stamina/Focus; there is no mana (PROGRESSION.md §4.1)
 attributes: { might: 16, endurance: 18, agility: 7, precision: 6, will: 20, insight: 6, presence: 12 }  # the canonical seven (PROGRESSION.md §4.1)
 attack_set: [ability.creature.grave_touch, ability.creature.wail_of_rot]
 behavior_profile: ai.profile.relentless_undead          # S-23
@@ -271,6 +281,10 @@ tameable: false                # deferred feature gate; false everywhere in Phas
 ```
 
 A generic pack predator (`creature.beast.wolf_grey`, `level_band: [3, 6]`, with `creature.beast.wolf_grey_alpha` as the named variant) is the second authored case; loot table plus level band make it the early "you are not ready" lesson rather than an ambush.
+
+**As implemented (M3c).** The prototype's wolf is level 2 (`PROTOTYPE.md` §4.1), authored as `level_band: [2, 2]`: a creature has one level until the spawner rolls within a band (M3d). Combat reads four more fields: `armor: {head, torso, limbs}` (coverage by region), `move_speed_m_s`, `body_radius_m`, and `xp_value`, the kill XP before AG-1..AG-3. Its attack is the first `attack_set` ability, which is `class: creature` (§4.7). Health stays a same-level body's: a creature is made harder by what it does, never by a larger pool (`VERTICAL_SLICE.md` §5.1).
+
+**As implemented (M3d).** `perception: { sight_m, hearing_m, fov_deg }` builds the creature's senses (`fov_deg` defaults to 120). `turn_deg_s` is how fast its body turns (default 720); `weak_point: { region, from_behind }` forces a blow from behind onto that region (the armour's open helm); `tags` are what effects test their `immunity_tags` against (`undead`, `construct`). `attack_set` gives its blow and, optionally, a charge (§4.7). `loot_table` is what its corpse holds. `behavior_profile` is not used: behaviour is a spawner-assigned role (`config.creature_behaviour`, §4.19). The five Phase-1 archetypes are the content bible's; `M3D_BEHAVIOUR_MATRIX.md` is generated from their definitions.
 
 ### 4.5 NPCDefinition — `kind: npc`
 
@@ -293,41 +307,47 @@ relationships_init:
 
 Generic hostiles (`npc.bandit.road_cutter`) set `unique: false` with a `name_pool`; they carry no memory and persist only a death flag.
 
+**As implemented (M4).** An NPC names its `name`, its `role` (the list above), the `services` Phase 1 builds (`trade`, which needs a `merchant_ref`), its `dialogue_ref`, and `unique: true`: Phase 1's people are all named. `species_ref`, `schedule_ref`, `anchors`, `combat_profile`, `relationships_init` and `name_pool` are not built and the SOC001 lint refuses them. Where each stands is the region's: its `npcs` list (`npc_ref`, `position_m`, `facing_deg`; lint WLD012 - defined, in bounds, clear of structures, placed once). The three are the content bible's: `npc.ashen_hollow.renn_vale` (steward), `npc.ashen_hollow.kera_voss` (smith, trader) and `npc.ashen_hollow.sel_arien` (archivist). **M6** adds the fourth, `npc.ashen_hollow.tavar_orr`, and the `companion` block an NPC who can join the character names - `health`, `weapon_item_ref` (a melee weapon, whose damage, reach and timing are the item's) and `armor` by region (SOC001) - in place of `combat_profile`, which stays refused: a Phase-1 companion's body is these numbers, not an AI profile.
+
 ### 4.6 SpellDefinition — `kind: spell`
 
 ```yaml
-# id: spell.elemental.ember_bolt
-school: school.elemental
-school_requirement: 1         # mastery gate (S-09)
-cost: { pool: mana, amount: 10 }        # pools: mana, or essence for necromancy
+# id: spell.force.ember_bolt
+domain: skill.force           # the magic-domain skill (PROGRESSION.md §7)
+complexity: 12                # against domain skill: Strain, stability, cast speed, and skill XP via the difficulty gate
+cost: { focus: 6, strain: 8 } # no mana; contextual costs (reagents, charges) are listed below
 cast_time_s: 0.9
 cooldown_s: 1.5
 range_m: 24
 targeting: projectile         # self|touch|projectile|aoe_ground|aoe_cone|beam|summon|ritual
 payload:
-  - { type: damage, damage_type: fire, amount: [14, 20], scaling: { wit: 0.9, school.elemental: 0.4 } }
+  - { type: damage, damage_type: fire, amount: [14, 20], scaling: { insight: 0.9, skill.force: 0.4 } }
   - { type: apply_effect, effect_ref: effect.burning.minor, chance: 0.25, duration_min: 0.5 }
 resist_type: fire
 interrupt_priority: 2
-# note: The teaching spell: fast, cheap, and weak enough that it never replaces weapon play at low mastery.
-# also: channel: bool | duration_min | required_reagents?: [item.*] (consumed via S-14) | persist_cooldown (default false)
+# note: The teaching formula: fast, cheap, and weak enough that it never replaces weapon play at low skill.
+# also: channel: bool | duration_min | required_reagents?: [item.*] (consumed via S-14) | charges? | persist_cooldown (default false)
+# A formula is known through a learning event (PROGRESSION.md §4.4). Casting above one's skill is allowed, at higher Strain and failure risk.
 ```
 
 **Closed payload vocabulary** — the only legal `payload[].type` values (shared by spells, abilities, and status-effect triggers): `damage`, `heal`, `restore_pool`, `apply_effect`, `remove_effect`, `dispel`, `summon`, `teleport`, `reveal`, `create_item`, `modify_stat`, `taunt`, `absorb`, `reflect`, `resurrect_temporary`, `harvest_corpse`. Schools differ mechanically through this vocabulary plus definition data — never through new engine code per school.
 
-A second authored case, `spell.necromancy.bind_lesser_servant` (`cost: {pool: essence}`, `targeting: summon`, payloads `harvest_corpse` + `summon … permanent: true, cap: 2`, `required_reagents: [item.material.corrupted_marrow]`), shows that a school's identity lives in cost pool, targeting, and payload shape.
+**As implemented (M3e).** A formula names its `domain` (a skill with `family: magic`, checked as a reference), `complexity`, `cost: { focus, strain }` - nothing else: there is no mana, and Phase 1 builds no contextual costs - `cast_time_s` (the tell), `targeting` (`self` or `projectile`, with `range_m`), and a `payload`: a projectile's single `damage` entry (`amount: [min, max]`, `damage_type`), or a self formula's `apply_effect` and `remove_effect` entries. The recovery after a release is `config.magic`'s. `cooldown_s`, `resist_type`, `interrupt_priority`, `scaling` and `channel` are not built; the MAG001 lint refuses what Phase 1 cannot cast. The three formulas are `spell.force.impulse_bolt`, `spell.warding.brace_ward` and `spell.vital.mending_thread` (the content bible's §13, whose `formula.*` names are placeholders for this kind).
 
-### 4.7 AbilityDefinition — `kind: ability`
+A second authored case, `spell.necromancy.bind_lesser_servant` (`cost: { focus: 10, strain: 18 }` plus an essence charge harvested from corpses, `targeting: summon`, payloads `harvest_corpse` + `summon … permanent: true, cap: 2`, `required_reagents: [item.material.corrupted_marrow]`), shows that a domain's identity lives in its contextual costs, targeting, and payload shape.
+
+### 4.7 AbilityDefinition — `kind: ability` (a technique)
+
+`ability` is the **technique** kind (`PROGRESSION.md` §4.4). There is no tree, no tier and no point cost: a technique is known only through a learning event (starting package, teacher, book, quest, study, experiment, discovery, artifact, culture). Its prerequisites are skills and other known techniques, never level.
 
 ```yaml
 # id: ability.martial.power_strike
 class: active                 # active|passive|reaction|moveset|ritual|creature
-tree_ref: tree.martial.arms
-tier: 1
-cost_points: 1
-prerequisites: [ability.martial.weapon_focus]
-requirements: { level: 2, attribute.might: 10, mastery.weapon.sword: 1 }
-cost: { pool: stamina, amount: 22 }
+discipline: skill.one_hand_blade   # the skill that performs it and earns its use XP
+prerequisites: [ability.martial.weapon_focus]   # known techniques
+requirements: { skill.one_hand_blade: 20, attribute.might: 10 }   # to learn it; never level
+learn_from: [teacher, book, discovery]   # typed learning sources
+cost: { stamina: 22 }
 cooldown_s: 6
 range_m: 2.0
 targeting: aoe_cone
@@ -339,7 +359,11 @@ animation_key: anim.attack.sword_heavy          # presentation binding only
 # passives instead carry modifiers: [{target, op: add|add_pct|multiply|set, value, condition?}]
 ```
 
-`ability.martial.weapon_focus` (`class: passive`, `tier: 0`, `cost_points: 0`, `modifiers: [{target: stat.stamina_regen, op: multiply, value: 1.15}]`) is the free root node every martial build takes.
+`ability.martial.weapon_focus` (`class: passive`, `modifiers: [{target: stat.stamina_regen, op: multiply, value: 1.15}]`) is in the default starting package: every martial character knows it from creation.
+
+**Creature attacks (M3c).** A `class: creature` ability gives `range_m`, `windup_s`, `active_s` and `recovery_s` - the timing combat runs on; an animation clip is scaled so its `hit_window_start` lands on the windup's end, never the reverse - and a `payload` with one `damage` entry (`amount: [min, max]`, `damage_type`) and optionally `apply_effect` with a `chance`. The wolf's bite is `ability.creature.wolf_bite`.
+
+**Creature attacks (M3d).** `lunge_m` carries the attacker forward through the active window. `advance: true` keeps it running at its target through the windup (the hound). `cooldown_s` spaces its uses. `forces_stagger: true` knocks the target down unless guarded or dodged. `charge: { speed_m_s, min_range_m, max_distance_m, stun_s }` makes the ability a charge: after the windup the attacker runs straight at that speed, committed, until it meets the target, has run its distance, or hits something solid, which stuns it for `stun_s` (the boar).
 
 ### 4.8 StatusEffectDefinition — `kind: effect`
 
@@ -360,6 +384,8 @@ immunity_tags: [construct, incorporeal]
 # also: on_apply/on_expire/on_remove?: [closed payload vocabulary] | break_on?: damage|movement|action
 #       persist (default true; false for sub-second states such as effect.staggered)
 ```
+
+**As implemented (M3c).** `stack_policy` builds `refresh` and `stack_intensity`; `duration_min` and `tick_interval_min` are game minutes (`config.time`), so the wolf's bleeding is `3.0` (6 s) ticking every `0.5` (1 s). `on_tick` builds `damage` (a fixed `amount` per stack, past armor) and `heal`; `modifiers` build `stat.damage_dealt` and `stat.stamina_regen` (`multiply`) and `stat.armor` (`add`). A player's effects are saved with absolute world-tick deadlines (`PERSISTENCE.md` §5.1, schema 7). Anything else is refused by the lint (`CMB001`) until the content that needs it arrives. From M3d `immunity_tags` is live: an effect is refused on a creature carrying any of the tags (bleeding on `undead` and `construct`).
 
 ### 4.9 RecipeDefinition — `kind: recipe`
 
@@ -385,6 +411,8 @@ repeatable: true
 
 A refining recipe (`recipe.smithing.iron_ingot`: `station_ref: station.smelter`, two ore + one charcoal ⇒ one ingot, `craft_time_min: 6`) is the cheap shared first step of the smithing line.
 
+**As implemented (M3f).** A recipe names the `station` *kind* it is worked at (`forge`, `anvil`: a region places stations of each kind, see §4.16's note) rather than a `station_ref`, the `skill_ref` it trains, a `complexity`, its `inputs` (`item_ref`, `count`; all consumed), exactly one `outputs` entry (`item_ref`, `count`, `quality_roll`), and `xp_award: { xp }` - level XP for the first of that output only (AG-7). What may be attempted is knowing the recipe (`AX-TEC`, the knowledge record); skill never gates it. `profession`, `required_skill`, `tools`, `craft_time_min`, `quality_curve` and `discovery` are not built, and the CRF001 lint refuses them. Quality is decided by `config.crafting` (§4.19). The two recipes are `recipe.smithing.iron_billet` (forge: raw ore into a billet, complexity 0) and `recipe.smithing.march_spear` (anvil: billet and ash haft into the spear, complexity 10), the content bible's §12.
+
 ### 4.10 ResourceDefinition — `kind: resource`
 
 ```yaml
@@ -392,7 +420,7 @@ A refining recipe (`recipe.smithing.iron_ingot`: `station_ref: station.smelter`,
 yields:
   - { item_ref: item.material.iron_ore, count_range: [1, 3], quality_roll: true, chance: 1.0 }
   - { item_ref: item.material.rough_gemstone, count_range: [1, 1], quality_roll: false, chance: 0.04 }
-gathering_skill: skill.gathering.mining
+gathering_skill: skill.mining
 skill_requirement: 1
 tool_ref: item.tool.mining_pick
 node_kind: ore_vein           # ore_vein|tree|herb|hide_source|fishing_spot|essence_well|salvage
@@ -403,6 +431,8 @@ depletes: true                # false = unlimited (e.g. a river)
 # note: Placed near the starting settlement on purpose: the first crafting loop must be reachable in ten minutes.
 # also: availability?: {time_of_day, moon_phase, weather}
 ```
+
+**As implemented (M3f).** A resource is the material and what one harvest of it yields: exactly one `yields` entry (`item_ref`, `count_range`). The node (§4.16) carries everything about harvesting it. `resource.ore.iron` yields 1-2 Raw Iron Ore; `resource.wood.ash` yields one Ash Haft.
 
 ### 4.11 QuestDefinition — `kind: quest`
 
@@ -484,6 +514,8 @@ objectives:
 # revealed only when its predicate becomes true. A small quest is the same schema with four nodes.
 ```
 
+**As implemented (M5).** A quest names `title` and `summary` (inline until localization), `giver_ref` (read as an NPC), `entry_objective`, `objectives` in authored order, `fail_if` (state predicates only: a deed-counting type cannot fail a quest) and `rewards`. An objective has `id`, `type`, `description`, `params`, `next`, `all_of`, `branch` (`all`, or `first`: the first of `next` satisfied is the branch taken and the others close), `visibility` (`when_active` or `hidden`: shown once satisfied) and `time_limit_min` with `on_fail` (an objective ID or `fail_quest`), anchored at the objective's activation. Built types and their parameters: `talk_to` (`npc_ref`, `dialogue_ref` - the NPC's own if omitted - and `nodes`: any of these lines heard; the opening line if omitted), `visit_location` (`location_ref`: discovered, before the quest or during it), `explore_location` (`location_ref`, `within_m`: standing there now), `acquire_item` (`item_ref`, `count`, `quality_min`: carried now), `craft_item` (`item_ref`, `count`, `quality_min`), `harvest_resource` (`resource_ref`, `count`), `kill_creature` (`creature_ref`, `count`) and `deliver_item` (`npc_ref`, `item_ref`, `count`: handed over in conversation) - these four count what is done while the objective is active - `world_state` (`flag_ref`, `location_ref`: the flag in the cell holding that place, `value` or `min`/`max`), `relationship_value` (`npc_ref`, `dimension`, `min`/`max`) and `wait_until` (`after_min`). Rewards built: `xp` (`amount`), `currency` (`amount`), `item` (`item_ref`, `count`), `recipe` (`recipe_ref`), `spell` (`spell_ref`), `relationship` (`npc_ref`, `dimension`, `amount`) and `world_flag` (`flag_ref`, `value`, `location_ref`). Not built, and refused by name: the other objective types and reward kinds of the closed set, `optional`, `any_of`/`not` composition, `requirements`, `world_time_required`, other timer anchors and visibilities, `faction_ref`, chains, `level_band`, `journal_entries`, `abandon_policy` and `repeat_policy`. The QST001 lint also refuses an orphaned objective, a loop, a join on objectives that do not lead to it or on two alternatives of one branch, a quest nothing starts, a `talk_to` line the conversation lacks, a `craft_item` no recipe makes, a `deliver_item` no reply takes, a `harvest_resource` no node yields, and a `quest_state` condition on a quest or objective that does not exist.
+
 ### 4.12 DialogueDefinition — `kind: dialogue`
 
 ```yaml
@@ -519,6 +551,8 @@ nodes:
           consequences: [{ command: advance_quest, quest_ref: quest.settlement.stoneford_missing_flour, objective: o_ask }] }
 # `once: true` + `next_if_exhausted` mark one-time nodes; dialogue emits commands, never mutates state.
 ```
+
+**As implemented (M4).** A node's line is inline `text` until localization arrives (the `text_key` above is its later form). A node has replies (`choices`) or goes on through `next`, never both; `once` with `next_if_exhausted` is built. Conditions: `visited` (`node`, optionally `not`), `world_state` (`flag_ref`, `min`, `max`; flags in the speaker's cell), `has_item` (`item_ref`, `count`, `quality_min`, optionally `not`), `relationship` (`npc_ref`, `dimension`, `min`, `max`), `skill` (`skill_ref`, `min`) and `level` (`min`). Consequences: `transfer_item` (`item_ref`, `count`, `to: player|npc`; at most one a reply), `give_recipe` (`recipe_ref`), `set_world_flag` (`flag_ref`, `value`), `record_relationship_event` (`npc_ref`, `dimension`, `delta`, `event`) and `open_service` (`service`, offered by a participant). M5 adds the condition `quest_state` (`quest_ref`, optionally `objective`, `is`, optionally `not`) and the consequence `start_quest` (`quest_ref`). M6 lets `visited` name a line of another conversation (`dialogue_ref`): Sel knows whether Tavar has been spoken to. M6 also builds the condition `companion_present` (`npc_ref`, optionally `order: follow|wait`, optionally `not`) and two consequences outside §4.12's list, which arrive with companions: `recruit_companion` (the speaker joins the character, following) and `order_companion` (`order`: the speaker, a companion, follows or waits). The lint requires the speaker of either to be able to join. The SOC001 lint refuses anything else, a way to a node that is not there, and a loop of spent lines.
 
 ### 4.13 FactionDefinition — `kind: faction`
 
@@ -567,6 +601,8 @@ once_per_source: true
 
 An elite table (`loot.undead.barrow_wight.rare`) adds `guaranteed:` with a **quest-state-gated** quest item, so the artifact fragment cannot be farmed before the chain reaches it.
 
+**As implemented (M3b).** An entry with `weight` joins the weighted draw made `rolls` times; an entry with `chance` (in (0, 1]) rolls on its own, which is how a wolf drops meat 70%, hide 45% and fang 15% independently; `guaranteed` entries always resolve. A table is rolled from a source keyed by `(seed, cell, "loot", source key)`, so the same source always gives the same result. Conditions and currency ranges arrive with the content that needs them.
+
 ### 4.15 MerchantProfile — `kind: merchant` (referenced by `npc.*`)
 
 ```yaml
@@ -587,6 +623,10 @@ trade_skill_effect: 0.02
 repair_service: false
 # note: Rural pricing: sells metal dear, buys weapons cheap — deliberately worse than the city so travel has economic value.
 ```
+
+Phase 1 (M3b) matches `buys_tags` against the item's `category`; the tag vocabulary arrives later. A merchant buys at `config.economy`'s `sell_ratio` of `value_base` and sells at `value_base × price_bias`.
+
+**As implemented (M4).** A profile is opened by the NPC that names it (`merchant_ref`); Phase 1's is `merchant.ashen_hollow.kera_voss` (M3b's `merchant.smith_orren`, renamed before any save could name it). Its `stock` is the trader's wares at the start; what the trader buys joins them, asking `value_base` for anything they did not stock. `restock_min`, `gold_reserve` and `trade_skill_effect` are not built.
 
 ### 4.16 NodeDefinition — `kind: node`
 
@@ -617,6 +657,8 @@ tool_tier_min: 1
 placement: { biomes: [rocky_slope], density: 0.15, cluster: [1, 1] }
 ```
 
+**As implemented (M3f).** A node names its `resource_ref`, its `charges`, `respawn` (`none`, or `daily` with exactly one charge), the `harvest_skill` a harvest trains and the `difficulty` it trains it at. There are no tools in Phase 1, so `tool_tier_min` is refused (CRF001), and `placement` is not built: Phase 1's nodes are authored, each at its place in its region's `nodes` list (`name`, `node_ref`, `position_m`, lint WLD010). An authored node is part of its cell's baseline (the generator's fixed nodes), so a harvest is an ordinary node record; a region's `stations` list (`key`, `kind`, `position_m`, lint WLD011) places the crafting stations. A skill passive on `stat.gather_yield` (`op: add`) adds to every harvest of a node that trains that skill: survival's +1 at level 3. `node.ore.iron_seam` (3 charges, never refills) and `node.wood.ash_stand` (one haft a world day) are the two respawn classes of `PROTOTYPE.md` C12.
+
 ### 4.17 SpawnDefinition — `kind: spawn`
 
 A spawner: *what* appears, *where*, *how many*, and *how often*. Owned by S-31.
@@ -634,6 +676,10 @@ tier_hint: B                      # preferred simulation tier when unobserved (D
 # note: respawn windows are content, and content that feeds a persisted derived value must be
 # treated as baseline-locked — see PERSISTENCE.md §6.1 and RK-11.
 ```
+
+**As implemented (M3c).** A spawner names its `region_ref`, a place (`at: { position_m: [x, z], radius_m }`) and `creatures: [{ creature_ref, count: [n, n] }]`; a fixed count is placed when a world starts, each creature where it fits, from rolls keyed by its spawner and index. `respawn`, population state and its persistence are M3d's.
+
+**As implemented (M3d).** Each `creatures` entry may give a `role` (a key of `config.creature_behaviour`'s `roles`); `route_m: [[x, z], ...]` is the route a patrolling role walks. `respawn: { kind: none }` or `{ kind: timer, window_ticks }`: a timer brings a dead member back once the window has passed and the player is past the leash from home, doubled while the cluster is AG-3-saturated. A member that differs from its baseline is saved as a creature record (`PERSISTENCE.md` §5.3, schema 8).
 
 ### 4.18 LocationDefinition — `kind: location`
 
@@ -663,10 +709,10 @@ ticks_per_second: 20              # the fixed domain tick (SYSTEMS.md §1)
 seconds_per_game_minute: 2.0      # 1 game minute = 2 real seconds
 game_minutes_per_hour: 60
 game_hours_per_day: 24
-# => one game day = 2880 game minutes = 5760 real seconds = 96 real minutes at 1x.
-# A player who plays a 40-minute prototype session therefore experiences ~10 game hours,
+# => one game day = 1440 game minutes = 2880 real seconds = 48 real minutes at 1x (57600 ticks).
+# A player who plays a 40-minute prototype session therefore experiences ~20 game hours,
 # which is why PROTOTYPE C12's "refill after one in-game day" needs the rest/wait
-# fast-forward in config.rest below rather than 96 real minutes of waiting.
+# fast-forward in config.rest below rather than 48 real minutes of waiting.
 ```
 
 ```yaml
@@ -691,11 +737,21 @@ total_to_level_50_expected: 2448025
 
 ```yaml
 id: config.level_cap
-soft_cap: 50                      # PROGRESSION.md §3.2; mastery tiers continue past it
+soft_cap: 50                      # PROGRESSION.md §3.2; designated masteries continue past it (§8)
 level_cap_phase1: 5               # PROTOTYPE.md; a prototype artifact, not the game's cap
 ```
 
 
+
+`config.companion` (M6) holds how companions behave: `follow_near_m`, `run_beyond_m`, `sprint_beyond_m` and `catch_up_beyond_m` (nested, in that order), `snag_s` (no headway for this long and they catch up; `PROTOTYPE.md` C16 allows 15 s), `trail_step_m` and `trail_marks` (the character's trail they follow), `fight_radius_m` and `leash_m` (what they fight while following), `guard_radius_m` (while waiting), `attack_pause_s`, `revive_window_s` and `revive_percent` (downed, and helped up), `regen_delay_s` and `regen_per_s`.
+
+`config.crafting` (M3f) holds how crafting decides quality: `quality` (`fine_percent_at_complexity`, `fine_percent_per_point`, `fine_percent_max`, `crude_percent_per_point`, `crude_percent_max`, `weapon_damage_per_step`). A crafted output starts at its weakest input's quality (crude -1, standard 0, fine +1) and moves at most one step: up with the fine chance (at the recipe's complexity, plus a slope per point of skill past it), down with the crude chance (a slope per point of complexity past the skill). A weapon's quality adds its step to both ends of its damage. Quality is stored on each stack, never on the definition.
+
+`config.magic` (M3e) holds the tuning of casting: `focus` (`regen_per_s`, `regen_delay_s`), `strain` (`recovery_per_s`, `recovery_delay_s`, `strained_percent`, `backlash_per_point`), `skill` (`strain_percent_per_point`, `min_strain_percent`, `fizzle_percent_per_point`), `resonance` (`reference`, `damage_percent_per_point`) and `casting` (`recovery_s`).
+
+`config.creature_behaviour` (M3d) holds how creatures perceive and behave: `awareness` (the suspicious level, sight gain at range and close, decay, what a heard noise and a call set, the search time), `noise_m` (how far a walk, run, sprint, swing, blow and call carry), `corpse` (`decay_s`, `stack_slots`), and the `roles` - each an `unaware` behaviour (`hold`, `wander`, `patrol`, `sleep`) with optional `territory_m`, `wander_m`, `calls_for_help`, `answers_calls`, `keep_distance_m`, `strike_within_m`, `flee_below_percent`, `sleep_hearing_percent`, `flank_m` and `pounce_on_noise`.
+
+`config.damage_constants` (M3c) holds the combat tuning: armor `k`, the share of armor a pierce ignores, criticals, region weights and multipliers, stagger threshold and immunity, the guard, the dodge, stamina costs and regeneration, health regeneration out of combat, the split of a swing into windup, active window and recovery, ranged range, bare hands, a creature's leash, and the effect a death applies.
 
 ### 4.20 AffixDefinition — `kind: affix` (supports §4.2's `affix_pool`)
 
@@ -710,6 +766,36 @@ weight: 100
 modifiers:
   - { target: stat.crit_chance, op: add, value: 0.04 }
 # note: Cheap, common, legible: the first affix a player ever sees should be understandable in one line.
+```
+
+### 4.21 SkillDefinition — `kind: skill`
+
+A discipline of `AX-SKL` (`PROGRESSION.md` §4.2): weapon families, magic domains, crafting, gathering, world and social skills are all this one kind. Skill IDs are flat (`skill.<name>`, file `content/skills/<name>.yaml`) so a discipline never changes ID when families are reorganised.
+
+```yaml
+id: skill.one_hand_blade
+family: combat                # combat|magic|crafting|gathering|world|social
+display_key: skill.one_hand_blade.name
+# also: use_xp_multiplier? (default 1.0; per-discipline pacing) | passives?: [{at, modifiers}] (from M3c: the blade's
+#       stagger at 3; M3f adds athletics and survival)
+# note: Competence only. What the character can attempt at all is AX-TEC (abilities, spells, recipes).
+```
+
+**As implemented (M3e).** The magic domains are skills of `family: magic`: `skill.force`, `skill.warding` and `skill.vital`. A formula's domain skill against its complexity sets its Strain and its chance to fizzle.
+
+**As implemented (M3f).** `skill.smithing` (`family: crafting`) is the one crafting skill; a recipe's complexity is its difficulty. Harvests train `skill.survival`, whose passive adds a yield at level 3 (`stat.gather_yield`).
+
+The progression constants live in one config group, alongside `config.time`, `config.xp_curve` and `config.level_cap` (§4.19):
+
+```yaml
+id: config.progression
+attribute_base: 10                # every attribute starts here; allocation adds to it
+attribute_points_per_level: 1     # the only thing a level-up grants (PROGRESSION.md §3.1)
+skill_difficulty_margin: 15       # use grants skill XP only when difficulty > skill - 15
+skill_common_ceiling: 60          # designated masteries (M12) continue to 100
+xp_debt_fraction: 0.10            # AG-8, of the current level's XP span
+# also: derived-pool coefficients (Health/Stamina/Focus maxima, Resonance, Strain tolerance) | the AG-1..AG-3
+#       tables | skill XP curve | novelty bonus | the default starting package (attributes, skills, techniques)
 ```
 
 ---
@@ -730,6 +816,13 @@ modifiers:
 | `species_ref` | `species` (declared in `content/species/`) | `schedule_ref` | `schedule` (declared in `content/schedules/`) |
 | `region_ref` | `region` (declared in `content/regions/`) | `anchor_ref` | `anchor` (declared in `content/anchors/`) |
 | `set_ref` | `set` (declared in `content/sets/`) | `merchant_ref` | `merchant` (declared in `content/merchants/`) |
+| `skill_ref` | `skill` (§4.21; added when `skill` joined the kind table, M2c) | | |
+
+**How the validator finds references (pre-M3b hardening).** It walks every definition to any depth, through maps and lists. A field whose name ends in one of the patterns above is a reference, so a role prefix works: `parent_quest_ref` is a quest. A `*_refs` field is a list of them. A `*_ref` field matching no pattern is an error, because its target kind is unknown: name it by the pattern or add a row here. Four §4 fields predate the convention and are treated as references by name: `loot_table` (loot), `attack_set` and `moveset` (ability), and `affix_pool` (affix). A reward or grant entry, `{ kind: <reward kind>, ref: <id> }` (§4.1 `use.grants`, §4.11), resolves `ref` against the reward kind's target, and a kind outside §4.11's closed list is an error. Content names current IDs: an ID that exists only as an alias is dangling, and the error names the current ID. Codes: `XREF002` wrong kind, `XREF003` dangling, `XREF004` unknown or malformed reference field, `XREF005` unknown reward kind. Each error carries file and line.
+
+**Reserved mod namespace.** `<kind>.mod.<package_namespace>.*`, for every kind in §1 (`item.mod.*`, `item.weapon.mod.*`, `creature.mod.*`), belongs to mods (`MODDING_COMMUNITY_SERVERS_FEDERATION_AND_PVP_SEAMS.md`). Core content may not use a `mod` segment directly after its kind prefix (`MOD001`). There is no mod loader.
+
+**Phase-1 semantics.** The item, weapon, armor and creature schemas (§4.1-§4.4) are checked for their required fields, closed enums and ranges (`SEM001` missing, `SEM002` not in the closed set, `SEM003` out of range). Each later schema gains its checks in the milestone that first authors it.
 
 **Validation pass (mandatory at startup and in CI).** Envelope completeness; ID grammar and file/stem/prefix agreement; duplicate IDs (hard error naming both files); kind-target match on every reference; dangling references (hard error with file and line, D-03); alias chains resolve in one hop with no cycles and no target in `removed`; tags exist in `_tags.yaml`; enum membership in closed sets; **closed-vocabulary compliance** for objective `type`, dialogue condition/consequence and spell/ability payload types (D-07); range sanity (`min <= max`, weights > 0); **quest reachability** (every objective reachable from `entry_objective`, every `next`/`on_fail` target exists, at least one terminal objective); reward-kind legality; NPC anchor and schedule integrity; loot-table recursion; and a warning when a category exceeds its phase content budget.
 
@@ -744,8 +837,8 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 | Axis | Where | Meaning | Mismatch behaviour |
 |---|---|---|---|
 | Definition `schema:` | `schema:` in every definition | Shape of the one YAML/C# record | Loader rejects the file: a content bug, not a save bug |
-| `content_version` / `content_hash` | save manifest + compiled cache | Which content the baseline used | Alias/tombstone pass; **tuning** changes additionally require migration (`PERSISTENCE.md` §5.5) |
-| `worldgen_version` / `worldgen_digest` | save manifest | Which **generation code and placement data** the baseline came from | **Refuse, or offer the localized-full-serialization fallback.** Never apply a delta to a different baseline |
+| `content_version` / `content_hash` | save manifest + compiled cache | Which exact content pack wrote the save. **Not a generation input** (M2b) | Definition-ID pass; **tuning** changes additionally require migration (`PERSISTENCE.md` §5.5) |
+| `worldgen_version` / `worldgen_fingerprint` / `rng_contract_version`, and per-cell `baseline_hash` | save manifest; `baseline_hash` with every changed cell | Which **generation contract and placement data** the baseline came from, and exactly which baseline each changed cell was made against | Per changed cell: equal hash applies the delta; a different hash needs a registered transition or **refuses**. Never apply a delta to a different baseline (`PERSISTENCE.md` §6.4) |
 | `schema_version` | save manifest | Shape of **persisted** state | Migration chain, one version per step. A `save_format` mismatch refuses; a corrupt section is quarantined and loaded without (`PERSISTENCE.md` §7.2) |
 
 **There is no field named `save_version`.** The persisted-state axis is `schema_version`; `save_format` is the *container* layout and is a different field with a different failure mode. An earlier revision of this document used `save_version` and `content_version` for the same concepts (`PERSISTENCE.md` §6.1 records the reconciliation).
@@ -757,9 +850,9 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 1. **Additive changes with a default are migration-free** — add the field, document the default, keep the same `schema_version`.
 2. **Structural changes require an ordered, pure, testable migration step** (rename, split, merge, type change, meaning change). Every shipped version needs a fixture save exercised by `Migrate(from, to)`.
 3. **Deleting content is never a silent drop** (D-05): either map forward in `_aliases.yaml` or record the loss explicitly in the migration with a player-facing recovery action.
-4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently.
-5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on `(seed, content_version)`. Changing world-generation code or `placement` data requires a content-version bump, and a bump with an existing save requires a migration or an explicit player-facing warning that a region regenerates — `RK-01` (D-05).
-6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (temp + rename) with at least one rolling backup, and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
+4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently. (As implemented, M2b supports remap (`removed: old: new`) and an explicit, reported destroy (`removed: old: ~`). Relic conversion arrives with item instance records that carry rolled properties.)
+5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on the baseline tuple: the world seed and the generator contract, including its placement data. Changing generation code or `placement` data changes the baseline hash of every cell it affects. A save with changed cells there needs a registered transition (`PERSISTENCE.md` §6.4), or it refuses to load - never a silent regeneration (`RK-01`, D-05). A runtime-only content change (a creature's stats, an item's price) is not a generation input and moves no baseline.
+6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (staging + rename + verify) with two backup generations (`PERSISTENCE.md` §7.3), and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
 
 ---
 

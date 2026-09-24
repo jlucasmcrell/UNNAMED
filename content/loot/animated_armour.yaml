@@ -1,0 +1,9 @@
+id: loot.animated_armour
+kind: loot
+schema: 1
+display_key: loot.animated_armour.name
+tags: [loot]
+notes: What falls out of a still armour - sometimes a usable bar of iron.
+rolls: 0
+entries:
+  - { item_ref: item.material.iron_ingot, chance: 0.5, count_range: [1, 1] }

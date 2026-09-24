@@ -1,43 +1,13 @@
-# UNNAMED Content Fixtures
+# Game content
 
-Valid content fixtures for testing the content validation tool.
+The content pack the game boots from (D-03). One definition per file; the directories and kinds are the closed
+table in `docs/DATA_MODEL.md` §1, and `PROTOTYPE.md` §4 lists exactly what Phase 1 contains.
 
-## Directory Structure
-
-Per DATA_MODEL.md section 1.1, these directories map one-to-one with content kinds:
+Lint it before committing (from the repository root):
 
 ```
-content/
-  items/          - item.weapon, item.armor, item etc.
-  creatures/      - creature
-  npcs/           - npc
-  spells/         - spell
-  abilities/      - ability, skill, class, mastery
-  effects/        - status_effect
-  recipes/        - recipe
-  resources/      - resource
-  quests/         - quest
-  dialogue/       - dialogue
-  dialogue_branches/ - dialogue_branch
-  factions/       - faction
-  loot_tables/    - loot_table
-  config/         - _aliases.yaml, _tags.yaml (meta files)
+dotnet build src/Content -c Release
+dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content --verbose
 ```
 
-## Content Files
-
-Each file defines ONE content definition. YAML anchors and multi-document files are disallowed.
-
-### Example Files (to be added)
-- items/weapon/iron_sword.yaml
-- creatures/beast/wolf_grey.yaml
-- spells/elf.Fireball.yaml
-- ... etc
-
-## Invalid Fixtures (for testing errors)
-
-See `tests/fixture-invalid/` for deliberately broken files:
-
-1. **malformed-schema.yaml** - YAML syntax error or missing required fields
-2. **duplicate-id.yaml** - Same definition ID as another file
-3. **dangling-reference.yaml** - References non-existent definition ID
+A pack that does not lint does not boot. Test fixtures live under `tests/`, never here.

@@ -1,0 +1,20 @@
+id: config.base_speeds
+kind: config
+schema: 1
+display_key: config.base_speeds.name
+tags: [config]
+notes: Movement tuning (PROTOTYPE.md §4.4). Placeholder values until playtest.
+base_m_s: 3.2            # PROTOTYPE.md §3: about 90 s to walk the 283 m diagonal of the hollow
+walk_percent: 50         # the walk toggle
+sprint_percent: 160      # spends stamina (config.damage_constants); an empty pool runs
+body_radius_m: 0.35      # the body's footprint for collision
+interact_reach_m: 1.6    # measured from the body, never from the camera (CAMERA_PERSPECTIVE_AND_PRESENTATION.md §6)
+# The jump and the crouch (the owner's M6 playtest), tuned on the hollow's own geometry (JumpAndCrouchTests): from a run, a
+# jump clears the fallen timber (0.8 m tall, 0.8 m through) over a window of take-offs, and it never clears anything as tall
+# as the smithy fence (1.2 m) - nor the cart, a wall, a door or the fold. Nothing is stood on.
+jump_apex_m: 1.15        # how high the feet go: under the fence's 1.2 m
+jump_rise_s: 0.42        # to the top of the arc; the fall takes as long
+jump_tuck_radius_m: 0.2  # in the air, a structure lower than the apex meets the tucked legs, not the shoulders
+stand_height_m: 1.8      # what an overhang is measured against
+crouch_height_m: 1.15
+crouch_percent: 50       # of base_m_s, whatever the gait

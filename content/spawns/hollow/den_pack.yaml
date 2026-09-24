@@ -1,0 +1,15 @@
+id: spawn.hollow.den_pack
+kind: spawn
+schema: 1
+display_key: spawn.hollow.den_pack.name
+tags: [spawn]
+notes: PROTOTYPE.md §4.1's den pack of four (§5 step 7) - a guardian at the mouth that howls, two hunters that answer, and one asleep further in. They do not return.
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.wolf_grey, count: [1, 1], role: den_guardian }
+  - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: pack_hunter }
+  - { creature_ref: creature.beast.wolf_grey, count: [1, 1], role: sleeper }
+at: { position_m: [112, 184], radius_m: 2.5 }
+level_band: [2, 2]
+respawn: { kind: none }
+tier_hint: A

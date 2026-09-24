@@ -1,0 +1,50 @@
+id: quest.ashen_hollow.three_quiet_stones
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.three_quiet_stones.name
+tags: [quest]
+notes: Quest 2 of the content bible (§16), Sel's. No objective asks for a fight - the spider holds the convenient way to the south-east stone, not the objective - and nothing assumes an order the fiction does not need (bible §32) - stones turned before the quest count, and so does a Tavar already freed (Sel's tavar_back line starts and completes it). The stones and the heart are switches (M6) whose flags live in the Foldscar's cell.
+title: The Three Quiet Stones
+summary: Sel Arien's guide, Tavar Orr, is caught in the Foldscar - there to be seen, and half a breath out of step with everything. The Quiet Stones around it were turned out of line.
+giver_ref: npc.ashen_hollow.sel_arien
+entry_objective: o_learn
+objectives:
+  - id: o_learn
+    type: talk_to
+    description: Learn what happened to Tavar.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, nodes: [tavar, tavar_back] }
+    next: [o_reach]
+  - id: o_reach
+    type: visit_location
+    description: Reach the Foldscar, south-east of the waystation.
+    params: { location_ref: location.foldscar }
+    next: [o_north, o_southwest, o_southeast]
+  - id: o_north
+    type: world_state
+    description: Turn the north Quiet Stone into line.
+    params: { flag_ref: world.foldscar.stone_north_aligned, location_ref: location.foldscar, value: 1 }
+    next: [o_steady]
+  - id: o_southwest
+    type: world_state
+    description: Turn the south-west Quiet Stone into line.
+    params: { flag_ref: world.foldscar.stone_southwest_aligned, location_ref: location.foldscar, value: 1 }
+    next: [o_steady]
+  - id: o_southeast
+    type: world_state
+    description: Turn the south-east Quiet Stone into line.
+    params: { flag_ref: world.foldscar.stone_southeast_aligned, location_ref: location.foldscar, value: 1 }
+    next: [o_steady]
+  - id: o_steady
+    type: world_state
+    description: Steady the heart of the Foldscar.
+    params: { flag_ref: world.foldscar.steadied, location_ref: location.foldscar, value: 1 }
+    all_of: [o_north, o_southwest, o_southeast]
+    next: [o_tavar]
+  - id: o_tavar
+    type: talk_to
+    description: Speak to Tavar.
+    params: { npc_ref: npc.ashen_hollow.tavar_orr, nodes: [greet] }
+# Modest progression and Sel's trust (bible §16 names no reward; Tavar himself is the point).
+rewards:
+  - { kind: xp, amount: 150 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, amount: 10 }

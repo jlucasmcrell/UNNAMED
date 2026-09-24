@@ -30,6 +30,12 @@ UNIT_HINT_MAP = {
     "creature": 1.8,
     "character": 1.8,
     "building": 4.0,
+    # Modular components are sized ABSOLUTELY by their socket definition at the modular
+    # stage, so these defaults are only a first-pass guess for the raw mesh. A real value
+    # comes from nominal_size_m; anything here is overwritten before the production GLB.
+    "weapon_component": 0.30,
+    "armour": 0.40,
+    "magic_component": 0.10,
 }
 
 

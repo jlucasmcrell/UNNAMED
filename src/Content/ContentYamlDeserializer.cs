@@ -180,7 +180,6 @@ public static class ContentYamlDeserializer
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: ContentLoadException in Deserialize: {ex.Message}");
             throw new ContentLoadException($"YAML parsing error in {sourceFile}: {ex.Message}", sourceFile, GetLineNumberFromException(ex), ex)
             {
                 FilePath = sourceFile,
@@ -276,7 +275,6 @@ public static class ContentYamlDeserializer
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: ContentLoadException in Deserialize<T>: {ex.Message}");
             throw new ContentLoadException($"YAML parsing error in {sourceFile}: {ex.Message}", sourceFile, GetLineNumberFromException(ex), ex)
             {
                 FilePath = sourceFile,

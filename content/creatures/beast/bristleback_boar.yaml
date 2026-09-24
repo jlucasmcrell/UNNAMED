@@ -1,0 +1,21 @@
+id: creature.beast.bristleback_boar
+kind: creature
+schema: 1
+display_key: creature.beast.bristleback_boar.name
+tags: [creature, beast]
+name: Bristleback Boar
+notes: Charging brute (content bible §10 - lateral movement and terrain). It lowers its head, then runs straight and cannot turn - step aside, or put a rock in its way and it stuns itself. It defends its wallow and ignores those who leave it be.
+family: beast
+archetype: prey
+level_band: [4, 4]
+pools: { health: 70 }
+attack_set: [ability.creature.boar_gore, ability.creature.boar_charge]
+armor: { head: 4, torso: 8, limbs: 3 }   # bristles
+move_speed_m_s: 4.0
+turn_deg_s: 240   # quick in a line, slow to turn
+body_radius_m: 0.55
+xp_value: 45
+loot_table: loot.bristleback_boar
+perception: { sight_m: 20, hearing_m: 25, fov_deg: 150 }
+tier_hint: A
+tameable: false

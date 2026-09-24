@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    { "name": "iron_vein", "def_id": "resource.ore.iron_vein", "min_per_cell": 2, "max_per_cell": 4 },
+    { "name": "silverleaf", "def_id": "resource.herb.silverleaf", "min_per_cell": 0, "max_per_cell": 3 }
+  ],
+  "populations": [
+    { "name": "wolves", "family_def_id": "creature.beast.wolf_grey", "target": 5, "min": 2, "max": 7 },
+    { "name": "deer", "family_def_id": "creature.beast.deer", "target": 3, "min": 1, "max": 4 }
+  ],
+  "terrain": { "base_height_mm": 12000, "amplitude_mm": 800, "samples_per_axis": 11 }
+}

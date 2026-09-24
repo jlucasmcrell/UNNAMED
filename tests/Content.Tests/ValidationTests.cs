@@ -438,6 +438,22 @@ public class ContentYamlDeserializerTests
     }
 }
 
+internal static class RepoPaths
+{
+    /// <summary>The repository root, found from the test binaries so no machine-specific path is baked in.</summary>
+    public static string Root()
+    {
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "src", "UNNAMED.sln")))
+                return dir.FullName;
+        }
+        throw new DirectoryNotFoundException("Repository root (src/UNNAMED.sln) not found above " + AppContext.BaseDirectory);
+    }
+
+    public static string InvalidFixture => Path.Combine(Root(), "tests", "fixtures", "fixture-invalid");
+}
+
 public class ContentLoaderXrefValidationTests
 {
     [Fact]
@@ -445,18 +461,12 @@ public class ContentLoaderXrefValidationTests
     {
         // Arrange
         var loader = new ContentLoader();
-        string testPath = @"G:\UNNAMED\tests\fixtures\fixture-invalid";
-        
+        string testPath = RepoPaths.InvalidFixture;
+
         // Act
         bool success = loader.LoadAll(testPath);
         var summary = loader.GetSummary();
-        
-        // Debug: Print what was loaded
-        foreach (var kvp in loader.Definitions)
-        {
-            Console.WriteLine($"DEBUG: Loaded id={kvp.Key}, kind={kvp.Value.Kind}, source={kvp.Value.SourceFile}");
-        }
-        
+
         // Assert - validation should fail due to dangling references
         Assert.False(success);
         Assert.True(summary.HasErrors);
@@ -474,12 +484,12 @@ public class ContentLoaderXrefValidationTests
     {
         // Arrange
         var loader = new ContentLoader();
-        string testPath = @"G:\UNNAMED\tests\fixtures\fixture-invalid";
-        
+        string testPath = RepoPaths.InvalidFixture;
+
         // Act
         bool success = loader.LoadAll(testPath);
         var summary = loader.GetSummary();
-        
+
         // Assert - validation should fail due to duplicate IDs
         Assert.True(summary.HasErrors);
         
@@ -497,12 +507,108 @@ public class ContentLoaderTests
     [Fact]
     public void LoadAll_Loads_Yaml_Files()
     {
-        // Arrange
         var loader = new ContentLoader();
-        
-        // Act
-        
-        // Assert
-        
+
+        bool success = loader.LoadAll(Path.Combine(RepoPaths.Root(), "content"));
+
+        Assert.True(success, string.Join("\n", loader.Errors));
+        Assert.Empty(loader.Errors);
+        Assert.Equal(
+            new[]
+            {
+                "ability.creature.armour_slam", "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.hound_lunge",
+                "ability.creature.husk_slash", "ability.creature.spider_bite", "ability.creature.wolf_bite",
+                "config.base_speeds", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants", "config.economy", "config.inventory",
+                "config.level_cap", "config.magic", "config.progression", "config.simulation_tiers", "config.time", "config.xp_curve",
+                "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.cave_hunting_spider", "creature.beast.wolf_grey",
+                "creature.construct.animated_armour", "creature.undead.bone_walker_husk",
+                "dialogue.ashen_hollow.kera_voss", "dialogue.ashen_hollow.renn_vale", "dialogue.ashen_hollow.sel_arien", "dialogue.ashen_hollow.tavar_orr",
+                "effect.bleeding", "effect.braced", "effect.mending", "effect.venom", "effect.weakened",
+                "item.ammo.arrow_rough", "item.armor.hide_cap", "item.armor.hide_vest", "item.consumable.salve_minor",
+                "item.material.ash_haft", "item.material.herb_ashbloom", "item.material.iron_ingot", "item.material.iron_ore", "item.material.raw_meat",
+                "item.material.wolf_hide", "item.quest.halda_token", "item.tome.resonance_primer", "item.tool.water_flask",
+                "item.trinket.wolf_fang", "item.weapon.hunting_bow", "item.weapon.march_spear", "item.weapon.rusted_sword",
+                "location.blackvein_cut", "location.den_mouth", "location.foldscar", "location.herb_patch", "location.outpost", "location.ruined_cart",
+                "loot.animated_armour", "loot.bristleback_boar", "loot.den_cache", "loot.merchant_cart", "loot.waystation_chest", "loot.wolf_grey",
+                "merchant.ashen_hollow.kera_voss",
+                "node.ore.iron_seam", "node.wood.ash_stand",
+                "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
+                "quest.ashen_hollow.iron_under_ash", "quest.ashen_hollow.three_quiet_stones",
+                "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
+                "region.ashen_hollow", "resource.ore.iron", "resource.wood.ash",
+                "skill.athletics", "skill.force", "skill.one_hand_blade", "skill.smithing", "skill.survival", "skill.vital", "skill.warding",
+                "spawn.hollow.boar_wallow", "spawn.hollow.charwood_hound", "spawn.hollow.den_pack", "spawn.hollow.east_pack", "spawn.hollow.iron_shelf_armour",
+                "spawn.hollow.iron_shelf_husk", "spawn.hollow.spider_lair", "spawn.hollow.valley_strays",
+                "spell.force.impulse_bolt", "spell.vital.mending_thread", "spell.warding.brace_ward",
+                "world.foldscar.steadied", "world.foldscar.stone_north_aligned", "world.foldscar.stone_southeast_aligned", "world.foldscar.stone_southwest_aligned",
+                "world.hollow.forge_shed_door_open", "world.hollow.longhouse_door_open",
+            },
+            loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
+
+    [Fact]
+    public void LoadAll_ReportsAMalformedFile_InsteadOfSkippingIt()
+    {
+        // M1b printed a DEBUG line and dropped the file, so validation "passed" without it.
+        var loader = new ContentLoader();
+
+        loader.LoadAll(RepoPaths.InvalidFixture);
+
+        Assert.Contains(loader.Errors, e => e.Code == "LOAD003" && e.FilePath.EndsWith("malformed-schema.yaml", StringComparison.Ordinal));
+    }
+}
+
+public class AliasFileTests : IDisposable
+{
+    private readonly string _root = Path.Combine(Path.GetTempPath(), "unnamed-aliases-" + Guid.NewGuid().ToString("N"));
+
+    public AliasFileTests()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "items", "weapon"));
+        Directory.CreateDirectory(Path.Combine(_root, "skills"));
+        File.WriteAllText(Path.Combine(_root, "items", "weapon", "iron_sword.yaml"),
+            "id: item.weapon.iron_sword\nkind: item.weapon\nschema: 1\ndisplay_key: item.weapon.iron_sword.name\ntags: [weapon]\n" +
+            "category: weapon\nstack_max: 1\nweight: 3.2\nvalue_base: 90\nrarity: common\ndamage: [7, 11]\n" +
+            "damage_type: physical_slash\nhands: one\nattack_speed: 1.2\nreach: 1.9\nskill_ref: skill.one_hand_blade\n");
+        File.WriteAllText(Path.Combine(_root, "skills", "one_hand_blade.yaml"),
+            "id: skill.one_hand_blade\nkind: skill\nschema: 1\ndisplay_key: skill.one_hand_blade.name\ntags: [skill]\nfamily: combat\n");
+    }
+
+    public void Dispose() => Directory.Delete(_root, recursive: true);
+
+    private ContentLoader Load(string aliases)
+    {
+        File.WriteAllText(Path.Combine(_root, "_aliases.yaml"), aliases);
+        var loader = new ContentLoader();
+        loader.LoadAll(_root);
+        return loader;
+    }
+
+    [Fact]
+    public void Aliases_Removals_AndDiscards_AreRead_CommentsAndAll()
+    {
+        var loader = Load(
+            "aliases:                        # renamed IDs, kept forever\n" +
+            "  item.weapon.ironsword: item.weapon.iron_sword   # typo fix\n" +
+            "removed:\n" +
+            "  item.weapon.bronze_sword: item.weapon.iron_sword\n" +
+            "  item.weapon.wooden_sword: ~\n");
+
+        Assert.Empty(loader.Errors);
+        Assert.Equal("item.weapon.iron_sword", loader.Aliases["item.weapon.ironsword"]);
+        Assert.Equal("item.weapon.iron_sword", loader.Removed["item.weapon.bronze_sword"]);
+        Assert.Equal(new[] { "item.weapon.wooden_sword" }, loader.Discarded);
+    }
+
+    [Fact]
+    public void AReplacementThatDoesNotExist_IsAnError() =>
+        Assert.Contains(Load("removed:\n  item.weapon.bronze_sword: item.weapon.steel_sword\n").Errors, e => e.Code == "ALIAS003");
+
+    [Fact]
+    public void ARenamedIdThatIsStillDefined_IsAnError() =>
+        Assert.Contains(Load("aliases:\n  item.weapon.iron_sword: item.weapon.iron_sword\n").Errors, e => e.Code == "ALIAS004");
+
+    [Fact]
+    public void AnUnknownSection_IsAnError() =>
+        Assert.Contains(Load("renamed:\n  item.weapon.ironsword: item.weapon.iron_sword\n").Errors, e => e.Code == "ALIAS005");
 }

@@ -1,0 +1,21 @@
+id: config.companion
+kind: config
+schema: 1
+display_key: config.companion.name
+tags: [config]
+notes: How a companion behaves (M6; SYSTEMS.md S-25; PROTOTYPE.md C16) - plain and reliable rather than clever (ROADMAP.md M6). Following, a companion walks the character's trail and keeps close; too far behind, or making no headway, they catch up at once. They fight what is engaged with the character, and only what comes close while waiting. Downed, they wait for a hand; left too long, they fall and come back at the Ashen Waystone.
+follow_near_m: 2.5        # stand still this close to the character
+run_beyond_m: 4           # walk nearer, run farther
+sprint_beyond_m: 8        # and sprint farther than this
+catch_up_beyond_m: 30     # farther than this, catch up at once
+snag_s: 4                 # no headway for this long, catch up (C16: no snag may last 15 s)
+trail_step_m: 1           # a mark on the character's trail every metre
+trail_marks: 48
+fight_radius_m: 10        # fight what is engaged with the character within this of the companion
+leash_m: 16               # and within this of the character
+guard_radius_m: 4         # waiting, fight only what comes this close
+attack_pause_s: 0.6       # a breath between blows
+revive_window_s: 60       # downed this long with no hand, they fall
+revive_percent: 40        # helped up with this share of their health
+regen_delay_s: 10         # out of a fight this long, they mend
+regen_per_s: 2

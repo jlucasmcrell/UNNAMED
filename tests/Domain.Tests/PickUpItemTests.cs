@@ -36,9 +36,9 @@ public class PickUpItemTests : IDisposable
     public void PickUpItem_ItemsMoved_FromContainerToActor()
     {
         // Arrange: Create test data
-        var actorId = EntityId.NewId();
-        var containerId = EntityId.NewId();
-        var itemId = EntityId.NewId();
+        var actorId = EntityId.NewId(EntityKind.Npc);
+        var containerId = EntityId.NewId(EntityKind.Container);
+        var itemId = EntityId.NewId(EntityKind.Item);
         var count = 5;
         var tick = 1;
 
@@ -52,7 +52,7 @@ public class PickUpItemTests : IDisposable
         // Act: Process the command (in M1, this goes through command bus → system)
         // For M1 demonstration, we call the handler directly
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             // For testing, we can pass null for bus since we don't cross-system commands
             _commandBus,
             _eventBus,
@@ -87,9 +87,9 @@ public class PickUpItemTests : IDisposable
     public void PickUpItem_ItemsMoved_PartialQuantity()
     {
         // Arrange: Create test data with partial move
-        var actorId = EntityId.NewId();
-        var containerId = EntityId.NewId();
-        var itemId = EntityId.NewId();
+        var actorId = EntityId.NewId(EntityKind.Npc);
+        var containerId = EntityId.NewId(EntityKind.Container);
+        var itemId = EntityId.NewId(EntityKind.Item);
         var initialCount = 10;
         var pickedUpCount = 3;
         var tick = 1;
@@ -103,7 +103,7 @@ public class PickUpItemTests : IDisposable
 
         // Act: Pick up partial quantity
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,
@@ -129,9 +129,9 @@ public class PickUpItemTests : IDisposable
     public void PickUpItem_NonExistentItem_ThrowsInvalidOperationException()
     {
         // Arrange
-        var actorId = EntityId.NewId();
-        var containerId = EntityId.NewId();
-        var itemId = EntityId.NewId();
+        var actorId = EntityId.NewId(EntityKind.Npc);
+        var containerId = EntityId.NewId(EntityKind.Container);
+        var itemId = EntityId.NewId(EntityKind.Item);
         var tick = 1;
 
         _worldState.Write(actorId, new ItemActorState(Array.Empty<ContainerItemEntry>()));
@@ -139,7 +139,7 @@ public class PickUpItemTests : IDisposable
 
         // Act & Assert
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,
@@ -156,9 +156,9 @@ public class PickUpItemTests : IDisposable
     public void PickUpItem_InsufficientQuantity_ThrowsInvalidOperationException()
     {
         // Arrange
-        var actorId = EntityId.NewId();
-        var containerId = EntityId.NewId();
-        var itemId = EntityId.NewId();
+        var actorId = EntityId.NewId(EntityKind.Npc);
+        var containerId = EntityId.NewId(EntityKind.Container);
+        var itemId = EntityId.NewId(EntityKind.Item);
         var tick = 1;
 
         _worldState.Write(actorId, new ItemActorState(Array.Empty<ContainerItemEntry>()));
@@ -169,7 +169,7 @@ public class PickUpItemTests : IDisposable
 
         // Act & Assert
         var handler = new PickupSystem();
-        handler.Configure(
+        ((ISystem)handler).Configure(
             _commandBus,
             _eventBus,
             _worldState,

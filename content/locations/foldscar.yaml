@@ -1,0 +1,13 @@
+id: location.foldscar
+kind: location
+schema: 1
+display_key: location.foldscar.name
+tags: [location]
+notes: "The Foldscar Ruin's heart - the content bible's Cell D (§8): three Quiet Stones around something that is not quite there."
+name: The Foldscar
+region_ref: region.ashen_hollow
+anchor: { world: [153.0, 0.0, 48.0] }          # exact placement, metres; height comes from the terrain
+kind_of_place: landmark
+discovery: { methods: [visited], radius_m: 30, xp: 25 }
+map: { reveals_radius_m: 60, marker: none }   # no quest markers (charter §3)
+fast_travel: { node: false }

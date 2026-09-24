@@ -1,0 +1,17 @@
+id: item.weapon.march_spear
+kind: item.weapon
+schema: 1
+display_key: item.weapon.march_spear.name
+tags: [item]
+name: March Spear
+notes: The content bible's third weapon family, made by the player at the anvil (§11, §12) - it reaches past a sword and thrusts slower. Its quality is the smith's.
+category: weapon
+stack_max: 1
+weight: 3.5
+value_base: 40
+rarity: common
+damage: [10, 14]
+damage_type: physical_pierce
+attack_speed: 1.0         # one thrust a second
+reach: 2.4
+hands: two

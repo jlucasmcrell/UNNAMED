@@ -1,6 +1,6 @@
 # DECISIONS.md — Architectural Decision Records
 
-**Project:** UNNAMED (working title) — first-person, solo-first, open-world fantasy RPG
+**Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 0 — Vision and Architecture
 **Status:** Draft for owner review
 **Authority:** PROJECT_CHARTER.md is the authoritative creative vision. This file records *how* we implement it and *why*. Where this file and the charter disagree, the charter wins and this file is wrong.
@@ -43,7 +43,7 @@ The **Revisit if** field is load-bearing. It is the only sanctioned trigger for 
 - C# (not GDScript) for gameplay so that systems are statically typed, unit-testable outside the engine, and reviewable by tooling. GDScript is acceptable for editor tooling only.
 
 **Revisit if.** Any of the following becomes true — and only then:
-1. Godot cannot sustain the required first-person frame budget in a 2×2 km vertical slice *after* the streaming and LOD work in `WORLD_ARCHITECTURE.md` is implemented — i.e. we have measured, not guessed.
+1. Godot cannot sustain the required representative player-camera frame budget (the third-person view, the first-person view and camera obstruction) in a 2×2 km vertical slice *after* the streaming and LOD work in `WORLD_ARCHITECTURE.md` is implemented — i.e. we have measured, not guessed. It is not evaluated in Phase 1, where those systems do not exist; Phase 1's performance gate is `RISK_REGISTER.md` `RK-02`'s.
 2. A required subsystem (e.g. large-scale crowd navigation) proves unbuildable in Godot within one milestone of effort and no viable plugin exists.
 3. The project's art direction changes to require rendering fidelity that Godot demonstrably cannot reach.
 
@@ -98,7 +98,7 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 **Decision.** Two strictly separate identity namespaces.
 
 - **Definition IDs** — human-authored, stable, dotted, lowercase, namespaced by kind: `item.weapon.iron_sword`, `creature.beast.wolf_grey`, `quest.artifact.shattered_crown.03`. These live in content files and **never change once shipped** (renaming requires a migration map).
-- **Instance IDs** — generated at runtime as **ULIDs** (lexicographically sortable, collision-resistant, lowercase): `itm_01J8ZC4K9P...`. These identify a *specific* sword, NPC, building, or container in a save.
+- **Instance IDs** — generated at runtime as **ULIDs** (lexicographically sortable, collision-resistant) behind a lowercase kind prefix: `itm_01J8ZC4K9P...`, the ULID in its canonical uppercase Crockford form (`DATA_MODEL.md` §2.2). These identify a *specific* sword, NPC, building, or container in a save.
 
 **Alternatives considered.** Integer handles (fast, compact, but require a central counter that must persist and can collide across save/merge); GUIDv4 (opaque, non-sortable, hostile to debugging and save diffing); raw object references (explicitly forbidden by the charter — "do not serialize fragile raw runtime pointers"); content definition path used as instance identity (breaks the moment two iron swords exist).
 
@@ -117,7 +117,7 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 ## D-05 — Persistence: sparse deltas over a deterministic baseline
 
 **Decision.** A save is **not** a snapshot of the world. It is:
-1. a small **manifest** (save version, content version, seed, playtime, screenshot, checksum),
+1. a small **manifest** (container and schema versions, content identity, seed, generator contract, playtime; `PERSISTENCE.md` §4.2),
 2. **player/companion state** (small, fully serialized),
 3. a **sparse world delta**: only entities and world cells that *differ from their deterministic baseline*.
 
@@ -127,9 +127,16 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Consequences.**
 
-- **Hard requirement:** world generation from `(seed, content_version)` must be **deterministic and version-stable**. This is the single most dangerous constraint in the project. If generation is not stable, deltas apply to a baseline that no longer matches and the world corrupts. Mitigations: generation code is frozen per content version, the seed is recorded in the manifest, and a content-version mismatch triggers migration rather than silent regeneration. Tracked as `RK-01` in `RISK_REGISTER.md`.
+- **Hard requirement:** world generation from the baseline tuple - the seed and the generator contract (`PERSISTENCE.md` §1.3) - must be **deterministic and version-stable**. This is the single most dangerous constraint in the project. If generation is not stable, deltas apply to a baseline that no longer matches and the world corrupts. Tracked as `RK-01` in `RISK_REGISTER.md`.
+- **Amended by M2b (2026-09-23): content identity is not procedural entropy.** M2 found that keying generation on the whole `content_hash` made every content edit move the entire world. Now:
+  - generation reads only its seed and generator contract;
+  - randomness is addressed by semantic key (`WORLD_ARCHITECTURE.md` §3.4);
+  - every changed cell's delta records the `baseline_hash` it was made against, and is applied only to that baseline or through a registered transition;
+  - a computed `worldgen_fingerprint` with pinned canonical probes catches generator drift that nobody versioned.
+
+  So a content-only edit loads with no reshuffle, and a baseline change can never silently corrupt a save (`PERSISTENCE.md` §6.4, `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md`).
 - Deleted/changed definitions between versions must be handled by a migration map, never by silent drops. Required by the charter's save-versioning clause.
-- Save must be written **atomically** (temp file + rename) with at least one rolling backup slot, because corruption recovery is explicitly in scope.
+- Save must be written **atomically** (staging + rename + verify) with rolling backups - two generations, retired on a verified load (`PERSISTENCE.md` §7.3) - because corruption recovery is explicitly in scope.
 
 **Revisit if.** Determinism proves impossible to hold across content versions for some subsystem. The fallback is to promote *that subsystem's* cells to full serialization while keeping deltas elsewhere — a local, contained degradation rather than a redesign.
 
@@ -190,6 +197,22 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Revisit if.** Playtest shows two axes always move together — that is evidence they are one axis and should be merged.
 
+**Amended 2026-09-23 (M2c progression audit, `PROGRESSION_AXIS_RECONCILIATION.md`).** The revisit test was applied on paper before the first progression save schema, as `PROGRESSION.md` required.
+
+- **Merged into skills and techniques:** weapon mastery, magic mastery and professions. Each measured a competence that is now a skill, and a capability that is now a technique. Weapon mastery and weapon-family skills advanced from the same event.
+- **Removed:** abilities/talents as a point-bought axis. By owner ruling, techniques are learned in the world.
+- **The sanctioned axes are now:**
+  - character level (breadth; a level-up grants attribute points only);
+  - attributes (build shape — the allocation of level);
+  - skills & disciplines (competence, including weapon families, magic domains and crafting);
+  - techniques & formulas (capability — known through learning events);
+  - reputation (access only; never hostility);
+  - equipment (immediate power);
+  - companions (party growth).
+- **The verbs are now:** level grants *breadth*, attributes *shape*, skills *competence*, techniques *capability*, reputation *access*.
+- **Specialization** is the mastery band inside skills, not a separate axis.
+- **The non-conversion law is unchanged.** A character still cannot convert one axis into another.
+
 ---
 
 ## D-10 — Entity Registry as the single identity and lookup authority
@@ -236,8 +259,8 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 Only questions where no reasonable default exists are listed. Per `PHASE_0.md`, this list is deliberately short.
 
-1. **Working title and setting temperature.** The charter mandates an original setting but does not fix tone (grim-dark / classic high fantasy / weird-ancient / bronze-age mythic). World *architecture* does not depend on this, but *content* does, and Phase-1 needs *some* flavor text. Default if unanswered: a **melancholic, ancient, low-magic-feeling high fantasy** tuned for "the world is the primary character". Reversible, and cheap to change while content volume is near zero.
-2. **Target platform baseline.** Affects the streaming and LOD budget in `WORLD_ARCHITECTURE.md`, and it is the platform on which `RK-13`'s atomic-save-commit test must be run. Default if unanswered: **Windows desktop, 16 GB RAM, mid-range discrete GPU**, i.e. not a VR or console target in Phase 0–2.
+1. **Working title and setting temperature.** **Title answered (owner, 2026-09-23): Otherreach.** The codename `UNNAMED` remains for the repository, solution and namespaces. The setting-temperature part stays open; the approved setting direction is in `OTHERREACH_COSMOLOGY.md`. The charter mandates an original setting but does not fix tone (grim-dark / classic high fantasy / weird-ancient / bronze-age mythic). World *architecture* does not depend on this, but *content* does, and Phase-1 needs *some* flavor text. Default if unanswered: a **melancholic, ancient, low-magic-feeling high fantasy** tuned for "the world is the primary character". Reversible, and cheap to change while content volume is near zero.
+2. **Target platform baseline.** Affects the streaming and LOD budget in `WORLD_ARCHITECTURE.md`, and it is the platform on which `RK-13`'s atomic-save-commit test must be run. Default if unanswered: **Windows desktop, 16 GB RAM, mid-range discrete GPU**, i.e. not a VR or console target in Phase 0–2. **Answered for Phase 1 (owner ruling, 2026-09-23):** the baseline machine is RAZER's RTX 4070 Ti at 1080p, with a sustained 60 FPS target, measured with OBS, H3 and other significant GPU workloads stopped (`RK-02`).
 3. **Visual fidelity target.** Whether "readable and atmospheric" (Godot-comfortable) is acceptable in place of AAA fidelity. Default if unanswered: readable and atmospheric, per D-01.
 4. **The "while you were away" policy.** Raised by `RK-12` and by `D-06`'s offline catch-up. When a save is loaded after a long absence, world time has advanced and abstract tiers must converge. The *mechanism* is specified (`D-06`); the *policy* is not — how much elapsed time is honoured, whether it is capped, and whether the player is shown a summary of what changed in their absence. Default if unanswered: **honour a bounded catch-up window, clamp all abstract values to their authored `[min, max]`, and present no "while you were away" report in Phase 1–2.** Deferrable until settlement simulation exists (Phase 2+), and reversible at any point before then.
 

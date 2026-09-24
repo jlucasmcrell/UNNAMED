@@ -1,0 +1,14 @@
+id: spawn.hollow.east_pack
+kind: spawn
+schema: 1
+display_key: spawn.hollow.east_pack.name
+tags: [spawn]
+notes: PROTOTYPE.md §4.1's respawning pack - two roamers walking Charwood's north-east tree line (clear of the content bible's acceptance path), back 20 minutes (24000 ticks) after each death, twice that while the cluster is saturated (AG-3).
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: roamer }
+at: { position_m: [188, 180], radius_m: 4 }
+route_m: [[192, 165], [194, 182], [180, 194]]
+level_band: [2, 2]
+respawn: { kind: timer, window_ticks: 24000 }
+tier_hint: A

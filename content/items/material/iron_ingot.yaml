@@ -1,0 +1,12 @@
+id: item.material.iron_ingot
+kind: item
+schema: 1
+display_key: item.material.iron_ingot.name
+tags: [item]
+name: Iron Billet
+notes: The content bible's Iron Billet (§12) - smelted from raw ore at the forge, and found in the den cache and in an animated armour's remains. Feeds the March Spear.
+category: material
+stack_max: 10
+weight: 1.0
+value_base: 20
+rarity: common

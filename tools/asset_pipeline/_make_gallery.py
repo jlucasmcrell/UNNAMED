@@ -30,9 +30,12 @@ CATEGORIES = [
     ("weapon_", "Weapons"),
     ("tool_", "Tools"),
     ("prop_", "Props"),
-    ("icon_", "Icons"),
-    ("item_", "Items"),
+    ("item_", "Items and materials"),
     ("resource_", "Resources"),
+    ("herb_", "Herbs"),
+    ("reagent_", "Reagents"),
+    ("flora_", "Flora"),
+    ("icon_", "Icons"),
 ]
 
 THUMB = 260

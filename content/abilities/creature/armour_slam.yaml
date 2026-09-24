@@ -1,0 +1,15 @@
+id: ability.creature.armour_slam
+kind: ability
+schema: 1
+display_key: ability.creature.armour_slam.name
+tags: [ability]
+name: Gauntlet Slam
+notes: The armour's heavy blow - a full second of windup, and a long recovery to get behind it in.
+class: creature
+range_m: 1.8
+windup_s: 1.0
+active_s: 0.2
+recovery_s: 1.2
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [10, 14] }

@@ -1,0 +1,12 @@
+id: item.material.herb_ashbloom
+kind: item
+schema: 1
+display_key: item.material.herb_ashbloom.name
+tags: [item]
+name: Ashbloom
+notes: Gathered by the stream.
+category: material
+stack_max: 20
+weight: 0.05
+value_base: 3
+rarity: common

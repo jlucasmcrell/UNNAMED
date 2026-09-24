@@ -1,0 +1,6 @@
+[application]
+config/name="Otherreach Asset Validation"
+config/features=PackedStringArray("4.7")
+
+[rendering]
+renderer/rendering_method="mobile"

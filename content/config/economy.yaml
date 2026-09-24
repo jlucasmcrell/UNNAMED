@@ -1,0 +1,7 @@
+id: config.economy
+kind: config
+schema: 1
+display_key: config.economy.name
+tags: [config]
+notes: PROTOTYPE.md §5 - a merchant buys at 40% of value, so a craft-sell loop loses money.
+sell_ratio: 0.4

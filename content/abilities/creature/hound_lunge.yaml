@@ -1,0 +1,17 @@
+id: ability.creature.hound_lunge
+kind: ability
+schema: 1
+display_key: ability.creature.hound_lunge.name
+tags: [ability]
+name: Ember Lunge
+notes: The hound's leap - it closes 2.2 m in the blow itself, and bites on the run. Fire, so a raised guard and a hide vest do nothing for it.
+class: creature
+range_m: 1.2
+lunge_m: 2.2
+advance: true      # it keeps running through the windup: a fleeing player cannot open the gap
+windup_s: 0.35
+active_s: 0.2
+recovery_s: 0.7
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: fire, amount: [5, 7] }

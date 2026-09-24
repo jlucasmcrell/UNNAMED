@@ -1,0 +1,13 @@
+id: spawn.hollow.valley_strays
+kind: spawn
+schema: 1
+display_key: spawn.hollow.valley_strays.name
+tags: [spawn]
+notes: PROTOTYPE.md §4.1's valley strays - the first fight (§5 step 6). Wary loners that keep their distance, and run when badly hurt.
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: stray }
+at: { position_m: [118, 128], radius_m: 6 }
+level_band: [2, 2]
+respawn: { kind: none }
+tier_hint: A

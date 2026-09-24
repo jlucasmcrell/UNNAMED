@@ -1,0 +1,12 @@
+id: item.material.raw_meat
+kind: item
+schema: 1
+display_key: item.material.raw_meat.name
+tags: [item]
+name: Raw Meat
+notes: A wolf drop; feeds the companion's trust interaction.
+category: material
+stack_max: 10
+weight: 0.5
+value_base: 2
+rarity: common

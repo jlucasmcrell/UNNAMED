@@ -1,0 +1,50 @@
+id: quest.ashen_hollow.iron_under_ash
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.iron_under_ash.name
+tags: [quest]
+notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. Blackvein Cut is the old quarry south of the waystation.
+title: Iron Under Ash
+summary: Kera Voss will make a smith of you if you bring iron up out of Blackvein Cut and make something worth carrying.
+giver_ref: npc.ashen_hollow.kera_voss
+entry_objective: o_speak
+objectives:
+  - id: o_speak
+    type: talk_to
+    description: Speak to Kera at the forge.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [lesson] }
+    next: [o_shelf]
+  - id: o_shelf
+    type: visit_location
+    description: Reach Blackvein Cut, the old quarry south of the waystation.
+    params: { location_ref: location.blackvein_cut }
+    next: [o_ore]
+  - id: o_ore
+    type: acquire_item
+    description: Obtain raw iron ore.
+    params: { item_ref: item.material.iron_ore, count: 1 }
+    next: [o_return]
+  - id: o_return
+    type: explore_location
+    description: Return to the waystation.
+    params: { location_ref: location.outpost, within_m: 25 }
+    next: [o_billet]
+  - id: o_billet
+    type: craft_item
+    description: Smelt an iron billet at the hearth.
+    params: { item_ref: item.material.iron_ingot, count: 1 }
+    next: [o_spear]
+  - id: o_spear
+    type: craft_item
+    description: Forge a March Spear at the anvil.
+    params: { item_ref: item.weapon.march_spear, count: 1 }
+    next: [o_show]
+  - id: o_show
+    type: talk_to
+    description: Show Kera the finished spear.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [praised, judged] }
+# Keep the spear, modest progression, modest money, and Kera's recognition (bible §15).
+rewards:
+  - { kind: xp, amount: 120 }
+  - { kind: currency, amount: 25 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.kera_voss, dimension: respect, amount: 5 }

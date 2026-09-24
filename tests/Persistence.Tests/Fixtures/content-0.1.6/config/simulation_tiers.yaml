@@ -1,0 +1,10 @@
+id: config.simulation_tiers
+kind: config
+schema: 1
+display_key: config.simulation_tiers.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+full_radius_m: 150
+regional_radius_m: 600
+abstract_radius_m: 2000
+hysteresis_m: 10
