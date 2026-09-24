@@ -1,11 +1,26 @@
 # WAVE 0 PROOF SET — READY FOR PLAY TEST
 
 **Status: 15 of 15 built, socketed, LOD'd, collision-proxied, and validated in Godot.**
-All promoted into `assets/ready/`. Pack verification: **317/317 clean**.
+All promoted into assets/ready/. Pack verification: **324/324 clean**.
+
+**Every one of the 15 is now geometrically correct.** The three that were defective have been
+rebuilt from refined concepts and re-run through the unified pipeline:
+
+| Asset | Was | Now |
+|---|---|---|
+| weaponcomp_grip_standard_a | generator drew a complete dagger | complete hilt: pommel, leather grip, crossguard |
+| magiccomp_focus_crystal_a | generator drew a whole staff | faceted crystal in its brass claw mount |
+| weaponcomp_pommel_counterweight_a | mesh had no usable boundary | faceted iron counterweight, clean haft cut |
+
+**The mesh and interface proof that the animation pipeline waits on is therefore done.**
+ANIMATION_RIGGING_AND_RETARGETING_PIPELINE.md section 66 sets the order: finish this proof,
+then freeze body/scale conventions, then canonical skeleton v1, then Animation Wave 0. Steps 1
+is complete; step 2 is the next gate.
 
 ---
 
 ## What each of the 15 now is
+
 
 Every one carries the same seven-file set, produced by the unified pipeline:
 
@@ -59,24 +74,18 @@ Naming is uniform: mesh `weaponcomp_haft_long_a_mesh`, material
 
 ## Read this before the play test
 
-**Three of the 15 have known geometry problems.** They are socketed and validate cleanly, but
-validating cleanly is not the same as being the right object. Testing with them will produce
-confusing results:
+All 15 are geometrically correct and validate in Godot. Two caveats remain that are design
+notes rather than defects:
 
-1. **`weaponcomp_grip_standard_a`** — the generator drew a complete dagger, so this is not a
-   grip. Needs a corrected concept.
-2. **`magiccomp_focus_crystal_a`** — the generator drew a whole staff, so this is not a crystal
-   in a mount. Needs a corrected concept.
-3. **`weaponcomp_pommel_counterweight_a`** — no stub boundary exists in the mesh, so it was
-   built uncut from a mesh that is essentially all counterweight.
+**The mace is a double-headed hammer.** weaponcomp_mace_head_flanged_a was cut correctly and
+its geometry is clean, but the concept the generator produced is a hammer head, not a flanged
+mace. Sockets and scale are right; the visual does not match the name.
 
-**The mace is cut correctly but its concept is a double-headed hammer.** The geometry and
-sockets are right; the visual does not match the name.
-
-**The armour's fit is not canonical.** All four armour pieces are generated geometry with
-authored sockets. Method C (the canonical fit shell) is validated and produces correct chest
-and gorget forms, but Method A's generated surface has not yet been transferred onto Method C's
-fit boundary. So armour will socket correctly but may not sit correctly on a declared body.
+**The armour\'s fit is generated, not canonical.** All four armour pieces socket and import
+correctly, but their fit came from generated geometry (Method A). Method C produces correct
+canonical fit for the chest and gorget; the generated surface has not yet been transferred onto
+that fit boundary. Expect them to socket correctly but not necessarily sit correctly on a
+declared body until that transfer is done.
 
 ## Assemblies that are known legal
 

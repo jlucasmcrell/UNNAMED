@@ -429,6 +429,64 @@ Candidate fixes, none applied yet:
 supervisor's retry pass (7 of 8 confirmed). `item_gold_coins` needs a quiet-machine run and has
 been left for after the queue drains.
 
+## 9f. The supervisor looped on one stage, blocking 94 assets
+
+A defect that cost most of the night's later throughput. `_supervise.py` picked the **first**
+non-done stage every time:
+
+```python
+name = pending[0]
+```
+
+`world materials: items` failed whenever it reached `item_gold_coins` (item 11 of 46, ~20
+minutes wasted per cycle), so it stayed non-done and was chosen again. The eight stages behind
+it — holding **94 buildable assets** — were never attempted:
+
+| Stage | Assets waiting |
+|---|---|
+| world materials: items | 1 |
+| world materials: herbs | 17 |
+| world materials: flora | 14 |
+| world materials: reagents | 4 |
+| world materials: resources | 5 |
+| race bodies | 8 |
+| remaining props | 45 |
+
+**Logged 32 attempts at the same stage.** Confirmed from the log:
+
+```
+[05:52:24] --- world materials: items: FAILED
+[06:20:50] --- world materials: items: FAILED
+[06:40:03] --- world materials: items: FAILED
+```
+
+Each cycle spent ~20 minutes reaching `gold_coins`, failing, then rebuilding the 10 items
+already complete (skipped cheaply) before failing again.
+
+### The fix
+
+Untouched stages now take priority over already-failed ones. Retrying is still wanted, but not
+at the cost of never attempting the rest of the plan:
+
+```python
+untouched = [n for n in pending if states.get(n, {}).get("status") is None]
+name = untouched[0] if untouched else pending[0]
+```
+
+Verified immediately on restart: the supervisor moved to `world materials: herbs` and began
+building 17 assets that had never been tried.
+
+### Why this is the same class of bug as the others tonight
+
+Every failure today has been a component doing exactly what it was told, in a situation its
+author did not consider. The watchdog was configured correctly but referenced an undefined
+name. The memory guard triggered on exhaustion rather than degradation. The health check could
+not tell a starting server from a dead one. And the supervisor retried faithfully without ever
+asking whether retrying was the right thing to do next.
+
+**The general lesson: a retry policy needs a bound that is not "until it works."** A single
+unbuildable asset should cost one asset, never an entire plan.
+
 ## 10. Self-recovery behaviour observed
 
 One transient failure occurred and the pipeline handled it without intervention:
