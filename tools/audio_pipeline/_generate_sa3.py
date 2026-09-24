@@ -193,6 +193,10 @@ def main():
     parser.add_argument("--from-report", default=None,
                         help="an audition report; render this round for every id it marks "
                              "needs_rerender, so the rejected list does not have to be retyped")
+    parser.add_argument("--prompt-overrides", default=None,
+                        help="JSON mapping audio_id to a rewritten prompt. A rejected sound needs "
+                             "different wording, not different seeds: see _seed_vs_prompt_probe.py")
+    args = parser.parse_args()
     args = parser.parse_args()
 
     with io.open(SPEC, encoding="utf-8") as handle:
@@ -200,6 +204,27 @@ def main():
 
     labels = labels_for_round(args.round)
     entries = spec["sounds"]
+
+    # A rejection means the sound's character is wrong, and the probe showed a new seed reproduces the
+    # same character: a rewritten prompt is the only lever that moves it. Overrides replace the prompt
+    # for this round while leaving the spec's own prompt untouched, so the record of what was
+    # originally asked for survives.
+    if args.prompt_overrides:
+        with io.open(args.prompt_overrides, encoding="utf-8") as handle:
+            overrides = json.load(handle)
+        # Keys starting with an underscore are notes for a human, not ids. Without this the file's own
+        # explanatory comment is rejected as an unknown audio id, which reads as a broken override
+        # rather than a comment.
+        overrides = {k: v for k, v in overrides.items() if not k.startswith("_")}
+        unknown = sorted(set(overrides) - {e["audio_id"] for e in entries})
+        if unknown:
+            print(f"  override names ids not in the spec: {unknown[:5]}")
+            return 1
+        by_id = {e["audio_id"]: e for e in entries}
+        for audio_id, prompt in overrides.items():
+            by_id[audio_id] = dict(by_id[audio_id], prompt=prompt)
+        entries = [by_id[e["audio_id"]] for e in entries]
+        print(f"  prompt overrides applied to {len(overrides)} id(s)")
 
     if args.from_report:
         with io.open(args.from_report, encoding="utf-8") as handle:
