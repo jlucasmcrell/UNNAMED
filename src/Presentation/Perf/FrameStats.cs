@@ -9,18 +9,21 @@ using Godot;
 namespace UNNAMED.Presentation.Perf;
 
 /// <summary>
-/// Records every frame: its wall time, the time spent in process callbacks, the renderer's CPU and GPU time, and
-/// memory. Writes <c>frames.csv</c> and a <c>summary.json</c> with, per segment, the frame-time distribution, 1% and
+/// Records every frame: its wall time, the renderer's CPU and GPU time, and memory - and once a second, the worst frame's
+/// time in process callbacks, as Godot reports it. Writes <c>frames.csv</c> and a <c>summary.json</c> with, per segment, the frame-time distribution, 1% and
 /// 0.1% lows, hitches, RAM and VRAM peaks, and the machine it ran on. The owner reads the numbers; this code draws no
 /// conclusion beyond stating whether the 1% low held 60 FPS.
 /// </summary>
 public sealed class FrameStats
 {
     private readonly List<Sample> _samples = new();
+    private readonly List<(string Segment, double Ms)> _worstProcess = new();
     private readonly Rid _viewport;
     private long _workingSetBytes;
     private int _frame;
     private bool _skipNext;
+    private double _lastProcessMs = double.NaN;
+    private bool _screenshotPending;
 
     public FrameStats(Viewport viewport)
     {
@@ -33,10 +36,22 @@ public sealed class FrameStats
     public int Count => _samples.Count;
 
     /// <summary>Drop the next sample: a screenshot stalls the GPU, and that stall is the tool's, not the game's.</summary>
-    public void SkipNext() => _skipNext = true;
+    public void SkipNext() => _skipNext = _screenshotPending = true;
 
     public void Record(double delta)
     {
+        // Godot's process-time monitor holds the worst frame's process time of the last second, refreshed once a second: each new
+        // figure is kept once - but not the first, from before the capture, nor the one that takes in a screenshot's frame.
+        double processMs = Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000;
+        if (processMs != _lastProcessMs)
+        {
+            bool first = double.IsNaN(_lastProcessMs);
+            if (!first && !_screenshotPending)
+                _worstProcess.Add((Segment, processMs));
+            if (!first)
+                _screenshotPending = false;
+            _lastProcessMs = processMs;
+        }
         if (_skipNext)
         {
             _skipNext = false;
@@ -48,7 +63,7 @@ public sealed class FrameStats
         _samples.Add(new Sample(
             Segment,
             delta * 1000,
-            Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000,
+            processMs,
             RenderingServer.ViewportGetMeasuredRenderTimeCpu(_viewport),
             RenderingServer.ViewportGetMeasuredRenderTimeGpu(_viewport),
             (long)Performance.GetMonitor(Performance.Monitor.MemoryStatic),
@@ -73,14 +88,15 @@ public sealed class FrameStats
         {
             ["machine"] = Machine(),
             ["notes"] = notes,
-            ["segments"] = _samples.GroupBy(s => s.Segment).ToDictionary(g => g.Key, g => (object)Summarise(g.ToList())),
+            ["segments"] = _samples.GroupBy(s => s.Segment).ToDictionary(g => g.Key, g => (object)Summarise(g.ToList(),
+                _worstProcess.Where(w => w.Segment == g.Key).Select(w => w.Ms).OrderBy(v => v).ToList())),
         };
         string json = JsonSerializer.Serialize(summary, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(Path.Combine(directory, "summary.json"), json);
         return json;
     }
 
-    private static Dictionary<string, object> Summarise(List<Sample> frames)
+    private static Dictionary<string, object> Summarise(List<Sample> frames, List<double> worstProcessEachSecond)
     {
         var ms = frames.Select(f => f.FrameMs).OrderBy(v => v).ToList();
         double median = Percentile(ms, 50);
@@ -102,7 +118,7 @@ public sealed class FrameStats
             ["frames_within_16_7_ms_percent"] = Math.Round(100.0 * ms.Count(v => v <= 1000.0 / 60) / ms.Count, 2),
             ["hitches_over_33_ms"] = ms.Count(v => v > 1000.0 / 30),
             ["hitches_over_twice_median"] = ms.Count(v => v > 2 * median),
-            ["process_ms"] = Distribution(frames.Select(f => f.ProcessMs).OrderBy(v => v).ToList()),
+            ["process_ms_worst_each_second"] = worstProcessEachSecond.Count > 0 ? Distribution(worstProcessEachSecond) : new Dictionary<string, double>(),
             ["render_cpu_ms"] = Distribution(frames.Select(f => f.RenderCpuMs).OrderBy(v => v).ToList()),
             ["render_gpu_ms"] = Distribution(frames.Select(f => f.RenderGpuMs).OrderBy(v => v).ToList()),
             ["static_memory_peak_mb"] = Math.Round(Mb(frames.Max(f => f.StaticBytes)), 1),
