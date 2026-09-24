@@ -351,6 +351,87 @@ public class CreatureTests
         Assert.Equal(CombatPhase.Staggered, Only(arena).Phase);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-21: a guard raised against the hound's fire lunge - a blow no guard takes - was broken by it when
+    /// the stamina behind the guard was short, and the character staggered. Only a blow the guard can take can break it.
+    /// </summary>
+    [Fact]
+    public void AGuardRaisedAgainstFire_IsNotBrokenByIt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // In the hound's eyes, 3 m off, the guard raised and 5 stamina behind it: no stamina returns while a guard is up.
+        var hound = (120.0, 80.0);
+        var at = Along(hound, FacingOf(session, Hound, hound, "pack_hunter"), 3);
+        var arena = Arena.OpenCreatures(session, session.Setup, at, 0, new[] { (Hound, hound.Item1, hound.Item2, "pack_hunter") },
+            r => r.WithProgression(r.Progression with { Pools = r.Progression.Pools with { Stamina = 5 } }));
+        var broken = arena.Record<GuardBroken>();
+        var hits = arena.Record<HitResolved>();
+        arena.Face(Only(arena));
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        for (int i = 0; i < 300 && !hits.Any(h => h.Target == arena.Player); i++)
+        {
+            arena.Face(Only(arena));
+            arena.Tick();
+        }
+
+        var lunge = hits.First(h => h.Target == arena.Player);
+        Assert.Equal(("ability.creature.hound_lunge", false), (lunge.Source, lunge.Blocked));
+        Assert.Empty(broken);
+        Assert.Equal((true, 5), (arena.Simulation.Combat.Blocking, arena.Simulation.Combat.Stamina));   // still raised; nothing spent on it
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, M-08: an arrow that staggered the boar stunned against the rock restarted a 12-tick stagger, cutting the
+    /// 2 s stun to about 0.6 s - just when hitting it hard is the lesson. The stun holds its full length, however hard it is hit.
+    /// </summary>
+    [Fact]
+    public void AStaggeringArrow_DoesNotCutABoarsStunShort()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // An arrow staggers the boar only where it strikes hard (the head). Where it strikes is rolled from the bodies and the tick, so
+        // loose it a tick later at a time until one does - early enough (by the stun's 28th tick) that a restart would have cut it short.
+        var tried = new List<string>();
+        for (int delay = 0; delay <= 8; delay++)
+        {
+            var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+            var stunned = arena.Record<CreatureStunned>();
+            var hits = arena.Record<HitResolved>();
+            Shoot(arena, (153, 35.7));
+            bool dodged = false;
+            for (int i = 0; i < 200 && stunned.Count == 0; i++)
+            {
+                if (!dodged && Only(arena).Phase == CombatPhase.Active && arena.Simulation.Combat.Phase == CombatPhase.Idle)
+                    dodged = arena.Submit(new DodgeCommand(arena.Player, 1000, 0)) is null;
+                arena.Tick();
+            }
+            Assert.Single(stunned);
+
+            long stun = stunned[0].Tick;
+            var phases = new List<CombatPhase>();
+            bool loosed = false;
+            while (arena.Simulation.WorldTick < stun + 40)
+            {
+                if (!loosed && arena.Simulation.Combat.Phase == CombatPhase.Idle && arena.Simulation.WorldTick >= stun + delay)
+                {
+                    arena.Face(Only(arena));
+                    loosed = arena.Submit(new AttackCommand(arena.Player)) is null;
+                }
+                arena.Tick();
+                phases.Add(Only(arena).Phase);
+            }
+            var boar = Only(arena).Id;
+            var arrows = hits.Where(h => h.Target == boar && h.Tick > stun).ToList();
+            tried.Add($"loosed {delay} ticks in: " + string.Join(",", arrows.Select(h => $"tick {h.Tick - stun} {h.Region} {h.Damage}{(h.Staggered ? " staggered" : "")}")));
+            if (!arrows.Any(h => h.Staggered && h.Tick < stun + 28))
+                continue;
+            Assert.All(phases, p => Assert.Equal(CombatPhase.Staggered, p));
+            return;
+        }
+        Assert.Fail("no arrow loosed in the stun's first ticks staggered the boar: " + string.Join(" | ", tried));
+    }
+
     [Fact]
     public void AnUndodgedCharge_KnocksThePlayerDown()
     {

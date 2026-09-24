@@ -360,6 +360,35 @@ public class CombatTests
         Assert.False(hits.Last(h => h.Target == arena.Player).Blocked);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-22: what is in the hands does not change under a raised guard, or mid-swing or mid-draw. A guard
+    /// raised with the sword outlasted a switch to the bow, and an arrow drawn flew from a bow no longer held.
+    /// </summary>
+    [Fact]
+    public void TheHands_DoNotChange_UnderAGuard_OrMidDraw()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var bow = Arena.Stack("item.weapon.hunting_bow", 1);
+        var arena = Arena.OpenCreatures(session, session.Setup, Open, 0, Array.Empty<(string, double, double, string)>(),
+            r => Carrying(r, bow, Arena.Stack("item.ammo.arrow_rough", 5)));
+
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        Assert.Equal("lower the guard first", arena.Submit(new EquipCommand(arena.Player, bow.ItemId)));
+        Assert.Equal("lower the guard first", arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        Assert.Equal(("item.weapon.rusted_sword", true), (arena.Simulation.Combat.Weapon.Source, arena.Simulation.Combat.Blocking));
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, false)));
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, bow.ItemId)));
+
+        var loosed = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(5);
+        Assert.StartsWith("not in the middle of an action", arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        arena.Tick(arena.Simulation.Combat.Weapon.TotalTicks);
+        Assert.Equal("item.weapon.hunting_bow", Assert.Single(loosed).Source);
+        Assert.Equal("item.weapon.hunting_bow", arena.Simulation.Combat.Weapon.Source);
+    }
+
     [Fact]
     public void ADodgeInsideTheWindup_AvoidsTheBite()
     {

@@ -227,6 +227,64 @@ public class CompanionTests
         Assert.Equal(0, arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat));   // his kill, not the character's
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-23: a creature's swing is aimed afresh each tick, so a husk whose swing downed Tavar went on to land
+    /// the same swing on the character behind him. One swing lands on one body.
+    /// </summary>
+    [Fact]
+    public void OneSwing_LandsOnOneBody_ThoughItsFoeFallsMidSwing()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = With(session, (70.5, 149.4), Joined(70, 151.1, health: 3), new[] { ("creature.undead.bone_walker_husk", 70.0, 152.0, "pack_hunter") },
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack(Bow, 1)).Add(Arena.Stack(Arrows, 10))));
+        var started = arena.Record<AttackStarted>();
+        var hits = arena.Record<HitResolved>();
+        var downed = arena.Record<CompanionDowned>();
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, arena.Simulation.Player.Inventory.Single(e => e.DefId == Bow).ItemId)));
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 600 && downed.Count == 0; i++)
+            arena.Tick();
+        arena.Tick(40);
+
+        Assert.True(downed.Count > 0, string.Join("; ", hits.Select(h => $"{h.Tick} {h.AttackerDefId}->{h.Target} {h.Source} {h.Damage} hp{h.HealthAfter}")) + " / started " + string.Join(", ", started.Select(s => $"{s.Tick} {s.Source}")) + $" / tavar {Him(arena).Health} {Him(arena).Doing} at {Him(arena).Body.XMm},{Him(arena).Body.ZMm}; husk {arena.Creature().Health} {arena.Creature().Mind} at {arena.Creature().Body.XMm},{arena.Creature().Body.ZMm}");
+        var husk = arena.Creature().Id;
+        var swings = started.Where(s => s.Attacker == husk).ToList();
+        Assert.NotEmpty(swings);
+        foreach (var swing in swings)
+            Assert.True(hits.Count(h => h.Attacker == husk && h.Tick > swing.Tick && h.Tick <= swing.Tick + swing.WindupTicks + swing.ActiveTicks) <= 1,
+                $"the swing begun at tick {swing.Tick} landed more than once");
+    }
+
+    /// <summary>The Phase-1 technical audit, L-24: a charging boar ran through Tavar standing in its line. People are solid to a charge.</summary>
+    [Fact]
+    public void AChargingBoar_DoesNotRunThroughTavar()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // South of the Foldscar's heart, on the basin's level floor: the character, Tavar a step in front, and the boar further south.
+        var arena = With(session, (153, 45.5), Joined(153, 44.7, CompanionOrder.Wait), new[] { ("creature.beast.bristleback_boar", 153.0, 35.7, "sentinel") },
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack(Bow, 1)).Add(Arena.Stack(Arrows, 10))));
+        var charged = arena.Record<AttackStarted>();
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, arena.Simulation.Player.Inventory.Single(e => e.DefId == Bow).ItemId)));
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        double nearest = double.MaxValue;
+        for (int i = 0; i < 400; i++)
+        {
+            arena.Tick();
+            var boar = arena.Creature().Body;
+            var him = Him(arena).Body;
+            nearest = Math.Min(nearest, Math.Sqrt(Math.Pow(boar.XMm - him.XMm, 2) + Math.Pow(boar.ZMm - him.ZMm, 2)));
+        }
+
+        Assert.Contains(charged, a => a.Source == "ability.creature.boar_charge");
+        Assert.True(nearest >= 900, $"the boar came within {nearest / 1000:0.00} m of Tavar");
+    }
+
     [Fact]
     public void Downed_HeCannotTalk_ButCanBeHelpedUp()
     {

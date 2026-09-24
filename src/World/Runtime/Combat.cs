@@ -639,7 +639,8 @@ internal sealed partial class CombatSystem
             return "dead";
         var attack = command.Attack;
         var body = State.Body;
-        bool guarding = combat.Blocking
+        // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
+        bool guarding = combat.Blocking && DamageTypes.IsPhysical(attack.DamageType)
             && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
         if (guarding && Stamina() < C.BlockStaminaPerHit)
         {

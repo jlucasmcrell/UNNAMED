@@ -585,6 +585,8 @@ internal sealed class CreatureSystem
         var others = new List<Blocker>(_context.ClosedDoors());
         others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
+        // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
+        others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
         var moved = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
@@ -609,8 +611,11 @@ internal sealed class CreatureSystem
         long elapsed = tick - action.StartTick;
         var foe = Foe(c);
         var player = foe.Body;
+        // One swing lands on one body: the foe can change mid-swing (Tavar downed, the character nearest now), and the same blow must not
+        // land again on the next (the Phase-1 technical audit, L-23).
+        bool spent = !action.Struck.IsEmpty;
         // A lunge carries the body forward through the active window, stopping at whatever is in the way.
-        if (attack.LungeMm > 0 && !action.Struck.Contains(foe.Id))
+        if (attack.LungeMm > 0 && !spent)
         {
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
@@ -622,7 +627,7 @@ internal sealed class CreatureSystem
             obstacles.AddRange(Companions());
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
         }
-        bool reaches = !action.Struck.Contains(foe.Id) && (foe.Companion is not null || !State.PlayerCombat.Defeated)
+        bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
             && !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
@@ -647,13 +652,17 @@ internal sealed class CreatureSystem
         var hit = command.Hit;
         int health = Math.Max(0, c.Health - hit.Final);
         bool staggered = hit.Staggered && health > 0 && tick >= c.StaggerImmuneUntil;
+        // A staggering blow starts a stagger, but never cuts one short: a charger stunned against a rock stays down its two seconds,
+        // however hard it is hit meanwhile (the Phase-1 technical audit, M-08).
+        var (phase, left) = c.Action.PhaseAt(tick, C);
+        bool longer = phase == CombatPhase.Staggered && left >= C.StaggerTicks;
         // It knows where the blow came from: the character, or the companion who struck it (M6).
         var attacker = command.Attacker ?? _player;
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
         var wounded = c with
         {
             Health = health,
-            Action = staggered ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
+            Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
             Knows = true,

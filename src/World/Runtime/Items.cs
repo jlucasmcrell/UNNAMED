@@ -727,6 +727,8 @@ internal sealed class EquipmentSystem
             && state.Inventory.FirstOrDefault(e => e.ItemId == main) is { } mainEntry
             && _context.Setup.Items.Catalog.Find(mainEntry.DefId)?.Weapon is { TwoHanded: true })
             freed.Add(EquipSlot.MainHand);
+        if (freed.Any(InHands) && HandsBusy(tick) is { } busy)
+            return busy;
         var equipment = state.Equipment;
         foreach (var (taken, item) in state.Equipment.Where(kv => freed.Contains(kv.Key) || kv.Value == command.Item).ToList())
         {
@@ -745,9 +747,26 @@ internal sealed class EquipmentSystem
         var state = _context.State;
         if (!state.Equipment.TryGetValue(command.Slot, out var item))
             return $"nothing is equipped in {EquipSlots.Key(command.Slot)}";
+        if (InHands(command.Slot) && HandsBusy(tick) is { } busy)
+            return busy;
         state.SetEquipment(_owner, state.Equipment.Remove(command.Slot));
         _context.Events.Publish(new ItemUnequipped(_player, command.Slot, item, tick));
         return null;
+    }
+
+    private static bool InHands(EquipSlot slot) => slot is EquipSlot.MainHand or EquipSlot.OffHand;
+
+    /// <summary>
+    /// Why what is in the hands cannot change now, or null (the Phase-1 technical audit, L-22): not under a raised guard, which would
+    /// outlast the weapon that raised it, and not in the middle of a swing, a draw or a working, whose blow is the weapon's it began with.
+    /// </summary>
+    private string? HandsBusy(long tick)
+    {
+        var combat = _context.State.PlayerCombat;
+        if (combat.Blocking)
+            return "lower the guard first";
+        var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
+        return phase == CombatPhase.Idle ? null : $"not in the middle of an action ({phase.ToString().ToLowerInvariant()})";
     }
 
     /// <summary>The armor worn, summed, for the character sheet; combat reads it per region.</summary>
