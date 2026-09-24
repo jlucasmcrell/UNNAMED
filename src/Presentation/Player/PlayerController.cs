@@ -16,11 +16,13 @@ public enum FocusKind
     Node,
     Station,
     Npc,
+    Switch,
+    Barrier,
 }
 
 /// <summary>
 /// What the player means to use: a door, a container, an item lying in the world (and its quality), a resource node (its
-/// definition), a crafting station (its kind), or a named NPC (M4).
+/// definition), a crafting station (its kind), a named NPC (M4), a switch not yet set, or a barrier standing in the way (M6).
 /// </summary>
 public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm, int Quality = 0);
 
@@ -195,6 +197,18 @@ public sealed class PlayerController
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
         foreach (var npc in simulation.Npcs)
             candidates.Add((new Focus(FocusKind.Npc, npc.Id, npc.Id, npc.Body.XMm, npc.Body.ZMm), Distance(npc.Body.XMm, npc.Body.ZMm) - talkReach));
+        // A switch is worked like a door, from the body to its edge (M6); once set it has nothing more to offer.
+        foreach (var view in simulation.Switches.Where(s => !s.Set))
+        {
+            var (x, z) = Footprints.Center(view.Site.Body);
+            candidates.Add((new Focus(FocusKind.Switch, view.Site.Key, view.Site.FlagId, x, z), view.Site.Body.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+        }
+        // A standing barrier cannot be used, but whoever stands at it is told what it is.
+        foreach (var view in simulation.Barriers.Where(b => b.Standing))
+        {
+            var (x, z) = Footprints.Center(view.Site.Footprint);
+            candidates.Add((new Focus(FocusKind.Barrier, view.Site.Key, view.Site.FlagId, x, z), view.Site.Footprint.DistanceTo(_body.XMm, _body.ZMm) - doorReach));
+        }
 
         Focus? best = null;
         float bestAlignment = float.MinValue;

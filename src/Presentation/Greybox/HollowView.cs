@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Greybox;
 
@@ -17,6 +18,8 @@ public partial class HollowView : Node3D
     public const uint CameraCollisionLayer = 1;
 
     private readonly Dictionary<string, (Node3D Hinge, float OpenDegrees)> _doors = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
     private Node3D? _debug;
 
     public static Vector3 ToGodot(long xMm, long yMm, long zMm) => new(xMm / 1000f, yMm / 1000f, zMm / 1000f);
@@ -31,6 +34,10 @@ public partial class HollowView : Node3D
             AddChild(roof);
         foreach (var door in layout.Doors)
             AddChild(BuildDoor(door, layout, terrain));
+        foreach (var site in layout.Switches)
+            AddChild(BuildSetMark(site, terrain));
+        foreach (var barrier in layout.Barriers)
+            AddChild(BuildBarrier(barrier, terrain));
         AddChild(BuildWater(layout.Space));
         AddChild(BuildRavine(layout.Space, terrain));
         AddChild(BuildDebugMarkers(layout));
@@ -41,6 +48,21 @@ public partial class HollowView : Node3D
     {
         if (_doors.TryGetValue(key, out var door))
             door.Hinge.RotationDegrees = new Vector3(0, open ? door.OpenDegrees : 0, 0);
+    }
+
+    /// <summary>Show which switches are set and which barriers still stand (M6), as the simulation says.</summary>
+    public void SetFlags(IEnumerable<SwitchView> switches, IEnumerable<BarrierView> barriers)
+    {
+        foreach (var view in switches)
+        {
+            if (_setMarks.TryGetValue(view.Site.Key, out var mark))
+                mark.Visible = view.Set;
+        }
+        foreach (var view in barriers)
+        {
+            if (_barriers.TryGetValue(view.Site.Key, out var node))
+                node.Visible = view.Standing;
+        }
     }
 
     public bool DebugVisible
@@ -163,6 +185,45 @@ public partial class HollowView : Node3D
         float open = alongZ ? (inside > 0 ? 90f : -90f) : (inside > 0 ? -90f : 90f);
         _doors[door.Key] = (hinge, open);
         return hinge;
+    }
+
+    /// <summary>A pale band round the top of a switch's structure, shown once it is set. Scenery: no collider.</summary>
+    private Node3D BuildSetMark(SwitchSite site, TerrainGrid terrain)
+    {
+        var (x, z) = Footprints.Center(site.Body);
+        float radius = site.Body is CircleBlocker circle ? circle.RadiusMm / 1000f + 0.05f : 0.6f;
+        var mark = new MeshInstance3D
+        {
+            Name = site.Key + "_set",
+            Mesh = new CylinderMesh { TopRadius = radius * 0.85f, BottomRadius = radius * 0.9f, Height = 0.25f },
+            MaterialOverride = Palette.Aligned,
+            Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + site.Body.HeightMm / 1000f - 0.3f, z / 1000f),
+            Visible = false,
+        };
+        _setMarks[site.Key] = mark;
+        return mark;
+    }
+
+    /// <summary>A barrier while it stands: a faint haze over its footprint. Scenery: the camera passes through it.</summary>
+    private Node3D BuildBarrier(BarrierSite barrier, TerrainGrid terrain)
+    {
+        var (x, z) = Footprints.Center(barrier.Footprint);
+        float height = barrier.Footprint.HeightMm / 1000f;
+        Mesh mesh = barrier.Footprint switch
+        {
+            CircleBlocker circle => new CylinderMesh { TopRadius = circle.RadiusMm / 1000f, BottomRadius = circle.RadiusMm / 1000f, Height = height },
+            BoxBlocker box => new BoxMesh { Size = new Vector3((box.MaxXMm - box.MinXMm) / 1000f, height, (box.MaxZMm - box.MinZMm) / 1000f) },
+            _ => throw new ArgumentOutOfRangeException(nameof(barrier), barrier.Footprint.GetType().Name, "Unknown blocker shape"),
+        };
+        var node = new MeshInstance3D
+        {
+            Name = barrier.Key,
+            Mesh = mesh,
+            MaterialOverride = Palette.Fold,
+            Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height / 2, z / 1000f),
+        };
+        _barriers[barrier.Key] = node;
+        return node;
     }
 
     /// <summary>A still water surface just above the stream bed: the terrain hides it everywhere else.</summary>

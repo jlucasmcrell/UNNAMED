@@ -1,0 +1,10 @@
+id: npc.ashen_hollow.tavar_orr
+kind: npc
+schema: 1
+display_key: npc.ashen_hollow.tavar_orr.name
+tags: [npc]
+name: Tavar Orr
+notes: Guide and the first companion (content bible §9, §17), Orenth - Sel's survey guide, caught in the Foldscar until its heart is steadied. The perspective of someone the Other has touched, kept plain.
+role: villager
+dialogue_ref: dialogue.ashen_hollow.tavar_orr
+unique: true

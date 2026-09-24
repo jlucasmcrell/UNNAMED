@@ -1,6 +1,6 @@
 # M6 status - Companion v1, and the content bible's four cells
 
-**Date:** 2026-09-24. **Branch:** `claude/phase1`. **State:** in progress. Part 1, the layout reconciliation, is done and verified (below); Quest 2, the companion and the §19 playable-prototype report are next. This document grows with them and is complete only when M6 is.
+**Date:** 2026-09-24. **Branch:** `claude/phase1`. **State:** in progress. Part 1, the layout reconciliation, and part 2, Quest 2, are done and verified (below); the companion and the §19 playable-prototype report are next. This document grows with them and is complete only when M6 is.
 
 **Entry:** M5 complete (`0eb6247`): quests and the quest debugger work, and NPC state persists.
 
@@ -33,15 +33,29 @@
 | Kera's smithy smoke, a road with widths | Greybox boxes and bare terrain | Art is not a prototype criterion |
 | Woundmoss as an optional herb | A discoverable place only | No herb node is built (M3f) |
 
+## Part 2 - Quest 2, *The Three Quiet Stones* (bible §16)
+
+| What | Built |
+|---|---|
+| The stones and the heart | The region's new `switches` (lint WLD013): the north, south-west and south-east Quiet Stones and the heart of the Foldscar, each on its rock, each setting a `world.foldscar.*` flag in the Foldscar's cell, once. The heart requires the three stones and until then refuses in its own words. `InteractionSystem` works them, measured from the body like a door; the event is `SwitchSet` |
+| The fold | The region's new `barriers` (lint WLD014): a 3 m circle round Tavar at the bible's recovery position (145, 42). It blocks movement, blows and sight like a closed door until the heart is steadied - so he cannot be spoken to before (the talk reach is 1.95 m) |
+| Tavar Orr | `npc.ashen_hollow.tavar_orr`, standing in the fold, and his conversation: every line is spoken by a man already free, and hearing the first ends the quest. Recruiting him is part 3 |
+| The quest | `quest.ashen_hollow.three_quiet_stones`: learn of Tavar from Sel -> reach the Foldscar -> the three stones in any order (three `world_state` objectives joined by the next) -> steady the heart -> speak to Tavar. 150 XP and Sel's trust +10. No objective asks for a fight |
+| Sel | Asked about the ruin, she tells of Tavar (the reply starts the quest) and guesses at the stones - and warns of the spider: "walk past it, don't run". Told that Tavar is free, she thanks you; that reply starts the quest too, so a Foldscar steadied before she said a word still completes it at once (bible §32) |
+| Dialogue | A `visited` condition may name a line of another conversation (`dialogue_ref`): Sel knows whether Tavar has been spoken to |
+| Presentation | Prompts from the content ("[E] Turn the north Quiet Stone", "[E] Steady the heart of the Foldscar"); a switch's words as a toast; a pale band on a stone in line; the fold as a faint violet haze that goes when it lifts, with its own words at its edge |
+| The quest debugger | A `world_state` objective lists the switches that set its flag, where they stand, and what they still wait on |
+
+The non-kill requirement (bible §8, §16) is a test: `TheThreeQuietStones_PlaysEndToEnd_WithTheSpiderAlive_AndPaysOnce` plays the quest in the world with every creature in it, reaching the south-east stone by the bible's route round the spider, which keeps beyond its 14 m hearing; no blow is struck and the spider lives. `AFoldscarSteadiedBeforeTheQuest_CountsAtOnce_AndSelHearsTavarIsFree` is §32's order.
+
 ## Verification so far
 
-- `dotnet test` (from `src/`): **635 passed**, 0 failed.
-- Content lint: 94 definitions, 0 errors.
-- Godot 4.7.2 headless smoke `PASS` on the new layout: the lodge door, Sel's book at her table, the quest from Kera at the smithy, the quicksave's identical digest.
+- Part 1: `dotnet test` (from `src/`) 635 passed; content lint 94 definitions, 0 errors.
+- Part 2: `dotnet test` **647 passed**, 0 failed (Architecture 14, Content 131, Domain 142, EntityRegistry 23, World 60, Persistence 146, Application 131); content lint 101 definitions, 0 errors.
+- Godot 4.7.2 headless smoke `PASS` on the new layout: the lodge door, Sel's book at her table, the quest from Kera at the smithy, the quicksave's identical digest; since part 2 it places four NPCs.
 - The windowed `--ui-shots` run (ASTRAL) plays the whole M3-M5 journey on the new layout and exits 0: Renn in the lodge, Sel at her table outside it (`sel.png`), the archetype gallery, the boar fought on Blackvein's rim, the seam struck on the quarry floor (`seam.png`), the stand cut in Charwood, home to the smithy for Iron Under Ash's billet, spear, trade and completion, the spear outside the smithy (`spear.png`: the lodge, Sel's table, the fence), a stray wounded, and the death at the den.
 
 ## Still to do in M6
 
-- Quest 2, *The Three Quiet Stones* (bible §16): the stones, the Foldscar's heart, Tavar reachable.
 - Tavar Orr, the companion (bible §17): recruit, follow, wait, catch up, fight, downed and death, save/load; C16.
 - The §19 playable-prototype report: C17's death evidence, a recorded fresh-session run, §7.4's field-by-field save comparison as a diff, the README, the replayable 10-minute scripted playthrough. The 1080p/60 FPS evidence needs the RAZER window.

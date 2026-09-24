@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.sel_arien.name
 tags: [dialogue]
-notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She hands over the Resonance Primer that lay on the longhouse shelf through M3e.
+notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She hands over the Resonance Primer that lay on the longhouse shelf through M3e, and gives Quest 2, The Three Quiet Stones (M6) - her guide Tavar is caught in the Foldscar.
 participants: [npc.ashen_hollow.sel_arien]
 root_node: greet
 nodes:
@@ -18,6 +18,13 @@ nodes:
       - id: ruin
         text: "What ruin?"
         next: foldscar
+      - id: tavar_back
+        text: "Tavar Orr's free. He was caught in the ruin."
+        conditions: [{ kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet }]
+        consequences:
+          - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+        next: tavar_back
       - id: leave
         text: "I'll leave you to it."
   again:
@@ -34,6 +41,28 @@ nodes:
         text: "The primer said to mind the strain. How far can I push?"
         conditions: [{ kind: visited, node: primer }]
         next: strain
+      - id: tavar
+        text: "Something out there is wrong. What is it?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }
+          - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true }
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }]
+        next: tavar
+      - id: stones_again
+        text: "Tell me again about the stones."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, objective: o_steady, is: satisfied, not: true },
+                     { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true },
+                     { kind: visited, node: tavar }]
+        next: stones
+      - id: tavar_back
+        text: "Tavar's free."
+        conditions:
+          - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet }
+          - { kind: visited, node: tavar_back, not: true }
+        consequences:
+          - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+        next: tavar_back
       - id: leave
         text: "Another time."
   primer:
@@ -50,8 +79,36 @@ nodes:
   foldscar:
     text: "Foldscar. Three standing stones around something that isn't there any more - or isn't here. I have guesses about what they were for. I've learned not to trust them."
     choices:
+      - id: tavar
+        text: "Something out there is wrong. What is it?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }
+          - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true }
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }]
+        next: tavar
       - id: back
         text: "I see."
+        next: again
+  tavar:
+    text: "Tavar Orr. He guides my surveys. Three days ago he walked in among the Quiet Stones for a chain I'd dropped, and he's still standing there. I can see him from the rise. I can't reach him - my hand stops a hand's width short, and his voice comes from the wrong side. The stones were turned out of line when we found them. I think they matter. I don't know how."
+    choices:
+      - id: stones
+        text: "What would you do with the stones?"
+        next: stones
+      - id: go
+        text: "I'll go and look."
+        next: again
+  stones:
+    text: "If I knew, I'd have done it. Turn them square to the ring - the north stone, the south-west, the south-east - and the heart itself last. That's my guess. And the spider on the east side hunts by the ground, not by sight: walk past it, don't run."
+    choices:
+      - id: back
+        text: "Walk, don't run."
+        next: again
+  tavar_back:
+    text: "I know. I saw the ring go quiet from the rise, and then I saw him walk. I'd no idea how to get him out - only that the stones were wrong. Thank you."
+    choices:
+      - id: back
+        text: "He's asking after you."
         next: again
   strain:
     text: "Past your tolerance a working takes it out of your body instead. It won't refuse you. That's the danger."

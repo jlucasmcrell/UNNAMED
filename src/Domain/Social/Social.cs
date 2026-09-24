@@ -54,8 +54,14 @@ public sealed record DialogueChoice(string Id, string Text, ImmutableArray<Dialo
 /// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds).</summary>
 public abstract record DialogueCondition;
 
-/// <summary><c>visited</c>: whether a node of this conversation has been visited - or, <c>not: true</c>, has not.</summary>
-public sealed record VisitedCondition(string NodeId, bool Negated) : DialogueCondition;
+/// <summary>
+/// <c>visited</c>: whether a node of this conversation has been visited - or, <c>not: true</c>, has not. Naming
+/// <see cref="DialogueId"/> (M6) asks about a line of another conversation: whether Tavar has been spoken to, asked of Sel.
+/// </summary>
+public sealed record VisitedCondition(string NodeId, bool Negated) : DialogueCondition
+{
+    public string? DialogueId { get; init; }
+}
 
 /// <summary><c>world_state</c>: a world flag's value in [min, max]. Dialogue reads and writes flags in the speaker's cell.</summary>
 public sealed record WorldStateCondition(string FlagId, long Min, long Max) : DialogueCondition;
@@ -122,7 +128,7 @@ public static class DialogueRules
 {
     public static bool Holds(DialogueCondition condition, string dialogueId, IDialogueFacts facts) => condition switch
     {
-        VisitedCondition v => facts.Visited(dialogueId, v.NodeId) != v.Negated,
+        VisitedCondition v => facts.Visited(v.DialogueId ?? dialogueId, v.NodeId) != v.Negated,
         WorldStateCondition w => facts.WorldFlag(w.FlagId) is var value && value >= w.Min && value <= w.Max,
         HasItemCondition h => facts.Carried(h.ItemId, h.QualityMin) >= h.Count != h.Negated,
         RelationshipCondition r => facts.Relationship(r.NpcId, r.Dimension) is var value && value >= r.Min && value <= r.Max,

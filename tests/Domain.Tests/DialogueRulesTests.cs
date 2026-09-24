@@ -7,6 +7,7 @@ namespace UNNAMED.Domain.Tests;
 public class DialogueRulesTests
 {
     private const string Talk = "dialogue.test.smith";
+    private const string Other = "dialogue.test.guide";
 
     private sealed class Facts : IDialogueFacts
     {
@@ -17,7 +18,10 @@ public class DialogueRulesTests
         public Dictionary<string, int> Skills { get; } = new(StringComparer.Ordinal);
         public Dictionary<(string, string?), string> Quests { get; } = new();
 
-        public bool Visited(string dialogueId, string nodeId) => dialogueId == Talk && Heard.Contains(nodeId);
+        public HashSet<string> HeardElsewhere { get; } = new(StringComparer.Ordinal);
+
+        public bool Visited(string dialogueId, string nodeId) =>
+            dialogueId == Talk ? Heard.Contains(nodeId) : dialogueId == Other && HeardElsewhere.Contains(nodeId);
         public long WorldFlag(string flagId) => Flags.GetValueOrDefault(flagId);
         public int Carried(string itemId, int qualityMin) => Pack.Where(p => p.ItemId == itemId && p.Quality >= qualityMin).Sum(p => p.Count);
         public int Relationship(string npcId, string dimension) => Regard.GetValueOrDefault((npcId, dimension));
@@ -71,6 +75,12 @@ public class DialogueRulesTests
         Assert.True(Holds(new QuestStateCondition("quest.test.iron", "o_ore", "satisfied", false)));
         Assert.True(Holds(new QuestStateCondition("quest.test.iron", "o_show", "not_reached", false)));
         Assert.True(Holds(new QuestStateCondition("quest.test.other", null, "not_started", false)));
+
+        // A line of another conversation (M6): what was said to someone else, asked of this speaker.
+        facts.HeardElsewhere.Add("greet");
+        Assert.True(Holds(new VisitedCondition("greet", false) { DialogueId = Other }));
+        Assert.False(Holds(new VisitedCondition("greet", false)));   // not a line of this conversation
+        Assert.True(Holds(new VisitedCondition("lesson", true) { DialogueId = Other }));
     }
 
     [Fact]

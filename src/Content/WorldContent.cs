@@ -222,6 +222,50 @@ public static class WorldContent
             }
             Check(npcs.Select(n => n.NpcId).Distinct(StringComparer.Ordinal).Count() == npcs.Count, "WLD012", "a named NPC stands in one place only");
 
+            // Switches and barriers (M6): a switch stands on a structure and sets a flag in its cell; a barrier blocks until a flag
+            // in its cell is set.
+            var switches = ImmutableArray.CreateBuilder<SwitchSite>();
+            foreach (var (entry, i) in (map.ContainsKey("switches") ? List(map, "switches") : new List<object>()).Select((s, i) => (s, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"switches[{i}] must be a map");
+                string key = Text(site, "key");
+                string structure = Text(site, "structure");
+                var body = structures.FirstOrDefault(s => s.Id == structure);
+                Check(body is not null, "WLD013", $"{key} stands on structure '{structure}', which the region does not have");
+                var requires = (site.ContainsKey("requires") ? List(site, "requires") : new List<object>()).Select(r => r as string ?? "").ToImmutableArray();
+                var sw = new SwitchSite(key, Text(site, "flag_ref"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), requires, Text(site, "name"),
+                    Text(site, "verb"), Text(site, "done_text"), site.GetValueOrDefault("locked_text") as string);
+                Check(key.StartsWith("switch.", StringComparison.Ordinal), "WLD013", $"switch key '{key}' must start with 'switch.'");
+                foreach (string flag in requires.Prepend(sw.FlagId))
+                    Check(flags.ContainsKey(flag), "WLD013", $"{key} names world flag '{flag}', which is not a declared world_flag");
+                Check(requires.IsEmpty || !string.IsNullOrWhiteSpace(sw.LockedText), "WLD013", $"{key} has requirements, so it says why it will not work (locked_text)");
+                switches.Add(sw);
+            }
+            Check(switches.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == switches.Count, "WLD013", "two switches share a key");
+            Check(switches.Select(s => s.FlagId).Concat(doors.Select(d => d.FlagId)).Distinct(StringComparer.Ordinal).Count() == switches.Count + doors.Count,
+                "WLD013", "two doors or switches share a world flag");
+            // A requirement is read in the switch's cell, so something in that cell must set it - or the switch could never work.
+            foreach (var sw in switches)
+            {
+                foreach (string flag in sw.Requires.Where(f => !switches.Any(o => o.FlagId == f && CellOf(o.Body) == CellOf(sw.Body))))
+                    Check(false, "WLD013", $"{sw.Key} requires {flag}, which no switch in its cell sets");
+            }
+
+            var barriers = ImmutableArray.CreateBuilder<BarrierSite>();
+            foreach (var (entry, i) in (map.ContainsKey("barriers") ? List(map, "barriers") : new List<object>()).Select((b, i) => (b, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"barriers[{i}] must be a map");
+                string key = Text(site, "key");
+                var barrier = new BarrierSite(key, Text(site, "flag_ref"), Blocker(new Dictionary<object, object>(site) { ["id"] = key }), Text(site, "prompt"));
+                Check(key.StartsWith("barrier.", StringComparison.Ordinal), "WLD014", $"barrier key '{key}' must start with 'barrier.'");
+                Check(flags.ContainsKey(barrier.FlagId), "WLD014", $"{key} names world flag '{barrier.FlagId}', which is not a declared world_flag");
+                // Only a switch can lift a barrier in Phase 1 - a door is toggled by hand and would lift it both ways.
+                Check(switches.Any(s => s.FlagId == barrier.FlagId && CellOf(s.Body) == CellOf(barrier.Footprint)), "WLD014",
+                    $"{key} is lifted by {barrier.FlagId}, which no switch in its cell sets");
+                barriers.Add(barrier);
+            }
+            Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -235,14 +279,18 @@ public static class WorldContent
                 Nodes = nodes.ToImmutable(),
                 Stations = stations.ToImmutable(),
                 Npcs = npcs.ToImmutable(),
+                Switches = switches.ToImmutable(),
+                Barriers = barriers.ToImmutable(),
             };
 
-            // The spawn must stand clear with every door shut, the harshest case.
+            // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand
+            // behind a barrier - that is what the fold is for - but not in a wall or a doorway.
             var closed = layout.ClosedDoors(_ => false);
             long radius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
-            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure and door");
+            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
+            var shut = layout.ClosedDoors(_ => false, _ => true);
             foreach (var npc in layout.Npcs)
-                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, closed), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
+                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
             return errors.Count == before ? layout : null;
         }
         catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
@@ -250,6 +298,13 @@ public static class WorldContent
             errors.Add(Error("WLD001", $"{regionId} is malformed: {e.Message}", file));
             return null;
         }
+    }
+
+    /// <summary>The cell a footprint stands in: a switch's or a barrier's flag lives in that cell's delta.</summary>
+    private static CellKey CellOf(Blocker blocker)
+    {
+        var (x, z) = Footprints.Center(blocker);
+        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
     }
 
     private static TerrainGrid BuildTerrain(Dictionary<object, object> terrain)

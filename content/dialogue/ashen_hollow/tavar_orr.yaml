@@ -1,0 +1,50 @@
+id: dialogue.ashen_hollow.tavar_orr
+kind: dialogue
+schema: 1
+display_key: dialogue.ashen_hollow.tavar_orr.name
+tags: [dialogue]
+notes: Tavar Orr (content bible §9, §17). He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2.
+participants: [npc.ashen_hollow.tavar_orr]
+root_node: greet
+nodes:
+  greet:
+    text: "He takes a step towards you, and this time his shadow keeps up. \"You're not Sel. Did she send you, or do you just go about turning stones?\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: sent
+        text: "Sel sent me."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: active }]
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
+      - id: found
+        text: "The stones were out of line. I put them right."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: active, not: true }]
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
+  caught:
+    text: "\"Three days, Sel will say. For me it was one long afternoon where everything arrived a breath late. I could see the waystation smoke. I heard you coming from the wrong side.\" He opens and closes his hands, as if checking they are his."
+    choices:
+      - id: stones
+        text: "What were the stones for?"
+        next: stones
+      - id: home
+        text: "Sel's been watching for you."
+        next: again
+  stones:
+    text: "\"Holding something shut, or holding it still - I couldn't tell you which. Somebody turned them out of line before we ever came out here. Not me.\""
+    choices:
+      - id: back
+        text: "Then somebody else has been out here."
+        next: again
+  again:
+    text: "\"Still here. Still on time, too.\""
+    choices:
+      - id: stones
+        text: "What were the stones for?"
+        conditions: [{ kind: visited, node: stones, not: true }]
+        next: stones
+      - id: leave
+        text: "Take a moment. I'll see you at the waystation."

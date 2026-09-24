@@ -11,6 +11,22 @@ namespace UNNAMED.Domain.Spatial;
 /// </summary>
 public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint);
 
+/// <summary>
+/// A switch (M6): an interactable standing on a structure (<see cref="Body"/>) that sets a <c>world.*</c> flag in its cell to 1 -
+/// a Quiet Stone turned into line, the Foldscar's heart steadied. It works only once every flag in <see cref="Requires"/> is set in
+/// that cell, and what it sets it never unsets. The words are the content's: the prompt is <see cref="Verb"/> and
+/// <see cref="Name"/>, <see cref="DoneText"/> is what happens, <see cref="LockedText"/> why it will not work yet.
+/// </summary>
+public sealed record SwitchSite(string Key, string FlagId, Blocker Body, ImmutableArray<string> Requires, string Name, string Verb,
+    string DoneText, string? LockedText);
+
+/// <summary>
+/// A barrier (M6): a footprint that blocks like a closed door while a <c>world.*</c> flag in its cell is 0 - the fold that holds Tavar
+/// until the Foldscar is steadied. It has no handle: only what sets its flag lifts it. <see cref="Prompt"/> says what it is to someone
+/// standing at it.
+/// </summary>
+public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, string Prompt);
+
 /// <summary>A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it.</summary>
 public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp);
 
@@ -62,11 +78,21 @@ public sealed record RegionLayout(
     /// <summary>The region's named NPCs, each where they stand (M4).</summary>
     public ImmutableArray<NpcSite> Npcs { get; init; } = ImmutableArray<NpcSite>.Empty;
 
+    /// <summary>The region's switches (M6).</summary>
+    public ImmutableArray<SwitchSite> Switches { get; init; } = ImmutableArray<SwitchSite>.Empty;
+
+    /// <summary>The region's barriers (M6).</summary>
+    public ImmutableArray<BarrierSite> Barriers { get; init; } = ImmutableArray<BarrierSite>.Empty;
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
+
+    public SwitchSite? FindSwitch(string key) => Switches.FirstOrDefault(s => s.Key == key);
 
     public ContainerSite? FindContainer(string key) => Containers.FirstOrDefault(c => c.Key == key);
 
-    /// <summary>The footprints that block movement given which doors are open.</summary>
-    public ImmutableArray<Blocker> ClosedDoors(Func<DoorSite, bool> isOpen) =>
-        Doors.Where(d => !isOpen(d)).Select(d => (Blocker)d.ClosedFootprint).ToImmutableArray();
+    /// <summary>The footprints that block movement given which doors are open and which barriers are lifted.</summary>
+    public ImmutableArray<Blocker> ClosedDoors(Func<DoorSite, bool> isOpen, Func<BarrierSite, bool>? isLifted = null) =>
+        Doors.Where(d => !isOpen(d)).Select(d => (Blocker)d.ClosedFootprint)
+            .Concat(Barriers.Where(b => isLifted is null || !isLifted(b)).Select(b => b.Footprint))
+            .ToImmutableArray();
 }

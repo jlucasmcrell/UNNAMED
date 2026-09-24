@@ -43,14 +43,14 @@ public class SocialContentTests
     }
 
     [Fact]
-    public void TheWaystation_IsThreeNamedNpcs_EachWithAConversation()
+    public void TheHollow_IsFourNamedNpcs_EachWithAConversation()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         Assert.Empty(loader.Errors);
         var npcs = SocialContent.BuildNpcs(loader);
         var dialogues = SocialContent.BuildDialogues(loader);
 
-        Assert.Equal(new[] { "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien" }, npcs.Keys);
+        Assert.Equal(new[] { "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr" }, npcs.Keys);
         var kera = npcs["npc.ashen_hollow.kera_voss"];
         Assert.Equal(("Kera Voss", "craftsperson", "merchant.ashen_hollow.kera_voss"), (kera.Name, kera.Role, kera.MerchantId));
         Assert.True(kera.Offers(NpcServices.Trade));
@@ -64,6 +64,11 @@ public class SocialContentTests
         var take = dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["primer"].Choices.Single();
         Assert.Equal(new TransferItemConsequence("item.tome.resonance_primer", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());
     }
+
+    [Fact]
+    public void AVisitedConditionOnALineAnotherConversationDoesNotHave_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet",
+            "dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: nowhere", "names node 'nowhere' of dialogue.ashen_hollow.tavar_orr");
 
     [Fact]
     public void AReplyToANodeThatIsNotThere_IsRefused() =>

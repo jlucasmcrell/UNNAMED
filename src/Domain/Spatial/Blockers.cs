@@ -22,6 +22,17 @@ public abstract record Blocker(string Id, long HeightMm)
     public abstract bool Crosses(double x0, double z0, double x1, double z1);
 }
 
+public static class Footprints
+{
+    /// <summary>Where a footprint stands: a box's middle, a circle's centre.</summary>
+    public static (long XMm, long ZMm) Center(Blocker blocker) => blocker switch
+    {
+        BoxBlocker box => (box.CenterXMm, box.CenterZMm),
+        CircleBlocker circle => (circle.CenterXMm, circle.CenterZMm),
+        _ => throw new ArgumentOutOfRangeException(nameof(blocker), blocker.GetType().Name, "Unknown blocker shape"),
+    };
+}
+
 /// <summary>An axis-aligned box footprint. Structures in the greybox are axis-aligned, which keeps the math exact.</summary>
 public sealed record BoxBlocker(string Id, long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long HeightMm) : Blocker(Id, HeightMm)
 {

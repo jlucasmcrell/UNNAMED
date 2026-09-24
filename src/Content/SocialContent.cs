@@ -120,7 +120,10 @@ public static class SocialContent
             throw new FormatException($"{at}: only visited, has_item and quest_state conditions take not");
         return kind switch
         {
-            "visited" => new VisitedCondition(Text(map, "node"), negated),
+            "visited" => new VisitedCondition(Text(map, "node"), negated)
+            {
+                DialogueId = map.GetValueOrDefault("dialogue_ref") is string other ? Defined(loader, other, "dialogue", at) : null,
+            },
             "world_state" => new WorldStateCondition(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
                 LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue)),
             "has_item" => new HasItemCondition(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", 1),
@@ -193,7 +196,7 @@ public static class SocialContent
             foreach (var choice in node.Choices)
             {
                 Exists(choice.Next, $"node {node.Id} reply {choice.Id}");
-                foreach (var visited in choice.Conditions.OfType<VisitedCondition>())
+                foreach (var visited in choice.Conditions.OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
                     Exists(visited.NodeId, $"node {node.Id} reply {choice.Id}'s visited condition");
             }
             var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -219,6 +222,13 @@ public static class SocialContent
             {
                 if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Offers(open.Service)))
                     throw new FormatException($"{dialogue.Id}: opens {open.Service}, which none of its participants offers");
+            }
+            // A visited condition about another conversation names a line that conversation has.
+            foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions).OfType<VisitedCondition>()
+                         .Where(v => v.DialogueId is { } other && other != dialogue.Id))
+            {
+                if (!dialogues.TryGetValue(visited.DialogueId!, out var other) || !other.Nodes.ContainsKey(visited.NodeId))
+                    throw new FormatException($"{dialogue.Id}: a visited condition names node '{visited.NodeId}' of {visited.DialogueId}, which it does not have");
             }
         }
         return npcs;

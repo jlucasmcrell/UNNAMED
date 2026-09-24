@@ -51,6 +51,12 @@ public sealed record PlayerView(
 /// <summary>A door and whether it is open.</summary>
 public sealed record DoorView(DoorSite Site, bool Open);
 
+/// <summary>A switch and whether it has been set (M6).</summary>
+public sealed record SwitchView(SwitchSite Site, bool Set);
+
+/// <summary>A barrier and whether it still stands (M6).</summary>
+public sealed record BarrierView(BarrierSite Site, bool Standing);
+
 /// <summary>
 /// One running world. Commands are queued and applied at a tick boundary by <see cref="DrainCommands"/>; time
 /// advances only through <see cref="Step"/>, one fixed tick at a time. The same commands at the same boundaries
@@ -161,6 +167,18 @@ public sealed class Simulation
     public static CellKey CellOf(DoorSite door) =>
         CellKey.OfWorld(door.ClosedFootprint.CenterXMm / 1000.0, door.ClosedFootprint.CenterZMm / 1000.0);
 
+    /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
+    public static CellKey CellOf(SwitchSite site) => CellOf(site.Body);
+
+    /// <summary>The cell a barrier stands in (M6): the flag that lifts it lives in that cell's delta.</summary>
+    public static CellKey CellOf(BarrierSite barrier) => CellOf(barrier.Footprint);
+
+    private static CellKey CellOf(Blocker footprint)
+    {
+        var (x, z) = Footprints.Center(footprint);
+        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
+    }
+
     public SimulationSetup Setup { get; }
 
     public EntityId PlayerId => _identity.Id;
@@ -183,6 +201,10 @@ public sealed class Simulation
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
 
     public ImmutableArray<DoorView> Doors => Setup.Layout.Doors.Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
+
+    public ImmutableArray<SwitchView> Switches => Setup.Layout.Switches.Select(s => new SwitchView(s, _context.IsSet(s))).ToImmutableArray();
+
+    public ImmutableArray<BarrierView> Barriers => Setup.Layout.Barriers.Select(b => new BarrierView(b, !_context.IsLifted(b))).ToImmutableArray();
 
     /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
     public CombatView Combat => _combat.View();
@@ -210,7 +232,7 @@ public sealed class Simulation
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
-    /// <summary>The footprints that currently block movement besides the static ones: closed doors and living creatures. Prediction needs them.</summary>
+    /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
     /// <summary>Which system owns each slice of state (ARCHITECTURE.md §5).</summary>

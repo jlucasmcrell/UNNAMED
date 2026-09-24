@@ -64,8 +64,9 @@ public class NpcTests
         var simulation = session.NewGame("Tester", seed: 42);
 
         var npcs = simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).ToList();
-        Assert.Equal(new[] { Kera, Renn, Sel }, npcs.Select(n => n.Id));
-        Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien" }, npcs.Select(n => n.Name));
+        // The waystation's three, and Tavar, caught in the Foldscar (M6).
+        Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
+        Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
         Assert.All(npcs, n => Assert.False(n.Talking));
         Assert.Equal((61_600L, 139_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
         // A named NPC is the same instance in every world: identity is derived, never rolled (D-10).
@@ -199,7 +200,7 @@ public class NpcTests
         Assert.Null(Say(arena, "books"));
         Assert.Null(Say(arena, "take"));
         Assert.Equal((1, 5), (Carried(arena, Primer), Regard(arena, Sel, "trust")));
-        Assert.Equal(new[] { "ruin", "strain", "leave" }, Replies(arena));   // the primer is given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "leave" }, Replies(arena));   // the primer is given once; now she will talk of strain
     }
 
     [Fact]

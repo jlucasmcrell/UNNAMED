@@ -40,7 +40,12 @@ internal sealed class SystemContext
 
     public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(door), door.FlagId) != 0;
 
-    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen);
+    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(site), site.FlagId) != 0;
+
+    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
+
+    /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
+    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
@@ -179,7 +184,7 @@ internal sealed class MovementSystem
 
 /// <summary>
 /// Owns no state. Validates an interaction against the actor's authoritative body - never the camera - and asks
-/// the owner of what changes to change it. In Phase 1 the interactables are doors.
+/// the owner of what changes to change it. In Phase 1 the interactables are doors and (M6) switches.
 /// </summary>
 internal sealed class InteractionSystem
 {
@@ -196,6 +201,8 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        if (_context.Setup.Layout.FindSwitch(command.TargetKey) is { } site)
+            return Work(site, tick);
         var door = _context.Setup.Layout.FindDoor(command.TargetKey);
         if (door is null)
             return $"nothing to interact with called '{command.TargetKey}'";
@@ -211,6 +218,25 @@ internal sealed class InteractionSystem
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
+        return null;
+    }
+
+    /// <summary>A switch sets its flag once, and only when every flag it requires is set in its cell.</summary>
+    private string? Work(SwitchSite site, long tick)
+    {
+        var body = _context.State.Body;
+        long reach = _context.Setup.Movement.InteractReachMm;
+        double distance = site.Body.DistanceTo(body.XMm, body.ZMm);
+        if (distance > reach)
+            return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
+        if (_context.IsSet(site))
+            return $"the {site.Name} is already set";
+        var cell = Simulation.CellOf(site);
+        if (site.Requires.Any(flag => _context.State.World.GetFlag(cell, flag) == 0))
+            return site.LockedText;
+        if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
+            return refused;
+        _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }
 }

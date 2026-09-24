@@ -18,6 +18,9 @@ public sealed record WorldFlagChanged(string CellKey, string FlagId, long From, 
 
 public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long Tick);
 
+/// <summary>A switch was worked (M6): its flag is set, for good.</summary>
+public sealed record SwitchSet(EntityId Actor, string SwitchKey, long Tick);
+
 public sealed record LocationDiscovered(string LocationId, DiscoveryMethod Method, long Tick);
 
 public sealed record ExperienceGained(XpSource Source, long Awarded, long Repaid, int LevelsGained, int Level, long Tick);

@@ -1,0 +1,9 @@
+id: world.foldscar.stone_southwest_aligned
+kind: world_flag
+schema: 1
+display_key: world.foldscar.stone_southwest_aligned.name
+tags: [world_flag]
+notes: Whether the south-west Quiet Stone has been turned back into line (content bible §16). Set once by its switch (M6); persisted in the Foldscar cell's delta.
+type: bool
+default: 0
+owning_system: S-22

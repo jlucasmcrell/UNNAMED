@@ -7,6 +7,7 @@ using System.Text;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
 
@@ -281,6 +282,13 @@ internal sealed class QuestDebugger
         }
         foreach (var door in Setup.Layout.Doors.Where(d => d.FlagId == w.FlagId))
             yield return $"the door {door.Key} sets it when opened or closed";
+        foreach (var site in Setup.Layout.Switches.Where(s => s.FlagId == w.FlagId))
+        {
+            var (x, z) = Footprints.Center(site.Body);
+            var missing = site.Requires.Where(f => State.World.GetFlag(Simulation.CellOf(site), f) == 0).ToList();
+            yield return $"{site.Verb.ToLowerInvariant()} the {site.Name} at ({Point(x, z)}): {site.Key}, in cell {Simulation.CellOf(site)}" +
+                (missing.Count == 0 ? "" : $"; it waits on {string.Join(", ", missing)}");
+        }
         foreach (var (dialogue, node, choice) in Replies().Where(r => r.Choice.Consequences.OfType<SetWorldFlagConsequence>().Any(s => s.FlagId == w.FlagId)))
         {
             string speaker = dialogue.Participants.First();
@@ -363,7 +371,8 @@ internal sealed class QuestDebugger
 
     private string DescribeCondition(DialogueCondition condition, string dialogueId) => condition switch
     {
-        VisitedCondition v => v.Negated ? $"needs '{v.NodeId}' unheard, and it was heard" : $"needs '{v.NodeId}' heard first",
+        VisitedCondition v => (v.Negated ? $"needs '{v.NodeId}' unheard" : $"needs '{v.NodeId}' heard") +
+            (v.DialogueId is { } other ? $" in {other}" : "") + (v.Negated ? ", and it was heard" : " first"),
         WorldStateCondition w => $"needs {w.FlagId} in [{w.Min}, {w.Max}] at the speaker",
         HasItemCondition h => h.Negated
             ? $"needs fewer than {h.Count} {h.ItemId}{(h.QualityMin > Quality.Crude ? $" of quality >= {h.QualityMin}" : "")} carried"

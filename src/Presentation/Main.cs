@@ -285,6 +285,9 @@ public partial class Main : Node3D
                 case FocusKind.Npc:
                     _controller.Talk(focus.Key);
                     break;
+                case FocusKind.Switch:
+                    _controller.Interact(focus.Key);
+                    break;
             }
         }
         if (Input.IsActionJustPressed("inventory"))
@@ -379,6 +382,8 @@ public partial class Main : Node3D
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
             { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[E] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[E] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
             { } item => $"[E] Pick up {ItemName(_session, item.DefId, item.Quality)}",
         });
 
@@ -431,6 +436,13 @@ public partial class Main : Node3D
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
         });
+        // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
+        _session.Subscribe<SwitchSet>(e =>
+        {
+            if (_session.Setup.Layout.FindSwitch(e.SwitchKey) is { } site)
+                _hud.Toast(site.DoneText, 6);
+        });
+        _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers));
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
         _session.Subscribe<CommandRejected>(e =>
@@ -653,6 +665,7 @@ public partial class Main : Node3D
         _creatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
             _hollow.SetDoor(door.Site.Key, door.Open);
+        _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
         _items.Refresh(_session.Simulation!);
         _inventory.Refresh();
         var body = _controller.Authoritative;

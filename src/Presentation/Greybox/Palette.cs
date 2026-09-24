@@ -36,6 +36,24 @@ public static class Palette
         Emission = new Color(1f, 0.35f, 0.05f),
     };
 
+    /// <summary>The fold that holds Tavar (M6): a faint violet haze, restrained (content bible §8).</summary>
+    public static StandardMaterial3D Fold { get; } = new()
+    {
+        AlbedoColor = new Color(0.55f, 0.45f, 0.85f, 0.22f),
+        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+        EmissionEnabled = true,
+        Emission = new Color(0.25f, 0.18f, 0.45f),
+        CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+    };
+
+    /// <summary>A Quiet Stone turned into line (M6): a pale band round its top.</summary>
+    public static StandardMaterial3D Aligned { get; } = new()
+    {
+        AlbedoColor = new Color(0.85f, 0.88f, 0.95f),
+        EmissionEnabled = true,
+        Emission = new Color(0.35f, 0.38f, 0.48f),
+    };
+
     public static StandardMaterial3D Water { get; } = new()
     {
         AlbedoColor = new Color(0.20f, 0.35f, 0.45f, 0.75f),

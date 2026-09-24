@@ -35,11 +35,11 @@ public class WorldContentTests
         public void Dispose() => Directory.Delete(Root, recursive: true);
     }
 
-    private static void AssertRefused(string code, string relativePath, string find, string replace)
+    private static void AssertRefused(string code, string relativePath, string find, string replace, string mentions = "")
     {
         using var content = new EditedContent(relativePath, find, replace);
         var loader = Load(content.Root);
-        Assert.Contains(loader.Errors, e => e.Code == code);
+        Assert.Contains(loader.Errors, e => e.Code == code && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -59,6 +59,44 @@ public class WorldContentTests
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));
         Assert.Equal(50, WorldContent.TickMilliseconds(loader));
     }
+
+    /// <summary>M6: the Foldscar's three Quiet Stones and its heart are switches, and the fold that holds Tavar is a barrier (bible §16).</summary>
+    [Fact]
+    public void TheFoldscar_HasThreeStonesAndAHeart_AsSwitches_AndTheFoldThatHoldsTavar()
+    {
+        var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.ashen_hollow");
+
+        Assert.Equal(new[] { "switch.stone_north", "switch.stone_southwest", "switch.stone_southeast", "switch.foldscar_heart" },
+            layout.Switches.Select(s => s.Key));
+        var heart = layout.FindSwitch("switch.foldscar_heart")!;
+        Assert.Equal(("world.foldscar.steadied", "Steady", "heart of the Foldscar"), (heart.FlagId, heart.Verb, heart.Name));
+        Assert.Equal(layout.Switches.Take(3).Select(s => s.FlagId), heart.Requires);
+        Assert.Equal(new CircleBlocker("rock_foldscar_heart", 153_000, 48_000, 1_500, 3_500), heart.Body);
+        Assert.All(layout.Switches.Take(3), s => Assert.Empty(s.Requires));
+        var fold = Assert.Single(layout.Barriers);
+        Assert.Equal(("barrier.foldscar_fold", "world.foldscar.steadied"), (fold.Key, fold.FlagId));
+        Assert.Equal(new CircleBlocker("barrier.foldscar_fold", 145_000, 42_000, 3_000, 2_600), fold.Footprint);
+        Assert.Contains(layout.Npcs, n => (n.NpcId, n.XMm, n.ZMm) == ("npc.ashen_hollow.tavar_orr", 145_000, 42_000));   // inside it
+    }
+
+    [Fact]
+    public void ASwitchOnAStructureTheRegionDoesNotHave_IsRefused() =>
+        AssertRefused("WLD013", "regions/ashen_hollow.yaml", "structure: rock_stone_north", "structure: rock_nowhere", "stands on structure 'rock_nowhere'");
+
+    [Fact]
+    public void ASwitchWhoseRequirementNothingInItsCellSets_IsRefused() =>
+        // The heart moved onto the iron seam's rock, in Blackvein Cut: the stones that steady it stand in another cell.
+        AssertRefused("WLD013", "regions/ashen_hollow.yaml", "structure: rock_foldscar_heart", "structure: rock_iron_seam",
+            "requires world.foldscar.stone_north_aligned, which no switch in its cell sets");
+
+    [Fact]
+    public void ASwitchWithRequirements_SaysWhyItWillNotWork() =>
+        AssertRefused("WLD013", "regions/ashen_hollow.yaml", "    locked_text: ", "    unlocked_text: ", "says why it will not work");
+
+    [Fact]
+    public void ABarrierNoSwitchInItsCellLifts_IsRefused() =>
+        AssertRefused("WLD014", "regions/ashen_hollow.yaml", "circle_m: [145, 42, 3]", "circle_m: [45, 42, 3]",
+            "is lifted by world.foldscar.steadied, which no switch in its cell sets");
 
     [Fact]
     public void ADoorNamingAnUndeclaredFlag_IsRefused() =>
