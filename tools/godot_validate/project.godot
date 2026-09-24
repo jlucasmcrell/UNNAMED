@@ -1,6 +1,27 @@
 [application]
+run/main_scene="res://asset_gallery.tscn"
 config/name="Otherreach Asset Validation"
 config/features=PackedStringArray("4.7")
 
 [rendering]
 renderer/rendering_method="mobile"
+
+[importer_defaults]
+
+; Godot 4.7's default WAV compression is QOA, which is lossy. Shipped that way, every impact and
+; footstep in the set would be lossy-compressed on top of the 24-bit master the pipeline produced,
+; and the brightest sounds in the set are the ones that suffer. PCM costs disk and keeps the
+; transient. Loop beds still need edit/loop_mode=1 per file; the default stays disabled so nothing
+; loops by accident.
+wav={
+"compress/mode": 0,
+"edit/loop_mode": 0,
+"edit/loop_begin": 0,
+"edit/loop_end": -1,
+"edit/trim": false,
+"edit/normalize": false,
+"force/8_bit": false,
+"force/max_rate": false,
+"force/max_rate_hz": 44100,
+"force/mono": false
+}

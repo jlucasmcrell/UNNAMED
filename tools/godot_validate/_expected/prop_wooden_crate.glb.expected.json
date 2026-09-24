@@ -1,0 +1,15 @@
+{
+  "asset_id": "prop_wooden_crate",
+  "dimensions_m": [
+    1.2,
+    0.9366,
+    1.1116
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      0.7961,
+      0.0
+    ]
+  }
+}

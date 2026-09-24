@@ -1,0 +1,15 @@
+{
+  "asset_id": "prop_iron_banded_ore_cart",
+  "dimensions_m": [
+    1.8325,
+    1.8381,
+    2.05
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      1.5624,
+      0.0
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "asset_id": "resource_gold_ore_nugget",
+  "dimensions_m": [
+    0.458,
+    0.5,
+    0.1171
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      0.425,
+      0.0
+    ],
+    "SOCK_harvest_point": [
+      0.0,
+      0.375,
+      0.0585
+    ]
+  }
+}

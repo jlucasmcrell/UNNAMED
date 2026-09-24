@@ -1,5 +1,12 @@
 """Backfill Wave-0 provenance metadata into every existing meta.json.
 
+`godot_validated` is deliberately NOT written here. It was written as a hardcoded False with the
+comment "never tested", which meant it could never become true - and worse, running this file with
+`--force` reset a True that `_godot_validate_assets.py` had recorded, silently un-validating every
+asset that had actually passed. Validation that cannot be recorded, or that is erased by the next
+backfill, is indistinguishable from validation that never happened. The validator is now the single
+writer of that field, and this file leaves it alone.
+
 The library has 250 assets with no provenance: no modular_interface_version, no generation
 machine or date, no status, no fit family, no Godot validation flag. Regenerating them to
 add metadata would be absurd, and the values are all derivable from what already exists.
@@ -21,7 +28,6 @@ Derived objectively:
   texture_resolution          from the embedded GLB images, else from base/transform
   lod_status                  "present" if lod files exist
   collision_status            "present" if collision files exist
-  godot_validated             False - never tested
   sockets                     [] - none authored
   generation_model            from the run manifest settings where one matches
   generation_date             from the file mtime of the raw GLB
@@ -53,7 +59,7 @@ WEARABLE_CATEGORIES = {"character", "armour", "armor", "clothing"}
 
 FIT_RULES = [
     ("tall_narrow", ("race2_vaskaal", "race_vaskaal", "racebody_vaskaal", "raceclass_vaskaal")),
-    ("compact_broad", ("race2_kal", "race_kal", "racebody_kal", "raceclass_kal")),
+    ("compact_broad", ("race2_kal", "race_kal", "racebody_kal", "raceclass_kal", "npc_kal")),
     ("modular_synthetic", ("race2_constructed", "race_constructed",
                            "racebody_constructed", "raceclass_constructed")),
     ("nonphysical", ("race2_mor", "race_mor", "racebody_mor", "raceclass_mor")),
@@ -104,8 +110,20 @@ def glb_image_sizes(path):
 
 
 def manifest_model_for(asset_id, manifests):
+    """Find the generation model recorded for an asset in a run manifest.
+
+    Two shapes are in use under manifests/: the run manifests carry `assets` as a LIST of records,
+    while `semantic_dimensions.json` carries it as a DICT keyed by asset id. Iterating the dict form
+    yields its keys, which are strings, and calling `.get` on one crashed this tool for the whole
+    library. Both shapes are handled rather than one being assumed.
+    """
     for path, data in manifests:
-        for asset in data.get("assets", []):
+        entries = data.get("assets", [])
+        if isinstance(entries, dict):
+            entries = entries.values()
+        for asset in entries:
+            if not isinstance(asset, dict):
+                continue
             if asset.get("stem") == asset_id:
                 return data.get("settings", {}).get("model")
     return None
@@ -171,7 +189,6 @@ def main():
             "triangles": (meta.get("base") or {}).get("triangles"),
             "lod_status": "present" if (meta.get("lods") or {}) else "none",
             "collision_status": "present" if (meta.get("collision") or {}) else "none",
-            "godot_validated": False,
             "sockets": [],
             "socket_family": None,
             "generation_model": manifest_model_for(asset_id, manifests),

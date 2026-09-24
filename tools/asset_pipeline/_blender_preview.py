@@ -69,11 +69,21 @@ def setup_world():
 
 
 def add_lights(center, radius):
-    """Three-point setup scaled to the subject so small and large assets both read."""
-    specs = [("key", 45, -60), ("fill", 25, 60), ("rim", 80, 170)]
-    for name, elevation, azimuth in specs:
+    """Three-point setup scaled to the subject so small and large assets both read.
+
+    Energies are per-light because a key/fill/rim rig needs a ratio, not one flat value. The
+    previous version gave all three 800 * radius^2, which is roughly six times the irradiance that
+    lands a 0.5-albedo surface at mid grey - so pale assets rendered pure white and could not be
+    judged. A weathered timber wall and a limestone wall looked identical.
+
+    Power is in watts; a light of power P at distance d gives roughly P / (4 * pi * d^2) W/m^2, and
+    a surface reads as mid grey at about 3 W/m^2. With the lamps at 3 * radius, P = 355 * radius^2
+    is correct for a single lamp, so the three sum to that rather than each hitting it.
+    """
+    specs = [("key", 45, -60, 180.0), ("fill", 25, 60, 70.0), ("rim", 80, 170, 100.0)]
+    for name, elevation, azimuth, power in specs:
         data = bpy.data.lights.new(name, type="AREA")
-        data.energy = 800 * (radius ** 2)
+        data.energy = power * (radius ** 2)
         data.size = radius * 2
         obj = bpy.data.objects.new(name, data)
         bpy.context.collection.objects.link(obj)

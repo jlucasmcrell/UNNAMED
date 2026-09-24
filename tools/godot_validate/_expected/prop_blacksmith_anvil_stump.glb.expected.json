@@ -1,0 +1,15 @@
+{
+  "asset_id": "prop_blacksmith_anvil_stump",
+  "dimensions_m": [
+    0.7,
+    0.6598,
+    0.6503
+  ],
+  "sockets": {
+    "SOCK_interact_anvil": [
+      0.0,
+      0.6598,
+      0.0
+    ]
+  }
+}

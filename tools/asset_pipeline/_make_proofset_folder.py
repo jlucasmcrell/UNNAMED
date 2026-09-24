@@ -29,14 +29,14 @@ NOTES = {
     "weaponcomp_grip_vaskaal_a": ("weapon component", "correct cut - but the concept lacks the 3+2 finger channels"),
     "weaponcomp_mace_head_flanged_a": ("weapon component", "cut correct - concept drew a double-headed hammer, not a flanged mace"),
     "weaponcomp_shield_heater_a": ("weapon component", "correct - whole object, planar forearm mount, no stub"),
-    "weaponcomp_grip_standard_a": ("weapon component", "BROKEN - generator drew a complete dagger, not a grip"),
-    "weaponcomp_pommel_counterweight_a": ("weapon component", "BROKEN - no stub boundary in mesh, built uncut"),
+    "weaponcomp_grip_standard_a": ("weapon component", "correct - a complete hilt: pommel, leather grip and crossguard, blade stub removed"),
+    "weaponcomp_pommel_counterweight_a": ("weapon component", "correct - faceted iron counterweight, rebuilt from a refined concept, haft stub removed"),
     "weaponcomp_mechanism_telescope_a": ("weapon component", "correct - nested tubes, mechanism and deploy sockets"),
     "armour_chest_plate_base_a": ("armour", "socketed - generated fit, NOT canonical Method C fit"),
     "armour_chest_underlayer_gambeson_a": ("armour", "socketed - generated fit, a garment not a shell"),
     "armour_gorget_plate_a": ("armour", "socketed - generated fit, NOT canonical Method C fit"),
     "armour_kal_back_channel_a": ("armour", "socketed - has Kal wing channel sockets L and R"),
-    "magiccomp_focus_crystal_a": ("magic", "BROKEN - generator drew a whole staff, not a crystal"),
+    "magiccomp_focus_crystal_a": ("magic", "correct - faceted crystal in its brass claw mount, staff rod removed"),
     "weapon_hybrid_focus_staff_spear_a": ("hybrid", "correct - stowed staff and deployed spear, mode-dependent grip"),
 }
 

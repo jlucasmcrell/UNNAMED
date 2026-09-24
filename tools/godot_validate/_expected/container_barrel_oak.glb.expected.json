@@ -1,0 +1,20 @@
+{
+  "asset_id": "container_barrel_oak",
+  "dimensions_m": [
+    0.6275,
+    0.85,
+    0.7172
+  ],
+  "sockets": {
+    "SOCK_interact_handle": [
+      0.1757,
+      0.442,
+      0.3586
+    ],
+    "SOCK_interact_take": [
+      0.0,
+      0.7225,
+      0.0
+    ]
+  }
+}

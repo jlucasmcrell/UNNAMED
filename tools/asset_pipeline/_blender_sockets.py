@@ -88,6 +88,21 @@ def import_glb(path):
     return meshes
 
 
+def discard_existing_sockets():
+    """Remove any socket node already present in the imported asset.
+
+    Without this the tool is not idempotent: re-authoring an asset that already carries sockets
+    makes Blender de-duplicate the names to `SOCK_hinge.001`, and the exported asset silently
+    loses the interface that downstream code looks up by its exact name.
+    """
+    removed = []
+    for obj in list(bpy.context.scene.objects):
+        if obj.name.startswith("SOCK_"):
+            removed.append(obj.name)
+            bpy.data.objects.remove(obj, do_unlink=True)
+    return removed
+
+
 def merge(meshes):
     for obj in bpy.context.scene.objects:
         obj.select_set(False)
@@ -387,7 +402,14 @@ def main():
         raise SystemExit("socket file must declare modular_interface_version")
 
     reset_scene()
-    obj = merge(import_glb(args.input))
+    # Drop any sockets the incoming asset already had, so re-running is idempotent rather than
+    # producing SOCK_hinge.001 and losing the interface name downstream looks up. This has to run
+    # AFTER the import: before it, the scene is empty and nothing is discarded.
+    imported = import_glb(args.input)
+    discarded = discard_existing_sockets()
+    if discarded:
+        print(f"  discarded pre-existing sockets: {discarded}")
+    obj = merge(imported)
 
     resize_scale = None
     if args.resize_to_nominal and definition.get("nominal_size_m"):

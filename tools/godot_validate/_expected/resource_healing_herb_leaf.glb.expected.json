@@ -1,0 +1,20 @@
+{
+  "asset_id": "resource_healing_herb_leaf",
+  "dimensions_m": [
+    0.4348,
+    0.5,
+    0.1337
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      0.425,
+      0.0
+    ],
+    "SOCK_harvest_point": [
+      0.0,
+      0.375,
+      0.0669
+    ]
+  }
+}

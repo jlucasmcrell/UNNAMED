@@ -1,0 +1,15 @@
+{
+  "asset_id": "container_belt_pouch_leather",
+  "dimensions_m": [
+    0.45,
+    0.3636,
+    0.3972
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      0.3091,
+      0.0
+    ]
+  }
+}
