@@ -209,5 +209,13 @@ trade, movement and combat unchanged.
   effects, the V3 sounds and the models and clips the bindings draw, 306 files) beside its executable. Exported with Godot 4.7.2's
   official templates and the `export_presets.cfg` preset "Windows Playtest"; the export needs the project file named for its assembly,
   so `Presentation.csproj` is now `UNNAMED.Presentation.csproj` beside a `UNNAMED.Presentation.sln`. Saves go to
-  `%APPDATA%\Godot\app_userdata\Otherreach`.
+  `%APPDATA%\Godot\app_userdata\Otherreach`. **Checked from the ZIP extracted to a fresh folder** away from the repository, with no
+  asset-root variable: the exported game's headless smoke PASS; its acceptance playthrough played every beat (79 of 80 rows as the
+  editor's run, the other the per-run digest), its replay byte-identical, and its relaunch loaded the save with 415 fields compared and
+  0 differences before dying at the den with the penalty once; a plain launch boots clean.
+- **Verification of the closeout (editor, with the asset workspace):** `dotnet test` 696 passed; content lint 102 definitions, 0 errors;
+  the headless smoke PASS; `--ui-shots` exits 0; `--playthrough` 79 of 80 rows identical to the consolidation run with its 2,499
+  commands identical (instance IDs masked), the replay byte-identical, the relaunch 415 fields / 0 differences; `--delta-shots` all 21
+  beats (three new ones show the formulas' effects on the body and the Strain overlay). A fresh clone without assets (as CI sees it):
+  the smoke PASS and all 21 delta beats in greybox.
 - **Still open:** the RAZER performance window (M6's 1080p/60 evidence).
