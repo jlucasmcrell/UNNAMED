@@ -284,6 +284,86 @@ retargeting mismatch. **Uncertain; needs the engine to diagnose.**
 
 ---
 
+### The review renders are too small — but size does not track quality
+
+The owner reported that the weak assets' review images are 560x560 or 620x620 against a usual
+1536x1536. Measured across all 320 review JPGs and 102 review PNGs, **that specific comparison does not
+hold, and the reason is worth stating plainly because it points at a real problem underneath.**
+
+**Every 1536x1536 image in the library is a concept, not a render.** Searching the whole asset tree:
+783 images at 1536x1536, of which 768 are in ssets/concepts/ and 15 are superseded concepts. There is
+**no 1536x1536 render of any 3D asset anywhere in the library.**
+
+Concepts and renders are different artefact classes:
+
+| Artefact | Resolution | Count |
+|---|---|---|
+| Concept images | **1536x1536** | 768 |
+| 3D review renders (ible_batch) | **520-700 px** | 33 assets |
+| 3D review renders (uildings) | 880x880 | 25 |
+| Contact sheets | 1600x1116 | 9 |
+| NPC animation frames | 560x560 or 1120x1120 | — |
+
+So the 1536 figure comes from the concepts. The renders were never 1536 to begin with.
+
+**And within the review renders, resolution does not separate good from bad.** The sizes are essentially
+arbitrary per asset:
+
+| Asset | Quality | Render size |
+|---|---|---|
+| 
+esource_iron_billet | **good** | 600x600 |
+| prop_blocked_shaft | **failed** | 600x600 |
+| prop_iron_vein_outcrop | **good** | 640x640 |
+| prop_quarry_winch | **failed** | 640x640 |
+| creature_ash_ember_hound | **good** | 620x620 |
+| prop_cart_damaged_merchant | **weak** | 620x620 |
+| uilding_smithy | **failed** | 520x520 |
+| longhouse | box | 620x620 |
+
+Good and bad assets share sizes exactly. 
+esource_iron_billet and prop_blocked_shaft are both
+600x600. Compression does not separate them either: the *good* weapon_hunting_bow render is the
+smallest file in the set at **16 KB for 700x700**, while the failed orge_shed is 73 KB. JPEG size
+tracks image complexity, not asset quality.
+
+**But the underlying concern is correct and should not be dismissed.** The per-asset renders are
+**520-700 px**, and that is too small to judge the assets they were meant to review. A 620x620 render of
+a winch cannot show whether its spokes are separated or its joints are welded — which is exactly what is
+wrong with it. Several are also only 16-18 KB, heavily compressed. Combined with the fact that
+QUALITY_TIERS.md records that no mesh was looked at at all until late, the review step failed twice
+over: **when it did happen, the images were too small to see the defects in.**
+
+The sizes also vary with no recorded rule — 520, 600, 620, 640, 700 inside one directory — so render
+resolution was not a controlled setting. That is a third symptom of the same missing review gate.
+
+****The open question is now closed, and the answer is the opposite of the hypothesis.** Auditing all 422
+renders in the review tree with their write dates, per-asset view renders run:
+
+| Date written | Renders | Width range | Median width |
+|---|---|---|---|
+| 09-21 | 12 | 512-512 | **512** |
+| 09-22 | 115 | 300-1280 | **400** |
+| 09-23 | 178 | 300-950 | **480** |
+| 09-24 | 34 | 700-900 | **880** |
+
+**Render resolution went up over the build, not down.** The earliest renders are 512, the bulk of the
+library sits at 300-500, and the last day is 880. If the owner was judging from renders, the later
+renders were the bigger images - so smaller render resolution cannot be what makes later assets look
+worse, and in fact the whole library has been reviewed through images smaller than the ones produced at
+the end.
+
+This also means the resolution observation, while accurate about individual files, is not a signal of
+asset regression. **It is a signal that almost every asset in the library was reviewed through a
+300-700 px image, and that is simply too small to see the defects this audit is about.**
+
+**Recommended: re-render the review set before any repair decisions are locked in.** 585 LOD0 assets at
+1024 px or better, one consistent size, four views, written next to the mesh. That is the cheapest
+action in this report apart from the LOD material fix, it needs no regeneration, and it converts a
+library nobody has actually looked at into one that can be assessed. Until it is done, every judgement
+of these assets - including mine, which is based on 520-700 px images and bounding-box measurements - is
+being made through a window narrower than the problem.
+
 ## Part 5 — Root-cause analysis
 
 Ranked by confidence, with the class letter from the brief's taxonomy.
