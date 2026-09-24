@@ -53,8 +53,8 @@ public class ItemTests
         simulation.Step();
     }
 
-    // From the waystone east past the smithy, through Charwood's western trees, and north into the den's mouth (M6's layout).
-    private static readonly (double X, double Z)[] ToTheDenCache = { (60, 156), (90, 165), (100, 168), (110, 168), (133, 168), (134, 176), (134, 182) };
+    // From the waystone east past the smithy to Charwood's north-west corner, and north into the den's mouth (M6's layout).
+    private static readonly (double X, double Z)[] ToTheDenCache = { (60, 156), (90, 165), (104, 170), (112, 174), (112, 182), (112, 188.2) };
 
     /// <summary>The bow is found in the world, not carried from the start (content bible §11): a kit with one, for the tests that need it.</summary>
     private static ItemSetup WithBow(ItemSetup items) =>
@@ -207,7 +207,7 @@ public class ItemTests
 
         var untouched = simulation.Containers.Single(c => c.Site.Key == Den);
         Assert.Null(untouched.Id);
-        Assert.Equal(new[] { ("item.ammo.arrow_rough", 12), ("item.consumable.salve_minor", 2), ("item.material.iron_ingot", 3) },
+        Assert.Equal(new[] { ("item.ammo.arrow_rough", 12), ("item.consumable.salve_minor", 2), ("item.material.iron_ingot", 3), ("item.quest.halda_token", 1) },
             untouched.Items.Select(i => (i.DefId, i.Count)));
         Assert.Null(simulation.World.Container(Den));
 
@@ -216,7 +216,7 @@ public class ItemTests
         var touched = simulation.Containers.Single(c => c.Site.Key == Den);
         Assert.NotNull(touched.Id);
         Assert.Equal(EntityKind.Container, touched.Id!.Kind);
-        Assert.Equal(new[] { ("item.ammo.arrow_rough", 7), ("item.consumable.salve_minor", 2), ("item.material.iron_ingot", 3) },
+        Assert.Equal(new[] { ("item.ammo.arrow_rough", 7), ("item.consumable.salve_minor", 2), ("item.material.iron_ingot", 3), ("item.quest.halda_token", 1) },
             touched.Items.Select(i => (i.DefId, i.Count)));
         Assert.Equal(5, Carried(simulation, "item.ammo.arrow_rough").Count);
 

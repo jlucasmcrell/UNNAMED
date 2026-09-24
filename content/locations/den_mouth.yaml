@@ -3,10 +3,10 @@ kind: location
 schema: 1
 display_key: location.den_mouth.name
 tags: [location]
-notes: "The wolves' den at Charwood's north edge - PROTOTYPE.md's den, kept when M6 moved the layout to the content bible's four cells."
+notes: "The wolves' den in Charwood's north-west corner - PROTOTYPE.md's den, kept when M6 moved the layout to the content bible's four cells, and placed clear of its acceptance path."
 name: The Wolves' Den
 region_ref: region.ashen_hollow
-anchor: { world: [134.0, 0.0, 170.0] }          # exact placement, metres; height comes from the terrain
+anchor: { world: [112.0, 0.0, 176.0] }          # exact placement, metres; height comes from the terrain
 kind_of_place: landmark
 discovery: { methods: [visited], radius_m: 8, xp: 25 }
 map: { reveals_radius_m: 30, marker: none }   # no quest markers (charter §3)

@@ -12,15 +12,16 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      # Hearing this line completes Quest 2, so "Sel sent me" asks whether she ever gave it, not whether it is still open.
       - id: sent
         text: "Sel sent me."
-        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: active }]
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started, not: true }]
         consequences:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
         next: caught
       - id: found
         text: "The stones were out of line. I put them right."
-        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: active, not: true }]
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }]
         consequences:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
         next: caught

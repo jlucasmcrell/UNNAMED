@@ -9,7 +9,7 @@ creatures:
   - { creature_ref: creature.beast.wolf_grey, count: [1, 1], role: den_guardian }
   - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: pack_hunter }
   - { creature_ref: creature.beast.wolf_grey, count: [1, 1], role: sleeper }
-at: { position_m: [134, 178], radius_m: 2.5 }
+at: { position_m: [112, 184], radius_m: 2.5 }
 level_band: [2, 2]
 respawn: { kind: none }
 tier_hint: A

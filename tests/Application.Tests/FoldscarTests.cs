@@ -165,14 +165,17 @@ public class FoldscarTests
             Journal(arena).Objectives.Where(o => o.Status == ObjectiveStatus.Active).Select(o => o.Id));
         TurnTheStonesAndSteadyTheHeart(arena);
         Walk(arena, ToTavar);
-        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
-        Assert.Equal(new[] { "sent" }, Replies(arena));   // "Sel sent me": the quest is hers
         long xp = arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(UNNAMED.Domain.Progression.XpSource.QuestObjective);
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
+        // Hearing his first line completes the quest; the reply that says Sel sent the character is still there a moment later.
+        arena.Tick(20);
+        Assert.Equal(QuestStatus.Completed, Journal(arena).Status);
+        Assert.Equal(new[] { "sent" }, Replies(arena));   // "Sel sent me": the quest is hers
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "sent")));
         arena.Tick();
 
         Assert.Equal(new[] { "o_learn", "o_reach", "o_north", "o_southwest", "o_southeast", "o_steady", "o_tavar" }, satisfied.Select(s => s.ObjectiveId));
-        Assert.Equal(new QuestCompleted(Quest, "o_tavar", arena.Simulation.WorldTick), Assert.Single(completed));
+        Assert.Equal("o_tavar", Assert.Single(completed).ByObjective);
         Assert.Equal(new[] { ("xp", "150 XP"), ("relationship", $"{Sel} trust +10") }, rewards.Select(r => (r.Kind, r.What)));
         Assert.Equal(xp + 150, arena.Simulation.Player.Progression.LifetimeXp[UNNAMED.Domain.Progression.XpSource.QuestObjective]);
         Assert.Empty(hits);

@@ -1,6 +1,6 @@
 # M6 status - Companion v1, and the content bible's four cells
 
-**Date:** 2026-09-24. **Branch:** `claude/phase1`. **State:** in progress. Part 1 (the layout reconciliation), part 2 (Quest 2) and part 3 (the companion) are done and verified (below); the §19 playable-prototype report is next. This document grows with them and is complete only when M6 is.
+**Date:** 2026-09-24. **Branch:** `claude/phase1`. **State:** complete except the RAZER performance window, and stopped for the owner's playtest (execution prompt §19). Part 1 is the layout reconciliation, part 2 Quest 2, part 3 the companion, part 4 the playable-prototype report; the exit criteria are taken one by one at the end.
 
 **Entry:** M5 complete (`0eb6247`): quests and the quest debugger work, and NPC state persists.
 
@@ -14,7 +14,7 @@
 | Cell | The bible (§2-§8) | Built |
 |---|---|---|
 | A, X 0-100, Z 100-200 | Ashen Hollow Waystation | The Ashen Waystone (27, 158) with the spawn beside it at (30, 158) facing east; Renn's lodge (M3's longhouse, moved whole) at (44, 128); Kera's smithy (M3's forge shed, moved whole, hearth and anvil inside) at (58, 142); Sel at her survey table (72, 122); the well (49, 151); the storage chest (38, 137); a fence leaving a narrow gap at the smithy's north-west corner (§26's camera test). A level terrace at 7.2 m |
-| B, X 100-200, Z 100-200 | Charwood Verge | Tree clusters clear of the trail and the stream bed; the ash hound (128, 150); the ruined merchant cart with the hunting bow and 12 arrows (157, 162); the ash stand (180, 138); the Woundmoss patch (151, 128); the wolves' den at the north edge (134, 178) with its cache; the east pack's roamers (175, 175); the strays (118, 128). 4-7 m |
+| B, X 100-200, Z 100-200 | Charwood Verge | Tree clusters clear of the trail and the stream bed; the ash hound (128, 150); the ruined merchant cart with the hunting bow and 12 arrows (157, 162); the ash stand (180, 138); the Woundmoss patch (151, 128); the wolves' den in the north-west corner (112, 184) with its cache, and the east pack's roamers on the north-east tree line (188, 180) - both moved there in part 4, clear of the bible's acceptance path; the strays (118, 128). 4-7 m |
 | C, X 0-100, Z 0-100 | Blackvein Cut | A shallow quarry: rim 8-10 m, floor 1.7-2.5 m, entered down a ramp from the road (64, 104) past the upper overlook (54, 74); the husk (48, 58); the animated armour (65, 34); the boar's wallow on the north-west rim (18, 72); the iron seam on the floor (28, 45); the blocked shaft (76, 18); rocks on the rim |
 | D, X 100-200, Z 0-100 | Foldscar Ruin | A basin at 2.6 m; the three Quiet Stones on raised ground (5-7 m) at (150, 78), (122, 38) and (181, 31); the Foldscar's heart (153, 48); the spider (172, 48); the route round the spider (160, 65) - (187, 65) - (194, 45) - (181, 31) kept clear |
 
@@ -71,14 +71,72 @@ C16 (recruit, follow -> wait -> follow, path around the lodge with no snag over 
 - The character passes through him, so he never holds a narrow door shut; creatures do not.
 - G orders every companion at once; there is one in Phase 1, and nothing caps the roster.
 
+## Part 4 - the playable-prototype report (execution prompt §19; `PROTOTYPE.md` §9)
+
+The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field state and its diff, the command logs and a JPEG per beat. The videos of both runs (`playthrough.mp4`, 30 MB, and `relaunch.mp4`, 3 MB, 1280x720 at 20 fps - real time) are kept outside the public repository, on ASTRAL at `G:\UNNAMED_HISTORY\acceptance_final\`.
+
+| §19 item | Evidence | Result |
+|---|---|---|
+| A recorded fresh-session acceptance run (`PROTOTYPE.md` §9 item 1) | `--playthrough <dir>`: a fresh profile and a fixed seed play the content bible's exact acceptance path (§31) through the same commands the keys send - the waystation chest, Kera and Iron Under Ash, the hound (fought), the cart's bow, an ash haft, Blackvein Cut, ore, the billet and the spear, Kera shown it, Sel's primer and Tavar's story, the three Quiet Stones (the south-east one by the way round the spider), the heart, Tavar freed and recruited, home with him following, Wards past tolerance, a save - and quits (§30). Recorded: `transcript.md` (every beat and event with its game time and tick), 21 screenshots, the video | Every beat happened, in 5:58 of game time; both quests complete; no pathing intervention for Tavar on the way home (no catch-up was needed) |
+| Save/reload compared field by field, as a diff (§9 item 2; bible §33) | `state_saved.json` written just before the save, the application quit, relaunched with `--playthrough-verify`, the save loaded, `state_loaded.json` written, and the two walked leaf by leaf (`StateDump`): `state_diff.txt` | **408 fields compared, 0 differences**; the state digest after the load equals the one at the save. The saved state touched everything §33 asks: progression changed (level 2), the bow acquired, the spear made and in hand, ore consumed, two containers changed, seven creature records, the four Foldscar switches set, Tavar recruited and following, Health 112/120, Strain 40, and the character 28 m from the spawn |
+| Death and respawn, the penalty exactly once (C17) | The relaunch tells Tavar to wait, walks to the wolves' den and stands until the pack kills the character: `transcript_relaunch.md` | One death (the Grey Wolf's bite); XP debt 0 before, +78 added, 78 after - "the penalty applied exactly once"; returned at the Ashen Waystone, weakened |
+| The replayable scripted playthrough (§9 item 6) | The run is one tick a frame from a fixed seed, so running it again replays it: the same build, a fresh profile, `--playthrough` again. `state_replay.json` names instance IDs by order of appearance (they are fresh every game, D-04) | The replay's `state_replay.json` is byte-identical to the recorded run's (SHA-256 `A1CA76DE...`); its transcript matches beat for beat and tick for tick. It is under ten minutes: the bible's first ten minutes and its whole §31 path both fit in six |
+| The Phase-1 README (§9 item 5) | `README.md`'s status brought up to date, and a new section: build and run the headless tests, validate the content, play, the controls, and the scripted checks, in under a page | Done - the owner's own README, so the change is kept to those two places |
+| Performance evidence from the §8 gate (§9 item 4) | Needs the owner's clean RAZER window (1080p, sustained 60 fps on the RTX 4070 Ti with OBS, H3 and other GPU loads stopped); the capture is `godot --path src/Presentation -- --perf` | **Not done: waits on RAZER.** A failure after reasonable optimization is an owner-review stop; the 2x2 km greybox is measurement only, not the D-01 revisit gate |
+
+### What the acceptance run found, and what changed
+
+- **Tavar's "Sel sent me" vanished a moment after his first line.** Hearing that line completes Quest 2, and the reply asked for the quest to be active; a player who paused before answering lost the way to recruit him. It now asks whether Sel ever gave the quest; `TheThreeQuietStones_PlaysEndToEnd...` waits before answering, as a regression test.
+- **The wolves sat on the bible's path.** The east pack's patrol route was still on M3 coordinates, now through the middle of Charwood between the cart and the ash stand, and the den I had placed at Charwood's north edge watched the way to the cart; the scripted character was killed twice. The den (its rocks, cache, mouth and pack) moved to Charwood's north-west corner (112, 184) and the patrol to its north-east edge; the tests that walk to the den walk there.
+- **Three items could not be got in a fresh session** (C18, which no test checked before): the hide cap (the unbuilt lost-token quest's reward), the ashbloom herb (no herb node since M3f) and Halda's token. The cap is in Kera's wares beside the vest, dried ashbloom in the waystation's storage chest, and the token back in the den cache where the prototype's quest put it. `ReachabilityTests` now proves every item, creature and node can be reached.
+- **The death recap said "You wake at the outpost".** It says the bible's "You return at the Ashen Waystone".
+
+### `PROTOTYPE.md` §7.3, criterion by criterion
+
+| | Evidence | |
+|---|---|---|
+| C9 walk to the den and back, never stuck | The playthrough crosses all four cells and the relaunch walks to the den; `SessionTests`, the smoke | Met |
+| C10 kill the den pack with sword, bow and all three spells, each needed | The M3f finding stands: a level-2 character with a standard March Spear clears the den at 85/120 health, so no spell is needed | **Open** - the owner's tuning call (overnight report item 2) |
+| C11 level 2 from the quest alone | Iron Under Ash pays 120 XP (`QuestTests`); the playthrough reaches level 2 at the spear | Met |
+| C12 both resources, the daily one refills, the seam does not | `CraftingTests`; the playthrough gathers both | Met |
+| C13 both recipes, exact counts | `CraftingTests`; the playthrough makes both | Met |
+| C14 quality on the instance | `CraftingTests.AFineSpear_HitsHarder_AndACrudeOneSofter` (M3f's reading) | Met |
+| C15 the quest, tracked | Both of the bible's quests in the playthrough, the journal and tracker on screen | Met |
+| C16 the companion | Part 3's tests; Tavar home with the character in the playthrough | Met |
+| C17 death, the penalty once | The relaunch; `CombatTests.Dying_OwesXpDebt_Once...` | Met |
+| C18 everything reachable | `ReachabilityTests` | Met (after the changes above) |
+
 ## Verification so far
 
 - Part 1: `dotnet test` (from `src/`) 635 passed; content lint 94 definitions, 0 errors.
 - Part 2: `dotnet test` **647 passed**, 0 failed (Architecture 14, Content 131, Domain 142, EntityRegistry 23, World 60, Persistence 146, Application 131); content lint 101 definitions, 0 errors.
 - Part 3: `dotnet test` **670 passed**, 0 failed (Architecture 14, Content 136, Domain 147, EntityRegistry 23, World 60, Persistence 150, Application 140); content lint 102 definitions, 0 errors.
+- Part 4: `dotnet test` **675 passed**, 0 failed (Architecture 14, Content 136, Domain 147, EntityRegistry 23, World 60, Persistence 150, Application 145); content lint 102 definitions, 0 errors. The acceptance playthrough, its relaunch and its replay as above.
 - Godot 4.7.2 headless smoke `PASS` on the new layout: the lodge door, Sel's book at her table, the quest from Kera at the smithy, the quicksave's identical digest; since part 2 it places four NPCs.
 - The windowed `--ui-shots` run (ASTRAL) plays the whole M3-M5 journey on the new layout and exits 0: Renn in the lodge, Sel at her table outside it (`sel.png`), the archetype gallery, the boar fought on Blackvein's rim, the seam struck on the quarry floor (`seam.png`), the stand cut in Charwood, home to the smithy for Iron Under Ash's billet, spear, trade and completion, the spear outside the smithy (`spear.png`: the lodge, Sel's table, the fence), a stray wounded, and the death at the den.
 
-## Still to do in M6
+## Exit criteria, one by one (ROADMAP M6)
 
-- The §19 playable-prototype report: C17's death evidence, a recorded fresh-session run, §7.4's field-by-field save comparison as a diff, the README, the replayable 10-minute scripted playthrough. The 1080p/60 FPS evidence needs the RAZER window.
+| Criterion | Status |
+|---|---|
+| C16: recruit Tavar, follow -> wait -> follow, around the lodge with no snag over 15 s | Met - part 3 |
+| The companion-state tests (follow/wait, catch-up, downed, death and revive, the behaviour state saved) green | Met - part 3 |
+| He walks the bible's acceptance route with the character without a pathing intervention | Met for the way home from the Foldscar (part 4); he joins at the Foldscar, so the route before it is the character's alone |
+| His state round-trips through save/load field by field | Met - the companion test and the acceptance relaunch (0 differences) |
+| Both of the bible's quests complete | Met - part 2's tests and the playthrough |
+| Proof: a recorded acceptance log with zero pathing interventions; the companion round trip; the §19 report | Met - part 4 |
+| The early feel test (3-5 blind testers) | The owner's, after the playtest; not a gate |
+| M6 acceptance (bible §35): 1080p/60 FPS evidence | **Waits on RAZER** |
+
+## Known deferrals
+
+- The RAZER performance window (M3's and the bible's §34).
+- C10's balance - the spear against the den pack - is the owner's call.
+- A herb node (the bible's Woundmoss) is not built; the ashbloom herb is found dried in the waystation chest.
+- The wolves (den pack, strays, respawning pack) stay, a divergence from the bible the owner can drop.
+
+## Commits, state, next
+
+- M6 part 1 `8935b8d`, part 2 `4df79ea`, part 3 `f3a064e`, part 4 (this report) - on `claude/phase1`, draft PR #1; nothing merged to `main`.
+- The worktree is clean after the part 4 commit.
+- Next: **stop for the owner's playtest** (execution prompt §19). No M7 work begins.

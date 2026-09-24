@@ -22,4 +22,4 @@ melee: { arc_deg: 90, windup_percent: 40, active_percent: 20 }   # a swing: wind
 ranged: { range_m: 40, recovery_s: 0.3 }                         # a shot resolves at release; recovery is the nock
 unarmed: { damage: [2, 3], damage_type: physical_blunt, reach: 1.2, attack_time: 0.6, stamina_cost: 4 }
 creature_leash_m: 40               # a creature gives up a chase this far from home
-death: { effect_ref: effect.weakened }   # PROTOTYPE.md §5 step 7: respawn at the outpost, weakened for 60 s
+death: { effect_ref: effect.weakened }   # PROTOTYPE.md §5 step 7: return at the Ashen Waystone (content bible §18), weakened for 60 s

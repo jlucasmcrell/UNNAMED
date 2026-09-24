@@ -60,7 +60,7 @@ public sealed class UiShots
     private static readonly (double X, double Z)[] ToTheAnvil = { (58.2, 141.4) };
     private static readonly (double X, double Z)[] OutOfTheForge = { (54.5, 142), (51.8, 142), (47, 138) };
     private static readonly (double X, double Z)[] ToTheStrays = { (60, 128), (90, 124), (106, 126) };
-    private static readonly (double X, double Z)[] ToTheDen = { (110, 140), (104, 160), (110, 168), (133, 166) };
+    private static readonly (double X, double Z)[] ToTheDen = { (110, 140), (100, 158), (104, 166), (112, 170) };
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;

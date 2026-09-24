@@ -84,10 +84,11 @@ structures:
   # Cell B - Charwood Verge (bible §6). The damaged merchant cart where the bow lies.
   - { id: cart_wreck, box_m: [155.5, 161.2, 158.5, 163.2], height_m: 1.4 }
   - { id: fallen_timber, box_m: [163, 147, 171, 147.8], height_m: 0.8 }
-  # The wolves' den: a notch in the rock at Charwood's north edge (the prototype's den, kept; not in the bible).
-  - { id: den_rock_west, box_m: [115, 174, 131, 196], height_m: 6.0 }
-  - { id: den_rock_east, box_m: [137, 174, 153, 192], height_m: 5.0 }
-  - { id: den_rock_back, box_m: [131, 186, 137, 196], height_m: 6.0 }
+  # The wolves' den: a notch in the rock in Charwood's north-west corner (the prototype's den, kept; not in the bible), clear of the
+  # bible's acceptance path.
+  - { id: den_rock_west, box_m: [93, 180, 109, 198], height_m: 6.0 }
+  - { id: den_rock_east, box_m: [115, 180, 131, 196], height_m: 5.0 }
+  - { id: den_rock_back, box_m: [109, 190, 115, 198], height_m: 6.0 }
   # Cell C - Blackvein Cut (bible §7). The iron seam's rock on the quarry floor, the blocked shaft, boulders on the rim.
   - { id: rock_iron_seam, circle_m: [28, 46.2, 1.2], height_m: 1.5 }
   - { id: rock_blocked_shaft, box_m: [73, 16, 79, 21], height_m: 4.0 }
@@ -103,9 +104,9 @@ structures:
   - { id: tree_01, circle_m: [108, 158, 0.4], height_m: 7.0 }
   - { id: tree_02, circle_m: [113, 166, 0.4], height_m: 7.0 }
   - { id: tree_03, circle_m: [118, 156, 0.4], height_m: 7.0 }
-  - { id: tree_04, circle_m: [122, 170, 0.4], height_m: 7.0 }
-  - { id: tree_05, circle_m: [112, 186, 0.4], height_m: 7.0 }
-  - { id: tree_06, circle_m: [104, 176, 0.4], height_m: 7.0 }
+  - { id: tree_04, circle_m: [128, 176, 0.4], height_m: 7.0 }
+  - { id: tree_05, circle_m: [136, 190, 0.4], height_m: 7.0 }
+  - { id: tree_06, circle_m: [146, 182, 0.4], height_m: 7.0 }
   - { id: tree_07, circle_m: [140, 160, 0.4], height_m: 7.0 }
   - { id: tree_08, circle_m: [146, 168, 0.4], height_m: 7.0 }
   - { id: tree_09, circle_m: [137, 142, 0.4], height_m: 7.0 }
@@ -138,7 +139,7 @@ doors:
   - { key: door.forge_shed, flag_ref: world.hollow.forge_shed_door_open, box_m: [53, 141.2, 53.4, 142.8], height_m: 2.4 }
 # Authored world containers: their contents are a loot table until the player first changes them.
 containers:
-  - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [134, 183], stack_slots: 12 }        # the den, Charwood's north edge
+  - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [112, 189], stack_slots: 12 }        # the den, Charwood's north-west corner
   - { key: container.waystation_chest, loot_ref: loot.waystation_chest, position_m: [38, 137], stack_slots: 12 }   # bible §5's storage chest
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).

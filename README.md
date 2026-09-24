@@ -404,25 +404,31 @@ Generated intermediate assets are intentionally kept outside normal Git history.
 
 # Current Development Status
 
-Otherreach is currently in **Phase 1 — Playable Prototype foundation**.
+Otherreach is currently in **Phase 1 — Playable Prototype**, at its owner-playtest gate.
 
-Completed foundation milestones:
+Completed milestones:
 
 - **Phase 0** — game/system architecture and adversarial review
 - **M0** — repository and architecture bootstrap
-- **M1** — domain skeleton, command/event flow, headless tests
-- **M1b** — data-driven content loading and validation
-- **M2** — entity identity, deterministic baseline, sparse persistence, crash-safe saves
-- **M2b** — save migration and baseline compatibility
-
-Current/next critical-path work:
-
+- **M1 / M1b** — domain skeleton, command/event flow, headless tests; data-driven content loading and validation
+- **M2 / M2b** — entity identity, deterministic baselines, sparse persistence, crash-safe saves; save migration and baseline compatibility
 - **M2c** — progression spine
-- **M3** — player, movement, interaction, world cells
+- **M3 – M3f** — player, movement and world cells; items, inventory and equipment; combat; creatures and AI; basic magic; gathering and one profession
+- **M4** — the waystation's people: NPCs, structured dialogue, relationships, trade
+- **M5** — quests as objective graphs, and the quest debugger
+- **M6** — Ashen Hollow's four cells, its second quest, and the first companion (at the owner-playtest gate)
 
-The project is **not yet a generally playable game**.
+The Phase-1 prototype is playable end to end in a small greybox region. The project is **not yet a generally playable game**.
 
-The first true Phase-1 prototype completes at **M6**.
+## Building, testing and playing the Phase-1 prototype
+
+You need the .NET 8 SDK, and for the game itself Godot 4.7 (the .NET / Mono build).
+
+- **Headless tests:** from `src/`, run `dotnet build`, then `dotnet test --no-build`. No engine is needed.
+- **Content validation:** `dotnet build src/Content -c Release`, then `dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content`. A broken definition is named by file and line, and the game refuses to start on one.
+- **Play:** `dotnet build src/Presentation`, then run `godot --path src/Presentation` (or open `src/Presentation` in the Godot editor and press Play).
+- **Controls:** WASD to move, Shift to sprint, Ctrl to walk, mouse to look, wheel to zoom in to first person (V toggles, Q swaps shoulder); left click attacks, right click guards, C dodges; E opens, takes, talks, works and helps up; Tab is the inventory, J the journal, 4-6 the formulas, H a salve, G tells a companion to follow or wait; F5 quicksaves, F9 quickloads; F3 is the debug overlay, F4 the quest debugger; Esc frees the mouse.
+- **Checks without playing:** `godot --headless --path src/Presentation -- --smoke` boots, plays a little and round-trips a save. `godot --path src/Presentation -- --playthrough <dir>` plays the content bible's acceptance route and saves and quits; `-- --playthrough-verify <dir>` relaunches, loads that save and compares the state field by field.
 
 A representative public-facing vertical slice is targeted by **M9**, after factions/building and a dungeon/boss/multi-stage quest are integrated.
 

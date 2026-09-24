@@ -1,0 +1,636 @@
+{
+  "world_tick": 7162,
+  "player": {
+    "Id": "chr#1",
+    "Name": "Wanderer",
+    "XMm": 48244,
+    "YMm": 7200,
+    "ZMm": 136879,
+    "Inventory": [
+      {
+        "ItemId": "itm#1",
+        "DefId": "item.ammo.arrow_rough",
+        "Count": 18,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#2",
+        "DefId": "item.consumable.salve_minor",
+        "Count": 2,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#3",
+        "DefId": "item.material.herb_ashbloom",
+        "Count": 2,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#4",
+        "DefId": "item.material.iron_ore",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#5",
+        "DefId": "item.tool.water_flask",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#6",
+        "DefId": "item.weapon.hunting_bow",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#7",
+        "DefId": "item.weapon.march_spear",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm#8",
+        "DefId": "item.weapon.rusted_sword",
+        "Count": 1,
+        "Quality": 0
+      }
+    ],
+    "Progression": {
+      "Level": 2,
+      "LevelProgressXp": 330,
+      "XpDebt": 0,
+      "LifetimeXp": {
+        "Discovery": 65,
+        "QuestObjective": 270,
+        "Combat": 40,
+        "Production": 55
+      },
+      "Allocation": {},
+      "UnspentAttributePoints": 1,
+      "Grants": [],
+      "Skills": {
+        "skill.one_hand_blade": {
+          "Level": 2,
+          "ProgressXp": 24
+        },
+        "skill.smithing": {
+          "Level": 3,
+          "ProgressXp": 4
+        },
+        "skill.survival": {
+          "Level": 3,
+          "ProgressXp": 2
+        }
+      },
+      "Known": {
+        "recipe.smithing.iron_billet": {
+          "Source": "Teacher",
+          "SourceRef": "npc.ashen_hollow.kera_voss",
+          "Tick": 342
+        },
+        "recipe.smithing.march_spear": {
+          "Source": "Teacher",
+          "SourceRef": "npc.ashen_hollow.kera_voss",
+          "Tick": 342
+        },
+        "spell.force.impulse_bolt": {
+          "Source": "Book",
+          "SourceRef": "item.tome.resonance_primer",
+          "Tick": 3855
+        },
+        "spell.vital.mending_thread": {
+          "Source": "Book",
+          "SourceRef": "item.tome.resonance_primer",
+          "Tick": 3855
+        },
+        "spell.warding.brace_ward": {
+          "Source": "Book",
+          "SourceRef": "item.tome.resonance_primer",
+          "Tick": 3855
+        }
+      },
+      "ProductionFirsts": [
+        "item.material.iron_ingot",
+        "item.weapon.march_spear"
+      ],
+      "NoveltyFirsts": [
+        "item.material.iron_ingot",
+        "item.weapon.march_spear",
+        "node.ore.iron_seam",
+        "node.wood.ash_stand"
+      ],
+      "Pools": {
+        "Health": 112,
+        "Stamina": null,
+        "Focus": 32,
+        "Strain": 40
+      },
+      "Guards": {
+        "SpeciesToday": {
+          "creature.beast.ash_ember_hound": {
+            "Day": 0,
+            "Kills": 1
+          }
+        },
+        "SpeciesEverKilled": [
+          "creature.beast.ash_ember_hound"
+        ],
+        "ClusterKills": {
+          "spawn.hollow.charwood_hound": [
+            950
+          ]
+        }
+      },
+      "Digest": "sha256:63a83d666241d19f44c4581ca4c31da3b11627119bfff4aa65056af5b33b4f58"
+    },
+    "FacingMdeg": 296565,
+    "Discoveries": [
+      {
+        "LocationId": "location.blackvein_cut",
+        "Method": "Visited",
+        "Tick": 2345
+      },
+      {
+        "LocationId": "location.foldscar",
+        "Method": "Visited",
+        "Tick": 4452
+      },
+      {
+        "LocationId": "location.outpost",
+        "Method": "Visited",
+        "Tick": 1
+      },
+      {
+        "LocationId": "location.ruined_cart",
+        "Method": "Visited",
+        "Tick": 1172
+      }
+    ],
+    "Equipment": {
+      "MainHand": "itm#7"
+    },
+    "Currency": 25,
+    "Effects": [
+      {
+        "EffectId": "effect.braced",
+        "Stacks": 1,
+        "ExpiresTick": 7355,
+        "NextTickAt": 7036
+      }
+    ],
+    "Relationships": [
+      {
+        "NpcId": "npc.ashen_hollow.kera_voss",
+        "Dimension": "respect",
+        "Value": 5
+      },
+      {
+        "NpcId": "npc.ashen_hollow.kera_voss",
+        "Dimension": "trust",
+        "Value": 5
+      },
+      {
+        "NpcId": "npc.ashen_hollow.sel_arien",
+        "Dimension": "trust",
+        "Value": 15
+      },
+      {
+        "NpcId": "npc.ashen_hollow.tavar_orr",
+        "Dimension": "trust",
+        "Value": 10
+      }
+    ],
+    "Conversations": [
+      {
+        "DialogueId": "dialogue.ashen_hollow.kera_voss",
+        "Heard": [
+          "again",
+          "greet",
+          "judged",
+          "lesson"
+        ]
+      },
+      {
+        "DialogueId": "dialogue.ashen_hollow.sel_arien",
+        "Heard": [
+          "again",
+          "foldscar",
+          "greet",
+          "primer",
+          "stones",
+          "tavar"
+        ]
+      },
+      {
+        "DialogueId": "dialogue.ashen_hollow.tavar_orr",
+        "Heard": [
+          "caught",
+          "greet",
+          "joined"
+        ]
+      }
+    ],
+    "Quests": [
+      {
+        "QuestId": "quest.ashen_hollow.iron_under_ash",
+        "Status": "Completed",
+        "StartedTick": 342,
+        "EndedTick": 3553,
+        "EndedBy": "o_show",
+        "Objectives": [
+          {
+            "Id": "o_billet",
+            "Status": "Satisfied",
+            "ActivatedTick": 3296,
+            "EndedTick": 3505,
+            "Progress": 1
+          },
+          {
+            "Id": "o_ore",
+            "Status": "Satisfied",
+            "ActivatedTick": 2345,
+            "EndedTick": 2727,
+            "Progress": 0
+          },
+          {
+            "Id": "o_return",
+            "Status": "Satisfied",
+            "ActivatedTick": 2727,
+            "EndedTick": 3296,
+            "Progress": 0
+          },
+          {
+            "Id": "o_shelf",
+            "Status": "Satisfied",
+            "ActivatedTick": 343,
+            "EndedTick": 2345,
+            "Progress": 0
+          },
+          {
+            "Id": "o_show",
+            "Status": "Satisfied",
+            "ActivatedTick": 3527,
+            "EndedTick": 3553,
+            "Progress": 0
+          },
+          {
+            "Id": "o_speak",
+            "Status": "Satisfied",
+            "ActivatedTick": 342,
+            "EndedTick": 343,
+            "Progress": 0
+          },
+          {
+            "Id": "o_spear",
+            "Status": "Satisfied",
+            "ActivatedTick": 3505,
+            "EndedTick": 3527,
+            "Progress": 1
+          }
+        ]
+      },
+      {
+        "QuestId": "quest.ashen_hollow.three_quiet_stones",
+        "Status": "Completed",
+        "StartedTick": 3823,
+        "EndedTick": 6079,
+        "EndedBy": "o_tavar",
+        "Objectives": [
+          {
+            "Id": "o_learn",
+            "Status": "Satisfied",
+            "ActivatedTick": 3823,
+            "EndedTick": 3824,
+            "Progress": 0
+          },
+          {
+            "Id": "o_north",
+            "Status": "Satisfied",
+            "ActivatedTick": 4452,
+            "EndedTick": 4452,
+            "Progress": 0
+          },
+          {
+            "Id": "o_reach",
+            "Status": "Satisfied",
+            "ActivatedTick": 3824,
+            "EndedTick": 4452,
+            "Progress": 0
+          },
+          {
+            "Id": "o_southeast",
+            "Status": "Satisfied",
+            "ActivatedTick": 4452,
+            "EndedTick": 5478,
+            "Progress": 0
+          },
+          {
+            "Id": "o_southwest",
+            "Status": "Satisfied",
+            "ActivatedTick": 4452,
+            "EndedTick": 4746,
+            "Progress": 0
+          },
+          {
+            "Id": "o_steady",
+            "Status": "Satisfied",
+            "ActivatedTick": 5478,
+            "EndedTick": 6005,
+            "Progress": 0
+          },
+          {
+            "Id": "o_tavar",
+            "Status": "Satisfied",
+            "ActivatedTick": 6005,
+            "EndedTick": 6079,
+            "Progress": 0
+          }
+        ]
+      }
+    ],
+    "Companions": [
+      {
+        "NpcId": "npc.ashen_hollow.tavar_orr",
+        "Order": "Follow",
+        "Condition": "Up",
+        "XMm": 50464,
+        "ZMm": 135765,
+        "FacingMdeg": 296648,
+        "Health": 100,
+        "DownedTick": 0,
+        "StuckTicks": 0,
+        "LastCombatTick": 0,
+        "Trail": [
+          {
+            "XMm": 48816,
+            "ZMm": 136592
+          },
+          {
+            "XMm": 49817,
+            "ZMm": 136092
+          }
+        ]
+      }
+    ]
+  },
+  "world": {
+    "Cells": [
+      {
+        "CellKey": "r_0_0:c_00_00",
+        "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
+        "DirtyReasons": [
+          "nodes"
+        ],
+        "Flags": [],
+        "HarvestedNodes": [
+          {
+            "NodeKey": "node.r_0_0:c_00_00.iron_seam.00",
+            "LastHarvestTick": 2726,
+            "HarvestSeq": 1
+          }
+        ],
+        "PopulationAlive": []
+      },
+      {
+        "CellKey": "r_0_0:c_00_01",
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DirtyReasons": [
+          "flags"
+        ],
+        "Flags": [
+          {
+            "Key": "world.hollow.forge_shed_door_open",
+            "Value": 1
+          }
+        ],
+        "HarvestedNodes": [],
+        "PopulationAlive": []
+      },
+      {
+        "CellKey": "r_0_0:c_01_00",
+        "BaselineHash": "sha256:8a3ba7c52d8483f71d21b0bbe3ace5f12ef78e03881f12f0de0a29fd1bb98097",
+        "DirtyReasons": [
+          "flags"
+        ],
+        "Flags": [
+          {
+            "Key": "world.foldscar.steadied",
+            "Value": 1
+          },
+          {
+            "Key": "world.foldscar.stone_north_aligned",
+            "Value": 1
+          },
+          {
+            "Key": "world.foldscar.stone_southeast_aligned",
+            "Value": 1
+          },
+          {
+            "Key": "world.foldscar.stone_southwest_aligned",
+            "Value": 1
+          }
+        ],
+        "HarvestedNodes": [],
+        "PopulationAlive": []
+      },
+      {
+        "CellKey": "r_0_0:c_01_01",
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DirtyReasons": [
+          "nodes"
+        ],
+        "Flags": [],
+        "HarvestedNodes": [
+          {
+            "NodeKey": "node.r_0_0:c_01_01.ash_stand.00",
+            "LastHarvestTick": 1443,
+            "HarvestSeq": 1
+          }
+        ],
+        "PopulationAlive": []
+      }
+    ],
+    "Entities": [],
+    "Created": [],
+    "Containers": [
+      {
+        "Key": "container.merchant_cart",
+        "InstanceId": "cnt#1",
+        "HostCell": "r_0_0:c_01_01",
+        "Items": [],
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b"
+      },
+      {
+        "Key": "container.waystation_chest",
+        "InstanceId": "cnt#2",
+        "HostCell": "r_0_0:c_00_01",
+        "Items": [],
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9"
+      }
+    ],
+    "Creatures": [
+      {
+        "Key": "spawn.hollow.boar_wallow#0",
+        "DefId": "creature.beast.bristleback_boar",
+        "InstanceId": "crt#1",
+        "HostCell": "r_0_0:c_00_00",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 16067,
+        "ZMm": 73028,
+        "FacingMdeg": 164023,
+        "Health": 70,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.charwood_hound#0",
+        "DefId": "creature.beast.ash_ember_hound",
+        "InstanceId": "crt#2",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Corpse",
+        "XMm": 116598,
+        "ZMm": 149239,
+        "FacingMdeg": 261492,
+        "Health": 0,
+        "DiedTick": 950,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 950,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.east_pack#0",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt#3",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 180565,
+        "ZMm": 193704,
+        "FacingMdeg": 297623,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.east_pack#1",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt#4",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 189771,
+        "ZMm": 185930,
+        "FacingMdeg": 309554,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.iron_shelf_husk#0",
+        "DefId": "creature.undead.bone_walker_husk",
+        "InstanceId": "crt#5",
+        "HostCell": "r_0_0:c_00_00",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 73087,
+        "ZMm": 169462,
+        "FacingMdeg": 349427,
+        "Health": 55,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.valley_strays#0",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt#6",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 116341,
+        "ZMm": 124061,
+        "FacingMdeg": 310965,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      },
+      {
+        "Key": "spawn.hollow.valley_strays#1",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt#7",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 120384,
+        "ZMm": 136036,
+        "FacingMdeg": 344216,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false
+      }
+    ]
+  }
+}

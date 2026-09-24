@@ -123,8 +123,8 @@ public class InteractionAndDiscoveryTests
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
 
-        Assert.True(Harness.WalkPath(session, (60, 156), (90, 165), (100, 168), (110, 168), (133, 168)));
-        Assert.True(Harness.WalkPath(session, (120, 160), (133, 168)));   // out of the radius and back in
+        Assert.True(Harness.WalkPath(session, (60, 156), (90, 165), (104, 170), (112, 170)));
+        Assert.True(Harness.WalkPath(session, (104, 160), (112, 170)));   // out of the radius and back in
 
         var den = Assert.Single(discovered, d => d.LocationId == "location.den_mouth");
         Assert.Equal(DiscoveryMethod.Visited, den.Method);
@@ -151,7 +151,7 @@ public class InteractionAndDiscoveryTests
         const string denCell = "r_0_0:c_01_01";
         Assert.NotEqual(SimulationTier.A, simulation.CellTiers[denCell]);
 
-        foreach (var (x, z) in new[] { (60.0, 156.0), (90.0, 165.0), (100.0, 168.0), (110.0, 168.0), (133.0, 168.0) })
+        foreach (var (x, z) in new[] { (60.0, 156.0), (90.0, 165.0), (104.0, 170.0), (112.0, 170.0) })
         {
             for (int i = 0; i < 2000; i++)
             {

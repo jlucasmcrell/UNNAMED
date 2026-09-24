@@ -54,8 +54,8 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 |---|---|---|---|
 | spawn.hollow.boar_wallow | (18, 72) | Bristleback Boar as territorial | no |
 | spawn.hollow.charwood_hound | (128, 150) | Ash Ember Hound as hunter | no |
-| spawn.hollow.den_pack | (134, 178) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
-| spawn.hollow.east_pack | (175, 175) | Grey Wolf as roamer x2 | after 20.0 min |
+| spawn.hollow.den_pack | (112, 184) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
+| spawn.hollow.east_pack | (188, 180) | Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.hollow.iron_shelf_armour | (65, 34) | Animated Armour as sentinel | no |
 | spawn.hollow.iron_shelf_husk | (48, 58) | Bone Walker Husk as roamer | no |
 | spawn.hollow.spider_lair | (172, 48) | Cave Hunting Spider as ambusher | no |

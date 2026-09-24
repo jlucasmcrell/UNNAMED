@@ -1,0 +1,5 @@
+Field-by-field comparison of the authoritative state: expected (state_saved.json, written just before the save and quit)
+against actual (state_loaded.json, written just after the relaunch loaded the save).
+
+Fields compared: 408
+Differences: 0

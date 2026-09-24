@@ -1,7 +1,7 @@
 # UNNAMED — Phase 0 Document Index
 
 **Project:** Otherreach (codename UNNAMED) — an original full-body third-person (with seamless first-person zoom), solo-first, open-world fantasy RPG
-**Phase:** 1 — Playable Prototype. M0, M1, M1b, M2, M2b and M2c are complete; M3 is implemented and waits on its RAZER performance measurement (`M3_STATUS.md`); M3b, M3c, M3d, M3e, M3f, M4 and M5 are complete (`M3B_STATUS.md`, `M3C_STATUS.md`, `M3D_STATUS.md`, `M3E_STATUS.md`, `M3F_STATUS.md`, `M4_STATUS.md`, `M5_STATUS.md`, `ROADMAP.md`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
+**Phase:** 1 — Playable Prototype. M0, M1, M1b, M2, M2b and M2c are complete; M3 is implemented and waits on its RAZER performance measurement (`M3_STATUS.md`); M3b, M3c, M3d, M3e, M3f, M4 and M5 are complete (`M3B_STATUS.md`, `M3C_STATUS.md`, `M3D_STATUS.md`, `M3E_STATUS.md`, `M3F_STATUS.md`, `M4_STATUS.md`, `M5_STATUS.md`, `ROADMAP.md`); M6, the playable prototype, is at the owner's playtest gate, its RAZER performance window still owed (`M6_STATUS.md`, `acceptance/m6/`). The documents below are the Phase 0 architecture set; implementation is underway in `src/` and `tests/`.
 **Root:** `G:\UNNAMED`
 
 ## Authoritative documents (read in this order)

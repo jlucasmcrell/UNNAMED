@@ -23,7 +23,8 @@ namespace UNNAMED.Presentation;
 /// The presentation shell. Each frame: read input and submit commands, advance the session by the frame's time,
 /// then draw - the body where the last tick put it plus the frame's share of the next, the camera behind or inside it.
 /// Run modes come after <c>--</c> on the command line: <c>--smoke</c> (headless boot and save round trip),
-/// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox).
+/// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
+/// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch).
 /// </summary>
 public partial class Main : Node3D
 {
@@ -50,6 +51,7 @@ public partial class Main : Node3D
     private PerfRun? _perf;
     private Smoke? _smoke;
     private UiShots? _shots;
+    private Playthrough? _play;
     private string _perfOut = string.Empty;
     private Vector3 _lastFeet;
     private double _lastAlpha;
@@ -64,7 +66,9 @@ public partial class Main : Node3D
         }
 
         string contentRoot = Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", "..", "content"));
-        string profile = _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+        string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
+        string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
+            : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         try
@@ -77,7 +81,10 @@ public partial class Main : Node3D
             GetTree().Quit(2);
             return;
         }
-        _session.NewGame("Wanderer");
+        // The acceptance playthrough plays one fixed world, so it is the same run every time (M6).
+        _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") ? Playthrough.Seed : 0);
+        if (_options.ContainsKey("--playthrough-verify"))
+            _session.Load(SaveSlots.Manual(Playthrough.Slot));
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells, seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}");
 
@@ -122,6 +129,12 @@ public partial class Main : Node3D
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
             _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
+        }
+        else if (playthrough is not null)
+        {
+            // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), _options.ContainsKey("--playthrough-verify"));
         }
         else if (_flags.Contains("--perf"))
         {
@@ -175,14 +188,31 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_play is not null)
+        {
+            switch (_play.Update())
+            {
+                case "done":
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveScreenshot(_play.Directory, "failed");
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_play.Directory, shot);
+                    break;
+            }
+        }
         else
         {
             ReadInput();
         }
         KeepContainerInReach();
 
-        // The smoke runs one tick per frame, so it finishes in a fraction of real time.
-        var frame = _session.Frame(_smoke is not null ? _session.TickSeconds : delta);
+        // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
+        // the same run every time, whatever the frame rate.
+        var frame = _session.Frame(_smoke is not null || _play is not null ? _session.TickSeconds : delta);
         if (frame.AutosavedTo is { } slot)
             _hud.Toast($"Autosaved ({slot})", 2);
         Draw(frame.Alpha, delta);
@@ -196,7 +226,7 @@ public partial class Main : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null)
+        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null || _play is not null)
             return;
         switch (@event)
         {
@@ -629,7 +659,7 @@ public partial class Main : Node3D
                 r.AttackerDefId == r.Source ? $"{Name(r.Source)}: {r.Damage}" : $"{Name(r.AttackerDefId)}, {Name(r.Source).ToLowerInvariant()}: {r.Damage}"));
             string killer = e.KillerDefId == e.Cause ? Name(e.Cause) : $"the {Name(e.KillerDefId)} ({Name(e.Cause).ToLowerInvariant()})";
             _hud.ShowDeath($"You died - killed by {killer}.\n\nThe last blows:\n{recap}\n\nXP debt +{e.DebtAdded} (nothing earned is lost). " +
-                           "You wake at the outpost, weakened for a minute.");
+                           "You return at the Ashen Waystone, weakened for a minute.");   // content bible §18
         });
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -809,7 +839,7 @@ public partial class Main : Node3D
     {
         for (int i = 0; i < arguments.Length; i++)
         {
-            if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" && i + 1 < arguments.Length)
+            if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
                 _flags.Add(arguments[i]);
