@@ -81,12 +81,57 @@ def post(path, payload):
         return json.loads(response.read())
 
 
+_CAPABILITIES = {}
+
+
+def server_capabilities():
+    """Cache the server's declared node schema so the prompt can adapt to it.
+
+    ComfyUI hosts differ in which custom nodes they carry. BEAST and RAZER both have
+    ComfyUI-ZImageTurbo-FlowSampler, which is where `euler_flow` comes from; a host without it
+    rejects the prompt with only "Value not in list". Rather than pin a per-machine sampler,
+    ask the server what it accepts.
+    """
+    if "info" not in _CAPABILITIES:
+        try:
+            _CAPABILITIES["info"] = get("/object_info")
+        except Exception:
+            _CAPABILITIES["info"] = {}
+    return _CAPABILITIES["info"]
+
+
+def resolve_sampler(preferred):
+    """Return (sampler_name, note).
+
+    Falls back when the preferred sampler is not offered by this server, and reports the
+    substitution rather than making it silently - a changed sampler changes the output, so it
+    belongs in the run log.
+    """
+    info = server_capabilities()
+    node = info.get("Z_ImageIntegratedKSampler")
+    if not node:
+        return preferred, ""
+    spec = (node.get("input", {}).get("required", {}) or {}).get("sampler_name")
+    choices = spec[0] if isinstance(spec, list) and spec and isinstance(spec[0], list) else []
+    if not choices or preferred in choices:
+        return preferred, ""
+    # Same family first, then the plainest euler, then whatever the server lists first.
+    for candidate in (preferred.split("_")[0], "euler", "euler_ancestral", choices[0]):
+        if candidate in choices:
+            return candidate, (f"'{preferred}' is not offered by this server; "
+                               f"used '{candidate}' of {len(choices)} available")
+    return choices[0], f"used '{choices[0]}'"
+
+
 def build_prompt(request, prefix):
     width = request.get("width", DEFAULT_WIDTH)
     height = request.get("height", DEFAULT_HEIGHT)
     # A request may override the shared suffix when the target is not a 3D source
     # (icons need to fill the frame rather than sit on a plain backdrop).
     suffix = request.get("suffix", CONCEPT_SUFFIX)
+    sampler, sampler_note = resolve_sampler(CONCEPT_SAMPLER)
+    if sampler_note:
+        print(f"    sampler: {sampler_note}")
     return {
         "1": {"class_type": "DiffusionModelLoaderKJ",
               "inputs": {"model_name": CONCEPT_MODEL, "weight_dtype": "default",
@@ -108,7 +153,7 @@ def build_prompt(request, prefix):
                          "seed": request.get("seed", 0),
                          "steps": request.get("steps", STEPS),
                          "cfg": request.get("cfg", CFG),
-                         "sampler_name": CONCEPT_SAMPLER, "scheduler": "simple",
+                         "sampler_name": sampler, "scheduler": "simple",
                          "denoise": 1.0,
                          # Default is True, which calls an external LLM per image.
                          # Concepts must be reproducible from the request file.

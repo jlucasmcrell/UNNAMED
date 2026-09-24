@@ -91,7 +91,7 @@ def import_glb(path):
     return meshes
 
 
-def merge(meshes):
+def merge(meshes, name):
     for obj in bpy.context.scene.objects:
         obj.select_set(False)
     for obj in meshes:
@@ -100,7 +100,13 @@ def merge(meshes):
     if len(meshes) > 1:
         bpy.ops.object.join()
     joined = bpy.context.view_layer.objects.active
-    joined.name = "MESH"
+    # Name the object and its datablock after the asset, or the rigged export carries the
+    # importer's generic Mesh_0/Material_0 and the rigged library is unreadable by name.
+    joined.name = name
+    joined.data.name = f"{name}_mesh"
+    for material in joined.data.materials:
+        if material is not None:
+            material.name = f"MAT_{name}"
     return joined
 
 
@@ -322,7 +328,9 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
 
     reset_scene()
-    mesh = merge(import_glb(args.input))
+    # The rigged export is <name>_rigged.glb, so its mesh follows the same stem rule the lod
+    # and collision proxies use: mesh name is the file stem plus _mesh.
+    mesh = merge(import_glb(args.input), f"{args.name}_rigged")
     low, high = bounds(mesh)
 
     if args.rig == "humanoid":

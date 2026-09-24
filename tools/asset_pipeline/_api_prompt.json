@@ -120,7 +120,7 @@
         2
       ],
       "seed": 43,
-      "steps": 30,
+      "steps": 12,
       "cfg": 1,
       "sampler_name": "euler",
       "scheduler": "normal",
@@ -210,7 +210,7 @@
         2
       ],
       "seed": 42,
-      "steps": 30,
+      "steps": 20,
       "cfg": 7.5,
       "sampler_name": "euler",
       "scheduler": "normal",
@@ -363,7 +363,7 @@
         0
       ],
       "seed": 56,
-      "steps": 30,
+      "steps": 12,
       "cfg": 7.5,
       "sampler_name": "euler",
       "scheduler": "normal",
@@ -421,7 +421,7 @@
         "117",
         0
       ],
-      "target_resolution": "1024"
+      "target_resolution": "1536"
     }
   },
   "233": {
@@ -436,7 +436,7 @@
         0
       ],
       "resolution": 1024,
-      "samples": 128,
+      "samples": 64,
       "max_distance": 0.71,
       "strength": 1,
       "bias": 0.01
@@ -453,7 +453,7 @@
         "241",
         0
       ],
-      "resolution": 1024,
+      "resolution": 2048,
       "cage_distance": 0.05,
       "ignore_backfaces": true
     }
@@ -503,7 +503,7 @@
         "241",
         0
       ],
-      "target_face_count": 40000,
+      "target_face_count": 25000,
       "placement_mode": "midpoint"
     }
   },
@@ -685,7 +685,7 @@
         2
       ],
       "seed": 42,
-      "steps": 30,
+      "steps": 12,
       "cfg": 7.5,
       "sampler_name": "euler",
       "scheduler": "simple",
@@ -695,7 +695,7 @@
   "122": {
     "class_type": "LoadImage",
     "inputs": {
-      "image": "herb_bitterroot.png"
+      "image": "creature_bristleback_boar (1).png"
     }
   },
   "312": {
@@ -778,7 +778,7 @@
         "285",
         0
       ],
-      "filename_prefix": "3d/raw/herb_bitterroot",
+      "filename_prefix": "3d/raw/creature_bristleback_boar",
       "viewport_state": "",
       "width": 1024,
       "height": 1024
