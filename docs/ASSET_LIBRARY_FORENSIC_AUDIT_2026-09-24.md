@@ -34,7 +34,11 @@ owner's impression:
 
 **Is the owner's impression substantially correct? Yes on the visual gap, no on the diagnosis.**
 
-The gap is real and in places severe — `building_smithy` is a catastrophic crumpled mass, and
+
+**Already discarded by the pipeline itself** - no action needed, and it is the model to copy.
+uilding_smithy and uilding_lodge were both detected as failures and archived to
+ssets/_superseded/reconstruction_failed/. Their review renders remain in ible_batch, which
+is how they appear to a reader as current assets. **They are not.**
 `prop_blocked_shaft` is a shattered pile with no readable structure. But it is **not an 80% decline
 over time**. Within a single batch built inside three minutes of each other, the same settings produced
 the `creature_ash_ember_hound`, `weapon_march_spear` and `landmark_ashen_waystone` — all clean and
