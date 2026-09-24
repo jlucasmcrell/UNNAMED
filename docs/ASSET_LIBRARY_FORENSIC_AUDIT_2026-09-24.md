@@ -224,7 +224,57 @@ Note: `prop_cart_damaged_merchant_lod3` requested 600 faces and delivered 1,629 
 decimator missed its target by 2.7×. Small in absolute terms, but it shows the LOD target is not
 enforced.
 
-### Rigged assets
+### The failure mechanism, measured
+
+The renders show crinkled, foil-like surfaces, hard bright edges, and gaps at the joints of the winch's
+A-frame. That could be thin shells (a source defect) or broken normals (an export defect), and the two
+have different fixes, so it was measured directly with `_mesh_topology_audit.py`, which reads vertex
+positions and triangle indices from each GLB and counts shared edges, boundary edges, degeneracy and
+winding agreement.
+
+| Asset | Tris | Verts | **Verts/Tris** | Boundary edges | Non-manifold | Inconsistent winding |
+|---|---|---|---|---|---|---|
+| `resource_iron_billet` (good) | 25,000 | 14,193 | **0.57** | 8.5% | 0 | 0 |
+| `landmark_ashen_waystone` (good) | 25,000 | 16,760 | **0.67** | 19.6% | 0 | 0 |
+| `magic_cauldron_small` (good) | 39,226 | 27,380 | **0.70** | 22.1% | 0 | 2 |
+| `weapon_march_spear` (good) | 24,770 | 17,905 | **0.72** | 24.5% | 0 | 0 |
+| `creature_ash_ember_hound` (good) | 24,976 | 18,711 | **0.75** | 27.0% | 0 | 0 |
+| `container_barrel_oak` (good) | 39,247 | 35,060 | **0.89** | 37.4% | 1 | 1 |
+| `prop_quarry_rail_track` (weak) | 24,828 | 24,014 | **0.97** | 43.9% | 0 | 0 |
+| `prop_cart_damaged_merchant` (weak) | 24,069 | 25,096 | **1.04** | 46.6% | 3 | **6** |
+| `prop_quarry_winch` (FAILED) | 23,390 | 25,070 | **1.07** | 47.7% | 3 | **3** |
+| `prop_blocked_shaft` (FAILED) | 19,299 | 22,673 | **1.17** | 53.1% | 2 | **9** |
+| `resource_woundmoss` (weak) | 20,778 | 25,125 | **1.21** | 54.5% | 2 | **2** |
+
+**The separation is clean and the mechanism is not what the renders suggest at first glance.**
+
+For a welded surface mesh each vertex is shared by roughly four to six triangles, so vertices are
+roughly half to three-quarters of the triangle count. Every asset that renders well sits at **0.57–0.89**.
+Every asset that renders badly sits at **0.97–1.21**, where vertices *outnumber* triangles — which is only
+possible if the reconstruction is not sharing vertices between adjacent faces at all. **The failed
+assets are fragmented into disconnected shells, not built as continuous surfaces.**
+
+Boundary edges track the same split: good assets 8–37%, failed assets 44–55%. And the failed set carries
+non-manifold edges and faces that share an edge with the *same* winding (**6, 3 and 9 occurrences**),
+which is the signature of inconsistent normals.
+
+Both symptoms follow from one cause, and they explain the renders exactly:
+
+- **Gaps at the winch's A-frame joints** — each timber is a separate shell, never welded to its neighbour.
+- **Bright foil-like rims on the wood** — open boundary edges with no thickness, lit from both sides.
+- **The fuzz around `prop_quarry_rail_track`** — many small unwelded shells, each with its own rim.
+
+**This is a source-side defect (class A), not an export defect.** The reconstruction fragmented the
+subject; no export setting introduced it. **But it is probably partly repairable without regenerating:**
+a merge-by-distance pass would weld the coincident vertices and collapse most of the boundary edges, and
+a normals recompute would fix the winding inversions. That is worth testing on one failed asset before
+committing to regeneration — **and it was not tested here, because this task was an audit and testing it
+means modifying a mesh.** It is the first thing I would try.
+
+Note that being open is not by itself fatal: `container_barrel_oak` renders well at 37% boundary edges,
+and `resource_iron_billet` at 8.5% is the cleanest asset in the library. **Degree of fragmentation is
+the variable, not the mere presence of open edges.**
+
 
 85 rigged GLBs. **85 have a skin. 0 have animations.** So the bind data is present; animation lives
 separately in `assets/animation/` (70 GLBs, 145 JSONs). The reported "rig/bind/pose mismatch" is **not
@@ -251,16 +301,24 @@ anything viewed at distance.**
 greyboxing that was never replaced, or a generation failure accepted as a result, **I cannot tell from
 the artefacts — no manifest records either way.** Either way the library does not contain buildings.
 
-**3. Reconstruction collapses thin and open subjects (class A/D) — high confidence.**
-The evidence is the same-batch contrast, which is the strongest evidence in this audit. On 09-23 between
-21:03 and 21:06, identical settings produced clean hounds, spears, waystones and NPCs, and produced
-`building_smithy` as a crumpled sheet and `prop_blocked_shaft` as a shattered pile. The concepts for
-both failures are good. The distinction tracks subject complexity: **solid, convex, closed, compact →
-fine; thin members, open cavities, compound assemblies, large architectural volumes → collapse.**
+**3. Reconstruction fragments compound subjects into unwelded shells (class A/D) — high confidence,
+mechanism measured.**
+The vertex-to-triangle ratio separates the library cleanly: assets that render well sit at 0.57–0.89,
+assets that render badly at 0.97–1.21, with boundary edges rising from 8–37% to 44–55% across the same
+line. Vertices outnumbering triangles means adjacent faces share no vertices, so the subject was
+reconstructed as disconnected shells rather than continuous surfaces. **This is what produces the gaps
+at the winch's joints, the foil-like rims on the timber, and the fuzz on the rail track.**
 
-This is a **capability limit of image-to-3D reconstruction on this class of subject**, not a regression
-and not a settings error. No reasonable change to faces, steps or texture size fixes a winch whose
-spokes are 3 cm thick.
+The evidence that this is subject-driven rather than time-driven is the same-batch contrast: on 09-23
+between 21:03 and 21:06, identical settings produced clean hounds, spears, waystones, NPCs and ore
+outcrops, and produced `building_smithy` as a crumpled sheet and `prop_blocked_shaft` as a shattered
+pile. The distinction tracks whether the subject is a thin-membered or open assembly, not when it was
+built.
+
+**Partly repairable.** Merge-by-distance would weld the coincident vertices and collapse most boundary
+edges; a normals recompute would fix the winding inversions. That is a plausible repair path needing no
+regeneration and should be tested on one failed asset before any regeneration is commissioned. It was
+not tested in this audit because testing it means modifying a mesh.
 
 **4. The 09-23 21:00 batch ran entirely at `lean` (class D) — certain.**
 22 of 22 assets at ~20–25k faces, where every other batch is majority 40k. This compounds cause 3 rather
