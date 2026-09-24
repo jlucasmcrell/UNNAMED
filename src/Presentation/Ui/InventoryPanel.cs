@@ -36,6 +36,12 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>The trader whose wares are open alongside the inventory, if any (M4).</summary>
     public string? OpenTrader { get; private set; }
 
+    /// <summary>
+    /// Where the panel was opened from - a container, a corpse, a station or a trader - kept after a searched corpse is gone, so walking
+    /// away closes it all the same (the owner's M6 playtest). Null when it was opened with the inventory key.
+    /// </summary>
+    public (long XMm, long ZMm)? Anchor { get; private set; }
+
     public void Bind(GameSession session, PlayerController controller)
     {
         _session = session;
@@ -60,6 +66,9 @@ public partial class InventoryPanel : CanvasLayer
         OpenContainer = container;
         OpenStation = null;
         OpenTrader = null;
+        Anchor = container is not null && _session.Simulation?.Containers.FirstOrDefault(c => c.Site.Key == container)?.Site is { } site
+            ? (site.XMm, site.ZMm)
+            : null;
         Visible = true;
         Refresh();
     }
@@ -69,6 +78,7 @@ public partial class InventoryPanel : CanvasLayer
         OpenContainer = null;
         OpenStation = station;
         OpenTrader = null;
+        Anchor = (station.XMm, station.ZMm);
         Visible = true;
         Refresh();
     }
@@ -78,7 +88,15 @@ public partial class InventoryPanel : CanvasLayer
         OpenContainer = null;
         OpenStation = null;
         OpenTrader = npcId;
+        Anchor = _session.Simulation?.Npcs.FirstOrDefault(n => n.Id == npcId) is { } npc ? (npc.Body.XMm, npc.Body.ZMm) : null;
         Visible = true;
+        Refresh();
+    }
+
+    /// <summary>The container went (a corpse searched bare): its column closes, and the panel still closes once the body walks away.</summary>
+    public void ContainerGone()
+    {
+        OpenContainer = null;
         Refresh();
     }
 
@@ -87,7 +105,15 @@ public partial class InventoryPanel : CanvasLayer
         OpenContainer = null;
         OpenStation = null;
         OpenTrader = null;
+        Anchor = null;
         Visible = false;
+    }
+
+    /// <summary>Take everything the open container holds that the pack has room for (the owner's M6 playtest).</summary>
+    public void TakeAll()
+    {
+        if (OpenContainer is { } key && _session.Simulation is { } simulation)
+            Submit(new TakeAllCommand(simulation.PlayerId, key));
     }
 
     public void Refresh()
@@ -96,7 +122,8 @@ public partial class InventoryPanel : CanvasLayer
             return;
         var player = simulation.Player;
         var catalog = simulation.Setup.Items.Catalog;
-        _header.Text = $"Carried {player.CarriedGrams / 1000.0:0.##} / {player.CarryLimitGrams / 1000.0:0.##} kg   " +
+        _header.Text = "[Tab] close   " +
+                       $"Carried {player.CarriedGrams / 1000.0:0.##} / {player.CarryLimitGrams / 1000.0:0.##} kg   " +
                        $"{player.Inventory.Length} / {simulation.Setup.Items.Inventory.StackSlots} stacks   " +
                        $"Coin {player.Currency}   Armor {player.Armor}";
         Clear(_carried);
@@ -144,6 +171,12 @@ public partial class InventoryPanel : CanvasLayer
         if (OpenContainer is not { } open || simulation.Containers.FirstOrDefault(c => c.Site.Key == open) is not { } view)
             return;
         _containerHeader.Text = $"{Main.Describe(_session, open)}   {view.Items.Length} / {view.Site.StackSlots} stacks";
+        if (view.Items.Length > 0)
+        {
+            var all = Row(view.Items.Length == 1 ? "One stack" : $"{view.Items.Length} stacks");
+            all.AddChild(Button("Take all  [R]", TakeAll));
+            _container.AddChild(all);
+        }
         foreach (var item in view.Items)
         {
             var row = Row($"{Main.ItemName(_session, item.DefId, item.Quality)}{(item.Count > 1 ? $" x{item.Count}" : "")}");

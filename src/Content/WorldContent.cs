@@ -61,6 +61,24 @@ public static class WorldContent
         if (rules.BaseSpeedMmPerSecond <= 0 || rules.WalkPercent is <= 0 or > 100 || rules.SprintPercent < 100
             || rules.BodyRadiusMm <= 0 || rules.InteractReachMm <= 0)
             throw new FormatException("config.base_speeds needs a positive speed, walk_percent in 1..100, sprint_percent of at least 100, and a positive body radius and reach");
+        // The jump and the crouch (the owner's M6 playtest); a pack from before them keeps the defaults.
+        if (map.ContainsKey("jump_apex_m"))
+            rules = rules with
+            {
+                JumpApexMm = Mm(map, "jump_apex_m"), JumpRiseMs = (int)Math.Round(Number(map, "jump_rise_s") * 1000),
+                JumpTuckRadiusMm = Mm(map, "jump_tuck_radius_m"),
+            };
+        if (map.ContainsKey("stand_height_m"))
+        {
+            rules = rules with
+            {
+                StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"),
+            };
+        }
+        if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
+            || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm
+            || rules.CrouchPercent is <= 0 or > 100)
+            throw new FormatException("config.base_speeds needs a positive jump apex and rise, a tuck radius no wider than the body, a crouched height below the standing one, and crouch_percent in 1..100");
         return rules;
     }
 
@@ -330,12 +348,16 @@ public static class WorldContent
     {
         string id = Text(map, "id");
         long height = Mm(map, "height_m");
+        // An overhang begins above the ground (the owner's M6 playtest): a crouched body passes under it.
+        long clearance = map.ContainsKey("clearance_m") ? Mm(map, "clearance_m") : 0;
+        if (clearance < 0 || (clearance > 0 && clearance >= height))
+            throw new FormatException($"structure {id}: clearance_m must be at least 0, and below height_m");
         if (map.ContainsKey("box_m"))
         {
             var b = List(map, "box_m");
             if (b.Count != 4)
                 throw new FormatException($"structure {id}: box_m is [min_x, min_z, max_x, max_z]");
-            var box = new BoxBlocker(id, ToMm(b[0], id), ToMm(b[1], id), ToMm(b[2], id), ToMm(b[3], id), height);
+            var box = new BoxBlocker(id, ToMm(b[0], id), ToMm(b[1], id), ToMm(b[2], id), ToMm(b[3], id), height) { ClearanceMm = clearance };
             if (box.MinXMm >= box.MaxXMm || box.MinZMm >= box.MaxZMm)
                 throw new FormatException($"structure {id}: box_m min must be below max");
             return box;
@@ -343,7 +365,7 @@ public static class WorldContent
         var c = List(map, "circle_m");
         if (c.Count != 3)
             throw new FormatException($"structure {id}: circle_m is [x, z, radius]");
-        var circle = new CircleBlocker(id, ToMm(c[0], id), ToMm(c[1], id), ToMm(c[2], id), height);
+        var circle = new CircleBlocker(id, ToMm(c[0], id), ToMm(c[1], id), ToMm(c[2], id), height) { ClearanceMm = clearance };
         if (circle.RadiusMm <= 0)
             throw new FormatException($"structure {id}: circle_m radius must be positive");
         return circle;

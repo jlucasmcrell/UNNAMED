@@ -111,7 +111,8 @@ internal sealed partial class CombatSystem
         {
             if (formula.Targeting == Targeting.Projectile)
             {
-                if (RangedTarget(State.Body, formula.Blow!.ReachMm) is { } target)
+                var target = Loose(formula.Id, formula.Blow!.ReachMm, tick);
+                if (target is not null)
                     PlayerHits(target, formula.Blow, tick);
                 else
                     _context.Events.Publish(new AttackMissed(_player, formula.Id, tick));

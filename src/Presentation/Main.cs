@@ -25,6 +25,7 @@ namespace UNNAMED.Presentation;
 /// Run modes come after <c>--</c> on the command line: <c>--smoke</c> (headless boot and save round trip),
 /// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
 /// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch).
+/// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest).
 /// </summary>
 public partial class Main : Node3D
 {
@@ -47,11 +48,16 @@ public partial class Main : Node3D
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
+    private CharacterPanel _character = null!;
+    private HelpPanel _help = null!;
+    private ProjectilesView _projectiles = null!;
+    private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
     private UiShots? _shots;
     private Playthrough? _play;
+    private DeltaShots? _delta;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
     private Vector3 _lastFeet;
@@ -69,7 +75,7 @@ public partial class Main : Node3D
         string contentRoot = Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", "..", "content"));
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+            : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--delta-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         try
@@ -83,7 +89,7 @@ public partial class Main : Node3D
             return;
         }
         // The acceptance playthrough plays one fixed world, so it is the same run every time (M6).
-        _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") ? Playthrough.Seed : 0);
+        _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
         if (_options.ContainsKey("--playthrough-verify"))
             _session.Load(SaveSlots.Manual(Playthrough.Slot));
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
@@ -108,6 +114,11 @@ public partial class Main : Node3D
         _crafting.Build(_session.Setup.Layout);
         _npcs = new NpcsView { Name = "Npcs" };
         AddChild(_npcs);
+        _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
+        GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
+        _projectiles = new ProjectilesView { Name = "Projectiles" };
+        AddChild(_projectiles);
+        _projectiles.Bind(_assets);
         _controller = new PlayerController(_session);
         _inventory = new InventoryPanel { Name = "Inventory" };
         _inventory.Bind(_session, _controller);
@@ -119,6 +130,12 @@ public partial class Main : Node3D
         AddChild(_journal);
         _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
         AddChild(_questDebug);
+        _character = new CharacterPanel { Name = "Character" };
+        _character.Bind(_session);
+        AddChild(_character);
+        _help = new HelpPanel { Name = "Help" };
+        AddChild(_help);
+        _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
         Subscribe();
         Resync();
         DefineInput();
@@ -136,6 +153,12 @@ public partial class Main : Node3D
             // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), _options.ContainsKey("--playthrough-verify"));
+        }
+        else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
+        {
+            // One tick a frame at the tick rate, like the playthrough: each picture is taken at the same moment every run.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
         }
         else if (_flags.Contains("--perf"))
         {
@@ -191,6 +214,23 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_delta is not null)
+        {
+            switch (_delta.Update())
+            {
+                case "done":
+                    GD.Print($"UNNAMED delta shots written to {_delta.Directory}");
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveScreenshot(_delta.Directory, "failed");
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_delta.Directory, shot);
+                    break;
+            }
+        }
         else if (_play is not null)
         {
             switch (_play.Update())
@@ -215,7 +255,7 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null ? _session.TickSeconds : delta);
+        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null ? _session.TickSeconds : delta);
         if (frame.AutosavedTo is { } slot)
             _hud.Toast($"Autosaved ({slot})", 2);
         Draw(frame.Alpha, delta);
@@ -229,11 +269,12 @@ public partial class Main : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null || _play is not null)
+        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null || _play is not null || _delta is not null)
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible:
+            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible
+                && !_character.Visible:
                 _camera.Look(motion.Relative);
                 break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
@@ -243,7 +284,7 @@ public partial class Main : Node3D
                 _camera.Zoom(0.35f);
                 break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible
-                && !_dialogue.Visible:
+                && !_dialogue.Visible && !_character.Visible:
                 Input.MouseMode = Input.MouseModeEnum.Captured;
                 break;
         }
@@ -270,7 +311,7 @@ public partial class Main : Node3D
             if (Input.IsActionJustPressed("release_mouse"))
                 _dialogue.Leave();
         }
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible;
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
         bool holding = captured && Input.IsActionPressed("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
@@ -344,7 +385,20 @@ public partial class Main : Node3D
                 OpenInventory(null);
         }
         if (Input.IsActionJustPressed("jump"))
-            _avatar.Hop();
+            _controller.Jump();
+        if (Input.IsActionJustPressed("crouch"))
+            _controller.Crouch(_session.Simulation!.Posture.Stance != UNNAMED.Domain.Spatial.Stance.Crouched);
+        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
+            _inventory.TakeAll();
+        if (Input.IsActionJustPressed("character"))
+        {
+            _character.Visible = !_character.Visible;
+            _character.Refresh();
+            if (DisplayServer.GetName() != "headless")
+                Input.MouseMode = _character.Visible || _inventory.Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        }
+        if (Input.IsActionJustPressed("help"))
+            _help.Toggle();
         if (Input.IsActionJustPressed("first_person"))
             _camera.ToggleFirstPerson();
         if (Input.IsActionJustPressed("shoulder_swap"))
@@ -367,33 +421,50 @@ public partial class Main : Node3D
     }
 
     /// <summary>
-    /// A container or a station stays open only while it is in reach; a container that is gone (an emptied corpse) closes
-    /// its column.
+    /// Whatever the panel was opened from - a container, a corpse, a station, a trader - it stays open only while the body is in reach
+    /// of where that was (the owner's M6 playtest: the same rule for all of them). A corpse searched bare closes its column, and the
+    /// panel still closes once the body walks away. The inventory opened with its own key has nowhere to be near, and stays.
     /// </summary>
     private void KeepContainerInReach()
     {
-        if (_inventory.OpenTrader is { } trader)
-        {
-            if (_session.Simulation!.Npcs.FirstOrDefault(n => n.Id == trader) is not { } npc
-                || Math.Sqrt(Math.Pow(npc.Body.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(npc.Body.ZMm - _controller.Authoritative.ZMm, 2))
-                > _session.Setup.Items.Inventory.ReachMm + _session.Setup.Movement.BodyRadiusMm)
-                CloseInventory();
+        if (!_inventory.Visible || _inventory.Anchor is not { } anchor)
             return;
-        }
-        if (_inventory.OpenStation is { } station)
-        {
-            if (Math.Sqrt(Math.Pow(station.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(station.ZMm - _controller.Authoritative.ZMm, 2))
-                > _session.Setup.Items.Inventory.ReachMm)
-                CloseInventory();
-            return;
-        }
-        if (_inventory.OpenContainer is not { } open)
-            return;
-        if (_session.Simulation!.Containers.FirstOrDefault(c => c.Site.Key == open)?.Site is not { } site)
-            _inventory.Open(null);
-        else if (Math.Sqrt(Math.Pow(site.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(site.ZMm - _controller.Authoritative.ZMm, 2))
-                 > _session.Setup.Items.Inventory.ReachMm)
+        if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
+            _inventory.ContainerGone();
+        long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
+        if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
+    }
+
+    /// <summary>
+    /// The aiming reticle (the owner's M6 playtest): while a bow is drawn or held aimed, or a thrown working's tell runs - and always in
+    /// first person with a bow - a ring on the point the simulation says the shot would stop at, projected from the shoulder's height.
+    /// With the debug overlay on, a line from the bow to that point; never otherwise. True while aiming.
+    /// </summary>
+    private bool Aim(Simulation simulation, CombatView combat)
+    {
+        long range = 0;
+        bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
+        if (combat.Casting is { } casting && _session.Setup.Magic.Formulas.TryGetValue(casting, out var formula) && formula.Targeting == UNNAMED.Domain.Magic.Targeting.Projectile
+            && combat.Phase is CombatPhase.Windup)
+            range = formula.Blow!.ReachMm;
+        else if (combat.Weapon.Ranged && (combat.Phase is CombatPhase.Windup || _camera.IsFirstPerson || free && Input.IsActionPressed("guard")))
+            range = combat.Weapon.ReachMm;
+        if (range == 0)
+        {
+            _hud.SetReticle(null, false);
+            _projectiles.ShowAimLine(null, null);
+            return false;
+        }
+        var body = simulation.Player.Body;
+        var terrain = _session.Setup.Layout.Space.Terrain;
+        var (x, z, onCreature) = simulation.Aim(PlayerController.FacingOf(_camera.GroundForward), range);
+        float height = onCreature ? 0.7f : 1.4f;
+        var point = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height, z / 1000f);
+        var camera = _camera.Camera;
+        _hud.SetReticle(camera.IsPositionBehind(point) ? null : camera.UnprojectPosition(point), onCreature);
+        _projectiles.ShowAimLine(_hud.DebugVisible ? new Vector3(body.XMm / 1000f, body.YMm / 1000f + 1.4f, body.ZMm / 1000f) : null, _hud.DebugVisible ? point : null);
+        return true;
     }
 
     private void Draw(double alpha, double delta)
@@ -410,13 +481,18 @@ public partial class Main : Node3D
         var simulation = _session.Simulation!;
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
+        var posture = simulation.Posture;
+        _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
+        _camera.Crouch = _avatar.Crouch;
         _creatures.Draw(simulation, alpha, delta);
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
-        _hud.SetCrosshair(_camera.IsFirstPerson);
+        _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
+        bool aiming = Aim(simulation, combat);
+        _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);
 
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
@@ -440,6 +516,8 @@ public partial class Main : Node3D
         _hud.SetStatus(
             $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
+            (view.Progression.UnspentAttributePoints > 0 ? "   [K] a point to spend" : "") +
+            (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
@@ -464,6 +542,7 @@ public partial class Main : Node3D
             (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))));
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
+        _character.Refresh();
 
         if (_hud.DebugVisible)
         {
@@ -504,9 +583,18 @@ public partial class Main : Node3D
         _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand)
+            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
+                or SpendAttributeCommand)
                 _hud.Toast(e.Reason, 3);
+            // A jump or a stand refused under the beam says why; one refused mid-action or in the air stays quiet.
+            if (e.Command is JumpCommand or CrouchCommand && e.Reason == "no room to stand")
+                _hud.Toast("No room to stand", 2);
         });
+        // The owner's M6 playtest: a take-all's tally, a point spent, and every shot drawn along the path it took.
+        _session.Subscribe<TookAll>(e => _hud.Toast(e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3));
+        _session.Subscribe<AttributeSpent>(e => _hud.Toast($"{char.ToUpperInvariant(UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[0])}" +
+            $"{UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[1..]} {e.Value}", 3));
+        _session.Subscribe<ShotLoosed>(Shot);
         _session.Subscribe<ItemMoved>(e =>
         {
             _inventory.Refresh();
@@ -531,6 +619,27 @@ public partial class Main : Node3D
         SubscribeSocial();
         SubscribeQuests();
         SubscribeCombat();
+    }
+
+    /// <summary>
+    /// A shot drawn along the path the simulation resolved (the owner's M6 playtest): from the shoulder to where it stopped - into a
+    /// creature at its middle, a wall at chest height, or at the end of its range into the ground (an arrow) or bursting (a working).
+    /// A working's art is named for it by the pipeline's convention: <c>spell.force.impulse_bolt</c> is <c>vfx.force.impulse_bolt_*</c>.
+    /// </summary>
+    private void Shot(ShotLoosed shot)
+    {
+        var terrain = _session.Setup.Layout.Space.Terrain;
+        bool working = _session.Setup.Magic.Formulas.TryGetValue(shot.Source, out var formula);
+        long range = working ? formula!.Blow?.ReachMm ?? 0 : _session.Simulation!.Combat.Weapon.ReachMm;
+        double length = Math.Sqrt(Math.Pow(shot.ToXMm - shot.FromXMm, 2) + Math.Pow(shot.ToZMm - shot.FromZMm, 2));
+        bool atRange = Math.Abs(length - range) < 20;
+        var from = new Vector3(shot.FromXMm / 1000f, terrain.HeightAtMm(shot.FromXMm, shot.FromZMm) / 1000f + 1.4f, shot.FromZMm / 1000f);
+        float height = shot.Target is not null ? 0.7f : atRange ? (working ? 1.2f : 0.05f) : 1.3f;
+        var to = new Vector3(shot.ToXMm / 1000f, terrain.HeightAtMm(shot.ToXMm, shot.ToZMm) / 1000f + height, shot.ToZMm / 1000f);
+        // Out of the hands, not the chest.
+        from += (to - from).Normalized() * 0.4f;
+        string? stem = working && shot.Source.IndexOf('.') is > 0 and var dot ? "vfx." + shot.Source[(dot + 1)..] : null;
+        _projectiles.Loose(from, to, working, shot.Target is not null, stem);
     }
 
     /// <summary>Quests (M5): a toast when one starts, moves or ends; what it pays in the log. The tracker and journal redraw each frame.</summary>
@@ -629,8 +738,12 @@ public partial class Main : Node3D
         });
         _session.Subscribe<AttackMissed>(e =>
         {
-            if (e.Attacker == _session.Simulation!.PlayerId)
-                _hud.Log(e.Source == "item.weapon.hunting_bow" ? "Your arrow finds nothing" : "Your swing finds nothing");
+            if (e.Attacker != _session.Simulation!.PlayerId)
+                return;
+            if (_session.Setup.Magic.Formulas.ContainsKey(e.Source))
+                _hud.Log($"Your {_session.DisplayName(e.Source)} finds nothing");
+            else
+                _hud.Log(_session.Setup.Items.Catalog.Find(e.Source)?.Weapon?.Ranged == true ? "Your arrow finds nothing" : "Your swing finds nothing");
         });
         _session.Subscribe<HealthChanged>(e =>
         {
@@ -845,7 +958,8 @@ public partial class Main : Node3D
     {
         for (int i = 0; i < arguments.Length; i++)
         {
-            if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" && i + 1 < arguments.Length)
+            if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
+                && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
                 _flags.Add(arguments[i]);
@@ -876,6 +990,10 @@ public partial class Main : Node3D
         Bind("walk", Key.Ctrl);
         Bind("interact", Key.E);
         Bind("jump", Key.Space);
+        Bind("crouch", Key.X);            // a toggle (the owner's M6 playtest); C stays the dodge
+        Bind("character", Key.K);
+        Bind("help", Key.F1);
+        Bind("take_all", Key.R);          // in a container's panel
         Bind("first_person", Key.V);
         Bind("shoulder_swap", Key.Q);
         Bind("debug_overlay", Key.F3);

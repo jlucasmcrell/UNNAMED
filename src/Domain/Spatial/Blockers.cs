@@ -4,11 +4,15 @@
 namespace UNNAMED.Domain.Spatial;
 
 /// <summary>
-/// Something a body cannot walk through, as a footprint on the XZ plane. Heights exist for rendering and
-/// the camera; movement is planar in Phase 1 (PROTOTYPE.md §3: no climb, jump never load-bearing).
+/// Something a body cannot walk through, as a footprint on the XZ plane, standing <see cref="HeightMm"/> tall. Movement is planar -
+/// no climbing, nothing stood on - but since the owner's M6 playtest a jump passes over a structure lower than the feet, and a
+/// crouched body passes under an overhang (<see cref="ClearanceMm"/>) higher than its head (<see cref="Kinematics.Blocks"/>).
 /// </summary>
 public abstract record Blocker(string Id, long HeightMm)
 {
+    /// <summary>How far above the ground the structure begins: 0 for one that stands on it, more for an overhang.</summary>
+    public long ClearanceMm { get; init; }
+
     /// <summary>
     /// If a circle at <paramref name="x"/>,<paramref name="z"/> overlaps this footprint, the smallest move
     /// that separates them; otherwise null.

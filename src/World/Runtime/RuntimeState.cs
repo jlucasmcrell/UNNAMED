@@ -99,6 +99,7 @@ internal sealed class RuntimeState
         World = world;
         WorldTick = worldTick;
         Body = body;
+        Posture = player.Posture;
         Progression = player.Progression;
         Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
         Inventory = player.Inventory;
@@ -116,6 +117,7 @@ internal sealed class RuntimeState
     public WorldDelta World { get; }
     public long WorldTick { get; private set; }
     public Body Body { get; private set; }
+    public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =
@@ -168,6 +170,13 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerBody);
         Body = body;
+    }
+
+    /// <summary>Standing or crouched, and in the air or not: part of the body's slice (the owner's M6 playtest).</summary>
+    public void SetPosture(SliceOwner owner, Posture posture)
+    {
+        Require(owner, StateSlice.PlayerBody);
+        Posture = posture;
     }
 
     public void SetProgression(SliceOwner owner, CharacterProgression progression)

@@ -40,10 +40,12 @@ public partial class Avatar : Node3D
     /// <summary>What the body and sleeves are made of; set before the figure enters the tree (an NPC's own clothes, M4).</summary>
     public StandardMaterial3D Clothing { get; init; } = Palette.Cloth;
     private double _phase;
-    private double _jumpTime = -1;
     private float _yaw;
+    private bool _crouched;
+    private bool _airborne;
 
-    public const double JumpSeconds = 0.55;
+    /// <summary>How far into a crouch the body is drawn, 0 standing to 1 crouched, eased so a stance change is not a snap.</summary>
+    public float Crouch { get; private set; }
 
     public override void _Ready()
     {
@@ -87,11 +89,14 @@ public partial class Avatar : Node3D
             part.CastShadow = firstPerson ? GeometryInstance3D.ShadowCastingSetting.ShadowsOnly : GeometryInstance3D.ShadowCastingSetting.On;
     }
 
-    /// <summary>A cosmetic hop. Phase 1's jump carries no gameplay (PROTOTYPE.md §3: never load-bearing).</summary>
-    public void Hop()
+    /// <summary>
+    /// Crouched or standing, and in the air or not (the owner's M6 playtest): the simulation's posture. The jump's height is already in
+    /// the feet it is posed at; this only bends the legs.
+    /// </summary>
+    public void SetPosture(bool crouched, bool airborne)
     {
-        if (_jumpTime < 0)
-            _jumpTime = 0;
+        _crouched = crouched;
+        _airborne = airborne;
     }
 
     /// <summary>Place the body where the simulation (plus prediction) says, turned towards its facing, and animate its gait.</summary>
@@ -101,16 +106,8 @@ public partial class Avatar : Node3D
         _yaw = Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-14f * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
 
-        float hop = 0;
-        if (_jumpTime >= 0)
-        {
-            _jumpTime += delta;
-            double t = _jumpTime / JumpSeconds;
-            hop = t >= 1 ? 0 : (float)(4 * 0.45 * t * (1 - t));
-            if (t >= 1)
-                _jumpTime = -1;
-        }
-        Position = feet + new Vector3(0, hop, 0);
+        Position = feet;
+        Crouch = Mathf.MoveToward(Crouch, _crouched ? 1f : 0f, (float)delta * 5f);
 
         float stride = Mathf.Clamp(speedMetresPerSecond / 3.2f, 0, 1.6f);
         _phase += speedMetresPerSecond * delta * Mathf.Tau / 1.5;
@@ -125,8 +122,17 @@ public partial class Avatar : Node3D
         _leftElbow.Rotation = new Vector3(-0.25f - 0.2f * stride, 0, 0);
         _rightElbow.Rotation = new Vector3(-0.25f - 0.2f * stride, 0, 0);
         float bob = stride > 0 ? Mathf.Abs(Mathf.Cos((float)_phase)) * 0.04f * stride : Mathf.Sin((float)Time.GetTicksMsec() / 700f) * 0.005f;
-        _hips.Position = new Vector3(0, 0.95f + bob, 0);
-        _hips.Rotation = Vector3.Zero;
+        _hips.Position = new Vector3(0, 0.95f + bob - 0.33f * Crouch, 0);
+        _hips.Rotation = new Vector3(0.25f * Crouch, 0, 0);
+        // Crouched, the thighs come forward and the knees bend so the feet stay under the body; in the air, the knees tuck.
+        float thigh = _airborne ? -0.7f : -1.0f * Crouch, knee = _airborne ? 1.2f : 1.6f * Crouch;
+        if (_airborne || Crouch > 0)
+        {
+            _leftHip.Rotation = new Vector3(thigh + swing * (1 - Crouch) * 0.5f, 0, 0);
+            _rightHip.Rotation = new Vector3(thigh - swing * (1 - Crouch) * 0.5f, 0, 0);
+            _leftKnee.Rotation = new Vector3(knee, 0, 0);
+            _rightKnee.Rotation = new Vector3(knee, 0, 0);
+        }
         Fight();
     }
 

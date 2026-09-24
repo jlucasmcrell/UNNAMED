@@ -16,6 +16,12 @@ public abstract record GameCommand(EntityId Actor);
 /// <summary>Set the actor's movement intent. The movement system integrates it every tick until the next one.</summary>
 public sealed record MoveCommand(EntityId Actor, MoveIntent Intent) : GameCommand(Actor);
 
+/// <summary>Jump (the owner's M6 playtest): from the ground, and from a crouch where there is room to stand.</summary>
+public sealed record JumpCommand(EntityId Actor) : GameCommand(Actor);
+
+/// <summary>Crouch, or stand up where there is room to (the owner's M6 playtest).</summary>
+public sealed record CrouchCommand(EntityId Actor, bool Crouched) : GameCommand(Actor);
+
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 

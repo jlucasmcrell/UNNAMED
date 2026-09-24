@@ -9,6 +9,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Sections;
@@ -56,6 +57,18 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 12. The 11 -> 12 step gives older saves none: no one could join before M6.</summary>
     [Key("companions")] public CompanionDto[]? Companions { get; set; }
+
+    /// <summary>Required from schema 13. The 12 -> 13 step gives older saves a body standing on the ground (the owner's M6 playtest).</summary>
+    [Key("posture")] public PostureDto? Posture { get; set; }
+}
+
+/// <summary>Standing or crouched, and how far into a jump (schema 13).</summary>
+[MessagePackObject]
+public sealed class PostureDto
+{
+    [Key("stance")] public string Stance { get; set; } = "";
+    [Key("airborne")] public bool Airborne { get; set; }
+    [Key("air_ms")] public int AirMs { get; set; }
 }
 
 [MessagePackObject]
@@ -369,6 +382,7 @@ public static class SectionCodec
                 TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
             })
             .ToArray(),
+        Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -392,6 +406,14 @@ public static class SectionCodec
         var conversations = dto.Conversations ?? throw new FormatException("player.msgpack has no conversations (required from schema 10)");
         var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
         var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
+        var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
+        var stance = posture.Stance switch
+        {
+            "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
+            _ => throw new FormatException($"player posture has stance '{posture.Stance}'"),
+        };
+        if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
+            throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
@@ -406,7 +428,7 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion));
+            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs) };
     }
 
     private static CompanionRecord Companion(CompanionDto c)

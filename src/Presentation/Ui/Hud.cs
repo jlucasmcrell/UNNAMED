@@ -10,7 +10,8 @@ namespace UNNAMED.Presentation.Ui;
 /// prompt, short-lived notices, a crosshair in first person, and the F3 overlay with frame timing and every cell's tier.
 /// Combat (M3c) adds health and stamina bars, active effects, the target's health, a short combat log, and a death recap
 /// that names what killed the character (ROADMAP.md M3c: a tester can name what killed them). Magic (M3e) adds Focus and
-/// Strain bars - Strain marked once the character is Strained - and the formulas on keys 4 to 6, with the one being cast.
+/// Strain bars - Strain marked once the character is Strained - and the formulas on keys 4 to 6, with the one being cast. The owner's M6
+/// playtest adds the heading compass at the top right (the quest tracker moves below it) and the aiming reticle.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
@@ -32,6 +33,8 @@ public partial class Hud : CanvasLayer
     private readonly ProgressBar _target = Bar(new Color(0.7f, 0.2f, 0.18f));
     private readonly Label _log = Text(16);
     private readonly Queue<string> _logLines = new();
+    private readonly Compass _compass = new();
+    private readonly Reticle _reticle = new();
     private readonly PanelContainer _death = new();
     private readonly Label _deathText = Text(20);
     private double _deathUntil;
@@ -51,6 +54,11 @@ public partial class Hud : CanvasLayer
         _prompt.Size = new Vector2(600, 40);
         AddChild(_prompt);
 
+        // Top right, so the notices and the target's bar keep their places above the panels.
+        _compass.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _compass.Position = new Vector2(-Compass.Diameter - 44, 10);
+        AddChild(_compass);
+
         _toasts.SetAnchorsPreset(Control.LayoutPreset.CenterTop);
         _toasts.Position = new Vector2(-300, 60);
         _toasts.Size = new Vector2(600, 200);
@@ -60,9 +68,10 @@ public partial class Hud : CanvasLayer
         _crosshair.SetAnchorsPreset(Control.LayoutPreset.Center);
         _crosshair.Position = new Vector2(-6, -16);
         AddChild(_crosshair);
+        AddChild(_reticle);
 
         _tracker.SetAnchorsPreset(Control.LayoutPreset.TopRight);
-        _tracker.Position = new Vector2(-470, 20);
+        _tracker.Position = new Vector2(-470, 134);
         _tracker.Size = new Vector2(450, 120);
         _tracker.HorizontalAlignment = HorizontalAlignment.Right;
         _tracker.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -170,6 +179,15 @@ public partial class Hud : CanvasLayer
     public void SetPrompt(string? text) => _prompt.Text = text ?? string.Empty;
 
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
+
+    /// <summary>The compass: where the view faces, degrees clockwise from north.</summary>
+    public void SetHeading(float degrees) => _compass.SetHeading(degrees);
+
+    /// <summary>The pipeline's compass dial, when the asset workspace has one.</summary>
+    public void UseCompassDial(Texture2D? dial) => _compass.UseDial(dial);
+
+    /// <summary>The aiming reticle at a point on the screen, or hidden.</summary>
+    public void SetReticle(Vector2? point, bool onCreature) => _reticle.Aim(point, onCreature);
 
     public void SetDebug(string text) => _debug.Text = text;
 

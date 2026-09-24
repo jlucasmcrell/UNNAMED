@@ -67,6 +67,12 @@ public sealed record AttackStarted(EntityId Attacker, string Source, int WindupT
 /// <summary>An attack's window closed without touching anything: out of reach, out of the arc, or stopped by a wall.</summary>
 public sealed record AttackMissed(EntityId Attacker, string Source, long Tick);
 
+/// <summary>
+/// A shot left the character (the owner's M6 playtest): an arrow or a thrown working, along the facing, from the body to where it
+/// stopped - the creature it struck, the first wall, or the end of its range. The blow resolved at release; presentation draws the flight.
+/// </summary>
+public sealed record ShotLoosed(EntityId Attacker, string Source, long FromXMm, long FromZMm, long ToXMm, long ToZMm, EntityId? Target, long Tick);
+
 /// <summary>A blow landed, or was dodged: where, how hard, and what it left.</summary>
 public sealed record HitResolved(
     EntityId Attacker, string AttackerDefId, EntityId Target, string Source, BodyRegion Region, int Damage,
@@ -366,6 +372,11 @@ internal sealed partial class CombatSystem
         // A windup can still be abandoned; a committed blow and a stagger cannot.
         if (phase is not (CombatPhase.Idle or CombatPhase.Windup))
             return phase == CombatPhase.Staggered ? "staggered" : $"cannot dodge while {phase.ToString().ToLowerInvariant()}";
+        // The dash is a standing body's, on the ground (the owner's M6 playtest).
+        if (State.Posture.Airborne)
+            return "cannot dodge in the air";
+        if (State.Posture.Stance == Stance.Crouched)
+            return "cannot dodge while crouched";
         if (Stamina() < C.DodgeStaminaCost)
             return "too tired to dodge";
         double dx = command.DirXPermille, dz = command.DirZPermille;
@@ -474,7 +485,7 @@ internal sealed partial class CombatSystem
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
                 return;
             }
-            if (RangedTarget(body, attack.ReachMm) is { } target)
+            if (Loose(attack.Source, attack.ReachMm, tick) is { } target)
                 PlayerHits(target, attack, tick);
             else
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
@@ -494,6 +505,43 @@ internal sealed partial class CombatSystem
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = State.PlayerCombat.Action with { Struck = struck } });
         if (struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
             _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+    }
+
+    /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>
+    private CreatureState? Loose(string source, long rangeMm, long tick)
+    {
+        var body = State.Body;
+        var (x, z, target) = Trace(body, rangeMm);
+        _context.Events.Publish(new ShotLoosed(_player, source, body.XMm, body.ZMm, x, z, target?.Id, tick));
+        return target;
+    }
+
+    /// <summary>
+    /// Where a shot along the body's facing stops: on the first creature it meets, else at the first wall, else at the end of its range.
+    /// Read-only, so presentation can place the aiming reticle on the same point (the owner's M6 playtest).
+    /// </summary>
+    public (long XMm, long ZMm, CreatureState? Target) Trace(Body from, long rangeMm)
+    {
+        if (RangedTarget(from, rangeMm) is { } target)
+            return (target.Body.XMm, target.Body.ZMm, target);
+        double facing = from.FacingMdeg / 1000.0 * Math.PI / 180;
+        double dx = Math.Sin(facing), dz = Math.Cos(facing);
+        double reach = rangeMm;
+        if (Walled(from.XMm, from.ZMm, from.XMm + dx * reach, from.ZMm + dz * reach))
+        {
+            // The line crosses a wall somewhere short of the range: halve the gap down to a centimetre.
+            double clear = 0;
+            while (reach - clear > 10)
+            {
+                double mid = (clear + reach) / 2;
+                if (Walled(from.XMm, from.ZMm, from.XMm + dx * mid, from.ZMm + dz * mid))
+                    reach = mid;
+                else
+                    clear = mid;
+            }
+            reach = clear;
+        }
+        return ((long)Math.Round(from.XMm + dx * reach, MidpointRounding.AwayFromZero), (long)Math.Round(from.ZMm + dz * reach, MidpointRounding.AwayFromZero), null);
     }
 
     /// <summary>The first living creature along the facing within range whose body the line meets before any wall does.</summary>

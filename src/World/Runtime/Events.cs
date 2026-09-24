@@ -14,6 +14,12 @@ public sealed record CommandRejected(GameCommand Command, string Reason, long Ti
 
 public sealed record BodyMoved(EntityId Actor, Body From, Body To, long Tick);
 
+/// <summary>The body left the ground (the owner's M6 playtest).</summary>
+public sealed record Jumped(EntityId Actor, long Tick);
+
+/// <summary>The body crouched or stood up (the owner's M6 playtest).</summary>
+public sealed record StanceChanged(EntityId Actor, Stance Stance, long Tick);
+
 public sealed record WorldFlagChanged(string CellKey, string FlagId, long From, long To, long Tick);
 
 public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long Tick);

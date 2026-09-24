@@ -122,8 +122,8 @@ public sealed class Simulation
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
-        _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Intent);
-        _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Intent);
+        _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Effective);
+        _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Effective);
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
         _death = new DeathSystem(_context, player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
@@ -191,6 +191,19 @@ public sealed class Simulation
 
     /// <summary>The sparse world delta. Its public members only read (tests/Architecture.Tests).</summary>
     public WorldDelta World => _state.World;
+
+    /// <summary>Standing or crouched, and how far into a jump (the owner's M6 playtest): cheap to read every frame.</summary>
+    public Posture Posture => _state.Posture;
+
+    /// <summary>
+    /// Where a shot loosed now along this facing would stop (the owner's M6 playtest): on a creature, a wall, or at the end of its range.
+    /// Read-only: the aiming reticle sits on this point.
+    /// </summary>
+    public (long XMm, long ZMm, bool OnCreature) Aim(int facingMdeg, long rangeMm)
+    {
+        var (x, z, target) = _combat.Trace(_state.Body with { FacingMdeg = facingMdeg }, rangeMm);
+        return (x, z, target is not null);
+    }
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
@@ -260,6 +273,10 @@ public sealed class Simulation
             string? rejected = command switch
             {
                 MoveCommand move => _movement.Handle(move),
+                JumpCommand jump => _movement.Handle(jump, WorldTick),
+                CrouchCommand crouch => _movement.Handle(crouch, WorldTick),
+                TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
+                SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
@@ -330,7 +347,7 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values, _companions.Records());
+            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture };
     }
 
     /// <summary>

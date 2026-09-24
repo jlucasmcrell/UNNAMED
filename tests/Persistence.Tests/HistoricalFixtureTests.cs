@@ -2,6 +2,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
 using UNNAMED.World;
@@ -229,6 +230,9 @@ public class HistoricalFixtureTests
         {
             Assert.Empty(loaded.Player.Companions);
         }
+
+        // Schema 13's posture (the owner's M6 playtest): Aelin crouched, on the ground; before it, standing.
+        Assert.Equal(schema >= 13 ? new Posture(Stance.Crouched, false, 0) : Posture.Grounded, loaded.Player.Posture);
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.

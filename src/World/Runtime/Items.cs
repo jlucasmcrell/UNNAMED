@@ -47,12 +47,21 @@ public readonly record struct ItemPlace(PlaceKind Kind, string? ContainerKey = n
 /// </summary>
 public sealed record MoveItemCommand(EntityId Actor, string Item, ItemPlace From, ItemPlace To, int Count) : GameCommand(Actor);
 
+/// <summary>
+/// Take everything a container or a corpse holds (the owner's M6 playtest), each stack by the same rules as a single take: as much of it
+/// as the pack has room for and the character can carry. What does not fit stays where it was.
+/// </summary>
+public sealed record TakeAllCommand(EntityId Actor, string ContainerKey) : GameCommand(Actor);
+
 /// <summary>Equip a carried item into its slot; whatever that displaces stays carried (S-15).</summary>
 public sealed record EquipCommand(EntityId Actor, EntityId Item) : GameCommand(Actor);
 
 public sealed record UnequipCommand(EntityId Actor, EquipSlot Slot) : GameCommand(Actor);
 
 public sealed record ItemMoved(EntityId Actor, string DefId, int Count, ItemPlace From, ItemPlace To, long Tick);
+
+/// <summary>A take-all finished: how many items came away, how many stayed, and why the first that stayed did.</summary>
+public sealed record TookAll(EntityId Actor, string ContainerKey, int Taken, int Left, string? Why, long Tick);
 
 public sealed record ItemEquipped(EntityId Actor, EquipSlot Slot, EntityId Item, long Tick);
 
@@ -119,6 +128,61 @@ internal sealed class InventorySystem
     private RuntimeState State => _context.State;
 
     public string? Handle(MoveItemCommand command, long tick) => Move(command, tick, trading: false);
+
+    /// <summary>
+    /// Every stack in the container, one after another, through the one move: whole if it fits, else as many as fit, else none. The
+    /// contents are read again after each move, since the first change gives an authored container's stacks their identities.
+    /// </summary>
+    public string? Handle(TakeAllCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var from = ItemPlace.In(command.ContainerKey);
+        if (Check(from, trading: false) is { } problem)
+            return problem;
+        var site = _context.FindContainer(command.ContainerKey)!;
+        if (ContentsOf(site).Count == 0)
+            return "there is nothing to take";
+        var passed = new HashSet<string>(StringComparer.Ordinal);
+        int taken = 0;
+        string? why = null;
+        while (ContentsOf(site).FirstOrDefault(i => !passed.Contains(i.Ref)) is { Ref: not null } next)
+        {
+            var definition = Items.Catalog.Find(next.DefId);
+            int fits = definition is null ? 0 : MostThatFits(definition, next.Quality, next.Count);
+            string? refused = fits == 0
+                ? (definition is null ? $"{next.DefId} is not an item this build knows" : PackRefusal(definition, next.Quality))
+                : Move(new MoveItemCommand(_player, next.Ref, from, ItemPlace.Carried, fits), tick, trading: false);
+            if (refused is null)
+                taken += fits;
+            else
+                why ??= refused;
+            if (refused is not null || fits < next.Count)
+                passed.Add(next.Ref);
+        }
+        int left = _context.FindContainer(command.ContainerKey) is { } still ? ContentsOf(still).Sum(i => i.Count) : 0;
+        _context.Events.Publish(new TookAll(_player, command.ContainerKey, taken, left, left > 0 ? why : null, tick));
+        return taken == 0 ? why ?? "nothing could be taken" : null;
+    }
+
+    /// <summary>How many of a stack the pack has room for and the character can carry, as it is now.</summary>
+    private int MostThatFits(ItemDefinition definition, int quality, int count)
+    {
+        var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList();
+        long spare = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) - CarriedGrams();
+        int most = definition.WeightGrams > 0 ? (int)Math.Min(count, Math.Max(0, spare / definition.WeightGrams)) : count;
+        while (most > 0 && Room(stacks, definition, quality, most, Items.Inventory.StackSlots) is not null)
+            most--;
+        return most;
+    }
+
+    /// <summary>Why not even one of a stack can come into the pack.</summary>
+    private string PackRefusal(ItemDefinition definition, int quality)
+    {
+        var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList();
+        return Room(stacks, definition, quality, 1, Items.Inventory.StackSlots)
+            ?? $"too heavy: {(CarriedGrams() + definition.WeightGrams) / 1000.0:0.##} kg of {Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) / 1000.0:0.##} kg";
+    }
 
     /// <summary>A trade: the coin first, then the move; a refused move takes no coin.</summary>
     public string? Handle(Trade trade, long tick)

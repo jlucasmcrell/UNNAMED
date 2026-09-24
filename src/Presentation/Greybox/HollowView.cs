@@ -109,8 +109,9 @@ public partial class HollowView : Node3D
         {
             case BoxBlocker box:
             {
-                float baseY = LowestUnder(terrain, box) - 0.2f;
-                float height = box.HeightMm / 1000f + 0.2f;
+                // An overhang (a beam a crouched body passes under) is drawn from its clearance up, not from the ground.
+                float baseY = box.ClearanceMm > 0 ? (terrain.HeightAtMm(box.CenterXMm, box.CenterZMm) + box.ClearanceMm) / 1000f : LowestUnder(terrain, box) - 0.2f;
+                float height = box.ClearanceMm > 0 ? (box.HeightMm - box.ClearanceMm) / 1000f : box.HeightMm / 1000f + 0.2f;
                 var size = new Vector3((box.MaxXMm - box.MinXMm) / 1000f, height, (box.MaxZMm - box.MinZMm) / 1000f);
                 var node = Solid(box.Id, new BoxMesh { Size = size }, new BoxShape3D { Size = size }, MaterialFor(box.Id));
                 node.Position = new Vector3(box.CenterXMm / 1000f, baseY + height / 2, box.CenterZMm / 1000f);

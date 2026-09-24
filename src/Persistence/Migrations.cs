@@ -18,6 +18,7 @@ using V8 = UNNAMED.Persistence.Sections.V8;
 using V9 = UNNAMED.Persistence.Sections.V9;
 using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
+using V12 = UNNAMED.Persistence.Sections.V12;
 
 namespace UNNAMED.Persistence;
 
@@ -76,7 +77,8 @@ public static class SchemaMigrations
         new SchemaV8ToV9(),
         new SchemaV9ToV10(),
         new SchemaV10ToV11(),
-        new SchemaV11ToV12());
+        new SchemaV11ToV12(),
+        new SchemaV12ToV13());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -678,7 +680,7 @@ public sealed class SchemaV11ToV12 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V11.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V12.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -697,6 +699,46 @@ public sealed class SchemaV11ToV12 : SchemaMigration
                 Conversations = old.Conversations,
                 Quests = old.Quests,
                 Companions = Array.Empty<CompanionDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 12 to 13 (the owner's M6 playtest): the player gains a posture. A save that predates crouching and jumping stands on the ground.</summary>
+public sealed class SchemaV12ToV13 : SchemaMigration
+{
+    public override int From => 12;
+
+    public override string Summary => "schema 12 -> 13: the player gains a posture (standing, on the ground, before the M6 playtest)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V12.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = new PostureDto { Stance = "standing", Airborne = false, AirMs = 0 },
             }, options);
         }
         document.Manifest["schema_version"] = To;

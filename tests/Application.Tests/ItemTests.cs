@@ -278,6 +278,89 @@ public class ItemTests
         Assert.Contains("no room", Assert.Single(rejected).Reason);
     }
 
+    /// <summary>What a place holds, counted by definition: a take must move items, never make or lose them.</summary>
+    private static Dictionary<string, int> Tally(IEnumerable<(string DefId, int Count)> stacks) =>
+        stacks.GroupBy(s => s.DefId).ToDictionary(g => g.Key, g => g.Sum(s => s.Count));
+
+    [Fact]
+    public void TakeAll_EmptiesTheDenCache_IntoThePack_WithoutMakingOrLosingAnything_AndASaveKeepsIt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (simulation, bus) = Custom(session, items => items);
+        var took = new List<TookAll>();
+        bus.Subscribe<TookAll>(took.Add);
+        Walk(simulation, ToTheDenCache);
+        var inCache = Tally(simulation.Containers.Single(c => c.Site.Key == Den).Items.Select(i => (i.DefId, i.Count)));
+        var carried = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
+
+        simulation.Enqueue(new TakeAllCommand(simulation.PlayerId, Den));
+        simulation.DrainCommands();
+
+        var after = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
+        foreach (var (defId, count) in inCache)
+            Assert.Equal(carried.GetValueOrDefault(defId) + count, after[defId]);
+        Assert.Equal(carried.Values.Sum() + inCache.Values.Sum(), after.Values.Sum());
+        Assert.Empty(simulation.Containers.Single(c => c.Site.Key == Den).Items);
+        var summary = Assert.Single(took);
+        Assert.Equal((inCache.Values.Sum(), 0, (string?)null), (summary.Taken, summary.Left, summary.Why));
+        Assert.Equal(simulation.Player.Inventory.Select(e => e.ItemId).Distinct().Count(), simulation.Player.Inventory.Length);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("took"), SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), session.Content, simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("took"), new LoadContext(session.Generator, session.Content, new Registry()));
+        var resumed = Simulation.Start(simulation.Setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        Assert.Equal(simulation.StateDigest(), resumed.StateDigest());
+        Assert.Empty(resumed.Containers.Single(c => c.Site.Key == Den).Items);
+    }
+
+    [Fact]
+    public void TakeAll_TakesWhatCanBeCarried_TopToBottom_AndLeavesTheRest_WhereItWas()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var catalog = session.Setup.Items.Catalog;
+        // A limit of the kit's weight and one ingot and a half: some of the cache comes away, not all of it.
+        var (probe, _) = Custom(session, items => items);
+        long ingot = catalog.Find("item.material.iron_ingot")!.WeightGrams;
+        long limit = probe.Player.CarriedGrams + ingot * 3 / 2;
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = limit, CarryGramsPerMight = 0 } });
+        var took = new List<TookAll>();
+        bus.Subscribe<TookAll>(took.Add);
+        Walk(simulation, ToTheDenCache);
+        var inCache = Tally(simulation.Containers.Single(c => c.Site.Key == Den).Items.Select(i => (i.DefId, i.Count)));
+        var carried = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
+
+        simulation.Enqueue(new TakeAllCommand(simulation.PlayerId, Den));
+        simulation.DrainCommands();
+
+        var left = simulation.Containers.Single(c => c.Site.Key == Den).Items;
+        var after = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
+        var remaining = Tally(left.Select(i => (i.DefId, i.Count)));
+        // Nothing made, nothing lost: every item is in the pack or still in the cache.
+        foreach (var defId in inCache.Keys.Union(carried.Keys))
+            Assert.Equal(carried.GetValueOrDefault(defId) + inCache.GetValueOrDefault(defId), after.GetValueOrDefault(defId) + remaining.GetValueOrDefault(defId));
+        // The limit held, and nothing left behind could still have come.
+        Assert.True(simulation.Player.CarriedGrams <= limit);
+        Assert.NotEmpty(left);
+        Assert.All(left, i => Assert.True(catalog.Find(i.DefId)!.WeightGrams > limit - simulation.Player.CarriedGrams, $"{i.DefId} would still fit"));
+        var summary = Assert.Single(took);
+        Assert.Equal((inCache.Values.Sum() - remaining.Values.Sum(), remaining.Values.Sum()), (summary.Taken, summary.Left));
+        Assert.Contains("too heavy", summary.Why);
+    }
+
+    [Fact]
+    public void TakeAll_FromAfar_OrFromATradersWares_IsRefused()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var simulation = session.NewGame("Wanderer", seed: 42);
+
+        Assert.Contains("out of reach", Rejection(session, new TakeAllCommand(simulation.PlayerId, Den)));
+        string wares = session.Setup.Items.Merchants.Keys.First();
+        Assert.Contains("trader's wares", Rejection(session, new TakeAllCommand(simulation.PlayerId, wares)));
+    }
+
     [Fact]
     public void SplittingAndMerging_WithinTheInventory()
     {

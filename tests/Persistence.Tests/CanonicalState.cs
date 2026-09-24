@@ -3,6 +3,7 @@ using System.Text.Json;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Tests;
 
@@ -145,6 +146,11 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            json.WriteStartObject("posture");
+            json.WriteString("stance", StanceKeys.Key(player.Posture.Stance));
+            json.WriteBoolean("airborne", player.Posture.Airborne);
+            json.WriteNumber("air_ms", player.Posture.AirMs);
+            json.WriteEndObject();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

@@ -5,6 +5,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -152,7 +153,11 @@ public static class M2Fixtures
                     LastCombatTick = 4_950,
                     Trail = ImmutableArray.Create(new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125)),
                 },
-            });
+            })
+        {
+            // Schema 13 (the owner's M6 playtest): Aelin is crouched, on the ground.
+            Posture = new Posture(Stance.Crouched, Airborne: false, AirMs: 0),
+        };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 

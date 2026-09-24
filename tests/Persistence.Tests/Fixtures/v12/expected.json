@@ -205,7 +205,12 @@
           -40125
         ]
       }
-    ]
+    ],
+    "posture": {
+      "stance": "standing",
+      "airborne": false,
+      "air_ms": 0
+    }
   },
   "cells": [
     {

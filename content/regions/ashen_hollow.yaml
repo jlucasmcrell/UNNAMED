@@ -84,6 +84,11 @@ structures:
   # Cell B - Charwood Verge (bible §6). The damaged merchant cart where the bow lies.
   - { id: cart_wreck, box_m: [155.5, 161.2, 158.5, 163.2], height_m: 1.4 }
   - { id: fallen_timber, box_m: [163, 147, 171, 147.8], height_m: 0.8 }
+  # A beam fallen across two stones at the Woundmoss patch (the owner's M6 playtest): a crouched body passes under it, a standing one
+  # goes round the stones.
+  - { id: beam_woundmoss, box_m: [146, 131.6, 152, 132.4], height_m: 1.7, clearance_m: 1.3 }
+  - { id: rock_beam_west, circle_m: [145.3, 132, 0.7], height_m: 1.8 }
+  - { id: rock_beam_east, circle_m: [152.7, 132, 0.7], height_m: 1.8 }
   # The wolves' den: a notch in the rock in Charwood's north-west corner (the prototype's den, kept; not in the bible), clear of the
   # bible's acceptance path.
   - { id: den_rock_west, box_m: [93, 180, 109, 198], height_m: 6.0 }

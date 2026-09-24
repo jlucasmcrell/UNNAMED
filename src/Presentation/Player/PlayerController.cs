@@ -123,10 +123,18 @@ public sealed class PlayerController
                     intent = intent with { Gait = Gait.Run };
                 break;
         }
-        return Kinematics.Step(_body, intent, setup.Movement, setup.Layout.Space, simulation.DynamicBlockers, (int)Math.Round(alpha * setup.TickMilliseconds));
+        // With the posture (the owner's M6 playtest): a jump's arc and a crouch's pace are drawn as the next tick will have them.
+        return Kinematics.Step(_body, simulation.Posture, intent, setup.Movement, setup.Layout.Space, simulation.DynamicBlockers,
+            (int)Math.Round(alpha * setup.TickMilliseconds)).Body;
     }
 
     public void Attack() => _session.Submit(new AttackCommand(_session.Simulation!.PlayerId));
+
+    /// <summary>Jump (the owner's M6 playtest): the simulation decides whether there is room, and the arc.</summary>
+    public void Jump() => _session.Submit(new JumpCommand(_session.Simulation!.PlayerId));
+
+    /// <summary>Crouch, or stand where there is room to.</summary>
+    public void Crouch(bool crouched) => _session.Submit(new CrouchCommand(_session.Simulation!.PlayerId, crouched));
 
     /// <summary>Begin a working (M3e): its tell, then its release.</summary>
     public void Cast(string formulaId) => _session.Submit(new CastCommand(_session.Simulation!.PlayerId, formulaId));

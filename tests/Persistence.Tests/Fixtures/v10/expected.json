@@ -147,7 +147,12 @@
       }
     ],
     "quests": [],
-    "companions": []
+    "companions": [],
+    "posture": {
+      "stance": "standing",
+      "airborne": false,
+      "air_ms": 0
+    }
   },
   "cells": [
     {

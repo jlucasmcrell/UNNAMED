@@ -102,8 +102,9 @@ internal sealed class ClockSystem
 }
 
 /// <summary>
-/// Owns: <see cref="StateSlice.PlayerBody"/>. Integrates the player's movement intent every tick with
-/// <see cref="Kinematics.Step"/>. The intent itself is transient input state and is never saved.
+/// Owns: <see cref="StateSlice.PlayerBody"/> - the body and its posture. Integrates the player's movement intent every tick with
+/// <see cref="Kinematics.Step"/>, jumps and crouches (the owner's M6 playtest). The intent itself is transient input state and is
+/// never saved; the posture is.
 /// </summary>
 internal sealed class MovementSystem
 {
@@ -120,6 +121,48 @@ internal sealed class MovementSystem
     }
 
     public MoveIntent Intent { get; private set; }
+
+    /// <summary>The intent as the body carries it out: a crouched body goes at a walk, whatever the gait asked (its footfalls, its stamina).</summary>
+    public MoveIntent Effective => _context.State.Posture.Stance == Stance.Crouched ? Intent with { Gait = Gait.Walk } : Intent;
+
+    /// <summary>Leave the ground: not in the air already, not mid-action or guarding, and from a crouch only where there is room to stand.</summary>
+    public string? Handle(JumpCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var posture = _context.State.Posture;
+        if (posture.Airborne)
+            return "already in the air";
+        var combat = _context.State.PlayerCombat;
+        var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
+        if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
+            return "busy";
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+            return "no room to stand";
+        _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
+        _context.Events.Publish(new Jumped(_player, tick));
+        if (posture.Stance == Stance.Crouched)
+            _context.Events.Publish(new StanceChanged(_player, Stance.Standing, tick));
+        return null;
+    }
+
+    /// <summary>Crouch, or stand: never in the air, and standing only where no overhang is lower than a standing head.</summary>
+    public string? Handle(CrouchCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var posture = _context.State.Posture;
+        var stance = command.Crouched ? Stance.Crouched : Stance.Standing;
+        if (posture.Stance == stance)
+            return null;
+        if (posture.Airborne)
+            return "in the air";
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+            return "no room to stand";
+        _context.State.SetPosture(_owner, posture with { Stance = stance });
+        _context.Events.Publish(new StanceChanged(_player, stance, tick));
+        return null;
+    }
 
     public string? Handle(MoveCommand command)
     {
@@ -169,7 +212,10 @@ internal sealed class MovementSystem
             intent = intent with { Gait = Gait.Run };
         }
 
-        var to = Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var posture = _context.State.Posture;
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        if (next != posture)
+            _context.State.SetPosture(_owner, next);
         if (to == from)
             return;
         _context.State.SetBody(_owner, to);
@@ -180,6 +226,7 @@ internal sealed class MovementSystem
     {
         var from = _context.State.Body;
         _context.State.SetBody(_owner, command.Body);
+        _context.State.SetPosture(_owner, Posture.Grounded);
         Intent = MoveIntent.Idle(command.Body.FacingMdeg);
         _context.Events.Publish(new BodyMoved(_player, from, command.Body, tick));
         return null;
@@ -268,6 +315,12 @@ internal sealed class WorldFlagSystem
     }
 }
 
+/// <summary>Spend an unspent attribute point on an attribute in play (the owner's M6 playtest: the character sheet; PROTOTYPE.md C11).</summary>
+public sealed record SpendAttributeCommand(EntityId Actor, CharacterAttribute Attribute) : GameCommand(Actor);
+
+/// <summary>An attribute point was spent: the attribute's new value, and the points left.</summary>
+public sealed record AttributeSpent(CharacterAttribute Attribute, int Value, int Unspent, long Tick);
+
 /// <summary>Owns: <see cref="StateSlice.PlayerProgression"/>. Applies the pure progression rules (S-08, M2c).</summary>
 internal sealed class ProgressionSystem
 {
@@ -311,6 +364,22 @@ internal sealed class ProgressionSystem
         };
         if (pools != progression.Pools)
             _context.State.SetProgression(_owner, progression with { Pools = pools });
+        return null;
+    }
+
+    /// <summary>One point from level-ups onto an attribute some derived value reads; one nothing reads yet would be a point wasted.</summary>
+    public string? Handle(SpendAttributeCommand command, long tick)
+    {
+        var progression = _context.State.Progression;
+        var rules = _context.Setup.Progression;
+        if (progression.UnspentAttributePoints <= 0)
+            return "no attribute points to spend";
+        if (!rules.Derived.Live.Contains(command.Attribute))
+            return $"{ProgressionKeys.Key(command.Attribute)} is not in play yet";
+        var spent = ProgressionEngine.Allocate(progression, new AttributeAllocation(command.Attribute, 1));
+        _context.State.SetProgression(_owner, spent);
+        _context.Events.Publish(new AttributeSpent(command.Attribute, ProgressionEngine.AttributeValue(spent, command.Attribute, rules),
+            spent.UnspentAttributePoints, tick));
         return null;
     }
 

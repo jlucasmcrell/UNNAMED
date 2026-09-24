@@ -119,6 +119,14 @@ public class WorldContentTests
         AssertRefused("WLD007", "regions/ashen_hollow.yaml", "spawn: { position_m: [30, 158]", "spawn: { position_m: [44, 124.2]");   // in the lodge's south wall
 
     [Fact]
+    public void AnOverhangThatBeginsAtItsOwnTop_IsRefused() =>
+        AssertRefused("WLD001", "regions/ashen_hollow.yaml", "height_m: 1.7, clearance_m: 1.3", "height_m: 1.7, clearance_m: 1.7", "clearance_m");
+
+    [Fact]
+    public void ACrouchNoLowerThanStanding_IsRefused() =>
+        AssertRefused("WLD008", "config/base_speeds.yaml", "crouch_height_m: 1.15", "crouch_height_m: 1.9", "crouched height");
+
+    [Fact]
     public void BoundsBeyondTheRegionsCells_AreRefused() =>
         AssertRefused("WLD002", "regions/ashen_hollow.yaml", "bounds_m: { min: [0, 0], max: [200, 200] }", "bounds_m: { min: [0, 0], max: [250, 200] }");
 

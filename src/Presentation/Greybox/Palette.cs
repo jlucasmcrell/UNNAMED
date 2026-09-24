@@ -29,6 +29,9 @@ public static class Palette
     public static StandardMaterial3D Iron { get; } = Flat(new Color(0.18f, 0.18f, 0.20f), roughness: 0.35f);
     public static StandardMaterial3D Shaft { get; } = Flat(new Color(0.60f, 0.50f, 0.36f));
 
+    /// <summary>An arrow's fletching: pale, so an arrow stuck in bark or earth can be found by eye.</summary>
+    public static StandardMaterial3D Fletching { get; } = Flat(new Color(0.92f, 0.90f, 0.84f));
+
     public static StandardMaterial3D Embers { get; } = new()
     {
         AlbedoColor = new Color(1f, 0.45f, 0.1f),

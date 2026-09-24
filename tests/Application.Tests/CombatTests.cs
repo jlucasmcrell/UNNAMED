@@ -179,6 +179,57 @@ public class CombatTests
             record.FacingMdeg, record.Discoveries, new[] { KeyValuePair.Create(EquipSlot.MainHand, item) }, record.Currency, record.Effects);
     }
 
+    /// <summary>Loose one arrow along the facing and return the shot the simulation published (the owner's M6 playtest).</summary>
+    private static ShotLoosed Loose(Arena arena)
+    {
+        var shots = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 40 && shots.Count == 0; i++)
+            arena.Tick();
+        return Assert.Single(shots);
+    }
+
+    private static Func<PlayerRecord, PlayerRecord> Archer => r => Wielding(Carrying(r, Arena.Stack("item.ammo.arrow_rough", 12)), "item.weapon.hunting_bow");
+
+    [Fact]
+    public void AShot_IsPublishedFromTheBody_ToTheCreatureItStrikes_AndTheAimShowsThatPointFirst()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Open, 0, new[] { (Arena.Wolf, Open.X, Open.Z + 12, "pack_hunter") }, Archer);
+        var wolf = arena.Creature();
+        long range = arena.Simulation.Combat.Weapon.ReachMm;
+
+        var aim = arena.Simulation.Aim(0, range);
+        var shot = Loose(arena);
+
+        Assert.Equal((wolf.Body.XMm, wolf.Body.ZMm, true), aim);
+        Assert.Equal((arena.Simulation.Player.Body.XMm, arena.Simulation.Player.Body.ZMm), (shot.FromXMm, shot.FromZMm));
+        Assert.Equal((wolf.Body.XMm, wolf.Body.ZMm, (EntityId?)wolf.Id), (shot.ToXMm, shot.ToZMm, shot.Target));
+    }
+
+    [Fact]
+    public void AShotThatMeetsNoCreature_StopsAtTheFirstWall_OrAtTheEndOfItsRange()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var none = Array.Empty<(string, double, double, string)>();
+
+        // South from the waystation's yard into the lodge's north wall, whose outer face is at z 132.
+        var walled = Arena.OpenCreatures(session, session.Setup, (44, 137), 180, none, Archer);
+        var atWall = Loose(walled);
+        Assert.Null(atWall.Target);
+        Assert.InRange(atWall.ToXMm, 43_999, 44_001);
+        Assert.InRange(atWall.ToZMm, 132_000, 132_010);
+        Assert.Equal((atWall.ToXMm, atWall.ToZMm, false), walled.Simulation.Aim(180_000, walled.Simulation.Combat.Weapon.ReachMm));
+
+        // East across the open field: the whole range.
+        var open = Arena.OpenCreatures(session, session.Setup, Open, 90, none, Archer);
+        var far = Loose(open);
+        Assert.Null(far.Target);
+        Assert.Equal((Open.X * 1000 + open.Simulation.Combat.Weapon.ReachMm, Open.Z * 1000), (far.ToXMm, (double)far.ToZMm));
+    }
+
     [Fact]
     public void TheWolf_IsInTheWorld_AtItsAuthoredLevel_AndTheStraysStandInTheValley()
     {

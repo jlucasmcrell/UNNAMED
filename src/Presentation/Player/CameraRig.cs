@@ -47,6 +47,12 @@ public partial class CameraRig : Node3D
 
     public Shoulder Side { get; set; } = Shoulder.Right;
 
+    /// <summary>How far into a crouch the body is drawn (0-1): the eye comes down with it (the owner's M6 playtest).</summary>
+    public float Crouch { get; set; }
+
+    /// <summary>A crouched eye's height.</summary>
+    public const float CrouchedEyeHeight = 1.05f;
+
     public float Sensitivity { get; set; } = 0.0025f;
 
     public bool IsFirstPerson => TargetDistance <= FirstPersonBelow;
@@ -108,7 +114,7 @@ public partial class CameraRig : Node3D
         float side = Side switch { Shoulder.Right => 1f, Shoulder.Left => -1f, _ => 0f };
         _shoulder = Mathf.Lerp(_shoulder, side * ShoulderOffset * Mathf.Clamp(Distance / 2f, 0, 1), blend);
 
-        Position = feet + new Vector3(0, Avatar.EyeHeight, 0);
+        Position = feet + new Vector3(0, Mathf.Lerp(Avatar.EyeHeight, CrouchedEyeHeight, Crouch), 0);
         Rotation = new Vector3(0, Yaw, 0);
         // In first person the eye sits just ahead of the head's centre, so looking down shows the torso, not the neck.
         float forward = Mathf.Clamp(1f - Distance / FirstPersonBelow, 0, 1) * 0.1f;
