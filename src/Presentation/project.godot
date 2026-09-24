@@ -15,6 +15,10 @@ config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+; The UI is laid out for 1920 x 1080 and scaled to the window, keeping its proportions (the Phase-1 technical audit, M-06):
+; at 1366 x 768 or 1280 x 720 everything shows, smaller; a wider or taller window gets more room, not a stretched picture.
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [dotnet]
 

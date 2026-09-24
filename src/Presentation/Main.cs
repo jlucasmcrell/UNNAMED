@@ -65,6 +65,7 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private Playthrough? _play;
     private DeltaShots? _delta;
+    private LayoutCheck? _layout;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
     private bool _scripted;
@@ -113,11 +114,12 @@ public partial class Main : Node3D
             return;
         }
 
-        string contentRoot = Path.Combine(Home(), "content");
+        // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
+        string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
-              || _options.ContainsKey("--delta-shots")
+              || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -127,7 +129,7 @@ public partial class Main : Node3D
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
-                        || _options.ContainsKey("--delta-shots");
+                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -239,6 +241,10 @@ public partial class Main : Node3D
         if (_flags.Contains("--smoke"))
         {
             _smoke = new Smoke(_session, _controller, _camera, profile);
+        }
+        else if (_options.TryGetValue("--layout-check", out string? layout))
+        {
+            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, Path.GetFullPath(layout));
         }
         else if (_flags.Contains("--input-check"))
         {
@@ -356,6 +362,21 @@ public partial class Main : Node3D
             {
                 GetTree().Quit(code);
                 return;
+            }
+        }
+        else if (_layout is not null)
+        {
+            switch (_layout.Update())
+            {
+                case "done":
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_layout.Directory, shot);
+                    break;
             }
         }
         else if (_inputCheck is not null)
@@ -1256,7 +1277,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
-                    or "--profile" or "--resume-shots"
+                    or "--profile" or "--resume-shots" or "--content-root" or "--layout-check"
                     or "--art-gallery"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
