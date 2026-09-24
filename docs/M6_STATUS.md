@@ -125,7 +125,7 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 | His state round-trips through save/load field by field | Met - the companion test and the acceptance relaunch (0 differences) |
 | Both of the bible's quests complete | Met - part 2's tests and the playthrough |
 | Proof: a recorded acceptance log with zero pathing interventions; the companion round trip; the §19 report | Met - part 4 |
-| The early feel test (3-5 blind testers) | The owner's, after the playtest; not a gate |
+| The early feel test (3-5 blind testers) | **The owner's**, after the playtest - its transcript and findings (a null result included) are part of ROADMAP M6's proof, and it is required before Phase 2 |
 | M6 acceptance (bible §35): 1080p/60 FPS evidence | **Waits on RAZER** |
 
 ## Known deferrals
