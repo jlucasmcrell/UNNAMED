@@ -1,0 +1,20 @@
+{
+  "asset_id": "prop_wooden_barrel",
+  "dimensions_m": [
+    0.5689,
+    0.85,
+    0.7782
+  ],
+  "sockets": {
+    "SOCK_interact_handle": [
+      0.1593,
+      0.442,
+      0.3891
+    ],
+    "SOCK_interact_take": [
+      0.0,
+      0.7225,
+      0.0
+    ]
+  }
+}

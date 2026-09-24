@@ -1,0 +1,20 @@
+{
+  "asset_id": "prop_banded_ash_sea_chest",
+  "dimensions_m": [
+    1.0216,
+    0.7261,
+    1.1
+  ],
+  "sockets": {
+    "SOCK_interact_chest_lid": [
+      0.0,
+      0.7261,
+      0.0
+    ],
+    "SOCK_interact_handle": [
+      0.2861,
+      0.3776,
+      0.55
+    ]
+  }
+}

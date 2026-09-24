@@ -1,0 +1,20 @@
+{
+  "asset_id": "container_chest_iron_banded",
+  "dimensions_m": [
+    0.8,
+    0.5972,
+    0.6966
+  ],
+  "sockets": {
+    "SOCK_interact_chest_lid": [
+      0.0,
+      0.5972,
+      0.0
+    ],
+    "SOCK_interact_handle": [
+      0.224,
+      0.3105,
+      0.3483
+    ]
+  }
+}

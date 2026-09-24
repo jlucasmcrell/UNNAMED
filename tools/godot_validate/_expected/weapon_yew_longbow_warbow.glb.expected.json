@@ -1,0 +1,20 @@
+{
+  "asset_id": "weapon_yew_longbow_warbow",
+  "sockets": {
+    "SOCK_grip_primary": [
+      0.0193,
+      0.782,
+      0.0334
+    ],
+    "SOCK_ammo": [
+      0.0193,
+      0.782,
+      0.0334
+    ],
+    "SOCK_attach": [
+      0.0193,
+      0.782,
+      0.0334
+    ]
+  }
+}

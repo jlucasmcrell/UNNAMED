@@ -1,0 +1,15 @@
+{
+  "asset_id": "container_backpack_traveller",
+  "dimensions_m": [
+    0.4456,
+    0.5,
+    0.4603
+  ],
+  "sockets": {
+    "SOCK_interact_take": [
+      0.0,
+      0.425,
+      0.0
+    ]
+  }
+}

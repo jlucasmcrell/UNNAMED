@@ -1,0 +1,35 @@
+{
+  "asset_id": "race2_veth_bindpose",
+  "sockets": {
+    "SOCK_hand_l": [
+      0.635,
+      -0.0,
+      -0.9872
+    ],
+    "SOCK_hand_r": [
+      -0.635,
+      -0.0,
+      -0.9872
+    ],
+    "SOCK_attach_back": [
+      0.0,
+      -0.17,
+      -1.42
+    ],
+    "SOCK_attach_hip_l": [
+      0.152,
+      -0.07,
+      -0.99
+    ],
+    "SOCK_attach_hip_r": [
+      -0.152,
+      -0.07,
+      -0.99
+    ]
+  },
+  "dimensions_m": [
+    0.9136,
+    1.8,
+    0.2988
+  ]
+}
