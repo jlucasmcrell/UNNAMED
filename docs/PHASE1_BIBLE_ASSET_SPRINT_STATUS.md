@@ -646,6 +646,80 @@ audition when the owner listens.**
 
 ---
 
+## 19. Post-M6 maintenance pass, 2026-09-24
+
+The Phase-1 asset work above was finished, then the owner stopped Claude's gameplay branch at M6 for
+playtesting and asked for a maintenance pass to make the asset side safe and internally consistent.
+Full detail is in `docs/ASSET_PIPELINE_CHECKPOINT_2026-09-24.md`.
+
+### The library had no recovery point
+
+`assets/` is gitignored by design, and every asset-pipeline tool that produced it was untracked. The
+whole Phase-1 library existed only in the working tree on one machine. Now:
+
+- branch `deepseek/asset-maintenance-2026-09-24`, **5 commits**, 288 files, all text. `claude/phase1`
+  untouched; nothing pushed.
+- snapshot at `W:\_asset_snapshots\phase1_20260924_031724` — **976 files, 1241.9 MB, 0 failures**,
+  with a per-file SHA-256 manifest and 24/24 sampled files re-read and matched. Placed **outside** the
+  repository, which the tool enforces.
+- no git identity existed anywhere on the machine, so a repository-local one was set and is flagged
+  in the checkpoint document.
+
+### Validation was stored three times and had drifted
+
+`ashen_hollow_landmarks.json` carried a copied `godot_validated` boolean in 24 placements, **8 of them
+saying `false` for assets whose metadata said `true`**. `playable_prototype_assets.json` carried one
+per entry that was written as `asset_id in proofset` — proofset membership under a misleading name,
+already recorded properly by the adjacent `in_proofset`. And the metadata backfill wrote `False`
+unconditionally, so `--force` **erased** a recorded validation.
+
+Per-asset metadata now owns validation truth, both derived manifests reference it instead of copying
+it, `_audit_validation_truth.py` fails if a stored boolean reappears, and the backfill's inability to
+erase a result is now a demonstrated regression test rather than an intention.
+
+### The skeleton was three skeletons
+
+`CANONICAL_BODY_AND_SKELETON.md` said the canonical humanoid skeleton was 24 bones while the NPCs
+carried 20. Both figures were real but described different things, and the document was stale: the
+family bodies on disk are **52** bones (24 core + 20 fingers + 8 IK), verified from the GLBs and from
+`_verify_character_skeleton.py`, which reports `skin joints: 52`, `core: 24 present`, and
+`sockets: 5 present at contracted positions`. The 20-bone NPC rig is **not a subset** — `hips` vs
+`pelvis`, `upper_arm.L` vs `upperarm_l` — so NPCs cannot play canonical animation. Mass re-rigging is
+not needed for M6 and was not started. See `docs/SKELETON_CONTRACT_RECONCILIATION.md`.
+
+### Two prompt failure modes named and swept
+
+`docs/ASSET_PROMPT_RISK_AUDIT.md`: 16 of 27 Phase-1 prompts tagged, **2 confirmed**. Fine geometry
+the rebuild cannot resolve (`creature_bristleback_boar`), and naming a part in order to forbid it
+(`resource_ash_haft`). Tags written back into the request entries; the request library re-validated at
+45 files, 1205 entries, 0 invalid.
+
+### HUD icons: six slots were missing against the owner's spec
+
+Read against `PHASE1_HUD_UI_CONTROLS_AND_FEEDBACK_SPEC.md`, the 26-slot set covered the eight hotbar
+slots, four resources, five statuses and companion orders, but had **no icon for the Character,
+Journal or Known-Techniques screens** that spec section 10 requires before M6, **no DYING or DEAD**
+alongside DOWNED from section 7, and **no Critical** among section 5's four qualitative enemy
+conditions. All six were rendered, looked at, and promoted: **the atlas is now 32 slots at 6x6**.
+
+### Known limitations recorded in asset metadata
+
+- `creature_cave_hunting_spider` — `KNOWN_LIMITATION_ARTHROPOD_NEEDS_DEDICATED_RIG`. Eight legs on an
+  18-bone quadruped rig cannot articulate independently.
+- `item_raw_iron_ore` — `CANONICAL_PHASE1_IRON_ORE`.
+- `resource_iron_ore` — `VISUALLY_INCORRECT_FOR_ORE_DO_NOT_WIRE_INTO_MINING`. A stylised hex crystal,
+  not ore. Kept, not deleted, and confirmed absent from the crafting chain and the playable manifest.
+
+### Audio marked, not regenerated
+
+66 of 177 sounds tagged `needs_regen` — 55 creature, 5 `player.hurt`, 6 UI — each with the evidence
+behind it. **173 delivered files confirmed present, 0 missing, nothing regenerated**, because the M6
+build is frozen and the root cause is the model's short-articulation weakness rather than the prompts.
+Weapon impacts were checked and deliberately **not** marked: they are the obvious guess for the same
+defect and carry no evidence for it. See `docs/ASSET_AUDIO_REGENERATION_REQUIRED.md`.
+
+---
+
 ## Ownership
 
 Touched: `assets/manifests/semantic_dimensions.json`, `assets/manifests/magic_vfx.json`,
@@ -653,5 +727,13 @@ Touched: `assets/manifests/semantic_dimensions.json`, `assets/manifests/magic_vf
 `assets/ready/{7 rescaled assets}/`, `assets/vfx/**`, `assets/animation/{clips,ready/creatures}/`,
 `assets/requests/phase1_{bible_landmarks,hud_icons}.json`, `assets/_superseded/**`,
 `assets/review/**`, and the tools named above.
+
+**2026-09-24 maintenance pass additionally touched:** `assets/manifests/{playable_prototype_assets,
+ashen_hollow_landmarks,ui_icons,playable_prototype_audio}.json`,
+`assets/ready/{creature_cave_hunting_spider,item_raw_iron_ore,resource_iron_ore}/*_meta.json`,
+`assets/requests/*.json` (risk tags), `assets/ui/icons/**`, `assets/concepts/icon_*` (6 new),
+`docs/ASSET_*`, `docs/SKELETON_CONTRACT_RECONCILIATION.md`, and branch
+`deepseek/asset-maintenance-2026-09-24`. Snapshot written outside the repo to
+`W:\_asset_snapshots\phase1_20260924_031724`.
 
 Not touched: any gameplay, spell, AI, inventory or quest system. No ComfyUI core source.

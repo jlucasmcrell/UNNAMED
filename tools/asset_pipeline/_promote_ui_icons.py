@@ -90,6 +90,35 @@ SLOTS = {
     "ui.objective.tracked": ("icon_hud_objective", "rendered", "The tracked quest objective."),
     "ui.hud.compass": ("icon_hud_compass", "rendered",
                        "Heading cue. Section 22 prefers a compass over an omniscient minimap."),
+    # The six slots the HUD/UI spec of 2026-09-23 requires and the set had no icon for. Read against
+    # that spec, the set covered the eight hotbar slots, the four resources, the five statuses and the
+    # companion orders, but not the remaining Phase-1 screens, the two death states past DOWNED, or
+    # the third qualitative enemy condition.
+    #
+    # Spec section 10 requires five Phase-1 screens before M6 acceptance. Inventory and equipment
+    # existed; character, journal and known-techniques did not.
+    "ui.panel.character": ("icon_panel_character", "rendered",
+                           "Character screen. Spec section 10.2, required before M6."),
+    "ui.panel.journal": ("icon_panel_journal", "rendered",
+                         "Journal. Spec sections 10.3 and 13 - the authoritative player-facing quest"
+                         " record. Distinct from ui.objective.tracked, which is the single objective"
+                         " shown on the HUD."),
+    "ui.panel.techniques": ("icon_panel_techniques", "rendered",
+                            "Known Magic / Techniques list. Spec sections 10.4 and 14. The panel, not"
+                            " the individual formulas, which have their own three slots."),
+    # Spec section 7 names three distinct terminal states: DOWNED, DYING, DEAD. The set had downed.
+    "ui.status.dying": ("icon_status_dying", "rendered",
+                        "Dying. Deliberately warm and slumped so it cannot be confused with dead at"
+                        " a glance."),
+    "ui.status.dead": ("icon_status_dead", "rendered",
+                       "Dead. Horizontal, colourless and skull-marked, against dying's slumped and"
+                       " warm silhouette."),
+    # Spec section 5 lists four qualitative enemy conditions - Healthy, Wounded, Critical, Downed -
+    # and the set had two. `critical` is the enemy's own condition and is not ui.status.wounded,
+    # which is the player's bleeding gash.
+    "ui.condition.critical": ("icon_condition_critical", "rendered",
+                              "Critically wounded enemy. Spec section 5. Distinct from"
+                              " ui.status.wounded."),
 }
 
 
