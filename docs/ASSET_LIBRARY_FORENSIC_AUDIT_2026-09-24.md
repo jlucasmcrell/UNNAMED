@@ -291,7 +291,7 @@ The owner reported that the weak assets' review images are 560x560 or 620x620 ag
 hold, and the reason is worth stating plainly because it points at a real problem underneath.**
 
 **Every 1536x1536 image in the library is a concept, not a render.** Searching the whole asset tree:
-783 images at 1536x1536, of which 768 are in ssets/concepts/ and 15 are superseded concepts. There is
+783 images at 1536x1536, of which 768 are in `assets/concepts/ and 15 are superseded concepts. There is
 **no 1536x1536 render of any 3D asset anywhere in the library.**
 
 Concepts and renders are different artefact classes:
@@ -324,7 +324,7 @@ esource_iron_billet | **good** | 600x600 |
 Good and bad assets share sizes exactly. 
 esource_iron_billet and prop_blocked_shaft are both
 600x600. Compression does not separate them either: the *good* weapon_hunting_bow render is the
-smallest file in the set at **16 KB for 700x700**, while the failed orge_shed is 73 KB. JPEG size
+smallest file in the set at **16 KB for 700x700**, while the failed `forge_shed is 73 KB. JPEG size
 tracks image complexity, not asset quality.
 
 **But the underlying concern is correct and should not be dismissed.** The per-asset renders are
@@ -413,10 +413,10 @@ remaining gap in the library.**
 
 ### Correction: two failures were already caught and archived
 
-ssets/_superseded/reconstruction_failed/ contains **uilding_lodge and uilding_smithy** — the two
+`assets/_superseded/reconstruction_failed/ contains **uilding_lodge and uilding_smithy** — the two
 buildings. The pipeline detected both and moved them out of 
 eady/. Their review renders remain in
-ssets/review/bible_batch/, which is how I encountered uilding_smithy and how the owner would have.
+`assets/review/bible_batch/, which is how I encountered uilding_smithy and how the owner would have.
 
 **My acceptance list below originally told the owner to discard uilding_smithy. It was already
 discarded.** The pipeline got that one right, and the failure was archived with a name that says exactly
@@ -601,14 +601,46 @@ things, and no one looking at the output.**
 
 ## Method
 
-- `tools/asset_pipeline/_glb_audit.py` — written for this audit; parses each GLB's JSON chunk and
-  reports triangles, vertices, materials, used/unused materials, primitives without a material,
-  textures, embedded image resolutions, skins, animations and the bounding box. 3,015 files read.
-- 500 `*_meta.json` in `assets/ready/` read for status, tier, date, model and transform data.
-- Renders and concepts opened and inspected directly: `assets/review/bible_batch/` and
-  `assets/concepts/`.
-- Contact sheets written to `assets/_checkpoint/`: `concept_compare.png`, `review_latebatch.png`.
-- No asset was modified, moved or regenerated.
+Every number in this report was measured in this session. Nothing was taken from an earlier summary,
+and no asset was modified, moved or regenerated.
 
+**Tools written for this audit**
 
-**Discard or replace** — do not spend more reconstruction on these
+- `tools/asset_pipeline/_glb_audit.py` - parses each GLB's JSON chunk directly and reports triangles,
+  vertices, material count, used versus unused materials, primitives with no material bound, texture
+  count, embedded image resolutions, skins, animations and the bounding box. **3,015 files read**
+  across `assets/ready/` and `assets/rigged/`. This is what established the LOD material failure.
+- `tools/asset_pipeline/_mesh_topology_audit.py` - reads vertex positions and triangle indices and
+  counts shared edges, boundary edges, degenerate faces, non-manifold edges and faces that share an
+  edge with the same winding. **Eleven assets compared** across the good and failed sets. This is what
+  separated thin shells from broken normals, and found the vertex-to-triangle separation.
+- `tools/asset_pipeline/_repair_audit_doc.py` - repairs this document after a shell escaping mistake.
+  Included because the mistake and its detection are part of the record.
+
+**Survey passes**
+
+- All **500** `*_meta.json` in `assets/ready/` read for status, tier, date, generation model and
+  transform data.
+- All **422** images in `assets/review/` measured for pixel dimensions and write date, to test whether
+  render resolution tracked asset quality or time. It did neither.
+- All **801** concepts in `assets/concepts/` measured for resolution and matched against the 500 assets
+  with a LOD0 mesh, to establish build coverage.
+- `assets/_superseded/` walked to find what the pipeline had already rejected.
+
+**Evidence inspected visually, not only measured**
+
+- `assets/review/bible_batch/` - the per-asset review renders, including every asset named in the brief.
+- `assets/concepts/` - the concepts for the failures, to determine whether the failures originated in
+  the concept or the reconstruction. They originate in the reconstruction.
+- Contact sheets written to `assets/_checkpoint/`: `concept_compare.png`, `review_latebatch.png`,
+  `verify_acceptance.png`. The last was built specifically to check the acceptance-list recommendations
+  before publishing them, and it caused four of them to be corrected.
+
+**What was not done**
+
+- No individual audit of all 585 LOD0 assets. Named assets were measured per-asset; the remainder were
+  measured in aggregate by part type and by batch.
+- No engine-side inspection. The lean/orientation and rig/bind reports are not visible in the source
+  data and are recorded as unresolved rather than guessed at.
+- No repair tested. Merge-by-distance is the most promising fix for the fragmented meshes and was not
+  attempted, because testing it means modifying a mesh and this was an audit.
