@@ -52,6 +52,14 @@ public partial class HelpPanel : CanvasLayer
 
     private readonly GridContainer _left = new() { Columns = 2 };
     private readonly GridContainer _right = new() { Columns = 2 };
+    private readonly Label _files = new();
+
+    /// <summary>Where the saves and the log are (M-07): what a tester sends with a problem report.</summary>
+    public string Files
+    {
+        get => _files.Text;
+        set => _files.Text = value;
+    }
 
     public override void _Ready()
     {
@@ -69,7 +77,12 @@ public partial class HelpPanel : CanvasLayer
             grid.AddThemeConstantOverride("h_separation", 40);
             columns.AddChild(grid);
         }
-        margin.AddChild(columns);
+        var stack = new VBoxContainer();
+        stack.AddThemeConstantOverride("separation", 14);
+        _files.AddThemeFontSizeOverride("font_size", 15);
+        stack.AddChild(columns);
+        stack.AddChild(_files);
+        margin.AddChild(stack);
         panel.AddChild(margin);
         AddChild(panel);
     }

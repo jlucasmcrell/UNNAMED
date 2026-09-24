@@ -166,6 +166,10 @@ public sealed class SaveStore
         {
             return new SaveSummary(slot, copy, $"its manifest cannot be read ({e.Message})", DateTimeOffset.MinValue, 0, 0);
         }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return new SaveSummary(slot, copy, $"it could not be read ({e.Message})", DateTimeOffset.MinValue, 0, 0);
+        }
     }
 
     /// <summary>
@@ -218,27 +222,44 @@ public sealed class SaveStore
         };
 
         // 2-3. Write to a staging directory, flushing each file to disk.
-        Directory.CreateDirectory(staging);
-        foreach (var (name, bytes) in files)
-            WriteDurably(Path.Combine(staging, name), bytes);
+        Guarded(slot, () =>
+        {
+            Directory.CreateDirectory(staging);
+            foreach (var (name, bytes) in files)
+                WriteDurably(Path.Combine(staging, name), bytes);
+        }, undo: () => DeleteWithRetry(staging));
         Step(SaveStep.StagingWritten);
 
         // 4. The integrity root, hashed from what is ON DISK, so a write that corrupted data is caught.
-        WriteDurably(Path.Combine(staging, SaveFormat.IntegrityRoot), SaveIntegrity.BuildRoot(staging));
+        Guarded(slot, () => WriteDurably(Path.Combine(staging, SaveFormat.IntegrityRoot), SaveIntegrity.BuildRoot(staging)),
+            undo: () => DeleteWithRetry(staging));
         Step(SaveStep.IntegrityRootWritten);
 
         // 5. Commit. Never delete first: the previous save is moved aside, then the new one promoted.
         bool hadPrevious = Directory.Exists(slotPath);
         if (hadPrevious)
         {
-            MoveWithRetry(slotPath, trash);
+            Guarded(slot, () => MoveWithRetry(slotPath, trash), undo: () => DeleteWithRetry(staging));
             Step(SaveStep.PreviousMovedToTrash);
         }
-        MoveWithRetry(staging, slotPath);
+        Guarded(slot, () => MoveWithRetry(staging, slotPath), undo: () =>
+        {
+            if (hadPrevious && !Directory.Exists(slotPath))
+                MoveWithRetry(trash, slotPath);
+            DeleteWithRetry(staging);
+        });
         Step(SaveStep.StagingPromoted);
 
         // 6. Verify the committed slot by re-reading and re-hashing it.
-        string? problem = SaveIntegrity.Verify(slotPath);
+        string? problem;
+        try
+        {
+            problem = SaveIntegrity.Verify(slotPath);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            problem = $"it could not be read back ({e.Message})";
+        }
         if (problem is not null)
         {
             MoveWithRetry(slotPath, Path.Combine(Root, $".failed-{slot}-{token}"));
@@ -248,10 +269,43 @@ public sealed class SaveStore
         }
         Step(SaveStep.Verified);
 
-        // 7. Only now: rotation, then the previous save leaves the slot.
+        // 7. Only now: rotation, then the previous save leaves the slot. The new save is committed and verified whatever happens here:
+        // a displaced save that cannot be moved on yet waits in its trash directory for the boot sweep to retire it.
         if (hadPrevious)
-            RetirePrevious(slot, trash);
+        {
+            try
+            {
+                RetirePrevious(slot, trash);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or SaveException)
+            {
+            }
+        }
         Step(SaveStep.Rotated);
+    }
+
+    /// <summary>
+    /// One IO step of the commit. A full disk, a folder the player may not write to or a file held open elsewhere is not a crash: the step
+    /// is undone, the previous save is left as it was, and the failure is a <see cref="SaveException"/> saying so (the Phase-1
+    /// technical audit, L-03). Anything the undo cannot finish, the boot sweep does.
+    /// </summary>
+    private static void Guarded(string slot, Action step, Action undo)
+    {
+        try
+        {
+            step();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or SaveException)
+        {
+            try
+            {
+                undo();
+            }
+            catch (Exception again) when (again is IOException or UnauthorizedAccessException or SaveException)
+            {
+            }
+            throw new SaveException($"Save to '{slot}' failed: {e.Message} The previous save is untouched.", e);
+        }
     }
 
     // ── §7.4 load ───────────────────────────────────────────────────────────
@@ -282,13 +336,31 @@ public sealed class SaveStore
     private LoadResult LoadFrom(string directory, string slot, LoadContext context, bool isBackup)
     {
         var report = SaveLoader.NewReport(slot, context);
-        var result = SaveLoader.Run(directory, slot, context, AvailableBackups(slot), report)
+        LoadResult result;
+        try
+        {
+            result = SaveLoader.Run(directory, slot, context, AvailableBackups(slot), report)
                      ?? throw new SaveCompatibilityException(report);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            throw new SaveException($"'{slot}' could not be read: {e.Message}", e);   // a file held open elsewhere, a folder not ours to read (L-03)
+        }
 
         // A complete, clean load of the bytes as they are on disk proves this save good: it may become a
         // backup (§7.3). A save that needed migrating is proven only once the migrated form is written.
         if (!isBackup && result.IsComplete && report.Result == MigrationResult.UpToDate)
-            MarkLoadVerified(slot, SaveIntegrity.RootDigest(directory));
+        {
+            try
+            {
+                MarkLoadVerified(slot, SaveIntegrity.RootDigest(directory));
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                // The load succeeded; only its proof went unrecorded, so this save waits for a later load before it can become a backup.
+                report.Warnings.Add($"the load could not be recorded in {RotationFile} ({e.Message}); '{slot}' is not yet proven for the backup chain");
+            }
+        }
         return result;
     }
 
@@ -624,7 +696,32 @@ public sealed class SaveStore
         string temp = path + ".tmp-" + EntityId.NewId(EntityKind.WorldEvent).Ulid;
         WriteDurably(temp, JsonSerializer.SerializeToUtf8Bytes(
             new SortedDictionary<string, string>(rotation, StringComparer.Ordinal), new JsonSerializerOptions { WriteIndented = true }));
-        File.Move(temp, path, overwrite: true);
+        // The same sharing violations as a commit's renames (§7.1): an indexer or scanner holding rotation.json a moment (L-03). Windows
+        // refuses to replace a file held open without delete sharing as access denied, so that is retried too - briefly, since it is
+        // also what a folder the player may not write to says.
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                File.Move(temp, path, overwrite: true);
+                return;
+            }
+            catch (Exception e) when (attempt < (e is UnauthorizedAccessException ? 6 : MoveAttempts) && e is IOException or UnauthorizedAccessException)
+            {
+                Thread.Sleep(Math.Min(10 << attempt, 2000));
+            }
+            catch
+            {
+                try
+                {
+                    File.Delete(temp);
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                {
+                }
+                throw;
+            }
+        }
     }
 
     private void MarkLoadVerified(string slot, string integrityRootDigest)

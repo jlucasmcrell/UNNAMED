@@ -19,6 +19,12 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
 
     /// <summary>The content pack's human label, written to <c>content_version</c>. Diagnostic only (PERSISTENCE.md §4.2).</summary>
     public string ContentVersion { get; init; } = "0.3.0";
+
+    /// <summary>
+    /// Hold the profile against a second copy of the game (M-07): the game's own runs do; a test that opens one profile from two sessions
+    /// does not.
+    /// </summary>
+    public bool LockProfile { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -52,20 +58,24 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
     public bool NewGameAsksFirst => !Saves.IsEmpty;
 }
 
-/// <summary>One presentation frame's worth of simulation: how many fixed ticks ran, and how far into the next one the frame is.</summary>
-public readonly record struct FrameResult(int TicksRun, double Alpha, string? AutosavedTo);
+/// <summary>
+/// One presentation frame's worth of simulation: how many fixed ticks ran, and how far into the next one the frame is. An autosave
+/// this frame wrote is <see cref="AutosavedTo"/>; one that failed is <see cref="AutosaveFailed"/>, what went wrong - never an exception.
+/// </summary>
+public readonly record struct FrameResult(int TicksRun, double Alpha, string? AutosavedTo, string? AutosaveFailed = null);
 
 /// <summary>
 /// The composition root and session lifecycle. Presentation holds one, submits commands to it, advances it once
 /// per rendered frame, and reads the simulation's read-only views; it never reaches state any other way (D-11).
 /// </summary>
-public sealed class GameSession : IDomainEvents
+public sealed class GameSession : IDomainEvents, IDisposable
 {
     /// <summary>A frame longer than this is clamped, so a stall or a long load cannot spiral (WORLD_ARCHITECTURE.md §6.1).</summary>
     public const double MaxFrameSeconds = 0.25;
 
     private readonly EventBus _bus;
     private readonly SaveStore _store;
+    private readonly ProfileLock? _lock;
     private readonly IReadOnlyDictionary<string, string> _names;
     private readonly ImmutableArray<BaselineTransition> _transitions;
     private Simulation? _simulation;
@@ -82,9 +92,22 @@ public sealed class GameSession : IDomainEvents
         Setup = setup;
         Content = content;
         Generator = generator;
-        _store = new SaveStore(options.ProfileRoot);
-        _store.RecoverInterruptedCommits();
+        // Before the boot sweep: a second game's sweep would discard the first's staging directory mid-commit (M-07).
+        _lock = options.LockProfile ? ProfileLock.Acquire(options.ProfileRoot) : null;
+        try
+        {
+            _store = new SaveStore(options.ProfileRoot);
+            _store.RecoverInterruptedCommits();
+        }
+        catch
+        {
+            _lock?.Dispose();
+            throw;
+        }
     }
+
+    /// <summary>Let go of the profile, if this session held it.</summary>
+    public void Dispose() => _lock?.Dispose();
 
     /// <summary>Boot (ARCHITECTURE.md §8.1): load and validate content, build the rules, open the save profile.</summary>
     /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
@@ -220,15 +243,31 @@ public sealed class GameSession : IDomainEvents
             simulation.DrainCommands();   // anything an event handler queued applies at the next boundary
         }
 
-        string? autosaved = null;
+        string? autosaved = null, failed = null;
         if (AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave))
         {
-            autosaved = _store.NextAutosaveSlot();
-            Save(autosaved);
-            _lastAutosave = PlaytimeSeconds;
+            try
+            {
+                string slot = _store.NextAutosaveSlot();
+                Save(slot);
+                autosaved = slot;
+                _lastAutosave = PlaytimeSeconds;
+                _autosaveFailures = 0;
+            }
+            catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
+            {
+                // A failed autosave never stops the frame (the Phase-1 technical audit, M-02): it is reported, and tried again sooner than
+                // the interval - 30 s, then 60, 120, 240 - so a file held a moment costs little and a full disk is not hammered.
+                _autosaveFailures++;
+                failed = e.Message;
+                _lastAutosave = PlaytimeSeconds - AutosaveCadence.IntervalSeconds
+                                + Math.Min(AutosaveCadence.IntervalSeconds, 30 * Math.Pow(2, _autosaveFailures - 1));
+            }
         }
-        return new FrameResult(ticks, _accumulator / TickSeconds, autosaved);
+        return new FrameResult(ticks, _accumulator / TickSeconds, autosaved, failed);
     }
+
+    private int _autosaveFailures;
 
     public void Subscribe<T>(Action<T> handler) => _bus.Subscribe(handler);
 

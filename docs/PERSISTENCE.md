@@ -445,6 +445,13 @@ The staging and trash directories sit **beside** the slot and carry its name. An
 
 Therefore step 5 is specified as: **retry with bounded exponential backoff on `IOException`, classifying "transient lock" (retry) from "policy denial" (surface to the player with the path and the error).** A bare rename that fails at 5b leaves the slot renamed to `.trash-<ulid>` with the staging directory un-promoted, so the boot sweep must be able to recover that state or the player has no slot until it runs.
 
+**Failures the player can be told about (Phase-1 audit remediation, 2026-09-24, M-02, L-03, M-07).**
+- **A failed write step.** An IO failure in any of steps 2-5 (a full disk, a folder the player may not write to, a file held open elsewhere) is undone at once: the staging directory is removed, and at 5b the displaced save is moved back. The failure surfaces as a `SaveException` saying the previous save is untouched. The boot sweep finishes anything the undo could not.
+- **A failed retirement.** A step-7 retirement that fails leaves the displaced save in its trash directory for the sweep. The new save is already committed and verified, so the save does not fail.
+- **The load's proof.** Replacing `rotation.json` retries like a rename. Windows reports a file held without delete sharing as access denied, so that is retried too, briefly. A load whose proof cannot be written still loads, with a warning. A load that cannot read its files is a `SaveException`.
+- **A failed autosave.** It never throws out of the frame. It is reported in the frame's result and tried again after 30 s of play, then 60, 120 and 240, up to the interval.
+- **One game per profile.** A game holds `<profile>/.lock` open and unshared for as long as it runs, and takes it before its boot sweep. A second copy of the game on the same profile refuses to start instead of sweeping away the first one's commit in flight.
+
 ### 7.2 Integrity and quarantine
 
 | Condition | Behaviour |

@@ -73,6 +73,32 @@ public partial class Main : Node3D
 
     public override void _Ready()
     {
+        // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
+        try
+        {
+            Start();
+        }
+        catch (Exception e)
+        {
+            CannotStart(e is ContentBootException ? "Its content does not validate." : e.Message, e);
+        }
+    }
+
+    /// <summary>Where Godot writes this run's log (<c>debug/file_logging/log_path</c>): named wherever a failure asks a tester to look (M-07).</summary>
+    public static string LogPath =>
+        ProjectSettings.GlobalizePath(ProjectSettings.GetSetting("debug/file_logging/log_path", "user://logs/godot.log").AsString());
+
+    /// <summary>The game cannot start: the log gets everything, the player a window saying why and where the log is; then it quits.</summary>
+    private void CannotStart(string why, Exception e)
+    {
+        GD.PushError($"UNNAMED cannot start: {e}");
+        if (DisplayServer.GetName() != "headless")
+            OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
+        GetTree().Quit(2);
+    }
+
+    private void Start()
+    {
         ParseArguments(OS.GetCmdlineUserArgs());
         if (_flags.Contains("--spike"))
         {
@@ -93,16 +119,8 @@ public partial class Main : Node3D
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
-        try
-        {
-            _session = GameSession.Boot(new GameOptions(contentRoot, profile));
-        }
-        catch (ContentBootException e)
-        {
-            GD.PushError(e.Message);   // ARCHITECTURE.md §8.1: refuse to start, naming every file
-            GetTree().Quit(2);
-            return;
-        }
+        // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
+        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
@@ -169,7 +187,8 @@ public partial class Main : Node3D
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
-        _help = new HelpPanel { Name = "Help" };
+        _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
         _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
         _hud.UseIcons(new HudIcons(_assets, _bindings.Icons));
@@ -391,6 +410,11 @@ public partial class Main : Node3D
         var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null ? _session.TickSeconds : delta);
         if (frame.AutosavedTo is { } slot)
             _hud.Toast($"Autosaved ({slot})", 2);
+        if (frame.AutosaveFailed is { } failed)
+        {
+            GD.PushError($"UNNAMED autosave failed: {failed}");
+            _hud.Toast($"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}", 8);
+        }
         Draw(frame.Alpha, delta);
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -1033,9 +1057,10 @@ public partial class Main : Node3D
             _session.Save(SaveSlots.Quick);
             _hud.Toast("Saved");
         }
-        catch (SaveException e)
+        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
         {
-            _hud.Toast($"Save failed: {e.Message}");
+            GD.PushError($"UNNAMED quicksave failed: {e}");
+            _hud.Toast($"Save failed: {e.Message} (the log: {LogPath})", 8);
         }
     }
 
