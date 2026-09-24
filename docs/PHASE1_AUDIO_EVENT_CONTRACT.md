@@ -37,6 +37,12 @@ per event, with the same variation not repeating back to back.
 | `hurt(severity)` | severity ∈ {light, heavy} | `sfx.player.hurt.light.01…03`, `sfx.player.hurt.heavy.01…02` |
 | `downed()` | entered the downed state | `sfx.player.downed.01` |
 | `death()` | the final collapse | `sfx.player.death.01` |
+| `crouch_enter()` / `crouch_exit()` | stance change | `sfx.player.crouch.enter.01`, `sfx.player.crouch.exit.01` |
+| `gear_shift()` | cloth and equipment settling, e.g. on a turn or an equip | `sfx.player.gear.cloth.01…03`, `sfx.player.gear.metal.01…03` |
+
+`gear_shift` is the one to be careful with: cloth and metal are separate families because leather
+shifting and a buckle striking are different events, and the metal set is loud enough to mask a
+footstep. Fire it on a real equipment change rather than on movement, or it becomes clutter.
 
 Footsteps are mono and positional. All four dirt walk variants should be cycled, not one repeated:
 this is the single most-repeated sound in the game.
@@ -52,6 +58,9 @@ this is the single most-repeated sound in the game.
 | `impact(weapon_family, target_material)` | see §4 | the matrix below |
 | `block()` | sword only, if the event is exposed | `sfx.weapon.sword.block.01…03` |
 | `handle(weapon_family)` | polearm shaft adjustment | `sfx.weapon.polearm.handle.01…02` |
+| `ready(weapon_family)` | polearm brought to guard | `sfx.player.weapon.spear.ready.01` |
+| `nock()` | bow only, arrow onto the string | `sfx.player.weapon.bow.nock.01` |
+| `sheathe(weapon_family)` | sword only | `sfx.player.weapon.sword.sheath.01` |
 
 ## 4. The impact matrix
 
@@ -90,6 +99,34 @@ Every one of the five archetypes has the same five events. `creature` ∈
 Every creature vocalisation is mono and positional. `idle` is the longest and quietest; it should
 not be triggered more often than roughly every 8–15 s per creature or it becomes a loop rather than
 an ambience. `attack` is timed to fire with the attack animation's commit, not on the state change.
+
+### Locomotion
+
+One sound is **one footfall** for the four walking archetypes, fired per step and cycled, exactly as
+the player's footsteps are. This is a deliberate choice and not an oversight: a single footfall read
+as a unit is what lets the engine drive creature movement from the same per-step hook the player uses,
+and it is why these are short. Do not treat them as a walk cycle.
+
+| Event | Ids | Count |
+|---|---|---|
+| `walk_step()` | `sfx.creature.<creature>.walk.01…03` | 3 |
+| `run_step()` | `sfx.creature.ash_ember_hound.run.01…03` | 3 |
+| `move_fast_step()` | `sfx.creature.bone_walker_husk.move_fast.01…02` | 2 |
+| `move_heavy_step()` | `sfx.creature.animated_armour.move_heavy.01…02` | 2 |
+| `charge_step()` | `sfx.creature.bristleback_boar.charge.01…03` | 3 |
+| `scuttle_step()` | `sfx.creature.cave_hunting_spider.scuttle.01…04` | 4 |
+| `scuttle_fast_step()` | `sfx.creature.cave_hunting_spider.scuttle_fast.01…04` | 4 |
+
+**The spider is the exception and matters.** A spider's eight legs move in overlapping groups, so a
+single footfall is not a meaningful unit for it. Its sounds contain **two steps each** and are meant
+to be cycled across the engine's repeat: `scuttle` is 0.70 s over two steps, 350 ms each, and
+`scuttle_fast` is 0.60 s over two, 300 ms each. They carry four variants rather than three, matching
+the player's dirt footsteps, because the engine picks at random per event and must not repeat one
+back to back.
+
+Every locomotion sound is mono and positional. `walk` is the most-repeated per creature and wants its
+variants cycled; `charge` and the two spider families are the fastest and want the least variation
+between repeats.
 
 ## 6. MAGIC
 
@@ -135,6 +172,7 @@ in the set) and they loop, so they want to live on a persistent player, not be r
 | `station_ambience()` — the forge, looping | `sfx.crafting.forge.ambience.01` |
 | `craft_hit()` — hammer on anvil | `sfx.crafting.anvil.strike.01…04` |
 | `craft_complete()` | `sfx.crafting.complete.01` |
+| `loot_take_all()` | `sfx.interaction.loot.take_all.01` |
 
 The bible's craft chain is raw iron ore → Iron Billet → March Spear. `gather_hit` is the mining
 strike against the node; `craft_hit` is the anvil, and it is the one that wants four variations
@@ -155,6 +193,22 @@ Each is ~20 s, stereo, and cross-faded at its own seam so it wraps continuously.
 on cell entry rather than hard-cutting. The Foldscar bed is deliberately almost devoid of wildlife
 with a faint tonal instability under the wind — it should read as *wrong*, not as horror, so nothing
 should be layered on top of it to "fix" the quiet.
+
+### Cell detail one-shots
+
+Sparse events that sit **on top of** the looping bed rather than replacing it. Mono and positional,
+so they can be placed in the world; trigger them at irregular intervals and never on a fixed cadence,
+or they read as a loop.
+
+| Cell | Event | Ids |
+|---|---|---|
+| A — Ashen Hollow Waystation | `cell_detail()` | `sfx.amb.ashen_hollow.forge_distant.01`, `sfx.amb.ashen_hollow.timber_creak.01`, `sfx.amb.ashen_hollow.settlement_activity.01` |
+| B — Charwood Verge | `cell_detail()` | `sfx.amb.charwood.branch_movement.01`, `sfx.amb.charwood.raven_call.01`, `sfx.amb.charwood.stream_detail.01` |
+| C — Blackvein Cut | `cell_detail()` | `sfx.amb.blackvein.pebble_fall.01`, `sfx.amb.blackvein.rock_shift.01`, `sfx.amb.blackvein.winch_creak.01` |
+| D — Foldscar Ruin | `cell_detail()` | `sfx.amb.foldscar.stone_resonance.01`, `sfx.amb.foldscar.tone_displacement.01` |
+
+Foldscar carries two details rather than three on purpose. It is the cell whose silence is the point,
+and the two it has are the ones that reinforce the wrongness rather than relieving it.
 
 ## 9. UI
 
