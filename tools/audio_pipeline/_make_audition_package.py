@@ -24,7 +24,8 @@ V1_DIR = os.path.join(ASSETS, "audio", "v1_stable_audio_open", "delivered")
 CANDIDATES = os.path.join(ASSETS, "audio", "v2_candidates")
 OUT = os.path.join(ASSETS, "review", "audio_v2")
 
-LABELS = ("a", "b", "c")
+# Every label a round can produce: a/b/c then d/e/f then g/h/i. The page shows whichever exist.
+ALL_LABELS = tuple(chr(ord("a") + index) for index in range(9))
 
 # Family folders, as the brief lists them.
 FAMILY_OF_CATEGORY = {
@@ -83,7 +84,10 @@ def main():
             files["V1"] = os.path.basename(target)
             copied += 1
 
-        for label in LABELS:
+        # Discover whatever rounds exist on disk. A re-render adds d/e/f, then g/h/i, and a fixed
+        # a/b/c list silently drops them - the new candidates render, pass QA, and never appear on the
+        # page the owner actually listens from.
+        for label in ALL_LABELS:
             source = os.path.join(CANDIDATES, audio_id, f"candidate_{label}.flac")
             if os.path.exists(source):
                 target = os.path.join(folder, f"V2-{label.upper()}.flac")
@@ -177,6 +181,11 @@ def write_index(rows):
  .id{border-top:1px solid var(--line);padding:10px 18px}
  .id.decided{background:#161a20}
  .id.kept-v1{background:#1d1a16}
+ .id.rejected-all{background:#231618}
+ .none{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--red);
+       background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 10px;
+       cursor:pointer}
+ .none.picked{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
  .name{font-weight:600;color:var(--gold);font-size:13px}
  .meta{color:var(--dim);font-size:11px;margin:1px 0 4px}
  .prompt{color:#b9b9c8;font-size:11px;margin:3px 0 6px;max-width:1100px}
@@ -215,12 +224,15 @@ def write_index(rows):
 </header>
 <div class="note">
   V1 is Stable Audio Open 1.0. V2 is Stable Audio 3 Small SFX. Pick the one you prefer per sound &mdash;
-  <b>V1 is a valid choice</b>, and for some sounds it may be the right one. Your picks save automatically
-  in this browser. <b>No machine has listened to any of this</b>: technical QA checked duration, level,
-  clipping, silence, channels and loop seams, and nothing else. Whether a sound is convincing is yours.
+  <b>V1 is a valid choice</b>, and for some sounds it may be the right one. If none of them work, pick
+  <b>none of these</b> and it is queued for a re-render with fresh seeds instead of being forced.
+  Your picks save automatically in this browser. <b>No machine has listened to any of this</b>: technical
+  QA checked duration, level, clipping, silence, channels and loop seams, and nothing else. Whether a
+  sound is convincing is yours.
   <div class="hint" style="margin-top:8px">
     <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> pick V1/A/B/C for the focused sound &nbsp;&middot;&nbsp;
-    <kbd>Space</kbd> play all four in a row &nbsp;&middot;&nbsp; <kbd>n</kbd> next undecided
+    <kbd>0</kbd> none of these &nbsp;&middot;&nbsp;
+    <kbd>Space</kbd> play all in a row &nbsp;&middot;&nbsp; <kbd>n</kbd> next undecided
   </div>
 </div>
 """
@@ -242,7 +254,8 @@ def write_index(rows):
                          f'{html_module.escape(row["prompt"])}</div>')
             parts.append('<div class="row">')
 
-            order = [k for k in ("V1", "V2-A", "V2-B", "V2-C") if k in row["files"]]
+            order = [k for k in ("V1", "V2-A", "V2-B", "V2-C", "V2-D", "V2-E", "V2-F",
+                                 "V2-G", "V2-H", "V2-I") if k in row["files"]]
             for key in order:
                 name = row["files"][key]
                 provisional = (key != "V1" and row["provisional"]
@@ -272,6 +285,9 @@ def write_index(rows):
             parts.append("</div>")
             parts.append('<div class="acts">'
                          f'<button onclick="playRow(\'{escaped}\')">Play all in order</button>'
+                         f'<label class="none"><input type="radio" name="pick-{escaped}" '
+                         f'value="NONE" onchange="pick(\'{escaped}\',this.value)">'
+                         f'<span>none of these &mdash; re-render</span></label>'
                          f'<span class="status" id="st-{escaped}"></span>'
                          f'<input class="notein" placeholder="note for this sound (optional)" '
                          f'oninput="note(\'{escaped}\',this.value)"></div>')
@@ -315,20 +331,29 @@ function render(id){
   const chosen = state.picks[id];
   c.classList.toggle('decided', !!chosen);
   c.classList.toggle('kept-v1', chosen === 'V1');
+  c.classList.toggle('rejected-all', chosen === 'NONE');
   c.querySelectorAll('.cell').forEach(cell => {
     const on = cell.dataset.key === chosen;
     cell.classList.toggle('picked', on);
     const radio = cell.querySelector('input[type=radio]');
     if (radio) radio.checked = on;
   });
+  const none = c.querySelector('.none');
+  if (none) none.classList.toggle('picked', chosen === 'NONE');
   const st = document.getElementById('st-'+id);
-  if (st) st.textContent = chosen ? ('your pick: ' + chosen) : 'not decided yet';
+  if (st) {
+    st.textContent = chosen === 'NONE'
+      ? 'you rejected all of these - queued for re-render'
+      : (chosen ? ('your pick: ' + chosen) : 'not decided yet');
+  }
 }
 function renderAll(){
   IDS.forEach(r => render(r.id));
   const decided = IDS.filter(r => state.picks[r.id]).length;
+  const reject = IDS.filter(r => state.picks[r.id] === 'NONE').length;
   document.getElementById('prog').innerHTML =
-    '<b>' + decided + '</b> / ' + IDS.length + ' decided';
+    '<b>' + decided + '</b> / ' + IDS.length + ' decided' +
+    (reject ? ' &middot; <b style="color:#ff8f8f">' + reject + '</b> to re-render' : '');
 }
 function playRow(id){
   const c = card(id); if (!c) return;
@@ -362,26 +387,31 @@ function openReport(){
 }
 function closeReport(){ document.getElementById('panel').classList.remove('on'); }
 function buildReport(){
-  const picks = {}, notes = {};
-  const undecided = [];
+  const picks = {}, notes = {}, undecided = [], needsRerender = [];
   IDS.forEach(r => {
     const p = state.picks[r.id];
-    if (p) { picks[r.id] = p; } else { undecided.push(r.id); }
+    if (!p) { undecided.push(r.id); return; }
+    if (p === 'NONE') { needsRerender.push(r.id); return; }
+    picks[r.id] = p;
   });
   Object.keys(state.notes).forEach(k => { notes[k] = state.notes[k]; });
   const counts = {};
   Object.values(picks).forEach(v => { counts[v] = (counts[v]||0)+1; });
   return JSON.stringify({
     kind: 'otherreach.audio.v2.audition-report',
-    version: 1,
+    version: 2,
     generated: new Date().toISOString(),
     human_auditioned: true,
     total_ids: IDS.length,
-    decided: Object.keys(picks).length,
+    decided: Object.keys(picks).length + needsRerender.length,
     undecided_count: undecided.length,
     counts_by_selection: counts,
     kept_v1: Object.keys(picks).filter(k => picks[k] === 'V1'),
     selections: picks,
+    // Rejected outright rather than held back for later. Distinct from undecided: these were heard
+    // and none of the available takes was usable, so they need new renders rather than a decision.
+    needs_rerender: needsRerender,
+    needs_rerender_count: needsRerender.length,
     notes: notes,
     undecided: undecided
   }, null, 2);
@@ -411,7 +441,8 @@ document.addEventListener('keydown', e => {
   if (!c) return;
   const id = c.dataset.id;
   if (e.key === ' ') { e.preventDefault(); playRow(id); return; }
-  const map = {'1':'V1','2':'V2-A','3':'V2-B','4':'V2-C'};
+  const map = {'1':'V1','2':'V2-A','3':'V2-B','4':'V2-C',
+               '5':'V2-D','6':'V2-E','7':'V2-F','0':'NONE'};
   if (map[e.key]) { pick(id, map[e.key]); }
 });
 renderAll();

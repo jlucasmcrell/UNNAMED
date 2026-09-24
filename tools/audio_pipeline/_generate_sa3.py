@@ -65,11 +65,26 @@ GEN_MAX = 40.0
 GEN_PADDING = 2.5
 LOOP_HEADROOM_S = 3.0
 
-CANDIDATE_LABELS = ("a", "b", "c")
+
+
+def labels_for_round(number):
+    """Three candidate labels per round: a/b/c, then d/e/f, then g/h/i.
+
+    A re-render after the owner rejects every take must not overwrite the rejected candidates. They
+    are the evidence for why the sound needs another pass, and the owner may want to compare the new
+    round against them. New labels also mean the audition page picks the new candidates up with no
+    change to its own logic, and a report naming V2-D is unambiguous about which round it came from.
+    """
+    if not 1 <= number <= 3:
+        raise SystemExit(f"round must be 1..3 (labels a-i are defined); got {number}")
+    base = 3 * (number - 1)
+    return tuple(chr(ord("a") + base + index) for index in range(3))
 
 # Fixed, documented seed derivation. A candidate's seed is reproducible from the id and the label
 # alone, so a regeneration of one candidate does not need the state file to know what seed it used.
-SEED_BASE = {"a": 1013904223, "b": 1664525, "c": 22695477}
+SEED_BASE = {"a": 1013904223, "b": 1664525, "c": 22695477,
+             "d": 69069, "e": 134775813, "f": 1103515245,
+             "g": 214013, "h": 2531011, "i": 2147483647}
 
 
 def get(path, timeout=90):
@@ -173,12 +188,37 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--ids", nargs="*", default=None)
+    parser.add_argument("--round", type=int, default=1,
+                        help="1 = candidates a/b/c, 2 = d/e/f, 3 = g/h/i")
+    parser.add_argument("--from-report", default=None,
+                        help="an audition report; render this round for every id it marks "
+                             "needs_rerender, so the rejected list does not have to be retyped")
     args = parser.parse_args()
 
     with io.open(SPEC, encoding="utf-8") as handle:
         spec = json.load(handle)
 
+    labels = labels_for_round(args.round)
     entries = spec["sounds"]
+
+    if args.from_report:
+        with io.open(args.from_report, encoding="utf-8") as handle:
+            report = json.load(handle)
+        if report.get("kind") != "otherreach.audio.v2.audition-report":
+            print(f"  not an audition report (kind={report.get('kind')!r})")
+            return 1
+        wanted = set(report.get("needs_rerender", []))
+        known = {e["audio_id"] for e in entries}
+        unknown = sorted(wanted - known)
+        if unknown:
+            print(f"  report names ids not in the spec: {unknown[:5]}")
+            return 1
+        if not wanted:
+            print("  the report marks nothing for re-render; nothing to do")
+            return 0
+        entries = [e for e in entries if e["audio_id"] in wanted]
+        print(f"  from report: {len(entries)} ids the owner rejected outright")
+
     if args.ids:
         wanted = set(args.ids)
         entries = [e for e in entries if e["audio_id"] in wanted]
@@ -190,18 +230,19 @@ def main():
         entries = entries[:args.limit]
 
     state = load_state()
-    total = len(entries) * len(CANDIDATE_LABELS)
+    total = len(entries) * len(labels)
     outstanding = 0
     for entry in entries:
-        for label in CANDIDATE_LABELS:
+        for label in labels:
             key = f"{entry['audio_id']}#{label}"
             if not (os.path.exists(candidate_path(entry["audio_id"], label))
                     and state["candidates"].get(key, {}).get("ok")):
                 outstanding += 1
 
     print(f"  ids        : {len(entries)}")
-    print(f"  candidates : {total}  ({len(CANDIDATE_LABELS)} per id)")
+    print(f"  candidates : {total}  ({len(labels)} per id)")
     print(f"  outstanding: {outstanding}")
+    print(f"  round      : {args.round}  ({chr(47).join(labels)})")
     print(f"  settings   : {STEPS} steps, cfg {CFG}, {SAMPLER}/{SCHEDULER}, negative {'(none)' if not NEGATIVE else NEGATIVE!r}")
     print(f"  output     : {CANDIDATES}")
 
@@ -214,7 +255,7 @@ def main():
     done = failed = skipped = 0
     for index, entry in enumerate(entries, 1):
         audio_id = entry["audio_id"]
-        for label in CANDIDATE_LABELS:
+        for label in labels:
             key = f"{audio_id}#{label}"
             target = candidate_path(audio_id, label)
             if os.path.exists(target) and state["candidates"].get(key, {}).get("ok"):

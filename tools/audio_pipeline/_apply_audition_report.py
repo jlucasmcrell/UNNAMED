@@ -29,7 +29,11 @@ MANIFEST = os.path.join(ASSETS, "manifests", "playable_prototype_audio_v2.json")
 V1_DIR = os.path.join(ASSETS, "audio", "v1_stable_audio_open", "delivered")
 DELIVERED = os.path.join(ASSETS, "audio", "v2_delivered")
 
-VALID_KEYS = ("V1", "V2-A", "V2-B", "V2-C")
+VALID_KEYS = ("V1", "V2-A", "V2-B", "V2-C", "V2-D", "V2-E", "V2-F", "V2-G", "V2-H", "V2-I")
+
+# The report's own marker for "I heard these and none of them work". It is a decision, not a
+# non-decision: the sound was auditioned and rejected, so it counts as heard but needs new renders.
+RERENDER = "NONE"
 
 
 def find_v1(audio_id):
@@ -62,7 +66,8 @@ def main():
     by_id = {s["audio_id"]: s for s in manifest["sounds"]}
 
     selections = report.get("selections", {})
-    unknown_ids = [k for k in selections if k not in by_id]
+    rejected = report.get("needs_rerender", [])
+    unknown_ids = [k for k in list(selections) + list(rejected) if k not in by_id]
     bad_keys = [f"{k}={v}" for k, v in selections.items() if v not in VALID_KEYS]
     if unknown_ids:
         print(f"  unknown ids in report: {unknown_ids[:5]}")
@@ -94,13 +99,14 @@ def main():
     counts = {}
     for key in selections.values():
         counts[key] = counts.get(key, 0) + 1
-    decided = len(selections)
+    decided = len(selections) + len(rejected)
     undecided = len(manifest["sounds"]) - decided
 
     print(f"  report        : {args.report}")
     print(f"  generated     : {report.get('generated')}")
     print(f"  total ids     : {len(manifest['sounds'])}")
     print(f"  decided       : {decided}")
+    print(f"  to re-render  : {len(rejected)}   (heard and rejected; new seeds needed)")
     print(f"  undecided     : {undecided}   (kept as provisional, human_auditioned false)")
     print(f"  by selection  : {counts}")
     print(f"  notes         : {len(report.get('notes', {}))}")
@@ -111,7 +117,17 @@ def main():
 
     changed = 0
     for audio_id, entry in by_id.items():
+        if audio_id in rejected:
+            # Heard, rejected, and deliberately left un-assigned rather than pointed at the least-bad
+            # candidate. The game keeps resolving it to the provisional pick until a re-render lands,
+            # so nothing breaks in the meantime.
+            entry["owner_selection"] = RERENDER
+            entry["human_auditioned"] = True
+            entry["needs_rerender"] = True
+            changed += 1
+            continue
         key = selections.get(audio_id)
+        entry["needs_rerender"] = False
         if not key:
             entry["owner_selection"] = None
             entry["human_auditioned"] = False
@@ -125,7 +141,7 @@ def main():
             entry["generation_version"] = "v1"
             entry["kept_v1"] = True
         else:
-            label = key[-1].lower()
+            label = key.split("-")[-1].lower()
             entry["delivered"] = os.path.join(
                 "audio", "v2_delivered", audio_id, f"candidate_{label}.wav").replace(os.sep, "/")
             entry["generation_version"] = "v2"
@@ -138,6 +154,7 @@ def main():
         "generated": report.get("generated"),
         "decided": decided,
         "undecided": undecided,
+        "needs_rerender": rejected,
         "counts_by_selection": counts,
         "notes": report.get("notes", {}),
         "human_auditioned": decided,
