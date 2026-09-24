@@ -84,6 +84,11 @@ WHOLE_DIRS = [
     # The ten Phase-1 world materials, with their base colour, normal, ORM, `.tres` and metadata.
     # Absent from the first snapshot, which predated the material pass entirely.
     ("materials", os.path.join(ASSETS, "materials")),
+    # The whole audio tree: the V1 archive, every V2 candidate, the provisional delivered set, the
+    # masters, and the owner's audition report. None of it was in scope before this, so neither the
+    # original audio set nor the regenerated one had ever been snapshotted - and the audition report
+    # in particular is the only record of decisions that no process can reproduce.
+    ("audio", os.path.join(ASSETS, "audio")),
 ]
 
 # Per-asset trees, keyed by the directory that holds them.
@@ -118,7 +123,17 @@ SUPERSEDED_DIRS = [
 ANIMATION_DIRS = ["clips", "ready", "source"]
 
 # Review renders: the judgement images, not the whole 800 MB review tree.
-REVIEW_SUBDIRS = [os.path.join("bible_batch", ""), "ui", "vfx", "buildings", "npc_anim"]
+REVIEW_SUBDIRS = [os.path.join("bible_batch", ""), "ui", "vfx", "buildings", "npc_anim", "audio"]
+
+# Review files that sit outside a whole subdirectory. `review/audio_v2` also holds a full copy of
+# every candidate so the page can play them; that copy is regenerable from `audio/v2_candidates` and
+# snapshotting it would add ~140 MB of duplication, so only the judgement sheets and the index go in.
+REVIEW_FILES = [
+    os.path.join(ASSETS, "review", "audio_v2", "index.html"),
+    os.path.join(ASSETS, "review", "audio_v2", "audition_index.json"),
+    os.path.join(ASSETS, "review", "audio_v2", "compare_final.png"),
+    os.path.join(ASSETS, "review", "audio_v2", "compare_smoke.png"),
+]
 
 # Single files worth taking.
 SINGLE_FILES = [
@@ -197,6 +212,10 @@ def build_plan():
         directory = os.path.join(ASSETS, "review", area.rstrip("\\/"))
         if os.path.isdir(directory):
             sources.extend(collect(directory))
+
+    for path in REVIEW_FILES:
+        if os.path.exists(path):
+            sources.append(path)
 
     # Phase-1 concepts only. The other ~750 concepts are backlog and stay out.
     concept_dir = os.path.join(ASSETS, "concepts")
