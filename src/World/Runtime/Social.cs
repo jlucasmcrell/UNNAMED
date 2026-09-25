@@ -418,6 +418,10 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     public CompanionOrder? CompanionOrderOf(string npcId) => State.Companions.TryGetValue(npcId, out var companion) ? companion.Order : null;
 
+    int IDialogueFacts.StandingLevel(string factionId) => _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(factionId)).Level;
+
+    bool IDialogueFacts.ActDone(string kind, string subject) => State.Factions.Acts.Any(a => a.Kind == kind && a.Subject == subject);
+
     public string QuestState(string questId, string? objectiveId)
     {
         if (!State.Quests.TryGetValue(questId, out var quest))
@@ -463,6 +467,10 @@ internal sealed class DialogueSystem : IDialogueFacts
         public string QuestState(string questId, string? objectiveId) => _system.QuestState(questId, objectiveId);
 
         public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
+
+        int IDialogueFacts.StandingLevel(string factionId) => ((IDialogueFacts)_system).StandingLevel(factionId);
+
+        bool IDialogueFacts.ActDone(string kind, string subject) => ((IDialogueFacts)_system).ActDone(kind, subject);
     }
 }
 

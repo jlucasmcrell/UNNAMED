@@ -33,6 +33,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The navigation lattice and its limits (M7; D-13).</summary>
     public NavConfig Navigation { get; init; } = NavConfig.Default;
+
+    /// <summary>The factions, the standing ladder and the act log's capacity (M7).</summary>
+    public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>

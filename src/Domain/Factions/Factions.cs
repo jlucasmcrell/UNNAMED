@@ -42,6 +42,12 @@ public static class Identities
     public static readonly ImmutableArray<string> All = ImmutableArray.Create(Unidentified, Identified);
 }
 
+/// <summary>How one faction regards another: a word, never a number, so no rule can do arithmetic between a relation and a standing.</summary>
+public static class Attitudes
+{
+    public static readonly ImmutableArray<string> All = ImmutableArray.Create("close", "cordial", "indifferent", "strained", "opposed");
+}
+
 /// <summary>An act, as the world saw it: what, where (the player's body, in mm, and its cell) and when. The truth, not a belief.</summary>
 public sealed record ActRecord(long Seq, string Kind, string Subject, string CellKey, long XMm, long ZMm, long Tick);
 
@@ -116,4 +122,117 @@ public sealed record FactionLedger(long NextActSeq, ImmutableArray<ActRecord> Ac
             hash.Add(row);
         return hash.ToHashCode();
     }
+}
+
+/// <summary>A faction's reaction to one act: a kind, one exact subject, and the standing change it brings once learned.</summary>
+public sealed record Reaction(string Kind, string Subject, int Delta);
+
+/// <summary>A static, directional relation to another faction, as an attitude word. No rule reads it; views show it.</summary>
+public sealed record Relation(string FactionId, string Attitude);
+
+/// <summary>
+/// A faction as content (M7 design §5.1): its name, its seat (no rule reads it; lint FAC-M1 and the faction view do), what it reacts to,
+/// and how it regards the others. Members are the NPCs whose definition names it.
+/// </summary>
+public sealed record FactionDefinition(string Id, string Name, string SeatLocationId, ImmutableArray<Reaction> Reactions,
+    ImmutableArray<Relation> Relations);
+
+/// <summary>One rung of the standing ladder: a key, its level, and the least points it holds.</summary>
+public sealed record StandingTier(string Key, int Level, int MinPoints);
+
+/// <summary>
+/// PROGRESSION §10's ladder: eleven tiers on points [-1000, 1000], with an ordinary floor of -999. A tier is derived from points when
+/// read, never stored.
+/// </summary>
+public sealed record StandingLadder(ImmutableArray<StandingTier> Tiers, int MinPoints, int MaxPoints, int OrdinaryFloor)
+{
+    /// <summary>PROGRESSION §10's keys and levels, top down. FAC001 pins <c>config.factions</c> to exactly these.</summary>
+    public static readonly ImmutableArray<(string Key, int Level)> Keys = ImmutableArray.Create(("exalted", 5), ("allied", 4),
+        ("honoured", 3), ("trusted", 2), ("accepted", 1), ("neutral", 0), ("wary", -1), ("disliked", -2), ("despised", -3),
+        ("outcast", -4), ("anathema", -5));
+
+    /// <summary>The shipped numbers (M7 design §5.4.1).</summary>
+    public static StandingLadder Default { get; } = new(ImmutableArray.Create(
+            new StandingTier("exalted", 5, 1000), new StandingTier("allied", 4, 700), new StandingTier("honoured", 3, 450),
+            new StandingTier("trusted", 2, 250), new StandingTier("accepted", 1, 100), new StandingTier("neutral", 0, -99),
+            new StandingTier("wary", -1, -249), new StandingTier("disliked", -2, -449), new StandingTier("despised", -3, -699),
+            new StandingTier("outcast", -4, -999), new StandingTier("anathema", -5, -1000)),
+        FactionLedger.MinPoints, FactionLedger.MaxPoints, FactionLedger.OrdinaryFloor);
+
+    /// <summary>A tier key's level.</summary>
+    /// <exception cref="FormatException">The key is not one of the eleven.</exception>
+    public static int LevelOf(string tierKey)
+    {
+        foreach (var (key, level) in Keys)
+        {
+            if (string.Equals(key, tierKey, StringComparison.Ordinal))
+                return level;
+        }
+        throw new FormatException($"'{tierKey}' is not a standing tier (one of {string.Join(", ", Keys.Select(k => k.Key))})");
+    }
+
+    /// <summary>The first tier, top down, whose least points are at or below <paramref name="points"/>. Not <c>TierOf</c>: that is the simulation tier.</summary>
+    public StandingTier StandingTierOf(int points)
+    {
+        foreach (var tier in Tiers)
+        {
+            if (tier.MinPoints <= points)
+                return tier;
+        }
+        return Tiers[^1];
+    }
+}
+
+/// <summary>A gated stock row (M7 design §5.7.2): sold only while the player stands at <paramref name="MinLevel"/> or above with the faction.</summary>
+public sealed record StandingRequirement(string FactionId, int MinLevel);
+
+/// <summary>What one learning changed: the faction, the act, the channel, whether it upgraded an unidentified row, and the points before and after.</summary>
+public sealed record Learned(string FactionId, long ActSeq, string Source, string? Via, string Identity, bool Upgraded, int From, int To);
+
+/// <summary>The faction rules (M7 design §5.4): pure functions of the ledger and the content.</summary>
+public static class FactionRules
+{
+    /// <summary>
+    /// A faction learns of an act (§5.4.3). Without a reaction row it stores nothing (K7); an act already known as identified, or known
+    /// unidentified and told unidentified again, changes nothing (K8); otherwise the row is written, and an identified row applies the
+    /// reaction's delta once, clamped to the ordinary floor and the maximum.
+    /// </summary>
+    public static (FactionLedger Ledger, Learned? Change) Learn(FactionLedger ledger, FactionDefinition faction, long actSeq, string source,
+        string via, string identity, long tick, StandingLadder ladder)
+    {
+        var act = ledger.Acts.Single(a => a.Seq == actSeq);
+        var row = faction.Reactions.SingleOrDefault(r => r.Kind == act.Kind && r.Subject == act.Subject);
+        if (row is null)
+            return (ledger, null);
+        var known = ledger.Knowledge.SingleOrDefault(k => k.Knower == faction.Id && k.Act == actSeq);
+        bool upgrade = known is { Identity: Identities.Unidentified } && identity == Identities.Identified;
+        if (known is not null && !upgrade)
+            return (ledger, null);
+        int from = PointsOf(ledger, faction.Id), to = from;
+        if (identity == Identities.Identified)
+            to = Math.Clamp(from + row.Delta, ladder.OrdinaryFloor, ladder.MaxPoints);
+        var knowledge = new FactionKnowledge(faction.Id, actSeq, identity, source, via, tick, to - from);
+        return (ledger.WithKnowledge(knowledge).WithPoints(faction.Id, to),
+            new Learned(faction.Id, actSeq, source, via, identity, upgrade, from, to));
+    }
+
+    /// <summary>
+    /// The act log held to its capacity (§5.4.5): while it is over, the lowest-sequence act goes, with what the factions knew of it.
+    /// Standing never changes, and the next sequence never goes back.
+    /// </summary>
+    public static (FactionLedger Ledger, ImmutableArray<long> Evicted) Compact(FactionLedger ledger, int capacity)
+    {
+        var evicted = ImmutableArray.CreateBuilder<long>();
+        while (ledger.Acts.Length > capacity)
+        {
+            long oldest = ledger.Acts[0].Seq;
+            ledger = ledger.WithoutAct(oldest);
+            evicted.Add(oldest);
+        }
+        return (ledger, evicted.ToImmutable());
+    }
+
+    /// <summary>A faction's points; 0 when the ledger holds no row for it.</summary>
+    public static int PointsOf(FactionLedger ledger, string factionId) =>
+        ledger.Standing.FirstOrDefault(s => string.Equals(s.FactionId, factionId, StringComparison.Ordinal))?.Points ?? 0;
 }

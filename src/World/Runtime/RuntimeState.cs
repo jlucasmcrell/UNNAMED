@@ -347,6 +347,9 @@ internal sealed class RuntimeState
         Companions = Companions.SetItem(companion.NpcId, companion);
     }
 
+    /// <summary>The character's points with a faction; 0 when nothing moved them.</summary>
+    public int StandingOf(string factionId) => FactionRules.PointsOf(Factions, factionId);
+
     public void SetFactions(SliceOwner owner, FactionLedger ledger)
     {
         Require(owner, StateSlice.Factions);
