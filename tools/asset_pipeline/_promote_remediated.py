@@ -65,8 +65,9 @@ def verify(path):
 
 
 def drawn(relative):
+    # A clip (animation/...) carries no mesh; collision proxies are never drawn.
     name = os.path.basename(relative)
-    return name.endswith(".glb") and "_collision_" not in name
+    return name.endswith(".glb") and "_collision_" not in name and not relative.replace("\\", "/").startswith("animation/")
 
 
 def rollback(asset_id, stamp):

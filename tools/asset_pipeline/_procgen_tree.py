@@ -78,6 +78,14 @@ PINE_PROFILE = [(0.28, 0.0), (0.30, 0.17), (0.35, 0.21), (0.40, 0.25), (0.45, 0.
 DEAD_PROFILE = [(0.30, 0.0), (0.32, 0.10), (0.45, 0.13), (0.50, 0.40), (0.55, 0.42), (0.60, 0.44), (0.65, 0.43),
                 (0.70, 0.41), (0.75, 0.38), (0.80, 0.33), (0.85, 0.26), (0.90, 0.22), (0.95, 0.17), (1.0, 0.10),
                 (1.001, 0.0)]
+# A young ash's small, high crown: narrow, starting above half height (§Phase-1 brief: "small crowns"). Its
+# scaffold z_frac (below) starts just above this f_lo, the same margin oak keeps (0.24 vs 0.20) so scaffolds are
+# born already inside the envelope instead of below it with no room to reach up into it.
+ASH_YOUNG_PROFILE = [(0.45, 0.0), (0.48, 0.08), (0.55, 0.13), (0.65, 0.15), (0.75, 0.15), (0.85, 0.12),
+                     (0.93, 0.07), (1.0, 0.0)]
+# Ground offsets (Blender X/Y, Z always 0) of the ash stand's three trunks - the glTF-space local positions the
+# brief gives (X, Y=0, Z) converted by glTF_X=Blender_X, glTF_Z=-Blender_Y: (-0.35,0,0.2), (0.3,0,0.3), (0,0,-0.35).
+ASH_OFFSETS = [(-0.35, -0.20), (0.30, -0.30), (0.0, 0.35)]
 
 SPECIES = {
     "oak": {
@@ -158,6 +166,77 @@ SPECIES = {
         "foliage": None,
         "bark": {"shader": "dead", "tile_m": 2.4},
         "wood": {"fresh": (186, 128, 72), "weathered": (150, 140, 126), "grey": 0.4},
+    },
+    # --- Phase-A prototype presets (template variants of the same trunk/tube skeleton; docs/
+    # WAVE_0_MODULAR_ASSET_STANDARD.md section 17). "log": a straight trunk-only tube with no crown, built vertical
+    # like any trunk and laid on its side afterwards (kind == "log", see reorient_length_x). "cluster"/
+    # "stump_cluster": the same small trunk recipe built three times at fixed footprint offsets (ASH_OFFSETS).
+    "log": {
+        "asset_id": "flora_fallen_log", "seed": 4801, "height": 7.7, "kind": "log",
+        "root_broken": True, "tip_end": "broken",
+        # flare/lobes/burls stay small: unlike a standing trunk this is a torn-off SECTION, not a root crown, and
+        # the splinter jag at each end (tube()'s ~1.1x radius spike) already adds ~0.6-0.8 m of its own to the
+        # built height above, and to the bark's own bulge below, budgeted for in the target dims
+        "trunk": {"dbh_radius": 0.40, "top_radius": 0.30, "top_frac": 0.98, "taper_exp": 0.7, "straight_frac": 0.5,
+                  "wobble_m": 0.05, "lean_m": [0.0, 0.22], "step_m": 0.45, "sides": 18, "flare": 0.03,
+                  "flare_decay_m": 0.3, "lobes": 5, "lobe_amp": 0.06, "lobe_decay_m": 0.15, "lobe_power": 4.0,
+                  "burls": 3, "burl_amp": 0.03, "noise_amp": 0.05, "twist": 0.04},
+        "stubs": {"count": 5, "z_m": [0.8, 6.9], "len_m": [0.06, 0.16], "radius_m": [0.03, 0.055],
+                  "elev_deg": [-20, 70]},
+        "foliage": None,
+        "bark": {"shader": "oak", "tile_m": 2.6, "moss_boost": 0.55},
+        "wood": {"fresh": (166, 124, 82), "weathered": (126, 116, 102), "grey": 0.45},
+        "target": {"box_m": (8.0, 0.8), "height_m": 0.8, "length_range": (7.5, 8.5), "diam_range": (0.55, 1.05)},
+    },
+    "beam": {
+        "asset_id": "prop_woundmoss_beam", "seed": 4802, "height": 5.95, "kind": "log",
+        "root_broken": True, "tip_end": "broken",
+        "trunk": {"dbh_radius": 0.16, "top_radius": 0.12, "top_frac": 0.98, "taper_exp": 0.7, "straight_frac": 0.5,
+                  "wobble_m": 0.03, "lean_m": [0.0, 0.1], "step_m": 0.4, "sides": 14, "flare": 0.02,
+                  "flare_decay_m": 0.2, "lobes": 4, "lobe_amp": 0.04, "lobe_decay_m": 0.1, "lobe_power": 4.0,
+                  "burls": 2, "burl_amp": 0.015, "noise_amp": 0.04, "twist": 0.03},
+        "stubs": {"count": 3, "z_m": [0.5, 5.4], "len_m": [0.04, 0.09], "radius_m": [0.015, 0.03],
+                  "elev_deg": [-20, 65]},
+        "foliage": None,
+        "bark": {"shader": "oak", "tile_m": 2.6, "moss_boost": 1.0},
+        "wood": {"fresh": (166, 124, 82), "weathered": (126, 116, 102), "grey": 0.45},
+        "target": {"box_m": (6.0, 0.8), "height_m": 1.7, "clearance_m": 1.3, "length_range": (6.0, 6.4),
+                  "diam_range": (0.3, 0.62)},
+    },
+    "ash_stand": {
+        "asset_id": "flora_young_ash_stand", "seed": 4803, "height": 2.8, "kind": "cluster", "offsets": ASH_OFFSETS,
+        "crown": {"profile": ASH_YOUNG_PROFILE, "margin_m": 0.06, "lump": 0.1, "underside_frac": [0.35, 0.25]},
+        "trunk": {"dbh_radius": 0.045, "top_radius": 0.010, "top_frac": 0.62, "taper_exp": 1.2, "straight_frac": 0.35,
+                  "wobble_m": 0.03, "lean_m": [0.0, 0.0], "step_m": 0.16, "sides": 10, "flare": 0.10,
+                  "flare_decay_m": 0.12, "lobes": 3, "lobe_amp": 0.12, "lobe_decay_m": 0.08, "lobe_power": 3.0,
+                  "burls": 0, "burl_amp": 0.0, "noise_amp": 0.02, "twist": 0.02},
+        "stubs": None,
+        "scaffold": {"count": [3, 4], "z_frac": [0.48, 0.62], "alpha_low_deg": [30, 45], "alpha_high_deg": [6, 14],
+                     "ratio": [0.5, 0.62], "rise_per_m": 0.26, "rise_until": 0.25, "droop_per_m": 0.05,
+                     "wobble": 0.15, "r_end": 0.006, "max_len": 2.5, "step_m": 0.14},
+        "branch": {"spacing_m": [0.12, 0.18], "from": 0.16, "alpha_deg": [20, 38], "ratio": [0.42, 0.56],
+                   "max_len": 1.4, "outward": 0.5, "rise_per_m": 0.18, "droop_per_m": 0.03, "wobble": 0.25,
+                   "r_end": 0.004, "max_r": 0.02, "step_m": 0.14},
+        "twig": {"spacing_m": [0.14, 0.2], "from": 0.3, "alpha_deg": [40, 62], "ratio": [0.45, 0.6], "max_len": 0.35,
+                 "outward": 0.35, "rise_per_m": 0.15, "wobble": 0.35, "r_end": 0.0022, "min_r": 0.004,
+                 "step_m": 0.12, "min_shell": 0.35},
+        "foliage": {"sprite": "oak", "card_m": [0.32, 0.46], "spacing_m": [0.09, 0.13], "branch_from": 0.3,
+                    "twig_from": 0.0, "min_shell": 0.25, "crossed": False, "per_station": 2, "bend": 0.4,
+                    "outward": 0.35, "up": 0.15},
+        "bark": {"shader": "oak", "tile_m": 0.6},
+        "wood": {"fresh": (196, 172, 132), "weathered": (150, 140, 120), "grey": 0.4},
+    },
+    "ash_stump": {
+        "asset_id": "flora_ash_stumps", "seed": 4804, "height": 0.25, "kind": "stump_cluster",
+        "offsets": ASH_OFFSETS, "tip_end": "cut",
+        "trunk": {"dbh_radius": 0.045, "top_radius": 0.040, "top_frac": 0.9, "taper_exp": 0.6, "straight_frac": 0.0,
+                  "wobble_m": 0.008, "lean_m": [0.0, 0.0], "step_m": 0.05, "sides": 10, "flare": 0.12,
+                  "flare_decay_m": 0.06, "lobes": 3, "lobe_amp": 0.14, "lobe_decay_m": 0.05, "lobe_power": 3.0,
+                  "burls": 0, "burl_amp": 0.0, "noise_amp": 0.02, "twist": 0.0},
+        "stubs": None,
+        "foliage": None,
+        "bark": {"shader": "oak", "tile_m": 0.5, "moss_boost": 0.15},
+        "wood": {"fresh": (196, 172, 132), "weathered": (150, 140, 120), "grey": 0.4, "shader": "rings"},
     },
 }
 
@@ -271,6 +350,7 @@ class Branch:
         self.shape = None
         self.children = []
         self.seed = 0
+        self.root_broken = False  # start cap (s=0) gets a jagged torn-root crater instead of the flat foot fan
 
     def finish(self):
         self.s = [0.0]
@@ -386,12 +466,14 @@ def grow(name, level, kind, parent, s_attach, d0, L_max, r0, r_end, trop, wob, s
     return br
 
 
-def make_trunk(sp, H, rng):
+def make_trunk(sp, H, rng, end="tip"):
     t = sp["trunk"]
     br = Branch("trunk", 0, "trunk")
     ztop = t["top_frac"] * H
     zs = t["straight_frac"] * H
-    stations = [0.0, 0.04, 0.10, 0.18, 0.28, 0.40, 0.55, 0.75, 1.0, 1.3]
+    # kept below ztop so a very short trunk (a stump, H a fraction of a metre) still gets a monotonic station
+    # list; unchanged for every existing species, whose ztop is always well above 1.3 m
+    stations = [z for z in (0.0, 0.04, 0.10, 0.18, 0.28, 0.40, 0.55, 0.75, 1.0, 1.3) if z < ztop] or [0.0]
     z = stations[-1]
     while z + t["step_m"] < ztop - 0.05:
         z += t["step_m"]
@@ -412,11 +494,14 @@ def make_trunk(sp, H, rng):
     br.finish()
     k = t["taper_exp"]
     rt, dbh = t["top_radius"], t["dbh_radius"]
-    rb = rt + (dbh - rt) / (1.0 - 1.3 / ztop) ** k
+    # dbh_radius is normally anchored at breast height (1.3 m); a trunk shorter than that (a stump) has no such
+    # point on it, and the anchor's extrapolation goes negative-under-a-fractional-power (complex) - dbh_radius is
+    # then just the base radius directly
+    rb = rt + (dbh - rt) / (1.0 - 1.3 / ztop) ** k if ztop > 1.3 else dbh
     br.rad = [rt + (rb - rt) * max(0.0, 1.0 - p.z / ztop) ** k for p in pts]
     br.sides = t["sides"]
     br.twist = t["twist"]
-    br.end = "tip"
+    br.end = end
     # root flare, lobes, burls and bark noise as a radius multiplier per ring height and angle
     lobes = []
     base = rng.uniform(0, TAU)
@@ -723,6 +808,84 @@ BUILDERS = {"oak": build_oak, "pine": build_pine, "dead": build_dead}
 
 
 # --------------------------------------------------------------------------------------------------------------------
+# Phase-A prototype presets: a trunk-only tube laid on its side (kind "log"), and a fixed-offset cluster of small
+# trunks built once each and translated into place (kind "cluster" / "stump_cluster") - all reusing make_trunk,
+# add_stubs, build_oak and plan_cards untouched.
+# --------------------------------------------------------------------------------------------------------------------
+
+def build_log(sp):
+    """A single trunk-only tube (kind == 'log'): grown vertical like any trunk, then laid on its side by
+    reorient_length_x after assembly. Both ends read organic (a torn root, a broken snap) rather than the flat
+    foot cap a standing tree hides in the ground."""
+    seed = sp["seed"]
+    trunk = make_trunk(sp, sp["height"], sub_rng(seed, "trunk"), end=sp.get("tip_end", "tip"))
+    trunk.root_broken = sp.get("root_broken", False)
+    out = [trunk]
+    add_stubs(trunk, sp, None, seed, out)
+    return out
+
+
+def reorient_length_x(b):
+    """Cyclic axis permutation (x, y, z) -> (z, x, y): a proper rotation (determinant +1, so winding survives
+    untouched) that carries a trunk's growth axis (built vertical along Blender Z) onto Blender X, so the glTF
+    Z-up -> Y-up export leaves the long side on X. Then drops the mesh so its lowest point sits at Blender z = 0."""
+    verts = [Vector((v.z, v.x, v.y)) for v in b.verts]
+    low = min(v.z for v in verts)
+    b.verts = [Vector((v.x, v.y, v.z - low)) for v in verts]
+
+
+def build_cluster_stand(sp):
+    """Three small crowned trees (build_oak, reused verbatim - a young ash is the same recipe at a smaller
+    scale) at the stand's fixed footprint offsets. Each is grown and re-centred on its own trunk independently
+    (the same iterative search main() runs for a standing tree), then translated into place."""
+    seed = sp["seed"]
+    branches_all, cards_all, instances = [], [], []
+    for k, (dx, dy) in enumerate(sp["offsets"]):
+        inst_seed = seed + 1009 * (k + 1)
+        env = Envelope(sp["crown"], sp["height"], sub_rng(inst_seed, "envelope"))
+        best = None
+        for attempt in range(6):
+            branches, hosts, trunk = build_oak(sp, env, inst_seed)
+            cards = plan_cards(sp, hosts, trunk, env, inst_seed)
+            xs = [p.x for br in branches for p in br.pts]
+            ys = [p.y for br in branches for p in br.pts]
+            off = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
+            mag = math.hypot(*off)
+            if best is None or mag < best[0]:
+                best = (mag, branches, cards, trunk)
+            if mag < 0.03:
+                break
+            env.cx -= off[0] * 0.9
+            env.cy -= off[1] * 0.9
+        _, branches, cards, trunk = best
+        shift = Vector((dx, dy, 0.0))
+        for br in branches:
+            br.pts = [p + shift for p in br.pts]
+        for c in cards:
+            c["A"] = c["A"] + shift
+        branches_all += branches
+        cards_all += cards
+        grown_z = max(p.z for br in branches for p in br.pts)
+        instances.append({"offset_m": [dx, dy], "height_m": round(grown_z, 3),
+                          "trunk_length_m": round(trunk.pts[-1].z, 3)})
+    return branches_all, cards_all, instances
+
+
+def build_cluster_stump(sp):
+    """The same three footprint offsets, each a short trunk-only tube (no branches, no crown) with a flat,
+    ring-cap top (br.end == 'cut') instead of the living stand's crown."""
+    seed = sp["seed"]
+    out, instances = [], []
+    for k, (dx, dy) in enumerate(sp["offsets"]):
+        trunk = make_trunk(sp, sp["height"], sub_rng(seed, "stump_trunk", k), end=sp.get("tip_end", "cut"))
+        shift = Vector((dx, dy, 0.0))
+        trunk.pts = [p + shift for p in trunk.pts]
+        out.append(trunk)
+        instances.append({"offset_m": [dx, dy], "height_m": round(trunk.pts[-1].z, 3)})
+    return out, instances
+
+
+# --------------------------------------------------------------------------------------------------------------------
 # Foliage cards
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -862,6 +1025,10 @@ def tube(b, br, wood_tile):
     if br.end == "broken":
         jag = splinter_profile(rng, n, 1.1 * rad[-1])
         rings[-1] = [p + T[-1] * jag[j] for j, p in enumerate(rings[-1])]
+    jag0 = None
+    if br.root_broken:
+        jag0 = splinter_profile(rng, n, 1.1 * rad[0])
+        rings[0] = [p - T[0] * jag0[j] for j, p in enumerate(rings[0])]
     # UVs: U = arc fraction round the ring (+ spiral twist), V = length / circumference
     circ = [sum((r[(j + 1) % n] - r[j]).length for j in range(n)) for r in rings]
     arcs = []
@@ -878,6 +1045,8 @@ def tube(b, br, wood_tile):
     def vv(i, j):
         if jag is not None and i == m - 1:
             return V[i] + jag[j % n] / circ[i]
+        if jag0 is not None and i == 0:
+            return V[i] - jag0[j % n] / circ[i]
         return V[i]
     for i in range(m - 1):
         for j in range(n):
@@ -886,17 +1055,29 @@ def tube(b, br, wood_tile):
                   (arcs[i + 1][j + 1] + br.twist * V[i + 1], vv(i + 1, j + 1)),
                   (arcs[i + 1][j] + br.twist * V[i + 1], vv(i + 1, j))]
             b.f((idx[i][j], idx[i][j1], idx[i + 1][j1], idx[i + 1][j]), uv, BARK)
-    # start cap: flat fan facing -T (inside the parent, or the trunk's foot on the ground)
-    c0 = b.v(pts[0])
+    # start cap: flat fan facing -T (inside the parent, or the trunk's foot on the ground) - a jagged torn crater
+    # instead when root_broken (a fallen trunk's root end, lying exposed rather than buried)
     B0 = T[0].cross(N[0])
 
     def planar(p, P, Nn, Bn):
         d = p - P
         return (d.dot(Nn) / wood_tile + 0.5, d.dot(Bn) / wood_tile + 0.5)
-    for j in range(n):
-        j1 = (j + 1) % n
-        b.f((c0, idx[0][j1], idx[0][j]), [planar(pts[0], pts[0], N[0], B0), planar(rings[0][j1], pts[0], N[0], B0),
-                                           planar(rings[0][j], pts[0], N[0], B0)], WOOD)
+    if jag0 is None:
+        c0 = b.v(pts[0])
+        for j in range(n):
+            j1 = (j + 1) % n
+            b.f((c0, idx[0][j1], idx[0][j]), [planar(pts[0], pts[0], N[0], B0),
+                                              planar(rings[0][j1], pts[0], N[0], B0),
+                                              planar(rings[0][j], pts[0], N[0], B0)], WOOD)
+    else:
+        depth0 = 0.3 * rad[0]
+        cen0 = pts[0] + T[0] * depth0 + (N[0] * rng.uniform(-0.2, 0.2) + B0 * rng.uniform(-0.2, 0.2)) * rad[0]
+        ci0 = b.v(cen0)
+        for j in range(n):
+            j1 = (j + 1) % n
+            b.f((ci0, idx[0][j1], idx[0][j]), [planar(cen0, pts[0], N[0], B0),
+                                               planar(rings[0][j1], pts[0], N[0], B0),
+                                               planar(rings[0][j], pts[0], N[0], B0)], WOOD)
     Bl = T[-1].cross(N[-1])
     if br.end == "tip":
         apex = b.v(pts[-1] + T[-1] * max(2.0 * rad[-1], 0.012))
@@ -906,6 +1087,14 @@ def tube(b, br, wood_tile):
             ua = 0.5 * (arcs[-1][j] + arcs[-1][j + 1]) + br.twist * V[-1]
             b.f((idx[-1][j], idx[-1][j1], apex), [(arcs[-1][j] + br.twist * V[-1], V[-1]),
                                                   (arcs[-1][j + 1] + br.twist * V[-1], V[-1]), (ua, va)], BARK)
+    elif br.end == "cut":
+        # a flat sawn/snapped-off top (a stump): same flat-fan shape as the root foot, at the tip instead
+        c1 = b.v(pts[-1])
+        for j in range(n):
+            j1 = (j + 1) % n
+            b.f((idx[-1][j], idx[-1][j1], c1), [planar(rings[-1][j], pts[-1], N[-1], Bl),
+                                                planar(rings[-1][j1], pts[-1], N[-1], Bl),
+                                                planar(pts[-1], pts[-1], N[-1], Bl)], WOOD)
     else:
         depth = 0.3 * rad[-1]
         cen = pts[-1] - T[-1] * depth + (N[-1] * rng.uniform(-0.2, 0.2) + Bl * rng.uniform(-0.2, 0.2)) * rad[-1]
@@ -1276,7 +1465,9 @@ class Torus:
         return (g.vec(cu * ru + offset, su * ru + offset * 0.7, cv * rv + offset * 0.3), sv * rv + offset * 0.5)
 
 
-def sh_bark_oak(g, t):
+def sh_bark_oak(g, t, moss_boost=0.0):
+    """moss_boost (0 default = the original look, unchanged) widens the moss/lichen coverage for the heavily
+    mossed presets (the fallen log, the Woundmoss beam) without touching the baseline oak look."""
     warp = g.noise(t.at(3.0, 4.0, offset=11.0), detail=3.0) - 0.5
     warp2 = g.noise(t.at(9.0, 6.0, offset=23.0), detail=2.0) - 0.5
     du = warp * 0.045 + warp2 * 0.012
@@ -1286,15 +1477,15 @@ def sh_bark_oak(g, t):
     flake = g.smooth(0.0, 0.12, edge2)
     fine = g.noise(t.at(160.0, 60.0, du=du, offset=5.0), detail=3.0)
     tone = g.noise(t.at(6.0, 2.0, offset=17.0), detail=3.0)
-    moss = g.smooth(0.6, 0.72, g.noise(t.at(4.0, 1.5, offset=31.0), detail=4.0))
-    lich = (1.0 - g.smooth(0.03, 0.09, g.voronoi(t.at(90.0, 70.0, offset=41.0))[0])) * \
-        g.smooth(0.55, 0.7, g.noise(t.at(5.0, 3.0, offset=43.0), detail=2.0))
+    moss = g.smooth(0.6 - 0.42 * moss_boost, 0.72 - 0.1 * moss_boost, g.noise(t.at(4.0, 1.5, offset=31.0), detail=4.0))
+    lich = (1.0 - g.smooth(0.03, 0.09 - 0.04 * moss_boost, g.voronoi(t.at(90.0, 70.0, offset=41.0))[0])) * \
+        g.smooth(0.55 - 0.28 * moss_boost, 0.7 - 0.12 * moss_boost, g.noise(t.at(5.0, 3.0, offset=43.0), detail=2.0))
     base = g.ramp(tone, [(0.0, lin(70, 57, 45)), (0.5, lin(92, 76, 60)), (1.0, lin(112, 96, 78))])
     base = base * (0.8 + fine * 0.4)
     base = g.mix(base, lin(136, 124, 106), plate * flake * g.smooth(0.45, 0.8, fine) * 0.55)
     base = g.mix(base, lin(30, 23, 18), (1.0 - plate) * 0.9)
-    base = g.mix(base, lin(84, 92, 52), moss * plate * 0.55)
-    base = g.mix(base, lin(140, 146, 122), lich * plate * 0.7)
+    base = g.mix(base, lin(84, 92, 52), moss * plate * (0.55 + 0.65 * moss_boost))
+    base = g.mix(base, lin(140, 146, 122), lich * plate * (0.7 + 0.5 * moss_boost))
     rough = 0.86 + (1.0 - plate) * 0.08 - flake * 0.04 + moss * 0.04
     height = plate * 0.016 + flake * 0.0035 + fine * 0.002 + moss * 0.0015
     occ = 0.35 + 0.65 * g.smooth(0.0, 0.2, edge) * (0.8 + 0.2 * flake)
@@ -1357,7 +1548,23 @@ def sh_wood(g, t, w):
     return {"base": base, "rough": rough, "metal": 0.0, "height": height, "occ": 0.75 + fib * 0.25}
 
 
+def sh_wood_rings(g, t, w):
+    """sh_wood plus concentric growth rings: the WOOD material's cap UV is planar, centred on the pith (see
+    tube()'s planar()), so radial distance in that UV is physical radial distance from the pith / wood_tile - a
+    stump's fresh-cut top (br.end == "cut") reads this as real rings, unlike the swept sides (always BARK)."""
+    res_ = sh_wood(g, t, w)
+    du, dv = t.u - 0.5, t.v - 0.5
+    radius = g.m("SQRT", du * du + dv * dv)
+    jitter = g.noise(t.at(40.0, 40.0, offset=53.0), detail=2.0) - 0.5
+    f = g.fract(radius * (1.0 / 0.016) + jitter * 0.6)
+    band = g.smooth(0.55, 0.82, f) * (1.0 - g.smooth(0.92, 0.995, f))
+    base = g.mix(res_["base"], lin(104, 78, 48), band * 0.55)
+    return {"base": base, "rough": res_["rough"] + band * 0.03, "metal": 0.0,
+            "height": res_["height"] + band * 0.0012, "occ": res_.get("occ", 0.8)}
+
+
 BARK_SHADERS = {"oak": sh_bark_oak, "pine": sh_bark_pine, "dead": sh_bark_dead}
+WOOD_SHADERS = {"plain": sh_wood, "rings": sh_wood_rings}
 
 
 def set_device(scene, device):
@@ -1936,28 +2143,45 @@ def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     H = sp["height"]
     budget = TRI_BUDGET - 600
+    kind = sp.get("kind", "tree")
+    history, instances, trunk = [], None, None
 
-    # grow; re-centre the envelope until the model's bounds centre on the trunk
-    env = Envelope(sp["crown"], H, sub_rng(seed, "envelope"))
-    best = None
-    history = []
-    for attempt in range(8):
-        built = build_once(sp, env, seed, species)
-        asm = assemble(sp, built[0], built[1], args.res, budget)
-        xs = [v.x for v in asm[0].verts]
-        ys = [v.y for v in asm[0].verts]
-        off = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
-        mag = math.hypot(*off)
-        history.append({"env_centre": [round(env.cx, 3), round(env.cy, 3)],
-                        "bounds_centre": [round(off[0], 3), round(off[1], 3)]})
-        print(f"  attempt {attempt}: bounds centre off the trunk by {mag:.3f} m", flush=True)
-        if best is None or mag < best[0]:
-            best = (mag, built, asm)
-        if mag < 0.03:
-            break
-        env.cx -= off[0] * 0.9
-        env.cy -= off[1] * 0.9
-    _, (branches, cards, trunk), (b, bark_tris, n_cards, n_planned) = best
+    if kind == "tree":
+        # grow; re-centre the envelope until the model's bounds centre on the trunk
+        env = Envelope(sp["crown"], H, sub_rng(seed, "envelope"))
+        best = None
+        for attempt in range(8):
+            built = build_once(sp, env, seed, species)
+            asm = assemble(sp, built[0], built[1], args.res, budget)
+            xs = [v.x for v in asm[0].verts]
+            ys = [v.y for v in asm[0].verts]
+            off = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
+            mag = math.hypot(*off)
+            history.append({"env_centre": [round(env.cx, 3), round(env.cy, 3)],
+                            "bounds_centre": [round(off[0], 3), round(off[1], 3)]})
+            print(f"  attempt {attempt}: bounds centre off the trunk by {mag:.3f} m", flush=True)
+            if best is None or mag < best[0]:
+                best = (mag, built, asm)
+            if mag < 0.03:
+                break
+            env.cx -= off[0] * 0.9
+            env.cy -= off[1] * 0.9
+        _, (branches, cards, trunk), (b, bark_tris, n_cards, n_planned) = best
+    elif kind == "log":
+        branches = build_log(sp)
+        cards = []
+        trunk = branches[0]
+        b, bark_tris, n_cards, n_planned = assemble(sp, branches, cards, args.res, budget)
+        reorient_length_x(b)
+    elif kind == "cluster":
+        branches, cards, instances = build_cluster_stand(sp)
+        b, bark_tris, n_cards, n_planned = assemble(sp, branches, cards, args.res, budget)
+    elif kind == "stump_cluster":
+        branches, instances = build_cluster_stump(sp)
+        cards = []
+        b, bark_tris, n_cards, n_planned = assemble(sp, branches, cards, args.res, budget)
+    else:
+        raise ValueError(f"unknown species kind {kind!r}")
 
     zs_ = [v.z for v in b.verts]
     xs = [v.x for v in b.verts]
@@ -1967,44 +2191,61 @@ def main():
     topo = validate_builder(b)
     print("TOPOLOGY", json.dumps(topo), flush=True)
 
-    # trunk facts
-    tr = sp["trunk"]
-    ring0 = [trunk.pts[0] + Vector((math.cos(TAU * j / trunk.sides), math.sin(TAU * j / trunk.sides), 0))
-             * trunk.rad[0] * trunk.shape(0.0, TAU * j / trunk.sides) for j in range(trunk.sides)]
-    flare_r = [math.hypot(p.x, p.y) for p in ring0]
-    s13 = trunk.s_at_z(1.3)
-    _, _, r13 = trunk.frame_at(s13)
-    zs_straight = tr["straight_frac"] * H
-    top_straight = trunk.frame_at(trunk.s_at_z(zs_straight))[0]
-    first_fork_z = min((br.pts[0].z for br in branches if br.parent is trunk and br.kind != "stub"), default=H)
-    fork_pt = trunk.frame_at(trunk.s_at_z(first_fork_z))[0]
-    lean_fork = math.degrees(math.atan2(math.hypot(fork_pt.x, fork_pt.y), fork_pt.z))
-    trunk_info = {
-        "base_centre_m": [round(trunk.pts[0].x, 4), round(trunk.pts[0].y, 4), round(trunk.pts[0].z, 4)],
-        "base_axis": "vertical (the first rings are on the Z axis, the foot cap lies in y = 0)",
-        "radius_at_1_3m": round(r13, 3),
-        "radius_at_ground_mean": round(sum(flare_r) / len(flare_r), 3),
-        "radius_at_ground_max_root_lobe": round(max(flare_r), 3),
-        "straight_to_m": round(zs_straight, 2),
-        "lean_deg_base_to_straight_top": round(math.degrees(math.atan2(math.hypot(top_straight.x, top_straight.y),
-                                                                       top_straight.z)), 3),
-        "first_limb_m": round(first_fork_z, 2),
-        "lean_deg_base_to_first_limb": round(lean_fork, 3),
-        "height_of_trunk_m": round(trunk.pts[-1].z, 2),
-    }
+    r13 = None
+    if kind == "tree":
+        # trunk facts
+        tr = sp["trunk"]
+        ring0 = [trunk.pts[0] + Vector((math.cos(TAU * j / trunk.sides), math.sin(TAU * j / trunk.sides), 0))
+                 * trunk.rad[0] * trunk.shape(0.0, TAU * j / trunk.sides) for j in range(trunk.sides)]
+        flare_r = [math.hypot(p.x, p.y) for p in ring0]
+        s13 = trunk.s_at_z(1.3)
+        _, _, r13 = trunk.frame_at(s13)
+        zs_straight = tr["straight_frac"] * H
+        top_straight = trunk.frame_at(trunk.s_at_z(zs_straight))[0]
+        first_fork_z = min((br.pts[0].z for br in branches if br.parent is trunk and br.kind != "stub"), default=H)
+        fork_pt = trunk.frame_at(trunk.s_at_z(first_fork_z))[0]
+        lean_fork = math.degrees(math.atan2(math.hypot(fork_pt.x, fork_pt.y), fork_pt.z))
+        trunk_info = {
+            "base_centre_m": [round(trunk.pts[0].x, 4), round(trunk.pts[0].y, 4), round(trunk.pts[0].z, 4)],
+            "base_axis": "vertical (the first rings are on the Z axis, the foot cap lies in y = 0)",
+            "radius_at_1_3m": round(r13, 3),
+            "radius_at_ground_mean": round(sum(flare_r) / len(flare_r), 3),
+            "radius_at_ground_max_root_lobe": round(max(flare_r), 3),
+            "straight_to_m": round(zs_straight, 2),
+            "lean_deg_base_to_straight_top": round(math.degrees(math.atan2(math.hypot(top_straight.x, top_straight.y),
+                                                                           top_straight.z)), 3),
+            "first_limb_m": round(first_fork_z, 2),
+            "lean_deg_base_to_first_limb": round(lean_fork, 3),
+            "height_of_trunk_m": round(trunk.pts[-1].z, 2),
+        }
+    elif kind == "log":
+        # diagnostic only: the trunk's own pts/rad are still the pre-reorient vertical build (its Z is the log's
+        # length before reorient_length_x moved it onto X)
+        trunk_info = {
+            "note": "computed on the pre-reorient vertical build; its Z there is the log's length",
+            "base_radius_m": round(trunk.rad[0], 3), "tip_radius_m": round(trunk.rad[-1], 3),
+            "built_length_m": round(trunk.pts[-1].z, 2), "root_broken": trunk.root_broken, "tip_end": trunk.end,
+        }
+    else:
+        trunk_info = {"instances": instances}
     kinds = {}
     for br in branches:
         k = kinds.setdefault(br.kind, {"count": 0, "broken_ends": 0})
         k["count"] += 1
         k["broken_ends"] += br.end == "broken"
 
-    # crown normal field for the cards
-    prof = sp["crown"]["profile"]
-    f_lo = prof[0][0]
-    crown_c = (bounds_centre[0], bounds_centre[1], H * (f_lo + 1.0) / 2)
-    crown_ax = (max(w for _, w in prof) * H, max(w for _, w in prof) * H, H * (1.0 - f_lo) / 2)
+    # crown normal field for the cards (standing trees only: a log/beam carries no foliage, and a cluster's three
+    # small crowns have no single shared centre to bend toward, so those keep the mesh's own face normals)
+    if kind == "tree":
+        prof = sp["crown"]["profile"]
+        f_lo = prof[0][0]
+        crown_c = (bounds_centre[0], bounds_centre[1], H * (f_lo + 1.0) / 2)
+        crown_ax = (max(w for _, w in prof) * H, max(w for _, w in prof) * H, H * (1.0 - f_lo) / 2)
+        bend = sp["foliage"]["bend"] if sp["foliage"] else 0.0
+    else:
+        crown_c, crown_ax, bend = (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), 0.0
     obj = make_object(b, asset)
-    finish_topology(obj, crown_c, crown_ax, sp["foliage"]["bend"] if sp["foliage"] else 0.0)
+    finish_topology(obj, crown_c, crown_ax, bend)
     checks = mesh_checks(obj.data, args.res)
     print("MESH", json.dumps(checks), flush=True)
 
@@ -2026,9 +2267,12 @@ def main():
         scene.cycles.use_denoising = False
         scene.cycles.seed = 0
         scene.render.bake.use_selected_to_active = False
-        bark_sh = BARK_SHADERS[sp["bark"]["shader"]]
+        moss_boost = sp["bark"].get("moss_boost", 0.0)
+        bark_sh = (lambda g, t: BARK_SHADERS[sp["bark"]["shader"]](g, t, moss_boost)) if moss_boost else \
+            BARK_SHADERS[sp["bark"]["shader"]]
+        wood_sh = WOOD_SHADERS[sp["wood"].get("shader", "plain")]
         for key, shader, size_m in (("bark", bark_sh, sp["bark"]["tile_m"]),
-                                    ("wood", lambda g, t: sh_wood(g, t, sp["wood"]), 0.5)):
+                                    ("wood", lambda g, t: wood_sh(g, t, sp["wood"]), 0.5)):
             t0 = time.time()
             arr = bake_tile(key, shader, size_m, args.res, args.samples, device_used)
             seams[key] = {p: round(seam_error(arr[p]), 3) for p in arr}
@@ -2075,15 +2319,56 @@ def main():
     concept = os.path.join(REPO, "assets", "concepts", asset + ".png")
     concept_sha = hashlib.sha256(open(concept, "rb").read()).hexdigest() if os.path.exists(concept) else None
     script_sha = hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest()
-    height = dims.z
-    width = max(dims.x, dims.y)
-    fits = {
-        "height_12_to_14_m": 12.0 <= height <= 14.0,
-        "covers_blocker_width": 2 * BLOCKER["radius"] - width <= 2 * BLOCKER["side_margin"],
-        "reaches_blocker_height": BLOCKER["height"] - height <= BLOCKER["height_shortfall"],
-        "trunk_radius_0_35_to_0_45_at_1_3m": 0.35 <= r13 <= 0.45,
-        "triangles_within_40k": checks["triangles"] <= TRI_BUDGET,
-    }
+    not_a_replacement = ("new asset (docs/WAVE_0_MODULAR_ASSET_STANDARD.md section 17, template_variant of "
+                         "tree_species, assets/manifests/asset_production.json); no prior assets/ready/<id>")
+    if kind == "tree":
+        height = dims.z
+        width = max(dims.x, dims.y)
+        fits = {
+            "height_12_to_14_m": 12.0 <= height <= 14.0,
+            "covers_blocker_width": 2 * BLOCKER["radius"] - width <= 2 * BLOCKER["side_margin"],
+            "reaches_blocker_height": BLOCKER["height"] - height <= BLOCKER["height_shortfall"],
+            "trunk_radius_0_35_to_0_45_at_1_3m": 0.35 <= r13 <= 0.45,
+            "triangles_within_40k": checks["triangles"] <= TRI_BUDGET,
+        }
+        replaces, blocker_info = f"assets/ready/{asset} (image-to-3D reconstruction: shard-triangle canopy, " \
+                                 "leaning trunk)", BLOCKER
+    elif kind == "log":
+        length, diam = dims.x, max(dims.y, dims.z)
+        tgt = sp["target"]
+        fits = {
+            "length_within_target_m": tgt["length_range"][0] <= length <= tgt["length_range"][1],
+            "diameter_within_target_m": tgt["diam_range"][0] <= diam <= tgt["diam_range"][1],
+            "fitting_cs_width_ok": tgt["box_m"][0] - length <= 2 * BLOCKER["side_margin"] + 0.005,
+            "fitting_cs_depth_ok": tgt["box_m"][1] - diam <= 2 * BLOCKER["side_margin"] + 0.005,
+            "triangles_within_40k": checks["triangles"] <= TRI_BUDGET,
+        }
+        if "clearance_m" in tgt:
+            # an overhang (the Woundmoss beam): the game lifts it from its clearance up (HollowView.cs), so what
+            # matters is the model's own thickness matching the clearance-to-top span, not Fitting.cs's ground-up
+            # height-shortfall math
+            span = tgt["height_m"] - tgt["clearance_m"]
+            fits["thickness_matches_clearance_span_m"] = abs(dims.z - span) <= 0.15
+        else:
+            fits["fitting_cs_height_ok"] = tgt["height_m"] - dims.z <= BLOCKER["height_shortfall"] + 0.005
+        replaces, blocker_info = not_a_replacement, dict(tgt, side_margin=BLOCKER["side_margin"],
+                                                          height_shortfall=BLOCKER["height_shortfall"])
+    elif kind == "cluster":
+        fits = {
+            "instance_count_is_3": len(instances) == 3,
+            # three real young saplings are not identical heights; the envelope caps every instance at H = 2.8 m
+            # and each is grown independently, so this is a tolerance band around "~2.8 m tall", not an exact match
+            "each_trunk_height_in_range_2_2_to_3_0m": all(2.2 <= it["height_m"] <= 3.0 for it in instances),
+            "triangles_within_40k": checks["triangles"] <= TRI_BUDGET,
+        }
+        replaces, blocker_info = not_a_replacement, {"offsets_m": sp["offsets"]}
+    else:
+        fits = {
+            "instance_count_is_3": len(instances) == 3,
+            "each_stump_height_in_range_0_20_to_0_30m": all(0.20 <= it["height_m"] <= 0.30 for it in instances),
+            "triangles_within_40k": checks["triangles"] <= TRI_BUDGET,
+        }
+        replaces, blocker_info = not_a_replacement, {"offsets_m": sp["offsets"]}
     prov = {
         "asset_id": asset,
         "method": "procedural",
@@ -2101,14 +2386,14 @@ def main():
         "concept_sha256": concept_sha,
         "concept_profile": "crown.profile: (height fraction, half width / height), measured from the concept "
                            "(background removed, largest component, trunk-centred per-row extents, upper hull)",
-        "replaces": f"assets/ready/{asset} (image-to-3D reconstruction: shard-triangle canopy, leaning trunk)",
+        "replaces": replaces,
         "frame": "glTF +Y up, front +Z (the concept's view), trunk base centred on the origin, lowest point y=0",
         "dimensions_m": {"x": round(dims.x, 3), "y_height": round(dims.z, 3), "z": round(dims.y, 3)},
         "bounds_centre_offset_from_trunk_m": {"x": round(bounds_centre[0], 3), "z": round(-bounds_centre[1], 3)},
         "centring_iterations": history,
         "trunk": trunk_info,
         "skeleton": kinds,
-        "blocker": BLOCKER,
+        "blocker": blocker_info,
         "checks": fits,
         "triangles": checks["triangles"],
         "triangles_by_part": tris_by,

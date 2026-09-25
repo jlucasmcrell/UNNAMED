@@ -497,11 +497,22 @@ def main():
 
         # ---- Stage 2b: textured LODs from the cleaned base, gated against it ----
         base_glb = os.path.join(asset_dir, f"{stem}.glb")
+        # The LOD tool refuses to write beside the LOD0 it reads, so it builds in a staging folder and the results move in.
+        lod_stage = os.path.join(asset_dir, "_lod_build")
         output, elapsed, code = run([BLENDER, "--background", "--factory-startup", "--python", LODS, "--",
-                                     "--input", base_glb, "--outdir", asset_dir, "--budgets", args.lod_faces],
+                                     "--input", base_glb, "--outdir", lod_stage, "--budgets", args.lod_faces],
                                     "lods", record["stages"])
         lods = next((json.loads(line[len("REBUILD_LODS_RESULT "):]) for line in output.splitlines()
                      if line.startswith("REBUILD_LODS_RESULT ")), None)
+        if os.path.isdir(lod_stage):
+            for name in os.listdir(lod_stage):
+                if name.startswith(f"{stem}_lod"):   # not the tool's scratch caches
+                    os.replace(os.path.join(lod_stage, name), os.path.join(asset_dir, name))
+            shutil.rmtree(lod_stage)
+            if lods and lods.get("report"):
+                lods["report"] = os.path.join(asset_dir, os.path.basename(lods["report"]))
+        if lods is None:
+            record["lods_output"] = output.strip()[-2000:]
         record["lods"] = lods
         print(f"    lods     {elapsed:6.1f}s  {'passed' if lods and lods.get('passed') else 'FAILED'}")
 

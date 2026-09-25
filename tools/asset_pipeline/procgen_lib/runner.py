@@ -16,6 +16,11 @@ build(b, P, rng) adds parts to the Builder b (see primitives) in Blender Z-up, f
     bake_lift   {group: dz}           groups lifted clear during the bake (the inside of a box is baked open)
     no_clash    [(group, group)]      group pairs whose triangles must not overlap
     notes, info, frame                free text / values recorded in the provenance
+    emissive_strength  float          glow of the baked emissive map (recipes that return 'emit'; default 1)
+    vertex_colours     (n_verts, 3)   linear rgb per Builder vertex, multiplied into the base colour (COLOR_0)
+    tiled              {"tile_m": T, "material": Material}   a large surface: no atlas; the faces' corner UVs are
+                                      taken as world-scale metres and divided by T, and the material is baked once as
+                                      a seamless tile (bake.bake_tile; a periodic recipe on the Graph's U, V)
 Coordinates in nodes/sockets are in build space; the runner shifts them with the model (centred on X/Y, lowest
 point at z = 0).
 
@@ -137,7 +142,13 @@ def run_template(build_fn, params, asset_id, *, archetype=None, concept=None, tr
     if not topo["ok"]:
         raise SystemExit(f"builder validation failed: {topo}")
     t_pack = time.time()
-    loop_uv, pack = uv.pack(b, args.res, px_per_m, margin_px, bands, band_of)
+    tiled = spec.get("tiled")
+    if tiled:
+        loop_uv = np.concatenate([np.asarray(f, np.float64) for f in b.fuv]) / float(tiled["tile_m"])
+        pack = {"mode": "tiled", "tile_m": tiled["tile_m"], "px_per_m": round(args.res / tiled["tile_m"], 1),
+                "islands": len(b.islands()), "band_check": {"ok": True, "tiled": True}}
+    else:
+        loop_uv, pack = uv.pack(b, args.res, px_per_m, margin_px, bands, band_of)
     uvf = validate.uv_face_checks(b, loop_uv, args.res)
     log(f"packed {pack['islands']} islands at {pack['px_per_m']} px/m in {time.time() - t_pack:.1f} s; {uvf}")
     if uvf["uv_zero_area_faces"]:
@@ -148,6 +159,9 @@ def run_template(build_fn, params, asset_id, *, archetype=None, concept=None, tr
 
     # ---- mesh
     obj = meshbuild.make_object(b, asset_id, loop_uv)
+    vcol = spec.get("vertex_colours")
+    if vcol is not None:
+        meshbuild.set_colours(obj, vcol)
     meshbuild.finish_topology(obj)
     tris = len(obj.data.polygons)
     gate = validate.geometry_gate(obj)
@@ -168,9 +182,14 @@ def run_template(build_fn, params, asset_id, *, archetype=None, concept=None, tr
     if args.no_bake:
         export.flat_materials(obj, materials)
     else:
-        paths, bake_stats = bake.bake_maps(obj, materials, args.res, args.samples, args.device, work_dir, asset_id,
-                                           seed=args.seed, lifts=lifts, ao_distance=ao_distance)
-        export.final_material([obj], paths, f"MAT_{asset_id}")
+        if tiled:
+            paths, bake_stats = bake.bake_tile(tiled["material"], args.res, args.samples, args.device, work_dir,
+                                               asset_id + "_tile", seed=args.seed, size_m=tiled["tile_m"])
+        else:
+            paths, bake_stats = bake.bake_maps(obj, materials, args.res, args.samples, args.device, work_dir,
+                                               asset_id, seed=args.seed, lifts=lifts, ao_distance=ao_distance)
+        export.final_material([obj], paths, f"MAT_{asset_id}", emissive_strength=spec.get("emissive_strength", 1.0),
+                              vertex_colour="Col" if vcol is not None else None)
         textures = {k: os.path.basename(v) for k, v in paths.items()}
 
     # ---- nodes and sockets
@@ -240,10 +259,15 @@ def run_template(build_fn, params, asset_id, *, archetype=None, concept=None, tr
                    "geometry_gate": gate, "mesh": mesh_report, "glb_gate": glb_report,
                    "verify_glb": verify_lines[-1].strip() if verify_lines else None},
         "materials": {"slots": [m.describe() for m in materials], "material": f"MAT_{asset_id}",
-                      "single_sided": True, "atlas": args.res,
+                      "single_sided": True, "atlas": None if tiled else args.res,
+                      "tile": {"tile_m": tiled["tile_m"], "res": args.res, "recipe": tiled["material"].describe()}
+                      if tiled else None,
                       "uv": {k: v for k, v in pack.items() if k != "band_check"},
                       "maps": "base colour (sRGB, JPEG q90), normal (tangent, OpenGL +Y, PNG), ORM (R occlusion, "
-                              "G roughness, B metallic; JPEG q90)",
+                              "G roughness, B metallic; JPEG q90)"
+                              + ("; emissive (sRGB, JPEG q90)" if "emissive" in textures else ""),
+                      "emissive_strength": spec.get("emissive_strength", 1.0) if "emissive" in textures else None,
+                      "vertex_colours": "COLOR_0 multiplies the base colour" if vcol is not None else None,
                       "textures": textures, "bake": bake_stats},
         "outputs": [asset_id + ".glb", asset_id + "_provenance.json"],
         "glb_bytes": os.path.getsize(glb),

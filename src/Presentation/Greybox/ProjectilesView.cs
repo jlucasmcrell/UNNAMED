@@ -43,6 +43,8 @@ public partial class ProjectilesView : Node3D
     private readonly MeshInstance3D _aimLine = new() { Visible = false, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
     private readonly MeshInstance3D _trails = new() { CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
     private AssetCatalog _assets = AssetCatalog.Empty;
+    private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
+    private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
     private double _clock;
     private double? _lastBurst;
 
@@ -66,7 +68,27 @@ public partial class ProjectilesView : Node3D
         AddChild(_trails);
     }
 
-    public void Bind(AssetCatalog assets) => _assets = assets;
+    public void Bind(AssetCatalog assets, Art.ArtLibrary art, Art.ArtBindings bindings, Art.ArtCoverage? coverage = null)
+    {
+        _assets = assets;
+        _art = art;
+        _bindings = bindings;
+        _coverage = coverage;
+    }
+
+    private Art.ArtCoverage? _coverage;
+
+    /// <summary>A shot's flipbook, recorded in the coverage report (resolved, or the greybox that stands in for it).</summary>
+    private Flipbook? Book(string? stem, string moment, string greybox)
+    {
+        var book = stem is null ? null : _assets.Effect($"{stem}_{moment}");
+        string key = $"{stem ?? "working"}_{moment}";
+        if (book is not null)
+            _coverage?.Resolved("effect", key, key);
+        else
+            _coverage?.Fallback("effect", key, $"no {moment} flipbook in the effect manifest: {greybox}", stem is null ? null : key);
+        return book;
+    }
 
     /// <summary>Where a shot came to rest as drawn - a working's burst, an arrow in a wall or the ground, or in a creature (struck) - for its sound.</summary>
     public Action<Vector3, bool, bool>? Arrived { get; set; }
@@ -199,9 +221,20 @@ public partial class ProjectilesView : Node3D
             node.LookAtFromPosition(from, to, Mathf.Abs((to - from).Normalized().Dot(Vector3.Up)) > 0.99f ? Vector3.Forward : Vector3.Up);
     }
 
-    /// <summary>A greybox arrow along its -Z: a shaft, a head, three fletches.</summary>
-    private static Node3D Arrow()
+    /// <summary>The pipeline's arrow model (<c>art_bindings.json</c>'s <c>projectiles.arrow</c>), already pointing along -Z with its
+    /// fletching at +Z (see <c>tools/asset_pipeline/_procgen_ammo.py</c>'s axis convention); a greybox shaft, head and fletches when it
+    /// is not bound or will not load.</summary>
+    private Node3D Arrow()
     {
+        string? modelId = _bindings.Projectiles.GetValueOrDefault("arrow");
+        if (modelId is not null && _art.Model(modelId) is { } model)
+        {
+            _coverage?.Resolved("projectile", "arrow", modelId);
+            model.Name = "Arrow";
+            return model;
+        }
+        _coverage?.Fallback("projectile", "arrow", modelId is null ? "no arrow binding: a greybox shaft, head and fletches"
+            : $"{_art.Why(modelId) ?? "not drawn"}: a greybox shaft, head and fletches", modelId);
         var arrow = new Node3D { Name = "Arrow" };
         var shaft = new MeshInstance3D
         {
@@ -234,7 +267,7 @@ public partial class ProjectilesView : Node3D
     private Node3D Working(string? stem)
     {
         var node = new Node3D { Name = "Working" };
-        if (stem is not null && _assets.Effect($"{stem}_travel") is { } book)
+        if (Book(stem, "travel", "a glowing sphere") is { } book)
         {
             node.AddChild(Quad("Book", book, 0.9f));
             node.SetMeta("book", $"{stem}_travel");
@@ -259,7 +292,7 @@ public partial class ProjectilesView : Node3D
         AddChild(node);
         var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = 3f, OmniRange = 6f };
         node.AddChild(light);
-        if (stem is not null && _assets.Effect($"{stem}_impact") is { } book)
+        if (Book(stem, "impact", "a swelling flash") is { } book)
         {
             var quad = Quad("Book", book, 1.6f);
             node.AddChild(quad);
@@ -295,6 +328,7 @@ public partial class ProjectilesView : Node3D
     /// <summary>An arrow going into a creature: a short white spark.</summary>
     private void Spark(Vector3 at)
     {
+        _coverage?.Fallback("effect", "arrow_strike", "no strike flipbook: a white sphere for an eighth of a second");
         var spark = new MeshInstance3D
         {
             Position = at,

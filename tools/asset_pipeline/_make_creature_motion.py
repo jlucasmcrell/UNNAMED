@@ -33,8 +33,20 @@ their hips-local "death" rotation yawed the quadrupeds instead of dropping them.
 planes from each chain's rest shape, feet by IK, a fitted stance, and the ground rule after every
 frame. The NPC kinds (talk, handover, work_*, sit) and the worm are still schema 1.
 
+The person plan is the same 20-bone humanoid rig moving as a person with a weapon: the player, a
+companion, a humanoid enemy that fights like one, an NPC at work or talking (PERSON_KINDS: idle, walk,
+run, sprint, the sword, bow and spear stances and blows, cast, hit, death, interact, the crouch, talk,
+work_forge, work_table; the NPC kinds stand upright whatever the bind's stoop). Its arms are measured from hanging
+straight down ("fk": "hang", arm() below), never from the rest pose, so a rig bound in an A-pose
+hangs its arms instead of holding them out, and one set of clips fits every 20-bone body. Its gaits
+travel at the speeds SkinnedFigure plays them (walk 1.4, run 3.2, sprint 5 m/s at 1x). A held
+blow's beats sit on the game's phase map (HOLD_WINDUP_END, HOLD_ACTIVE_END): drawn by 45 % of the
+clip, extended from 51 % through 70 %, recovered by the end; a guard is full at 50 %, where the
+game holds it. The right hand carries the weapon, the left the bow.
+
 Usage:
     python _make_creature_motion.py --plan quadruped --kind walk --out .../wolf_walk.json
+    python _make_creature_motion.py --plan person --kind sword_attack --out .../player_sword_attack.json
 """
 import argparse
 import json
@@ -81,7 +93,16 @@ GAITS = {
     ("humanoid", "run"): {"duty": 0.40, "sweep": 1.05, "lift": 0.18},
     ("arthropod", "walk"): {"duty": 0.55, "sweep": 0.55, "lift": 0.12},
     ("arthropod", "run"): {"duty": 0.45, "sweep": 0.65, "lift": 0.16},
+    # a person's walk, run and sprint: one cycle per clip at a human cadence (PERSON_DURATIONS)
+    ("person", "walk"): {"duty": 0.58, "sweep": 1.20, "lift": 0.09},
+    ("person", "run"): {"duty": 0.30, "sweep": 1.00, "lift": 0.16},
+    ("person", "sprint"): {"duty": 0.26, "sweep": 1.15, "lift": 0.22},
+    ("person", "crouch_walk"): {"duty": 0.60, "sweep": 1.00, "lift": 0.07},
 }
+# SkinnedFigure.Animate plays a person's walk at speed / 1.4, run at speed / 3.2, sprint at speed / 5
+# and a crouched walk at speed / 1.6 (config.base_speeds: crouch_percent 50 of 3.2 m/s, whatever the
+# gait): the clip speeds its planted feet travel at.
+PERSON_GAIT_SPEED = {"walk": 1.4, "run": 3.2, "sprint": 5.0, "crouch_walk": 1.6}
 GAIT_SAMPLES = 161          # one cycle, phase 0-1; the baker resamples it onto the clip's keys
 
 
@@ -89,7 +110,8 @@ def gait_block(plan, kind):
     """The source's "gait" header: the baker sizes the stride from it (feet "fwd" are in stance
     travels: +0.5 where a foot lands, -0.5 where it lifts)."""
     g = GAITS[(plan, kind)]
-    return {"speed_m_s": GAME_GAIT_SPEED[kind], "duty": g["duty"], "sweep": g["sweep"],
+    speed = PERSON_GAIT_SPEED[kind] if plan == "person" else GAME_GAIT_SPEED[kind]
+    return {"speed_m_s": speed, "duty": g["duty"], "sweep": g["sweep"],
             "fwd_unit": "stance_travel"}
 
 
@@ -356,7 +378,506 @@ def humanoid_intent(kind, t, duration, phase):
     return {"body": body, "bones": bones, "limbs": limbs, "ground": ground}
 
 
-INTENTIONS = {"quadruped": (QUADRUPED_RIG, quadruped_intent), "humanoid": (HUMANOID_RIG, humanoid_intent)}
+# ------------------------------------------------------------------------------------------------
+# The person plan
+
+PERSON_RIG = {
+    "body": "hips", "ground_bone": "root", "trunk": ["hips", "spine", "chest", "shoulder.L", "shoulder.R"],
+    "limbs": {
+        "leg.L": {"bones": list(HUMANOID_LIMBS[0]), "side": "L", "bend": "forward", "contact": True},
+        "leg.R": {"bones": list(HUMANOID_LIMBS[1]), "side": "R", "bend": "forward", "contact": True},
+        # measured from hanging, whatever the bind pose (_blender_anim_creature.Limb.fk)
+        "arm.L": {"bones": ["upper_arm.L", "forearm.L", "hand.L"], "side": "L", "bend": "back", "fk": "hang"},
+        "arm.R": {"bones": ["upper_arm.R", "forearm.R", "hand.R"], "side": "R", "bend": "back", "fk": "hang"},
+    },
+    "stance": dict(HUMANOID_RIG["stance"]),
+}
+PERSON_KINDS = ("idle", "walk", "run", "sprint", "sword_ready", "sword_attack", "sword_block", "bow_ready",
+                "bow_draw", "spear_ready", "spear_thrust", "cast", "hit", "death", "interact", "crouch_idle",
+                "crouch_walk", "talk", "work_forge", "work_table", "idle_hands_on_hips", "idle_reading", "talk_low",
+                "attack_low")
+PERSON_DURATIONS = {"idle": 4.0, "walk": 1.1, "run": 0.72, "sprint": 0.62, "sword_ready": 2.0,
+                    "sword_attack": 0.9, "sword_block": 1.0, "bow_ready": 2.0, "bow_draw": 1.6,
+                    "spear_ready": 2.0, "spear_thrust": 1.0, "cast": 1.2, "hit": 0.55, "death": 1.9,
+                    "interact": 1.4, "crouch_idle": 4.0, "crouch_walk": 1.4, "talk": 4.0, "work_forge": 1.6, "idle_hands_on_hips": 6.0, "idle_reading": 8.0,
+                    "talk_low": 4.0, "attack_low": 0.9,
+                    "work_table": 4.0}
+PERSON_LOOPING = ("idle", "walk", "run", "sprint", "sword_ready", "bow_ready", "spear_ready", "crouch_idle",
+                  "crouch_walk", "talk", "work_forge", "work_table", "idle_hands_on_hips", "idle_reading", "talk_low")
+# Crouched, the top of the head is under the simulation's crouch height (config.base_speeds
+# crouch_height_m 1.15 of stand_height_m 1.8): the hips drop 0.60 leg lengths and go back, the trunk
+# leans 60 deg forward, the head comes up to look ahead, the arms (measured from the trunk) swing forward
+# to hang ahead of it with the weapon held low and level.
+CROUCH_BODY = {"up": -0.60, "fwd": -0.12, "pitch": 28.0}
+CROUCH_BONES = {"spine": {"pitch": 18.0}, "chest": {"pitch": 14.0}, "neck": {"pitch": -16.0}, "head": {"pitch": -16.0}}
+PERSON_DENSE = ("sword_attack", "bow_draw", "spear_thrust", "cast", "death", "attack_low")
+
+
+def arm(swing=0.0, raise_=0.0, elbow=0.0, wrist=0.0, twist=0.0, yaw=0.0, pronate=0.0, bend=0.0):
+    """An arm of the person plan, from hanging straight down beside the body: swing + forward, raise +
+    out to the side, yaw + across toward the other side (after swing and raise), twist + turns the
+    upper arm in, flex [elbow, wrist] + folds (hanging: the forearm and then the hand come forward and
+    up), bend + folds the hand toward its palm, pronate + turns the hand's thumb in. Hanging, the
+    thumb points forward and the palm faces the thigh: the grip frame the game holds a weapon by."""
+    return {"swing": swing, "raise": raise_, "yaw": yaw, "twist": twist, "pronate": pronate, "bend": bend,
+            "flex": [elbow, wrist]}
+
+
+def hand(reach, pole=(0.0, -1.0, -0.5), wrist=0.0, pronate=0.0, bend=0.0):
+    """An arm of the person plan placed by its wrist: reach [out, up, fwd] from the shoulder in arm
+    lengths (out + away from the body's midline, along the chest's axes), the elbow toward pole
+    [out, up, fwd]; the hand's thumb points away from the elbow, so the pole turns the weapon. A clip
+    keys an arm either this way or with arm() throughout."""
+    return {"reach": list(reach), "pole": list(pole), "flex": [0.0, wrist], "pronate": pronate, "bend": bend}
+
+
+REST_L = arm(swing=4.0, raise_=9.0, elbow=14.0, wrist=4.0)
+REST_R = arm(swing=5.0, raise_=8.0, elbow=16.0, wrist=-6.0)
+# the relaxed arms placed by the wrist (a clip whose other keys place that arm by its wrist)
+REST_REACH_L = hand((0.15, -0.96, 0.14), wrist=4.0)
+REST_REACH_R = hand((0.14, -0.95, 0.16), wrist=-6.0)
+
+
+def person_pose(body=None, bones=None, left=None, right=None, feet=None):
+    """A whole-body key: body offsets, trunk bones, both arms (relaxed where not given) and the feet
+    (planted where they stand at rest where not given)."""
+    feet = feet or {}
+    left, right = left or REST_L, right or REST_R
+    # the arms copied whole (their lists too): a kind that adjusts a frame must not edit the shared key
+    return {"body": dict(body or {}), "bones": {k: dict(v) for k, v in (bones or {}).items()},
+            "limbs": {"arm.L": _blend(left, left, 0.0), "arm.R": _blend(right, right, 0.0),
+                      "leg.L": {"foot": list(feet.get("leg.L", [0.0, 0.0, 0.0]))},
+                      "leg.R": {"foot": list(feet.get("leg.R", [0.0, 0.0, 0.0]))}}}
+
+
+def _blend(a, b, w):
+    """a -> b by w: numbers and lists of numbers blend (a missing number is 0), anything else is
+    taken from the nearer key."""
+    if isinstance(a, dict) or isinstance(b, dict):
+        a, b = a or {}, b or {}
+        return {k: _blend(a.get(k), b.get(k), w) for k in dict.fromkeys(list(a) + list(b))}
+    if isinstance(a, list) or isinstance(b, list):
+        n = len(a if a is not None else b)
+        return [_blend(x, y, w) for x, y in zip(a if a is not None else [0.0] * n, b if b is not None else [0.0] * n)]
+    if isinstance(a, bool) or isinstance(b, bool) or isinstance(a, str) or isinstance(b, str):
+        return a if (w < 0.5 and a is not None) or b is None else b
+    a, b = a or 0.0, b or 0.0
+    return a + (b - a) * w
+
+
+def keyed(u, keys):
+    """The pose at fraction u of a clip keyed [(fraction, pose), ...]: eased between keys, held before
+    the first and after the last. A foot is planted wherever it is on the ground."""
+    if u <= keys[0][0]:
+        out = _blend(keys[0][1], keys[0][1], 0.0)
+    elif u >= keys[-1][0]:
+        out = _blend(keys[-1][1], keys[-1][1], 0.0)
+    else:
+        (u0, a), (u1, b) = next(((k0, k1) for k0, k1 in zip(keys, keys[1:]) if u <= k1[0]))
+        for name in ("arm.L", "arm.R"):
+            if ("reach" in a["limbs"][name]) != ("reach" in b["limbs"][name]):
+                raise ValueError(f"{name} is placed by its wrist in one key and by its angles in the next")
+        out = _blend(a, b, smooth((u - u0) / max(u1 - u0, 1e-9)))
+    for name in ("leg.L", "leg.R"):
+        limb = out["limbs"][name]
+        limb["planted"] = limb["foot"][1] <= 1e-6
+    return out
+
+
+def breathe(pose, phase, depth=1.0):
+    """A held stance breathing once per loop: the chest rises, the body settles a little."""
+    b = math.sin(2 * math.pi * phase) * depth
+    out = _blend(pose, pose, 0.0)
+    out["body"]["up"] = out["body"].get("up", 0.0) + 0.003 * b
+    for name, pitch in (("spine", 0.6 * b), ("chest", -0.9 * b), ("neck", 0.5 * b)):
+        out["bones"].setdefault(name, {})
+        out["bones"][name]["pitch"] = out["bones"][name].get("pitch", 0.0) + pitch
+    for name in ("arm.L", "arm.R"):
+        if "reach" in out["limbs"][name]:
+            out["limbs"][name]["reach"][1] += 0.006 * b
+        else:
+            out["limbs"][name]["flex"][0] += 2.0 * b
+    return out
+
+
+STAND = person_pose(bones={"spine": {"pitch": 1.5}})
+STAND_REACH = person_pose(bones={"spine": {"pitch": 1.5}}, left=REST_REACH_L, right=REST_REACH_R)
+# The sword, in the right hand: held out at the opponent, cocked back over the right shoulder, cut
+# down and across to the left with a step, followed through low; the guard raises the blade across
+# the head and chest. The left hand is free.
+SWORD_READY = person_pose(
+    body={"up": -0.03, "yaw": -6.0},
+    bones={"spine": {"pitch": 4.0}, "chest": {"yaw": -6.0}, "neck": {"yaw": 6.0}, "head": {"yaw": 6.0, "pitch": -2.0}},
+    right=hand((-0.03, -0.55, 0.55), pole=(0.6, -1.0, -0.4), wrist=-25.0, pronate=-20.0),
+    left=arm(swing=18.0, raise_=16.0, elbow=48.0, twist=8.0))
+SWORD_WINDUP = person_pose(
+    body={"fwd": -0.04, "up": -0.04, "yaw": -12.0},
+    bones={"spine": {"pitch": 2.0, "yaw": -10.0}, "chest": {"yaw": -18.0, "pitch": -4.0},
+           "neck": {"yaw": 14.0}, "head": {"yaw": 14.0}},
+    right=hand((0.10, 0.62, -0.05), pole=(-0.4, -0.3, 0.8), wrist=-55.0),
+    left=arm(swing=38.0, raise_=22.0, yaw=15.0, elbow=45.0))
+SWORD_STRIKE = person_pose(
+    body={"fwd": 0.10, "up": -0.06, "yaw": 8.0},
+    bones={"spine": {"pitch": 8.0, "yaw": 6.0}, "chest": {"yaw": 12.0, "pitch": 6.0},
+           "neck": {"yaw": -12.0, "pitch": -4.0}, "head": {"yaw": -12.0}},
+    right=hand((0.15, -0.05, 0.95), pole=(0.2, -1.0, 0.0), wrist=-40.0, pronate=70.0),
+    left=arm(swing=10.0, raise_=30.0, yaw=-10.0, elbow=35.0),
+    feet={"leg.L": [0.0, 0.0, 0.22]})
+SWORD_FOLLOW = person_pose(
+    body={"fwd": 0.11, "up": -0.07, "yaw": 14.0},
+    bones={"spine": {"pitch": 10.0, "yaw": 10.0}, "chest": {"yaw": 24.0, "pitch": 8.0},
+           "neck": {"yaw": -16.0, "pitch": -4.0}, "head": {"yaw": -16.0}},
+    right=hand((0.05, -0.70, 0.85), pole=(0.3, -1.0, 0.0), wrist=-50.0, pronate=70.0),
+    left=arm(swing=4.0, raise_=34.0, yaw=-14.0, elbow=30.0),
+    feet={"leg.L": [0.0, 0.0, 0.22]})
+SWORD_GUARD = person_pose(
+    body={"up": -0.05, "fwd": -0.02, "yaw": -8.0},
+    bones={"spine": {"pitch": 6.0}, "chest": {"yaw": -8.0, "pitch": 3.0}, "neck": {"yaw": 8.0},
+           "head": {"yaw": 8.0, "pitch": -4.0}},
+    right=hand((-0.25, 0.05, 0.62), pole=(1.0, -1.0, 0.0), wrist=-30.0, pronate=10.0),
+    left=arm(swing=40.0, raise_=18.0, yaw=20.0, elbow=80.0))
+# The bow, in the left hand: the body turned side-on, the bow arm straight at the target (the bow
+# upright), the string hand drawn from the chest to the jaw and loosed back past it.
+BOW_TURN = {"spine": {"yaw": -12.0, "pitch": 2.0}, "chest": {"yaw": -18.0}, "neck": {"yaw": 22.0},
+            "head": {"yaw": 40.0, "pitch": -2.0}}
+BOW_READY = person_pose(
+    body={"yaw": -35.0, "up": -0.02}, bones=BOW_TURN,
+    left=arm(swing=86.0, yaw=-60.0, elbow=6.0),
+    right=hand((-0.81, 0.08, 0.17), pole=(1.0, -0.5, -0.3)))
+BOW_DRAWN = person_pose(
+    body={"yaw": -36.0, "up": -0.02}, bones=dict(BOW_TURN, **{"shoulder.R": {"yaw": 8.0}}),
+    left=arm(swing=87.0, yaw=-61.0, elbow=4.0),
+    right=hand((-0.29, 0.17, 0.17), pole=(1.0, -0.45, -0.3), pronate=10.0))
+BOW_LOOSED = person_pose(
+    body={"yaw": -36.0, "up": -0.02}, bones=dict(BOW_TURN, **{"shoulder.R": {"yaw": 12.0}}),
+    left=arm(swing=84.0, yaw=-60.0, elbow=4.0, wrist=-6.0),
+    right=hand((0.15, 0.12, 0.05), pole=(1.0, 0.0, -0.3), pronate=15.0))
+# The spear, in both hands, the right at the hip and the left forward on the shaft, level at the
+# opponent: drawn back, then driven forward with a step and the body behind it.
+SPEAR_READY = person_pose(
+    body={"up": -0.04, "yaw": -12.0},
+    bones={"spine": {"pitch": 5.0}, "chest": {"yaw": -8.0}, "neck": {"yaw": 10.0}, "head": {"yaw": 10.0}},
+    right=hand((0.03, -0.86, 0.20), pole=(0.3, -0.4, -1.0)),
+    left=hand((-0.42, -0.66, 0.60), pole=(0.6, -1.0, 0.0)))
+SPEAR_DRAWN = person_pose(
+    body={"fwd": -0.05, "up": -0.05, "yaw": -18.0},
+    bones={"spine": {"pitch": 3.0}, "chest": {"yaw": -10.0}, "neck": {"yaw": 14.0}, "head": {"yaw": 14.0}},
+    right=hand((0.05, -0.80, -0.15), pole=(0.3, -0.2, -1.0)),
+    left=hand((-0.30, -0.66, 0.40), pole=(0.6, -1.0, 0.0)))
+SPEAR_THRUST = person_pose(
+    body={"fwd": 0.13, "up": -0.07, "yaw": 5.0},
+    bones={"spine": {"pitch": 10.0}, "chest": {"yaw": 8.0, "pitch": 4.0}, "neck": {"yaw": -6.0, "pitch": -4.0},
+           "head": {"yaw": -6.0}},
+    right=hand((-0.05, -0.62, 0.70), pole=(0.3, -0.6, -1.0), wrist=-35.0, pronate=-25.0),
+    left=hand((-0.45, -0.55, 0.75), pole=(0.5, -1.0, 0.0)),
+    feet={"leg.L": [0.0, 0.0, 0.25]})
+# A working: the hands gather before the chest, then the right thrusts out, palm to the target.
+CAST_GATHER = person_pose(
+    body={"up": -0.02},
+    bones={"spine": {"pitch": 3.0}, "chest": {"yaw": -4.0}, "head": {"pitch": 2.0}},
+    right=hand((-0.30, -0.25, 0.45), pole=(0.8, -1.0, -0.2), pronate=30.0),
+    left=hand((-0.30, -0.28, 0.45), pole=(0.8, -1.0, -0.2), pronate=30.0))
+CAST_RELEASE = person_pose(
+    body={"fwd": 0.05, "up": -0.03},
+    bones={"spine": {"pitch": 6.0}, "chest": {"yaw": 8.0}, "neck": {"yaw": -4.0}, "head": {"yaw": -4.0}},
+    right=hand((-0.12, 0.00, 0.98), pole=(0.3, -1.0, 0.0), bend=-80.0),
+    left=hand((0.20, -0.75, 0.35), pole=(0.3, -1.0, -0.5)))
+# Reaching forward and down with the right hand: a latch, a lid, something on the ground.
+INTERACT_STAND = person_pose(bones={"spine": {"pitch": 1.5}}, right=REST_REACH_R)
+INTERACT_REACH = person_pose(
+    body={"up": -0.10, "fwd": 0.03},
+    bones={"spine": {"pitch": 22.0}, "chest": {"pitch": 10.0}, "neck": {"pitch": -5.0}, "head": {"pitch": 18.0}},
+    right=hand((-0.05, -0.80, 0.55), pole=(0.3, -1.0, -0.3), wrist=10.0),
+    left=arm(swing=12.0, raise_=10.0, elbow=30.0))
+
+# A person at work or in conversation (the NPC kinds, in place of the humanoid plan's schema-1 talk and
+# work_*): the body stands upright whatever its bind (body "upright": the bind's own stoop is taken out),
+# and a hand that must reach something is placed by its wrist.
+# Talking: the left hand (the right may hold a weapon) comes up before the chest and makes a point twice,
+# palm up, while the head nods; then it drops again.
+TALK_RIGHT = arm(swing=5.0, raise_=8.0, elbow=16.0, wrist=-6.0)
+# Standing idles for a body with nothing to work at: hands on the hips with the weight shifting from foot
+# to foot and a look about; or reading an open book held in both hands before the chest, head down, a
+# page turned now and then.
+HIPS_HAND = hand((0.02, -0.78, 0.10), pole=(1.0, -0.1, -0.35), wrist=30.0, pronate=-30.0)
+READ_HAND = hand((-0.03, -0.42, 0.56), pole=(0.7, -1.0, -0.2), wrist=-5.0, pronate=-60.0)
+# Hands kept low, for a body whose hands are joined to a coat or robe (a lifted hand drags it): talk_low
+# lives in the head, shoulders, chest and weight, the left forearm lifting a little under the belt;
+# attack_low draws the right hand back beside the hip and drives it forward low with the body behind it,
+# on the attack's own beats (drawn by 40 %, struck by 51 %, held to 70 %).
+LOW_READY = person_pose(body={"upright": 1.0}, bones={"spine": {"pitch": 1.5}})
+LOW_WINDUP = person_pose(
+    body={"upright": 1.0, "fwd": -0.03, "up": -0.03, "yaw": -8.0},
+    bones={"spine": {"pitch": 2.0, "yaw": -6.0}, "chest": {"yaw": -6.0}, "neck": {"yaw": 6.0}, "head": {"yaw": 6.0}},
+    right=arm(swing=-12.0, raise_=10.0, elbow=35.0, wrist=-6.0), left=arm(swing=10.0, raise_=10.0, elbow=20.0, wrist=4.0))
+LOW_STRIKE = person_pose(
+    body={"upright": 1.0, "fwd": 0.06, "up": -0.05, "yaw": 8.0},
+    bones={"spine": {"pitch": 5.0, "yaw": 6.0}, "chest": {"pitch": 2.0, "yaw": 5.0}, "neck": {"yaw": -6.0},
+           "head": {"yaw": -6.0}},
+    right=arm(swing=26.0, raise_=8.0, elbow=12.0, wrist=-10.0), left=arm(swing=-4.0, raise_=10.0, elbow=16.0, wrist=4.0))
+LOW_FOLLOW = person_pose(
+    body={"upright": 1.0, "fwd": 0.05, "up": -0.05, "yaw": 9.0},
+    bones={"spine": {"pitch": 5.0, "yaw": 7.0}, "chest": {"pitch": 2.0, "yaw": 6.0}, "neck": {"yaw": -6.0},
+           "head": {"yaw": -6.0}},
+    right=arm(swing=22.0, raise_=8.0, elbow=14.0, wrist=-10.0), left=arm(swing=-4.0, raise_=10.0, elbow=16.0, wrist=4.0))
+# At an anvil: the right hand, the hammer's, rises to head height in front and strikes down to waist
+# height in front; the left holds low in front, as if with tongs; the trunk leans in a little and more
+# with the blow, the head watches the work.
+FORGE_TONGS = hand((-0.18, -0.62, 0.72), pole=(0.6, -1.0, -0.3), wrist=-10.0, pronate=20.0)
+FORGE_RAISED = person_pose(
+    body={"upright": 1.0, "up": -0.03, "yaw": -4.0},
+    bones={"spine": {"pitch": 3.0, "yaw": -4.0}, "chest": {"pitch": 1.0, "yaw": -6.0}, "neck": {"pitch": 4.0},
+           "head": {"pitch": 14.0, "yaw": 4.0}},
+    right=hand((0.15, 0.22, 0.64), pole=(0.9, -0.5, -0.2), wrist=25.0),
+    left=FORGE_TONGS)
+FORGE_STRUCK = person_pose(
+    body={"upright": 1.0, "up": -0.05, "yaw": 2.0},
+    bones={"spine": {"pitch": 9.0, "yaw": 2.0}, "chest": {"pitch": 6.0, "yaw": 3.0}, "neck": {"pitch": 4.0},
+           "head": {"pitch": 16.0}},
+    right=hand((-0.08, -0.57, 0.82), pole=(0.6, -0.8, -0.5), wrist=-15.0),
+    left=FORGE_TONGS)
+# At a table about 0.8 m high in front: the body leans over it, both hands forward on the top, the left
+# flat and still, the right writing and once turning a page; the head looks down at the work.
+TABLE_LEFT = hand((-0.14, -0.74, 0.66), pole=(0.5, -1.0, -0.4), wrist=-25.0, pronate=-10.0)
+TABLE_POSE = person_pose(
+    body={"upright": 1.0, "up": -0.03, "fwd": -0.04},
+    bones={"spine": {"pitch": 12.0}, "chest": {"pitch": 10.0}, "neck": {"pitch": 8.0}, "head": {"pitch": 18.0}},
+    right=hand((-0.10, -0.74, 0.67), pole=(0.5, -1.0, -0.4), wrist=-25.0, pronate=15.0),
+    left=TABLE_LEFT)
+
+
+def person_blow(t, duration, ready, windup, strike, follow):
+    """A blow held by the game at its phase: ready -> drawn by 40 % (held to 45 %) -> struck by 51 %
+    -> followed through to 70 % -> recovered by the end."""
+    D = duration
+    return keyed(t / D, [(0.0, ready), (WINDUP_END / ATTACK_S, windup), (HOLD_WINDUP_END, windup),
+                         (STRIKE_END / ATTACK_S, strike), (HOLD_ACTIVE_END, follow), (1.0, ready)])
+
+
+def stepped(pose, u, u0, u1, leg, fwd, lift=0.06):
+    """The pose with one foot stepping from its rest place (u0) to fwd (u1) over a small arc."""
+    out = _blend(pose, pose, 0.0)
+    if u <= u0:
+        k = 0.0
+    elif u >= u1:
+        k = 1.0
+    else:
+        k = smooth((u - u0) / (u1 - u0))
+    foot = out["limbs"][leg]["foot"]
+    foot[2] = fwd * k
+    foot[1] = lift * math.sin(math.pi * k) if 0.0 < k < 1.0 else 0.0
+    out["limbs"][leg]["planted"] = foot[1] <= 1e-6
+    return out
+
+
+def person_intent(kind, t, duration, phase):
+    ground = "feet"
+    u = t / duration
+    if kind == "idle":
+        breath = math.sin(2 * math.pi * phase)             # 4.0 s
+        look = math.sin(4 * math.pi * phase + 0.3)         # 2.0 s
+        sway = math.sin(2 * math.pi * phase)
+        p = person_pose(
+            body={"up": 0.004 * breath, "side": 0.012 * sway, "roll": -1.0 * sway},
+            bones={"spine": {"pitch": 1.5 + 0.6 * breath}, "chest": {"pitch": -1.2 * breath},
+                   "neck": {"pitch": 0.8 * breath}, "head": {"yaw": 6.0 * look, "pitch": -1.0 * breath}},
+            left=arm(swing=4.0 + 2.0 * breath, raise_=9.0 + 1.0 * breath, elbow=14.0 + 3.0 * breath, wrist=4.0),
+            right=arm(swing=5.0 + 2.0 * math.sin(2 * math.pi * phase + 0.7),
+                      raise_=8.0 + 1.0 * math.sin(2 * math.pi * phase + 0.7),
+                      elbow=16.0 + 3.0 * math.sin(2 * math.pi * phase + 0.7), wrist=-6.0))
+        return dict(p, ground=ground)
+    if kind == "talk":
+        lift = smooth(u / 0.16) * (1.0 - smooth((u - 0.74) / 0.2))
+        beat = math.sin(2 * math.pi * 3.0 * u)              # three beats of the point being made
+        breath = math.sin(2 * math.pi * phase)
+        down = hand((0.14, -0.95, 0.15), pole=(0.3, -1.0, -0.4), wrist=4.0)
+        up = hand((-0.12, -0.42 + 0.05 * beat, 0.58 + 0.04 * math.sin(2 * math.pi * 1.5 * u)),
+                  pole=(0.6, -1.0, -0.3), wrist=10.0 + 8.0 * beat, pronate=-65.0)
+        p = person_pose(
+            body={"upright": 1.0, "up": 0.003 * breath, "yaw": 3.0 * lift},
+            bones={"spine": {"pitch": 1.0 + 0.5 * breath}, "chest": {"pitch": -1.0 * breath, "yaw": 4.0 * lift},
+                   "neck": {"pitch": 1.5 * lift * beat}, "head": {"pitch": 3.0 * lift * beat, "yaw": -4.0 * lift}},
+            left=_blend(down, up, lift), right=TALK_RIGHT)
+        p["limbs"]["arm.R"]["flex"][0] += 2.0 * breath
+        return dict(p, ground=ground)
+    if kind == "work_forge":
+        return dict(keyed(u, [(0.0, FORGE_STRUCK), (0.10, FORGE_STRUCK), (0.60, FORGE_RAISED),
+                              (0.72, FORGE_STRUCK), (1.0, FORGE_STRUCK)]), ground=ground)
+    if kind == "work_table":
+        p = _blend(TABLE_POSE, TABLE_POSE, 0.0)
+        breath = math.sin(2 * math.pi * phase)
+        write = math.sin(2 * math.pi * 8.0 * u)             # the pen's strokes
+        turn = smooth((u - 0.55) / 0.08) * (1.0 - smooth((u - 0.68) / 0.08))   # a page turned over
+        r = p["limbs"]["arm.R"]["reach"]
+        r[0] += 0.03 * write * (1.0 - turn) - 0.22 * turn
+        r[1] += 0.015 * math.sin(2 * math.pi * 4.0 * u) + 0.06 * turn
+        r[2] += 0.02 * math.cos(2 * math.pi * 8.0 * u)
+        p["limbs"]["arm.R"]["pronate"] += 60.0 * turn
+        p["bones"]["spine"]["pitch"] += 0.5 * breath
+        p["bones"]["head"]["yaw"] = -6.0 * turn + 2.0 * math.sin(2 * math.pi * phase)
+        return dict(p, ground=ground)
+    if kind == "crouch_idle":
+        breath = math.sin(2 * math.pi * phase)
+        look = math.sin(4 * math.pi * phase + 0.3)
+        p = person_pose(
+            body=dict(CROUCH_BODY, up=CROUCH_BODY["up"] + 0.004 * breath, side=0.008 * math.sin(2 * math.pi * phase)),
+            bones={k: dict(v) for k, v in CROUCH_BONES.items()},
+            left=arm(swing=68.0 + 2.0 * breath, raise_=12.0, elbow=30.0 + 3.0 * breath, wrist=4.0),
+            right=arm(swing=72.0 + 2.0 * breath, raise_=11.0, elbow=28.0 + 3.0 * breath, wrist=-10.0))
+        p["bones"]["head"]["yaw"] = 8.0 * look
+        p["bones"]["chest"]["pitch"] -= 1.2 * breath
+        return dict(p, ground=ground)
+    if kind == "crouch_walk":
+        g = GAITS[("person", kind)]
+        duty, lift = g["duty"], g["lift"]
+        limbs = {"leg.L": step(phase, duty, 1.0, lift, -6.0, 18.0), "leg.R": step(phase + 0.5, duty, 1.0, lift, -6.0, 18.0)}
+        c = math.cos(2 * math.pi * phase)                   # + when the left foot is forward
+        limbs["arm.L"] = arm(swing=68.0 - 9.0 * c, raise_=12.0, elbow=30.0 + 6.0 * max(0.0, -c), wrist=4.0)
+        r_swing = 6.0 * c
+        limbs["arm.R"] = arm(swing=72.0 + r_swing, raise_=11.0, elbow=28.0, wrist=-10.0 - 0.8 * r_swing)
+        bob = math.cos(4 * math.pi * (phase - duty / 2))
+        body = dict(CROUCH_BODY, up=CROUCH_BODY["up"] + 0.010 * bob, yaw=-4.0 * c,
+                    roll=2.0 * math.cos(2 * math.pi * (phase - duty / 2)))
+        bones = {k: dict(v) for k, v in CROUCH_BONES.items()}
+        bones["spine"]["yaw"] = 2.0 * c
+        bones["chest"]["yaw"] = 3.0 * c
+        return {"body": body, "bones": bones, "limbs": limbs, "ground": ground}
+    if kind == "talk_low":
+        breath = math.sin(2 * math.pi * phase)
+        beat = math.sin(2 * math.pi * 3.0 * u)              # three nods of the point being made
+        turn = math.sin(2 * math.pi * u + 0.4)
+        lift = smooth(u / 0.2) * (1.0 - smooth((u - 0.7) / 0.2))
+        p = person_pose(
+            body={"upright": 1.0, "side": 0.008 * breath, "roll": -0.6 * breath, "up": 0.003 * breath, "yaw": 3.0 * turn},
+            bones={"spine": {"pitch": 1.0 + 0.5 * breath, "yaw": 2.0 * turn}, "chest": {"pitch": -1.0 * breath, "yaw": 3.0 * turn},
+                   "shoulder.L": {"roll": 2.0 * lift}, "neck": {"pitch": 1.5 * beat, "roll": 2.0 * math.sin(2 * math.pi * u + 0.8)},
+                   "head": {"pitch": 4.0 * beat, "roll": 4.0 * math.sin(2 * math.pi * u + 0.8), "yaw": -5.0 * turn}},
+            left=arm(swing=6.0 + 2.0 * lift, raise_=9.0, elbow=16.0 + 6.0 * lift, wrist=4.0 - 8.0 * lift, pronate=-20.0 * lift),
+            right=arm(swing=5.0, raise_=8.0, elbow=16.0, wrist=-6.0))
+        return dict(p, ground=ground)
+    if kind == "attack_low":
+        return dict(person_blow(t, duration, LOW_READY, LOW_WINDUP, LOW_STRIKE, LOW_FOLLOW), ground=ground)
+    if kind == "idle_hands_on_hips":
+        shift = math.sin(2 * math.pi * phase)                # the weight from foot to foot, once a loop
+        breath = math.sin(2 * math.pi * 3.0 * phase)
+        look = smooth((u - 0.35) / 0.12) * (1.0 - smooth((u - 0.62) / 0.12))   # a look to the left and back
+        p = person_pose(
+            body={"upright": 1.0, "side": 0.012 * shift, "roll": -0.8 * shift, "up": -0.02 + 0.004 * breath},
+            bones={"spine": {"pitch": 1.5 + 0.5 * breath, "roll": 1.5 * shift}, "chest": {"pitch": -0.8 * breath},
+                   "neck": {"yaw": 10.0 * look}, "head": {"yaw": 18.0 * look + 3.0 * shift, "pitch": -2.0 * look}},
+            left=HIPS_HAND, right=HIPS_HAND)
+        return dict(p, ground=ground)
+    if kind == "idle_reading":
+        breath = math.sin(2 * math.pi * 3.0 * phase)
+        turn = smooth((u - 0.55) / 0.06) * (1.0 - smooth((u - 0.66) / 0.06))  # the right hand turns a page
+        p = person_pose(
+            body={"upright": 1.0, "side": 0.008 * math.sin(2 * math.pi * phase), "up": 0.003 * breath},
+            bones={"spine": {"pitch": 2.0 + 0.4 * breath}, "chest": {"pitch": 1.0 - 0.6 * breath},
+                   "neck": {"pitch": 10.0}, "head": {"pitch": 24.0 + 2.0 * math.sin(2 * math.pi * 2.0 * phase),
+                                                     "yaw": -5.0 * turn}},
+            left=READ_HAND, right=READ_HAND)
+        r = p["limbs"]["arm.R"]
+        r["reach"][0] -= 0.20 * turn
+        r["reach"][1] += 0.05 * turn
+        r["pronate"] += 50.0 * turn
+        return dict(p, ground=ground)
+    if kind in ("walk", "run", "sprint"):
+        g = GAITS[("person", kind)]
+        duty, lift = g["duty"], g["lift"]
+        toe_swing, toe_push = {"walk": (-8.0, 22.0), "run": (-6.0, 30.0), "sprint": (-10.0, 36.0)}[kind]
+        limbs = {"leg.L": step(phase, duty, 1.0, lift, toe_swing, toe_push),
+                 "leg.R": step(phase + 0.5, duty, 1.0, lift, toe_swing, toe_push)}
+        # a runner lands close under the body and pushes off well behind it: the stance sits back
+        back = {"walk": 0.05, "run": 0.15, "sprint": 0.18}[kind]
+        for leg in ("leg.L", "leg.R"):
+            limbs[leg]["foot"][2] -= back
+        c = math.cos(2 * math.pi * phase)                   # + when the left foot is forward
+        mean, swing, elbow, raise_ = {"walk": (4.0, 18.0, 16.0, 9.0), "run": (12.0, 28.0, 70.0, 12.0),
+                                      "sprint": (15.0, 42.0, 75.0, 10.0)}[kind]
+        pump = 12.0 if kind == "walk" else 6.0              # the elbow folds as the arm comes forward
+        # the hands carry the weapons (the right a sword or a spear, the left a bow): an arm swings
+        # less than a free one would, and its wrist takes up most of the swing so what it holds stays
+        # steady
+        wrist = {"walk": (4.0, -6.0), "run": (-10.0, -40.0), "sprint": (-10.0, -40.0)}[kind]
+        for name, sign, rest in (("arm.L", -1.0, wrist[0]), ("arm.R", 1.0, wrist[1])):
+            s_ = 0.7 * swing * sign * c
+            e_ = elbow + 0.5 * pump * max(0.0, sign * c)
+            limbs[name] = arm(swing=mean + s_, raise_=raise_ - (1.0 if sign > 0 else 0.0), elbow=e_,
+                              wrist=rest - 0.8 * (s_ + 0.5 * pump * max(0.0, sign * c)))
+        mid = duty / 2 if kind == "walk" else (duty + 0.5) / 2    # walk: high at mid-stance; run: mid-flight
+        bob = math.cos(4 * math.pi * (phase - mid))
+        lean, pitch = {"walk": (3.0, 0.0), "run": (7.0, 3.0), "sprint": (9.0, 6.0)}[kind]
+        twist = {"walk": 5.0, "run": 8.0, "sprint": 9.0}[kind]
+        body = {"up": {"walk": 0.012, "run": 0.025, "sprint": 0.035}[kind] * bob, "yaw": -twist * c,
+                "pitch": pitch, "roll": 2.5 * math.cos(2 * math.pi * (phase - duty / 2))}
+        bones = {"spine": {"pitch": lean, "yaw": 0.6 * twist * c}, "chest": {"yaw": 0.8 * twist * c},
+                 "neck": {"pitch": -0.5 * (lean + pitch)}, "head": {"pitch": -0.4 * (lean + pitch), "yaw": -1.5 * c}}
+        return {"body": body, "bones": bones, "limbs": limbs, "ground": ground}
+    if kind == "sword_ready":
+        return dict(breathe(SWORD_READY, phase), ground=ground)
+    if kind == "sword_attack":
+        p = person_blow(t, duration, SWORD_READY, SWORD_WINDUP, SWORD_STRIKE, SWORD_FOLLOW)
+        # the left foot steps in with the cut and back in the recovery
+        k = min(max(u, 0.0), 1.0)
+        if k <= HOLD_ACTIVE_END:
+            p = stepped(p, k, HOLD_WINDUP_END, STRIKE_END / ATTACK_S, "leg.L", 0.22)
+        else:
+            p = stepped(p, k, 0.78, 0.94, "leg.L", -0.22)
+            p["limbs"]["leg.L"]["foot"][2] += 0.22
+        return dict(p, ground=ground)
+    if kind == "sword_block":
+        return dict(keyed(u, [(0.0, SWORD_READY), (0.3, SWORD_GUARD), (0.7, SWORD_GUARD), (1.0, SWORD_READY)]),
+                    ground=ground)
+    if kind == "bow_ready":
+        return dict(breathe(BOW_READY, phase, 0.6), ground=ground)
+    if kind == "bow_draw":
+        # drawn through the windup (anchored by 40 %), loosed at the start of Active, the string hand
+        # thrown back; the recovery returns it to the string
+        return dict(keyed(u, [(0.0, BOW_READY), (0.40, BOW_DRAWN), (HOLD_WINDUP_END, BOW_DRAWN),
+                              (STRIKE_END / ATTACK_S, BOW_LOOSED), (HOLD_ACTIVE_END, BOW_LOOSED),
+                              (1.0, BOW_READY)]), ground=ground)
+    if kind == "spear_ready":
+        return dict(breathe(SPEAR_READY, phase), ground=ground)
+    if kind == "spear_thrust":
+        p = person_blow(t, duration, SPEAR_READY, SPEAR_DRAWN, SPEAR_THRUST, SPEAR_THRUST)
+        k = min(max(u, 0.0), 1.0)
+        if k <= HOLD_ACTIVE_END:
+            p = stepped(p, k, HOLD_WINDUP_END, STRIKE_END / ATTACK_S, "leg.L", 0.25)
+        else:
+            p = stepped(p, k, 0.76, 0.94, "leg.L", -0.25)
+            p["limbs"]["leg.L"]["foot"][2] += 0.25
+        return dict(p, ground=ground)
+    if kind == "cast":
+        return dict(keyed(u, [(0.0, STAND_REACH), (0.40, CAST_GATHER), (HOLD_WINDUP_END, CAST_GATHER),
+                              (STRIKE_END / ATTACK_S, CAST_RELEASE), (HOLD_ACTIVE_END, CAST_RELEASE),
+                              (1.0, STAND_REACH)]), ground=ground)
+    if kind == "interact":
+        return dict(keyed(u, [(0.0, INTERACT_STAND), (0.40, INTERACT_REACH), (0.60, INTERACT_REACH),
+                              (1.0, INTERACT_STAND)]),
+                    ground=ground)
+    if kind == "hit":
+        k = math.sin(math.pi * min(u, 1.0))
+        # struck from the front: the chest and head snap back, the arms fly out from where they hang
+        p = person_pose(
+            body={"fwd": -0.05 * k, "roll": 3.0 * k},
+            bones={"spine": {"pitch": 1.5 - 8.0 * k}, "chest": {"pitch": -8.0 * k}, "neck": {"pitch": 4.0 * k},
+                   "head": {"pitch": -10.0 * k, "yaw": 8.0 * k}},
+            left=arm(swing=4.0 - 14.0 * k, raise_=9.0 + 14.0 * k, elbow=14.0 + 22.0 * k, wrist=4.0),
+            right=arm(swing=5.0 - 12.0 * k, raise_=8.0 + 12.0 * k, elbow=16.0 + 22.0 * k, wrist=-6.0))
+        return dict(p, ground=ground)
+    if kind == "death":
+        # the humanoid death (humanoid_intent): the knees buckle, the body topples forward about the
+        # ground between the feet and lies face down; the arms reach to break the fall, then lie flat
+        out = humanoid_intent("death", t, duration, phase)
+        for name in ("arm.L", "arm.R"):
+            fk = out["limbs"][name]
+            out["limbs"][name] = arm(swing=fk["swing"], raise_=fk["raise"], elbow=fk["flex"][0], wrist=fk["flex"][1])
+        return out
+    raise ValueError(f"no person intention for {kind}")
+
+
+INTENTIONS = {"quadruped": (QUADRUPED_RIG, quadruped_intent), "humanoid": (HUMANOID_RIG, humanoid_intent),
+              "person": (PERSON_RIG, person_intent)}
 CREATURE_KINDS = ("idle", "walk", "run", "attack", "hit", "death")
 LOOPING = ("idle", "walk", "run")
 DENSE = ("death",)                       # keyed at four times the frame rate (gaits: expand_gait)
@@ -381,7 +902,10 @@ def intentions(plan, kind, duration, fps):
     # a death ends in a fall onto the floor, fastest at the moment it lands, and its parts are
     # turned up off the floor frame by frame: keys four times as dense keep the feet, the body and
     # the limbs on the floor between keys as well as on them
-    count = int(round(duration * fps * (4 if kind in DENSE else 1))) + 1
+    # (a person's blow too: the strike is a tenth of the clip, and the game shows it spread over its
+    # Active window)
+    dense = kind in DENSE or (plan == "person" and kind in PERSON_DENSE)
+    count = int(round(duration * fps * (4 if dense else 1))) + 1
     frames = []
     for index in range(count):
         t = duration * index / (count - 1)
@@ -389,7 +913,8 @@ def intentions(plan, kind, duration, fps):
         frame["t"] = round(t, 6)
         frames.append(frame)
     return {"schema_version": "2", "kind": kind, "plan": plan, "fps": fps, "duration_s": duration,
-            "synthetic": True, "loop": kind in LOOPING, "rig": rig, "frames": frames}
+            "synthetic": True, "loop": kind in (PERSON_LOOPING if plan == "person" else LOOPING), "rig": rig,
+            "frames": frames}
 
 
 def humanoid(kind, frames, fps, size):
@@ -553,8 +1078,8 @@ def worm(kind, frames, fps, size):
     return out
 
 
-# Schema 1 generators. The quadruped plan has none left: all of its kinds are schema 2.
-GENERATORS = {"quadruped": None, "humanoid": humanoid, "worm": worm}
+# Schema 1 generators. The quadruped and person plans have none: all of their kinds are schema 2.
+GENERATORS = {"quadruped": None, "humanoid": humanoid, "worm": worm, "person": None}
 
 # Seconds per clip. Locomotion clips loop, so their length is the gait period.
 DURATIONS = {
@@ -583,14 +1108,16 @@ SIZE_HINT = {"creature_frost_wolf": 0.85, "creature_highland_brown_bear": 1.2,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--plan", required=True, choices=sorted(GENERATORS))
-    parser.add_argument("--kind", required=True, choices=sorted(DURATIONS))
+    parser.add_argument("--kind", required=True, choices=sorted(set(DURATIONS) | set(PERSON_DURATIONS)))
     parser.add_argument("--out", required=True)
     parser.add_argument("--asset-id", default=None)
     parser.add_argument("--fps", type=int, default=30)
     args = parser.parse_args()
 
-    seconds = DURATIONS[args.kind]
-    if args.plan in INTENTIONS and args.kind in CREATURE_KINDS:
+    seconds = (PERSON_DURATIONS if args.plan == "person" else DURATIONS).get(args.kind)
+    if seconds is None:
+        raise SystemExit(f"the {args.plan} plan has no {args.kind} motion")
+    if args.plan in INTENTIONS and args.kind in (PERSON_KINDS if args.plan == "person" else CREATURE_KINDS):
         data = intentions(args.plan, args.kind, seconds, args.fps)
         rig = data["rig"]
         data["bones_animated"] = sorted({b for f in data["frames"] for b in f["bones"]}

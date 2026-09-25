@@ -33,7 +33,9 @@ surface itself). The arm chains are masked out of the torso and the torso-side w
 without them (REGION_BONES): otherwise an arm hanging beside a broad chest, coat or cuirass
 claims it, and a hand hanging beside an apron takes the apron. The seam is smoothed. A vertex may
 not take weight from a limb chain it is not connected to on the surface (reject_cross_limb): heat
-can hand an armour elbow thigh weight across a gap, and that patch then tears toward the thigh. The
+can hand an armour elbow thigh weight across a gap, and that patch then tears toward the thigh. Each arm
+chain then keeps only the arm's own surface, the armpit web and the deltoid fading out of it (cap_shoulders):
+otherwise a raised arm turns the shoulder blade and flank with it and the back crumples. The
 mesh geometry, UVs, normals and material are exported untouched.
 
 Modes (run inside Blender):
@@ -369,19 +371,37 @@ def significant(blobs, share=SIGNIFICANT):
     return [b for b in blobs if b.n >= share * total]
 
 
+# Two boots standing a couple of centimetres apart join into one piece of the slice at the default
+# bridging, and the leg seed is then found higher up, where a hem or a slit parts: both leg columns
+# then run down the same joined piece and both ankles land between the feet. The seed is also looked
+# for at finer bridging, and the lowest seed found is used (with its bridging for the whole track).
+LEG_BRIDGES = (None, 1, 0)
+
+
+def leg_seed(body, bridge):
+    H = body.H
+    for z in body.zs(0.06 * H, 0.24 * H):
+        blobs = sorted(significant(body.components(z, bridge)), key=lambda c: -c.n)[:2]
+        if len(blobs) == 2 and abs(blobs[0].cx - blobs[1].cx) >= 0.04 * H:
+            return z, sorted(blobs, key=lambda c: c.cx)
+    return None
+
+
 def track_legs(body):
     """Seed two leg columns near the floor and follow them up until one cross-section piece
     holds both (the crotch)."""
     H, dz = body.H, body.dz
-    seed = None
-    for z in body.zs(0.06 * H, 0.24 * H):
-        blobs = sorted(significant(body.components(z)), key=lambda c: -c.n)[:2]
-        if len(blobs) == 2 and abs(blobs[0].cx - blobs[1].cx) >= 0.04 * H:
-            seed = (z, sorted(blobs, key=lambda c: c.cx))
-            break
+    seed, bridge = None, None
+    for step in LEG_BRIDGES:
+        found = leg_seed(body, step)
+        if found is not None and (seed is None or found[0] < seed[0] - 1e-9):
+            seed, bridge = found, step
     notes = []
     if seed is None:
         return None, notes + ["no two leg columns anywhere between 0.06 and 0.24 H"]
+    if bridge is not None:
+        notes.append(f"the legs part only at finer bridging ({bridge} cells) near the floor: feet standing close "
+                     f"together; the leg columns are tracked at that bridging")
     z0, (right, left) = seed
     columns = {"L": [(z0, left)], "R": [(z0, right)]}
     tol = 0.01 * H
@@ -389,7 +409,7 @@ def track_legs(body):
     merged_run = 0
     prev = {"L": left, "R": right}
     for z in body.zs(z0 + dz, 0.75 * H):
-        blobs = body.components(z)
+        blobs = body.components(z, bridge)
         best = {}
         for s in ("L", "R"):
             hits = [b for b in blobs if b.overlaps(prev[s], tol)]
@@ -408,7 +428,7 @@ def track_legs(body):
     # downward from the seed, so the ankle and foot use the same columns
     prev = {"L": left, "R": right}
     for z in body.zs(dz * 0.5, z0 - dz)[::-1]:
-        blobs = body.components(z)
+        blobs = body.components(z, bridge)
         for s in ("L", "R"):
             hits = [b for b in blobs if b.overlaps(prev[s], tol)]
             if hits:
@@ -418,7 +438,7 @@ def track_legs(body):
     if crotch is None:
         notes.append("leg columns never merged below 0.75 H")
         crotch = max(z for z, _c in columns["L"] + columns["R"])
-    return {"crotch": crotch, "columns": columns, "seed_z": z0}, notes
+    return {"crotch": crotch, "columns": columns, "seed_z": z0, "bridge": bridge}, notes
 
 
 def column_point(column, z, dz):
@@ -905,6 +925,12 @@ def parse_args():
                         help="reject (default): a vertex may not take weight from a limb chain it is not "
                              "connected to on the surface (reject_cross_limb); keep: bone heat as solved "
                              "(rigs fitted before 2026-09-25)")
+    parser.add_argument("--shoulder-cap", choices=["on", "off"], default="on",
+                        help="on (default): the arm chains keep the arm's own surface, the armpit web and the "
+                             "deltoid fading out of them, and nothing else (cap_shoulders); off: the weights as "
+                             "solved (rigs fitted before 2026-09-25 evening)")
+    parser.add_argument("--shoulder-web", type=float, default=SHOULDER_WEB,
+                        help=f"x H (default {SHOULDER_WEB}): surface this far from the arm's own fades out of it")
     parser.add_argument("--proxy", choices=["voxel", "weld"], default="voxel",
                         help="solve bone heat on a voxel remesh of the welded copy, or on the weld")
     parser.add_argument("--rigged")
@@ -1032,6 +1058,17 @@ LIMB_CHAINS = {
     "leg.L": ["thigh.L", "shin.L", "foot.L"], "leg.R": ["thigh.R", "shin.R", "foot.R"],
 }
 LIMB_SUPPORT = 0.02     # a chain's surface is where it holds at least this weight (the clean limit)
+# The shoulder (cap_shoulders). Bone heat hands the arm everything the arm region reaches - on a broad
+# A-pose body the whole shoulder blade, the lats and the flank down to the belt, through the heat proxy
+# that fuses an arm pressed against the lats into one surface - and raising or swinging the arm then turns
+# that slab about the shoulder joint, 15-25 cm from it, against its chest-held neighbours and the straps
+# lying on it: the back crumples and cuts through itself. The arm keeps its own surface; the armpit web
+# and the deltoid fade out of it; nothing further off follows it.
+SHOULDER_TUBE = 1.5           # x arm radius round the arm's bones: the arm's own surface above the armpit
+SHOULDER_WEB = 0.18           # x H: surface this far (over the surface) from the arm's own fades out of it
+SHOULDER_BALL = (1.6, 0.05)   # lateral of the joint: full within 1.6 arm radii of it, none 0.05 x H further
+SHOULDER_MEDIAL = 0.04        # x H: ... and none this far medial of the joint (the shoulder blade, the chest)
+SHOULDER_SMOOTH = 4           # umbrella passes over the capped vertices and one ring round them
 
 
 def segment_distance(points, a, b):
@@ -1378,6 +1415,165 @@ def free_arm_only_chain(table, labels, points, regions, bone_index):
         table[rows[ok]] = faded[ok]
 
 
+def smoothstep(x):
+    x = np.clip(x, 0.0, 1.0)
+    return x * x * (3.0 - 2.0 * x)
+
+
+def seam_graph(mesh):
+    """The mesh's own edges, with the copies a UV seam splits a vertex into joined (same position): the surface
+    as modelled. Unlike weld_graph's proximity links this never joins two surfaces that merely touch."""
+    edges = np.zeros(len(mesh.data.edges) * 2, dtype=np.int64)
+    mesh.data.edges.foreach_get("vertices", edges)
+    edges = edges.reshape(-1, 2)
+    co = np.zeros(len(mesh.data.vertices) * 3)
+    mesh.data.vertices.foreach_get("co", co)
+    key = np.round(co.reshape(-1, 3) / 1e-6).astype(np.int64)
+    _u, inverse = np.unique(key, axis=0, return_inverse=True)
+    inverse = inverse.ravel()
+    order = np.argsort(inverse, kind="stable")
+    same = inverse[order[1:]] == inverse[order[:-1]]
+    seams = np.stack([order[:-1][same], order[1:][same]], 1)
+    return np.concatenate([edges, seams])
+
+
+def nearest_distance(source, points):
+    """Distance from each of `points` to the nearest of `source` (mathutils KD tree)."""
+    tree = KDTree(len(source))
+    for k, p in enumerate(source):
+        tree.insert(Vector(p), k)
+    tree.balance()
+    return np.array([tree.find(Vector(p))[2] for p in points])
+
+
+def flood(seed, allowed, graph):
+    """The vertices of `allowed` reached from `seed` over `graph` without leaving `allowed`."""
+    reached = seed & allowed
+    a, b = graph[:, 0], graph[:, 1]
+    while True:
+        grown = reached.copy()
+        grown[b[reached[a] & allowed[b]]] = True
+        grown[a[reached[b] & allowed[a]]] = True
+        if grown.sum() == reached.sum():
+            return reached
+        reached = grown
+
+
+def surface_distance_from(seed, points, graph, limit):
+    """Distance over the mesh edges from the `seed` vertices (Bellman-Ford relaxation, numpy only), exact up to
+    `limit` and `limit` beyond it."""
+    a, b = graph[:, 0], graph[:, 1]
+    length = np.linalg.norm(points[a] - points[b], axis=1)
+    d = np.where(seed, 0.0, limit)
+    for _ in range(2000):
+        new = d.copy()
+        np.minimum.at(new, a, d[b] + length)
+        np.minimum.at(new, b, d[a] + length)
+        new = np.minimum(new, limit)
+        if np.array_equal(new, d):
+            break
+        d = new
+    return d
+
+
+def cap_shoulders(rows, points, regions, bone_index, graph):
+    """Keep each arm chain (upper arm, forearm, hand) on the arm (SHOULDER_* above), on the mesh as modelled.
+
+    The arm's core is its own surface: the tracked cross-section pieces under the armpit, and from them, over the
+    mesh's own edges (seam_graph: never across a gap, however narrow), the surface within SHOULDER_TUBE arm
+    radii of the arm's bones from the shoulder joint down. An arm pressed against the lats is two surfaces that
+    touch; the heat proxy fuses them and hands the lats the arm, the core does not. Everything else may keep at
+    most a share that fades out with its distance over the surface from the core (SHOULDER_WEB x H: the armpit's
+    folds and apex, the top of the shoulder), or with its distance from the joint where it lies lateral of it
+    (SHOULDER_BALL, faded out SHOULDER_MEDIAL x H medial of the joint: the deltoid and what sits on it). Past
+    those the shoulder blade, the flank and whatever lies on them (straps, an apron's edge) keep none, so a
+    raised or swung arm no longer turns them. The whole chain is capped (heat leaves forearm weight behind the
+    armpit, which a cap on the upper arm alone would hand to the forearm); the weight taken off goes to the
+    vertex's trunk bones in proportion to what they hold, or to the shoulder (clavicle) bone where it holds none;
+    SHOULDER_SMOOTH umbrella passes then relax the capped vertices and one ring round them. A loose piece (no
+    surface route to the arm: a plate, a strap) is measured by its straight distance from the arm's surface.
+    Returns what moved, per side."""
+    n = len(rows)
+    H, floor = regions["H"], regions["floor"]
+    ball_r = SHOULDER_BALL
+    web = regions.get("shoulder_web", SHOULDER_WEB) * H
+    medial = SHOULDER_MEDIAL * H
+    lift = np.array([0.0, 0.0, floor])
+    z = points[:, 2] - floor
+    dz, tol = regions["dz"], 0.01 * H
+    pieces = surface_components(np.ones(n, dtype=bool), graph, n)
+    trunk = [bone_index[b] for b in ("hips", "spine", "chest", "neck", "head", "shoulder.L", "shoulder.R")
+             if b in bone_index]
+    report = {}
+    moved_any = np.zeros(n)
+    for side in ("L", "R"):
+        arm = regions["arms"][side]
+        chain = [np.asarray(c, dtype=np.float64) + lift for c in arm["chain"]]   # shoulder, elbow, wrist, tip
+        joint, r = chain[0], arm["radius"]
+        axis = (chain[1] - joint) / max(float(np.linalg.norm(chain[1] - joint)), 1e-9)
+        rel = points - joint
+        near = np.full(n, np.inf)
+        for a, b in zip(chain[:-1], chain[1:]):
+            near = np.minimum(near, segment_distance(points, a, b))
+        own = np.zeros(n, dtype=bool)
+        for zc, lo, hi, ylo, yhi in arm.get("column", []):
+            own |= ((np.abs(z - zc) <= dz) & (points[:, 0] >= lo - tol) & (points[:, 0] <= hi + tol)
+                    & (points[:, 1] >= ylo - tol) & (points[:, 1] <= yhi + tol))
+        tube = (near <= SHOULDER_TUBE * r) & (rel @ axis >= -0.25 * r)
+        # arms joined to the body all the way down have no pieces of their own: the tube is all there is
+        core = flood(own, own | tube, graph) if own.any() else tube
+        dist = surface_distance_from(core, points, graph, web)
+        # A loose piece (a plate, a strap, a shard) has no surface route to the arm: it goes by its straight
+        # distance from the arm's own surface instead. A piece that is part of the arm's surface - a lat the arm
+        # merely presses against - keeps the long way round.
+        loose = ~np.isin(pieces, np.unique(pieces[core]))
+        if loose.any() and core.any():
+            dist[loose] = np.minimum(dist[loose], nearest_distance(points[core], points[loose]))
+        limit = np.maximum(core.astype(float), smoothstep((web - dist) / web))
+        other = np.asarray(regions["arms"]["R" if side == "L" else "L"]["chain"][0], dtype=np.float64) + lift
+        lateral = joint - other
+        lateral[2] = 0.0
+        lateral /= max(float(np.linalg.norm(lateral)), 1e-9)
+        inner = ball_r[0] * r
+        ball = (smoothstep((inner + ball_r[1] * H - np.linalg.norm(rel, axis=1)) / (ball_r[1] * H))
+                * smoothstep((rel @ lateral + medial) / medial))
+        limit = np.maximum(limit, ball)
+        cols = [bone_index[f"{b}.{side}"] for b in ("upper_arm", "forearm", "hand")]
+        fallback = bone_index[f"shoulder.{side}"]
+        held = rows[:, cols].sum(1)
+        new_held = np.minimum(held, limit)
+        moved = held - new_held
+        hit = moved > 1e-9
+        scale = np.where(held[hit] > 0, new_held[hit] / np.maximum(held[hit], 1e-12), 0.0)
+        chain_part = rows[np.ix_(hit, cols)] * scale[:, None]
+        # the weight taken off goes to the trunk bones the vertex already holds, in proportion (never to a leg or
+        # the other arm: a trace of stray weight there would be scaled up to own the vertex)
+        body = rows[np.ix_(hit, trunk)]
+        total = body.sum(1)
+        alone = total <= 1e-9
+        body[~alone] *= (1.0 + moved[hit][~alone] / total[~alone])[:, None]
+        block = rows[hit].copy()
+        block[:, trunk] = body
+        block[alone, fallback] += moved[hit][alone]
+        block[:, cols] = chain_part
+        rows[hit] = block
+        moved_any = np.maximum(moved_any, moved)
+        report[side] = {"core_vertices": int(core.sum()), "vertices_capped": int((moved > 1e-3).sum()),
+                        "weight_moved": round(float(moved.sum()), 2), "max_moved": round(float(moved.max()), 3),
+                        "core_tube_m": round(SHOULDER_TUBE * r, 4), "web_m": round(web, 4),
+                        "ball_m": [round(inner, 4), round(inner + ball_r[1] * H, 4)]}
+    zone = moved_any > 1e-3
+    grow = zone.copy()
+    grow[graph[:, 0]] |= zone[graph[:, 1]]
+    grow[graph[:, 1]] |= zone[graph[:, 0]]
+    for _ in range(SHOULDER_SMOOTH):
+        acc, cnt = neighbour_mean(rows, graph, n)
+        mean = acc / np.maximum(cnt, 1)[:, None]
+        rows[grow] = 0.5 * rows[grow] + 0.5 * mean[grow]
+    report["smoothed_vertices"] = int(grow.sum())
+    return report
+
+
 def surface_components(mask, graph, n):
     """Connected pieces of the vertices in `mask` over the edges in `graph` (union-find)."""
     parent = np.arange(n)
@@ -1597,6 +1793,7 @@ def run_fit(args):
     if args.arm_reach is not None:
         body.regions["arm_reach"] = args.arm_reach
     body.regions["cross_limb"] = args.cross_limb
+    body.regions["shoulder_web"] = args.shoulder_web
 
     H = measured["height_m"]
     point_labels, split = None, None
@@ -1649,6 +1846,11 @@ def run_fit(args):
         fill_unweighted(rows, np.concatenate([edges, links]), points)
     stray_rows["vertices_emptied_then_refilled"] = int(emptied.sum())
     rows /= np.maximum(rows.sum(1, keepdims=True), 1e-12)
+    shoulder_cap = None
+    if args.shoulder_cap == "on":
+        shoulder_cap = cap_shoulders(rows, points, body.regions, {b: i for i, b in enumerate(bone_names)},
+                                     seam_graph(mesh))
+        rows /= np.maximum(rows.sum(1, keepdims=True), 1e-12)
     write_groups(mesh, rows, bone_names)
     bpy.data.objects.remove(weld, do_unlink=True)
 
@@ -1691,6 +1893,13 @@ def run_fit(args):
                             "removed, and transferred rows keep a chain only where their nearest heat-mesh "
                             "vertex may carry it"),
         "cross_limb_welded_surface": weld_fill.get("cross_limb"),
+        "shoulder_cap_mode": args.shoulder_cap,
+        "shoulder_cap_rule": ("each arm chain keeps the arm's own surface (its cross-section pieces under the armpit "
+                              "and, over the mesh's own edges, the surface within SHOULDER_TUBE arm radii of its "
+                              "bones); elsewhere at most a share fading out over SHOULDER_WEB x H of surface from "
+                              "it, or, lateral of the joint, over SHOULDER_BALL round it; the trunk bones take the "
+                              "rest, then SHOULDER_SMOOTH umbrella passes (cap_shoulders)"),
+        "shoulder_cap": shoulder_cap,
         "cross_limb_rows_changed": stray_rows,
         **fill,
     }

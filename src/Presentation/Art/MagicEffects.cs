@@ -36,12 +36,15 @@ public partial class MagicEffects : Node3D
     private double _chargeSince;
     private double _clock;
 
-    public void Bind(AssetCatalog assets, ArtBindings bindings)
+    public void Bind(AssetCatalog assets, ArtBindings bindings, ArtCoverage? coverage = null)
     {
         _assets = assets;
         _bindings = bindings;
+        _coverage = coverage;
         _chargeBook = Book(CastCharge);
     }
+
+    private ArtCoverage? _coverage;
 
     /// <summary>Whether the cast charge is drawn (the greybox glow then steps aside).</summary>
     public bool HasCastCharge => _chargeBook is not null;
@@ -148,5 +151,19 @@ public partial class MagicEffects : Node3D
         _overlay.Modulate = new Color(1, 1, 1, shown);
     }
 
-    private Flipbook? Book(string key) => _bindings.Effects.TryGetValue(key, out string? id) ? _assets.Effect(id) : null;
+    /// <summary>An effect's flipbook by its binding key, recorded in the coverage report the first time it is asked for.</summary>
+    private Flipbook? Book(string key)
+    {
+        var book = _bindings.Effects.TryGetValue(key, out string? id) ? _assets.Effect(id) : null;
+        if (_asked.Add(key))
+        {
+            if (book is not null)
+                _coverage?.Resolved("effect", key, id!);
+            else
+                _coverage?.Fallback("effect", key, id is null ? "no effect bound: the greybox tell" : "its flipbook is not in the effect manifest, or would not load: the greybox tell", id);
+        }
+        return book;
+    }
+
+    private readonly HashSet<string> _asked = new(StringComparer.Ordinal);
 }

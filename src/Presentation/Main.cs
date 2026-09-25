@@ -25,7 +25,9 @@ namespace UNNAMED.Presentation;
 /// Run modes come after <c>--</c> on the command line: <c>--smoke</c> (headless boot and save round trip),
 /// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
 /// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch).
-/// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest).
+/// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest). The smoke, the
+/// playthrough, its relaunch and the delta shots end by writing the art and audio coverage reports (Phase A) into their directory - the
+/// smoke's beside the log - or into <c>--coverage-out dir</c>.
 /// </summary>
 public partial class Main : Node3D
 {
@@ -68,6 +70,10 @@ public partial class Main : Node3D
     private LayoutCheck? _layout;
     private VisualAudit? _audit;
     private VisualAuditAB? _auditAb;
+    private GroundField _ground = null!;
+    private ScatterView _scatter = null!;
+    private Art.ScatterRules _scatterRules = Art.ScatterRules.None;
+    private ulong _sceneMs, _groundMs;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
     private bool _scripted;
@@ -115,6 +121,12 @@ public partial class Main : Node3D
             AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
             return;
         }
+        if (_options.TryGetValue("--anim-sheet", out string? sheet))
+        {
+            var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(sheet)));
+            return;
+        }
 
         // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
@@ -153,8 +165,16 @@ public partial class Main : Node3D
         _art = new Art.ArtLibrary(_assets.Root);
         _bindings = Art.ArtBindings.Load(Art.ArtBindings.ResourcePath);
         _art.Withhold(_bindings.Withheld);
+        _art.Coverage.Allow(CoverageAllowlist());
+        _scatterRules = ScatterRules();
+        GD.Print($"UNNAMED renderer: {RenderingServer.GetVideoAdapterName()} ({RenderingServer.GetCurrentRenderingMethod()}); MSAA 3D "
+                 + $"{ProjectSettings.GetSetting("rendering/anti_aliasing/quality/msaa_3d")}, TAA {ProjectSettings.GetSetting("rendering/anti_aliasing/quality/use_taa")}, "
+                 + $"anisotropy {ProjectSettings.GetSetting("rendering/textures/default_filters/anisotropic_filtering_level")}, directional shadow atlas "
+                 + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
+                 + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
 
         int before = GetChildCount();
+        ulong building = Time.GetTicksMsec();
         try
         {
             BuildScene();
@@ -170,11 +190,17 @@ public partial class Main : Node3D
                 RemoveChild(child);
                 child.QueueFree();
             }
-            _art = Art.ArtLibrary.Empty;
+            _art = new Art.ArtLibrary(null);
+            _art.Coverage.Allow(CoverageAllowlist());
             _bindings = Art.ArtBindings.Empty;
             _assets = AssetCatalog.Empty;
             BuildScene();
         }
+        _sceneMs = Time.GetTicksMsec() - building;
+        var cost = _art.Cost;
+        GD.Print($"UNNAMED load: the scene built in {_sceneMs} ms - {cost.Scenes} model files in {cost.SceneMs:0} ms (their {cost.ModelTextures} textures "
+                 + $"given mipmaps in {cost.MipmapMs:0} ms), {cost.MaterialMaps} material maps in {cost.MaterialMapMs:0} ms, the ground field in {_groundMs} ms; "
+                 + $"texture memory {cost.VramMbWithMipmaps} MB with mipmaps ({cost.VramMbAsLoaded} MB as loaded)");
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
         if (_sounds.Problems.Count > 0)
@@ -186,6 +212,7 @@ public partial class Main : Node3D
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
+        _controller.Reached += () => _avatar.Interact();
         _inventory = new InventoryPanel { Name = "Inventory" };
         _inventory.Bind(_session, _controller);
         AddChild(_inventory);
@@ -202,9 +229,14 @@ public partial class Main : Node3D
         _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
-        _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
-        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons));
-        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons));
+        var dial = _assets.Icon("ui.hud.compass");
+        if (dial is null)
+            _art.Coverage.Fallback("icon", "compass", "no compass dial in the icon manifest: a plain strip", "ui.hud.compass");
+        else
+            _art.Coverage.Resolved("icon", "compass", "ui.hud.compass");
+        _hud.UseCompassDial(dial);
+        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
+        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
         _saves.NewGame = () =>
@@ -275,7 +307,8 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--visual-audit", out string? audit))
         {
-            _audit = new VisualAudit(this, _session, _art, _bindings, _camera, Path.GetFullPath(audit));
+            _audit = new VisualAudit(this, _session, _art, _bindings, _camera, Path.GetFullPath(audit),
+                _options.GetValueOrDefault("--audit-shots") is { } list ? Path.GetFullPath(list) : null);
         }
         else if (_options.TryGetValue("--visual-audit-ab", out string? auditAb))
         {
@@ -313,19 +346,30 @@ public partial class Main : Node3D
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
     private void BuildScene()
     {
+        var layout = _session.Setup.Layout;
+        ulong started = Time.GetTicksMsec();
+        _ground = new GroundField(layout, _bindings, _scatterRules);
+        _groundMs = Time.GetTicksMsec() - started;
         _hollow = new HollowView { Name = "Hollow" };
-        _hollow.Bind(_art, _bindings);
+        _hollow.Bind(_art, _bindings, _ground);
         AddChild(_hollow);
-        _hollow.Build(_session.Setup.Layout);
+        _hollow.Build(layout);
+        // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
+        _scatter = new ScatterView { Name = "Scatter" };
+        _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes);
+        AddChild(_scatter);
+        string? body = _bindings.People.GetValueOrDefault("player")?.Model;
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
+            _art.Coverage.Resolved("person", "player", body!);
         }
         else
         {
             var greybox = new Avatar();
             Art.HeldWeapon.Arm(greybox, _art, _bindings);
             _avatar = greybox;
+            _art.Coverage.Fallback("person", "player", body is null ? "no binding: the greybox mannequin" : $"{_art.Why(body) ?? "not drawn"}: the greybox mannequin", body);
         }
         _avatar.Name = "Player";
         AddChild(_avatar);
@@ -350,9 +394,9 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
-        _projectiles.Bind(_assets);
+        _projectiles.Bind(_assets, _art, _bindings, _art.Coverage);
         _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
-        _magicEffects.Bind(_assets, _bindings);
+        _magicEffects.Bind(_assets, _bindings, _art.Coverage);
         AddChild(_magicEffects);
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
@@ -377,6 +421,8 @@ public partial class Main : Node3D
         {
             if (_smoke.Update() is { } code)
             {
+                // The smoke's profile is removed as it ends: its reports go beside the log (or to --coverage-out).
+                WriteReports(Path.GetDirectoryName(LogPath) ?? OS.GetUserDataDir(), "smoke");
                 GetTree().Quit(code);
                 return;
             }
@@ -429,10 +475,12 @@ public partial class Main : Node3D
             {
                 case "done":
                     GD.Print($"UNNAMED delta shots written to {_delta.Directory}");
+                    WriteReports(_delta.Directory, "delta-shots");
                     GetTree().Quit(0);
                     return;
                 case "failed":
                     SaveScreenshot(_delta.Directory, "failed");
+                    WriteReports(_delta.Directory, "delta-shots (failed)");
                     GetTree().Quit(1);
                     return;
                 case { } shot:
@@ -461,10 +509,12 @@ public partial class Main : Node3D
             switch (_play.Update())
             {
                 case "done":
+                    WriteReports(_play.Directory, _continued is null ? "playthrough" : "playthrough-verify", _continued is null ? "" : "_relaunch");
                     GetTree().Quit(0);
                     return;
                 case "failed":
                     SaveScreenshot(_play.Directory, "failed");
+                    WriteReports(_play.Directory, _continued is null ? "playthrough (failed)" : "playthrough-verify (failed)", _continued is null ? "" : "_relaunch");
                     GetTree().Quit(1);
                     return;
                 case { } shot:
@@ -1167,6 +1217,63 @@ public partial class Main : Node3D
         var body = _controller.Authoritative;
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
+        // The ground scatter is this world's: placed from its seed (the same seed again keeps what is placed).
+        _scatter.Build(_session.Simulation!.World.WorldSeed);
+    }
+
+    /// <summary>The coverage report's allowlist (<c>res://Art/art_coverage_allowlist.json</c>): greybox kept on purpose, each with its reason.</summary>
+    private static IReadOnlyDictionary<string, string> CoverageAllowlist()
+    {
+        const string path = "res://Art/art_coverage_allowlist.json";
+        if (!Godot.FileAccess.FileExists(path))
+            return new Dictionary<string, string>();
+        var allowed = Art.ArtCoverage.ParseAllowlist(Godot.FileAccess.GetFileAsString(path), out string? problem);
+        if (problem is not null)
+            GD.PushWarning($"UNNAMED art coverage: the allowlist at {path}: {problem}");
+        return allowed;
+    }
+
+    /// <summary>The ground scatter's rules (<c>res://Art/scatter_rules.json</c>); none, and nothing scattered, without them.</summary>
+    private static Art.ScatterRules ScatterRules()
+    {
+        const string path = "res://Art/scatter_rules.json";
+        return Godot.FileAccess.FileExists(path) ? Art.ScatterRules.Parse(Godot.FileAccess.GetFileAsString(path)) : Art.ScatterRules.None;
+    }
+
+    /// <summary>
+    /// The end of a harness run (Phase A, the owner's A3 and A4): the art coverage report (every visual by semantic ID, what drew it, every
+    /// greybox and why) and the audio coverage report (the sound set against the event mapping, and what this run asked for), as JSON and
+    /// a short Markdown each, in <paramref name="directory"/> (or <c>--coverage-out</c>); their gate lines go to the log.
+    /// </summary>
+    private void WriteReports(string directory, string run, string suffix = "")
+    {
+        directory = _options.GetValueOrDefault("--coverage-out") is { } chosen ? Path.GetFullPath(chosen) : directory;
+        try
+        {
+            var cost = _art.Cost;
+            var extra = new Dictionary<string, object?>
+            {
+                ["asset_root"] = _assets.Root,
+                ["library_problems"] = _art.Problems,
+                ["library_used"] = _art.Used.OrderBy(u => u, StringComparer.Ordinal).ToList(),
+                ["load"] = new Dictionary<string, object?>
+                {
+                    ["scene_build_ms"] = _sceneMs, ["ground_field_ms"] = _groundMs, ["model_files"] = cost.Scenes, ["model_files_ms"] = cost.SceneMs,
+                    ["model_textures_mipmapped"] = cost.ModelTextures, ["mipmap_pass_ms"] = cost.MipmapMs, ["material_maps"] = cost.MaterialMaps,
+                    ["material_maps_ms"] = cost.MaterialMapMs, ["texture_mb_as_loaded"] = cost.VramMbAsLoaded, ["texture_mb_with_mipmaps"] = cost.VramMbWithMipmaps,
+                    ["scatter_ms"] = _scatter.BuildMs, ["scatter_instances"] = _scatter.Counts,
+                },
+            };
+            GD.Print(_art.Coverage.Write(directory, "art_coverage" + suffix, run, extra));
+            var mapped = Audio.SoundEvents.Mapped(_bindings);
+            var check = Audio.AudioCoverage.Check(_sounds.Files.ToDictionary(f => f.Key, f => File.Exists(f.Value), StringComparer.Ordinal), mapped);
+            GD.Print(Audio.AudioCoverage.Write(directory, "audio_coverage" + suffix, run, check, mapped, _sounds.Requested, _sounds.Resolved, _sounds.Unknown,
+                _sounds.Problems, _sounds.Errors));
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            GD.PushError($"UNNAMED coverage reports could not be written to {directory}: {e.Message}");
+        }
     }
 
     /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
@@ -1324,7 +1431,7 @@ public partial class Main : Node3D
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
-                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

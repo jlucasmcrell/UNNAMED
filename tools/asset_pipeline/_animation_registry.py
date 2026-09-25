@@ -38,7 +38,7 @@ SKELETON_FAMILIES = {
     "humanoid_standard", "kal_compact_winged", "vaskaal_tall_articulated",
     "ondrek_heavy", "constructed_standard", "mor_special",
     "creature_quadruped", "creature_humanoid", "creature_serpentine",
-    "creature_winged", "mechanical",
+    "creature_winged", "creature_arthropod", "mechanical",
 }
 
 CATEGORIES = {"locomotion", "combat", "interaction", "magic", "traversal",

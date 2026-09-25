@@ -20,7 +20,10 @@ Two motion formats are accepted:
             - limbs are two-segment chains. Each chain's bend plane and fold direction come from
               its rest geometry (the knee's offset from the root-to-end line) or, where the motion
               says so ("forward", "back", "up"), from the anatomy, and a fold is always toward that
-              side, so knees and elbows cannot bend backward;
+              side, so knees and elbows cannot bend backward; a chain marked "fk": "hang" (the
+              person plan's arms) is posed from hanging straight down, not from its rest, so an
+              A-pose bind hangs its arms (Limb.fk_hang); a body "upright" (0-1) takes the bind's
+              own trunk lean out, so the body's pitch and roll are measured from vertical;
             - feet are placed by two-bone IK on ground contacts: the lowest vertex of the foot's own
               skin lands exactly on the target height, so a planted foot stands on y = 0;
             - a stance is fitted once per rig from the rest pose: the smallest body drop (and, for
@@ -287,6 +290,10 @@ class Limb:
         lift = self.h0.cross(UP)
         self.r0 = lift.normalized() if lift.length > 0.5 else FWD * self.side
         self.rest_extension = (self.B - J0).length / self.Ltot
+        # "fk": "hang" (the person plan's arms): the FK angles are measured from the upper bone
+        # hanging straight down, whatever the bind pose, so an A-pose bind hangs its arms
+        self.fk_from = spec.get("fk", "rest")
+        self.q_hang = self.u0.rotation_difference(-UP).to_matrix() if self.fk_from == "hang" else None
 
     AXES = {"forward": FWD, "back": -FWD, "up": UP, "down": -UP}
 
@@ -311,9 +318,26 @@ class Limb:
         hanging limb) or up (a sprawled one, see r0); twist about the upper bone; flex: folds at the
         middle and end joints, + toward the fold side only."""
         flex = list(spec.get("flex", [0.0, 0.0])) + [0.0, 0.0]
+        if self.q_hang is not None:
+            return self.fk_hang(spec, flex)
         qu = (rot(self.s0, spec.get("swing", 0.0)) @ rot(self.r0, spec.get("raise", 0.0))
               @ rot(self.u0, self.side * spec.get("twist", 0.0)))
         return qu, rot(self.f0, flex[0] - self.rest_fold), rot(self.f0, flex[1])
+
+    def fk_hang(self, spec, flex):
+        """FK from hanging straight down beside the body (fk "hang"): the upper bone is first turned
+        from its rest to straight down, then twist + turns it in about itself, raise + swings it out
+        to its side, swing + forward, and yaw + across toward the other side. The fold is the
+        chain's own (an elbow folds the forearm forward from hanging; the end folds the same way,
+        tilting a hanging hand's thumb up); bend + folds the end toward its palm (a hanging hand's
+        palm faces the thigh: bent back, it faces forward with the arm held out), and pronate + turns
+        it about the lower bone, the thumb (which points forward on a hanging hand) turning in."""
+        s = self.side
+        qu = (rot(UP, -s * spec.get("yaw", 0.0)) @ rot(-LEFT, spec.get("swing", 0.0))
+              @ rot(FWD * s, spec.get("raise", 0.0)) @ rot(-UP, s * spec.get("twist", 0.0)) @ self.q_hang)
+        qe = (rot(self.v0, s * spec.get("pronate", 0.0)) @ rot(self.f0, flex[1])
+              @ rot(FWD, -s * spec.get("bend", 0.0)))
+        return qu, rot(self.f0, flex[0] - self.rest_fold), qe
 
     # --- IK ------------------------------------------------------------------------------------
     def chain(self, Pu, target, pole):
@@ -430,6 +454,13 @@ class Solver:
         self.last_lift = {}
         self.pivot_contacts = (sum((v for v in self.neutral.values()), Vector())
                                / max(len(self.neutral), 1)) if self.neutral else Vector()
+        # How far the bind's trunk leans, forward and to the right (deg): the head joint against the
+        # body bone. A frame's body "upright" (0-1) takes that much of it out, so its pitch and roll are
+        # measured from vertical rather than from a bind that stoops or leans.
+        top = next((b for b in ("head", "neck", "chest") if b in body.H0), None)
+        trunk = (body.H0[top] - body.H0[self.body_bone]) if top else UP.copy()
+        self.rest_lean = (math.degrees(math.atan2(trunk.dot(FWD), trunk.dot(UP))),
+                          math.degrees(math.atan2(-trunk.dot(LEFT), trunk.dot(UP))))
 
     def _part_rows(self, bones, root):
         """A part's vertices away from its root joint (those next to it move with the trunk)."""
@@ -496,6 +527,9 @@ class Solver:
                 Q[name] = rot(self.tilt_axis, -self.tilt_deg) @ Q.get(name, IDENTITY)
         bspec = frame.get("body", {})
         R_auth = creature_rotation(bspec)
+        if bspec.get("upright"):
+            u = bspec["upright"]
+            R_auth = R_auth @ rot(FWD, -u * self.rest_lean[1]) @ rot(LEFT, -u * self.rest_lean[0])
         R_tilt = rot(self.tilt_axis, self.tilt_deg) if self.tilt_axis is not None else IDENTITY
         base = (body.H0[self.body_bone] - self.drop * UP + bspec.get("fwd", 0.0) * s * FWD
                 + bspec.get("up", 0.0) * s * UP + bspec.get("side", 0.0) * s * LEFT)
@@ -544,6 +578,8 @@ class Solver:
         return D, P, info
 
     def solve_limb(self, limb, lspec, Dp, Pu, target, extension):
+        if limb.q_hang is not None and "reach" in lspec:
+            return self.reach_limb(limb, lspec, Dp, Pu)
         fk_u, fk_l, fk_e = limb.fk(lspec)
         w = lspec.get("ik", 1.0 if target is not None else 0.0)
         toe = lspec.get("toe", 0.0)
@@ -588,6 +624,22 @@ class Solver:
         qe = blend(fk_e, Dl.inverted() @ De, w)
         Du = Dp @ qu
         Dl = Du @ ql
+        return Du, Dl, Dl @ qe, ext
+
+    def reach_limb(self, limb, lspec, Dp, Pu):
+        """A fk "hang" chain placed by IK: its end (a wrist) at "reach" [out, up, fwd] from its root
+        (a shoulder), in chain lengths along the parent's posed axes (out + away from the midline),
+        the middle joint (an elbow) toward "pole" [out, up, fwd] (default down and back: a hanging
+        arm's elbow); the end bone's wrist fold and pronation as in FK. Where the pole leaves the
+        chain as FK would hang it, the hand's thumb points the same way, so a weapon sits alike."""
+        s = limb.side
+        r = lspec["reach"]
+        target = Pu + (Dp @ ((r[0] * s) * LEFT + r[1] * UP + r[2] * FWD)) * limb.Ltot
+        pv = lspec.get("pole", [0.0, -1.0, -0.5])
+        pole = Dp @ ((pv[0] * s) * LEFT + pv[1] * UP + pv[2] * FWD)
+        Du, Dl, ext = limb.chain(Pu, target, pole)
+        _, _, qe = limb.fk_hang(lspec, list(lspec.get("flex", [0.0, 0.0])) + [0.0, 0.0])
+        self._goal = None
         return Du, Dl, Dl @ qe, ext
 
     # --- the ground ------------------------------------------------------------------------------

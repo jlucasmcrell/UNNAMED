@@ -16,7 +16,11 @@ API
     bake_maps(obj, materials, res, samples, device, work_dir, stem, seed=0, ground=True, lifts=None,
               ao_distance=0.35, bevel_radius=0.004) -> (paths, stats)
         materials: [Material] indexed by the mesh's material_index; writes <stem>_basecolor.jpg (q90),
-        <stem>_orm.jpg (q90) and <stem>_normal.png in work_dir
+        <stem>_orm.jpg (q90) and <stem>_normal.png in work_dir; when any recipe returns 'emit' (linear rgb, glowing
+        colour; 0 where the surface does not glow) also <stem>_emissive.jpg (sRGB, q90)
+    bake_tile(material, res, samples, device, work_dir, stem, seed=0, size_m=1.0) -> (paths, stats)
+        a seamless tile: the recipe baked over one unit square of UV (a periodic recipe built on the Graph's U, V
+        torus noise tiles exactly), for tiled surfaces with world-scale UVs (runner's tiled mode)
     to_srgb(x), save_image(arr, path, colourspace, fmt='PNG'|'JPEG', quality=90)
 """
 import contextlib
@@ -117,11 +121,14 @@ def bake_material(name, material, image, ao_distance=0.35, bevel_radius=0.004):
     g.put(bump.inputs["Height"], res["height"])
     diffuse = g.node("ShaderNodeBsdfDiffuse")
     tree.links.new(bump.outputs["Normal"], diffuse.inputs["Normal"])
+    e_emit = g.node("ShaderNodeEmission")
+    g.put(e_emit.inputs["Color"], res.get("emit", (0.0, 0.0, 0.0)))
+    g.put(e_emit.inputs["Strength"], 1.0)
     img = g.node("ShaderNodeTexImage")
     img.image = image
     tree.nodes.active = img
     return mat, {"out": out, "colour": e_col.outputs[0], "orm": e_orm.outputs[0], "normal": diffuse.outputs[0],
-                 "tree": tree, "nodes": g.count}
+                 "emit": e_emit.outputs[0], "glows": "emit" in res, "tree": tree, "nodes": g.count}
 
 
 @contextlib.contextmanager
@@ -208,12 +215,13 @@ def bake_maps(obj, materials, res, samples, device, work_dir, stem, seed=0, grou
     me.polygons.foreach_set("material_index", keep)
     me.update()
     out, timings = {}, {}
+    glows = any(sh["glows"] for sh in shaders)
     with contextlib.ExitStack() as stack:
         if ground:
             stack.enter_context(ground_plane())
         stack.enter_context(lifted(obj, lifts))
         select_only(obj)
-        for pass_ in ("colour", "orm", "normal"):
+        for pass_ in ("colour", "orm", "normal") + (("emit",) if glows else ()):
             for sh in shaders:
                 tree = sh["tree"]
                 for link in list(sh["out"].inputs["Surface"].links):
@@ -235,6 +243,11 @@ def bake_maps(obj, materials, res, samples, device, work_dir, stem, seed=0, grou
     save_image(to_srgb(col), paths["basecolor"], "sRGB", formats["basecolor"])
     save_image(orm, paths["orm"], "Non-Color", formats["orm"])
     save_image(nrm, paths["normal"], "Non-Color", formats["normal"])
+    if glows:
+        emit = out["emit"]
+        emit[~mask] = 0.0
+        paths["emissive"] = os.path.join(work_dir, f"{stem}_emissive.jpg")
+        save_image(to_srgb(emit), paths["emissive"], "sRGB", "JPEG")
     bpy.data.images.remove(image)
     for mat in mats:
         bpy.data.materials.remove(mat)
@@ -243,4 +256,22 @@ def bake_maps(obj, materials, res, samples, device, work_dir, stem, seed=0, grou
              "normal_mean_z_decoded": round(float((nrm[mask][:, 2] * 2 - 1).mean()), 4),
              "normal_min_z_decoded": round(float((nrm[mask][:, 2] * 2 - 1).min()), 4),
              "shader_nodes": {m.name: sh["nodes"] for m, sh in zip(materials, shaders)}}
+    if glows:
+        stats["emissive_share"] = round(float((out["emit"].max(axis=2) > 0.02)[mask].mean()), 4)
+    return paths, stats
+
+
+def bake_tile(material, res, samples, device, work_dir, stem, seed=0, size_m=1.0):
+    """Bake a (periodic) recipe over one unit square of UV into a seamless tile's maps; see the module docstring.
+    size_m is the tile's real size, so the recipe's height (metres) bakes to true slopes."""
+    import bpy
+    bpy.ops.mesh.primitive_plane_add(size=size_m, location=(0.0, 0.0, 0.0))
+    plane = bpy.context.active_object
+    plane.name = f"_tile_{stem}"
+    plane.data.attributes.new("pzoff", "FLOAT", "FACE")      # bake_maps' lift bookkeeping expects it
+    try:
+        paths, stats = bake_maps(plane, [material], res, samples, device, work_dir, stem, seed=seed, ground=False)
+    finally:
+        bpy.data.objects.remove(plane, do_unlink=True)
+    stats["tile"] = True
     return paths, stats

@@ -35,6 +35,8 @@ def check(asset_id, route, manifest=MANIFEST):
     if asset_id in frozen and asset_id not in released:
         return False, (f"{asset_id} is in the frozen backlog: cluster it into a production family in "
                        f"{os.path.basename(manifest)} ('clusters', released: true) first")
+    if route == "concept" and asset_id.startswith("icon_"):
+        return True, f"{asset_id}: 2D UI icon, exempt from 3D asset classification (not part of the frozen backlog)"
     entry = doc.get("assets", {}).get(asset_id)
     if entry is None:
         return False, (f"{asset_id} is not classified: add it to 'assets' in {os.path.basename(manifest)} as "

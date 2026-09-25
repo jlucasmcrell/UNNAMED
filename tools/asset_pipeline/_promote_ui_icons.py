@@ -23,7 +23,7 @@ import os
 
 from PIL import Image
 
-ASSETS = r"W:\UNNAMED\assets"
+ASSETS = os.environ.get("UNNAMED_ASSETS", r"W:\UNNAMED\assets")
 CONCEPTS = os.path.join(ASSETS, "concepts")
 OUT_DIR = os.path.join(ASSETS, "ui", "icons")
 OUT_MANIFEST = os.path.join(ASSETS, "manifests", "ui_icons.json")
@@ -119,6 +119,26 @@ SLOTS = {
     "ui.condition.critical": ("icon_condition_critical", "rendered",
                               "Critically wounded enemy. Spec section 5. Distinct from"
                               " ui.status.wounded."),
+    # The Phase-1 items with no inventory icon (2026-09-25 polish pass): the 13 items content/ names with no icon
+    # binding. Read against each item's own yaml (name, notes) so the icon draws what the item actually is.
+    "ui.item.arrow_rough": ("icon_item_arrow_rough", "rendered", "item.ammo.arrow_rough: a rough hunting arrow."),
+    "ui.item.hide_cap": ("icon_item_hide_cap", "rendered", "item.armor.hide_cap: tanned leather head armor."),
+    "ui.item.hide_vest": ("icon_item_hide_vest", "rendered", "item.armor.hide_vest: tanned leather body armor."),
+    "ui.item.ash_haft": ("icon_item_ash_haft", "rendered",
+                        "item.material.ash_haft: a cut ash pole, feeds the March Spear."),
+    "ui.item.ashbloom": ("icon_item_ashbloom", "rendered", "item.material.herb_ashbloom: a herb gathered by the stream."),
+    "ui.item.iron_ingot": ("icon_item_iron_billet", "rendered",
+                          "item.material.iron_ingot: the content bible's Iron Billet, smelted from ore."),
+    "ui.item.iron_ore": ("icon_item_iron_ore", "rendered", "item.material.iron_ore: raw ore struck from the seam."),
+    "ui.item.raw_meat": ("icon_item_raw_meat", "rendered", "item.material.raw_meat: a wolf drop, feeds companion trust."),
+    "ui.item.wolf_hide": ("icon_item_wolf_hide", "rendered", "item.material.wolf_hide: a wolf drop."),
+    "ui.item.halda_token": ("icon_item_halda_token", "rendered",
+                           "item.quest.halda_token: the quest item, never dropped or sold."),
+    "ui.item.resonance_primer": ("icon_item_resonance_primer", "rendered",
+                                "item.tome.resonance_primer: the survey scholar's primer, teaches the three formulas."),
+    "ui.item.water_flask": ("icon_item_water_flask", "rendered",
+                           "item.tool.water_flask: one charge, refilled at the stream."),
+    "ui.item.wolf_fang": ("icon_item_wolf_fang", "rendered", "item.trinket.wolf_fang: +2% crit, an amulet slot."),
 }
 
 

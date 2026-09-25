@@ -23,8 +23,11 @@ public sealed class VisualAudit
     private const float IsoAzimuth = 45f;
     private const float IsoElevation = 35f;
 
-    /// <summary>A picture: the camera at an eye (x, height above the ground, z) looking at a target (the same), and the nodes it is of.</summary>
-    internal sealed record Shot(string Name, string Sample, (float X, float H, float Z) Eye, (float X, float H, float Z) Target, string[] Targets, string Says);
+    /// <summary>A picture: the camera at an eye (x, height above the ground, z) looking at a target (the same), and the nodes it is of.
+    /// With <see cref="Near"/>, the picture is of whichever figure under that group stands nearest the point when it is taken (a creature
+    /// wanders): the eye is then an offset from the figure, its height above the ground, and the target the figure's own height.</summary>
+    internal sealed record Shot(string Name, string Sample, (float X, float H, float Z) Eye, (float X, float H, float Z) Target, string[] Targets, string Says,
+        (string Under, float X, float Z)? Near = null);
 
     // Gameplay shots at a player's distance: the third-person camera stands 3.5 m behind a body, about 2.65 m up (eye 1.62 m, pitch -0.3).
     /// <summary>The in-world shots (the A/B harness, <see cref="VisualAuditAB"/>, takes the same ones).</summary>
@@ -77,7 +80,11 @@ public sealed class VisualAudit
     private int _index;
     private int _wait;
 
-    public VisualAudit(Node3D root, GameSession session, Art.ArtLibrary art, Art.ArtBindings bindings, CameraRig rig, string directory)
+    /// <param name="shotsFile"><c>--audit-shots file.json</c>: these world pictures in place of the built-in ones, and no isolated samples
+    /// (a checkpoint's screenshot list). Each entry: <c>name</c>, <c>says</c>, then either <c>eye</c> and <c>target</c> as [x, height, z],
+    /// or <c>near</c> as [group, x, z] with <c>eye</c> an offset [dx, height, dz] from that figure and <c>target</c> [0, height, 0].</param>
+    public VisualAudit(Node3D root, GameSession session, Art.ArtLibrary art, Art.ArtBindings bindings, CameraRig rig, string directory,
+        string? shotsFile = null)
     {
         _root = root;
         _session = session;
@@ -89,6 +96,11 @@ public sealed class VisualAudit
         System.IO.Directory.CreateDirectory(_raw);
         DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
 
+        if (shotsFile is not null)
+        {
+            _shots.AddRange(LoadShots(shotsFile));
+            return;
+        }
         _shots.AddRange(WorldShots);
 
         _samples.AddRange(new[]
@@ -156,6 +168,17 @@ public sealed class VisualAudit
             layer.Visible = false;
         var eye = Ground(shot.Eye);
         var target = Ground(shot.Target);
+        if (shot.Near is { } near)
+        {
+            var figure = _root.GetNodeOrNull(near.Under)?.GetChildren().OfType<Node3D>()
+                .MinBy(n => new Vector2(n.GlobalPosition.X - near.X, n.GlobalPosition.Z - near.Z).LengthSquared());
+            if (figure is null)
+                throw new InvalidOperationException($"{shot.Name}: nothing under {near.Under}");
+            var at = figure.GlobalPosition;
+            eye = Ground((at.X + shot.Eye.X, shot.Eye.H, at.Z + shot.Eye.Z));
+            target = at + new Vector3(0, shot.Target.H, 0);
+            shot = shot with { Targets = new[] { figure.Name.ToString() } };
+        }
         _camera.Current = true;
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (++_wait < SettleFrames)
@@ -178,6 +201,19 @@ public sealed class VisualAudit
         };
         Write(shot.Name + ".json", dump);
         _log.Add(new Dictionary<string, object?> { ["png"] = shot.Name + ".png", ["says"] = shot.Says, ["eye"] = V(eye), ["target"] = V(target) });
+    }
+
+    private static IEnumerable<Shot> LoadShots(string file)
+    {
+        using var document = JsonDocument.Parse(File.ReadAllText(file));
+        static (float, float, float) Triple(JsonElement e) => (e[0].GetSingle(), e[1].GetSingle(), e[2].GetSingle());
+        foreach (var entry in document.RootElement.EnumerateArray())
+        {
+            (string, float, float)? near = entry.TryGetProperty("near", out var n) ? (n[0].GetString()!, n[1].GetSingle(), n[2].GetSingle()) : null;
+            var targets = entry.TryGetProperty("targets", out var t) ? t.EnumerateArray().Select(x => x.GetString()!).ToArray() : Array.Empty<string>();
+            yield return new Shot(entry.GetProperty("name").GetString()!, "checkpoint", Triple(entry.GetProperty("eye")), Triple(entry.GetProperty("target")),
+                targets, entry.GetProperty("says").GetString()!, near);
+        }
     }
 
     private Vector3 Ground((float X, float H, float Z) at)

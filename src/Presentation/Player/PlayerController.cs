@@ -207,7 +207,14 @@ public sealed class PlayerController
         return best;
     }
 
-    public void Interact(string doorKey) => _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+    /// <summary>The body was asked to reach for something (a door or switch, a node, an item, a companion to help up): its figure shows it.</summary>
+    public event Action? Reached;
+
+    public void Interact(string doorKey)
+    {
+        _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+        Reached?.Invoke();
+    }
 
     /// <summary>Speak to an NPC within reach (M4).</summary>
     public void Talk(string npcId) => _session.Submit(new TalkCommand(_session.Simulation!.PlayerId, npcId));
@@ -217,10 +224,18 @@ public sealed class PlayerController
         _session.Submit(new OrderCompanionCommand(_session.Simulation!.PlayerId, npcId, order));
 
     /// <summary>Help a downed companion up (M6).</summary>
-    public void Revive(string npcId) => _session.Submit(new ReviveCommand(_session.Simulation!.PlayerId, npcId));
+    public void Revive(string npcId)
+    {
+        _session.Submit(new ReviveCommand(_session.Simulation!.PlayerId, npcId));
+        Reached?.Invoke();
+    }
 
     /// <summary>Harvest a node within reach (M3f).</summary>
-    public void Gather(string nodeKey) => _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
+    public void Gather(string nodeKey)
+    {
+        _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
+        Reached?.Invoke();
+    }
 
     /// <summary>Work a recipe at the station in reach (M3f).</summary>
     public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));
@@ -237,7 +252,10 @@ public sealed class PlayerController
     {
         var simulation = _session.Simulation!;
         if (simulation.WorldItems.FirstOrDefault(i => i.Id.Value == itemId) is { } item)
+        {
             _session.Submit(new MoveItemCommand(simulation.PlayerId, itemId, ItemPlace.Ground, ItemPlace.Carried, item.Count));
+            Reached?.Invoke();
+        }
     }
 
     private double Distance(long xMm, long zMm)

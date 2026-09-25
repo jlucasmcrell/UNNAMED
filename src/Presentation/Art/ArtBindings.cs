@@ -6,9 +6,28 @@ using Godot;
 
 namespace UNNAMED.Presentation.Art;
 
-/// <summary>How a model is placed for the thing it stands for, always at its authored size (see <c>art_bindings.json</c>'s comment).</summary>
+/// <summary>
+/// How a model is placed for the thing it stands for, always at its authored size (see <c>art_bindings.json</c>'s comment): a node's
+/// <see cref="Spent"/> look beside its ready one, a station's <see cref="Beside"/> model at <see cref="BesideOffset"/> and its
+/// <see cref="Light"/>, a building's lights inside it (<see cref="Lights"/>).
+/// </summary>
 public sealed record Placement(string? Model, string Fit = "none", string? Surface = null, string? Material = null, bool Hidden = false,
-    bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null);
+    bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
+    Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null);
+
+/// <summary>
+/// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
+/// footprint centre on the ground), its colour, energy, range, and whether it casts shadows.
+/// </summary>
+public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Range, bool Shadows, float Size, float FogEnergy, string? Note = null)
+{
+    /// <summary>The light itself, placed relative to its parent.</summary>
+    public OmniLight3D Build(string name) => new()
+    {
+        Name = name, Position = At, LightColor = Colour, LightEnergy = Energy, OmniRange = Range, OmniAttenuation = 1.2f, ShadowEnabled = Shadows,
+        LightSize = Size, LightVolumetricFogEnergy = FogEnergy,
+    };
+}
 
 public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh,
     IReadOnlyDictionary<string, string> Steps, int StepsPerSound);
@@ -54,6 +73,8 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, PersonArt> People { get; private init; } = new Dictionary<string, PersonArt>();
     public IReadOnlyDictionary<string, WeaponArt> Weapons { get; private init; } = new Dictionary<string, WeaponArt>();
     public WeaponArt? CompanionWeapon { get; private init; }
+    /// <summary>A shot's model by its kind ("arrow"), for <see cref="Greybox.ProjectilesView"/>; no entry, no entry loaded, greybox.</summary>
+    public IReadOnlyDictionary<string, string> Projectiles { get; private init; } = new Dictionary<string, string>();
     public IReadOnlyDictionary<string, string> Icons { get; private init; } = new Dictionary<string, string>();
     public IReadOnlyDictionary<string, string> Effects { get; private init; } = new Dictionary<string, string>();
     public IReadOnlyDictionary<string, CellSound> CellSounds { get; private init; } = new Dictionary<string, CellSound>();
@@ -106,6 +127,8 @@ public sealed class ArtBindings
                 yield return model;
             if (look.Beside is { } beside)
                 yield return beside;
+            if (look.Spent is { } spent)
+                yield return spent;
         }
         foreach (var (_, models, _) in _prefixes)
         {
@@ -114,6 +137,8 @@ public sealed class ArtBindings
         }
         foreach (var weapon in Weapons.Values)
             yield return weapon.Model;
+        foreach (string model in Projectiles.Values)
+            yield return model;
         if (GroundItem?.Model is { } item)
             yield return item;
     }
@@ -151,6 +176,9 @@ public sealed class ArtBindings
                     ? weapons.EnumerateObject().ToDictionary(w => w.Name, w => Weapon(w.Value), StringComparer.Ordinal)
                     : new Dictionary<string, WeaponArt>(),
                 CompanionWeapon = root.TryGetProperty("companion_weapon", out var companion) ? Weapon(companion) : null,
+                Projectiles = root.TryGetProperty("projectiles", out var projectiles)
+                    ? projectiles.EnumerateObject().Where(p => Text(p.Value, "model") is not null).ToDictionary(p => p.Name, p => Text(p.Value, "model")!, StringComparer.Ordinal)
+                    : new Dictionary<string, string>(),
                 Icons = Strings(root, "icons"),
                 Effects = Strings(root, "effects"),
                 CellSounds = audio.ValueKind == JsonValueKind.Object && audio.TryGetProperty("cells", out var cells)
@@ -176,13 +204,15 @@ public sealed class ArtBindings
                 foreach (var wall in walls.EnumerateObject())
                 {
                     bindings._wallMaterials.Add((wall.Name, Text(wall.Value, "material") ?? "wood"));
-                    if (Text(wall.Value, "model") is not null)
-                        bindings._buildings[wall.Name] = Look(wall.Value);
+                    var look = Look(wall.Value);
+                    if (look.Model is not null || look.Lights is { Count: > 0 })
+                        bindings._buildings[wall.Name] = look;
                 }
             }
             return bindings;
         }
-        catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
+        catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or IndexOutOfRangeException
+                                      or FormatException)
         {
             GD.PushWarning($"UNNAMED art: the bindings at {resourcePath} could not be read ({e.Message}); drawing greybox");
             return Empty;
@@ -190,9 +220,35 @@ public sealed class ArtBindings
     }
 
     private static Placement Look(JsonElement e) => new(
-        Text(e, "model"), Text(e, "fit") ?? "none", Text(e, "surface"), Text(e, "material"),
-        e.TryGetProperty("hidden", out var hidden) && hidden.GetBoolean(), e.TryGetProperty("hide_ready", out var hideReady) && hideReady.GetBoolean(),
-        Text(e, "beside"), e.TryGetProperty("offset", out var offset) ? Vector(offset) : default, Text(e, "sound"));
+        Text(e, "model"), Text(e, "fit") ?? "none", Text(e, "surface"), Text(e, "material"), Flag(e, "hidden"), Flag(e, "hide_ready"),
+        Text(e, "beside"), e.TryGetProperty("offset", out var offset) ? Vector(offset) : default, Text(e, "sound"), Text(e, "spent"),
+        e.TryGetProperty("beside_offset", out var besideOffset) ? Vector(besideOffset) : default,
+        e.TryGetProperty("light", out var light) ? Light(light) : null,
+        e.TryGetProperty("interior_light", out var lights)
+            ? (lights.ValueKind == JsonValueKind.Array ? lights.EnumerateArray().Select(Light) : new[] { Light(lights) }).OfType<LightSpec>().ToList()
+            : null);
+
+    private static bool Flag(JsonElement e, string name) =>
+        e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
+
+    /// <summary>A light: "at" [x, y, z] metres from what it lights, "colour" [r, g, b], "energy", "range" metres, "shadows", "size"; null when malformed.</summary>
+    private static LightSpec? Light(JsonElement e)
+    {
+        if (e.ValueKind != JsonValueKind.Object || !e.TryGetProperty("at", out var at) || !IsVector(at))
+        {
+            GD.PushWarning($"UNNAMED art: a light binding without its \"at\" [x, y, z] is left out: {e.GetRawText()}");
+            return null;
+        }
+        var colour = e.TryGetProperty("colour", out var c) && IsVector(c) ? Vector(c) : Vector3.One;
+        return new LightSpec(Vector(at), new Color(colour.X, colour.Y, colour.Z), Number(e, "energy", 1f), Number(e, "range", 5f), Flag(e, "shadows"),
+            Number(e, "size", 0f), Number(e, "fog_energy", 1f), Text(e, "note"));
+    }
+
+    private static float Number(JsonElement e, string name, float fallback) =>
+        e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out double d) && double.IsFinite(d) ? (float)d : fallback;
+
+    private static bool IsVector(JsonElement e) =>
+        e.ValueKind == JsonValueKind.Array && e.GetArrayLength() == 3 && e.EnumerateArray().All(v => v.ValueKind == JsonValueKind.Number);
 
     private static WeaponArt Weapon(JsonElement e) => new(Text(e, "model")!, Text(e, "family") ?? "sword", Text(e, "hand") == "off_hand");
 
@@ -201,7 +257,8 @@ public sealed class ArtBindings
             ? HeldWeapon.Frame(Vector(grip.GetProperty("at")), Vector(grip.GetProperty("primary")), Vector(grip.GetProperty("secondary")))
             : null;
 
-    private static Vector3 Vector(JsonElement e) => new((float)e[0].GetDouble(), (float)e[1].GetDouble(), (float)e[2].GetDouble());
+    private static Vector3 Vector(JsonElement e) =>
+        IsVector(e) ? new((float)e[0].GetDouble(), (float)e[1].GetDouble(), (float)e[2].GetDouble()) : throw new FormatException($"not [x, y, z]: {e.GetRawText()}");
 
     private static string? Text(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;

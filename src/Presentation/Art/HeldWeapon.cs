@@ -27,14 +27,19 @@ public static class HeldWeapon
     public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip)
     {
         if (art.Model(modelId) is not { } model)
+        {
+            art.Coverage.Fallback("weapon", modelId, $"{art.Why(modelId) ?? "not drawn"}: a greybox weapon", modelId);
             return null;
+        }
         if (model.FindChild(GripSocket, true, false) is not Node3D socket)
         {
             art.Report(modelId, $"no {GripSocket} socket to hold it by", modelId);
+            art.Coverage.Fallback("weapon", modelId, $"no {GripSocket} socket to hold it by: a greybox weapon", modelId);
             model.Free();
             return null;
         }
         model.Transform = grip * ArtLibrary.Relative(model, socket).AffineInverse();
+        art.Coverage.Resolved("weapon", modelId, modelId);
         return model;
     }
 

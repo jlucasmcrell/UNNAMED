@@ -5,7 +5,8 @@
    noise). Generators written before the gate are listed in the manifest's legacy_generators until they are ported.
 2. Every generator is registered: it is a template named by an archetype, or a bespoke hero asset's generator.
 3. An archetype with two costed assets is reusable only if the second asset's asset-specific lines and agent tokens
-   are each at most half the first's; otherwise its status must say not_yet_reusable.
+   (wall minutes where tokens were not measured) are each at most half the first's; otherwise its status must say
+   not_yet_reusable.
 
     python _check_reuse_gate.py
 """
@@ -46,8 +47,10 @@ def main():
         if len(cost) < 2:
             continue
         first, second = cost[0], cost[1]
+        # Lines always; effort as agent tokens, or wall minutes where tokens were not measured.
+        effort = "agent_tokens" if first.get("agent_tokens") and second.get("agent_tokens") is not None else "wall_minutes"
         cheaper = all(second.get(m) is not None and first.get(m) and second[m] <= 0.5 * first[m]
-                      for m in ("asset_specific_lines", "agent_tokens"))
+                      for m in ("asset_specific_lines", effort))
         if not cheaper and archetype.get("status") != "not_yet_reusable":
             problems.append(f"archetype {key}: second asset is not materially cheaper than the first "
                             f"({second} vs {first}); status must be not_yet_reusable")

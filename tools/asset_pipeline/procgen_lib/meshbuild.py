@@ -18,6 +18,7 @@ API (numpy only until make_object; the Blender calls import bpy lazily)
     select_only(obj);  finish_topology(obj, sharp_deg=50)  triangulate, sharp by angle, face-area weighted normals
     split_group(obj, group, name, pivot) -> child object whose origin is `pivot` (lids, doors)
     remove_attributes(obj, names=ATTRIBUTES);  face_array(me, name)
+    set_colours(obj, colours, name='Col')   per-vertex linear rgb (n_verts, 3) as a float colour attribute
 """
 import math
 from contextlib import contextmanager
@@ -296,6 +297,21 @@ def split_group(obj, group_index, name, pivot):
     child.matrix_parent_inverse = Matrix.Identity(4)
     assert (face_array(obj.data, "pgroup", np.int32) != group_index).all()
     return child
+
+
+def set_colours(obj, colours, name="Col"):
+    """Per-vertex linear rgb as a float colour attribute (export.final_material can multiply it into the base colour;
+    the glTF exporter then writes it as COLOR_0)."""
+    me = obj.data
+    col = np.asarray(colours, np.float32)
+    if col.shape != (len(me.vertices), 3):
+        raise SystemExit(f"vertex colours {col.shape} do not match {len(me.vertices)} vertices")
+    a = me.color_attributes.new(name, "FLOAT_COLOR", "POINT")
+    rgba = np.ones((len(me.vertices), 4), np.float32)
+    rgba[:, :3] = col
+    a.data.foreach_set("color", rgba.ravel())
+    me.color_attributes.active_color = a
+    return a
 
 
 def remove_attributes(obj, names=tuple(ATTRIBUTES)):

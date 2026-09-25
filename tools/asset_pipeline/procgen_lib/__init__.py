@@ -12,9 +12,12 @@ Modules (each module docstring states its API):
     uv           member-frame islands, skyline/shelf packing into bands with padding, band check, texel density
     validate     builder checks (weld-aware open edges, non-manifold, bow-tie, inward, degenerate), UV checks,
                  clashes, geometry_gate/glb_gate (shared with _blender_build_kit.py)
-    bake         Cycles device/bake harness: base colour, OpenGL tangent normal, ORM; ground plane; lifted groups
-    export       staging guard, final material, sockets, glTF export (JPEG q90 colour/ORM, PNG normal), provenance
-    runner       run_template(build_fn, params, asset_id, ...): argv -> gate -> build -> validate -> bake -> export
+    bake         Cycles device/bake harness: base colour, OpenGL tangent normal, ORM, emissive (recipes returning
+                 'emit'); ground plane; lifted groups; bake_tile for seamless tiles
+    export       staging guard, final material (emission, vertex-colour multiply), sockets, glTF export (JPEG q90
+                 colour/ORM/emissive, PNG normal), provenance
+    runner       run_template(build_fn, params, asset_id, ...): argv -> gate -> build -> validate -> bake -> export;
+                 tiled mode (world-scale UVs on a baked seamless tile) and per-vertex colours for large surfaces
     sample_banded_box  a 0.5 m banded plank box: the library's end-to-end self-test template
 
 Only noise, shadergraph (definitions), materials, meshbuild (Builder), primitives, uv and validate (builder checks)

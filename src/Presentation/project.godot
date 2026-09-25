@@ -23,3 +23,18 @@ window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="UNNAMED.Presentation"
+
+[rendering]
+
+; Phase A (the visual audit's V1, measured before adoption; the lighting and environment are HollowView's): MSAA 4x with TAA for the
+; alpha-tested foliage and the thin geometry, 16x anisotropic filtering for the ground at grazing angles, debanding under the overcast sky,
+; soft high-quality shadow filtering and a 4096 16-bit directional shadow atlas. Chosen for RAZER's RTX 4070 Ti at 1920 x 1080 and 60 FPS.
+anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/screen_space_aa=0
+anti_aliasing/quality/use_taa=true
+anti_aliasing/quality/use_debanding=true
+textures/default_filters/anisotropic_filtering_level=4
+lights_and_shadows/directional_shadow/size=4096
+lights_and_shadows/directional_shadow/16_bits=true
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=4
+lights_and_shadows/positional_shadow/soft_shadow_filter_quality=4

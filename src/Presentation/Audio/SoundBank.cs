@@ -24,6 +24,9 @@ public partial class SoundBank : Node
     private readonly Dictionary<string, AudioStreamWav?> _streams = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _played = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _unknown = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, int> _requested = new(StringComparer.Ordinal);
+    private readonly SortedSet<string> _resolved = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, string> _errors = new(StringComparer.Ordinal);
     private readonly Random _pick = new();
 
     public const string Manifest = "playable_prototype_audio_v3.json";
@@ -36,6 +39,20 @@ public partial class SoundBank : Node
 
     /// <summary>Every ID that has played.</summary>
     public IReadOnlyCollection<string> Played => _played;
+
+    /// <summary>Every family or ID the mapping asked to play this run, and how often (the audio coverage report).</summary>
+    public IReadOnlyDictionary<string, int> Requested => _requested;
+
+    /// <summary>Every family or ID asked for that resolved to a sound whose file loaded.</summary>
+    public IReadOnlyCollection<string> Resolved => _resolved;
+
+    /// <summary>Every ID whose file would not load when it was asked for, and why.</summary>
+    public IReadOnlyDictionary<string, string> Errors => _errors;
+
+    /// <summary>Every ID in the set and its file (the static check).</summary>
+    public IReadOnlyDictionary<string, string> Files => _sounds.ToDictionary(s => s.Key, s => s.Value.File, StringComparer.Ordinal);
+
+    private void Asked(string family) => _requested[family] = _requested.GetValueOrDefault(family) + 1;
 
     public void Load(string? assetRoot)
     {
@@ -88,8 +105,11 @@ public partial class SoundBank : Node
     /// </summary>
     public bool Play(string family, Vector3? at = null, double delay = 0)
     {
+        if (_sounds.Count > 0)
+            Asked(family);
         if (Pick(family) is not { } sound || Stream(sound) is not { } stream)
             return false;
+        _resolved.Add(family);
         Node player;
         if (sound.Flat || at is null)
         {
@@ -127,6 +147,8 @@ public partial class SoundBank : Node
     /// <summary>A looping sound on a player of its own, silent until its volume is set (a bed, a Strain layer, the forge).</summary>
     public AudioStreamPlayer? Loop(string id)
     {
+        if (_sounds.Count > 0)
+            Asked(id);
         if (!_sounds.TryGetValue(id, out var sound))
         {
             _unknown.Add(id);
@@ -134,6 +156,7 @@ public partial class SoundBank : Node
         }
         if (Stream(sound) is not { } stream)
             return null;
+        _resolved.Add(id);
         var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f };
         AddChild(player);
         player.Play();
@@ -191,7 +214,10 @@ public partial class SoundBank : Node
             stream = AudioStreamWav.LoadFromFile(sound.File, options);
         }
         if (stream is null)
+        {
             GD.PushWarning($"UNNAMED audio: {sound.Id} would not load from {sound.File}");
+            _errors[sound.Id] = File.Exists(sound.File) ? "the file would not load as WAV" : $"no file at {sound.File}";
+        }
         _streams[sound.Id] = stream;
         return stream;
     }

@@ -43,6 +43,9 @@ FIT_TOOL = os.path.join(TOOL_DIR, "_blender_rig_fit_humanoid20.py")
 MOTION_TOOL = os.path.join(TOOL_DIR, "_make_creature_motion.py")
 ANIM_TOOL = os.path.join(TOOL_DIR, "_blender_anim_creature.py")
 CONTROL = "npc_veth_magistrate"
+# The control rig frozen before Renn's own body was re-fitted (2026-09-25): the template's names, order,
+# hierarchy and roll every fit is checked against, and the rig the control numbers compare the fitter with.
+CONTROL_RIG = os.path.join(ASSETS, "rigs", "humanoid20_control", f"{CONTROL}_rigged.glb")
 FPS = 30
 
 # What each asset plays. Kera's NPC set is rebuilt under her own ids: the shared anim.npc.* files
@@ -83,8 +86,7 @@ def blender(*args):
 # verification of the exported rig
 
 def reference_rig():
-    path = os.path.join(ASSETS, "rigged", CONTROL, f"{CONTROL}_rigged.glb")
-    return fit.glb_skeleton(path)
+    return fit.glb_skeleton(CONTROL_RIG)
 
 
 def vertex_attributes(mesh):
@@ -504,7 +506,7 @@ def process(asset, skip_render=False, frames=5):
             # the control, unchanged: the library's rig with the shared clips Kera's are cut from
             shared = [os.path.join(ASSETS, "animation", "ready", "npc", f"anim.npc.{kind}.glb")
                       for kind in ASSET_CLIPS[asset]["kinds"]]
-            control = render(CONTROL, os.path.join(ASSETS, "rigged", CONTROL, f"{CONTROL}_rigged.glb"),
+            control = render(CONTROL, CONTROL_RIG,
                              shared, outdir, frames, subdir=os.path.join("renders", f"control_{CONTROL}"))
             renders["control_sheets"] = control.get("sheets", [])
 

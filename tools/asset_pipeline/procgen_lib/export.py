@@ -9,7 +9,11 @@ API
     guard_output(path, asset_id=None) -> abs path    refuses assets/ready|rigged|animation and anything in assets/
         outside assets/_staging
     default_out_dir(asset_id) -> assets/_staging/procgen/<asset_id>
-    gltf_output_group(), final_material(objs, paths, name, single_sided=True), flat_materials(obj, materials)
+    gltf_output_group(), flat_materials(obj, materials)
+    final_material(objs, paths, name, single_sided=True, emissive_strength=1.0, vertex_colour=None)
+        paths: basecolor, orm, normal and optionally emissive (glTF emissiveTexture; a strength above 1 exports as
+        KHR_materials_emissive_strength); vertex_colour: a colour attribute multiplied into the base colour, which the
+        exporter writes as COLOR_0 (glTF multiplies it into baseColor)
     add_socket(parent, name, location, display_size=0.15) -> empty child (location in the parent's frame)
     export_glb(path, image_quality=90) -> path        +Y up, named nodes, children kept, no extras, no tangents
     gltf_vec(v)                                         Blender Z-up -> glTF Y-up (x, z, -y)
@@ -59,8 +63,9 @@ def gltf_output_group():
     return ng
 
 
-def final_material(objs, paths, name, single_sided=True):
-    """One Principled material reading the baked maps (ORM through the glTF occlusion group), on every face of objs."""
+def final_material(objs, paths, name, single_sided=True, emissive_strength=1.0, vertex_colour=None):
+    """One Principled material reading the baked maps (ORM through the glTF occlusion group), on every face of objs;
+    an 'emissive' map drives the emission, and vertex_colour names a colour attribute multiplied into the base colour."""
     import bpy
     import numpy as np
     mat = bpy.data.materials.new(name)
@@ -77,7 +82,23 @@ def final_material(objs, paths, name, single_sided=True):
         node.image.colorspace_settings.name = colourspace
         return node
     col = tex("basecolor", "sRGB")
-    tree.links.new(col.outputs["Color"], bsdf.inputs["Base Color"])
+    if vertex_colour:
+        attr = tree.nodes.new("ShaderNodeVertexColor")
+        attr.layer_name = vertex_colour
+        mul = tree.nodes.new("ShaderNodeMix")
+        mul.data_type = "RGBA"
+        mul.blend_type = "MULTIPLY"
+        sock = {s.identifier: s for s in list(mul.inputs) + list(mul.outputs)}
+        sock["Factor_Float"].default_value = 1.0
+        tree.links.new(col.outputs["Color"], sock["A_Color"])
+        tree.links.new(attr.outputs["Color"], sock["B_Color"])
+        tree.links.new(sock["Result_Color"], bsdf.inputs["Base Color"])
+    else:
+        tree.links.new(col.outputs["Color"], bsdf.inputs["Base Color"])
+    if "emissive" in paths:
+        emit = tex("emissive", "sRGB")
+        tree.links.new(emit.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = emissive_strength
     orm = tex("orm", "Non-Color")
     sep = tree.nodes.new("ShaderNodeSeparateColor")
     tree.links.new(orm.outputs["Color"], sep.inputs[0])

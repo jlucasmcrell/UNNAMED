@@ -505,7 +505,8 @@ public sealed class Playthrough
         if (System.IO.Directory.Exists(profile))
             System.IO.Directory.Delete(profile, recursive: true);
         foreach (string name in new[] { "state_saved.json", "state_replay.json", "state_digest.txt", "state_loaded.json", "state_diff.txt",
-                     "transcript_relaunch.md", "commands_relaunch.tsv" })
+                     "transcript_relaunch.md", "commands_relaunch.tsv", "art_coverage_relaunch.json", "art_coverage_relaunch.md",
+                     "audio_coverage_relaunch.json", "audio_coverage_relaunch.md" })
             File.Delete(Path.Combine(directory, name));
     }
 

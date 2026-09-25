@@ -25,6 +25,16 @@ public sealed record SkeletonRest(IReadOnlyDictionary<string, Transform3D> Bones
 
 public sealed record ClipInfo(string Id, bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events);
 
+/// <summary>A world material's maps as loaded (mipmapped), its tile size in metres and its normal strength, for a surface that lays them itself.</summary>
+public sealed record WorldMaps(string Id, Texture2D Albedo, Texture2D? Normal, Texture2D? Orm, float TileSizeM, float NormalStrength);
+
+/// <summary>
+/// What loading the library has cost this run: the model files (their time includes the mipmap pass), the model textures given mipmaps and
+/// that pass's own time (Phase A), the world materials' maps read, and the textures' memory as loaded and as drawn (uncompressed, mipmapped).
+/// </summary>
+public sealed record LoadCost(int Scenes, double SceneMs, int ModelTextures, double MipmapMs, int MaterialMaps, double MaterialMapMs,
+    double VramMbAsLoaded, double VramMbWithMipmaps);
+
 /// <summary>
 /// The asset pipeline's generated library, read where it lies (the asset workspace, never this repository) and by its own stable
 /// IDs: a model is <c>ready/&lt;id&gt;/&lt;id&gt;.glb</c> (or its <c>_rigged</c> skin under <c>rigged/</c>), a clip is
@@ -40,12 +50,30 @@ public sealed class ArtLibrary
     private readonly Dictionary<string, ClipInfo?> _clipInfo = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Material?> _materials = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, WorldMaps?> _maps = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, string> _problems = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, int> _uses = new(StringComparer.Ordinal);
+    private int _sceneCount, _textureCount, _mapCount;
+    private double _sceneMs, _textureMs, _mapMs;
+    private long _vramAsLoaded, _vramWithMips;
 
     private IReadOnlyDictionary<string, string> _withheld = new Dictionary<string, string>();
 
     public ArtLibrary(string? root) => Root = root;
+
+    /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
+    public ArtCoverage Coverage { get; } = new();
+
+    /// <summary>What loading the models has cost so far.</summary>
+    public LoadCost Cost => new(_sceneCount, Math.Round(_sceneMs, 1), _textureCount, Math.Round(_textureMs, 1), _mapCount, Math.Round(_mapMs, 1),
+        Math.Round(_vramAsLoaded / 1048576.0, 1), Math.Round(_vramWithMips / 1048576.0, 1));
+
+    /// <summary>
+    /// Why an asset was not drawn - where it was to stand (<paramref name="at"/>, a structure's ID) first, then the asset itself - or null
+    /// when nothing was recorded against it.
+    /// </summary>
+    public string? Why(string asset, string? at = null) =>
+        at is not null && _problems.TryGetValue($"{asset} at {at}", out string? there) ? there : _problems.GetValueOrDefault(asset);
 
     /// <summary>IDs that exist but are not fit to draw (the bindings' "withheld"): asked for, they are reported and the greybox stands in.</summary>
     public void Withhold(IReadOnlyDictionary<string, string> withheld) => _withheld = withheld;
@@ -161,6 +189,7 @@ public sealed class ArtLibrary
             Problem(id, $"no file at {Path.GetRelativePath(Root!, path)}");
             return null;
         }
+        ulong started = Time.GetTicksUsec();
         var document = new GltfDocument();
         var state = new GltfState();
         var error = document.AppendFromFile(path, state);
@@ -169,15 +198,67 @@ public sealed class ArtLibrary
             Problem(id, $"the glTF would not load ({error})");
             return null;
         }
+        Filter(root);
         var packed = new PackedScene();
         error = packed.Pack(root);
         root.Free();
+        _sceneCount++;
+        _sceneMs += (Time.GetTicksUsec() - started) / 1000.0;
         if (error != Error.Ok)
         {
             Problem(id, $"the loaded scene would not pack ({error})");
             return null;
         }
         return packed;
+    }
+
+    /// <summary>
+    /// Every texture of every material in a freshly loaded model, once (the scene is cached and instanced after): mipmaps where the runtime
+    /// glTF path made none - without them a textured surface shimmers and crawls with distance - and the materials sampling them with
+    /// anisotropic filtering (Phase A: the visual audit's V1). The textures stay uncompressed RGBA8 (VRAM compression is a Phase-B import step).
+    /// A surface whose mesh carries vertex colours (glTF COLOR_0) has them multiply its colour, as glTF says.
+    /// </summary>
+    private void Filter(Node3D root)
+    {
+        ulong started = Time.GetTicksUsec();
+        var seen = new HashSet<ulong>();
+        foreach (var mesh in root.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+            {
+                // glTF's COLOR_0 multiplies the base colour; the runtime import leaves the material ignoring it (the den's rock masses carry it).
+                bool coloured = mesh.Mesh is ArrayMesh array && (array.SurfaceGetFormat(s) & Mesh.ArrayFormat.FormatColor) != 0;
+                foreach (var candidate in new[] { mesh.Mesh.SurfaceGetMaterial(s), mesh.GetSurfaceOverrideMaterial(s) })
+                {
+                    if (coloured && candidate is BaseMaterial3D tinted)
+                        tinted.VertexColorUseAsAlbedo = true;
+                    if (candidate is not BaseMaterial3D material || !seen.Add(material.GetInstanceId()))
+                        continue;
+                    material.TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
+                    for (int p = 0; p < (int)BaseMaterial3D.TextureParam.Max; p++)
+                    {
+                        if (material.GetTexture((BaseMaterial3D.TextureParam)p) is not ImageTexture texture || !seen.Add(texture.GetInstanceId()))
+                            continue;
+                        var image = texture.GetImage();
+                        if (image is null || image.IsEmpty() || image.IsCompressed())
+                            continue;
+                        long pixels = (long)image.GetWidth() * image.GetHeight();
+                        // Uploaded as four bytes a pixel (a three-channel image too, on Vulkan); a full mip chain adds a third.
+                        _vramAsLoaded += pixels * 4 * (image.HasMipmaps() ? 4 : 3) / 3;
+                        _vramWithMips += pixels * 4 * 4 / 3;
+                        if (!image.HasMipmaps())
+                        {
+                            image.GenerateMipmaps();
+                            texture.SetImage(image);
+                        }
+                        _textureCount++;
+                    }
+                }
+            }
+        }
+        _textureMs += (Time.GetTicksUsec() - started) / 1000.0;
     }
 
     /// <summary>
@@ -226,31 +307,31 @@ public sealed class ArtLibrary
             return null;
         if (_clipInfo.TryGetValue(id, out var cached))
             return cached;
-        string path = Path.Combine(Root, "animation", "clips", $"anim.{id}.json");
         ClipInfo? info = null;
-        if (File.Exists(path))
+        try
         {
-            try
+            string path = Path.Combine(Root, "animation", "clips", $"anim.{id}.json");
+            if (File.Exists(path))
             {
-                using var json = JsonDocument.Parse(File.ReadAllText(path));
-                var root = json.RootElement;
-                var events = new List<(string, double)>();
-                if (root.TryGetProperty("events", out var list) && list.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var e in list.EnumerateArray())
-                        events.Add((e.GetProperty("id").GetString()!, e.GetProperty("time").GetDouble()));
-                }
-                info = new ClipInfo(id, root.TryGetProperty("loop", out var loop) && loop.GetBoolean(),
-                    root.TryGetProperty("duration_s", out var seconds) ? seconds.GetDouble() : 0, events);
+                // Each field is checked for its kind (the Phase-1 technical audit, H-02): a bad one refuses the record, never throws.
+                if (ArtRecords.Clip(File.ReadAllText(path), out string? why) is { } record)
+                    info = new ClipInfo(id, record.Loop, record.Seconds, record.Events);
+                else
+                    Problem(id, $"its clip record cannot be used: {why}");
             }
-            catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
-            {
-                Problem(id, $"its clip record could not be read ({e.Message})");
-            }
+        }
+        catch (Exception e) when (IsReadFailure(e))
+        {
+            Problem(id, $"its clip record could not be read ({e.GetType().Name}: {e.Message})");
         }
         _clipInfo[id] = info;
         return info;
     }
+
+    /// <summary>What reading a generated record can throw that is the record's fault, never the game's: caught and reported, the greybox drawn.</summary>
+    private static bool IsReadFailure(Exception e) =>
+        e is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or IOException or UnauthorizedAccessException
+            or FormatException or NotSupportedException;
 
     /// <summary>
     /// A copy of a clip whose tracks drive the bones of <paramref name="skeletonPath"/> (relative to the player's root), matched by
@@ -303,51 +384,74 @@ public sealed class ArtLibrary
     /// </summary>
     public Material? WorldMaterial(string id)
     {
-        if (Root is null || IsWithheld(id))
-            return null;
         if (_materials.TryGetValue(id, out var cached))
             return cached;
         Material? material = null;
-        string folder = Path.Combine(Root, "materials", id);
-        string record = Path.Combine(folder, id + "_material.json");
-        if (!File.Exists(record))
+        if (WorldMaps(id) is { } maps)
         {
-            Problem(id, $"no material record at materials/{id}/");
-        }
-        else
-        {
-            try
+            material = new OrmMaterial3D
             {
-                using var json = JsonDocument.Parse(File.ReadAllText(record));
-                var root = json.RootElement;
-                var maps = root.GetProperty("maps");
-                float tile = root.TryGetProperty("tile_size_m", out var t) ? (float)t.GetDouble() : 4f;
-                var pbr = root.TryGetProperty("pbr", out var p) ? p : default;
-                var orm = new OrmMaterial3D
-                {
-                    AlbedoTexture = Texture(Path.Combine(folder, maps.GetProperty("basecolor").GetString()!)),
-                    NormalEnabled = maps.TryGetProperty("normal", out var normal),
-                    NormalTexture = maps.TryGetProperty("normal", out normal) ? Texture(Path.Combine(folder, normal.GetString()!)) : null,
-                    NormalScale = pbr.ValueKind == JsonValueKind.Object && pbr.TryGetProperty("normal_strength", out var strength) ? (float)strength.GetDouble() : 1f,
-                    OrmTexture = maps.TryGetProperty("orm", out var ormMap) ? Texture(Path.Combine(folder, ormMap.GetString()!)) : null,
-                    Uv1Triplanar = true,
-                    Uv1WorldTriplanar = true,
-                    Uv1Scale = Vector3.One / tile,
-                };
-                if (orm.AlbedoTexture is null)
-                    Problem(id, "its colour map would not load");
-                else
-                    material = orm;
-            }
-            catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
-            {
-                Problem(id, $"its material record could not be read ({e.Message})");
-            }
+                AlbedoTexture = maps.Albedo,
+                NormalEnabled = maps.Normal is not null,
+                NormalTexture = maps.Normal,
+                NormalScale = maps.NormalStrength,
+                OrmTexture = maps.Orm,
+                Uv1Triplanar = true,
+                Uv1WorldTriplanar = true,
+                Uv1Scale = Vector3.One / maps.TileSizeM,
+                TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
+            };
         }
-        if (material is not null)
-            Use(id);
         _materials[id] = material;
         return material;
+    }
+
+    /// <summary>
+    /// A world material's maps (<c>materials/&lt;id&gt;/</c>, by its record), mipmapped, for a surface that lays them itself (the terrain's
+    /// splat, a triplanar cliff): null, with the problem recorded, when it is withheld, absent, or its record or colour map cannot be used.
+    /// Never throws: a record with a field of the wrong kind is that one material's greybox (the Phase-1 technical audit, H-02).
+    /// </summary>
+    public WorldMaps? WorldMaps(string id)
+    {
+        if (Root is null || IsWithheld(id))
+            return null;
+        if (_maps.TryGetValue(id, out var cached))
+            return cached;
+        WorldMaps? maps = null;
+        try
+        {
+            string folder = Path.Combine(Root, "materials", id);
+            string record = Path.Combine(folder, id + "_material.json");
+            if (!File.Exists(record))
+            {
+                Problem(id, $"no material record at materials/{id}/");
+            }
+            else if (ArtRecords.Material(File.ReadAllText(record), out string? why) is not { } read)
+            {
+                Problem(id, $"its material record cannot be used: {why}");
+            }
+            else if (Texture(Path.Combine(folder, read.Basecolor)) is not { } albedo)
+            {
+                Problem(id, $"its colour map ({read.Basecolor}) would not load");
+            }
+            else
+            {
+                var normal = read.Normal is { } n ? Texture(Path.Combine(folder, n)) : null;
+                var orm = read.Orm is { } o ? Texture(Path.Combine(folder, o)) : null;
+                if (read.Normal is not null && normal is null || read.Orm is not null && orm is null)
+                    Problem(id, $"its {(normal is null && read.Normal is not null ? "normal" : "ORM")} map would not load");
+                else
+                    maps = new WorldMaps(id, albedo, normal, orm, read.TileSizeM, read.NormalStrength);
+            }
+        }
+        catch (Exception e) when (IsReadFailure(e))
+        {
+            Problem(id, $"its material record could not be read ({e.GetType().Name}: {e.Message})");
+        }
+        if (maps is not null)
+            Use(id);
+        _maps[id] = maps;
+        return maps;
     }
 
     private Texture2D? Texture(string path)
@@ -355,11 +459,19 @@ public sealed class ArtLibrary
         if (_textures.TryGetValue(path, out var cached))
             return cached;
         Texture2D? texture = null;
+        ulong started = Time.GetTicksUsec();
         if (File.Exists(path) && Image.LoadFromFile(path) is { } image && !image.IsEmpty())
         {
+            if (image.IsCompressed())
+                image.Decompress();
+            long pixels = (long)image.GetWidth() * image.GetHeight();
+            _vramAsLoaded += pixels * 4 * 4 / 3;
+            _vramWithMips += pixels * 4 * 4 / 3;
             image.GenerateMipmaps();
             texture = ImageTexture.CreateFromImage(image);
+            _mapCount++;
         }
+        _mapMs += (Time.GetTicksUsec() - started) / 1000.0;
         _textures[path] = texture;
         return texture;
     }
