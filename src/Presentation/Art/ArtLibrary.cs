@@ -59,7 +59,17 @@ public sealed class ArtLibrary
 
     private IReadOnlyDictionary<string, string> _withheld = new Dictionary<string, string>();
 
-    public ArtLibrary(string? root) => Root = root;
+    public ArtLibrary(string? root)
+    {
+        Root = root;
+        Cache = new TextureCache(VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache);
+    }
+
+    /// <summary>Set by <c>--texture-cache</c> (editor binary): every texture this run loads is compressed into the cache (Phase B, B1).</summary>
+    public static bool BuildTextureCache { get; set; }
+
+    /// <summary>The compressed, shared copies of the textures (Phase B, B1), used when the run asks for them (<c>--visual textures=cache</c>).</summary>
+    public TextureCache Cache { get; }
 
     /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
     public ArtCoverage Coverage { get; } = new();
@@ -210,7 +220,15 @@ public sealed class ArtLibrary
             Problem(id, $"the glTF would not load ({error})");
             return null;
         }
-        Filter(root);
+        // Each texture by its image's index in the file, for the texture cache.
+        var images = new Dictionary<ulong, int>();
+        var loaded = state.GetImages();
+        for (int i = 0; i < loaded.Count; i++)
+        {
+            if (loaded[i] is { } image)
+                images.TryAdd(image.GetInstanceId(), i);
+        }
+        Filter(root, path, images);
         var packed = new PackedScene();
         error = packed.Pack(root);
         root.Free();
@@ -230,10 +248,12 @@ public sealed class ArtLibrary
     /// anisotropic filtering (Phase A: the visual audit's V1). The textures stay uncompressed RGBA8 (VRAM compression is a Phase-B import step).
     /// A surface whose mesh carries vertex colours (glTF COLOR_0) has them multiply its colour, as glTF says.
     /// </summary>
-    private void Filter(Node3D root)
+    private void Filter(Node3D root, string path, IReadOnlyDictionary<ulong, int> images)
     {
         ulong started = Time.GetTicksUsec();
         var seen = new HashSet<ulong>();
+        var swapped = new Dictionary<ulong, Texture2D>();
+        string relative = Path.GetRelativePath(Root!, path);
         foreach (var mesh in root.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
             if (mesh.Mesh is null)
@@ -251,8 +271,24 @@ public sealed class ArtLibrary
                     material.TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
                     for (int p = 0; p < (int)BaseMaterial3D.TextureParam.Max; p++)
                     {
-                        if (material.GetTexture((BaseMaterial3D.TextureParam)p) is not ImageTexture texture || !seen.Add(texture.GetInstanceId()))
+                        var param = (BaseMaterial3D.TextureParam)p;
+                        if (material.GetTexture(param) is not ImageTexture texture)
                             continue;
+                        if (swapped.TryGetValue(texture.GetInstanceId(), out var shared))
+                        {
+                            material.SetTexture(param, shared);
+                            continue;
+                        }
+                        if (!seen.Add(texture.GetInstanceId()))
+                            continue;
+                        // The cache's compressed, shared copy (Phase B, B1), when the run uses the cache and has (or is building) one.
+                        if (images.TryGetValue(texture.GetInstanceId(), out int index)
+                            && Cache.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) is { } cached)
+                        {
+                            swapped[texture.GetInstanceId()] = cached;
+                            material.SetTexture(param, cached);
+                            continue;
+                        }
                         var image = texture.GetImage();
                         if (image is null || image.IsEmpty() || image.IsCompressed())
                             continue;
@@ -272,6 +308,16 @@ public sealed class ArtLibrary
         }
         _textureMs += (Time.GetTicksUsec() - started) / 1000.0;
     }
+
+    /// <summary>How the texture cache treats a map: colour (and whether alpha-tested), a normal map, or data (roughness, occlusion...).</summary>
+    private static string Role(BaseMaterial3D material, BaseMaterial3D.TextureParam param) => param switch
+    {
+        BaseMaterial3D.TextureParam.Albedo => material.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash
+            ? "cutout" : "color",
+        BaseMaterial3D.TextureParam.Emission => "color",
+        BaseMaterial3D.TextureParam.Normal => "normal",
+        _ => "data",
+    };
 
     /// <summary>
     /// An animation clip by its ID (<c>creature.ash_ember_hound.walk</c>, <c>humanoid.locomotion.walk_forward</c>, <c>npc.talk</c>), as its
@@ -442,14 +488,14 @@ public sealed class ArtLibrary
             {
                 Problem(id, $"its material record cannot be used: {why}");
             }
-            else if (Texture(Path.Combine(folder, read.Basecolor)) is not { } albedo)
+            else if (Texture(Path.Combine(folder, read.Basecolor), "color") is not { } albedo)
             {
                 Problem(id, $"its colour map ({read.Basecolor}) would not load");
             }
             else
             {
-                var normal = read.Normal is { } n ? Texture(Path.Combine(folder, n)) : null;
-                var orm = read.Orm is { } o ? Texture(Path.Combine(folder, o)) : null;
+                var normal = read.Normal is { } n ? Texture(Path.Combine(folder, n), "normal") : null;
+                var orm = read.Orm is { } o ? Texture(Path.Combine(folder, o), "data") : null;
                 if (read.Normal is not null && normal is null || read.Orm is not null && orm is null)
                     Problem(id, $"its {(normal is null && read.Normal is not null ? "normal" : "ORM")} map would not load");
                 else
@@ -466,13 +512,18 @@ public sealed class ArtLibrary
         return maps;
     }
 
-    private Texture2D? Texture(string path)
+    private Texture2D? Texture(string path, string role)
     {
         if (_textures.TryGetValue(path, out var cached))
             return cached;
         Texture2D? texture = null;
         ulong started = Time.GetTicksUsec();
-        if (File.Exists(path) && Image.LoadFromFile(path) is { } image && !image.IsEmpty())
+        if (Cache.For(TextureCache.Key(Path.GetRelativePath(Root!, path)), path, () => Image.LoadFromFile(path), role) is { } compressed)
+        {
+            texture = compressed;
+            _mapCount++;
+        }
+        else if (File.Exists(path) && Image.LoadFromFile(path) is { } image && !image.IsEmpty())
         {
             if (image.IsCompressed())
                 image.Decompress();

@@ -87,7 +87,7 @@ public static class Terrain3DView
         data.Call("import_images", new Godot.Collections.Array { height, control, default }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {Regions}x{Regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
-        int rocks = RavineDressing.DressNorth(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
+        int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
         GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
         // B0.8: a river on the ravine floor, for the water proof.
         if (WaterView.BuildRavineRiver(parent, ground.Region, (x, z) => SceneryHeight(ground, x, z), out string? waterWhy) is not null)

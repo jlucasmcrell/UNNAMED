@@ -1,0 +1,45 @@
+{
+  "comment": [
+    "Particle recipes (Phase B, B0.7): presentation data, not game content. Each is one GPUParticles3D built by ParticleRecipes.cs -",
+    "a burst (all at once, once) or a stream - of camera-facing quads showing a texture (a flipbook when grid is given, played at fps),",
+    "coloured along a ramp over each particle's life and scaled along size_curve. Distances in metres, speeds in metres a second.",
+    "Textures are asset-workspace paths; every one carries its provenance record beside it (vfx/<id>.json)."
+  ],
+  "recipes": {
+    "force_bolt_trail": {
+      "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp.",
+      "mode": "stream", "texture": "vfx/ext_unity_fireball01_energy.png", "grid": [8, 8], "frames": 64, "fps": 30,
+      "amount": 48, "lifetime": 0.42, "size": [0.28, 0.5], "size_curve": [1.0, 0.25], "velocity": [0.1, 0.45], "spread": 180,
+      "gravity": [0, 0.2, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 2.2,
+      "color": ["#ffffffff", "#bfe4ffe6", "#6f9cff80", "#2a3cff00"]
+    },
+    "force_bolt_burst": {
+      "note": "Impulse Bolt where it stops: a pressure puff, the same cold flipbook thrown outward once.",
+      "mode": "burst", "texture": "vfx/ext_unity_fireball01_energy.png", "grid": [8, 8], "frames": 64, "fps": 40,
+      "amount": 16, "lifetime": 0.5, "size": [0.35, 0.8], "size_curve": [0.6, 1.4], "velocity": [1.2, 2.6], "spread": 180,
+      "gravity": [0, 0, 0], "damping": [3, 5], "blend": "add", "energy": 2.0,
+      "color": ["#ffffffff", "#a8d2ffcc", "#4a6aff00"]
+    },
+    "impact_sparks": {
+      "note": "Steel on stone or bone. Ported from the Godot VFX Library's sparks (MIT): 30 at once, half a second, all directions, gravity, white to orange.",
+      "mode": "burst", "texture": "vfx/ext_vfxlib_spark_particle2.png",
+      "amount": 30, "lifetime": 0.5, "size": [0.025, 0.05], "size_curve": [1.0, 0.4], "velocity": [2.5, 5.0], "spread": 180,
+      "direction": [0, 1, 0], "gravity": [0, -9.8, 0], "damping": [1.0, 2.0], "blend": "add", "energy": 4.0,
+      "color": ["#ffffffff", "#ffff80ff", "#ffff80ff", "#f4b33eff", "#ff4d0000"]
+    },
+    "torch_flame": {
+      "note": "A torch or a brazier. Unity Labs Flame02 (CC0), rising slowly, a few at a time.",
+      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30,
+      "amount": 6, "lifetime": 0.9, "size": [0.32, 0.46], "size_curve": [0.8, 0.5], "velocity": [0.15, 0.35], "spread": 6, "angle": [-8, 8],
+      "direction": [0, 1, 0], "gravity": [0, 0.35, 0], "damping": [0.2, 0.4], "blend": "add", "energy": 0.9,
+      "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
+    },
+    "embers": {
+      "note": "Embers over a fire or the forge: the spark texture, rising and drifting, long-lived. The VFX Library's fireball_trail recipe, lengthened.",
+      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png",
+      "amount": 18, "lifetime": 2.6, "size": [0.015, 0.03], "size_curve": [1.0, 0.3], "velocity": [0.3, 0.8], "spread": 25,
+      "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 3.0,
+      "color": ["#fff2c0ff", "#ff9a30ff", "#ff300000"]
+    }
+  }
+}

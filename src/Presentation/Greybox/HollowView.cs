@@ -284,6 +284,14 @@ public partial class HollowView : Node3D
             return null;
         }
         Coverage.Resolved("structure", blocker.Id, look.Model!);
+        // A model bound with a surface wears it over its own relief (Phase B, B0.6: an artifact in a world material).
+        if (look.Surface is { } worn && _art.WorldMaps(worn) is { } maps)
+        {
+            var tint = look.SurfaceTint is { } t ? new Color(t.X, t.Y, t.Z) : Colors.White;
+            var glow = look.Glow is { } g ? new Color(g.X, g.Y, g.Z) : Colors.Black;
+            Palette.Wear(model, maps, tint, glow, look.GlowEnergy);
+            Coverage.Resolved("structure_surface", blocker.Id, worn);
+        }
         // The camera's collider stays the structure's own shape: what the body collides with is the truth.
         var greyboxShape = BuildStructure(blocker, terrain);
         if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)
@@ -601,6 +609,7 @@ public partial class HollowView : Node3D
         };
         // Phase B (B0.3): Sky3D draws the sky and drives the sun and moon over this environment; or the HDRI; or the Phase-A sky and sun.
         string? skyWhy = null;
+        RenderTiers.Apply(environment, sun);
         if (VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
             Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
         else

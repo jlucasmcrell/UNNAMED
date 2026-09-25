@@ -20,7 +20,10 @@ public static class VisualOptions
         ["water"] = new[] { "none", "classic", "boujie" },
         ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
         ["foldscar"] = new[] { "classic", "proof" },
-        ["aa"] = new[] { "msaa_taa", "taa", "msaa" },  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
+        ["aa"] = new[] { "msaa_taa", "taa", "msaa", "smaa" },
+        ["tier"] = new[] { "phase_a", "low", "medium", "high", "ultra" },  // a preset of the others (RenderTiers: the environment's cost)
+        ["audio"] = new[] { "v3", "proof", "proof_open" },  // proof_open: only proofs whose sources set no AI/ML restriction (reviewable by an AI)
+        ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
         ["weather"] = Array.Empty<string>(),     // a weather state name, validated by the weather system
     };
@@ -34,7 +37,28 @@ public static class VisualOptions
         ["plants"] = "classic",
         ["foldscar"] = "classic",
         ["aa"] = "msaa_taa",
+        ["audio"] = "v3",
+        ["textures"] = "raw",
+        ["tier"] = "phase_a",
     };
+
+    /// <summary>
+    /// The quality tiers (B1) as presets of the other options, applied under whatever the spec names itself. Every tier draws the Phase-B
+    /// world (Terrain3D, Sky3D, the fold, the texture cache); they differ in the costly systems: the volumetric clouds (Ultra), the plant
+    /// models and their density, the anti-aliasing. High is the RTX 4070 Ti 1080p/60 target.
+    /// </summary>
+    private static readonly Dictionary<string, Dictionary<string, string>> Tiers = new()
+    {
+        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["aa"] = "smaa" },
+        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["aa"] = "taa" },
+        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["aa"] = "taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["aa"] = "msaa_taa" },
+    };
+
+    public static string Tier => Values["tier"];
+
+    /// <summary>The share of the plant models' density this tier draws.</summary>
+    public static float PlantDensity => Tier switch { "medium" => 0.55f, "high" => 0.8f, _ => 1f };
 
     private static readonly Dictionary<string, string> Values = new(Defaults);
 
@@ -49,8 +73,10 @@ public static class VisualOptions
     /// <summary>The options that are the viewport's own settings (the anti-aliasing), applied to the game's viewport.</summary>
     public static void Apply(Viewport viewport)
     {
-        viewport.Msaa3D = AntiAliasing == "taa" ? Viewport.Msaa.Disabled : Viewport.Msaa.Msaa4X;
-        viewport.UseTaa = AntiAliasing != "msaa";
+        viewport.Msaa3D = AntiAliasing is "msaa_taa" or "msaa" ? Viewport.Msaa.Msaa4X : Viewport.Msaa.Disabled;
+        viewport.UseTaa = AntiAliasing is "msaa_taa" or "taa";
+        viewport.ScreenSpaceAA = AntiAliasing == "smaa" ? Viewport.ScreenSpaceAAEnum.Smaa : Viewport.ScreenSpaceAAEnum.Disabled;
+        Greybox.RenderTiers.ApplyGlobal();
     }
 
     /// <summary>The harness's time-of-day override in hours, or null to follow the world's clock.</summary>
@@ -65,6 +91,7 @@ public static class VisualOptions
     {
         if (string.IsNullOrWhiteSpace(spec))
             return;
+        var named = new HashSet<string>(StringComparer.Ordinal);
         foreach (string part in spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             if (part == "phase_a")
@@ -82,6 +109,15 @@ public static class VisualOptions
                                     || hour < 0 || hour > 24))
                 throw new ArgumentException($"--visual hour: '{kv[1]}' is not an hour from 0 to 24");
             Values[kv[0]] = kv[1];
+            named.Add(kv[0]);
+        }
+        if (Tiers.TryGetValue(Tier, out var preset))
+        {
+            foreach (var (key, value) in preset)
+            {
+                if (!named.Contains(key))
+                    Values[key] = value;
+            }
         }
         GD.Print($"UNNAMED visual: {string.Join(", ", Values.Select(kv => $"{kv.Key}={kv.Value}"))}");
     }

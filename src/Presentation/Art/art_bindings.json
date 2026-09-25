@@ -37,6 +37,11 @@
   },
   "cliffs": "material_rubble_stone_wall",
 
+  "structures_by_visual_option": {
+    "foldscar=proof": {
+      "rock_foldscar_heart": { "model": "scifi_artifact_a", "surface": "mat_acg_onyx015", "surface_tint": [0.2, 0.21, 0.26], "material": "stone", "note": "Phase B (B0.6): the heart as a staged alien artifact - Alien Artifacts sculpture 1 (CC0, zonked, OpenGameArt) fitted to the heart's circle, wearing ambientCG Onyx015 (CC0) over its own carving." }
+    }
+  },
   "structures": {
     "rock_waystone": { "model": "landmark_ashen_waystone", "material": "stone" },
     "rock_stone_north": { "model": "landmark_quiet_stone", "material": "stone" },

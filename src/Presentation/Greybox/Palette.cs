@@ -164,6 +164,84 @@ void fragment() {
         },
     };
 
+    /// <summary>
+    /// A model wearing a world material over its own relief (Phase B, B0.6): the material's colour, roughness and metal laid triplanar in
+    /// the world at its tile size, the model's baked normal and occlusion keeping its carving, and a faint cold light kept in the deepest
+    /// grooves, breathing slowly - worked stone whose purpose is not obvious, not a lamp.
+    /// </summary>
+    public static void Wear(Node3D model, Art.WorldMaps maps, Color tint, Color groove, float glow)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+            {
+                var own = mesh.GetActiveMaterial(s) as BaseMaterial3D;
+                var worn = new ShaderMaterial { Shader = _wornShader ??= new Shader { Code = WornCode } };
+                worn.SetShaderParameter("surface_albedo", maps.Albedo);
+                worn.SetShaderParameter("surface_orm", maps.Orm);
+                worn.SetShaderParameter("has_surface_orm", maps.Orm is not null);
+                worn.SetShaderParameter("tile_m", maps.TileSizeM);
+                worn.SetShaderParameter("relief_normal", own?.NormalTexture);
+                worn.SetShaderParameter("has_relief_normal", own is { NormalEnabled: true, NormalTexture: not null });
+                worn.SetShaderParameter("relief_ao", own?.AOTexture);
+                worn.SetShaderParameter("has_relief_ao", own is { AOEnabled: true, AOTexture: not null });
+                worn.SetShaderParameter("groove_colour", new Vector3(groove.R, groove.G, groove.B));
+                worn.SetShaderParameter("tint", new Vector3(tint.R, tint.G, tint.B));
+                worn.SetShaderParameter("groove_glow", glow);
+                mesh.SetSurfaceOverrideMaterial(s, worn);
+            }
+        }
+    }
+
+    private static Shader? _wornShader;
+
+    private const string WornCode = @"
+shader_type spatial;
+uniform sampler2D surface_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D surface_orm : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform bool has_surface_orm = false;
+uniform float tile_m = 1.2;
+uniform sampler2D relief_normal : hint_normal, filter_linear_mipmap_anisotropic;
+uniform bool has_relief_normal = false;
+uniform sampler2D relief_ao : hint_default_white, filter_linear_mipmap_anisotropic;
+uniform bool has_relief_ao = false;
+uniform vec3 groove_colour = vec3(0.45, 0.55, 1.0);
+uniform vec3 tint = vec3(1.0);
+uniform float groove_glow = 0.5;
+varying vec3 world_pos;
+varying vec3 world_normal;
+
+vec4 triplanar(sampler2D tex, vec3 p, vec3 n) {
+    vec3 w = pow(abs(n), vec3(4.0));
+    w /= (w.x + w.y + w.z);
+    return texture(tex, p.zy / tile_m) * w.x + texture(tex, p.xz / tile_m) * w.y + texture(tex, p.xy / tile_m) * w.z;
+}
+
+void vertex() {
+    world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+}
+
+void fragment() {
+    vec3 albedo = triplanar(surface_albedo, world_pos, world_normal).rgb;
+    vec3 orm = has_surface_orm ? triplanar(surface_orm, world_pos, world_normal).rgb : vec3(1.0, 0.6, 0.0);
+    float ao = has_relief_ao ? texture(relief_ao, UV).r : 1.0;
+    ALBEDO = albedo * tint * mix(0.45, 1.0, ao);
+    // A polished stone, not a mirror: the carving reads through the highlights.
+    ROUGHNESS = clamp(orm.g, 0.22, 1.0);
+    METALLIC = orm.b;
+    AO = ao * orm.r;
+    if (has_relief_normal) {
+        NORMAL_MAP = texture(relief_normal, UV).rgb;
+    }
+    // The deepest tenth of the carving (its baked occlusion under about 0.75) holds the light.
+    float groove = 1.0 - smoothstep(0.62, 0.8, ao);
+    EMISSION = groove_colour * groove * groove_glow * (0.7 + 0.3 * sin(TIME * 0.55));
+}
+";
+
     /// <summary>A Quiet Stone turned into line (M6): a pale band round its top.</summary>
     public static StandardMaterial3D Aligned { get; } = new()
     {

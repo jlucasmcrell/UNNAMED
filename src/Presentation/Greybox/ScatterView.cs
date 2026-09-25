@@ -119,7 +119,9 @@ public partial class ScatterView : Node3D
                         if (px >= region.End.X || pz >= region.End.Y || px >= x0 + chunk || pz >= z0 + chunk)
                             continue;
                         var w = _ground.CellWeights(px, pz);
-                        if (roll >= Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
+                        // The tier thins the plant models (B1); the procedural kinds keep Phase A's density.
+                        float share = kind.Levels ? VisualOptions.PlantDensity : 1f;
+                        if (roll >= share * Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
                             continue;
                         var (basis, sink, tint) = Place(kind.Rules, rng, w);
                         int m = kind.Levels ? 0 : rng.Next(kind.Meshes.Length);
@@ -488,7 +490,7 @@ public partial class ScatterView : Node3D
             image.Convert(Image.Format.Rgba8);
             string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
             if (!albedos.TryGetValue(key, out var coverage))
-                albedos[key] = coverage = ImageTexture.CreateFromImage(CoverageMips(image, 0.4f));
+                albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
             material.SetShaderParameter("albedo_tex", coverage);
         }
         if (source is { NormalEnabled: true, NormalTexture: { } normal })
@@ -727,7 +729,7 @@ public partial class ScatterView : Node3D
                 }
             }
         }
-        return ImageTexture.CreateFromImage(CoverageMips(ToImage(buffer, W, H), 0.4f));
+        return ImageTexture.CreateFromImage(ImageMips.Coverage(ToImage(buffer, W, H), 0.4f));
     }
 
     /// <summary>A patch of fallen leaves (512 px): lobed leaves in browns, ochres and a dull red, each with a darker rim and a vein.</summary>
@@ -778,7 +780,7 @@ public partial class ScatterView : Node3D
                 Paint(buffer, S, px, py, colour * shade, a);
             }
         }
-        return ImageTexture.CreateFromImage(CoverageMips(ToImage(buffer, S, S), 0.5f));
+        return ImageTexture.CreateFromImage(ImageMips.Coverage(ToImage(buffer, S, S), 0.5f));
     }
 
     private static void Paint(float[] buffer, int width, int x, int y, Color colour, float a)
@@ -800,50 +802,5 @@ public partial class ScatterView : Node3D
         for (int i = 0; i < bytes.Length; i++)
             bytes[i] = (byte)Math.Clamp(buffer[i] * 255f + 0.5f, 0, 255);
         return Image.CreateFromData(w, h, false, Image.Format.Rgba8, bytes);
-    }
-
-    /// <summary>
-    /// A mip chain whose alpha keeps the base level's alpha-tested coverage: plain averaging thins cut-out foliage to nothing with
-    /// distance; each level's alpha is scaled until as much of it passes <paramref name="cutoff"/> as of the base.
-    /// </summary>
-    private static Image CoverageMips(Image source, float cutoff)
-    {
-        int w = source.GetWidth(), h = source.GetHeight();
-        float target = Coverage(source.GetData(), cutoff, 1f);
-        var data = new List<byte>(source.GetData());
-        int lw = w, lh = h;
-        while (lw > 1 || lh > 1)
-        {
-            lw = Math.Max(1, lw / 2);
-            lh = Math.Max(1, lh / 2);
-            var level = (Image)source.Duplicate();
-            level.Resize(lw, lh, Image.Interpolation.Lanczos);
-            var bytes = level.GetData();
-            float lo = 0.5f, hi = 4f;
-            for (int i = 0; i < 16; i++)
-            {
-                float mid = (lo + hi) / 2;
-                if (Coverage(bytes, cutoff, mid) < target)
-                    lo = mid;
-                else
-                    hi = mid;
-            }
-            float scale = (lo + hi) / 2;
-            for (int i = 3; i < bytes.Length; i += 4)
-                bytes[i] = (byte)Math.Clamp(bytes[i] * scale, 0, 255);
-            data.AddRange(bytes);
-        }
-        return Image.CreateFromData(w, h, true, Image.Format.Rgba8, data.ToArray());
-    }
-
-    private static float Coverage(byte[] rgba, float cutoff, float scale)
-    {
-        int n = 0, pass = 0;
-        for (int i = 3; i < rgba.Length; i += 4, n++)
-        {
-            if (rgba[i] / 255f * scale >= cutoff)
-                pass++;
-        }
-        return n == 0 ? 0 : (float)pass / n;
     }
 }

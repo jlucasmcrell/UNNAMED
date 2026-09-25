@@ -111,6 +111,7 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
+        Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
         VisualOptions.Apply(GetViewport());
         if (_flags.Contains("--spike"))
         {
@@ -121,6 +122,12 @@ public partial class Main : Node3D
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
             AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
+            return;
+        }
+        if (_options.TryGetValue("--vfx-sheet", out string? vfx))
+        {
+            var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            AddChild(new Art.VfxSheet(catalog, Art.ParticleRecipes.Load(catalog.Root), Path.GetFullPath(vfx)));
             return;
         }
         if (_options.TryGetValue("--anim-sheet", out string? sheet))
@@ -136,7 +143,7 @@ public partial class Main : Node3D
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
-              || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab")
+              || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -149,7 +156,7 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
-                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab");
+                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -203,6 +210,10 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED load: the scene built in {_sceneMs} ms - {cost.Scenes} model files in {cost.SceneMs:0} ms (their {cost.ModelTextures} textures "
                  + $"given mipmaps in {cost.MipmapMs:0} ms), {cost.MaterialMaps} material maps in {cost.MaterialMapMs:0} ms, the ground field in {_groundMs} ms; "
                  + $"texture memory {cost.VramMbWithMipmaps} MB with mipmaps ({cost.VramMbAsLoaded} MB as loaded)");
+        if (_art.Cache is { Hits: > 0 } or { Added: > 0 } or { Failed: > 0 })
+            GD.Print($"UNNAMED texture cache: {_art.Cache.Hits} textures from the cache, {_art.Cache.Added} added, {_art.Cache.Failed} failed; "
+                     + $"{_art.Cache.CompressedBytes / 1048576.0:0.0} MB compressed");
+        _art.Cache.Save();
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
         if (_sounds.Problems.Count > 0)
@@ -311,6 +322,10 @@ public partial class Main : Node3D
         {
             _audit = new VisualAudit(this, _session, _art, _bindings, _camera, Path.GetFullPath(audit),
                 _options.GetValueOrDefault("--audit-shots") is { } list ? Path.GetFullPath(list) : null);
+        }
+        else if (_options.TryGetValue("--audio-audition", out string? audition) && _assets.Root is { } audioRoot)
+        {
+            AddChild(new Audio.AudioAudition(_sounds, Path.GetFullPath(audition), audioRoot, _flags.Contains("--audition-open-only")));
         }
         else if (_options.TryGetValue("--visual-audit-ab", out string? auditAb))
         {
@@ -1433,7 +1448,7 @@ public partial class Main : Node3D
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
-                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

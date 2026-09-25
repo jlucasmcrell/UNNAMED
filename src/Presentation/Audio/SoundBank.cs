@@ -61,6 +61,7 @@ public partial class SoundBank : Node
         try
         {
             using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(assetRoot, "manifests", Manifest)));
+            HashSet<string>? open = null;
             foreach (var sound in json.RootElement.GetProperty("sounds").EnumerateArray())
             {
                 // An entry the manifest got wrong is left out, and said; the rest of the set still plays (the Phase-1 technical audit, H-02).
@@ -72,7 +73,13 @@ public partial class SoundBank : Node
                     continue;
                 }
                 bool stereo = channels.TryGetInt32(out int count) && count == 2;
-                _sounds[id] = new Sound(id, Path.Combine(assetRoot, delivered), stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui");
+                // Phase B's audition (--visual audio=proof): a proof file of the same ID, format and loudness plays in V3's place; V3 is untouched.
+                string file = Path.Combine(assetRoot, delivered);
+                string audio = VisualOptions.All.GetValueOrDefault("audio") ?? "v3";
+                if ((audio == "proof" || audio == "proof_open" && (open ??= AudioAudition.OpenProofs(assetRoot)).Contains(id))
+                    && Path.Combine(assetRoot, "audio_proof", id + ".wav") is var proof && File.Exists(proof))
+                    file = proof;
+                _sounds[id] = new Sound(id, file, stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui");
                 string family = id.LastIndexOf('.') is var dot and > 0 && id[(dot + 1)..].All(char.IsDigit) ? id[..dot] : id;
                 if (!_families.TryGetValue(family, out var members))
                     _families[family] = members = new List<string>();
@@ -142,6 +149,41 @@ public partial class SoundBank : Node
             Start();
         _played.Add(sound.Id);
         return true;
+    }
+
+    /// <summary>The V3 source of an ID - its file (as the manifest delivers it), whether it plays flat, whether it loops - or null.</summary>
+    public (string File, bool Flat, bool Loop)? Source(string id) => _sounds.TryGetValue(id, out var sound) ? (sound.File, sound.Flat, sound.Loop) : null;
+
+    /// <summary>
+    /// A file played as the game plays a sound (Phase B's audition): placed, or flat; a loop stopped after <paramref name="stopAfter"/>
+    /// seconds. Returns how long it sounds.
+    /// </summary>
+    public double PlayFile(string file, bool flat, bool loop, Vector3? at, double? stopAfter)
+    {
+        var options = new Godot.Collections.Dictionary();
+        if (loop)
+        {
+            options["edit/loop_mode"] = 2;
+            options["edit/loop_begin"] = 0;
+            options["edit/loop_end"] = -1;
+        }
+        if (AudioStreamWav.LoadFromFile(file, options) is not { } stream)
+            return 0;
+        Node player = flat || at is null
+            ? new AudioStreamPlayer { Stream = stream }
+            : new AudioStreamPlayer3D { Stream = stream, Position = at.Value, UnitSize = 4f, MaxDistance = 45f };
+        AddChild(player);
+        double length = stopAfter ?? stream.GetLength();
+        if (player is AudioStreamPlayer f)
+            f.Play();
+        else
+            ((AudioStreamPlayer3D)player).Play();
+        GetTree().CreateTimer(length).Timeout += () =>
+        {
+            if (IsInstanceValid(player))
+                player.QueueFree();
+        };
+        return length;
     }
 
     /// <summary>A looping sound on a player of its own, silent until its volume is set (a bed, a Strain layer, the forge).</summary>
