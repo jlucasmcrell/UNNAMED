@@ -69,6 +69,9 @@ public class ArchitectureTests
             nameof(WorldDelta.FindCreated), nameof(WorldDelta.Container), nameof(WorldDelta.ContainersIn),
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
+            // M7: placed pieces, the structure sequence and NPC errands, read only.
+            nameof(WorldDelta.Piece), nameof(WorldDelta.PiecesIn), "get_" + nameof(WorldDelta.Pieces), "get_" + nameof(WorldDelta.StructureSequence),
+            nameof(WorldDelta.NpcErrand), nameof(WorldDelta.NpcErrandsIn),
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

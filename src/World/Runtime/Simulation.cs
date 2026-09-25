@@ -92,6 +92,7 @@ public sealed class Simulation
     private readonly NavigationSystem _navigation;
     private readonly NpcSystem _npcs;
     private readonly RelationshipSystem _relationships;
+    private readonly FactionSystem _factions;
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
@@ -135,6 +136,7 @@ public sealed class Simulation
         _navigation = new NavigationSystem(_context, _state.Claim(nameof(NavigationSystem), StateSlice.Navigation));
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
+        _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
@@ -369,7 +371,7 @@ public sealed class Simulation
     public string StateDigest()
     {
         using var h = new CanonicalHasher();
-        h.Add("unnamed.simulation/v2").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
+        h.Add("unnamed.simulation/v3").Add(WorldTick).Add(CaptureRecord().Digest).Add(World.StructureSequence).Add(_cells.Length);
         foreach (var cell in _cells)
             h.Add(cell.ToString()).Add(World.EffectiveCellDigest(cell));
         h.Add(World.Noises.Length);

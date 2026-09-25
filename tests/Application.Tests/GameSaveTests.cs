@@ -29,6 +29,9 @@ public class GameSaveTests
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.StaggeredTick$"), "null"),
         (new Regex(@"^\$\.world\.Noises$"), "[]"),
+        // Schema 15: the world gains its placed pieces - none - and their sequence, and the named NPCs' errands - none.
+        (new Regex(@"^\$\.world\.(Pieces|NpcErrands)$"), "[]"),
+        (new Regex(@"^\$\.world\.StructureSequence$"), "0"),
     };
 
     [Fact]
@@ -61,7 +64,7 @@ public class GameSaveTests
         }
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
-        Assert.Equal(2 + 4 * creatureRecords + 1, differences.Count);   // the posture and digest, four fields a record, the noises
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3, differences.Count);   // the posture and digest, four fields a record, the noises, the M7 world
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

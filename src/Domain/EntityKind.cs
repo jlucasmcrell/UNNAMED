@@ -28,6 +28,9 @@ public enum EntityKind
     /// assumption recorded in docs/M2_STATUS.md, pending the owner's decision.
     /// </summary>
     Character,
+
+    /// <summary>A player-placed building piece (M7): its identity is derived, never minted (<see cref="EntityId.Derived"/>).</summary>
+    Piece,
 }
 
 public static class EntityKinds
@@ -46,6 +49,7 @@ public static class EntityKinds
         EntityKind.FarmPlot => "plt",
         EntityKind.WorldEvent => "evt",
         EntityKind.Character => "chr",
+        EntityKind.Piece => "pce",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown entity kind"),
     };
 

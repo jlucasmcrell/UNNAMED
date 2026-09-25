@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -73,6 +74,9 @@ public enum StateSlice
     /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
     Companions,
 
+    /// <summary>The player's faction ledger (M7): acts, what factions know of them, standing. Saved with the player (schema 15).</summary>
+    Factions,
+
     /// <summary>
     /// The navigation grid (M7; D-13). Transient: derived from the region layout and the placed pieces; rebuilt at start and on every
     /// <c>RebuildNavigation</c>; never saved.
@@ -125,6 +129,7 @@ internal sealed class RuntimeState
     public long WorldTick { get; private set; }
     public Body Body { get; private set; }
     public Posture Posture { get; private set; }
+    public FactionLedger Factions { get; private set; } = FactionLedger.Empty;
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =
@@ -339,6 +344,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    public void SetFactions(SliceOwner owner, FactionLedger ledger)
+    {
+        Require(owner, StateSlice.Factions);
+        Factions = ledger;
     }
 
     public void SetNavigation(SliceOwner owner, NavGrid grid)

@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Spatial;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.World;
@@ -200,6 +201,60 @@ public sealed record CreatureRecord(
     public int StaggerLastsTicks { get; init; }
 }
 
+/// <summary>
+/// A player-placed building piece (M7): one row, anchored to its anchor's cell and proven against that cell's baseline. Its shape is its
+/// definition's; only what the definition cannot know is stored. It exposes no computed public property (the <c>StateDump</c> rule).
+/// </summary>
+public sealed record PieceRecord(
+    EntityId InstanceId,
+    string DefId,
+    string HostCell,
+    long XMm,
+    long ZMm,
+    int Rotation,
+    EntityId Owner,
+    int HealthCurrent,
+    string? BaselineHash = null)
+{
+    /// <summary>Whether a door piece stands open; false for every other piece.</summary>
+    public bool DoorOpen { get; init; }
+}
+
+/// <summary>Where a named NPC on an errand is in it (M7): walking to work, at work, or walking home.</summary>
+public enum NpcErrandPhase { ToWork, AtWork, ToHome }
+
+public static class NpcErrandPhases
+{
+    public static string Key(NpcErrandPhase phase) => phase switch
+    {
+        NpcErrandPhase.ToWork => "to_work",
+        NpcErrandPhase.AtWork => "at_work",
+        NpcErrandPhase.ToHome => "to_home",
+        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Unknown errand phase"),
+    };
+
+    public static NpcErrandPhase Parse(string key) => key switch
+    {
+        "to_work" => NpcErrandPhase.ToWork,
+        "at_work" => NpcErrandPhase.AtWork,
+        "to_home" => NpcErrandPhase.ToHome,
+        _ => throw new FormatException($"Unknown errand phase '{key}'"),
+    };
+}
+
+/// <summary>
+/// A named NPC away from their place (M7), anchored to the cell of the NPC's authored site, with absolute mm. Absent means the NPC stands
+/// at their site: the baseline. <see cref="PieceId"/> is null exactly when walking home; <see cref="WorkOwner"/> is the piece's owner.
+/// </summary>
+public sealed record NpcErrandRecord(string NpcId, string HostCell, NpcErrandPhase Phase, EntityId? PieceId, EntityId? WorkOwner, long XMm, long ZMm,
+    int FacingMdeg, string? BaselineHash = null)
+{
+    /// <summary>The route the NPC has committed to; required on every errand.</summary>
+    public NavRoute Route { get; init; } = NavRoute.None;
+
+    public int StuckTicks { get; init; }
+}
+
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
 public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
 {
@@ -216,6 +271,15 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>The sounds made on the last tick - a blow, a howl - that creatures hear on the next, in the order made (schema 14).</summary>
     public ImmutableArray<Noise> Noises { get; init; } = ImmutableArray<Noise>.Empty;
+
+    /// <summary>Player-placed pieces, sorted by instance ID (schema 15).</summary>
+    public ImmutableArray<PieceRecord> Pieces { get; init; } = ImmutableArray<PieceRecord>.Empty;
+
+    /// <summary>The structure sequence: every piece ID's ordinal, and the structure revision (schema 15).</summary>
+    public long StructureSequence { get; init; }
+
+    /// <summary>Named NPCs away from their site, sorted by NPC ID (schema 15).</summary>
+    public ImmutableArray<NpcErrandRecord> NpcErrands { get; init; } = ImmutableArray<NpcErrandRecord>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -241,6 +305,9 @@ public sealed class WorldDelta
     private readonly SortedDictionary<string, ContainerRecord> _containers = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, CreatureRecord> _creatures = new(StringComparer.Ordinal);
     private ImmutableArray<Noise> _noises = ImmutableArray<Noise>.Empty;
+    private readonly SortedDictionary<string, PieceRecord> _pieces = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, NpcErrandRecord> _errands = new(StringComparer.Ordinal);
+    private long _structureSequence;
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -452,6 +519,84 @@ public sealed class WorldDelta
 
     internal void SetNoises(ImmutableArray<Noise> noises) => _noises = noises;
 
+    // ── placed pieces and NPC errands (M7, schema 15) ───────────────────────
+
+    /// <summary>A placed piece, or null.</summary>
+    public PieceRecord? Piece(EntityId id) => _pieces.GetValueOrDefault(id.Value);
+
+    /// <summary>Every placed piece, sorted by instance ID.</summary>
+    public IReadOnlyList<PieceRecord> Pieces => _pieces.Values.ToList();
+
+    /// <summary>The pieces anchored in a cell, sorted by instance ID.</summary>
+    public IReadOnlyList<PieceRecord> PiecesIn(CellKey cell)
+    {
+        string key = cell.ToString();
+        return _pieces.Values.Where(p => p.HostCell == key).ToList();
+    }
+
+    /// <summary>+1 on every place, dismantle and destroy; never reused, never decreasing. The next piece's ordinal is this plus one.</summary>
+    public long StructureSequence => _structureSequence;
+
+    /// <summary>A new piece: its derived identity is registered, and the sequence moves to <paramref name="sequence"/>.</summary>
+    internal void PlacePiece(PieceRecord record, long sequence)
+    {
+        if (sequence <= _structureSequence)
+            throw new ArgumentException($"The structure sequence only rises: {sequence} after {_structureSequence}", nameof(sequence));
+        if (_pieces.ContainsKey(record.InstanceId.Value))
+            throw new InvalidOperationException($"{record.InstanceId} is already placed");
+        _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
+        _pieces[record.InstanceId.Value] = record;
+        _structureSequence = sequence;
+    }
+
+    /// <summary>A placed piece's row changed - its health, whether its door stands open.</summary>
+    internal void SetPiece(PieceRecord record)
+    {
+        if (!_pieces.ContainsKey(record.InstanceId.Value))
+            throw new InvalidOperationException($"{record.InstanceId} is not placed");
+        _pieces[record.InstanceId.Value] = record;
+    }
+
+    /// <summary>A piece taken down or destroyed: its identity retires, and the sequence moves to <paramref name="sequence"/>.</summary>
+    internal void RemovePiece(EntityId id, long sequence)
+    {
+        if (sequence <= _structureSequence)
+            throw new ArgumentException($"The structure sequence only rises: {sequence} after {_structureSequence}", nameof(sequence));
+        if (!_pieces.Remove(id.Value))
+            throw new InvalidOperationException($"{id} is not placed");
+        if (_registry.Exists(id))
+            _registry.DestroyEntity(id);
+        _structureSequence = sequence;
+    }
+
+    /// <summary>A named NPC's errand, or null while they stand at their site.</summary>
+    public NpcErrandRecord? NpcErrand(string npcId) => _errands.GetValueOrDefault(npcId);
+
+    /// <summary>The errands hosted in a cell, sorted by NPC ID.</summary>
+    public IReadOnlyList<NpcErrandRecord> NpcErrandsIn(CellKey cell)
+    {
+        string key = cell.ToString();
+        return _errands.Values.Where(e => e.HostCell == key).ToList();
+    }
+
+    /// <summary>Record an errand. Its route must be one a factory built.</summary>
+    internal void SetNpcErrand(NpcErrandRecord record)
+    {
+        if ((record.Route is null ? "none" : record.Route.Problem()) is { } problem)
+            throw new ArgumentException($"npc errand {record.NpcId} has an invalid route: {problem}", nameof(record));
+        _errands[record.NpcId] = record;
+    }
+
+    /// <summary>The NPC is back at their site: the baseline again.</summary>
+    internal void RemoveNpcErrand(string npcId) => _errands.Remove(npcId);
+
+    /// <summary>A container whose record goes while its items live on elsewhere: only the container's own identity retires.</summary>
+    internal void ReleaseContainer(string key)
+    {
+        if (_containers.Remove(key, out var record) && _registry.Exists(record.InstanceId))
+            _registry.DestroyEntity(record.InstanceId);
+    }
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -542,9 +687,18 @@ public sealed class WorldDelta
             .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
             .ToImmutableArray();
 
+        // New arrays, never views of the stores: a captured snapshot is encoded later, off the frame thread (G29).
+        var pieces = _pieces.Values
+            .Select(p => p with { BaselineHash = Baseline(CellKey.Parse(p.HostCell)).Digest })
+            .ToImmutableArray();
+        var errands = _errands.Values
+            .Select(e => e with { BaselineHash = Baseline(CellKey.Parse(e.HostCell)).Digest })
+            .ToImmutableArray();
+
         return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
+            Pieces = pieces, StructureSequence = _structureSequence, NpcErrands = errands,
         };
     }
 
@@ -562,6 +716,7 @@ public sealed class WorldDelta
     {
         var world = new WorldDelta(generator, worldSeed, registry);
         var problems = ImmutableArray.CreateBuilder<RejectedRecord>();
+        world._structureSequence = snapshot.StructureSequence;
 
         foreach (var record in snapshot.Cells)
         {
@@ -585,6 +740,14 @@ public sealed class WorldDelta
                 problems.Add(new RejectedRecord("entities", record.InstanceId.Value, reason));
         }
 
+        // Pieces before the containers and errands that name them (M7).
+        foreach (var record in snapshot.Pieces)
+        {
+            string? reason = world.TryApplyPiece(record, seenIds);
+            if (reason is not null)
+                problems.Add(new RejectedRecord("entities", record.InstanceId.Value, reason));
+        }
+
         foreach (var record in snapshot.Containers)
         {
             string? reason = world.TryApplyContainer(record, seenIds);
@@ -597,6 +760,14 @@ public sealed class WorldDelta
             string? reason = world.TryApplyCreature(record, seenIds);
             if (reason is not null)
                 problems.Add(new RejectedRecord("entities", record.Key, reason));
+        }
+
+        var working = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var record in snapshot.NpcErrands)
+        {
+            string? reason = world.TryApplyNpcErrand(record, working);
+            if (reason is not null)
+                problems.Add(new RejectedRecord("entities", record.NpcId, reason));
         }
 
         var noises = ImmutableArray.CreateBuilder<Noise>();
@@ -623,7 +794,7 @@ public sealed class WorldDelta
         var baseline = Baseline(cell);
         _cells.TryGetValue(cell, out var state);
         using var h = new CanonicalHasher();
-        h.Add("unnamed.effective-cell/v2").Add(baseline.Digest);
+        h.Add("unnamed.effective-cell/v3").Add(baseline.Digest);
 
         var flags = state?.Flags.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToList() ?? new();
         h.Add(flags.Count);
@@ -670,6 +841,22 @@ public sealed class WorldDelta
                 var occupant = Occupant(slot.SlotKey);
                 h.Add(occupant.InstanceId?.Value ?? "-").Add(occupant.Alive).Add(occupant.XCm).Add(occupant.ZCm);
             }
+        }
+
+        // M7 (v3): the pieces anchored here, and the errands hosted here. A straddling piece is hashed once, in its anchor's cell.
+        var pieces = PiecesIn(cell);
+        h.Add(pieces.Count);
+        foreach (var p in pieces)
+            h.Add(p.InstanceId.Value).Add(p.DefId).Add(p.XMm).Add(p.ZMm).Add(p.Rotation).Add(p.Owner.Value).Add(p.HealthCurrent).Add(p.DoorOpen);
+
+        var errands = NpcErrandsIn(cell);
+        h.Add(errands.Count);
+        foreach (var e in errands)
+        {
+            h.Add(e.NpcId).Add(NpcErrandPhases.Key(e.Phase)).Add(e.PieceId?.Value ?? "-").Add(e.WorkOwner?.Value ?? "-").Add(e.XMm).Add(e.ZMm)
+                .Add(e.FacingMdeg);
+            e.Route.AddTo(h);
+            h.Add(e.StuckTicks);
         }
         return h.Finish();
     }
@@ -803,6 +990,71 @@ public sealed class WorldDelta
         return null;
     }
 
+    /// <summary>
+    /// A placed piece (M7). Its ID's timestamp is read as the derivation ordinal (the D-04 note), which never exceeds the saved sequence.
+    /// It is not compared with <c>Derived(..., Owner)</c>, so a later change of owner is a row edit, not a re-key.
+    /// </summary>
+    private string? TryApplyPiece(PieceRecord record, HashSet<EntityId> seenIds)
+    {
+        if (!CellKey.TryParse(record.HostCell, out var cell))
+            return "unparseable host cell";
+        string hostBaseline = Baseline(cell).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
+        if (record.InstanceId.Kind != EntityKind.Piece)
+            return $"{record.InstanceId} is not a piece ID";
+        if (!DefinitionId.IsValid(record.DefId) || !record.DefId.StartsWith("piece.", StringComparison.Ordinal))
+            return $"'{record.DefId}' is not a piece definition ID";
+        if (record.Owner.Kind != EntityKind.Character)
+            return $"its owner {record.Owner} is not a character";
+        if (record.Rotation is < 0 or > 3)
+            return $"rotation {record.Rotation} is not a quarter turn 0-3";
+        if (record.HealthCurrent < 1)
+            return $"health {record.HealthCurrent} is below 1";
+        if (record.HostCell != CellKey.OfWorld(record.XMm / 1000.0, record.ZMm / 1000.0).ToString())
+            return $"host cell {record.HostCell} is not the cell of its anchor";
+        if (record.InstanceId.Timestamp < 1 || record.InstanceId.Timestamp > _structureSequence)
+            return $"ordinal {record.InstanceId.Timestamp} is outside 1..{_structureSequence}, the structure sequence";
+        if (!seenIds.Add(record.InstanceId) || _pieces.ContainsKey(record.InstanceId.Value))
+            return $"instance ID {record.InstanceId} appears twice";
+        if (_registry.Exists(record.InstanceId))
+            return $"instance ID {record.InstanceId} is already registered";
+
+        _registry.CreateEntity(DefinitionId.Parse(record.DefId), record.InstanceId);
+        _pieces[record.InstanceId.Value] = record;
+        return null;
+    }
+
+    /// <summary>A named NPC's errand (M7). It registers nothing: NPC identities are derived and registered as the NPCs are placed.</summary>
+    private string? TryApplyNpcErrand(NpcErrandRecord record, HashSet<string> working)
+    {
+        if (!CellKey.TryParse(record.HostCell, out var cell))
+            return "unparseable host cell";
+        string hostBaseline = Baseline(cell).Digest;
+        if (record.BaselineHash != hostBaseline)
+            return $"baseline_hash {record.BaselineHash ?? "(none)"} is not the host cell's regenerated baseline {hostBaseline}";
+        if (!DefinitionId.IsValid(record.NpcId) || !record.NpcId.StartsWith("npc.", StringComparison.Ordinal) || _errands.ContainsKey(record.NpcId))
+            return $"'{record.NpcId}' is not an NPC ID, or has two errands";
+        bool working_ = record.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork;
+        if (!Enum.IsDefined(record.Phase) || (working_ && (record.PieceId is null || record.WorkOwner is null)) || (!working_ && record.PieceId is not null))
+            return $"phase {record.Phase} does not match its piece and owner";
+        if (record.FacingMdeg is < 0 or >= 360_000 || record.StuckTicks < 0)
+            return "its facing or stuck count is out of range";
+        if (record.Route is null || record.Route.Problem() is not null)
+            return "its route is invalid";
+        if (working_)
+        {
+            if (Piece(record.PieceId!) is not { } piece)
+                return $"its piece {record.PieceId} is not placed";
+            if (piece.Owner != record.WorkOwner)
+                return $"its work owner {record.WorkOwner} is not the owner of {record.PieceId}";
+            if (!working.Add(record.PieceId!.Value))
+                return $"{record.PieceId} already has a worker";
+        }
+        _errands[record.NpcId] = record;
+        return null;
+    }
+
     private string? TryApplyContainer(ContainerRecord record, HashSet<EntityId> seenIds)
     {
         if (!CellKey.TryParse(record.HostCell, out var cell))
@@ -814,6 +1066,14 @@ public sealed class WorldDelta
             return $"container key '{record.Key}' is invalid or appears twice";
         if (record.InstanceId.Kind != EntityKind.Container)
             return $"{record.InstanceId} is not a container ID";
+        // A piece chest (M7): its piece must stand, and its identity is the one derived from that piece.
+        if (record.Key.StartsWith(PieceChestPrefix, StringComparison.Ordinal))
+        {
+            if (Piece(EntityId.Parse("pce_" + record.Key[PieceChestPrefix.Length..].ToUpperInvariant())) is not { } piece)
+                return "its chest is gone";
+            if (record.InstanceId != PieceChestId(piece.InstanceId))
+                return "not its chest's identity";
+        }
         var ids = record.Items.Select(i => i.ItemId).Prepend(record.InstanceId).ToList();
         foreach (var id in ids)
         {
@@ -857,6 +1117,16 @@ public sealed class WorldDelta
         _creatures[record.Key] = record;
         return null;
     }
+
+    /// <summary>The key prefix of a piece chest's container: <c>container.pce_</c> and the piece's ULID in lower case.</summary>
+    internal const string PieceChestPrefix = "container.pce_";
+
+    /// <summary>A piece chest's container key.</summary>
+    internal static string PieceChestKey(EntityId pieceId) => "container." + pieceId.Value.ToLowerInvariant();
+
+    /// <summary>A piece chest's container identity, derived from its piece's.</summary>
+    internal static EntityId PieceChestId(EntityId pieceId) =>
+        EntityId.Derived(EntityKind.Container, pieceId.Timestamp, "unnamed.piece-container/v1", pieceId.Value);
 
     private sealed class MutableCell
     {

@@ -55,8 +55,8 @@
 | Slice | Name | State | Commits | Tests (total) | Lint definitions | Notes |
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
-| E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), E1.4 | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
-| E2 | Schema 15, landed once | - | | | 103 | |
+| E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
+| E2 | Schema 15, landed once | in progress | E2.1 | | 103 | |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
@@ -203,6 +203,8 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E1 | F1's F2 row | "Navigation debug (the grid and its gates)" while F2 has its one stage; E5 gives it the design's wording when the structures stage lands |
 | E1 | `--build-shots` files | E1 writes `transcript.md`, a JPEG per still and the coverage reports. `commands.tsv` and the state files arrive with the command-table rows and b19 (E5). The run-level "words only" check lands with the first M7 toasts and status lines (E5); the camera-in-a-wall check has no piece to test until E5 |
 | E1 | What the overlay drew | `NavigationOverlay` keeps the nodes it sampled, its quad count and each gate's colour, so the beats assert on what was drawn, not on a second computation |
+| E2 | Commit order | §7.15 lists the player's `Factions` and a companion's `Route` in E2.1. They move to E2.3, with the codec that saves them: `PlayerRecordCompletenessTests` requires every `PlayerRecord` property to reach the save, so adding them before the codec would leave E2.1 red. E2.1 keeps the world half (pieces, the structure sequence, errands, the `Factions` slice) |
+| E2 | The M6 acceptance rows | The world's three M7 rows of `TheM6AcceptanceSave_LoadsUnderTodaysGame_AsItWasSaved_AndPlaysOn` (`Pieces`, `NpcErrands` `[]`, `StructureSequence` `0`) land in E2.1 with the fields they cover, not in E2.4; E2.4 adds the player's |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
