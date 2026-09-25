@@ -71,12 +71,32 @@ public partial class ProjectilesView : Node3D
     public void Bind(AssetCatalog assets, Art.ArtLibrary art, Art.ArtBindings bindings, Art.ArtCoverage? coverage = null)
     {
         _assets = assets;
+        _recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(assets.Root) : null;
         _art = art;
         _bindings = bindings;
         _coverage = coverage;
     }
 
     private Art.ArtCoverage? _coverage;
+
+    // Phase B (B11): the particle recipes that stand in for the flat flipbooks, when the run draws with them.
+    private Art.ParticleRecipes? _recipes;
+
+    /// <summary>The recipes standing in for an effect, built; empty when the run draws flipbooks or none stand in.</summary>
+    private List<GpuParticles3D> Recipes(string effect)
+    {
+        var built = new List<GpuParticles3D>();
+        if (_recipes is null)
+            return built;
+        foreach (string name in _recipes.For(effect))
+        {
+            if (_recipes.Build(name) is { } particles)
+                built.Add(particles);
+        }
+        if (built.Count > 0)
+            _coverage?.Resolved("effect_recipe", effect, string.Join(" + ", _recipes.For(effect)));
+        return built;
+    }
 
     /// <summary>A shot's flipbook, recorded in the coverage report (resolved, or the greybox that stands in for it).</summary>
     private Flipbook? Book(string? stem, string moment, string greybox)
@@ -159,6 +179,15 @@ public partial class ProjectilesView : Node3D
         Arrived?.Invoke(flight.To, flight.Working, flight.Struck);
         if (flight.Working)
         {
+            foreach (var trail in flight.Node.GetChildren().OfType<GpuParticles3D>().ToList())
+            {
+                var at = trail.GlobalTransform;
+                flight.Node.RemoveChild(trail);
+                AddChild(trail);
+                trail.GlobalTransform = at;
+                trail.Emitting = false;
+                _lingering.Add((trail, _clock + trail.Lifetime + 0.1, null));
+            }
             flight.Node.QueueFree();
             // A little short of where it stopped, so the burst, which faces the camera, is not half inside the wall it struck.
             Burst(flight.To - (flight.To - flight.From).Normalized() * 0.4f, flight.EffectStem);
@@ -269,8 +298,14 @@ public partial class ProjectilesView : Node3D
         var node = new Node3D { Name = "Working" };
         if (Book(stem, "travel", "a glowing sphere") is { } book)
         {
-            node.AddChild(Quad("Book", book, 0.9f));
+            var trail = Recipes($"{stem}_travel");
+            node.AddChild(Quad("Book", book, trail.Count > 0 ? 0.45f : 0.9f));
             node.SetMeta("book", $"{stem}_travel");
+            foreach (var particles in trail)
+            {
+                particles.Name = "Trail";
+                node.AddChild(particles);
+            }
         }
         else
         {
@@ -292,6 +327,17 @@ public partial class ProjectilesView : Node3D
         AddChild(node);
         var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = 3f, OmniRange = 6f };
         node.AddChild(light);
+        if (stem is not null && Recipes($"{stem}_impact") is { Count: > 0 } bursts)
+        {
+            foreach (var burst in bursts)
+            {
+                node.AddChild(burst);
+                Art.ParticleRecipes.Fire(burst);
+            }
+            double life = _recipes!.Lifetime(_recipes.For($"{stem}_impact")) + 0.2;
+            _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)Math.Max(0, 3 * left / life)));
+            return;
+        }
         if (Book(stem, "impact", "a swelling flash") is { } book)
         {
             var quad = Quad("Book", book, 1.6f);
@@ -328,6 +374,18 @@ public partial class ProjectilesView : Node3D
     /// <summary>An arrow going into a creature: a short white spark.</summary>
     private void Spark(Vector3 at)
     {
+        if (Recipes("arrow_strike") is { Count: > 0 } sparks)
+        {
+            var node = new Node3D { Position = at };
+            AddChild(node);
+            foreach (var burst in sparks)
+            {
+                node.AddChild(burst);
+                Art.ParticleRecipes.Fire(burst);
+            }
+            _lingering.Add((node, _clock + _recipes!.Lifetime(_recipes.For("arrow_strike")) + 0.2, null));
+            return;
+        }
         _coverage?.Fallback("effect", "arrow_strike", "no strike flipbook: a white sphere for an eighth of a second");
         var spark = new MeshInstance3D
         {

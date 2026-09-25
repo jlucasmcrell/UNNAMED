@@ -18,6 +18,7 @@ public sealed class ParticleRecipes
     public const string ResourcePath = "res://Art/vfx_recipes.json";
 
     private readonly Dictionary<string, JsonElement> _recipes = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string[]> _effects = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
     private readonly string? _root;
 
@@ -29,7 +30,19 @@ public sealed class ParticleRecipes
         using var document = JsonDocument.Parse(json);
         foreach (var recipe in document.RootElement.GetProperty("recipes").EnumerateObject())
             _recipes[recipe.Name] = recipe.Value.Clone();
+        if (document.RootElement.TryGetProperty("effects", out var effects))
+        {
+            foreach (var effect in effects.EnumerateObject().Where(e => e.Value.ValueKind == JsonValueKind.Array))
+                _effects[effect.Name] = effect.Value.EnumerateArray().Select(n => n.GetString()!).ToArray();
+        }
     }
+
+    /// <summary>The recipes that stand in for a flipbook effect (or a greybox moment's key) in the game; empty when none do.</summary>
+    public IReadOnlyList<string> For(string effect) => _effects.GetValueOrDefault(effect) ?? Array.Empty<string>();
+
+    /// <summary>The longest life of the recipes named, in seconds (how long a burst's node must live).</summary>
+    public float Lifetime(IEnumerable<string> names) =>
+        names.Select(n => _recipes.TryGetValue(n, out var r) ? Number(r, "lifetime", 1f) : 0f).DefaultIfEmpty(0f).Max();
 
     public static ParticleRecipes Load(string? assetRoot) =>
         new(assetRoot, Godot.FileAccess.FileExists(ResourcePath) ? Godot.FileAccess.GetFileAsString(ResourcePath) : """{ "recipes": {} }""");

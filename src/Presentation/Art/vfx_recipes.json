@@ -5,6 +5,12 @@
     "coloured along a ramp over each particle's life and scaled along size_curve. Distances in metres, speeds in metres a second.",
     "Textures are asset-workspace paths; every one carries its provenance record beside it (vfx/<id>.json)."
   ],
+  "effects": {
+    "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it.",
+    "vfx.force.impulse_bolt_travel": ["force_bolt_trail"],
+    "vfx.force.impulse_bolt_impact": ["force_bolt_burst"],
+    "arrow_strike": ["impact_sparks"]
+  },
   "recipes": {
     "force_bolt_trail": {
       "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp.",
