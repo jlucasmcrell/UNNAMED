@@ -62,6 +62,8 @@ public static class SkyView
             sun.DirectionalShadowBlendSplits = true;
             sun.LightAngularDistance = classicSun.LightAngularDistance;
         }
+        // The weather (B5): Sky3D's clouds and light, the fog's density and the wind, by the run's state.
+        WeatherStates.Apply(sky, VisualOptions.Weather ?? "fair");
         // The environment's depth fog glows with a fixed light colour: scale it with the daylight, or night stays a grey noon.
         // Sky3D's SkyDome.sun_altitude is radians from the zenith, negated (its TimeOfDay, read): elevation = 90 - |it| degrees.
         float zenith = Mathf.Abs(sky.Get("sky").AsGodotObject()?.Get("sun_altitude").AsSingle() ?? 0.8f);
@@ -71,6 +73,17 @@ public static class SkyView
         {
             environment.FogLightColor = FogDay * Mathf.Max(daylight, 0.035f);
             environment.VolumetricFogAmbientInject = 0.35f * Mathf.Max(daylight, 0.1f);
+        }
+        // Night you can see by (B5): Sky3D's night ambient boost does nothing under SDFGI (the GI replaces the ambient), and the moon
+        // may be down; a dim, cool key light from high in the sky stands in for moonlight while the sun is under the horizon.
+        if (daylight < 0.3f)
+        {
+            float night = 1f - daylight / 0.3f;
+            sky.AddChild(new DirectionalLight3D
+            {
+                Name = "NightFill", LightColor = new Color(0.55f, 0.65f, 0.9f), LightEnergy = 0.16f * night, ShadowEnabled = true,
+                ShadowBlur = 2f, RotationDegrees = new Vector3(-52f, 140f, 0f), DirectionalShadowMaxDistance = 60f,
+            });
         }
         if (VisualOptions.Clouds == "sunshine" && sky.Get("sun").AsGodotObject() is DirectionalLight3D cloudSun)
         {
