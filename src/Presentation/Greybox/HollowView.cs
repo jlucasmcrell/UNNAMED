@@ -100,7 +100,7 @@ public partial class HollowView : Node3D
             Coverage.Fallback("terrain", "terrain3d", "no ground field to take the layers from: the Phase-A ground stands");
             return;
         }
-        var drawn = Terrain3DView.Build(this, terrain, _ground, _art.Root, out string? why);
+        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why);
         if (drawn is null)
         {
             Coverage.Fallback("terrain", "terrain3d", why ?? "Terrain3D did not build: the Phase-A ground stands");
