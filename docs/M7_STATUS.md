@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** **stopped in E1 for an owner decision** (2026-09-25): N-A10 measured an authored-pair route over the E1 bound of 43,690 expansions. See "STOP - E1, N-A10" below. E0 done; E1 commits 1-2 done and commit 3 partly done; nothing after it has started.
+**State:** in progress. E0 done. E1 stopped at N-A10 on 2026-09-25, and the owner resolved the STOP the same day (see "STOP - E1, N-A10" and the ruling after it); E1 continues under the corrected bounds.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -47,6 +47,8 @@
 | Feel test | Schedulable independently. Not an M7 blocker | 2026-09-25 |
 | RAZER | The Phase-A result is the accepted baseline, and its first-use hitches are not M7 work. M7's building-segment capture is evidence when the owner has a window; it is not an entry gate | 2026-09-25 |
 | Phase B | Not an input to M7. A Phase-B change that needs a gameplay-facing contract change stops M7 for an owner report | 2026-09-25 |
+| E1 N-A10 STOP: expansion bound | Option (a). Keep optimal A* and `max_expansions: 65536`. The exhaustive authored-pair sweep is diagnostic: every pair `Found` within the cap, no two-thirds bound, expensive pairs recorded as residue. The two-thirds (1.5× headroom) rule applies to actual M7 mover routes: Kera's workshop routes, companion routes | 2026-09-25 |
+| E1 N-A10 STOP: speed target | The 6 ms walk-home STOP is superseded. Actual M7 mover plans on ASTRAL in Release: ≤ 15 ms target, > 20 ms STOP; also STOP on a repeatable, player-visible planning hitch. Diagnostic pairs are measured and reported, never the mover criterion. Escalation: profile, optimize without changing results, re-measure, then the per-tick plan budget seam; any algorithmic change needs owner review | 2026-09-25 |
 
 ## Slices
 
@@ -142,6 +144,31 @@ Each point is used where it stands when a person can stand there. Otherwise the 
    - (b) Raise the bound, which would also mean raising the 65,536 scratch ceiling. §3.18's rule of 1.5 × the worst real route would ask for about 79,500.
    - (c) Change the search, for example to an admissible landmark heuristic that keeps routes optimal. That is a design change to §3.7.4.
 2. **The speed target.** Whether 6 ms for Kera's walk home on ASTRAL stands. More optimisation that leaves results unchanged is possible (a flat window walkability array, packed heap keys), but 0.1 µs per expansion is unlikely in safe C#.
+
+## Owner ruling on the E1 STOP (2026-09-25)
+
+The owner resolved the STOP as a correction to the design's benchmark, not as an implementation failure. The reasons given:
+- the implementation reproduces the model exactly on the routes the model covered;
+- the monolithic-raster reference agrees with it;
+- all 180 authored pairs are `Found` under the 65,536 cap;
+- the 43,690 authored-pair ceiling came from incomplete modelling, not from a gameplay requirement.
+
+**The bounds now in force** (the design's §3.18, §10.7, §10.15, §11 criterion 33, §14 and §15 R-A3/R-X11 were amended on 2026-09-25; the pre-ruling copy is kept in the design's `drafts/history/`):
+
+| Kind | Bound | Kind of check |
+|---|---|---|
+| Authored protected-point pairs (N-A10's exhaustive sweep) | every pair `Found` within `max_expansions` (65,536); mean < 2 ms in Release; every count and time reported | diagnostic coverage |
+| Actual M7 mover routes: Kera's three Crossing Workshop routes (E9), companion Nav plans (E4) | `Found` in ≤ 43,690 expansions (two thirds of the cap, the 1.5× headroom rule); plan ≤ 15 ms on ASTRAL in Release as the target, > 20 ms a STOP | mover budget |
+| Runtime | a repeatable, player-visible hitch attributable to planning that materially exceeds the frame-time expectations is a STOP | runtime evidence |
+| Unchanged | the 250 mm grid, optimal A*, the 65,536 cap, the tie-breaking, route persistence, navigation authority, and the cheap follower and rebuild budgets | - |
+
+**Recorded residue: the expensive diagnostic pairs** measured at the STOP. All three are `Found`, and none is a mover route.
+
+| Pair | Expansions |
+|---|---|
+| `node iron_seam` → Renn Vale's place | 52,985 |
+| `container.den_cache` → Kera Voss's place | 46,942 |
+| `container.den_cache` → `station.forge_hearth` | 44,464 |
 
 ## Scope ledger
 
