@@ -195,6 +195,11 @@ public class ContentLoader
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
+
+            // Navigation's tuning, and that every authored place can be reached (NAV codes)
+            var navigationErrors = NavigationContent.Validate(this);
+            _errors.AddRange(navigationErrors);
+            success &= navigationErrors.Count == 0;
         }
         
         return success;
