@@ -1,3 +1,5 @@
 # Historical save fixtures are byte-exact: sections.sha256 hashes every file as written, so line-ending
 # conversion on checkout would make a committed fixture fail its own integrity check.
 tests/Persistence.Tests/Fixtures/v*/quick/** binary
+# Game saves the game itself wrote (tests/Application.Tests/GameSaves/README.md): byte-exact for the same reason.
+tests/Application.Tests/GameSaves/*/save/** binary
