@@ -1,0 +1,2 @@
+Bonkahe/SunshineClouds2 @ a73a80b08fb37b255f8f10d49debd71e5541bd70 (2026-09-06, "Merge pull request #37 from Ultimeh/godot-4.7-camera-fix"), MIT.
+Pinned by Phase B (B0.3). Never track floating HEAD: update by re-pinning a reviewed commit.

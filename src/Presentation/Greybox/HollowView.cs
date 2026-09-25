@@ -43,7 +43,8 @@ public partial class HollowView : Node3D
     public void Build(RegionLayout layout)
     {
         var terrain = layout.Space.Terrain;
-        AddChild(BuildTerrain(terrain));
+        var ground = BuildTerrain(terrain);
+        AddChild(ground);
         foreach (var building in ArtBuildings(layout, terrain))
             AddChild(building);
         foreach (var blocker in layout.Space.Blockers)
@@ -80,9 +81,37 @@ public partial class HollowView : Node3D
         foreach (var barrier in layout.Barriers)
             AddChild(BuildBarrier(barrier, terrain));
         AddChild(BuildWater(layout.Space));
-        AddChild(BuildRavine(layout.Space, terrain));
+        var ravine = BuildRavine(layout.Space, terrain);
+        AddChild(ravine);
+        if (VisualOptions.Terrain == "terrain3d")
+            DrawWithTerrain3D(terrain, ground, ravine);
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain));
+    }
+
+    /// <summary>
+    /// Phase B (B0.1): Terrain3D draws the ground and the scenery beyond the edge. The Phase-A ground mesh and ravine boxes stop drawing
+    /// but stay as the camera's colliders; nothing else changes. Without the extension or its layers, the Phase-A ground stays, and says why.
+    /// </summary>
+    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine)
+    {
+        if (_ground is null)
+        {
+            Coverage.Fallback("terrain", "terrain3d", "no ground field to take the layers from: the Phase-A ground stands");
+            return;
+        }
+        var drawn = Terrain3DView.Build(this, terrain, _ground, _art.Root, out string? why);
+        if (drawn is null)
+        {
+            Coverage.Fallback("terrain", "terrain3d", why ?? "Terrain3D did not build: the Phase-A ground stands");
+            return;
+        }
+        Coverage.Resolved("terrain", "terrain3d", "Terrain3D 1.0.2, fed one way from the domain grid; its collision off");
+        foreach (var mesh in ground.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().Append(ground as MeshInstance3D))
+            if (mesh is not null)
+                mesh.Visible = false;
+        foreach (var mesh in ravine.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            mesh.Visible = false;
     }
 
     public void SetDoor(string key, bool open)
@@ -531,7 +560,7 @@ public partial class HollowView : Node3D
     private Node3D BuildLighting(RegionLayout layout, TerrainGrid terrain)
     {
         var root = new Node3D { Name = "Lighting" };
-        root.AddChild(new DirectionalLight3D
+        var sun = new DirectionalLight3D
         {
             Name = "Sun",
             RotationDegrees = new Vector3(-48, 35, 0),
@@ -544,7 +573,7 @@ public partial class HollowView : Node3D
             ShadowNormalBias = 1.0f,
             DirectionalShadowMaxDistance = 90f,
             DirectionalShadowBlendSplits = true,
-        });
+        };
         var environment = new Godot.Environment
         {
             BackgroundMode = Godot.Environment.BGMode.Sky,
@@ -570,7 +599,19 @@ public partial class HollowView : Node3D
             VolumetricFogLength = 96f, VolumetricFogDetailSpread = 2f, VolumetricFogGIInject = 0.6f, VolumetricFogAmbientInject = 0.35f,
             VolumetricFogSkyAffect = 0f, VolumetricFogTemporalReprojectionEnabled = true,
         };
-        root.AddChild(new WorldEnvironment { Environment = environment });
+        // Phase B (B0.3): Sky3D draws the sky and drives the sun and moon over this environment; or the HDRI; or the Phase-A sky and sun.
+        string? skyWhy = null;
+        if (VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
+            Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
+        else
+        {
+            if (VisualOptions.Sky == "sky3d")
+                Coverage.Fallback("sky", "sky3d", skyWhy ?? "Sky3D did not build: the Phase-A sky stands");
+            if (VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
+                Coverage.Fallback("sky", "hdri", hdriWhy ?? "the HDRI did not load: the Phase-A sky stands");
+            root.AddChild(sun);
+            root.AddChild(new WorldEnvironment { Environment = environment });
+        }
         // Inside each building, its lights: relative to its footprint's centre on the ground (where its model stands).
         foreach (var (prefix, look) in _bindings.Buildings)
         {

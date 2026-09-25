@@ -15,7 +15,7 @@ public static class VisualOptions
     private static readonly Dictionary<string, string[]> Allowed = new()
     {
         ["terrain"] = new[] { "groundfield", "terrain3d" },
-        ["sky"] = new[] { "classic", "sky3d" },
+        ["sky"] = new[] { "classic", "sky3d", "hdri" },
         ["clouds"] = new[] { "none", "sunshine" },
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
         ["weather"] = Array.Empty<string>(),     // a weather state name, validated by the weather system

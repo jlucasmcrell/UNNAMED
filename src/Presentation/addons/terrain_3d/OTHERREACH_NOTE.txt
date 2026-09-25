@@ -1,0 +1,4 @@
+Terrain3D v1.0.2-stable (TokisanGames, MIT - LICENSE.txt beside this), as released, except:
+the bin/ libraries for platforms Otherreach does not ship (android, ios, macos, web) are removed. Restore them from the
+release archive Terrain3D_v1.0.2-stable.zip (sha256 a071850250ec5e596aa54da61c01d75768774eb379ee997584d426a45f4884a2) if a port needs them.
+Adopted by Phase B (B0.1) as a renderer only: the domain TerrainGrid is the ground's truth; its collision is disabled.
