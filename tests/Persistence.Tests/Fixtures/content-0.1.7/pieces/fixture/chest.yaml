@@ -1,0 +1,18 @@
+id: piece.fixture.chest
+kind: piece
+schema: 1
+display_key: piece.fixture.chest.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+family: storage
+slot: furniture
+rotations: [0, 1, 2, 3]
+bounds_m: [-0.5, 0.6, 0.5, 1.2]
+parts:
+  - { box_m: [-0.5, 0.6, 0.5, 1.2], height_m: 0.7, traversal: solid }
+sockets:
+  - { type: square_mount, at_m: [0, 0] }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 100
+container: { stack_slots: 12, at_m: [0, 0.9] }

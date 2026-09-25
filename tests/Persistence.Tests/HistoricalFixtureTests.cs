@@ -1,6 +1,9 @@
+using System.Collections.Immutable;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -14,7 +17,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.8";
+    public const string ContentVersion = "0.2.9";
 
     public static string Root { get; } = FindRoot();
 
@@ -244,11 +247,77 @@ public class HistoricalFixtureTests
         // Schema 13's posture (the owner's M6 playtest): Aelin crouched, on the ground; before it, standing.
         Assert.Equal(schema >= 13 ? new Posture(Stance.Crouched, false, 0) : Posture.Grounded, loaded.Player.Posture);
 
+        // Schema 15 (M7), stated independently of expected.json: pieces around the z = 500 m seam, the chest's container, the smith's
+        // errand, the warden's partial route and the ledger, renames reaching a piece, a faction, a knower and a via; none before.
+        if (schema >= 15)
+        {
+            var aelin = M2Fixtures.PlayerId;
+            var pieces = loaded.World.Pieces.OrderBy(p => p.InstanceId.Value, StringComparer.Ordinal).ToList();
+            Assert.Equal(new[] { 1L, 2, 3, 5, 7 }.Select(n => M2Fixtures.Historical.PieceId(n, aelin)).Append(M2Fixtures.Historical.PieceId(9, M2Fixtures.Historical.ForeignOwner))
+                .OrderBy(id => id.Value, StringComparer.Ordinal), pieces.Select(p => p.InstanceId));
+            PieceRecord Piece(long n, EntityId owner) => loaded.World.Piece(M2Fixtures.Historical.PieceId(n, owner))!;
+            Assert.Equal(("piece.fixture.pad", "r_0_0:c_00_04", 49_500L, 499_500L, 0, 200, false),
+                (Piece(1, aelin).DefId, Piece(1, aelin).HostCell, Piece(1, aelin).XMm, Piece(1, aelin).ZMm, Piece(1, aelin).Rotation, Piece(1, aelin).HealthCurrent, Piece(1, aelin).DoorOpen));
+            Assert.Equal(("piece.fixture.doorway", 49_500L, 498_000L, false), (Piece(2, aelin).DefId, Piece(2, aelin).XMm, Piece(2, aelin).ZMm, Piece(2, aelin).DoorOpen));
+            Assert.Equal(("piece.fixture.door", 120, true), (Piece(3, aelin).DefId, Piece(3, aelin).HealthCurrent, Piece(3, aelin).DoorOpen));
+            Assert.Equal(("piece.fixture.wall", "r_0_0:c_00_05", 150), (Piece(5, aelin).DefId, Piece(5, aelin).HostCell, Piece(5, aelin).HealthCurrent));   // renamed via _aliases.yaml
+            Assert.Equal(("piece.fixture.chest", "r_0_0:c_00_04", 100), (Piece(7, aelin).DefId, Piece(7, aelin).HostCell, Piece(7, aelin).HealthCurrent));
+            var foreign = Piece(9, M2Fixtures.Historical.ForeignOwner);
+            Assert.Equal((M2Fixtures.Historical.ForeignOwner, 1, 61_500L), (foreign.Owner, foreign.Rotation, foreign.XMm));
+            Assert.All(pieces.Where(p => p != foreign), p => Assert.Equal(aelin, p.Owner));
+            Assert.Equal(9, loaded.World.StructureSequence);
+
+            var chestPiece = M2Fixtures.Historical.PieceId(7, aelin);
+            var pieceChest = loaded.World.Container("container." + chestPiece.Value.ToLowerInvariant())!;
+            Assert.Equal(EntityId.Derived(EntityKind.Container, 7, "unnamed.piece-container/v1", chestPiece.Value), pieceChest.InstanceId);
+            Assert.Equal("r_0_0:c_00_05", pieceChest.HostCell);
+            var timber = Assert.Single(pieceChest.Items);
+            Assert.Equal(("item.material.timber", 3, 0), (timber.DefId, timber.Count, timber.Quality));
+
+            var errand = loaded.World.NpcErrand("npc.fixture.smith")!;
+            Assert.Equal(("r_0_0:c_00_00", NpcErrandPhase.ToHome, (EntityId?)null, (EntityId?)aelin, 40_000L, 120_000L, 180_000, 3),
+                (errand.HostCell, errand.Phase, errand.PieceId, errand.WorkOwner, errand.XMm, errand.ZMm, errand.FacingMdeg, errand.StuckTicks));
+            Assert.Equal(NavRoute.Active(new NavPoint(32_000, 70_000), ImmutableArray.Create(new NavPoint(36_000, 95_000), new NavPoint(32_000, 70_000)),
+                4_980, 0xFEDCBA9876543210, new NavRect(12_000, 50_000, 60_000, 140_000), partial: false), errand.Route);
+
+            Assert.Equal(NavRoute.Active(new NavPoint(150_250, -40_125),
+                ImmutableArray.Create(new NavPoint(149_250, -41_000), new NavPoint(149_750, -40_750), new NavPoint(150_250, -40_125)),
+                4_990, 0x0123456789ABCDEF, new NavRect(129_000, -61_000, 171_000, -20_000), partial: true), loaded.Player.Companions[0].Route);
+
+            var ledger = loaded.Player.Factions;
+            Assert.Equal(3, ledger.NextActSeq);
+            Assert.Equal(new[] { (1L, ActKinds.CreatureKilled, "creature.beast.wolf_grey"), (2L, ActKinds.SwitchSet, "world.lever.mill_gate") },
+                ledger.Acts.Select(a => (a.Seq, a.Kind, a.Subject)));
+            Assert.Equal(new[]
+                {
+                    new FactionKnowledge("faction.fixture.diggers", 1, Identities.Identified, KnowledgeSources.Reported, "npc.fixture.smith", 4_300, -100),
+                    new FactionKnowledge("faction.fixture.keepers", 1, Identities.Identified, KnowledgeSources.Reported, "npc.fixture.warden_sera", 4_150, 100),
+                }, ledger.Knowledge);
+            Assert.Equal(new[] { new FactionStanding("faction.fixture.diggers", -100), new FactionStanding("faction.fixture.keepers", 100) }, ledger.Standing);
+        }
+        else
+        {
+            Assert.Empty(loaded.World.Pieces);
+            Assert.Equal(0, loaded.World.StructureSequence);
+            Assert.Empty(loaded.World.NpcErrandsIn(CellKey.Parse("r_0_0:c_00_00")));
+            Assert.Null(loaded.World.NpcErrand("npc.fixture.smith"));
+            Assert.Equal(FactionLedger.Empty, loaded.Player.Factions);
+            Assert.All(loaded.Player.Companions, c => Assert.Equal(NavRoute.None, c.Route));
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
-            >= 14 => new[]
+            >= 15 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x2", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.delvers -> faction.fixture.diggers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x5", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x4", "piece.fixture.old_wall -> piece.fixture.wall",
+                "quest.fixture.errand -> quest.fixture.wardens_errand", "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            14 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x2", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
                 "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x5",

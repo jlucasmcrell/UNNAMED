@@ -29,9 +29,13 @@ public class GameSaveTests
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.StaggeredTick$"), "null"),
         (new Regex(@"^\$\.world\.Noises$"), "[]"),
-        // Schema 15: the world gains its placed pieces - none - and their sequence, and the named NPCs' errands - none.
+        // Schema 15: the world gains its placed pieces - none - and their sequence, and the named NPCs' errands - none; the player a
+        // faction ledger that knows nothing, and each companion a route - none.
         (new Regex(@"^\$\.world\.(Pieces|NpcErrands)$"), "[]"),
         (new Regex(@"^\$\.world\.StructureSequence$"), "0"),
+        (new Regex(@"^\$\.player\.Factions$"), """{"NextActSeq":1,"Acts":[],"Knowledge":[],"Standing":[]}"""),
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Route$"),
+            """{"Status":"None","GoalXMm":0,"GoalZMm":0,"Corners":[],"PlannedTick":0,"Stamp":0,"Watch":{"MinXMm":0,"MinZMm":0,"MaxXMm":0,"MaxZMm":0},"Partial":false}"""),
     };
 
     [Fact]
@@ -64,7 +68,9 @@ public class GameSaveTests
         }
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3, differences.Count);   // the posture and digest, four fields a record, the noises, the M7 world
+        int companions = expected["player"]!["Companions"]!.AsArray().Count;
+        // The posture and digest, four fields a record, the noises; M7's world three, the ledger and a route a companion.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + companions, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

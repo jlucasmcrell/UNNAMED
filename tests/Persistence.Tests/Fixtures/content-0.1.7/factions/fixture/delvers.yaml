@@ -1,0 +1,13 @@
+id: faction.fixture.delvers
+kind: faction
+schema: 1
+display_key: faction.fixture.delvers.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+name: the Delvers
+seat_location_ref: location.wolf_den
+reactions:
+  - { act: creature_killed, creature_ref: creature.beast.wolf_grey, delta: -100 }
+  - { act: switch_set, flag_ref: world.lever.mill_gate, delta: 100 }
+relations:
+  - { faction_ref: faction.fixture.keepers, attitude: strained }

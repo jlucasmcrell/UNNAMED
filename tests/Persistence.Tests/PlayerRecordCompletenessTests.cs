@@ -28,7 +28,7 @@ public class PlayerRecordCompletenessTests
     /// <summary>
     /// The historical fixture's player - every schema's fields filled - and more, so no field is left at its default anywhere: a chest
     /// piece worn beside the main hand, a second attribute raised, a stamina pool part spent, a guard's day past the first, a second
-    /// companion downed with a trail of its own, and the character in the air.
+    /// companion downed with a trail and an unreachable route of its own, the character in the air, and the fixture's faction ledger.
     /// </summary>
     private static PlayerRecord Full()
     {
@@ -50,8 +50,10 @@ public class PlayerRecordCompletenessTests
                     {
                         DownedTick = 4_990,
                         Trail = ImmutableArray.Create(new TrailMark(151_500, -38_500)),
+                        Route = NavRoute.Unreachable(new NavPoint(152_000, -38_000), 4_985, 0x0F1E2D3C4B5A6978, new NavRect(131_000, -59_000, 173_000, -17_000)),
                     }))
-            { Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120) };
+            // Room above the last act, so an act's sequence can move alone.
+            { Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120), Factions = player.Factions with { NextActSeq = player.Factions.NextActSeq + 1 } };
     }
 
     [Fact]
@@ -129,11 +131,14 @@ public class PlayerRecordCompletenessTests
     {
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
+        ["player.companions[].route.status"] = "an active or unreachable route is built by its factory from its corners and goal; none has neither",
+        ["player.factions.acts[].cell_key"] = "an act's cell is the cell of where it was done",
+        ["player.factions.knowledge[].identity"] = "an act not yet identified moves no standing: its delta is 0 while unidentified",
     };
 
     /// <summary>
-    /// The words saves store enums as - every <c>Key</c> of every enum the domain and the world write - and the relationship dimensions:
-    /// what a field holding one of them can validly become.
+    /// The words saves store enums as - every <c>Key</c> of every enum the domain and the world write - the relationship dimensions, and
+    /// the faction ledger's act kinds, sources and identities: what a field holding one of them can validly become.
     /// </summary>
     private static readonly string[] Words = typeof(DiscoveryMethods).Assembly.GetTypes().Concat(typeof(ProgressionKeys).Assembly.GetTypes())
         .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -151,6 +156,7 @@ public class PlayerRecordCompletenessTests
         }))
         .OfType<string>()
         .Concat(UNNAMED.Domain.Social.Relationships.Dimensions)
+        .Concat(UNNAMED.Domain.Factions.ActKinds.Built).Concat(UNNAMED.Domain.Factions.KnowledgeSources.All).Concat(UNNAMED.Domain.Factions.Identities.All)
         .Distinct(StringComparer.Ordinal)
         .ToArray();
 

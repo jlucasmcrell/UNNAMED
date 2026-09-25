@@ -107,14 +107,26 @@ internal static class SemanticRebase
             .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
             .ToImmutableArray();
 
+        // Pieces and errands (M7) are carried as they are, like created instances; whether a piece still stands legally over the new
+        // layout is the load audit's to report.
+        var rebasedPieces = delta.Pieces
+            .Select(p => cellsToRebase.Contains(p.HostCell) ? p with { BaselineHash = baseline(CellKey.Parse(p.HostCell)).Digest } : p)
+            .ToImmutableArray();
+        var rebasedErrands = delta.NpcErrands
+            .Select(e => cellsToRebase.Contains(e.HostCell) ? e with { BaselineHash = baseline(CellKey.Parse(e.HostCell)).Digest } : e)
+            .ToImmutableArray();
+
         foreach (string cell in cellsToRebase.OrderBy(c => c, StringComparer.Ordinal))
             report.CellsRebased.Add($"{cell} ({transition.Name})");
-        return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable())
+        return delta with
         {
+            Cells = rebasedCells.ToImmutable(),
+            Entities = rebasedEntities.ToImmutable(),
             Created = rebasedCreated,
             Containers = rebasedContainers,
             Creatures = rebasedCreatures,
-            Noises = delta.Noises,
+            Pieces = rebasedPieces,
+            NpcErrands = rebasedErrands,
         };
     }
 }

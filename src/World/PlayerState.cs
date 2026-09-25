@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -59,6 +60,9 @@ public sealed record CompanionRecord(string NpcId, CompanionOrder Order, Compani
     public long LastCombatTick { get; init; }
 
     public ImmutableArray<TrailMark> Trail { get; init; } = ImmutableArray<TrailMark>.Empty;
+
+    /// <summary>The route they have committed to (M7, schema 15); none while they walk the trail or come straight on.</summary>
+    public NavRoute Route { get; init; } = NavRoute.None;
 }
 
 public static class DiscoveryMethods
@@ -200,7 +204,7 @@ public sealed record PlayerRecord
             bool down = c.Condition == CompanionCondition.Downed;
             if (!DefinitionId.IsValid(c.NpcId) || !c.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Enum.IsDefined(c.Order) || !Enum.IsDefined(c.Condition)
                 || c.FacingMdeg is < 0 or >= 360_000 || c.Health < 0 || down != (c.Health == 0) || c.DownedTick < 0 || (!down && c.DownedTick != 0)
-                || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault)
+                || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault || c.Route is null)
                 throw new ArgumentException($"Invalid companion record for {c.NpcId}", nameof(companions));
         }
         if (Companions.Select(c => c.NpcId).Distinct(StringComparer.Ordinal).Count() != Companions.Length)
@@ -225,32 +229,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Factions = Factions };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Factions = Factions };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -316,6 +320,62 @@ public sealed record PlayerRecord
 
     private readonly Posture _posture;
 
+    /// <summary>
+    /// What the factions know and think of the character (M7, schema 15): the acts recorded, what each faction learned of them, and the
+    /// standing each holds. Validated as it is set, so an invalid ledger cannot be held.
+    /// </summary>
+    public FactionLedger Factions
+    {
+        get => _factions;
+        init => _factions = ValidLedger(value);
+    }
+
+    private readonly FactionLedger _factions = FactionLedger.Empty;
+
+    private static FactionLedger ValidLedger(FactionLedger ledger)
+    {
+        if (ledger is null || ledger.Acts.IsDefault || ledger.Knowledge.IsDefault || ledger.Standing.IsDefault)
+            throw new ArgumentException("The faction ledger is incomplete", nameof(Factions));
+        if (ledger.NextActSeq < 1)
+            throw new ArgumentException($"The next act's sequence is {ledger.NextActSeq}, below 1", nameof(Factions));
+        long previous = 0;
+        foreach (var act in ledger.Acts)
+        {
+            if (act.Seq <= previous || act.Seq >= ledger.NextActSeq)
+                throw new ArgumentException($"Act {act.Seq} is out of order, or not below the next sequence {ledger.NextActSeq}", nameof(Factions));
+            if (!ActKinds.Built.Contains(act.Kind) || !DefinitionId.IsValid(act.Subject))
+                throw new ArgumentException($"Act {act.Seq} is of kind '{act.Kind}' on '{act.Subject}'", nameof(Factions));
+            if (act.CellKey != CellKey.OfWorld(act.XMm / 1000.0, act.ZMm / 1000.0).ToString())
+                throw new ArgumentException($"Act {act.Seq}'s cell {act.CellKey} is not the cell of where it was done", nameof(Factions));
+            previous = act.Seq;
+        }
+        var acts = ledger.Acts.Select(a => a.Seq).ToHashSet();
+        FactionKnowledge? last = null;
+        foreach (var row in ledger.Knowledge)
+        {
+            if (last is not null && (string.CompareOrdinal(last.Knower, row.Knower) > 0
+                    || (string.Equals(last.Knower, row.Knower, StringComparison.Ordinal) && last.Act >= row.Act)))
+                throw new ArgumentException($"Knowledge of act {row.Act} by {row.Knower} is out of order or twice", nameof(Factions));
+            if (!acts.Contains(row.Act) || !IsFaction(row.Knower) || !Identities.All.Contains(row.Identity) || !KnowledgeSources.All.Contains(row.Source)
+                || (row.Via is not null && !(DefinitionId.IsValid(row.Via) && row.Via.StartsWith("npc.", StringComparison.Ordinal)))
+                || (row.Identity == Identities.Unidentified && row.Delta != 0))
+                throw new ArgumentException($"Invalid knowledge of act {row.Act} by {row.Knower}", nameof(Factions));
+            last = row;
+        }
+        FactionStanding? before = null;
+        foreach (var row in ledger.Standing)
+        {
+            if (before is not null && string.CompareOrdinal(before.FactionId, row.FactionId) >= 0)
+                throw new ArgumentException($"Standing with {row.FactionId} is out of order or twice", nameof(Factions));
+            if (!IsFaction(row.FactionId) || row.Points == 0 || row.Points is < FactionLedger.MinPoints or > FactionLedger.MaxPoints)
+                throw new ArgumentException($"Invalid standing {row.Points} with {row.FactionId}", nameof(Factions));
+            before = row;
+        }
+        return ledger;
+
+        static bool IsFaction(string id) => DefinitionId.IsValid(id) && id.StartsWith("faction.", StringComparison.Ordinal);
+    }
+
     /// <summary>The same player holding themselves differently.</summary>
     public PlayerRecord WithPosture(Posture posture) => this with { Posture = posture };
 
@@ -325,7 +385,7 @@ public sealed record PlayerRecord
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v9").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -361,8 +421,18 @@ public sealed record PlayerRecord
                     .Add(c.DownedTick).Add(c.StuckTicks).Add(c.LastCombatTick).Add(c.Trail.Length);
                 foreach (var mark in c.Trail)
                     h.Add(mark.XMm).Add(mark.ZMm);
+                c.Route.AddTo(h);
             }
             h.Add(StanceKeys.Key(Posture.Stance)).Add(Posture.Airborne ? 1 : 0).Add(Posture.AirMs);
+            h.Add(Factions.NextActSeq).Add(Factions.Acts.Length);
+            foreach (var a in Factions.Acts)
+                h.Add(a.Seq).Add(a.Kind).Add(a.Subject).Add(a.CellKey).Add(a.XMm).Add(a.ZMm).Add(a.Tick);
+            h.Add(Factions.Knowledge.Length);
+            foreach (var k in Factions.Knowledge)
+                h.Add(k.Knower).Add(k.Act).Add(k.Identity).Add(k.Source).Add(k.Via ?? "-").Add(k.Tick).Add(k.Delta);
+            h.Add(Factions.Standing.Length);
+            foreach (var st in Factions.Standing)
+                h.Add(st.FactionId).Add(st.Points);
             return h.Finish();
         }
     }

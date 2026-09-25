@@ -152,6 +152,12 @@
       "stance": "standing",
       "airborne": false,
       "air_ms": 0
+    },
+    "factions": {
+      "next_act_seq": 1,
+      "acts": [],
+      "knowledge": [],
+      "standing": []
     }
   },
   "cells": [
@@ -357,5 +363,8 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": []
+  "noises": [],
+  "structure_seq": 0,
+  "pieces": [],
+  "npc_errands": []
 }

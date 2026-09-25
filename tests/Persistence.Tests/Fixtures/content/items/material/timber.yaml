@@ -1,0 +1,11 @@
+id: item.material.timber
+kind: item
+schema: 1
+display_key: item.material.timber.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+category: material
+stack_max: 20
+weight: 2.0
+value_base: 1
+rarity: common

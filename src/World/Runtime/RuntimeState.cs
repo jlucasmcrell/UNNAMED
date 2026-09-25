@@ -111,6 +111,7 @@ internal sealed class RuntimeState
         WorldTick = worldTick;
         Body = body;
         Posture = player.Posture;
+        Factions = player.Factions;
         Progression = player.Progression;
         Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
         Inventory = player.Inventory;
@@ -129,7 +130,7 @@ internal sealed class RuntimeState
     public long WorldTick { get; private set; }
     public Body Body { get; private set; }
     public Posture Posture { get; private set; }
-    public FactionLedger Factions { get; private set; } = FactionLedger.Empty;
+    public FactionLedger Factions { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =

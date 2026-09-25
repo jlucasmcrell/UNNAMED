@@ -192,4 +192,31 @@ public class RoundTripTests : IDisposable
         Assert.Empty(SectionCodec.DecodeCells(Section(M2Fixtures.Slot, SaveFormat.Cells)));
         Assert.Empty(SectionCodec.DecodeEntities(Section(M2Fixtures.Slot, SaveFormat.Entities)));
     }
+
+    // F-E1
+    [Fact]
+    public void T01_M7State_RoundTripsEveryField_ByteStable()
+    {
+        using var profile = new TempProfile();
+        var store = new SaveStore(profile.Root);
+        var player = M2Fixtures.Historical.Player();
+        var world = M2Fixtures.Historical.World(new Registry());
+        store.Save(M2Fixtures.Slot, SaveDocuments.Capture(world, player, M2Fixtures.Content(), 5_000, 60));
+        string worldDigest = M2Fixtures.WorldDigest(world);
+        string slot = store.SlotPath(M2Fixtures.Slot);
+        byte[] playerBytes = File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player));
+        byte[] entityBytes = File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities));
+
+        var loaded = store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry()));
+        Assert.True(loaded.IsComplete, string.Join("; ", loaded.Report.Warnings));
+        Assert.Equal(player.Digest, loaded.Player.Digest);
+        Assert.Equal(worldDigest, M2Fixtures.WorldDigest(loaded.World));
+        Assert.Equal(9, loaded.World.StructureSequence);
+        Assert.Equal(6, loaded.World.Pieces.Count);
+        Assert.NotNull(loaded.World.NpcErrand("npc.fixture.smith"));
+
+        store.Save(M2Fixtures.Slot, SaveDocuments.Capture(loaded.World, loaded.Player, M2Fixtures.Content(), 5_000, 60));
+        Assert.Equal(playerBytes, File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));
+        Assert.Equal(entityBytes, File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities)));
+    }
 }

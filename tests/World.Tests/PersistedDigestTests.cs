@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Tests;
@@ -132,6 +134,149 @@ public class PersistedDigestTests
 
         Assert.True(covered.Count >= 27, $"only {covered.Count} fields were changed");
         Assert.True(unmoved.Count == 0, "these fields change without moving the digest:\n" + string.Join("\n", unmoved));
+    }
+
+    private static readonly EntityId PlayerId = EntityId.Create(EntityKind.Character, 1_700_000_000_000, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 });
+
+    private static FactionLedger Ledger() => new(4,
+        ImmutableArray.Create(
+            new ActRecord(1, ActKinds.CreatureKilled, "creature.beast.wolf_grey", "r_0_0:c_00_02", 20_000, 250_000, 4_100),
+            new ActRecord(2, ActKinds.SwitchSet, "world.lever.mill_gate", "r_0_0:c_00_07", 50_000, 750_000, 4_200)),
+        ImmutableArray.Create(
+            new FactionKnowledge("faction.fixture.diggers", 1, Identities.Identified, KnowledgeSources.Reported, "npc.fixture.smith", 4_300, -100)),
+        ImmutableArray.Create(new FactionStanding("faction.fixture.diggers", -100)));
+
+    private static CompanionRecord Companion() =>
+        new("npc.fixture.warden_sera", CompanionOrder.Follow, CompanionCondition.Up, 148_750, -41_500, 45_000, 64)
+        {
+            StuckTicks = 2,
+            LastCombatTick = 4_950,
+            Trail = ImmutableArray.Create(new TrailMark(149_250, -41_000)),
+            Route = Route(),
+        };
+
+    private static string PlayerDigestOf(FactionLedger ledger, CompanionRecord companion) =>
+        new PlayerRecord(PlayerId, "Aelin", 150_250, 12_000, -40_125, 1, Array.Empty<InventoryEntry>(), companions: new[] { companion })
+        {
+            Factions = ledger,
+        }.Digest;
+
+    /// <summary>G12's player half: the ledger's rows and a companion's fields, its route among them, move the player's digest.</summary>
+    [Fact]
+    public void EveryPersistedPlayerField_MovesThePlayerDigest()
+    {
+        string baseline = PlayerDigestOf(Ledger(), Companion());
+        var unmoved = new List<string>();
+        var covered = new List<string>();
+        var ledger = Ledger();
+        var act = ledger.Acts[1];
+        var known = ledger.Knowledge[0];
+
+        var acts = new Dictionary<string, ActRecord>(StringComparer.Ordinal)
+        {
+            ["Seq"] = act with { Seq = 3 },
+            ["Kind"] = act with { Kind = ActKinds.CreatureKilled },
+            ["Subject"] = act with { Subject = "world.lever.mill_race" },
+            ["CellKey"] = act with { XMm = 150_000, CellKey = "r_0_0:c_01_07" },   // the cell of where it was done: it moves with the position
+            ["XMm"] = act with { XMm = 50_001 },
+            ["ZMm"] = act with { ZMm = 750_001 },
+            ["Tick"] = act with { Tick = 4_201 },
+        };
+        foreach (var property in Persisted(typeof(ActRecord)))
+        {
+            string name = $"ActRecord.{property.Name}";
+            Assert.True(acts.ContainsKey(property.Name), $"{name} has no change in this test: add one, or name it exempt");
+            covered.Add(name);
+            if (PlayerDigestOf(ledger with { Acts = ledger.Acts.SetItem(1, acts[property.Name]) }, Companion()) == baseline)
+                unmoved.Add(name);
+        }
+
+        var knowledge = new Dictionary<string, FactionKnowledge>(StringComparer.Ordinal)
+        {
+            ["Knower"] = known with { Knower = "faction.fixture.keepers" },
+            ["Act"] = known with { Act = 2 },
+            ["Identity"] = known with { Identity = Identities.Unidentified, Delta = 0 },
+            ["Source"] = known with { Source = KnowledgeSources.Witnessed },
+            ["Via"] = known with { Via = null },
+            ["Tick"] = known with { Tick = 4_301 },
+            ["Delta"] = known with { Delta = -99 },
+        };
+        foreach (var property in Persisted(typeof(FactionKnowledge)))
+        {
+            string name = $"FactionKnowledge.{property.Name}";
+            Assert.True(knowledge.ContainsKey(property.Name), $"{name} has no change in this test: add one, or name it exempt");
+            covered.Add(name);
+            if (PlayerDigestOf(ledger with { Knowledge = ImmutableArray.Create(knowledge[property.Name]) }, Companion()) == baseline)
+                unmoved.Add(name);
+        }
+        if (PlayerDigestOf(ledger with { Knowledge = ImmutableArray.Create(known with { Delta = 0 }) }, Companion())
+            == PlayerDigestOf(ledger with { Knowledge = ImmutableArray.Create(known with { Identity = Identities.Unidentified, Delta = 0 }) }, Companion()))
+            unmoved.Add("FactionKnowledge.Identity (at delta 0)");
+
+        var standing = new Dictionary<string, FactionStanding>(StringComparer.Ordinal)
+        {
+            ["FactionId"] = new("faction.fixture.keepers", -100),
+            ["Points"] = new("faction.fixture.diggers", -101),
+        };
+        foreach (var property in Persisted(typeof(FactionStanding)))
+        {
+            string name = $"FactionStanding.{property.Name}";
+            Assert.True(standing.ContainsKey(property.Name), $"{name} has no change in this test: add one, or name it exempt");
+            covered.Add(name);
+            if (PlayerDigestOf(ledger with { Standing = ImmutableArray.Create(standing[property.Name]) }, Companion()) == baseline)
+                unmoved.Add(name);
+        }
+
+        var ledgers = new Dictionary<string, FactionLedger>(StringComparer.Ordinal)
+        {
+            ["NextActSeq"] = ledger with { NextActSeq = 5 },
+            ["Acts"] = ledger with { Acts = ledger.Acts.RemoveAt(1) },
+            ["Knowledge"] = ledger with { Knowledge = ImmutableArray<FactionKnowledge>.Empty },
+            ["Standing"] = ledger with { Standing = ImmutableArray<FactionStanding>.Empty },
+        };
+        foreach (var property in Persisted(typeof(FactionLedger)))
+        {
+            string name = $"FactionLedger.{property.Name}";
+            Assert.True(ledgers.ContainsKey(property.Name), $"{name} has no change in this test: add one, or name it exempt");
+            covered.Add(name);
+            if (PlayerDigestOf(ledgers[property.Name], Companion()) == baseline)
+                unmoved.Add(name);
+        }
+
+        var companion = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["NpcId"] = "npc.fixture.scout",
+            ["Order"] = CompanionOrder.Wait,
+            ["Condition"] = CompanionCondition.Up,
+            ["XMm"] = 148_751L,
+            ["ZMm"] = -41_501L,
+            ["FacingMdeg"] = 45_001,
+            ["Health"] = 63,
+            ["DownedTick"] = 0L,
+            ["StuckTicks"] = 3,
+            ["LastCombatTick"] = 4_951L,
+            ["Trail"] = ImmutableArray.Create(new TrailMark(149_250, -41_001)),
+            ["Route"] = NavRoute.None,
+        };
+        foreach (var property in Persisted(typeof(CompanionRecord)))
+        {
+            string name = $"CompanionRecord.{property.Name}";
+            Assert.True(companion.ContainsKey(property.Name), $"{name} has no change in this test: add one, or name it exempt");
+            covered.Add(name);
+            // The record ties a condition to its health and downed tick, so it changes with them; a downed tick moves from one downed record.
+            var downed = Companion() with { Condition = CompanionCondition.Downed, Health = 0, DownedTick = 4_990 };
+            bool moved = property.Name switch
+            {
+                "Condition" => PlayerDigestOf(Ledger(), downed) != baseline,
+                "DownedTick" => PlayerDigestOf(Ledger(), downed with { DownedTick = 4_991 }) != PlayerDigestOf(Ledger(), downed),
+                _ => PlayerDigestOf(Ledger(), With(Companion(), property.Name, companion[property.Name])) != baseline,
+            };
+            if (!moved)
+                unmoved.Add(name);
+        }
+
+        Assert.True(covered.Count >= 30, $"only {covered.Count} fields were changed");
+        Assert.True(unmoved.Count == 0, "these fields change without moving the player's digest:\n" + string.Join("\n", unmoved));
     }
 
     [Fact]

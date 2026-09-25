@@ -63,6 +63,7 @@ internal sealed record CompanionState(string NpcId, CompanionProfile Profile, At
     public int StuckTicks { get; init; }
     public long LastCombatTick { get; init; }
     public ImmutableArray<TrailMark> Trail { get; init; } = ImmutableArray<TrailMark>.Empty;
+    public NavRoute Route { get; init; } = NavRoute.None;
     public ActionState Action { get; init; } = ActionState.Idle;
     public long NextAttackTick { get; init; }
     public string? TargetKey { get; init; }
@@ -137,6 +138,7 @@ internal sealed class CompanionSystem
                 StuckTicks = record.StuckTicks,
                 LastCombatTick = record.LastCombatTick,
                 Trail = record.Trail,
+                Route = record.Route,
             });
         }
     }
@@ -152,6 +154,7 @@ internal sealed class CompanionSystem
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 Trail = c.Trail,
+                Route = c.Route,
             };
         }).ToImmutableArray();
 

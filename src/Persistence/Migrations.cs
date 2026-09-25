@@ -81,7 +81,8 @@ public static class SchemaMigrations
         new SchemaV10ToV11(),
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
-        new SchemaV13ToV14());
+        new SchemaV13ToV14(),
+        new SchemaV14ToV15());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -798,6 +799,89 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                     Continuation = new CreatureContinuationDto(),
                 }).ToArray(),
                 Noises = Array.Empty<NoiseDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 14 to 15 (M7): the player gains a faction ledger and each companion a route; the world gains placed pieces, the structure
+/// sequence and NPC errands. No act was recorded before M7, nothing was built or sent to work, and no one walked a planned route.
+/// </summary>
+public sealed class SchemaV14ToV15 : SchemaMigration
+{
+    public override int From => 14;
+
+    public override string Summary =>
+        "schema 14 -> 15: the player gains a faction ledger (empty before M7) and each companion a route (none); " +
+        "the world gains placed pieces, the structure sequence and NPC errands (none before M7)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions?.Select(c => new CompanionDto
+                {
+                    NpcId = c.NpcId,
+                    Order = c.Order,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DownedTick = c.DownedTick,
+                    StuckTicks = c.StuckTicks,
+                    LastCombatTick = c.LastCombatTick,
+                    TrailMm = c.TrailMm,
+                    Route = new NavRouteDto
+                    {
+                        Status = "none", GoalMm = new long[2], CornersMm = Array.Empty<long>(), PlannedTick = 0, Stamp = 0, WatchMm = new long[4],
+                        Partial = false,
+                    },
+                }).ToArray(),
+                Posture = old.Posture,
+                Factions = new FactionsDto
+                {
+                    NextActSeq = 1, Acts = Array.Empty<ActDto>(), Knowledge = Array.Empty<KnowledgeDto>(), Standing = Array.Empty<StandingDto>(),
+                },
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V14.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+                Pieces = Array.Empty<PieceDto>(),
+                StructureSeq = 0,
+                NpcErrands = Array.Empty<NpcErrandDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

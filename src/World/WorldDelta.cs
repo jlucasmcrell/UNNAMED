@@ -1069,7 +1069,7 @@ public sealed class WorldDelta
         // A piece chest (M7): its piece must stand, and its identity is the one derived from that piece.
         if (record.Key.StartsWith(PieceChestPrefix, StringComparison.Ordinal))
         {
-            if (Piece(EntityId.Parse("pce_" + record.Key[PieceChestPrefix.Length..].ToUpperInvariant())) is not { } piece)
+            if (!EntityId.TryParse("pce_" + record.Key[PieceChestPrefix.Length..].ToUpperInvariant(), out var pieceId) || Piece(pieceId) is not { } piece)
                 return "its chest is gone";
             if (record.InstanceId != PieceChestId(piece.InstanceId))
                 return "not its chest's identity";
