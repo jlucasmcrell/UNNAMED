@@ -56,7 +56,7 @@
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
-| E2 | Schema 15, landed once | in progress | E2.1 | | 103 | |
+| E2 | Schema 15, landed once | **stopped** (S9, E2.3) | `d17a67e` (E2.1), `f7931e1` (E2.2) | 870 at E2.2: Domain 162, Application 206, Persistence 173, Content 160, World 66, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | See "STOP - E2.3, S9" |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
@@ -186,6 +186,26 @@ The owner resolved the STOP as a correction to the design's benchmark, not as an
 | `node iron_seam` → Renn Vale's place | 52,985 |
 | `container.den_cache` → Kera Voss's place | 46,942 |
 | `container.den_cache` → `station.forge_hearth` | 44,464 |
+
+## STOP - E2.3, S9 (2026-09-25)
+
+**What fired.** §10's S9: "A part section's rule cannot be implemented as written without inventing a rule, or two sections of this document contradict each other on something the slice needs". §7.11 has the current fixture pack (`tests/Persistence.Tests/Fixtures/content`, 0.2.8 → 0.2.9) add `config.navigation` with the game's values, and says the pack "passes every check that exists then". It cannot, as written:
+
+- §3.16's NAV007 requires "every time ≥ one tick", and `config.navigation` states its times in seconds (`replan_min_gap_s`, `retry_s`, `stuck_replan_s`, `blocked_view_s`). `NavigationContent` converts them through the tick, which the repository reads only from `config.time` (`WorldContent.TickMilliseconds`; Domain, World and Application have no other tick source).
+- The fixture pack has no `config.time`. With `config.navigation` added, its lint reports NAV007 "config.navigation is malformed: config.time is missing", so `Fixtures.Content()` refuses the pack and every Persistence test that loads it fails.
+- Adding `config.time` to the pack does not help: it switches on the combat and magic checks, which a pack without a tick skips (`CombatContent.cs:18-19`, `MagicContent.cs:25`). The pack then fails CMB001 "creatures: 'attack_set' must be a list" and MAG001 "spells: 'domain' is missing". The fixture creatures (`deer`, `wolf_grey`, `ash_ember_hound`) and `spell.ember.bolt` are stubs; `deer` and `bolt` have no game counterpart.
+
+**The readings.**
+
+| Reading | What changes | Cost |
+|---|---|---|
+| (a) Fix the pack to the letter | Add `config.time`, then give the fixture creatures and spell full combat and magic definitions, and whatever those checks pull in (abilities, loot tables, the combat and magic configs) | Invents creature, ability and spell content for a save-migration fixture. The mirror grows well past §7.11's 12 IDs. Large and open-ended |
+| (b) The pack omits `config.navigation` | The current pack adds 11 of §7.11's 12 IDs. Without `config.navigation`, `NavigationContent` uses `NavConfig.Default`, which equals the game's `navigation.yaml` (E1's `NavConfigDefault_IsTheShippedFile`). NAV004-NAV006 still run on the pack, against the default. The writer pack `content-0.1.7` keeps its `config/navigation.yaml` (writer packs need not pass today's checks; only their hash matters) | Smallest. Verified diagnostically: the pack without it validates with 0 errors. Deviates from §7.11's list by one file |
+| (c) The NAV lint skips a pack without a tick | `NavigationContent` treats a pack without `config.time` the way combat and magic do: no tick, so no navigation to check | Changes a lint to fit the pack, which §7.11 forbids ("the pack is fixed, never the lint") |
+
+**Recommendation.** (b). It keeps the rule "the pack is fixed, never the lint", adds no invented content and changes no lint. The design amendment would read, in §7.11's current-pack list: "`config.building` and `config.factions`, not `config.navigation`: its times need `config.time`, and `config.time` switches on checks that the fixture's stub creatures and spell do not meet. The pack navigates with `NavConfig.Default`, the shipped values." The mirror then gains 11 IDs.
+
+**State at the STOP.** E2.1 (`d17a67e`) and E2.2 (`f7931e1`) are committed and pushed; E2.1's CI is green. E2.3 is in progress and uncommitted in the worktree. Its source builds; the packs, the probe rows and the test edits are applied; and the writer pack's hash is computed. A patch of the in-progress work is at `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\drafts\wip\E2.3_wip_2026-09-25.patch`. Nothing of E2.3 is committed or pushed. The design is not amended.
 
 ## Scope ledger
 
