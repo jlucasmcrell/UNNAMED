@@ -124,6 +124,12 @@ public partial class Main : Node3D
             AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
             return;
         }
+        if (_options.TryGetValue("--kit-sheet", out string? kit))
+        {
+            var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            AddChild(new Art.KitSheet(new Art.ArtLibrary(catalog.Root), Path.GetFullPath(kit)));
+            return;
+        }
         if (_options.TryGetValue("--vfx-sheet", out string? vfx))
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
@@ -1448,7 +1454,7 @@ public partial class Main : Node3D
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
-                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

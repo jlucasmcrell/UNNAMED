@@ -37,6 +37,13 @@
   },
   "cliffs": "material_rubble_stone_wall",
 
+  "pieces": {
+    "piece.pad.timber": { "model": "piece_timber_pad", "material": "wood", "note": "Phase B (B7): the timber kit for M7's building pieces, keyed by definition ID in the shape M7's design (section 9.4) records for its future art bindings. Nothing reads this section yet: it waits for M7's StructuresView to wrap BuildPiece (reconciliation at merge). Each model fits its piece's blocking boxes exactly (the kit sheet: --kit-sheet)." },
+    "piece.wall.timber": { "model": "piece_timber_wall", "material": "wood" },
+    "piece.doorway.timber": { "model": "piece_timber_doorway", "material": "wood" },
+    "piece.door.timber": { "model": "piece_timber_door", "material": "wood", "note": "The leaf's origin is its hinge edge (local x = -0.8 of the part box)." },
+    "piece.roof.timber": { "model": "piece_timber_roof", "material": "wood", "note": "Its ridge runs along local x: modules stitch along x only (no hips or valleys yet)." }
+  },
   "structures_by_visual_option": {
     "foldscar=proof": {
       "rock_foldscar_heart": { "model": "scifi_artifact_a", "surface": "mat_acg_onyx015", "surface_tint": [0.2, 0.21, 0.26], "material": "stone", "note": "Phase B (B0.6): the heart as a staged alien artifact - Alien Artifacts sculpture 1 (CC0, zonked, OpenGameArt) fitted to the heart's circle, wearing ambientCG Onyx015 (CC0) over its own carving." }
