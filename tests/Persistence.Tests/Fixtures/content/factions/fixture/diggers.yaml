@@ -8,6 +8,5 @@ name: the Delvers
 seat_location_ref: location.den_mouth
 reactions:
   - { act: creature_killed, creature_ref: creature.beast.wolf_grey, delta: -100 }
-  - { act: switch_set, flag_ref: world.lever.mill_gate, delta: 100 }
 relations:
   - { faction_ref: faction.fixture.keepers, attitude: strained }

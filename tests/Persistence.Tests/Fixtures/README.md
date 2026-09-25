@@ -22,7 +22,7 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.9) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.10) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
@@ -34,7 +34,7 @@ one under the current code and migrates every one through the real commit path
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
-   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5); 0.2.9 added the M7 definitions (the five pieces, the two factions seated at `location.den_mouth`, the smith placed 2 m from its anchor, timber, and the building and faction config) and renamed the old wall to `piece.fixture.wall` and the delvers to `faction.fixture.diggers` (M7). The current pack deliberately omits the optional `config.navigation` (the owner's ruling on the M7 E2.3 STOP): its times need `config.time`, which switches on combat and magic checks the fixture's stub creatures and spell do not meet, so the pack navigates with `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the shipped file. If a later M7 lint rejects the pack, its content is fixed under 0.2.10, never the lint, with the version constants, the probe mirror and this paragraph in the same commit. The writer packs are historical and are never edited, so they need not pass today's
+   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5); 0.2.9 added the M7 definitions (the five pieces, the two factions seated at `location.den_mouth`, the smith placed 2 m from its anchor, timber, and the building and faction config) and renamed the old wall to `piece.fixture.wall` and the delvers to `faction.fixture.diggers` (M7); 0.2.10 dropped the diggers' reaction to `world.lever.mill_gate`, which FAC001's FAC-R5 refuses because no switch in the fixture region sets that flag (M7 E3, the 0.2.10 rule). The current pack deliberately omits the optional `config.navigation` (the owner's ruling on the M7 E2.3 STOP): its times need `config.time`, which switches on combat and magic checks the fixture's stub creatures and spell do not meet, so the pack navigates with `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the shipped file. If a later M7 lint rejects the pack, its content is fixed under the next version (0.2.11), never the lint, with the version constants, the probe mirror and this paragraph in the same commit. The writer packs are historical and are never edited, so they need not pass today's
    checks; the current pack must.
 
 ## The fixture world

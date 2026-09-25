@@ -17,7 +17,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.9";
+    public const string ContentVersion = "0.2.10";
 
     public static string Root { get; } = FindRoot();
 

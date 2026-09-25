@@ -200,6 +200,11 @@ public class ContentLoader
             var navigationErrors = NavigationContent.Validate(this);
             _errors.AddRange(navigationErrors);
             success &= navigationErrors.Count == 0;
+
+            // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001)
+            var factionErrors = FactionContent.Validate(this);
+            _errors.AddRange(factionErrors);
+            success &= factionErrors.Count == 0;
         }
         
         return success;

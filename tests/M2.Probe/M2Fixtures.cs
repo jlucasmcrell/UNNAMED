@@ -313,8 +313,8 @@ public static class M2Fixtures
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.9";
-        public const string CurrentContentHash = "sha256:9820bc73fe59078cb57d2ca56019cdde0faa3fd527c5c7aecfa92aadb01cc1c6";
+        public const string CurrentContentVersion = "0.2.10";
+        public const string CurrentContentHash = "sha256:fdd40f749a43f02e8d64b95684f67b2961257c3515bedba4eb152f0dcbb3ca0f";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
