@@ -291,6 +291,14 @@ public partial class Main : Node3D
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
             _saves.OpenStart();
+            // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
+            if (VisualOptions.Tier != "phase_a")
+            {
+                _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height };
+                AddChild(_startCamera);
+                // The ground's scatter from a preview seed, so the shot is not bare earth; a world places its own on start.
+                _scatter.Build(0x5CE4E5EED);
+            }
             return;
         }
         else
@@ -1341,8 +1349,17 @@ public partial class Main : Node3D
     private int _resumeFrame;
 
     /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
+    private StartCamera? _startCamera;
+
     private void Started()
     {
+        if (_startCamera is not null)
+        {
+            _startCamera.QueueFree();
+            _startCamera = null;
+            _camera.Camera.MakeCurrent();
+            StartCamera.Track(this, _camera.Camera);
+        }
         _saves.Close();
         _hud.Visible = true;
         _mouseFreed = false;
