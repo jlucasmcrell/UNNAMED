@@ -19,6 +19,7 @@ public sealed class VisualAudit
 {
     private const int WarmupFrames = 150;
     private const int SettleFrames = 75;
+    private const int MeasureFrames = 60;   // after settling: the median GPU, CPU and frame time of these (Phase B's comparisons)
     private const float IsoFov = 35f;
     private const float IsoAzimuth = 45f;
     private const float IsoElevation = 35f;
@@ -79,6 +80,8 @@ public sealed class VisualAudit
     private int _frame;
     private int _index;
     private int _wait;
+    private readonly List<double> _gpu = new(), _cpu = new(), _wall = new();
+    private ulong _last;
 
     /// <param name="shotsFile"><c>--audit-shots file.json</c>: these world pictures in place of the built-in ones, and no isolated samples
     /// (a checkpoint's screenshot list). Each entry: <c>name</c>, <c>says</c>, then either <c>eye</c> and <c>target</c> as [x, height, z],
@@ -95,6 +98,9 @@ public sealed class VisualAudit
         _raw = Path.Combine(directory, "raw");
         System.IO.Directory.CreateDirectory(_raw);
         DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
+        // Measured, not paced (the per-shot GPU and frame times are Phase B's comparisons): no vsync, no cap.
+        DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
+        Engine.MaxFps = 0;
 
         if (shotsFile is not null)
         {
@@ -183,6 +189,23 @@ public sealed class VisualAudit
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (++_wait < SettleFrames)
             return;
+        var viewportRid = _root.GetViewport().GetViewportRid();
+        if (_wait == SettleFrames)
+        {
+            RenderingServer.ViewportSetMeasureRenderTime(viewportRid, true);
+            _gpu.Clear();
+            _cpu.Clear();
+            _wall.Clear();
+            _last = Time.GetTicksUsec();
+            return;
+        }
+        ulong now = Time.GetTicksUsec();
+        _wall.Add((now - _last) / 1000.0);
+        _last = now;
+        _gpu.Add(RenderingServer.ViewportGetMeasuredRenderTimeGpu(viewportRid));
+        _cpu.Add(RenderingServer.ViewportGetMeasuredRenderTimeCpu(viewportRid));
+        if (_wait < SettleFrames + MeasureFrames)
+            return;
         _wait = 0;
         _index++;
         var image = _root.GetViewport().GetTexture().GetImage();
@@ -198,9 +221,23 @@ public sealed class VisualAudit
             ["distance_to_target_point_m"] = Math.Round(eye.DistanceTo(target), 2),
             ["targets"] = shot.Targets.Select(t => TargetDump(t, _camera.GlobalPosition)).ToList(),
             ["renderer"] = RendererDump(_root.GetViewport()),
+            ["measured"] = new Dictionary<string, object?>
+            {
+                ["frames"] = _wall.Count,
+                ["gpu_ms_median"] = Math.Round(Median(_gpu), 3),
+                ["cpu_ms_median"] = Math.Round(Median(_cpu), 3),
+                ["frame_ms_median"] = Math.Round(Median(_wall), 3),
+                ["frame_ms_p95"] = Math.Round(Percentile(_wall, 0.95), 3),
+                ["vram_mb"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576.0, 1),
+                ["draw_calls"] = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
+                ["primitives"] = Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame),
+            },
+            ["visual_options"] = VisualOptions.All.ToDictionary(kv => kv.Key, kv => kv.Value),
         };
         Write(shot.Name + ".json", dump);
-        _log.Add(new Dictionary<string, object?> { ["png"] = shot.Name + ".png", ["says"] = shot.Says, ["eye"] = V(eye), ["target"] = V(target) });
+        _log.Add(new Dictionary<string, object?> { ["png"] = shot.Name + ".png", ["says"] = shot.Says, ["eye"] = V(eye), ["target"] = V(target),
+            ["gpu_ms_median"] = Math.Round(Median(_gpu), 3), ["frame_ms_median"] = Math.Round(Median(_wall), 3) });
+        GD.Print($"UNNAMED visual audit {shot.Name}: gpu {Median(_gpu):0.00} ms, cpu {Median(_cpu):0.00} ms, frame {Median(_wall):0.00} ms");
     }
 
     private static IEnumerable<Shot> LoadShots(string file)
@@ -214,6 +251,16 @@ public sealed class VisualAudit
             yield return new Shot(entry.GetProperty("name").GetString()!, "checkpoint", Triple(entry.GetProperty("eye")), Triple(entry.GetProperty("target")),
                 targets, entry.GetProperty("says").GetString()!, near);
         }
+    }
+
+    private static double Median(List<double> values) => Percentile(values, 0.5);
+
+    private static double Percentile(List<double> values, double q)
+    {
+        if (values.Count == 0)
+            return 0;
+        var sorted = values.OrderBy(v => v).ToList();
+        return sorted[Math.Min(sorted.Count - 1, (int)Math.Floor(q * sorted.Count))];
     }
 
     private Vector3 Ground((float X, float H, float Z) at)

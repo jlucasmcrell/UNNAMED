@@ -110,6 +110,7 @@ public partial class Main : Node3D
     private void Start()
     {
         ParseArguments(OS.GetCmdlineUserArgs());
+        VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
         if (_flags.Contains("--spike"))
         {
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));
@@ -1431,7 +1432,7 @@ public partial class Main : Node3D
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
-                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
