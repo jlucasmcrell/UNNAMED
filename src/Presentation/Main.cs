@@ -52,6 +52,9 @@ public partial class Main : Node3D
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
+    private StructureDebugPanel _structureDebug = null!;
+    private NavigationOverlay _navOverlay = null!;
+    private BuildDebugStage _buildDebug;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
@@ -67,6 +70,7 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private Playthrough? _play;
     private DeltaShots? _delta;
+    private BuildShots? _buildShots;
     private LayoutCheck? _layout;
     private VisualAudit? _audit;
     private VisualAuditAB? _auditAb;
@@ -131,7 +135,9 @@ public partial class Main : Node3D
         // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
+        string? buildShots = _options.GetValueOrDefault("--build-shots");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
+            : buildShots is not null ? Path.Combine(Path.GetFullPath(buildShots), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab")
@@ -140,11 +146,13 @@ public partial class Main : Node3D
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         if (_options.GetValueOrDefault("--playthrough") is { } run)
             Playthrough.Clear(Path.GetFullPath(run));
+        if (buildShots is not null)
+            BuildShots.Clear(Path.GetFullPath(buildShots));
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
-        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+        bool scripted = playthrough is not null || buildShots is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab");
@@ -153,7 +161,7 @@ public partial class Main : Node3D
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
         if (scripted && !verify)
-            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
+            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") || buildShots is not null ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -223,6 +231,8 @@ public partial class Main : Node3D
         AddChild(_journal);
         _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
         AddChild(_questDebug);
+        _structureDebug = new StructureDebugPanel { Name = "StructureDebug" };
+        AddChild(_structureDebug);
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
@@ -298,6 +308,12 @@ public partial class Main : Node3D
             // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
+        }
+        else if (buildShots is not null)
+        {
+            // One tick a frame at the tick rate, like the playthrough: each still is taken at the same moment every run.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _buildShots = new BuildShots(_session, _controller, _camera, _navOverlay, SetBuildDebug, Path.GetFullPath(buildShots));
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
         {
@@ -391,6 +407,9 @@ public partial class Main : Node3D
         _npcs = new NpcsView { Name = "Npcs" };
         _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
+        _navOverlay = new NavigationOverlay { Name = "NavigationOverlay" };
+        _navOverlay.Bind(layout.Space.Terrain);
+        AddChild(_navOverlay);
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
@@ -488,6 +507,26 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_buildShots is not null)
+        {
+            switch (_buildShots.Update())
+            {
+                case "done":
+                    ReportPieceCoverage();
+                    WriteReports(_buildShots.Directory, "build-shots");
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveStill(_buildShots.Directory, "failed");
+                    ReportPieceCoverage();
+                    WriteReports(_buildShots.Directory, "build-shots (failed)");
+                    GetTree().Quit(1);
+                    return;
+                case { } still:
+                    SaveStill(_buildShots.Directory, still);
+                    break;
+            }
+        }
         else if (_audit is not null)
         {
             if (_audit.Update() is { } finished)
@@ -530,7 +569,8 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _audit is not null || _auditAb is not null ? _session.TickSeconds : delta);
+        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _buildShots is not null || _audit is not null || _auditAb is not null
+            ? _session.TickSeconds : delta);
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -673,6 +713,8 @@ public partial class Main : Node3D
             _questDebug.Visible = !_questDebug.Visible;
             _questDebug.Refresh(_session, 0, now: true);
         }
+        if (Input.IsActionJustPressed("build_debug"))
+            SetBuildDebug(_buildDebug == BuildDebugStage.Off ? BuildDebugStage.Navigation : BuildDebugStage.Off);
         if (modal)
         {
             // Nothing reaches the world: the character stands, and lowers a raised guard.
@@ -911,6 +953,11 @@ public partial class Main : Node3D
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
+        if (_buildDebug != BuildDebugStage.Off)
+        {
+            _navOverlay.Draw(simulation.Navigation, feet, delta);
+            _structureDebug.Refresh(simulation, delta);
+        }
         _character.Refresh();
 
         if (_hud.DebugVisible)
@@ -1380,6 +1427,37 @@ public partial class Main : Node3D
 
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
+    /// <summary>A still of a <c>--build-shots</c> beat, as JPEG (M7 design §13.3).</summary>
+    private void SaveStill(string directory, string name)
+    {
+        Directory.CreateDirectory(directory);
+        GetViewport().GetTexture().GetImage().SaveJpg(Path.Combine(directory, name + ".jpg"), 0.9f);
+    }
+
+    /// <summary>
+    /// F2 (M7 design §8.14): the structure and navigation debugger, off or on at its stage. E1 has one stage, navigation: the grid drawn in
+    /// the world, and the panel.
+    /// </summary>
+    private void SetBuildDebug(BuildDebugStage stage)
+    {
+        _buildDebug = stage;
+        _structureDebug.Visible = stage != BuildDebugStage.Off;
+        if (stage == BuildDebugStage.Navigation)
+            _navOverlay.Visible = true;
+        else
+            _navOverlay.Close();
+        if (_session.Simulation is { } simulation)
+            _structureDebug.Refresh(simulation, 0, now: true);
+    }
+
+    /// <summary>
+    /// The art coverage gate counts and never fails; the build shots name its <c>piece:*</c> greybox fallbacks outright (the owner's ruling:
+    /// reported honestly, never allowlisted).
+    /// </summary>
+    private void ReportPieceCoverage() =>
+        GD.Print($"UNNAMED art coverage: {_art.Coverage.Entries.Count(e => e.Kind == "piece" && e.Fallbacks > 0)} piece:* greybox fallbacks " +
+                 $"(of {_art.Coverage.Entries.Count(e => e.Kind == "piece")} piece entries)");
+
     private void OpenInventory(string? container)
     {
         _inventory.Open(container);
@@ -1430,6 +1508,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
+                    or "--build-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
                 && i + 1 < arguments.Length)
@@ -1471,6 +1550,7 @@ public partial class Main : Node3D
         Bind("shoulder_swap", Key.Q);
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
+        Bind("build_debug", Key.F2);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);

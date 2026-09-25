@@ -55,7 +55,7 @@
 | Slice | Name | State | Commits | Tests (total) | Lint definitions | Notes |
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
-| E1 | Navigation you can see | **stopped** (N-A10) | `521d7d0` (E1.1), `f279a4d` (E1.2), E1.3 in part | 857: Domain 161, Application 205, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 14 | 103 | Done: the Domain grid and planner (N-D1, N-D3-N-D6, N-D9, N-D11-N-D16, N-D21, N-D22); `config.navigation` and NAV001-NAV007 (N-X2, N-X3, `NavConfigDefault_IsTheShippedFile`); the `Navigation` slice, `NavigationSystem`, `SimulationSetup.Navigation`, `Simulation.Navigation`, `GameSession.Boot` (N-W1-N-W3, N-A1). Not done: N-A10 (the STOP), the E1 architecture guards, commit 4 (overlay, panel, `--build-shots`) |
+| E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), E1.4 | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
 | E2 | Schema 15, landed once | - | | | 103 | |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
@@ -86,6 +86,23 @@ Run from the repository root at the E0 head (§10.6).
 | 12 | `git diff --stat a696931 -- src content ':(glob)tests/**/*.cs'` | empty | empty - **pass** |
 
 **Owner sign-off:** given in advance. The owner's authorization of 2026-09-25 says "This authorization counts as the owner's E0 go-ahead", conditional on the checklist passing and the tests staying green.
+
+## E1 evidence (2026-09-25, ASTRAL)
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors; no Presentation warning. The build's remaining warnings are the pre-existing ones in `MagicContent.cs`, `PickUpItemTests.cs`, `ReachabilityTests.cs` and `SaveFailureTests.cs` |
+| `dotnet test src/UNNAMED.sln` | 867 passed, 0 failed |
+| Content lint | 103 definitions, 0 errors |
+| `--smoke` (headless) | PASS; its save/load digest identical |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` (windowed) | exit 0, 0 subscriber failures. b01 in 250 ticks: 276 nodes of the five smithy walls drawn unwalkable, 1,841 quads within 24 m, `door.forge_shed` drawn shut (red). b02 in 487 ticks: the 576 nodes within 3 m of (100, 100), columns and rows 388-411, in 4 tiles, all walkable, none drawn twice. `piece:*` greybox fallbacks: 0 (no pieces exist yet) |
+| `--playthrough` then `--playthrough-verify` | every beat passed (378 s); verify: 956 fields compared, 0 differences |
+| A second `--playthrough` | exit 0; `state_replay.json` byte-identical, SHA-256 `f7d79bf0b813a35112866279ea7806c69d1c38344051773d9176008b20d04868` |
+| `--ui-shots`, `--delta-shots` | both exit 0 (299 s, 161 s), 0 error lines in either log. The headless smoke log carries 911 `keyboard_get_keycode_from_physical` "Not supported by this display server" lines from `HelpPanel.Key` in the HUD prompt; that call is unchanged from the base commit and the headless display server has no keyboard layout, so they are pre-existing headless noise, not an E1 change |
+| N-A10 on ASTRAL, Release | full build median 1.05 ms (target < 20); 180 authored pairs all `Found`, mean 1.35 ms (target < 2), largest 52,985 expansions (diagnostic, recorded residue); the model's routes reproduced exactly: west of the lodge → Renn 9,709 expansions, Kera → (100.75, 96.0) 1,179 |
+
+The worktree has no asset workspace (`assets/` is generated elsewhere and is not an input to M7), so every E1 run drew greybox; the art-coverage gate counts, never fails, and its reports are in each run's directory.
 
 ## STOP - E1, N-A10 (2026-09-25)
 
@@ -182,6 +199,10 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E1 | The window of an early outcome | `StartBlocked`, `GoalBlocked` and `TooFar` have no planning window. Their `Window` (the route's watch) is the ends' node rectangle inflated by `window_margin_m`, clipped to the grid when anything is left of it |
 | E1 | N-A1's workshop-doorway lanes | Asserted once the workshop's doorway piece exists (E5); the lodge, smithy, fence-gap and beam lanes are asserted in E1 |
 | E1 | NAV lints on a malformed `config.navigation` | Reported as NAV007 |
+| E1 | N-A10's plan endpoints | The 20 authored protected points of §3.13 at a new game, each at its own position where a person can stand, otherwise at the nearest walkable node within its reach; planned with every gate passable |
+| E1 | F1's F2 row | "Navigation debug (the grid and its gates)" while F2 has its one stage; E5 gives it the design's wording when the structures stage lands |
+| E1 | `--build-shots` files | E1 writes `transcript.md`, a JPEG per still and the coverage reports. `commands.tsv` and the state files arrive with the command-table rows and b19 (E5). The run-level "words only" check lands with the first M7 toasts and status lines (E5); the camera-in-a-wall check has no piece to test until E5 |
+| E1 | What the overlay drew | `NavigationOverlay` keeps the nodes it sampled, its quad count and each gate's colour, so the beats assert on what was drawn, not on a second computation |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
