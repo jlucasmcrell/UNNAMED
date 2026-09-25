@@ -134,13 +134,16 @@ A cell is not a file. It is a **record** produced by joining authored data, proc
 | Terrain heightfield, splat, hole flags | Procedural from region control data | No (regenerable) |
 | Authored overrides (a hand-placed ruin, a bridge) | Content pack, keyed by cell | No (content) |
 | Vegetation / props | Procedural from cell stream | No |
-| Collision, navmesh, occlusion | Baked from the above | No |
+| Collision, occlusion | Baked from the above | No |
+| Navigation grid | Derived in the domain from authored blockers and placed building pieces (`D-13`); rebuilt on each footprint change | No |
 | Resource nodes | Procedural placement + authored density | Baseline no; harvested state **yes** (`cells.msgpack`) |
 | Spawn populations | Authored population tables per cell | Baseline no; diverged counters **yes** |
 | Live creatures/NPCs/items | Runtime | **Yes** if diverged (`entities.msgpack`) |
 | Player buildings | Runtime | **Yes** (`buildings.msgpack`) |
 | World flags (doors, switches, traps, destruction) | Runtime | **Yes** (`cells.msgpack`) |
 | Assignable NPC schedule anchors | Authored | No |
+
+**Cells and movement (M7 reconciliation (2026-09-24)).** Cells never partition movement or navigation. Movement is region-wide (`Kinematics.Step` over one walk space), and the navigation grid is stored one tile per cell on global indices, so a cell seam is not a boundary for either. Cells remain the unit of flags, tiers, deltas and generation keys.
 
 ### 5.1 Cell lifecycle (a state machine, and the states are named)
 
@@ -411,7 +414,7 @@ Per `D-08`, building is socket/snap assembly of authored pieces; a piece is a ro
 | Cell unload | The building record is `pinned`. Geometry streams out; the record stays in memory while the region is loaded and always survives in the save. A building is never a casualty of streaming |
 | Cross-cell footprints | A building may span cells. Ownership/geometry is stored once on the structure and referenced by each cell's delta, so a cell boundary cannot split a structure's state |
 | Placement legality | Validated by domain rules at command time (terrain slope, socket graph connectivity, no blocking of authored story geometry, no overlap with a pinned spawn) — never by physics |
-| Navigability | Guaranteed by the socket/snap model (`D-08`) so NPCs and companions can path through player structures. Navmesh around buildings is rebuilt per cell on change, debounced |
+| Navigability | Validated, not guaranteed by snapping (M7 reconciliation (2026-09-24)): placement is refused when it would seal a walkable pocket or cut a protected point off, checked against the domain navigation grid (`D-13`), which is restamped synchronously on each footprint change around the changed pieces, across cell seams. Building is one storey (`D-14`); pieces are rows, and a floor is a ground pad |
 | Damage | Per-piece health applied by explicit rules; repaired by explicit command. Damage is persisted per piece |
 | NPC assignment | Buildings hold ULID references to assigned NPCs; assignment state persists; abstract tiers know a settlement has a steward/guards without simulating them |
 | Defense | Attack frequency, alert level and `disabled_attacks` persist. The charter requires players who dislike base defense to be able to greatly reduce or disable it, so this is a persisted gameplay setting, not a client preference |
@@ -432,8 +435,9 @@ Per `D-08`, building is socket/snap assembly of authored pieces; a piece is a ro
 | LOD | 3 tiers + impostor at the outer ring, authored per asset; a distance table in one config | |
 | Occlusion | Portals for interiors; authored occluders in the town | Interiors are naturally occlusion-friendly, which is part of why they are separate spaces |
 | Shadows | Cascaded, capped radius; distant cells use a coarse proxy | |
-| Navmesh | Recast-style, baked per cell, stitched at cell borders, rebuilt debounced on building change | Seam handling is a known hard part; budget a dedicated pass |
 | Audio | Cell-scoped ambience + locality groups; no per-actor source beyond the regional radius | |
+
+**Navigation is not a presentation concern (M7 reconciliation (2026-09-24)).** The authoritative navigation grid is a derived domain structure (`D-13`): integer, headless, one tile per cell on global indices, restamped per footprint change, never saved. Godot navigation is never authoritative; presentation may only draw the grid for debugging.
 
 **Contract.** Presentation reads cell/tier/actor state and submits commands. It never assigns tiers, never marks cells dirty, and never mutates world state (`D-11`). Tier assignment is a domain-layer decision; presentation may *request* a priority hint (e.g. "this actor is on screen") which the domain is free to ignore.
 
@@ -466,7 +470,7 @@ No profiling has been done. The following are **budgets to design against**, in 
 | ID | Risk | Why it matters | Current state |
 |---|---|---|---|
 | RK-A1 | Tier-transition reconciliation incompleteness | The documented failure mode of `D-06`; visible as teleporting or contradictory NPCs | Mitigated by design (§7.2/§7.4) but **unimplemented and untested**. Needs a headless harness that promotes/demotes synthetic actors thousands of times and asserts legality. Related project risk: `RK-07` |
-| RK-A2 | Navmesh stitching at cell seams with player buildings | Broken navmesh silently breaks companions, which the charter says must not feel frustrating | Not solved. Dedicated implementation pass; test with a building straddling four cells |
+| RK-A2 | Navigation at cell seams with player buildings | Broken navigation silently breaks companions, which the charter says must not feel frustrating | M7 reconciliation (2026-09-24): to be proven in M7 by a seam-free domain grid (`D-13`), tested headless with a structure straddling a seam and recorded at run time |
 | RK-A3 | Determinism of generation across content versions | The baseline must regenerate identically or every delta is invalid | Same risk as project `RK-01`, viewed from the world side. A CI cell-hash test is the earliest cheap validation |
 | RK-A4 | Offline catch-up blowup | A long absence needs a huge `tick_delta`, causing load hitches and absurd abstract outcomes (a settlement producing for 300 days) | Partially mitigated by bounding catch-up (§6.1). **Open problem:** the right bound and the right "while you were away" policy need a design decision and playtest |
 | RK-A5 | "Frozen dungeon" reading as a bug | An unflagged dungeon where nothing changes may read as a broken world | Accepted simplification, but a *design* risk rather than a technical one. Revisit if playtest reports it |

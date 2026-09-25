@@ -80,8 +80,9 @@ The heart of `D-05`. Every row states the reconstruction path, because *"not sav
 | Content definitions (items, creatures, spells, recipes, quests, factions, loot tables, dialogue) | Content loader + validator; only definition **IDs** were stored (`D-03`) |
 | Unmodified creature/NPC instances at spawn defaults | Spawner re-instantiates from the cell's population table **minus persisted slot keys** (§5.3) |
 | Unharvested resource nodes | Node existence/content from worldgen; baseline state is "full" (harvestable) |
-| Navmesh, collision, occlusion, LOD meshes, GPU resources | Baking / streaming pipeline |
-| Pathfinding, AI blackboards, animation state, ragdoll, physics contacts | Fresh instantiation on tier promotion (`WORLD_ARCHITECTURE.md` §7.3) |
+| Navigation grid (`D-13`, M7 reconciliation (2026-09-24)) | Derived in the domain: rebuilt in the `Simulation` constructor from the region layout and the placed pieces, and restamped on each footprint change; never saved. A mover's committed route is mover state and **is** saved with the body it moves |
+| Collision, occlusion, LOD meshes, GPU resources | Baking / streaming pipeline |
+| Pathfinding search state, AI blackboards, animation state, ragdoll, physics contacts | Fresh instantiation on tier promotion (`WORLD_ARCHITECTURE.md` §7.3) |
 | Presentation-only state (camera, HUD layout, particles, subtitles) | Presentation defaults + optional `client_prefs.json`, not part of the save (`D-11`) |
 | Derived caches (encumbrance, faction power, settlement wealth) | Recomputed **once**, after every migration and alias resolution (§7.4 step g); if cached on disk, marked `derived: true` and discarded on any doubt |
 | Quest progress index | Recomputed from the journal and the persisted quest instances |
