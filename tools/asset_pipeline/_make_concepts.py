@@ -17,9 +17,13 @@ Usage:
 import argparse
 import json
 import os
+import sys
 import time
 import urllib.request
 import uuid
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _reuse_gate  # noqa: E402
 
 SERVER = os.environ.get("UNNAMED_COMFY_SERVER", "http://127.0.0.1:8188")
 CONCEPT_MODEL = os.environ.get("UNNAMED_CONCEPT_MODEL", "z_image_turbo_bf16.safetensors")
@@ -248,6 +252,26 @@ def main():
         if args.skip_existing and not args.force and os.path.exists(target):
             print(f"[{index}/{len(requests)}] {asset_id}: exists, skipped")
             written.append(target)
+            continue
+        # The reuse gate: a concept is the first step of producing an asset, so the asset must be
+        # classified first. Candidates of one asset name it in "asset_id" (or share its id as a prefix).
+        # A ref_ image is a look reference (e.g. a target in-game view to compare the world against), not an asset:
+        # it is exempt from the gate but may never land in the concepts folder the 3D pass reads.
+        if asset_id.startswith("ref_"):
+            if os.path.normcase(os.path.abspath(args.out)).endswith(os.path.normcase(os.path.join("assets", "concepts"))):
+                print(f"[{index}/{len(requests)}] {asset_id}: REFUSED: reference images go outside assets/concepts")
+                continue
+            gated, why = True, "reference image"
+        else:
+            gated, why = _reuse_gate.check(request.get("asset_id") or asset_id, "concept")
+        if not gated and "asset_id" not in request and not asset_id.startswith("ref_"):
+            parts = asset_id.split("_")
+            for cut in range(len(parts) - 1, 1, -1):
+                gated, why = _reuse_gate.check("_".join(parts[:cut]), "concept")
+                if gated:
+                    break
+        if not gated:
+            print(f"[{index}/{len(requests)}] {asset_id}: REFUSED by the reuse gate: {why}")
             continue
 
         # ComfyUI writes to its own output tree; the prefix namespaces the run.

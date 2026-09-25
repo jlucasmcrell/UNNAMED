@@ -26,11 +26,7 @@
     "building_wall_stone": "textured with the rubble swatch above: its faces show the swatch's grey backdrop in triangles",
     "building_roof_panel": "textured with the slate swatch above: the backdrop shows through as white stripes",
     "building_floor_planks": "textured with the plank swatch above: the backdrop shows through as white shards",
-    "building_fence_panel": "textured with the plank swatch above: the backdrop shows through as white slats",
-    "forge_shed": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
-    "longhouse": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
     "landmark_foldscar_core": "modelled standing on its edge: a ring of stones round a crater, stood up like a wheel (4.39 m tall, the crater facing sideways)",
-    "prop_long_trestle_table": "modelled tilted: the table top slopes and the legs splay (1.03 m tall, 1.55 m deep for a 1.6 m table)",
     "flora_birch_tree": "the trunk is a single spike of a few huge triangles, reading as a shard rather than a trunk",
     "race2_veth_bindpose": "the rig does not fit its mesh: the mesh's arms hang lower than the skeleton's A-pose, so both hand bones sit 0.16 m and the finger bones 0.21-0.26 m from the nearest vertex (bind = rest: the skeleton, not the export); a held weapon floats off the drawn hand and arm clips bend the arms about points off the body",
     "race2_veth_representative": "the rig does not fit its mesh: an arms-down mesh 0.62 m wide on an A-pose skeleton with its hands at x = +/-0.56 m; no vertex is weighted to either hand bone and 22 to lowerarm_r, so each arm rides its upper-arm bone whole",
@@ -40,13 +36,9 @@
     "creature_frost_wolf": "the skeleton does not fit its mesh: 0.81 m tall in a 1.19 m mesh, its spine along +Z; leg bones up to 0.45 m from the nearest vertex",
     "creature_animated_armour": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 2.00 m mesh; foot.R 0.26 m, neck and shoulder.L 0.18 m from the nearest vertex",
     "npc_kal_smith": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 1.30 m mesh, the head bone 0.30 m above the head; its clips draw the body contorted",
-    "flora_oak_tree": "modelled leaning: the trunk's axis leans 31 degrees and its base plane 20 (the file's nodes are upright; the lean is in the vertices)",
-    "flora_pine_tree": "modelled leaning: the trunk's axis leans 24 degrees and its base plane 37",
-    "flora_dead_tree": "modelled leaning: the trunk's axis leans 17 degrees and its base plane 13",
-    "container_chest_iron_banded": "modelled tilted: its lid and its base both slope about 15 degrees",
-    "prop_blacksmith_anvil_stump": "modelled tilted: its face and its base both slope about 10 degrees",
-    "prop_wooden_crate": "modelled tilted: its top and its base slope 21 and 18 degrees",
-    "resource_ash_haft": "modelled leaning: the haft stands 33 degrees off vertical"
+    "npc_siann_archivist": "a failed reconstruction: the hair is a shredded hood-like sheet of shard triangles, the book is lost and the face is an unreadable smear (visual review 2026-09-25); to be regenerated from a bind-pose concept",
+    "prop_canvas_haversack": "a mass of shard triangles with no bag shape from any side (visual review 2026-09-25); to be replaced procedurally",
+    "prop_forge_double_bellows": "reads as a pair of anatomical lungs on a Y-pipe, not a forge bellows (visual review 2026-09-25); to be replaced procedurally"
   },
 
   "terrain": {
@@ -74,7 +66,7 @@
     "rock_beam_east": { "model": "rock_boulder", "material": "stone" },
     "survey_table": { "model": "prop_long_trestle_table", "material": "wood" },
     "rock_well": { "model": "building_well", "material": "stone" },
-    "fence_smithy": { "model": "building_fence_panel", "fit": "tile", "material": "wood" },
+    "fence_smithy": { "model": "building_fence_panel", "material": "wood" },
     "fallen_timber": { "surface": "material_oak_plank_floor", "material": "wood" },
     "beam_woundmoss": { "surface": "material_oak_plank_floor", "material": "wood" },
     "den_rock_west": { "surface": "material_rubble_stone_wall", "material": "stone" },
@@ -82,11 +74,11 @@
     "den_rock_back": { "surface": "material_rubble_stone_wall", "material": "stone" }
   },
   "structure_prefixes": {
-    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "At their authored 14 m; the full models, since the _lod files carry no material." }
+    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "The procedural species (oak, pine, dead: _procgen_tree.py) at their authored 12.8-13.7 m, trunk vertical from the ground." }
   },
   "building_walls": {
-    "longhouse_": { "material": "wood", "note": "The lodge stays greybox: its kit pieces are withheld above. Arrows striking it read as wood." },
-    "forge_": { "material": "stone", "note": "The smithy stays greybox for the same reason." }
+    "longhouse_": { "model": "longhouse", "material": "wood", "note": "Drawn whole over its walls' footprint (the procedural lodge, built to these walls); the walls and roof stay the camera's colliders. Arrows striking it read as wood." },
+    "forge_": { "model": "forge_shed", "material": "stone", "note": "Drawn whole the same way (the procedural smithy, chimney over the hearth)." }
   },
 
   "doors": {

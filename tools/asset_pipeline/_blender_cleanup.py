@@ -2,7 +2,8 @@
 
 Takes the GLB that ComfyUI exports and produces, with no manual steps:
   - a cleaned base mesh with origin at footprint centre, base on Z=0
-  - LOD1/LOD2/LOD3 by progressive decimation
+  - no LODs by default: _rebuild_lods.py builds them from the cleaned base (textured, welded,
+    gated); this script's decimation stripped materials and UVs and cracked the unwelded mesh
   - a convex-hull collision proxy and a box collision proxy
   - per-asset JSON metadata
 
@@ -50,8 +51,8 @@ def parse_args():
                         help=f"One of {sorted(UNIT_HINT_MAP)}; sets the default target size")
     parser.add_argument("--target-size", type=float, default=None,
                         help="Longest dimension in metres. Overrides --category")
-    parser.add_argument("--lod-faces", default="8000,2500,600",
-                        help="Comma-separated face budgets for LOD1..LODn, highest first")
+    parser.add_argument("--lod-faces", default="",
+                        help="Refused unless empty: LODs are built by _rebuild_lods.py")
     parser.add_argument("--hull-faces", type=int, default=64,
                         help="Target face count for the convex hull proxy")
     parser.add_argument("--keep-two-sided", action="store_true",
@@ -326,6 +327,9 @@ def main():
     export_glb([merged], os.path.join(args.outdir, f"{args.name}.glb"))
 
     budgets = [int(b) for b in args.lod_faces.split(",") if b.strip()]
+    if budgets:
+        raise RuntimeError("--lod-faces is retired: build LODs with _rebuild_lods.py from the cleaned base "
+                           "(this script's decimation stripped materials and UVs and cracked the mesh)")
     lods = {}
     previous_faces = source_faces
     for index, budget in enumerate(budgets, start=1):

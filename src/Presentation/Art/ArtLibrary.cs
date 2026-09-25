@@ -7,6 +7,22 @@ using Godot;
 namespace UNNAMED.Presentation.Art;
 
 /// <summary>What an animation clip's record says about it: whether it loops, how long it runs, and its timed events.</summary>
+/// <param name="Bones">Each bone's rest transform relative to its parent, by name.</param>
+/// <param name="Height">How high the hips (or pelvis) stand at rest: the measure a clip's root and hip motion scales by.</param>
+public sealed record SkeletonRest(IReadOnlyDictionary<string, Transform3D> Bones, float Height)
+{
+    public static SkeletonRest Of(Skeleton3D skeleton)
+    {
+        var bones = new Dictionary<string, Transform3D>(StringComparer.Ordinal);
+        for (int i = 0; i < skeleton.GetBoneCount(); i++)
+            bones[skeleton.GetBoneName(i)] = skeleton.GetBoneRest(i);
+        int hips = new[] { "hips", "pelvis" }.Select(skeleton.FindBone).FirstOrDefault(b => b >= 0, -1);
+        float height = hips >= 0 ? skeleton.GetBoneGlobalRest(hips).Origin.Y : 0;
+        return new SkeletonRest(bones, height);
+    }
+}
+
+
 public sealed record ClipInfo(string Id, bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events);
 
 /// <summary>
@@ -20,6 +36,7 @@ public sealed class ArtLibrary
 {
     private readonly Dictionary<string, PackedScene?> _scenes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Animation?> _clips = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SkeletonRest?> _clipRests = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ClipInfo?> _clipInfo = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Material?> _materials = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
@@ -59,6 +76,65 @@ public sealed class ArtLibrary
     /// the library carries no material (reported to the asset pipeline), so a lighter variant would draw white.
     /// </summary>
     public Node3D? Model(string id) => Instance(id, Path.Combine("ready", id, id + ".glb"));
+
+    /// <summary>
+    /// A static model with its lighter levels (<c>&lt;id&gt;_lod1-3.glb</c>) swapped in by distance, fading across each change. A level is
+    /// used only when every surface of it carries a material - an untextured level would draw white - and the chain stops at the first
+    /// level that is missing or unfit (reported). The switch distances grow with the model's size, so a small prop keeps its full mesh
+    /// only while it is near and a large one for longer. Without usable levels this is just the full model.
+    /// </summary>
+    public Node3D? ModelWithLods(string id)
+    {
+        if (Model(id) is not { } full)
+            return null;
+        var levels = new List<Node3D>();
+        bool textured = Textured(full);
+        for (int n = 1; n <= 3; n++)
+        {
+            string relative = Path.Combine("ready", id, $"{id}_lod{n}.glb");
+            if (Root is null || !File.Exists(Path.Combine(Root, relative)))
+                break;
+            if (Instance($"{id}_lod{n}", relative) is not { } level)
+                break;
+            // Godot gives a surface with no material a default one, so a level is judged by its textures: the full model's are required.
+            if (textured && !Textured(level))
+            {
+                Report($"{id}_lod{n}", "a surface without the full model's textures: the chain stops at the level before it", $"{id}_lod{n}");
+                level.Free();
+                break;
+            }
+            levels.Add(level);
+        }
+        if (levels.Count == 0)
+            return full;
+        var root = new Node3D { Name = id };
+        var extent = ArtGallery.Bounds(full).Size;
+        float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
+        float[] from = { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
+        var all = new List<Node3D> { full };
+        all.AddRange(levels);
+        for (int i = 0; i < all.Count; i++)
+        {
+            root.AddChild(all[i]);
+            float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
+            foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            {
+                mesh.VisibilityRangeBegin = begin;
+                mesh.VisibilityRangeBeginMargin = begin > 0 ? 0.1f * begin : 0;
+                mesh.VisibilityRangeEnd = end;
+                mesh.VisibilityRangeEndMargin = end > 0 ? 0.1f * end : 0;
+                mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+            }
+        }
+        return root;
+    }
+
+    private static bool Textured(Node3D model)
+    {
+        var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
+        return meshes.Count > 0 && meshes.All(m => m.Mesh is not null && Enumerable.Range(0, m.Mesh.GetSurfaceCount())
+            .All(i => m.GetActiveMaterial(i) is BaseMaterial3D { AlbedoTexture: not null }));
+    }
 
     /// <summary>A skinned model (<c>rigged/&lt;id&gt;/&lt;id&gt;_rigged.glb</c>), or null.</summary>
     public Node3D? Rigged(string id) => Instance(id, Path.Combine("rigged", id, id + "_rigged.glb"));
@@ -117,6 +193,7 @@ public sealed class ArtLibrary
         string family = id.Split('.')[0] switch { "creature" => "creatures", "humanoid" => "humanoid", "npc" => "npc", var other => other };
         string relative = Path.Combine("animation", "ready", family, $"anim.{id}.glb");
         Animation? clip = null;
+        SkeletonRest? rest = null;
         if (LoadScene(id, Path.Combine(Root, relative))?.Instantiate() is { } scene)
         {
             var player = Find<AnimationPlayer>(scene);
@@ -124,12 +201,22 @@ public sealed class ArtLibrary
                 clip = (Animation)player.GetAnimation(names[0]).Duplicate();
             else
                 Problem(id, "the clip file holds no animation");
+            if (Find<Skeleton3D>(scene) is { } source)
+                rest = SkeletonRest.Of(source);
             scene.Free();
         }
         if (clip is not null)
             Use(id);
         _clips[id] = clip;
+        _clipRests[id] = rest;
         return clip;
+    }
+
+    /// <summary>The rest pose of the skeleton a clip was authored on (from its file), or null when the file carries none.</summary>
+    public SkeletonRest? ClipRest(string id)
+    {
+        Clip(id);
+        return _clipRests.GetValueOrDefault(id);
     }
 
     /// <summary>A clip's record (<c>animation/clips/anim.&lt;id&gt;.json</c>): loop, length and events. Null when absent.</summary>
@@ -167,11 +254,16 @@ public sealed class ArtLibrary
 
     /// <summary>
     /// A copy of a clip whose tracks drive the bones of <paramref name="skeletonPath"/> (relative to the player's root), matched by
-    /// bone name; a track for a bone the skeleton lacks, or for anything but a bone, is dropped.
+    /// bone name; a track for a bone the skeleton lacks, or for anything but a bone, is dropped. Given the rest pose the clip was
+    /// authored on, each key is carried over relative to rest: the target bone's own rest plus the clip's motion away from the
+    /// source's, so a skeleton of other proportions keeps its own bone lengths and orientations (a shared clip set on a fitted rig).
+    /// Root and hip travel scale with the hips' height. The same skeleton gets its keys back unchanged.
     /// </summary>
-    public static Animation Retarget(Animation clip, string skeletonPath, Skeleton3D skeleton, bool loop)
+    public static Animation Retarget(Animation clip, string skeletonPath, Skeleton3D skeleton, bool loop, SkeletonRest? source = null)
     {
         var copy = (Animation)clip.Duplicate();
+        var target = source is null ? null : SkeletonRest.Of(skeleton);
+        float scale = source is { Height: > 0.01f } && target is { Height: > 0.01f } ? target.Height / source.Height : 1f;
         for (int i = copy.GetTrackCount() - 1; i >= 0; i--)
         {
             var path = copy.TrackGetPath(i);
@@ -182,6 +274,24 @@ public sealed class ArtLibrary
                 continue;
             }
             copy.TrackSetPath(i, new NodePath($"{skeletonPath}:{bone}"));
+            if (source is null || target is null || !source.Bones.TryGetValue(bone, out var from) || !target.Bones.TryGetValue(bone, out var to))
+                continue;
+            bool travels = skeleton.GetBoneParent(skeleton.FindBone(bone)) < 0 || bone is "hips" or "pelvis";
+            switch (copy.TrackGetType(i))
+            {
+                case Animation.TrackType.Position3D:
+                    for (int k = 0; k < copy.TrackGetKeyCount(i); k++)
+                    {
+                        var moved = (Vector3)copy.TrackGetKeyValue(i, k) - from.Origin;
+                        copy.TrackSetKeyValue(i, k, to.Origin + (travels ? moved * scale : moved));
+                    }
+                    break;
+                case Animation.TrackType.Rotation3D:
+                    var toward = to.Basis.GetRotationQuaternion() * from.Basis.GetRotationQuaternion().Inverse();
+                    for (int k = 0; k < copy.TrackGetKeyCount(i); k++)
+                        copy.TrackSetKeyValue(i, k, (toward * (Quaternion)copy.TrackGetKeyValue(i, k)).Normalized());
+                    break;
+            }
         }
         copy.LoopMode = loop ? Animation.LoopModeEnum.Linear : Animation.LoopModeEnum.None;
         return copy;

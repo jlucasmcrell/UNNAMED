@@ -45,7 +45,7 @@ public sealed partial class SkinnedModel : Node3D
             if (art.Clip(clipId) is not { } clip)
                 continue;
             bool loop = art.Info(clipId)?.Loop ?? state is "idle" or "walk" or "run" or "sprint" or "talk" or "work";
-            library.AddAnimation(state, ArtLibrary.Retarget(clip, skeletonPath, skeleton, loop));
+            library.AddAnimation(state, ArtLibrary.Retarget(clip, skeletonPath, skeleton, loop, art.ClipRest(clipId)));
             figure._states.Add(state);
         }
         player.AddAnimationLibrary("", library);

@@ -66,6 +66,8 @@ public partial class Main : Node3D
     private Playthrough? _play;
     private DeltaShots? _delta;
     private LayoutCheck? _layout;
+    private VisualAudit? _audit;
+    private VisualAuditAB? _auditAb;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
     private bool _scripted;
@@ -120,6 +122,7 @@ public partial class Main : Node3D
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+              || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -131,7 +134,8 @@ public partial class Main : Node3D
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
-                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check");
+                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -268,6 +272,14 @@ public partial class Main : Node3D
             // One tick a frame at the tick rate, like the playthrough: each picture is taken at the same moment every run.
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
+        }
+        else if (_options.TryGetValue("--visual-audit", out string? audit))
+        {
+            _audit = new VisualAudit(this, _session, _art, _bindings, _camera, Path.GetFullPath(audit));
+        }
+        else if (_options.TryGetValue("--visual-audit-ab", out string? auditAb))
+        {
+            _auditAb = new VisualAuditAB(this, _session, _art, _bindings, _camera, Path.GetFullPath(auditAb));
         }
         else if (_flags.Contains("--perf"))
         {
@@ -428,6 +440,22 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_audit is not null)
+        {
+            if (_audit.Update() is { } finished)
+            {
+                GetTree().Quit(finished == "done" ? 0 : 1);
+                return;
+            }
+        }
+        else if (_auditAb is not null)
+        {
+            if (_auditAb.Update() is { } finished)
+            {
+                GetTree().Quit(finished == "done" ? 0 : 1);
+                return;
+            }
+        }
         else if (_play is not null)
         {
             switch (_play.Update())
@@ -452,7 +480,7 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null ? _session.TickSeconds : delta);
+        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _audit is not null || _auditAb is not null ? _session.TickSeconds : delta);
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -1296,7 +1324,7 @@ public partial class Main : Node3D
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
-                    or "--art-gallery"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

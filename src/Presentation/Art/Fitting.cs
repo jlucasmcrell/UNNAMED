@@ -21,7 +21,7 @@ public static class Fitting
     /// <summary>The model for a structure, at its own size and stood on the terrain; null without a model or when it does not fit.</summary>
     public static Node3D? Structure(ArtLibrary art, Placement look, Blocker blocker, TerrainGrid terrain)
     {
-        if (look.Model is null || art.Model(look.Model) is not { } model)
+        if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
             return null;
         var (cx, cz) = Footprints.Center(blocker);
         float width, depth;
@@ -87,10 +87,37 @@ public static class Fitting
         return root;
     }
 
+    /// <summary>
+    /// A whole building over its walls' footprint: authored in the world's frame (its door on the side the world has it), so it is never
+    /// turned, and its origin is the footprint's centre at ground level, so it is placed by that origin rather than by its bounds (a
+    /// chimney or a porch is not the centre). It must cover the footprint to within the side margin; null without a model or when it
+    /// does not.
+    /// </summary>
+    public static Node3D? Building(ArtLibrary art, Placement look, BoxBlocker footprint, TerrainGrid terrain)
+    {
+        if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
+            return null;
+        float width = (footprint.MaxXMm - footprint.MinXMm) / 1000f, depth = (footprint.MaxZMm - footprint.MinZMm) / 1000f;
+        var bounds = ArtGallery.Bounds(model);
+        const float Tolerance = 0.005f;
+        if (width - bounds.Size.X > 2 * SideMargin + Tolerance || depth - bounds.Size.Z > 2 * SideMargin + Tolerance
+            || footprint.HeightMm / 1000f - bounds.Size.Y > HeightShortfall + Tolerance)
+        {
+            art.Report($"{look.Model} at {footprint.Id}",
+                $"authored {bounds.Size.X:0.00} x {bounds.Size.Z:0.00} m, {bounds.Size.Y:0.00} m tall; the world's {footprint.Id} walls enclose "
+                + $"{width:0.00} x {depth:0.00} m, {footprint.HeightMm / 1000f:0.00} m tall; not rescaled", look.Model);
+            model.Free();
+            return null;
+        }
+        var root = new Node3D { Name = footprint.Id, Position = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint), footprint.CenterZMm / 1000f) };
+        root.AddChild(model);
+        return root;
+    }
+
     /// <summary>A model at a site (a container, a station, a node), at its authored size and turned as given; null without a model.</summary>
     public static Node3D? Site(ArtLibrary art, Placement look, Vector3 feet, float yawRadians = 0)
     {
-        if (look.Model is null || art.Model(look.Model) is not { } model)
+        if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
             return null;
         var bounds = ArtGallery.Bounds(model);
         model.Position = new Vector3(-bounds.GetCenter().X, -bounds.Position.Y, -bounds.GetCenter().Z);

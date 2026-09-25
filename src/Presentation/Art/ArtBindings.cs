@@ -37,6 +37,7 @@ public sealed class ArtBindings
     private readonly Dictionary<string, Placement> _structures = new(StringComparer.Ordinal);
     private readonly List<(string Prefix, IReadOnlyList<string> Models, Placement Look)> _prefixes = new();
     private readonly List<(string Prefix, string Material)> _wallMaterials = new();
+    private readonly Dictionary<string, Placement> _buildings = new(StringComparer.Ordinal);
 
     public static ArtBindings Empty { get; } = new();
 
@@ -93,10 +94,13 @@ public sealed class ArtBindings
     /// <summary>The prefixes of the buildings' walls (a longhouse's, a forge's): inside their bounds is indoors, for footsteps.</summary>
     public IEnumerable<string> BuildingPrefixes => _wallMaterials.Select(w => w.Prefix);
 
+    /// <summary>A whole building's model by its walls' prefix: drawn over the walls' footprint, which stays the world's truth.</summary>
+    public IReadOnlyDictionary<string, Placement> Buildings => _buildings;
+
     /// <summary>Every static model the bindings name (for the gallery).</summary>
     public IEnumerable<string> StaticModels()
     {
-        foreach (var look in _structures.Values.Concat(Doors.Values).Concat(Containers.Values).Concat(Nodes.Values).Concat(Stations.Values))
+        foreach (var look in _structures.Values.Concat(_buildings.Values).Concat(Doors.Values).Concat(Containers.Values).Concat(Nodes.Values).Concat(Stations.Values))
         {
             if (look.Model is { } model)
                 yield return model;
@@ -170,7 +174,11 @@ public sealed class ArtBindings
             if (root.TryGetProperty("building_walls", out var walls))
             {
                 foreach (var wall in walls.EnumerateObject())
+                {
                     bindings._wallMaterials.Add((wall.Name, Text(wall.Value, "material") ?? "wood"));
+                    if (Text(wall.Value, "model") is not null)
+                        bindings._buildings[wall.Name] = Look(wall.Value);
+                }
             }
             return bindings;
         }

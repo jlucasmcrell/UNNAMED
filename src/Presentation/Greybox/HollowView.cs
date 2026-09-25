@@ -17,7 +17,8 @@ public partial class HollowView : Node3D
     /// <summary>The physics layer the camera's spring arm collides with.</summary>
     public const uint CameraCollisionLayer = 1;
 
-    private readonly Dictionary<string, (Node3D Hinge, float OpenDegrees)> _doors = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (Node3D Hinge, Node3D? Leaf, float OpenDegrees)> _doors = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _artBuildings = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
     private Node3D? _debug;
@@ -37,10 +38,12 @@ public partial class HollowView : Node3D
     {
         var terrain = layout.Space.Terrain;
         AddChild(BuildTerrain(terrain));
+        foreach (var building in ArtBuildings(layout, terrain))
+            AddChild(building);
         foreach (var blocker in layout.Space.Blockers)
-            AddChild(ArtStructure(blocker, terrain) ?? BuildStructure(blocker, terrain));
+            AddChild(InArtBuilding(blocker.Id) ? Unseen(BuildStructure(blocker, terrain)) : ArtStructure(blocker, terrain) ?? BuildStructure(blocker, terrain));
         foreach (var roof in Roofs(layout))
-            AddChild(roof);
+            AddChild(InArtBuilding(roof.Name) ? Unseen(roof) : roof);
         foreach (var door in layout.Doors)
             AddChild(BuildDoor(door, layout, terrain));
         foreach (var site in layout.Switches)
@@ -56,7 +59,11 @@ public partial class HollowView : Node3D
     public void SetDoor(string key, bool open)
     {
         if (_doors.TryGetValue(key, out var door))
+        {
             door.Hinge.RotationDegrees = new Vector3(0, open ? door.OpenDegrees : 0, 0);
+            if (door.Leaf is not null)
+                door.Leaf.RotationDegrees = door.Hinge.RotationDegrees;
+        }
     }
 
     /// <summary>Show which switches are set and which barriers still stand (M6), as the simulation says.</summary>
@@ -132,6 +139,36 @@ public partial class HollowView : Node3D
     /// collides with, and with the same camera collider as its greybox; or its greybox shape wearing a bound surface material. Null
     /// when the bindings have nothing usable for it, so the greybox is drawn.
     /// </summary>
+    /// <summary>
+    /// The buildings drawn whole from the asset library, each over the footprint its walls enclose. Their walls and roofs stay as the
+    /// camera's colliders, unseen: what the body collides with is the truth.
+    /// </summary>
+    private IEnumerable<Node3D> ArtBuildings(RegionLayout layout, TerrainGrid terrain)
+    {
+        foreach (var (prefix, look) in _bindings.Buildings)
+        {
+            var walls = layout.Space.Blockers.OfType<BoxBlocker>().Where(b => b.Id.StartsWith(prefix, StringComparison.Ordinal)).ToList();
+            if (walls.Count == 0)
+                continue;
+            var footprint = new BoxBlocker(prefix.TrimEnd('_'), walls.Min(w => w.MinXMm), walls.Min(w => w.MinZMm), walls.Max(w => w.MaxXMm),
+                walls.Max(w => w.MaxZMm), walls.Max(w => w.HeightMm));
+            if (Art.Fitting.Building(_art, look, footprint, terrain) is not { } model)
+                continue;
+            _artBuildings.Add(prefix);
+            yield return model;
+        }
+    }
+
+    private bool InArtBuilding(string id) => _artBuildings.Any(prefix => id.StartsWith(prefix, StringComparison.Ordinal));
+
+    /// <summary>A structure kept only as the camera's collider, its drawing left to the art over it.</summary>
+    private static Node3D Unseen(Node3D node)
+    {
+        if (node is MeshInstance3D mesh)
+            mesh.Mesh = null;
+        return node;
+    }
+
     private Node3D? ArtStructure(Blocker blocker, TerrainGrid terrain)
     {
         if (_bindings.Structure(blocker.Id) is not { } look)
@@ -234,26 +271,44 @@ public partial class HollowView : Node3D
         var panel = Solid(door.Key + "_panel", new BoxMesh { Size = size }, new BoxShape3D { Size = size }, Palette.Door);
         panel.Position = alongZ ? new Vector3(0, height / 2, size.Z / 2) : new Vector3(size.X / 2, height / 2, 0);
         hinge.AddChild(panel);
-        // The door leaf from the asset library, hung from the same hinge and sized to the opening; its collider stays the panel's.
-        if (_bindings.Doors.TryGetValue(door.Key, out var look) && look.Model is { } leafId && _art.Model(leafId) is { } leaf)
-        {
-            var bounds = Art.ArtGallery.Bounds(leaf);
-            float run = alongZ ? size.Z : size.X;
-            leaf.Scale = new Vector3(run / Math.Max(0.01f, bounds.Size.X), height / Math.Max(0.01f, bounds.Size.Y), 2f);
-            // The leaf's hinge edge is its own x = 0; turned so its width runs along the opening from the hinge.
-            leaf.Rotation = new Vector3(0, alongZ ? -Mathf.Pi / 2 : 0, 0);
-            leaf.Position = alongZ ? new Vector3(0, -height / 2, -size.Z / 2) : new Vector3(-size.X / 2, -height / 2, 0);
-            panel.Mesh = null;
-            panel.AddChild(leaf);
-        }
+        var root = new Node3D { Name = door.Key + "_door" };
+        root.AddChild(hinge);
 
         string group = door.Key["door.".Length..].Split('_')[0];
+        // The door leaf from the asset library, only where its building is drawn from the library too (the building's frame closes the
+        // opening round the leaf): at its authored size, never stretched to the opening, centred in it and swung from a hinge of its own
+        // at the frame's jamb. The collider stays the opening's panel.
+        Node3D? leafHinge = null;
+        if (_artBuildings.Contains(group + "_") && _bindings.Doors.TryGetValue(door.Key, out var look) && look.Model is { } leafId
+            && _art.Model(leafId) is { } leaf)
+        {
+            var bounds = Art.ArtGallery.Bounds(leaf);
+            float run = alongZ ? size.Z : size.X, jamb = (run - bounds.Size.X) / 2;
+            if (jamb < 0 || bounds.Size.Y > height)
+            {
+                _art.Report($"{leafId} at {door.Key}", $"authored {bounds.Size.X:0.00} x {bounds.Size.Y:0.00} m; the opening is {run:0.00} x {height:0.00} m; "
+                    + "not rescaled", leafId);
+                leaf.Free();
+            }
+            else
+            {
+                // Its hinge edge is its lowest x, its thickness centred in the wall; turned so its width runs along the opening.
+                leaf.Position = new Vector3(-bounds.Position.X, -bounds.Position.Y, -bounds.GetCenter().Z);
+                var turned = new Node3D { Rotation = new Vector3(0, alongZ ? -Mathf.Pi / 2 : 0, 0) };
+                turned.AddChild(leaf);
+                leafHinge = new Node3D { Name = "leaf", Position = hinge.Position + (alongZ ? new Vector3(0, 0, jamb) : new Vector3(jamb, 0, 0)) };
+                leafHinge.AddChild(turned);
+                root.AddChild(leafHinge);
+                panel.Mesh = null;
+            }
+        }
+
         var walls = layout.Space.Blockers.OfType<BoxBlocker>().Where(b => b.Id.StartsWith(group + "_", StringComparison.Ordinal)).ToList();
         double inside = walls.Count == 0 ? 0 : alongZ ? walls.Average(w => w.CenterXMm) - box.CenterXMm : walls.Average(w => w.CenterZMm) - box.CenterZMm;
         // Rotating +Z by +90 degrees about Y points it at +X; rotating +X by +90 points it at -Z.
         float open = alongZ ? (inside > 0 ? 90f : -90f) : (inside > 0 ? -90f : 90f);
-        _doors[door.Key] = (hinge, open);
-        return hinge;
+        _doors[door.Key] = (hinge, leafHinge, open);
+        return root;
     }
 
     /// <summary>A pale band round the top of a switch's structure, shown once it is set. Scenery: no collider.</summary>
