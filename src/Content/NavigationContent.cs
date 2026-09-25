@@ -93,11 +93,11 @@ public static class NavigationContent
     /// The authored places of a region that its spawn's flood does not reach (NAV006): with every door and barrier passable, a person
     /// flood from the spawn must come within a hand's reach of every NPC's place, container, station and resource node, and of every
     /// switch's structure; within 250 mm of both approach points of every door; and, for every location, within its discovery radius
-    /// of the anchor, or within a hand's reach of the footprint the anchor lies in.
+    /// of the anchor, or within a hand's reach of the footprint the anchor lies in. The grid is the layout's own unless one is given.
     /// </summary>
-    public static IReadOnlyList<string> Unreachable(RegionLayout layout, NavConfig config)
+    public static IReadOnlyList<string> Unreachable(RegionLayout layout, NavConfig config, NavGrid? grid = null)
     {
-        var grid = NavigationLayout.Build(layout, config);
+        grid ??= NavigationLayout.Build(layout, config);
         var reach = NavReach.FromSpawn(grid, config, new NavPoint(layout.Spawn.XMm, layout.Spawn.ZMm));
         var missing = new List<string>();
         foreach (var npc in layout.Npcs.Where(n => !reach.Near(new NavPoint(n.XMm, n.ZMm), ReachMm)))

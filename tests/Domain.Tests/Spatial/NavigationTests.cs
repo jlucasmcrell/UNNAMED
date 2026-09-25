@@ -301,10 +301,10 @@ public class NavigationTests
             open.Remove(top);
             if (closedSet.Contains(top.Idx))
                 continue;
+            expansions++;
             if (top.Idx == Idx(gi, gj))
                 break;
             closedSet.Add(top.Idx);
-            expansions++;
             long i = wi0 + top.Idx % ww, j = wj0 + top.Idx / ww;
             foreach (var (di, dj, cost) in steps)
             {

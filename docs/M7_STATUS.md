@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0 done; E1-E10 to follow in the single-agent order.
+**State:** **stopped in E1 for an owner decision** (2026-09-25): N-A10 measured an authored-pair route over the E1 bound of 43,690 expansions. See "STOP - E1, N-A10" below. E0 done; E1 commits 1-2 done and commit 3 partly done; nothing after it has started.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -52,8 +52,8 @@
 
 | Slice | Name | State | Commits | Tests (total) | Lint definitions | Notes |
 |---|---|---|---|---|---|---|
-| E0 | The rulings on paper | done | `b0846a5`, `3515f03`, this commit | 825 (unchanged) | 102 | Documents only |
-| E1 | Navigation you can see | - | | | 103 expected | |
+| E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
+| E1 | Navigation you can see | **stopped** (N-A10) | `521d7d0` (E1.1), `f279a4d` (E1.2), E1.3 in part | 857: Domain 161, Application 205, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 14 | 103 | Done: the Domain grid and planner (N-D1, N-D3-N-D6, N-D9, N-D11-N-D16, N-D21, N-D22); `config.navigation` and NAV001-NAV007 (N-X2, N-X3, `NavConfigDefault_IsTheShippedFile`); the `Navigation` slice, `NavigationSystem`, `SimulationSetup.Navigation`, `Simulation.Navigation`, `GameSession.Boot` (N-W1-N-W3, N-A1). Not done: N-A10 (the STOP), the E1 architecture guards, commit 4 (overlay, panel, `--build-shots`) |
 | E2 | Schema 15, landed once | - | | | 103 | |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
@@ -85,9 +85,76 @@ Run from the repository root at the E0 head (§10.6).
 
 **Owner sign-off:** given in advance. The owner's authorization of 2026-09-25 says "This authorization counts as the owner's E0 go-ahead", conditional on the checklist passing and the tests staying green.
 
+## STOP - E1, N-A10 (2026-09-25)
+
+**What fired.** §10.7's E1 STOP: "N-A10 on ASTRAL shows ... a route over 43,690 expansions". Measured on ASTRAL (AMD Ryzen 9 9950X3D), three authored pairs exceed it. The other three E1 N-A10 conditions hold.
+
+**The implementation matches the design's model.** The same routes give the same numbers, node for node:
+
+| Route (person, opener) | Model (§3.7.7) | Measured |
+|---|---|---|
+| West of the lodge (30, 128) → Renn | 9,709 expansions, 5 corners | 9,709 expansions, 5 corners |
+| Kera's site → (100.75, 96.0), no workshop | 1,179 expansions, 4 corners, 76.9 m | 1,179 expansions, 4 corners, 76.935 m |
+
+N-D9(e) also checks the A* against an independently written reference over a monolithic raster (50 pairs across both seams: identical expansions and corners). So the counts below are properties of the shipped hollow and of optimal A* as §3.7.4 specifies, not of the code.
+
+**N-A10 as measured** (the E1 part: the full build, and every ordered pair of authored protected points no more than 88 m apart on either axis):
+
+| Measure | E1 STOP bound | Release | Debug (as CI runs) | Result |
+|---|---|---|---|---|
+| Full build of the four tiles (median of 7) | ≥ 20 ms | 1.05 ms | 2.25 ms | holds |
+| Authored pairs not `Found` | any | 0 of 180 | 0 of 180 | holds |
+| Mean plan over the 180 pairs | ≥ 2 ms | 1.35 ms | 3.23 ms | holds in Release; over in Debug |
+| Largest expansion count | > 43,690 | 52,985 | 52,985 | **fires** |
+
+The pairs over 43,690 expansions:
+
+| Pair | Expansions | Release ms |
+|---|---|---|
+| `node iron_seam` → Renn Vale's place | 52,985 | 14.4 |
+| `container.den_cache` → Kera Voss's place | 46,942 | 10.9 |
+| `container.den_cache` → `station.forge_hearth` | 44,464 | 10.1 |
+
+22 of the 180 pairs take more than 16,000 expansions. The median plan takes 0.44 ms in Release.
+
+**The point set used.** The design gives no plan endpoint for a protected point a body cannot stand on, so this reading was taken, as a test definition and not a game rule. The endpoints are the 20 authored protected points of §3.13 at a new game:
+- the spawn;
+- the four NPC places;
+- the three containers;
+- the two stations;
+- the two resource nodes;
+- the four switches;
+- both approach points of each of the two doors.
+
+Each point is used where it stands when a person can stand there. Otherwise the endpoint is the nearest walkable node within the point's reach: the iron seam's rock face, the switch stones. Plans run for a person with every gate passable, as §3.13's graph does. No reading of "authored protected points" leaves out the den cache (a container) or Kera's place (an NPC site), so the over-bound pairs remain under any reading.
+
+**Why the design's figure differs.** §3.7.7 took the working papers' worst authored route, west of the lodge → Renn (9,709), and §3.18 states "every authored pair ... ≤ 43,690". The model does reproduce that route exactly, but it does not appear to have evaluated every pair. The detour routes are the expensive ones: the quarry to the lodge's east door, and the den to the smithy's west door. They expand an ellipse of open ground, as §3.7.7 describes for Kera's workshop routes.
+
+**A forward risk found with it: the cost per expansion.**
+- §3.18's timings assume about 0.1 µs per expansion [bench].
+- Measured in Release after optimising the search: about 0.27-0.29 µs per expansion overall, plans included. That counts JIT-optimised hot loops and a cached tile lookup, both of which leave the results unchanged.
+- The worst pair takes 14.4 ms. Kera's walk home (40,751 expansions [model]) would take about 11-12 ms at that rate, against E9's STOP bound of 6 ms. A plan at the 65,536 cap would take about 18 ms.
+- This is not an E1 STOP, since the E1 mean holds in Release. It is recorded now because E9 would meet it.
+
+**What the owner is asked to decide** (nothing is changed until then):
+1. **The authored-pair bound.**
+   - (a) Keep optimal A* and the 65,536 cap, and restate N-A10's authored-pair bound as "all `Found` within the cap". The two-thirds-of-the-cap bound would then apply to the M7 movers' own routes: Kera's workshop routes, and the companion's plans, which the 30 m catch-up keeps short. The three pairs are recorded as residue.
+   - (b) Raise the bound, which would also mean raising the 65,536 scratch ceiling. §3.18's rule of 1.5 × the worst real route would ask for about 79,500.
+   - (c) Change the search, for example to an admissible landmark heuristic that keeps routes optimal. That is a design change to §3.7.4.
+2. **The speed target.** Whether 6 ms for Kera's walk home on ASTRAL stands. More optimisation that leaves results unchanged is possible (a flat window walkability array, packed heap keys), but 0.1 µs per expansion is unlikely in safe C#.
+
 ## Scope ledger
 
-Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase or a design row. Deviations are listed here as they arise. None so far.
+Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase or a design row. Deviations and as-built readings are listed here as they arise.
+
+| Slice | Item | Reading or deviation |
+|---|---|---|
+| E1 | `NavigationLayout` (`src/World/Runtime/Navigation.cs`) | A public helper, not in §3.14's file list. It gives a region's tile keys and authored inputs, so NAV006 (Content) and `NavigationSystem` build the same grid from one reading |
+| E1 | `NavGeometry.DistanceSquaredTo` | Takes a box only: a circle's squared distance to its edge needs a square root. Distance tests against any footprint go through `NavGeometry.Within(shape, x, z, d)`, exact in integers |
+| E1 | Expansions | Every node popped counts, the goal among them, as the design's model counts (9,709 and 1,179 reproduced). `Budget` returns with exactly `max_expansions` |
+| E1 | The window of an early outcome | `StartBlocked`, `GoalBlocked` and `TooFar` have no planning window. Their `Window` (the route's watch) is the ends' node rectangle inflated by `window_margin_m`, clipped to the grid when anything is left of it |
+| E1 | N-A1's workshop-doorway lanes | Asserted once the workshop's doorway piece exists (E5); the lodge, smithy, fence-gap and beam lanes are asserted in E1 |
+| E1 | NAV lints on a malformed `config.navigation` | Reported as NAV007 |
 
 ## Local risks (not promoted to RISK_REGISTER)
 

@@ -2,6 +2,7 @@
 // No Godot references - pure C#, integer only
 
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace UNNAMED.Domain.Spatial;
 
@@ -128,8 +129,10 @@ public static class NavSearch
         private readonly NavScratch _scratch;
         private readonly long _node;
         private readonly long _radius;
+        private readonly long _tileNodes;
         private long _wi0, _wj0, _wi1, _wj1, _ww;
         private int _gen;
+        private NavTile? _tile;
 
         public Planner(NavQuery q, NavAgent agent)
         {
@@ -140,6 +143,7 @@ public static class NavSearch
             _scratch = q.Scratch;
             _node = _grid.Config.NodeMm;
             _radius = _grid.Config.Classes[agent.ClassIndex].RadiusMm;
+            _tileNodes = _grid.Config.TileNodes;
         }
 
         public NavPlan Run(NavPoint from, NavPoint to)
@@ -225,13 +229,25 @@ public static class NavSearch
             _scratch.Dir[idx] = 0;
         }
 
+        /// <summary>Whether a window node is walkable, worked out once per generation; the tile last looked in is tried first.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private bool Walk(int idx, long i, long j)
         {
             Touch(idx);
             byte d = _scratch.Dir[idx];
             if ((d & NavScratch.WalkKnown) != 0)
                 return (d & NavScratch.WalkOk) != 0;
-            bool ok = _grid.Walkable(i, j, _agent, _q.IsGateOpen);
+            long n = _tileNodes;
+            bool ok;
+            if (_tile is not null && i >= _tile.I0 && i < _tile.I0 + n && j >= _tile.J0 && j < _tile.J0 + n)
+                ok = _grid.WalkableAt(_tile, (int)((j - _tile.J0) * n + (i - _tile.I0)), i, j, _agent, _q.IsGateOpen);
+            else if (_grid.TryLocate(i, j, out var tile, out int local))
+            {
+                _tile = tile;
+                ok = _grid.WalkableAt(tile, local, i, j, _agent, _q.IsGateOpen);
+            }
+            else
+                ok = false;
             _scratch.Dir[idx] = (byte)(d | NavScratch.WalkKnown | (ok ? NavScratch.WalkOk : 0));
             return ok;
         }
@@ -241,6 +257,7 @@ public static class NavSearch
         /// is connected when it reaches <paramref name="target"/>; it proves an enclosure when it runs dry below its limit without
         /// touching the window's border; anything else proves nothing.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private Probe Flood(int seed, int target, long cells, ref int probeNodes)
         {
             _gen = _scratch.Begin(cells);
@@ -279,6 +296,7 @@ public static class NavSearch
             return Probe.Enclosed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private (NavOutcome Outcome, int Expansions) AStar(int startIdx, int goalIdx, long gi, long gj, long cells)
         {
             _gen = _scratch.Begin(cells);
@@ -302,12 +320,13 @@ public static class NavSearch
                 Pop();
                 if ((dir[idx] & NavScratch.Closed) != 0)
                     continue;
-                if (idx == goalIdx)
-                    return (NavOutcome.Found, expansions);
+                // Every node popped counts, the goal among them; the cap is never passed.
                 if (expansions == max)
                     return (NavOutcome.Budget, expansions);
-                dir[idx] |= NavScratch.Closed;
                 expansions++;
+                if (idx == goalIdx)
+                    return (NavOutcome.Found, expansions);
+                dir[idx] |= NavScratch.Closed;
                 long i = _wi0 + idx % _ww, j = _wj0 + idx / _ww;
                 if (OnBorder(i, j))
                     touchedBorder = true;
@@ -336,6 +355,7 @@ public static class NavSearch
             }
             return (touchedBorder ? NavOutcome.NotInWindow : NavOutcome.Exhausted, expansions);
 
+            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
             void Push(int f, int h, int x)
             {
                 int c = count++;
@@ -354,6 +374,7 @@ public static class NavSearch
                 hx[c] = x;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
             void Pop()
             {
                 count--;
@@ -410,6 +431,7 @@ public static class NavSearch
         /// Greedy, exact string pulling: from each anchor, reach as far along the candidates as a clear straight line allows, and emit
         /// that point as the next corner. Lattice edges are always clear, so every emission advances.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private List<NavPoint> Pull(List<NavPoint> candidates)
         {
             var corners = new List<NavPoint>();

@@ -3,6 +3,7 @@
 
 using System.Buffers.Binary;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace UNNAMED.Domain.Spatial;
@@ -158,6 +159,7 @@ public sealed class NavTile
     /// against every input; solids lower both layers, gates only the closed one. The minimum is order-free, so any input order, tile order
     /// or edit order gives the same bytes. Returns the number of nodes stamped.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static long StampRect(NavLattice lattice, NavTileKey key, byte[] solid, byte[] closed, long li0, long lj0, long li1, long lj1,
         ImmutableArray<NavInput> inputs)
     {

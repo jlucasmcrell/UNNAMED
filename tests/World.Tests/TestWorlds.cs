@@ -1,6 +1,8 @@
 using UNNAMED.Content;
+using UNNAMED.Domain;
 using UNNAMED.World;
 using UNNAMED.World.Legacy;
+using UNNAMED.World.Runtime;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.World.Tests;
@@ -55,6 +57,45 @@ internal static class TestWorlds
         loader.LoadAll(contentRoot);
         Assert.True(loader.LoadedCount > 0, $"No content loaded from {contentRoot}");
         return loader.ComputeContentHash();
+    }
+
+    /// <summary>
+    /// The rules of the game's own region, built from <c>content/</c> with the same Content builders <c>GameSession.Boot</c> uses (World.Tests
+    /// references Content but not Application).
+    /// </summary>
+    public static SimulationSetup HollowSetup()
+    {
+        const string region = "region.ashen_hollow";
+        var loader = new ContentLoader();
+        loader.LoadAll(Path.Combine(RepoRoot(), "content"));
+        Assert.False(loader.HasErrors, string.Join("\n", loader.Errors.Select(e => $"{e.Code}: {e.Message}")));
+        var layout = WorldContent.BuildLayout(loader, region);
+        var movement = WorldContent.BuildMovement(loader);
+        return new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader), WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))
+        {
+            Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
+                ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
+                ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
+            Combat = CombatContent.Build(loader, region),
+            Magic = MagicContent.Build(loader),
+            Crafting = CraftingContent.Build(loader),
+            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
+            Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
+            Navigation = NavigationContent.Build(loader),
+        };
+    }
+
+    /// <summary>A new character in a new world of the region, as a new game starts one.</summary>
+    public static Simulation HollowSimulation(SimulationSetup setup, IEventBus events, ulong seed = Seed)
+    {
+        var layout = setup.Layout;
+        var terrain = new TerrainRule(layout.Generation.TerrainBaseHeightMm, layout.Generation.TerrainAmplitudeMm, layout.Generation.TerrainSamplesPerAxis);
+        var fixedNodes = layout.Nodes.Select(site => new FixedNode(site.Name, site.NodeDefId, CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0),
+            (int)WorldMath.FloorMod(site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(site.ZMm / 10, WorldMath.CellSizeCm)));
+        var generator = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrain, fixedNodes));
+        var id = EntityId.NewId(EntityKind.Character);
+        var player = Simulation.NewCharacter(setup, id, "Tester", PlayerRecord.DerivedAppearanceSeed(id));
+        return Simulation.Start(setup, player, new WorldDelta(generator, seed, new Registry()), 0, events);
     }
 
     public static void CopyDirectory(string from, string to)

@@ -3,6 +3,7 @@
 
 using System.Buffers.Binary;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 namespace UNNAMED.Domain.Spatial;
@@ -97,6 +98,7 @@ public sealed class NavGrid
     public long CentreOf(long index) => _lattice.Centre(index);
 
     /// <summary>The tile holding a node, and the node's index within it; false when no tile of this grid holds it.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public bool TryLocate(long i, long j, out NavTile tile, out int local)
     {
         long n = _lattice.TileNodes;
@@ -139,6 +141,7 @@ public sealed class NavGrid
         return WalkableAt(tile, local, i, j, agent, isGateOpen);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal bool WalkableAt(NavTile tile, int local, long i, long j, NavAgent agent, Func<NavInput, bool> isGateOpen)
     {
         int k = agent.ClassIndex;

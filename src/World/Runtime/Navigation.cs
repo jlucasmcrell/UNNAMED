@@ -41,3 +41,77 @@ public static class NavigationLayout
     public static NavGrid Build(RegionLayout layout, NavConfig config, NavCounterSink? counters = null) =>
         NavGrid.Build(config, Bounds(layout), TileKeys(layout), AuthoredInputs(layout, config), counters);
 }
+
+/// <summary>A gate as the navigation view shows it: a door (<c>door</c>, <c>piece_door</c>) or a barrier, and whether it is open now.</summary>
+public sealed record NavGateView(string Key, string Kind, Blocker Footprint, bool Open);
+
+/// <summary>A mover's committed route, and whether it has been blocked long enough to show.</summary>
+public sealed record NavMoverView(string NpcId, NavRoute Route, bool Blocked);
+
+/// <summary>Navigation, read-only (M7 design §3.14): the grid, every gate and its state, the movers' routes, and the work counts.</summary>
+public sealed record NavigationView(NavGrid Grid, ImmutableArray<NavGateView> Gates, ImmutableArray<NavMoverView> Movers, NavCounters Counters);
+
+/// <summary>
+/// Owns: <see cref="StateSlice.Navigation"/>. Builds the region's navigation grid (M7 design §3.4) from what
+/// <see cref="Kinematics"/> collides with, answers reachability, and shows it. It never writes a body, reads no faction state and has no
+/// tick. Its scratch and counters are its own, so two worlds never share them; neither is ever read by a decision.
+/// </summary>
+internal sealed class NavigationSystem
+{
+    private readonly SystemContext _context;
+    private readonly SliceOwner _owner;
+    private readonly ImmutableSortedDictionary<string, DoorSite> _doors;
+    private readonly ImmutableSortedDictionary<string, BarrierSite> _barriers;
+
+    public NavigationSystem(SystemContext context, SliceOwner owner)
+    {
+        _context = context;
+        _owner = owner;
+        _doors = context.Setup.Layout.Doors.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
+        _barriers = context.Setup.Layout.Barriers.ToImmutableSortedDictionary(b => b.Key, b => b, StringComparer.Ordinal);
+    }
+
+    /// <summary>The authoritative search scratch: the command path's.</summary>
+    internal NavScratch Scratch { get; } = new();
+
+    /// <summary>Where the authoritative path's work is counted.</summary>
+    internal NavCounterSink Counters { get; } = new();
+
+    private NavConfig Config => _context.Setup.Navigation;
+
+    /// <summary>The grid now. Built in the simulation's constructor, so never null once the simulation exists.</summary>
+    public NavGrid Grid => _context.State.Navigation ?? throw new InvalidOperationException("The navigation grid is built when the simulation starts");
+
+    /// <summary>Build every tile of the region from the current inputs. Runs in the constructor, for a new game and a load alike.</summary>
+    public void Build()
+    {
+        var layout = _context.Setup.Layout;
+        _context.State.SetNavigation(_owner, NavGrid.Build(Config, NavigationLayout.Bounds(layout), NavigationLayout.TileKeys(layout), CurrentInputs(), Counters));
+    }
+
+    /// <summary>The inputs in canonical order: the authored statics that stop a standing body, and the authored doors and barriers as gates.</summary>
+    public ImmutableArray<NavInput> CurrentInputs() =>
+        NavigationLayout.AuthoredInputs(_context.Setup.Layout, Config).Sort(NavInputOrder.Instance);
+
+    /// <summary>
+    /// Whether an agent can get from one point to another now (the plan is found), doors planned through as the agent may, barriers by
+    /// their current flags. Counted.
+    /// </summary>
+    public bool Reachable(NavAgent agent, NavPoint from, NavPoint to) =>
+        NavSearch.Plan(new NavQuery(Grid, IsGateOpen, Config, Scratch, Counters), agent, from, to).Outcome == NavOutcome.Found;
+
+    public NavigationView View() => new(Grid, Gates(), ImmutableArray<NavMoverView>.Empty, Counters.Snapshot());
+
+    /// <summary>A gate's state now: a door's flag, a barrier's lift.</summary>
+    private bool IsGateOpen(NavInput gate) => gate.Kind switch
+    {
+        NavInputKind.Door => _doors.TryGetValue(gate.GateKey!, out var door) && _context.IsOpen(door),
+        NavInputKind.Barrier => _barriers.TryGetValue(gate.GateKey!, out var barrier) && _context.IsLifted(barrier),
+        _ => false,
+    };
+
+    private ImmutableArray<NavGateView> Gates() =>
+        _context.Setup.Layout.Doors.Select(d => new NavGateView(d.Key, "door", d.ClosedFootprint, _context.IsOpen(d)))
+            .Concat(_context.Setup.Layout.Barriers.Select(b => new NavGateView(b.Key, "barrier", b.Footprint, _context.IsLifted(b))))
+            .ToImmutableArray();
+}

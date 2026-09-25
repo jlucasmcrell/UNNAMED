@@ -72,6 +72,12 @@ public enum StateSlice
 
     /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
     Companions,
+
+    /// <summary>
+    /// The navigation grid (M7; D-13). Transient: derived from the region layout and the placed pieces; rebuilt at start and on every
+    /// <c>RebuildNavigation</c>; never saved.
+    /// </summary>
+    Navigation,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -139,6 +145,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
+    public NavGrid? Navigation { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -332,6 +339,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    public void SetNavigation(SliceOwner owner, NavGrid grid)
+    {
+        Require(owner, StateSlice.Navigation);
+        Navigation = grid;
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

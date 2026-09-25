@@ -30,6 +30,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The quests (M5).</summary>
     public QuestSetup Quests { get; init; } = QuestSetup.Empty;
+
+    /// <summary>The navigation lattice and its limits (M7; D-13).</summary>
+    public NavConfig Navigation { get; init; } = NavConfig.Default;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -86,6 +89,7 @@ public sealed class Simulation
     private readonly DeathSystem _death;
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
+    private readonly NavigationSystem _navigation;
     private readonly NpcSystem _npcs;
     private readonly RelationshipSystem _relationships;
     private readonly DialogueSystem _dialogue;
@@ -128,6 +132,7 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id);
+        _navigation = new NavigationSystem(_context, _state.Claim(nameof(NavigationSystem), StateSlice.Navigation));
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
@@ -138,6 +143,7 @@ public sealed class Simulation
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
+        _navigation.Build();
         _npcs.Populate();
         _companions.Populate();
         _creatures.Populate();
@@ -250,6 +256,9 @@ public sealed class Simulation
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
+
+    /// <summary>Navigation (M7): the grid, the gates and their state, the movers' routes and the work counts. Read-only.</summary>
+    public NavigationView Navigation => _navigation.View();
 
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
