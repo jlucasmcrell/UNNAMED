@@ -20,6 +20,7 @@ using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
+using V14 = UNNAMED.Persistence.Sections.V14;
 
 namespace UNNAMED.Persistence;
 
@@ -700,7 +701,7 @@ public sealed class SchemaV11ToV12 : SchemaMigration
                 Relationships = old.Relationships,
                 Conversations = old.Conversations,
                 Quests = old.Quests,
-                Companions = Array.Empty<CompanionDto>(),
+                Companions = Array.Empty<V14.Companion>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -721,7 +722,7 @@ public sealed class SchemaV12ToV13 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V12.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V14.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -766,7 +767,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V13.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V14.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
