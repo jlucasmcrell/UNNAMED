@@ -125,12 +125,89 @@
         "next_tick_at": 4801
       }
     ],
-    "relationships": [],
-    "conversations": [],
-    "quests": [],
-    "companions": [],
+    "relationships": [
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "dimension": "respect",
+        "value": -3
+      },
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "dimension": "trust",
+        "value": 12
+      }
+    ],
+    "conversations": [
+      {
+        "dialogue_id": "dialogue.fixture.warden_sera",
+        "heard": [
+          "greet",
+          "rumour"
+        ]
+      }
+    ],
+    "quests": [
+      {
+        "quest_id": "quest.fixture.cull",
+        "status": "completed",
+        "started_tick": 2000,
+        "ended_tick": 3500,
+        "ended_by": "o_cull",
+        "objectives": [
+          {
+            "id": "o_cull",
+            "status": "satisfied",
+            "activated_tick": 2000,
+            "ended_tick": 3500,
+            "progress": 3
+          }
+        ]
+      },
+      {
+        "quest_id": "quest.fixture.wardens_errand",
+        "status": "active",
+        "started_tick": 4000,
+        "objectives": [
+          {
+            "id": "o_ask",
+            "status": "satisfied",
+            "activated_tick": 4000,
+            "ended_tick": 4001,
+            "progress": 0
+          },
+          {
+            "id": "o_den",
+            "status": "active",
+            "activated_tick": 4001,
+            "progress": 0
+          }
+        ]
+      }
+    ],
+    "companions": [
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "order": "follow",
+        "condition": "up",
+        "x_mm": 148750,
+        "z_mm": -41500,
+        "facing_mdeg": 45000,
+        "health": 64,
+        "downed_tick": 0,
+        "stuck_ticks": 2,
+        "last_combat_tick": 4950,
+        "trail_mm": [
+          149250,
+          -41000,
+          149750,
+          -40750,
+          150250,
+          -40125
+        ]
+      }
+    ],
     "posture": {
-      "stance": "standing",
+      "stance": "crouched",
       "airborne": false,
       "air_ms": 0
     }
@@ -179,7 +256,7 @@
   ],
   "entities": [
     {
-      "instance_id": "crt_01M389VX8HQB77J67G0J5X83Z5",
+      "instance_id": "crt_01M3B0ED5031M72TTSKDE7SMVY",
       "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
       "def_id": "creature.beast.wolf_grey",
       "alive": false,
@@ -188,7 +265,7 @@
       "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
     },
     {
-      "instance_id": "crt_01M389VX8J88EJF3S14C28RJP3",
+      "instance_id": "crt_01M3B0ED52G4W0SQWF5CHD64CM",
       "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
       "def_id": "creature.beast.deer",
       "alive": null,
@@ -199,17 +276,7 @@
   ],
   "created": [
     {
-      "instance_id": "itm_01M389VX8J6T318MFXBABH4D4N",
-      "def_id": "item.weapon.iron_sword",
-      "host_cell": "r_0_0:c_00_06",
-      "x_cm": 500,
-      "z_cm": 600,
-      "count": 1,
-      "quality": 0,
-      "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
-    },
-    {
-      "instance_id": "itm_01M389VX8JF49CK8N5K0T8DK02",
+      "instance_id": "itm_01M3B0ED52142HAMY6X0JB43SR",
       "def_id": "item.potion.minor_healing",
       "host_cell": "r_0_0:c_00_08",
       "x_cm": 700,
@@ -217,23 +284,33 @@
       "count": 3,
       "quality": 1,
       "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
+    },
+    {
+      "instance_id": "itm_01M3B0ED52RT88Z854YW5TTVDW",
+      "def_id": "item.weapon.iron_sword",
+      "host_cell": "r_0_0:c_00_06",
+      "x_cm": 500,
+      "z_cm": 600,
+      "count": 1,
+      "quality": 0,
+      "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
   ],
   "containers": [
     {
       "key": "container.fixture_chest",
-      "instance_id": "cnt_01M389VX8KPEJ5YFSRM5BJD0K9",
+      "instance_id": "cnt_01M3B0ED52HBPWTVHV8DN9K5S4",
       "host_cell": "r_0_0:c_00_09",
       "baseline_hash": "sha256:c715927a0968c5fcc31b60c8d8781c33387ee23a66968bcddd89eea9f2f60256",
       "items": [
         {
-          "item_id": "itm_01M389VX8K0A3WGKHCDPXZR6DK",
+          "item_id": "itm_01M3B0ED525RCTBGR7CTDCC50J",
           "def_id": "item.weapon.iron_sword",
           "count": 1,
           "quality": 0
         },
         {
-          "item_id": "itm_01M389VX8K4CVT8Y93BX3KWFJW",
+          "item_id": "itm_01M3B0ED53TNX03DFRM281Z7F6",
           "def_id": "item.potion.minor_healing",
           "count": 4,
           "quality": -1
@@ -242,12 +319,12 @@
     },
     {
       "key": "corpse.fixture_den.m1_g0",
-      "instance_id": "cnt_01M389VX8MYMZMP6A6BS715RSJ",
+      "instance_id": "cnt_01M3B0ED54Q3NVGZ4S491KHD6W",
       "host_cell": "r_0_0:c_00_01",
       "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
       "items": [
         {
-          "item_id": "itm_01M389VX8M4PSW3H4WB74HTC4N",
+          "item_id": "itm_01M3B0ED545NJ0GET33X5DN56W",
           "def_id": "item.potion.minor_healing",
           "count": 1,
           "quality": 0
@@ -278,10 +355,10 @@
       "last_seen_tick": 4990,
       "search_until": 5110,
       "has_called": true,
-      "next_charge_tick": 0,
-      "stagger_immune_until": 0,
-      "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "next_charge_tick": 5060,
+      "stagger_immune_until": 5020,
+      "staggered_tick": 4995,
+      "stagger_lasts_ticks": 40
     },
     {
       "key": "spawn.fixture.den#1",
@@ -338,5 +415,20 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": []
+  "noises": [
+    {
+      "x_mm": 12345,
+      "z_mm": 67890,
+      "radius_mm": 30000,
+      "call": true,
+      "caller_kind": "creature.beast.ash_ember_hound"
+    },
+    {
+      "x_mm": 14000,
+      "z_mm": 66000,
+      "radius_mm": 12000,
+      "call": false,
+      "caller_kind": null
+    }
+  ]
 }

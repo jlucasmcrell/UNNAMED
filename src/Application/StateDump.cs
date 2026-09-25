@@ -120,7 +120,8 @@ public static partial class StateDump
                         if (!x.ContainsKey(key) || !y.ContainsKey(key))
                         {
                             count++;
-                            differences.Add($"{path}.{key}: expected {(x.ContainsKey(key) ? x[key]?.ToJsonString() : "(absent)")}, actual {(y.ContainsKey(key) ? y[key]?.ToJsonString() : "(absent)")}");
+                            differences.Add($"{path}.{key}: expected {(x.ContainsKey(key) ? x[key]?.ToJsonString() ?? "null" : "(absent)")}, " +
+                                            $"actual {(y.ContainsKey(key) ? y[key]?.ToJsonString() ?? "null" : "(absent)")}");
                             continue;
                         }
                         Walk($"{path}.{key}", x[key], y[key]);

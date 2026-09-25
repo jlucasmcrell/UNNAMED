@@ -632,6 +632,111 @@ public class CreatureTests
         Assert.Equal(killed[1].Tick + 2_000, arena.Simulation.World.Creature(arena.Creature(1).Key)!.RespawnTick);
     }
 
+    // ── continuation across a load (the Phase-1 technical audit, L-06, T-01) ──
+
+    /// <summary>Save the arena's world now and load a copy of it, as the game would: the arena the load made.</summary>
+    private static Arena Fork(GameSession session, TempProfile profile, Arena arena)
+    {
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("fork"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("fork"), new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.True(loaded.IsComplete);
+        return Arena.Resume(arena.Simulation.Setup, loaded);
+    }
+
+    /// <summary>
+    /// Both worlds a tick at a time under the same commands, compared each tick: every creature as the running game holds it - body,
+    /// health, the phase it is in and what is left of it, life and mind - where the character stands, and the world delta's creature
+    /// records, containers and sounds waiting to be heard. The character's own combat state is transient by design (a load starts at
+    /// rest), so it is not compared; the moments chosen have nothing of theirs in progress.
+    /// </summary>
+    private static void SideBySide(Arena original, Arena loaded, int ticks, Action<Arena, int>? commands = null)
+    {
+        for (int i = 0; i < ticks; i++)
+        {
+            commands?.Invoke(original, i);
+            commands?.Invoke(loaded, i);
+            original.Tick();
+            loaded.Tick();
+            Assert.Equal(Continuation(original), Continuation(loaded));
+        }
+    }
+
+    private static string Continuation(Arena arena)
+    {
+        var simulation = arena.Simulation;
+        var world = simulation.World.TakeSnapshot();
+        return System.Text.Json.JsonSerializer.Serialize(new
+        {
+            simulation.WorldTick,
+            Player = simulation.Player.Body,
+            Creatures = simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal)
+                .Select(c => new { c.Key, c.Body, c.Health, c.Phase, c.PhaseTicksLeft, c.Condition, c.Mind, c.Awareness, c.Generation }),
+            Records = world.Creatures,
+            world.Containers,
+            world.Noises,
+        });
+    }
+
+    [Fact]
+    public void ABoarStunnedWhenTheGameIsSaved_StaysDown_AndWaitsOutItsCharge_AfterALoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+        var stunned = arena.Record<CreatureStunned>();
+        Shoot(arena, (153, 35.7));
+        bool dodged = false;
+        for (int i = 0; i < 200 && stunned.Count == 0; i++)
+        {
+            if (!dodged && Only(arena).Phase == CombatPhase.Active && arena.Simulation.Combat.Phase == CombatPhase.Idle)
+                dodged = arena.Submit(new DodgeCommand(arena.Player, 1000, 0)) is null;
+            arena.Tick();
+        }
+        Assert.Single(stunned);
+        // Two ticks into the stun, the character's dodge over: the boar has 38 ticks to lie there and a charge to wait out.
+        while (arena.Simulation.WorldTick < stunned[0].Tick + 2 || arena.Simulation.Combat.Phase != CombatPhase.Idle)
+            arena.Tick();
+        Assert.Equal(CombatPhase.Staggered, Only(arena).Phase);
+
+        var loaded = Fork(session, profile, arena);
+        var charges = (Original: arena.Record<AttackStarted>(), Loaded: loaded.Record<AttackStarted>());
+        // The character runs south in both worlds, the boar after it and gaining: it is in sight and in a charge's range (5-14 m) from
+        // about 20 ticks after its stun, but charges only when its cooldown allows - some 80 ticks after the save, the same tick in both.
+        SideBySide(arena, loaded, 240, (world, tick) =>
+            world.Simulation.Enqueue(new MoveCommand(world.Player, tick < 160 ? Harness.Toward(0, -1) : MoveIntent.Idle(0))));
+
+        string charge = session.Setup.Combat.Creatures[Boar].Charge!.Source;
+        Assert.Contains(charges.Original, a => a.Source == charge);
+        Assert.Equal(charges.Original.Select(a => (a.Source, a.Tick)), charges.Loaded.Select(a => (a.Source, a.Tick)));
+    }
+
+    [Fact]
+    public void AGuardiansHowl_OnTheTickOfTheSave_StillBringsThePack_AfterALoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Armed(session, (120, 55), 0, "item.weapon.hunting_bow",
+            (Arena.Wolf, 120, 70, "den_guardian"), (Arena.Wolf, 120, 95, "pack_hunter"), (Boar, 94, 74, "territorial"));
+        var called = arena.Record<CreatureCalled>();
+        var body = arena.Simulation.Player.Body;
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 120_000, 70_000))));
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        // The save is made at the end of the tick the guardian howls: its call has not yet been heard.
+        for (int i = 0; i < 200 && called.Count == 0; i++)
+            arena.Tick();
+        Assert.Single(called);
+        Assert.Equal(CreatureMind.Unaware, arena.Simulation.Creatures.Single(c => c.Key.EndsWith("_1#0", StringComparison.Ordinal)).Mind);
+
+        var loaded = Fork(session, profile, arena);
+        SideBySide(arena, loaded, 60);
+
+        // The hunter 25 m off heard its own kind and came, in the loaded world as in the saved one.
+        Assert.NotEqual(CreatureMind.Unaware, loaded.Simulation.Creatures.Single(c => c.Key.EndsWith("_1#0", StringComparison.Ordinal)).Mind);
+    }
+
     // ── cost ────────────────────────────────────────────────────────────────
 
     [Fact]

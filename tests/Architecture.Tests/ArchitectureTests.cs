@@ -68,7 +68,7 @@ public class ArchitectureTests
             nameof(WorldDelta.EffectiveCellDigest), nameof(WorldDelta.FromSnapshot), nameof(WorldDelta.CreatedIn),
             nameof(WorldDelta.FindCreated), nameof(WorldDelta.Container), nameof(WorldDelta.ContainersIn),
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
-            "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed),
+            "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

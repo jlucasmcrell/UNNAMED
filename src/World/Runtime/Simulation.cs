@@ -357,9 +357,12 @@ public sealed class Simulation
     public string StateDigest()
     {
         using var h = new CanonicalHasher();
-        h.Add("unnamed.simulation/v1").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
+        h.Add("unnamed.simulation/v2").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
         foreach (var cell in _cells)
             h.Add(cell.ToString()).Add(World.EffectiveCellDigest(cell));
+        h.Add(World.Noises.Length);
+        foreach (var noise in World.Noises)
+            h.Add(noise.XMm).Add(noise.ZMm).Add(noise.RadiusMm).Add(noise.Call).Add(noise.CallerKind ?? "-");
         return h.Finish();
     }
 

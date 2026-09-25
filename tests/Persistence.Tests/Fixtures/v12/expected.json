@@ -354,7 +354,11 @@
       "known_z_mm": 70000,
       "last_seen_tick": 4990,
       "search_until": 5110,
-      "has_called": true
+      "has_called": true,
+      "next_charge_tick": 0,
+      "stagger_immune_until": 0,
+      "staggered_tick": null,
+      "stagger_lasts_ticks": 0
     },
     {
       "key": "spawn.fixture.den#1",
@@ -377,7 +381,11 @@
       "known_z_mm": 0,
       "last_seen_tick": 0,
       "search_until": 0,
-      "has_called": false
+      "has_called": false,
+      "next_charge_tick": 0,
+      "stagger_immune_until": 0,
+      "staggered_tick": null,
+      "stagger_lasts_ticks": 0
     },
     {
       "key": "spawn.fixture.ridge#0",
@@ -400,7 +408,12 @@
       "known_z_mm": 0,
       "last_seen_tick": 0,
       "search_until": 0,
-      "has_called": false
+      "has_called": false,
+      "next_charge_tick": 0,
+      "stagger_immune_until": 0,
+      "staggered_tick": null,
+      "stagger_lasts_ticks": 0
     }
-  ]
+  ],
+  "noises": []
 }

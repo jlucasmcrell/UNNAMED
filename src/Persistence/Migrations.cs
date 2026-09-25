@@ -19,6 +19,7 @@ using V9 = UNNAMED.Persistence.Sections.V9;
 using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
+using V13 = UNNAMED.Persistence.Sections.V13;
 
 namespace UNNAMED.Persistence;
 
@@ -78,7 +79,8 @@ public static class SchemaMigrations
         new SchemaV9ToV10(),
         new SchemaV10ToV11(),
         new SchemaV11ToV12(),
-        new SchemaV12ToV13());
+        new SchemaV12ToV13(),
+        new SchemaV13ToV14());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -519,7 +521,7 @@ public sealed class SchemaV7ToV8 : SchemaMigration
                     HostCell = c.HostCell,
                     Items = c.Items.Select(i => new V8.ContainerItem { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count }).ToArray(),
                 }).ToArray(),
-                Creatures = Array.Empty<CreatureDto>(),
+                Creatures = Array.Empty<V8.Creature>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -563,7 +565,7 @@ public sealed class SchemaV8ToV9 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V8.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V13.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created.Select(c => new CreatedDto
@@ -739,6 +741,62 @@ public sealed class SchemaV12ToV13 : SchemaMigration
                 Quests = old.Quests,
                 Companions = old.Companions,
                 Posture = new PostureDto { Stance = "standing", Airborne = false, AirMs = 0 },
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 13 to 14 (the Phase-1 technical audit, L-06): each creature record gains what its next ticks depend on - the charge it
+/// must wait out, the stagger it is in and the one it is immune to - and the entities section the sounds the next tick hears. A save
+/// that predates them kept none of it: its creatures resume free of all three, and nothing waits to be heard.
+/// </summary>
+public sealed class SchemaV13ToV14 : SchemaMigration
+{
+    public override int From => 13;
+
+    public override string Summary => "schema 13 -> 14: creature records gain their charge cooldown, stagger and stagger immunity, and the entities " +
+                                      "section the sounds the next tick hears (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V13.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures?.Select(c => new CreatureDto
+                {
+                    Key = c.Key,
+                    DefId = c.DefId,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Generation = c.Generation,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DiedTick = c.DiedTick,
+                    RespawnTick = c.RespawnTick,
+                    Mind = c.Mind,
+                    Awareness = c.Awareness,
+                    Knows = c.Knows,
+                    KnownXMm = c.KnownXMm,
+                    KnownZMm = c.KnownZMm,
+                    LastSeenTick = c.LastSeenTick,
+                    SearchUntil = c.SearchUntil,
+                    HasCalled = c.HasCalled,
+                    Continuation = new CreatureContinuationDto(),
+                }).ToArray(),
+                Noises = Array.Empty<NoiseDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

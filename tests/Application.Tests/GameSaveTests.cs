@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -15,12 +16,19 @@ public class GameSaveTests
 {
     private static string Fixture(string name) => Path.Combine(Harness.RepoRoot(), "tests", "Application.Tests", "GameSaves", name);
 
-    /// <summary>What each schema step since schema 12 adds to the dump, as the step gives it; every other field must be as it was saved.</summary>
-    private static readonly SortedDictionary<string, string> AddedSince12 = new(StringComparer.Ordinal)
+    /// <summary>
+    /// What each schema step since schema 12 adds to the dump, and the value the step gives it (null: derived, so it moves); every other
+    /// field must be as it was saved.
+    /// </summary>
+    private static readonly (Regex Path, string? Given)[] AddedSince12 =
     {
         // Schema 13: the player gains a posture, standing on the ground; the player's digest covers it, so it moves.
-        ["$.player.Posture"] = """{"Stance":"Standing","Airborne":false,"AirMs":0}""",
-        ["$.player.Digest"] = "(recomputed)",
+        (new Regex(@"^\$\.player\.Posture$"), """{"Stance":"Standing","Airborne":false,"AirMs":0}"""),
+        (new Regex(@"^\$\.player\.Digest$"), null),
+        // Schema 14: every creature record gains its continuation - none was kept - and the world its sounds waiting to be heard - none.
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.StaggeredTick$"), "null"),
+        (new Regex(@"^\$\.world\.Noises$"), "[]"),
     };
 
     [Fact]
@@ -43,9 +51,17 @@ public class GameSaveTests
         actual.Remove("live");
         var differences = StateDump.Compare(expected.ToJsonString(), actual.ToJsonString(), out int leaves);
         Assert.True(leaves > 400, $"only {leaves} fields were compared");
-        Assert.Equal(AddedSince12.Keys, differences.Select(d => d[..d.IndexOf(": expected ", StringComparison.Ordinal)]).Order(StringComparer.Ordinal));
-        foreach (var (path, value) in AddedSince12.Where(a => a.Value != "(recomputed)"))
-            Assert.Contains($"{path}: expected (absent), actual {value}", differences);
+        foreach (string difference in differences)
+        {
+            string path = difference[..difference.IndexOf(": expected ", StringComparison.Ordinal)];
+            var (pattern, given) = AddedSince12.FirstOrDefault(a => a.Path.IsMatch(path));
+            Assert.True(pattern is not null, $"{difference}: not something a schema step since 12 adds");
+            if (given is not null)
+                Assert.Equal($"{path}: expected (absent), actual {given}", difference);
+        }
+        int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
+        Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
+        Assert.Equal(2 + 4 * creatureRecords + 1, differences.Count);   // the posture and digest, four fields a record, the noises
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
