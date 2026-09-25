@@ -81,10 +81,16 @@ The heart of `D-05`. Every row states the reconstruction path, because *"not sav
 | Unmodified creature/NPC instances at spawn defaults | Spawner re-instantiates from the cell's population table **minus persisted slot keys** (§5.3) |
 | Unharvested resource nodes | Node existence/content from worldgen; baseline state is "full" (harvestable) |
 | Navigation grid (`D-13`, M7 reconciliation (2026-09-24)) | Derived in the domain: rebuilt in the `Simulation` constructor from the region layout and the placed pieces, and restamped on each footprint change; never saved. A mover's committed route is mover state and **is** saved with the body it moves |
+| Window stamps outside a route; the navigation scratch and counters (M7) | Recomputed by the follower, or allocated on first use; a stamp is saved only inside a route, as its cache key |
+| Structure-derived space: `SystemContext.Space`, the closed piece-leaf cache, the socket index, `StructureFootprints`, and the structure and errand audits (M7) | Rebuilt by the building and NPC systems' `Populate` from the piece and errand rows plus their definitions, in `StructureOrder`; again on each place, dismantle or destroy (the leaf cache alone on a door toggle) |
+| A piece's `health_max`, footprint, bounds, sockets, chest site and station anchor; an errand's goal (M7) | Read from the piece's definition, or the NPC's authored site, at use; a route records the goal it was planned for, and a moved goal replans |
+| `Simulation.StructureRevision` (M7) | Equal to the persisted `structure_seq` |
+| Faction tier and level, relevance, membership, faction views (M7) | Derived from content and the saved points on every read; tiers are never stored, so a ladder retune is not save-locked |
+| Registry entries for placed pieces (`pce_`) and their chests' containers (M7) | Registered by `WorldDelta.FromSnapshot` as each row applies; the registry is never saved |
 | Collision, occlusion, LOD meshes, GPU resources | Baking / streaming pipeline |
 | Pathfinding search state, AI blackboards, animation state, ragdoll, physics contacts | Fresh instantiation on tier promotion (`WORLD_ARCHITECTURE.md` §7.3) |
 | Presentation-only state (camera, HUD layout, particles, subtitles) | Presentation defaults + optional `client_prefs.json`, not part of the save (`D-11`) |
-| Derived caches (encumbrance, faction power, settlement wealth) | Recomputed **once**, after every migration and alias resolution (§7.4 step g); if cached on disk, marked `derived: true` and discarded on any doubt |
+| Derived caches (encumbrance, faction power, settlement wealth) | Recomputed **once**, after every migration and alias resolution (§7.4 step k); if cached on disk, marked `derived: true` and discarded on any doubt |
 | Quest progress index | Recomputed from the journal and the persisted quest instances |
 | Offline time/catch-up | `world_time_advance(delta)` — a **pure function of total `tick_delta`**; the honoured amount is persisted (§5.5), never a load-time policy |
 | Per-cell **dirty flags** | Recomputed at save time by diffing against the regenerated baseline; the flag is a performance hint, not the source of truth (§5.2) |
@@ -122,6 +128,8 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 ```
 
 **Where `<profile>` lives is part of the contract, not an implementation detail.** The save root must be a location **excluded from known cloud-sync roots** (OneDrive/Dropbox), or the game must detect and warn. Windows user-profile redirection into OneDrive is common, and a sync engine that hydrates placeholders or resurrects a deleted `staging`/`.trash-*` directory defeats the commit protocol (`RK-P06`).
+
+**As built (M7, schema 15).** Four files hold the save: `manifest.json`, `player.msgpack`, `entities.msgpack` and `cells.msgpack`, with `sections.sha256` over them. `companions.msgpack`, `buildings.msgpack`, `journal.jsonl`, `command_log.jsonl` and `orphans.msgpack` are not built. M7's lists live inside the existing files: the faction ledger and each companion's route in `player`, and placed pieces, the structure sequence and NPC errands in `entities`. A new section file would need a schema-aware integrity root first, because the root lists a fixed set of files.
 
 `orphans.msgpack` is listed here rather than only appearing at the quarantine site, because §7.2 can create it and `savetool repair` can delete it, and a file that exists but is not in the layout is a file whose checksum is never written.
 
@@ -198,7 +206,11 @@ These are the only fully-serialized sections. A character is not regenerable, so
 
 **Posture (schema 13, the owner's M6 playtest).** The player section holds the body's `posture`: `stance` (`standing`, `crouched`), `airborne`, and `air_ms`, how long it has been in the air - so a save made mid-jump lands where the saved world would have, and one made crouched under a beam loads crouched. Older saves stand on the ground; a schema-13 player without it is corrupt, not defaulted.
 
-Implemented so far (schema 7): the character's ULID, name, position in integer millimetres, facing in millidegrees (from schema 5), `appearance_seed` (required from schema 3), inventory stacks by item ULID, equipment slots naming carried items and the purse (from schema 6), active status effects - effect, stacks, and the world ticks at which it expires and next ticks (from schema 7) - the progression record (from schema 4; `PROGRESSION.md` §3-§4), and discovered-location records - location, method, world tick (from schema 5). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and its definition IDs - skills, known techniques, first-time records, kill records, discovered locations, active effects - go through the definition-ID pass like the inventory's. The rest of the list above arrives with the systems that own it.
+**Factions (schema 15, M7).** The player section holds the faction ledger (`factions`): `next_act_seq`; the `acts` the player's deeds made - `seq`, `kind` (`creature_killed`, `switch_set`), `subject` (a definition ID), `cell_key`, `x_mm`, `z_mm`, `tick` - strictly ascending and bounded by the act-log capacity; the `knowledge` rows - `knower` (a faction), `act`, `identity` (`unidentified`, `identified`), `source` (`witnessed`, `reported`), `via` (the NPC who reported it, or none), `tick` and `delta` - sorted by knower then act; and `standing`, each faction's non-zero points in [-1000, 1000]. Tiers and levels are derived, never stored. Faction, NPC and subject IDs go through the definition-ID pass: a removed subject takes its act and what was known of it; merged factions keep one knowledge row an act and sum their standing, clamped, and a merge to 0 drops the row with a warning; a `via` that no longer resolves blocks the load. A schema-15 player without a valid ledger is corrupt, not defaulted.
+
+**Routes (schema 15, M7).** Each companion carries its committed route (`route`): `status` (`none`, `active`, `unreachable`), `goal_mm`, `corners_mm` (at most 32 corners), `planned_tick`, `stamp` (the navigation window's stamp it was planned against), `watch_mm` (the rectangle whose change invalidates it) and `partial`. A route is mover state: its next ticks depend on it and nothing reproduces it, so a loaded companion walks on as the saved one would. A companion without a valid route is corrupt, not defaulted.
+
+**As built (schema 15).** The player section holds: the character's ULID and name; position in integer millimetres; facing in millidegrees (schema 5); `appearance_seed` (required from schema 3); inventory stacks by item ULID, each with its quality (schema 9); equipment slots naming carried items, and the purse (schema 6); active status effects (schema 7); the progression record (schema 4; `PROGRESSION.md` §3-§4); discovered-location records (schema 5); relationships and conversation memory (schema 10); quests (schema 11); companions, each with its route from schema 15 (schema 12); the posture (schema 13); and the faction ledger (schema 15). The record's enums are saved as snake_case keys, never ordinals; its pool maxima and attribute totals are derived at run time, never stored; and every definition ID in it goes through the definition-ID pass. Crime records, lifetime XP totals per source kind and a species reference are not built.
 
 ### 5.2 `cells.msgpack` — sparse cell delta
 
@@ -248,11 +260,15 @@ A slot whose persisted state has returned to baseline is **rebased** (§5.6), no
 
 **Creature continuation and pending sounds (schema 14; the Phase-1 technical audit, L-06).** Each creature record also carries what its next ticks depend on (`continuation`): `next_charge_tick`, the first tick it may charge again; `stagger_immune_until`, the first tick a blow may stagger it again; and the stagger it is in - a charger's stun among them - as `staggered_tick` and `stagger_lasts_ticks` (0 for the usual length). Each is written only while it still matters, so a creature over its cooldown, immunity or stun has the record of one that never had them. The section's `noises` list holds the sounds made on the last tick that creatures hear on the next - a blow, and a howl with its caller's kind (`caller_kind`, through the definition-ID pass) - in the order they were made. A save therefore goes on as the unsaved world would: a stunned boar stays down, a charger waits out its cooldown, and a howl made on the tick of the save still brings the pack. A blow in progress - an attack's windup, a charge's run - is still not kept.
 
+**Placed pieces, the structure sequence and NPC errands (schema 15, M7).** The section's `pieces` list holds every player-placed building piece, sorted by ID: `instance_id` (a `pce_` ID derived from the owner and the piece's ordinal, `EntityId.Derived(Piece, n, "unnamed.piece/v1", owner)`), `def_id`, `host_cell` (the cell of its anchor), the anchor in absolute millimetres (`x_mm`, `z_mm`), `rotation` (a quarter turn, 0-3), `owner`, `health` and, for a door, `door_open`. Its shape is its definition's; only what the definition cannot know is stored. `structure_seq` is the last ordinal minted, so a dismantled piece's ordinal is never reused. The `npc_errands` list holds each named NPC away from their authored site, sorted by NPC ID: `npc_id`, `host_cell`, `phase` (`to_work`, `at_work`, `to_home`), the `piece_id` and `work_owner` of the work place, the pose (`x_mm`, `z_mm`, `facing_mdeg`), `stuck_ticks` and the committed `route`. Pieces and errands are proven against their host cells' `baseline_hash` like created instances. Rows are checked one by one on load, and an invalid row is rejected alone and reported. A piece chest is an ordinary changed container (schema 6) whose key is `container.` and the piece's ID in lower case, and whose ID is derived from the piece's (`Derived(Container, n, "unnamed.piece-container/v1", piece)`). A chest whose piece is absent, or whose ID is not its derived one, is rejected. A removed piece definition spills its chest's items on the ground, each keeping its ID. A schema-15 section without `pieces`, `structure_seq` or `npc_errands` is corrupt, not defaulted.
+
 ### 5.4 `buildings.msgpack` — player structures
 
 A building is a ULID-keyed structure with a footprint of one or more cells; pieces are ULID-keyed rows with a `def_id` and a socket path (`WORLD_ARCHITECTURE.md` §10). Nothing here is regenerable: a player structure exists nowhere else, so corruption is unrecoverable rather than merely annoying, and the quarantine path must name every lost structure.
 
 `storage` entries reference container ULIDs that live in `entities.msgpack`. That cross-section reference is exactly the case §7.2 must handle when `entities` is quarantined: a dangling reference whose target section was dropped is **reported loss**, not a corruption, and must not be re-quarantined as if the reference itself were invalid.
+
+**As built (M7).** There is no structure record and no `buildings.msgpack`. Each placed piece is a `pce_` row in `entities.msgpack` (§5.3); a dismantle or its destruction retires the row and its identity. A piece chest's contents are a container in the same section, so no cross-section reference exists. A quarantined `entities` section loses the pieces, the structure sequence, the errands and the chests together, and the warning names the section.
 
 ### 5.5 Node, spawn, and time-derived state
 
@@ -358,7 +374,10 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 8 -> 9 | Every item stack gains its quality: carried, in a changed container, or created in the world (M3f). An older save's stacks are all standard, since nothing could make another quality before M3f |
 | 9 -> 10 | The player gains relationships and conversation memory (M4). An older save has neither: there was no one to talk to before M4 |
 | 10 -> 11 | The player gains quests (M5). An older save has none: there were no quests before M5 |
+| 11 -> 12 | The player gains companions (M6). An older save has none: no one could join the character before M6 |
+| 12 -> 13 | The player gains a posture (the owner's M6 playtest). An older save stands on the ground |
 | 13 -> 14 | Every creature record gains its continuation, and the entities section its pending sounds (the Phase-1 technical audit, L-06). An older save kept none of it: its creatures resume free of any cooldown, stagger or immunity, and nothing waits to be heard |
+| 14 -> 15 | The player gains the faction ledger and each companion a route; the entities section gains placed pieces, the structure sequence and NPC errands (M7). An older save knows no act, has nothing built and no errand, and its companions have no route. Nothing is reconstructed from the world: a wolf's corpse or a set lever is no act |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 
@@ -367,7 +386,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 // recomputes them after load. Never migrate a cache — that is how stale numbers travel.
 ```
 
-**Scenario A — split a derived stat.** `schema_version 14 → 15`. Players have one `might` stat; design splits it into `strength` (melee power) and `endurance` (carry, stamina). The migration writes both new fields. Values *derived* from `might` are caches and are recomputed after load (§7.4 step g), not migrated.
+**Scenario A — split a derived stat.** `schema_version 14 → 15`. Players have one `might` stat; design splits it into `strength` (melee power) and `endurance` (carry, stamina). The migration writes both new fields. Values *derived* from `might` are caches and are recomputed after load (§7.4 step k), not migrated.
 
 ### 6.3 Alias and tombstone resolution
 
@@ -398,6 +417,8 @@ Renames and replacements may chain. A cycle, or a chain that ends at no defined 
 3. **Or refuse.** Name every mismatched cell and the fingerprints a transition would need. Never regenerate and apply the old delta anyway.
 
 A cell nobody changed has no record and simply uses the current baseline.
+
+**M7 adds no transition.** M7's content changes add no generator input (a container is layout), so its fingerprint is M6's. A renewable node, when one arrives, brings its own transition and a frozen fingerprint.
 
 **The game's registered transitions.** M3f: saves from before the region placed its resource nodes carry every record onto the baseline that has them (nothing they hold was a node). M6: saves from M3's layout (M3f to M5) carry onto the content bible's four cells; the iron seam moved from the north shelf to Blackvein Cut, so a harvest record against the old seam is declared lost, and containers, creatures and created instances carry as they are. The M3 layout's fingerprint is a frozen constant in `GameSession`.
 
@@ -518,6 +539,8 @@ This order is M2b's authority order (`M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBIL
 - **d before f and m.** Proof and validation must see resolved IDs, or a renamed slot family would look like a baseline change, and renamed data would quarantine falsely.
 - **f before h-j.** A delta is applied only after its baseline is proven, so no path can apply it to the wrong baseline.
 - **h before i.** A delta is meaningful only against the baseline it is a delta *of*. Applying deltas first is the inversion `ARCHITECTURE.md` §8 originally contained.
+
+**Steps g-j as built (M7).** `WorldDelta.FromSnapshot` sets the structure sequence, then applies cells, slot entities, created instances, pieces, containers, creatures and errands, in that order: pieces before the chests and errands that reference them. Step k's derived state is then rebuilt in the `Simulation` constructor. Navigation is built from the layout and the pieces; the building and NPC systems then rebuild the structure-derived space, the audits and the errand bodies from the rows (§2).
 - **j is a merge, not an append** (§5.3), or killed entities resurrect.
 - **k last among the data steps.** A cache computed from a half-migrated world is wrong in a way no later step repairs, and it is invisible because the number is plausible.
 - **n exactly once.** Views that rebuild more than once produce visible flicker and double-subscription bugs.
@@ -624,6 +647,8 @@ Every test is headless, engine-free, and a domain-layer concern. Gate column: `P
 | **T-26** | Tier-transition legality | (Co-owned with `WORLD_ARCHITECTURE.md` §7) promotion never adopts illegal abstract state; save/load at a tier boundary is consistent | P2 |
 | **T-27** | **Load-order sequence** | **Asserts §7.4's order rather than its steps.** One fixture save carrying (a) an old `schema_version` needing migration, (b) a renamed ID resolvable only via the alias map, (c) a persisted derived value that must be recomputed, and (d) a deliberately corrupt quarantinable section. Assert: `save_format` mismatch **refuses** while a corrupt `cells`/`entities` section **loads** with `flags.quarantined_sections`; every derived cache reflects **migrated** inputs, never pre-migration ones; no dangling reference survives a resolvable alias; and exactly **one** `WorldLoaded` event is emitted | **P1** |
 | **T-28** | **Command-log replay** | Feed a save's `command_log.jsonl` into a fresh world and assert **digest equality** with the original final state. This is what makes the replay tuple (§1.3) true rather than aspirational | **P1** |
+
+**Schema 15's tests (M7).** T-01: `T01_M7State_RoundTripsEveryField_ByteStable`, the capture tests (`ACompanionRoute_SurvivesPopulateAndCapture`, `TheFactionLedger_SurvivesStartAndCapture`) and `ASaveAndALoad_CompareEqual_FieldByField`. T-03: the same round trip's byte-identical resave. T-13: the corrupt-not-defaulted tests (`ASchema15…`, `AnErrandWithoutARoute…`), the quarantine test and the row-rejection tests (`AnInvalidPieceRow_IsRejectedAlone`, `AnInvalidErrandRow_IsRejectedAlone`, the two piece-chest tests, `ACellsQuarantine_LeavesPiecesAndErrandsWhole`). T-16: `Fixture_LoadsToItsExpectedCurrentState` and `Fixture_MigratesThroughTheCommitPath_AndReloadsToTheSameState` over v1-v15, and `Schema14To15_GivesNothingBuiltNoLedgerAndNoRoutes`. T-21: the faction ledger's bounded act log, through the same round trip and the ledger's definition-pass tests. T-23: the definition-pass tests over pieces, errands and the ledger (`PiecesAndErrands_GoThroughTheDefinitionPass…`, `TheFactionLedger_GoesThroughTheDefinitionPass…`, `TwoFactionsMergedWithOppositeStanding…`, `AnUnmappedVia_IsABlocker`, `ASpilledChestItemWithARenamedDefinition_LandsRenamed`, `ADefinitionPassThatBreaksARecord_IsABlocker_NotACrash`).
 
 ---
 

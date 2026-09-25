@@ -50,6 +50,7 @@
 | E1 N-A10 STOP: expansion bound | Option (a). Keep optimal A* and `max_expansions: 65536`. The exhaustive authored-pair sweep is diagnostic: every pair `Found` within the cap, no two-thirds bound, expensive pairs recorded as residue. The two-thirds (1.5× headroom) rule applies to actual M7 mover routes: Kera's workshop routes, companion routes | 2026-09-25 |
 | E1 N-A10 STOP: speed target | The 6 ms walk-home STOP is superseded. Actual M7 mover plans on ASTRAL in Release: ≤ 15 ms target, > 20 ms STOP; also STOP on a repeatable, player-visible planning hitch. Diagnostic pairs are measured and reported, never the mover criterion. Escalation: profile, optimize without changing results, re-measure, then the per-tick plan budget seam; any algorithmic change needs owner review | 2026-09-25 |
 | E2.3 STOP (S9): the fixture pack's `config.navigation` | Option (b). The current fixture pack omits the optional `config.navigation`, so `NavigationContent.Build` uses `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the production file. The writer pack `content-0.1.7` keeps its copy; production `content/config/navigation.yaml` is unchanged; NAV001-NAV007 are unchanged. Options (a), completing the fixture's combat and magic content, and (c), skipping the NAV lint without a tick, are rejected. The ruling covers this optional file only; it is not general permission to omit a required fixture definition | 2026-09-25 |
+| E2.4 STOP (S9/S10): the M6 save's step count | Option (a). The schema-12 save traverses four schema versions and executes three migrations: `Steps.Count == 3`, in order `schema 12 -> 13:`, `schema 13 -> 14:`, `schema 14 -> 15:`, asserted exactly. §7.14's "the fourth of four" was a counting error, corrected to "the third of three". M7 still has exactly one new migration, `SchemaV14ToV15`; no other step, and no save-format change beyond schema 15, is authorized | 2026-09-25 |
 
 ## Slices
 
@@ -57,7 +58,7 @@
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
-| E2 | Schema 15, landed once | **stopped** (S9/S10, E2.4) | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3) | 898 at E2.3: Domain 162, Application 208, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | E2.3's STOP (S9) resolved by the owner; see "STOP - E2.4, S9 and S10" |
+| E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), E2.5 | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
@@ -240,6 +241,72 @@ The owner chose reading (b). As applied:
 **Recommendation.** (a): "the fourth of four" counts the four schemas in the path, not the three steps between them. Nothing else in E2 depends on it.
 
 **State at the STOP.** E2.1 (`d17a67e`), E2.2 (`f7931e1`) and E2.3 (`e5f221d`) are committed and pushed. E2.3 builds, 898 tests pass, and the content lint reports 0 errors. E2.4's test is written in the worktree with the design's literal assertion (`Steps.Count == 4`), uncommitted; it fails on that line alone. E2.5, the documents, is not started. The E2 runtime gate is run over E2.3 as verification only, and its results are below.
+
+## Owner ruling on the E2.4 STOP (2026-09-25)
+
+The owner chose reading (a). As applied:
+- `TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand` asserts `Report.Steps.Count == 3`, with `Steps[0]` starting `schema 12 -> 13:`, `Steps[1]` `schema 13 -> 14:` and `Steps[2]` `schema 14 -> 15:`, the third of three (E2.4, `fd12b6c`).
+- The design's §7.14 is amended in the history folder (backup `drafts/history/M7_IMPLEMENTATION_DESIGN.before_E2_S10_ruling_2026-09-25.md`). The line now reads that `Report.Steps` holds exactly three steps, the last the third of three. An owner-ruling note keeps the original wording, "ends with a step starting `"schema 14 -> 15:"`, the fourth of four", and names the error: it counted the four versions (12, 13, 14, 15) instead of the three transitions.
+- A search of the whole design found no other instance of the error. The remaining references are correct and unchanged: the full-chain step lists for fixtures v1 and v2, and the "four repoints".
+- M7 still adds one migration, `SchemaV14ToV15`.
+
+## E2 record
+
+**What schema 15 saves.**
+- **Player.** `factions`: `next_act_seq`; `acts` (`seq`, `kind`, `subject`, `cell_key`, `x_mm`, `z_mm`, `tick`); `knowledge` (`knower`, `act`, `identity`, `source`, `via`, `tick`, `delta`); `standing` (`faction_id`, `points`).
+- **Each companion.** `route`: `status`, `goal_mm`, `corners_mm`, `planned_tick`, `stamp`, `watch_mm`, `partial`.
+- **Entities.**
+  - `pieces`: `instance_id`, `def_id`, `host_cell`, `x_mm`, `z_mm`, `rotation`, `owner`, `health`, `door_open`.
+  - `structure_seq`.
+  - `npc_errands`: `npc_id`, `host_cell`, `phase`, `piece_id`, `work_owner`, `x_mm`, `z_mm`, `facing_mdeg`, `route`, `stuck_ticks`.
+
+Every one is required on decode. All are empty in live play until E3, E5 and E8-E9 write them.
+
+**Frozen shapes.** `Sections/SchemaV14.cs` freezes three shapes:
+- `V14.Player`, 18 keys, schemas 13-14;
+- `V14.Companion`, 11 keys, schemas 12-14;
+- `V14.EntitiesSection`, 6 keys, with `noises`.
+
+The 11 -> 12, 12 -> 13 and 13 -> 14 steps write the frozen shapes, and `SchemaV12.cs` names `V14.Companion`. `SchemaV13.cs` is untouched.
+
+**Digest tags.** `unnamed.player/v10`, `unnamed.effective-cell/v3` (M7's terms after v2's) and `unnamed.simulation/v3` (`StructureSequence` after the player digest term).
+
+**Fixture.** `v15/quick` was written by `M2.Probe fixture`: world tick 5000, writer identity 0.1.7. `CellsMatched` stays 10.
+
+**The M6 acceptance save's extended assertions.**
+- `TheM6AcceptanceSave_LoadsUnderTodaysGame_AsItWasSaved_AndPlaysOn`: five `AddedSince12` rows, which are the ledger, Tavar's route, `Pieces`, `NpcErrands` and `StructureSequence`. The difference count is exactly +5.
+- `TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand`, E2's rows:
+  - the three steps;
+  - no transition, mismatch, blocker, loss or alias;
+  - the generator's fingerprint;
+  - nothing built, sequence 0, no errand, and Kera at her site;
+  - the empty ledger;
+  - Tavar with no route and his trail;
+  - the exact pre-migration copy;
+  - a clean reload.
+
+**Measured dump counts.**
+- A new game: 662 leaves, 660 without M7, so +2: `StructureSequence` and `NextActSeq`.
+- `--playthrough-verify`: 968 fields, which is E1's 956 plus Tavar's `None` route (10), `StructureSequence` (1) and `NextActSeq` (1).
+- The `live` section's `pieces`, `work_assignments` and `factions` are empty, and add nothing.
+
+**Recorded limits.**
+- The region layout (authored structures, doors and barriers) is outside the baseline hash (`src/World/Generation.cs:144-162`), so a later layout edit under a placed piece is not caught by the baseline proof. The structure audit reports it (unscheduled).
+- `StateDump.Order` sorts arrays of objects by content, so route corners and trail marks are order-checked only by the raw dump and the digests.
+
+## E2 evidence (E2.4 + E2.5, 2026-09-25, ASTRAL)
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors; the one warning is the pre-existing `MagicContent.cs(165,21)` CS8602 |
+| `dotnet test src/UNNAMED.sln` | 899 passed, 0 failed |
+| Content lint | 103 definitions, 0 errors |
+| `--smoke` (headless) | PASS; the save round trip at schema 15, digest identical |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` | exit 0 (b01, b02) |
+| `--playthrough` then `--playthrough-verify` | every beat passed (378 s); verify: 968 fields, 0 differences (breakdown in "E2 record") |
+| A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `e566931abe91bac8250a084662971abb5bcd17ea6101417e6068b1018341fe78`, the same as at E2.3 |
+| `--ui-shots`, `--delta-shots` | both exit 0 (296 s, 160 s), 0 error lines |
 
 ## E2 evidence at the STOP (E2.3, `e5f221d`, 2026-09-25, ASTRAL)
 

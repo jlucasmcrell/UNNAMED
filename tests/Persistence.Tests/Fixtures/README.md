@@ -22,7 +22,7 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.8) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.9) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
@@ -30,11 +30,11 @@ one under the current code and migrates every one through the real commit path
    plus the two effects the effect record names - is the pack v7 was written with; `content-0.1.4/` - 0.1.3 plus the
    creature a creature record names - is the pack v8 and v9 were written with; `content-0.1.5/` - 0.1.4 plus the NPC and the
    conversation the relationship and conversation records name - is the pack v10 was written with; `content-0.1.6/` - 0.1.5 plus the two
-   quests the quest records name, and the warden's replies that start them - is the pack v11 to v14 were written with. Content 0.2.0 renamed the
+   quests the quest records name, and the warden's replies that start them - is the pack v11 to v14 were written with; `content-0.1.7/` - 0.1.6 plus what the schema-15 records name (five pieces, among them `piece.fixture.old_wall`; the factions `faction.fixture.keepers` and `faction.fixture.delvers`, seated at `location.wolf_den`; `npc.fixture.smith` and where he stands; timber; and the building, faction and navigation config) - is the pack v15 was written with. Content 0.2.0 renamed the
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
-   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5). The writer packs are historical and are never edited, so they need not pass today's
+   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5); 0.2.9 added the M7 definitions (the five pieces, the two factions seated at `location.den_mouth`, the smith placed 2 m from its anchor, timber, and the building and faction config) and renamed the old wall to `piece.fixture.wall` and the delvers to `faction.fixture.diggers` (M7). The current pack deliberately omits the optional `config.navigation` (the owner's ruling on the M7 E2.3 STOP): its times need `config.time`, which switches on combat and magic checks the fixture's stub creatures and spell do not meet, so the pack navigates with `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the shipped file. If a later M7 lint rejects the pack, its content is fixed under 0.2.10, never the lint, with the version constants, the probe mirror and this paragraph in the same commit. The writer packs are historical and are never edited, so they need not pass today's
    checks; the current pack must.
 
 ## The fixture world
@@ -76,6 +76,11 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `npc.fixture.warden` has joined Aelin: following, up, 64 health, at (148.75, -41.5) facing 45 degrees, two ticks without headway, last in a fight at tick 4950, three trail marks ahead | player companions | Schema 12. The warden was **renamed** to `npc.fixture.warden_sera` in content 0.2.7: the rename must reach the companion record. v1-v11 migrate to none |
 | Aelin crouched, on the ground | player posture | Schema 13 (the owner's M6 playtest: jump and crouch). v1-v12 migrate to standing on the ground; a schema-13 player without a posture is corrupt, not defaulted |
 | `spawn.fixture.den#0` may charge again at tick 5060, is immune to a stagger until 5020, and is stunned - 40 ticks from 4995; two sounds wait to be heard: a howl of `creature.beast.ash_hound` at (12345, 67890) mm carrying 30 m, and a blow at (14000, 66000) mm carrying 12 m | creature record continuation, entities `noises` | Schema 14 (the Phase-1 technical audit, L-06). The howl's kind is **renamed** to `creature.beast.ash_ember_hound`, as the creature record's is. v1-v13 migrate to no cooldown, stagger or immunity and nothing to hear; a schema-14 creature without its continuation, or a section without its noises, is corrupt, not defaulted |
+| The warden walks a planned route: goal (150250, -40125) mm, three corners, planned at tick 4990 with stamp `0x0123456789ABCDEF`, watching (129000, -61000)-(171000, -20000) mm, cut short at its corner limit (partial) | player companion route | Schema 15 (M7): every route field set. v1-v14 migrate to no route (`none`); a schema-15 companion without a route is corrupt, not defaulted |
+| The faction ledger: next act 3; act 1 a `creature.beast.wolf_grey` killed in `r_0_0:c_00_02` at (20000, 250000) mm, tick 4100; act 2 `world.lever.mill_gate` set in `r_0_0:c_00_07`, tick 4200, known by no faction. `faction.fixture.delvers` learned of act 1 from `npc.fixture.smith` at 4300 (-100) and `faction.fixture.keepers` from `npc.fixture.warden` at 4150 (+100); standing delvers -100, keepers +100 | player factions | Schema 15 (M7): one act moves two factions in opposite directions. The delvers were **renamed** to `faction.fixture.diggers` in content 0.2.9 (the rename must reach knowledge and standing), and the warden's rename reaches the `via`. v1-v14 migrate to the empty ledger, although the world holds a wolf corpse and a set lever: nothing is reconstructed |
+| Six placed pieces around the z = 500 m seam, ordinals 1, 2, 3, 5, 7 and 9, and structure sequence 9 (4, 6 and 8 were taken down): a pad whose square straddles `c_00_04`/`c_00_05`; a doorway with its door open; `piece.fixture.old_wall`, damaged to 150 and hosted in `c_00_05`; a chest whose site lies in `c_00_05`; and a foreign owner's pad, turned once | entities `pieces`, `structure_seq` | Schema 15 (M7). The old wall was **renamed** to `piece.fixture.wall` in content 0.2.9. v1-v14 migrate to nothing built, sequence 0 |
+| The chest's container, `container.pce_<ulid lower-case>`, with its derived `cnt_` ID, holds `item.material.timber` x3 | changed container in `r_0_0:c_00_05` | Schema 15 (M7): a piece chest is an ordinary changed container with a derived key and ID |
+| `npc.fixture.smith` walks home (`to_home`) from a work place since taken back, at (40000, 120000) mm facing 180 degrees, three ticks without headway, two corners of his route to go | entities `npc_errands`, hosted in `r_0_0:c_00_00` | Schema 15 (M7): an errand with its route. v1-v14 migrate to no errand |
 
 ## Provenance
 
@@ -94,6 +99,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v11/` | The M5 schema-11 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v12/` | The M6 schema-12 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v13/` | The owner-playtest schema-13 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v15/` | The M7 schema-15 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.7) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:
