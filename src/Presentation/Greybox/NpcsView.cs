@@ -32,7 +32,13 @@ public partial class NpcsView : Node3D
         {
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
-                figure = (Figure?)Art.SkinnedFigure.Create(_art, _bindings, npc.Id) ?? new Avatar { Clothing = Clothes(npc.Id) };
+                var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id);
+                string? model = _bindings.People.GetValueOrDefault(npc.Id)?.Model;
+                if (body is not null)
+                    _art.Coverage.Resolved("person", npc.Id, model!);
+                else
+                    _art.Coverage.Fallback("person", npc.Id, model is null ? "no binding: the greybox mannequin" : $"{_art.Why(model) ?? "not drawn"}: the greybox mannequin", model);
+                figure = (Figure?)body ?? new Avatar { Clothing = Clothes(npc.Id) };
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;

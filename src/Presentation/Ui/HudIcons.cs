@@ -14,16 +14,34 @@ public sealed class HudIcons
 {
     private readonly AssetCatalog _catalog;
     private readonly IReadOnlyDictionary<string, string> _map;
+    private readonly Art.ArtCoverage? _coverage;
 
-    public HudIcons(AssetCatalog catalog, IReadOnlyDictionary<string, string> map)
+    public HudIcons(AssetCatalog catalog, IReadOnlyDictionary<string, string> map, Art.ArtCoverage? coverage = null)
     {
         _catalog = catalog;
         _map = map;
+        _coverage = coverage;
     }
 
     public static HudIcons None { get; } = new(AssetCatalog.Empty, new Dictionary<string, string>());
 
-    public Texture2D? For(string? key) => key is not null && _map.TryGetValue(key, out string? id) ? _catalog.Icon(id) : null;
+    /// <summary>The icon for a key, or null (recorded in the coverage report: an icon the HUD asked for and drew without).</summary>
+    public Texture2D? For(string? key)
+    {
+        if (key is null)
+            return null;
+        if (!_map.TryGetValue(key, out string? id))
+        {
+            _coverage?.Fallback("icon", key, "no icon bound: its text stands alone, or an empty tile");
+            return null;
+        }
+        var icon = _catalog.Icon(id);
+        if (icon is null)
+            _coverage?.Fallback("icon", key, "its icon is not in the icon manifest, or would not load", id);
+        else
+            _coverage?.Resolved("icon", key, id);
+        return icon;
+    }
 
     /// <summary>An icon tile of a size, or an empty space of that size when there is no icon (so rows stay aligned).</summary>
     public Control Tile(string? key, float size)

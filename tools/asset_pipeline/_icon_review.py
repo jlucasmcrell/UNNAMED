@@ -11,7 +11,7 @@ import os
 
 from PIL import Image, ImageDraw
 
-CONCEPTS = r"W:\UNNAMED\assets\concepts"
+CONCEPTS = os.path.join(os.environ.get("UNNAMED_ASSETS", r"W:\UNNAMED\assets"), "concepts")
 CELL = 300
 LABEL = 22
 COLUMNS = 2

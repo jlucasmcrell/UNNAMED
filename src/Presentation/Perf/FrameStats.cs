@@ -38,6 +38,14 @@ public sealed class FrameStats
     /// <summary>Drop the next sample: a screenshot stalls the GPU, and that stall is the tool's, not the game's.</summary>
     public void SkipNext() => _skipNext = _screenshotPending = true;
 
+    private readonly List<(int Frame, string Segment, string What)> _events = new();
+
+    /// <summary>
+    /// Note something that happened on this frame - an autosave taken, and written (the Phase-1 technical audit, P-01) - so the summary
+    /// can show the frames around it. What a frame did shows in the next one's time.
+    /// </summary>
+    public void Mark(string what) => _events.Add((_samples.Count, Segment, what));
+
     public void Record(double delta)
     {
         // Godot's process-time monitor holds the worst frame's process time of the last second, refreshed once a second: each new
@@ -88,6 +96,15 @@ public sealed class FrameStats
         {
             ["machine"] = Machine(),
             ["notes"] = notes,
+            ["events"] = _events.Select(e => new Dictionary<string, object>
+            {
+                ["frame"] = e.Frame,
+                ["segment"] = e.Segment,
+                ["what"] = e.What,
+                // This frame and the two after it: whatever the frame did lands in the next one's time.
+                ["frame_ms_then"] = _samples.Skip(e.Frame).Take(3).Select(s => Math.Round(s.FrameMs, 2)).ToList(),
+                ["segment_median_ms"] = Math.Round(Percentile(_samples.Where(s => s.Segment == e.Segment).Select(s => s.FrameMs).OrderBy(v => v).ToList(), 50), 2),
+            }).ToList(),
             ["segments"] = _samples.GroupBy(s => s.Segment).ToDictionary(g => g.Key, g => (object)Summarise(g.ToList(),
                 _worstProcess.Where(w => w.Segment == g.Key).Select(w => w.Ms).OrderBy(v => v).ToList())),
         };

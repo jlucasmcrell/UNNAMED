@@ -67,8 +67,14 @@ public sealed record VisitedCondition(string NodeId, bool Negated) : DialogueCon
     public string? DialogueId { get; init; }
 }
 
-/// <summary><c>world_state</c>: a world flag's value in [min, max]. Dialogue reads and writes flags in the speaker's cell.</summary>
-public sealed record WorldStateCondition(string FlagId, long Min, long Max) : DialogueCondition;
+/// <summary>
+/// <c>world_state</c>: a world flag's value in [min, max]. Dialogue reads and writes flags in the speaker's cell - or, reading, in the cell
+/// of a named place (<c>location_ref</c>), so a speaker can know of something done elsewhere (the Phase-1 technical audit, L-17).
+/// </summary>
+public sealed record WorldStateCondition(string FlagId, long Min, long Max) : DialogueCondition
+{
+    public string? LocationId { get; init; }
+}
 
 /// <summary><c>has_item</c>: at least <c>count</c> carried, at least <c>quality_min</c> good - or, <c>not: true</c>, fewer.</summary>
 public sealed record HasItemCondition(string ItemId, int Count, int QualityMin, bool Negated) : DialogueCondition;
@@ -126,7 +132,7 @@ public interface IDialogueFacts
 {
     bool Visited(string dialogueId, string nodeId);
 
-    long WorldFlag(string flagId);
+    long WorldFlag(string flagId, string? locationId);
 
     int Carried(string itemId, int qualityMin);
 
@@ -148,7 +154,7 @@ public static class DialogueRules
     public static bool Holds(DialogueCondition condition, string dialogueId, IDialogueFacts facts) => condition switch
     {
         VisitedCondition v => facts.Visited(v.DialogueId ?? dialogueId, v.NodeId) != v.Negated,
-        WorldStateCondition w => facts.WorldFlag(w.FlagId) is var value && value >= w.Min && value <= w.Max,
+        WorldStateCondition w => facts.WorldFlag(w.FlagId, w.LocationId) is var value && value >= w.Min && value <= w.Max,
         HasItemCondition h => facts.Carried(h.ItemId, h.QualityMin) >= h.Count != h.Negated,
         RelationshipCondition r => facts.Relationship(r.NpcId, r.Dimension) is var value && value >= r.Min && value <= r.Max,
         SkillCondition s => facts.SkillLevel(s.SkillId) >= s.Min,

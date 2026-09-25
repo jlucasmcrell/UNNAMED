@@ -65,6 +65,38 @@ public class JumpAndCrouchTests
         Assert.True(RunAndJump(session, (167, 143), 0, Gait.Run, takeOffTick: 999) < 147 - 0.34);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-15: the tucked radius a jump passes low structures with was still used on the step the feet came
+    /// down, so a landing against the timber could end inside it - and a body standing still is not moved again. Whenever the jump is
+    /// taken, a body that stops as it lands stands clear of the timber at its full radius.
+    /// </summary>
+    [Fact]
+    public void ABodyThatStopsAsItLands_StandsClearOfTheTimber_AtItsFullRadius()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var inside = new List<int>();
+        for (int takeOff = 0; takeOff < 40; takeOff++)
+        {
+            var arena = Open(session, (167, 143), 0);
+            bool wasAirborne = false, landed = false;
+            for (int tick = 0; tick < 80; tick++)
+            {
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, landed ? MoveIntent.Idle(0) : new MoveIntent(0, 1000, Gait.Run, 0)));
+                if (tick == takeOff)
+                    arena.Simulation.Enqueue(new JumpCommand(arena.Player));
+                arena.Tick();
+                bool airborne = arena.Simulation.Posture.Airborne;
+                landed |= wasAirborne && !airborne;
+                wasAirborne = airborne;
+            }
+            var body = arena.Simulation.Player.Body;
+            if (!Kinematics.IsClear(body.XMm, body.ZMm, session.Setup.Movement.BodyRadiusMm, session.Setup.Layout.Space, Array.Empty<Blocker>()))
+                inside.Add(takeOff);
+        }
+        Assert.True(inside.Count == 0, $"take-offs at ticks {string.Join(", ", inside)} left the body inside the timber");
+    }
+
     [Fact]
     public void AJump_NeverCarriesOverTheFenceTheCartAWallADoorOrTheFold()
     {
@@ -134,6 +166,31 @@ public class JumpAndCrouchTests
         Assert.Null(arena.Simulation.Player.Progression.Pools.Stamina);   // still full: a crouch asking to sprint spends nothing
         Assert.Null(arena.Submit(new CrouchCommand(arena.Player, false)));
         Assert.Equal(Stance.Standing, arena.Simulation.Posture.Stance);
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, L-11: a crouch asked for a tick into a dodge crouched the rest of the dash - half its speed, and low
+    /// enough to pass under the Woundmoss beam. A dash begun standing ends standing.
+    /// </summary>
+    [Fact]
+    public void ACrouch_AskedForMidDodge_IsRefused_AndTheDodgeGoesItsFullDistance()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        double Dodge(bool crouchMidway)
+        {
+            var arena = Open(session, (70, 152), 90);
+            long from = arena.Simulation.Player.Body.XMm;
+            Assert.Null(arena.Submit(new DodgeCommand(arena.Player, 1000, 0)));
+            arena.Tick();
+            if (crouchMidway)
+                Assert.Equal("mid-dodge", arena.Submit(new CrouchCommand(arena.Player, true)));
+            arena.Tick(20);
+            Assert.Equal(Stance.Standing, arena.Simulation.Posture.Stance);
+            return arena.Simulation.Player.Body.XMm - from;
+        }
+
+        Assert.Equal(Dodge(crouchMidway: false), Dodge(crouchMidway: true));
     }
 
     [Fact]

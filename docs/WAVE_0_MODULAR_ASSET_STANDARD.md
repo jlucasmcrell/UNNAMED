@@ -368,8 +368,12 @@ gorget costs more than it saves.
 | Building module | 3 | 100% / 40% / 15% / 5% |
 | Clutter | 0 | none |
 
-LODs carry **no textures** — existing convention, retained, and it is why the library is
-1.35 GB rather than tens of GB.
+LODs carry their **material, UVs and textures** (downscaled per level: 1024 / 512 / 256 by
+default). The earlier convention of stripping them (`strip_surface_data()`, `export_materials=NONE`)
+left all 1,455 LODs in the library drawing untextured, and the decimation on the unwelded mesh
+cracked them; it was retired in the 2026-09 asset remediation. `_verify_glb.py` now fails a drawn
+file (base or LOD) with no material, no texture, an unbound primitive, a bad material slot or no
+UVs; only collision proxies are geometry-only.
 
 ---
 
@@ -417,9 +421,9 @@ The current library fails the naming requirement. That is a Wave 0 fix.
 | Transforms applied | `_blender_cleanup.py apply_transforms()` | exists |
 | Single-sided materials | `_blender_cleanup.py force_single_sided()` | exists |
 | Y-up export | `export_yup=True` | exists |
-| LOD generation | `_blender_cleanup.py make_lod()` | exists |
+| LOD generation | `_rebuild_lods.py` (from the cleaned base; `_make_assets.py` Stage 2b) | replaced 2026-09 |
 | Collision proxies | `_blender_cleanup.py make_collision()` | exists |
-| LODs carry no textures | `strip_surface_data()` | exists |
+| LODs carry material, UVs and textures | `_verify_glb.py` (drawn files), `_verify_pack.py` (every LOD) | enforced 2026-09 |
 | Structural verification | `_verify_glb.py`, `_verify_pack.py` | exists |
 | Rigging and weight reporting | `_blender_rig.py` | exists |
 | Category sizing | `_make_assets.py infer_category()` | exists, **just fixed** |
@@ -550,3 +554,30 @@ imports are a validation step, never the only surviving copy.
 Track separately: concept generated, raw 3D generated, Blender normalised, production
 cleaned, rigged, interface validated, GLB exported, Godot validated. "Trellis finished" is
 not "asset complete".
+
+## 17. The reuse gate (owner directive, 2026-09-25)
+
+The asset library is produced by families, not one asset at a time. Before any asset is produced it is classified in
+`assets/manifests/asset_production.json` as one of:
+
+1. **template_variant**: an instance of an existing family or template, made by changing dimensions, components,
+   materials or skins.
+2. **new_archetype**: a new reusable family worth a template.
+3. **reconstruction_unique**: a unique silhouette suited to image-to-3D reconstruction plus the shared pipeline.
+4. **bespoke_hero**: a genuinely unique hero asset that no family can express.
+
+Rules:
+
+- No new one-off procedural generator unless the asset is genuinely unique (class 4) and cannot reasonably be
+  expressed through an existing family or template.
+- Every generator, template or bespoke, takes its baking, material, UV, validation and export machinery from the common
+  library (`tools/asset_pipeline/procgen_lib`), never from a copy. `_check_reuse_gate.py` fails a generator that
+  re-implements it. The ten generators written before the gate are listed as legacy until ported; the list only shrinks.
+- A new archetype records the production cost (asset-specific lines, agent tokens, wall minutes) of its first and
+  second assets. The second must be materially cheaper (at most half the lines and tokens); if it is not, the archetype
+  is `not_yet_reusable` and its template is improved before a third asset.
+- The image-to-3D path takes only classes 3 and 4 (`_make_assets.py` refuses the rest); concepts are generated only for
+  classified assets (`_make_concepts.py`). Both call `_reuse_gate.py`.
+- The 163 unbuilt 3D concepts of 2026-09-25 (concept images with no model, excluding `icon_` and `material_`) are
+  frozen until clustered into reusable production families; a cluster entry marked `released` unfreezes its members.
+  Finishing Phase 1 does not unfreeze them.

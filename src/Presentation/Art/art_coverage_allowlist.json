@@ -1,0 +1,11 @@
+{
+  "comment": [
+    "The art coverage report's allowlist (Phase A, the owner's A3): greybox kept on purpose and outside ordinary play, each with its reason.",
+    "A fallback named here is counted as allowed; any other fallback is unexpected and counts against the gate line",
+    "('UNNAMED art coverage: N requested, N resolved, N fallbacks, N unexpected'). Keys are '<kind>:<id>' as the report lists them;",
+    "a key ending in '*' allows every key it begins. Never allow here what a player sees in ordinary play."
+  ],
+  "allowed": {
+    "debug:*": "the F3 debug overlay's markers, drawn only while a developer has the overlay on; never shown in normal play (charter §3: no markers)"
+  }
+}

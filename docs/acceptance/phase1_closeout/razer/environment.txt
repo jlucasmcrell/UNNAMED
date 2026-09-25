@@ -1,0 +1,68 @@
+﻿## Captured
+2026-09-25 12:57:09 -04:00 on RAZER
+
+## CPU
+
+
+Name                      : AMD Ryzen 7 5800X3D 8-Core Processor           
+NumberOfCores             : 8
+NumberOfLogicalProcessors : 16
+MaxClockSpeed             : 3401
+
+## GPU (nvidia-smi)
+name, driver_version, memory.total [MiB], pcie.link.gen.current, pcie.link.width.current
+NVIDIA GeForce RTX 4070 Ti, 620.02, 12282 MiB, 1, 16
+
+## Video controllers and display mode
+
+
+Name                        : Parsec Virtual Display Adapter
+DriverVersion               : 0.45.0.0
+CurrentHorizontalResolution : 
+CurrentVerticalResolution   : 
+CurrentRefreshRate          : 
+
+Name                        : NVIDIA GeForce RTX 4070 Ti
+DriverVersion               : 32.0.16.2002
+CurrentHorizontalResolution : 3440
+CurrentVerticalResolution   : 1440
+CurrentRefreshRate          : 59
+
+## Memory (GB)
+31.9
+
+## OS
+
+
+Caption     : Microsoft Windows 11 Pro Insider Preview
+Version     : 10.0.26300
+BuildNumber : 26300
+
+## Power plan
+Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
+
+## Hardware-accelerated GPU scheduling (HwSchMode: 2 on, 1 off, empty default)
+
+
+## Game Mode (AutoGameModeEnabled: 1 or empty on, 0 off)
+
+
+## Overlay or capture processes running (should be none)
+none
+
+## Shader and pipeline caches before the first run (absent = a truly cold first run)
+shader_cache: absent
+vulkan: absent
+
+## Package
+D:\Otherreach_RAZER_gate\Otherreach_Phase1_Complete_Prototype_2026-09-25_29d4f45
+Otherreach.exe SHA-256 60E07324A9B9E74F90182EB288216E4104811FC9F882DD12C3AAC9F6B321F80F
+
+## ZIP
+D:\Otherreach_RAZER_gate\Otherreach_Phase1_Complete_Prototype_2026-09-25_29d4f45.zip
+1108521454 bytes
+SHA-256 302A4352E5D94FB2A986E67D767AA027B6B810AB39E87EE8786F69B84E5E2055
+
+## Mode
+windowed 1920x1080 (the display is not 1920x1080)
+

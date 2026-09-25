@@ -25,7 +25,9 @@ namespace UNNAMED.Presentation;
 /// Run modes come after <c>--</c> on the command line: <c>--smoke</c> (headless boot and save round trip),
 /// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
 /// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch).
-/// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest).
+/// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest). The smoke, the
+/// playthrough, its relaunch and the delta shots end by writing the art and audio coverage reports (Phase A) into their directory - the
+/// smoke's beside the log - or into <c>--coverage-out dir</c>.
 /// </summary>
 public partial class Main : Node3D
 {
@@ -52,6 +54,7 @@ public partial class Main : Node3D
     private QuestDebugPanel _questDebug = null!;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
+    private SavesPanel _saves = null!;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Audio.SoundBank _sounds = null!;
@@ -60,15 +63,51 @@ public partial class Main : Node3D
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
+    private InputCheck? _inputCheck;
     private UiShots? _shots;
     private Playthrough? _play;
     private DeltaShots? _delta;
+    private LayoutCheck? _layout;
+    private VisualAudit? _audit;
+    private VisualAuditAB? _auditAb;
+    private GroundField _ground = null!;
+    private ScatterView _scatter = null!;
+    private Art.ScatterRules _scatterRules = Art.ScatterRules.None;
+    private ulong _sceneMs, _groundMs;
     private string _perfOut = string.Empty;
     private int _perfStruck, _perfDied;
+    private bool _scripted;
+    private (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private Vector3 _lastFeet;
     private double _lastAlpha;
 
     public override void _Ready()
+    {
+        // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
+        try
+        {
+            Start();
+        }
+        catch (Exception e)
+        {
+            CannotStart(e is ContentBootException ? "Its content does not validate." : e.Message, e);
+        }
+    }
+
+    /// <summary>Where Godot writes this run's log (<c>debug/file_logging/log_path</c>): named wherever a failure asks a tester to look (M-07).</summary>
+    public static string LogPath =>
+        ProjectSettings.GlobalizePath(ProjectSettings.GetSetting("debug/file_logging/log_path", "user://logs/godot.log").AsString());
+
+    /// <summary>The game cannot start: the log gets everything, the player a window saying why and where the log is; then it quits.</summary>
+    private void CannotStart(string why, Exception e)
+    {
+        GD.PushError($"UNNAMED cannot start: {e}");
+        if (DisplayServer.GetName() != "headless")
+            OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
+        GetTree().Quit(2);
+    }
+
+    private void Start()
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         if (_flags.Contains("--spike"))
@@ -82,50 +121,255 @@ public partial class Main : Node3D
             AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
             return;
         }
-
-        string contentRoot = Path.Combine(Home(), "content");
-        string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
-        string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--delta-shots")
-            ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
-            : Path.Combine(OS.GetUserDataDir(), "saves", "default");
-        try
+        if (_options.TryGetValue("--anim-sheet", out string? sheet))
         {
-            _session = GameSession.Boot(new GameOptions(contentRoot, profile));
-        }
-        catch (ContentBootException e)
-        {
-            GD.PushError(e.Message);   // ARCHITECTURE.md §8.1: refuse to start, naming every file
-            GetTree().Quit(2);
+            var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(sheet)));
             return;
         }
-        // The acceptance playthrough plays one fixed world, so it is the same run every time (M6).
-        _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
-        if (_options.ContainsKey("--playthrough-verify"))
-            _session.Load(SaveSlots.Manual(Playthrough.Slot));
+
+        // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
+        string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
+        string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
+        string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
+            : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+              || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+              || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab")
+            ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
+            : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
+            : Path.Combine(OS.GetUserDataDir(), "saves", "default");
+        if (_options.GetValueOrDefault("--playthrough") is { } run)
+            Playthrough.Clear(Path.GetFullPath(run));
+        // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
+        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
+        _session.SubscriberFailed += SubscriberFailed;
+        bool verify = _options.ContainsKey("--playthrough-verify");
+        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+                        || _options.ContainsKey("--ui-shots")
+                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab");
+        // No run of a harness takes the mouse - but the input check, which checks who has it.
+        _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
+        // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
+        // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
+        if (scripted && !verify)
+            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
-                 $"{_session.Setup.Layout.CellKeys.Length} cells, seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}");
+                 $"{_session.Setup.Layout.CellKeys.Length} cells");
 
         _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
         GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
+        if (_assets.Problems.Count > 0)
+            GD.PushWarning($"UNNAMED assets: {_assets.Problems.Count} manifest entries withheld, greybox stands in: {string.Join("; ", _assets.Problems)}");
         // The asset library's models, clips and materials, by the presentation's bindings (the Phase-1 asset integration).
         _art = new Art.ArtLibrary(_assets.Root);
         _bindings = Art.ArtBindings.Load(Art.ArtBindings.ResourcePath);
         _art.Withhold(_bindings.Withheld);
+        _art.Coverage.Allow(CoverageAllowlist());
+        _scatterRules = ScatterRules();
+        GD.Print($"UNNAMED renderer: {RenderingServer.GetVideoAdapterName()} ({RenderingServer.GetCurrentRenderingMethod()}); MSAA 3D "
+                 + $"{ProjectSettings.GetSetting("rendering/anti_aliasing/quality/msaa_3d")}, TAA {ProjectSettings.GetSetting("rendering/anti_aliasing/quality/use_taa")}, "
+                 + $"anisotropy {ProjectSettings.GetSetting("rendering/textures/default_filters/anisotropic_filtering_level")}, directional shadow atlas "
+                 + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
+                 + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
 
+        int before = GetChildCount();
+        ulong building = Time.GetTicksMsec();
+        try
+        {
+            BuildScene();
+        }
+        catch (Exception e)
+        {
+            // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical
+            // audit, H-02). Whatever was built goes, and the scene is built again in greybox.
+            GD.PushError($"UNNAMED art: building the scene from the asset library failed ({e.GetType().Name}: {e.Message}); drawing greybox");
+            for (int i = GetChildCount() - 1; i >= before; i--)
+            {
+                var child = GetChild(i);
+                RemoveChild(child);
+                child.QueueFree();
+            }
+            _art = new Art.ArtLibrary(null);
+            _art.Coverage.Allow(CoverageAllowlist());
+            _bindings = Art.ArtBindings.Empty;
+            _assets = AssetCatalog.Empty;
+            BuildScene();
+        }
+        _sceneMs = Time.GetTicksMsec() - building;
+        var cost = _art.Cost;
+        GD.Print($"UNNAMED load: the scene built in {_sceneMs} ms - {cost.Scenes} model files in {cost.SceneMs:0} ms (their {cost.ModelTextures} textures "
+                 + $"given mipmaps in {cost.MipmapMs:0} ms), {cost.MaterialMaps} material maps in {cost.MaterialMapMs:0} ms, the ground field in {_groundMs} ms; "
+                 + $"texture memory {cost.VramMbWithMipmaps} MB with mipmaps ({cost.VramMbAsLoaded} MB as loaded)");
+        _sounds = new Audio.SoundBank { Name = "Sounds" };
+        _sounds.Load(_assets.Root);
+        if (_sounds.Problems.Count > 0)
+            GD.PushWarning($"UNNAMED audio: {_sounds.Problems.Count} sound entries left out, malformed: {string.Join(", ", _sounds.Problems)}");
+        AddChild(_sounds);
+        _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
+        AddChild(_soundEvents);
+        _soundEvents.Bind(_session, _bindings, _sounds);
+        _projectiles.Arrived = _soundEvents.Arrived;
+        GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
+        _controller = new PlayerController(_session);
+        _controller.Reached += () => _avatar.Interact();
+        _inventory = new InventoryPanel { Name = "Inventory" };
+        _inventory.Bind(_session, _controller);
+        AddChild(_inventory);
+        _dialogue = new DialoguePanel { Name = "Dialogue" };
+        _dialogue.Bind(_session);
+        AddChild(_dialogue);
+        _journal = new JournalPanel { Name = "Journal" };
+        AddChild(_journal);
+        _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
+        AddChild(_questDebug);
+        _character = new CharacterPanel { Name = "Character" };
+        _character.Bind(_session);
+        AddChild(_character);
+        _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
+        AddChild(_help);
+        var dial = _assets.Icon("ui.hud.compass");
+        if (dial is null)
+            _art.Coverage.Fallback("icon", "compass", "no compass dial in the icon manifest: a plain strip", "ui.hud.compass");
+        else
+            _art.Coverage.Resolved("icon", "compass", "ui.hud.compass");
+        _hud.UseCompassDial(dial);
+        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
+        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
+        _saves = new SavesPanel { Name = "Saves" };
+        _saves.Bind(_session);
+        _saves.NewGame = () =>
+        {
+            _session.NewGame("Wanderer");
+            Started();
+        };
+        _saves.Load = (slot, copy) => LoadChosen(slot, copy);
+        _saves.Quit = () => GetTree().Quit(0);
+        _saves.Closed = _saves.Close;
+        AddChild(_saves);
+        Subscribe();
+        DefineInput();
+
+        if (verify)
+        {
+            _continued = Continue();
+            if (_continued is null)
+            {
+                GD.PushError("UNNAMED playthrough verification: Continue loaded nothing");
+                GetTree().Quit(1);
+                return;
+            }
+        }
+        else if (!scripted)
+        {
+            var choice = _session.StartChoice();
+            GD.Print(choice.Continue is { } next
+                ? $"UNNAMED start screen: Continue would load {next.Slot} ({next.Copy}); {choice.Saves.Length} saves in {profile}"
+                : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
+            _hud.Visible = false;   // no world yet: nothing to show but the choice
+            _saves.OpenStart();
+            return;
+        }
+        else
+        {
+            Started();
+        }
+
+        if (_flags.Contains("--smoke"))
+        {
+            _smoke = new Smoke(_session, _controller, _camera, profile);
+        }
+        else if (_options.TryGetValue("--layout-check", out string? layout))
+        {
+            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, Path.GetFullPath(layout));
+        }
+        else if (_flags.Contains("--input-check"))
+        {
+            _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
+                _character, _saves);
+        }
+        else if (_options.TryGetValue("--ui-shots", out string? shots))
+        {
+            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
+        }
+        else if (playthrough is not null)
+        {
+            // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
+        }
+        else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
+        {
+            // One tick a frame at the tick rate, like the playthrough: each picture is taken at the same moment every run.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
+        }
+        else if (_options.TryGetValue("--visual-audit", out string? audit))
+        {
+            _audit = new VisualAudit(this, _session, _art, _bindings, _camera, Path.GetFullPath(audit),
+                _options.GetValueOrDefault("--audit-shots") is { } list ? Path.GetFullPath(list) : null);
+        }
+        else if (_options.TryGetValue("--visual-audit-ab", out string? auditAb))
+        {
+            _auditAb = new VisualAuditAB(this, _session, _art, _bindings, _camera, Path.GetFullPath(auditAb));
+        }
+        else if (_flags.Contains("--perf"))
+        {
+            _perfOut = _options.GetValueOrDefault("--perf-out", DefaultPerfOut("prototype"));
+            DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);   // measure the headroom, not the refresh rate
+            _stats = new FrameStats(GetViewport());
+            // --perf-route extended: the play the gate's route avoids, and past 300 s so the autosave is in it (the Phase-1 audit, P-01, P-07).
+            _perf = new PerfRun(Seconds(), _options.GetValueOrDefault("--perf-route") == "extended"
+                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory)
+                : null);
+            _perf.SpawnProxies(this, _session.Setup.Layout);
+            _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
+            _session.Subscribe<PlayerDied>(_ => _perfDied++);
+        }
+    }
+
+    private readonly Dictionary<Type, int> _handlerFailures = new();
+
+    /// <summary>
+    /// A view's handler threw while the tick ran (H-02). The session's bus isolated it, so the tick went on; this says so - the first time
+    /// for each kind of event, then every hundredth.
+    /// </summary>
+    private void SubscriberFailed(Exception exception, object @event)
+    {
+        var kind = @event.GetType();
+        int seen = _handlerFailures[kind] = _handlerFailures.GetValueOrDefault(kind) + 1;
+        if (seen == 1 || seen % 100 == 0)
+            GD.PushError($"UNNAMED: a handler for {kind.Name} threw ({seen} so far); the tick went on without it: {exception}");
+    }
+
+    /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
+    private void BuildScene()
+    {
+        var layout = _session.Setup.Layout;
+        ulong started = Time.GetTicksMsec();
+        _ground = new GroundField(layout, _bindings, _scatterRules);
+        _groundMs = Time.GetTicksMsec() - started;
         _hollow = new HollowView { Name = "Hollow" };
-        _hollow.Bind(_art, _bindings);
+        _hollow.Bind(_art, _bindings, _ground);
         AddChild(_hollow);
-        _hollow.Build(_session.Setup.Layout);
+        _hollow.Build(layout);
+        // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
+        _scatter = new ScatterView { Name = "Scatter" };
+        _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes);
+        AddChild(_scatter);
+        string? body = _bindings.People.GetValueOrDefault("player")?.Model;
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
+            _art.Coverage.Resolved("person", "player", body!);
         }
         else
         {
             var greybox = new Avatar();
             Art.HeldWeapon.Arm(greybox, _art, _bindings);
             _avatar = greybox;
+            _art.Coverage.Fallback("person", "player", body is null ? "no binding: the greybox mannequin" : $"{_art.Why(body) ?? "not drawn"}: the greybox mannequin", body);
         }
         _avatar.Name = "Player";
         AddChild(_avatar);
@@ -150,81 +394,18 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
-        _projectiles.Bind(_assets);
+        _projectiles.Bind(_assets, _art, _bindings, _art.Coverage);
         _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
-        _magicEffects.Bind(_assets, _bindings);
+        _magicEffects.Bind(_assets, _bindings, _art.Coverage);
         AddChild(_magicEffects);
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
-        _sounds = new Audio.SoundBank { Name = "Sounds" };
-        _sounds.Load(_assets.Root);
-        AddChild(_sounds);
-        _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
-        AddChild(_soundEvents);
-        _soundEvents.Bind(_session, _bindings, _sounds);
-        _projectiles.Arrived = _soundEvents.Arrived;
-        GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
-        _controller = new PlayerController(_session);
-        _inventory = new InventoryPanel { Name = "Inventory" };
-        _inventory.Bind(_session, _controller);
-        AddChild(_inventory);
-        _dialogue = new DialoguePanel { Name = "Dialogue" };
-        _dialogue.Bind(_session);
-        AddChild(_dialogue);
-        _journal = new JournalPanel { Name = "Journal" };
-        AddChild(_journal);
-        _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
-        AddChild(_questDebug);
-        _character = new CharacterPanel { Name = "Character" };
-        _character.Bind(_session);
-        AddChild(_character);
-        _help = new HelpPanel { Name = "Help" };
-        AddChild(_help);
-        _hud.UseCompassDial(_assets.Icon("ui.hud.compass"));
-        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons));
-        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons));
-        Subscribe();
-        Resync();
-        DefineInput();
-
-        if (_flags.Contains("--smoke"))
-        {
-            _smoke = new Smoke(_session, _controller, _camera, profile);
-        }
-        else if (_options.TryGetValue("--ui-shots", out string? shots))
-        {
-            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
-        }
-        else if (playthrough is not null)
-        {
-            // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
-            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), _options.ContainsKey("--playthrough-verify"));
-        }
-        else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
-        {
-            // One tick a frame at the tick rate, like the playthrough: each picture is taken at the same moment every run.
-            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
-        }
-        else if (_flags.Contains("--perf"))
-        {
-            _perfOut = _options.GetValueOrDefault("--perf-out", DefaultPerfOut("prototype"));
-            DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);   // measure the headroom, not the refresh rate
-            _stats = new FrameStats(GetViewport());
-            _perf = new PerfRun(Seconds());
-            _perf.SpawnProxies(this, _session.Setup.Layout);
-            _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
-            _session.Subscribe<PlayerDied>(_ => _perfDied++);
-        }
-        else if (DisplayServer.GetName() != "headless")
-        {
-            Input.MouseMode = Input.MouseModeEnum.Captured;
-        }
     }
 
     public override void _Process(double delta)
     {
+        if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
+            ResumeShots(resumeShots);
         if (_session?.Simulation is null)
             return;
 
@@ -240,9 +421,36 @@ public partial class Main : Node3D
         {
             if (_smoke.Update() is { } code)
             {
+                // The smoke's profile is removed as it ends: its reports go beside the log (or to --coverage-out).
+                WriteReports(Path.GetDirectoryName(LogPath) ?? OS.GetUserDataDir(), "smoke");
                 GetTree().Quit(code);
                 return;
             }
+        }
+        else if (_layout is not null)
+        {
+            switch (_layout.Update())
+            {
+                case "done":
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_layout.Directory, shot);
+                    break;
+            }
+        }
+        else if (_inputCheck is not null)
+        {
+            if (_inputCheck.Update() is { } code)
+            {
+                GetTree().Quit(code);
+                return;
+            }
+            if (_inputCheck.Reading)
+                ReadInput();
         }
         else if (_shots is not null)
         {
@@ -267,10 +475,12 @@ public partial class Main : Node3D
             {
                 case "done":
                     GD.Print($"UNNAMED delta shots written to {_delta.Directory}");
+                    WriteReports(_delta.Directory, "delta-shots");
                     GetTree().Quit(0);
                     return;
                 case "failed":
                     SaveScreenshot(_delta.Directory, "failed");
+                    WriteReports(_delta.Directory, "delta-shots (failed)");
                     GetTree().Quit(1);
                     return;
                 case { } shot:
@@ -278,15 +488,33 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_audit is not null)
+        {
+            if (_audit.Update() is { } finished)
+            {
+                GetTree().Quit(finished == "done" ? 0 : 1);
+                return;
+            }
+        }
+        else if (_auditAb is not null)
+        {
+            if (_auditAb.Update() is { } finished)
+            {
+                GetTree().Quit(finished == "done" ? 0 : 1);
+                return;
+            }
+        }
         else if (_play is not null)
         {
             switch (_play.Update())
             {
                 case "done":
+                    WriteReports(_play.Directory, _continued is null ? "playthrough" : "playthrough-verify", _continued is null ? "" : "_relaunch");
                     GetTree().Quit(0);
                     return;
                 case "failed":
                     SaveScreenshot(_play.Directory, "failed");
+                    WriteReports(_play.Directory, _continued is null ? "playthrough (failed)" : "playthrough-verify (failed)", _continued is null ? "" : "_relaunch");
                     GetTree().Quit(1);
                     return;
                 case { } shot:
@@ -302,10 +530,26 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null ? _session.TickSeconds : delta);
-        if (frame.AutosavedTo is { } slot)
-            _hud.Toast($"Autosaved ({slot})", 2);
+        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _audit is not null || _auditAb is not null ? _session.TickSeconds : delta);
+        if (_stats is not null)
+        {
+            if (frame.AutosaveTaken is { } taken)
+                _stats.Mark($"autosave to {taken} taken at {_session.PlaytimeSeconds:0.0} s of play");
+            foreach (var save in frame.Saves)
+                _stats.Mark($"{save.Slot} written in the background{(save.Failure is { } why ? $" - FAILED: {why}" : "")}");
+        }
+        foreach (var save in frame.Saves)
+        {
+            if (save.Failure is not { } failed)
+            {
+                _hud.Toast(save.Auto ? $"Autosaved ({save.Slot})" : "Saved", 2);
+                continue;
+            }
+            GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
+            _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
+        }
         Draw(frame.Alpha, delta);
+        UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
         {
@@ -325,6 +569,9 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
+        if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
+            GD.PushWarning("UNNAMED: a save was still being written after 10 s at quit; the previous save stands until the next boot finishes it");
         if (_sounds is { Count: > 0 })
             GD.Print($"UNNAMED audio: {_sounds.Played.Count} of {_sounds.Count} sounds played this run; asked for and missing: " +
                      (_sounds.Unknown.Count == 0 ? "none" : string.Join(", ", _sounds.Unknown)) +
@@ -337,40 +584,60 @@ public partial class Main : Node3D
         return $" (played IDs in {path})";
     }
 
+    /// <summary>
+    /// A panel that takes the keys and the mouse is open: a conversation, the inventory (on the character, a container, a trader or a
+    /// station), the character sheet or the saves list (the Phase-1 technical audit, L-27). While one is, no gameplay key reaches the world,
+    /// and the world runs on (the owner's ruling: nothing pauses for a panel). The journal, the help and the quest debugger are overlays:
+    /// they take no keys, and play goes on under them.
+    /// </summary>
+    public bool Modal => _inventory.Visible || _dialogue.Visible || _character.Visible || _saves.Visible;
+
+    /// <summary>Escape, outside any panel: the player wants the pointer until they click back into the world.</summary>
+    private bool _mouseFreed;
+
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _perf is not null || _smoke is not null || _shots is not null || _play is not null || _delta is not null)
+        if (_session?.Simulation is null || _scripted)
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible
-                && !_character.Visible:
+            case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !Modal:
                 _camera.Look(motion.Relative);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal:
                 _camera.Zoom(-0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal:
                 _camera.Zoom(0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when Input.MouseMode != Input.MouseModeEnum.Captured && !_inventory.Visible
-                && !_dialogue.Visible && !_character.Visible:
-                Input.MouseMode = Input.MouseModeEnum.Captured;
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when _mouseFreed && !Modal:
+                _mouseFreed = false;   // the mouse is taken back at the end of the frame, so this click is not also a swing
                 break;
         }
     }
 
+    /// <summary>
+    /// Who has the mouse, decided once a frame from what is open - never set here and there (L-27): the game's while nothing modal is open
+    /// and the player has not freed it, the pointer's otherwise. A harness run and a headless one leave it alone.
+    /// </summary>
+    private void UpdateMouse()
+    {
+        if (_scripted || DisplayServer.GetName() == "headless")
+            return;
+        var wanted = Modal || _mouseFreed ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        if (Input.MouseMode != wanted)
+            Input.MouseMode = wanted;
+    }
+
     private void ReadInput()
     {
-        var stick = new Vector2(
-            Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
-            Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
-        var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
-
-        // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
-        // A swing, a guard and an aimed bow all go where the camera looks.
         var combat = _session.Simulation!.Combat;
-        // In a conversation the number keys answer, and Escape walks away (M4).
+        bool modal = Modal;
+
+        // A panel's own keys: the saves list's, a conversation's (the number keys answer, Escape walks away - M4), the inventory's and
+        // the sheet's; and the overlays, open over anything.
+        if (_saves.Visible && (Input.IsActionJustPressed("saves") || Input.IsActionJustPressed("release_mouse")))
+            _saves.Close();
         if (_dialogue.Visible)
         {
             for (int n = 1; n <= 9; n++)
@@ -381,7 +648,53 @@ public partial class Main : Node3D
             if (Input.IsActionJustPressed("release_mouse"))
                 _dialogue.Leave();
         }
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
+        if (Input.IsActionJustPressed("inventory") && !_dialogue.Visible && !_saves.Visible)
+        {
+            if (_inventory.Visible)
+                CloseInventory();
+            else
+                OpenInventory(null);
+        }
+        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
+            _inventory.TakeAll();
+        if (Input.IsActionJustPressed("character") && !_dialogue.Visible && !_saves.Visible)
+        {
+            _character.Visible = !_character.Visible;
+            _character.Refresh();
+        }
+        if (Input.IsActionJustPressed("help"))
+            _help.Toggle();
+        if (Input.IsActionJustPressed("debug_overlay"))
+            _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
+        if (Input.IsActionJustPressed("journal"))
+            _journal.Visible = !_journal.Visible;
+        if (Input.IsActionJustPressed("quest_debug"))
+        {
+            _questDebug.Visible = !_questDebug.Visible;
+            _questDebug.Refresh(_session, 0, now: true);
+        }
+        if (modal)
+        {
+            // Nothing reaches the world: the character stands, and lowers a raised guard.
+            _controller.Steer(_camera, Vector2.Zero, Gait.Run);
+            if (combat.Blocking)
+                _controller.Guard(false);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("saves"))
+        {
+            _saves.OpenInGame();
+            return;
+        }
+        var stick = new Vector2(
+            Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
+            Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
+        var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+
+        // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
+        // A swing, a guard and an aimed bow all go where the camera looks.
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
         bool holding = captured && Input.IsActionPressed("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
@@ -447,47 +760,20 @@ public partial class Main : Node3D
             foreach (var companion in up)
                 _controller.Order(companion.NpcId, companion.Order == CompanionOrder.Follow ? CompanionOrder.Wait : CompanionOrder.Follow);
         }
-        if (Input.IsActionJustPressed("inventory"))
-        {
-            if (_inventory.Visible)
-                CloseInventory();
-            else
-                OpenInventory(null);
-        }
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
         if (Input.IsActionJustPressed("crouch"))
             _controller.Crouch(_session.Simulation!.Posture.Stance != UNNAMED.Domain.Spatial.Stance.Crouched);
-        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
-            _inventory.TakeAll();
-        if (Input.IsActionJustPressed("character"))
-        {
-            _character.Visible = !_character.Visible;
-            _character.Refresh();
-            if (DisplayServer.GetName() != "headless")
-                Input.MouseMode = _character.Visible || _inventory.Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
-        }
-        if (Input.IsActionJustPressed("help"))
-            _help.Toggle();
         if (Input.IsActionJustPressed("first_person"))
             _camera.ToggleFirstPerson();
         if (Input.IsActionJustPressed("shoulder_swap"))
             _camera.SwapShoulder();
-        if (Input.IsActionJustPressed("debug_overlay"))
-            _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
-        if (Input.IsActionJustPressed("journal"))
-            _journal.Visible = !_journal.Visible;
-        if (Input.IsActionJustPressed("quest_debug"))
-        {
-            _questDebug.Visible = !_questDebug.Visible;
-            _questDebug.Refresh(_session, 0, now: true);
-        }
         if (Input.IsActionJustPressed("quicksave"))
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse") && !_dialogue.Visible)
-            Input.MouseMode = Input.MouseModeEnum.Visible;
+        if (Input.IsActionJustPressed("release_mouse"))
+            _mouseFreed = true;
     }
 
     /// <summary>
@@ -514,7 +800,7 @@ public partial class Main : Node3D
     private bool Aim(Simulation simulation, CombatView combat)
     {
         long range = 0;
-        bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !_inventory.Visible && !_dialogue.Visible && !_character.Visible;
+        bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !Modal;
         if (combat.Casting is { } casting && _session.Setup.Magic.Formulas.TryGetValue(casting, out var formula) && formula.Targeting == UNNAMED.Domain.Magic.Targeting.Projectile
             && combat.Phase is CombatPhase.Windup)
             range = formula.Blow!.ReachMm;
@@ -528,7 +814,10 @@ public partial class Main : Node3D
         }
         var body = simulation.Player.Body;
         var terrain = _session.Setup.Layout.Space.Terrain;
-        var (x, z, onCreature) = simulation.Aim(PlayerController.FacingOf(_camera.GroundForward), range);
+        // Drawn, the shot goes along the body's own facing - every turn of the camera is sent, and the release holds the facing of the
+        // last tick of the draw - so the ring shows where it will stop (the Phase-1 technical audit, L-13). Not yet drawn, the camera's.
+        int facing = combat.Phase == CombatPhase.Windup ? body.FacingMdeg : PlayerController.FacingOf(_camera.GroundForward);
+        var (x, z, onCreature) = simulation.Aim(facing, range);
         float height = onCreature ? 0.7f : 1.4f;
         var point = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height, z / 1000f);
         var camera = _camera.Camera;
@@ -573,31 +862,33 @@ public partial class Main : Node3D
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[E] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
-                ? $"[E] Open the {Describe(container.Key)}"
-                : $"[E] Search the {_session.DisplayName(container.DefId)}",
+                ? $"[{HelpPanel.Key("interact")}] Open the {Describe(container.Key)}"
+                : $"[{HelpPanel.Key("interact")}] Search the {_session.DisplayName(container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
-            { Kind: FocusKind.Station } station => $"[E] Work at the {Describe(station.Key)}",
-            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[E] Help {_session.DisplayName(npc.Key)} up",
-            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[E] Talk to {_session.DisplayName(npc.Key)}",
-            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[E] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Describe(station.Key)}",
+            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {_session.DisplayName(npc.Key)} up",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
-            { } item => $"[E] Pick up {ItemName(_session, item.DefId, item.Quality)}",
+            { } item => $"[{HelpPanel.Key("interact")}] Pick up {ItemName(_session, item.DefId, item.Quality)}",
         });
 
         var view = simulation.Player;
         var stats = view.Stats;
         var pools = view.Progression.Pools;
         _hud.SetStatus(
-            $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
+            $"{view.Name}   Level {view.Progression.Level}" +
+            (view.Progression.Level >= _session.Setup.Progression.LevelCap ? " (the highest)"
+                : $"   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}") +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
-            (view.Progression.UnspentAttributePoints > 0 ? "   [K] a point to spend" : "") +
+            (view.Progression.UnspentAttributePoints > 0 ? $"   [{HelpPanel.Key("character")}] a point to spend" : "") +
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
-            $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [Tab] inventory");
+            $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [{HelpPanel.Key("inventory")}] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
         _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
         var formulas = _controller.Formulas();
@@ -616,7 +907,7 @@ public partial class Main : Node3D
         _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
             $"{c.Name} - {c.Doing}, {c.Standing}" +
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
-            (c.Condition == CompanionCondition.Up ? $"   [G] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
+            (c.Condition == CompanionCondition.Up ? $"   [{HelpPanel.Key("companion_order")}] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
@@ -639,6 +930,7 @@ public partial class Main : Node3D
     private void Subscribe()
     {
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
+        _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);
@@ -655,10 +947,16 @@ public partial class Main : Node3D
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
         _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
-        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press E", 6));
+        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
         _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
         _session.Subscribe<CompanionFell>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
-        _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
+        // What the award did: what is left once the XP debt took its share, and that share (the Phase-1 technical audit, L-12).
+        _session.Subscribe<ExperienceGained>(e =>
+        {
+            long kept = e.Awarded - e.Repaid;
+            string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
+            _hud.Toast(e.LevelsGained > 0 ? $"{xp} - level {e.Level}!" : xp, 3);
+        });
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
@@ -748,18 +1046,8 @@ public partial class Main : Node3D
     /// <summary>The waystation's people (M4): conversations on their panel, trade on the inventory's, and what they think in the log.</summary>
     private void SubscribeSocial()
     {
-        _session.Subscribe<ConversationLine>(_ =>
-        {
-            _dialogue.Refresh();
-            if (DisplayServer.GetName() != "headless")
-                Input.MouseMode = Input.MouseModeEnum.Visible;
-        });
-        _session.Subscribe<ConversationEnded>(_ =>
-        {
-            _dialogue.Refresh();
-            if (!_inventory.Visible && DisplayServer.GetName() != "headless")
-                Input.MouseMode = Input.MouseModeEnum.Captured;
-        });
+        _session.Subscribe<ConversationLine>(_ => _dialogue.Refresh());
+        _session.Subscribe<ConversationEnded>(_ => _dialogue.Refresh());
         _session.Subscribe<ServiceOpened>(e =>
         {
             if (e.Service == Domain.Social.NpcServices.Trade)
@@ -789,7 +1077,7 @@ public partial class Main : Node3D
     {
         string name = _session.DisplayName(focus.DefId);
         if (simulation.Nodes.FirstOrDefault(n => n.Key == focus.Key) is { Ready: true })
-            return $"[E] Gather from the {name}";
+            return $"[{HelpPanel.Key("interact")}] Gather from the {name}";
         return _session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
             ? $"The {name} is worked out"
             : $"The {name} has nothing to take until it grows back";
@@ -921,42 +1209,147 @@ public partial class Main : Node3D
             _hollow.SetDoor(door.Site.Key, door.Open);
         _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
         _items.Refresh(_session.Simulation!);
-        _inventory.Refresh();
+        // Panels open on the world before are closed on this one: a conversation it does not have, a container, a trader or a station
+        // that was the other world's (the Phase-1 technical audit, M-03).
+        _dialogue.Refresh();
+        _inventory.Close();
+        _character.Visible = false;
         var body = _controller.Authoritative;
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
+        // The ground scatter is this world's: placed from its seed (the same seed again keeps what is placed).
+        _scatter.Build(_session.Simulation!.World.WorldSeed);
     }
 
-    private void QuickSave()
+    /// <summary>The coverage report's allowlist (<c>res://Art/art_coverage_allowlist.json</c>): greybox kept on purpose, each with its reason.</summary>
+    private static IReadOnlyDictionary<string, string> CoverageAllowlist()
     {
+        const string path = "res://Art/art_coverage_allowlist.json";
+        if (!Godot.FileAccess.FileExists(path))
+            return new Dictionary<string, string>();
+        var allowed = Art.ArtCoverage.ParseAllowlist(Godot.FileAccess.GetFileAsString(path), out string? problem);
+        if (problem is not null)
+            GD.PushWarning($"UNNAMED art coverage: the allowlist at {path}: {problem}");
+        return allowed;
+    }
+
+    /// <summary>The ground scatter's rules (<c>res://Art/scatter_rules.json</c>); none, and nothing scattered, without them.</summary>
+    private static Art.ScatterRules ScatterRules()
+    {
+        const string path = "res://Art/scatter_rules.json";
+        return Godot.FileAccess.FileExists(path) ? Art.ScatterRules.Parse(Godot.FileAccess.GetFileAsString(path)) : Art.ScatterRules.None;
+    }
+
+    /// <summary>
+    /// The end of a harness run (Phase A, the owner's A3 and A4): the art coverage report (every visual by semantic ID, what drew it, every
+    /// greybox and why) and the audio coverage report (the sound set against the event mapping, and what this run asked for), as JSON and
+    /// a short Markdown each, in <paramref name="directory"/> (or <c>--coverage-out</c>); their gate lines go to the log.
+    /// </summary>
+    private void WriteReports(string directory, string run, string suffix = "")
+    {
+        directory = _options.GetValueOrDefault("--coverage-out") is { } chosen ? Path.GetFullPath(chosen) : directory;
         try
         {
-            _session.Save(SaveSlots.Quick);
-            _hud.Toast("Saved");
+            var cost = _art.Cost;
+            var extra = new Dictionary<string, object?>
+            {
+                ["asset_root"] = _assets.Root,
+                ["library_problems"] = _art.Problems,
+                ["library_used"] = _art.Used.OrderBy(u => u, StringComparer.Ordinal).ToList(),
+                ["load"] = new Dictionary<string, object?>
+                {
+                    ["scene_build_ms"] = _sceneMs, ["ground_field_ms"] = _groundMs, ["model_files"] = cost.Scenes, ["model_files_ms"] = cost.SceneMs,
+                    ["model_textures_mipmapped"] = cost.ModelTextures, ["mipmap_pass_ms"] = cost.MipmapMs, ["material_maps"] = cost.MaterialMaps,
+                    ["material_maps_ms"] = cost.MaterialMapMs, ["texture_mb_as_loaded"] = cost.VramMbAsLoaded, ["texture_mb_with_mipmaps"] = cost.VramMbWithMipmaps,
+                    ["scatter_ms"] = _scatter.BuildMs, ["scatter_instances"] = _scatter.Counts,
+                },
+            };
+            GD.Print(_art.Coverage.Write(directory, "art_coverage" + suffix, run, extra));
+            var mapped = Audio.SoundEvents.Mapped(_bindings);
+            var check = Audio.AudioCoverage.Check(_sounds.Files.ToDictionary(f => f.Key, f => File.Exists(f.Value), StringComparer.Ordinal), mapped);
+            GD.Print(Audio.AudioCoverage.Write(directory, "audio_coverage" + suffix, run, check, mapped, _sounds.Requested, _sounds.Resolved, _sounds.Unknown,
+                _sounds.Problems, _sounds.Errors));
         }
-        catch (SaveException e)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
-            _hud.Toast($"Save failed: {e.Message}");
+            GD.PushError($"UNNAMED coverage reports could not be written to {directory}: {e.Message}");
         }
     }
 
-    private void QuickLoad()
+    /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
+    private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
+
+    private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
+
+    /// <summary>
+    /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened
+    /// in the game - each pictured - then quit. The Phase-1 technical audit's B-01, shown.
+    /// </summary>
+    private void ResumeShots(string directory)
     {
+        switch (++_resumeFrame)
+        {
+            case 20:
+                SaveScreenshot(directory, "01_start_screen");
+                if (!_saves.PressContinue())
+                {
+                    GD.PushError("UNNAMED resume shots: the start screen offered no Continue");
+                    GetTree().Quit(1);
+                }
+                break;
+            case 80:
+                SaveScreenshot(directory, "02_continued");
+                _saves.OpenInGame();
+                break;
+            case 100:
+                SaveScreenshot(directory, "03_saves_in_game");
+                GD.Print($"UNNAMED resume shots written to {directory}: continued at world tick {_session.Simulation?.WorldTick}");
+                GetTree().Quit(_session.Simulation is null ? 1 : 0);
+                break;
+        }
+    }
+
+    private int _resumeFrame;
+
+    /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
+    private void Started()
+    {
+        _saves.Close();
+        _hud.Visible = true;
+        _mouseFreed = false;
+        Resync();
+        GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
+    }
+
+    /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
+    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue() =>
+        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy) is { } result ? (next.Slot, next.Copy, result) : null;
+
+    /// <summary>
+    /// Load the copy of a save the player chose. When it cannot be loaded, the saves list opens saying why, with that save's backups and
+    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2).
+    /// </summary>
+    private LoadResult? LoadChosen(string slot, SaveCopy copy)
+    {
+        string what = SavesPanel.Describe(slot, copy);
         try
         {
-            var result = _session.Load(SaveSlots.Quick);
-            Resync();
-            _hud.Toast(result.IsComplete ? "Loaded" : "Loaded, with losses - see the log");
+            var result = _session.Load(slot, copy);
+            Started();
+            _hud.Toast(result.IsComplete ? $"Loaded: {what}" : $"Loaded {what}, with losses - see the log");
             foreach (string problem in result.Report.Loss.Concat(result.Report.Warnings))
                 GD.PushWarning(problem);
+            return result;
         }
-        catch (SaveCorruptionException e)
+        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
         {
-            _hud.Toast(e.BackupGenerations.IsEmpty ? "The save is corrupt" : "The save is corrupt; a backup exists");
-        }
-        catch (SaveException e)
-        {
-            _hud.Toast($"Load failed: {e.Message}");
+            GD.PushError($"UNNAMED load of {slot} ({copy}) failed: {e.Message}");
+            string failure = $"{what} could not be loaded: {e.Message}";
+            if (_session.Simulation is null)
+                _saves.ShowFailure(failure);
+            else
+                _saves.OpenInGame(failure);
+            return null;
         }
     }
 
@@ -990,27 +1383,21 @@ public partial class Main : Node3D
     private void OpenInventory(string? container)
     {
         _inventory.Open(container);
-        Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void OpenTrade(string npcId)
     {
         _inventory.OpenTrade(npcId);
-        if (DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void OpenStation(string key)
     {
         _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
-        Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     private void CloseInventory()
     {
         _inventory.Close();
-        if (DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Captured;
     }
 
     /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
@@ -1043,7 +1430,8 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
-                    or "--art-gallery"
+                    or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
+                    or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
@@ -1086,6 +1474,7 @@ public partial class Main : Node3D
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
+        Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);

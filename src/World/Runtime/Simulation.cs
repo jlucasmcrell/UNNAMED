@@ -134,7 +134,7 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
-        _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views);
+        _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
@@ -254,6 +254,9 @@ public sealed class Simulation
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
+    /// <summary>Read-only: a wall, a structure or a closed door lies across the line - so an NPC beyond it is not spoken to (L-09).</summary>
+    public bool Walled(long x0, long z0, long x1, long z1) => _context.Walled(x0, z0, x1, z1);
+
     /// <summary>Which system owns each slice of state (ARCHITECTURE.md §5).</summary>
     public IReadOnlyDictionary<StateSlice, string> SliceOwners => _state.Owners;
 
@@ -357,9 +360,12 @@ public sealed class Simulation
     public string StateDigest()
     {
         using var h = new CanonicalHasher();
-        h.Add("unnamed.simulation/v1").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
+        h.Add("unnamed.simulation/v2").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
         foreach (var cell in _cells)
             h.Add(cell.ToString()).Add(World.EffectiveCellDigest(cell));
+        h.Add(World.Noises.Length);
+        foreach (var noise in World.Noises)
+            h.Add(noise.XMm).Add(noise.ZMm).Add(noise.RadiusMm).Add(noise.Call).Add(noise.CallerKind ?? "-");
         return h.Finish();
     }
 

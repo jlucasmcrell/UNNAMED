@@ -43,7 +43,7 @@ import os
 import numpy as np
 from PIL import Image
 
-ASSETS = r"W:\UNNAMED\assets"
+ASSETS = os.environ.get("UNNAMED_ASSETS", r"W:\UNNAMED\assets")
 OUT_DIR = os.path.join(ASSETS, "vfx")
 OUT_MANIFEST = os.path.join(ASSETS, "manifests", "magic_vfx.json")
 
@@ -145,7 +145,19 @@ def write_atlas(name, cells):
     return path, columns, rows
 
 
+# Every world sprite fades to nothing over the outer part of its cell. A billboard shows its cell and
+# nothing past it, so anything drawn up to the border stops on a hard straight line in the game (the
+# restore's filaments and the ward's rim were cut off at the top and bottom of the quad, 2026-09-25).
+EDGE_FADE = 0.15
+
+
+def edge_window(cell=CELL):
+    xs, ys, _ = grid_axes(cell)
+    return smoothstep(1.0, 1.0 - EDGE_FADE, np.abs(xs)) * smoothstep(1.0, 1.0 - EDGE_FADE, np.abs(ys))
+
+
 def cell_from(intensity, palette):
+    intensity = intensity * edge_window(intensity.shape[0])
     rgb = np.clip(tint(intensity, palette), 0, 255).astype(np.uint8)
     alpha = np.clip(intensity * 1.6, 0.0, 1.0)
     rgba = np.dstack([rgb, (alpha * 255).astype(np.uint8)])
@@ -219,7 +231,7 @@ def brace_ward_shell(rng):
     count = EFFECTS["vfx.warding.brace_ward_shell"][2]
     for index in range(count):
         phase = index / count
-        oval = (xs / 0.62) ** 2 + (ys / 0.94) ** 2
+        oval = (xs / 0.62) ** 2 + (ys / 0.86) ** 2
         inside = smoothstep(1.12, 0.86, oval)
         radius = np.sqrt(np.clip(oval, 0, None))
         rims = 0.5 + 0.5 * np.cos(radius * 26.0 + noise * 3.0)
@@ -257,8 +269,8 @@ def mending_thread_restore(rng):
             travel = (offset + k * speed) % 1.0
             x = tx + 0.030 * math.sin(2 * math.pi * (travel + offset) * 0.9)
             # Filaments run vertically and close toward the centre line as the mending completes.
-            span = 0.55 * (1.0 - 0.25 * k)
-            y = (0.90 - travel * 1.80) + ys * 0.0
+            span = 0.40 * (1.0 - 0.25 * k)
+            y = (0.62 - travel * 1.24) + ys * 0.0
             field += np.exp(-((xs - x) / width) ** 2) * np.exp(-((ys - y) / span) ** 2)
         intensity = np.clip(field * envelope * 0.52, 0.0, 1.0)
         cells.append(cell_from(intensity, VITAL))

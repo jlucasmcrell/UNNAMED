@@ -250,11 +250,7 @@ def rename_asset(obj, asset_id, definition):
 
 
 def strip_surface_data(obj):
-    """Drop materials and UVs before exporting a LOD.
-
-    A decimated proxy keeps the silhouette and discards the surface detail that makes the
-    textures large, so carrying a 2K PBR set on a 600-face mesh would be pure waste.
-    """
+    """Drop materials and UVs before exporting a collision proxy, which is never drawn."""
     obj.data.materials.clear()
     while obj.data.uv_layers:
         obj.data.uv_layers.remove(obj.data.uv_layers[0])
@@ -293,8 +289,9 @@ def make_lod(source, face_cap, name, out_path, previous_faces=None):
         faces = len(lod.data.polygons)
         ratio = round(target / current, 4)
 
-    strip_surface_data(lod)
-    export_glb([lod], out_path, name, with_materials=False)
+    # An LOD is drawn: it keeps its material slots and UVs (a stripped LOD draws untextured at
+    # distance - the 1,455 LODs of 2026-09). Only collision proxies are stripped.
+    export_glb([lod], out_path, name)
     bpy.data.objects.remove(lod, do_unlink=True)
     return {"faces": faces, "requested_faces": target, "ratio": ratio}
 

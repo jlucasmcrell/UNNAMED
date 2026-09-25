@@ -7,6 +7,7 @@ using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
@@ -24,6 +25,8 @@ public partial class InventoryPanel : CanvasLayer
     private readonly Label _header = new();
     private readonly Label _containerHeader = new();
     private readonly PanelContainer _containerPanel = new();
+    private readonly ScrollContainer _carriedScroll = Scrolling();
+    private readonly ScrollContainer _containerScroll = Scrolling();
     private GameSession _session = null!;
     private PlayerController _controller = null!;
     private HudIcons _icons = HudIcons.None;
@@ -59,8 +62,8 @@ public partial class InventoryPanel : CanvasLayer
         var root = new HBoxContainer { Position = new Vector2(60, 250) };
         root.AddThemeConstantOverride("separation", 24);
         AddChild(root);
-        root.AddChild(Panel("Carried", _header, _carried, new Vector2(620, 0)));
-        _containerPanel.AddChild(Column(_containerHeader, _container));
+        root.AddChild(Panel("Carried", _header, _carried, _carriedScroll, new Vector2(620, 0)));
+        _containerPanel.AddChild(Column(_containerHeader, _container, _containerScroll));
         _containerPanel.CustomMinimumSize = new Vector2(460, 0);
         root.AddChild(_containerPanel);
     }
@@ -124,6 +127,13 @@ public partial class InventoryPanel : CanvasLayer
     {
         if (!Visible || _session.Simulation is not { } simulation)
             return;
+        Fill(simulation);
+        Fit(_carriedScroll, _carried);
+        Fit(_containerScroll, _container);
+    }
+
+    private void Fill(Simulation simulation)
+    {
         var player = simulation.Player;
         var catalog = simulation.Setup.Items.Catalog;
         _header.Text = "[Tab] close   " +
@@ -148,7 +158,8 @@ public partial class InventoryPanel : CanvasLayer
                 row.AddChild(Button("Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
             if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
                 row.AddChild(Button("Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
-            if (OpenContainer is { } key)
+            // Remains take nothing in: the world takes a body away with whatever lies in it.
+            if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
                 row.AddChild(Button("Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
             if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId) is { } each && each > 0 && !equipped)
             {
@@ -178,7 +189,7 @@ public partial class InventoryPanel : CanvasLayer
         if (view.Items.Length > 0)
         {
             var all = Row(view.Items.Length == 1 ? "One stack" : $"{view.Items.Length} stacks");
-            all.AddChild(Button("Take all  [R]", TakeAll));
+            all.AddChild(Button($"Take all  [{HelpPanel.Key("take_all")}]", TakeAll));
             _container.AddChild(all);
         }
         foreach (var item in view.Items)
@@ -252,22 +263,36 @@ public partial class InventoryPanel : CanvasLayer
 
     private void Submit(GameCommand command) => _session.Submit(command);
 
-    private static PanelContainer Panel(string title, Label header, VBoxContainer list, Vector2 size)
+    private static PanelContainer Panel(string title, Label header, VBoxContainer list, ScrollContainer scroll, Vector2 size)
     {
         var panel = new PanelContainer { CustomMinimumSize = size };
         header.Text = title;
-        panel.AddChild(Column(header, list));
+        panel.AddChild(Column(header, list, scroll));
         return panel;
     }
 
-    private static VBoxContainer Column(Label header, VBoxContainer list)
+    private static VBoxContainer Column(Label header, VBoxContainer list, ScrollContainer scroll)
     {
         var column = new VBoxContainer();
         header.AddThemeFontSizeOverride("font_size", 18);
         column.AddChild(header);
-        column.AddChild(list);
+        list.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        scroll.AddChild(list);
+        column.AddChild(scroll);
         return column;
     }
+
+    /// <summary>
+    /// How tall a list may stand before it scrolls: from the panel's top, 250 down, to just above the HUD's bars (the Phase-1
+    /// technical audit, M-06). A full pack is 24 rows; without this its last rows' buttons fell off the screen.
+    /// </summary>
+    private const float ListHeight = 560;
+
+    private static ScrollContainer Scrolling() => new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+
+    /// <summary>A list's scroll stands as tall as its rows, up to <see cref="ListHeight"/>; past that it scrolls.</summary>
+    private static void Fit(ScrollContainer scroll, VBoxContainer list) =>
+        scroll.CustomMinimumSize = new Vector2(0, Math.Min(list.GetCombinedMinimumSize().Y, ListHeight));
 
     private static HBoxContainer Row(string text)
     {
@@ -297,7 +322,11 @@ public partial class InventoryPanel : CanvasLayer
 
     private static void Clear(Node node)
     {
+        // Out of the list now, not at the frame's end, so the list's height is its new rows'.
         foreach (var child in node.GetChildren())
+        {
+            node.RemoveChild(child);
             child.QueueFree();
+        }
     }
 }

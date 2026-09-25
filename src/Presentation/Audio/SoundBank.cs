@@ -24,6 +24,9 @@ public partial class SoundBank : Node
     private readonly Dictionary<string, AudioStreamWav?> _streams = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _played = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _unknown = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, int> _requested = new(StringComparer.Ordinal);
+    private readonly SortedSet<string> _resolved = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, string> _errors = new(StringComparer.Ordinal);
     private readonly Random _pick = new();
 
     public const string Manifest = "playable_prototype_audio_v3.json";
@@ -37,6 +40,20 @@ public partial class SoundBank : Node
     /// <summary>Every ID that has played.</summary>
     public IReadOnlyCollection<string> Played => _played;
 
+    /// <summary>Every family or ID the mapping asked to play this run, and how often (the audio coverage report).</summary>
+    public IReadOnlyDictionary<string, int> Requested => _requested;
+
+    /// <summary>Every family or ID asked for that resolved to a sound whose file loaded.</summary>
+    public IReadOnlyCollection<string> Resolved => _resolved;
+
+    /// <summary>Every ID whose file would not load when it was asked for, and why.</summary>
+    public IReadOnlyDictionary<string, string> Errors => _errors;
+
+    /// <summary>Every ID in the set and its file (the static check).</summary>
+    public IReadOnlyDictionary<string, string> Files => _sounds.ToDictionary(s => s.Key, s => s.Value.File, StringComparer.Ordinal);
+
+    private void Asked(string family) => _requested[family] = _requested.GetValueOrDefault(family) + 1;
+
     public void Load(string? assetRoot)
     {
         if (assetRoot is null || !File.Exists(Path.Combine(assetRoot, "manifests", Manifest)))
@@ -46,10 +63,16 @@ public partial class SoundBank : Node
             using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(assetRoot, "manifests", Manifest)));
             foreach (var sound in json.RootElement.GetProperty("sounds").EnumerateArray())
             {
-                string id = sound.GetProperty("audio_id").GetString()!;
-                bool stereo = sound.GetProperty("channels").GetInt32() == 2;
-                _sounds[id] = new Sound(id, Path.Combine(assetRoot, sound.GetProperty("delivered").GetString()!), stereo,
-                    sound.GetProperty("loop").GetBoolean(), stereo || sound.GetProperty("group").GetString() == "ui");
+                // An entry the manifest got wrong is left out, and said; the rest of the set still plays (the Phase-1 technical audit, H-02).
+                if (Text(sound, "audio_id") is not { } id || Text(sound, "delivered") is not { } delivered
+                    || !sound.TryGetProperty("channels", out var channels) || channels.ValueKind != JsonValueKind.Number
+                    || !sound.TryGetProperty("loop", out var loop) || loop.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                {
+                    _problems.Add(Text(sound, "audio_id") ?? sound.ToString());
+                    continue;
+                }
+                bool stereo = channels.TryGetInt32(out int count) && count == 2;
+                _sounds[id] = new Sound(id, Path.Combine(assetRoot, delivered), stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui");
                 string family = id.LastIndexOf('.') is var dot and > 0 && id[(dot + 1)..].All(char.IsDigit) ? id[..dot] : id;
                 if (!_families.TryGetValue(family, out var members))
                     _families[family] = members = new List<string>();
@@ -64,6 +87,15 @@ public partial class SoundBank : Node
         }
     }
 
+    /// <summary>Manifest entries left out because they are malformed, by ID where they have one.</summary>
+    public IReadOnlyList<string> Problems => _problems;
+
+    private readonly List<string> _problems = new();
+
+    private static string? Text(JsonElement element, string name) =>
+        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
+        && value.GetString() is { Length: > 0 } text ? text : null;
+
     /// <summary>Whether the set has a family (or a single ID) by this name.</summary>
     public bool Has(string family) => _families.ContainsKey(family) || _sounds.ContainsKey(family);
 
@@ -73,8 +105,11 @@ public partial class SoundBank : Node
     /// </summary>
     public bool Play(string family, Vector3? at = null, double delay = 0)
     {
+        if (_sounds.Count > 0)
+            Asked(family);
         if (Pick(family) is not { } sound || Stream(sound) is not { } stream)
             return false;
+        _resolved.Add(family);
         Node player;
         if (sound.Flat || at is null)
         {
@@ -112,6 +147,8 @@ public partial class SoundBank : Node
     /// <summary>A looping sound on a player of its own, silent until its volume is set (a bed, a Strain layer, the forge).</summary>
     public AudioStreamPlayer? Loop(string id)
     {
+        if (_sounds.Count > 0)
+            Asked(id);
         if (!_sounds.TryGetValue(id, out var sound))
         {
             _unknown.Add(id);
@@ -119,6 +156,7 @@ public partial class SoundBank : Node
         }
         if (Stream(sound) is not { } stream)
             return null;
+        _resolved.Add(id);
         var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f };
         AddChild(player);
         player.Play();
@@ -176,7 +214,10 @@ public partial class SoundBank : Node
             stream = AudioStreamWav.LoadFromFile(sound.File, options);
         }
         if (stream is null)
+        {
             GD.PushWarning($"UNNAMED audio: {sound.Id} would not load from {sound.File}");
+            _errors[sound.Id] = File.Exists(sound.File) ? "the file would not load as WAV" : $"no file at {sound.File}";
+        }
         _streams[sound.Id] = stream;
         return stream;
     }

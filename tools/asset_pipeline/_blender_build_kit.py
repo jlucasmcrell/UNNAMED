@@ -143,10 +143,22 @@ def add_box(verts, faces, centre, size, jitter=0.0, seed=0):
                     jz = ((rng / 2147483648.0) - 0.5) * jitter
                 corners.append((cx + dx * sx + jx, cy + dy * sy + jy, cz + dz * sz + jz))
     verts.extend(corners)
-    # Winding matches the rest of the pipeline: outward-facing, single-sided.
-    quads = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+    # Corner index = dx + 2*dy + 4*dz (bit set = + side). Each quad walks its perimeter
+    # counter-clockwise seen from outside, so every face is a simple quad with an outward normal.
+    # The previous table appended (a, b, d, c): a diagonal, not an edge, which made every face a
+    # bow-tie - half of each face uncovered and half its triangles facing inward.
+    quads = [(0, 2, 3, 1),   # -Z bottom
+             (4, 5, 7, 6),   # +Z top
+             (0, 1, 5, 4),   # -Y
+             (2, 6, 7, 3),   # +Y
+             (0, 4, 6, 2),   # -X
+             (1, 3, 7, 5)]   # +X
     for a, b, c, d in quads:
-        faces.append((base + a, base + b, base + d, base + c))
+        faces.append((base + a, base + b, base + c, base + d))
+
+
+# The mesh and GLB gates live in the common procedural library, so the kit and every generator share one copy.
+from procgen_lib.validate import cen_all, geometry_gate, glb_gate, require_clean  # noqa: E402,F401
 
 
 def apply_box_uvs(mesh, tile_size):
@@ -442,10 +454,16 @@ def main():
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
+    gate = require_clean(obj)
+
     os.makedirs(args.outdir, exist_ok=True)
     dims = [round(highs[i] - lows[i], 4) for i in range(3)]
     base_path = os.path.join(args.outdir, f"{args.asset_id}.glb")
     export_glb([obj], base_path)
+    exported = glb_gate(base_path)
+    print("GLB_GATE " + json.dumps(exported))
+    if not exported["ok"]:
+        raise SystemExit(f"GLB gate failed for {base_path}: {exported}")
 
     base_faces = len(obj.data.polygons)
 
@@ -472,6 +490,7 @@ def main():
             (dims[0], dims[1], dims[2]))
     box = mesh_from(box_verts, box_faces, f"{args.asset_id}_collision_box",
                     f"MAT_{args.asset_id}", TILE_SIZE.get(material, 2.0))
+    require_clean(box)
     export_glb([box], os.path.join(args.outdir, f"{args.asset_id}_collision_box.glb"))
 
     meta = {
@@ -503,6 +522,10 @@ def main():
         "lod_policy": lod_policy,
         "lods": lods,
         "has_uvs": len(obj.data.uv_layers) > 0,
+        "geometry_gate": {k: gate[k] for k in ("ok", "triangles", "bowtie_polygons",
+                                               "inward_triangles", "uv_degenerate_triangles")},
+        "glb_gate": {k: exported[k] for k in ("ok", "triangles", "normal_disagree_triangles",
+                                              "uv_degenerate_triangles")},
         "note": PIECES[args.asset_id]["note"],
     }))
     return 0

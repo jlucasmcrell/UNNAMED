@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -235,7 +236,14 @@ public static class M2Fixtures
                 // It lost sight of its target at tick 4990 and is searching where it last saw it.
                 Mind = CreatureMind.Searching, Awareness = 45, Knows = true, KnownXMm = 13_000, KnownZMm = 70_000, LastSeenTick = 4_990,
                 SearchUntil = 5_110, HasCalled = true,
+                // Schema 14: what its next ticks depend on - a charge to wait out, a stun it is in (40 ticks from 4995), and a stagger
+                // it is immune to until 5020.
+                NextChargeTick = 5_060, StaggerImmuneUntil = 5_020, StaggeredTick = 4_995, StaggerLastsTicks = 40,
             });
+            // Schema 14: two sounds the next tick hears - a howl of the renamed species (the load renames its kind), and a blow.
+            world.SetNoises(ImmutableArray.Create(
+                new Noise(12_345, 67_890, 30_000, Call: true, CallerKind: "creature.beast.ash_hound"),
+                new Noise(14_000, 66_000, 12_000)));
             world.SetCreature(new CreatureRecord("spawn.fixture.den#1", "creature.beast.wolf_grey", Creature(2), TenCells[1].ToString(), 0,
                 CreatureCondition.Corpse, 14_000, 66_000, 180_000, 0, 4_800, 0));
             var corpse = registry.CreateEntity(DefinitionId.Parse("corpse.fixture_den.m1_g0"), EntityKind.Container).InstanceId;

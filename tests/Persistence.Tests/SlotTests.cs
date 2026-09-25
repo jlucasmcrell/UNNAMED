@@ -48,6 +48,27 @@ public class SlotTests
         Assert.Empty(store.AvailableBackups(SaveSlots.Manual("camp")));
     }
 
+    /// <summary>The Phase-1 technical audit, L-05: a slot's pre-migration copies are its own, not every slot whose name ends the same.</summary>
+    [Fact]
+    public void DeletingASlot_LeavesAnotherSlotsPreMigrationCopies()
+    {
+        using var profile = new TempProfile();
+        var store = new SaveStore(profile.Root);
+        string other = SaveSlots.Manual("x_quick");
+        store.Save(SaveSlots.Quick, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry()), tick: 1));
+        store.Save(other, M2Fixtures.Document(M2Fixtures.OldWorld(new Registry()), tick: 2));
+        Directory.CreateDirectory(store.PreMigrationPath(SaveSlots.Quick, 13));
+        Directory.CreateDirectory(store.PreMigrationPath(other, 13));
+
+        Assert.Equal(new[] { store.PreMigrationPath(SaveSlots.Quick, 13) }, store.PreMigrationBackups(SaveSlots.Quick));
+        store.Delete(SaveSlots.Quick);
+
+        Assert.False(Directory.Exists(store.PreMigrationPath(SaveSlots.Quick, 13)));
+        Assert.True(Directory.Exists(store.PreMigrationPath(other, 13)));
+        Assert.Equal(new[] { store.PreMigrationPath(other, 13) }, store.PreMigrationBackups(other));
+        Assert.Equal(2, store.Load(other, M2Fixtures.Context(new Registry())).Manifest.WorldTick);
+    }
+
     [Fact]
     public void Autosaves_RollThroughFiveSlots_OverwritingTheOldest()
     {

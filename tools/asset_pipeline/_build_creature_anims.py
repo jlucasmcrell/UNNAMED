@@ -11,6 +11,14 @@ Usage:
     python _build_creature_anims.py --audit
     python _build_creature_anims.py --apply
     python _build_creature_anims.py --apply --enemy creature_frost_wolf
+
+Staging a rebuild against another rig (a fitted rig in assets/_staging) without touching the
+library: --rigged names the rig to bake on, --out-root the folder that receives source/,
+ready/creatures/, clips/ and reports/ (one enemy per run). The clip records written there are the
+library's own records, unchanged, so ids, lengths, loop flags and events stay as registered;
+--plan arthropod takes the motion from _blender_rig_fit_arthropod.py for its 38-bone rig and
+records that rig's skeleton family.
+    python _build_creature_anims.py --apply --enemy creature_ash_ember_hound --rigged <staged rig.glb> --out-root <staging folder>
 """
 import argparse
 import io
@@ -87,23 +95,41 @@ CLIP_DEFS = {
 
 DURATIONS = {"idle": 4.0, "walk": 1.2, "run": 0.8, "attack": 0.9, "hit": 0.55, "death": 1.9}
 
+# Set by --rigged / --out-root / --plan (a staged rebuild); None = the library as above.
+RIG_OVERRIDE = None
+REPORTS = None
+PLAN_FAMILY = {"arthropod": "creature_arthropod"}
+LIBRARY_CLIPS = os.path.join(os.path.dirname(os.path.dirname(TOOL_DIR)), "assets", "animation", "clips")
+
+
+def arthropod_sources(enemy_id):
+    """The arthropod rig's six motion sources, from its fit tool, next to the staged rig."""
+    sys.path.insert(0, TOOL_DIR)
+    import _blender_rig_fit_arthropod as arthropod
+    paths = {"rigged": os.path.dirname(RIG_OVERRIDE), "source": SOURCE}
+    arthropod.run_motion(argparse.Namespace(asset=enemy_id), paths)
+
 
 def build_one(enemy_id, plan, skeleton_family, short_name, kind, apply_changes):
     motion_path = os.path.join(SOURCE, f"{short_name}_{kind}.json")
-    generation = subprocess.run(
-        [sys.executable, MOTION_TOOL, "--plan", plan, "--kind", kind,
-         "--asset-id", enemy_id, "--out", motion_path],
-        capture_output=True, text=True, timeout=120)
-    if not os.path.exists(motion_path):
-        return None, f"motion generation failed: {(generation.stderr or '')[-140:]}"
+    if plan != "arthropod":
+        generation = subprocess.run(
+            [sys.executable, MOTION_TOOL, "--plan", plan, "--kind", kind,
+             "--asset-id", enemy_id, "--out", motion_path],
+            capture_output=True, text=True, timeout=120)
+        if not os.path.exists(motion_path):
+            return None, f"motion generation failed: {(generation.stderr or '')[-140:]}"
+    elif not os.path.exists(motion_path):
+        return None, "no arthropod motion source"
 
     clip_id = f"anim.creature.{short_name}.{kind}"
     out_path = os.path.join(READY, f"{clip_id}.glb")
+    rigged = RIG_OVERRIDE or os.path.join(RIGGED, enemy_id, f"{enemy_id}_rigged.glb")
+    extra = ["--report", os.path.join(REPORTS, f"{clip_id}_solve.json")] if REPORTS else []
     animation = subprocess.run(
         [BLENDER, "--background", "--factory-startup", "--python", ANIM_TOOL, "--",
-         "--rigged", os.path.join(RIGGED, enemy_id, f"{enemy_id}_rigged.glb"),
-         "--motion", motion_path, "--out", out_path, "--fps", "30"],
-        capture_output=True, text=True, timeout=600)
+         "--rigged", rigged, "--motion", motion_path, "--out", out_path, "--fps", "30", *extra],
+        capture_output=True, text=True, timeout=900)
 
     report = None
     for line in (animation.stdout or "").splitlines():
@@ -132,6 +158,14 @@ def build_one(enemy_id, plan, skeleton_family, short_name, kind, apply_changes):
         "hand_profile": {"left": "none", "right": "none"},
         "tags": ["creature", plan] + (["looping"] if loop else []),
     }
+    library = os.path.join(LIBRARY_CLIPS, f"{clip_id}.json")
+    if RIG_OVERRIDE and os.path.exists(library):
+        # a staged rebuild keeps the registered record; only a new rig family changes its family
+        with io.open(library, encoding="utf-8") as handle:
+            clip = json.load(handle)
+        if plan in PLAN_FAMILY:
+            clip["skeleton_family"] = PLAN_FAMILY[plan]
+            clip["tags"] = [plan if t in ("quadruped", "humanoid") else t for t in clip.get("tags", [])]
     if apply_changes:
         os.makedirs(CLIPS, exist_ok=True)
         os.makedirs(READY, exist_ok=True)
@@ -151,7 +185,32 @@ def main():
     parser.add_argument("--enemy", nargs="*", default=None)
     parser.add_argument("--all", action="store_true",
                         help="Include the superseded roster, not just the Phase 1 five")
+    parser.add_argument("--rigged", default=None, help="bake on this rig (a staged rebuild, one enemy)")
+    parser.add_argument("--out-root", default=None,
+                        help="write source/, ready/creatures/, clips/ and reports/ here, not into assets/")
+    parser.add_argument("--plan", default=None, choices=["quadruped", "humanoid", "worm", "arthropod"],
+                        help="the rig plan of --rigged when it differs from the table (arthropod)")
     args = parser.parse_args()
+    global RIGGED, SOURCE, CLIPS, READY, RIG_OVERRIDE, REPORTS
+    if args.plan == "arthropod" and not args.rigged:
+        print("  --plan arthropod needs --rigged (the arthropod rig and its skeleton json) and --out-root")
+        return 1
+    if args.rigged or args.out_root:
+        if not (args.rigged and args.out_root and args.enemy and len(args.enemy) == 1):
+            print("  --rigged and --out-root go together, with exactly one --enemy")
+            return 1
+        library = os.path.normcase(os.path.abspath(os.path.dirname(LIBRARY_CLIPS)))
+        target = os.path.normcase(os.path.abspath(args.out_root))
+        if target.startswith(os.path.dirname(library)) and "_staging" not in target:
+            print(f"  --out-root inside assets/ must be under assets/_staging: {args.out_root}")
+            return 1
+        RIG_OVERRIDE = os.path.abspath(args.rigged)
+        SOURCE = os.path.join(args.out_root, "source", "creatures")
+        CLIPS = os.path.join(args.out_root, "clips")
+        READY = os.path.join(args.out_root, "ready", "creatures")
+        REPORTS = os.path.join(args.out_root, "reports")
+        os.makedirs(SOURCE, exist_ok=True)
+        os.makedirs(REPORTS, exist_ok=True)
 
     enemies = sorted(ENEMIES) if args.all else sorted(PHASE1_ROSTER)
     if args.enemy:
@@ -164,6 +223,10 @@ def main():
     ok = failed = 0
     for enemy_id in enemies:
         plan, family, short = ENEMIES[enemy_id]
+        if args.plan and args.plan != plan:
+            plan, family = args.plan, PLAN_FAMILY.get(args.plan, family)
+        if plan == "arthropod":
+            arthropod_sources(enemy_id)
         print(f"  {enemy_id}  ({plan}, {family})")
         for kind in ("idle", "walk", "run", "attack", "hit", "death"):
             report, detail = build_one(enemy_id, plan, family, short, kind, args.apply)

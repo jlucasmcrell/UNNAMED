@@ -199,7 +199,7 @@ internal sealed class CompanionSystem
             return $"{Name(command.NpcId)} is not with you";
         if (c.Condition != CompanionCondition.Downed)
             return $"{Name(command.NpcId)} is not down";
-        if (_context.DistanceToPlayer(State.Npcs[c.NpcId].Body) > _context.TalkReachMm)
+        if (!_context.InTalkReach(State.Npcs[c.NpcId].Body))
             return $"{Name(command.NpcId)} is out of reach";
         int health = Math.Max(1, c.Profile.MaxHealth * Tuning!.RevivePercent / 100);
         State.SetCompanion(_owner, Up(c, health, tick));

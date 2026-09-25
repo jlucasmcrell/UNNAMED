@@ -8,45 +8,25 @@
     "is reported. 'tile' repeats a modular piece (a fence panel) at its own length. Static models are the full files: every _lod1-3 file",
     "in the library (1,455) carries no material. Weapons are held by their own SOCK_grip_primary. Sources: assets/manifests/",
     "playable_prototype_assets.json (the player, the weapons, the den chest), phase1_environment.json, ashen_hollow_landmarks.json,",
-    "playable_prototype_audio_v3.json and docs/PHASE1_AUDIO_EVENT_CONTRACT.md."
+    "playable_prototype_audio_v3.json and docs/PHASE1_AUDIO_EVENT_CONTRACT.md.",
+    "Phase A: an overhang structure (a clearance) stands its model from the clearance up and measures it against its thickness; a node",
+    "may give a 'spent' model beside its ready one ('hide_ready' still draws nothing while ready); a station may give its own 'model', a",
+    "'beside' model at 'beside_offset', and a 'light'; a building may give its 'interior_light' (one or a list). A light is data: 'at'",
+    "[x, y, z] metres from what it lights (a station's feet, a building's footprint centre on the ground), 'colour' [r, g, b], 'energy',",
+    "'range', 'shadows', 'size'. A person with no 'grip' holds by its rig's own SOCK_<hand> socket. Coverage: art_coverage_allowlist.json."
   ],
 
   "withheld": {
-    "material_packed_dirt_ground": "the colour map is a dirt pile photographed on a grey backdrop, not a seamless surface: tiled, it draws a grid of piles",
-    "material_marsh_grass_turf": "the colour map is a round turf patch on a grey backdrop, not a seamless surface",
-    "material_loose_gravel": "the colour map is a ring of stones on a grey backdrop, not a seamless surface",
-    "material_churned_wet_mud": "the colour map is a mud puddle on a grey backdrop, not a seamless surface",
-    "material_rubble_stone_wall": "the colour map is a strip of wall on a grey backdrop, not a seamless surface",
-    "material_plaster_lath_wall": "the colour map is a plaster tile on a grey backdrop, not a seamless surface",
-    "material_oak_plank_floor": "the colour map is planks in perspective on a grey backdrop, not a seamless surface",
-    "material_limestone_ashlar": "the colour map is a single block on a grey backdrop, not a seamless surface",
-    "material_slate_roof_scale": "the colour map is a roof section in perspective on a grey backdrop, not a seamless surface",
     "material_cast_iron_surface": "the colour map is a cast-iron tray on a grey backdrop, not a seamless surface",
     "building_wall_timber": "textured with the plaster and plank swatches above: its faces show their grey backdrop as white triangles",
     "building_wall_stone": "textured with the rubble swatch above: its faces show the swatch's grey backdrop in triangles",
     "building_roof_panel": "textured with the slate swatch above: the backdrop shows through as white stripes",
     "building_floor_planks": "textured with the plank swatch above: the backdrop shows through as white shards",
-    "building_fence_panel": "textured with the plank swatch above: the backdrop shows through as white slats",
-    "forge_shed": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
-    "longhouse": "assembled from the kit pieces above, so it carries their backdrop-swatch textures",
     "landmark_foldscar_core": "modelled standing on its edge: a ring of stones round a crater, stood up like a wheel (4.39 m tall, the crater facing sideways)",
-    "prop_long_trestle_table": "modelled tilted: the table top slopes and the legs splay (1.03 m tall, 1.55 m deep for a 1.6 m table)",
     "flora_birch_tree": "the trunk is a single spike of a few huge triangles, reading as a shard rather than a trunk",
-    "race2_veth_bindpose": "the rig does not fit its mesh: the mesh's arms hang lower than the skeleton's A-pose, so both hand bones sit 0.16 m and the finger bones 0.21-0.26 m from the nearest vertex (bind = rest: the skeleton, not the export); a held weapon floats off the drawn hand and arm clips bend the arms about points off the body",
+    "race2_veth_bindpose": "promoted 2026-09-25 and withheld again after the in-game rig check (--anim-sheet): the humanoid clips hold the fitted rig's 45-degree A-pose - through idle the upper arms stay within 1.9 degrees of it (hands 0.52 m out from the body), walking within 18.6 - so the body stands and walks with its arms held out; the sword attack and block, the bow draw and the spear thrust raise the weapon arm 54-77 degrees off that rest, so the sword is raised above and behind the head, the spear is held out to the side at arm's length with its head down, the bow lies level behind the shoulders, and in first person only a sliver of the weapon enters the view; and the body is an unclothed grey base mesh with a dark smear across the mouth. No longer the player (2026-09-25): people.player is player_veth_wanderer.",
     "race2_veth_representative": "the rig does not fit its mesh: an arms-down mesh 0.62 m wide on an A-pose skeleton with its hands at x = +/-0.56 m; no vertex is weighted to either hand bone and 22 to lowerarm_r, so each arm rides its upper-arm bone whole",
-    "creature_ash_ember_hound": "the skeleton does not fit its mesh: 0.88 m tall in a 1.30 m mesh, its spine along +Z; leg bones up to 0.36 m from the nearest vertex",
-    "creature_bristleback_boar": "the skeleton does not fit its mesh: 0.90 m tall in a 1.32 m mesh, its spine along +Z while the body faces -X; leg bones up to 0.39 m from the nearest vertex",
-    "creature_cave_hunting_spider": "the skeleton does not fit its mesh: 0.59 m tall in a 0.86 m mesh, its spine along +Z; leg bones up to 0.32 m from the nearest vertex",
-    "creature_frost_wolf": "the skeleton does not fit its mesh: 0.81 m tall in a 1.19 m mesh, its spine along +Z; leg bones up to 0.45 m from the nearest vertex",
-    "creature_animated_armour": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 2.00 m mesh; foot.R 0.26 m, neck and shoulder.L 0.18 m from the nearest vertex",
-    "npc_kal_smith": "the skeleton does not fit its mesh: a 1.60 m humanoid skeleton in a 1.30 m mesh, the head bone 0.30 m above the head; its clips draw the body contorted",
-    "flora_oak_tree": "modelled leaning: the trunk's axis leans 31 degrees and its base plane 20 (the file's nodes are upright; the lean is in the vertices)",
-    "flora_pine_tree": "modelled leaning: the trunk's axis leans 24 degrees and its base plane 37",
-    "flora_dead_tree": "modelled leaning: the trunk's axis leans 17 degrees and its base plane 13",
-    "container_chest_iron_banded": "modelled tilted: its lid and its base both slope about 15 degrees",
-    "prop_blacksmith_anvil_stump": "modelled tilted: its face and its base both slope about 10 degrees",
-    "prop_wooden_crate": "modelled tilted: its top and its base slope 21 and 18 degrees",
-    "resource_ash_haft": "modelled leaning: the haft stands 33 degrees off vertical"
+    "prop_forge_double_bellows": "reads as a pair of anatomical lungs on a Y-pipe, not a forge bellows (visual review 2026-09-25); to be replaced procedurally"
   },
 
   "terrain": {
@@ -62,31 +42,41 @@
     "rock_stone_north": { "model": "landmark_quiet_stone", "material": "stone" },
     "rock_stone_southwest": { "model": "landmark_quiet_stone", "material": "stone" },
     "rock_stone_southeast": { "model": "landmark_quiet_stone", "material": "stone" },
-    "rock_foldscar_heart": { "model": "landmark_foldscar_core", "material": "stone" },
+    "rock_foldscar_heart": { "model": "landmark_foldscar_heart", "material": "stone", "note": "Phase A: built to the heart's circle (landmark_foldscar_core, modelled on its edge, stays withheld)." },
     "cart_wreck": { "model": "prop_cart_damaged_merchant", "material": "wood" },
-    "rock_iron_seam": { "model": "prop_iron_vein_outcrop", "material": "stone" },
+    "rock_iron_seam": { "model": "rock_iron_seam_outcrop", "material": "stone", "note": "Phase A: the seam's rock, built to its circle; the node's own ready and spent looks stand at its south face." },
     "rock_blocked_shaft": { "model": "prop_blocked_shaft", "material": "stone" },
-    "rock_rim_01": { "model": "rock_boulder", "material": "stone" },
-    "rock_rim_02": { "model": "rock_boulder", "material": "stone" },
-    "rock_rim_03": { "model": "rock_boulder", "material": "stone" },
-    "rock_rim_04": { "model": "rock_boulder", "material": "stone" },
-    "rock_beam_west": { "model": "rock_boulder", "material": "stone" },
-    "rock_beam_east": { "model": "rock_boulder", "material": "stone" },
+    "rock_rim_01": { "model": "rock_outcrop_rim_a", "material": "stone" },
+    "rock_rim_02": { "model": "rock_outcrop_rim_b", "material": "stone" },
+    "rock_rim_03": { "model": "rock_outcrop_rim_c", "material": "stone" },
+    "rock_rim_04": { "model": "rock_outcrop_rim_a", "material": "stone" },
+    "rock_beam_west": { "model": "rock_outcrop_beam_support", "material": "stone" },
+    "rock_beam_east": { "model": "rock_outcrop_beam_support", "material": "stone" },
     "survey_table": { "model": "prop_long_trestle_table", "material": "wood" },
     "rock_well": { "model": "building_well", "material": "stone" },
-    "fence_smithy": { "model": "building_fence_panel", "fit": "tile", "material": "wood" },
-    "fallen_timber": { "surface": "material_oak_plank_floor", "material": "wood" },
-    "beam_woundmoss": { "surface": "material_oak_plank_floor", "material": "wood" },
-    "den_rock_west": { "surface": "material_rubble_stone_wall", "material": "stone" },
-    "den_rock_east": { "surface": "material_rubble_stone_wall", "material": "stone" },
-    "den_rock_back": { "surface": "material_rubble_stone_wall", "material": "stone" }
+    "fence_smithy": { "model": "building_fence_panel", "material": "wood" },
+    "fallen_timber": { "model": "flora_fallen_log", "material": "wood" },
+    "beam_woundmoss": { "model": "prop_woundmoss_beam", "material": "wood", "note": "An overhang (clearance 1.3 m): the model stands from its clearance up and is measured against its 0.4 m thickness." },
+    "den_rock_west": { "model": "rock_den_west", "material": "stone", "note": "Phase A: the den's three rock masses, each built to its box." },
+    "den_rock_east": { "model": "rock_den_east", "material": "stone" },
+    "den_rock_back": { "model": "rock_den_back", "material": "stone" }
   },
   "structure_prefixes": {
-    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "At their authored 14 m; the full models, since the _lod files carry no material." }
+    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "The procedural species (oak, pine, dead: _procgen_tree.py) at their authored 12.8-13.7 m, trunk vertical from the ground." }
   },
   "building_walls": {
-    "longhouse_": { "material": "wood", "note": "The lodge stays greybox: its kit pieces are withheld above. Arrows striking it read as wood." },
-    "forge_": { "material": "stone", "note": "The smithy stays greybox for the same reason." }
+    "longhouse_": {
+      "model": "longhouse", "material": "wood",
+      "interior_light": { "at": [3.4, 2.6, -0.8], "colour": [1.0, 0.80, 0.60], "energy": 1.8, "range": 12, "shadows": true, "size": 0.25, "fog_energy": 0.4,
+        "note": "One warm lamp under the ridge, as a lived-in hall has (the visual audit's V1); at from the footprint's centre on the ground." },
+      "note": "Drawn whole over its walls' footprint (the procedural lodge, built to these walls); the walls and roof stay the camera's colliders. Arrows striking it read as wood."
+    },
+    "forge_": {
+      "model": "forge_shed", "material": "stone",
+      "interior_light": { "at": [-1.2, 2.5, -0.8], "colour": [1.0, 0.82, 0.62], "energy": 1.5, "range": 9, "shadows": true, "size": 0.2, "fog_energy": 0.4,
+        "note": "A lamp over the anvil and the door, so the smithy is not lit by the hearth alone (Phase A: its interior read black in the delta shots)." },
+      "note": "Drawn whole the same way (the procedural smithy, chimney over the hearth)."
+    }
   },
 
   "doors": {
@@ -101,12 +91,17 @@
   },
   "ground_item": { "model": "prop_canvas_haversack" },
   "nodes": {
-    "node.wood.ash_stand": { "model": "resource_ash_haft" },
-    "node.ore.iron_seam": { "hide_ready": true, "sound": "mining" }
+    "node.wood.ash_stand": { "model": "flora_young_ash_stand", "spent": "flora_ash_stumps" },
+    "node.ore.iron_seam": { "model": "node_iron_seam_ore", "spent": "node_iron_seam_worked", "sound": "mining" }
   },
   "stations": {
     "anvil": { "model": "prop_blacksmith_anvil_stump", "sound": "anvil" },
-    "forge": { "beside": "prop_forge_double_bellows", "offset": [0.95, 0, 0.1], "sound": "anvil" }
+    "forge": {
+      "model": "prop_forge_hearth", "sound": "anvil",
+      "note_bellows": "No separate bellows: the hearth model carries its bellows pipe; prop_forge_double_bellows stays withheld (it reads as lungs).",
+      "light": { "at": [0, 1.1, 0], "colour": [1.0, 0.55, 0.25], "energy": 1.6, "range": 5, "shadows": true, "size": 0.2, "fog_energy": 0.5,
+        "note": "The hearth's glow, whatever draws the hearth (the greybox hearth's own light, kept as data)." }
+    }
   },
 
   "creatures": {
@@ -120,43 +115,47 @@
 
   "people": {
     "player": {
-      "model": "race2_veth_bindpose",
-      "note": "The playable prototype manifest's player body (P0). Withheld above: the greybox figure stands in and holds the real weapons.",
-      "hand": "hand_r",
-      "off_hand": "hand_l",
+      "model": "player_veth_wanderer",
+      "note": "The Wanderer (Phase A): a clothed Veth reconstructed from its bind-pose concept, the 20-bone humanoid rig fitted to it and the person plan's clips baked on that rig (_make_creature_motion.py --plan person: arms measured from hanging, blows and guards on SkinnedFigure's phase map). The rig has no hand sockets, so the grips are the fists: 'grip' holds a sword or spear across the right fist 20 deg from the thumb toward the fingers, a blade's flat to the palm; 'off_grip' stands the bow along the left thumb, its back along the fingers.",
+      "hand": "hand.R",
+      "off_hand": "hand.L",
+      "grip": { "at": [0.0096, 0.0714, -0.0097], "primary": [-0.3129, 0.2586, -0.9139], "secondary": [0.9488, 0.0407, -0.3133] },
+      "off_grip": { "at": [-0.0094, 0.072, -0.0104], "primary": [0.3212, -0.0942, -0.9423], "secondary": [0.0664, 0.9948, -0.0768] },
       "clips": {
-        "idle": "humanoid.locomotion.idle",
-        "walk": "humanoid.locomotion.walk_forward",
-        "run": "humanoid.locomotion.run_forward",
-        "sprint": "humanoid.locomotion.sprint_forward",
-        "sword_ready": "humanoid.sword.ready_01",
-        "sword_attack": "humanoid.sword.attack_01",
-        "sword_block": "humanoid.sword.block_01",
-        "bow_ready": "humanoid.bow.ready_01",
-        "bow_draw": "humanoid.bow.draw_release_01",
-        "spear_ready": "humanoid.polearm.ready_01",
-        "spear_thrust": "humanoid.polearm.thrust_01",
-        "cast": "humanoid.magic.cast_01",
-        "hit": "humanoid.general.hit_react_01",
-        "death": "humanoid.general.death_01",
-        "interact": "humanoid.general.interact_01"
+        "idle": "player.veth_wanderer.idle",
+        "walk": "player.veth_wanderer.walk",
+        "run": "player.veth_wanderer.run",
+        "sprint": "player.veth_wanderer.sprint",
+        "sword_ready": "player.veth_wanderer.sword_ready",
+        "sword_attack": "player.veth_wanderer.sword_attack",
+        "sword_block": "player.veth_wanderer.sword_block",
+        "bow_ready": "player.veth_wanderer.bow_ready",
+        "bow_draw": "player.veth_wanderer.bow_draw",
+        "spear_ready": "player.veth_wanderer.spear_ready",
+        "spear_thrust": "player.veth_wanderer.spear_thrust",
+        "cast": "player.veth_wanderer.cast",
+        "hit": "player.veth_wanderer.hit",
+        "death": "player.veth_wanderer.death",
+        "interact": "player.veth_wanderer.interact",
+        "crouch_idle": "player.veth_wanderer.crouch_idle",
+        "crouch_walk": "player.veth_wanderer.crouch_walk"
       }
     },
-    "npc.ashen_hollow.renn_vale": { "model": "npc_veth_magistrate", "hand": "hand.R", "clips": { "idle": "npc.handover", "talk": "npc.talk" } },
-    "npc.ashen_hollow.kera_voss": { "model": "npc_kal_smith", "hand": "hand.R", "clips": { "idle": "npc.work_forge", "talk": "npc.talk" } },
-    "npc.ashen_hollow.sel_arien": { "model": "npc_siann_archivist", "hand": "hand.R", "clips": { "idle": "npc.work_table", "talk": "npc.talk" } },
+    "npc.ashen_hollow.renn_vale": { "model": "npc_veth_magistrate", "hand": "hand.R", "clips": { "idle": "npc.veth_magistrate.idle", "talk": "npc.veth_magistrate.talk_low" }, "note": "His own clips from the person plan: upright, arms from hanging. He talks with his hands low (talk_low): his template rig hands the robe to the arms, and a lifted hand tears it until his body is remade." },
+    "npc.ashen_hollow.kera_voss": { "model": "npc_kal_smith", "hand": "hand.R", "clips": { "idle": "npc.kal_smith.idle", "talk": "npc.kal_smith.talk_02" }, "note": "Her own clips from the person plan: upright, arms from hanging. A standing idle (hands on the hips): the anvil stands 4.2 m from her place, so npc.kal_smith.work_forge_02 is baked but not bound." },
+    "npc.ashen_hollow.sel_arien": { "model": "npc_siann_archivist", "hand": "hand.R", "clips": { "idle": "npc.siann_archivist.idle", "talk": "npc.siann_archivist.talk_02" }, "note": "Her own clips from the person plan: her bind's 11 deg stoop taken out. A standing idle (reading a book held before her chest; no book is drawn): the survey table's near edge is 1.4 m off, so npc.siann_archivist.work_table_02 is baked but not bound." },
     "npc.ashen_hollow.tavar_orr": {
       "model": "npc_orenth_guide",
       "hand": "hand.R",
       "grip": { "at": [0.03, 0.08, 0.0], "primary": [-0.08, -1.0, 0.0], "secondary": [1.0, -0.08, -0.08], "note": "The NPC rig has no hand sockets: the fist's centre, 8 cm down the hand bone on the palm side, a spear held upright at rest." },
       "clips": {
-        "idle": "creature.bone_walker_husk.idle",
-        "walk": "creature.bone_walker_husk.walk",
-        "run": "creature.bone_walker_husk.run",
-        "attack": "creature.bone_walker_husk.attack",
-        "hit": "creature.bone_walker_husk.hit",
-        "death": "creature.bone_walker_husk.death",
-        "talk": "npc.talk"
+        "idle": "npc.orenth_guide.idle",
+        "walk": "npc.orenth_guide.walk",
+        "run": "npc.orenth_guide.run",
+        "attack": "npc.orenth_guide.attack_02",
+        "hit": "npc.orenth_guide.hit",
+        "death": "npc.orenth_guide.death",
+        "talk": "npc.orenth_guide.talk_low"
       },
       "note": "Tavar walks and fights: the NPC rig has no locomotion clips, so he borrows the humanoid husk's (the same 20-bone rig)."
     }
@@ -169,15 +168,32 @@
   },
   "companion_weapon": { "model": "weapon_boar_spear_hunting", "family": "polearm" },
 
+  "projectiles": { "arrow": { "model": "prop_arrow_rough" } },
+
   "icons": {
     "item.consumable.salve_minor": "ui.item.restorative",
     "item.weapon.hunting_bow": "ui.weapon.bow",
     "item.weapon.march_spear": "ui.weapon.march_spear",
     "item.weapon.rusted_sword": "ui.weapon.one_handed",
+    "item.ammo.arrow_rough": "ui.item.arrow_rough",
+    "item.armor.hide_cap": "ui.item.hide_cap",
+    "item.armor.hide_vest": "ui.item.hide_vest",
+    "item.material.ash_haft": "ui.item.ash_haft",
+    "item.material.herb_ashbloom": "ui.item.ashbloom",
+    "item.material.iron_ingot": "ui.item.iron_ingot",
+    "item.material.iron_ore": "ui.item.iron_ore",
+    "item.material.raw_meat": "ui.item.raw_meat",
+    "item.material.wolf_hide": "ui.item.wolf_hide",
+    "item.quest.halda_token": "ui.item.halda_token",
+    "item.tome.resonance_primer": "ui.item.resonance_primer",
+    "item.tool.water_flask": "ui.item.water_flask",
+    "item.trinket.wolf_fang": "ui.item.wolf_fang",
     "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
     "spell.warding.brace_ward": "ui.formula.brace_ward",
     "spell.vital.mending_thread": "ui.formula.mending_thread",
     "effect.bleeding": "ui.status.bleeding",
+    "effect.braced": "ui.formula.brace_ward",
+    "effect.mending": "ui.formula.mending_thread",
     "effect.weakened": "ui.status.weakened",
     "strained": "ui.status.strained",
     "health": "ui.resource.health",

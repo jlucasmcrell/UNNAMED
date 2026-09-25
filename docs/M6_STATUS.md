@@ -82,7 +82,7 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 | Death and respawn, the penalty exactly once (C17) | The relaunch tells Tavar to wait, walks to the wolves' den and stands until the pack kills the character: `transcript_relaunch.md` | One death (the Grey Wolf's bite); XP debt 0 before, +78 added, 78 after - "the penalty applied exactly once"; returned at the Ashen Waystone, weakened |
 | The replayable scripted playthrough (§9 item 6) | The run is one tick a frame from a fixed seed, so running it again replays it: the same build, a fresh profile, `--playthrough` again. `state_replay.json` names instance IDs by order of appearance (they are fresh every game, D-04) | The replay's `state_replay.json` is byte-identical to the recorded run's (SHA-256 `5DBE95FB...`); its transcript matches line for line and tick for tick, all but the raw state digest, which covers the fresh instance IDs. It is under ten minutes: the bible's first ten minutes and its whole §31 path both fit in a little over six |
 | The Phase-1 README (§9 item 5) | `README.md`'s status brought up to date, and a new section: build and run the headless tests, validate the content, play, the controls, and the scripted checks, in under a page | Done - the owner's own README, so the change is kept to those two places |
-| Performance evidence from the §8 gate (§9 item 4) | Needs the owner's clean RAZER window (1080p, sustained 60 fps on the RTX 4070 Ti with OBS, H3 and other GPU loads stopped); the capture is `godot --path src/Presentation -- --perf`. A trial on ASTRAL (RTX 5090, not the gate) after the fix below: average 798-840 FPS and 1% lows 192-213 FPS per segment, p99 frame 3.5-4.1 ms, GPU p99 0.21 ms, no hitch over 33 ms after the warm-up, VRAM 181 MB, working set 671 MB; the character struck 0 times | **Not done: waits on RAZER.** A failure after reasonable optimization is an owner-review stop; the 2x2 km greybox is measurement only, not the D-01 revisit gate |
+| Performance evidence from the §8 gate (§9 item 4) | Needs the owner's clean RAZER window (1080p, sustained 60 fps on the RTX 4070 Ti with OBS, H3 and other GPU loads stopped); the capture is `godot --path src/Presentation -- --perf`. A trial on ASTRAL (RTX 5090, not the gate) after the fix below: average 798-840 FPS and 1% lows 192-213 FPS per segment, p99 frame 3.5-4.1 ms, GPU p99 0.21 ms, no hitch over 33 ms after the warm-up, VRAM 181 MB, working set 671 MB; the character struck 0 times | **Measured on RAZER 2026-09-25 and accepted by the owner as the Phase-1 baseline** (`PHASE1_TECHNICAL_CLOSEOUT.md`). The 2x2 km greybox is measurement only, not the D-01 revisit gate, and is still to run |
 
 ### What the acceptance run found, and what changed
 
@@ -133,11 +133,11 @@ The evidence is in `docs/acceptance/m6/`: the transcripts, the field-by-field st
 | Both of the bible's quests complete | Met - part 2's tests and the playthrough |
 | Proof: a recorded acceptance log with zero pathing interventions; the companion round trip; the §19 report | Met - part 4 |
 | The early feel test (3-5 blind testers) | **The owner's**, after the playtest - its transcript and findings (a null result included) are part of ROADMAP M6's proof, and it is required before Phase 2. **Deferred by owner ruling (2026-09-24)** until a nontechnical Windows playtest build exists; not an M7 entry blocker. Not run; no result recorded |
-| M6 acceptance (bible §35): 1080p/60 FPS evidence | **Waits on RAZER** |
+| M6 acceptance (bible §35): 1080p/60 FPS evidence | **Measured on RAZER 2026-09-25, accepted as the baseline** (`PHASE1_TECHNICAL_CLOSEOUT.md`) |
 
 ## Known deferrals
 
-- The RAZER performance window (M3's and the bible's §34).
+- The RAZER performance window (M3's and the bible's §34) - measured in the Phase-1 closeout on 2026-09-25 and accepted as the baseline.
 - C10's balance - the spear against the den pack - was the owner's call; ruled 2026-09-24 (C10 revised, the spear unchanged).
 - The early feel test, deferred by the same ruling until a nontechnical Windows playtest build exists.
 - A herb node (the bible's Woundmoss) is not built; the ashbloom herb is found dried in the waystation chest.
@@ -218,4 +218,5 @@ trade, movement and combat unchanged.
   commands identical (instance IDs masked), the replay byte-identical, the relaunch 415 fields / 0 differences; `--delta-shots` all 21
   beats (three new ones show the formulas' effects on the body and the Strain overlay). A fresh clone without assets (as CI sees it):
   the smoke PASS and all 21 delta beats in greybox.
-- **Still open:** the RAZER performance window (M6's 1080p/60 evidence).
+- **Open at this closeout, since closed:** the RAZER performance window (M6's 1080p/60 evidence) - measured on 2026-09-25 and accepted
+  as the baseline (`PHASE1_TECHNICAL_CLOSEOUT.md`).

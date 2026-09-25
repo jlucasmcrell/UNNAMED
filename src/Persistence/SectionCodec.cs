@@ -7,6 +7,7 @@ using MessagePack;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -215,6 +216,30 @@ public sealed class EntitiesSectionDto
 
     /// <summary>Spawners' creatures that left their baseline. Required from schema 8.</summary>
     [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+
+    /// <summary>The sounds made on the last tick that creatures hear on the next, in order. Required from schema 14.</summary>
+    [Key("noises")] public NoiseDto[]? Noises { get; set; }
+}
+
+/// <summary>A sound waiting to be heard (schema 14): where, how far it carries, and - for a howl - whose kind answers it.</summary>
+[MessagePackObject]
+public sealed class NoiseDto
+{
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("radius_mm")] public long RadiusMm { get; set; }
+    [Key("call")] public bool Call { get; set; }
+    [Key("caller_kind")] public string? CallerKind { get; set; }
+}
+
+/// <summary>What a creature's next ticks depend on beyond its body and mind (schema 14): each only while it still matters.</summary>
+[MessagePackObject]
+public sealed class CreatureContinuationDto
+{
+    [Key("next_charge_tick")] public long NextChargeTick { get; set; }
+    [Key("stagger_immune_until")] public long StaggerImmuneUntil { get; set; }
+    [Key("staggered_tick")] public long? StaggeredTick { get; set; }
+    [Key("stagger_lasts_ticks")] public int StaggerLastsTicks { get; set; }
 }
 
 [MessagePackObject]
@@ -240,6 +265,9 @@ public sealed class CreatureDto
     [Key("last_seen_tick")] public long LastSeenTick { get; set; }
     [Key("search_until")] public long SearchUntil { get; set; }
     [Key("has_called")] public bool HasCalled { get; set; }
+
+    /// <summary>Required from schema 14. The 13 -> 14 step gives older saves none: the charge, the stagger and the stun were not kept.</summary>
+    [Key("continuation")] public CreatureContinuationDto? Continuation { get; set; }
 }
 
 [MessagePackObject]
@@ -544,16 +572,25 @@ public static class SectionCodec
                 LastSeenTick = c.LastSeenTick,
                 SearchUntil = c.SearchUntil,
                 HasCalled = c.HasCalled,
+                Continuation = new CreatureContinuationDto
+                {
+                    NextChargeTick = c.NextChargeTick,
+                    StaggerImmuneUntil = c.StaggerImmuneUntil,
+                    StaggeredTick = c.StaggeredTick,
+                    StaggerLastsTicks = c.StaggerLastsTicks,
+                },
             }).ToArray(),
+            Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
+                .ToArray(),
         }, Options);
     }
 
     /// <summary>
     /// The entities section: slot-keyed records, created instances, changed containers and creature records, each with its
-    /// host cell's baseline hash.
+    /// host cell's baseline hash, and the sounds waiting to be heard.
     /// </summary>
     public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created, ImmutableArray<ContainerRecord> Containers,
-        ImmutableArray<CreatureRecord> Creatures) DecodeEntitySection(byte[] bytes)
+        ImmutableArray<CreatureRecord> Creatures, ImmutableArray<Noise> Noises) DecodeEntitySection(byte[] bytes)
     {
         var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
         var baselines = section.Baselines.ToDictionary(b => b.CellKey, b => b.BaselineHash, StringComparer.Ordinal);
@@ -579,20 +616,31 @@ public static class SectionCodec
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();
         var creatures = (section.Creatures ?? throw new FormatException("entities.msgpack has no creatures list (required from schema 8)"))
-            .Select(c => new CreatureRecord(c.Key, c.DefId, EntityId.Parse(c.InstanceId), c.HostCell, c.Generation, CreatureConditions.Parse(c.Condition),
-                c.XMm, c.ZMm, c.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick, baselines.GetValueOrDefault(c.HostCell))
+            .Select(c =>
             {
-                Mind = CreatureMinds.Parse(c.Mind),
-                Awareness = c.Awareness,
-                Knows = c.Knows,
-                KnownXMm = c.KnownXMm,
-                KnownZMm = c.KnownZMm,
-                LastSeenTick = c.LastSeenTick,
-                SearchUntil = c.SearchUntil,
-                HasCalled = c.HasCalled,
+                var continuation = c.Continuation ?? throw new FormatException($"creature {c.Key} has no continuation (required from schema 14)");
+                return new CreatureRecord(c.Key, c.DefId, EntityId.Parse(c.InstanceId), c.HostCell, c.Generation, CreatureConditions.Parse(c.Condition),
+                    c.XMm, c.ZMm, c.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick, baselines.GetValueOrDefault(c.HostCell))
+                {
+                    Mind = CreatureMinds.Parse(c.Mind),
+                    Awareness = c.Awareness,
+                    Knows = c.Knows,
+                    KnownXMm = c.KnownXMm,
+                    KnownZMm = c.KnownZMm,
+                    LastSeenTick = c.LastSeenTick,
+                    SearchUntil = c.SearchUntil,
+                    HasCalled = c.HasCalled,
+                    NextChargeTick = continuation.NextChargeTick,
+                    StaggerImmuneUntil = continuation.StaggerImmuneUntil,
+                    StaggeredTick = continuation.StaggeredTick,
+                    StaggerLastsTicks = continuation.StaggerLastsTicks,
+                };
             })
             .ToImmutableArray();
-        return (entities, created, containers, creatures);
+        var noises = (section.Noises ?? throw new FormatException("entities.msgpack has no noises list (required from schema 14)"))
+            .Select(n => new Noise(n.XMm, n.ZMm, n.RadiusMm, n.Call, n.CallerKind))
+            .ToImmutableArray();
+        return (entities, created, containers, creatures, noises);
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;

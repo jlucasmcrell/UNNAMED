@@ -4,7 +4,8 @@
 // The exact player shape schemas 7 and 8 wrote: written by the 6 -> 7 step and read by the 8 -> 9 step; and the entities
 // shape schema 8 wrote: written by the 7 -> 8 step and read by the 8 -> 9 step. The schema-7 and -8 fixtures pin them.
 // Their parts that schema 9 did not change are the current DTOs (ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
-// EntityDto, CellBaselineDto, CreatureDto); the step that next changes one of those must freeze a copy of it first.
+// EntityDto, CellBaselineDto); the step that next changes one of those must freeze a copy of it first. The creature record
+// is frozen here too (Creature): schemas 8 to 13 wrote it unchanged, and schema 14 changed it.
 
 using MessagePack;
 
@@ -43,7 +44,33 @@ public sealed class EntitiesSection
     [Key("created")] public Created[] Created { get; set; } = Array.Empty<Created>();
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
     [Key("containers")] public Container[]? Containers { get; set; }
-    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+    [Key("creatures")] public Creature[]? Creatures { get; set; }
+}
+
+/// <summary>A spawner's creature as schemas 8 to 13 wrote it.</summary>
+[MessagePackObject]
+public sealed class Creature
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("generation")] public int Generation { get; set; }
+    [Key("condition")] public string Condition { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("health")] public int Health { get; set; }
+    [Key("died_tick")] public long DiedTick { get; set; }
+    [Key("respawn_tick")] public long RespawnTick { get; set; }
+    [Key("mind")] public string Mind { get; set; } = "";
+    [Key("awareness")] public int Awareness { get; set; }
+    [Key("knows")] public bool Knows { get; set; }
+    [Key("known_x_mm")] public long KnownXMm { get; set; }
+    [Key("known_z_mm")] public long KnownZMm { get; set; }
+    [Key("last_seen_tick")] public long LastSeenTick { get; set; }
+    [Key("search_until")] public long SearchUntil { get; set; }
+    [Key("has_called")] public bool HasCalled { get; set; }
 }
 
 [MessagePackObject]

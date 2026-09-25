@@ -245,6 +245,8 @@ A slot whose persisted state has returned to baseline is **rebased** (§5.6), no
 
 **Creature records (schema 8).** A spawner's creature that differs from its baseline - moved, wounded, dead, gone, or holding a mind other than rest - is stored in the section's `creatures` list, keyed by its derived `spawner#member` key and carrying its generation (the `generation_seq` above). It records the `instance_id`, `def_id`, `host_cell` and the host cell's `baseline_hash`, the condition (`alive`, `corpse`, `gone`), position, facing, health, the tick it died and the absolute tick it is due back, and its mind: awareness, whether and where it knows its target to be, when it last saw it, its search deadline, and whether it has called. A record at baseline is not stored (§5.6); load merges on the key, so a dead creature stays dead. A corpse's contents are an ordinary changed container once the player has touched them. Definition IDs go through the definition-ID pass. Idle wander and patrol derive from the world tick, so they need no storage; an attack in its windup is transient, like the player's.
 
+**Creature continuation and pending sounds (schema 14; the Phase-1 technical audit, L-06).** Each creature record also carries what its next ticks depend on (`continuation`): `next_charge_tick`, the first tick it may charge again; `stagger_immune_until`, the first tick a blow may stagger it again; and the stagger it is in - a charger's stun among them - as `staggered_tick` and `stagger_lasts_ticks` (0 for the usual length). Each is written only while it still matters, so a creature over its cooldown, immunity or stun has the record of one that never had them. The section's `noises` list holds the sounds made on the last tick that creatures hear on the next - a blow, and a howl with its caller's kind (`caller_kind`, through the definition-ID pass) - in the order they were made. A save therefore goes on as the unsaved world would: a stunned boar stays down, a charger waits out its cooldown, and a howl made on the tick of the save still brings the pack. A blow in progress - an attack's windup, a charge's run - is still not kept.
+
 ### 5.4 `buildings.msgpack` — player structures
 
 A building is a ULID-keyed structure with a footprint of one or more cells; pieces are ULID-keyed rows with a `def_id` and a socket path (`WORLD_ARCHITECTURE.md` §10). Nothing here is regenerable: a player structure exists nowhere else, so corruption is unrecoverable rather than merely annoying, and the quarantine path must name every lost structure.
@@ -355,6 +357,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 8 -> 9 | Every item stack gains its quality: carried, in a changed container, or created in the world (M3f). An older save's stacks are all standard, since nothing could make another quality before M3f |
 | 9 -> 10 | The player gains relationships and conversation memory (M4). An older save has neither: there was no one to talk to before M4 |
 | 10 -> 11 | The player gains quests (M5). An older save has none: there were no quests before M5 |
+| 13 -> 14 | Every creature record gains its continuation, and the entities section its pending sounds (the Phase-1 technical audit, L-06). An older save kept none of it: its creatures resume free of any cooldown, stagger or immunity, and nothing waits to be heard |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 
@@ -431,7 +434,7 @@ A cell nobody changed has no record and simply uses the current baseline.
 6. Verify: re-read the committed <slot>, re-hash, compare against sections.sha256
 7. Only after 6 succeeds: retire .trash-<slot>-<ulid> - into the backup chain if a clean
    load proved it (§7.3), into pre_migration_<schema>_<slot> if a schema migration
-   displaced it, otherwise delete it
+   displaced it, otherwise into .prev-<slot> (a quick or manual slot; §7.3) or delete it
 ```
 
 The staging and trash directories sit **beside** the slot and carry its name. An earlier revision put staging inside `<slot>/`, which step 5b could not then rename to `<slot>`. The names let the boot sweep tell which slot a leftover belongs to. **Boot sweep:** with no `<slot>`, a complete (verifiable) staging directory is promoted, or else the newest trash is restored. With a `<slot>` and a trash, a verifiable slot completes the commit and an unverifiable one rolls back. Leftover staging is discarded. Every step boundary is kill-tested on Windows: M2 ME-4 for saves, and the M2b migration kill test for migrations.
@@ -444,6 +447,13 @@ The staging and trash directories sit **beside** the slot and carry its name. An
 - **Cloud-sync interference.** OneDrive/Dropbox rename, hold, and hydrate files, and can resurrect a deleted `.trash-*` directory.
 
 Therefore step 5 is specified as: **retry with bounded exponential backoff on `IOException`, classifying "transient lock" (retry) from "policy denial" (surface to the player with the path and the error).** A bare rename that fails at 5b leaves the slot renamed to `.trash-<ulid>` with the staging directory un-promoted, so the boot sweep must be able to recover that state or the player has no slot until it runs.
+
+**Failures the player can be told about (Phase-1 audit remediation, 2026-09-24, M-02, L-03, M-07).**
+- **A failed write step.** An IO failure in any of steps 2-5 (a full disk, a folder the player may not write to, a file held open elsewhere) is undone at once: the staging directory is removed, and at 5b the displaced save is moved back. The failure surfaces as a `SaveException` saying the previous save is untouched. The boot sweep finishes anything the undo could not.
+- **A failed retirement.** A step-7 retirement that fails leaves the displaced save in its trash directory for the sweep. The new save is already committed and verified, so the save does not fail.
+- **The load's proof.** Replacing `rotation.json` retries like a rename. Windows reports a file held without delete sharing as access denied, so that is retried too, briefly. A load whose proof cannot be written still loads, with a warning. A load that cannot read its files is a `SaveException`.
+- **A failed autosave.** It never throws out of the frame. It is reported in the frame's result and tried again after 30 s of play, then 60, 120 and 240, up to the interval.
+- **One game per profile.** A game holds `<profile>/.lock` open and unshared for as long as it runs, and takes it before its boot sweep. A second copy of the game on the same profile refuses to start instead of sweeping away the first one's commit in flight.
 
 ### 7.2 Integrity and quarantine
 
@@ -470,10 +480,13 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 | `.bak-<slot>` | **2 generations** | The two previous verified-good saves |
 | `pre_migration_<schema>_<slot>` | 1 per migration event | The original a schema migration displaced, kept once. Until the player confirms the migrated save loads (removal is a UI action, not yet built) |
 | `.trash-<slot>-<ulid>` | 0–1 transient | Removed only after §7.1 step 6 verifies |
+| `.prev-<slot>` | 0–1 (quick and manual slots) | The save last displaced before a load proved it; replaced by the next one (B-01, below) |
 
 **Two backup generations, retired on a verified _load_, not a verified write.** With one generation retired at the next successful write, a player who saves three times after a silent problem has three bad saves and one good backup that the next write discards. The previous good save the charter promises must survive more than one commit.
 
-As implemented: a displaced save enters the chain only if a **complete, clean load of its bytes as they are on disk** proved it. That means no quarantine, no rejected record, no reported loss, and no migration needed. The proof is recorded in `rotation.json` as the digest of the save's integrity root. An unproven save is dropped when displaced, so it can never push a proven backup out. `ROADMAP.md` M2's "one rolling backup slot" is superseded by these two generations.
+As implemented: a displaced save enters the chain only if a **complete, clean load of its bytes as they are on disk** proved it. That means no quarantine, no rejected record, no reported loss, and no migration needed. The proof is recorded in `rotation.json` as the digest of the save's integrity root. An unproven save never enters the chain, so it can never push a proven backup out. `ROADMAP.md` M2's "one rolling backup slot" is superseded by these two generations.
+
+**The previous save (Phase-1 audit remediation, 2026-09-24, B-01).** A quick or manual save displaced before any load proved it is not deleted. It is kept one deep as `.prev-<slot>`, beside the chain and never in it. Otherwise a relaunch's first quicksave destroyed the last session's quick save outright. The next unproven displacement replaces it. An autosave keeps no previous copy, because its four siblings are its history. `Delete(slot)` removes it with the slot. Like a backup, it loads only when the player chooses it, and loading it proves nothing. The start screen lists every slot newest first, read from its manifest and integrity root without loading it, with each slot's backups and previous copy beneath it. Continue loads the newest slot whose copy is whole and readable. A newer one it passes over is shown with the reason, never skipped silently.
 
 ### 7.4 Load sequence (follow exactly — this is the only normative load order)
 
@@ -536,6 +549,16 @@ Scoped saves are **unconditional when the trigger fires** — a streamer may not
 | Max slots | 1 quick + unlimited manual + 5 rolling auto | Rotation is a policy, not architectural: rotating quick slots can be added without a format change. An earlier revision said 10 quick, which contradicted §3.2's single `quick` slot; M2 implemented one (`M2_STATUS.md`) |
 
 The main-thread budget is met by serializing off-thread and committing on-thread; commit is the only main-thread work.
+
+**As implemented (Phase-1 audit remediation, 2026-09-24, P-01).** The autosave and the quicksave are taken on the frame and written in the background.
+- **What stays on the frame.** The capture: `SaveDocuments.Capture` at the tick boundary, which rebases the delta and returns an immutable document. The manifest is stamped with the capture time, so saves order by the moment they hold.
+- **What moves off it.** Encoding, the staging write, the integrity root, the commit, its verification and rotation all run on one background writer, one save after another in the order they were taken, each through the unchanged §7.1 sequence. So the commit is off the main thread too, which is more than this section asked. The main thread holds no lock a commit needs.
+- **A second autosave due while one is being written.** It is not started. The next is counted from the capture of the one being written.
+- **A quicksave during an autosave.** It is captured at once and written after the autosave.
+- **A failure.** It comes back as an outcome in a later frame, never an exception. A failed autosave is retried 30 s after its capture, then 60, 120 and 240.
+- **A load.** It waits for the saves being written first.
+- **Quitting.** It waits up to 10 s for a save in flight. The commit is atomic even if the process is killed during it.
+- **Synchronous saves.** The harnesses' synchronous `Save` waits for any save taken before it.
 
 ---
 

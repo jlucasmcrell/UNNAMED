@@ -46,4 +46,9 @@ public abstract partial class Figure : Node3D
     public virtual void Strike()
     {
     }
+
+    /// <summary>The body reaches for something: a door, a switch, a node, an item on the ground, a companion to help up.</summary>
+    public virtual void Interact()
+    {
+    }
 }

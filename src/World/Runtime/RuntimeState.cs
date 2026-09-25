@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -269,6 +270,13 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Creatures);
         World.RemoveCreature(key);
+    }
+
+    /// <summary>The sounds the next tick's creatures hear (schema 14).</summary>
+    public void SetNoises(SliceOwner owner, ImmutableArray<Noise> noises)
+    {
+        Require(owner, StateSlice.Creatures);
+        World.SetNoises(noises);
     }
 
     public void RemoveContainer(SliceOwner owner, string key)

@@ -360,6 +360,35 @@ public class CombatTests
         Assert.False(hits.Last(h => h.Target == arena.Player).Blocked);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-22: what is in the hands does not change under a raised guard, or mid-swing or mid-draw. A guard
+    /// raised with the sword outlasted a switch to the bow, and an arrow drawn flew from a bow no longer held.
+    /// </summary>
+    [Fact]
+    public void TheHands_DoNotChange_UnderAGuard_OrMidDraw()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var bow = Arena.Stack("item.weapon.hunting_bow", 1);
+        var arena = Arena.OpenCreatures(session, session.Setup, Open, 0, Array.Empty<(string, double, double, string)>(),
+            r => Carrying(r, bow, Arena.Stack("item.ammo.arrow_rough", 5)));
+
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        Assert.Equal("lower the guard first", arena.Submit(new EquipCommand(arena.Player, bow.ItemId)));
+        Assert.Equal("lower the guard first", arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        Assert.Equal(("item.weapon.rusted_sword", true), (arena.Simulation.Combat.Weapon.Source, arena.Simulation.Combat.Blocking));
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, false)));
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, bow.ItemId)));
+
+        var loosed = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(5);
+        Assert.StartsWith("not in the middle of an action", arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        arena.Tick(arena.Simulation.Combat.Weapon.TotalTicks);
+        Assert.Equal("item.weapon.hunting_bow", Assert.Single(loosed).Source);
+        Assert.Equal("item.weapon.hunting_bow", arena.Simulation.Combat.Weapon.Source);
+    }
+
     [Fact]
     public void ADodgeInsideTheWindup_AvoidsTheBite()
     {
@@ -435,6 +464,47 @@ public class CombatTests
         int strong = Blow(Array.Empty<ActiveEffect>());
         int weak = Blow(new[] { new ActiveEffect("effect.weakened", 1, 1_200, 1) });
         Assert.True(weak < strong, $"weakened {weak} vs {strong}");
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, L-25, documented rather than changed (the owner rules): the tick an action is taken is not one of its
+    /// own, so swings asked for at every tick start one every TotalTicks + 1 - the rusted sword's 14 ticks of swing, one every 15.
+    /// </summary>
+    [Fact]
+    public void SwingsAskedForAtEveryTick_StartOneEveryTotalTicksPlusOne()
+    {
+        using var profile = new TempProfile();
+        var arena = Arena.Open(Harness.Boot(profile), (60, 50), 0, Array.Empty<(double, double)>());
+        var started = arena.Record<AttackStarted>();
+        for (int i = 0; i < 60; i++)
+        {
+            arena.Submit(new AttackCommand(arena.Player));   // refused while the last is still going
+            arena.Tick();
+        }
+
+        var ticks = started.Where(a => a.Attacker == arena.Player).Select(a => a.Tick).ToList();
+        int total = arena.Simulation.Combat.Weapon.TotalTicks;
+        Assert.Equal(14, total);
+        Assert.True(ticks.Count >= 3, $"only {ticks.Count} swings started");
+        Assert.All(ticks.Zip(ticks.Skip(1)), pair => Assert.Equal(total + 1, pair.Second - pair.First));
+    }
+
+    [Fact]
+    public void HealthChanged_SaysWhatChanged_AndNothingOnceTheCharacterIsDown()
+    {
+        // The Phase-1 technical audit, L-26: harm was reported as asked - a bleed and a venom ticking together on a character with 1
+        // health both said so, the second after the death - and a heal past full as all of it. Each now says what changed.
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, (60, 50), 0, Array.Empty<(double, double)>(), r => r
+            .WithProgression(r.Progression with { Pools = r.Progression.Pools with { Health = 1 } })
+            .WithEffects(new[] { new ActiveEffect("effect.bleeding", 2, 120, 1), new ActiveEffect("effect.venom", 1, 120, 1) }));
+        var changed = arena.Record<HealthChanged>();
+        arena.Tick(3);
+
+        // The bleed's two points took the one there was; the venom, after the death, said nothing.
+        var lethal = Assert.Single(changed, c => c.Target == arena.Player);
+        Assert.Equal((-1, 0, 1L), (lethal.Delta, lethal.HealthAfter, lethal.Tick));
     }
 
     [Fact]

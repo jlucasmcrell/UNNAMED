@@ -122,8 +122,43 @@ public class SocialContentTests
 
     [Fact]
     public void ALoopOfSpentLines_IsRefused() =>
-        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "    once: true\n    next_if_exhausted: again\n    choices:\n      - id: take",
-            "    once: true\n    next_if_exhausted: primer\n    choices:\n      - id: take", "spent lines loop");
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "    once: true\n    next_if_exhausted: again\n    choices:\n      - id: back\n        text: \"Thank you.\"",
+            "    once: true\n    next_if_exhausted: praised\n    choices:\n      - id: back\n        text: \"Thank you.\"", "spent lines loop");
+
+    /// <summary>
+    /// The Phase-1 technical audit, H-01 and L-18: a once line is spent when it is heard, so a reply on it that gives something is lost for
+    /// good to a character who leaves before answering - unless the line it falls back to offers the same reply again.
+    /// </summary>
+    [Fact]
+    public void AGiftOnALineSpentOnceHeard_IsRefused_UnlessItsFallbackOffersItAgain()
+    {
+        // Sel's primer as M4 wrote it: a once line whose only reply hands over the book.
+        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "    text: \"One. The Resonance Primer",
+            "    once: true\n    next_if_exhausted: again\n    text: \"One. The Resonance Primer", "node primer is spent once heard, and its reply take carries consequences");
+        // Tavar's thanks offered on his first line only, as M6 wrote it.
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "      - id: sent\n        text: \"Sel sent me.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }",
+            "      - id: sent_again\n        text: \"Sel sent me.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }",
+            "node greet is spent once heard, and its reply sent carries consequences");
+        // The fallback's reply must do the same thing, not merely share the id.
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "      - id: found\n        text: \"The stones were out of line. I put them right.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }\n          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }\n        consequences:\n          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10",
+            "      - id: found\n        text: \"The stones were out of line. I put them right.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }\n          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }\n        consequences:\n          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 5",
+            "its reply found carries consequences");
+    }
+
+    /// <summary>Every once line of the game's conversations that offers something offers it again on the line it falls back to.</summary>
+    [Fact]
+    public void EveryGiftOnAOnceLine_IsOfferedAgainOnItsFallback()
+    {
+        var dialogues = SocialContent.BuildDialogues(Load(Path.Combine(RepoPaths.Root(), "content")));
+        var gifts = dialogues.Values.SelectMany(d => d.Nodes.Values.Where(n => n.Once)
+            .SelectMany(n => n.Choices.Where(c => !c.Consequences.IsEmpty).Select(c => (Dialogue: d, Node: n, Choice: c)))).ToList();
+        Assert.NotEmpty(gifts);
+        foreach (var (dialogue, node, choice) in gifts)
+        {
+            var fallback = dialogue.Nodes[node.NextIfExhausted ?? throw new Xunit.Sdk.XunitException($"{dialogue.Id} {node.Id} has no fallback")];
+            Assert.Contains(fallback.Choices, c => c.Id == choice.Id && c.Consequences.SequenceEqual(choice.Consequences));
+        }
+    }
 
     [Fact]
     public void ATraderWithoutStock_IsRefused() =>
@@ -131,8 +166,8 @@ public class SocialContentTests
 
     [Fact]
     public void AServiceOpenedByOneWhoDoesNotOfferIt_IsRefused() =>
-        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "      - id: leave\n        text: \"I'll look around.\"",
-            "      - id: leave\n        text: \"I'll look around.\"\n        consequences: [{ command: open_service, service: trade }]", "none of its participants offers");
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "      - id: leave\n        text: \"Nothing for now.\"",
+            "      - id: leave\n        text: \"Nothing for now.\"\n        consequences: [{ command: open_service, service: trade }]", "none of its participants offers");
 
     [Fact]
     public void ANamelessCrowd_IsNotBuilt() =>

@@ -48,6 +48,24 @@ nodes:
   again:
     text: "\"Still here. Still on time, too.\""
     choices:
+      # His first line is spent once heard, but not his thanks: a character who walked away before answering can still answer him
+      # (the Phase-1 technical audit, L-18). Reaching "caught" is what marks it answered.
+      - id: sent
+        text: "Sel sent me."
+        conditions:
+          - { kind: visited, node: caught, not: true }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
+      - id: found
+        text: "The stones were out of line. I put them right."
+        conditions:
+          - { kind: visited, node: caught, not: true }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
+        next: caught
       - id: stones
         text: "What were the stones for?"
         conditions: [{ kind: visited, node: stones, not: true }]

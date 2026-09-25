@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using static UNNAMED.Content.CombatContent;
@@ -130,7 +131,7 @@ public static class QuestContent
             "visit_location" => new VisitLocation(Defined(loader, Text(p, "location_ref"), "location", where)),
             "explore_location" => new ExploreLocation(Defined(loader, Text(p, "location_ref"), "location", where),
                 Mm(p, "within_m") is var within && within > 0 ? within : throw new FormatException($"{where}: within_m is more than 0")),
-            "acquire_item" => new AcquireItem(Defined(loader, Text(p, "item_ref"), "item", where), Positive(p, "count", where, 1), QualityMin(p, where)),
+            "acquire_item" => Acquire(where, p, loader),
             "craft_item" => new CraftItem(Defined(loader, Text(p, "item_ref"), "item", where), Positive(p, "count", where, 1), QualityMin(p, where)),
             "harvest_resource" => new HarvestResource(Defined(loader, Text(p, "resource_ref"), "resource", where), Positive(p, "count", where, 1)),
             "kill_creature" => new KillCreature(Defined(loader, Text(p, "creature_ref"), "creature", where), Positive(p, "count", where, 1)),
@@ -158,7 +159,8 @@ public static class QuestContent
         "talk_to" => new[] { "npc_ref", "dialogue_ref", "nodes" },
         "visit_location" => new[] { "location_ref" },
         "explore_location" => new[] { "location_ref", "within_m" },
-        "acquire_item" or "craft_item" => new[] { "item_ref", "count", "quality_min" },
+        "acquire_item" => new[] { "item_ref", "or_item_refs", "count", "quality_min" },
+        "craft_item" => new[] { "item_ref", "count", "quality_min" },
         "harvest_resource" => new[] { "resource_ref", "count" },
         "kill_creature" => new[] { "creature_ref", "count" },
         "deliver_item" => new[] { "npc_ref", "item_ref", "count" },
@@ -167,6 +169,19 @@ public static class QuestContent
         "wait_until" => new[] { "after_min" },
         _ => Array.Empty<string>(),
     };
+
+    /// <summary><c>acquire_item</c>: the item, and <c>or_item_refs</c> - other items that count too, such as what it is made into.</summary>
+    private static AcquireItem Acquire(string where, Dictionary<object, object> p, ContentLoader loader)
+    {
+        string item = Defined(loader, Text(p, "item_ref"), "item", where);
+        var alternatives = p.ContainsKey("or_item_refs")
+            ? List(p, "or_item_refs").Select(v => Defined(loader, v as string ?? throw new FormatException($"{where}: or_item_refs lists item IDs"), "item", where))
+                .ToImmutableArray()
+            : ImmutableArray<string>.Empty;
+        if (alternatives.Contains(item) || alternatives.Distinct(StringComparer.Ordinal).Count() != alternatives.Length)
+            throw new FormatException($"{where}: or_item_refs names each item once, and not the item_ref itself");
+        return new AcquireItem(item, Positive(p, "count", where, 1), QualityMin(p, where)) { OrItems = alternatives };
+    }
 
     /// <summary><c>talk_to</c>: the NPC's own conversation unless one is named, and its opening line unless lines are named.</summary>
     private static TalkTo TalkTo(string where, Dictionary<object, object> p, ContentLoader loader)
@@ -284,6 +299,9 @@ public static class QuestContent
         var recipes = CraftingContent.BuildRecipes(loader);
         var nodes = CraftingContent.BuildNodes(loader);
         var replies = dialogues.Values.SelectMany(d => d.Nodes.Values.SelectMany(n => n.Choices.Select(c => (Dialogue: d, Node: n, Choice: c)))).ToList();
+        var renewable = new Lazy<HashSet<string>>(() => Renewable(loader, recipes, nodes));
+        var usedUp = new Lazy<HashSet<string>>(() => CombatContent.BuildUseEffects(loader).Keys.Concat(MagicContent.Build(loader).Teaches.Keys)
+            .ToHashSet(StringComparer.Ordinal));
 
         foreach (var quest in quests.Values)
         {
@@ -300,6 +318,9 @@ public static class QuestContent
                             throw new FormatException($"{at}: {t.NpcId} does not speak {t.DialogueId}");
                         if (t.Nodes.FirstOrDefault(n => !dialogue.Nodes.ContainsKey(n)) is { } missing)
                             throw new FormatException($"{at}: {t.DialogueId} has no line '{missing}'");
+                        break;
+                    case AcquireItem a:
+                        FiniteSupply(at, a, recipes, renewable.Value, usedUp.Value);
                         break;
                     case CraftItem c when !recipes.Values.Any(r => r.OutputItemId == c.ItemId):
                         throw new FormatException($"{at}: no recipe makes {c.ItemId}");
@@ -325,6 +346,53 @@ public static class QuestContent
         }
         return quests;
     }
+
+    /// <summary>
+    /// An <c>acquire_item</c> waits for what is carried when it is reached. If nothing renews an item it counts and the player can use
+    /// that item up first - a recipe makes it into something else, or using it spends it - the objective can become impossible for
+    /// good (ore smelted before the quest asked for it). So every recipe that consumes a finite counted item must make something the
+    /// objective also counts, and a finite counted item must not be one that using spends.
+    /// </summary>
+    private static void FiniteSupply(string at, AcquireItem objective, ImmutableSortedDictionary<string, RecipeDefinition> recipes,
+        HashSet<string> renewable, HashSet<string> usedUp)
+    {
+        var counted = objective.OrItems.Prepend(objective.ItemId).ToHashSet(StringComparer.Ordinal);
+        foreach (string item in counted.Where(i => !renewable.Contains(i)).OrderBy(i => i, StringComparer.Ordinal))
+        {
+            if (recipes.Values.Where(r => r.Inputs.Any(input => input.ItemId == item)).FirstOrDefault(r => !counted.Contains(r.OutputItemId)) is { } recipe)
+                throw new FormatException($"{at}: nothing renews {item}, and {recipe.Id} makes it into {recipe.OutputItemId}, which the objective does not " +
+                                          $"count - crafting ahead would make it impossible (count {recipe.OutputItemId} in or_item_refs)");
+            if (usedUp.Contains(item))
+                throw new FormatException($"{at}: nothing renews {item}, and using it spends it - using it first would make the objective impossible");
+        }
+    }
+
+    /// <summary>What the world makes again: a node that grows back, the loot of creatures that return, and what is made only of those.</summary>
+    private static HashSet<string> Renewable(ContentLoader loader, ImmutableSortedDictionary<string, RecipeDefinition> recipes,
+        ImmutableSortedDictionary<string, NodeDefinition> nodes)
+    {
+        var renewable = nodes.Values.Where(n => n.Respawn != Respawn.None).Select(n => n.ItemId).ToHashSet(StringComparer.Ordinal);
+        var tables = ItemContent.BuildLootTables(loader);
+        var creatures = CombatContent.BuildCreatures(loader, WorldContent.TickMilliseconds(loader));
+        var returning = loader.GetByKind("region").Keys.SelectMany(region => CombatContent.BuildSpawns(loader, region))
+            .Where(s => s.RespawnTicks > 0).SelectMany(s => s.Members).Select(m => m.CreatureId).Distinct(StringComparer.Ordinal);
+        foreach (string table in returning.Select(c => creatures.GetValueOrDefault(c)?.LootTableId).OfType<string>())
+            renewable.UnionWith(Drops(table, tables, 0));
+        bool grew = true;
+        while (grew)
+        {
+            grew = false;
+            foreach (var recipe in recipes.Values.Where(r => !renewable.Contains(r.OutputItemId) && r.Inputs.All(i => renewable.Contains(i.ItemId))))
+                grew |= renewable.Add(recipe.OutputItemId);
+        }
+        return renewable;
+    }
+
+    private static IEnumerable<string> Drops(string tableId, ImmutableSortedDictionary<string, LootTable> tables, int depth) =>
+        depth < 8 && tables.TryGetValue(tableId, out var table)
+            ? table.Weighted.Concat(table.Independent).Concat(table.Guaranteed)
+                .SelectMany(e => e.ItemId is { } item ? new[] { item } : e.TableId is { } nested ? Drops(nested, tables, depth + 1) : Array.Empty<string>())
+            : Array.Empty<string>();
 
     private static double TicksPerGameMinute(ContentLoader loader)
     {

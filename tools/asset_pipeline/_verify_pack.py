@@ -103,6 +103,7 @@ def main():
         if lod_policy == "none":
             required = [s for s in required if s not in ("_lod1", "_lod2", "_lod3")]
 
+        lods = [s for s in required if s.startswith("_lod")]
         missing = []
         for suffix in required:
             candidate = os.path.join(asset_dir, f"{stem}{suffix}.glb")
@@ -145,6 +146,16 @@ def main():
             entry["verify"] = "RESULT: complete" in (check.stdout or "")
             if not entry["verify"]:
                 problems.append(f"{stem}: verifier reported incomplete")
+            # Each LOD is drawn too: it must carry its material, textures and UVs.
+            for suffix in ("_lod1", "_lod2", "_lod3"):
+                lod = os.path.join(asset_dir, f"{stem}{suffix}.glb")
+                if suffix not in lods or not os.path.exists(lod):
+                    continue
+                check = subprocess.run([sys.executable, VERIFIER, lod], capture_output=True, text=True)
+                if "RESULT: complete" not in (check.stdout or ""):
+                    entry["verify"] = False
+                    result = (check.stdout or "").strip().splitlines()[-1:] or ["unreadable"]
+                    problems.append(f"{stem}: {suffix[1:]} {result[0].strip()}")
 
         # Normalisation: the game depends on these being right, and a silently wrong
         # scale or a mesh sunk below the origin is invisible until something floats

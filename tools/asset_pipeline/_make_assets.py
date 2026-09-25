@@ -23,6 +23,10 @@ TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
 GENERATOR = os.path.join(TOOL_DIR, "_run_3d_asset.py")
 HEALTH = os.path.join(TOOL_DIR, "_comfy_health.py")
 CLEANUP = os.path.join(TOOL_DIR, "_blender_cleanup.py")
+LODS = os.path.join(TOOL_DIR, "_rebuild_lods.py")
+QA = os.path.join(TOOL_DIR, "_asset_qa.py")
+sys.path.insert(0, TOOL_DIR)
+import _reuse_gate  # noqa: E402
 VERIFIER = os.path.join(TOOL_DIR, "_verify_glb.py")
 CONCEPT_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 PYTHON = sys.executable
@@ -394,6 +398,14 @@ def main():
                 records.append(record)
                 continue
         else:
+            # The reuse gate: new geometry by image-to-3D only for an asset classified as a unique
+            # reconstruction or a bespoke hero; template variants come from their template.
+            allowed, why = _reuse_gate.check(stem, "reconstruction")
+            if not allowed:
+                record["error"] = "reuse gate: " + why
+                print(f"    REFUSED  {record['error']}")
+                records.append(record)
+                continue
             # A hung ComfyUI answers nothing but keeps accepting prompts, which makes
             # every subsequent asset fail with a misleading client timeout. Checking
             # first stops one hang from consuming the whole run.
@@ -465,7 +477,9 @@ def main():
                    "--python", CLEANUP, "--",
                    "--input", raw_glb, "--outdir", asset_dir,
                    "--name", stem, "--category", category,
-                   "--lod-faces", args.lod_faces]
+                   # No LODs here: cleanup's decimation stripped materials and UVs and cracked the
+                   # unwelded mesh (the 1,455 untextured LODs of 2026-09); Stage 2b builds them.
+                   "--lod-faces", ""]
         if args.target_size is not None:
             command.extend(["--target-size", str(args.target_size)])
 
@@ -481,18 +495,56 @@ def main():
         print(f"    cleanup  {elapsed:6.1f}s  [{category}] {cleanup['base_faces']} faces, "
               f"{cleanup['dimensions']} m, {len(cleanup['lods'])} LODs")
 
-        # ---- Stage 3: verify the base GLB is engine-usable ----
+        # ---- Stage 2b: textured LODs from the cleaned base, gated against it ----
         base_glb = os.path.join(asset_dir, f"{stem}.glb")
+        # The LOD tool refuses to write beside the LOD0 it reads, so it builds in a staging folder and the results move in.
+        lod_stage = os.path.join(asset_dir, "_lod_build")
+        output, elapsed, code = run([BLENDER, "--background", "--factory-startup", "--python", LODS, "--",
+                                     "--input", base_glb, "--outdir", lod_stage, "--budgets", args.lod_faces],
+                                    "lods", record["stages"])
+        lods = next((json.loads(line[len("REBUILD_LODS_RESULT "):]) for line in output.splitlines()
+                     if line.startswith("REBUILD_LODS_RESULT ")), None)
+        if os.path.isdir(lod_stage):
+            for name in os.listdir(lod_stage):
+                if name.startswith(f"{stem}_lod"):   # not the tool's scratch caches
+                    os.replace(os.path.join(lod_stage, name), os.path.join(asset_dir, name))
+            shutil.rmtree(lod_stage)
+            if lods and lods.get("report"):
+                lods["report"] = os.path.join(asset_dir, os.path.basename(lods["report"]))
+        if lods is None:
+            record["lods_output"] = output.strip()[-2000:]
+        record["lods"] = lods
+        print(f"    lods     {elapsed:6.1f}s  {'passed' if lods and lods.get('passed') else 'FAILED'}")
+
+        # ---- Stage 3: verify the base GLB and every LOD are engine-usable ----
         output, _elapsed, _code = run([PYTHON, VERIFIER, base_glb], "verify", record["stages"])
-        record["verified"] = "RESULT: complete" in output
+        record["verified"] = "RESULT: complete" in output and bool(lods and lods.get("passed"))
+        for level in (1, 2, 3):
+            lod_output, _elapsed, _code = run([PYTHON, VERIFIER, os.path.join(asset_dir, f"{stem}_lod{level}.glb")],
+                                              f"verify_lod{level}", record["stages"])
+            if "RESULT: complete" not in lod_output:
+                record["verified"] = False
+                output += lod_output
         record["asset_dir"] = asset_dir
         record["base_glb"] = base_glb
         record["raw_glb"] = raw_glb
         if not record["verified"]:
             record["verify_output"] = output.strip()
 
+        # ---- Stage 3b: quality signals. Review triggers, not gates: a flagged asset still ships
+        # to ready/, but it is marked for a visual review before anything binds it. ----
+        target = cleanup.get("dimensions") and max(cleanup["dimensions"])
+        qa_output, _elapsed, _code = run([PYTHON, QA, "--glb", base_glb] + (["--target", str(target)] if target else []),
+                                         "qa", record["stages"])
+        try:
+            record["qa_flags"] = json.JSONDecoder().raw_decode(qa_output[qa_output.index("{"):])[0].get("flags", [])
+        except ValueError:
+            record["qa_flags"] = [{"code": "qa_unreadable", "severity": "review", "message": qa_output.strip()[-200:]}]
+        record["visual_review"] = "required" if record["qa_flags"] else "sheet"
+
         records.append(record)
-        print(f"    verify   {'OK' if record['verified'] else 'INCOMPLETE'}")
+        print(f"    verify   {'OK' if record['verified'] else 'INCOMPLETE'}"
+              + (f"  review: {', '.join(f['code'] for f in record['qa_flags'])}" if record["qa_flags"] else ""))
 
         # ---- Stage 4: optional rigging ----
         if args.rig and record["verified"]:
