@@ -422,9 +422,19 @@ public sealed class SaveStore
 
     public IReadOnlyList<string> PreMigrationBackups(string slot) =>
         Directory.EnumerateDirectories(Root, "pre_migration_*_" + slot)
-            .Where(p => Path.GetFileName(p).EndsWith("_" + slot, StringComparison.Ordinal))
+            .Where(p => IsPreMigrationOf(Path.GetFileName(p)!, slot))
             .OrderBy(p => p, StringComparer.Ordinal)
             .ToList();
+
+    // Exactly pre_migration_<schema>_<slot>: "quick" must not claim manual_x_quick's copies (the Phase-1 technical audit, L-05).
+    private static bool IsPreMigrationOf(string name, string slot)
+    {
+        const string prefix = "pre_migration_";
+        if (!name.StartsWith(prefix, StringComparison.Ordinal) || !name.EndsWith("_" + slot, StringComparison.Ordinal)
+            || name.Length <= prefix.Length + slot.Length + 1)
+            return false;
+        return int.TryParse(name[prefix.Length..^(slot.Length + 1)], NumberStyles.None, CultureInfo.InvariantCulture, out _);
+    }
 
     // ── §7.3 backup rotation ────────────────────────────────────────────────
 
