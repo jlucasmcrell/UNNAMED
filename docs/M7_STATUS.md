@@ -49,6 +49,7 @@
 | Phase B | Not an input to M7. A Phase-B change that needs a gameplay-facing contract change stops M7 for an owner report | 2026-09-25 |
 | E1 N-A10 STOP: expansion bound | Option (a). Keep optimal A* and `max_expansions: 65536`. The exhaustive authored-pair sweep is diagnostic: every pair `Found` within the cap, no two-thirds bound, expensive pairs recorded as residue. The two-thirds (1.5× headroom) rule applies to actual M7 mover routes: Kera's workshop routes, companion routes | 2026-09-25 |
 | E1 N-A10 STOP: speed target | The 6 ms walk-home STOP is superseded. Actual M7 mover plans on ASTRAL in Release: ≤ 15 ms target, > 20 ms STOP; also STOP on a repeatable, player-visible planning hitch. Diagnostic pairs are measured and reported, never the mover criterion. Escalation: profile, optimize without changing results, re-measure, then the per-tick plan budget seam; any algorithmic change needs owner review | 2026-09-25 |
+| E2.3 STOP (S9): the fixture pack's `config.navigation` | Option (b). The current fixture pack omits the optional `config.navigation`, so `NavigationContent.Build` uses `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the production file. The writer pack `content-0.1.7` keeps its copy; production `content/config/navigation.yaml` is unchanged; NAV001-NAV007 are unchanged. Options (a), completing the fixture's combat and magic content, and (c), skipping the NAV lint without a tick, are rejected. The ruling covers this optional file only; it is not general permission to omit a required fixture definition | 2026-09-25 |
 
 ## Slices
 
@@ -56,7 +57,7 @@
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
-| E2 | Schema 15, landed once | **stopped** (S9, E2.3) | `d17a67e` (E2.1), `f7931e1` (E2.2) | 870 at E2.2: Domain 162, Application 206, Persistence 173, Content 160, World 66, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | See "STOP - E2.3, S9" |
+| E2 | Schema 15, landed once | **stopped** (S9/S10, E2.4) | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3) | 898 at E2.3: Domain 162, Application 208, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | E2.3's STOP (S9) resolved by the owner; see "STOP - E2.4, S9 and S10" |
 | E3 | Factions v1 | - | | | 106 expected | |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
@@ -207,6 +208,58 @@ The owner resolved the STOP as a correction to the design's benchmark, not as an
 
 **State at the STOP.** E2.1 (`d17a67e`) and E2.2 (`f7931e1`) are committed and pushed; E2.1's CI is green. E2.3 is in progress and uncommitted in the worktree. Its source builds; the packs, the probe rows and the test edits are applied; and the writer pack's hash is computed. A patch of the in-progress work is at `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\drafts\wip\E2.3_wip_2026-09-25.patch`. Nothing of E2.3 is committed or pushed. The design is not amended.
 
+## Owner ruling on the E2.3 STOP (2026-09-25)
+
+The owner chose reading (b). As applied:
+
+- `tests/Persistence.Tests/Fixtures/content/config/navigation.yaml` is not in the current pack (0.2.9), and the probe mirror (`M2Fixtures.Historical.CurrentContent()`) gains 11 IDs, not 12. `CurrentContentHash` is `sha256:9820bc73fe59078cb57d2ca56019cdde0faa3fd527c5c7aecfa92aadb01cc1c6`, computed over the pack as committed.
+- `content-0.1.7/config/navigation.yaml` stays. `WriterContentHash` is `sha256:8598b534627cd78459b1f3a2eba40dde566513ba6bfbd44137b63c34393f42e6`.
+- `content/config/navigation.yaml` and NAV001-NAV007 are unchanged. `NavConfigDefault_IsTheShippedFile` stays green, so the default the fixture navigates with is the production file's effective configuration.
+- The current pack loads with 0 content errors. For comparison, before the ruling, the pack with `config.navigation` failed NAV007, and with `config.time` added it failed CMB001 and MAG001.
+- The design's §7.11 is amended in the history folder (backup `drafts/history/M7_IMPLEMENTATION_DESIGN.before_E2_S9_ruling_2026-09-25.md`). The current-pack list no longer names `config.navigation` and records the omission with its reason; the mirror is 11 IDs; the principle "the pack is fixed, never the lint" gains the owner's clarification (a fixture carries the content it exercises, not optional files that switch on unrelated domains); and an owner-ruling paragraph preserves the original text and this STOP's evidence.
+
+## STOP - E2.4, S9 and S10 (2026-09-25)
+
+**What fired.** S9, "two sections of this document contradict each other on something the slice needs", and S10, "a number this document states as asserted differs from the implementation". §7.14 specifies the new `TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand` as asserting that "`Report.Steps` ends with a step starting `"schema 14 -> 15:"`, the fourth of four". The same document states the save's path as "12 → 13 → 14 → 15" in seven places (§1 item 169, §7.14 twice, §10 purpose, §11 criterion 20, §12.6, R-B2). That path is three steps, and the loader reports three.
+
+**Measured.** Loading the committed `m6_acceptance` save (schema 12) reports `Steps.Count == 3`: `schema 12 -> 13`, `schema 13 -> 14`, `schema 14 -> 15`. With the count read as 3, every other E2 row of the test holds, checked diagnostically:
+- no transition, mismatch, blocker, loss or alias; the manifest's fingerprint equals the session generator's;
+- no piece, sequence 0, no errand for Kera, and Kera at her authored site;
+- the empty ledger;
+- Tavar with `NavRoute.None` and his saved trail;
+- `pre_migration_12_manual_acceptance` byte-identical to the committed save after the first save;
+- 0 `StateDump.Compare` differences on reload, and no subscriber failure.
+
+**The readings.**
+
+| Reading | The assertion | Consequence |
+|---|---|---|
+| (a) The chain | `Steps.Count == 3`, the last starting `schema 14 -> 15:` ("the third of three") | Matches the design's seven statements of 12 → 13 → 14 → 15, and the implementation. §7.14's "the fourth of four" is amended |
+| (b) "The fourth of four" | `Steps.Count == 4` | Needs a fourth migration step that no section of the design defines; it cannot be met without inventing one |
+
+**Recommendation.** (a): "the fourth of four" counts the four schemas in the path, not the three steps between them. Nothing else in E2 depends on it.
+
+**State at the STOP.** E2.1 (`d17a67e`), E2.2 (`f7931e1`) and E2.3 (`e5f221d`) are committed and pushed. E2.3 builds, 898 tests pass, and the content lint reports 0 errors. E2.4's test is written in the worktree with the design's literal assertion (`Steps.Count == 4`), uncommitted; it fails on that line alone. E2.5, the documents, is not started. The E2 runtime gate is run over E2.3 as verification only, and its results are below.
+
+## E2 evidence at the STOP (E2.3, `e5f221d`, 2026-09-25, ASTRAL)
+
+E2.4 adds a test and E2.5 documents; neither changes a runtime path, so these runs stand for E2's runtime unless E2.4 or E2.5 changes that.
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors; the only warning is the pre-existing one in `MagicContent.cs` |
+| `dotnet test src/UNNAMED.sln` | 898 passed, 0 failed. Draft PR #8 CI green (`build-and-test`, run 36197330347) |
+| Content lint | 0 errors |
+| Schema 14 → 15 | `Schema14To15_GivesNothingBuiltNoLedgerAndNoRoutes` passes on `Copy(14)` |
+| Fixtures v1-v15 | `Fixture_LoadsToItsExpectedCurrentState` (15, with the M7 block) and `Fixture_MigratesThroughTheCommitPath_AndReloadsToTheSameState` (1..15) pass; the older `expected.json` diffs are exactly §7.12's (scope ledger) |
+| The real M6 acceptance save | `TheM6AcceptanceSave_LoadsUnderTodaysGame_AsItWasSaved_AndPlaysOn` passes: 12 → 13 → 14 → 15, field by field, with exactly 5 more differences than before M7, as §7.14 states |
+| `--smoke` (headless) | PASS; its save round trip runs at schema 15, digest identical |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` | exit 0 (b01, b02) |
+| `--playthrough` then `--playthrough-verify` | every beat passed (379 s). Verify: **968 fields**, 0 differences. That is E1's 956, plus Tavar's `None` route (10), `StructureSequence` (1) and `NextActSeq` (1), as §7.9 states |
+| A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `e566931abe91bac8250a084662971abb5bcd17ea6101417e6068b1018341fe78` |
+| `--ui-shots`, `--delta-shots` | both exit 0 (283 s, 161 s), 0 error lines. The smoke log's 911 headless keyboard-layout lines are E1's pre-existing noise |
+
 ## Scope ledger
 
 Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase or a design row. Deviations and as-built readings are listed here as they arise.
@@ -224,7 +277,15 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E1 | `--build-shots` files | E1 writes `transcript.md`, a JPEG per still and the coverage reports. `commands.tsv` and the state files arrive with the command-table rows and b19 (E5). The run-level "words only" check lands with the first M7 toasts and status lines (E5); the camera-in-a-wall check has no piece to test until E5 |
 | E1 | What the overlay drew | `NavigationOverlay` keeps the nodes it sampled, its quad count and each gate's colour, so the beats assert on what was drawn, not on a second computation |
 | E2 | Commit order | §7.15 lists the player's `Factions` and a companion's `Route` in E2.1. They move to E2.3, with the codec that saves them: `PlayerRecordCompletenessTests` requires every `PlayerRecord` property to reach the save, so adding them before the codec would leave E2.1 red. E2.1 keeps the world half (pieces, the structure sequence, errands, the `Factions` slice) |
-| E2 | The M6 acceptance rows | The world's three M7 rows of `TheM6AcceptanceSave_LoadsUnderTodaysGame_AsItWasSaved_AndPlaysOn` (`Pieces`, `NpcErrands` `[]`, `StructureSequence` `0`) land in E2.1 with the fields they cover, not in E2.4; E2.4 adds the player's |
+| E2 | The M6 acceptance rows | The world's three M7 rows of `TheM6AcceptanceSave_LoadsUnderTodaysGame_AsItWasSaved_AndPlaysOn` (`Pieces`, `NpcErrands` `[]`, `StructureSequence` `0`) land in E2.1 with the fields they cover, not in E2.4; E2.3 adds the player's two (`Factions`, each companion's `Route`) with the bump that creates them, so every commit stays green; E2.4 is the new test alone |
+| E2 | The fixture pack without `config.navigation` | The owner's ruling on the E2.3 STOP (above): 11 mirror IDs; the writer pack keeps its copy |
+| E2 | `PlayerRecordCompletenessTests` | `Coupled` gains exactly §6's three: route `status`, act `cell_key` and knowledge `identity`. Two other changes let the rest reach the digest alone. `Words` gains the ledger's vocabularies (`ActKinds.Built`, `KnowledgeSources.All`, `Identities.All`) beside the relationship dimensions: they are string constants, not enum keys. `Full()`'s ledger leaves room above its last act (`NextActSeq + 1`), so an act's sequence can move alone. The built companion carries an `unreachable` route |
+| E2 | F-E4 compares by value | `EveryPlayerRecordInitProperty_SurvivesEveryWithMethod` compares each property by its JSON. Record equality compares `ConversationMemory.Heard`, an `ImmutableArray`, by reference, and the constructor rebuilds it, so `Equals` reported a drop that was not one |
+| E2 | Where the tests live | G11, G28, G29, F-E4, the corrupt, quarantine, row-rejection and definition-pass tests are in `Schema15Tests.cs` (§12.6); F-E1 is in `RoundTripTests.cs`; `PiecesAndErrands_AreProvenByTheirHostCells_AndRebasedByATransition` is in `MigrationTests.cs`, beside its created-instance twin, whose fixture helpers it shares; G12's player half is `EveryPersistedPlayerField_MovesThePlayerDigest` in `PersistedDigestTests.cs` |
+| E2 | A malformed piece-chest key | The chest clause of `TryApplyContainer` reads the piece ID with `EntityId.TryParse`, so a hash-valid `container.pce_` key that is no ULID is a rejected row ("its chest is gone") rather than a `FormatException` thrown past the loader (the L-04 class) |
+| E2 | `StateDump.Live` | `pieces`, `work_assignments` and `factions` read the world's records and the faction slice until their views land (factions E3, pieces E5, work assignments E8-E9). All three are empty in play at E2 and add no leaf |
+| E2 | `ASaveAndALoad_CompareEqual_FieldByField` | Measured: 662 leaves, 660 without the M7 keys, so exactly +2 (`StructureSequence`, `NextActSeq`), as §7.9 states |
+| E2 | The older `expected.json` diffs | Reviewed line by line, exactly §7.12's (no S4). In v1-v14: a comma after `posture`, then the 6-line `factions` object; a comma after `noises`, then the three root lines. In v12-v14 also: a comma after the warden's `trail_mm`, then the 17-line `route`. The removed lines are only the closing lines those commas change |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
