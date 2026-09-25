@@ -196,6 +196,40 @@ void fragment() {
     }
 
     private static Shader? _wornShader;
+    private static Shader? _treeShader;
+
+    /// <summary>
+    /// A tree on the wind (Phase B, B4): each surface's own material rebuilt as <see cref="WindField.TreeShader"/> - its colour, normal and
+    /// roughness maps, its leaves still alpha-tested - swaying by the model's height and <paramref name="stiffness"/>.
+    /// </summary>
+    public static void Windblown(Node3D model, float stiffness)
+    {
+        float height = Math.Max(1f, Art.ArtGallery.Bounds(model).Size.Y / Math.Max(0.01f, model.Scale.Y));
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+            {
+                if (mesh.GetActiveMaterial(s) is not BaseMaterial3D own)
+                    continue;
+                var tree = new ShaderMaterial { Shader = _treeShader ??= new Shader { Code = WindField.TreeShader } };
+                tree.SetShaderParameter("albedo_tex", own.AlbedoTexture);
+                tree.SetShaderParameter("has_albedo", own.AlbedoTexture is not null);
+                tree.SetShaderParameter("albedo_colour", own.AlbedoColor);
+                tree.SetShaderParameter("normal_tex", own.NormalTexture);
+                tree.SetShaderParameter("has_normal", own is { NormalEnabled: true, NormalTexture: not null });
+                tree.SetShaderParameter("roughness_tex", own.RoughnessTexture);
+                tree.SetShaderParameter("has_roughness", own.RoughnessTexture is not null);
+                tree.SetShaderParameter("roughness_value", own.Roughness);
+                tree.SetShaderParameter("foliage", own.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash);
+                tree.SetShaderParameter("alpha_cut", own.AlphaScissorThreshold);
+                tree.SetShaderParameter("tree_height", height);
+                tree.SetShaderParameter("stiffness", stiffness);
+                mesh.SetSurfaceOverrideMaterial(s, tree);
+            }
+        }
+    }
 
     private const string WornCode = @"
 shader_type spatial;

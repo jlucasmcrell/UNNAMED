@@ -14,7 +14,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed record Placement(string? Model, string Fit = "none", string? Surface = null, string? Material = null, bool Hidden = false,
     bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
     Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null,
-    Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0);
+    Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0);
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -245,7 +245,7 @@ public sealed class ArtBindings
             ? (lights.ValueKind == JsonValueKind.Array ? lights.EnumerateArray().Select(Light) : new[] { Light(lights) }).OfType<LightSpec>().ToList()
             : null,
         e.TryGetProperty("surface_tint", out var tint) ? Vector(tint) : null,
-        e.TryGetProperty("glow", out var glow) ? Vector(glow) : null, Number(e, "glow_energy", 0));
+        e.TryGetProperty("glow", out var glow) ? Vector(glow) : null, Number(e, "glow_energy", 0), Number(e, "wind", 0));
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;

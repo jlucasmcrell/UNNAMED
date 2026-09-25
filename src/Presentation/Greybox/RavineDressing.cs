@@ -72,11 +72,12 @@ public static class RavineDressing
                     placed++;
             }
         }
-        // The rim: boulders just beyond the edge (a metre or more out, sunk to their waists), never inside the region.
+        // The rim: boulders on the soft lip just beyond the edge (under two metres out, where the ground has not begun to fall - further,
+        // a boulder hangs over the drop), sunk to their waists, never inside the region.
         for (float a = edge.From + random.RandfRange(0, 10); a < edge.To; a += random.RandfRange(7, 16))
         {
             float s = random.RandfRange(0.9f, 2.2f);
-            var at = Ground(a, random.RandfRange(1.2f, 4.5f));
+            var at = Ground(a, random.RandfRange(0.8f, 1.9f));
             if (Place(root, art, Boulders[random.RandiRange(0, Boulders.Length - 1)], at - new Vector3(0, 0.35f * s, 0),
                     new Vector3(random.RandfRange(-8, 8), random.RandfRange(0, 360), random.RandfRange(-8, 8)), s))
                 placed++;

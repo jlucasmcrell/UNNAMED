@@ -67,7 +67,7 @@
     "den_rock_back": { "model": "rock_den_back", "material": "stone" }
   },
   "structure_prefixes": {
-    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "note": "The procedural species (oak, pine, dead: _procgen_tree.py) at their authored 12.8-13.7 m, trunk vertical from the ground." }
+    "tree_": { "models": ["flora_oak_tree", "flora_pine_tree", "flora_dead_tree"], "material": "wood", "wind": 1.0, "note": "The procedural species (oak, pine, dead: _procgen_tree.py) at their authored 12.8-13.7 m, trunk vertical from the ground." }
   },
   "building_walls": {
     "longhouse_": {

@@ -19,13 +19,15 @@ namespace UNNAMED.Presentation.Greybox;
 public static class Terrain3DView
 {
     // The five proof layers (B0.1), packed by tools/asset_pipeline/_pack_terrain_texture.py from the external depot (Poly Haven, CC0).
-    private static readonly (string Id, float UvScale)[] Layers =
+    // Each with a tint over its colour (B3): the Charwood's leaf litter darkened and greyed towards ash - the photographed floor is a
+    // light autumn tan that reads pale under the overcast exposure.
+    private static readonly (string Id, float UvScale, Color Tint)[] Layers =
     {
-        ("terrain_ph_grass_ground", 0.20f),   // 0: meadow (the waystation)
-        ("terrain_ph_forest_floor", 0.25f),   // 1: leaf litter (the Charwood)
-        ("terrain_ph_rocky_trail", 0.25f),    // 2: trodden paths, the Foldscar's broken ground
-        ("terrain_ph_rock_ground", 0.20f),    // 3: the quarry floor
-        ("terrain_ph_dark_rock_02", 0.10f),   // 4: steep faces (slopes inside; the ravine and ridges outside), projected on steep slopes
+        ("terrain_ph_grass_ground", 0.20f, Colors.White),                    // 0: meadow (the waystation)
+        ("terrain_ph_forest_floor", 0.25f, new Color(0.56f, 0.53f, 0.51f)),  // 1: leaf litter (the Charwood)
+        ("terrain_ph_rocky_trail", 0.25f, Colors.White),                     // 2: trodden paths, the Foldscar's broken ground
+        ("terrain_ph_rock_ground", 0.20f, Colors.White),                     // 3: the quarry floor
+        ("terrain_ph_dark_rock_02", 0.10f, Colors.White),                    // 4: steep faces (slopes inside; the ravine and ridges outside), projected on steep slopes
     };
 
     private const int Cliff = 4, Trail = 2;
@@ -47,7 +49,7 @@ public static class Terrain3DView
         var layers = new List<GodotObject>();
         for (int i = 0; i < Layers.Length; i++)
         {
-            var asset = TextureAsset(Layers[i].Id, Layers[i].UvScale, art.Root);
+            var asset = TextureAsset(Layers[i].Id, Layers[i].UvScale, Layers[i].Tint, art.Root);
             if (asset is null)
             {
                 why = $"terrain layer {Layers[i].Id} is not in the asset workspace";
@@ -228,7 +230,7 @@ public static class Terrain3DView
     private static uint Encode(int baseLayer, int overlay, int blend, bool auto) =>
         ((uint)(baseLayer & 0x1F) << 27) | ((uint)(overlay & 0x1F) << 22) | ((uint)(blend & 0xFF) << 14) | (auto ? 1u : 0u);
 
-    private static GodotObject? TextureAsset(string id, float uvScale, string? assetRoot)
+    private static GodotObject? TextureAsset(string id, float uvScale, Color tint, string? assetRoot)
     {
         if (assetRoot is null)
             return null;
@@ -242,6 +244,7 @@ public static class Terrain3DView
         asset.Set("albedo_texture", albedo);
         asset.Set("normal_texture", normal);
         asset.Set("uv_scale", uvScale);
+        asset.Set("albedo_color", tint);
         asset.Set("detiling_rotation", 0.12f);
         asset.Set("detiling_shift", 0.25f);
         return asset;

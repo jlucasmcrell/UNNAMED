@@ -292,6 +292,12 @@ public partial class HollowView : Node3D
             Palette.Wear(model, maps, tint, glow, look.GlowEnergy);
             Coverage.Resolved("structure_surface", blocker.Id, worn);
         }
+        // A model bound with a wind stiffness sways on the world wind (Phase B, B4: the trees).
+        if (look.Wind > 0 && VisualOptions.Wind)
+        {
+            WindField.Ensure(this);
+            Palette.Windblown(model, look.Wind);
+        }
         // The camera's collider stays the structure's own shape: what the body collides with is the truth.
         var greyboxShape = BuildStructure(blocker, terrain);
         if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)

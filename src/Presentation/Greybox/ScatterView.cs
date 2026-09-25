@@ -54,12 +54,7 @@ public partial class ScatterView : Node3D
                 // Prepared plant models (Phase B, B0.5) draw only when the run asks for them (--visual plants=models).
                 if (VisualOptions.Plants != "models")
                     continue;
-                if (_wind is null)
-                {
-                    WindField.Register();
-                    _wind = new WindField { Name = "Wind" };
-                    AddChild(_wind);
-                }
+                _wind ??= WindField.Ensure(this);
                 var levels = ModelMeshes(art, kind, model);
                 if (levels.Length == 0)
                 {
