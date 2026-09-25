@@ -388,6 +388,9 @@ public partial class Main : Node3D
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
+            // Phase B: the feet planted on the ground under them (the ground field the terrain is drawn from).
+            if (VisualOptions.BodyModifiers)
+                Art.BodyModifiers.PlantFeet(skinned.Skeleton, skinned, _ground.Height);
             _art.Coverage.Resolved("person", "player", body!);
         }
         else
@@ -414,7 +417,7 @@ public partial class Main : Node3D
         _crafting.Bind(_art, _bindings);
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
-        _npcs = new NpcsView { Name = "Npcs" };
+        _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");

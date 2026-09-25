@@ -39,6 +39,7 @@ public static class BodyModifiers
             planting.Targets[side] = target;
             planting.Poles[side] = pole;
         }
+        planting.Ik = ik;
         planting.Bind(skeleton);
         return planting;
     }
@@ -110,6 +111,11 @@ public partial class FootPlanting : SkeletonModifier3D
     /// <summary>The hips' drop this frame, in metres (negative is down), for the reports.</summary>
     public float Drop { get; private set; }
 
+    /// <summary>The leg IK this feeds: its influence follows the planting's weight (none while the body is off the ground).</summary>
+    public TwoBoneIK3D? Ik { get; set; }
+
+    private float _weight = 1f;
+
     private int _hips, _hipsParent;
     private readonly int[] _feet = new int[2], _shins = new int[2];
 
@@ -129,6 +135,13 @@ public partial class FootPlanting : SkeletonModifier3D
             return;
         var toWorld = skeleton.GlobalTransform;
         float baseY = Ground(Body.GlobalPosition.X, Body.GlobalPosition.Z);
+        // Off the ground (a jump, a fall) or lying down, the clip keeps its legs: the planting fades out, and back in on landing.
+        bool grounded = Body.GlobalPosition.Y - baseY < 0.12f && Mathf.Abs(Body.Rotation.X) < 0.3f;
+        _weight = delta <= 0 ? (grounded ? 1f : 0f) : Mathf.MoveToward(_weight, grounded ? 1f : 0f, (float)delta * 6f);
+        if (Ik is not null)
+            Ik.Influence = _weight;
+        if (_weight <= 0.001f)
+            return;
         Span<Vector3> feet = stackalloc Vector3[2];
         Span<float> rise = stackalloc float[2];
         for (int i = 0; i < 2; i++)
@@ -136,7 +149,7 @@ public partial class FootPlanting : SkeletonModifier3D
             feet[i] = toWorld * skeleton.GetBoneGlobalPose(_feet[i]).Origin;
             rise[i] = Math.Clamp(Ground(feet[i].X, feet[i].Z) - baseY, -MaxStep, MaxStep);
         }
-        float drop = Math.Min(0, Math.Min(rise[0], rise[1]));
+        float drop = Math.Min(0, Math.Min(rise[0], rise[1])) * _weight;
         Drop = delta <= 0 ? drop : Mathf.Lerp(Drop, drop, 1f - MathF.Exp(-14f * (float)delta));
         // The hips down by the drop (a world-space offset carried into the hips' parent's space).
         var down = toWorld.Basis.Inverse() * new Vector3(0, Drop, 0);

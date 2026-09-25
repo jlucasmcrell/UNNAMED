@@ -26,8 +26,19 @@ public partial class NpcsView : Node3D
         _bindings = bindings;
     }
 
+    /// <summary>The ground's height at (x, z), for planting the figures' feet (Phase B); null draws them as the clips have them.</summary>
+    public Func<float, float, float>? Ground { get; set; }
+
+    /// <summary>Where the player's head is (moved each frame), for the NPCs' heads to follow.</summary>
+    public Node3D PlayerHead { get; } = new() { Name = "PlayerHead" };
+
+    private readonly Dictionary<string, LookAtModifier3D> _looks = new(StringComparer.Ordinal);
+
     public void Draw(Simulation simulation, double delta)
     {
+        if (PlayerHead.GetParent() is null)
+            AddChild(PlayerHead);
+        PlayerHead.GlobalPosition = HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm) + new Vector3(0, 1.6f, 0);
         foreach (var npc in simulation.Npcs)
         {
             if (!_figures.TryGetValue(npc.Id, out var figure))
@@ -42,6 +53,13 @@ public partial class NpcsView : Node3D
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;
+                // Phase B: feet planted on the ground, and the head turning to the player when near (its influence set each frame).
+                if (VisualOptions.BodyModifiers && body is not null && Ground is { } ground)
+                {
+                    Art.BodyModifiers.PlantFeet(body.Skeleton, body, ground);
+                    if (Art.BodyModifiers.LookAt(body.Skeleton, body, PlayerHead) is { } look)
+                        _looks[npc.Id] = look;
+                }
             }
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
             if (figure is Art.SkinnedFigure skinned)
@@ -53,6 +71,12 @@ public partial class NpcsView : Node3D
             figure.SetStance(CombatStance.AtRest);
             figure.SetTalking(npc.Talking);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), Math.Min(speed, 8f), delta);
+            if (_looks.TryGetValue(npc.Id, out var head))
+            {
+                // Within 6 m (and not downed) the head follows the player; further off it eases back to the clip's.
+                float near = feet.DistanceTo(PlayerHead.GlobalPosition) < 6f && !npc.Downed ? 1f : 0f;
+                head.Influence = Mathf.MoveToward(head.Influence, near, (float)delta * 2.5f);
+            }
             if (!figure.SetDowned(npc.Downed) && npc.Downed)
                 figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);
         }

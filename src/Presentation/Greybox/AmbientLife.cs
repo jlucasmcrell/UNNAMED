@@ -17,8 +17,9 @@ public static class AmbientLife
     public const string ResourcePath = "res://Art/ambient_life.json";
 
     /// <summary>The run's ambient life under <paramref name="parent"/>; returns how many animals it drew.</summary>
-    public static int Build(Node3D parent, GroundField ground, ulong seed)
+    public static int Build(Node3D parent, GroundField ground, ulong seed, IReadOnlyList<Rect2>? indoors = null)
     {
+        _indoors = indoors ?? Array.Empty<Rect2>();
         if (!Godot.FileAccess.FileExists(ResourcePath))
             return 0;
         using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
@@ -129,7 +130,8 @@ public static class AmbientLife
         {
             float x = region.Position.X + (i + 0.5f) / N * region.Size.X, z = region.Position.Y + (j + 0.5f) / N * region.Size.Y;
             height.SetPixel(i, j, new Color(ground.Height(x, z), 0, 0));
-            float keep = grounds is null || OnGround(ground, x, z, grounds) ? 1f : 0f;
+            // Kept to its grounds, and out of the buildings (their footprints, a metre round).
+            float keep = (grounds is null || OnGround(ground, x, z, grounds)) && !_indoors.Any(r => r.Grow(1f).HasPoint(new Vector2(x, z))) ? 1f : 0f;
             mask.SetPixel(i, j, new Color(keep, keep, keep));
         }
         material.SetShaderParameter("around_camera", true);
@@ -139,6 +141,8 @@ public static class AmbientLife
         material.SetShaderParameter("mask_tex", ImageTexture.CreateFromImage(mask));
         return material;
     }
+
+    private static IReadOnlyList<Rect2> _indoors = Array.Empty<Rect2>();
 
     private static (float, float) Range(JsonElement e, string name) =>
         e.TryGetProperty(name, out var r) && r.GetArrayLength() == 2 ? ((float)r[0].GetDouble(), (float)r[1].GetDouble()) : (1f, 1f);
