@@ -25,13 +25,22 @@ public static class WaterView
         }
         var root = new Node3D { Name = "RavineRiver" };
         parent.AddChild(root);
-        float x0 = region.Position.X, x1 = region.End.X, z0 = region.Position.Y, z1 = region.End.Y;
-        // Each strip: its centre line 16 m out (the floor runs 8-26 m out), 15 m wide, and the way the current runs along it.
-        const float Out = 17f, Width = 15f, Past = 24f;
-        Strip(root, "west", new Vector3(x0 - Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, 1), height);
-        Strip(root, "north", new Vector3((x0 + x1) / 2, 0, z1 + Out), new Vector2(x1 - x0 + 2 * Past, Width), new Vector2(1, 0), height);
-        Strip(root, "east", new Vector3(x1 + Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, -1), height);
+        foreach (var (centre, size, flow) in Strips(region))
+            Strip(root, flow.Y > 0 ? "west" : flow.Y < 0 ? "east" : "north", centre, size, flow, height);
         return root;
+    }
+
+    /// <summary>
+    /// The river's strips on the ravine floor - west, north, east: each its centre line 17 m out (the floor runs 8-26 m out), its size
+    /// (15 m wide, running 24 m past the corners) and the way the current runs along it. Shared with the mist over them.
+    /// </summary>
+    public static IEnumerable<(Vector3 Centre, Vector2 Size, Vector2 Flow)> Strips(Rect2 region)
+    {
+        float x0 = region.Position.X, x1 = region.End.X, z0 = region.Position.Y, z1 = region.End.Y;
+        const float Out = 17f, Width = 15f, Past = 24f;
+        yield return (new Vector3(x0 - Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, 1));
+        yield return (new Vector3((x0 + x1) / 2, 0, z1 + Out), new Vector2(x1 - x0 + 2 * Past, Width), new Vector2(1, 0));
+        yield return (new Vector3(x1 + Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, -1));
     }
 
     private static void Strip(Node3D root, string name, Vector3 centre, Vector2 size, Vector2 flow, Func<float, float, float> height)

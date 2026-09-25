@@ -80,6 +80,7 @@
       "model": "forge_shed", "material": "stone",
       "interior_light": { "at": [-1.2, 2.5, -0.8], "colour": [1.0, 0.82, 0.62], "energy": 1.5, "range": 9, "shadows": true, "size": 0.2, "fog_energy": 0.4,
         "note": "A lamp over the anvil and the door, so the smithy is not lit by the hearth alone (Phase A: its interior read black in the delta shots)." },
+      "emitters": [ { "recipe": "chimney_smoke", "at": [2.5, 7.4, 1.5], "note": "Phase B (B11): smoke from the chimney top, measured on forge_shed's model" } ],
       "note": "Drawn whole the same way (the procedural smithy, chimney over the hearth)."
     }
   },

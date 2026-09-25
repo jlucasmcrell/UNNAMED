@@ -69,6 +69,12 @@ public sealed class ParticleRecipes
             ScaleMin = size.Item1 / size.Item2, ScaleMax = 1f, AngleMin = angle.Item1, AngleMax = angle.Item2,
             ColorRamp = Ramp(r), ScaleCurve = Curve(Numbers(r, "size_curve") ?? new[] { 1f, 1f }),
         };
+        // Emitted through a box (motes and rain round the camera, mist along a river) rather than from a point.
+        if (Numbers(r, "box") is { Length: 3 } box)
+        {
+            process.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Box;
+            process.EmissionBoxExtents = new Vector3(box[0], box[1], box[2]) / 2;
+        }
         if (frames > 1)
         {
             // One pass through the book at its own rate across a particle's life, each particle starting somewhere in it.
@@ -80,7 +86,10 @@ public sealed class ParticleRecipes
         }
         var material = new StandardMaterial3D
         {
-            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, BillboardMode = BaseMaterial3D.BillboardModeEnum.Particles,
+            // Light-emitting effects are unshaded; smoke, mist, ash and rain take the scene's light (they must not glow at night).
+            ShadingMode = Flag(r, "lit") ? BaseMaterial3D.ShadingModeEnum.PerPixel : BaseMaterial3D.ShadingModeEnum.Unshaded,
+            BillboardMode = Text(r, "billboard") == "fixed_y" ? BaseMaterial3D.BillboardModeEnum.FixedY : BaseMaterial3D.BillboardModeEnum.Particles,
+            BillboardKeepScale = true,
             Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
             BlendMode = Text(r, "blend") == "add" ? BaseMaterial3D.BlendModeEnum.Add : BaseMaterial3D.BlendModeEnum.Mix,
             AlbedoTexture = texture, VertexColorUseAsAlbedo = true, AlbedoColor = Colors.White * Number(r, "energy", 1f),
@@ -90,9 +99,18 @@ public sealed class ParticleRecipes
         return new GpuParticles3D
         {
             Name = name, Amount = (int)Number(r, "amount", 16), Lifetime = lifetime, OneShot = burst, Explosiveness = burst ? 1f : 0f,
-            Emitting = !burst, ProcessMaterial = process, DrawPass1 = new QuadMesh { Size = new Vector2(size.Item2, size.Item2), Material = material },
+            Emitting = !burst, ProcessMaterial = process,
+            // A quad of the recipe's own proportions (a rain streak is thin and tall), at its largest size.
+            DrawPass1 = new QuadMesh
+            {
+                Size = Numbers(r, "quad") is { Length: 2 } q ? new Vector2(q[0], q[1]) * size.Item2 : new Vector2(size.Item2, size.Item2), Material = material,
+            },
             LocalCoords = false, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            VisibilityAabb = new Aabb(new Vector3(-4, -4, -4), new Vector3(8, 8, 8)),
+            // A stream starts as if it had been running a whole life (a chimney is already smoking when the camera arrives).
+            Preprocess = burst ? 0 : lifetime,
+            VisibilityAabb = Numbers(r, "box") is { Length: 3 } b
+                ? new Aabb(new Vector3(-b[0], -b[1] - 20, -b[2]), new Vector3(2 * b[0], 2 * b[1] + 40, 2 * b[2]))
+                : new Aabb(new Vector3(-8, -8, -8), new Vector3(16, 24, 16)),
         };
     }
 
@@ -138,6 +156,8 @@ public sealed class ParticleRecipes
             curve.AddPoint(new Vector2(points.Length == 1 ? 0 : (float)i / (points.Length - 1), points[i]));
         return new CurveTexture { Curve = curve };
     }
+
+    private static bool Flag(JsonElement e, string name) => e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.True;
 
     private static string? Text(JsonElement e, string name) => e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 

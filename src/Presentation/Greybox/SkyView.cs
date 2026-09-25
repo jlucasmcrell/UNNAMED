@@ -41,6 +41,9 @@ public static class SkyView
 
     private static readonly Color FogDay = new(0.66f, 0.68f, 0.70f);
 
+    /// <summary>Whether the run's hour is day (the sun well up): for what only runs by day (the atmosphere's pollen).</summary>
+    public static float DaylightNow => Hour is > 7f and < 18f ? 1f : 0f;
+
     /// <summary>How much daylight at a sun altitude (degrees): full from 10 degrees up, through civil twilight to none at -6.</summary>
     public static float Daylight(float sunAltitudeDegrees) => Mathf.Clamp((sunAltitudeDegrees + 6f) / 16f, 0f, 1f);
 

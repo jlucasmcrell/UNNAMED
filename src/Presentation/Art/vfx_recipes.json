@@ -40,6 +40,41 @@
       "direction": [0, 1, 0], "gravity": [0, 0.35, 0], "damping": [0.2, 0.4], "blend": "add", "energy": 0.9,
       "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
     },
+    "chimney_smoke": {
+      "note": "Smoke from a chimney or a hearth: Unity Labs WispySmoke01 (CC0), lit, rising and leaning downwind, swelling as it thins.",
+      "mode": "stream", "texture": "vfx/ext_unity_wispysmoke01.png", "grid": [8, 8], "frames": 64, "fps": 16, "lit": true,
+      "amount": 22, "lifetime": 6.5, "size": [1.2, 2.8], "size_curve": [0.35, 1.6], "velocity": [0.5, 0.8], "spread": 8,
+      "direction": [0, 1, 0], "gravity": [0.22, 0.05, 0.14], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.1,
+      "color": ["#9a9a9a00", "#949494e0", "#8a8a8a90", "#80808000"]
+    },
+    "ash_motes": {
+      "note": "Ash hanging in the Charwood's air: grey flakes drifting down and across round the camera, lit.",
+      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "lit": true, "box": [26, 9, 26],
+      "amount": 110, "lifetime": 9, "size": [0.018, 0.04], "velocity": [0.05, 0.18], "spread": 70,
+      "direction": [0, -1, 0], "gravity": [0.05, -0.05, 0.03], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.0,
+      "color": ["#55555500", "#5f5f5fcc", "#5a5a5acc", "#55555500"]
+    },
+    "pollen": {
+      "note": "Pollen and dust in the meadow's sunlight: tiny warm specks drifting round the camera.",
+      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "box": [22, 6, 22],
+      "amount": 45, "lifetime": 8, "size": [0.006, 0.012], "velocity": [0.03, 0.12], "spread": 180,
+      "direction": [0, 1, 0], "gravity": [0.04, 0.01, 0.02], "damping": [0.05, 0.1], "blend": "add", "energy": 1.2,
+      "color": ["#fff0c000", "#fff0c099", "#fff0c099", "#fff0c000"]
+    },
+    "rain": {
+      "note": "Rain in a storm: thin streaks in a box over the camera, falling fast and a little downwind, standing upright.",
+      "mode": "stream", "texture": "vfx/gen_rain_streak.png", "box": [22, 2, 22], "quad": [0.06, 1.0], "billboard": "fixed_y",
+      "amount": 3200, "lifetime": 0.9, "size": [0.5, 0.65], "velocity": [15, 18], "spread": 4, "angle": [0, 0],
+      "direction": [0.08, -1, 0.05], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#b4bcc45a", "#b4bcc45a"]
+    },
+    "river_mist": {
+      "note": "Mist over the ravine river: Unity Labs Cloud01 (CC0) as broad, slow, faint sheets along the water.",
+      "mode": "stream", "texture": "vfx/ext_unity_cloud01.png", "grid": [8, 8], "frames": 64, "fps": 4, "lit": true, "box": [12, 1.2, 60],
+      "amount": 16, "lifetime": 14, "size": [5, 9], "size_curve": [0.7, 1.2], "velocity": [0.05, 0.2], "spread": 180,
+      "direction": [0, 1, 0], "gravity": [0.06, 0.005, 0.04], "blend": "mix", "energy": 1.0,
+      "color": ["#dde2e500", "#dde2e53a", "#dde2e53a", "#dde2e500"]
+    },
     "embers": {
       "note": "Embers over a fire or the forge: the spark texture, rising and drifting, long-lived. The VFX Library's fireball_trail recipe, lengthened.",
       "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png",

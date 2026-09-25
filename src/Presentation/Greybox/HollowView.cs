@@ -85,6 +85,13 @@ public partial class HollowView : Node3D
         AddChild(ravine);
         if (VisualOptions.Terrain == "terrain3d")
             DrawWithTerrain3D(terrain, ground, ravine);
+        // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
+        if (VisualOptions.Recipes && _ground is { } field)
+        {
+            var atmosphere = new AtmosphereView { Name = "Atmosphere" };
+            AddChild(atmosphere);
+            atmosphere.Build(Art.ParticleRecipes.Load(_art.Root), field, (x, z) => Terrain3DView.SceneryHeight(field, x, z));
+        }
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain));
     }
@@ -626,6 +633,22 @@ public partial class HollowView : Node3D
                 Coverage.Fallback("sky", "hdri", hdriWhy ?? "the HDRI did not load: the Phase-A sky stands");
             root.AddChild(sun);
             root.AddChild(new WorldEnvironment { Environment = environment });
+        }
+        // Each building's particle emitters (B11: the smithy's chimney smoke), relative to its footprint's centre on the ground.
+        var recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
+        foreach (var (prefix, look) in _bindings.Buildings)
+        {
+            if (recipes is null || look.Emitters is not { Count: > 0 } emitters || Footprint(layout, prefix) is not { } footprint)
+                continue;
+            var origin = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint), footprint.CenterZMm / 1000f);
+            foreach (var (recipe, at) in emitters)
+            {
+                if (recipes.Build(recipe) is not { } particles)
+                    continue;
+                particles.Position = origin + at;
+                root.AddChild(particles);
+                Coverage.Resolved("emitter", $"{footprint.Id}:{recipe}", recipe);
+            }
         }
         // Inside each building, its lights: relative to its footprint's centre on the ground (where its model stands).
         foreach (var (prefix, look) in _bindings.Buildings)

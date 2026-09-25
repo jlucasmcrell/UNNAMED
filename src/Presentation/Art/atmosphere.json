@@ -1,0 +1,16 @@
+{
+  "comment": [
+    "Atmospheric particles (Phase B, B11): presentation data. Each emitter is a particle recipe (vfx_recipes.json) either following the",
+    "camera (follow: camera, at its offset) and running only while the ground under the camera is one of 'grounds' (world material IDs,",
+    "as the art bindings' terrain map names them; omitted: anywhere), or placed along the ravine rivers (at: ravine_rivers). 'weather'",
+    "lists the states it runs in (omitted: all); day_only: only while the sun is up. Nothing here is simulated or saved."
+  ],
+  "emitters": [
+    { "recipe": "ash_motes", "follow": "camera", "offset": [0, 2.5, 0], "grounds": ["material_marsh_grass_turf"], "weather": ["fair", "clear", "overcast"],
+      "note": "The Charwood: ash still hangs in its air." },
+    { "recipe": "pollen", "follow": "camera", "offset": [0, 1.6, 0], "grounds": ["material_packed_dirt_ground"], "weather": ["fair", "clear"], "day_only": true,
+      "note": "The waystation's meadow in sunlight." },
+    { "recipe": "rain", "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"] },
+    { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." }
+  ]
+}
