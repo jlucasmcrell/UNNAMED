@@ -38,11 +38,16 @@ public sealed class ProfileLock : IDisposable
             file.Flush();
             return new ProfileLock(file);
         }
-        catch (IOException e) when ((e.HResult & 0xFFFF) is 32 or 33)   // ERROR_SHARING_VIOLATION, ERROR_LOCK_VIOLATION
+        catch (IOException e) when (IsHeldElsewhere(e))
         {
             throw new ProfileInUseException(root, e);
         }
     }
+
+    // Windows: ERROR_SHARING_VIOLATION or ERROR_LOCK_VIOLATION. Elsewhere .NET keeps FileShare.None with flock, and a lock already held
+    // fails with EWOULDBLOCK, raised with the raw errno as the HResult: 11 on Linux, 35 on macOS.
+    private static bool IsHeldElsewhere(IOException e) =>
+        OperatingSystem.IsWindows() ? (e.HResult & 0xFFFF) is 32 or 33 : e.HResult == (OperatingSystem.IsLinux() ? 11 : 35);
 
     public void Dispose() => _file.Dispose();
 }

@@ -34,7 +34,7 @@ public class SaveFailureTests : IDisposable
         }
     }
 
-    [Fact]
+    [WindowsFact]
     public void ASaveWhosePredecessorIsHeldOpen_IsASaveException_AndThePredecessorStillLoads()
     {
         var store = new SaveStore(_profile.Root);
@@ -110,5 +110,15 @@ public class SaveFailureTests : IDisposable
         using (ProfileLock.Acquire(_profile.Root))
         {
         }
+    }
+}
+
+/// <summary>A test of Windows file sharing: POSIX lets a directory be moved while a file in it is open, so elsewhere it is skipped, not passed.</summary>
+public sealed class WindowsFactAttribute : FactAttribute
+{
+    public WindowsFactAttribute()
+    {
+        if (!OperatingSystem.IsWindows())
+            Skip = "Windows file-sharing semantics: POSIX moves a directory while a file in it is held open";
     }
 }
