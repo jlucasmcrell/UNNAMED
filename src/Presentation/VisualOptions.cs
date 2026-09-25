@@ -17,7 +17,7 @@ public static class VisualOptions
         ["terrain"] = new[] { "groundfield", "terrain3d" },
         ["sky"] = new[] { "classic", "sky3d", "hdri" },
         ["clouds"] = new[] { "none", "sunshine" },
-        ["water"] = new[] { "none", "classic", "boujie" },
+        ["water"] = new[] { "none", "classic", "boujie", "flow" },  // flow: B6's river round the hollow on the ravine floors
         ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
         ["foldscar"] = new[] { "classic", "proof" },
         ["aa"] = new[] { "msaa_taa", "taa", "msaa", "smaa" },
@@ -51,10 +51,10 @@ public static class VisualOptions
     /// </summary>
     private static readonly Dictionary<string, Dictionary<string, string>> Tiers = new()
     {
-        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["aa"] = "smaa" },
-        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["aa"] = "taa" },
-        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["aa"] = "taa" },
-        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["aa"] = "msaa_taa" },
+        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["aa"] = "smaa" },
+        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["aa"] = "taa" },
+        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["aa"] = "taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["aa"] = "msaa_taa" },
     };
 
     public static string Tier => Values["tier"];
