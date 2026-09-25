@@ -78,10 +78,16 @@ public sealed record ExploreLocation(string LocationId, long WithinMm) : Objecti
     public override string Type => "explore_location";
 }
 
-/// <summary><c>acquire_item</c>: the pack holds at least this many, at least this good.</summary>
+/// <summary>
+/// <c>acquire_item</c>: the pack holds at least this many, at least this good - of the item, or of what it is made into
+/// (<see cref="OrItems"/>): ore already smelted into a billet was still obtained.
+/// </summary>
 public sealed record AcquireItem(string ItemId, int Count, int QualityMin) : ObjectiveCondition
 {
     public override string Type => "acquire_item";
+
+    /// <summary>Items that count as well (<c>or_item_refs</c>): what the item is made into, so work done ahead of the objective still counts.</summary>
+    public ImmutableArray<string> OrItems { get; init; } = ImmutableArray<string>.Empty;
 }
 
 /// <summary><c>craft_item</c>: this many made, at least this good, while the objective is active.</summary>
@@ -345,8 +351,9 @@ public static class QuestRules
             }
             case AcquireItem a:
             {
-                int carried = facts.Carried(a.ItemId, a.QualityMin);
-                return One(new Term($"{a.ItemId} carried{QualityNote(a.QualityMin)}", carried.ToString(), $">= {a.Count}", carried >= a.Count));
+                int carried = facts.Carried(a.ItemId, a.QualityMin) + a.OrItems.Sum(item => facts.Carried(item, a.QualityMin));
+                string what = a.OrItems.IsEmpty ? a.ItemId : $"{a.ItemId} (or {string.Join(", ", a.OrItems)})";
+                return One(new Term($"{what} carried{QualityNote(a.QualityMin)}", carried.ToString(), $">= {a.Count}", carried >= a.Count));
             }
             case CraftItem c:
                 return One(new Term($"{c.ItemId} made while active{QualityNote(c.QualityMin)}", progress.ToString(), $">= {c.Count}", progress >= c.Count));

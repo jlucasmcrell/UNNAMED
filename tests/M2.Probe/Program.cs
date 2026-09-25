@@ -5,6 +5,7 @@
 //   save <profile-root> <old|new> [<SaveStep>]             save a fixture world; killed at the step
 //   migrate <profile-root> [<SaveStep>]                    migrate slot quick under the fixture content; killed at the step
 //   fixture <profile-root>                                 write the historical-fixture world with this build
+//   boot <profile-root>                                    take the profile as a game does, then run the boot sweep
 
 using UNNAMED.M2Probe;
 using UNNAMED.Persistence;
@@ -31,6 +32,21 @@ switch (args.FirstOrDefault())
         Console.WriteLine("saved");
         return 0;
     }
+    case "boot":
+    {
+        try
+        {
+            using var held = ProfileLock.Acquire(args[1]);
+            new SaveStore(args[1]).RecoverInterruptedCommits();
+            Console.WriteLine("swept");
+            return 0;
+        }
+        catch (ProfileInUseException)
+        {
+            Console.WriteLine("in use");
+            return 3;
+        }
+    }
     case "migrate":
     {
         var store = KillableStore(args[1], args.Length > 2 ? Enum.Parse<SaveStep>(args[2]) : null);
@@ -39,7 +55,7 @@ switch (args.FirstOrDefault())
     }
     default:
         Console.Error.WriteLine(
-            "usage: digest <seed> <wolf-target> | save <root> <old|new> [<SaveStep>] | migrate <root> [<SaveStep>] | fixture <root>");
+            "usage: digest <seed> <wolf-target> | save <root> <old|new> [<SaveStep>] | migrate <root> [<SaveStep>] | fixture <root> | boot <root>");
         return 2;
 }
 

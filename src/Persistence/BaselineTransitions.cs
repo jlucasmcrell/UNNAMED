@@ -114,6 +114,7 @@ internal static class SemanticRebase
             Created = rebasedCreated,
             Containers = rebasedContainers,
             Creatures = rebasedCreatures,
+            Noises = delta.Noises,
         };
     }
 }

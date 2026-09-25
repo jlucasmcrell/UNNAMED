@@ -36,7 +36,10 @@ public partial class HelpPanel : CanvasLayer
         }),
         ("COMPANION", new[] { ("Tell them to follow, or to wait", new[] { "companion_order" }) }),
         ("CONVERSATION", new[] { ("Answer", new[] { "reply_1", "reply_9" }), ("Walk away", new[] { "release_mouse" }) }),
-        ("SAVING", new[] { ("Quicksave", new[] { "quicksave" }), ("Quickload", new[] { "quickload" }) }),
+        ("SAVING", new[]
+        {
+            ("Quicksave", new[] { "quicksave" }), ("Quickload", new[] { "quickload" }), ("Every save, backups too", new[] { "saves" }),
+        }),
     };
 
     private static readonly (string Does, string[] Actions)[] Developer =
@@ -49,6 +52,14 @@ public partial class HelpPanel : CanvasLayer
 
     private readonly GridContainer _left = new() { Columns = 2 };
     private readonly GridContainer _right = new() { Columns = 2 };
+    private readonly Label _files = new();
+
+    /// <summary>Where the saves and the log are (M-07): what a tester sends with a problem report.</summary>
+    public string Files
+    {
+        get => _files.Text;
+        set => _files.Text = value;
+    }
 
     public override void _Ready()
     {
@@ -66,7 +77,12 @@ public partial class HelpPanel : CanvasLayer
             grid.AddThemeConstantOverride("h_separation", 40);
             columns.AddChild(grid);
         }
-        margin.AddChild(columns);
+        var stack = new VBoxContainer();
+        stack.AddThemeConstantOverride("separation", 14);
+        _files.AddThemeFontSizeOverride("font_size", 15);
+        stack.AddChild(columns);
+        stack.AddChild(_files);
+        margin.AddChild(stack);
         panel.AddChild(margin);
         AddChild(panel);
     }
@@ -112,9 +128,16 @@ public partial class HelpPanel : CanvasLayer
         return string.Join(actions.Length == 1 ? " or " : " ", all.Distinct());
     }
 
+    /// <summary>
+    /// The key an action is on, as this keyboard prints it: the input map binds physical positions, so W's key reads Z on an AZERTY
+    /// keyboard (the Phase-1 technical audit, L-27). For a prompt: "[E] Open the door".
+    /// </summary>
+    public static string Key(string action) =>
+        InputMap.HasAction(action) && InputMap.ActionGetEvents(action).FirstOrDefault() is { } input ? KeyName(input) : "unbound";
+
     private static string KeyName(InputEvent input) => input switch
     {
-        InputEventKey key => OS.GetKeycodeString(key.Keycode != Key.None ? key.Keycode : key.PhysicalKeycode),
+        InputEventKey key => OS.GetKeycodeString(key.Keycode != Godot.Key.None ? key.Keycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode)),
         InputEventMouseButton { ButtonIndex: MouseButton.Left } => "Left mouse",
         InputEventMouseButton { ButtonIndex: MouseButton.Right } => "Right mouse",
         InputEventMouseButton mouse => $"Mouse {mouse.ButtonIndex}",

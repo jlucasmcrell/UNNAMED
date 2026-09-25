@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
@@ -140,10 +141,10 @@ internal static class SaveLoader
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }
         var cells = DecodeOrQuarantine(sections[SaveFormat.Cells], SaveFormat.Cells, SectionCodec.DecodeCells, quarantined, report);
-        var (entities, created, containers, creatures) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection,
-            quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty, ImmutableArray<ContainerRecord>.Empty,
-                ImmutableArray<CreatureRecord>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures };
+        var (entities, created, containers, creatures, noises) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities,
+            SectionCodec.DecodeEntitySection, quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty,
+                ImmutableArray<ContainerRecord>.Empty, ImmutableArray<CreatureRecord>.Empty, ImmutableArray<Noise>.Empty));
+        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures, Noises = noises };
         PlayerRecord player;
         try
         {
@@ -313,6 +314,16 @@ internal static class SaveLoader
                 creatures.Add(record with { DefId = id });
         }
 
+        // A howl waiting to be heard names its caller's kind (schema 14); one whose kind was removed has no one left to answer it.
+        var noises = ImmutableArray.CreateBuilder<Noise>();
+        foreach (var noise in delta.Noises)
+        {
+            if (noise.CallerKind is null)
+                noises.Add(noise);
+            else if (Resolve(noise.CallerKind, "a creature's call") is { } kind)
+                noises.Add(noise with { CallerKind = kind });
+        }
+
         // Relationships and conversation memory (schema 10): an NPC or conversation that was removed takes its record with it.
         var relationships = new SortedDictionary<(string, string), RelationshipValue>();
         foreach (var value in player.Relationships)
@@ -355,7 +366,10 @@ internal static class SaveLoader
 
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
                 .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values),
-            new DeltaSnapshot(cells, entities.ToImmutable()) { Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable() });
+            new DeltaSnapshot(cells, entities.ToImmutable())
+            {
+                Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
+            });
     }
 
     private static DeltaSnapshot ProveBaselines(

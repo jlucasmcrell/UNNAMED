@@ -411,7 +411,7 @@ public sealed class DeltaShots
         }
         if (_phase < 1000)
         {
-            if (!Converse(Sel, "books", "take", "ruin", "tavar", "stones", "back"))
+            if (!Converse(Sel, "books", "take", "back", "ruin", "tavar", "stones", "back"))
                 return false;
             _phase = 1000;
             return false;

@@ -69,6 +69,14 @@ internal sealed class SystemContext
     public double DistanceToPlayer(Body body) =>
         Math.Sqrt(Math.Pow(body.XMm - State.Body.XMm, 2) + Math.Pow(body.ZMm - State.Body.ZMm, 2));
 
+    /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
+    public bool Walled(long x0, long z0, long x1, long z1) =>
+        Setup.Layout.Space.Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+
+    /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
+    public bool InTalkReach(Body npc) =>
+        DistanceToPlayer(npc) <= TalkReachMm && !Walled(State.Body.XMm, State.Body.ZMm, npc.XMm, npc.ZMm);
+
     /// <summary>Every corpse that can be searched: its body is still there, and its creature has a loot table.</summary>
     public IEnumerable<ContainerSite> CorpseSites() =>
         State.Creatures.Values
@@ -146,7 +154,10 @@ internal sealed class MovementSystem
         return null;
     }
 
-    /// <summary>Crouch, or stand: never in the air, and standing only where no overhang is lower than a standing head.</summary>
+    /// <summary>
+    /// Crouch, or stand: never in the air, never in a dodge's dash (a dash begun standing ends standing - the Phase-1 technical audit,
+    /// L-11), and standing only where no overhang is lower than a standing head.
+    /// </summary>
     public string? Handle(CrouchCommand command, long tick)
     {
         if (command.Actor != _player)
@@ -157,6 +168,8 @@ internal sealed class MovementSystem
             return null;
         if (posture.Airborne)
             return "in the air";
+        if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
+            return "mid-dodge";
         if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
@@ -264,7 +277,11 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
-        if (open && door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null)
+        // Nor on anyone else standing in it - a creature or an NPC - who would be shut inside the wall (the Phase-1 technical audit, L-16).
+        bool blocked = door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null
+                       || _context.State.Creatures.Values.Any(c => c.Alive && door.ClosedFootprint.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
+                       || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
+        if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
@@ -337,8 +354,10 @@ internal sealed class ProgressionSystem
     {
         var result = ProgressionEngine.Award(_context.State.Progression, command.Award, _context.Setup.Progression);
         _context.State.SetProgression(_owner, result.Progression);
-        _context.Events.Publish(new ExperienceGained(command.Award.Source, result.Awarded, result.Repaid, result.LevelsGained,
-            result.Progression.Level, command.Award.Tick));
+        // An award that paid nothing - a first-time award made again - is not news (the Phase-1 technical audit, L-12).
+        if (result.Awarded > 0)
+            _context.Events.Publish(new ExperienceGained(command.Award.Source, result.Awarded, result.Repaid, result.LevelsGained,
+                result.Progression.Level, command.Award.Tick));
         return null;
     }
 

@@ -45,8 +45,10 @@ public partial class ItemsView : Node3D
                 model.Name = site.Key;
                 model.AddChild(body);
                 AddChild(model);
+                _art.Coverage.Resolved("container", site.Key, look.Model!);
                 continue;
             }
+            _art.Coverage.Fallback("container", site.Key, look?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: a brown box" : "no binding: a brown box", look?.Model);
             var chest = new MeshInstance3D { Name = site.Key, Mesh = new BoxMesh { Size = size }, MaterialOverride = Chest };
             body.Position = new Vector3(0, -size.Y / 2, 0);
             chest.AddChild(body);
@@ -67,8 +69,11 @@ public partial class ItemsView : Node3D
             {
                 model.Name = item.Id.Value;
                 _ground.AddChild(model);
+                _art.Coverage.Resolved("ground_item", item.DefId, look.Model!);
                 continue;
             }
+            _art.Coverage.Fallback("ground_item", item.DefId, _bindings.GroundItem?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: a small crate" : "no binding: a small crate",
+                _bindings.GroundItem?.Model);
             _ground.AddChild(new MeshInstance3D
             {
                 Name = item.Id.Value,

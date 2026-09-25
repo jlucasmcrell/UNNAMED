@@ -325,6 +325,38 @@ public class MagicTests
         Assert.DoesNotContain(Thread, arena.Simulation.Player.Progression.NoveltyFirsts);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-10: a swing at the air marked the character as in a fight, so a swing before each working made it a
+    /// challenged one - practice farmed with no enemy anywhere. A swing is not a fight.
+    /// </summary>
+    [Fact]
+    public void ASwingAtTheAir_BeforeEachWorking_TeachesNothing()
+    {
+        using var profile = new TempProfile();
+        var arena = Arena.OpenCreatures(Harness.Boot(profile), Harness.Boot(profile).Setup, Ground, 0, Array.Empty<(string, double, double, string)>(),
+            r => Knowing(r, Thread));
+        var practised = arena.Record<SkillPracticed>();
+        var released = 0;
+        void Count(object _) => released++;
+        arena.Bus.Subscribe<CastCompleted>(Count);
+        arena.Bus.Subscribe<CastFizzled>(Count);
+
+        var thread = arena.Simulation.Setup.Magic.Formulas[Thread];
+        bool swung = false;
+        for (int ticks = 0; released < 100 && ticks < 200_000; ticks++)
+        {
+            var combat = arena.Simulation.Combat;
+            if (combat.Phase == CombatPhase.Idle && !swung)
+                swung = arena.Submit(new AttackCommand(arena.Player)) is null;
+            else if (combat.Phase == CombatPhase.Idle && combat.Focus >= thread.FocusCost && combat.Strain + 10 <= combat.StrainTolerance)
+                swung = arena.Submit(new CastCommand(arena.Player, Thread)) is not null;
+            arena.Tick();
+        }
+
+        Assert.Equal(100, released);
+        Assert.Empty(practised);
+    }
+
     [Fact]
     public void AWardCastInTheFight_TeachesWarding_AndTheSameCastInPeaceDoesNot()
     {

@@ -1,5 +1,6 @@
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -197,11 +198,20 @@ public class HistoricalFixtureTests
             Assert.Equal(("creature.beast.ash_ember_hound", CreatureCondition.Gone, 2, 30_000L),
                 (creatures[2].DefId, creatures[2].Condition, creatures[2].Generation, creatures[2].RespawnTick));   // renamed via _aliases.yaml
             Assert.Equal("item.potion.minor_healing", Assert.Single(loaded.World.Container("corpse.fixture_den.m1_g0")!.Items).DefId);
+            // Schema 14: what den#0's next ticks depend on - a charge, a stun, a stagger immunity. Before, none of it was kept.
+            Assert.Equal(schema >= 14 ? (5_060L, 5_020L, (long?)4_995, 40) : (0L, 0L, null, 0),
+                (creatures[0].NextChargeTick, creatures[0].StaggerImmuneUntil, creatures[0].StaggeredTick, creatures[0].StaggerLastsTicks));
         }
         else
         {
             Assert.Empty(creatures);
         }
+
+        // Schema 14's sounds waiting to be heard: the howl, its kind renamed on load, and the blow; none before.
+        Assert.Equal(schema >= 14
+                ? new[] { new Noise(12_345, 67_890, 30_000, Call: true, CallerKind: "creature.beast.ash_ember_hound"), new Noise(14_000, 66_000, 12_000) }
+                : Array.Empty<Noise>(),
+            loaded.World.Noises);
 
         // Schema 11's quests: the errand half done and renamed on load, the cull finished with its count; none before.
         if (schema >= 11)
@@ -238,6 +248,13 @@ public class HistoricalFixtureTests
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
+            >= 14 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x2", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x5",
+                "location.wolf_den -> location.den_mouth", "npc.fixture.warden -> npc.fixture.warden_sera x3",
+                "quest.fixture.errand -> quest.fixture.wardens_errand", "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 12 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

@@ -24,12 +24,14 @@ namespace UNNAMED.Presentation;
 /// spider, the heart steadied - Tavar freed and recruited, and home with him following. Then a ward (Strain), a save, and quit
 /// (§30: save, quit completely). One tick a frame, from a fixed seed: the run is the same every time, so a third party replays it
 /// by running it (PROTOTYPE.md §9 item 6) and gets the same <c>state_replay.json</c>. Writes <c>transcript.md</c> (every beat and event
-/// with its game time), <c>commands.tsv</c> (every command with its tick), a screenshot per beat, the save in <c>profile/</c>, and
-/// <c>state_saved.json</c>, the authoritative state field by field.
+/// with its game time), <c>commands.tsv</c> (every command with its tick), a screenshot per beat, the save in <c>profile/</c>,
+/// <c>state_saved.json</c>, the authoritative state field by field, and <c>state_digest.txt</c>. An earlier run's save and state files
+/// are cleared first (<see cref="Clear"/>).
 /// <para>
 /// <c>--playthrough-verify &lt;dir&gt;</c>, the relaunch: loads that save, writes <c>state_loaded.json</c> and <c>state_diff.txt</c> - the
-/// field-by-field comparison as a diff of expected against actual (§9 item 2) - then tells Tavar to wait, walks to the wolves' den
-/// and stands until the pack kills the character, and checks the death's XP debt landed exactly once (C17).
+/// field-by-field comparison as a diff of expected against actual (§9 item 2) - and fails unless the load was complete and the state
+/// digest is the save's; then tells Tavar to wait, walks to the wolves' den and stands until the pack kills the character, and checks
+/// the death's XP debt landed exactly once (C17).
 /// </para>
 /// </summary>
 public sealed class Playthrough
@@ -75,6 +77,7 @@ public sealed class Playthrough
     private readonly CameraRig _camera;
     private readonly DialoguePanel _dialogue;
     private readonly bool _verify;
+    private readonly (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private readonly List<Beat> _beats = new();
     private readonly StringBuilder _transcript = new();
     private readonly List<string> _failures = new();
@@ -92,13 +95,15 @@ public sealed class Playthrough
     private bool _respawned;
     private string? _broken;
 
-    public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify)
+    public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify,
+        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
         _dialogue = dialogue;
         _verify = verify;
+        _continued = continued;
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
         Record();
@@ -344,7 +349,7 @@ public sealed class Playthrough
                 return false;
             _phase = 1;
         }
-        return Converse(Sel, "books", "take", "ruin", "tavar", "stones", "back");
+        return Converse(Sel, "books", "take", "back", "ruin", "tavar", "stones", "back");
     }
 
     private bool ReadThePrimer()
@@ -425,6 +430,7 @@ public sealed class Playthrough
         _session.Save(SaveSlots.Manual(Slot));
         File.WriteAllText(Path.Combine(Directory, "state_saved.json"), StateDump.Render(simulation));
         File.WriteAllText(Path.Combine(Directory, "state_replay.json"), StateDump.Render(simulation, replayable: true));
+        File.WriteAllText(Path.Combine(Directory, "state_digest.txt"), simulation.StateDigest());
         var player = simulation.Player;
         var pools = player.Progression.Pools;
         Note($"The persistence acceptance state (§33): level {player.Progression.Level}, XP {player.Progression.LifetimeXp.Values.Sum()}; " +
@@ -443,9 +449,29 @@ public sealed class Playthrough
     private bool LoadAndCompare()
     {
         var simulation = _session.Simulation!;
+        // The relaunch went through the start screen's Continue (B-01), which must have picked the save the run made last.
+        Note($"Continue loaded {_continued?.Slot ?? "(nothing)"} ({_continued?.Copy})");
+        if (_continued is not { Slot: var slot, Copy: SaveCopy.Current } || slot != SaveSlots.Manual(Slot))
+            _failures.Add($"Continue loaded {_continued?.Slot ?? "nothing"} ({_continued?.Copy}), not the acceptance save {SaveSlots.Manual(Slot)}");
+        // A load that lost anything did not bring the save back, whatever the fields say (the Phase-1 technical audit, T-01, L-20).
+        if (_continued?.Result is { } result)
+        {
+            string losses = $"sections quarantined [{string.Join(", ", result.QuarantinedSections)}], " +
+                            $"records rejected [{string.Join("; ", result.RejectedRecords.Select(r => $"{r.Section} {r.Key}: {r.Reason}"))}], " +
+                            $"integrity root re-derived {result.IntegrityRootRederived}, loss reported [{string.Join("; ", result.Report.Loss)}]";
+            Note($"The load {(result.IsComplete ? "was complete" : "was NOT complete")}: {losses}");
+            if (!result.IsComplete)
+                _failures.Add($"the load was not complete: {losses}");
+        }
+        string savedPath = Path.Combine(Directory, "state_saved.json");
+        if (!File.Exists(savedPath))
+        {
+            _failures.Add("there is no state_saved.json: the run never reached its save");
+            return true;
+        }
         string loaded = StateDump.Render(simulation);
         File.WriteAllText(Path.Combine(Directory, "state_loaded.json"), loaded);
-        string saved = File.ReadAllText(Path.Combine(Directory, "state_saved.json"));
+        string saved = File.ReadAllText(savedPath);
         var differences = StateDump.Compare(saved, loaded, out int leaves);
         var diff = new StringBuilder()
             .AppendLine("Field-by-field comparison of the authoritative state: expected (state_saved.json, written just before the save and quit)")
@@ -459,7 +485,29 @@ public sealed class Playthrough
         Note($"Loaded: {leaves} fields compared, {differences.Count} differences (state_diff.txt); state digest `{simulation.StateDigest()}`");
         if (differences.Count > 0)
             _failures.Add($"{differences.Count} fields differ after the load");
+        string digestPath = Path.Combine(Directory, "state_digest.txt");
+        string? savedDigest = File.Exists(digestPath) ? File.ReadAllText(digestPath).Trim() : null;
+        if (savedDigest != simulation.StateDigest())
+            _failures.Add($"the state digest after the load, {simulation.StateDigest()}, is not the one at the save, {savedDigest ?? "(none written)"}");
         return true;
+    }
+
+    /// <summary>
+    /// A new run's directory keeps nothing of an earlier run's (the Phase-1 technical audit, L-20): its save profile and every file the
+    /// relaunch reads or writes go before the session starts, so a run that stops short of its save leaves nothing a relaunch could pass
+    /// on. Screenshots and the run's own transcript are written afresh.
+    /// </summary>
+    public static void Clear(string directory)
+    {
+        if (!System.IO.Directory.Exists(directory))
+            return;
+        string profile = Path.Combine(directory, "profile");
+        if (System.IO.Directory.Exists(profile))
+            System.IO.Directory.Delete(profile, recursive: true);
+        foreach (string name in new[] { "state_saved.json", "state_replay.json", "state_digest.txt", "state_loaded.json", "state_diff.txt",
+                     "transcript_relaunch.md", "commands_relaunch.tsv", "art_coverage_relaunch.json", "art_coverage_relaunch.md",
+                     "audio_coverage_relaunch.json", "audio_coverage_relaunch.md" })
+            File.Delete(Path.Combine(directory, name));
     }
 
     private bool Order(CompanionOrder order)

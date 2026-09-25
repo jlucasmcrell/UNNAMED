@@ -260,6 +260,29 @@ internal static class CanonicalState
                 json.WriteNumber("last_seen_tick", creature.LastSeenTick);
                 json.WriteNumber("search_until", creature.SearchUntil);
                 json.WriteBoolean("has_called", creature.HasCalled);
+                json.WriteNumber("next_charge_tick", creature.NextChargeTick);
+                json.WriteNumber("stagger_immune_until", creature.StaggerImmuneUntil);
+                if (creature.StaggeredTick is { } staggered)
+                    json.WriteNumber("staggered_tick", staggered);
+                else
+                    json.WriteNull("staggered_tick");
+                json.WriteNumber("stagger_lasts_ticks", creature.StaggerLastsTicks);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+
+            json.WriteStartArray("noises");
+            foreach (var noise in snapshot.Noises)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("x_mm", noise.XMm);
+                json.WriteNumber("z_mm", noise.ZMm);
+                json.WriteNumber("radius_mm", noise.RadiusMm);
+                json.WriteBoolean("call", noise.Call);
+                if (noise.CallerKind is { } kind)
+                    json.WriteString("caller_kind", kind);
+                else
+                    json.WriteNull("caller_kind");
                 json.WriteEndObject();
             }
             json.WriteEndArray();

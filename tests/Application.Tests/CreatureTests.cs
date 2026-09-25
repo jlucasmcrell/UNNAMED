@@ -150,6 +150,22 @@ public class CreatureTests
         Assert.False(Only(sprinter).Asleep);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-16: only the character's own body kept a door open, so it could be shut on a creature in the
+    /// doorway - which then stood inside the wall, where no line to it was clear and nothing could hit it.
+    /// </summary>
+    [Fact]
+    public void ADoor_WillNotCloseOnAWolfInTheDoorway()
+    {
+        using var profile = new TempProfile();
+        var arena = Place(Harness.Boot(profile), (53.5, 128), 270, (Arena.Wolf, 51.8, 128, "sleeper"));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));   // open
+        arena.Tick();
+
+        Assert.Equal("door.longhouse cannot close: something is in the doorway", arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
+        Assert.True(arena.Simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
+    }
+
     [Fact]
     public void LostBehindADoor_ItSearches_ThenGivesUpAndGoesHome()
     {
@@ -160,8 +176,16 @@ public class CreatureTests
         arena.Tick();
         Walk(arena, (50.6, 128), Gait.Walk);
 
-        Shoot(arena, (62, 128));   // through the open door: now it knows where the shot came from
-        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));   // and the door shuts
+        // Through the open door: now it knows where the shot came from - and the door shuts as the arrow flies, before the wolf is in the
+        // doorway (a door is not closed on anyone standing in it: the Phase-1 technical audit, L-16).
+        var loosed = arena.Record<ShotLoosed>();
+        var body = arena.Simulation.Player.Body;
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 62_000, 128_000))));
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 100 && loosed.Count == 0; i++)
+            arena.Tick();
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
         arena.Tick(700);
 
         var minds = noticed.Select(n => n.Mind).ToList();
@@ -351,6 +375,87 @@ public class CreatureTests
         Assert.Equal(CombatPhase.Staggered, Only(arena).Phase);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-21: a guard raised against the hound's fire lunge - a blow no guard takes - was broken by it when
+    /// the stamina behind the guard was short, and the character staggered. Only a blow the guard can take can break it.
+    /// </summary>
+    [Fact]
+    public void AGuardRaisedAgainstFire_IsNotBrokenByIt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // In the hound's eyes, 3 m off, the guard raised and 5 stamina behind it: no stamina returns while a guard is up.
+        var hound = (120.0, 80.0);
+        var at = Along(hound, FacingOf(session, Hound, hound, "pack_hunter"), 3);
+        var arena = Arena.OpenCreatures(session, session.Setup, at, 0, new[] { (Hound, hound.Item1, hound.Item2, "pack_hunter") },
+            r => r.WithProgression(r.Progression with { Pools = r.Progression.Pools with { Stamina = 5 } }));
+        var broken = arena.Record<GuardBroken>();
+        var hits = arena.Record<HitResolved>();
+        arena.Face(Only(arena));
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        for (int i = 0; i < 300 && !hits.Any(h => h.Target == arena.Player); i++)
+        {
+            arena.Face(Only(arena));
+            arena.Tick();
+        }
+
+        var lunge = hits.First(h => h.Target == arena.Player);
+        Assert.Equal(("ability.creature.hound_lunge", false), (lunge.Source, lunge.Blocked));
+        Assert.Empty(broken);
+        Assert.Equal((true, 5), (arena.Simulation.Combat.Blocking, arena.Simulation.Combat.Stamina));   // still raised; nothing spent on it
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, M-08: an arrow that staggered the boar stunned against the rock restarted a 12-tick stagger, cutting the
+    /// 2 s stun to about 0.6 s - just when hitting it hard is the lesson. The stun holds its full length, however hard it is hit.
+    /// </summary>
+    [Fact]
+    public void AStaggeringArrow_DoesNotCutABoarsStunShort()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // An arrow staggers the boar only where it strikes hard (the head). Where it strikes is rolled from the bodies and the tick, so
+        // loose it a tick later at a time until one does - early enough (by the stun's 28th tick) that a restart would have cut it short.
+        var tried = new List<string>();
+        for (int delay = 0; delay <= 8; delay++)
+        {
+            var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+            var stunned = arena.Record<CreatureStunned>();
+            var hits = arena.Record<HitResolved>();
+            Shoot(arena, (153, 35.7));
+            bool dodged = false;
+            for (int i = 0; i < 200 && stunned.Count == 0; i++)
+            {
+                if (!dodged && Only(arena).Phase == CombatPhase.Active && arena.Simulation.Combat.Phase == CombatPhase.Idle)
+                    dodged = arena.Submit(new DodgeCommand(arena.Player, 1000, 0)) is null;
+                arena.Tick();
+            }
+            Assert.Single(stunned);
+
+            long stun = stunned[0].Tick;
+            var phases = new List<CombatPhase>();
+            bool loosed = false;
+            while (arena.Simulation.WorldTick < stun + 40)
+            {
+                if (!loosed && arena.Simulation.Combat.Phase == CombatPhase.Idle && arena.Simulation.WorldTick >= stun + delay)
+                {
+                    arena.Face(Only(arena));
+                    loosed = arena.Submit(new AttackCommand(arena.Player)) is null;
+                }
+                arena.Tick();
+                phases.Add(Only(arena).Phase);
+            }
+            var boar = Only(arena).Id;
+            var arrows = hits.Where(h => h.Target == boar && h.Tick > stun).ToList();
+            tried.Add($"loosed {delay} ticks in: " + string.Join(",", arrows.Select(h => $"tick {h.Tick - stun} {h.Region} {h.Damage}{(h.Staggered ? " staggered" : "")}")));
+            if (!arrows.Any(h => h.Staggered && h.Tick < stun + 28))
+                continue;
+            Assert.All(phases, p => Assert.Equal(CombatPhase.Staggered, p));
+            return;
+        }
+        Assert.Fail("no arrow loosed in the stun's first ticks staggered the boar: " + string.Join(" | ", tried));
+    }
+
     [Fact]
     public void AnUndodgedCharge_KnocksThePlayerDown()
     {
@@ -436,6 +541,37 @@ public class CreatureTests
         Assert.Fail("no world in 19 dropped anything");
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, M-04: the world takes a corpse away when it decays or its creature returns, so a body is no place to
+    /// leave things. Nothing may be put into one - ore, a no-drop quest token or anything else - and what was offered is still carried after
+    /// the body has gone.
+    /// </summary>
+    [Fact]
+    public void NothingCanBePutIntoACorpse_SoNothingIsLostWhenItDecays()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var ore = Arena.Stack("item.material.iron_ore", 2);
+        var token = Arena.Stack("item.quest.halda_token", 1);
+        var arena = Arena.OpenCreatures(session, session.Setup, (120, 60), 0, new[] { (Arena.Wolf, 120.0, 62.0, "pack_hunter") },
+            r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Append(ore).Append(token), r.Progression,
+                r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency, r.Effects));
+        arena.Fight(Only(arena), 600);
+        var wolf = Only(arena);
+        Assert.Equal(CreatureCondition.Corpse, wolf.Condition);
+        Walk(arena, (wolf.Body.XMm / 1000.0, wolf.Body.ZMm / 1000.0 - 1), Gait.Walk);
+        int Carried(string defId) => arena.Simulation.Player.Inventory.Where(e => e.DefId == defId).Sum(e => e.Count);
+
+        foreach (var item in new[] { ore, token })
+            Assert.Equal("a body is no place to leave things",
+                arena.Submit(new MoveItemCommand(arena.Player, item.ItemId.Value, ItemPlace.Carried, ItemPlace.In(wolf.CorpseKey), item.Count)));
+        arena.Tick((int)session.Setup.Combat.CorpseDecayTicks + 1);
+
+        Assert.Equal(CreatureCondition.Gone, Only(arena).Condition);
+        Assert.Null(arena.Simulation.World.Container(wolf.CorpseKey));
+        Assert.Equal((2, 1), (Carried("item.material.iron_ore"), Carried("item.quest.halda_token")));
+    }
+
     [Fact]
     public void ACreaturesDeathWoundsAndCorpse_SurviveSaveAndLoad()
     {
@@ -518,6 +654,111 @@ public class CreatureTests
         Assert.Equal("spawn.test.pair", Assert.Single(saturated).SpawnKey);
         Assert.Equal(killed[0].Tick + 1_000, arena.Simulation.World.Creature(arena.Creature(0).Key)!.RespawnTick);
         Assert.Equal(killed[1].Tick + 2_000, arena.Simulation.World.Creature(arena.Creature(1).Key)!.RespawnTick);
+    }
+
+    // ── continuation across a load (the Phase-1 technical audit, L-06, T-01) ──
+
+    /// <summary>Save the arena's world now and load a copy of it, as the game would: the arena the load made.</summary>
+    private static Arena Fork(GameSession session, TempProfile profile, Arena arena)
+    {
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("fork"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("fork"), new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.True(loaded.IsComplete);
+        return Arena.Resume(arena.Simulation.Setup, loaded);
+    }
+
+    /// <summary>
+    /// Both worlds a tick at a time under the same commands, compared each tick: every creature as the running game holds it - body,
+    /// health, the phase it is in and what is left of it, life and mind - where the character stands, and the world delta's creature
+    /// records, containers and sounds waiting to be heard. The character's own combat state is transient by design (a load starts at
+    /// rest), so it is not compared; the moments chosen have nothing of theirs in progress.
+    /// </summary>
+    private static void SideBySide(Arena original, Arena loaded, int ticks, Action<Arena, int>? commands = null)
+    {
+        for (int i = 0; i < ticks; i++)
+        {
+            commands?.Invoke(original, i);
+            commands?.Invoke(loaded, i);
+            original.Tick();
+            loaded.Tick();
+            Assert.Equal(Continuation(original), Continuation(loaded));
+        }
+    }
+
+    private static string Continuation(Arena arena)
+    {
+        var simulation = arena.Simulation;
+        var world = simulation.World.TakeSnapshot();
+        return System.Text.Json.JsonSerializer.Serialize(new
+        {
+            simulation.WorldTick,
+            Player = simulation.Player.Body,
+            Creatures = simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal)
+                .Select(c => new { c.Key, c.Body, c.Health, c.Phase, c.PhaseTicksLeft, c.Condition, c.Mind, c.Awareness, c.Generation }),
+            Records = world.Creatures,
+            world.Containers,
+            world.Noises,
+        });
+    }
+
+    [Fact]
+    public void ABoarStunnedWhenTheGameIsSaved_StaysDown_AndWaitsOutItsCharge_AfterALoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+        var stunned = arena.Record<CreatureStunned>();
+        Shoot(arena, (153, 35.7));
+        bool dodged = false;
+        for (int i = 0; i < 200 && stunned.Count == 0; i++)
+        {
+            if (!dodged && Only(arena).Phase == CombatPhase.Active && arena.Simulation.Combat.Phase == CombatPhase.Idle)
+                dodged = arena.Submit(new DodgeCommand(arena.Player, 1000, 0)) is null;
+            arena.Tick();
+        }
+        Assert.Single(stunned);
+        // Two ticks into the stun, the character's dodge over: the boar has 38 ticks to lie there and a charge to wait out.
+        while (arena.Simulation.WorldTick < stunned[0].Tick + 2 || arena.Simulation.Combat.Phase != CombatPhase.Idle)
+            arena.Tick();
+        Assert.Equal(CombatPhase.Staggered, Only(arena).Phase);
+
+        var loaded = Fork(session, profile, arena);
+        var charges = (Original: arena.Record<AttackStarted>(), Loaded: loaded.Record<AttackStarted>());
+        // The character runs south in both worlds, the boar after it and gaining: it is in sight and in a charge's range (5-14 m) from
+        // about 20 ticks after its stun, but charges only when its cooldown allows - some 80 ticks after the save, the same tick in both.
+        SideBySide(arena, loaded, 240, (world, tick) =>
+            world.Simulation.Enqueue(new MoveCommand(world.Player, tick < 160 ? Harness.Toward(0, -1) : MoveIntent.Idle(0))));
+
+        string charge = session.Setup.Combat.Creatures[Boar].Charge!.Source;
+        Assert.Contains(charges.Original, a => a.Source == charge);
+        Assert.Equal(charges.Original.Select(a => (a.Source, a.Tick)), charges.Loaded.Select(a => (a.Source, a.Tick)));
+    }
+
+    [Fact]
+    public void AGuardiansHowl_OnTheTickOfTheSave_StillBringsThePack_AfterALoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Armed(session, (120, 55), 0, "item.weapon.hunting_bow",
+            (Arena.Wolf, 120, 70, "den_guardian"), (Arena.Wolf, 120, 95, "pack_hunter"), (Boar, 94, 74, "territorial"));
+        var called = arena.Record<CreatureCalled>();
+        var body = arena.Simulation.Player.Body;
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 120_000, 70_000))));
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        // The save is made at the end of the tick the guardian howls: its call has not yet been heard.
+        for (int i = 0; i < 200 && called.Count == 0; i++)
+            arena.Tick();
+        Assert.Single(called);
+        Assert.Equal(CreatureMind.Unaware, arena.Simulation.Creatures.Single(c => c.Key.EndsWith("_1#0", StringComparison.Ordinal)).Mind);
+
+        var loaded = Fork(session, profile, arena);
+        SideBySide(arena, loaded, 60);
+
+        // The hunter 25 m off heard its own kind and came, in the loaded world as in the saved one.
+        Assert.NotEqual(CreatureMind.Unaware, loaded.Simulation.Creatures.Single(c => c.Key.EndsWith("_1#0", StringComparison.Ordinal)).Mind);
     }
 
     // ── cost ────────────────────────────────────────────────────────────────

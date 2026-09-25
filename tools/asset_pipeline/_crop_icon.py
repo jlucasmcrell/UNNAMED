@@ -15,8 +15,8 @@ import os
 
 from PIL import Image
 
-MANIFEST = r"W:\UNNAMED\assets\manifests\ui_icons.json"
-ASSETS = r"W:\UNNAMED\assets"
+ASSETS = os.environ.get("UNNAMED_ASSETS", r"W:\UNNAMED\assets")
+MANIFEST = os.path.join(ASSETS, "manifests", "ui_icons.json")
 
 
 def main():

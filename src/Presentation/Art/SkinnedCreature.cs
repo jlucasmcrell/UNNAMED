@@ -31,7 +31,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     /// <summary>The bound creature's skinned body, or null when the bindings or the asset lack it (the greybox is drawn instead).</summary>
     public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition)
     {
-        if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips) is not { } model)
+        if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
             return null;
         var creature = new SkinnedCreature { _model = model };
         creature.AddChild(model);

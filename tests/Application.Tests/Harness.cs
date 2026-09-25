@@ -92,4 +92,18 @@ internal static class Harness
         events.Subscribe<T>(seen.Add);
         return seen;
     }
+
+    /// <summary>
+    /// A session playing the world an arena set up - the character changed as the test needs, the region's own creatures in place - saved
+    /// and loaded as the game loads any save, so the session's own bus and frame loop run it.
+    /// </summary>
+    public static GameSession Playing(TempProfile profile, (double X, double Z) at, int facingDeg, Func<World.PlayerRecord, World.PlayerRecord> change)
+    {
+        var session = Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, at, facingDeg, Array.Empty<(string, double, double, string)>(), change, keepSpawns: true);
+        new Persistence.SaveStore(profile.Root).Save(Persistence.SaveSlots.Manual("playing"), Persistence.SaveDocuments.Capture(arena.Simulation.World,
+            arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        Assert.True(session.Load(Persistence.SaveSlots.Manual("playing")).IsComplete);
+        return session;
+    }
 }

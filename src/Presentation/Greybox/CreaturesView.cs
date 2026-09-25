@@ -40,7 +40,13 @@ public partial class CreaturesView : Node3D
             if (!_figures.TryGetValue(creature.Id, out var figure))
             {
                 var definition = simulation.Setup.Combat.Creatures[creature.DefId];
-                figure = (CreatureBody?)Art.SkinnedCreature.Create(_art, _bindings, definition) ?? Greybox(definition);
+                var skinned = Art.SkinnedCreature.Create(_art, _bindings, definition);
+                string? model = _bindings.Creatures.GetValueOrDefault(creature.DefId)?.Model;
+                if (skinned is not null)
+                    _art.Coverage.Resolved("creature", creature.DefId, model!);
+                else
+                    _art.Coverage.Fallback("creature", creature.DefId, model is null ? "no binding: greybox blocks" : $"{_art.Why(model) ?? "not drawn"}: greybox blocks", model);
+                figure = (CreatureBody?)skinned ?? Greybox(definition);
                 figure.Name = creature.Id.Value;
                 AddChild(figure);
                 figure.Place(creature.Body);

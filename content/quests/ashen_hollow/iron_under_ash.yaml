@@ -3,7 +3,7 @@ kind: quest
 schema: 1
 display_key: quest.ashen_hollow.iron_under_ash.name
 tags: [quest]
-notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. Blackvein Cut is the old quarry south of the waystation.
+notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. Blackvein Cut is the old quarry south of the waystation. The seam is finite, so each item objective also counts what its item is made into - ore smelted early is still ore obtained, and a billet or a spear made ahead still counts - and the quest cannot be stranded by working ahead of it (the Phase-1 technical audit, C-01).
 title: Iron Under Ash
 summary: Kera Voss will make a smith of you if you bring iron up out of Blackvein Cut and make something worth carrying.
 giver_ref: npc.ashen_hollow.kera_voss
@@ -22,7 +22,7 @@ objectives:
   - id: o_ore
     type: acquire_item
     description: Obtain raw iron ore.
-    params: { item_ref: item.material.iron_ore, count: 1 }
+    params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear], count: 1 }
     next: [o_return]
   - id: o_return
     type: explore_location
@@ -30,12 +30,12 @@ objectives:
     params: { location_ref: location.outpost, within_m: 25 }
     next: [o_billet]
   - id: o_billet
-    type: craft_item
+    type: acquire_item
     description: Smelt an iron billet at the hearth.
-    params: { item_ref: item.material.iron_ingot, count: 1 }
+    params: { item_ref: item.material.iron_ingot, or_item_refs: [item.weapon.march_spear], count: 1 }
     next: [o_spear]
   - id: o_spear
-    type: craft_item
+    type: acquire_item
     description: Forge a March Spear at the anvil.
     params: { item_ref: item.weapon.march_spear, count: 1 }
     next: [o_show]

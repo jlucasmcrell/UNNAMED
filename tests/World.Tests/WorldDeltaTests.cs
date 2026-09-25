@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
@@ -235,6 +236,25 @@ public class WorldDeltaTests
         Assert.All(rejected, r => Assert.Contains("baseline_hash", r.Reason));
         Assert.Equal(0, restored.GetFlag(TestWorlds.Home, Door));
         Assert.True(restored.Occupant(wolf).Alive);
+    }
+
+    [Fact]
+    public void ASoundOrACreaturesContinuation_OutOfRange_IsRejected_AndTheRestLoads()
+    {
+        // Schema 14 (the Phase-1 technical audit, L-06): a sound with no reach, a call without its caller's kind, and a stagger's length
+        // with no stagger are refused with their reasons; the good sound and the flag still load.
+        var world = TestWorlds.NewWorld();
+        world.SetFlag(TestWorlds.Home, Door, 1);
+        world.SetNoises(ImmutableArray.Create(new Noise(1_000, 2_000, 12_000), new Noise(1_000, 2_000, 0), new Noise(1_000, 2_000, 30_000, Call: true)));
+        world.SetCreature(new CreatureRecord("spawn.test.den#0", "creature.beast.wolf_grey", EntityId.NewId(EntityKind.Creature), TestWorlds.Home.ToString(),
+            0, CreatureCondition.Alive, 1_000, 2_000, 0, 10, 0, 0) { StaggerLastsTicks = 40 });
+
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), world.TakeSnapshot(), out var rejected);
+
+        Assert.Equal(new[] { "spawn.test.den#0", "noise 1", "noise 2" }, rejected.Select(r => r.Key));
+        Assert.Equal("its state is out of range", rejected[0].Reason);
+        Assert.Equal(new Noise(1_000, 2_000, 12_000), Assert.Single(restored.Noises));
+        Assert.Equal(1, restored.GetFlag(TestWorlds.Home, Door));
     }
 
     private static string FirstWolfSlot(WorldDelta world) =>

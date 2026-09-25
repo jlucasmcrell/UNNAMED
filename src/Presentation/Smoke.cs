@@ -302,6 +302,7 @@ public sealed class Smoke
 
     private void Cleanup()
     {
+        _session.Dispose();   // the session holds the profile (M-07) until it lets go
         if (Directory.Exists(_profile))
             Directory.Delete(_profile, recursive: true);
     }

@@ -36,7 +36,7 @@ public partial class JournalPanel : CanvasLayer
     /// <summary>The journal as text: what the panel shows, and what a test can read.</summary>
     public static string Render(IReadOnlyList<QuestView> quests)
     {
-        var text = new StringBuilder("JOURNAL   [J] close\n");
+        var text = new StringBuilder($"JOURNAL   [{HelpPanel.Key("journal")}] close\n");
         if (quests.Count == 0)
             return text.Append("\nNo one has asked anything of you yet.").ToString();
         foreach (var quest in quests)

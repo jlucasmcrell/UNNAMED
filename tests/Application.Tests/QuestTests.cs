@@ -182,6 +182,119 @@ public class QuestTests
         }, Shown(arena));
     }
 
+    // Out of the smithy and down the quarry's west slope to the seam, never past the overlook (the audit's C-01 probe), and back.
+    private static readonly (double X, double Z)[] DownTheWestSlope =
+        { (51.8, 142), (51.8, 136), (34, 136), (27, 120), (27, 100), (27, 80), (27, 60), (24, 50), (24, 44.1), AtSeam };
+    private static readonly (double X, double Z)[] UpTheWestSlope =
+        { (24, 44.1), (24, 50), (27, 60), (27, 80), (27, 100), (27, 120), (34, 136), (51.8, 136), (51.8, 142), (54.5, 142) };
+
+    /// <summary>Work the seam until it is worked out; what it gave.</summary>
+    private static int WorkOut(Arena arena)
+    {
+        var seam = () => arena.Simulation.Nodes.Single(n => n.Name == "iron_seam");
+        while (seam().Ready)
+        {
+            Assert.Null(arena.Submit(new GatherCommand(arena.Player, seam().Key)));
+            arena.Tick();
+        }
+        return Carried(arena, Ore);
+    }
+
+    /// <summary>Smelt every lump carried, at the hearth.</summary>
+    private static void SmeltAll(Arena arena)
+    {
+        Walk(arena, AtHearth);
+        while (Carried(arena, Ore) > 0)
+        {
+            Assert.Null(arena.Submit(new CraftCommand(arena.Player, BilletRecipe)));
+            arena.Tick();
+        }
+    }
+
+    private static void ForgeAndShow(Arena arena)
+    {
+        Walk(arena, AtAnvil);
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, SpearRecipe)));
+        arena.Tick();
+        Walk(arena, AtKera);
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
+        string show = arena.Simulation.Conversation!.Replies.Select(r => r.Id).Single(r => r.StartsWith("show", StringComparison.Ordinal));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, show)));
+        arena.Tick();
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, C-01, with the game's own content: Blackvein Cut reached down its west slope rather than past the
+    /// overlook, the seam worked out, every lump smelted - the quest finishes. Being in the quarry discovers the Cut.
+    /// </summary>
+    [Fact]
+    public void IronUnderAsh_DownTheWestSlope_WithEveryLumpSmelted_StillCompletes()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, AtKera, r => Carrying(r, Stack(Haft, 1)));
+        var completed = arena.Record<QuestCompleted>();
+
+        AskKeraToTeach(arena);
+        Walk(arena, (54.5, 142));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
+        Walk(arena, DownTheWestSlope);
+        Assert.Contains(arena.Simulation.Player.Discoveries, d => d.LocationId == "location.blackvein_cut");   // no overlook needed
+        Assert.InRange(WorkOut(arena), 3, 6);
+        Walk(arena, UpTheWestSlope);
+        SmeltAll(arena);
+        Assert.Empty(arena.Simulation.Diagnose(IronUnderAsh).Problems);
+        ForgeAndShow(arena);
+
+        Assert.Equal(new QuestCompleted(IronUnderAsh, "o_show", arena.Simulation.WorldTick), Assert.Single(completed));
+    }
+
+    /// <summary>
+    /// The audit's C-01 probe as it ran, kept as a regression: under M6's small discovery circle round the overlook, the west slope reaches
+    /// the seam unseen, every lump is smelted, and only then is the Cut discovered - which stranded the quest on "obtain raw iron ore" for
+    /// good. Ore made into a billet or a spear is ore obtained, and a billet or spear made ahead still counts, so it finishes.
+    /// </summary>
+    [Fact]
+    public void IronUnderAsh_WithTheCutDiscoveredOnlyAfterEveryLumpIsSmelted_StillCompletes()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var layout = session.Setup.Layout;
+        var overlookOnly = session.Setup with
+        {
+            Layout = layout with
+            {
+                Locations = layout.Locations.Select(l => l.Id == "location.blackvein_cut" ? l with { XMm = 54_000, ZMm = 74_000, DiscoveryRadiusMm = 20_000 } : l)
+                    .ToImmutableArray(),
+            },
+        };
+        var arena = At(session, AtKera, r => Carrying(r, Stack(Haft, 1)), overlookOnly);
+        var completed = arena.Record<QuestCompleted>();
+
+        AskKeraToTeach(arena);
+        Walk(arena, (54.5, 142));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
+        Walk(arena, DownTheWestSlope);
+        Assert.DoesNotContain(arena.Simulation.Player.Discoveries, d => d.LocationId == "location.blackvein_cut");
+        int ore = WorkOut(arena);
+        Walk(arena, UpTheWestSlope);
+        SmeltAll(arena);
+        Assert.Equal((0, ore), (Carried(arena, Ore), Carried(arena, "item.material.iron_ingot")));
+        Assert.Equal(("o_shelf", ObjectiveStatus.Active), Shown(arena)[^1]);   // the Cut still unseen: every billet was made before it counted
+
+        // Now to the Cut, past the overlook, and home: the billets carried are the ore obtained and the billet made.
+        Walk(arena, (51.8, 142), (51.8, 136), (58, 134), (64, 112), (63, 98), (60, 90), (54, 74));
+        arena.Tick();
+        Assert.Empty(arena.Simulation.Diagnose(IronUnderAsh).Problems);
+        Walk(arena, (60, 90), (63, 98), (64, 112), (58, 134), (51.8, 136), (51.8, 142), (54.5, 142));
+        arena.Tick();
+        Assert.Equal(new[] { ("o_ore", ObjectiveStatus.Satisfied), ("o_return", ObjectiveStatus.Satisfied), ("o_billet", ObjectiveStatus.Satisfied),
+            ("o_spear", ObjectiveStatus.Active) }, Shown(arena)[^4..]);
+        ForgeAndShow(arena);
+
+        Assert.Equal(new QuestCompleted(IronUnderAsh, "o_show", arena.Simulation.WorldTick), Assert.Single(completed));
+    }
+
     [Fact]
     public void QuestState_ContinuesAcrossASaveAndLoad()
     {
@@ -230,7 +343,7 @@ public class QuestTests
         Assert.Equal("active", now.Status);
         Assert.Equal("Waiting on o_shelf (Reach Blackvein Cut, the old quarry south of the waystation.): location.blackvein_cut discovered = no, wanted yes.", now.Answer);
         var waiting = Assert.Single(now.Waiting);
-        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 20.0 m of location.blackvein_cut (54.0, 74.0); now ", StringComparison.Ordinal));
+        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 38.0 m of location.blackvein_cut (38.0, 48.0); now ", StringComparison.Ordinal));
         Assert.Empty(now.Problems);
         // The trace: the start, the evaluation that moved it, and the evaluations since, collapsed because nothing changed.
         Assert.Contains(now.Trace, t => t.Lines.Contains("-> o_speak satisfied"));

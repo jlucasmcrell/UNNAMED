@@ -22,7 +22,7 @@ public class DialogueRulesTests
 
         public bool Visited(string dialogueId, string nodeId) =>
             dialogueId == Talk ? Heard.Contains(nodeId) : dialogueId == Other && HeardElsewhere.Contains(nodeId);
-        public long WorldFlag(string flagId) => Flags.GetValueOrDefault(flagId);
+        public long WorldFlag(string flagId, string? locationId) => Flags.GetValueOrDefault(flagId);
         public int Carried(string itemId, int qualityMin) => Pack.Where(p => p.ItemId == itemId && p.Quality >= qualityMin).Sum(p => p.Count);
         public int Relationship(string npcId, string dimension) => Regard.GetValueOrDefault((npcId, dimension));
         public int SkillLevel(string skillId) => Skills.GetValueOrDefault(skillId);

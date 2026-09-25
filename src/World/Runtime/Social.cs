@@ -234,7 +234,7 @@ internal sealed class DialogueSystem : IDialogueFacts
             return $"{npc.Definition.Name} has nothing to say";
         if (State.Companions.TryGetValue(command.NpcId, out var companion) && companion.Condition == CompanionCondition.Downed)
             return $"{npc.Definition.Name} is down";
-        if (_context.DistanceToPlayer(npc.Body) > _context.TalkReachMm)
+        if (!_context.InTalkReach(npc.Body))
             return $"{npc.Definition.Name} is out of reach";
         if (State.Conversation is { } open)
             End(open, tick);
@@ -397,9 +397,15 @@ internal sealed class DialogueSystem : IDialogueFacts
     public bool Visited(string dialogueId, string nodeId) =>
         State.Conversations.TryGetValue(dialogueId, out var heard) && heard.Contains(nodeId);
 
-    /// <summary>Dialogue reads and writes world flags in the speaker's cell.</summary>
-    public long WorldFlag(string flagId) =>
-        State.Conversation is { } open ? State.World.GetFlag(SpeakerCell(open.NpcId), flagId) : 0;
+    /// <summary>Dialogue reads and writes world flags in the speaker's cell - or reads them in a named place's (L-17).</summary>
+    public long WorldFlag(string flagId, string? locationId) =>
+        locationId is not null ? State.World.GetFlag(CellOf(locationId), flagId)
+        : State.Conversation is { } open ? State.World.GetFlag(SpeakerCell(open.NpcId), flagId) : 0;
+
+    private CellKey CellOf(string locationId) =>
+        _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
+            ? CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0)
+            : throw new InvalidOperationException($"{locationId} is not a place in this region");
 
     public int Carried(string itemId, int qualityMin) =>
         State.Inventory.Where(e => e.DefId == itemId && e.Quality >= qualityMin).Sum(e => e.Count);
@@ -442,8 +448,9 @@ internal sealed class DialogueSystem : IDialogueFacts
 
         public bool Visited(string dialogueId, string nodeId) => _system.Visited(dialogueId, nodeId);
 
-        public long WorldFlag(string flagId) =>
-            _system.State.Npcs.ContainsKey(_npcId) ? _system.State.World.GetFlag(_system.SpeakerCell(_npcId), flagId) : 0;
+        public long WorldFlag(string flagId, string? locationId) =>
+            locationId is not null ? _system.State.World.GetFlag(_system.CellOf(locationId), flagId)
+            : _system.State.Npcs.ContainsKey(_npcId) ? _system.State.World.GetFlag(_system.SpeakerCell(_npcId), flagId) : 0;
 
         public int Carried(string itemId, int qualityMin) => _system.Carried(itemId, qualityMin);
 
@@ -546,6 +553,6 @@ internal sealed class TradeSystem
         if (!npc.Definition.Offers(NpcServices.Trade) || npc.Definition.MerchantId is not { } merchantId || !Items.Merchants.TryGetValue(merchantId, out var stock))
             return $"{npc.Definition.Name} does not trade";
         merchant = stock;
-        return _context.DistanceToPlayer(npc.Body) > _context.TalkReachMm ? $"{npc.Definition.Name} is out of reach" : null;
+        return !_context.InTalkReach(npc.Body) ? $"{npc.Definition.Name} is out of reach" : null;
     }
 }

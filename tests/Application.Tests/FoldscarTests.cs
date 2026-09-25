@@ -221,6 +221,58 @@ public class FoldscarTests
         Assert.Single(completed);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-17: Sel's conditions read flags in her own cell only, so with the Foldscar steadied and Tavar not yet
+    /// spoken to she still asked for help with a man who was stuck - and he no longer was. She reads the fold's state in the Foldscar.
+    /// </summary>
+    [Fact]
+    public void TheFoldscarSteadied_SelNoLongerAsksForHelpWithTavar()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, (135, 70));
+        TurnTheStonesAndSteadyTheHeart(arena);
+
+        Walk(arena, BackToSel);
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
+        Assert.DoesNotContain("tavar", Replies(arena));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "ruin")));
+        Assert.DoesNotContain("tavar", Replies(arena));
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, L-18: Tavar's first line is spent once heard, but his thanks are not - walked away from before a reply,
+    /// he is still to be answered, once, for the same trust.
+    /// </summary>
+    [Fact]
+    public void TavarWalkedAwayFrom_BeforeAReply_CanStillBeAnswered_Once()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, (135, 70));
+        int Trust() => arena.Simulation.CaptureRecord().Relationships.FirstOrDefault(r => r.NpcId == Tavar && r.Dimension == "trust")?.Value ?? 0;
+
+        TurnTheStonesAndSteadyTheHeart(arena);
+        Walk(arena, ToTavar);
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
+        Assert.Equal(new[] { "found" }, Replies(arena));
+        Walk(arena, (150, 45));
+        Assert.Null(arena.Simulation.Conversation);
+        Assert.Equal(0, Trust());
+
+        Walk(arena, ToTavar);
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
+        Assert.Equal("again", arena.Simulation.Conversation!.NodeId);
+        Assert.Contains("found", Replies(arena));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "found")));
+        Assert.Equal(("caught", 10), (arena.Simulation.Conversation!.NodeId, Trust()));
+        Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
+        Assert.DoesNotContain("found", Replies(arena));
+        Assert.DoesNotContain("sent", Replies(arena));
+        Assert.Equal(10, Trust());
+    }
+
     [Fact]
     public void TheStonesAndTheFold_AreKeptByASave_AsTheFoldscarCellsDelta()
     {

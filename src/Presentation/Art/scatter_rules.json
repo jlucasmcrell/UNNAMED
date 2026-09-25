@@ -1,0 +1,61 @@
+{
+  "comment": [
+    "The ground scatter's rules (ScatterView; Phase A, the visual audit's V3): presentation data, not game content - nothing here changes a",
+    "rule, a save or the content hash. Each kind is a procedural mesh scattered in MultiMesh chunks of chunk_m, placed from the world seed.",
+    "Densities are per square metre on each ground, by the ground's world material (the art bindings' terrain map says which cell wears which),",
+    "blended across cell borders as the terrain shader blends the grounds. Nothing is placed inside a building or a structure's footprint, and",
+    "every kind thins out over clear_margin metres from buildings, walls, rocks, containers, stations and people; nothing on a worn path (unless",
+    "off_path is false), under water (below never.below_height_m) or on ground steeper than never.slope_over (rise per metre). Paths are the",
+    "worn strips the terrain shader draws and the scatter leaves bare, by region ID: polylines of [x, z] metres, path.width_m wide."
+  ],
+  "chunk_m": 16,
+  "path": { "width_m": 1.5 },
+  "never": { "below_height_m": 0.2, "slope_over": 0.75 },
+  "paths": {
+    "region.ashen_hollow": [
+      { "note": "the lodge's east door, round to the smithy's door", "points": [[52.3, 128], [54.3, 128.3], [55.2, 130.6], [52.6, 134.2], [51.2, 138.2], [51.6, 142], [52.8, 142]] },
+      { "note": "from the smithy's door past the well to the waystone", "points": [[51.6, 142], [49.6, 145.6], [46.4, 149.4], [41.5, 153.4], [35, 156.2], [29.2, 157.6]] },
+      { "note": "a fork east from the lodge door to Sel's table", "points": [[54.3, 128.3], [59, 127.4], [64.5, 125.6], [70.6, 123.4]] }
+    ]
+  },
+  "kinds": {
+    "grass": {
+      "mesh": "grass_clumps",
+      "max_per_m2": 4.6,
+      "fade_m": 60,
+      "shadows": false,
+      "per_m2": { "material_loose_gravel": 0.6, "material_packed_dirt_ground": 4.0, "material_churned_wet_mud": 2.4, "material_marsh_grass_turf": 4.6 },
+      "lush": { "material_marsh_grass_turf": 1.0, "material_churned_wet_mud": 0.7 },
+      "tall": { "material_marsh_grass_turf": 0.35, "material_churned_wet_mud": 0.15 },
+      "patches": [ { "scale_m": 17, "from": 0.38, "to": 0.58 }, { "scale_m": 5, "from": 0.25, "to": 0.75 } ],
+      "bare_yard": { "grounds": ["material_packed_dirt_ground"], "from_m": 2, "to_m": 8 },
+      "under_trees": { "keep": 0.35, "from_m": 1.2, "to_m": 6 },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Clumps of three crossed alpha cards; straw-coloured on worked dirt and gravel, green in the wood and the wet; a trodden bare yard round the buildings; thinner under the canopies."
+    },
+    "leaves": {
+      "mesh": "leaf_litter",
+      "max_per_m2": 0.5,
+      "fade_m": 40,
+      "shadows": false,
+      "per_m2": { "material_loose_gravel": 0.005, "material_packed_dirt_ground": 0.01, "material_churned_wet_mud": 0.02, "material_marsh_grass_turf": 0.12 },
+      "near_trees": { "add": 0.35, "from_m": 2, "to_m": 7 },
+      "clear_margin": 0.5,
+      "off_path": true,
+      "note": "Flat cards of fallen leaves, densest within a few metres of a trunk."
+    },
+    "stones": {
+      "mesh": "stones",
+      "material": "material_limestone_ashlar",
+      "max_per_m2": 0.6,
+      "fade_m": 80,
+      "shadows": true,
+      "per_m2": { "material_loose_gravel": 0.55, "material_packed_dirt_ground": 0.12, "material_churned_wet_mud": 0.1, "material_marsh_grass_turf": 0.06 },
+      "path_shoulders": 0.25,
+      "clear_margin": 0.4,
+      "off_path": false,
+      "note": "Noise-displaced pebbles to head-sized stones in the limestone material, sunk a third; kicked to the paths' shoulders."
+    }
+  }
+}

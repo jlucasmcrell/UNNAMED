@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Creatures;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.World;
@@ -182,6 +183,21 @@ public sealed record CreatureRecord(
     public long LastSeenTick { get; init; }
     public long SearchUntil { get; init; }
     public bool HasCalled { get; init; }
+
+    // What its next ticks depend on beyond its body and mind (schema 14; the Phase-1 technical audit, L-06). Each is written only
+    // while it still matters, so a creature over its charge, stagger or stun has the record of one that never had them.
+
+    /// <summary>The first tick it may charge again; 0 when it already may.</summary>
+    public long NextChargeTick { get; init; }
+
+    /// <summary>The first tick a blow may stagger it again; 0 when one already may.</summary>
+    public long StaggerImmuneUntil { get; init; }
+
+    /// <summary>The tick the stagger it is in began - a charger's stun among them - or null.</summary>
+    public long? StaggeredTick { get; init; }
+
+    /// <summary>How long that stagger lasts; 0 for the usual.</summary>
+    public int StaggerLastsTicks { get; init; }
 }
 
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
@@ -197,6 +213,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>Spawners' creatures that left their baseline, sorted by key (schema 8).</summary>
     public ImmutableArray<CreatureRecord> Creatures { get; init; } = ImmutableArray<CreatureRecord>.Empty;
+
+    /// <summary>The sounds made on the last tick - a blow, a howl - that creatures hear on the next, in the order made (schema 14).</summary>
+    public ImmutableArray<Noise> Noises { get; init; } = ImmutableArray<Noise>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -221,6 +240,7 @@ public sealed class WorldDelta
     private readonly Dictionary<EntityId, CreatedEntityRecord> _created = new();
     private readonly SortedDictionary<string, ContainerRecord> _containers = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, CreatureRecord> _creatures = new(StringComparer.Ordinal);
+    private ImmutableArray<Noise> _noises = ImmutableArray<Noise>.Empty;
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -427,6 +447,11 @@ public sealed class WorldDelta
             _registry.DestroyEntity(record.InstanceId);
     }
 
+    /// <summary>The sounds made on the last tick, which creatures hear on the next (schema 14), in the order they were made.</summary>
+    public ImmutableArray<Noise> Noises => _noises;
+
+    internal void SetNoises(ImmutableArray<Noise> noises) => _noises = noises;
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -517,7 +542,10 @@ public sealed class WorldDelta
             .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
             .ToImmutableArray();
 
-        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable()) { Created = created, Containers = containers, Creatures = creatures };
+        return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
+        {
+            Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
+        };
     }
 
     /// <summary>
@@ -571,6 +599,17 @@ public sealed class WorldDelta
                 problems.Add(new RejectedRecord("entities", record.Key, reason));
         }
 
+        var noises = ImmutableArray.CreateBuilder<Noise>();
+        for (int i = 0; i < snapshot.Noises.Length; i++)
+        {
+            var noise = snapshot.Noises[i];
+            if (noise.RadiusMm <= 0 || noise.Call != (noise.CallerKind is not null) || (noise.CallerKind is { } kind && !DefinitionId.IsValid(kind)))
+                problems.Add(new RejectedRecord("entities", $"noise {i}", "a sound with no reach, or a call without its caller's kind"));
+            else
+                noises.Add(noise);
+        }
+        world._noises = noises.ToImmutable();
+
         rejected = problems.ToImmutable();
         return world;
     }
@@ -584,7 +623,7 @@ public sealed class WorldDelta
         var baseline = Baseline(cell);
         _cells.TryGetValue(cell, out var state);
         using var h = new CanonicalHasher();
-        h.Add("unnamed.effective-cell/v1").Add(baseline.Digest);
+        h.Add("unnamed.effective-cell/v2").Add(baseline.Digest);
 
         var flags = state?.Flags.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToList() ?? new();
         h.Add(flags.Count);
@@ -619,7 +658,8 @@ public sealed class WorldDelta
         {
             h.Add(c.Key).Add(c.DefId).Add(c.InstanceId.Value).Add(c.Generation).Add((int)c.Condition).Add(c.XMm).Add(c.ZMm).Add(c.FacingMdeg)
                 .Add(c.Health).Add(c.DiedTick).Add(c.RespawnTick).Add((int)c.Mind).Add(c.Awareness).Add(c.Knows).Add(c.KnownXMm).Add(c.KnownZMm)
-                .Add(c.LastSeenTick).Add(c.SearchUntil).Add(c.HasCalled);
+                .Add(c.LastSeenTick).Add(c.SearchUntil).Add(c.HasCalled).Add(c.NextChargeTick).Add(c.StaggerImmuneUntil).Add(c.StaggeredTick ?? -1)
+                .Add(c.StaggerLastsTicks);
         }
 
         foreach (var population in baseline.Populations)
@@ -806,7 +846,8 @@ public sealed class WorldDelta
             return $"{record.InstanceId} of {record.DefId} is not a creature";
         if (!Enum.IsDefined(record.Condition) || !Enum.IsDefined(record.Mind) || record.Generation < 0 || record.Health < 0 || record.DiedTick < 0
             || record.RespawnTick < 0 || record.FacingMdeg is < 0 or >= 360_000 || record.Awareness is < 0 or > 100 || record.LastSeenTick < 0
-            || record.SearchUntil < 0)
+            || record.SearchUntil < 0 || record.NextChargeTick < 0 || record.StaggerImmuneUntil < 0 || record.StaggeredTick < 0
+            || record.StaggerLastsTicks < 0 || (record.StaggeredTick is null && record.StaggerLastsTicks != 0))
             return "its state is out of range";
         if (!seenIds.Add(record.InstanceId))
             return $"instance ID {record.InstanceId} appears twice";

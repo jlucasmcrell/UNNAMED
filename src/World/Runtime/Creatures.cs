@@ -124,8 +124,10 @@ internal sealed record DiscardContainer(string Key) : InternalCommand;
 /// on what they perceive, infer or are told through a call, in the manner of their role. There is no shared awareness:
 /// a packmate out of earshot of a howl knows nothing (STEALTH §1, §5, §6). Creatures act only in tier-A cells. A dead
 /// creature leaves a corpse its loot table fills; a spawner with a timer brings it back. Everything about a creature's
-/// future is in its record - body, health, life, and mind - and its idle wandering and patrolling are functions of the
-/// world tick, so a loaded world goes on exactly as the saved one would have. Only a blow in progress is not kept.
+/// future is in its record - body, health, life, mind, the charge it must wait out, the stagger it is in (a charger's stun)
+/// and the one it is immune to - the sounds made on a tick wait in the world delta for the next, and its idle wandering and
+/// patrolling are functions of the world tick, so a loaded world goes on exactly as the saved one would have. Only a blow
+/// in progress is not kept (schema 14; the Phase-1 technical audit, L-06).
 /// </summary>
 internal sealed class CreatureSystem
 {
@@ -135,7 +137,6 @@ internal sealed class CreatureSystem
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
-    private readonly List<Noise> _pending = new();
 
     public CreatureSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
     {
@@ -217,6 +218,11 @@ internal sealed class CreatureSystem
                         LastSeenTick = record.LastSeenTick,
                         SearchUntil = record.SearchUntil,
                         HasCalled = record.HasCalled,
+                        NextChargeTick = record.NextChargeTick,
+                        StaggerImmuneUntil = record.StaggerImmuneUntil,
+                        Action = record.StaggeredTick is { } staggered
+                            ? ActionState.Begin(ActionKind.Staggered, staggered) with { LastsTicks = record.StaggerLastsTicks }
+                            : ActionState.Idle,
                     };
                 }
                 State.SetCreature(_owner, state);
@@ -228,14 +234,17 @@ internal sealed class CreatureSystem
 
     public void Tick(long tick)
     {
-        var noises = PlayerNoises().Concat(_pending).ToList();
-        _pending.Clear();
+        var noises = PlayerNoises().Concat(State.World.Noises).ToList();
+        State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
             Save(creature.Alive ? Live(creature, tick, noises) : Afterlife(creature, tick));
         }
     }
+
+    /// <summary>A sound made now - a blow, a howl - that creatures hear on the next tick. It waits in the world delta, so a save keeps it.</summary>
+    private void Sound(Noise noise) => State.SetNoises(_owner, State.World.Noises.Add(noise));
 
     /// <summary>The sounds the player makes this tick: footfalls by gait, and a swing.</summary>
     private IEnumerable<Noise> PlayerNoises()
@@ -360,7 +369,7 @@ internal sealed class CreatureSystem
         if (mind == CreatureMind.Engaged && c.Role.CallsForHelp && !c.HasCalled)
         {
             next = next with { HasCalled = true };
-            _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.CallMm, Call: true, CallerKind: c.Definition.Id));
+            Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.CallMm, Call: true, CallerKind: c.Definition.Id));
             _context.Events.Publish(new CreatureCalled(c.Id, c.Key, c.Body.XMm, c.Body.ZMm, tick));
         }
         if (mind is CreatureMind.Unaware or CreatureMind.Returning)
@@ -574,7 +583,7 @@ internal sealed class CreatureSystem
         if (!action.Struck.Contains(_player) && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= c.Definition.RadiusMm + playerRadius + 300
             && _context.Dispatch(new CreatureStrike(c.Id, charge)) is null)
         {
-            _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+            Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
             return c with { Action = action with { Struck = action.Struck.Add(_player), EndedTick = tick } };
         }
         if (elapsed > runTicks)
@@ -585,6 +594,8 @@ internal sealed class CreatureSystem
         var others = new List<Blocker>(_context.ClosedDoors());
         others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
+        // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
+        others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
         var moved = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
@@ -609,8 +620,11 @@ internal sealed class CreatureSystem
         long elapsed = tick - action.StartTick;
         var foe = Foe(c);
         var player = foe.Body;
+        // One swing lands on one body: the foe can change mid-swing (Tavar downed, the character nearest now), and the same blow must not
+        // land again on the next (the Phase-1 technical audit, L-23).
+        bool spent = !action.Struck.IsEmpty;
         // A lunge carries the body forward through the active window, stopping at whatever is in the way.
-        if (attack.LungeMm > 0 && !action.Struck.Contains(foe.Id))
+        if (attack.LungeMm > 0 && !spent)
         {
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
@@ -622,14 +636,14 @@ internal sealed class CreatureSystem
             obstacles.AddRange(Companions());
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
         }
-        bool reaches = !action.Struck.Contains(foe.Id) && (foe.Companion is not null || !State.PlayerCombat.Defeated)
+        bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
             && !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         InternalCommand blow = foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
         if (reaches && _context.Dispatch(blow) is null)
         {
-            _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+            Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
             return c with { Action = action with { Struck = action.Struck.Add(foe.Id) } };
         }
         if (action.Struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
@@ -647,13 +661,17 @@ internal sealed class CreatureSystem
         var hit = command.Hit;
         int health = Math.Max(0, c.Health - hit.Final);
         bool staggered = hit.Staggered && health > 0 && tick >= c.StaggerImmuneUntil;
+        // A staggering blow starts a stagger, but never cuts one short: a charger stunned against a rock stays down its two seconds,
+        // however hard it is hit meanwhile (the Phase-1 technical audit, M-08).
+        var (phase, left) = c.Action.PhaseAt(tick, C);
+        bool longer = phase == CombatPhase.Staggered && left >= C.StaggerTicks;
         // It knows where the blow came from: the character, or the companion who struck it (M6).
         var attacker = command.Attacker ?? _player;
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
         var wounded = c with
         {
             Health = health,
-            Action = staggered ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
+            Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
             Knows = true,
@@ -666,7 +684,7 @@ internal sealed class CreatureSystem
         if (mind != c.Mind)
             _context.Events.Publish(new CreatureNoticed(c.Id, c.Key, mind, tick));
         wounded = wounded with { Mind = mind };
-        _pending.Add(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+        Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
@@ -678,7 +696,7 @@ internal sealed class CreatureSystem
         if (Find(command.Target) is not { Alive: true } c || command.Amount <= 0)
             return null;
         int health = Math.Max(0, c.Health - command.Amount);
-        _context.Events.Publish(new HealthChanged(c.Id, command.Source, -command.Amount, health, tick));
+        _context.Events.Publish(new HealthChanged(c.Id, command.Source, health - c.Health, health, tick));
         Save(health == 0 ? Die(c with { Health = 0 }, tick, _player) : c with { Health = health });
         return null;
     }
@@ -688,7 +706,8 @@ internal sealed class CreatureSystem
         if (Find(command.Target) is not { Alive: true } c || command.Amount <= 0)
             return null;
         var healed = c with { Health = Math.Min(c.Definition.MaxHealth, c.Health + command.Amount) };
-        _context.Events.Publish(new HealthChanged(c.Id, command.Source, command.Amount, healed.Health, tick));
+        if (healed.Health != c.Health)
+            _context.Events.Publish(new HealthChanged(c.Id, command.Source, healed.Health - c.Health, healed.Health, tick));
         Save(healed);
         return null;
     }
@@ -789,9 +808,17 @@ internal sealed class CreatureSystem
     private void Save(CreatureState c)
     {
         State.SetCreature(_owner, c);
+        // What its next ticks depend on is written only while it still matters (the Phase-1 technical audit, L-06): a load resumes no
+        // earlier than the tick after the last one run, so a cooldown, an immunity or a stagger over by then is written as none - and a
+        // creature over them has the record of one that never had them.
+        long next = State.WorldTick + 1;
+        bool alive = c.Condition == CreatureCondition.Alive;
+        long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
+        long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
+        bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
         bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.Definition.MaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
-                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled;
+                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
         var existing = State.World.Creature(c.Key);
         if (baseline)
         {
@@ -810,6 +837,10 @@ internal sealed class CreatureSystem
             LastSeenTick = c.LastSeenTick,
             SearchUntil = c.SearchUntil,
             HasCalled = c.HasCalled,
+            NextChargeTick = charge,
+            StaggerImmuneUntil = immune,
+            StaggeredTick = staggered ? c.Action.StartTick : null,
+            StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);

@@ -489,4 +489,108 @@ public partial class SoundEvents : Node
     }
 
     private static Vector3 Chest(Vector3 feet) => feet + new Vector3(0, 1.2f, 0);
+
+    /// <summary>
+    /// Every family (or single ID) this mapping can ask the sound set for, with the contract's event that asks for it, given the bindings
+    /// - the same names the handlers above build, listed here for the static audio coverage check (Phase A, the owner's A4). Optional ones
+    /// are asked for only when the set has them (a formula's cast, activation, end or ward hit). A name the handlers build and this list
+    /// lacks shows up in the runtime report as requested but unmapped, so the two cannot drift apart unnoticed.
+    /// </summary>
+    public static IReadOnlyList<MappedSound> Mapped(ArtBindings bindings)
+    {
+        var list = new List<MappedSound>();
+        void Add(string family, string contractEvent, bool optional = false) => list.Add(new MappedSound(family, contractEvent, optional));
+        var surfaces = bindings.CellSounds.Values.Select(c => c.Surface).Append(bindings.InteriorSurface).Append("dirt").Distinct(StringComparer.Ordinal);
+        foreach (string surface in surfaces)
+        {
+            Add($"sfx.player.footstep.{surface}.walk", "footstep(surface, walk)");
+            Add($"sfx.player.footstep.{surface}.run", "footstep(surface, run)");
+        }
+        Add("sfx.player.land.stone", "land(stone)");
+        Add("sfx.player.land.dirt", "land(dirt)");
+        Add("sfx.player.jump.effort", "jump_effort()");
+        Add("sfx.player.crouch.enter", "crouch_enter()");
+        Add("sfx.player.crouch.exit", "crouch_exit()");
+        Add("sfx.player.hurt.light", "hurt(light)");
+        Add("sfx.player.hurt.heavy", "hurt(heavy)");
+        Add("sfx.player.death", "death()");
+        Add("sfx.player.gear.metal", "gear_shift(metal)");
+        Add("sfx.player.gear.cloth", "gear_shift(cloth)");
+        var families = bindings.Weapons.Values.Select(w => w.Family).Concat(bindings.CompanionWeapon is { } c ? new[] { c.Family } : Array.Empty<string>())
+            .Distinct(StringComparer.Ordinal).ToList();
+        var materials = bindings.Creatures.Values.Select(c => c.Flesh).Append("flesh").Distinct(StringComparer.Ordinal).ToList();
+        foreach (string family in families)
+        {
+            switch (family)
+            {
+                case "sword":
+                    Add("sfx.weapon.sword.swing.light", "swing(sword, light)");
+                    Add("sfx.weapon.sword.block", "block()");
+                    Add("sfx.weapon.sword.draw", "draw(sword)");
+                    Add("sfx.player.weapon.sword.sheath", "sheathe(sword)");
+                    foreach (string material in materials)
+                        Add($"sfx.weapon.sword.impact.{material}", $"impact(sword, {material})");
+                    break;
+                case "polearm":
+                    Add("sfx.weapon.polearm.thrust", "swing(polearm)");
+                    Add("sfx.player.weapon.spear.ready", "ready(polearm)");
+                    foreach (string material in materials)
+                        Add($"sfx.weapon.polearm.impact.{material}", $"impact(polearm, {material})");
+                    break;
+                case "bow":
+                    Add("sfx.player.weapon.bow.nock", "nock()");
+                    Add("sfx.weapon.bow.draw", "draw_bow()");
+                    Add("sfx.weapon.bow.release", "swing(bow): release");
+                    Add("sfx.weapon.bow.arrow.flight", "projectile_flight(bow)");
+                    foreach (string material in materials)
+                        Add(material == "plate" ? "sfx.weapon.polearm.impact.plate" : $"sfx.weapon.bow.arrow.impact.{material}", $"impact(bow, {material})");
+                    Add("sfx.weapon.bow.arrow.impact.wood", "impact(arrow, wood): a structure");
+                    Add("sfx.weapon.bow.arrow.impact.stone", "impact(arrow, stone): a structure");
+                    break;
+            }
+        }
+        foreach (var creature in bindings.Creatures.Values.Where(c => c.Voice.Length > 0))
+        {
+            foreach (string moment in new[] { "idle", "alert", "attack", "hurt", "death" })
+                Add($"sfx.creature.{creature.Voice}.{moment}", $"{moment}()");
+            foreach (string gait in new[] { "walk", "run" }.Select(g => creature.Steps.GetValueOrDefault(g) ?? "walk").Distinct(StringComparer.Ordinal))
+                Add($"sfx.creature.{creature.Voice}.{gait}", $"{gait}_step()");
+        }
+        foreach (string stem in bindings.FormulaSounds.Values.Distinct(StringComparer.Ordinal))
+        {
+            Add($"sfx.magic.{stem}.impact", "impact()", optional: true);
+            foreach (string moment in new[] { "cast", "activate", "resolve", "travel", "end", "hit" })
+                Add($"sfx.magic.{stem}.{moment}", moment switch { "cast" => "cast_start()", "hit" => "ward_hit()", var m => $"{m}()" }, optional: true);
+        }
+        foreach (string band in new[] { "moderate", "high", "critical" })
+            Add($"sfx.magic.strain.{band}.01", $"strain({band})");
+        foreach (var sound in bindings.Containers.Values.Where(c => c.Sound is not null))
+        {
+            Add($"sfx.interaction.{sound.Sound}.open", "interaction_open()");
+            Add($"sfx.interaction.{sound.Sound}.close", "interaction_close()");
+        }
+        Add("sfx.interaction.door.open", "interaction_open(door)");
+        Add("sfx.interaction.door.close", "interaction_close(door)");
+        Add("sfx.interaction.loot.take_all", "loot_take_all()");
+        Add("sfx.interaction.pickup", "interaction_pickup()");
+        if (bindings.Nodes.Values.Any(n => n.Sound == "mining"))
+        {
+            Add("sfx.crafting.mining.strike", "gather_hit()");
+            Add("sfx.crafting.ore.break", "gather_complete()");
+        }
+        if (bindings.Stations.Values.Any(s => s.Sound == "anvil"))
+            Add("sfx.crafting.anvil.strike", "craft_hit()");
+        Add("sfx.crafting.complete", "craft_complete()");
+        if (bindings.ForgeStation is not null)
+            Add("sfx.crafting.forge.ambience.01", "station_ambience()");
+        foreach (var cell in bindings.CellSounds.Values)
+        {
+            Add(cell.Bed, "ambience bed");
+            foreach (string detail in cell.Details)
+                Add(detail, "cell_detail()");
+        }
+        foreach (string ui in new[] { "menu.open", "menu.close", "select", "back", "equip", "error" })
+            Add($"sfx.ui.{ui}", $"ui {ui}");
+        return list.GroupBy(m => m.Family, StringComparer.Ordinal).Select(g => g.First() with { Optional = g.All(m => m.Optional) }).ToList();
+    }
 }
