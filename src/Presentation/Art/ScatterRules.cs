@@ -21,7 +21,8 @@ public sealed record ScatterKind(
     IReadOnlyList<ScatterPatch> Patches, IReadOnlyList<string> BareYardGrounds, float BareYardFromM, float BareYardToM,
     float UnderTreesKeep, float UnderTreesFromM, float UnderTreesToM, float NearTreesAdd, float NearTreesFromM, float NearTreesToM,
     float PathShoulders, float ClearMargin, bool OffPath,
-    float? ChunkM = null, IReadOnlyList<float>? LodsM = null, float SizeMin = 1, float SizeMax = 1, float Stiffness = 1)
+    float? ChunkM = null, IReadOnlyList<float>? LodsM = null, float SizeMin = 1, float SizeMax = 1, float Stiffness = 1,
+    IReadOnlyDictionary<string, string>? OnlyWhen = null)
 {
     /// <summary>The prepared model this kind scatters (<c>mesh: "model:&lt;id&gt;"</c>), or null for a procedural mesh.</summary>
     public string? ModelId => Mesh.StartsWith("model:", StringComparison.Ordinal) ? Mesh["model:".Length..] : null;
@@ -135,7 +136,10 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
             !(e.TryGetProperty("off_path", out var off) && off.ValueKind == JsonValueKind.False),
             Number(e, "chunk_m", 0) is var c && c > 0 ? c : null, Numbers(e, "lods_m"),
             Numbers(e, "size") is { Count: 2 } size && size[0] > 0 && size[1] >= size[0] ? size[0] : 1,
-            Numbers(e, "size") is { Count: 2 } size2 && size2[0] > 0 && size2[1] >= size2[0] ? size2[1] : 1, Positive(e, "stiffness", 1));
+            Numbers(e, "size") is { Count: 2 } size2 && size2[0] > 0 && size2[1] >= size2[0] ? size2[1] : 1, Positive(e, "stiffness", 1),
+            e.TryGetProperty("only_when", out var when) && when.ValueKind == JsonValueKind.Object
+                ? when.EnumerateObject().Where(p => p.Value.ValueKind == JsonValueKind.String).ToDictionary(p => p.Name, p => p.Value.GetString()!, StringComparer.Ordinal)
+                : null);
     }
 
     /// <summary>An array of numbers (the level distances, a size range), or null.</summary>

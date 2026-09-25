@@ -101,15 +101,17 @@ public class ScatterRulesTests
     {
         var rules = ScatterRules.Parse(File.ReadAllText(Repository.File("src", "Presentation", "Art", "scatter_rules.json")));
         Assert.Empty(rules.Problems);
-        Assert.Equal(new[] { "grass", "leaves", "stones", "tufts", "nettles", "ferns" }, rules.Kinds.Select(k => k.Name));
+        Assert.Equal(new[] { "grass", "leaves", "stones", "tufts", "nettles", "ferns", "litter_a", "litter_b", "litter_c", "bark", "dandelions" },
+            rules.Kinds.Select(k => k.Name));
         // Phase B's plant kinds scatter prepared models, each with its levels and a size range.
         Assert.All(rules.Kinds.Where(k => k.ModelId is not null), k =>
         {
-            Assert.StartsWith("veg_ph_", k.ModelId);
+            Assert.Matches("^(veg|env)_ph_", k.ModelId);
             Assert.NotNull(k.LodsM);
             Assert.InRange(k.SizeMin, 0.01f, k.SizeMax);
         });
-        Assert.Equal(3, rules.Kinds.Count(k => k.ModelId is not null));
+        Assert.Equal(8, rules.Kinds.Count(k => k.ModelId is not null));
+        Assert.Equal("classic", rules.Kinds.Single(k => k.Name == "leaves").OnlyWhen?["plants"]);
         Assert.Equal(3, rules.Paths["region.ashen_hollow"].Count);
         Assert.All(rules.Kinds, k => Assert.All(k.PerM2.Values, d => Assert.InRange(d, 0, k.MaxPerM2)));
         var grass = rules.Kinds.Single(k => k.Name == "grass");

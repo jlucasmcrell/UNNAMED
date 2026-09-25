@@ -19,6 +19,8 @@ public static class RavineDressing
     private const string CliffWall = "env_ph_coastal_cliff_01";      // a 92 m cliff run, 10.3 m tall, 11 m deep, facing +Z
     private const string RockShelf = "env_ph_coast_rocks_01";        // a 60 m rocky shelf, 90 % facing up
     private static readonly string[] Boulders = { "env_ph_boulder_01", "env_ph_namaqualand_boulder_02" };
+    // The Charwood's own procedural pines and oaks (dense at a distance; Poly Haven's fir_tree_01 decimated to a game budget read as bare poles).
+    private static readonly string[] FarTrees = { "flora_pine_tree", "flora_pine_tree", "flora_oak_tree" };
 
     /// <summary>An edge of the region: where it is, which way is out, and which way the far side must turn to face the hollow.</summary>
     private readonly record struct Edge(string Name, float From, float To, Func<float, float, Vector3> At, float FacingYaw, ulong Seed);
@@ -88,6 +90,30 @@ public static class RavineDressing
             var at = Ground(a, random.RandfRange(12, 20));
             if (Place(root, art, RockShelf, at - new Vector3(0, 1.2f, 0), new Vector3(0, random.RandfRange(0, 360), 0), random.RandfRange(0.35f, 0.5f)))
                 placed++;
+        }
+        // Beyond the far rim (B3): a fir wood on the ridges, in clumps with clearings between, swaying if the run has wind. Its own
+        // random stream, so the rock above keeps its placing.
+        var woods = new RandomNumberGenerator { Seed = edge.Seed ^ 0xF1F1 };
+        for (float a = edge.From - 30f; a < edge.To + 30f; a += woods.RandfRange(8, 15))
+        {
+            if (woods.Randf() < 0.3f)
+                continue;
+            for (int row = 0; row < 2; row++)
+            {
+                var at = Ground(a + woods.RandfRange(-3, 3), 46f + row * 11f + woods.RandfRange(-3, 4));
+                if (art.ModelWithLods(FarTrees[woods.RandiRange(0, FarTrees.Length - 1)]) is not { } tree)
+                    continue;
+                tree.Position = at - new Vector3(0, 0.3f, 0);
+                tree.RotationDegrees = new Vector3(0, woods.RandfRange(0, 360), 0);
+                tree.Scale = Vector3.One * woods.RandfRange(0.85f, 1.3f);
+                root.AddChild(tree);
+                if (VisualOptions.Wind)
+                {
+                    WindField.Ensure(root);
+                    Palette.Windblown(tree, 1.3f);
+                }
+                placed++;
+            }
         }
         return placed;
     }

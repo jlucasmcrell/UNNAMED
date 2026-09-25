@@ -49,6 +49,9 @@ public partial class ScatterView : Node3D
         BuildFields(layout, buildingPrefixes);
         foreach (var kind in rules.Kinds)
         {
+            // A kind drawn only under some presentation options (Phase B: the procedural leaf cards give way to the leaf-litter models).
+            if (kind.OnlyWhen is { } when && when.Any(w => VisualOptions.All.GetValueOrDefault(w.Key) != w.Value))
+                continue;
             if (kind.ModelId is { } model)
             {
                 // Prepared plant models (Phase B, B0.5) draw only when the run asks for them (--visual plants=models).
