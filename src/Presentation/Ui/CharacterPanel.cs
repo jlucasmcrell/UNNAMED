@@ -66,7 +66,9 @@ public partial class CharacterPanel : CanvasLayer
         var stats = view.Stats;
         var text = new StringBuilder($"CHARACTER   [{HelpPanel.Key("character")}] close\n\n");
         text.Append(view.Name).Append(" - no archetype in Phase 1: every character starts from the same package\n");
-        text.Append($"Level {progression.Level}   XP {progression.LevelProgressXp} of {rules.Curve.ToReach(progression.Level + 1)} to level {progression.Level + 1}");
+        text.Append(progression.Level >= rules.LevelCap
+            ? $"Level {progression.Level}, the highest there is"
+            : $"Level {progression.Level}   XP {progression.LevelProgressXp} of {rules.Curve.ToReach(progression.Level + 1)} to level {progression.Level + 1}");
         if (progression.XpDebt > 0)
             text.Append($"   XP debt {progression.XpDebt} (repaid from the next XP earned)");
         text.Append("\n\nATTRIBUTES");
@@ -120,7 +122,10 @@ public partial class CharacterPanel : CanvasLayer
                 parts.Add($"{label} +{per}");
         }
         if (attribute == CharacterAttribute.Might)
+        {
             parts.Add($"physical blows +{session.Setup.Combat.Constants.MightDamagePercentPerPoint:0.#}%");
+            parts.Add($"carrying +{session.Setup.Items.Inventory.CarryGramsPerMight / 1000.0:0.#} kg");
+        }
         return string.Join(", ", parts);
     }
 }

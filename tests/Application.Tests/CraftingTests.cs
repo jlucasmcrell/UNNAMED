@@ -233,6 +233,27 @@ public class CraftingTests
         Assert.Equal((0, 1, 1), (Carried(anvil, Billet), Carried(anvil, Haft), Carried(anvil, Spear)));   // a refused craft spends nothing
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-12: every craft sent its first-time award, and every repeat - which pays nothing - was still told
+    /// as "+0 XP". Only an award that paid is news.
+    /// </summary>
+    [Fact]
+    public void TwoBilletsMade_TellOfExperienceOnce()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var hearth = At(session, AtHearth, r => Carrying(r, Stack(Ore, 3)));
+        var gained = hearth.Record<ExperienceGained>();
+
+        Assert.Null(hearth.Submit(new CraftCommand(hearth.Player, BilletRecipe)));
+        Assert.Null(hearth.Submit(new CraftCommand(hearth.Player, BilletRecipe)));
+
+        Assert.Equal(2, Carried(hearth, Billet));
+        var first = Assert.Single(gained);
+        Assert.Equal(XpSource.Production, first.Source);
+        Assert.True(first.Awarded > 0);
+    }
+
     /// <summary>Spears made one after another at the anvil by a smith of this skill, each dropped once made; their qualities.</summary>
     private static List<int> Spears(GameSession session, int smithing, int count, int billetQuality = Quality.Standard)
     {
@@ -369,8 +390,8 @@ public class CraftingTests
             Craft(arena, BilletRecipe);
 
         Assert.Equal(3, Carried(arena, Billet));
-        Assert.Equal(3, xp.Count(x => x.Source == XpSource.Production));
-        var first = Assert.Single(xp, x => x.Awarded > 0);   // AG-7: the first billet, once
+        // AG-7: the first billet, once - and the repeats, which pay nothing, are not told as "+0 XP" (the Phase-1 technical audit, L-12).
+        var first = Assert.Single(xp, x => x.Source == XpSource.Production);
         Assert.Equal(arena.Simulation.Setup.Crafting.Recipes[BilletRecipe].FirstTimeXp, first.Awarded);
     }
 

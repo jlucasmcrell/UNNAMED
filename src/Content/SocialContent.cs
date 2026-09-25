@@ -169,7 +169,10 @@ public static class SocialContent
                 DialogueId = map.GetValueOrDefault("dialogue_ref") is string other ? Defined(loader, other, "dialogue", at) : null,
             },
             "world_state" => new WorldStateCondition(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
-                LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue)),
+                LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue))
+            {
+                LocationId = map.GetValueOrDefault("location_ref") is string place ? Defined(loader, place, "location", at) : null,
+            },
             "has_item" => new HasItemCondition(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", 1),
                 (int)LongOr(map, "quality_min", -1), negated),
             "relationship" => new RelationshipCondition(Defined(loader, Text(map, "npc_ref"), "npc", at), Dimension(Text(map, "dimension"), at),

@@ -173,7 +173,11 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     /// <summary>The formula a cast is working.</summary>
     public FormulaDefinition? Formula { get; init; }
 
-    /// <summary>The phase at a tick. Tick <c>StartTick + 1</c> is the action's first.</summary>
+    /// <summary>
+    /// The phase at a tick. Tick <c>StartTick + 1</c> is the action's first and <c>StartTick + TotalTicks</c> its last (Recovery, 0 left);
+    /// the tick an action is taken is not one of its own, so actions asked for back to back come round every <c>TotalTicks + 1</c> - the
+    /// rusted sword's 14 ticks of swing, one every 15 (the Phase-1 technical audit, L-25: documented, not changed, for the owner to rule).
+    /// </summary>
     public (CombatPhase Phase, int TicksLeft) PhaseAt(long tick, CombatConstants constants)
     {
         long elapsed = tick - StartTick;
@@ -334,11 +338,12 @@ internal sealed partial class CombatSystem
         if (Stamina() < attack.StaminaCost)
             return "too tired to attack";
         Exert(attack.StaminaCost, tick);
+        // A swing is not a fight: only a blow landed or taken marks the character as in one - or a swing at the air before each working
+        // would make every working a challenged one (the Phase-1 technical audit, L-10).
         State.SetPlayerCombat(_owner, State.PlayerCombat with
         {
             Action = ActionState.Begin(ActionKind.Attack, tick, attack),
             Blocking = false,
-            LastCombat = tick,
         });
         _context.Events.Publish(new AttackStarted(_player, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
         return null;
@@ -715,8 +720,12 @@ internal sealed partial class CombatSystem
             return null;
         if (command.Target != _player)
             return _context.Dispatch(new HarmCreature(command.Target, command.Source, command.Amount));
+        // Reported as it lands (the Phase-1 technical audit, L-26): no more than the health there was, and nothing once down.
+        if (State.PlayerCombat.Defeated)
+            return null;
+        int before = Health();
         int health = LosePlayerHealth(command.Amount, command.Source, command.Source, tick);
-        _context.Events.Publish(new HealthChanged(_player, command.Source, -command.Amount, health, tick));
+        _context.Events.Publish(new HealthChanged(_player, command.Source, health - before, health, tick));
         return null;
     }
 
@@ -728,8 +737,10 @@ internal sealed partial class CombatSystem
             return _context.Dispatch(new HealCreature(command.Target, command.Source, command.Amount));
         if (State.PlayerCombat.Defeated)
             return "the dead do not heal";
+        int before = Health();
         _context.Dispatch(new ChangePools(command.Amount, 0));
-        _context.Events.Publish(new HealthChanged(_player, command.Source, command.Amount, Health(), tick));
+        if (Health() != before)
+            _context.Events.Publish(new HealthChanged(_player, command.Source, Health() - before, Health(), tick));
         return null;
     }
 

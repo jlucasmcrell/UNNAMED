@@ -57,12 +57,15 @@ public sealed class PlayerMotion
 
     /// <summary>
     /// Whether a movement wish is worth a command: it differs from the intent last sent in direction or gait, or turns by more than half
-    /// a degree. When it is, it becomes the intent last sent.
+    /// a degree - by any amount when <paramref name="precise"/>, while the body faces where the camera looks (a bow drawn, a guard, a
+    /// working's tell), so a shot flies where the reticle points (the Phase-1 technical audit, L-13). When it is, it becomes the intent
+    /// last sent.
     /// </summary>
-    public bool Send(MoveIntent wish)
+    public bool Send(MoveIntent wish, bool precise = false)
     {
         int turn = ((wish.FacingMdeg - Sent.FacingMdeg) % 360_000 + 540_000) % 360_000 - 180_000;
-        if (wish.DirXPermille == Sent.DirXPermille && wish.DirZPermille == Sent.DirZPermille && wish.Gait == Sent.Gait && Math.Abs(turn) <= 500)
+        if (wish.DirXPermille == Sent.DirXPermille && wish.DirZPermille == Sent.DirZPermille && wish.Gait == Sent.Gait
+            && Math.Abs(turn) <= (precise ? 0 : 500))
             return false;
         Sent = wish;
         return true;

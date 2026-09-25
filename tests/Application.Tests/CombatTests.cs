@@ -466,6 +466,47 @@ public class CombatTests
         Assert.True(weak < strong, $"weakened {weak} vs {strong}");
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-25, documented rather than changed (the owner rules): the tick an action is taken is not one of its
+    /// own, so swings asked for at every tick start one every TotalTicks + 1 - the rusted sword's 14 ticks of swing, one every 15.
+    /// </summary>
+    [Fact]
+    public void SwingsAskedForAtEveryTick_StartOneEveryTotalTicksPlusOne()
+    {
+        using var profile = new TempProfile();
+        var arena = Arena.Open(Harness.Boot(profile), (60, 50), 0, Array.Empty<(double, double)>());
+        var started = arena.Record<AttackStarted>();
+        for (int i = 0; i < 60; i++)
+        {
+            arena.Submit(new AttackCommand(arena.Player));   // refused while the last is still going
+            arena.Tick();
+        }
+
+        var ticks = started.Where(a => a.Attacker == arena.Player).Select(a => a.Tick).ToList();
+        int total = arena.Simulation.Combat.Weapon.TotalTicks;
+        Assert.Equal(14, total);
+        Assert.True(ticks.Count >= 3, $"only {ticks.Count} swings started");
+        Assert.All(ticks.Zip(ticks.Skip(1)), pair => Assert.Equal(total + 1, pair.Second - pair.First));
+    }
+
+    [Fact]
+    public void HealthChanged_SaysWhatChanged_AndNothingOnceTheCharacterIsDown()
+    {
+        // The Phase-1 technical audit, L-26: harm was reported as asked - a bleed and a venom ticking together on a character with 1
+        // health both said so, the second after the death - and a heal past full as all of it. Each now says what changed.
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, (60, 50), 0, Array.Empty<(double, double)>(), r => r
+            .WithProgression(r.Progression with { Pools = r.Progression.Pools with { Health = 1 } })
+            .WithEffects(new[] { new ActiveEffect("effect.bleeding", 2, 120, 1), new ActiveEffect("effect.venom", 1, 120, 1) }));
+        var changed = arena.Record<HealthChanged>();
+        arena.Tick(3);
+
+        // The bleed's two points took the one there was; the venom, after the death, said nothing.
+        var lethal = Assert.Single(changed, c => c.Target == arena.Player);
+        Assert.Equal((-1, 0, 1L), (lethal.Delta, lethal.HealthAfter, lethal.Tick));
+    }
+
     [Fact]
     public void Effects_ResumeAfterASaveAndLoad_OnTheSameTicks()
     {

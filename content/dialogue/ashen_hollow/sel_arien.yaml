@@ -50,6 +50,7 @@ nodes:
         conditions:
           - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }
           - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true }
+          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar, min: 0, max: 0 }   # not once the fold is quiet (L-17)
         consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }]
         next: tavar
       - id: stones_again
@@ -92,6 +93,7 @@ nodes:
         conditions:
           - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: not_started }
           - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true }
+          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar, min: 0, max: 0 }   # not once the fold is quiet (L-17)
         consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }]
         next: tavar
       - id: back

@@ -736,7 +736,10 @@ public partial class Main : Node3D
         }
         var body = simulation.Player.Body;
         var terrain = _session.Setup.Layout.Space.Terrain;
-        var (x, z, onCreature) = simulation.Aim(PlayerController.FacingOf(_camera.GroundForward), range);
+        // Drawn, the shot goes along the body's own facing - every turn of the camera is sent, and the release holds the facing of the
+        // last tick of the draw - so the ring shows where it will stop (the Phase-1 technical audit, L-13). Not yet drawn, the camera's.
+        int facing = combat.Phase == CombatPhase.Windup ? body.FacingMdeg : PlayerController.FacingOf(_camera.GroundForward);
+        var (x, z, onCreature) = simulation.Aim(facing, range);
         float height = onCreature ? 0.7f : 1.4f;
         var point = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height, z / 1000f);
         var camera = _camera.Camera;
@@ -798,7 +801,9 @@ public partial class Main : Node3D
         var stats = view.Stats;
         var pools = view.Progression.Pools;
         _hud.SetStatus(
-            $"{view.Name}   Level {view.Progression.Level}   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}" +
+            $"{view.Name}   Level {view.Progression.Level}" +
+            (view.Progression.Level >= _session.Setup.Progression.LevelCap ? " (the highest)"
+                : $"   XP {view.Progression.LevelProgressXp}/{_session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1)}") +
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             (view.Progression.UnspentAttributePoints > 0 ? $"   [{HelpPanel.Key("character")}] a point to spend" : "") +
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
@@ -867,7 +872,13 @@ public partial class Main : Node3D
         _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
         _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
         _session.Subscribe<CompanionFell>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
-        _session.Subscribe<ExperienceGained>(e => _hud.Toast(e.LevelsGained > 0 ? $"+{e.Awarded} XP - level {e.Level}!" : $"+{e.Awarded} XP", 3));
+        // What the award did: what is left once the XP debt took its share, and that share (the Phase-1 technical audit, L-12).
+        _session.Subscribe<ExperienceGained>(e =>
+        {
+            long kept = e.Awarded - e.Repaid;
+            string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
+            _hud.Toast(e.LevelsGained > 0 ? $"{xp} - level {e.Level}!" : xp, 3);
+        });
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand

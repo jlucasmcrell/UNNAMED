@@ -254,6 +254,9 @@ public sealed class Simulation
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
+    /// <summary>Read-only: a wall, a structure or a closed door lies across the line - so an NPC beyond it is not spoken to (L-09).</summary>
+    public bool Walled(long x0, long z0, long x1, long z1) => _context.Walled(x0, z0, x1, z1);
+
     /// <summary>Which system owns each slice of state (ARCHITECTURE.md §5).</summary>
     public IReadOnlyDictionary<StateSlice, string> SliceOwners => _state.Owners;
 

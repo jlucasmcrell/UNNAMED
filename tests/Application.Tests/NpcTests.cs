@@ -33,6 +33,23 @@ public class NpcTests
     private static readonly (double X, double Z) AtKera = (60.3, 140.3);
     private static readonly (double X, double Z) AtSel = (71, 123);
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-09: pressed to the outside of the smithy's east wall, 1.8 m from Kera at her anvil, the character
+    /// could talk and trade with her through it. Reach is a hand's, and a wall is in the way.
+    /// </summary>
+    [Fact]
+    public void Kera_CannotBeTalkedTo_OrTradedWith_ThroughTheSmithyWall()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, (63.4, 139.6), r => With(r, 100));
+        var ware = arena.Simulation.Wares(Kera)!.Wares.First();
+
+        Assert.Equal("Kera Voss is out of reach", arena.Submit(new TalkCommand(arena.Player, Kera)));
+        Assert.Equal("Kera Voss is out of reach", arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, 1)));
+        Assert.True(arena.Simulation.Walled(63_400, 139_600, 61_600, 139_600));   // what the prompt asks too
+    }
+
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null) =>
         Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change);
 

@@ -146,12 +146,12 @@ public static class Kinematics
             for (int s = 0; s < steps; s++)
             {
                 long lift = rules.LiftMm(airFrom + (airTo - airFrom) * (s + 1) / steps);
-                (x, z) = Resolve(x + dx / steps, z + dz / steps, radius, space, dynamicBlockers, lift, height, Tuck(posture, rules));
+                (x, z) = Resolve(x + dx / steps, z + dz / steps, radius, space, dynamicBlockers, lift, height, Tuck(posture, rules, lift));
             }
         }
         else if (posture.Airborne)
         {
-            (x, z) = Resolve(x, z, radius, space, dynamicBlockers, rules.LiftMm(airTo), height, Tuck(posture, rules));
+            (x, z) = Resolve(x, z, radius, space, dynamicBlockers, rules.LiftMm(airTo), height, Tuck(posture, rules, rules.LiftMm(airTo)));
         }
         var next = posture.Airborne && airTo < rules.AirtimeMs ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0 };
         long qx = (long)Math.Round(x, MidpointRounding.AwayFromZero);
@@ -176,9 +176,13 @@ public static class Kinematics
     public static bool CanStand(Body body, MovementRules rules, WalkSpace space) =>
         !space.Blockers.Any(b => b.ClearanceMm > 0 && Blocks(b, 0, rules.StandHeightMm) && b.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null);
 
-    /// <summary>The tucked radius and the height below which it applies, in the air; nothing on the ground.</summary>
-    private static (double Radius, long Below)? Tuck(Posture posture, MovementRules rules) =>
-        posture.Airborne ? (rules.JumpTuckRadiusMm, rules.JumpApexMm) : null;
+    /// <summary>
+    /// The tucked radius and the height below which it applies, while the feet are off the ground; nothing once they touch it - the step
+    /// that lands is resolved at the full radius, or a landing against a low structure would end inside it (the Phase-1 technical audit,
+    /// L-15).
+    /// </summary>
+    private static (double Radius, long Below)? Tuck(Posture posture, MovementRules rules, long liftMm) =>
+        posture.Airborne && liftMm > 0 ? (rules.JumpTuckRadiusMm, rules.JumpApexMm) : null;
 
     private static (double X, double Z) Resolve(double x, double z, double radius, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers,
         long liftMm, long heightMm, (double Radius, long Below)? tuck = null)

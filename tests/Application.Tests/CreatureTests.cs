@@ -150,6 +150,22 @@ public class CreatureTests
         Assert.False(Only(sprinter).Asleep);
     }
 
+    /// <summary>
+    /// The Phase-1 technical audit, L-16: only the character's own body kept a door open, so it could be shut on a creature in the
+    /// doorway - which then stood inside the wall, where no line to it was clear and nothing could hit it.
+    /// </summary>
+    [Fact]
+    public void ADoor_WillNotCloseOnAWolfInTheDoorway()
+    {
+        using var profile = new TempProfile();
+        var arena = Place(Harness.Boot(profile), (53.5, 128), 270, (Arena.Wolf, 51.8, 128, "sleeper"));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));   // open
+        arena.Tick();
+
+        Assert.Equal("door.longhouse cannot close: something is in the doorway", arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
+        Assert.True(arena.Simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
+    }
+
     [Fact]
     public void LostBehindADoor_ItSearches_ThenGivesUpAndGoesHome()
     {
@@ -160,8 +176,16 @@ public class CreatureTests
         arena.Tick();
         Walk(arena, (50.6, 128), Gait.Walk);
 
-        Shoot(arena, (62, 128));   // through the open door: now it knows where the shot came from
-        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));   // and the door shuts
+        // Through the open door: now it knows where the shot came from - and the door shuts as the arrow flies, before the wolf is in the
+        // doorway (a door is not closed on anyone standing in it: the Phase-1 technical audit, L-16).
+        var loosed = arena.Record<ShotLoosed>();
+        var body = arena.Simulation.Player.Body;
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 62_000, 128_000))));
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 100 && loosed.Count == 0; i++)
+            arena.Tick();
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
         arena.Tick(700);
 
         var minds = noticed.Select(n => n.Mind).ToList();

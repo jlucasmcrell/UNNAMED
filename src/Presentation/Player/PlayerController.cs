@@ -88,7 +88,7 @@ public sealed class PlayerController
             : direction.LengthSquared() > 0.0001f ? FacingOf(direction) : _motion.Sent.FacingMdeg;
         var wish = new MoveIntent(
             (int)Mathf.Round(direction.X * MoveIntent.FullDeflection), (int)Mathf.Round(direction.Z * MoveIntent.FullDeflection), gait, facing);
-        if (_motion.Send(wish))
+        if (_motion.Send(wish, precise: faceCamera))
             _session.Submit(new MoveCommand(_session.Simulation!.PlayerId, wish));
     }
 
@@ -171,9 +171,9 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
         foreach (var station in _session.Setup.Layout.Stations)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
-        // An NPC is spoken to within a hand's reach of their body (M4), the rule the simulation applies.
+        // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
-        foreach (var npc in simulation.Npcs)
+        foreach (var npc in simulation.Npcs.Where(n => !simulation.Walled(Authoritative.XMm, Authoritative.ZMm, n.Body.XMm, n.Body.ZMm)))
             candidates.Add((new Focus(FocusKind.Npc, npc.Id, npc.Id, npc.Body.XMm, npc.Body.ZMm), Distance(npc.Body.XMm, npc.Body.ZMm) - talkReach));
         // A switch is worked like a door, from the body to its edge (M6); once set it has nothing more to offer.
         foreach (var view in simulation.Switches.Where(s => !s.Set))

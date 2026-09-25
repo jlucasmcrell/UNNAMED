@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
@@ -116,5 +117,47 @@ public class MotionTests
             checkedTicks++;
         }
         Assert.True(checkedTicks > 0, "the working never recovered");
+    }
+
+    private static PlayerRecord WithABow(PlayerRecord r)
+    {
+        var bow = Arena.Stack("item.weapon.hunting_bow", 1);
+        return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Append(bow).Append(Arena.Stack("item.ammo.arrow_rough", 20)),
+            r.Progression, r.FacingMdeg, r.Discoveries, new[] { KeyValuePair.Create(Domain.Items.EquipSlot.MainHand, bow.ItemId) }, r.Currency, r.Effects);
+    }
+
+    /// <summary>
+    /// The Phase-1 technical audit, L-13: a facing was sent only once it had turned more than half a degree, and the reticle traced the
+    /// camera's facing, so a bow drawn while the aim crept along loosed down an older line than the reticle showed - some 35 cm off at
+    /// 40 m, a wolf's width. While the body faces where the camera looks every turn is sent, so the body keeps up with the aim tick by
+    /// tick; and a drawn bow's reticle traces the body's facing, which the release holds, so the shot stops where the reticle stood.
+    /// </summary>
+    [Fact]
+    public void ABowDrawnWhileTheAimCreeps_KeepsUpWithTheAim_AndLoosesWhereTheReticleStood()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Playing(profile, (70, 152), 90, WithABow);
+        var motion = Watching(session);
+        var loosed = Harness.Record<ShotLoosed>(session);
+        var simulation = session.Simulation!;
+        long range = simulation.Combat.Weapon.ReachMm;
+        int facing = 90_000;
+        session.Submit(new AttackCommand(simulation.PlayerId));
+        (long X, long Z) reticle = default;
+        for (int frames = 0; frames < 200 && loosed.Count == 0; frames++)
+        {
+            facing += 250;   // a quarter of a degree a tick
+            if (motion.Send(MoveIntent.Idle(facing), precise: true))
+                session.Submit(new MoveCommand(simulation.PlayerId, MoveIntent.Idle(facing)));
+            var (x, z, _) = simulation.Aim(simulation.Player.Body.FacingMdeg, range);   // the drawn bow's reticle, as the frame draws it
+            reticle = (x, z);
+            bool drawing = simulation.Combat.Phase == CombatPhase.Windup;
+            session.Frame(session.TickSeconds);
+            if (drawing && simulation.Combat.Phase == CombatPhase.Windup)
+                Assert.Equal(facing, simulation.Player.Body.FacingMdeg);   // the body turned all the way the aim did
+        }
+
+        var shot = Assert.Single(loosed);
+        Assert.Equal(reticle, (shot.ToXMm, shot.ToZMm));
     }
 }

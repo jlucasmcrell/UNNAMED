@@ -696,7 +696,7 @@ internal sealed class CreatureSystem
         if (Find(command.Target) is not { Alive: true } c || command.Amount <= 0)
             return null;
         int health = Math.Max(0, c.Health - command.Amount);
-        _context.Events.Publish(new HealthChanged(c.Id, command.Source, -command.Amount, health, tick));
+        _context.Events.Publish(new HealthChanged(c.Id, command.Source, health - c.Health, health, tick));
         Save(health == 0 ? Die(c with { Health = 0 }, tick, _player) : c with { Health = health });
         return null;
     }
@@ -706,7 +706,8 @@ internal sealed class CreatureSystem
         if (Find(command.Target) is not { Alive: true } c || command.Amount <= 0)
             return null;
         var healed = c with { Health = Math.Min(c.Definition.MaxHealth, c.Health + command.Amount) };
-        _context.Events.Publish(new HealthChanged(c.Id, command.Source, command.Amount, healed.Health, tick));
+        if (healed.Health != c.Health)
+            _context.Events.Publish(new HealthChanged(c.Id, command.Source, healed.Health - c.Health, healed.Health, tick));
         Save(healed);
         return null;
     }
