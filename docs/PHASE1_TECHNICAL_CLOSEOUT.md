@@ -124,43 +124,67 @@ calls) and `ProfileLock.cs` (identical on Windows). It is therefore the integrat
 
 ## RAZER (1920x1080, RTX 4070 Ti 12 GB, 60 FPS)
 
-**Not run: RAZER could not be reached from this machine.** RAZER (192.168.50.183) answers only SMB (445) and RDP (3389) - no SSH, no
-WinRM - and its shares refused a listing without credentials. No credentials were tried; an RDP session would measure a virtual
-display, not the 1080p panel. No Remote Control session was running there.
+**Measured 2026-09-25. Verdict by the gate plan's rules: fail pending review - on one criterion, in one short segment.** Every other
+gameplay segment holds 60 FPS with room to spare.
 
-What is ready: a one-command kit, `G:\UNNAMED_HISTORY\razer_gate_kit\` (`razer_gate.ps1` and `README.txt`). Beside the unzipped
-package on RAZER: `powershell -ExecutionPolicy Bypass -File .\razer_gate.ps1 -Zip <zip>`. It records the machine (read-only), runs the
-extended performance route once cold and three times warm, fullscreen, with nvidia-smi each second, and writes `report.md` with the
-verdict against the criteria of the gate plan (sections 11-12 of the preparation document): sustained 60 by the 1% low in every
-gameplay segment of two of three warm runs, repeatable hitches, the autosave frames; "comfortably exceeds" means a 1% low of 72 FPS or
-better and a p99 within 16.67 ms everywhere. It changes no setting and plays in a throwaway profile.
+How it was run: RAZER answers no remote shell (only SMB and RDP; no credentials were tried, and an RDP session would measure a virtual
+display). The owner reconnected the `\\RAZER\d` share; the package ZIP (its SHA-256 checked again on RAZER) and the kit
+(`G:\UNNAMED_HISTORY\razer_gate_kit\`, `razer_gate.ps1` SHA-256 `c0f019e98683bd66a4838b58e36c94d4ce345197718e34cae8a5b4d6492a929e`) were
+copied to its `D:`, and the owner started `run_razer_gate.cmd` at the console through Parsec. The kit records the machine read-only,
+runs the extended performance route once cold and three times warm, with nvidia-smi each second, and writes the verdict against
+sections 11-12 of the gate plan. RAZER's monitor is a 3440x1440 ultrawide, so the game ran in a 1920x1080 window (the summary's
+resolution is `(1920, 1080)` in every run). Results: `G:\UNNAMED_HISTORY\razer_gate_20260925\`; the report and each run's summary are
+in `docs/acceptance/phase1_closeout/razer/`.
 
-The kit was validated end to end on this machine against the package (`-Windowed -SkipCold -WarmRuns 2`, a 1920x1080 window on
-Astral's 5120x2160 display; Windows PowerShell 5.1 and PowerShell 7 both analyse it). Validation found and fixed three of the kit's
-own faults (warmup hitches scored, and the nvidia-smi columns not found twice over) before this result. **These are RTX 5090 numbers,
-not the gate**:
+Machine: RTX 4070 Ti 12 GB (driver 620.02), Ryzen 7 5800X3D (8 cores, 16 threads), 32 GB, Windows 11 Insider Preview 26300, High
+performance plan, no overlay or capture process running, shader and pipeline caches absent before the cold run. All four runs
+valid: 1920x1080, VSync disabled, every goal met, no death.
 
-| Segment (2 warm runs) | Avg FPS | 1% low FPS | p99 ms | Render CPU p99 ms | GPU p99 ms |
-|---|---|---|---|---|---|
-| conversation | 250-252 | 210-223 | 4.2 | 1.4 | 4.0 |
-| magic | 245-247 | 77-83 | 6.1-8.3 | 1.2 | 3.9 |
-| combat | 237-238 | 144-153 | 5.2-5.7 | 1.2 | 4.4 |
-| loot | 238-240 | 160-166 | 4.8-5.0 | 1.1 | 4.3 |
-| third person | 251-252 | 165-178 | 4.8-5.1 | 1.4 | 4.5 |
-| first person | 262-266 | 186-193 | 4.8 | 1.3 | 4.2 |
+| Segment (3 warm runs) | Avg FPS | 1% low FPS | Median ms | p99 ms | Worst frame ms | Render CPU p99 ms | GPU p99 ms | 60 by the 1% low |
+|---|---|---|---|---|---|---|---|---|
+| conversation | 116-117 | 97-98 | 8.6-8.7 | 9.5-9.7 | 12.5-16.7 | 1.7 | 9.3-9.4 | 3 of 3 |
+| **magic** | 114-115 | **48-58** | 8.4-8.5 | 11.1-12.4 | 29.9-35.9 | 1.2-1.3 | 8.7-8.8 | **0 of 3** |
+| combat | 105-107 | 83-85 | 9.6-9.7 | 10.0-10.4 | 29.8-43.5 | 1.4 | 10.3-10.5 | 3 of 3 |
+| loot | 104 | 89-93 | 9.5-9.7 | 10.0-10.4 | 16.7-17.2 | 0.8-0.9 | 10.2-10.3 | 3 of 3 |
+| third person | 114-115 | 83-88 | 8.5-8.6 | 10.6-10.7 | 30.9-39.1 | 1.2 | 10.3-10.4 | 3 of 3 |
+| first person | 120 | 88-93 | 8.3 | 10.6 | 13.2-25.0 | 1.2 | 10.1-10.2 | 3 of 3 |
 
-Every goal met, no death, VSync off, 1920x1080. Autosave: the capture frame 6.0-7.0 ms against a 3.7 ms median, the write invisible.
-Warmup: three frames of 45-149 ms in the first 0.4 s (first use, not scored). Godot's VRAM estimate 5.8 GB; the GPU busy about 95%
-at p95 (uncapped). The segment to watch on RAZER is **magic**: its 1% low is set by a few main-thread stalls (in run 1, two of about
-30 ms with render CPU 0.6-1.2 ms and GPU 3.1-3.4 ms on those frames, and a worst process time in a second of 31.9 ms; in run 2 none
-over 23.4 ms). That is consistent with first-use work when a formula is first worked (the audit's P-05), not diagnosed further. It
-depends on RAZER's CPU more than its GPU, and at 4.5 s the segment is short enough for two stalls to decide its 1% low. Full report: `G:\UNNAMED_HISTORY\razer_gate_kit\astral_validation_20260925\report.md`. Kit
-`razer_gate.ps1` SHA-256 `c0f019e98683bd66a4838b58e36c94d4ce345197718e34cae8a5b4d6492a929e`.
+- **Magic** (4.5 s, about 510 frames, so its 1% low is its worst five frames): one or two main-thread stalls at the same moments in
+  every run - 1.5 s (29.9-35.9 ms) and 3.3 s (19.0-27.6 ms), when formulas are first worked - with render CPU under 1 ms and ordinary
+  GPU time on those frames. They are the same moments as on the RTX 5090 (1.53 s and 3.33 s). They are not the effects' atlases
+  (512x256) or the formulas' sounds (under 1 MB), the two synchronous first-use loads found in the code; the likeliest remaining cause
+  is Godot preparing the effects' material shaders on first draw, **not confirmed** - it needs a profiler pass. The cold run's same
+  moment was 137 ms (no shader cache yet).
+- **Repeatable hitches elsewhere**, at the same place in all three warm runs, all main-thread (render CPU under 1 ms): combat at
+  16.4 s (30-44 ms), third person at 43.9 s (30-37 ms) and 58.5 s (31-39 ms). Under the plan's 50 ms fail line: review items. The kit
+  names as repeatable only hitches over 33 ms in every warm run, and run 1's were 30-31 ms, so its report does not list them; they are
+  listed here.
+- **Autosave**: the capture frame and the two after it 8.2-10.2 ms against an 8.3 ms median; the write invisible. No finding against P-01.
+- **Warmup** (the first 0.3 s after the scene loads, every run): two frames of 117-150 ms. First use, not scored.
+- **Memory**: 6.8-6.9 GB of the 12 GB in use on the whole GPU (nvidia-smi); Godot's own estimate 5.8 GB; working set about 1.9 GB.
+- **Bound**: the GPU is busy 98% of the time at p95 and its p99 is about 10 ms against a median frame of 8.3-9.7 ms - GPU-bound at
+  about 105-120 FPS. Several segments sit on frames of exactly 8.333 ms (120 FPS), which looks like a frame-rate cap on RAZER outside
+  the game (the harness disables VSync, and the same package ran at about 250 FPS on the RTX 5090); it lowers the averages, not the
+  verdict.
+
+What it means: sustained frame rate is not the problem - every segment's median frame is under 10 ms and five of six hold a 1% low of
+82.7 FPS or better. The miss is a handful of one-off 20-45 ms frames at four fixed moments, which a player feels as a brief hitch the
+first time a formula is worked in a session, once in the first fight, and at two places on the walk. M3's exit (a) - walking the area
+at a sustained 60 FPS at 1080p on RAZER - is met by the two traversal segments, with the two walk hitches noted. The 2 x 2 km capture
+(M3's exit (b)) was not part of this gate and is still to run.
+
+The smallest corrective action is narrow, with no visual compromise: profile the four moments and move that first-use work to the
+load screen (a warm-up of the effects' materials and whatever the combat and walk moments first create), then re-run the kit. That is
+the owner's call - accept this as the Phase-A baseline with the findings carried to M7, or have it done before the blind test.
+
+The kit was first validated on this machine (RTX 5090, `G:\UNNAMED_HISTORY\razer_gate_kit\astral_validation_20260925\`); that run
+found and fixed three faults in the kit itself, and showed the same magic stalls at the same moments.
 
 ## Remaining
 
-Blockers for the owner:
-- **The RAZER measurement** - one run of the kit on RAZER (about 30 minutes, the machine left alone), or the owner's written waiver.
+For the owner's decision:
+- **The RAZER result**: accept it as the Phase-A baseline, with the magic segment's miss and the three repeatable hitches carried to
+  M7, or have the narrow first-use fix above done and the kit re-run first.
 
 Carried to M7, not blockers: the bindings-shape residual above; L-25's owner ruling; the audit's deferred items (L-01, L-02, L-04,
 L-07, L-08, L-28, T-04 to T-11, P-02 to P-06); the design rulings reserved to the owner (`PHASE1_AUDIT_REMEDIATION_STATUS.md`);
@@ -172,13 +196,15 @@ memory about 3.8 GB.
 
 **M7 base: yes, once the owner merges this into `main`** - the head is clean, pushed, green on Windows and on CI, schema 14 is stable
 (fixtures v1-v14, the M6 save, the relaunch with 0 differences), every harness stage passes, the package passes, H-02 is closed and
-there is no open Phase-1 technical blocker other than the RAZER number. M7 plans schema 14 -> 15 (freeze the V14 shapes, add
+there is no open Phase-1 technical blocker. The RAZER result is measured and waits only on the owner's decision above; it
+does not change anything M7 builds on. M7 plans schema 14 -> 15 (freeze the V14 shapes, add
 `SchemaV14ToV15`, a v15 fixture, per `tests/Persistence.Tests/Fixtures/README.md`).
 
-**Blind test (3-5 testers): the package is suitable**, with two conditions: the RAZER result (or a waiver) for the performance a tester
-on a 4070 Ti-class card will see, and telling testers to expect Windows SmartScreen's "unknown publisher" prompt on first launch (the
+**Blind test (3-5 testers): the package is suitable**, with two notes: on a 4070 Ti-class card testers will see about 105-120 FPS
+with a brief hitch the first time each formula is worked, once in the first fight and at two places on the walk (above) - worth
+fixing first only if the test is meant to judge feel; and tell testers to expect Windows SmartScreen's "unknown publisher" prompt on first launch (the
 executable is unsigned). From a fresh folder it starts with nothing to install (the .NET runtime ships inside it), the start screen
 offers New Game and Continue, the route shows real models and no greybox, sound plays, save and Continue work across a quit, and F1
-shows the controls. That was checked on this development machine; a first launch on a machine that never had Godot or .NET is the
-one package check not made here, and the first tester's launch is it. It needs a Vulkan GPU with about 6 GB of VRAM or more (texture
+shows the controls. That was checked on this development machine, and the same package ran unchanged on RAZER from a fresh folder; a
+first launch on a machine that never had Godot or .NET installed is the one check not made. It needs a Vulkan GPU with about 6 GB of VRAM or more (texture
 memory about 3.8 GB) and a 1.1 GB download.

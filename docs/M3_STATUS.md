@@ -1,7 +1,7 @@
 # M3 status - Player, Camera, Movement, Interaction, World Cells
 
 **Date:** 2026-09-23. **Branch:** `claude/phase1`.
-**State:** implemented and verified headlessly. **Exit (a) and (b) wait on one owner action: a RAZER measurement window** (below).
+**State:** implemented and verified headlessly. Exit (a) was measured on RAZER on 2026-09-25 with the Phase-A package (`docs/PHASE1_TECHNICAL_CLOSEOUT.md`); **exit (b) still waits on a RAZER window** (below).
 
 ## What M3 built
 
@@ -18,7 +18,7 @@
 
 | | Criterion | State |
 |---|---|---|
-| (a) | The playable build walks the 200 m x 200 m / 4-cell area at a sustained 60 FPS at 1080p on RAZER's RTX 4070 Ti, with OBS, H3 and other GPU workloads stopped | **Pending the measurement window.** The capture tool is built and has been run end to end. The Astral trial below is not the gate |
+| (a) | The playable build walks the 200 m x 200 m / 4-cell area at a sustained 60 FPS at 1080p on RAZER's RTX 4070 Ti, with OBS, H3 and other GPU workloads stopped | **Measured 2026-09-25** on the Phase-A package (`docs/PHASE1_TECHNICAL_CLOSEOUT.md`, RAZER section): the third- and first-person walks held a 1% low of 83-93 FPS, a median frame of 8.3-8.6 ms and a p99 of 10.6-10.7 ms at 1920x1080 in three warm runs, with two repeatable 30-39 ms hitches on the walk. The Phase-A gate as a whole waits on the owner (a short magic segment missed its 1% low) |
 | (b) | The isolated 2 x 2 km greybox produces a capture, recorded in `RK-02` | **Pending the same window.** Built and trialled. It is not the formal `D-01` revisit gate in Phase 1 |
 | (c) | Player state mutates only through commands; a test fails if presentation writes domain state | Done. The simulation's public surface is only reads plus the command path (`TheSimulation_ExposesOnlyReadsAndTheCommandPath`); views and events are immutable (`ViewsAndEvents_HaveNoPublicSetters`); presentation source may not reach past it (`PresentationSource_NeverReachesPastThePublicReadAndCommandSurface`); the view-subscription test (below) |
 | (d) | Cell save/load preserves world changes | Done. An open door is its cell's delta with the cell's `baseline_hash`; closing it again rebases the record away; the round trip restores the exact state digest (`SaveLoadTests`) |

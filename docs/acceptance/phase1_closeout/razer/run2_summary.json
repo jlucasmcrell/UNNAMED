@@ -1,0 +1,351 @@
+{
+  "machine": {
+    "host": "RAZER",
+    "gpu": "NVIDIA GeForce RTX 4070 Ti",
+    "gpu_vendor": "NVIDIA",
+    "graphics_api": "1.4.351",
+    "cpu": "AMD Ryzen 7 5800X3D 8-Core Processor",
+    "cpu_threads": 16,
+    "os": "Windows 10.0.26300",
+    "godot": "4.7.2-stable (official)",
+    "renderer": "forward_plus",
+    "resolution": "(1920, 1080)",
+    "vsync": "Disabled",
+    "captured_utc": "2026-09-25 17:17:23Z"
+  },
+  "notes": {
+    "scene": "PROTOTYPE greybox: Ashen Hollow, 200 m x 200 m, 4 cells",
+    "script": "segments: warmup 5 s at camera distance 3.5 m, conversation 90 s at camera distance 3.5 m, magic 60 s at camera distance 3.5 m, combat 150 s at camera distance 3.5 m, loot 60 s at camera distance 3.5 m, third_person 150 s at camera distance 3.5 m, first_person 150 s at camera distance 0 m; 12 presentation-only stand-in bodies for the prototype\u0027s entity budget; what the goals did: conversation: the primer taken and read, 3 formulas known; magic: 3 formulas worked; combat: 1 killed; its body is corpse.hollow_charwood_hound.m0_g0; loot: the body searched with the inventory open, Take All on 0 stacks; loot: the merchant cart searched with the inventory open, Take All on 2 stacks",
+    "vsync": "disabled for the capture, so frame times show headroom rather than the refresh rate",
+    "screenshots": "one per segment, halfway through; the frame after each is left out of the numbers (the capture stalls the GPU)",
+    "gate": "owner ruling 2026-09-23: sustained 60 FPS at 1080p on RAZER\u0027s RTX 4070 Ti with OBS, H3 and other GPU workloads stopped",
+    "route": "warmup 0 waypoints, conversation goal met in 16.3 s, magic goal met in 4.7 s, combat goal met in 29.8 s, loot goal met in 16.5 s, third_person 18 waypoints, first_person 17 waypoints; the character was struck 2 times and died 0 times (a clean capture: 0 and 0)"
+  },
+  "events": [
+    {
+      "frame": 34164,
+      "segment": "first_person",
+      "what": "autosave to auto_01 taken at 300.0 s of play",
+      "frame_ms_then": [
+        8.33,
+        8.33,
+        8.33
+      ],
+      "segment_median_ms": 8.33
+    },
+    {
+      "frame": 34175,
+      "segment": "first_person",
+      "what": "auto_01 written in the background",
+      "frame_ms_then": [
+        8.33,
+        8.33,
+        8.33
+      ],
+      "segment_median_ms": 8.33
+    }
+  ],
+  "segments": {
+    "warmup": {
+      "frames": 543,
+      "seconds": 4.87,
+      "average_fps": 111.4,
+      "one_percent_low_fps": 18,
+      "point_one_percent_low_fps": 7.5,
+      "minimum_fps": 7.5,
+      "frame_ms": {
+        "mean": 8.978,
+        "p50": 8.333,
+        "p95": 9.091,
+        "p99": 15.801,
+        "max": 133.333
+      },
+      "frames_within_16_7_ms_percent": 99.45,
+      "hitches_over_33_ms": 2,
+      "hitches_over_twice_median": 3,
+      "process_ms_worst_each_second": {
+        "mean": 837.568,
+        "p50": 9.361,
+        "p95": 4961.021,
+        "p99": 4961.021,
+        "max": 4961.021
+      },
+      "render_cpu_ms": {
+        "mean": 1.031,
+        "p50": 0.991,
+        "p95": 1.479,
+        "p99": 2.168,
+        "max": 3.102
+      },
+      "render_gpu_ms": {
+        "mean": 8.006,
+        "p50": 7.992,
+        "p95": 8.741,
+        "p99": 8.983,
+        "max": 10.546
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 4264.7,
+      "vram_peak_mb": 5813.7,
+      "sustained_60_fps_by_one_percent_low": false
+    },
+    "conversation": {
+      "frames": 1873,
+      "seconds": 16.2,
+      "average_fps": 115.6,
+      "one_percent_low_fps": 98.4,
+      "point_one_percent_low_fps": 73.5,
+      "minimum_fps": 60,
+      "frame_ms": {
+        "mean": 8.648,
+        "p50": 8.749,
+        "p95": 9.259,
+        "p99": 9.524,
+        "max": 16.667
+      },
+      "frames_within_16_7_ms_percent": 100,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 0,
+      "process_ms_worst_each_second": {
+        "mean": 9.913,
+        "p50": 9.72,
+        "p95": 12.026,
+        "p99": 12.026,
+        "max": 12.026
+      },
+      "render_cpu_ms": {
+        "mean": 0.927,
+        "p50": 0.902,
+        "p95": 1.222,
+        "p99": 1.666,
+        "max": 1.911
+      },
+      "render_gpu_ms": {
+        "mean": 8.246,
+        "p50": 8.344,
+        "p95": 8.751,
+        "p99": 9.378,
+        "max": 10.124
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1910.1,
+      "vram_peak_mb": 5819.8,
+      "sustained_60_fps_by_one_percent_low": true
+    },
+    "magic": {
+      "frames": 519,
+      "seconds": 4.52,
+      "average_fps": 114.8,
+      "one_percent_low_fps": 55.2,
+      "point_one_percent_low_fps": 32.7,
+      "minimum_fps": 32.7,
+      "frame_ms": {
+        "mean": 8.714,
+        "p50": 8.437,
+        "p95": 9.091,
+        "p99": 12.388,
+        "max": 30.601
+      },
+      "frames_within_16_7_ms_percent": 99.61,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 2,
+      "process_ms_worst_each_second": {
+        "mean": 23.013,
+        "p50": 11.698,
+        "p95": 35.625,
+        "p99": 35.625,
+        "max": 35.625
+      },
+      "render_cpu_ms": {
+        "mean": 0.837,
+        "p50": 0.827,
+        "p95": 0.961,
+        "p99": 1.206,
+        "max": 1.481
+      },
+      "render_gpu_ms": {
+        "mean": 8.206,
+        "p50": 8.045,
+        "p95": 8.712,
+        "p99": 8.781,
+        "max": 11.982
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1872.5,
+      "vram_peak_mb": 5821.3,
+      "sustained_60_fps_by_one_percent_low": false
+    },
+    "combat": {
+      "frames": 3111,
+      "seconds": 29.69,
+      "average_fps": 104.8,
+      "one_percent_low_fps": 82.7,
+      "point_one_percent_low_fps": 44.6,
+      "minimum_fps": 23,
+      "frame_ms": {
+        "mean": 9.543,
+        "p50": 9.722,
+        "p95": 10.247,
+        "p99": 10.417,
+        "max": 43.509
+      },
+      "frames_within_16_7_ms_percent": 99.97,
+      "hitches_over_33_ms": 1,
+      "hitches_over_twice_median": 1,
+      "process_ms_worst_each_second": {
+        "mean": 11.574,
+        "p50": 10.666,
+        "p95": 13.148,
+        "p99": 39.507,
+        "max": 39.507
+      },
+      "render_cpu_ms": {
+        "mean": 0.743,
+        "p50": 0.702,
+        "p95": 0.958,
+        "p99": 1.397,
+        "max": 1.568
+      },
+      "render_gpu_ms": {
+        "mean": 9.132,
+        "p50": 9.322,
+        "p95": 9.842,
+        "p99": 10.48,
+        "max": 12.793
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1908.1,
+      "vram_peak_mb": 5822,
+      "sustained_60_fps_by_one_percent_low": true
+    },
+    "loot": {
+      "frames": 1700,
+      "seconds": 16.34,
+      "average_fps": 104.1,
+      "one_percent_low_fps": 88.7,
+      "point_one_percent_low_fps": 61.4,
+      "minimum_fps": 60,
+      "frame_ms": {
+        "mean": 9.61,
+        "p50": 9.524,
+        "p95": 10.251,
+        "p99": 10.417,
+        "max": 16.667
+      },
+      "frames_within_16_7_ms_percent": 100,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 0,
+      "process_ms_worst_each_second": {
+        "mean": 11.015,
+        "p50": 10.435,
+        "p95": 16.426,
+        "p99": 16.426,
+        "max": 16.426
+      },
+      "render_cpu_ms": {
+        "mean": 0.62,
+        "p50": 0.603,
+        "p95": 0.786,
+        "p99": 0.832,
+        "max": 1.095
+      },
+      "render_gpu_ms": {
+        "mean": 9.205,
+        "p50": 9.096,
+        "p95": 9.85,
+        "p99": 10.285,
+        "max": 13.071
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1889.9,
+      "vram_peak_mb": 5822.4,
+      "sustained_60_fps_by_one_percent_low": true
+    },
+    "third_person": {
+      "frames": 17106,
+      "seconds": 149.87,
+      "average_fps": 114.1,
+      "one_percent_low_fps": 84.5,
+      "point_one_percent_low_fps": 55,
+      "minimum_fps": 25.6,
+      "frame_ms": {
+        "mean": 8.761,
+        "p50": 8.55,
+        "p95": 10.341,
+        "p99": 10.628,
+        "max": 39.138
+      },
+      "frames_within_16_7_ms_percent": 99.96,
+      "hitches_over_33_ms": 2,
+      "hitches_over_twice_median": 3,
+      "process_ms_worst_each_second": {
+        "mean": 10.352,
+        "p50": 9.694,
+        "p95": 11.49,
+        "p99": 37.874,
+        "max": 38.151
+      },
+      "render_cpu_ms": {
+        "mean": 0.83,
+        "p50": 0.826,
+        "p95": 1.107,
+        "p99": 1.177,
+        "max": 2.111
+      },
+      "render_gpu_ms": {
+        "mean": 8.355,
+        "p50": 8.187,
+        "p95": 9.879,
+        "p99": 10.335,
+        "max": 19.294
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1893.3,
+      "vram_peak_mb": 5822.4,
+      "sustained_60_fps_by_one_percent_low": true
+    },
+    "first_person": {
+      "frames": 17914,
+      "seconds": 149.86,
+      "average_fps": 119.5,
+      "one_percent_low_fps": 92.3,
+      "point_one_percent_low_fps": 87.1,
+      "minimum_fps": 61.9,
+      "frame_ms": {
+        "mean": 8.365,
+        "p50": 8.333,
+        "p95": 10,
+        "p99": 10.606,
+        "max": 16.154
+      },
+      "frames_within_16_7_ms_percent": 100,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 0,
+      "process_ms_worst_each_second": {
+        "mean": 9.543,
+        "p50": 9.51,
+        "p95": 11.423,
+        "p99": 11.715,
+        "max": 12.1
+      },
+      "render_cpu_ms": {
+        "mean": 0.82,
+        "p50": 0.798,
+        "p95": 1.094,
+        "p99": 1.158,
+        "max": 1.826
+      },
+      "render_gpu_ms": {
+        "mean": 7.965,
+        "p50": 7.911,
+        "p95": 9.719,
+        "p99": 10.206,
+        "max": 11.342
+      },
+      "static_memory_peak_mb": 0,
+      "working_set_peak_mb": 1897.7,
+      "vram_peak_mb": 5822.4,
+      "sustained_60_fps_by_one_percent_low": true
+    }
+  }
+}
