@@ -1,6 +1,8 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World.Runtime;
@@ -94,6 +96,60 @@ public class GameSaveTests
         Assert.NotEmpty(simulation.Quests);
         foreach (var quest in simulation.Quests)
             Assert.Empty(simulation.Diagnose(quest.Id).Problems);
+    }
+
+    /// <summary>
+    /// The same save under M7 (design §7.14), for what the field-by-field compare does not name: the fourth migration step, no transition
+    /// and nothing to resolve, nothing built, no errand and no act known, Tavar with no route, and a first save that keeps the original
+    /// byte for byte. E3 and E5 add their rows here.
+    /// </summary>
+    [Fact]
+    public void TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand()
+    {
+        using var profile = new TempProfile();
+        string slot = SaveSlots.Manual("acceptance");
+        string committed = Path.Combine(Fixture("m6_acceptance"), "save");
+        Copy(committed, Path.Combine(profile.Root, slot));
+        var session = Harness.Boot(profile);
+        var loaded = session.Load(slot);
+
+        // Four schemas traversed, three migrations run: 14 -> 15 is the third of three.
+        Assert.Equal(3, loaded.Report.Steps.Count);
+        Assert.StartsWith("schema 12 -> 13:", loaded.Report.Steps[0]);
+        Assert.StartsWith("schema 13 -> 14:", loaded.Report.Steps[1]);
+        Assert.StartsWith("schema 14 -> 15:", loaded.Report.Steps[2]);
+        Assert.Empty(loaded.Report.CellsRebased);
+        Assert.Empty(loaded.Report.CellsMismatched);
+        Assert.Empty(loaded.Report.Blockers);
+        Assert.Empty(loaded.Report.Loss);
+        Assert.Empty(loaded.Report.Aliases);
+        Assert.Equal(session.Generator.Fingerprint, loaded.Manifest.WorldgenFingerprint);
+
+        var simulation = session.Simulation!;
+        Assert.Empty(simulation.World.Pieces);
+        Assert.Equal(0, simulation.World.StructureSequence);
+        Assert.Null(simulation.World.NpcErrand("npc.ashen_hollow.kera_voss"));
+        var site = session.Setup.Layout.Npcs.Single(n => n.NpcId == "npc.ashen_hollow.kera_voss");
+        var kera = simulation.Npcs.Single(n => n.Id == "npc.ashen_hollow.kera_voss");
+        Assert.Equal((site.XMm, site.ZMm), (kera.Body.XMm, kera.Body.ZMm));
+        Assert.Equal(FactionLedger.Empty, simulation.CaptureRecord().Factions);
+
+        var saved = JsonNode.Parse(File.ReadAllText(Path.Combine(Fixture("m6_acceptance"), "state_saved.json")))!;
+        var tavar = Assert.Single(simulation.CaptureRecord().Companions);
+        Assert.Equal(NavRoute.None, tavar.Route);
+        Assert.Equal(saved["player"]!["Companions"]![0]!["Trail"]!.ToJsonString(), JsonSerializer.Serialize(tavar.Trail));
+
+        // The first save keeps the original exactly as committed, under its exact pre-migration name (L-05), and reloads unchanged.
+        string before = StateDump.Render(simulation);
+        session.Save(slot);
+        string original = Path.Combine(profile.Root, $"pre_migration_12_{slot}");
+        foreach (string file in Directory.GetFiles(committed))
+            Assert.Equal(File.ReadAllBytes(file), File.ReadAllBytes(Path.Combine(original, Path.GetFileName(file))));
+        var reloaded = Harness.Boot(profile);
+        reloaded.Load(slot);
+        Assert.Empty(StateDump.Compare(before, StateDump.Render(reloaded.Simulation!), out _));
+        Assert.Equal(0, session.SubscriberFailures);
+        Assert.Equal(0, reloaded.SubscriberFailures);
     }
 
     private static void Copy(string from, string to)
