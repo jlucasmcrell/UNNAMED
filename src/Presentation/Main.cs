@@ -111,6 +111,7 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
+        VisualOptions.Apply(GetViewport());
         if (_flags.Contains("--spike"))
         {
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));

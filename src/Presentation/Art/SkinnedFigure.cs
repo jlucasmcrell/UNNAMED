@@ -17,6 +17,9 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedFigure : Figure
 {
     private SkinnedModel _model = null!;
+
+    /// <summary>The body's skeleton, for the skeleton modifiers (Phase B's foot planting and look-at).</summary>
+    public Skeleton3D Skeleton => _model.Skeleton;
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;
     private ArtBindings _bindings = null!;

@@ -1,0 +1,44 @@
+{
+  "map_version": 1,
+  "source_skeleton": "KayKit Rig_Medium (23 joints, no fingers, T-pose rest, faces +Z)",
+  "target_rig": "humanoid20 (_blender_rig_fit_humanoid20.BONES)",
+  "notes": "Rig_Medium has no neck and no clavicle. The target neck keeps its rest angle to the chest and the head takes the source head's full world orientation. The target shoulders are derived from where the source upper arm joint sits in the chest (KayKit animates upperarm translation as a stand-in clavicle). wrist.* is a rigid forearm tip (constant 3 deg), so it folds into the forearm; hand.* carries the real wrist bend.",
+  "source_root": "root",
+  "source_lateral": ["upperleg.l", "upperleg.r"],
+  "target_lateral": ["thigh.L", "thigh.R"],
+  "target_legs": [["thigh.L", "shin.L", "foot.L"], ["thigh.R", "shin.R", "foot.R"]],
+  "target_arms": [["shoulder.L", "upper_arm.L", "forearm.L", "hand.L"], ["shoulder.R", "upper_arm.R", "forearm.R", "hand.R"]],
+  "target_chain": {
+    "root": "hips", "hips": "spine", "spine": "chest", "chest": "neck", "neck": "head",
+    "shoulder.L": "upper_arm.L", "upper_arm.L": "forearm.L", "forearm.L": "hand.L",
+    "shoulder.R": "upper_arm.R", "upper_arm.R": "forearm.R", "forearm.R": "hand.R",
+    "thigh.L": "shin.L", "shin.L": "foot.L",
+    "thigh.R": "shin.R", "shin.R": "foot.R"
+  },
+  "bones": {
+    "root": {"source": "root"},
+    "hips": {"source": "hips"},
+    "spine": {"source": "spine"},
+    "chest": {"source": "chest"},
+    "neck": {"source": null},
+    "head": {"source": "head"},
+    "shoulder.L": {"source": null, "derive": {"toward": "upperarm.l", "pivot": "midline"}},
+    "upper_arm.L": {"source": "upperarm.l", "align": true},
+    "forearm.L": {"source": "lowerarm.l", "align": true},
+    "hand.L": {"source": "hand.l", "align": true},
+    "shoulder.R": {"source": null, "derive": {"toward": "upperarm.r", "pivot": "midline"}},
+    "upper_arm.R": {"source": "upperarm.r", "align": true},
+    "forearm.R": {"source": "lowerarm.r", "align": true},
+    "hand.R": {"source": "hand.r", "align": true},
+    "thigh.L": {"source": "upperleg.l", "align": true},
+    "shin.L": {"source": "lowerleg.l", "align": true},
+    "foot.L": {"source": "foot.l"},
+    "thigh.R": {"source": "upperleg.r", "align": true},
+    "shin.R": {"source": "lowerleg.r", "align": true},
+    "foot.R": {"source": "foot.r"}
+  },
+  "contacts": {
+    "foot.L": {"ankle": "foot.l", "toe": "toes.l"},
+    "foot.R": {"ankle": "foot.r", "toe": "toes.r"}
+  }
+}

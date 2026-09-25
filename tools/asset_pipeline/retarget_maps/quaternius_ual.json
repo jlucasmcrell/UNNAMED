@@ -1,0 +1,44 @@
+{
+  "map_version": 1,
+  "source_skeleton": "Quaternius Universal Animation Library 1/2 (65 joints, UE-mannequin style, 4-segment fingers, T-pose rest, faces +Z)",
+  "target_rig": "humanoid20 (_blender_rig_fit_humanoid20.BONES)",
+  "notes": "Three spine bones onto two: spine_02 folds into spine (the target spine takes spine_02's world orientation), spine_03 drives the chest. The 40 finger joints fold into the hand and ball/ball_leaf into the foot (their motion is dropped). The hand is aimed at the middle knuckle for the T-to-A rest alignment. Use the *_RM.glb file to keep root motion; the plain file is the same motion with the root travel removed.",
+  "source_root": "root",
+  "source_lateral": ["thigh_l", "thigh_r"],
+  "target_lateral": ["thigh.L", "thigh.R"],
+  "target_legs": [["thigh.L", "shin.L", "foot.L"], ["thigh.R", "shin.R", "foot.R"]],
+  "target_arms": [["shoulder.L", "upper_arm.L", "forearm.L", "hand.L"], ["shoulder.R", "upper_arm.R", "forearm.R", "hand.R"]],
+  "target_chain": {
+    "root": "hips", "hips": "spine", "spine": "chest", "chest": "neck", "neck": "head",
+    "shoulder.L": "upper_arm.L", "upper_arm.L": "forearm.L", "forearm.L": "hand.L",
+    "shoulder.R": "upper_arm.R", "upper_arm.R": "forearm.R", "forearm.R": "hand.R",
+    "thigh.L": "shin.L", "shin.L": "foot.L",
+    "thigh.R": "shin.R", "shin.R": "foot.R"
+  },
+  "bones": {
+    "root": {"source": "root"},
+    "hips": {"source": "pelvis"},
+    "spine": {"source": "spine_01"},
+    "chest": {"source": "spine_03"},
+    "neck": {"source": "neck_01"},
+    "head": {"source": "Head"},
+    "shoulder.L": {"source": "clavicle_l"},
+    "upper_arm.L": {"source": "upperarm_l", "align": true},
+    "forearm.L": {"source": "lowerarm_l", "align": true},
+    "hand.L": {"source": "hand_l", "align": true, "aim": "middle_01_l"},
+    "shoulder.R": {"source": "clavicle_r"},
+    "upper_arm.R": {"source": "upperarm_r", "align": true},
+    "forearm.R": {"source": "lowerarm_r", "align": true},
+    "hand.R": {"source": "hand_r", "align": true, "aim": "middle_01_r"},
+    "thigh.L": {"source": "thigh_l", "align": true},
+    "shin.L": {"source": "calf_l", "align": true},
+    "foot.L": {"source": "foot_l"},
+    "thigh.R": {"source": "thigh_r", "align": true},
+    "shin.R": {"source": "calf_r", "align": true},
+    "foot.R": {"source": "foot_r"}
+  },
+  "contacts": {
+    "foot.L": {"ankle": "foot_l", "toe": "ball_l"},
+    "foot.R": {"ankle": "foot_r", "toe": "ball_r"}
+  }
+}

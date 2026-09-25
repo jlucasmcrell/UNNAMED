@@ -19,6 +19,8 @@ public static class VisualOptions
         ["clouds"] = new[] { "none", "sunshine" },
         ["water"] = new[] { "none", "classic", "boujie" },
         ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
+        ["foldscar"] = new[] { "classic", "proof" },
+        ["aa"] = new[] { "msaa_taa", "taa", "msaa" },  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
         ["weather"] = Array.Empty<string>(),     // a weather state name, validated by the weather system
     };
@@ -30,6 +32,8 @@ public static class VisualOptions
         ["clouds"] = "none",
         ["water"] = "none",
         ["plants"] = "classic",
+        ["foldscar"] = "classic",
+        ["aa"] = "msaa_taa",
     };
 
     private static readonly Dictionary<string, string> Values = new(Defaults);
@@ -39,6 +43,15 @@ public static class VisualOptions
     public static string Clouds => Values["clouds"];
     public static string Water => Values["water"];
     public static string Plants => Values["plants"];
+    public static string Foldscar => Values["foldscar"];
+    public static string AntiAliasing => Values["aa"];
+
+    /// <summary>The options that are the viewport's own settings (the anti-aliasing), applied to the game's viewport.</summary>
+    public static void Apply(Viewport viewport)
+    {
+        viewport.Msaa3D = AntiAliasing == "taa" ? Viewport.Msaa.Disabled : Viewport.Msaa.Msaa4X;
+        viewport.UseTaa = AntiAliasing != "msaa";
+    }
 
     /// <summary>The harness's time-of-day override in hours, or null to follow the world's clock.</summary>
     public static float? Hour => Values.TryGetValue("hour", out var h) ? float.Parse(h, System.Globalization.CultureInfo.InvariantCulture) : null;

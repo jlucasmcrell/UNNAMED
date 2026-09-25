@@ -477,7 +477,7 @@ public partial class HollowView : Node3D
         {
             Name = barrier.Key,
             Mesh = mesh,
-            MaterialOverride = Palette.FoldscarBarrier,
+            MaterialOverride = VisualOptions.Foldscar == "proof" ? Palette.FoldscarFold : Palette.FoldscarBarrier,
             Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height / 2, z / 1000f),
         };
         _barriers[barrier.Key] = node;

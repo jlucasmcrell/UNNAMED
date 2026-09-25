@@ -100,6 +100,70 @@ void fragment() {
         },
     };
 
+    /// <summary>
+    /// The fold as B0.6 draws it (<c>--visual foldscar=proof</c>): the bible's restrained weirdness and nothing else - the world behind
+    /// seen a little wrong (a slow warp, and the same view doubled a hair to one side), strongest where the fold faces the eye and thinning
+    /// to nothing at its silhouette, so it has no edge to read as a volume; a ragged, drifting top and a foot that fades into the ground;
+    /// the faintest cool cast and a few slow motes. No violet rim: the Foldscar is wrong, not magical.
+    /// </summary>
+    public static ShaderMaterial FoldscarFold { get; } = new()
+    {
+        Shader = new Shader
+        {
+            Code = @"
+shader_type spatial;
+render_mode blend_mix, cull_back, unshaded, depth_draw_never, shadows_disabled;
+
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
+uniform float height_m = 2.6;
+uniform float warp_amount = 0.010;
+uniform float doubling = 0.010;
+varying vec3 local;
+
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = hash(i), b = hash(i + vec2(1.0, 0.0)), c = hash(i + vec2(0.0, 1.0)), d = hash(i + vec2(1.0, 1.0));
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+void vertex() {
+    local = VERTEX;
+}
+
+void fragment() {
+    float facing = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
+    float body = smoothstep(0.08, 0.75, facing);
+    float around = atan(local.z, local.x);
+    float h = local.y / height_m + 0.5;
+    float ragged = vnoise(vec2(around * 2.5 + TIME * 0.03, TIME * 0.07));
+    float top = 1.0 - smoothstep(0.45 + 0.3 * ragged, 0.98, h);
+    float foot = smoothstep(0.0, 0.12, h);
+
+    vec2 p = vec2(around * 1.7, h * 2.2);
+    vec2 warp = (vec2(vnoise(p * 3.0 + vec2(TIME * 0.05, 0.0)), vnoise(p * 3.0 + vec2(7.3, -TIME * 0.04))) - 0.5) * warp_amount * body;
+    vec4 behind = textureLod(screen_tex, SCREEN_UV + warp, 0.0);
+    // The doubling: the same view again, a hair to one side and drifting slowly back and forth.
+    vec2 side = vec2(doubling * (0.6 + 0.4 * sin(TIME * 0.21)), doubling * 0.15);
+    vec4 ghost = textureLod(screen_tex, SCREEN_UV + warp * 1.6 + side * body, 0.0);
+    // What reaches the frame after the screen copy (a fading instance: the scatter's far chunks, a figure at its range) is not in it -
+    // the copy holds nothing there (alpha 0). Draw only over what the copy holds, so those stay as they were drawn.
+    float held = smoothstep(0.4, 0.9, behind.a);
+    vec3 colour = mix(behind.rgb, mix(behind.rgb, ghost.rgb, 0.42), smoothstep(0.4, 0.9, ghost.a));
+    colour *= mix(vec3(1.0), vec3(0.94, 0.93, 1.03), body);
+
+    float motes = pow(clamp(vnoise(vec2(around * 9.0, h * 14.0 - TIME * 0.12)) - 0.62, 0.0, 1.0) * 2.6, 3.0);
+    colour += vec3(0.55, 0.50, 0.80) * motes * 0.35;
+
+    ALBEDO = colour;
+    ALPHA = clamp(body * top * foot + motes * 0.25 * top * foot, 0.0, 1.0) * held;
+}
+",
+        },
+    };
+
     /// <summary>A Quiet Stone turned into line (M6): a pale band round its top.</summary>
     public static StandardMaterial3D Aligned { get; } = new()
     {

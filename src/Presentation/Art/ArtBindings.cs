@@ -54,6 +54,8 @@ public sealed class ArtBindings
     public const string ResourcePath = "res://Art/art_bindings.json";
 
     private readonly Dictionary<string, Placement> _structures = new(StringComparer.Ordinal);
+    // Phase B's proofs: a structure's look while a --visual option has a value (the key, the value, the looks by structure ID).
+    private readonly List<(string Key, string Value, Dictionary<string, Placement> Looks)> _optionStructures = new();
     private readonly List<(string Prefix, IReadOnlyList<string> Models, Placement Look)> _prefixes = new();
     private readonly List<(string Prefix, string Material)> _wallMaterials = new();
     private readonly Dictionary<string, Placement> _buildings = new(StringComparer.Ordinal);
@@ -85,6 +87,11 @@ public sealed class ArtBindings
     /// <summary>The look for a region structure by its ID (exact, then by prefix - a tree's model chosen by its ID), or null.</summary>
     public Placement? Structure(string id)
     {
+        foreach (var (key, value, looks) in _optionStructures)
+        {
+            if (VisualOptions.All.GetValueOrDefault(key) == value && looks.TryGetValue(id, out var chosen))
+                return chosen;
+        }
         if (_structures.TryGetValue(id, out var look))
             return look;
         foreach (var (prefix, models, prefixLook) in _prefixes)
@@ -121,7 +128,7 @@ public sealed class ArtBindings
     /// <summary>Every static model the bindings name (for the gallery).</summary>
     public IEnumerable<string> StaticModels()
     {
-        foreach (var look in _structures.Values.Concat(_buildings.Values).Concat(Doors.Values).Concat(Containers.Values).Concat(Nodes.Values).Concat(Stations.Values))
+        foreach (var look in _structures.Values.Concat(_optionStructures.SelectMany(o => o.Looks.Values)).Concat(_buildings.Values).Concat(Doors.Values).Concat(Containers.Values).Concat(Nodes.Values).Concat(Stations.Values))
         {
             if (look.Model is { } model)
                 yield return model;
@@ -193,6 +200,15 @@ public sealed class ArtBindings
             {
                 foreach (var structure in structures.EnumerateObject())
                     bindings._structures[structure.Name] = Look(structure.Value);
+            }
+            if (root.TryGetProperty("structures_by_visual_option", out var byOption))
+            {
+                foreach (var option in byOption.EnumerateObject())
+                {
+                    string[] kv = option.Name.Split('=', 2);
+                    if (kv.Length == 2)
+                        bindings._optionStructures.Add((kv[0], kv[1], option.Value.EnumerateObject().ToDictionary(o => o.Name, o => Look(o.Value), StringComparer.Ordinal)));
+                }
             }
             if (root.TryGetProperty("structure_prefixes", out var prefixes))
             {
