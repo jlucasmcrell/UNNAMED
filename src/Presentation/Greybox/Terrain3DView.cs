@@ -36,7 +36,7 @@ public static class Terrain3DView
     private static readonly int[] SlotLayer = { 3, 0, 2, 1 };
 
     /// <summary>Terrain3D under <paramref name="parent"/>, or null (and why) when the extension or a layer is unavailable.</summary>
-    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, string? assetRoot, out string? why)
+    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why)
     {
         why = null;
         if (!ClassDB.ClassExists("Terrain3D"))
@@ -47,7 +47,7 @@ public static class Terrain3DView
         var layers = new List<GodotObject>();
         for (int i = 0; i < Layers.Length; i++)
         {
-            var asset = TextureAsset(Layers[i].Id, Layers[i].UvScale, assetRoot);
+            var asset = TextureAsset(Layers[i].Id, Layers[i].UvScale, art.Root);
             if (asset is null)
             {
                 why = $"terrain layer {Layers[i].Id} is not in the asset workspace";
@@ -86,6 +86,14 @@ public static class Terrain3DView
         var data = (GodotObject)terrain.Get("data");
         data.Call("import_images", new Godot.Collections.Array { height, control, default }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {Regions}x{Regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
+        // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
+        int rocks = RavineDressing.DressNorth(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
+        GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        // B0.8: a river on the ravine floor, for the water proof.
+        if (WaterView.BuildRavineRiver(parent, ground.Region, (x, z) => SceneryHeight(ground, x, z), out string? waterWhy) is not null)
+            art.Coverage.Resolved("water", "ravine_river", $"a river on the north ravine floor ({VisualOptions.Water})");
+        else if (waterWhy is not null)
+            art.Coverage.Fallback("water", "ravine_river", waterWhy);
         return terrain;
     }
 
@@ -119,8 +127,7 @@ public static class Terrain3DView
         int size = RegionSize * Regions;
         var heights = new byte[size * size * 4];
         var controls = new byte[size * size * 4];
-        var noise = new FastNoiseLite { Seed = 4271, NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth, Frequency = 0.012f,
-            FractalType = FastNoiseLite.FractalTypeEnum.Fbm, FractalOctaves = 5 };
+        var noise = Noise;
         for (int py = 0; py < size; py++)
         for (int px = 0; px < size; px++)
         {
@@ -143,6 +150,17 @@ public static class Terrain3DView
             BitConverter.TryWriteBytes(controls.AsSpan(at, 4), c);    // the control word's bits as they are: never through a float
         }
         return (Image.CreateFromData(size, size, false, Image.Format.Rf, heights), Image.CreateFromData(size, size, false, Image.Format.Rf, controls));
+    }
+
+    private static readonly FastNoiseLite Noise = new() { Seed = 4271, NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth, Frequency = 0.012f,
+        FractalType = FastNoiseLite.FractalTypeEnum.Fbm, FractalOctaves = 5 };
+
+    /// <summary>The scenery surface at a point beyond the edge (the same function the height image is built from); inside, the domain's.</summary>
+    public static float SceneryHeight(GroundField ground, float x, float z)
+    {
+        var r = ground.Region;
+        bool inside = x >= r.Position.X && x <= r.End.X && z >= r.Position.Y && z <= r.End.Y;
+        return inside ? ground.Height(x, z) : Outside(ground, x, z, Noise);
     }
 
     /// <summary>Inside the region: the dominant ground slot as the base, the next as the overlay, then the worn path, then a steep face.</summary>
@@ -190,8 +208,10 @@ public static class Terrain3DView
         // The south side (z below the region) rises; the other three fall into the ravine. Corners blend by direction.
         float south = z < region.Position.Y ? GroundField.SmoothStep(0.2f, 0.8f, (region.Position.Y - z) / MathF.Max(d, 1e-3f)) : 0f;
         float ravine;
-        if (d < 7f)
-            ravine = Mathf.Lerp(edge, -30f, GroundField.SmoothStep(0f, 7f, d) * 0.7f + d / 7f * 0.3f);
+        if (d < 2f)
+            ravine = edge - d * 0.35f;                                      // a soft lip: the playable edge never meets the sheer drop
+        else if (d < 8f)
+            ravine = Mathf.Lerp(edge - 0.7f, -30f, GroundField.SmoothStep(2f, 8f, d) * 0.7f + (d - 2f) / 6f * 0.3f);
         else if (d < 26f)
             ravine = -31f + n2 * 1.2f;
         else if (d < 40f)
