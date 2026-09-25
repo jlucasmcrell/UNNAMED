@@ -18,6 +18,7 @@ public static class VisualOptions
         ["sky"] = new[] { "classic", "sky3d", "hdri" },
         ["clouds"] = new[] { "none", "sunshine" },
         ["water"] = new[] { "none", "classic", "boujie" },
+        ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
         ["weather"] = Array.Empty<string>(),     // a weather state name, validated by the weather system
     };
@@ -28,6 +29,7 @@ public static class VisualOptions
         ["sky"] = "classic",
         ["clouds"] = "none",
         ["water"] = "none",
+        ["plants"] = "classic",
     };
 
     private static readonly Dictionary<string, string> Values = new(Defaults);
@@ -36,6 +38,7 @@ public static class VisualOptions
     public static string Sky => Values["sky"];
     public static string Clouds => Values["clouds"];
     public static string Water => Values["water"];
+    public static string Plants => Values["plants"];
 
     /// <summary>The harness's time-of-day override in hours, or null to follow the world's clock.</summary>
     public static float? Hour => Values.TryGetValue("hour", out var h) ? float.Parse(h, System.Globalization.CultureInfo.InvariantCulture) : null;

@@ -20,7 +20,8 @@ public partial class ScatterView : Node3D
 {
     private const float FieldStep = 0.5f;
 
-    private sealed record Kind(ScatterKind Rules, Mesh[] Meshes);
+    /// <summary>A kind and its meshes: variants (one is picked a placement) or, for a prepared model, its levels (every placement in each, by distance).</summary>
+    private sealed record Kind(ScatterKind Rules, Mesh[] Meshes, bool Levels = false);
 
     private readonly List<Kind> _kinds = new();
     private GroundField _ground = null!;
@@ -31,6 +32,7 @@ public partial class ScatterView : Node3D
     private float[] _building = Array.Empty<float>(), _box = Array.Empty<float>(), _circle = Array.Empty<float>(), _spot = Array.Empty<float>(),
         _tree = Array.Empty<float>();
     private ulong? _builtFor;
+    private WindField? _wind;
 
     /// <summary>Instances placed by kind, and how long placing them took, for the reports.</summary>
     public IReadOnlyDictionary<string, int> Counts => _counts;
@@ -47,6 +49,27 @@ public partial class ScatterView : Node3D
         BuildFields(layout, buildingPrefixes);
         foreach (var kind in rules.Kinds)
         {
+            if (kind.ModelId is { } model)
+            {
+                // Prepared plant models (Phase B, B0.5) draw only when the run asks for them (--visual plants=models).
+                if (VisualOptions.Plants != "models")
+                    continue;
+                if (_wind is null)
+                {
+                    WindField.Register();
+                    _wind = new WindField { Name = "Wind" };
+                    AddChild(_wind);
+                }
+                var levels = ModelMeshes(art, kind, model);
+                if (levels.Length == 0)
+                {
+                    art.Coverage.Fallback("scatter", kind.Name, art.Why(model) ?? "the model would not load", model);
+                    continue;
+                }
+                art.Coverage.Resolved("scatter", kind.Name, $"{model} ({levels.Length} levels)");
+                _kinds.Add(new Kind(kind, levels, true));
+                continue;
+            }
             var meshes = Meshes(art, kind);
             if (meshes.Length == 0)
             {
@@ -67,15 +90,17 @@ public partial class ScatterView : Node3D
         _builtFor = worldSeed;
         foreach (var child in GetChildren())
         {
+            if (child == _wind)
+                continue;
             RemoveChild(child);
             child.QueueFree();
         }
         _counts.Clear();
         ulong started = Time.GetTicksUsec();
         var region = _ground.Region;
-        float chunk = _rules.ChunkM;
         foreach (var kind in _kinds)
         {
+            float chunk = kind.Rules.ChunkM ?? _rules.ChunkM;
             int total = 0;
             float step = 1f / MathF.Sqrt(kind.Rules.MaxPerM2);
             int cz = 0;
@@ -97,8 +122,15 @@ public partial class ScatterView : Node3D
                         if (roll >= Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
                             continue;
                         var (basis, sink, tint) = Place(kind.Rules, rng, w);
-                        int m = rng.Next(kind.Meshes.Length);
+                        int m = kind.Levels ? 0 : rng.Next(kind.Meshes.Length);
                         per[m].Add((new Transform3D(basis, new Vector3(px, _ground.Height(px, pz) - sink, pz)), tint));
+                    }
+                    if (kind.Levels)
+                    {
+                        if (per[0].Count > 0)
+                            AddLevels(kind, per[0], cx, cz);
+                        total += per[0].Count;
+                        continue;
                     }
                     for (int m = 0; m < kind.Meshes.Length; m++)
                     {
@@ -128,6 +160,41 @@ public partial class ScatterView : Node3D
         }
         BuildMs = Math.Round((Time.GetTicksUsec() - started) / 1000.0, 1);
         GD.Print($"UNNAMED scatter: {string.Join(", ", _counts.Select(c => $"{c.Value} {c.Key}"))} placed for world seed {worldSeed:x16} in {BuildMs} ms");
+    }
+
+    /// <summary>
+    /// A chunk of a prepared model: the same placements in one MultiMesh a level, each level drawn over its band of distance (the rules'
+    /// <c>lods_m</c>, the last to the kind's fade), the tint in the instances' custom data (the plant's vertex colours carry its wind).
+    /// </summary>
+    private void AddLevels(Kind kind, List<(Transform3D, Color)> placed, int cx, int cz)
+    {
+        var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
+        int levels = Math.Min(kind.Meshes.Length, from.Count);
+        for (int level = 0; level < levels; level++)
+        {
+            float begin = from[level], end = level + 1 < levels ? from[level + 1] : kind.Rules.FadeM;
+            if (end <= begin)
+                continue;
+            var multi = new MultiMesh
+            {
+                TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true, Mesh = kind.Meshes[level], InstanceCount = placed.Count,
+            };
+            for (int i = 0; i < placed.Count; i++)
+            {
+                multi.SetInstanceTransform(i, placed[i].Item1);
+                multi.SetInstanceCustomData(i, placed[i].Item2);
+            }
+            AddChild(new MultiMeshInstance3D
+            {
+                Name = $"{kind.Rules.Name}_{cx}_{cz}_lod{level}", Multimesh = multi,
+                // Only the near, full levels throw shadows; the far cards would cast flat slabs.
+                CastShadow = kind.Rules.Shadows && level < 2 ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
+                GIMode = GeometryInstance3D.GIModeEnum.Disabled,
+                VisibilityRangeBegin = begin, VisibilityRangeBeginMargin = begin > 0 ? 1.5f : 0,
+                VisibilityRangeEnd = end, VisibilityRangeEndMargin = level + 1 < levels ? 1.5f : 10f,
+                VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self,
+            });
+        }
     }
 
     /// <summary>A chunk's own random stream: the world seed, the kind and the chunk, so every chunk is the same in every run of that world.</summary>
@@ -212,6 +279,17 @@ public partial class ScatterView : Node3D
     {
         float Lush() => Enumerable.Range(0, 4).Sum(i => _ground.Grounds[i] is { } g ? w[i] * kind.Lush.GetValueOrDefault(g) : 0);
         float Tall() => Enumerable.Range(0, 4).Sum(i => _ground.Grounds[i] is { } g ? w[i] * kind.Tall.GetValueOrDefault(g) : 0);
+        if (kind.ModelId is not null)
+        {
+            // A prepared plant: turned any way, leaning a little, uniformly sized within the kind's range (larger where the ground grows
+            // it tall - the wind shader needs the scale uniform), drier and paler where the ground is poor.
+            float yaw = (float)rng.NextDouble() * Mathf.Tau;
+            float size = Mathf.Lerp(kind.SizeMin, kind.SizeMax, (float)rng.NextDouble()) * (1f + Tall());
+            var basis = Basis.FromEuler(new Vector3(((float)rng.NextDouble() - 0.5f) * 0.14f, yaw, ((float)rng.NextDouble() - 0.5f) * 0.14f)) * Basis.FromScale(Vector3.One * size);
+            var tint = new Color(0.98f, 0.90f, 0.70f).Lerp(Colors.White, Math.Clamp(Lush(), 0, 1));
+            float drift = 0.86f + (float)rng.NextDouble() * 0.24f;
+            return (basis, 0.02f * size, new Color(tint.R * drift, tint.G * drift, tint.B * drift));
+        }
         switch (kind.Mesh)
         {
             case "grass_clumps":
@@ -341,6 +419,93 @@ public partial class ScatterView : Node3D
     }
 
     // ── the meshes ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// A prepared plant's levels as meshes for the MultiMeshes: each level's surfaces merged into one mesh in the model's space, drawn with
+    /// the wind foliage shader from the level's own maps. The albedo is re-mipped keeping its alpha-tested coverage (plain mipmaps thin
+    /// cut-out leaves to nothing at a distance), once per distinct image; the normal and roughness maps are the library's own.
+    /// </summary>
+    private static Mesh[] ModelMeshes(ArtLibrary art, ScatterKind kind, string id)
+    {
+        var levels = art.ModelLevels(id);
+        var meshes = new List<Mesh>();
+        var albedos = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
+        float height = 0;
+        foreach (var level in levels)
+        {
+            var merged = new ArrayMesh();
+            foreach (var instance in level.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            {
+                if (instance.Mesh is not { } mesh)
+                    continue;
+                var toModel = Transform3D.Identity;
+                for (Node? n = instance; n is not null && n != level; n = n.GetParent())
+                {
+                    if (n is Node3D spatial)
+                        toModel = spatial.Transform * toModel;
+                }
+                for (int s = 0; s < mesh.GetSurfaceCount(); s++)
+                {
+                    var arrays = mesh.SurfaceGetArrays(s);
+                    if (toModel != Transform3D.Identity)
+                    {
+                        var vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+                        for (int v = 0; v < vertices.Length; v++)
+                            vertices[v] = toModel * vertices[v];
+                        arrays[(int)Mesh.ArrayType.Vertex] = vertices;
+                        if (arrays[(int)Mesh.ArrayType.Normal].VariantType != Variant.Type.Nil)
+                        {
+                            var normals = arrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
+                            for (int v = 0; v < normals.Length; v++)
+                                normals[v] = (toModel.Basis * normals[v]).Normalized();
+                            arrays[(int)Mesh.ArrayType.Normal] = normals;
+                        }
+                    }
+                    merged.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+                    if (height <= 0)
+                        height = Math.Max(0.01f, merged.GetAabb().End.Y);
+                    merged.SurfaceSetMaterial(merged.GetSurfaceCount() - 1, Foliage(instance.GetActiveMaterial(s) as BaseMaterial3D, kind, height, albedos));
+                }
+            }
+            level.Free();
+            if (merged.GetSurfaceCount() == 0)
+                break;
+            meshes.Add(merged);
+        }
+        return meshes.ToArray();
+    }
+
+    private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, Dictionary<string, Texture2D> albedos)
+    {
+        var material = new ShaderMaterial { Shader = _foliageShader ??= new Shader { Code = WindField.FoliageShader } };
+        material.SetShaderParameter("plant_height", height);
+        material.SetShaderParameter("stiffness", kind.Stiffness);
+        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
+        {
+            if (image.IsCompressed())
+                image.Decompress();
+            image.ClearMipmaps();
+            image.Convert(Image.Format.Rgba8);
+            string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
+            if (!albedos.TryGetValue(key, out var coverage))
+                albedos[key] = coverage = ImageTexture.CreateFromImage(CoverageMips(image, 0.4f));
+            material.SetShaderParameter("albedo_tex", coverage);
+        }
+        if (source is { NormalEnabled: true, NormalTexture: { } normal })
+        {
+            material.SetShaderParameter("normal_tex", normal);
+            material.SetShaderParameter("has_normal", true);
+        }
+        // glTF's metallic-roughness map is the ARM map (occlusion red, roughness green); Godot's importer sets it as the roughness texture.
+        if (source?.RoughnessTexture is { } arm)
+        {
+            material.SetShaderParameter("arm_tex", arm);
+            material.SetShaderParameter("has_arm", true);
+        }
+        return material;
+    }
+
+    private static Shader? _foliageShader;
 
     private static Mesh[] Meshes(ArtLibrary art, ScatterKind kind)
     {

@@ -113,8 +113,39 @@ public sealed class ArtLibrary
     /// </summary>
     public Node3D? ModelWithLods(string id)
     {
-        if (Model(id) is not { } full)
+        if (ModelLevels(id) is not { Count: > 0 } all)
             return null;
+        if (all.Count == 1)
+            return all[0];
+        var full = all[0];
+        var root = new Node3D { Name = id };
+        var extent = ArtGallery.Bounds(full).Size;
+        float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
+        float[] from = { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
+        for (int i = 0; i < all.Count; i++)
+        {
+            root.AddChild(all[i]);
+            float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
+            foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            {
+                mesh.VisibilityRangeBegin = begin;
+                mesh.VisibilityRangeBeginMargin = begin > 0 ? 0.1f * begin : 0;
+                mesh.VisibilityRangeEnd = end;
+                mesh.VisibilityRangeEndMargin = end > 0 ? 0.1f * end : 0;
+                mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+            }
+        }
+        return root;
+    }
+
+    /// <summary>
+    /// A static model's full mesh and its usable lighter levels, in order (the same checks as <see cref="ModelWithLods"/>), each a fresh
+    /// instance the caller owns; empty when the model will not load. For callers that draw the levels themselves (the scatter's MultiMeshes).
+    /// </summary>
+    public IReadOnlyList<Node3D> ModelLevels(string id)
+    {
+        if (Model(id) is not { } full)
+            return Array.Empty<Node3D>();
         var levels = new List<Node3D>();
         bool textured = Textured(full);
         for (int n = 1; n <= 3; n++)
@@ -133,28 +164,9 @@ public sealed class ArtLibrary
             }
             levels.Add(level);
         }
-        if (levels.Count == 0)
-            return full;
-        var root = new Node3D { Name = id };
-        var extent = ArtGallery.Bounds(full).Size;
-        float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
-        float[] from = { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
         var all = new List<Node3D> { full };
         all.AddRange(levels);
-        for (int i = 0; i < all.Count; i++)
-        {
-            root.AddChild(all[i]);
-            float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
-            foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
-            {
-                mesh.VisibilityRangeBegin = begin;
-                mesh.VisibilityRangeBeginMargin = begin > 0 ? 0.1f * begin : 0;
-                mesh.VisibilityRangeEnd = end;
-                mesh.VisibilityRangeEndMargin = end > 0 ? 0.1f * end : 0;
-                mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
-            }
-        }
-        return root;
+        return all;
     }
 
     private static bool Textured(Node3D model)

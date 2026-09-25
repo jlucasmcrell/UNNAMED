@@ -12,7 +12,7 @@ public sealed record ScatterPath(string Note, IReadOnlyList<(float X, float Z)> 
 public sealed record ScatterPatch(float ScaleM, float From, float To);
 
 /// <summary>
-/// One kind of scatter (grass clumps, leaf litter, stones): its procedural mesh, its densest and its density on each ground (by the ground's
+/// One kind of scatter (grass clumps, leaf litter, stones, or a prepared plant model named <c>model:&lt;semantic id&gt;</c>): its mesh, its densest and its density on each ground (by the ground's
 /// world material ID), how it thins (patches, a bare yard round the buildings, under the trees, the path) and how it looks per ground.
 /// </summary>
 public sealed record ScatterKind(
@@ -20,7 +20,12 @@ public sealed record ScatterKind(
     IReadOnlyDictionary<string, float> PerM2, IReadOnlyDictionary<string, float> Lush, IReadOnlyDictionary<string, float> Tall,
     IReadOnlyList<ScatterPatch> Patches, IReadOnlyList<string> BareYardGrounds, float BareYardFromM, float BareYardToM,
     float UnderTreesKeep, float UnderTreesFromM, float UnderTreesToM, float NearTreesAdd, float NearTreesFromM, float NearTreesToM,
-    float PathShoulders, float ClearMargin, bool OffPath);
+    float PathShoulders, float ClearMargin, bool OffPath,
+    float? ChunkM = null, IReadOnlyList<float>? LodsM = null, float SizeMin = 1, float SizeMax = 1, float Stiffness = 1)
+{
+    /// <summary>The prepared model this kind scatters (<c>mesh: "model:&lt;id&gt;"</c>), or null for a procedural mesh.</summary>
+    public string? ModelId => Mesh.StartsWith("model:", StringComparison.Ordinal) ? Mesh["model:".Length..] : null;
+}
 
 /// <summary>
 /// The rules the scatter view follows, as data so Phase B can extend them: the chunk size, the worn paths of each region, where nothing
@@ -127,8 +132,16 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
             perM2, Map(e, "lush"), Map(e, "tall"), patches, grounds, Number(yard, "from_m", 0), Number(yard, "to_m", 0),
             under.ValueKind == JsonValueKind.Object ? Number(under, "keep", 1) : 1, Number(under, "from_m", 0), Number(under, "to_m", 0),
             Number(near, "add", 0), Number(near, "from_m", 0), Number(near, "to_m", 0), Number(e, "path_shoulders", 0), Positive(e, "clear_margin", 1),
-            !(e.TryGetProperty("off_path", out var off) && off.ValueKind == JsonValueKind.False));
+            !(e.TryGetProperty("off_path", out var off) && off.ValueKind == JsonValueKind.False),
+            Number(e, "chunk_m", 0) is var c && c > 0 ? c : null, Numbers(e, "lods_m"),
+            Numbers(e, "size") is { Count: 2 } size && size[0] > 0 && size[1] >= size[0] ? size[0] : 1,
+            Numbers(e, "size") is { Count: 2 } size2 && size2[0] > 0 && size2[1] >= size2[0] ? size2[1] : 1, Positive(e, "stiffness", 1));
     }
+
+    /// <summary>An array of numbers (the level distances, a size range), or null.</summary>
+    private static List<float>? Numbers(JsonElement e, string name) =>
+        e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Array && v.EnumerateArray().All(n => n.ValueKind == JsonValueKind.Number)
+            ? v.EnumerateArray().Select(n => (float)n.GetDouble()).ToList() : null;
 
     private static List<(float, float)>? Points(JsonElement path)
     {

@@ -56,6 +56,56 @@
       "clear_margin": 0.4,
       "off_path": false,
       "note": "Noise-displaced pebbles to head-sized stones in the limestone material, sunk a third; kicked to the paths' shoulders."
+    },
+    "tufts": {
+      "mesh": "model:veg_ph_grass_medium_01",
+      "max_per_m2": 3.0,
+      "chunk_m": 8,
+      "lods_m": [0, 7, 16, 30],
+      "size": [1.6, 2.6],
+      "stiffness": 0.8,
+      "fade_m": 45,
+      "shadows": false,
+      "per_m2": { "material_loose_gravel": 0.2, "material_packed_dirt_ground": 1.2, "material_churned_wet_mud": 1.6, "material_marsh_grass_turf": 3.0 },
+      "lush": { "material_marsh_grass_turf": 1.0, "material_churned_wet_mud": 0.7 },
+      "tall": { "material_marsh_grass_turf": 0.3, "material_churned_wet_mud": 0.1 },
+      "patches": [ { "scale_m": 17, "from": 0.38, "to": 0.58 }, { "scale_m": 4, "from": 0.3, "to": 0.7 } ],
+      "bare_yard": { "grounds": [ "material_packed_dirt_ground" ], "from_m": 2, "to_m": 8 },
+      "under_trees": { "keep": 0.4, "from_m": 1.2, "to_m": 6 },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B0.5, --visual plants=models): Poly Haven grass_medium_01 (CC0), four levels to an impostor card, bending in the wind."
+    },
+    "nettles": {
+      "mesh": "model:veg_ph_nettle_plant",
+      "max_per_m2": 1.2,
+      "chunk_m": 8,
+      "lods_m": [0, 8, 18, 35],
+      "size": [2.8, 4.2],
+      "stiffness": 1.4,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": { "material_packed_dirt_ground": 0.06, "material_churned_wet_mud": 0.35, "material_marsh_grass_turf": 0.12 },
+      "patches": [ { "scale_m": 9, "from": 0.55, "to": 0.7 } ],
+      "under_trees": { "keep": 0.6, "from_m": 1, "to_m": 4 },
+      "clear_margin": 1.2,
+      "off_path": true,
+      "note": "Phase B (B0.5): Poly Haven nettle_plant (CC0) in colonies on the wet, disturbed ground; stiffer than the grass."
+    },
+    "ferns": {
+      "mesh": "model:veg_ph_fern_02",
+      "max_per_m2": 0.8,
+      "chunk_m": 8,
+      "lods_m": [0, 8, 18, 35],
+      "size": [1.1, 1.8],
+      "stiffness": 1.1,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": { "material_marsh_grass_turf": 0.05, "material_churned_wet_mud": 0.03 },
+      "near_trees": { "add": 0.6, "from_m": 1.5, "to_m": 6 },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B0.5): Poly Haven fern_02 (CC0) round the trees' feet."
     }
   }
 }

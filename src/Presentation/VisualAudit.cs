@@ -28,7 +28,7 @@ public sealed class VisualAudit
     /// With <see cref="Near"/>, the picture is of whichever figure under that group stands nearest the point when it is taken (a creature
     /// wanders): the eye is then an offset from the figure, its height above the ground, and the target the figure's own height.</summary>
     internal sealed record Shot(string Name, string Sample, (float X, float H, float Z) Eye, (float X, float H, float Z) Target, string[] Targets, string Says,
-        (string Under, float X, float Z)? Near = null);
+        (string Under, float X, float Z)? Near = null, bool Motion = false);
 
     // Gameplay shots at a player's distance: the third-person camera stands 3.5 m behind a body, about 2.65 m up (eye 1.62 m, pitch -0.3).
     /// <summary>The in-world shots (the A/B harness, <see cref="VisualAuditAB"/>, takes the same ones).</summary>
@@ -193,6 +193,9 @@ public sealed class VisualAudit
         if (_wait == SettleFrames)
         {
             RenderingServer.ViewportSetMeasureRenderTime(viewportRid, true);
+            // A motion shot keeps the first frame too, so what moves on its own (the wind) shows against the last.
+            if (shot.Motion)
+                _root.GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_raw, shot.Name + "_first.png"));
             _gpu.Clear();
             _cpu.Clear();
             _wall.Clear();
@@ -249,7 +252,7 @@ public sealed class VisualAudit
             (string, float, float)? near = entry.TryGetProperty("near", out var n) ? (n[0].GetString()!, n[1].GetSingle(), n[2].GetSingle()) : null;
             var targets = entry.TryGetProperty("targets", out var t) ? t.EnumerateArray().Select(x => x.GetString()!).ToArray() : Array.Empty<string>();
             yield return new Shot(entry.GetProperty("name").GetString()!, "checkpoint", Triple(entry.GetProperty("eye")), Triple(entry.GetProperty("target")),
-                targets, entry.GetProperty("says").GetString()!, near);
+                targets, entry.GetProperty("says").GetString()!, near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True);
         }
     }
 
