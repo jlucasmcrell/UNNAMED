@@ -225,6 +225,9 @@ public partial class Main : Node3D
         if (_sounds.Problems.Count > 0)
             GD.PushWarning($"UNNAMED audio: {_sounds.Problems.Count} sound entries left out, malformed: {string.Join(", ", _sounds.Problems)}");
         AddChild(_sounds);
+        // Phase B: the environmental audio hooks (wind, rain, the river, insects...), silent until their audio exists.
+        if (VisualOptions.All.GetValueOrDefault("hooks") == "on" && _ground is not null)
+            AddChild(new Audio.AmbientAudio(_sounds, _ground));
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
         _soundEvents.Bind(_session, _bindings, _sounds);

@@ -1,0 +1,22 @@
+{
+  "comment": [
+    "Environmental audio hooks (Phase B): where the Phase-B world makes a sound, and under which conditions - presentation only.",
+    "Each hook names its audio IDs; while an ID is not in the sound set (V3 has no wind, rain, thunder, river or insect sounds, and V3 is",
+    "not redesigned or regenerated), the hook is reported as awaiting audio and stays silent. A loop fades to its gain while its",
+    "conditions hold (gain_by: wind scales it by the world wind's strength); a one-shot fires at random within 'every_s'. Conditions:",
+    "'weather' (states it runs in; omitted: all), day_only / night_only, 'grounds' under the listener (world material IDs), 'near_ravine_m'",
+    "(within that many metres of the ravine's edge: the west, north and east edges)."
+  ],
+  "hooks": [
+    { "hook": "wind", "loop": "amb.weather.wind.01", "gain": 0.55, "gain_by": "wind" },
+    { "hook": "rain", "loop": "amb.weather.rain.01", "gain": 0.8, "weather": ["storm"] },
+    { "hook": "thunder", "one_shot": "sfx.weather.thunder.01", "every_s": [18, 55], "weather": ["storm"] },
+    { "hook": "river", "loop": "amb.water.river_gorge.01", "gain": 0.5, "near_ravine_m": 28 },
+    { "hook": "foliage_gusts", "one_shot": "sfx.amb.charwood.branch_movement.01", "every_s": [7, 18], "gain_by": "wind", "grounds": ["material_marsh_grass_turf"] },
+    { "hook": "insects_day", "loop": "amb.insects.meadow_day.01", "gain": 0.35, "day_only": true, "weather": ["fair", "clear"], "grounds": ["material_packed_dirt_ground"] },
+    { "hook": "insects_night", "loop": "amb.insects.night.01", "gain": 0.4, "night_only": true, "weather": ["fair", "clear", "overcast"] },
+    { "hook": "birds_distant", "one_shot": "sfx.amb.charwood.raven_call.01", "every_s": [20, 50], "day_only": true, "weather": ["fair", "clear", "overcast"] },
+    { "hook": "chimney", "loop": "sfx.amb.ashen_hollow.forge_distant.01", "gain": 0.25, "grounds": ["material_packed_dirt_ground"], "note": "The smithy's fire, heard across the waystation (the chimney smoke's sound)." },
+    { "hook": "anomaly_fold", "loop": "amb.anomaly.fold_hum.01", "gain": 0.45, "grounds": ["material_churned_wet_mud"], "note": "The fold's own presence, under the Foldscar's V3 tone." }
+  ]
+}
