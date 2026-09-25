@@ -1,9 +1,13 @@
 # Phase-1 technical closeout
 
-The integrated Phase-1 state, for the owner's merge into `main` and as M7's base. This is not M7 and not Phase B. It follows
+The integrated Phase-1 state, merged into `main` as M7's base. This is not M7 and not Phase B. It follows
 `PHASE1_AUDIT_REMEDIATION_STATUS.md` (the audit fixes) and the Phase-A complete prototype (real player, NPCs, enemies and world art on
 the whole route; its report is kept with the project history, `G:\UNNAMED_HISTORY\phaseA_report\`). Evidence:
 `docs/acceptance/phase1_closeout/`; full logs and every run folder: `G:\UNNAMED_HISTORY\phase1_integration_20260925\`.
+
+**Owner's ruling, 2026-09-25: Phase 1 is accepted as technically closed.** The RAZER result below is the Phase-A / Phase-1 baseline;
+there is no Phase-1 blocker; the repeatable first-use hitches are a targeted follow-up that delays neither M7 nor the blind test.
+The owner authorised this one milestone merge into `main` (normally the owner's own step).
 
 ## Branch and history
 
@@ -124,8 +128,9 @@ calls) and `ProfileLock.cs` (identical on Windows). It is therefore the integrat
 
 ## RAZER (1920x1080, RTX 4070 Ti 12 GB, 60 FPS)
 
-**Measured 2026-09-25. Verdict by the gate plan's rules: fail pending review - on one criterion, in one short segment.** Every other
-gameplay segment holds 60 FPS with room to spare.
+**Measured 2026-09-25, and accepted by the owner the same day as the Phase-A / Phase-1 baseline.** By the gate plan's rules the
+verdict was fail pending review - on one criterion, in one short segment; every other gameplay segment holds 60 FPS with room to
+spare.
 
 How it was run: RAZER answers no remote shell (only SMB and RDP; no credentials were tried, and an RDP session would measure a virtual
 display). The owner reconnected the `\\RAZER\d` share; the package ZIP (its SHA-256 checked again on RAZER) and the kit
@@ -173,20 +178,20 @@ first time a formula is worked in a session, once in the first fight, and at two
 at a sustained 60 FPS at 1080p on RAZER - is met by the two traversal segments, with the two walk hitches noted. The 2 x 2 km capture
 (M3's exit (b)) was not part of this gate and is still to run.
 
-The smallest corrective action is narrow, with no visual compromise: profile the four moments and move that first-use work to the
-load screen (a warm-up of the effects' materials and whatever the combat and walk moments first create), then re-run the kit. That is
-the owner's call - accept this as the Phase-A baseline with the findings carried to M7, or have it done before the blind test.
+The owner's ruling: accepted as the baseline, and neither M7 nor the blind test waits on it. The repeatable magic, combat and walk
+hitches are carried forward as a targeted presentation and performance follow-up: profile the four moments, move that first-use work
+to the load screen with no visual compromise, and re-run the kit. The shader-preparation cause stays a hypothesis until it is
+profiled.
 
 The kit was first validated on this machine (RTX 5090, `G:\UNNAMED_HISTORY\razer_gate_kit\astral_validation_20260925\`); that run
 found and fixed three faults in the kit itself, and showed the same magic stalls at the same moments.
 
 ## Remaining
 
-For the owner's decision:
-- **The RAZER result**: accept it as the Phase-A baseline, with the magic segment's miss and the three repeatable hitches carried to
-  M7, or have the narrow first-use fix above done and the kit re-run first.
+No Phase-1 blocker: the RAZER result is the accepted baseline.
 
-Carried to M7, not blockers: the bindings-shape residual above; L-25's owner ruling; the audit's deferred items (L-01, L-02, L-04,
+Carried forward, not blockers: the targeted profiling of the four repeatable first-use hitches on RAZER (magic, combat and the walk;
+above); M3's 2 x 2 km capture on RAZER (exit (b)); the bindings-shape residual above; L-25's owner ruling; the audit's deferred items (L-01, L-02, L-04,
 L-07, L-08, L-28, T-04 to T-11, P-02 to P-06); the design rulings reserved to the owner (`PHASE1_AUDIT_REMEDIATION_STATUS.md`);
 Phase A's own list - flat grey boundary walls, stiff 20-bone motion, Renn's and Tavar's low hands, Kera and Sel idle rather than
 working, flat sprite effects, the companion able to stand in front of the camera after a load, 106 LOD rebuild failures, texture
@@ -194,15 +199,13 @@ memory about 3.8 GB.
 
 ## Readiness
 
-**M7 base: yes, once the owner merges this into `main`** - the head is clean, pushed, green on Windows and on CI, schema 14 is stable
+**M7 base: yes - `main` after the Phase-1 merge.** The integration head was clean, pushed, green on Windows and on CI, schema 14 is stable
 (fixtures v1-v14, the M6 save, the relaunch with 0 differences), every harness stage passes, the package passes, H-02 is closed and
-there is no open Phase-1 technical blocker. The RAZER result is measured and waits only on the owner's decision above; it
-does not change anything M7 builds on. M7 plans schema 14 -> 15 (freeze the V14 shapes, add
+there is no open Phase-1 technical blocker; the RAZER result is the accepted baseline. M7 plans schema 14 -> 15 (freeze the V14 shapes, add
 `SchemaV14ToV15`, a v15 fixture, per `tests/Persistence.Tests/Fixtures/README.md`).
 
 **Blind test (3-5 testers): the package is suitable**, with two notes: on a 4070 Ti-class card testers will see about 105-120 FPS
-with a brief hitch the first time each formula is worked, once in the first fight and at two places on the walk (above) - worth
-fixing first only if the test is meant to judge feel; and tell testers to expect Windows SmartScreen's "unknown publisher" prompt on first launch (the
+with a brief hitch the first time each formula is worked, once in the first fight and at two places on the walk (above) - the owner ruled that this does not delay the test; and tell testers to expect Windows SmartScreen's "unknown publisher" prompt on first launch (the
 executable is unsigned). From a fresh folder it starts with nothing to install (the .NET runtime ships inside it), the start screen
 offers New Game and Continue, the route shows real models and no greybox, sound plays, save and Continue work across a quit, and F1
 shows the controls. That was checked on this development machine, and the same package ran unchanged on RAZER from a fresh folder; a

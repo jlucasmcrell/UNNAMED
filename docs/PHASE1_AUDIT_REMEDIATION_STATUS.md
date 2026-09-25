@@ -55,7 +55,7 @@ The fixes for `PHASE1_INDEPENDENT_TECHNICAL_AUDIT_2026-09-24.md` (the independen
 
 `--perf --perf-route extended` plays what the gate's route avoids, through the real command path: a conversation with Sel and the primer read, each formula worked, the Charwood hound fought, its body and the merchant cart searched with the inventory open and Take All, then 150 s traversals in third and first person - past 300 s of play, so the autosave lands inside the capture. Each goal ends its segment when met, or is reported NOT MET. The summary marks the frame the autosave was taken and the one its write finished, with the frame times around each against the segment's median.
 
-The final commit's capture (`docs/acceptance/phase1_audit/perf/summary.json`) ran on the development machine - ASTRAL, an RTX 5090 and a Ryzen 9 9950X3D, 1920x1080, vsync off - not RAZER; it is not the gate, which waits on the owner's RAZER window.
+The final commit's capture (`docs/acceptance/phase1_audit/perf/summary.json`) ran on the development machine - ASTRAL, an RTX 5090 and a Ryzen 9 9950X3D, 1920x1080, vsync off - not RAZER; it is not the gate, which ran on RAZER in the Phase-1 closeout (`PHASE1_TECHNICAL_CLOSEOUT.md`).
 
 | Segment | Seconds | Goal | Median ms | 99th percentile ms | Worst ms | Over 33 ms | Within 16.7 ms |
 |---|---|---|---|---|---|---|---|
