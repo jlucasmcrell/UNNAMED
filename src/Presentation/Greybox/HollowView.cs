@@ -92,6 +92,13 @@ public partial class HollowView : Node3D
             AddChild(atmosphere);
             atmosphere.Build(Art.ParticleRecipes.Load(_art.Root), field, (x, z) => Terrain3DView.SceneryHeight(field, x, z));
         }
+        // Ambient life (B10): presentation only, placed from a fixed seed so the hollow's birds are the same every run.
+        if (VisualOptions.All.GetValueOrDefault("life") == "on" && _ground is { } lifeGround)
+        {
+            var life = new Node3D { Name = "AmbientLife" };
+            AddChild(life);
+            AmbientLife.Build(life, lifeGround, 0xA3B1E7);
+        }
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain));
     }

@@ -1,0 +1,104 @@
+{
+  "comment": [
+    "Ambient life (Phase B, B10): presentation only - nothing here is a creature of the simulation, is hit, heard by the game, saved or",
+    "read. Each kind is one MultiMesh drawn entirely by its shader (paths and wingbeats computed on the GPU from each instance's seed).",
+    "'mesh' is its shape (bird, butterfly, point) and 'motion' how it moves (circle: a flock circling; wander: a small loop; glow: a",
+    "blinking light; by default from the mesh). Birds are placed from a fixed seed over the hollow in 'flocks'. Small life lives",
+    "'around_camera': its animals wrap round the camera within that many metres, stood on the ground where they come to be and kept to",
+    "their 'grounds' (world material IDs) - dense near the player at no cost. 'altitude' metres over the ground, 'radius' of the path,",
+    "'speed' in turns a second, 'size' a scale on the mesh. day_only / night_only by the run's hour; 'weather' lists the states it appears",
+    "in (omitted: all but storm)."
+  ],
+  "kinds": {
+    "birds": {
+      "mesh": "bird",
+      "count": 16,
+      "flocks": 3,
+      "altitude": [
+        24,
+        48
+      ],
+      "radius": [
+        14,
+        32
+      ],
+      "speed": [
+        0.035,
+        0.06
+      ],
+      "size": [
+        0.9,
+        1.2
+      ],
+      "day_only": true,
+      "weather": [
+        "fair",
+        "clear",
+        "overcast"
+      ],
+      "note": "Crows circling high over the hollow and the ravine."
+    },
+    "butterflies": {
+      "mesh": "butterfly",
+      "count": 220,
+      "grounds": [
+        "material_packed_dirt_ground",
+        "material_marsh_grass_turf"
+      ],
+      "altitude": [
+        0.35,
+        1.3
+      ],
+      "radius": [
+        0.8,
+        2.4
+      ],
+      "speed": [
+        0.05,
+        0.1
+      ],
+      "size": [
+        1.3,
+        1.8
+      ],
+      "day_only": true,
+      "weather": [
+        "fair",
+        "clear"
+      ],
+      "note": "Butterflies wandering low over the meadow and the Charwood's glades.",
+      "around_camera": 20
+    },
+    "fireflies": {
+      "mesh": "point",
+      "count": 300,
+      "grounds": [
+        "material_marsh_grass_turf"
+      ],
+      "altitude": [
+        0.4,
+        2.2
+      ],
+      "radius": [
+        0.6,
+        2.2
+      ],
+      "speed": [
+        0.03,
+        0.06
+      ],
+      "size": [
+        1.0,
+        1.0
+      ],
+      "night_only": true,
+      "weather": [
+        "fair",
+        "clear",
+        "overcast"
+      ],
+      "note": "Fireflies drifting and blinking in the Charwood at night.",
+      "around_camera": 22
+    }
+  }
+}
