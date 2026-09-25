@@ -92,6 +92,12 @@ public partial class HollowView : Node3D
             AddChild(atmosphere);
             atmosphere.Build(Art.ParticleRecipes.Load(_art.Root), field, (x, z) => Terrain3DView.SceneryHeight(field, x, z));
         }
+        // The Foldscar's ground (B9): shards of the heart's kind round it, stones resting on nothing - with the proof's heart.
+        if (VisualOptions.Foldscar == "proof" && _ground is { } foldGround
+            && layout.Space.Blockers.OfType<CircleBlocker>().FirstOrDefault(b => b.Id == "rock_foldscar_heart") is { } heartBody
+            && layout.Barriers.FirstOrDefault() is { Footprint: CircleBlocker foldBody })
+            FoldscarDressing.Dress(this, _art, foldGround, new Vector2(heartBody.CenterXMm / 1000f, heartBody.CenterZMm / 1000f),
+                new Vector2(foldBody.CenterXMm / 1000f, foldBody.CenterZMm / 1000f), foldBody.RadiusMm / 1000f);
         // Ambient life (B10): presentation only, placed from a fixed seed so the hollow's birds are the same every run.
         if (VisualOptions.All.GetValueOrDefault("life") == "on" && _ground is { } lifeGround)
         {
