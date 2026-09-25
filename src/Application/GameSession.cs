@@ -25,6 +25,9 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// does not.
     /// </summary>
     public bool LockProfile { get; init; }
+
+    /// <summary>Called at each step of every save's commit, on the thread writing it: fault injection for tests. The game leaves it null.</summary>
+    public Action<SaveStep>? SaveStepHook { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -59,10 +62,26 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
 }
 
 /// <summary>
-/// One presentation frame's worth of simulation: how many fixed ticks ran, and how far into the next one the frame is. An autosave
-/// this frame wrote is <see cref="AutosavedTo"/>; one that failed is <see cref="AutosaveFailed"/>, what went wrong - never an exception.
+/// How a save written in the background went (P-01): its slot, whether it was an autosave, the playtime its world was captured at, and
+/// what went wrong - null when it was committed and verified.
 /// </summary>
-public readonly record struct FrameResult(int TicksRun, double Alpha, string? AutosavedTo, string? AutosaveFailed = null);
+public sealed record SaveOutcome(string Slot, bool Auto, double CapturedAtPlaytime, string? Failure);
+
+/// <summary>
+/// One presentation frame's worth of simulation: how many fixed ticks ran, how far into the next one the frame is, and the saves that
+/// finished since the last frame - each an outcome, never an exception.
+/// </summary>
+public readonly record struct FrameResult(int TicksRun, double Alpha, ImmutableArray<SaveOutcome> Saves)
+{
+    /// <summary>An autosave that finished writing, or null.</summary>
+    public string? AutosavedTo => Saves.IsDefault ? null : Saves.FirstOrDefault(s => s.Auto && s.Failure is null)?.Slot;
+
+    /// <summary>The autosave taken on this frame - captured here, to be written in the background - or null.</summary>
+    public string? AutosaveTaken { get; init; }
+
+    /// <summary>What went wrong with an autosave that failed, or null.</summary>
+    public string? AutosaveFailed => Saves.IsDefault ? null : Saves.FirstOrDefault(s => s.Auto && s.Failure is not null)?.Failure;
+}
 
 /// <summary>
 /// The composition root and session lifecycle. Presentation holds one, submits commands to it, advances it once
@@ -96,7 +115,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _lock = options.LockProfile ? ProfileLock.Acquire(options.ProfileRoot) : null;
         try
         {
-            _store = new SaveStore(options.ProfileRoot);
+            _store = new SaveStore(options.ProfileRoot, options.SaveStepHook);
             _store.RecoverInterruptedCommits();
         }
         catch
@@ -106,8 +125,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         }
     }
 
-    /// <summary>Let go of the profile, if this session held it.</summary>
-    public void Dispose() => _lock?.Dispose();
+    /// <summary>Finish the saves being written (up to 10 s), and let go of the profile if this session held it.</summary>
+    public void Dispose()
+    {
+        WaitForSaves(TimeSpan.FromSeconds(10));
+        _lock?.Dispose();
+    }
 
     /// <summary>Boot (ARCHITECTURE.md §8.1): load and validate content, build the rules, open the save profile.</summary>
     /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
@@ -189,6 +212,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// </summary>
     public LoadResult Load(string slot, SaveCopy copy)
     {
+        WaitForSaves(Timeout.InfiniteTimeSpan);   // a save being written finishes first: the slot loaded is the one it committed
         var result = _store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
@@ -207,8 +231,81 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>Save the running world to a slot (the §7.1 write sequence). The world tick is saved, never reset or advanced.</summary>
     public void Save(string slot)
     {
+        var document = Capture();
+        WaitForSaves(Timeout.InfiniteTimeSpan);   // after any save taken before it, never in front of one
+        _store.Save(slot, document);
+    }
+
+    /// <summary>
+    /// Save the running world without holding up the frame (the Phase-1 technical audit, P-01). The world is captured here, on this thread,
+    /// at this tick boundary: an immutable snapshot. It is encoded, written, hashed and verified on a worker, through the same atomic
+    /// sequence as any save, one save after another in the order they were captured. Its outcome comes back in a later frame's
+    /// <see cref="FrameResult.Saves"/>.
+    /// </summary>
+    public void SaveInBackground(string slot) => Queue(slot, auto: false);
+
+    /// <summary>
+    /// Wait for the saves being written: before quitting, so a save in flight is finished rather than cut off (its commit is atomic
+    /// either way). False when they are still running at the timeout.
+    /// </summary>
+    public bool WaitForSaves(TimeSpan timeout)
+    {
+        try
+        {
+            return _writer.Wait(timeout);
+        }
+        catch (AggregateException)
+        {
+            return true;   // finished, and failed: its outcome says so
+        }
+    }
+
+    private sealed record PendingSave(string Slot, bool Auto, double Playtime, Task Written);
+
+    private readonly List<PendingSave> _pending = new();
+    private Task _writer = Task.CompletedTask;
+
+    private SaveDocument Capture()
+    {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
-        _store.Save(slot, SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds));
+        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds)
+            with { CapturedAt = DateTimeOffset.UtcNow };
+    }
+
+    private void Queue(string slot, bool auto)
+    {
+        var document = Capture();
+        // One writer, in capture order: each save starts once the one before it has finished, however that one went.
+        var written = _writer.ContinueWith(_ => _store.Save(slot, document), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        _writer = written;
+        _pending.Add(new PendingSave(slot, auto, document.PlaytimeSeconds, written));
+    }
+
+    /// <summary>The saves that finished since the last frame. A failed autosave is tried again sooner than the interval (M-02).</summary>
+    private ImmutableArray<SaveOutcome> Finished()
+    {
+        if (_pending.Count == 0 || !_pending[0].Written.IsCompleted)
+            return ImmutableArray<SaveOutcome>.Empty;
+        var outcomes = ImmutableArray.CreateBuilder<SaveOutcome>();
+        while (_pending.Count > 0 && _pending[0].Written.IsCompleted)
+        {
+            var save = _pending[0];
+            _pending.RemoveAt(0);
+            string? failure = save.Written.Exception?.InnerException?.Message;
+            outcomes.Add(new SaveOutcome(save.Slot, save.Auto, save.Playtime, failure));
+            if (!save.Auto)
+                continue;
+            if (failure is null)
+            {
+                _autosaveFailures = 0;
+                continue;
+            }
+            // 30 s after the failed one was taken, then 60, 120, 240: a file held a moment costs little, and a full disk is not hammered.
+            _autosaveFailures++;
+            _lastAutosave = save.Playtime - AutosaveCadence.IntervalSeconds
+                            + Math.Min(AutosaveCadence.IntervalSeconds, 30 * Math.Pow(2, _autosaveFailures - 1));
+        }
+        return outcomes.ToImmutable();
     }
 
     /// <summary>A definition's display name from content (its <c>name</c> field), or its ID when it has none.</summary>
@@ -243,28 +340,16 @@ public sealed class GameSession : IDomainEvents, IDisposable
             simulation.DrainCommands();   // anything an event handler queued applies at the next boundary
         }
 
-        string? autosaved = null, failed = null;
-        if (AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave))
+        var saves = Finished();
+        // An autosave is taken at this boundary and written in the background (P-01) - but not while the last is still being written: the
+        // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
+        string? taken = null;
+        if (!_pending.Any(p => p.Auto) && AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave))
         {
-            try
-            {
-                string slot = _store.NextAutosaveSlot();
-                Save(slot);
-                autosaved = slot;
-                _lastAutosave = PlaytimeSeconds;
-                _autosaveFailures = 0;
-            }
-            catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
-            {
-                // A failed autosave never stops the frame (the Phase-1 technical audit, M-02): it is reported, and tried again sooner than
-                // the interval - 30 s, then 60, 120, 240 - so a file held a moment costs little and a full disk is not hammered.
-                _autosaveFailures++;
-                failed = e.Message;
-                _lastAutosave = PlaytimeSeconds - AutosaveCadence.IntervalSeconds
-                                + Math.Min(AutosaveCadence.IntervalSeconds, 30 * Math.Pow(2, _autosaveFailures - 1));
-            }
+            Queue(taken = _store.NextAutosaveSlot(), auto: true);
+            _lastAutosave = PlaytimeSeconds;
         }
-        return new FrameResult(ticks, _accumulator / TickSeconds, autosaved, failed);
+        return new FrameResult(ticks, _accumulator / TickSeconds, saves) { AutosaveTaken = taken };
     }
 
     private int _autosaveFailures;

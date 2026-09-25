@@ -99,7 +99,14 @@ public sealed record SaveDocument(
     long WorldTimeAdvancedTicks,
     double PlaytimeSeconds,
     PlayerRecord Player,
-    DeltaSnapshot Delta);
+    DeltaSnapshot Delta)
+{
+    /// <summary>
+    /// When the world was captured, for <c>build_timestamp</c>: a save written in the background (P-01) is stamped when it was taken,
+    /// not when its bytes reached the disk, so saves order by the moment they hold. Null: when it is written.
+    /// </summary>
+    public DateTimeOffset? CapturedAt { get; init; }
+}
 
 /// <summary>
 /// What the running build is. A save is compared against it and migrated, rebased through a

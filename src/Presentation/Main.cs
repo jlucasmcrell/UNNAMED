@@ -272,7 +272,10 @@ public partial class Main : Node3D
             _perfOut = _options.GetValueOrDefault("--perf-out", DefaultPerfOut("prototype"));
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);   // measure the headroom, not the refresh rate
             _stats = new FrameStats(GetViewport());
-            _perf = new PerfRun(Seconds());
+            // --perf-route extended: the play the gate's route avoids, and past 300 s so the autosave is in it (the Phase-1 audit, P-01, P-07).
+            _perf = new PerfRun(Seconds(), _options.GetValueOrDefault("--perf-route") == "extended"
+                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory)
+                : null);
             _perf.SpawnProxies(this, _session.Setup.Layout);
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
             _session.Subscribe<PlayerDied>(_ => _perfDied++);
@@ -448,12 +451,22 @@ public partial class Main : Node3D
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
         var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null ? _session.TickSeconds : delta);
-        if (frame.AutosavedTo is { } slot)
-            _hud.Toast($"Autosaved ({slot})", 2);
-        if (frame.AutosaveFailed is { } failed)
+        if (_stats is not null)
         {
-            GD.PushError($"UNNAMED autosave failed: {failed}");
-            _hud.Toast($"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}", 8);
+            if (frame.AutosaveTaken is { } taken)
+                _stats.Mark($"autosave to {taken} taken at {_session.PlaytimeSeconds:0.0} s of play");
+            foreach (var save in frame.Saves)
+                _stats.Mark($"{save.Slot} written in the background{(save.Failure is { } why ? $" - FAILED: {why}" : "")}");
+        }
+        foreach (var save in frame.Saves)
+        {
+            if (save.Failure is not { } failed)
+            {
+                _hud.Toast(save.Auto ? $"Autosaved ({save.Slot})" : "Saved", 2);
+                continue;
+            }
+            GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
+            _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
         Draw(frame.Alpha, delta);
         UpdateMouse();
@@ -476,6 +489,9 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
+        if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
+            GD.PushWarning("UNNAMED: a save was still being written after 10 s at quit; the previous save stands until the next boot finishes it");
         if (_sounds is { Count: > 0 })
             GD.Print($"UNNAMED audio: {_sounds.Played.Count} of {_sounds.Count} sounds played this run; asked for and missing: " +
                      (_sounds.Unknown.Count == 0 ? "none" : string.Join(", ", _sounds.Unknown)) +
@@ -1112,19 +1128,8 @@ public partial class Main : Node3D
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
     }
 
-    private void QuickSave()
-    {
-        try
-        {
-            _session.Save(SaveSlots.Quick);
-            _hud.Toast("Saved");
-        }
-        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
-        {
-            GD.PushError($"UNNAMED quicksave failed: {e}");
-            _hud.Toast($"Save failed: {e.Message} (the log: {LogPath})", 8);
-        }
-    }
+    /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
+    private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
 
     private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
 
@@ -1277,7 +1282,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
-                    or "--profile" or "--resume-shots" or "--content-root" or "--layout-check"
+                    or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

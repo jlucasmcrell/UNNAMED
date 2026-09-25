@@ -547,6 +547,16 @@ Scoped saves are **unconditional when the trigger fires** — a streamer may not
 
 The main-thread budget is met by serializing off-thread and committing on-thread; commit is the only main-thread work.
 
+**As implemented (Phase-1 audit remediation, 2026-09-24, P-01).** The autosave and the quicksave are taken on the frame and written in the background.
+- **What stays on the frame.** The capture: `SaveDocuments.Capture` at the tick boundary, which rebases the delta and returns an immutable document. The manifest is stamped with the capture time, so saves order by the moment they hold.
+- **What moves off it.** Encoding, the staging write, the integrity root, the commit, its verification and rotation all run on one background writer, one save after another in the order they were taken, each through the unchanged §7.1 sequence. So the commit is off the main thread too, which is more than this section asked. The main thread holds no lock a commit needs.
+- **A second autosave due while one is being written.** It is not started. The next is counted from the capture of the one being written.
+- **A quicksave during an autosave.** It is captured at once and written after the autosave.
+- **A failure.** It comes back as an outcome in a later frame, never an exception. A failed autosave is retried 30 s after its capture, then 60, 120 and 240.
+- **A load.** It waits for the saves being written first.
+- **Quitting.** It waits up to 10 s for a save in flight. The commit is atomic even if the process is killed during it.
+- **Synchronous saves.** The harnesses' synchronous `Save` waits for any save taken before it.
+
 ---
 
 ## 9. Save size, and what to do when it grows

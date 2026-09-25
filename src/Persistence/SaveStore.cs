@@ -624,7 +624,7 @@ public sealed class SaveStore
         WorldTick = document.WorldTick,
         WorldTimeAdvancedTicks = document.WorldTimeAdvancedTicks,
         CommandLogSha256 = null,
-        BuildTimestamp = _clock().UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
+        BuildTimestamp = (document.CapturedAt ?? _clock()).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
         PlaytimeSeconds = document.PlaytimeSeconds,
         Flags = new ManifestFlags { QuarantinedSections = ImmutableArray<string>.Empty },
     };

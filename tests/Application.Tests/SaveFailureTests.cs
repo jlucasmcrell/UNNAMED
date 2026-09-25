@@ -18,7 +18,7 @@ public class SaveFailureTests
         Directory.Delete(profile.Root, recursive: true);
         File.WriteAllText(profile.Root, "the disk refuses: nothing can be written under it");
 
-        var failed = new List<(double Playtime, string Why)>();
+        var failed = new List<SaveOutcome>();
         long ticks = 0;
         try
         {
@@ -27,8 +27,8 @@ public class SaveFailureTests
                 var frame = session.Frame(GameSession.MaxFrameSeconds);
                 ticks += frame.TicksRun;
                 Assert.Null(frame.AutosavedTo);
-                if (frame.AutosaveFailed is { } why)
-                    failed.Add((session.PlaytimeSeconds, why));
+                failed.AddRange(frame.Saves.Where(s => s.Failure is not null));
+                session.WaitForSaves(TimeSpan.FromSeconds(10));   // written in the background (P-01): done before the next frame asks
             }
         }
         finally
@@ -36,18 +36,25 @@ public class SaveFailureTests
             File.Delete(profile.Root);
         }
 
-        // Due at five minutes of play; then 30 s, 60 s and 120 s later.
-        Assert.Equal(new[] { 300.0, 330.0, 390.0, 510.0 }, failed.Select(f => f.Playtime));
-        Assert.All(failed, f => Assert.Contains("failed", f.Why, StringComparison.Ordinal));
+        // Taken at five minutes of play; then 30 s, 60 s and 120 s after each failed one was taken.
+        Assert.Equal(new[] { 300.0, 330.0, 390.0, 510.0 }, failed.Select(f => f.CapturedAtPlaytime));
+        Assert.All(failed, f => Assert.True(f.Auto && f.Failure!.Contains("failed", StringComparison.Ordinal), f.Failure));
         Assert.Equal(ticks, session.Simulation!.WorldTick);   // every frame ran every tick it owed
 
         // The disk back, the next attempt - 240 s after the last - saves.
         Directory.CreateDirectory(profile.Root);
-        string? saved = null;
+        SaveOutcome? saved = null;
+        long taken = 0;
         while (saved is null && session.PlaytimeSeconds < 800)
-            saved = session.Frame(GameSession.MaxFrameSeconds).AutosavedTo;
-        Assert.Equal((SaveSlots.Auto(1), 750.0), (saved, session.PlaytimeSeconds));
-        Assert.Equal(session.Simulation.WorldTick, session.Load(SaveSlots.Auto(1)).Manifest.WorldTick);
+        {
+            var frame = session.Frame(GameSession.MaxFrameSeconds);
+            saved = frame.Saves.FirstOrDefault(s => s.Failure is null);
+            if (session.PlaytimeSeconds == 750)
+                taken = session.Simulation.WorldTick;
+            session.WaitForSaves(TimeSpan.FromSeconds(10));
+        }
+        Assert.Equal((SaveSlots.Auto(1), 750.0), (saved!.Slot, saved.CapturedAtPlaytime));
+        Assert.Equal(taken, session.Load(SaveSlots.Auto(1)).Manifest.WorldTick);
     }
 
     [Fact]
