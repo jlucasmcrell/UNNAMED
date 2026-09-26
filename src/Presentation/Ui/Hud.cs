@@ -13,7 +13,8 @@ namespace UNNAMED.Presentation.Ui;
 /// Strain bars - Strain marked once the character is Strained - and the formulas on keys 4 to 6, with the one being cast. The owner's M6
 /// playtest adds the heading compass at the top right (the quest tracker moves below it) and the aiming reticle. The Phase-1 asset
 /// integration adds the icon manifest's tiles: each pool's beside its bar, the formulas' on their keys, the active effects', and the
-/// companion's order (<see cref="UseIcons"/>); without the asset workspace the text stands alone.
+/// companion's order (<see cref="UseIcons"/>); without the asset workspace the text stands alone. Phase B's finished look is
+/// <see cref="HudView"/> (visual option <c>hud=production</c>, every quality tier): the same information at the same moments, laid out.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
@@ -51,20 +52,19 @@ public partial class Hud : CanvasLayer
     private double _deathUntil;
     private double _clock;
 
-    // The production HUD's look (visual option hud=production): the Phase B remediation's visual proof, a candidate STYLE only. It
-    // shows exactly what the classic HUD shows - the same status text, pools, formulas, effects, log, tracker and prompts - restyled
-    // and re-spaced: the status text's first line as a name plate (with its XP as a thin bar), its other lines small and muted in a
-    // dark panel; slim framed pool bars; the formulas in framed slots. What is shown, and when, belongs to the
-    // Player Journey design's HUD architecture (FE-2), not to this style.
+    // The production HUD (visual option hud=production, which every quality tier selects): HudView lays out the same information at the
+    // same moments, in the finished style (HudStyle); the classic controls above are then never put on the screen. The compass, reticle
+    // and F3 overlay are shared. Classic stays the baseline, unchanged.
     private readonly bool _production = VisualOptions.ProductionHud;
-    private readonly PanelContainer _plate = new();
-    private readonly Label _plateName = Text(20);
-    private readonly Label _plateDetail = Text(14);
-    private readonly ProgressBar _xp = Bar(new Color(0.78f, 0.66f, 0.38f));
-    private readonly Label[] _poolNumbers = { Text(13), Text(13), Text(13), Text(13) };
+    private HudView? _view;
 
     public override void _Ready()
     {
+        if (_production)
+        {
+            ReadyProduction();
+            return;
+        }
         _status.Position = new Vector2(24, 20);
         AddChild(_status);
 
@@ -153,110 +153,31 @@ public partial class Hud : CanvasLayer
         _death.AddChild(_deathText);
         _death.Visible = false;
         AddChild(_death);
-        if (_production)
-            Production(vitals);
     }
 
-    /// <summary>The production layout (see the fields): restyles and moves the classic controls; the same data feeds both.</summary>
-    private void Production(VBoxContainer vitals)
+    private void ReadyProduction()
     {
-        _status.Visible = false;
-        _plate.Position = new Vector2(24, 18);
-        _plate.AddThemeStyleboxOverride("panel", Panel());
-        var plate = new VBoxContainer();
-        plate.AddThemeConstantOverride("separation", 3);
-        _plateName.AddThemeColorOverride("font_color", new Color(0.93f, 0.9f, 0.82f));
-        _plateDetail.AddThemeColorOverride("font_color", new Color(0.76f, 0.73f, 0.66f));
-        _plateDetail.AddThemeConstantOverride("outline_size", 2);
-        Frame(_xp, new Color(0.78f, 0.66f, 0.38f), new Vector2(240, 4));
-        plate.AddChild(_plateName);
-        plate.AddChild(_xp);
-        plate.AddChild(_plateDetail);
-        _plate.AddChild(plate);
-        AddChild(_plate);
-        // The companion line under the plate.
-        if (_companionIcon.GetParent() is Control companions)
-            companions.Position = new Vector2(28, 132);
-        _companions.AddThemeFontSizeOverride("font_size", 15);
-
-        // The pools: slim framed bars with their numbers small at the right end.
-        vitals.AddThemeConstantOverride("separation", 5);
-        var sizes = new[] { new Vector2(280, 11), new Vector2(280, 7), new Vector2(280, 7), new Vector2(280, 5) };
-        var fills = new[] { new Color(0.72f, 0.18f, 0.15f), new Color(0.8f, 0.66f, 0.26f), new Color(0.3f, 0.5f, 0.86f), new Color(0.55f, 0.32f, 0.72f) };
-        var bars = new[] { _health, _stamina, _focus, _strain };
-        for (int i = 0; i < bars.Length; i++)
-        {
-            Frame(bars[i], fills[i], sizes[i]);
-            var row = (HBoxContainer)bars[i].GetParent();
-            row.AddThemeConstantOverride("separation", 6);
-            _poolNumbers[i].AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f, 0.85f));
-            _poolNumbers[i].AddThemeConstantOverride("outline_size", 3);
-            row.AddChild(_poolNumbers[i]);
-        }
-        foreach (var icon in _poolIcons.Values)
-            icon.CustomMinimumSize = new Vector2(16, 16);
-        _effects.AddThemeFontSizeOverride("font_size", 14);
-
-        // The formulas keep their place above the pools: framed slots (SetMagic), their text a size down.
-        _magic.AddThemeFontSizeOverride("font_size", 14);
-        _magic.AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f));
-        _formulaIcons.AddThemeConstantOverride("separation", 6);
-
-        // The prompt, log and tracker a size down in the same warm grey; the prompt and log on soft dark bands (no frame) so they read
-        // over busy ground, the log's band only as tall as its lines.
-        _prompt.AddThemeFontSizeOverride("font_size", 20);
-        _prompt.AddThemeStyleboxOverride("normal", Band(new[] { 0f, 0.5f, 1f }, new[] { 0f, 0.55f, 0f }));
-        _prompt.Visible = _prompt.Text.Length > 0;
-        _log.AddThemeFontSizeOverride("font_size", 14);
-        _log.AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f));
-        _log.AddThemeStyleboxOverride("normal", Band(new[] { 0f, 0.6f, 1f }, new[] { 0f, 0.32f, 0.5f }));
-        _log.GrowVertical = Control.GrowDirection.Begin;
-        _log.OffsetTop = _log.OffsetBottom - 8;
-        _log.Modulate = new Color(1, 1, 1, 0.85f);
-        _tracker.AddThemeFontSizeOverride("font_size", 15);
-        _tracker.AddThemeColorOverride("font_color", new Color(0.9f, 0.87f, 0.78f));
-        _targetName.AddThemeColorOverride("font_color", new Color(0.93f, 0.9f, 0.82f));
-        Frame(_target, new Color(0.7f, 0.2f, 0.18f), new Vector2(320, 8));
-        _death.AddThemeStyleboxOverride("panel", Panel());
-    }
-
-    /// <summary>A soft dark band behind floating text: a horizontal gradient of the panel colour at the given alphas.</summary>
-    private static StyleBoxTexture Band(float[] offsets, float[] alphas)
-    {
-        var colors = new Color[alphas.Length];
-        for (int i = 0; i < alphas.Length; i++)
-            colors[i] = new Color(0.03f, 0.035f, 0.04f, alphas[i]);
-        var gradient = new Gradient { Offsets = offsets, Colors = colors };
-        return new StyleBoxTexture
-        {
-            Texture = new GradientTexture2D { Gradient = gradient, Width = 256, Height = 2 },
-            ContentMarginLeft = 14, ContentMarginRight = 12, ContentMarginTop = 4, ContentMarginBottom = 4,
-        };
-    }
-
-    /// <summary>The production style's panel: dark, translucent, a thin warm rule, no ornament.</summary>
-    private static StyleBoxFlat Panel() => new()
-    {
-        BgColor = new Color(0.04f, 0.045f, 0.05f, 0.55f),
-        BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.28f), BorderWidthLeft = 2,
-        ContentMarginLeft = 10, ContentMarginRight = 12, ContentMarginTop = 6, ContentMarginBottom = 8,
-    };
-
-    /// <summary>A pool bar in the production style: slim, a dark translucent track with a thin frame.</summary>
-    private static void Frame(ProgressBar bar, Color fill, Vector2 size)
-    {
-        bar.CustomMinimumSize = size;
-        bar.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = fill, CornerRadiusTopLeft = 1, CornerRadiusBottomLeft = 1,
-            CornerRadiusTopRight = 1, CornerRadiusBottomRight = 1 });
-        bar.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color(0.05f, 0.05f, 0.06f, 0.6f),
-            BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.35f), BorderWidthTop = 1, BorderWidthBottom = 1, BorderWidthLeft = 1, BorderWidthRight = 1,
-            ShadowColor = new Color(0, 0, 0, 0.35f), ShadowSize = 2 });
+        _view = new HudView { Name = "HudView" };
+        AddChild(_view);
+        _compass.Styled = true;
+        _compass.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _compass.Position = new Vector2(-Compass.Diameter - HudView.Margin - 4, 22);
+        AddChild(_compass);
+        AddChild(_reticle);
+        _debug.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _debug.Position = new Vector2(-520, 20);
+        _debug.Size = new Vector2(500, 600);
+        _debug.Visible = false;
+        AddChild(_debug);
     }
 
     public void SetVitals(int health, int maxHealth, int stamina, int maxStamina)
     {
-        _poolNumbers[0].Text = $"{health}";
-        _poolNumbers[1].Text = $"{stamina}";
+        if (_view is not null)
+        {
+            _view.SetVitals(health, maxHealth, stamina, maxStamina);
+            return;
+        }
         _health.MaxValue = maxHealth;
         _health.Value = health;
         _stamina.MaxValue = maxStamina;
@@ -267,8 +188,11 @@ public partial class Hud : CanvasLayer
     /// <summary>Focus, and Strain against its tolerance: past three-quarters the bar turns red, and the next working may cost health.</summary>
     public void SetMagicPools(int focus, int maxFocus, int strain, int tolerance, bool strained)
     {
-        _poolNumbers[2].Text = $"{focus}";
-        _poolNumbers[3].Text = strained ? $"{strain} strained" : $"{strain}";
+        if (_view is not null)
+        {
+            _view.SetMagicPools(focus, maxFocus, strain, tolerance, strained);
+            return;
+        }
         _focus.MaxValue = Math.Max(1, maxFocus);
         _focus.Value = focus;
         _strain.MaxValue = Math.Max(1, tolerance);
@@ -279,6 +203,11 @@ public partial class Hud : CanvasLayer
     /// <summary>The icon manifest's tiles, through the art bindings: set once the workspace is known.</summary>
     public void UseIcons(HudIcons icons)
     {
+        if (_view is not null)
+        {
+            _view.UseIcons(icons);
+            return;
+        }
         _icons = icons;
         foreach (var (key, icon) in _poolIcons)
         {
@@ -292,6 +221,8 @@ public partial class Hud : CanvasLayer
     /// <summary>The formulas on their keys (their icons, numbered from 4), and the one being cast.</summary>
     public void SetMagic(string text, IReadOnlyList<string> formulas)
     {
+        if (_view is not null)
+            return; // the production HUD takes the formulas, their costs and the casting from the sheet (SetSheet)
         _magic.Text = text;
         string keys = string.Join(",", formulas);
         if (keys == _formulaKeys)
@@ -303,23 +234,8 @@ public partial class Hud : CanvasLayer
         {
             if (_icons.For(formulas[i]) is null)
                 continue;
-            var tile = _icons.Tile(formulas[i], _production ? 46 : 40);
-            var key = new Label { Text = $"{i + 4}", Position = _production ? new Vector2(3, 1) : new Vector2(2, 20) };
-            if (_production)
-            {
-                key.AddThemeFontSizeOverride("font_size", 13);
-                key.AddThemeColorOverride("font_outline_color", Colors.Black);
-                key.AddThemeConstantOverride("outline_size", 3);
-                var slot = new PanelContainer();
-                slot.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(0.04f, 0.04f, 0.05f, 0.62f),
-                    BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.45f), BorderWidthTop = 1, BorderWidthBottom = 1, BorderWidthLeft = 1,
-                    BorderWidthRight = 1, ContentMarginLeft = 3, ContentMarginRight = 3, ContentMarginTop = 3, ContentMarginBottom = 3 });
-                tile.AddChild(key);
-                slot.AddChild(tile);
-                _formulaIcons.AddChild(slot);
-                continue;
-            }
-            tile.AddChild(key);
+            var tile = _icons.Tile(formulas[i], 40);
+            tile.AddChild(new Label { Text = $"{i + 4}", Position = new Vector2(2, 20) });
             _formulaIcons.AddChild(tile);
         }
     }
@@ -327,6 +243,11 @@ public partial class Hud : CanvasLayer
     /// <summary>The active effects: their icons (by effect ID, and <c>strained</c>), then their names and time left.</summary>
     public void SetEffects(string text, IReadOnlyList<string> keys)
     {
+        if (_view is not null)
+        {
+            _view.SetEffects(text, keys);
+            return;
+        }
         _effects.Text = text;
         string joined = string.Join(",", keys);
         if (joined == _effectKeys)
@@ -341,6 +262,11 @@ public partial class Hud : CanvasLayer
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(string? name, int health, int maxHealth)
     {
+        if (_view is not null)
+        {
+            _view.SetTarget(name, health, maxHealth);
+            return;
+        }
         _targetName.Visible = _target.Visible = name is not null;
         _targetName.Text = name ?? string.Empty;
         _target.MaxValue = Math.Max(1, maxHealth);
@@ -349,6 +275,11 @@ public partial class Hud : CanvasLayer
 
     public void Log(string line)
     {
+        if (_view is not null)
+        {
+            _view.Log(line);
+            return;
+        }
         _logLines.Enqueue(line);
         while (_logLines.Count > 7)
             _logLines.Dequeue();
@@ -357,6 +288,11 @@ public partial class Hud : CanvasLayer
 
     public void ShowDeath(string text, double seconds = 8)
     {
+        if (_view is not null)
+        {
+            _view.ShowDeath(text, seconds);
+            return;
+        }
         _deathText.Text = text;
         _death.Visible = true;
         _deathUntil = _clock + seconds;
@@ -368,32 +304,26 @@ public partial class Hud : CanvasLayer
         set => _debug.Visible = value;
     }
 
-    public void SetStatus(string text)
-    {
-        _status.Text = text;
-        if (!_production)
-            return;
-        // The same text, laid out: its first line is the plate's title (its XP a/b drawn as the thin bar as well), the rest below it.
-        string[] lines = text.Split('\n', 2);
-        _plateName.Text = lines[0];
-        _plateDetail.Text = lines.Length > 1 ? lines[1] : string.Empty;
-        var xp = System.Text.RegularExpressions.Regex.Match(lines[0], @"XP (\d+)/(\d+)");
-        _xp.Visible = xp.Success;
-        if (xp.Success)
-        {
-            _xp.MaxValue = Math.Max(1, double.Parse(xp.Groups[2].Value));
-            _xp.Value = double.Parse(xp.Groups[1].Value);
-        }
-    }
+    public void SetStatus(string text) => _status.Text = text;
+
+    /// <summary>The status as values (the same moment's <see cref="SetStatus"/>): what the production HUD lays out; classic prints the text.</summary>
+    public void SetSheet(HudSheet sheet) => _view?.SetSheet(sheet);
 
     public void SetPrompt(string? text)
     {
-        _prompt.Text = text ?? string.Empty;
-        if (_production)
-            _prompt.Visible = _prompt.Text.Length > 0; // its band would otherwise show with no words on it
+        if (_view is not null)
+            _view.SetPrompt(text);
+        else
+            _prompt.Text = text ?? string.Empty;
     }
 
-    public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
+    public void SetCrosshair(bool visible)
+    {
+        if (_view is not null)
+            _view.SetCrosshair(visible);
+        else
+            _crosshair.Visible = visible;
+    }
 
     /// <summary>The compass: where the view faces, degrees clockwise from north.</summary>
     public void SetHeading(float degrees) => _compass.SetHeading(degrees);
@@ -409,6 +339,11 @@ public partial class Hud : CanvasLayer
     /// <summary>The companion HUD (content bible §19): each companion's name, how they are, and follow or wait - nothing more.</summary>
     public void SetCompanions(string? text, string? icon = null)
     {
+        if (_view is not null)
+        {
+            _view.SetCompanions(text, icon);
+            return;
+        }
         _companions.Text = text ?? string.Empty;
         if (icon == _companionKey)
             return;
@@ -420,12 +355,22 @@ public partial class Hud : CanvasLayer
     /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
     public void SetTracker(string? text)
     {
+        if (_view is not null)
+        {
+            _view.SetTracker(text, !_debug.Visible);
+            return;
+        }
         _tracker.Text = text ?? string.Empty;
         _tracker.Visible = !_debug.Visible;
     }
 
     public void Toast(string text, double seconds = 4)
     {
+        if (_view is not null)
+        {
+            _view.Toast(text, seconds);
+            return;
+        }
         // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
         int live = _live.FindIndex(t => t.Label.Text == text);
         if (live >= 0)
