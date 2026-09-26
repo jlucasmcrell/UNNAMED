@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** E8.5 in progress (2026-09-26). The owner ruled on the second E8.5 STOP:
+**State:** E8 done (2026-09-26); E9 in progress. The owner ruled on the second E8.5 STOP:
 - **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
 - **The save lane** runs background saves on a thread of the session's own (`682c449`).
 
-See "Schema 17 record" and "AsyncSave record". E8.5's runtime gate, E9 and E10 remain. E0-E7 and E8.1-E8.4 are done, with schemas 16 and 17 pushed. Every STOP so far was resolved by an owner ruling, recorded below.
+See "Schema 17 record", "AsyncSave record" and "E8 evidence". E9 and E10 remain. Every STOP so far was resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -72,7 +72,7 @@ See "Schema 17 record" and "AsyncSave record". E8.5's runtime gate, E9 and E10 r
 | E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
 | E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
-| E8 | Chest, bench, blows and mending | E8.5 in progress | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane) and schema 17 (the owner's second ruling); E8.5 written, not committed | 1,046 at `1dd66e7`, all passing in a clean worktree; 1,035 at E8.4: Domain 186, Application 285, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9). See "STOP - E8.5 (second), S9" |
+| E8 | Chest, bench, blows and mending | done | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane), `a8f2ce1` (schema 17, the owner's second ruling), `d362069` (E8.5), and this status | 1,071 at `d362069`, all passing in a clean worktree: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9), resolved by the owner (option (a), schema 17, and the save lane). See "E8 evidence" |
 | E9 | Kera works at your bench | - | | | 116 | |
 | E10 | Evidence and closeout | - | | | 116 | |
 
@@ -343,6 +343,24 @@ The owner chose option (b) and amended BLD006.
   3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
+
+## E8 evidence (2026-09-26, the machine that ran E1-E7)
+
+The runtime gate ran on `d362069`'s build.
+
+| Proof | Result |
+|---|---|
+| `dotnet test src/UNNAMED.sln` (a clean worktree at `d362069`) | 1,071 tests, all pass, `AsyncSaveTests` and `CrossingWorkshop_10` (unchanged) among them: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 |
+| Content lint | 116 definitions, 0 errors |
+| `--smoke`, `--quit-after 300` (headless) | PASS (save/load digest identical; 911 display-server lines, as before); exit 0 |
+| `--build-shots` (from S0) | 15 beats, every one passed. Step 1 is 19 pieces for 31 timber: b06's 17 for 25, then the bench across x = 100 and the chest (b07). b10: the March Spear made at the placed bench, 1.36 m from its site, with no authored anvil in reach. b15: three blows (170), mended with T for one timber (200), a fourth blow (190), the target line in words. b16: two timber stored, taken back and stored again under one derived ID; ten blows destroy the chest, and its two timber lie where it stood and are picked up. b17: a second chest with two timber; the second wall refused while the character stands on its line, then placed. b19: saved at tick 1397 with Tavar on his route; 600 ticks on he is inside, through the doorway. `SubscriberFailures` 0; 443 command rows |
+| `--build-shots-verify` | v1: **1,493 fields**, 0 differences; v2: **1,487 fields**, 0 differences (E7: 1,376 and 1,370) |
+| A second `--build-shots` | `state_replay.json` byte-identical, SHA-256 `14224c27aa30444285d0e9aff00e0def76bcde4b7a7597228893c5a0bc8ac0b6` |
+| `piece:*` art coverage (R16) | 7 of 7 piece entries fall back to greybox: reported, not allowlisted |
+| `--playthrough`, verify, a second run | every beat passed (555 s and 554 s); verify **1,216 fields**, 0 differences (E7: 1,182); `state_replay.json` byte-identical, SHA-256 `bc57ee2a3912865ef8d396b0b8c8df17f89630080caf384f5a0bcb438b108a7b`. Both transcripts are E7's row for row but the content hash (E8's content) and the save's digests |
+| `--ui-shots`, `--delta-shots`, `--input-check`, `--layout-check` (both sizes) | all exit 0, with 0 error lines; the input check and both layout checks PASS |
+| Captures | before each run the gate waited for other agents' Godot captures to end (90 s to 1,800 s), so none ran beside another |
+| Observed, not changed | the greybox interiors under roofs are dark (b09), as at E7: a presentation matter for the visual branch (`docs/M7_VISUAL_INTEGRATION_HANDOFF.md`) |
 
 ## STOP - E8.5 (second), S9 (2026-09-26)
 
