@@ -22,6 +22,9 @@ public partial class Compass : Control
     private readonly Label _bearing = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private float _heading = float.NaN;
 
+    /// <summary>The production HUD's dial (set before it enters the tree): an iron bezel with ticks, and the HUD's type and ember.</summary>
+    public bool Styled { get; set; }
+
     public override void _Ready()
     {
         CustomMinimumSize = new Vector2(Diameter, Diameter + 26);
@@ -44,6 +47,18 @@ public partial class Compass : Control
         _bearing.AddThemeFontSizeOverride("font_size", 17);
         _bearing.AddThemeColorOverride("font_outline_color", Colors.Black);
         _bearing.AddThemeConstantOverride("outline_size", 4);
+        if (Styled)
+        {
+            _marks.Styled = true;
+            _bearing.Position = new Vector2(Diameter / 2 - 42, Diameter + 8);
+            _bearing.Size = new Vector2(84, 24);
+            _bearing.AddThemeFontOverride("font", HudStyle.Caps);
+            _bearing.AddThemeFontSizeOverride("font_size", 16);
+            _bearing.AddThemeColorOverride("font_color", HudStyle.Bone);
+            _bearing.AddThemeConstantOverride("outline_size", 0);
+            _bearing.VerticalAlignment = VerticalAlignment.Center;
+            _bearing.AddThemeStyleboxOverride("normal", HudStyle.PanelBox(6, 0));
+        }
         AddChild(_bearing);
     }
 
@@ -80,6 +95,8 @@ public partial class Compass : Control
 
         public bool DrawnDial { get; set; } = true;
 
+        public bool Styled { get; set; }
+
         public override void _Draw()
         {
             var centre = Size / 2;
@@ -92,19 +109,31 @@ public partial class Compass : Control
                 DrawLine(centre, north, new Color(0.85f, 0.25f, 0.2f), 3);
                 DrawLine(centre, centre - (north - centre), new Color(0.8f, 0.8f, 0.8f), 3);
             }
-            var font = ThemeDB.FallbackFont;
+            if (Styled)
+            {
+                // An iron bezel round the face, and a tick between each pair of letters, turning with the dial.
+                DrawArc(centre, radius + 1.5f, 0, Mathf.Tau, 72, new Color(0.02f, 0.02f, 0.02f, 0.85f), 5, true);
+                DrawArc(centre, radius + 1.5f, 0, Mathf.Tau, 72, HudStyle.IronBright, 1.5f, true);
+                for (int i = 0; i < 4; i++)
+                {
+                    var dir = Vector2.Up.Rotated(Turn + Mathf.Pi / 4 + i * Mathf.Pi / 2);
+                    DrawLine(centre + dir * (radius - 7), centre + dir * (radius - 1), HudStyle.IronBright, 1.5f, true);
+                }
+            }
+            var font = Styled ? HudStyle.Caps : ThemeDB.FallbackFont;
+            int size = Styled ? 16 : 15;
             string[] letters = { "N", "E", "S", "W" };
             for (int i = 0; i < 4; i++)
             {
                 var at = centre + Vector2.Up.Rotated(Turn + i * Mathf.Pi / 2) * (radius * 0.72f);
-                var colour = i == 0 ? new Color(1f, 0.45f, 0.35f) : new Color(0.95f, 0.92f, 0.85f);
+                var colour = i == 0 ? Styled ? HudStyle.Ember : new Color(1f, 0.45f, 0.35f) : new Color(0.95f, 0.92f, 0.85f);
                 // Centred by its measured width: a fixed box narrower than the letter drops it (the W).
-                float width = font.GetStringSize(letters[i], HorizontalAlignment.Left, -1, 15).X;
-                DrawString(font, at + new Vector2(-width / 2, 6), letters[i], HorizontalAlignment.Left, -1, 15, colour);
+                float width = font.GetStringSize(letters[i], HorizontalAlignment.Left, -1, size).X;
+                DrawString(font, at + new Vector2(-width / 2, 6), letters[i], HorizontalAlignment.Left, -1, size, colour);
             }
             // The view's mark: fixed at the top, where the camera faces.
             DrawColoredPolygon(new[] { centre + new Vector2(-6, -radius - 7), centre + new Vector2(6, -radius - 7), centre + new Vector2(0, -radius + 3) },
-                new Color(0.95f, 0.85f, 0.4f));
+                Styled ? HudStyle.Ember : new Color(0.95f, 0.85f, 0.4f));
         }
     }
 }

@@ -1003,6 +1003,15 @@ public partial class Main : Node3D
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
             $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
             combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
+        bool capped = view.Progression.Level >= _session.Setup.Progression.LevelCap;
+        _hud.SetSheet(new HudSheet(view.Name, view.Progression.Level, capped, view.Progression.LevelProgressXp,
+            capped ? 0 : _session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1), view.Progression.XpDebt,
+            view.Progression.UnspentAttributePoints > 0 ? HelpPanel.Key("character") : null, posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched,
+            pools.Focus ?? stats.FocusMax, stats.FocusMax, pools.Strain, stats.StrainTolerance, stats.Resonance,
+            ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0), combat.Weapon.Source, combat.Blocking, view.Currency, view.Armor,
+            view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
+            combat.Casting is { } worked ? _session.DisplayName(worked) : null,
+            formulas.Select(f => new HudFormula(f, _session.DisplayName(f), _session.Setup.Magic.Formulas[f].FocusCost)).ToList(), combat.Strained));
         if (Target(simulation) is { } target)
             _hud.SetTarget(_session.DisplayName(target.DefId), target.Health, target.MaxHealth);
         else

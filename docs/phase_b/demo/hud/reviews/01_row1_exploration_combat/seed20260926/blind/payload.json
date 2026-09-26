@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "rubric": "hud",
+  "rubric_version": "1.0.0",
+  "candidates": [
+    {
+      "label": "A",
+      "media": [
+        {
+          "path": "A-00.png",
+          "sha256": "bcd1f86fbbdcce1adc22edb599f4f16b850472d13cf253d99f4d49594972d772",
+          "kind": "still",
+          "continuous_video": false,
+          "width": 3840,
+          "height": 1080,
+          "duration_s": null,
+          "frame_rate": null,
+          "transform": "decoded PNG; metadata stripped"
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "media": [
+        {
+          "path": "B-00.png",
+          "sha256": "a7d6cb1bc5c78f591c4322374ca6f21e691902aef9dba327142a240b29f4bb9a",
+          "kind": "still",
+          "continuous_video": false,
+          "width": 3840,
+          "height": 1080,
+          "duration_s": null,
+          "frame_rate": null,
+          "transform": "decoded PNG; metadata stripped"
+        }
+      ]
+    }
+  ],
+  "comparability_limitations": [
+    "Visible labels, HUD text or baked-in watermarks can reveal identity; owner must inspect payload before submission.",
+    "Settings are caller-declared; this tool does not independently measure camera, scale or lighting equivalence."
+  ],
+  "evidence_context": "Anonymous candidate evidence; implementation and production status withheld."
+}

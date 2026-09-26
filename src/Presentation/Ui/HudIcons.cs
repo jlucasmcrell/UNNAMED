@@ -43,6 +43,9 @@ public sealed class HudIcons
         return icon;
     }
 
+    /// <summary>Whether a key has an icon bound at all: asking <see cref="For"/> about one that has none is recorded as a fallback.</summary>
+    public bool Binds(string? key) => key is not null && _map.ContainsKey(key);
+
     /// <summary>An icon tile of a size, or an empty space of that size when there is no icon (so rows stay aligned).</summary>
     public Control Tile(string? key, float size)
     {

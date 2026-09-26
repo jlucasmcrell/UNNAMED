@@ -1,0 +1,77 @@
+# Otherreach Visual QA
+
+Created: 2026-09-26T15:17:06.455311+00:00
+
+Owner decision: **PENDING / UNKNOWN**
+
+[Machine-readable result](result.json)
+
+```json
+{
+  "kind": "reveal",
+  "created": "2026-09-26T15:17:06.454464+00:00",
+  "payload_sha256": "cd4b1155d79298765ae01e5516ed27354fdc4749676c7757a89e1a36ae204bb3",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T151617423509Z-review-c5aed7\\result.json",
+      "sha256": "5847de123e25e043b70d0004dc28d3e92db02a48caf315558b6ed6d5139c1f68"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "239a53f8608d2cee33c4ce22ca07385a445c555211fe43789cccb94c843c6c87",
+    "assignments": {
+      "A": {
+        "id": "hud-finished",
+        "settings": {
+          "camera": "third-person gameplay",
+          "lighting": "in-game",
+          "scale": 1,
+          "framing": "two gameplay moments side by side (exploration with a prompt; combat), 1920x1080 each",
+          "tier": "high",
+          "duration_s": null
+        },
+        "media": [
+          {
+            "path": "finished.png"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.png",
+            "sha256": "bc5af7873bf1b754f01cb78021dada6af5a616e03e59f409c2779dc49db21f9e"
+          }
+        ]
+      },
+      "B": {
+        "id": "hud-classic",
+        "settings": {
+          "camera": "third-person gameplay",
+          "lighting": "in-game",
+          "scale": 1,
+          "framing": "two gameplay moments side by side (exploration with a prompt; combat), 1920x1080 each",
+          "tier": "high",
+          "duration_s": null
+        },
+        "media": [
+          {
+            "path": "classic.png"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.png",
+            "sha256": "d39e836e97135bf58b61fdc81da8c2c9df44ab5644644d7e4f26f157b4dc688e"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}
+```
+
+## Owner review
+
+Record accepted/rejected/deferred per candidate, reviewer name, time, evidence hashes and rationale.
+Loading, binding, selector reachability, temporal continuity, quality and owner approval are separate claims.
