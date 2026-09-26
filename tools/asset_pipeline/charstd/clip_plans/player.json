@@ -636,6 +636,34 @@
    "category": "combat",
    "clip_type": "idle",
    "hand_right": "grip_primary"
+  },
+  {
+   "state": "sprint_ual",
+   "clip": "Sprint_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "walk_formal",
+   "clip": "Walk_Formal_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
   }
  ],
  "maps": {

@@ -189,7 +189,76 @@ public sealed partial class SkinnedFigure : Figure
         model.Name = "Held";
         bone.AddChild(model);
         _held = model;
+        _haft = weapon.Family == "polearm" && !off ? Haft(model) : null;
         Relax();
+    }
+
+    // A polearm in both hands (Phase B demo): the other hand on the haft ahead of the holding one, by the engine's two-bone IK on the
+    // other arm, while the body stands to it or strikes with it. The two-handed clips' hands hold nothing (the source rigs carried no
+    // weapon), so their hands came apart on the haft.
+    private Vector3? _haft;
+    private TwoBoneIK3D? _haftIk;
+    private Node3D? _haftTarget, _haftPole;
+    private float _haftWeight;
+    private float _offSide;
+
+    /// <summary>Where the other hand holds a polearm, in the weapon's own space: along its long axis from the grip toward the head.</summary>
+    private static Vector3 Haft(Node3D model)
+    {
+        var box = ArtGallery.Bounds(model);
+        var grip = model.FindChild(HeldWeapon.GripSocket, true, false) is Node3D socket ? ArtLibrary.Relative(model, socket).Origin : Vector3.Zero;
+        int axis = box.Size.X >= box.Size.Y && box.Size.X >= box.Size.Z ? 0 : box.Size.Y >= box.Size.Z ? 1 : 2;
+        float low = box.Position[axis], high = box.End[axis];
+        float toward = high - grip[axis] >= grip[axis] - low ? 1f : -1f;
+        var along = Vector3.Zero;
+        along[axis] = toward * Mathf.Min(0.45f, 0.5f * Mathf.Abs((toward > 0 ? high : low) - grip[axis]));
+        return grip + along;
+    }
+
+    /// <summary>The other arm's IK, made the first time a polearm is held (null on a rig without the arm's bones).</summary>
+    private TwoBoneIK3D? HaftIk()
+    {
+        if (_haftIk is not null)
+            return _haftIk;
+        string main = _hand?.BoneName.StartsWith("SOCK_", StringComparison.Ordinal) == true ? _hand.BoneName[5..] : _hand?.BoneName ?? "";
+        string side = main.EndsWith(".R", StringComparison.Ordinal) ? "L" : "R";
+        var skeleton = _model.Skeleton;
+        if (skeleton.FindBone("upper_arm." + side) < 0 || skeleton.FindBone("forearm." + side) < 0 || skeleton.FindBone("hand." + side) < 0)
+            return null;
+        _offSide = side == "L" ? 1f : -1f;   // the body faces +Z: its left is +X
+        _haftTarget = new Node3D { Name = "HaftTarget" };
+        _haftPole = new Node3D { Name = "HaftElbow" };
+        var ik = new TwoBoneIK3D { Name = "HaftIK", Influence = 0 };
+        skeleton.AddChild(ik);
+        skeleton.AddChild(_haftTarget);
+        skeleton.AddChild(_haftPole);
+        ik.SetSettingCount(1);
+        ik.SetRootBoneName(0, "upper_arm." + side);
+        ik.SetMiddleBoneName(0, "forearm." + side);
+        ik.SetEndBoneName(0, "hand." + side);
+        ik.SetTargetNode(0, ik.GetPathTo(_haftTarget));
+        ik.SetPoleNode(0, ik.GetPathTo(_haftPole));
+        return _haftIk = ik;
+    }
+
+    private void HoldTheHaft(double delta)
+    {
+        bool wanted = _haft is not null && _held is not null && _model.Current is { } clip
+                      && (clip.StartsWith("spear", StringComparison.Ordinal) || clip.StartsWith("attack", StringComparison.Ordinal));
+        if (!wanted && _haftIk is null)
+            return;
+        if (HaftIk() is not { } ik)
+            return;
+        _haftWeight = Mathf.MoveToward(_haftWeight, wanted ? 1f : 0f, (float)delta * 7f);
+        ik.Influence = _haftWeight;
+        if (_haftWeight <= 0 || _haft is not { } haft || _held is not { } held || !held.IsInsideTree())
+            return;
+        _haftTarget!.GlobalPosition = held.GlobalTransform * haft;
+        // The elbow down and out to the other side, from the chest.
+        var skeleton = _model.Skeleton;
+        int chest = skeleton.FindBone("chest");
+        var at = chest >= 0 ? skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(chest).Origin : GlobalPosition + Vector3.Up * 1.3f;
+        _haftPole!.GlobalPosition = at + GlobalTransform.Basis.X * (0.5f * _offSide) + Vector3.Down * 0.6f;
     }
 
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
@@ -205,6 +274,7 @@ public sealed partial class SkinnedFigure : Figure
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
+        HoldTheHaft(delta);
         if (_posture is not null)
         {
             // A crouch clip already holds the head under the crouch height; the bend is for what has none (a body without

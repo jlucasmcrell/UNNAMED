@@ -24,7 +24,8 @@ namespace UNNAMED.Presentation;
 /// then draw - the body where the last tick put it plus the frame's share of the next, the camera behind or inside it.
 /// Run modes come after <c>--</c> on the command line: <c>--smoke</c> (headless boot and save round trip),
 /// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
-/// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch).
+/// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch);
+/// <c>--realtime</c> plays the acceptance run on the frame's own clock, its script stepped once per tick, for real-time recording.
 /// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest). The smoke, the
 /// playthrough, its relaunch and the delta shots end by writing the art and audio coverage reports (Phase A) into their directory - the
 /// smoke's beside the log - or into <c>--coverage-out dir</c>.
@@ -68,6 +69,11 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private Showcase? _showcase;
     private Playthrough? _play;
+
+    /// <summary>--realtime: the playthrough on the frame's clock (its script run on the frames that ran a tick), not one tick a frame.</summary>
+    private bool _realtime;
+
+    private int _ticksLastFrame = 1;
     private DeltaShots? _delta;
     private LayoutCheck? _layout;
     private VisualAudit? _audit;
@@ -342,8 +348,11 @@ public partial class Main : Node3D
         }
         else if (playthrough is not null)
         {
-            // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
-            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all). With --realtime
+            // the frame rate is the display's and the session follows the frame's clock (under Movie Maker's fixed rate, as repeatable).
+            _realtime = _flags.Contains("--realtime");
+            if (!_realtime)
+                Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
@@ -580,7 +589,9 @@ public partial class Main : Node3D
         }
         else if (_play is not null)
         {
-            switch (_play.Update())
+            // --realtime: the script steps on the frames that ran a tick (it steps once a tick); the others read no input either.
+            string? step = !_realtime || _ticksLastFrame > 0 ? _play.Update() : null;
+            switch (step)
             {
                 case "done":
                     WriteReports(_play.Directory, _continued is null ? "playthrough" : "playthrough-verify", _continued is null ? "" : "_relaunch");
@@ -604,7 +615,9 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _audit is not null || _auditAb is not null ? _session.TickSeconds : delta);
+        var frame = _session.Frame(_smoke is not null || (_play is not null && !_realtime) || _delta is not null || _audit is not null || _auditAb is not null
+            ? _session.TickSeconds : delta);
+        _ticksLastFrame = frame.TicksRun;
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)

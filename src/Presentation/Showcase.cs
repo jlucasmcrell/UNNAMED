@@ -66,7 +66,8 @@ public sealed class Showcase
             "equipment" => (Equipment(), Route[0]),
             "companion" => (Companion(), Route[0]),
             "closeup" => (Closeup(), Route[0]),
-            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas, bolts, mending, rescue, dialogue, equipment, companion or closeup"),
+            "armour" => (Armour(), ToTheArmour[0]),
+            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas, bolts, mending, rescue, dialogue, equipment, companion, closeup or armour"),
         };
         // What the world did, with the clip's time, for cutting the recording and for the evidence (what was hit, set, joined).
         string Name(string id) => session.DisplayName(id);
@@ -220,6 +221,45 @@ public sealed class Showcase
         new("run_side", 5.0, (s, _) => s.Walk(OutWithTavar, Gait.Run), CameraTurn: 90, Pitch: -0.12f, Distance: 4.5f),
         new("stop_end", 3.0, (s, _) => s.Hold(), CameraTurn: 90, Pitch: -0.12f, Distance: 4.5f),
     };
+
+    // Phase B demo (from the acceptance playthrough's own save: level 3, the March Spear, the formulas known, Tavar following): south
+    // into Blackvein Cut on the playthrough's way, the ward worked, and the Animated Armour that stands over the seam fought with Tavar
+    // beside - from behind the character, then from the side.
+    private static List<Step> Armour() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold()),
+        new("to_the_quarry", 36.0, (s, _) => s.Walk(ToTheArmour, Gait.Run)),
+        new("ward", 2.5, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.warding.brace_ward"); }, CameraTurn: 30),
+        new("fight", 20.0, (s, _) => s.Fight(), CameraTurn: 20, Pitch: -0.22f, Distance: 4.2f),
+        new("fight_side", 14.0, (s, _) => s.Fight(), CameraTurn: 90, Pitch: -0.15f, Distance: 4.5f),
+        new("end", 3.0, (s, _) => s.Hold(), CameraTurn: 120, Pitch: -0.15f, Distance: 4.5f),
+    };
+
+    private static readonly (double X, double Z)[] ToTheArmour = { (60, 128), (63, 98), (60, 90), (62, 70), (63, 52) };
+
+    /// <summary>The nearest living hostile (a sentinel too), closed on and struck whenever the weapon is ready; the camera frames it.</summary>
+    private void Fight()
+    {
+        var simulation = _session.Simulation!;
+        var body = _controller.Authoritative;
+        var foe = simulation.Creatures.Where(c => c.Alive && c.Hostile)
+            .OrderBy(c => (c.Body.XMm - body.XMm) * (double)(c.Body.XMm - body.XMm) + (c.Body.ZMm - body.ZMm) * (double)(c.Body.ZMm - body.ZMm))
+            .FirstOrDefault();
+        if (foe is null)
+        {
+            Hold();
+            return;
+        }
+        var to = new Vector3((float)((foe.Body.XMm - body.XMm) / 1000.0), 0, (float)((foe.Body.ZMm - body.ZMm) / 1000.0));
+        _heading = to.Normalized();
+        var combat = simulation.Combat;
+        long radius = _session.Setup.Combat.Creatures[foe.DefId].RadiusMm;
+        bool inReach = to.Length() <= (combat.Weapon.ReachMm + radius - 150) / 1000f;
+        // In reach, a sliver of a step toward it: the body turns to face it (a still wish keeps the last facing) and barely moves.
+        _controller.SteerWorld(inReach ? _heading * 0.02f : _heading, inReach ? Gait.Walk : Gait.Run, _camera);
+        if (inReach && combat.Phase == CombatPhase.Idle)
+            _controller.Attack();
+    }
 
     private static readonly (double X, double Z)[] OutWithTavar = { (62, 130), (80, 118), (100, 100), (135, 70), (150, 45) };
     private static readonly (double X, double Z)[] ToTheSmithy = { (51.8, 136), (51.8, 142) };
