@@ -184,6 +184,8 @@ internal sealed class BuildingSystem
         State.PlacePiece(_owner, new PieceRecord(id, piece.Id, HostOf(command.XMm, command.ZMm), command.XMm, command.ZMm, command.Rotation,
             command.Actor, piece.HealthMax), sequence);
         Rebuild();
+        if (!check.Parts.IsEmpty)
+            _context.Dispatch(new RebuildNavigation(UnionOf(check.Parts), StructureChangeKind.Placed, sequence));
         _context.Events.Publish(new PiecePlaced(id, piece.Id, command.XMm, command.ZMm, command.Rotation, command.Actor, sequence, tick));
         var b = check.Bounds;
         _context.Events.Publish(new StructuresChanged(b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm, StructureChangeKind.Placed, sequence, tick));
@@ -244,6 +246,9 @@ internal sealed class BuildingSystem
         long sequence = State.World.StructureSequence + 1;
         State.RemovePiece(_owner, row.InstanceId, sequence);
         Rebuild();
+        var parts = BuildingMath.WorldParts(piece, row.XMm, row.ZMm, row.Rotation, row.InstanceId.Value);
+        if (!parts.IsEmpty)
+            _context.Dispatch(new RebuildNavigation(UnionOf(parts), kind, sequence));
         int percent = _context.Setup.Building.Constants.RefundPercent;
         var refund = kind == StructureChangeKind.Dismantled
             ? piece.Cost.Select(c => new CostView(c.ItemId, BuildingMath.Refund(c.Count, percent), 0)).Where(c => c.Count > 0).ToImmutableArray()
@@ -366,6 +371,10 @@ internal sealed class BuildingSystem
                 piece?.HealthMax ?? row.HealthCurrent, row.DoorOpen && piece?.Family == PieceFamily.Door, null, bounds.MinXMm, bounds.MinZMm, bounds.MaxXMm,
                 bounds.MaxZMm, parts, null, null);
         }).ToImmutableArray();
+
+    /// <summary>The union of a piece's parts, not inflated: what navigation restamps around.</summary>
+    private static NavRect UnionOf(ImmutableArray<BoxBlocker> parts) =>
+        new(parts.Min(p => p.MinXMm), parts.Min(p => p.MinZMm), parts.Max(p => p.MaxXMm), parts.Max(p => p.MaxZMm));
 
     /// <summary>The cell a piece's anchor stands in: its row's host.</summary>
     private static string HostOf(long xMm, long zMm) => CellKey.OfWorld(xMm / 1000.0, zMm / 1000.0).ToString();

@@ -27,10 +27,10 @@ public class BuildingTests
         r.WithInventory(r.Inventory.Concat(stacks.Select(n => Arena.Stack(Timber, n))));
 
     /// <summary>A builder at a place with the workshop's 45 timber (20, 20 and 5), or the stacks given.</summary>
-    private static Arena Builder(GameSession session, (double X, double Z) at, int facingDeg = 0, SimulationSetup? rules = null, int[]? timber = null) =>
+    internal static Arena Builder(GameSession session, (double X, double Z) at, int facingDeg = 0, SimulationSetup? rules = null, int[]? timber = null) =>
         Arena.OpenCreatures(session, rules ?? session.Setup, at, facingDeg, None, r => Carrying(r, timber ?? new[] { 20, 20, 5 }));
 
-    private static string? Place(Arena arena, string def, long x, long z, int r) => arena.Submit(new PlacePieceCommand(arena.Player, def, x, z, r));
+    internal static string? Place(Arena arena, string def, long x, long z, int r) => arena.Submit(new PlacePieceCommand(arena.Player, def, x, z, r));
 
     private static string? Dismantle(Arena arena, EntityId piece) => arena.Submit(new DismantlePieceCommand(arena.Player, piece));
 
@@ -452,6 +452,7 @@ public class BuildingTests
         bus.Subscribe<PiecePlaced>(published.Add);
         bus.Subscribe<PieceRemoved>(published.Add);
         bus.Subscribe<StructuresChanged>(published.Add);
+        bus.Subscribe<NavigationRebuilt>(published.Add);
         var simulation = Simulation.Start(edited, loaded.Player, loaded.World, loaded.Manifest.WorldTick, bus);
 
         Assert.Equal(rows, simulation.Pieces.Select(p => (p.Id, p.DefId, p.XMm, p.ZMm, p.Rotation)));
@@ -459,6 +460,11 @@ public class BuildingTests
         Assert.Contains(new StructureConflict(wall.Value, "it stands over post.later"), simulation.StructureAudit);
         Assert.Contains(new StructureConflict(wall.Value, "health 200 is above Timber Wall's 150: clamped"), simulation.StructureAudit);
         Assert.Empty(published);
+        // Navigation derives from the changed inputs: the edited layout and the pieces it kept.
+        var inputs = NavigationLayout.AuthoredInputs(edited.Layout, edited.Navigation)
+            .AddRange(simulation.StructureFootprints.Select(f => new NavInput(NavInputKind.Solid, f.Box(), null)));
+        var fresh = NavGrid.Build(edited.Navigation, NavigationLayout.Bounds(edited.Layout), NavigationLayout.TileKeys(edited.Layout), inputs);
+        Assert.Equal(fresh.Digest(), simulation.Navigation.Grid.Digest());
     }
 
     [Fact]
@@ -584,6 +590,186 @@ public class BuildingTests
             Assert.Null(Dismantle(world, PieceAt(world, Wall, 100_500, 99_000)));
         Assert.Equal(new[] { 3, 8 }, Stacks(worlds[0]));   // the refund goes to the fullest partial stack, whatever its ID
         Assert.Equal(Stacks(worlds[0]), Stacks(worlds[1]));
+    }
+
+
+    /// <summary>
+    /// The Crossing Workshop's step 1 as E5 builds it (M7 design §4.22, R01-R05, from (102, 102)): four pads over the four-cell corner,
+    /// the south doorway across x = 100, seven walls, and four roofs - 16 pieces and 24 timber.
+    /// </summary>
+    internal static void WorkshopStepOne(Arena arena)
+    {
+        foreach (var (x, z) in new[] { (100_500L, 100_500L), (103_500L, 100_500L), (100_500L, 103_500L), (103_500L, 103_500L) })
+            Assert.Null(Place(arena, Pad, x, z, 0));
+        Assert.Null(Place(arena, Doorway, 100_500, 99_000, 0));
+        foreach (var (x, z, r) in new[] { (103_500L, 99_000L, 0), (100_500L, 105_000L, 0), (103_500L, 105_000L, 0), (99_000L, 100_500L, 1),
+                     (99_000L, 103_500L, 1), (105_000L, 100_500L, 1), (105_000L, 103_500L, 1) })
+            Assert.Null(Place(arena, Wall, x, z, r));
+        foreach (var (x, z) in new[] { (100_500L, 100_500L), (103_500L, 100_500L), (100_500L, 103_500L), (103_500L, 103_500L) })
+            Assert.Null(Place(arena, Roof, x, z, 0));
+    }
+
+    [Fact]
+    public void EachFootprintChange_SendsExactlyOneRebuild_AndPadsAndRoofsSendNone()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Builder(session, (102.0, 103.0));
+        var rebuilt = arena.Record<NavigationRebuilt>();
+        string empty = arena.Simulation.Navigation.Grid.Digest();
+        long revision = 0;
+        void Change(Func<string?> change, string? rebuilds)
+        {
+            int before = rebuilt.Count;
+            Assert.Null(change());
+            Assert.Equal(++revision, arena.Simulation.StructureRevision);
+            Assert.Equal(before + (rebuilds is null ? 0 : 1), rebuilt.Count);
+            if (rebuilds is not null)
+                Assert.Equal(rebuilds, rebuilt[^1].Reason);
+        }
+
+        Change(() => Place(arena, Pad, 100_500, 100_500, 0), null);
+        Change(() => Place(arena, Wall, 100_500, 99_000, 0), "placed");
+        // A wall's parts, 3.4 x 0.4 m, and the 600 mm round them: 18 x 6 nodes, in the two tiles south of z = 100.
+        Assert.Equal(108, rebuilt[^1].NodesRestamped);
+        Assert.Equal(new[] { new NavTileKey(0, 0), new NavTileKey(1, 0) }, rebuilt[^1].Tiles);
+        Change(() => Place(arena, Doorway, 102_000, 100_500, 1), "placed");
+        Assert.Equal(108, rebuilt[^1].NodesRestamped);   // the union of its jambs
+        Change(() => Place(arena, Roof, 100_500, 100_500, 0), null);
+        Change(() => Dismantle(arena, PieceAt(arena, Roof, 100_500, 100_500)), null);
+        Change(() => Dismantle(arena, PieceAt(arena, Wall, 100_500, 99_000)), "dismantled");
+        Change(() => Dismantle(arena, PieceAt(arena, Doorway, 102_000, 100_500)), "dismantled");
+        Change(() => Dismantle(arena, PieceAt(arena, Pad, 100_500, 100_500)), null);
+        Assert.All(rebuilt, r => Assert.Equal(arena.Simulation.WorldTick, r.Tick));
+
+        // Everything gone, the grid is the grid it started as.
+        Assert.Equal(empty, arena.Simulation.Navigation.Grid.Digest());
+    }
+
+    // F-E7
+    [Fact]
+    public void Building_RoundTripsThroughSave_AndNavigationDerivesIdentically()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Builder(session, (102.0, 102.0));
+        WorkshopStepOne(arena);
+        var loaded = Arena.Resume(session.Setup, SaveAndLoad(profile, session, arena, "workshop"));
+
+        static IEnumerable<object> Rows(Arena a) => a.Simulation.World.Pieces.Select(p =>
+            (object)(p.InstanceId, p.DefId, p.HostCell, p.XMm, p.ZMm, p.Rotation, p.Owner, p.HealthCurrent, p.DoorOpen));
+        Assert.Equal(Rows(arena), Rows(loaded));
+        Assert.Equal(16, loaded.Simulation.StructureRevision);
+        Assert.Equal(arena.Simulation.Navigation.Grid.Digest(), loaded.Simulation.Navigation.Grid.Digest());
+        Assert.Equal(arena.Simulation.Space.Blockers.ToList(), loaded.Simulation.Space.Blockers.ToList());
+        Assert.Equal(arena.Simulation.StructureFootprints.ToList(), loaded.Simulation.StructureFootprints.ToList());
+        Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
+        Assert.Empty(loaded.Simulation.StructureAudit);
+    }
+
+    // RK-06
+    [Fact]
+    public void TwoHundredPieces_RoundTripAndStayNavigable()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Builder(session, (100.5, 94.5), timber: Enumerable.Repeat(20, 12).ToArray());
+        var store = new SaveStore(profile.Root);
+        void Save(string slot) => store.Save(SaveSlots.Manual(slot), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
+            session.Content, arena.Simulation.WorldTick, 0));
+        Save("before");
+
+        // Walk as a person would: by a plan on the running world's own grid, corner to corner.
+        void Go(long x, long z)
+        {
+            var body = arena.Simulation.Player.Body;
+            var nav = arena.Simulation.Navigation;
+            var open = nav.Gates.ToDictionary(g => g.Key, g => g.Open, StringComparer.Ordinal);
+            var plan = NavSearch.Plan(new NavQuery(nav.Grid, g => g.GateKey is { } key && open.GetValueOrDefault(key), session.Setup.Navigation,
+                new NavScratch(), null), new NavAgent(0, true), new NavPoint(body.XMm, body.ZMm), new NavPoint(x, z));
+            Assert.True(plan.Outcome == NavOutcome.Found, $"no way from ({body.XMm}, {body.ZMm}) to ({x}, {z}): {plan.Outcome}");
+            foreach (var corner in plan.Corners)
+                Assert.True(arena.WalkTo(corner.XMm / 1000.0, corner.ZMm / 1000.0), $"never reached ({corner.XMm}, {corner.ZMm})");
+        }
+        void Put(string def, long x, long z, int r, long standX, long standZ)
+        {
+            var preview = arena.Simulation.PreviewPlacement(def, x, z, r, checkNavigability: false);
+            if (preview.Failed is PlacementRule.Reach or PlacementRule.Bodies)
+                Go(standX, standZ);
+            string? refused = Place(arena, def, x, z, r);
+            Assert.True(refused is null, $"{def} at ({x}, {z}) r{r}: {refused}");
+        }
+        var centres = Enumerable.Range(0, 9).Select(i => 88_500L + 3_000 * i).ToArray();
+
+        // 81 pads, standing on each square.
+        foreach (long z in centres)
+        {
+            foreach (long x in centres)
+                Put(Pad, x, z, 0, x, z);
+        }
+        // 37 walls and a doorway: east-west lines on z = 93, 102 and 111, the doorway in the middle one; a line on x = 99; two walls on
+        // x = 105 either side of z = 102. Each strip stays open at an edge of the area. Stand a square's width to one side.
+        foreach (long line in new long[] { 93_000, 102_000, 111_000 })
+        {
+            foreach (long x in centres)
+                Put(line == 102_000 && x == 100_500 ? Doorway : Wall, x, line, 0, x, line - 1_500);
+        }
+        foreach (long z in centres)
+            Put(Wall, 99_000, z, 1, 97_500, z);
+        Put(Wall, 105_000, 100_500, 1, 103_500, 100_500);
+        Put(Wall, 105_000, 103_500, 1, 103_500, 103_500);
+        // 81 roofs: the rows with a wall beneath them first, then the rows beside them.
+        var roofs = centres.SelectMany(z => centres.Select(x => (X: x, Z: z)))
+            .OrderBy(s => s.Z is 91_500 or 94_500 or 100_500 or 103_500 or 109_500 or 112_500 || s.X is 97_500 or 100_500 ? 0 : 1).ToList();
+        foreach (var (x, z) in roofs)
+            Put(Roof, x, z, 0, x, z);
+        Assert.Equal(200, arena.Simulation.Pieces.Length);
+        Assert.Equal(200, arena.Simulation.StructureRevision);
+        Save("after");
+
+        // Loaded under content whose hash differs, so the definition pass and its copies run.
+        using var copy = new TempProfile();
+        string content = Path.Combine(copy.Root, "content");
+        CopyDirectory(Path.Combine(RepoRoot(), "content"), content);
+        string config = Path.Combine(content, "config", "building.yaml");
+        File.WriteAllText(config, File.ReadAllText(config).Replace("notes: Building v1 (M7).", "notes: Building v1 (M7), retold."));
+        using var other = new TempProfile();
+        var edited = GameSession.Boot(new GameOptions(content, other.Root));
+        Assert.NotEqual(session.Content.Hash, edited.Content.Hash);
+        var reloaded = Arena.Resume(edited.Setup, store.Load(SaveSlots.Manual("after"), new LoadContext(edited.Generator, edited.Content, new Registry())));
+
+        static IEnumerable<object> Rows(Arena a) => a.Simulation.World.Pieces.Select(p =>
+            (object)(p.InstanceId, p.DefId, p.HostCell, p.XMm, p.ZMm, p.Rotation, p.Owner, p.HealthCurrent, p.DoorOpen));
+        Assert.Equal(Rows(arena), Rows(reloaded));
+        Assert.Equal(200, reloaded.Simulation.StructureRevision);
+        Assert.Equal(arena.Simulation.Navigation.Grid.Digest(), reloaded.Simulation.Navigation.Grid.Digest());
+        long Size(string slot) => new FileInfo(Directory.EnumerateFiles(profile.Root, "entities.msgpack", SearchOption.AllDirectories)
+            .Single(f => f.Contains(Path.DirectorySeparatorChar + SaveSlots.Manual(slot) + Path.DirectorySeparatorChar, StringComparison.Ordinal))).Length;
+        long grown = Size("after") - Size("before");
+        Assert.True(grown <= 200 * 250, $"200 pieces took {grown} bytes");
+
+        // Through the middle line's doorway, before and after: found, and the same corners.
+        NavPlan Through(Arena a)
+        {
+            var nav = a.Simulation.Navigation;
+            return NavSearch.Plan(new NavQuery(nav.Grid, _ => true, session.Setup.Navigation, new NavScratch(), null), new NavAgent(0, true),
+                new NavPoint(100_500, 100_500), new NavPoint(100_500, 103_500));
+        }
+        var before = Through(arena);
+        var after = Through(reloaded);
+        Assert.Equal(NavOutcome.Found, before.Outcome);
+        Assert.Equal(before.Corners.ToArray(), after.Corners.ToArray());
+        Assert.All(before.Corners, c => Assert.InRange(c.XMm, 100_050, 100_950));
+    }
+
+    private static void CopyDirectory(string from, string to)
+    {
+        foreach (string file in Directory.EnumerateFiles(from, "*", SearchOption.AllDirectories))
+        {
+            string target = Path.Combine(to, Path.GetRelativePath(from, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target);
+        }
     }
 
     private static string RepoRoot()

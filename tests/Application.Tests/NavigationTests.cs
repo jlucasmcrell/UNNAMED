@@ -131,6 +131,22 @@ public class NavigationTests
             _output.WriteLine($"  model route {label}: {p.Outcome}, {p.Expansions} expansions, {p.Corners.Length} corners");
         }
 
+        // One piece's rebuild (E5): a wall's 108 nodes restamped round its parts, as RebuildNavigation does it.
+        var wall = new BoxBlocker("wall#0", 98_800, 98_800, 102_200, 99_200, 3_000);
+        var withWall = inputs.Add(new NavInput(NavInputKind.Solid, wall, null));
+        var rebuilds = new List<double>();
+        long restamped = 0;
+        for (int n = 0; n < 7; n++)
+        {
+            var clock = Stopwatch.StartNew();
+            grid.With(new NavRect(wall.MinXMm, wall.MinZMm, wall.MaxXMm, wall.MaxZMm), withWall, null, out _, out restamped);
+            rebuilds.Add(clock.Elapsed.TotalMilliseconds);
+        }
+        double rebuildMs = rebuilds.Order().ElementAt(rebuilds.Count / 2);
+        _output.WriteLine($"one piece's rebuild: {restamped} nodes, median {rebuildMs:F3} ms of {rebuilds.Count} (max {rebuilds.Max():F3})");
+        Assert.Equal(108, restamped);
+        Assert.True(rebuildMs < 6, $"a one-piece rebuild took {rebuildMs:F3} ms (CI bound 6 ms; ASTRAL target 2 ms)");
+
         Assert.Empty(failures);
         Assert.All(all, x => Assert.True(x.Expansions <= config.Limits.MaxExpansions, x.Pair));
         Assert.True(times.Count > 100, $"only {times.Count} pairs");
@@ -280,6 +296,117 @@ public class NavigationTests
         Assert.Equal(opened, openedLoaded);
         Assert.NotNull(arrivedSaved);
         Assert.Equal(arrivedSaved, arrivedLoaded);
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    /// <summary>A person's plan on a world's own grid, with a scratch of the test's own and every gate as it stands now.</summary>
+    private static NavPlan PlanOn(Arena world, NavConfig config, NavPoint from, NavPoint to)
+    {
+        var nav = world.Simulation.Navigation;
+        var open = nav.Gates.ToDictionary(g => g.Key, g => g.Open, StringComparer.Ordinal);
+        return NavSearch.Plan(new NavQuery(nav.Grid, g => g.GateKey is { } key && open.GetValueOrDefault(key), config, new NavScratch(), null), Person, from, to);
+    }
+
+    // N-A7
+    /// <summary>After workshop step 1, a save and a load keep the grid, every tile's stamp, and every plan through and round the workshop.</summary>
+    [Fact]
+    public void TheSeam_SurvivesAReload()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(arena);
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("seam"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("seam"), new LoadContext(session.Generator, session.Content, new Registry())));
+
+        Assert.Equal(arena.Simulation.Navigation.Grid.Digest(), loaded.Simulation.Navigation.Grid.Digest());
+        Assert.Equal(arena.Simulation.Navigation.Grid.Tiles.Select(t => (t.Key, t.Stamp)), loaded.Simulation.Navigation.Grid.Tiles.Select(t => (t.Key, t.Stamp)));
+        // Eight fixed points: 3 m outside the middle of each side, and the four inner corners 0.8 m in from the walls; to the bench's anchor.
+        var anchor = new NavPoint(100_750, 103_500);
+        var from = new[]
+        {
+            new NavPoint(102_000, 96_000), new NavPoint(108_000, 102_000), new NavPoint(102_000, 108_000), new NavPoint(96_000, 102_000),
+            new NavPoint(99_800, 99_800), new NavPoint(104_200, 99_800), new NavPoint(99_800, 104_200), new NavPoint(104_200, 104_200),
+        };
+        foreach (var point in from)
+        {
+            var before = PlanOn(arena, session.Setup.Navigation, point, anchor);
+            var after = PlanOn(loaded, session.Setup.Navigation, point, anchor);
+            Assert.Equal(NavOutcome.Found, before.Outcome);
+            Assert.Equal((before.Outcome, before.Partial, before.Expansions), (after.Outcome, after.Partial, after.Expansions));
+            Assert.Equal(before.Corners.ToArray(), after.Corners.ToArray());
+        }
+    }
+
+    // N-A9
+    /// <summary>Fifty times a wall placed and taken down again: each state's grid and route are the state's, every time.</summary>
+    [Fact]
+    public void RepeatedRebuilds_AreIdentical()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = BuildingTests.Builder(session, (100.5, 94.5), timber: new[] { 20, 20, 20 });
+        Assert.Null(BuildingTests.Place(arena, "piece.pad.timber", 94_500, 94_500, 0));
+        string padOnly = arena.Simulation.Navigation.Grid.Digest();
+        var from = new NavPoint(94_500, 92_000);
+        var to = new NavPoint(94_500, 100_000);
+        var openRoute = PlanOn(arena, session.Setup.Navigation, from, to).Corners.ToArray();
+        string? walled = null;
+        NavPoint[]? walledRoute = null;
+        for (int cycle = 0; cycle < 50; cycle++)
+        {
+            Assert.Null(BuildingTests.Place(arena, "piece.wall.timber", 94_500, 96_000, 0));
+            walled ??= arena.Simulation.Navigation.Grid.Digest();
+            walledRoute ??= PlanOn(arena, session.Setup.Navigation, from, to).Corners.ToArray();
+            Assert.Equal(walled, arena.Simulation.Navigation.Grid.Digest());
+            Assert.Equal(walledRoute, PlanOn(arena, session.Setup.Navigation, from, to).Corners.ToArray());
+
+            var wall = arena.Simulation.Pieces.Single(p => p.DefId == "piece.wall.timber").Id;
+            Assert.Null(arena.Submit(new DismantlePieceCommand(arena.Player, wall)));
+            Assert.Equal(padOnly, arena.Simulation.Navigation.Grid.Digest());
+            Assert.Equal(openRoute, PlanOn(arena, session.Setup.Navigation, from, to).Corners.ToArray());
+        }
+        Assert.NotEqual(padOnly, walled);
+        Assert.NotEqual(openRoute, walledRoute);
+        Assert.Equal(101, arena.Simulation.StructureRevision);
+    }
+
+    // N-A12
+    /// <summary>A wall placed between the character and Tavar, waiting: called, he plans round its end and comes, with no catch-up.</summary>
+    [Fact]
+    public void TheCompanion_FollowsRoundAPlayerWall()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, (100.5, 101.0), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithInventory(r.Inventory.Append(Arena.Stack("item.material.timber", 20)))
+                .WithCompanions(new[] { new CompanionRecord(Tavar, CompanionOrder.Wait, CompanionCondition.Up, 100_500, 108_500, 180_000, 100) }));
+        Assert.Null(BuildingTests.Place(arena, "piece.pad.timber", 100_500, 103_500, 0));
+        Assert.Null(BuildingTests.Place(arena, "piece.wall.timber", 100_500, 105_000, 0));
+        Assert.True(arena.Simulation.Walled(100_500, 101_000, 100_500, 108_500), "Tavar is in clear view");
+
+        var planned = arena.Record<RoutePlanned>();
+        var caughtUp = arena.Record<CompanionCaughtUp>();
+        Assert.Null(arena.Submit(new OrderCompanionCommand(arena.Player, Tavar, CompanionOrder.Follow)));
+        long held = 0, maxHeld = 0;
+        var last = arena.Simulation.Companions.Single().Body;
+        for (int i = 0; i < 600 && Apart(arena) > 2_500; i++)
+        {
+            arena.Tick();
+            var now = arena.Simulation.Companions.Single().Body;
+            held = (now.XMm, now.ZMm) == (last.XMm, last.ZMm) && Apart(arena) > 3_500 ? held + 1 : 0;
+            maxHeld = Math.Max(maxHeld, held);
+            last = now;
+        }
+
+        var first = planned.First();
+        Assert.Equal((Tavar, "found"), (first.MoverKey, first.Outcome));
+        Assert.True(first.Corners >= 2, $"the first plan has {first.Corners} corners: straight through the wall?");
+        Assert.Empty(caughtUp);
+        Assert.True(maxHeld < 300, $"he was held {maxHeld} ticks");
+        Assert.InRange(Apart(arena), 0, 2_500);
         Assert.Equal(0, session.SubscriberFailures);
     }
 

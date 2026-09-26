@@ -144,6 +144,15 @@ public class M7GuardTests
         Assert.True(offenders.Count == 0, "A sorted collection without an ordinal comparer:\n" + string.Join("\n", offenders));
     }
 
+    // G1
+    [Fact]
+    public void OnlyBuildingDispatchesRebuildNavigation()
+    {
+        var hits = Hits(Sources("src"), new Regex(@"new\s+RebuildNavigation\(")).ToList();
+        Assert.NotEmpty(hits);
+        Assert.All(hits, hit => Assert.StartsWith("src/World/Runtime/Building.cs:", hit));
+    }
+
     // G4
     [Fact]
     public void PresentationUsesNoPhysicsQueries()

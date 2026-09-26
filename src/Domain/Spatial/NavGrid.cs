@@ -72,22 +72,28 @@ public sealed class NavGrid
     /// radius of it is recomputed from all of <paramref name="inputs"/>, in each tile it meets, and those tiles' input lists and stamps
     /// follow. It equals <see cref="Build"/> over the same inputs, byte for byte.
     /// </summary>
-    public NavGrid With(NavRect changed, IEnumerable<NavInput> inputs, NavCounterSink? counters = null)
+    public NavGrid With(NavRect changed, IEnumerable<NavInput> inputs, NavCounterSink? counters = null) =>
+        With(changed, inputs, counters, out _, out _);
+
+    /// <summary>The same, saying which tiles it restamped, in (Tz, Tx) order, and how many nodes.</summary>
+    public NavGrid With(NavRect changed, IEnumerable<NavInput> inputs, NavCounterSink? counters, out ImmutableArray<NavTileKey> touched, out long nodes)
     {
         var sorted = Canonical(inputs);
         var dirty = changed.Inflated(NavConfig.InfluenceMm);
-        int touched = 0;
-        long nodes = 0;
+        var keys = ImmutableArray.CreateBuilder<NavTileKey>();
+        long count = 0;
         var tiles = Tiles.Select(tile =>
         {
             if (!NavTile.NodeCentres(_lattice, tile.Key).Meets(dirty))
                 return tile;
-            touched++;
+            keys.Add(tile.Key);
             var restamped = tile.Restamped(dirty, sorted, out long stamped);
-            nodes += stamped;
+            count += stamped;
             return restamped;
         }).ToImmutableArray();
-        counters?.CountRectRebuild(touched, nodes);
+        touched = keys.ToImmutable();
+        nodes = count;
+        counters?.CountRectRebuild(touched.Length, nodes);
         return new NavGrid(_lattice, tiles, sorted);
     }
 

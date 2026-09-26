@@ -105,6 +105,7 @@ public class DeterminismAndViewTests
         var placed = Harness.Record<PiecePlaced>(session);               // E5
         var removed = Harness.Record<PieceRemoved>(session);
         var structures = Harness.Record<StructuresChanged>(session);
+        var rebuilt = Harness.Record<NavigationRebuilt>(session);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
@@ -143,6 +144,7 @@ public class DeterminismAndViewTests
         Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count);
         Assert.Equal(placed.Count + removed.Count, structures.Count);
         Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(), placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Order());
+        Assert.True(rebuilt.Count <= structures.Count, "a rebuild without a change of the structures");
     }
 
     [Fact]
@@ -179,6 +181,7 @@ public class DeterminismAndViewTests
         writer.Subscribe<PiecePlaced>(anything.Add);
         writer.Subscribe<PieceRemoved>(anything.Add);
         writer.Subscribe<StructuresChanged>(anything.Add);
+        writer.Subscribe<NavigationRebuilt>(anything.Add);
         var simulation = writer.NewGame("Wanderer", seed: 42);
         Assert.Empty(anything);
 
@@ -199,6 +202,7 @@ public class DeterminismAndViewTests
         reader.Subscribe<PiecePlaced>(anything.Add);
         reader.Subscribe<PieceRemoved>(anything.Add);
         reader.Subscribe<StructuresChanged>(anything.Add);
+        reader.Subscribe<NavigationRebuilt>(anything.Add);
         reader.Load(SaveSlots.Manual("known"));
         Harness.Ticks(reader, 20);
 

@@ -49,6 +49,16 @@ public static class NavigationLayout
 internal sealed record OpenDoor(string DoorKey, string NpcId) : InternalCommand;
 
 /// <summary>
+/// To <see cref="NavigationSystem"/>, from <see cref="BuildingSystem"/> only (M7 design §6.2.2, G1): a placed piece with parts came or
+/// went; restamp the nodes within the influence radius of <see cref="Changed"/>, the union of its parts. <see cref="Revision"/> is the
+/// structure sequence after the change, for views. Never refused.
+/// </summary>
+internal sealed record RebuildNavigation(NavRect Changed, StructureChangeKind Kind, long Revision) : InternalCommand;
+
+/// <summary>The grid was restamped after a structure change (M7 design §3.5): which tiles, in (Tz, Tx) order, how many nodes, and why. For views.</summary>
+public sealed record NavigationRebuilt(ImmutableArray<NavTileKey> Tiles, int NodesRestamped, string Reason, long Tick);
+
+/// <summary>
 /// A mover planned (M7 design §3.14): the NPC, how the plan ended (<see cref="NavSearch.OutcomeKey"/>), why it replanned
 /// (<see cref="NavFollower"/>'s reasons), the corners of the route it now follows, and what the plan cost. For views only.
 /// </summary>
@@ -101,9 +111,34 @@ internal sealed class NavigationSystem
         _context.State.SetNavigation(_owner, NavGrid.Build(Config, NavigationLayout.Bounds(layout), NavigationLayout.TileKeys(layout), CurrentInputs(), Counters));
     }
 
-    /// <summary>The inputs in canonical order: the authored statics that stop a standing body, and the authored doors and barriers as gates.</summary>
+    /// <summary>
+    /// The inputs in canonical order: the authored statics that stop a standing body, the authored doors and barriers as gates, and every
+    /// placed solid part (M7). It reads the authored layout and the footprints, never the rebuilt collision space, which already holds them.
+    /// </summary>
     public ImmutableArray<NavInput> CurrentInputs() =>
-        NavigationLayout.AuthoredInputs(_context.Setup.Layout, Config).Sort(NavInputOrder.Instance);
+        NavigationLayout.AuthoredInputs(_context.Setup.Layout, Config)
+            .AddRange(_context.StructureFootprints.Where(f => f.Class == TraversalClass.Solid).Select(f => new NavInput(NavInputKind.Solid, f.Box(), null)))
+            .Sort(NavInputOrder.Instance);
+
+    /// <summary>
+    /// A structure change (M7 design §3.5.1): the nodes within the influence radius of the changed parts are recomputed from the current
+    /// inputs, tile by tile; the grid is replaced, and <see cref="NavigationRebuilt"/> says so.
+    /// </summary>
+    public string? Handle(RebuildNavigation command, long tick)
+    {
+        var grid = Grid.With(command.Changed, CurrentInputs(), Counters, out var tiles, out long nodes);
+        _context.State.SetNavigation(_owner, grid);
+        _context.Events.Publish(new NavigationRebuilt(tiles, (int)nodes, KindKey(command.Kind), tick));
+        return null;
+    }
+
+    /// <summary>A structure change's key: <c>placed</c>, <c>dismantled</c> or <c>destroyed</c>.</summary>
+    public static string KindKey(StructureChangeKind kind) => kind switch
+    {
+        StructureChangeKind.Placed => "placed",
+        StructureChangeKind.Dismantled => "dismantled",
+        _ => "destroyed",
+    };
 
     /// <summary>
     /// Whether an agent can get from one point to another now (the plan is found), doors planned through as the agent may, barriers by
