@@ -17,7 +17,12 @@ public static class FoldscarDressing
     private const string Shard = "scifi_artifact_b";           // zonked's split monolith (CC0), 2.1 x 2.1 x 3.9 m as authored
     private const string Pebble = "env_ph_boulder_01";
 
-    public static int Dress(Node3D parent, ArtLibrary art, GroundField ground, Vector2 heart, Vector2 fold, float foldRadius)
+    /// <summary>
+    /// Place the dressing; the number of pieces placed. <paramref name="pebbles"/>, when given, receives each stone resting on nothing
+    /// with the height it would rest at on the ground (the heart's release brings them down: FoldscarRegister).
+    /// </summary>
+    public static int Dress(Node3D parent, ArtLibrary art, GroundField ground, Vector2 heart, Vector2 fold, float foldRadius,
+        List<(Node3D Pebble, float Settled)>? pebbles = null)
     {
         var root = new Node3D { Name = "FoldscarDressing" };
         parent.AddChild(root);
@@ -57,11 +62,18 @@ public static class FoldscarDressing
             if (Spot(2.5f, 10f) is not { } p || art.ModelWithLods(Pebble) is not { } pebble)
                 continue;
             float s = random.RandfRange(0.07f, 0.13f);
-            pebble.Position = new Vector3(p.X, ground.Height(p.X, p.Y) + random.RandfRange(0.18f, 0.4f), p.Y);
+            float floor = ground.Height(p.X, p.Y);
+            pebble.Position = new Vector3(p.X, floor + random.RandfRange(0.18f, 0.4f), p.Y);
             pebble.RotationDegrees = new Vector3(random.RandfRange(0, 360), random.RandfRange(0, 360), random.RandfRange(0, 360));
             pebble.Scale = Vector3.One * s;
             root.AddChild(pebble);
             placed++;
+            if (pebbles is not null)
+            {
+                // Resting: its lowest point on the ground, sunk a quarter of the way in (the turned box overstates how low it reaches).
+                var box = new Transform3D(pebble.Basis, pebble.Position) * ArtGallery.Bounds(pebble);
+                pebbles.Add((pebble, floor + (pebble.Position.Y - box.Position.Y) * 0.75f));
+            }
         }
         art.Coverage.Resolved("scenery", "foldscar_ground", $"{placed} pieces: shards of the heart's kind, stones resting on nothing");
         return placed;

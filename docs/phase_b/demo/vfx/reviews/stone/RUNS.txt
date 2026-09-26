@@ -1,0 +1,1 @@
+visual-qa runs (G:\OtherreachTools\visual-qa\runs): blind 20260926T162248971057Z-blind-79d477; gemini review 20260926T162335651431Z-review-b892f4; reveal 20260926T162405326476Z-reveal-e15e6b. Pegasus: unavailable for this remediation (owner update), not called.

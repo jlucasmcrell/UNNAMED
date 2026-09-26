@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T17:02:33.760192+00:00",
+  "payload_sha256": "0c541ec6e495e8251ae2b882ee5e96cdd929624a5b35394850714c353fa4a673",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T170223772146Z-review-91228d\\result.json",
+      "sha256": "be23366aff3d06bb9387ee4ba04db99bb783b465656d61baa295e1294a0a9cae"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "5a52fcb29287b5900b7be1822fb56693e31b6a736198a336160b3d3db7651c84",
+    "assignments": {
+      "A": {
+        "id": "vfx-lane-final",
+        "settings": {
+          "camera": "formulas showcase 15.2-28.2 s: Brace Ward cast, held, side and close views, walked through its expiry; third person 2-4.8 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 13.0
+        },
+        "media": [
+          {
+            "path": "media/after_vfx_lane_final.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.mp4",
+            "sha256": "6f78220ed7f957c846b617d4168355dd3f7e55488a2ff967058c31d3a718eb99"
+          }
+        ]
+      },
+      "B": {
+        "id": "baseline-a080596",
+        "settings": {
+          "camera": "formulas showcase 15.2-28.2 s: Brace Ward cast, held, side and close views, walked through its expiry; third person 2-4.8 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 13.0
+        },
+        "media": [
+          {
+            "path": "media/before_a080596.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.mp4",
+            "sha256": "197cb076af781eb76922fd0776ada42c36c7627d5ad37b6d7ef736c6a7ccdb56"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}

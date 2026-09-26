@@ -19,6 +19,7 @@ public sealed class ParticleRecipes
 
     private readonly Dictionary<string, JsonElement> _recipes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string[]> _effects = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (Color Ink, int Sides)> _formulas = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
     private readonly string? _root;
 
@@ -35,7 +36,15 @@ public sealed class ParticleRecipes
             foreach (var effect in effects.EnumerateObject().Where(e => e.Value.ValueKind == JsonValueKind.Array))
                 _effects[effect.Name] = effect.Value.EnumerateArray().Select(n => n.GetString()!).ToArray();
         }
+        if (document.RootElement.TryGetProperty("formulas", out var formulas))
+        {
+            foreach (var formula in formulas.EnumerateObject().Where(f => f.Value.ValueKind == JsonValueKind.Object))
+                _formulas[formula.Name] = (new Color(Text(formula.Value, "ink") ?? "#d0e0ff"), (int)Number(formula.Value, "sides", 3));
+        }
     }
+
+    /// <summary>A formula's ink and its glyph's polygon (the recipes' <c>formulas</c>); a pale blue triangle for one not listed.</summary>
+    public (Color Ink, int Sides) Formula(string formulaId) => _formulas.GetValueOrDefault(formulaId, (new Color("#d0e0ff"), 3));
 
     /// <summary>The recipes that stand in for a flipbook effect (or a greybox moment's key) in the game; empty when none do.</summary>
     public IReadOnlyList<string> For(string effect) => _effects.GetValueOrDefault(effect) ?? Array.Empty<string>();

@@ -3,20 +3,30 @@
     "Particle recipes (Phase B, B0.7): presentation data, not game content. Each is one GPUParticles3D built by ParticleRecipes.cs -",
     "a burst (all at once, once) or a stream - of camera-facing quads showing a texture (a flipbook when grid is given, played at fps),",
     "coloured along a ramp over each particle's life and scaled along size_curve. Distances in metres, speeds in metres a second.",
-    "Textures are asset-workspace paths; every one carries its provenance record beside it (vfx/<id>.json)."
+    "Textures are asset-workspace paths; every one carries its provenance record beside it (vfx/<id>.json).",
+    "An effect may also name a formula form, form:<name> (Art/FormulaForms.cs): geometry drawn by its own shader - the ward's lattice, the",
+    "mending's threads, the cast glyph, the bolt's core and its pressure front. formulas: each formula's ink and its glyph's polygon."
   ],
   "effects": {
     "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it.",
-    "vfx.force.impulse_bolt_travel": ["force_bolt_trail"],
-    "vfx.force.impulse_bolt_impact": ["force_bolt_burst"],
+    "vfx.force.impulse_bolt_travel": ["form:bolt_core"],
+    "vfx.force.impulse_bolt_impact": ["form:bolt_shock", "force_bolt_shards"],
     "arrow_strike": ["impact_sparks"],
-    "vfx.vital.mending_thread_restore": ["mending_threads", "mending_motes"]
+    "vfx.vital.mending_thread_restore": ["form:mending_weave", "mending_motes"],
+    "vfx.warding.brace_ward_shell": ["form:ward_lattice"],
+    "vfx.magic.cast_charge": ["form:cast_glyph"]
+  },
+  "formulas": {
+    "comment": "The cast glyph per formula (Phase B VFX lane): its ink, and the polygon turning inside it - Force three sides, Warding four, Vital six.",
+    "spell.force.impulse_bolt": { "ink": "#d6e6ff", "sides": 3 },
+    "spell.warding.brace_ward": { "ink": "#a4c8ff", "sides": 4 },
+    "spell.vital.mending_thread": { "ink": "#ffe4ae", "sides": 6 }
   },
   "recipes": {
     "force_bolt_trail": {
       "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp.",
       "mode": "stream", "texture": "vfx/ext_unity_fireball01_energy.png", "grid": [8, 8], "frames": 64, "fps": 30,
-      "amount": 48, "lifetime": 0.42, "size": [0.28, 0.5], "size_curve": [1.0, 0.25], "velocity": [0.1, 0.45], "spread": 180,
+      "amount": 36, "lifetime": 0.36, "size": [0.2, 0.38], "size_curve": [1.0, 0.25], "velocity": [0.1, 0.45], "spread": 180,
       "gravity": [0, 0.2, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 2.2,
       "color": ["#ffffffff", "#bfe4ffe6", "#6f9cff80", "#2a3cff00"]
     },
@@ -26,6 +36,13 @@
       "amount": 16, "lifetime": 0.5, "size": [0.35, 0.8], "size_curve": [0.6, 1.4], "velocity": [1.2, 2.6], "spread": 180,
       "gravity": [0, 0, 0], "damping": [3, 5], "blend": "add", "energy": 2.0,
       "color": ["#ffffffff", "#a8d2ffcc", "#4a6aff00"]
+    },
+    "force_bolt_shards": {
+      "note": "Impulse Bolt where it strikes (VFX lane): a dozen hard cold points thrown outward and stopped short by the air - the blow's crack, not a fire.",
+      "mode": "burst", "texture": "vfx/ext_vfxlib_spark_particle2.png",
+      "amount": 12, "lifetime": 0.32, "size": [0.03, 0.06], "size_curve": [1.0, 0.2], "velocity": [5.0, 8.0], "spread": 180,
+      "gravity": [0, 0, 0], "damping": [14, 20], "blend": "add", "energy": 3.5,
+      "color": ["#ffffffff", "#d6e6ffff", "#8fb4ff00"]
     },
     "impact_sparks": {
       "note": "Steel on stone or bone. Ported from the Godot VFX Library's sparks (MIT): 30 at once, half a second, all directions, gravity, white to orange.",
@@ -92,11 +109,11 @@
       "color": ["#9ee0c400", "#c8fbe6cc", "#9ee0c4aa", "#9ee0c400"]
     },
     "mending_motes": {
-      "note": "Mending Thread's motes: small bright points rising and circling with the threads.",
-      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "local": true, "ring": [0.36, 0.5], "orbit": [0.18, 0.35],
-      "amount": 30, "lifetime": 1.9, "size": [0.02, 0.05], "size_curve": [1.0, 0.2], "velocity": [0.3, 0.8], "spread": 12,
-      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 2.4,
-      "color": ["#e8fff400", "#e8fff4ff", "#9ee0c4cc", "#9ee0c400"]
+      "note": "Mending Thread's motes: small warm points rising and circling round the chest where the threads stitch (VFX lane: warmer, fewer).",
+      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "local": true, "ring": [0.3, 0.7], "orbit": [0.18, 0.35],
+      "amount": 20, "lifetime": 1.9, "size": [0.02, 0.045], "size_curve": [1.0, 0.2], "velocity": [0.2, 0.5], "spread": 12,
+      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 2.2,
+      "color": ["#fff4dc00", "#fff0d0ee", "#c4efd2aa", "#9ee0c400"]
     }
   }
 }

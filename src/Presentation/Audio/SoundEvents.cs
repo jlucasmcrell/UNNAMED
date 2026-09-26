@@ -241,6 +241,16 @@ public partial class SoundEvents : Node
                 _bank.Play($"sfx.magic.{stem}.end", Chest(_feet));
         });
         s.Subscribe<DoorToggled>(e => _bank.Play(e.Open ? "sfx.interaction.door.open" : "sfx.interaction.door.close", Where(e.Actor) ?? _feet));
+        s.Subscribe<SwitchSet>(e =>
+        {
+            // switch_set(): heard at the stone. While a barrier still stands the Foldscar is out of register and the sound arrives a
+            // moment late (displaced audio, content bible §8); the switch that lifts it is heard on time.
+            if (!_bindings.SwitchSounds.TryGetValue(e.SwitchKey, out string? sound) || _session.Setup.Layout.FindSwitch(e.SwitchKey) is not { } site)
+                return;
+            var (x, z) = Footprints.Center(site.Body);
+            var at = new Vector3(x / 1000f, _feet.Y + 1.2f, z / 1000f);
+            _bank.Play(sound, at, _session.Simulation!.Barriers.Any(b => b.Standing) ? 0.45 : 0);
+        });
         s.Subscribe<TookAll>(e =>
         {
             if (e.Actor == PlayerId && e.Taken > 0)
@@ -569,6 +579,8 @@ public partial class SoundEvents : Node
             Add($"sfx.interaction.{sound.Sound}.open", "interaction_open()");
             Add($"sfx.interaction.{sound.Sound}.close", "interaction_close()");
         }
+        foreach (string sound in bindings.SwitchSounds.Values.Distinct(StringComparer.Ordinal))
+            Add(sound, "switch_set()");
         Add("sfx.interaction.door.open", "interaction_open(door)");
         Add("sfx.interaction.door.close", "interaction_close(door)");
         Add("sfx.interaction.loot.take_all", "loot_take_all()");

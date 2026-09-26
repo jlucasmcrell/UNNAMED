@@ -93,10 +93,16 @@ public partial class ProjectilesView : Node3D
             if (_recipes.Build(name) is { } particles)
                 built.Add(particles);
         }
-        if (built.Count > 0)
+        if (built.Count > 0 || HasForms(effect))
             _coverage?.Resolved("effect_recipe", effect, string.Join(" + ", _recipes.For(effect)));
         return built;
     }
+
+    private bool HasForms(string effect) => _recipes?.For(effect).Any(n => n.StartsWith(Art.FormulaForm.Prefix, StringComparison.Ordinal)) == true;
+
+    /// <summary>The formula forms the recipes name for an effect (the bolt's core, its pressure front), built.</summary>
+    private List<Art.FormulaForm> Forms(string effect) =>
+        _recipes is null ? new() : _recipes.For(effect).Select(Art.FormulaForm.Create).OfType<Art.FormulaForm>().ToList();
 
     /// <summary>A shot's flipbook, recorded in the coverage report (resolved, or the greybox that stands in for it).</summary>
     private Flipbook? Book(string? stem, string moment, string greybox)
@@ -190,7 +196,10 @@ public partial class ProjectilesView : Node3D
             }
             flight.Node.QueueFree();
             // A little short of where it stopped, so the burst, which faces the camera, is not half inside the wall it struck.
-            Burst(flight.To - (flight.To - flight.From).Normalized() * 0.4f, flight.EffectStem);
+            var along = (flight.To - flight.From).Normalized();
+            Burst(flight.To - along * 0.4f, flight.EffectStem, along);
+            if (flight.Node.HasMeta("streak"))
+                _fadingStreaks.Add((WorkingTail(flight, flight.To), flight.To - along * 0.4f, _clock + TrailFade));
             return;
         }
         _fadingTrails.Add((Tail(flight, flight.To), flight.To, _clock + TrailFade));
@@ -208,6 +217,16 @@ public partial class ProjectilesView : Node3D
     private static Vector3 Tail(Flight flight, Vector3 head) =>
         head - (flight.To - flight.From).Normalized() * Math.Min(TrailLength, flight.From.DistanceTo(head));
 
+    private const float WorkingStreakLength = 2.6f;
+    private const float WorkingStreakWidth = 0.09f;
+    private static readonly Color WorkingStreak = new(0.9f, 0.95f, 1f);
+    // The wash round it a deeper blue than the day, so the white core reads against bright ground and sky.
+    private static readonly Color WorkingWash = new(0.36f, 0.52f, 0.92f);
+    private readonly List<(Vector3 Tail, Vector3 Head, double Until)> _fadingStreaks = new();
+
+    private static Vector3 WorkingTail(Flight flight, Vector3 head) =>
+        head - (flight.To - flight.From).Normalized() * Math.Min(WorkingStreakLength, flight.From.DistanceTo(head));
+
     /// <summary>
     /// A pale streak behind each arrow in flight, turned to face the camera, fading off once the arrow stops: from behind the shoulder an
     /// arrow flies straight away from the eye and is a speck without it. It is drawn only while a loosed arrow is in the air.
@@ -216,12 +235,25 @@ public partial class ProjectilesView : Node3D
     {
         var mesh = (ImmediateMesh)_trails.Mesh;
         mesh.ClearSurfaces();
-        var streaks = new List<(Vector3 Tail, Vector3 Head, float Alpha)>();
+        var streaks = new List<(Vector3 Tail, Vector3 Head, float Alpha, float Width, Color Colour)>();
+        var arrow = new Color(1f, 0.97f, 0.88f);
         foreach (var flight in _flying.Where(f => !f.Working))
-            streaks.Add((Tail(flight, flight.Node.Position), flight.Node.Position, 1f));
+            streaks.Add((Tail(flight, flight.Node.Position), flight.Node.Position, 1f, TrailWidth, arrow));
         _fadingTrails.RemoveAll(t => t.Until <= _clock);
         foreach (var (tail, head, until) in _fadingTrails)
-            streaks.Add((tail, head, (float)((until - _clock) / TrailFade)));
+            streaks.Add((tail, head, (float)((until - _clock) / TrailFade), TrailWidth, arrow));
+        // A working's streak (Phase B VFX lane): wider, cold, longer - its path through the air, drawn to where it burst.
+        // A fine bright core inside a wide faint wash.
+        void Streak(Vector3 tail, Vector3 head, float alpha)
+        {
+            streaks.Add((tail, head, 0.3f * alpha, WorkingStreakWidth * 2.2f, WorkingWash));
+            streaks.Add((tail, head, 0.95f * alpha, WorkingStreakWidth * 0.55f, WorkingStreak));
+        }
+        foreach (var flight in _flying.Where(f => f.Working && f.Node.HasMeta("streak")))
+            Streak(WorkingTail(flight, flight.Node.Position), flight.Node.Position, 1f);
+        _fadingStreaks.RemoveAll(t => t.Until <= _clock);
+        foreach (var (tail, head, until) in _fadingStreaks)
+            Streak(tail, head, (float)((until - _clock) / TrailFade));
         if (GetViewport().GetCamera3D() is not { } camera)
             return;
         var eye = ToLocal(camera.GlobalPosition);
@@ -229,11 +261,11 @@ public partial class ProjectilesView : Node3D
         if (streaks.Count == 0)
             return;
         mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
-        foreach (var (tail, head, alpha) in streaks)
+        foreach (var (tail, head, alpha, width, tint) in streaks)
         {
-            var side = (head - tail).Cross(eye - head).Normalized() * (TrailWidth / 2);
-            var bright = new Color(1f, 0.97f, 0.88f, 0.95f * alpha);
-            var clear = new Color(1f, 0.97f, 0.88f, 0f);
+            var side = (head - tail).Cross(eye - head).Normalized() * (width / 2);
+            var bright = tint with { A = 0.95f * alpha };
+            var clear = tint with { A = 0f };
             foreach (var (colour, at) in new[] { (clear, tail - side), (clear, tail + side), (bright, head + side), (clear, tail - side), (bright, head + side), (bright, head - side) })
             {
                 mesh.SurfaceSetColor(colour);
@@ -296,7 +328,20 @@ public partial class ProjectilesView : Node3D
     private Node3D Working(string? stem)
     {
         var node = new Node3D { Name = "Working" };
-        if (Book(stem, "travel", "a glowing sphere") is { } book)
+        if (stem is not null && Forms($"{stem}_travel") is { Count: > 0 } forms)
+        {
+            // Phase B VFX lane: the formula's own shape in flight (its core and the ring of air round it), the recipe's particles behind
+            // it, and the streak DrawTrails lays along its path.
+            foreach (var form in forms)
+                node.AddChild(form);
+            foreach (var particles in Recipes($"{stem}_travel"))
+            {
+                particles.Name = "Trail";
+                node.AddChild(particles);
+            }
+            node.SetMeta("streak", true);
+        }
+        else if (Book(stem, "travel", "a glowing sphere") is { } book)
         {
             var trail = Recipes($"{stem}_travel");
             node.AddChild(Quad("Book", book, trail.Count > 0 ? 0.45f : 0.9f));
@@ -319,23 +364,35 @@ public partial class ProjectilesView : Node3D
         return node;
     }
 
-    /// <summary>The working bursts where it stopped: the impact flipbook, played once, or a swelling flash - and its light, fading.</summary>
-    private void Burst(Vector3 at, string? stem)
+    /// <summary>
+    /// The working bursts where it stopped (<paramref name="along"/>: the way it flew): the recipes' pressure front and particles, the
+    /// impact flipbook played once, or a swelling flash - and its light, fading.
+    /// </summary>
+    private void Burst(Vector3 at, string? stem, Vector3 along)
     {
         _lastBurst = _clock;
         var node = new Node3D { Position = at };
         AddChild(node);
         var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = 3f, OmniRange = 6f };
         node.AddChild(light);
-        if (stem is not null && Recipes($"{stem}_impact") is { Count: > 0 } bursts)
+        var forms = stem is null ? new List<Art.FormulaForm>() : Forms($"{stem}_impact");
+        var bursts = stem is null ? new List<GpuParticles3D>() : Recipes($"{stem}_impact");
+        if (stem is not null && (bursts.Count > 0 || forms.Count > 0))
         {
+            foreach (var form in forms)
+            {
+                node.AddChild(form);
+                if (form is Art.BoltShock shock)
+                    shock.Along = along;
+            }
             foreach (var burst in bursts)
             {
                 node.AddChild(burst);
                 Art.ParticleRecipes.Fire(burst);
             }
-            double life = _recipes!.Lifetime(_recipes.For($"{stem}_impact")) + 0.2;
-            _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)Math.Max(0, 3 * left / life)));
+            double life = Math.Max(_recipes!.Lifetime(_recipes.For($"{stem}_impact")), forms.Count > 0 ? Art.BoltShock.Seconds : 0) + 0.2;
+            // The light: a hard flash that falls away fast, not a glow that lingers.
+            _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)(3 * Math.Pow(Math.Max(0, left / life), 3))));
             return;
         }
         if (Book(stem, "impact", "a swelling flash") is { } book)

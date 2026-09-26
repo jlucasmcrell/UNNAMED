@@ -76,8 +76,22 @@ public partial class HollowView : Node3D
         }
         foreach (var door in layout.Doors)
             AddChild(BuildDoor(door, layout, terrain));
+        // Phase B VFX lane: the Foldscar's stones, heart and fold come back into register as they are set (FoldscarRegister).
+        if (VisualOptions.Recipes)
+        {
+            _register = new FoldscarRegister { Name = "FoldscarRegister" };
+            AddChild(_register);
+        }
+        // The ring's middle: the structure of the switch whose flag lifts a barrier (the heart).
+        var release = layout.Switches.FirstOrDefault(s => layout.Barriers.Any(b => b.FlagId == s.FlagId));
+        var ringCentre = Vector3.Zero;
+        if (release is not null)
+        {
+            var (cx, cz) = Footprints.Center(release.Body);
+            ringCentre = new Vector3(cx / 1000f, 0, cz / 1000f);
+        }
         foreach (var site in layout.Switches)
-            AddChild(BuildSetMark(site, terrain));
+            AddChild(BuildSetMark(site, terrain, layout.Barriers.Any(b => b.FlagId == site.FlagId), ringCentre));
         foreach (var barrier in layout.Barriers)
             AddChild(BuildBarrier(barrier, terrain));
         AddChild(BuildWater(layout.Space));
@@ -102,8 +116,12 @@ public partial class HollowView : Node3D
         if (VisualOptions.Foldscar == "proof" && _ground is { } foldGround
             && layout.Space.Blockers.OfType<CircleBlocker>().FirstOrDefault(b => b.Id == "rock_foldscar_heart") is { } heartBody
             && layout.Barriers.FirstOrDefault() is { Footprint: CircleBlocker foldBody })
+        {
+            var pebbles = new List<(Node3D Pebble, float Settled)>();
             FoldscarDressing.Dress(this, _art, foldGround, new Vector2(heartBody.CenterXMm / 1000f, heartBody.CenterZMm / 1000f),
-                new Vector2(foldBody.CenterXMm / 1000f, foldBody.CenterZMm / 1000f), foldBody.RadiusMm / 1000f);
+                new Vector2(foldBody.CenterXMm / 1000f, foldBody.CenterZMm / 1000f), foldBody.RadiusMm / 1000f, pebbles);
+            _register?.AddPebbles(pebbles);
+        }
         // Ambient life (B10): presentation only, placed from a fixed seed so the hollow's birds are the same every run.
         if (VisualOptions.All.GetValueOrDefault("life") == "on" && _ground is { } lifeGround)
         {
@@ -169,20 +187,26 @@ public partial class HollowView : Node3D
         }
     }
 
-    /// <summary>Show which switches are set and which barriers still stand (M6), as the simulation says.</summary>
-    public void SetFlags(IEnumerable<SwitchView> switches, IEnumerable<BarrierView> barriers)
+    /// <summary>
+    /// Show which switches are set and which barriers still stand (M6), as the simulation says. <paramref name="inPlay"/>: the change just
+    /// happened in play, so the Foldscar's register plays it (a stone turning, the heart's release); otherwise it is put as it stands.
+    /// </summary>
+    public void SetFlags(IEnumerable<SwitchView> switches, IEnumerable<BarrierView> barriers, bool inPlay = false)
     {
         foreach (var view in switches)
         {
-            if (_setMarks.TryGetValue(view.Site.Key, out var mark))
+            if (_setMarks.TryGetValue(view.Site.Key, out var mark) && _register?.Owns(view.Site.Key) != true)
                 mark.Visible = view.Set;
         }
         foreach (var view in barriers)
         {
-            if (_barriers.TryGetValue(view.Site.Key, out var node))
+            if (_barriers.TryGetValue(view.Site.Key, out var node) && _register?.OwnsFold(view.Site.Key) != true)
                 node.Visible = view.Standing;
         }
+        _register?.Apply(switches, barriers, inPlay);
     }
+
+    private FoldscarRegister? _register;
 
     public bool DebugVisible
     {
@@ -485,7 +509,7 @@ public partial class HollowView : Node3D
     /// meshes, grown a little along their normals) - a band floating at the footprint's height would miss a model shorter or leaner than
     /// its footprint; on a greybox structure, a pale band round its top. Scenery: no collider.
     /// </summary>
-    private Node3D BuildSetMark(SwitchSite site, TerrainGrid terrain)
+    private Node3D BuildSetMark(SwitchSite site, TerrainGrid terrain, bool liftsABarrier, Vector3 ringCentre)
     {
         if (_models.TryGetValue(site.Body.Id, out var model))
         {
@@ -502,6 +526,7 @@ public partial class HollowView : Node3D
             }
             model.AddChild(shell);
             _setMarks[site.Key] = shell;
+            _register?.AddStone(site, model, shell, liftsABarrier, ringCentre);
             Coverage.Resolved("switch_mark", site.Key, $"a glow over {model.Name}'s model");
             return new Node3D { Name = site.Key + "_set_on_model" };
         }
@@ -540,6 +565,7 @@ public partial class HollowView : Node3D
             Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height / 2, z / 1000f),
         };
         _barriers[barrier.Key] = node;
+        _register?.AddFold(barrier, node);
         return node;
     }
 

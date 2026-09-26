@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T16:24:05.076451+00:00",
+  "payload_sha256": "ab28829ecf5021cb141eb7b95d641fb48694cab5339f6af70263622a3068d384",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T162318610835Z-review-a1095a\\result.json",
+      "sha256": "744308d2182101ff5316e949627f27ad6ae90de5fbbf307359bb0cfa3374449d"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "1103a3b08619231077103801e9862f61869b3389c705b9f8ab7d88e1f8718cc5",
+    "assignments": {
+      "A": {
+        "id": "vfx-lane",
+        "settings": {
+          "camera": "formulas showcase 29.0-38.0 s: Mending Thread cast and held, 4.5 m, 6 m (camera pulled in by a post), 1.8 m, walking; third person",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 9.0
+        },
+        "media": [
+          {
+            "path": "media/after_vfx_lane.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.mp4",
+            "sha256": "d13ad068ded14877d0b5492a9f8cd11e191926c53ee6df60ac6a83015cbe33b1"
+          }
+        ]
+      },
+      "B": {
+        "id": "baseline-a080596",
+        "settings": {
+          "camera": "formulas showcase 29.0-38.0 s: Mending Thread cast and held, 4.5 m, 6 m (camera pulled in by a post), 1.8 m, walking; third person",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 9.0
+        },
+        "media": [
+          {
+            "path": "media/before_a080596.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.mp4",
+            "sha256": "0b9f4f5bab1b363f1cb222cd8ac71fd090c2d4d40849ca20b43b6f8765fbebfd"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}

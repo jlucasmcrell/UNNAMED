@@ -94,6 +94,9 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, CellSound> CellSounds { get; private init; } = new Dictionary<string, CellSound>();
     public string InteriorSurface { get; private init; } = "wood";
     public IReadOnlyDictionary<string, string> FormulaSounds { get; private init; } = new Dictionary<string, string>();
+
+    /// <summary>What a switch sounds like as it is set, by its key (the audio bindings' <c>switches</c>; Phase B VFX lane).</summary>
+    public IReadOnlyDictionary<string, string> SwitchSounds { get; private init; } = new Dictionary<string, string>();
     public string? ForgeStation { get; private init; }
 
     /// <summary>The look for a region structure by its ID (exact, then by prefix - a tree's model chosen by its ID), or null.</summary>
@@ -207,6 +210,7 @@ public sealed class ArtBindings
                     : new Dictionary<string, CellSound>(),
                 InteriorSurface = Text(audio, "interior_surface") ?? "wood",
                 FormulaSounds = Strings(audio, "formulas"),
+                SwitchSounds = Strings(audio, "switches"),
                 ForgeStation = Text(audio, "forge_station"),
             };
             if (root.TryGetProperty("structures", out var structures))

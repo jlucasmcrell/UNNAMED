@@ -334,7 +334,7 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--showcase", out string? showcase))
         {
-            _showcase = new Showcase(_session, _controller, _camera, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
+            _showcase = new Showcase(_session, _controller, _camera, _dialogue, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -532,6 +532,11 @@ public partial class Main : Node3D
                 case "done":
                     WriteReports(_showcase.Directory, "showcase");
                     GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveScreenshot(_showcase.Directory, "failed");
+                    WriteReports(_showcase.Directory, "showcase (failed)");
+                    GetTree().Quit(1);
                     return;
                 case { } shot:
                     SaveScreenshot(_showcase.Directory, shot);
@@ -947,7 +952,8 @@ public partial class Main : Node3D
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
         _camera.Crouch = _avatar.Crouch;
         _creatures.Draw(simulation, alpha, delta);
-        _magicEffects.Draw(_avatar, combat.Casting, combat.Phase, combat.Effects.Select(e => e.EffectId),
+        _magicEffects.Draw(_avatar, combat.Casting, combat.Phase,
+            combat.Effects.Select(e => (e.EffectId, Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds)),
             combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
@@ -1056,7 +1062,7 @@ public partial class Main : Node3D
             if (_session.Setup.Layout.FindSwitch(e.SwitchKey) is { } site)
                 _hud.Toast(site.DoneText, 6);
         });
-        _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers));
+        _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true));
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
@@ -1210,6 +1216,10 @@ public partial class Main : Node3D
         {
             if (_session.Simulation!.Companions.FirstOrDefault(c => c.InstanceId == e.Attacker) is { } companion)
                 _npcs.Strike(companion.NpcId);
+            // A blow on the character: what a working left on the body answers where it came from (the ward's shell rings there).
+            if (e.Target == _session.Simulation!.PlayerId && !e.Dodged
+                && _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == e.Attacker) is { } attacker)
+                _magicEffects.Struck(HollowView.ToGodot(attacker.Body.XMm, attacker.Body.YMm, attacker.Body.ZMm) + new Vector3(0, 0.9f, 0));
         });
         _session.Subscribe<HitResolved>(e =>
         {

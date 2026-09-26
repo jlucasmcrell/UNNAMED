@@ -360,6 +360,12 @@
       "spell.warding.brace_ward": "brace_ward",
       "spell.vital.mending_thread": "mending_thread"
     },
+    "switches": {
+      "switch.stone_north": "sfx.amb.foldscar.stone_resonance.01",
+      "switch.stone_southwest": "sfx.amb.foldscar.stone_resonance.01",
+      "switch.stone_southeast": "sfx.amb.foldscar.stone_resonance.01",
+      "switch.foldscar_heart": "sfx.amb.foldscar.stone_resonance.01"
+    },
     "forge_station": "forge"
   }
 }
