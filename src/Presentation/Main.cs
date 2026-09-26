@@ -999,7 +999,7 @@ public partial class Main : Node3D
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(_session, door.Key)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[{HelpPanel.Key("interact")}] Open the {Describe(container.Key)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {_session.DisplayName(container.DefId)}",
@@ -1080,6 +1080,7 @@ public partial class Main : Node3D
         {
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
+            _structures.SetDoor(e.DoorKey, e.Open);
         });
         // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
         _session.Subscribe<SwitchSet>(e =>
@@ -1624,9 +1625,12 @@ public partial class Main : Node3D
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
 
-    /// <summary>A container read as words; a corpse is named for the creature it was.</summary>
+    /// <summary>A key read as words: a corpse is named for the creature it was, a placed piece (M7) for its definition.</summary>
     internal static string Describe(GameSession session, string key) =>
-        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
+        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains"
+        : key.StartsWith("pce_", StringComparison.Ordinal) && session.Simulation?.Pieces.FirstOrDefault(p => p.Id.Value == key) is { } piece
+            ? session.DisplayName(piece.DefId)
+        : Describe(key);
 
     /// <summary>A door, container or station key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
     internal static string Describe(string key) => key switch

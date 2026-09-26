@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E5 done (2026-09-26); E6 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** in progress. E0-E6 done (2026-09-26); E7 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -64,7 +64,7 @@
 | E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), `c4c8f9d` (the S5 STOP record), `ee3d18a` (E3.5 and E3.6, one commit) | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
 | E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
 | E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
-| E6 | Piece doors | - | | | 114 expected | |
+| E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
 | E7 | Navigable by construction | - | | | 114 | |
 | E8 | Chest, bench, blows and mending | - | | | 116 expected | |
 | E9 | Kera works at your bench | - | | | 116 | |
@@ -338,6 +338,22 @@ The owner chose option (b) and amended BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
 
+## E6 evidence (2026-09-26, the machine that ran E1-E5)
+
+| Proof | Result |
+|---|---|
+| `dotnet test src/UNNAMED.sln` | 1,013 passed, 0 failed: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 |
+| Content lint | 114 definitions, 0 errors |
+| `--smoke`, `--quit-after 300` (headless) | PASS (its save/load digest identical; the 911 error lines are all "Not supported by this display server", as before); exit 0 |
+| `--build-shots` (from S0) | every beat passed. b06 hangs the door: sequence 17, one rebuild, shut. b09: the door opened from inside and shut from outside by the character; the walk north stopped at z 98 450 by the shut leaf on every one of its 40 ticks; opened with E (R13); each toggle's leaf drawn on its hinge (its centre R_r(+800, 0) from the hinge shut, R_r(0, +800) open, within 1 cm; the check fails when the swing angle is flipped, by mutation, then restored). Step 1: 17 pieces, 25 timber spent, sequence 17; the table's end: 21 pieces, 14 timber carried, sequence 21. Tavar through the open door and inside 600 ticks on; 0 `CompanionCaughtUp`; `SubscriberFailures` 0 |
+| `--build-shots-verify` | v1: **1,376 fields**, 0 differences, the same digest; v2: **1,370 fields**, 0 differences, the same digest |
+| A second `--build-shots` | `state_replay.json` byte-identical, SHA-256 `5f0bfae207083f049e7de595f93f15f4c679e894e8b6d38ca5a73452b411c552` |
+| `piece:*` art coverage (R16) | **5 of 5 piece entries fall back to greybox** (the door added): reported, not allowlisted |
+| `--playthrough`, `--playthrough-verify`, a second run | every beat passed (553 s); verify **1,182 fields**, 0 differences; `state_replay.json` byte-identical, SHA-256 `1c4788615d6820be719acf207d66f450a094e6e657399e41489b901b0580d343` - E5's own, since the playthrough hangs no door. Its transcript is E5's row for row, but for the header's content hash and the save's raw digest (fresh instance IDs every new game: two runs of one build differ there too) |
+| `--ui-shots`, `--delta-shots`, `--input-check`, `--layout-check` (1366x768, 1280x720) | all exit 0 and PASS, 0 error lines; the layout check over the full-pack content copy with the door added |
+| Tests E6 adds | the door rows of `EachPiece_Places`, `EachPlacementRule` (rules 4 and 7), `WallsDoorwaysAndDoors_BlockAndPass`, `EachFootprintChange` (toggles: no rebuild, no sequence, the same grid digest), `ForeignPieces` and G10; `NoPieceDoorCloses_OnAnyBody`; `ACompanion_OpensTheOwnersPieceDoor`; G26 `ARefusedDoor_CountsAsStuck_ForBothMovers` (the companion); N-D5 over a piece gate; the view test's placed door; `CrossingWorkshop_1to3` with the door |
+| STOPs | none: no toggle rebuilds the grid or moves the sequence (`EachFootprintChange`), and no leaf shuts on a body (`NoPieceDoorCloses_OnAnyBody`) |
+
 ## E5 evidence (2026-09-26, the machine that ran E1-E4)
 
 | Proof | Result |
@@ -542,6 +558,14 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E5 | `--build-shots` timing | Rows play a tick a frame. A row's outcome is checked a frame later (`Then`), and a row's `+n` wait counts ticks from the previous row's last action, so a still in between shifts nothing. Each run records its own ticks in `commands.tsv` (tick, row, command). The files: `state_saved.json`, `state_replay.json`, `state_digest.txt` at the save; `state_continued.json` and `state_continued_digest.txt` 600 ticks on; the relaunch writes `state_loaded.json`, `state_diff.txt`, `state_continued_loaded.json`, `state_continued_diff.txt`, `transcript_verify.md` and `commands_verify.tsv`. `Hud.Toasted` carries each notice to the words check |
 | E5 | S0 | Written by `TheCrossingWorkshopStart_IsWrittenOnlyWhenAsked` under `UNNAMED_WRITE_BUILD_START=1` (refused under `CI=true`) through `SaveStore`, as the `quick` slot; `GameSaves/README.md` has its row. `Main` copies it into `<dir>/profile/quick` before `Boot`, and both `--build-shots` and its relaunch load `quick` by name (exit 2 when they cannot) |
 | E5 | The playthrough's still | `Still` gains `factions: false`, so `26_first_build` is taken without F6 |
+| E6 | `CanOperate` | Takes the player's ID beside the operator's, as `PlacementContext` does: `RuntimeState` holds none. The errand clause lands with errands (E9) |
+| E6 | `OperatePieceDoor` | Reach is measured from the operator's body to the door's shut box, as for an authored door; the texts are §4.9's ("there is no such door", "that door is not yours", "the door is 1.80 m away; reach is 1.60 m", "the door cannot close: something is in the doorway"), the distance written invariantly |
+| E6 | Closed leaves | `ClosedDoors()` appends `RuntimeState.ClosedPieceLeaves` only when there is one; a toggle rebuilds only that cache (`SetClosedPieceLeaves`), and `Rebuild()` derives it the same way |
+| E6 | Door gates | Every placed door's leaf is a navigation gate keyed by its piece ID; `IsGateOpen` reads the row. `Navigation.Gates` (F2) lists the placed doors after the authored ones |
+| E6 | Where E6's tests live | `ACompanion_OpensTheOwnersPieceDoor` and G26 are in `NavigationTests` beside N-A11, sharing `BehindAShutDoor` (a line of three pads, walls and a door; the way round twice the way through). The piece-door half of `NoDoorCloses_OnAnyBody` is its own test, `NoPieceDoorCloses_OnAnyBody`: a door cannot be placed on a body, so it is saved open and each case loaded with a body in the doorway. G26's "at most one `OpenDoor` a tick" is asserted as the stuck count climbing at most one a tick |
+| E6 | The view test | Its sessions load `builder_start`, the start with four timber taken first: taking from an untouched container mints the stack's IDs, which the two sessions would not share. The door segment runs before the random script, from the longhouse door to the crossing and back |
+| E6 | `--build-shots` | b06 is `b06_roofs_and_door`. The eye check skips an open door's leaf, which has swung out of its shut box. b09 asserts the leaf's drawn position through `StructuresView.LeafCentre` |
+| E6 | The door prompt | "[E] Open the Timber Door": `Main.Describe(session, key)` names a `pce_` key by its definition |
 | E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
 
 ## Local risks (not promoted to RISK_REGISTER)
@@ -574,4 +598,6 @@ See §5.19 and §16. They are recorded here as each slice lands.
 | E3 | `o_ore` and `o_billet` (Quest 1) are `acquire_item` objectives with `or_item_refs`: once the Waystation is accepted, a bought billet satisfies both - reachable only after the armour kill and a report. `o_spear` still needs the anvil (C-01) |
 | E5 | No piece art: every placed piece and the ghost are greybox (4 of 4 `piece:*` coverage entries fall back), reported in every run |
 | E5 | Creatures never path: a chaser slides along a wall and can lose the character behind the workshop (R-A7, accepted) |
-| E5 | Doorways stand open until E6 hangs doors; the vestibule and every sealing refusal wait for E7's check 15 |
+| E5 | The vestibule and every sealing refusal wait for E7's check 15 |
+| E6 | NPCs never close doors: a door Tavar opens stays open until the character shuts it. No locks or keys |
+| E6 | Every door is passable to a door-opening mover whoever owns it: a foreign door (a crafted save only) stalls the companion to his snag catch-up (G26) |

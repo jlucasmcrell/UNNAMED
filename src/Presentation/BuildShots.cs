@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Application.Evidence;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -55,6 +56,8 @@ public sealed class BuildShots
     private readonly List<RoutePlanned> _routes = new();
     private readonly List<CompanionCaughtUp> _caughtUp = new();
     private readonly List<string> _toasts = new();
+    private readonly List<DoorToggled> _toggled = new();
+    private readonly List<long> _walkNorth = new();
     private readonly List<Action> _checks = new();
     private readonly List<(long Tick, string Row)> _rowStarts = new();
     private readonly Dictionary<WorkshopAction, long> _appliedAt = new(ReferenceEqualityComparer.Instance);
@@ -96,7 +99,11 @@ public sealed class BuildShots
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
         session.Subscribe<CommandRejected>(e => _refused.Add($"{e.Command.GetType().Name}: {e.Reason}"));
-        session.Subscribe<DoorToggled>(e => Row($"`DoorToggled` {e.DoorKey} {(e.Open ? "open" : "shut")} by {e.Actor}", e.Tick));
+        session.Subscribe<DoorToggled>(e =>
+        {
+            _toggled.Add(e);
+            Row($"`DoorToggled` {e.DoorKey} {(e.Open ? "open" : "shut")} by {e.Actor}", e.Tick);
+        });
         session.Subscribe<PiecePlaced>(e =>
         {
             _placed.Add(e);
@@ -242,13 +249,14 @@ public sealed class BuildShots
                 () => Steps(() => Play("R02"), () => Then(PadsPlaced))),
             new Beat("b05_edges", "The doorway across x = 100 and seven walls: sequence 5-12, exactly 8 rebuilds; seen from 9 m (CameraRig.Cap)", 120, true,
                 () => Steps(() => Play("R03"), () => Play("R04"), () => Then(EdgesPlaced), () => Look(200, CameraRig.BuildMaxDistance))),
-            new Beat("b06_roofs", "Four roofs: sequence 13-16, no rebuild; step 1 is 16 pieces for 24 timber", 120, true,
-                () => Steps(() => Play("R05"), () => Then(RoofsPlaced), () => Look(200, CameraRig.BuildMaxDistance))),
+            new Beat("b06_roofs_and_door", "Four roofs, sequence 13-16 with no rebuild; the door hung in the doorway, sequence 17, one rebuild, shut; step 1 is 17 pieces for 25 timber",
+                120, true, () => Steps(() => Play("R05"), () => Play("R06"), () => Then(RoofsAndDoorPlaced), () => Look(200, CameraRig.BuildMaxDistance))),
             new Beat("b08_overlap_refused", "A wall on the doorway's edge: refused in words - the ghost and the toast say why - and nothing changes", 60, true,
                 () => Steps(OverlapGhost, () => Play("R09"), () => Then(OverlapRefused), () => Look(200, CameraRig.BuildMaxDistance))),
-            new Beat("b09_door_and_inside", "In by the doorway, out, and north through it again; the aim from inside stops at the west wall", 600, true,
-                () => Steps(ExitBuildMode, () => Play("R10"), () => Play("R11"), () => Play("R12"), NorthThroughTheDoorway, () => Play("R14"),
-                    AimStopsAtTheWall, () => Look(90, 4f))),
+            new Beat("b09_door_and_inside", "The door opened from inside and shut from outside; the walk north stopped by the shut leaf; opened with E; the aim from inside stops at the west wall",
+                600, true, () => Steps(ExitBuildMode, () => Play("R10"), () => Then(() => DoorIs(true, "R10")), () => Play("R11"),
+                    () => Then(() => DoorIs(false, "R11")), () => Play("R12"), StoppedByTheDoor, () => Play("R13"), () => Then(() => DoorIs(true, "R13")),
+                    () => Play("R14"), AimStopsAtTheWall, () => Look(90, 4f))),
             new Beat("b17_route_west", "West of the workshop: two pads and a wall; the second wall refused while the character stands on its line, then placed",
                 1_500, true, () => Steps(() => Play("R39"), () => Play("R40"), () => Play("R41"), () => Then(StandingOnTheLine), () => Play("R42"),
                     () => Then(TheLineAtX96), () => Look(90, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
@@ -355,13 +363,15 @@ public sealed class BuildShots
         Expect(_rebuilt.Count == 8, $"{_rebuilt.Count} rebuilds for the doorway and seven walls, not 8");
     }
 
-    private void RoofsPlaced()
+    private void RoofsAndDoorPlaced()
     {
         var simulation = _session.Simulation!;
-        ExpectAccepted("R05");
-        Expect(_placed.Skip(12).Select(p => p.Revision).SequenceEqual(Enumerable.Range(13, 4).Select(n => (long)n)),
-            $"the roofs' sequence is {string.Join(", ", _placed.Skip(12).Select(p => p.Revision))}");
-        Expect(_rebuilt.Count == 8, $"{_rebuilt.Count - 8} rebuilds for roofs");
+        ExpectAccepted("R05", "R06");
+        Expect(_placed.Skip(12).Take(4).Select(p => p.Revision).SequenceEqual(Enumerable.Range(13, 4).Select(n => (long)n)),
+            $"the roofs' sequence is {string.Join(", ", _placed.Skip(12).Take(4).Select(p => p.Revision))}");
+        Expect(_placed.Count == 17 && _placed[16].DefId == Door && _placed[16].Revision == 17, "the door was not placed 17th");
+        Expect(_rebuilt.Count == 9, $"{_rebuilt.Count} rebuilds after the roofs and the door, not 9 (the door's one)");
+        Expect(simulation.Pieces.SingleOrDefault(p => p.DefId == Door) is { DoorOpen: false }, "the door is not hung shut");
         var (pieces, spent, sequence) = Counts.StepOne;
         Expect(simulation.Pieces.Length == pieces && 45 - TimberCarried() == spent && simulation.World.StructureSequence == sequence,
             $"step 1 left {simulation.Pieces.Length} pieces, {45 - TimberCarried()} timber spent and sequence {simulation.World.StructureSequence}, " +
@@ -407,11 +417,29 @@ public sealed class BuildShots
         return true;
     }
 
-    /// <summary>R12 in E5: no door hangs yet, so 40 ticks' walk north from (100.5, 97.0) goes through the opening.</summary>
-    private bool NorthThroughTheDoorway()
+    /// <summary>The door as a row left it, and who worked it: the character.</summary>
+    private void DoorIs(bool open, string row)
+    {
+        Expect(Outcome(row) is null, $"{row}: the door would not work: \"{Outcome(row)}\"");
+        var door = _session.Simulation!.Pieces.Single(p => p.DefId == Door);
+        Expect(door.DoorOpen == open, $"{row}: the door is {(door.DoorOpen ? "open" : "shut")}");
+        Expect(_toggled.LastOrDefault() is { } t && t.DoorKey == door.Id.Value && t.Open == open && t.Actor == _session.Simulation.PlayerId,
+            $"{row}: no toggle of the door by the character");
+        // Drawn on its hinge (§9.3.3): the leaf's centre R_r(+800, 0) from the hinge shut, R_r(0, +800) open.
+        var (hx, hz) = QuarterTurn.Apply(-800, 0, door.Rotation);
+        var (dx, dz) = open ? QuarterTurn.Apply(0, 800, door.Rotation) : QuarterTurn.Apply(800, 0, door.Rotation);
+        var want = new Vector2((door.XMm + hx + dx) / 1000f, (door.ZMm + hz + dz) / 1000f);
+        Expect(_structures.LeafCentre(door.Id.Value) is { } leaf && new Vector2(leaf.X, leaf.Z).DistanceTo(want) < 0.01f,
+            $"{row}: the leaf is drawn at {_structures.LeafCentre(door.Id.Value)}, not at {want}");
+    }
+
+    /// <summary>R12 from E6: 40 ticks' walk north from (100.5, 97.0) is stopped short of the shut leaf on every tick, as at a wall.</summary>
+    private bool StoppedByTheDoor()
     {
         var body = _session.Simulation!.Player.Body;
-        Expect(body.ZMm > 99_200, $"the walk north ended at z {body.ZMm}, not past 99 200");
+        Expect(_walkNorth.Count >= 40 && _walkNorth.All(z => z <= 98_450), $"the walk north went to z {_walkNorth.DefaultIfEmpty().Max()}, into the shut door");
+        Expect(body.ZMm is >= 98_400 and <= 98_450, $"the walk north ended at z {body.ZMm}, not against the door");
+        Row($"R12: stopped at z {body.ZMm} by the shut door, {_walkNorth.Count} ticks", _session.Simulation.WorldTick);
         return _broken is null;
     }
 
@@ -578,7 +606,13 @@ public sealed class BuildShots
                 _tavarLast = null;
                 _tavarPassed = false;
                 break;
+            case InteractPieceAction interact:
+                var target = interact.Target(simulation) ?? throw new InvalidOperationException($"{row.Id}: no {interact.DefId} at ({interact.XMm}, {interact.ZMm})");
+                _controller.Interact(target.Value);
+                break;
             case HoldAction hold:
+                if (_held > 0)
+                    _walkNorth.Add(simulation.Player.Body.ZMm);
                 if (_held++ < hold.Ticks)
                 {
                     _controller.SteerWorld(new Vector3(hold.Intent.DirXPermille, 0, hold.Intent.DirZPermille) / MoveIntent.FullDeflection, hold.Intent.Gait,
@@ -605,7 +639,8 @@ public sealed class BuildShots
     {
         var action = LandedRows.Single(r => r.Id == rowId).Landed.ElementAt(index);
         long tick = _appliedAt[action];
-        return _session.Simulation!.CommandLog.Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand).RejectedReason;
+        return _session.Simulation!.CommandLog.Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand)
+            .RejectedReason;
     }
 
     private void ExpectAccepted(params string[] rows)
@@ -700,7 +735,8 @@ public sealed class BuildShots
         var eye = _camera.Camera.GlobalPosition;
         long ex = (long)Math.Round(eye.X * 1000), ez = (long)Math.Round(eye.Z * 1000), ey = (long)Math.Round(eye.Y * 1000);
         long ground = _session.Setup.Layout.Space.Terrain.HeightAtMm(ex, ez);
-        foreach (var part in simulation.Pieces.SelectMany(p => p.Parts))
+        // An open door's leaf has swung out of its shut box: only a shut leaf stands there.
+        foreach (var part in simulation.Pieces.SelectMany(p => p.Parts.Where(q => q.Traversal == TraversalClass.Solid || !p.DoorOpen)))
         {
             if (ex > part.MinXMm && ex < part.MaxXMm && ez > part.MinZMm && ez < part.MaxZMm && ey < ground + part.HeightMm)
                 _broken ??= $"the camera's eye ({ex}, {ey}, {ez}) is inside a piece's part";

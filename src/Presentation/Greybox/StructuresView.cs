@@ -83,10 +83,16 @@ public partial class StructuresView : Node3D
         Dirty = false;
     }
 
-    /// <summary>A door's leaf turned open or shut; an unknown key is ignored (E6 hangs doors).</summary>
+    /// <summary>A placed door's leaf swung open or shut on its hinge; any other key is ignored.</summary>
     public void SetDoor(string key, bool open)
     {
+        if (_built.TryGetValue(key, out var node) && node.GetNodeOrNull<Node3D>(HingeName) is { } hinge)
+            Swing(hinge, open);
     }
+
+    /// <summary>Where a placed door's leaf is drawn now, its centre in world metres: what a scripted run checks the swing by.</summary>
+    public Vector3? LeafCentre(string key) =>
+        _built.TryGetValue(key, out var node) && node.GetNodeOrNull<Node3D>($"{HingeName}/leaf") is { } leaf ? leaf.GlobalPosition : null;
 
     /// <summary>One piece drawn over with a translucent overlay - the target, or the one armed to come down - and every other plain.</summary>
     public void Highlight(string? key, Material? overlay)
@@ -225,6 +231,9 @@ public partial class StructuresView : Node3D
                 root.AddChild(slab);
                 break;
             }
+            case PieceFamily.Door:
+                root.AddChild(Hinge(piece, terrain, ghost ?? Palette.Door, ghost is null));
+                break;
             default:
             {
                 var material = ghost ?? piece.Family switch
@@ -252,6 +261,36 @@ public partial class StructuresView : Node3D
             NoShadows(root);
         return root;
     }
+
+    private const string HingeName = "hinge";
+
+    /// <summary>
+    /// A door's leaf on its hinge (M7 design §9.3.3): the hinge at R_r(-800, 0) from the anchor, the leaf reaching from it along the closed
+    /// direction R_r(+1, 0). It swings through the angle that turns the closed direction onto the open one, R_r(0, +1) - never a number kept
+    /// per turn - and stands as the piece's row says.
+    /// </summary>
+    private static Node3D Hinge(PieceView door, TerrainGrid terrain, Material material, bool collider)
+    {
+        var part = door.Parts[0];
+        var leaf = new BoxBlocker("leaf", part.MinXMm, part.MinZMm, part.MaxXMm, part.MaxZMm, part.HeightMm);
+        var (hx, hz) = QuarterTurn.Apply(-800, 0, door.Rotation);
+        var (cx, cz) = QuarterTurn.Apply(1, 0, door.Rotation);
+        var (ox, oz) = QuarterTurn.Apply(0, 1, door.Rotation);
+        // HollowView's convention: +90 degrees about Y turns +Z to +X, so +90 takes (x, z) to (z, -x).
+        float openDegrees = (cz, -cx) == (ox, oz) ? 90 : -90;
+        float ground = LowestUnder(terrain, leaf);
+        var hinge = new Node3D { Name = HingeName, Position = new Vector3((door.XMm + hx) / 1000f, 0, (door.ZMm + hz) / 1000f) };
+        hinge.SetMeta("open_degrees", openDegrees);
+        float height = part.HeightMm / 1000f;
+        var node = Part("leaf", new Vector3((part.MaxXMm - part.MinXMm) / 1000f, height, (part.MaxZMm - part.MinZMm) / 1000f), material, collider);
+        node.Position = new Vector3(leaf.CenterXMm / 1000f - hinge.Position.X, ground + height / 2, leaf.CenterZMm / 1000f - hinge.Position.Z);
+        hinge.AddChild(node);
+        Swing(hinge, door.DoorOpen);
+        return hinge;
+    }
+
+    private static void Swing(Node3D hinge, bool open) =>
+        hinge.RotationDegrees = new Vector3(0, open ? (float)hinge.GetMeta("open_degrees") : 0, 0);
 
     /// <summary>A doorway's lintel over its opening, drawn only (it blocks nothing): the gap between its jambs, 2.4 to 3.0 m up.</summary>
     private static Node3D Lintel(PieceView doorway, TerrainGrid terrain, Material material, bool collider)

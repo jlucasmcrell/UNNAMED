@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -57,6 +58,8 @@ public sealed class PlayerController
         _open.Clear();
         foreach (var door in simulation.Doors)
             _open[door.Site.Key] = door.Open;
+        foreach (var piece in simulation.Pieces.Where(p => p.Family == PieceFamily.Door))
+            _open[piece.Id.Value] = piece.DoorOpen;
     }
 
     public void OnBodyMoved(BodyMoved moved) => _motion.OnBodyMoved(moved);
@@ -157,6 +160,13 @@ public sealed class PlayerController
         {
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
+        // A placed door (M7) is worked the same way, from the body to its shut leaf.
+        foreach (var piece in simulation.Pieces.Where(p => p.Family == PieceFamily.Door))
+        {
+            var leaf = new BoxBlocker(piece.Id.Value, piece.MinXMm, piece.MinZMm, piece.MaxXMm, piece.MaxZMm, 0);
+            candidates.Add((new Focus(FocusKind.Door, piece.Id.Value, piece.DefId, leaf.CenterXMm, leaf.CenterZMm),
+                leaf.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
         foreach (var site in simulation.Containers.Select(c => c.Site))
         {
