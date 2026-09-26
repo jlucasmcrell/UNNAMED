@@ -57,6 +57,14 @@
       "npc.ashen_hollow.sel_arien": {
         "model": "npc_siann_archivist_prod",
         "note": "Phase B (character fidelity): Sel's production mesh (tools/asset_pipeline/charprod, specs/sel.json)."
+      },
+      "npc.ashen_hollow.renn_vale": {
+        "model": "npc_veth_magistrate_prod",
+        "note": "Phase B (character fidelity): Renn's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves into the robe), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/renn.json)."
+      },
+      "npc.ashen_hollow.tavar_orr": {
+        "model": "npc_orenth_guide_prod",
+        "note": "Phase B (character fidelity): Tavar's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves and coat into one mass), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/tavar.json)."
       }
     }
   },
@@ -95,6 +103,32 @@
           "walk": 0.96,
           "sprint": 2.92,
           "crouch_walk": 0.75
+        }
+      },
+      "npc.ashen_hollow.renn_vale": {
+        "note": "Phase B (character fidelity): the UAL idle and talking idle (CC0) retargeted onto his production rig - the Phase-A clips were baked on the old 20-bone rig and hold the new body in its bind A-pose.",
+        "clips": { "idle": "npc.veth_magistrate_prod.idle", "talk": "npc.veth_magistrate_prod.talk" }
+      },
+      "npc.ashen_hollow.kera_voss": {
+        "clips": { "idle": "npc.kal_smith_prod.idle", "talk": "npc.kal_smith_prod.talk" }
+      },
+      "npc.ashen_hollow.sel_arien": {
+        "clips": { "idle": "npc.siann_archivist_prod.idle", "talk": "npc.siann_archivist_prod.talk" }
+      },
+      "npc.ashen_hollow.tavar_orr": {
+        "note": "His UAL locomotion, sword attack (a spear thrust has no CC0 source here), hit and death on his production rig; paces are the player's measured strides scaled by leg length (retarget scale 1.0324 vs 0.8377).",
+        "clips": {
+          "idle": "npc.orenth_guide_prod.idle",
+          "talk": "npc.orenth_guide_prod.talk",
+          "walk": "npc.orenth_guide_prod.walk",
+          "run": "npc.orenth_guide_prod.run",
+          "attack": "npc.orenth_guide_prod.attack",
+          "hit": "npc.orenth_guide_prod.hit",
+          "death": "npc.orenth_guide_prod.death"
+        },
+        "paces": {
+          "walk": 1.18,
+          "run": 2.8
         }
       }
     }

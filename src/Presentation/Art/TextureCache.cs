@@ -155,11 +155,13 @@ public sealed class TextureCache
         string path = Path.Combine(_root!, Folder, name);
         if (File.Exists(path))
         {
-            var image = new Image();
+            // Disposed here: the uploaded texture keeps no CPU copy, and a 4096 map's image would otherwise wait for the collector.
+            // (Image.LoadFromFile cannot read DDS at runtime in 4.7: error 15.)
+            using var image = new Image();
             if (image.LoadDdsFromBuffer(File.ReadAllBytes(path)) == Error.Ok && !image.IsEmpty())
             {
                 texture = ImageTexture.CreateFromImage(image);
-                CompressedBytes += image.GetData().Length;
+                CompressedBytes += image.GetDataSize();
             }
         }
         _loaded[name] = texture;

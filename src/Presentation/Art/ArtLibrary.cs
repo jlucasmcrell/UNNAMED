@@ -212,8 +212,10 @@ public sealed class ArtLibrary
             return null;
         }
         ulong started = Time.GetTicksUsec();
-        var document = new GltfDocument();
-        var state = new GltfState();
+        // Disposed on return: the state holds every decoded source image, which otherwise stays in memory until the .NET collector
+        // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way).
+        using var document = new GltfDocument();
+        using var state = new GltfState();
         var error = document.AppendFromFile(path, state);
         if (error != Error.Ok || document.GenerateScene(state) is not Node3D root)
         {
@@ -226,8 +228,12 @@ public sealed class ArtLibrary
         for (int i = 0; i < loaded.Count; i++)
         {
             if (loaded[i] is { } image)
+            {
                 images.TryAdd(image.GetInstanceId(), i);
+                image.Dispose();
+            }
         }
+        ((Godot.Collections.Array)loaded).Dispose();
         Filter(root, path, images);
         var packed = new PackedScene();
         error = packed.Pack(root);
@@ -277,6 +283,7 @@ public sealed class ArtLibrary
                         if (swapped.TryGetValue(texture.GetInstanceId(), out var shared))
                         {
                             material.SetTexture(param, shared);
+                            texture.Dispose();
                             continue;
                         }
                         if (!seen.Add(texture.GetInstanceId()))
@@ -287,6 +294,7 @@ public sealed class ArtLibrary
                         {
                             swapped[texture.GetInstanceId()] = cached;
                             material.SetTexture(param, cached);
+                            texture.Dispose();  // the uncompressed upload, now unreferenced
                             continue;
                         }
                         var image = texture.GetImage();

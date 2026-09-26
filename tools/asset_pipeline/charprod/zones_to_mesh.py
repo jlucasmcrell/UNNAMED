@@ -36,6 +36,12 @@ def main():
     mat = m["material"]
     labels = np.asarray(Image.open(a.labels))
     zones = json.load(open(a.zones))["zones"]
+    # A zone marked "fill" (the garment that is most of the figure: a long coat, a robe) takes every figure pixel no
+    # mask claimed.
+    fill = next((zi for zi, z in enumerate(zones, start=1) if z.get("fill")), 0)
+    if fill and a.mask:
+        figure0 = np.asarray(Image.open(a.mask).convert("L")) > 127
+        labels = np.where((labels == 0) & figure0, fill, labels)
     cen = P[F].mean(1)
     n = np.cross(P[F[:, 1]] - P[F[:, 0]], P[F[:, 2]] - P[F[:, 0]])
     n /= np.linalg.norm(n, axis=1, keepdims=True) + 1e-12

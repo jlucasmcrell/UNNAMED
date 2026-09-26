@@ -85,5 +85,10 @@
  "cut_below_chin": 0.035,
  "atlas": 4096,
  "lod_ratios": "0.3,0.09",
- "uv_margin": 0.0015
+ "uv_margin": 0.0015,
+ "phase_a": {
+  "triangles": 24538,
+  "visible": 4474,
+  "note": "the Phase-A shipped mesh (a different body: its sleeves fused), measured by the interior ray test"
+ }
 }

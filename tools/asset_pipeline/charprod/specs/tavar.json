@@ -1,0 +1,114 @@
+{
+ "id": "npc_orenth_guide_prod",
+ "body_concept": "_staging/charprod/tavar/concepts/npc_orenth_guide_bind2_s333.png",
+ "body_name": "npc_orenth_guide",
+ "height": 1.8,
+ "concept": "_staging/charprod/tavar/concepts/npc_orenth_guide_bind2_s333.png",
+ "work": "_staging/charprod/tavar",
+ "seed": 333,
+ "material_prefix": "MAT_tavar",
+ "zones": [
+  {
+   "name": "skin",
+   "prompts": [
+    "face",
+    "neck",
+    "ear"
+   ],
+   "material": "skin"
+  },
+  {
+   "name": "coat",
+   "prompts": [
+    "long leather trench coat",
+    "long coat",
+    "coat sleeve"
+   ],
+   "material": "leather",
+   "threshold": 0.25,
+   "max_box": 0.95,
+   "fill": true
+  },
+  {
+   "name": "shirt",
+   "prompts": [
+    "dark shirt",
+    "waistcoat"
+   ],
+   "material": "cloth",
+   "max_box": 0.2,
+   "threshold": 0.25
+  },
+  {
+   "name": "trousers",
+   "prompts": [
+    "trousers"
+   ],
+   "material": "cloth_heavy",
+   "threshold": 0.25
+  },
+  {
+   "name": "boots",
+   "prompts": [
+    "boots"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "gloves",
+   "prompts": [
+    "fingerless glove",
+    "hand"
+   ],
+   "material": "leather",
+   "max_box": 0.1
+  },
+  {
+   "name": "rope",
+   "prompts": [
+    "coiled rope"
+   ],
+   "material": "cloth_heavy",
+   "max_box": 0.15,
+   "wraps": false
+  },
+  {
+   "name": "straps",
+   "prompts": [
+    "leather strap",
+    "belt",
+    "pouch"
+   ],
+   "material": "leather",
+   "max_box": 0.3,
+   "wraps": false
+  },
+  {
+   "name": "brass",
+   "prompts": [
+    "buckle"
+   ],
+   "material": "metal",
+   "max_box": 0.05,
+   "wraps": false
+  },
+  {
+   "name": "hair",
+   "prompts": [
+    "messy brown hair"
+   ],
+   "material": "hair",
+   "max_box": 0.2
+  }
+ ],
+ "head_crop": 0.27,
+ "cut_below_chin": 0.035,
+ "atlas": 4096,
+ "lod_ratios": "0.3,0.09",
+ "uv_margin": 0.0015,
+ "phase_a": {
+  "triangles": 24607,
+  "visible": 7532,
+  "note": "the Phase-A shipped mesh (a different body: its sleeves fused), measured by the interior ray test"
+ }
+}

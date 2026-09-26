@@ -269,6 +269,21 @@ def main():
             continue
         doomed.add(fc)
         stack.extend(l.face for e in fc.edges for l in e.link_loops if l.face not in doomed)
+    # What of the old head's surface lies inside the new head (an old chin poking out below the plane, outside the
+    # cylinder) goes too: a face above the seam behind the new head's surface.
+    bvh_new = BVHTree.FromBMesh(hb)
+    inside = 0
+    for fc in bb.faces:
+        if fc in doomed:
+            continue
+        c = fc.calc_center_median()
+        if c.z <= z_cut:
+            continue
+        loc, nrm, _, dist = bvh_new.find_nearest(c, 0.06)
+        if loc is not None and (c - loc).dot(nrm) < 0:
+            doomed.add(fc)
+            inside += 1
+    report["body_faces_inside_new_head"] = inside
     doomed = list(doomed)
     report["body_faces_removed"] = len(doomed)
     bmesh.ops.delete(bb, geom=doomed, context="FACES")
