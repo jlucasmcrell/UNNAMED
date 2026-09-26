@@ -466,4 +466,28 @@ public class QuestTests
         // The journal never shows a branch not taken.
         Assert.Equal(new[] { ("o_start", ObjectiveStatus.Satisfied), ("o_right", ObjectiveStatus.Satisfied) }, Shown(arena, stalled.Id));
     }
+
+    /// <summary>
+    /// F4 (M7 design §2.18, §5.7.1): a reply gated by standing or by the act log is described in words - the faction's tier and points,
+    /// the act the log lacks - never by the condition's record.
+    /// </summary>
+    [Fact]
+    public void DescribeCondition_NamesStandingAndActDone()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var notes = Broken("quest.test.notes", "The Notes",
+            Objective("o_notes", "Hear Sel's notes.", new TalkTo("npc.ashen_hollow.sel_arien", "dialogue.ashen_hollow.sel_arien", ImmutableArray.Create("notes"))));
+        var armour = Broken("quest.test.armour", "The Armour",
+            Objective("o_armour", "Tell Kera of the armour.", new TalkTo(Kera, "dialogue.ashen_hollow.kera_voss", ImmutableArray.Create("armour_down"))));
+        var arena = At(session, AtKera, r => r.WithQuests(new[] { QuestRules.Start(notes, 0), QuestRules.Start(armour, 0) }), WithQuests(session, notes, armour));
+
+        var standing = Assert.Single(arena.Simulation.Diagnose(notes.Id).Waiting).SatisfiedBy;
+        Assert.Contains(standing, w => w == "'notes' is reached by Sel Arien's reply 'notes' at the line 'again' (dialogue.ashen_hollow.sel_arien): " +
+            "not offered now - needs the Survey at accepted or better; it is neutral (0)");
+        var act = Assert.Single(arena.Simulation.Diagnose(armour.Id).Waiting).SatisfiedBy;
+        Assert.Contains(act, w => w == "'armour_down' is reached by Kera Voss's reply 'armour' at the line 'again' (dialogue.ashen_hollow.kera_voss): " +
+            "not offered now - needs the character to have killed creature.construct.animated_armour; the act log holds none");
+        Assert.DoesNotContain(standing.Concat(act), w => w.Contains("Condition {", StringComparison.Ordinal));
+    }
 }

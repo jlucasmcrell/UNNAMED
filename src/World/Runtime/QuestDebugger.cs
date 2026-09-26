@@ -410,8 +410,24 @@ internal sealed class QuestDebugger
         QuestStateCondition q => $"needs {q.QuestId}{(q.ObjectiveId is { } o ? " " + o : "")} {(q.Negated ? "not " : "")}{q.State}",
         CompanionPresentCondition p => $"needs {p.NpcId} {(p.Negated ? "not " : "")}with the character" +
             (p.Order is { } order ? $", {Domain.Companions.CompanionKeys.Key(order)}ing" : ""),
+        ReputationCondition r => Standing(r),
+        ActDoneCondition a => $"needs the character to have {(a.Kind == Domain.Factions.ActKinds.SwitchSet ? "set" : "killed")} {a.Subject}; " +
+            $"the act log holds {(State.Factions.Acts.Any(x => x.Kind == a.Kind && x.Subject == a.Subject) ? "it" : "none")}",
         _ => condition.ToString(),
     };
+
+    /// <summary>A standing condition in words: "needs the Survey at accepted or better; it is neutral (0)".</summary>
+    private string Standing(ReputationCondition r)
+    {
+        var ladder = Setup.Factions.Ladder;
+        string Key(int level) => ladder.Tiers.First(t => t.Level == level).Key;
+        string name = Setup.Factions.Factions.TryGetValue(r.FactionId, out var faction) ? faction.Name : r.FactionId;
+        string range = r.MaxLevel >= ladder.Tiers[0].Level ? $"at {Key(r.MinLevel)} or better"
+            : r.MinLevel <= ladder.Tiers[^1].Level ? $"at {Key(r.MaxLevel)} or worse"
+            : $"from {Key(r.MinLevel)} to {Key(r.MaxLevel)}";
+        int points = State.StandingOf(r.FactionId);
+        return $"needs {name} {range}; it is {ladder.StandingTierOf(points).Key} ({points})";
+    }
 
     private string Recipe(RecipeDefinition recipe)
     {

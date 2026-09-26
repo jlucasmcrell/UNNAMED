@@ -265,6 +265,12 @@ public sealed class Simulation
     /// <summary>Navigation (M7): the grid, the gates and their state, the movers' routes and the work counts. Read-only.</summary>
     public NavigationView Navigation => _navigation.View();
 
+    /// <summary>Every faction as the character stands with it, in ordinal ID order (M7).</summary>
+    public ImmutableArray<FactionView> Factions => _factions.Views();
+
+    /// <summary>The character's act log, with what each faction knows of each act (M7).</summary>
+    public ImmutableArray<ActView> Acts => _factions.Acts();
+
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
@@ -420,6 +426,8 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
+        RecordAct act => _factions.Handle(act, Now),
+        ReportAct report => _factions.Handle(report, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

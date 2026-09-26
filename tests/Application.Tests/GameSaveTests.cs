@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World.Runtime;
@@ -133,6 +134,15 @@ public class GameSaveTests
         var kera = simulation.Npcs.Single(n => n.Id == "npc.ashen_hollow.kera_voss");
         Assert.Equal((site.XMm, site.ZMm), (kera.Body.XMm, kera.Body.ZMm));
         Assert.Equal(FactionLedger.Empty, simulation.CaptureRecord().Factions);
+        // E3: every faction neutral, nothing in the act log, Kera's billets withheld and Sel's notes not offered.
+        Assert.Equal(new[] { "faction.ashen_hollow.survey", "faction.ashen_hollow.waystation" }, simulation.Factions.Select(f => f.Id));
+        Assert.All(simulation.Factions, f => Assert.Equal((0, "neutral", 0), (f.Points, f.Tier, f.Level)));
+        Assert.Empty(simulation.Acts);
+        Assert.DoesNotContain(simulation.Wares("npc.ashen_hollow.kera_voss")!.Wares, w => w.ItemId == "item.material.iron_ingot");
+        var sel = session.Setup.Social.Dialogues["dialogue.ashen_hollow.sel_arien"];
+        var notes = sel.Nodes["again"].Choices.Single(c => c.Id == "notes");
+        Assert.False(Assert.Single(notes.Conditions) is ReputationCondition standing
+            && standing.MinLevel <= simulation.Factions.Single(f => f.Id == standing.FactionId).Level);
 
         var saved = JsonNode.Parse(File.ReadAllText(Path.Combine(Fixture("m6_acceptance"), "state_saved.json")))!;
         var tavar = Assert.Single(simulation.CaptureRecord().Companions);

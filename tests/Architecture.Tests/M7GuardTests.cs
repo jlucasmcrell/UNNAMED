@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using UNNAMED.Domain.Spatial;
 
@@ -117,8 +118,12 @@ public class M7GuardTests
     [Fact]
     public void M7Code_NamesItsComparers()
     {
-        var files = NavDomainFiles().Concat(Sources("src/World/Runtime").Where(f => f.Path.EndsWith("/Navigation.cs", StringComparison.Ordinal)))
-            .Concat(Sources("src/Content").Where(f => f.Path.EndsWith("/NavigationContent.cs", StringComparison.Ordinal))).ToList();
+        var files = NavDomainFiles()
+            .Concat(Sources("src/World/Runtime").Where(f => f.Path.EndsWith("/Navigation.cs", StringComparison.Ordinal) || f.Path.EndsWith("/Factions.cs", StringComparison.Ordinal)))
+            .Concat(Sources("src/Domain/Factions"))
+            .Concat(Sources("src/Content").Where(f => f.Path.EndsWith("/NavigationContent.cs", StringComparison.Ordinal)
+                || f.Path.EndsWith("/FactionContent.cs", StringComparison.Ordinal))).ToList();
+        Assert.Contains(files, f => f.Path == "src/Domain/Factions/Factions.cs");
         var construction = new Regex(@"ToImmutableSortedDictionary\(|ImmutableSortedDictionary\.Create|ToImmutableSortedSet\(|ImmutableSortedSet\.Create|new SortedDictionary<string|new SortedSet<string|SortedDictionary<string[^>]*>\s+\w+\s*=\s*new\(|SortedSet<string>\s+\w+\s*=\s*new\(");
         var offenders = new List<string>();
         foreach (var (path, lines) in files)
@@ -165,5 +170,167 @@ public class M7GuardTests
         var captured = Assert.Single(application);
         Assert.StartsWith("src/Application/GameSession.cs:", captured);
         Assert.Contains("CapturedAt", captured);
+    }
+
+    // ── factions (M7 design §5.8, §5.11; G2, G6) ──────────────────────────────────────────────────────────────
+
+    // G2
+    [Fact]
+    public void PresentationSource_NeverDerivesStanding()
+    {
+        var hits = Hits(Sources("src/Presentation"), new Regex(@"\bStandingLadder\b|\bStandingTierOf\b|\bFactionRules\b|\bStandingOf\b|\.Ladder\.")).ToList();
+        Assert.True(hits.Count == 0, "Presentation derives a standing tier:\n" + string.Join("\n", hits));
+    }
+
+    /// <summary>The files G6 holds to "no faction state": tactical, movement, building and quest code (the last two join as they land).</summary>
+    private static readonly string[] Tactical =
+    {
+        "src/World/Runtime/Combat.cs", "src/World/Runtime/Creatures.cs", "src/World/Runtime/Companions.cs", "src/World/Runtime/Magic.cs",
+        "src/World/Runtime/Errands.cs", "src/World/Runtime/Navigation.cs", "src/World/Runtime/Building.cs", "src/World/Runtime/BuildingRules.cs",
+        "src/World/Runtime/Quests.cs", "src/Domain/Quests/Quests.cs",
+    };
+
+    // G6: a reflection check, not a token grep - it never bans the bare TierOf, the simulation-tier helper.
+    [Fact]
+    public void TacticalCode_NeverReadsFactionState()
+    {
+        var declared = new Regex(@"\b(?:class|record|struct|enum|interface)\s+(?:struct\s+)?(\w+)");
+        var names = Tactical.Where(f => File.Exists(Path.Combine(Root(), f)))
+            .SelectMany(f => declared.Matches(File.ReadAllText(Path.Combine(Root(), f))).Select(m => (File: f, Name: m.Groups[1].Value)))
+            .ToList();
+        Assert.True(names.Count >= 40, $"only {names.Count} declarations found in the tactical files");
+        var world = typeof(UNNAMED.World.Runtime.Simulation).Assembly;
+        var domain = typeof(UNNAMED.Domain.Quests.QuestRules).Assembly;
+        var types = names.SelectMany(n => (n.File.StartsWith("src/Domain/", StringComparison.Ordinal) ? domain : world).GetTypes()
+                .Where(t => t.DeclaringType is null && t.Name.Split('`')[0] == n.Name && t.Namespace is "UNNAMED.World.Runtime" or "UNNAMED.Domain.Quests"))
+            .Distinct().SelectMany(WithNested).ToList();
+        Assert.Contains(types, t => t.Name == "CreatureSystem");
+
+        var offenders = new SortedSet<string>(StringComparer.Ordinal);
+        const BindingFlags All = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        foreach (var type in types)
+        {
+            foreach (var field in type.GetFields(All).Where(f => Banned(f.FieldType)))
+                offenders.Add($"{type.FullName}.{field.Name}: {field.FieldType.Name}");
+            foreach (var property in type.GetProperties(All).Where(p => Banned(p.PropertyType)))
+                offenders.Add($"{type.FullName}.{property.Name}: {property.PropertyType.Name}");
+            foreach (var method in type.GetMethods(All).Cast<MethodBase>().Concat(type.GetConstructors(All)))
+            {
+                if (method is MethodInfo info && Banned(info.ReturnType) || method.GetParameters().Any(p => Banned(p.ParameterType)))
+                    offenders.Add($"{type.FullName}.{method.Name}: its signature");
+                foreach (var member in Referenced(method))
+                {
+                    if (BannedMember(member))
+                        offenders.Add($"{type.FullName}.{method.Name} reads {member.DeclaringType?.Name}.{member.Name}");
+                }
+            }
+        }
+        Assert.True(offenders.Count == 0, "Tactical code reads faction state:\n" + string.Join("\n", offenders));
+    }
+
+    private static IEnumerable<Type> WithNested(Type type) =>
+        new[] { type }.Concat(type.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic).SelectMany(WithNested));
+
+    private static bool Banned(Type type)
+    {
+        if (type.IsArray || type.IsByRef || type.IsPointer)
+            return Banned(type.GetElementType()!);
+        return type.Namespace == "UNNAMED.Domain.Factions" || (type.IsGenericType && type.GetGenericArguments().Any(Banned));
+    }
+
+    private static bool BannedMember(MemberInfo member) =>
+        member switch
+        {
+            Type t => Banned(t),
+            FieldInfo f => Banned(f.FieldType) || f.DeclaringType is { } d && Banned(d),
+            MethodBase m => m.DeclaringType is { } d && Banned(d) || (m is MethodInfo i && Banned(i.ReturnType)) || m.GetParameters().Any(p => Banned(p.ParameterType))
+                || (m.DeclaringType?.Name, m.Name) is ("RuntimeState", "get_Factions") or ("RuntimeState", "StandingOf") or ("SimulationSetup", "get_Factions")
+                    or ("IDialogueFacts", "StandingLevel"),
+            _ => false,
+        };
+
+    /// <summary>Every field, method and type a method body names: the IL's metadata-token operands, resolved.</summary>
+    private static IEnumerable<MemberInfo> Referenced(MethodBase method)
+    {
+        byte[]? il;
+        try
+        {
+            il = method.GetMethodBody()?.GetILAsByteArray();
+        }
+        catch (Exception e) when (e is InvalidOperationException or NotSupportedException)
+        {
+            yield break;
+        }
+        if (il is null)
+            yield break;
+        var typeArgs = method.DeclaringType is { IsGenericType: true } d ? d.GetGenericArguments() : null;
+        var methodArgs = method.IsGenericMethod ? method.GetGenericArguments() : null;
+        for (int at = 0; at < il.Length;)
+        {
+            short value = il[at++];
+            if (value == 0xFE)
+                value = unchecked((short)(0xFE00 | il[at++]));
+            var code = OpCodesByValue[value];
+            switch (code.OperandType)
+            {
+                case OperandType.InlineField:
+                case OperandType.InlineMethod:
+                case OperandType.InlineType:
+                case OperandType.InlineTok:
+                    int token = BitConverter.ToInt32(il, at);
+                    MemberInfo? member = null;
+                    try
+                    {
+                        member = method.Module.ResolveMember(token, typeArgs, methodArgs);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                    if (member is not null)
+                        yield return member;
+                    at += 4;
+                    break;
+                case OperandType.InlineSwitch:
+                    at += 4 + 4 * BitConverter.ToInt32(il, at);
+                    break;
+                case OperandType.InlineI8:
+                case OperandType.InlineR:
+                    at += 8;
+                    break;
+                case OperandType.InlineNone:
+                    break;
+                case OperandType.ShortInlineBrTarget:
+                case OperandType.ShortInlineI:
+                case OperandType.ShortInlineVar:
+                    at += 1;
+                    break;
+                case OperandType.InlineVar:
+                    at += 2;
+                    break;
+                default:
+                    at += 4;
+                    break;
+            }
+        }
+    }
+
+    private static readonly Dictionary<short, System.Reflection.Emit.OpCode> OpCodesByValue =
+        typeof(System.Reflection.Emit.OpCodes).GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Select(f => (System.Reflection.Emit.OpCode)f.GetValue(null)!)
+            .ToDictionary(o => o.Value);
+
+    [Fact]
+    public void FactionSystem_ReadsNoSightNoBodiesAndNoFacing()
+    {
+        var factions = Sources("src/World/Runtime").Single(f => f.Path == "src/World/Runtime/Factions.cs");
+        var hits = Hits(new[] { factions }, new Regex(@"SightWalls|Perception|\.Body\b|FacingMdeg|State\.Npcs|State\.Conversation|Dispatch\(")).ToList();
+        Assert.True(hits.Count == 0, "FactionSystem reads sight, a body, a facing or a conversation, or dispatches:\n" + string.Join("\n", hits));
+
+        var authority = new[] { typeof(UNNAMED.World.Runtime.Simulation).Assembly, typeof(UNNAMED.Domain.Factions.FactionRules).Assembly };
+        var reserved = authority.SelectMany(a => a.GetTypes())
+            .SelectMany(t => new[] { t.Name }.Concat(t.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static
+                | BindingFlags.DeclaredOnly).Select(m => m.Name)))
+            .Where(n => n is "WitnessRules" or "BestWitness" or "IsSettled").ToList();
+        Assert.True(reserved.Count == 0, "The witnessed channel is M9: " + string.Join(", ", reserved));
     }
 }

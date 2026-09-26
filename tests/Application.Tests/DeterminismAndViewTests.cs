@@ -98,7 +98,11 @@ public class DeterminismAndViewTests
         var flags = Harness.Record<WorldFlagChanged>(session);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
+        var acts = Harness.Record<ActRecorded>(session);                // M7 (G5): the faction events too
+        var learned = Harness.Record<FactionLearned>(session);
+        var standing = Harness.Record<ReputationChanged>(session);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
+        session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
         PlayScript(session, seed: 11);
         var simulation = session.Simulation!;
@@ -123,6 +127,10 @@ public class DeterminismAndViewTests
         Assert.Equal(simulation.Player.Discoveries.Select(d => d.LocationId).Where(id => !knownAtStart.Contains(id)).Order(),
             discovered.Select(d => d.LocationId).Order());
         Assert.Equal(simulation.Player.Progression.LifetimeXp.Values.Sum() - xpAtStart, xp.Sum(e => e.Awarded));
+        // Acts, what was learned of them, and standing: one event per recorded act and per learning, and the points they add up to.
+        Assert.Equal(simulation.Acts.Select(a => a.Seq), acts.Select(e => e.Seq));
+        Assert.Equal(simulation.Acts.Sum(a => a.Known.Length), learned.Count);
+        Assert.All(simulation.Factions, f => Assert.Equal(f.Points, standing.Where(e => e.FactionId == f.Id).Sum(e => e.To - e.From)));
     }
 
     [Fact]
@@ -140,5 +148,42 @@ public class DeterminismAndViewTests
         session.Save(SaveSlots.Quick);
 
         Assert.Empty(anything);
+    }
+
+    /// <summary>
+    /// G27 (M7): a new game and a load publish no M7 event - here the faction events, from a save whose ledger holds acts, knowledge and
+    /// standing. A view must never mistake a rebuild for something that happened.
+    /// </summary>
+    [Fact]
+    public void ConstructionAndLoad_PublishNoM7Event()
+    {
+        using var profile = new TempProfile();
+        var writer = Harness.Boot(profile);
+        var anything = new List<object>();
+        writer.Subscribe<ActRecorded>(anything.Add);
+        writer.Subscribe<FactionLearned>(anything.Add);
+        writer.Subscribe<ReputationChanged>(anything.Add);
+        var simulation = writer.NewGame("Wanderer", seed: 42);
+        Assert.Empty(anything);
+
+        var act = new UNNAMED.Domain.Factions.ActRecord(1, UNNAMED.Domain.Factions.ActKinds.CreatureKilled, "creature.construct.animated_armour",
+            UNNAMED.World.CellKey.OfWorld(120, 63).ToString(), 120_000, 63_000, 10);
+        var ledger = new UNNAMED.Domain.Factions.FactionLedger(2, System.Collections.Immutable.ImmutableArray.Create(act),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionKnowledge("faction.ashen_hollow.waystation", 1,
+                UNNAMED.Domain.Factions.Identities.Identified, UNNAMED.Domain.Factions.KnowledgeSources.Reported, "npc.ashen_hollow.kera_voss", 12, 100)),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionStanding("faction.ashen_hollow.waystation", 100)));
+        new SaveStore(profile.Root).Save(SaveSlots.Manual("known"), SaveDocuments.Capture(simulation.World, simulation.CaptureRecord() with { Factions = ledger },
+            writer.Content, simulation.WorldTick, 0));
+
+        var reader = Harness.Boot(profile);
+        reader.Subscribe<ActRecorded>(anything.Add);
+        reader.Subscribe<FactionLearned>(anything.Add);
+        reader.Subscribe<ReputationChanged>(anything.Add);
+        reader.Load(SaveSlots.Manual("known"));
+        Harness.Ticks(reader, 20);
+
+        Assert.Empty(anything);
+        Assert.Equal(100, reader.Simulation!.Factions.Single(f => f.Id == "faction.ashen_hollow.waystation").Points);
+        Assert.Equal(0, writer.SubscriberFailures + reader.SubscriberFailures);
     }
 }

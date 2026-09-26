@@ -383,6 +383,9 @@ internal sealed class DialogueSystem : IDialogueFacts
             case OrderCompanionConsequence order:
                 _context.Dispatch(new OrderCompanion(open.NpcId, order.Order));
                 break;
+            case ReportActConsequence report:
+                _context.Dispatch(new ReportAct(report.Kind, report.Subject, open.NpcId));
+                break;
         }
     }
 
@@ -505,6 +508,8 @@ internal sealed class TradeSystem
             return $"{npc.Definition.Name} has no such ware";
         if (command.Count < 1 || command.Count > ware.Count)
             return $"{npc.Definition.Name} has {ware.Count} of it";
+        if (Withheld(npc, merchant, ware.DefId) is { } withheld)
+            return withheld;
         long price = AskFor(merchant, ware.DefId) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
@@ -539,9 +544,20 @@ internal sealed class TradeSystem
         if (!State.Npcs.TryGetValue(npcId, out var npc) || _context.WaresOf(npc) is not { } site || !Items.Merchants.TryGetValue(site.Key, out var merchant))
             return null;
         return new WaresView(npcId, merchant.Id, _contents(site).Items
+            .Where(i => Withheld(npc, merchant, i.DefId) is null)
             .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)))
             .ToImmutableArray());
     }
+
+    /// <summary>
+    /// The service gate (M7 design §5.7.2): a ware whose item has a gated stock row at this merchant is listed and sold only while the
+    /// character stands at the row's tier or above with its faction. Keyed by item, so an ingot sold to the trader is withheld too.
+    /// </summary>
+    private string? Withheld(NpcState npc, Merchant merchant, string itemId) =>
+        merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.Requires is { } gate
+        && _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(gate.FactionId)).Level < gate.MinLevel
+            ? $"{npc.Definition.Name} will not sell you that"
+            : null;
 
     /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock).</summary>
     private long AskFor(Merchant merchant, string itemId) =>

@@ -85,6 +85,7 @@ public static class FactionContent
             }
         }
 
+        var world = new World(loader);
         foreach (var faction in factions.Values)
         {
             string? file = factionEnvelopes[faction.Id].SourceFile;
@@ -93,15 +94,50 @@ public static class FactionContent
                 if (relation.FactionId == faction.Id || !factionEnvelopes.ContainsKey(relation.FactionId))
                     errors.Add(Error($"{faction.Id}: a relation names another existing faction, not '{relation.FactionId}'", file));
             }
-            foreach (string problem in SingleInstanceProblems(loader, faction))
+            foreach (string problem in SingleInstanceProblems(world, faction))
                 errors.Add(Error($"{faction.Id}: {problem}", file));
         }
 
-        foreach (string problem in MemberProblems(loader, factions))
+        foreach (string problem in MemberProblems(loader, world, factions))
             errors.Add(Error(problem, null));
-        foreach (string problem in DialogueAndMerchantProblems(loader, factions))
+        foreach (string problem in DialogueAndMerchantProblems(world, factions))
             errors.Add(Error(problem, null));
         return errors;
+    }
+
+    /// <summary>What FAC001 reads of the rest of the content, built once per validation: layouts, spawns, NPCs, dialogues, quests, merchants.</summary>
+    private sealed class World
+    {
+        public World(ContentLoader loader)
+        {
+            var regions = loader.GetByKind("region").Keys.OrderBy(r => r, StringComparer.Ordinal).ToList();
+            Layouts = regions.Select(r => Layout(loader, r)).OfType<RegionLayout>().ToList();
+            Spawns = regions.SelectMany(r => Spawns(loader, r)).ToList();
+            Npcs = Built(() => SocialContent.BuildNpcs(loader));
+            Dialogues = Built(() => SocialContent.BuildDialogues(loader));
+            Quests = Built(() => QuestContent.BuildQuests(loader));
+            Merchants = Built(() => ItemContent.BuildMerchants(loader));
+        }
+
+        public List<RegionLayout> Layouts { get; }
+        public List<SpawnSite> Spawns { get; }
+        public ImmutableSortedDictionary<string, NpcDefinition>? Npcs { get; }
+        public ImmutableSortedDictionary<string, DialogueDefinition>? Dialogues { get; }
+        public ImmutableSortedDictionary<string, QuestDefinition>? Quests { get; }
+        public ImmutableSortedDictionary<string, UNNAMED.Domain.Items.Merchant>? Merchants { get; }
+
+        /// <summary>A build, or null when it fails: the owning lint (SOC, QST, ITM) reports that.</summary>
+        private static T? Built<T>(Func<T> build) where T : class
+        {
+            try
+            {
+                return build();
+            }
+            catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>The factions as the running world uses them; <see cref="FactionSetup.Empty"/> when the pack has none.</summary>
@@ -220,14 +256,13 @@ public static class FactionContent
     /// FAC-R5: a reaction only to a single-instance act. A creature whose every spawner places it once (<c>respawn: none</c>), and a
     /// flag that some switch sets and no dialogue or quest reward writes: a repeatable subject would need a repeat rule (M9).
     /// </summary>
-    private static IEnumerable<string> SingleInstanceProblems(ContentLoader loader, FactionDefinition faction)
+    private static IEnumerable<string> SingleInstanceProblems(World world, FactionDefinition faction)
     {
-        var regions = loader.GetByKind("region").Keys.OrderBy(r => r, StringComparer.Ordinal).ToList();
         foreach (var reaction in faction.Reactions)
         {
             if (reaction.Kind == ActKinds.CreatureKilled)
             {
-                var respawning = regions.SelectMany(r => Spawns(loader, r))
+                var respawning = world.Spawns
                     .Where(s => s.RespawnTicks > 0 && s.Members.Any(m => m.CreatureId == reaction.Subject))
                     .Select(s => s.Key).ToList();
                 if (respawning.Count > 0)
@@ -236,41 +271,23 @@ public static class FactionContent
             }
             else if (reaction.Kind == ActKinds.SwitchSet)
             {
-                bool switched = regions.Select(r => Layout(loader, r)).Any(l => l is not null && l.Switches.Any(s => s.FlagId == reaction.Subject));
+                bool switched = world.Layouts.Any(l => l.Switches.Any(s => s.FlagId == reaction.Subject));
                 if (!switched)
                     yield return $"a reaction to setting {reaction.Subject} needs a switch that sets it";
-                if (FlagWriters(loader, reaction.Subject).FirstOrDefault() is { } writer)
+                if (FlagWriters(world, reaction.Subject).FirstOrDefault() is { } writer)
                     yield return $"a reaction to setting {reaction.Subject} needs a flag only its switch sets; {writer} writes it too";
             }
         }
     }
 
-    private static IEnumerable<string> FlagWriters(ContentLoader loader, string flagId)
+    private static IEnumerable<string> FlagWriters(World world, string flagId)
     {
-        ImmutableSortedDictionary<string, DialogueDefinition>? dialogues = null;
-        ImmutableSortedDictionary<string, QuestDefinition>? quests = null;
-        try
-        {
-            dialogues = SocialContent.BuildDialogues(loader);
-        }
-        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
-        {
-            // SOC reports it.
-        }
-        try
-        {
-            quests = QuestContent.BuildQuests(loader);
-        }
-        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
-        {
-            // QST reports it.
-        }
-        foreach (var dialogue in dialogues?.Values ?? Enumerable.Empty<DialogueDefinition>())
+        foreach (var dialogue in world.Dialogues?.Values ?? Enumerable.Empty<DialogueDefinition>())
         {
             if (dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<SetWorldFlagConsequence>().Any(f => f.FlagId == flagId))
                 yield return dialogue.Id;
         }
-        foreach (var quest in quests?.Values ?? Enumerable.Empty<QuestDefinition>())
+        foreach (var quest in world.Quests?.Values ?? Enumerable.Empty<QuestDefinition>())
         {
             if (quest.Rewards.OfType<WorldFlagReward>().Any(r => r.FlagId == flagId))
                 yield return quest.Id;
@@ -280,10 +297,9 @@ public static class FactionContent
     // ── members ─────────────────────────────────────────────────────────────────
 
     /// <summary>FAC-M1 and FAC-M2: a member stands inside their faction's seat, in every region that places them, and never travels with the character.</summary>
-    private static IEnumerable<string> MemberProblems(ContentLoader loader, IReadOnlyDictionary<string, FactionDefinition> factions)
+    private static IEnumerable<string> MemberProblems(ContentLoader loader, World world, IReadOnlyDictionary<string, FactionDefinition> factions)
     {
-        var layouts = loader.GetByKind("region").Keys.OrderBy(r => r, StringComparer.Ordinal)
-            .Select(r => Layout(loader, r)).OfType<RegionLayout>().ToList();
+        var layouts = world.Layouts;
         foreach (var npc in loader.GetByKind("npc").Values.OrderBy(n => n.Id, StringComparer.Ordinal))
         {
             var map = Read(npc.YamlSource);
@@ -321,19 +337,10 @@ public static class FactionContent
 
     // ── dialogue and merchants (R1, R3, R4, R5) ─────────────────────────────────
 
-    private static IEnumerable<string> DialogueAndMerchantProblems(ContentLoader loader, IReadOnlyDictionary<string, FactionDefinition> factions)
+    private static IEnumerable<string> DialogueAndMerchantProblems(World world, IReadOnlyDictionary<string, FactionDefinition> factions)
     {
-        ImmutableSortedDictionary<string, NpcDefinition> npcs;
-        ImmutableSortedDictionary<string, DialogueDefinition> dialogues;
-        try
-        {
-            npcs = SocialContent.BuildNpcs(loader);
-            dialogues = SocialContent.BuildDialogues(loader);
-        }
-        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
-        {
+        if (world.Npcs is not { } npcs || world.Dialogues is not { } dialogues)
             yield break;   // SOC reports it
-        }
 
         foreach (var dialogue in dialogues.Values)
         {
@@ -362,15 +369,8 @@ public static class FactionContent
             }
         }
 
-        ImmutableSortedDictionary<string, UNNAMED.Domain.Items.Merchant> merchants;
-        try
-        {
-            merchants = ItemContent.BuildMerchants(loader);
-        }
-        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
-        {
+        if (world.Merchants is not { } merchants)
             yield break;   // ITM reports it
-        }
         foreach (var merchant in merchants.Values)
         {
             var traders = npcs.Values.Where(n => n.MerchantId == merchant.Id).ToList();

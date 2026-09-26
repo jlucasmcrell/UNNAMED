@@ -304,6 +304,7 @@ internal sealed class InteractionSystem
             return site.LockedText;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
             return refused;
+        _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.SwitchSet, site.FlagId, body.XMm, body.ZMm));
         _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }

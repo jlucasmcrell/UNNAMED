@@ -722,7 +722,10 @@ internal sealed class CreatureSystem
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
         if (killer == _player)
+        {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
+            _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.CreatureKilled, c.Definition.Id, _context.State.Body.XMm, _context.State.Body.ZMm));
+        }
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {
