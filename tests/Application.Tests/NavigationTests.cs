@@ -92,6 +92,9 @@ public class NavigationTests
         }
         double buildMs = builds.Order().ElementAt(builds.Count / 2);
         Assert.True(buildMs < 60, $"a full build took {buildMs:F2} ms (CI bound 60 ms; ASTRAL target 20 ms)");
+        // Memory (§14.2): the tiles, two one-byte layers of 160,000 nodes each, counted exactly.
+        long tileBytes = grid.Tiles.Sum(t => (long)t.SolidFit.Length + t.ClosedFit.Length);
+        _output.WriteLine($"memory: {grid.Tiles.Length} tiles, {tileBytes:N0} B ({tileBytes / 1_048_576.0:F2} MiB)");
 
         // Every ordered pair of authored protected points no more than 88 m apart on either axis, planned for a person with every gate
         // passable, as the placement check's graph is (§3.13). Diagnostic coverage (the owner's ruling of 2026-09-25): every pair is found
@@ -166,7 +169,10 @@ public class NavigationTests
         foreach (var (def, x, z, r) in new[] { ("piece.pad.timber", 100_500L, 97_500L, 0), ("piece.wall.timber", 99_000L, 97_500L, 1),
                      ("piece.wall.timber", 102_000L, 97_500L, 1), ("piece.pad.timber", 103_500L, 97_500L, 0) })
             Assert.Null(BuildingTests.Place(arena, def, x, z, r));
+        long previewAllocated = GC.GetAllocatedBytesForCurrentThread();
         arena.Simulation.PreviewPlacement("piece.wall.timber", 103_500, 96_000, 0, checkNavigability: true);   // the scratch's first use, and the JIT
+        _output.WriteLine($"memory: the preview scratch's first use (a flood to the seal limit): {GC.GetAllocatedBytesForCurrentThread() - previewAllocated:N0} B allocated " +
+            "(the scratch's window arrays and queue, and the preview's own result)");
         var checks = new List<double>();
         foreach (var (x, z, verdict) in new[] { (103_500L, 96_000L, NavVerdict.Proven), (100_500L, 96_000L, NavVerdict.Refused) })
         {
@@ -192,10 +198,13 @@ public class NavigationTests
                      ("piece.storage.chest", 103_500L, 103_500L, 0) })
             Assert.Null(BuildingTests.Place(workshop, def, x, z, r));
         NavPoint site = new(61_600, 139_600), anchor = new(100_750, 103_500);
+        long planScratch = 0;
         (NavPlan Plan, double Ms) Timed(NavPoint from, NavPoint to)
         {
             var q = new NavQuery(workshop.Simulation.Navigation.Grid, EveryGatePassable, config, new NavScratch(), null);
-            NavSearch.Plan(q, Person, from, to);   // the scratch's first use
+            long allocated = GC.GetAllocatedBytesForCurrentThread();
+            NavSearch.Plan(q, Person, from, to);   // the scratch's first use: its arrays, sized to this plan's window and heap
+            planScratch = Math.Max(planScratch, GC.GetAllocatedBytesForCurrentThread() - allocated);
             var runs = new List<(NavPlan Plan, double Ms)>();
             for (int n = 0; n < 5; n++)
             {
@@ -216,6 +225,8 @@ public class NavigationTests
             Assert.Null(BuildingTests.Place(workshop, def, x, z, r));
         var (after, afterMs) = Timed(anchor, site);
         routes.Add(("the bench -> Kera's place, the wall on x = 96", after, afterMs));
+        _output.WriteLine($"memory: a planning scratch's first use, the largest of Kera's workshop routes: {planScratch:N0} B allocated " +
+            "(the scratch's arrays, and the plan's own result)");
         foreach (var (label, plan, ms) in routes)
         {
             _output.WriteLine($"Kera's route {label}: {plan.Outcome}, {plan.Expansions} expansions, {plan.Corners.Length} corners, median {ms:F3} ms");
