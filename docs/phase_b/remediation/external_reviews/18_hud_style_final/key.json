@@ -1,0 +1,15 @@
+{
+  "name": "hud_style_rem4",
+  "seed": 3771284298,
+  "labels": {
+    "A": {
+      "candidate": "candidate_style",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\remediation\\hud_shots\\rem4_compare\\grid_production.jpg"
+    },
+    "B": {
+      "candidate": "classic",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\remediation\\hud_shots\\rem4_compare\\grid_classic.jpg"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

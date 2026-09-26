@@ -64,6 +64,10 @@ public sealed class Showcase
         new("run_side_view", 4.0, (s, _) => s.Go(Gait.Run), CameraTurn: 90, Pitch: -0.12f, Distance: 3.2f),
         new("stop_side_view", 2.0, (s, _) => s.Hold(), CameraTurn: 90, Pitch: -0.12f, Distance: 3.2f),
         new("run_jump", 3.0, (s, t) => { s.Go(Gait.Run); if (s.Once(t, 1.0)) s._controller.Jump(); }),
+        new("stand_jump", 2.5, (s, t) => { s.Hold(); if (s.Once(t, 0.5)) s._controller.Jump(); }),
+        new("crouch", 2.0, (s, t) => { s.Hold(); if (s.Once(t, 0.1)) s._controller.Crouch(true); }),
+        new("crouch_walk", 3.5, (s, _) => s.Go(Gait.Walk)),
+        new("stand", 2.0, (s, t) => { s.Hold(); if (s.Once(t, 0.1)) s._controller.Crouch(false); }),
         new("stop_end", 2.5, (s, _) => s.Hold()),
     };
 
@@ -84,10 +88,12 @@ public sealed class Showcase
         new("settle", 2.0, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.18f, Distance: 3.6f),
         new("impulse_bolt", 4.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.force.impulse_bolt"); }, CameraTurn: 120, Pitch: -0.15f, Distance: 3.6f),
         new("brace_ward", 6.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.warding.brace_ward"); }, CameraTurn: 150, Pitch: -0.18f, Distance: 3.6f),
-        new("mending_thread", 7.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.vital.mending_thread"); }, CameraTurn: 150, Pitch: -0.18f, Distance: 3.6f),
-        new("mending_close", 4.0, (s, _) => s.Hold(), CameraTurn: 170, Pitch: -0.05f, Distance: 1.8f),
-        new("mending_high", 4.0, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.75f, Distance: 3.8f),
-        new("walk_mending", 4.0, (s, _) => s.Go(Gait.Walk), CameraTurn: 30),
+        // The mending lasts 6 s from its active phase: its close, high and walking views all fall inside it (the owner's cut-off report
+        // was at close range and at a steep pitch).
+        new("mending_thread", 2.6, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.vital.mending_thread"); }, CameraTurn: 150, Pitch: -0.18f, Distance: 3.6f),
+        new("mending_close", 1.8, (s, _) => s.Hold(), CameraTurn: 170, Pitch: -0.05f, Distance: 1.8f),
+        new("mending_high", 1.8, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.75f, Distance: 3.8f),
+        new("walk_mending", 2.5, (s, _) => s.Go(Gait.Walk), CameraTurn: 30),
         new("end", 2.0, (s, _) => s.Hold()),
     };
 

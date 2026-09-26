@@ -81,6 +81,10 @@ public partial class Main : Node3D
     private (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private Vector3 _lastFeet;
     private double _lastAlpha;
+    private float _drawnSpeed;
+    private double _drawnAlpha;
+    private StreamWriter? _stateLog;
+    private double _stateClock;
 
     public override void _Ready()
     {
@@ -888,16 +892,44 @@ public partial class Main : Node3D
         return true;
     }
 
+    /// <summary>
+    /// The per-frame state log (--state-log FILE, any mode, normal play included): the frame, the tick fraction, the player's stride
+    /// speed, clip state and combat phase, and every drawn NPC's speed and clip state - the evidence that ordinary play selects a
+    /// state (the acceptance contract's G4), not that a clip merely loaded.
+    /// </summary>
+    private void LogStates(Simulation simulation, double delta, float speed)
+    {
+        if (!_options.TryGetValue("--state-log", out var path))
+            return;
+        if (_stateLog is null)
+        {
+            _stateLog = new StreamWriter(Path.GetFullPath(path), append: false) { AutoFlush = true };
+            _stateLog.WriteLine("t_s,frame_s,alpha,player_speed,player_state,player_phase,cam_dist,cam_pitch,fov,effects,npcs");
+        }
+        _stateClock += delta;
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        string npcs = string.Join(";", _npcs.States().Select(n => $"{n.Id}={n.Speed.ToString("0.00", inv)}:{n.State}"));
+        _stateLog.WriteLine(string.Join(",", _stateClock.ToString("0.000", inv), delta.ToString("0.0000", inv), _drawnAlpha.ToString("0.00", inv),
+            speed.ToString("0.00", inv), _avatar.ClipState ?? "-", simulation.Combat.Phase, _camera.EffectiveDistance.ToString("0.00", inv),
+            _camera.Pitch.ToString("0.00", inv), _camera.Camera.Fov.ToString("0", inv), string.Join("|", simulation.Combat.Effects.Select(e => e.EffectId)), npcs));
+    }
+
     private void Draw(double alpha, double delta)
     {
         var predicted = _controller.Predict(alpha);
         var feet = HollowView.ToGodot(predicted.XMm, predicted.YMm, predicted.ZMm);
-        float speed = delta > 0 ? new Vector2(feet.X - _lastFeet.X, feet.Z - _lastFeet.Z).Length() / (float)delta : 0;
-        // A tick boundary snaps the prediction back to zero progress; speed across it would read as a stumble.
-        if (alpha < _lastAlpha)
-            speed = _controller.Intent.IsMoving ? (float)_session.Setup.Movement.SpeedMmPerSecond(_controller.Intent.Gait) / 1000f : 0;
+        // The stride's speed: the predicted body's movement this frame, eased. A tick boundary snaps the prediction back to zero
+        // progress - that frame's movement is not a speed, so the eased value holds (it used to take the intended gait's speed,
+        // which ran a blocked body on those frames: the Codex audit, H04).
+        if (delta > 0 && alpha >= _lastAlpha)
+        {
+            float moved = new Vector2(feet.X - _lastFeet.X, feet.Z - _lastFeet.Z).Length() / (float)delta;
+            _drawnSpeed = Mathf.Lerp(_drawnSpeed, Math.Min(moved, 8f), 1f - Mathf.Exp(-(float)delta / 0.08f));
+        }
+        float speed = _drawnSpeed;
         _lastFeet = feet;
         _lastAlpha = alpha;
+        _drawnAlpha = alpha;
 
         var simulation = _session.Simulation!;
         var combat = simulation.Combat;
@@ -905,7 +937,7 @@ public partial class Main : Node3D
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
-        _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), Math.Min(speed, 8f), delta);
+        _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
         _camera.Crouch = _avatar.Crouch;
         _creatures.Draw(simulation, alpha, delta);
         _magicEffects.Draw(_avatar, combat.Casting, combat.Phase, combat.Effects.Select(e => e.EffectId),
@@ -914,7 +946,8 @@ public partial class Main : Node3D
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
             _inventory.OpenContainer, _inventory.Visible || _journal.Visible || _character.Visible || _help.Visible, delta);
         _crafting.Refresh(simulation.Nodes);
-        _npcs.Draw(simulation, delta);
+        _npcs.Draw(simulation, delta, _session.TickSeconds);
+        LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
@@ -1506,7 +1539,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene"
+                    or "--showcase" or "--showcase-scene" or "--state-log"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

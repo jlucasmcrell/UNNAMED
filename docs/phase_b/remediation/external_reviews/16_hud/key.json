@@ -1,0 +1,15 @@
+{
+  "name": "hud_rem1",
+  "seed": 3415243215,
+  "labels": {
+    "A": {
+      "candidate": "production",
+      "source": "<session scratchpad>/hud_production.png"
+    },
+    "B": {
+      "candidate": "classic",
+      "source": "<session scratchpad>/hud_classic.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

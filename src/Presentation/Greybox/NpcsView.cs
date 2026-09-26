@@ -15,7 +15,9 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class NpcsView : Node3D
 {
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, Vector3> _last = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, GaitSpeed> _gaits = new(StringComparer.Ordinal);
+    private FoldEcho? _echo;
+    private bool _echoTried;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
 
@@ -35,7 +37,11 @@ public partial class NpcsView : Node3D
     private readonly Dictionary<string, LookAtModifier3D> _looks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<LookAtModifier3D>> _eyes = new(StringComparer.Ordinal);
 
-    public void Draw(Simulation simulation, double delta)
+    /// <summary>Each drawn NPC's stride speed and clip state this frame (the state log, --state-log).</summary>
+    public IEnumerable<(string Id, float Speed, string? State)> States() =>
+        _figures.Select(f => (f.Key, _gaits.TryGetValue(f.Key, out var g) ? g.Speed : 0f, f.Value.ClipState));
+
+    public void Draw(Simulation simulation, double delta, double tickSeconds)
     {
         if (PlayerHead.GetParent() is null)
             AddChild(PlayerHead);
@@ -68,13 +74,34 @@ public partial class NpcsView : Node3D
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
             if (figure is Art.SkinnedFigure skinned)
                 skinned.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);
-            var feet = HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm);
-            // How fast the body is going, for the stride: its drawn position between ticks is not predicted, only followed.
-            float speed = delta > 0 && _last.TryGetValue(npc.Id, out var was) ? new Vector2(feet.X - was.X, feet.Z - was.Z).Length() / (float)delta : 0;
-            _last[npc.Id] = feet;
+            // How fast the body is going, for the stride, and where to draw it between the simulation's steps (GaitSpeed, H04).
+            if (!_gaits.TryGetValue(npc.Id, out var gait))
+                _gaits[npc.Id] = gait = new GaitSpeed();
+            var feet = gait.Sample(HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm), delta, tickSeconds);
+            float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetTalking(npc.Talking);
-            figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), Math.Min(speed, 8f), delta);
+            figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
+            if (npc.Id == FoldEcho.Held && figure is Art.SkinnedFigure && VisualOptions.BodyModifiers)
+            {
+                // Held by the fold: the restrained doubling and delayed shadow while its barrier stands (M03).
+                if (!_echoTried)
+                {
+                    _echoTried = true;
+                    var echo = new FoldEcho { Name = "FoldEcho" };
+                    if (echo.Build(_art, _bindings))
+                    {
+                        AddChild(echo);
+                        _echo = echo;
+                    }
+                    else
+                    {
+                        echo.QueueFree();
+                    }
+                }
+                bool standing = simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
+                _echo?.Draw(standing, figure, feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
+            }
             if (_looks.TryGetValue(npc.Id, out var head))
             {
                 // Within 6 m (and not downed) the head follows the player; further off it eases back to the clip's.

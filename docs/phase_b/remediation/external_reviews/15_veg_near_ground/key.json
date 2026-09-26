@@ -1,0 +1,15 @@
+{
+  "name": "veg_near_ground_rem1",
+  "seed": 21894202,
+  "labels": {
+    "A": {
+      "candidate": "baseline",
+      "source": "<session scratchpad>/veg_baseline.png"
+    },
+    "B": {
+      "candidate": "blades",
+      "source": "<session scratchpad>/veg_blades.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

@@ -41,6 +41,8 @@ public sealed partial class SkinnedFigure : Figure
 
     public override float Crouch => _crouch;
 
+    public override string? ClipState => _model.Current;
+
     /// <summary>The bound person's skinned figure (<c>player</c> or an NPC's ID), or null when the bindings or the asset lack it.</summary>
     public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId)
     {
@@ -198,6 +200,16 @@ public sealed partial class SkinnedFigure : Figure
     private string _gait = "walk";
     private bool _wasAirborne;
     private double _landing;
+    private double _airTime;
+
+    /// <summary>How long the take-off clip plays before the airborne loop: the simulation's rise is 0.42 s (config.base_speeds).</summary>
+    private const double TakeOff = 0.35;
+
+    /// <summary>
+    /// The playback-rate range for a gait clip: wide enough that a clip reaches the body's speed (the simulation's speeds are
+    /// authoritative; a walk clip measured at 0.79 m/s plays at 2x for the 1.6 m/s walk) - past it the feet would slide.
+    /// </summary>
+    private const float MinRate = 0.6f, MaxRate = 2.2f;
 
     /// <summary>The attack clip for a weapon's action: its numbered variants in turn (<c>sword_attack_1</c>, <c>_2</c>...), else the one clip.</summary>
     private string NextAttack(string action)
@@ -273,11 +285,16 @@ public sealed partial class SkinnedFigure : Figure
                 return;
             }
         }
-        // In the air: the airborne loop; on landing, the landing played once (walking or running on cuts it short).
+        // In the air: the take-off played through its first part, then the airborne loop; on landing, the landing played once
+        // (walking or running on cuts it short).
         if (_airborne && m.Has("fall"))
         {
+            _airTime = _wasAirborne ? _airTime + delta : 0;
             _wasAirborne = true;
-            m.Play("fall", 0.15f);
+            if (_airTime < TakeOff && m.Has("jump_start"))
+                m.Play("jump_start", 0.08f, 1f, _airTime == 0);
+            else
+                m.Play("fall", 0.15f);
             return;
         }
         if (_wasAirborne)
@@ -315,7 +332,7 @@ public sealed partial class SkinnedFigure : Figure
         if (_crouched && m.Has("crouch_idle"))
         {
             if (speed > 0.25f && m.Has("crouch_walk"))
-                m.Play("crouch_walk", 0.25f, Mathf.Clamp(speed / Pace("crouch_walk", 1.6f), 0.6f, 1.6f));
+                m.Play("crouch_walk", 0.25f, Mathf.Clamp(speed / Pace("crouch_walk", 1.6f), MinRate, MaxRate));
             else
                 m.Play("crouch_idle", 0.3f);
             return;
@@ -336,7 +353,7 @@ public sealed partial class SkinnedFigure : Figure
             if (!m.Has(_gait))
                 _gait = "walk";
             float pace = Pace(_gait, _gait switch { "sprint" => 5f, "run" => 3.2f, _ => 1.4f });
-            m.Play(_gait, 0.2f, Mathf.Clamp(speed / pace, 0.6f, 1.6f));
+            m.Play(_gait, 0.2f, Mathf.Clamp(speed / pace, MinRate, MaxRate));
             return;
         }
         _gait = "walk";

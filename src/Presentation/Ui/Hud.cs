@@ -51,6 +51,18 @@ public partial class Hud : CanvasLayer
     private double _deathUntil;
     private double _clock;
 
+    // The production HUD's look (visual option hud=production): the Phase B remediation's visual proof, a candidate STYLE only. It
+    // shows exactly what the classic HUD shows - the same status text, pools, formulas, effects, log, tracker and prompts - restyled
+    // and re-spaced: the status text's first line as a name plate (with its XP as a thin bar), its other lines small and muted in a
+    // dark panel; slim framed pool bars; the formulas in framed slots. What is shown, and when, belongs to the
+    // Player Journey design's HUD architecture (FE-2), not to this style.
+    private readonly bool _production = VisualOptions.ProductionHud;
+    private readonly PanelContainer _plate = new();
+    private readonly Label _plateName = Text(20);
+    private readonly Label _plateDetail = Text(14);
+    private readonly ProgressBar _xp = Bar(new Color(0.78f, 0.66f, 0.38f));
+    private readonly Label[] _poolNumbers = { Text(13), Text(13), Text(13), Text(13) };
+
     public override void _Ready()
     {
         _status.Position = new Vector2(24, 20);
@@ -141,10 +153,110 @@ public partial class Hud : CanvasLayer
         _death.AddChild(_deathText);
         _death.Visible = false;
         AddChild(_death);
+        if (_production)
+            Production(vitals);
+    }
+
+    /// <summary>The production layout (see the fields): restyles and moves the classic controls; the same data feeds both.</summary>
+    private void Production(VBoxContainer vitals)
+    {
+        _status.Visible = false;
+        _plate.Position = new Vector2(24, 18);
+        _plate.AddThemeStyleboxOverride("panel", Panel());
+        var plate = new VBoxContainer();
+        plate.AddThemeConstantOverride("separation", 3);
+        _plateName.AddThemeColorOverride("font_color", new Color(0.93f, 0.9f, 0.82f));
+        _plateDetail.AddThemeColorOverride("font_color", new Color(0.76f, 0.73f, 0.66f));
+        _plateDetail.AddThemeConstantOverride("outline_size", 2);
+        Frame(_xp, new Color(0.78f, 0.66f, 0.38f), new Vector2(240, 4));
+        plate.AddChild(_plateName);
+        plate.AddChild(_xp);
+        plate.AddChild(_plateDetail);
+        _plate.AddChild(plate);
+        AddChild(_plate);
+        // The companion line under the plate.
+        if (_companionIcon.GetParent() is Control companions)
+            companions.Position = new Vector2(28, 132);
+        _companions.AddThemeFontSizeOverride("font_size", 15);
+
+        // The pools: slim framed bars with their numbers small at the right end.
+        vitals.AddThemeConstantOverride("separation", 5);
+        var sizes = new[] { new Vector2(280, 11), new Vector2(280, 7), new Vector2(280, 7), new Vector2(280, 5) };
+        var fills = new[] { new Color(0.72f, 0.18f, 0.15f), new Color(0.8f, 0.66f, 0.26f), new Color(0.3f, 0.5f, 0.86f), new Color(0.55f, 0.32f, 0.72f) };
+        var bars = new[] { _health, _stamina, _focus, _strain };
+        for (int i = 0; i < bars.Length; i++)
+        {
+            Frame(bars[i], fills[i], sizes[i]);
+            var row = (HBoxContainer)bars[i].GetParent();
+            row.AddThemeConstantOverride("separation", 6);
+            _poolNumbers[i].AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f, 0.85f));
+            _poolNumbers[i].AddThemeConstantOverride("outline_size", 3);
+            row.AddChild(_poolNumbers[i]);
+        }
+        foreach (var icon in _poolIcons.Values)
+            icon.CustomMinimumSize = new Vector2(16, 16);
+        _effects.AddThemeFontSizeOverride("font_size", 14);
+
+        // The formulas keep their place above the pools: framed slots (SetMagic), their text a size down.
+        _magic.AddThemeFontSizeOverride("font_size", 14);
+        _magic.AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f));
+        _formulaIcons.AddThemeConstantOverride("separation", 6);
+
+        // The prompt, log and tracker a size down in the same warm grey; the prompt and log on soft dark bands (no frame) so they read
+        // over busy ground, the log's band only as tall as its lines.
+        _prompt.AddThemeFontSizeOverride("font_size", 20);
+        _prompt.AddThemeStyleboxOverride("normal", Band(new[] { 0f, 0.5f, 1f }, new[] { 0f, 0.55f, 0f }));
+        _prompt.Visible = _prompt.Text.Length > 0;
+        _log.AddThemeFontSizeOverride("font_size", 14);
+        _log.AddThemeColorOverride("font_color", new Color(0.86f, 0.84f, 0.78f));
+        _log.AddThemeStyleboxOverride("normal", Band(new[] { 0f, 0.6f, 1f }, new[] { 0f, 0.32f, 0.5f }));
+        _log.GrowVertical = Control.GrowDirection.Begin;
+        _log.OffsetTop = _log.OffsetBottom - 8;
+        _log.Modulate = new Color(1, 1, 1, 0.85f);
+        _tracker.AddThemeFontSizeOverride("font_size", 15);
+        _tracker.AddThemeColorOverride("font_color", new Color(0.9f, 0.87f, 0.78f));
+        _targetName.AddThemeColorOverride("font_color", new Color(0.93f, 0.9f, 0.82f));
+        Frame(_target, new Color(0.7f, 0.2f, 0.18f), new Vector2(320, 8));
+        _death.AddThemeStyleboxOverride("panel", Panel());
+    }
+
+    /// <summary>A soft dark band behind floating text: a horizontal gradient of the panel colour at the given alphas.</summary>
+    private static StyleBoxTexture Band(float[] offsets, float[] alphas)
+    {
+        var colors = new Color[alphas.Length];
+        for (int i = 0; i < alphas.Length; i++)
+            colors[i] = new Color(0.03f, 0.035f, 0.04f, alphas[i]);
+        var gradient = new Gradient { Offsets = offsets, Colors = colors };
+        return new StyleBoxTexture
+        {
+            Texture = new GradientTexture2D { Gradient = gradient, Width = 256, Height = 2 },
+            ContentMarginLeft = 14, ContentMarginRight = 12, ContentMarginTop = 4, ContentMarginBottom = 4,
+        };
+    }
+
+    /// <summary>The production style's panel: dark, translucent, a thin warm rule, no ornament.</summary>
+    private static StyleBoxFlat Panel() => new()
+    {
+        BgColor = new Color(0.04f, 0.045f, 0.05f, 0.55f),
+        BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.28f), BorderWidthLeft = 2,
+        ContentMarginLeft = 10, ContentMarginRight = 12, ContentMarginTop = 6, ContentMarginBottom = 8,
+    };
+
+    /// <summary>A pool bar in the production style: slim, a dark translucent track with a thin frame.</summary>
+    private static void Frame(ProgressBar bar, Color fill, Vector2 size)
+    {
+        bar.CustomMinimumSize = size;
+        bar.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = fill, CornerRadiusTopLeft = 1, CornerRadiusBottomLeft = 1,
+            CornerRadiusTopRight = 1, CornerRadiusBottomRight = 1 });
+        bar.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color(0.05f, 0.05f, 0.06f, 0.6f),
+            BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.35f), BorderWidthTop = 1, BorderWidthBottom = 1, BorderWidthLeft = 1, BorderWidthRight = 1,
+            ShadowColor = new Color(0, 0, 0, 0.35f), ShadowSize = 2 });
     }
 
     public void SetVitals(int health, int maxHealth, int stamina, int maxStamina)
     {
+        _poolNumbers[0].Text = $"{health}";
+        _poolNumbers[1].Text = $"{stamina}";
         _health.MaxValue = maxHealth;
         _health.Value = health;
         _stamina.MaxValue = maxStamina;
@@ -155,6 +267,8 @@ public partial class Hud : CanvasLayer
     /// <summary>Focus, and Strain against its tolerance: past three-quarters the bar turns red, and the next working may cost health.</summary>
     public void SetMagicPools(int focus, int maxFocus, int strain, int tolerance, bool strained)
     {
+        _poolNumbers[2].Text = $"{focus}";
+        _poolNumbers[3].Text = strained ? $"{strain} strained" : $"{strain}";
         _focus.MaxValue = Math.Max(1, maxFocus);
         _focus.Value = focus;
         _strain.MaxValue = Math.Max(1, tolerance);
@@ -189,8 +303,23 @@ public partial class Hud : CanvasLayer
         {
             if (_icons.For(formulas[i]) is null)
                 continue;
-            var tile = _icons.Tile(formulas[i], 40);
-            tile.AddChild(new Label { Text = $"{i + 4}", Position = new Vector2(2, 20) });
+            var tile = _icons.Tile(formulas[i], _production ? 46 : 40);
+            var key = new Label { Text = $"{i + 4}", Position = _production ? new Vector2(3, 1) : new Vector2(2, 20) };
+            if (_production)
+            {
+                key.AddThemeFontSizeOverride("font_size", 13);
+                key.AddThemeColorOverride("font_outline_color", Colors.Black);
+                key.AddThemeConstantOverride("outline_size", 3);
+                var slot = new PanelContainer();
+                slot.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(0.04f, 0.04f, 0.05f, 0.62f),
+                    BorderColor = new Color(0.85f, 0.8f, 0.68f, 0.45f), BorderWidthTop = 1, BorderWidthBottom = 1, BorderWidthLeft = 1,
+                    BorderWidthRight = 1, ContentMarginLeft = 3, ContentMarginRight = 3, ContentMarginTop = 3, ContentMarginBottom = 3 });
+                tile.AddChild(key);
+                slot.AddChild(tile);
+                _formulaIcons.AddChild(slot);
+                continue;
+            }
+            tile.AddChild(key);
             _formulaIcons.AddChild(tile);
         }
     }
@@ -239,9 +368,30 @@ public partial class Hud : CanvasLayer
         set => _debug.Visible = value;
     }
 
-    public void SetStatus(string text) => _status.Text = text;
+    public void SetStatus(string text)
+    {
+        _status.Text = text;
+        if (!_production)
+            return;
+        // The same text, laid out: its first line is the plate's title (its XP a/b drawn as the thin bar as well), the rest below it.
+        string[] lines = text.Split('\n', 2);
+        _plateName.Text = lines[0];
+        _plateDetail.Text = lines.Length > 1 ? lines[1] : string.Empty;
+        var xp = System.Text.RegularExpressions.Regex.Match(lines[0], @"XP (\d+)/(\d+)");
+        _xp.Visible = xp.Success;
+        if (xp.Success)
+        {
+            _xp.MaxValue = Math.Max(1, double.Parse(xp.Groups[2].Value));
+            _xp.Value = double.Parse(xp.Groups[1].Value);
+        }
+    }
 
-    public void SetPrompt(string? text) => _prompt.Text = text ?? string.Empty;
+    public void SetPrompt(string? text)
+    {
+        _prompt.Text = text ?? string.Empty;
+        if (_production)
+            _prompt.Visible = _prompt.Text.Length > 0; // its band would otherwise show with no words on it
+    }
 
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
 

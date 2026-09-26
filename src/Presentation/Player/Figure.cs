@@ -34,6 +34,9 @@ public abstract partial class Figure : Node3D
     /// <summary>Downed (a companion). False when this figure cannot show it itself (the greybox is laid down by its owner).</summary>
     public virtual bool SetDowned(bool downed) => false;
 
+    /// <summary>The clip state being drawn (a skinned body's), for the state log; null for a figure without clips.</summary>
+    public virtual string? ClipState => null;
+
     /// <summary>What is in the hand, by its item definition ID, or nothing.</summary>
     public virtual void Hold(string? itemDefId)
     {

@@ -1,0 +1,15 @@
+{
+  "name": "anim_locomotion_rem1",
+  "seed": 3877103370,
+  "labels": {
+    "A": {
+      "candidate": "baseline",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\remediation\\showcase\\small\\baseline_locomotion.mp4"
+    },
+    "B": {
+      "candidate": "rem1",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\remediation\\showcase\\small\\rem1_locomotion.mp4"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}
