@@ -2,18 +2,122 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** E9 done (2026-09-26). E10 stopped at T2 (S9), ruled (option (b)); stopped again on two Release numbers against §14.11, see
-"STOP - E10.1 (second), the Release budget sheet". The owner ruled on the second E8.5 STOP:
-- **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
-- **The save lane** runs background saves on a thread of the session's own (`682c449`).
-
-See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10 remains. Every STOP so far was resolved by an owner ruling, recorded below.
+**State:** E0-E10 done (2026-09-26). M7 is complete on its branch and awaits the owner's integration decision: nothing is merged, no tag
+is made, and M8 is not begun. The closeout below takes the M6 form; the slice records, the STOPs and their rulings follow it.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
 **Entry:**
 - M6 complete, and Phase 1 closed and merged at `a696931` (`docs/PHASE1_TECHNICAL_CLOSEOUT.md`).
 - ROADMAP's entry criterion "NPCs and companions path reliably" is met inside M7, by E1 (the grid and planner) and E4 (companion routes). That is recorded here, not claimed before it is true.
+
+## Closeout (E10)
+
+### The parts
+
+- **Navigation (E1, E4, E7; D-13).** A derived, integer, headless domain grid: one 250 mm lattice on global indices, a tile per 100 m
+  cell, restamped per footprint change and never saved; an optimal A* with a window and an expansion cap; the placement check that refuses
+  an un-navigable configuration. The companion plans routes through doors.
+- **Factions and reputation (E3).** The Waystation and the Survey, an act log, report-only knowledge, standing with its ladder, gating
+  (Kera's billets, Sel's notes), and the same act moving two factions in opposite directions.
+- **Building (E5-E8; D-08, D-14).** Pads, walls, doorways, roofs, piece doors, a chest and the anvil bench, one storey, snapped in quarter
+  turns on a 3 m lattice; damage by melee blows, mending, destruction and spill; ownership; derived identities.
+- **Assigning an NPC to work in it (E9).** Kera Voss works at the player's bench: she walks there, in and round a workshop that straddles a
+  cell seam, lands exactly on its work anchor, and walks home when let go.
+- **Persistence.** Schema 15 (the faction ledger, companion routes, pieces, the structure sequence, errands), and by the owner's rulings
+  schema 16 (the character's vitals) and 17 (a creature's attack in progress); a single-writer save lane.
+- **Evidence and budgets (E10).** N-A8, T2 and the final N-A10; `FrameStats`' `sim_ms`, `ticks` and `save_ms`; the ASTRAL perf trial
+  with the `building` segment; lever 3 and the capture's allocation fix (the owner's ruling).
+
+### Exit criteria, one by one (design §11)
+
+| # | Criterion | Evidence | Result |
+|---|---|---|---|
+| 1 | The rulings and the reconciliation are written | the E0 checklist (below) passes line by line; the owner's sign-off given in advance; Q1-Q5 approved (2026-09-25) | met |
+| 2 | No Godot navigation in the authority; integer-only, derived, never saved | `OnlyPresentation_MayReferenceGodot`, N-X1, G3, G4, N-A7 | met |
+| 3 | The grid is a pure function of content and the piece set | N-D11, N-A9, N-A7, G10, `Building_RoundTripsThroughSave_AndNavigationDerivesIdentically`; lever 3 (E10) compared byte-equal and plan-equal through five edit states | met |
+| 4 | The navmesh updates on placement, as reconciled | `EachFootprintChange_SendsExactlyOneRebuild_AndPadsAndRoofsSendNone`, G1, N-A3, N-D5, beats b04-b06; T2: 94 rebuilds for the 94 pieces with parts of 256 | met |
+| 5 | Seams are not in the data | N-D9 (a)-(e), N-D10, N-W1 | met |
+| 6 | Movers replan after edits and take the changed way | N-D7, N-D8, N-A3, N-A4, N-A12, `CrossingWorkshop_9_ANewWallChangesHerWayHome` | met |
+| 7 | Companions path reliably | C16 and every other `CompanionTests` case unmodified but the E4 route assertion; N-A11 and N-A12 with 0 catch-ups; the playthrough's `follow` beat with 0 "caught up" rows | met |
+| 8 | Build a structure | step 1: 19 pieces, 31 timber, IDs derived 1-19, sequence 19; `CrossingWorkshop_1to3`, `_4and8`, `_0and11`, b07 | met |
+| 9 | One storey | `MovementRules_GainsNoMembers`, BLD003, `EachPiece_Places_WithItsExactSpendEventsViewAndId` | met |
+| 10 | Socket/snap in quarter turns, 0 mm tolerance | the lattice, quarter-turn, socket and snapper tests; placement rules 3, 4, 7 and 8 | met |
+| 11 | Overlapping configurations are refused | `EachPlacementRule_RefusesWithItsReason_AndLeavesTheDigest`, `CrossingWorkshop_1to3` (R09), `_9` (R41) | met |
+| 12 | Un-navigable configurations are refused | N-D19, N-D20, N-A13 (a)-(c), `ADoorlessOneSquareHut_IsRefused`, `CrossingWorkshop_7` ("that would cut Kera Voss's work place off"), `Preview_EqualsTheCommand_OverFortyPoses`, `PreviewsInterleaved_ChangeNothing` | met |
+| 13 | Assign an NPC to work in it | `Assign_RefusesInOrder`, `Release_RefusesInOrder`, `TakingDownTheBench_SendsTheWorkerHome`, `CrossingWorkshop_5to6` (R18) | met |
+| 14 | In, through, around, straddling | `CrossingWorkshop_5to6`: L 80,366 mm, arrival 1,011 ticks after `WorkerAssigned` (bound 1,296), both doors opened by her, z = 100 m crossed once `c_01_00` → `c_01_01` in the doorway, never out again, ≤ 81 mm a tick, clear every tick within the step's millimetre rounding (the deepest contact 0.483 mm; the under-1 mm allowance accepted by the owner, E10 ruling); home exactly at (61 600, 139 600) facing 300 000; `Kera_WalksToTheBench_ArrivesExactly_AndHomeAgain`; b11-b13, b20; the seam recording | met, with the accepted allowance |
+| 15 | Save/load keeps every piece with its owner and health | `T01_M7State_RoundTripsEveryField_ByteStable`, the v15 fixture's M7 block, `Building_RoundTripsThroughSave_…`, `TwoHundredPieces_RoundTripAndStayNavigable`, `CrossingWorkshop_10` (sequence 31, 0 differences), verify v1 and v2 | met |
+| 16 | Damage and repair work and are explicit | `DamageRules_OnlyAMeleeBlow_DamagesAPiece` and the destruction, spill and repair tests; `CrossingWorkshop_4and8` (170/200 mended for 1 timber) | met |
+| 17 | Ownership gates, never damage or standing | `ForeignPieces_AreNotYoursToTouch` (with the bench's assign and release, E9), G6, G13 | met |
+| 18 | Storage and one crafting station as placeables | the piece-chest identity tests, `AChestWithItems_CannotBeTakenDown`, `APieceAnvil_Crafts_UntilTakenDown`, `CrossingWorkshop_4and8` | met |
+| 19 | A sparse world delta and one schema step | schema 15 as designed; schemas 16 and 17 added by the owner's rulings on the two E8.5 STOPs, each within an existing section (no section file added, `SaveFormat.Current` unchanged); fixtures v15-v17 committed; all 17 fixtures migrate through the commit path; every older `expected.json` diff reviewed; pieces and errands proven by their host cells | met, as amended by the rulings |
+| 20 | The committed M6 acceptance save loads into M7 | `TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand`: migrated 12 → 17 through the definition pass, complete, nothing built, every faction neutral, no errand | met |
+| 21 | Deterministic replay | N-A8 `APlacementSession_ReplaysToTheSameState` (E10), `CrossingWorkshop_0and11`, `FactionActs_ReplayFromTheCommandLog_EndIdentical`, `PreviewsInterleaved_ChangeNothing`, G20, G28; two runs each of `--playthrough` and `--build-shots` byte-identical | met |
+| 22 | The same act moves two factions in opposite directions | `docs/M7_REPUTATION_TABLE.md` equals the build; `ReputationTableTests`, `TheSameKnownAct_MovesTwoFactionsInOppositeDirections` | met |
+| 23 | No magically global information | the report-only tests and `FactionSystem_ReadsNoSightNoBodiesAndNoFacing` | met |
+| 24 | The layers stay separate | the separation tests, G6, `TheLadder_HasNoHostilityTier` | met |
+| 25 | Gating derived from standing | Sel's notes, Kera's billets, `KeraAtWork_TradesAtTheBench_AndHerWaresStayHome`, the M7 playthrough beats | met |
+| 26 | Faction definitions pass FAC001 | the FAC001 test set, `LoadAll_Loads_Yaml_Files` | met |
+| 27 | Reputation never converts into power | the axis-independence tests, `NoContent_TradesCurrencyForStanding` | met |
+| 28 | No core action needs a radial; reasons in words | `EveryM7Action_IsBoundToADirectKey` (Y `work_order` included), b03's F1 still, the run assertion | met |
+| 29 | Presentation observes and submits | the public-surface and presentation guards; `Prediction_EqualsAuthority_AcrossANewWall` | met |
+| 30 | Identity | G8 `M7SystemsMintNoWallClockIds`, `EntityIdDerived_IsStable_AndOrdersLikeItsOrdinal` | met |
+| 31 | No networking; no architecture test weakened | the command queue the only mutation path; the allow-lists as §12.10 permits them (E9's unlisted `get_NpcErrands` removed at E10: the getter is internal); G29 | met |
+| 32 | A playable build | the final runtime checks (below) | met |
+| 33 | Budgets | "Budgets on ASTRAL" (below) | met |
+| 34 | Scope held | the `NotBuilt` objective and reward kinds unchanged; the forbidden-code grep returns nothing; no optional instrument built; the scope ledger (below) | met |
+| 35 | A new game builds from the world | `ANewGame_TakesTimber_BuildsAPadAndAWall_AndLoadsEqual`; the playthrough's `m7_build` beat | met |
+| 36 | Every mover and the ledger continue identically after a save | N-A6 for both movers, G18, G21, G22, the faction save test, `CrossingWorkshop_10`, verify v2 and v3 | met |
+| 37 | Owner process and evidence recorded | "Owner process" (below); `docs/acceptance/m7/` and `docs/acceptance/m7_build/` | met |
+
+### Budgets on ASTRAL (Release; §3.18 and §14), and what each measures
+
+Criterion 33's lines, all met (3 runs of N-A10, 8 of T2):
+
+| Line | Measured | Target |
+|---|---|---|
+| Full build | 0.99-1.03 ms | < 20 ms |
+| One piece's rebuild | 0.05-0.06 ms median | < 2 ms |
+| `CheckEdit` | median 0.32-0.36 ms, worst 0.77-0.86 ms | 2 ms and 10 ms |
+| Kera's three routes | 3.9-4.0, 6.5-6.6 and 6.6-6.9 ms at 22,685, 40,751 and 40,639 expansions | ≤ 15 ms, STOP > 20 ms, ≤ 43,690 expansions |
+| Authored pairs | all `Found`, mean 1.02-1.04 ms, about 230 ns an expansion | mean < 2 ms |
+| T2's timed tick | mean 0.53-0.61 ms, p95 0.69-0.80 ms, one gen-2 collection in the 400 ticks (the final three runs) | mean ≤ 2 ms |
+| Memory | tiles 1,280,000 B (1.22 MiB); a planning scratch's first use 2,463,872 B; the preview scratch's first flood 1,045,136 B | ≈ 12.5 MB computed ceiling |
+
+The budget sheet's other lines, as the owner's E10 ruling measures them:
+- **The placement.** The cold first use: the session's first ghost ask that runs the navigability check, 14.5-16.0 ms (the hitch
+  line is 33 ms); each piece kind's first commit, the bench's the costliest at 8.9-11.1 ms (its second and third commits 1.06-1.22 ms).
+  The committed placement on the player's path: all 256, p50 0.42-0.43 ms, p95 0.86-0.98 ms, max 8.9-11.1 ms, 11.1 ms once in 8 runs,
+  the cold first bench; the 249 ordinary commits max 1.6-8.8 ms, none over 10 ms.
+- **The save.** The synchronous capture (the frame's work): steady p99 0.20-0.35 ms over 99 captures (target 1 ms), the cold first
+  0.40-0.53 ms. The encode (the save lane's): p50 0.17-0.21 ms, p95 0.22-0.31 ms, p99 0.39-0.62 ms, max 1.9-2.3 ms. End to end
+  through the store, 20 saves: p50 11.0-11.8 ms, p95 12.1-17.1 ms, max 13.1-19.5 ms (not a frame budget).
+- **The edit tick**, the movers replanning: 1.8-2.0 ms (target 6 ms). **The preview**, checks 1-14: 0.002 ms mean (target 0.05 ms).
+- **The planning-tick overrun.** The tick that plans Kera's walk home when she is let go runs 7.02 ms median in play (6.66-8.00), one plan
+  over the 4 ms world-system budget, and an `off_line` replan at the workshop's door can repeat it once. Accepted residue (§14.3); the
+  per-tick plan budget stays unbuilt unless RAZER measures a hitch.
+
+The ASTRAL perf trial (`--perf --perf-route extended`, 1920x1080, vsync off, RTX 5090; the raw capture outside the repository in
+`G:\UNNAMED_HISTORY\M7_EVIDENCE\e10_perf_astral\`): the `building` segment holds the design's four frame pass lines, 1% low 143.3 fps
+(line 60), frame p99 5.38 ms (16.7), `sim_ms` p99 over tick frames 0.29 ms (4), no hitch over 33 ms (the worst frame 26.6 ms); the most
+ticks in one frame 1. Its placements show 3.3-4.5 ms frames around each commit, 13.3 ms after the first doorway, and 8.8 and 13.8 ms
+around Kera's walk-home plans. The script's own synchronous save (capture, encode and write together, not the player's path) took
+17.2 ms. The route reports the character struck once (a clean capture is 0). The other segments' hitches are Phase-1's recorded
+first-use hitches, not M7's (R17). M7's RAZER capture of the segment is owed, when the owner has a window.
+
+### Owner process (criterion 37)
+
+- Authorization 2026-09-25; the branch convention of "Implementation record" (below); Q1-Q5 approved 2026-09-25.
+- Dialogue tone: the drafted Kera and Sel lines ship as written (owner, 2026-09-25); E9 adds only system reasons and HUD lines.
+- The feel test: schedulable, not an M7 blocker. The Phase-A RAZER window: done, measured and accepted (2026-09-25); the M7 `building`
+  capture on RAZER: owed.
+- `piece:*` art coverage: reported, never allowlisted (7 of 7 piece entries fall back to greybox).
+- R-1: not waived; the owner tags the merge `m7`. The agent creates no tag.
+- The SaveTool limit (L-01, unfixed since Phase 1): `save:migrate --dry-run` reports some real saves as blocked that the game loads, so
+  it is a convenience, never the check of record.
+- The stored health of pads and roofs: no M7 rule reaches it (only melee blows damage a piece, and they never land on a pad or a roof),
+  so it stays at its maximum; it is saved like any piece's.
 
 ## Implementation record
 
@@ -58,6 +162,7 @@ See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10
 | E2.4 STOP (S9/S10): the M6 save's step count | Option (a). The schema-12 save traverses four schema versions and executes three migrations: `Steps.Count == 3`, in order `schema 12 -> 13:`, `schema 13 -> 14:`, `schema 14 -> 15:`, asserted exactly. §7.14's "the fourth of four" was a counting error, corrected to "the third of three". M7 still has exactly one new migration, `SchemaV14ToV15`; no other step, and no save-format change beyond schema 15, is authorized | 2026-09-25 |
 | E3 STOP (S5): `m7_armour` | Option (a): tune the runtime beat only - a mending stop, and an approach to the sentinel's rear using movement the authoritative perception rules treat as quiet. Nothing about the sentinel, combat, the character, content, factions or the encounter changes; no teleport, disabled hearing, paused AI or forced awareness. Pre-authorized fallback to option (b) if one reasonable tuned version still dies, or if the rules make an undetected rear approach impossible. The Phase-1 async-save flake stays a recorded local risk, not an E3 edit | 2026-09-26 |
 | E8.5 second STOP (S9): a creature's attack in progress; the AsyncSave finding | Option (a): persist the minimum authoritative state that continues an ordinary creature attack in progress deterministically, as schema 16 -> 17 (schema 16's meaning and bytes unchanged; older saves migrate as "no attack in progress", a documented limitation). Trace the actual attack path; no animation, VFX, audio, presentation timers or runtime objects; the character's own transient actions stay excluded unless a separate equality failure proves otherwise. PERSISTENCE.md distinguishes transient state (not persisted) from authoritative state whose omission changes deterministic continuation (persisted when the owning system requires it), not broadened beyond this case in M7. A restored attack whose target cannot validly be restored follows an explicit, tested load rule. `CrossingWorkshop_10` passes unchanged: no moved save, removed wolf, weaker equality, "nothing attacking" precondition, altered timing or combat reset on load. AsyncSave: an isolated single-writer lane (one long-lived worker, not a thread per save, no parallel writers), with ordering, atomic writes, profile locking, queue semantics, shutdown, and error propagation kept; the 5 s test budget kept and proven under the parallel suite; if it still fails, STOP with measurements. Then finish E8.5, E9 and E10; no M8, merge or tag | 2026-09-26 |
+| E10.1 second STOP: the placement drain's maximum and the save's p99 | Lever 3: navigation storage in blocks, so an edit stops copying large objects (no save-format, navigation-result, pathfinding or capacity change; no weaker T2 load, disabled GC, forced collection, delay or excluded ordinary sample). The cold first use (the first ghost ask that runs the navigability check) is recorded apart and held under 33 ms; the committed placement, on the player's real path (ghost ask, then commit), is held to ≤ 10 ms worst under the E10 protocol. The 1 ms frame budget applies to the synchronous capture only; the encode (the save lane's) and end-to-end latency are recorded, not charged to the frame; the cold first capture recorded apart. One bounded investigation of the capture's avoidable allocation if it still missed. Continue E10 when these hold; the original distributions and the ruling preserved | 2026-09-26 |
 | E10.1 STOP (S9): T2's setup | Option (b), a fixture and scenario correction, not a gameplay rule change: the character resumes at (84, 110) and the edit takes down the west wall at (87, 106.5), the tested setup. T2 keeps every check: Tavar's planned route (his catch-up beyond 30 m is not route planning), the teardown, no unintended death; follower, creature and combat rules unchanged. The E9 criterion-14 allowance (under 1 mm, the step's millimetre rounding) is accepted and not to be increased. Then the Release measurements by E10's protocol, without optimising against Debug numbers; a Release miss of an authored target is a STOP with the target, the distribution, the scenario, gate or budget, the likely cause and the smallest correction; no target relaxed silently. Then complete E10; no merge, tag or M8 | 2026-09-26 |
 | E8.5 STOP (S9, S2): the character's regeneration clocks | Option (a): correct persistence of the player's regeneration continuation state, by a versioned schema change and migration (a narrow exception to the E2.4 restriction). Not to be hidden: no moving the save out of combat, removing the wolf, a resting precondition, a weaker equality assertion or a changed workshop sequence. Trace the whole pool-continuation state; save what continuation needs, not the whole runtime object; keep the rates and cooldowns; keep the documented policy for attacks and actions in progress separate, and if it conflicts with an equality guarantee, name the case and state the contract honestly. Schema 16, deterministic defaults for older saves (historical timing cannot be reconstructed), fixtures byte-for-byte, the new fixture by the procedure, migration counts reconciled with their order kept. First a focused regression showing the failure. Investigate the AsyncSave failure honestly. Then finish E8.5 through E10; do not stop at the fix; no M8. Coordinate with Claude 1 (the Ashen Hollow visual demo, `G:\UNNAMED_PHASEB`, not to be modified) and Codex B/C (review and QA tooling; no competing graphical captures, no killing another task's process) | 2026-09-26 |
 | E5.2 STOP (S1): BLD006 | Option (b). BLD006's "iff" is amended: `config.building` is required when any piece or build area exists; when present it is validated in full, even in a pack with nothing to build, and a valid inert one is allowed. The converse is not required. `ProgressionContentTests.ACopyOfTheGameConfig_Lints` is not edited (§2.18, §12.10). §4.20 amended; no other building rule changes. Tests prove the three cases | 2026-09-26 |
@@ -76,7 +181,7 @@ See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
 | E8 | Chest, bench, blows and mending | done | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane), `a8f2ce1` (schema 17, the owner's second ruling), `d362069` (E8.5), and this status | 1,071 at `d362069`, all passing in a clean worktree: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9), resolved by the owner (option (a), schema 17, and the save lane). See "E8 evidence" |
 | E9 | Kera works at your bench | done | `c3ddefe` (E9.1), `6f7565c` (E9.2), `6b84ad7` (E9.3), `1fe89dc` (E9.4), and this status | 1,091 at `1fe89dc`, all passing in a clean worktree: Domain 186, Application 320, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 (E9.2 alone: 1,087; E9.3: 1,091) | 116 | No STOP. The criterion-14 local risk fired as foreseen, at 0.483 mm, and was handled as E5's chase test handles it (below). See "E9 evidence" |
-| E10 | Evidence and closeout | stopped | T2 as ruled and N-A10's memory lines, with this status | 1,092, all passing: Domain 186, Application 321, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E10.1 (S9), resolved by the owner (option (b)); stopped again on the placement drain's maximum and the save's p99 in Release. See "STOP - E10.1 (second), the Release budget sheet" |
+| E10 | Evidence and closeout | done | `752791b` (T2 as ruled), `5906d8d` (lever 3), `dc3e32e` (the capture), `07df8bf` (T2's measures), N-A8, `f1e7594` (`FrameStats`), `b505deb` (the S1 correction), and the documents and evidence | 1,093, all passing: Domain 186, Application 322, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E10.1 (S9), resolved (option (b)); stopped again on two Release budget-sheet numbers, resolved (lever 3; the save's frame budget on the capture). See "E10 record" |
 
 ## E0 checklist
 
@@ -345,6 +450,38 @@ The owner chose option (b) and amended BLD006.
   3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
+
+## E10 record (2026-09-26, ASTRAL)
+
+**The owner's ruling on the second STOP** is in "Owner decisions". Its measurement definitions are also in RISK_REGISTER RK-02. The
+distributions the STOP reported are kept unchanged below it.
+
+**Lever 3** (`5906d8d`). A tile's two layers are held in 16,384-byte blocks, and an edit copies only the blocks its rectangle touches,
+sharing the rest. The grid digest and every plan were compared before and after through five states (a new game, step one, the door,
+bench and chest, a wall taken down, the full area): identical, route for route. Effect in T2's build: gen-2 collections 7-9 → 1; the
+ordinary walls' 14-18 ms overlaps are gone.
+
+**The capture** (`dc3e32e`). One bounded investigation, as the ruling allows. A capture of the full area allocated 406,680 B: every
+piece's and creature's record rehashed its cell's whole baseline. Now each cell's digest is hashed once a snapshot, and a capture
+allocates 43,256 B. The digests, and so the saved bytes, are unchanged. The steady capture's p99 went from 2.1-2.8 ms to 0.20-0.35 ms.
+
+**The protocol** (`07df8bf`). T2's placements follow the player's path, the ghost's ask at the pose and then the commit, timed apart. The
+session's first ask that runs the navigability check is the cold first use; each kind's first commit is logged beside the ordinary
+commits, and all 256 commits count in the distribution. Saves are the synchronous capture (its cold first apart), the encode, and end to
+end through the store. The results are in "Budgets on ASTRAL" above.
+
+**N-A8** `APlacementSession_ReplaysToTheSameState`: steps 1-9 replayed from the log (2,415 commands to tick 3,401) equal in the grid,
+every route (8), the movers, the (tick, rejected) pairs, the navigation counters (9 plans, 17 edit checks, 19 rebuilds) and 1,535 dumped
+fields; the raw digest equal over step 1.
+
+**`FrameStats`** (`f1e7594`): `sim_ms` (the wall time of `GameSession.Frame`), `ticks`, and `save_ms` (the synchronous capture only), after
+the nine columns; each segment's summary adds `sim_ms` over all frames and tick frames, the most ticks in a frame, the save frames and
+the largest `save_ms`. The spike scene records an empty probe.
+
+**The S1 correction** (`b505deb`). E9 made `WorldDelta.NpcErrands` public and added it to `WorldDelta_ExposesNoPublicMutation`'s read
+list. That is a Phase-1 test edit §12.10 does not list, found while writing criterion 31. The getter is internal now (its readers are all
+in the World assembly), and the test is as E2 left it. An audit of every Phase-1 test file changed since `a696931` finds no other edit
+outside §12.10.
 
 ## STOP - E10.1 (second), the Release budget sheet (2026-09-26)
 
@@ -924,6 +1061,11 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E9 | `ForeignPieces_…`, F-E6 | The pad is named by its place, now that a second pad carries the bench; F-E6 walks to R30's spot before storing, as the chest is beyond reach from (102, 102) |
 | E9 | The seam recording | The whole build-shots run is recorded (b11-b13 are cut from it by tick); each beat carries its F2 stage, b11-b13 the navigation stage |
 | E9 | `WorkshopRun.EveryTick` | Beside `EachTick` (the ticks the runner frames, and one after a pose), which `CrossingWorkshop_1to3` counts, a hook on every tick, pose walks included, for criterion 14 |
+| E10 | T2's setup | The owner's ruling: the character resumes at (84.0, 110.0) facing 90 and the edit takes down the west wall at (87000, 106500) r1. `Assert.Empty` on `PlayerDied` over the timed window guards against the unintended death |
+| E10 | T2's measures | The owner's second ruling: the ghost's ask before each commit, as `BuildMode.BuildFrame` asks it; the cold first use and each kind's first commit logged apart; the save's capture, encode and end to end apart. Logged, not asserted, as §14.12.3's CI rule has every time but the tick mean; the cold first use is asserted under 33 ms |
+| E10 | N-A8's home | `NavigationTests`, per the design. It opens `WorkshopRun`, `Replay` and `ItemIds` from `BuildingAcceptanceTests` as internal |
+| E10 | Memory | Measured, not the design's arithmetic: the tiles from their layers; a scratch by the bytes its first use allocates (its arrays sized to the actual window, and the plan's or preview's own result) |
+| E10 | The perf segment's save | `PerfActivities`' building segment keeps E5's synchronous `Save` (capture, encode and write), which `save_ms` does not see; its time is in the capture's notes |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
