@@ -1,13 +1,14 @@
 """One clean locomotion cycle out of a CMU mocap trial (the rancidmilk FBX conversion), as a GLB the retarget factory can read.
 
 CMU trials are long takes with the travel baked into the hip. This finds the gait period from the legs' and arms' rotations (the
-lag at which the pose best repeats), takes the steadiest single cycle in the middle of the take, and moves the straight-line travel
-off the hip onto the armature object (the retarget map's source root, "cmu_root") so --root inplace removes the travel while the
-hips keep their bob, sway and turn. Exported: the armature and its one action, named "Cycle".
+lag at which the pose best repeats), takes the steadiest single cycle in the middle of the take, and takes the travel off the hip
+along its averaged path (the hips keep their bob, sway and surge): baked in place over the rest hip, facing the rest facing, from
+frame 0. Exported: the armature (named "cmu_root", the retarget map's source root, at rest) and its one action, named "Cycle".
 
     blender -b --python cmu_cycle.py -- --fbx 35_01.fbx --out walk_35_01.glb [--min 0.5] [--max 1.6]
 """
 import json
+import math
 import sys
 
 import bpy
@@ -75,55 +76,96 @@ for f in range(frames[max(0, s0 - best_lag)], frames[s1] + 1):
     bases[f] = {b.name: b.matrix_basis.copy() for b in arm.pose.bones}
 tail = max(2, best_lag // 4)
 
-# The travel: a straight line through the hip's ground positions at the cycle's two ends, carried by the armature object.
-p0, p1 = hip_world[s0 - 0].translation.copy(), hip_world[s1].translation.copy()
-p0.z = p1.z = 0
+
+def blend(a, c, w):
+    qa, qc = a.to_quaternion(), c.to_quaternion()
+    if qa.dot(qc) < 0:
+        qc.negate()
+    return Matrix.LocRotScale(a.to_translation().lerp(c.to_translation(), w), qa.slerp(qc, w), a.to_scale())
+
+
+# The travel: the hip's ground path averaged over one period (the gait's own sway and surge left in), and its heading. Each frame is
+# re-expressed in that path's frame - the path point laid on the hip's rest (bind) ground point, the path heading turned onto the rest
+# facing - so a take that curves or runs the other way round the room still gives an in-place cycle facing forward whose planted feet
+# neither drift sideways nor slide. (A straight line between the cycle's ends left a curved take's feet slipping sideways, the retarget
+# measures the hips from the rest pose so a cycle centred elsewhere drew the body off its origin, and a cycle keyed from its source
+# frame held its first pose until then.) Baked onto a fresh action from frame 0.
+ground = [Vector((m.translation.x, m.translation.y, 0)) for m in hip_world]
+half = best_lag // 2
+
+
+def centre(k):
+    lo_, hi_ = max(0, k - half), min(n - 1, k + half)
+    return sum(ground[lo_:hi_ + 1], Vector()) / (hi_ - lo_ + 1)
+
+
+def heading(k):
+    d = centre(min(n - 1, k + 2)) - centre(max(0, k - 2))
+    return math.atan2(d.y, d.x)
+
+
+rest = arm.matrix_world @ hip.bone.head_local
+home = Vector((rest.x, rest.y, 0))
+side = (arm.matrix_world @ arm.pose.bones["lThigh"].bone.head_local) - (arm.matrix_world @ arm.pose.bones["rThigh"].bone.head_local)
+face = side.cross(Vector((0, 0, 1)))
+facing = math.atan2(face.y, face.x)
+print("CMU_REST", tuple(round(v, 2) for v in rest), "facing_deg", round(math.degrees(facing), 1))
+
+
+def in_path(k):
+    return Matrix.Translation(home) @ Matrix.Rotation(facing - heading(k), 4, "Z") @ Matrix.Translation(-centre(k)) @ hip_world[k]
+
+
+to_arm = arm.matrix_world.inverted()
+keys = []
+for i in range(best_lag + 1):
+    f = frames[s0 + i]
+    world = in_path(s0 + i)
+    basis = dict(bases[f])
+    # The loop seam: over the cycle's last quarter every bone eases toward its pose one period earlier, which the take carries on into
+    # the cycle's first frame - the last frame then is the first, and the loop never pops. The hip eases in the path's frame.
+    w = min(1.0, (i - (best_lag - tail)) / tail)
+    j = s0 + i - best_lag
+    if w > 0 and j >= 0 and frames[j] in bases:
+        world = blend(world, in_path(j), w)
+        for name in basis:
+            if name != hip.name:
+                basis[name] = blend(basis[name], bases[frames[j]][name], w)
+    keys.append((basis, to_arm @ world))
+arm.animation_data.action = None
+for b in arm.pose.bones:
+    b.rotation_mode = "QUATERNION"
+cycle = bpy.data.actions.new("Cycle")
+last = {}
+for i, (basis, hip_arm) in enumerate(keys):
+    for b in arm.pose.bones:
+        b.matrix_basis = basis[b.name]
+    bpy.context.view_layer.update()
+    hip.matrix = hip_arm
+    bpy.context.view_layer.update()
+    arm.animation_data.action = cycle
+    for b in arm.pose.bones:
+        if b is hip:
+            b.matrix_basis = hip.matrix_basis.copy()
+        q = b.rotation_quaternion.copy()
+        if b.name in last and q.dot(last[b.name]) < 0:
+            q.negate()
+            b.rotation_quaternion = q
+        last[b.name] = q
+        b.keyframe_insert("location", frame=i)
+        b.keyframe_insert("rotation_quaternion", frame=i)
+    arm.animation_data.action = None
+arm.animation_data.action = cycle
+bpy.data.actions.remove(act)
 arm.name = "cmu_root"
-arm.animation_data.action = act
-for i, f in enumerate(range(frames[s0], frames[s1] + 1)):
-    t = i / best_lag
-    travel = p0.lerp(p1, t)
-    arm.location = travel
-    arm.keyframe_insert("location", frame=f)
-    scene.frame_set(f)
-    world = Matrix.Translation(-travel) @ hip_world[s0 + i]
-    w = (i - (best_lag - tail)) / tail
-    if w > 0 and s0 + i - best_lag >= 0:
-        # The hip's own seam: toward where it was one period earlier, relative to the travel line extended back.
-        before = Matrix.Translation(-p0.lerp(p1, t - 1)) @ hip_world[s0 + i - best_lag]
-        qa, qc = world.to_quaternion(), before.to_quaternion()
-        if qa.dot(qc) < 0:
-            qc.negate()
-        world = Matrix.LocRotScale(world.to_translation().lerp(before.to_translation(), min(1.0, w)), qa.slerp(qc, min(1.0, w)),
-                                   world.to_scale())
-    hip.matrix = world
-    hip.keyframe_insert("location", frame=f)
-    hip.keyframe_insert("rotation_quaternion" if hip.rotation_mode == "QUATERNION" else "rotation_euler", frame=f)
-    # The loop seam: over the cycle's last quarter every bone eases toward its pose one period earlier, which the take carries on
-    # into the cycle's first frame - the last frame then is the first, and the loop never pops.
-    w = (i - (best_lag - tail)) / tail
-    earlier = frames[s0] + i - best_lag
-    if w > 0 and earlier in bases:
-        for b in arm.pose.bones:
-            if b is hip:
-                continue
-            a, c = bases[f][b.name], bases[earlier][b.name]
-            qa, qc = a.to_quaternion(), c.to_quaternion()
-            if qa.dot(qc) < 0:
-                qc.negate()
-            q = qa.slerp(qc, min(1.0, w))
-            b.matrix_basis = Matrix.LocRotScale(a.to_translation().lerp(c.to_translation(), min(1.0, w)), q, a.to_scale())
-            b.keyframe_insert("location", frame=f)
-            b.keyframe_insert("rotation_quaternion" if b.rotation_mode == "QUATERNION" else "rotation_euler", frame=f)
-scene.frame_start, scene.frame_end = frames[s0], frames[s1]
-act.name = "Cycle"
+scene.frame_start, scene.frame_end = 0, best_lag
 bpy.ops.object.select_all(action="DESELECT")
 arm.select_set(True)
 bpy.context.view_layer.objects.active = arm
 bpy.ops.export_scene.gltf(filepath=out, export_format="GLB", use_selection=True, export_animations=True, export_frame_range=True,
                           export_anim_single_armature=True, export_force_sampling=True, export_optimize_animation_size=False,
                           export_skins=True, export_def_bones=False)
-speed = (p1 - p0).length / (best_lag / fps)
+speed = (centre(s1) - centre(s0)).length / (best_lag / fps)
 json.dump({"fbx": fbx, "fps": fps, "period_frames": best_lag, "period_s": round(best_lag / fps, 3), "start_frame": frames[s0],
            "match_error": round(float(min(score)), 4), "raw_speed_units_per_s": round(speed, 3),
            "hip_height_units": round(float(np.median([m.translation.z for m in hip_world])), 3)}, open(out + ".json", "w"), indent=1)

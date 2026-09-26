@@ -141,7 +141,7 @@
     "run": "player.veth_wanderer_std.run_cmu3517",
     "sprint": "player.veth_wanderer_std.sprint_cmu12707",
     "crouch_idle": "player.veth_wanderer_std.crouch_idle",
-    "crouch_walk": "player.veth_wanderer_std.crouch_sneak",
+    "crouch_walk": "player.veth_wanderer_std.crouch_sneak_arms",
     "jump_start": "player.veth_wanderer_std.jump_start",
     "fall": "player.veth_wanderer_std.fall",
     "land": "player.veth_wanderer_std.land",
@@ -163,10 +163,10 @@
     "talk": "player.veth_wanderer_std.talk"
    },
    "paces": {
-    "walk": 1.428,
-    "run": 2.92,
-    "sprint": 4.284,
-    "crouch_walk": 1.607
+    "walk": 1.616,
+    "run": 2.975,
+    "sprint": 4.207,
+    "crouch_walk": 1.463
    },
    "phases": {
     "sword_attack_1": [
@@ -208,7 +208,7 @@
    },
    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
    "paces": {
-    "walk": 1.428
+    "walk": 1.611
    }
   },
   "npc.ashen_hollow.kera_voss": {
@@ -222,7 +222,7 @@
    },
    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
    "paces": {
-    "walk": 1.428
+    "walk": 1.54
    }
   },
   "npc.ashen_hollow.sel_arien": {
@@ -236,7 +236,7 @@
    },
    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
    "paces": {
-    "walk": 1.428
+    "walk": 1.675
    }
   },
   "npc.ashen_hollow.tavar_orr": {
@@ -253,17 +253,15 @@
     "death": "npc.tavar_orr_std.death",
     "interact": "npc.tavar_orr_std.interact",
     "crouch_idle": "npc.tavar_orr_std.crouch_idle",
-    "crouch_walk": "npc.tavar_orr_std.crouch_walk",
     "jump_start": "npc.tavar_orr_std.jump_start",
     "fall": "npc.tavar_orr_std.fall",
     "land": "npc.tavar_orr_std.land"
    },
    "note": "charstd/retarget_set.py (clip_plans/npc_companion.json)",
    "paces": {
-    "walk": 1.428,
-    "run": 2.92,
-    "sprint": 4.284,
-    "crouch_walk": 1.607
+    "walk": 1.623,
+    "run": 2.985,
+    "sprint": 4.226
    }
   }
  }

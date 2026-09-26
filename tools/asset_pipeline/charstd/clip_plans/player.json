@@ -491,6 +491,46 @@
    "loop": true,
    "category": "locomotion",
    "clip_type": "move"
+  },
+  {
+   "state": "crouch_walk_s14",
+   "from_record": "player.veth_wanderer_prod.crouch_walk",
+   "scale": 1.52,
+   "id": "crouch_walk_s14"
+  },
+  {
+   "state": "crouch_walk_s17",
+   "from_record": "player.veth_wanderer_prod.crouch_walk",
+   "scale": 1.85,
+   "id": "crouch_walk_s17"
+  },
+  {
+   "state": "crouch_cmu0807",
+   "file": "crouch_08_07.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "crouch_cmu12732",
+   "file": "crouch_127_32.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
   }
  ],
  "maps": {

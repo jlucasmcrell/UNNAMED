@@ -50,6 +50,9 @@ public abstract partial class Figure : Node3D
     {
     }
 
+    /// <summary>Where a foot is drawn ("L" or "R", the ankle), or null (the state log's foot-slide evidence).</summary>
+    public virtual Vector3? Foot(string side) => null;
+
     /// <summary>Where the head is drawn (the eyes' height), or null when the figure has no head bone.</summary>
     public virtual Vector3? Head => null;
 

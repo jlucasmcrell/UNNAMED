@@ -150,6 +150,10 @@ public sealed partial class SkinnedFigure : Figure
         ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(head).Origin + Vector3.Up * 0.06f
         : null;
 
+    public override Vector3? Foot(string side) => _model.Skeleton.FindBone("foot." + side) is int foot and >= 0
+        ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(foot).Origin
+        : null;
+
     public override void Wear(string? chestItemDefId) =>
         _model.SetOutfit(chestItemDefId is null ? "base" : chestItemDefId[(chestItemDefId.LastIndexOf('.') + 1)..]);
 
@@ -190,7 +194,12 @@ public sealed partial class SkinnedFigure : Figure
 
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
-        _yaw = Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-14f * (float)delta));
+        // Standing, a turn of more than about 20 degrees is made at a walking body's pace rather than snapped round (an in-place walk
+        // cycle here slid the feet: measured, tools/visual_review/foot_slide.py).
+        float behind = Mathf.Abs(Mathf.AngleDifference(_yaw, facingRadians));
+        _turning = speedMetresPerSecond < 0.25f && (behind > 0.35f || (_turning && behind > 0.08f));
+        float follow = _turning ? 6f : 14f;
+        _yaw = Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-follow * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
         Position = feet;
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
@@ -220,6 +229,7 @@ public sealed partial class SkinnedFigure : Figure
     private bool _wasAirborne;
     private double _landing;
     private double _airTime;
+    private bool _turning;
 
     /// <summary>How long the take-off clip plays before the airborne loop: the simulation's rise is 0.42 s (config.base_speeds).</summary>
     private const double TakeOff = 0.35;
@@ -228,7 +238,7 @@ public sealed partial class SkinnedFigure : Figure
     /// The playback-rate range for a gait clip: wide enough that a clip reaches the body's speed (the simulation's speeds are
     /// authoritative; a walk clip measured at 0.79 m/s plays at 2x for the 1.6 m/s walk) - past it the feet would slide.
     /// </summary>
-    private const float MinRate = 0.6f, MaxRate = 2.2f;
+    private const float MinRate = 0.35f, MaxRate = 2.2f;
 
     /// <summary>The attack clip for a weapon's action: its numbered variants in turn (<c>sword_attack_1</c>, <c>_2</c>...), else the one clip.</summary>
     private string NextAttack(string action)

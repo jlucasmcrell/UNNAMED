@@ -440,6 +440,36 @@ public sealed class ArtLibrary
                     break;
             }
         }
+        // Godot's glTF import leaves out a track that holds a bone at its rest (only tracks that move a bone off its rest are kept), so
+        // such a clip left that bone wherever the last clip had put it: a ready stance's bent back, a curled hand or a bent toe carried
+        // on into a walk. Every bone the clip does not move is held at its rest, as the clip's file has it.
+        var rotated = new HashSet<string>(StringComparer.Ordinal);
+        var placed = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < copy.GetTrackCount(); i++)
+        {
+            string bone = copy.TrackGetPath(i).GetSubName(0);
+            if (copy.TrackGetType(i) == Animation.TrackType.Rotation3D)
+                rotated.Add(bone);
+            else if (copy.TrackGetType(i) == Animation.TrackType.Position3D)
+                placed.Add(bone);
+        }
+        for (int b = 0; b < skeleton.GetBoneCount(); b++)
+        {
+            string bone = skeleton.GetBoneName(b);
+            var rest = skeleton.GetBoneRest(b);
+            if (!rotated.Contains(bone))
+            {
+                int track = copy.AddTrack(Animation.TrackType.Rotation3D);
+                copy.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
+                copy.RotationTrackInsertKey(track, 0, rest.Basis.GetRotationQuaternion());
+            }
+            if (!placed.Contains(bone))
+            {
+                int track = copy.AddTrack(Animation.TrackType.Position3D);
+                copy.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
+                copy.PositionTrackInsertKey(track, 0, rest.Origin);
+            }
+        }
         copy.LoopMode = loop ? Animation.LoopModeEnum.Linear : Animation.LoopModeEnum.None;
         return copy;
     }

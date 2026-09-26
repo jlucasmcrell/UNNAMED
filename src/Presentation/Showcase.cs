@@ -45,7 +45,9 @@ public sealed class Showcase
             "spells" => Spells(),
             "dialogue" => Dialogue(),
             "equipment" => Equipment(),
-            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, dialogue or equipment"),
+            "companion" => Companion(),
+            "closeup" => Closeup(),
+            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, dialogue, equipment, companion or closeup"),
         };
     }
 
@@ -71,6 +73,22 @@ public sealed class Showcase
         new("crouch_walk", 3.5, (s, _) => s.Go(Gait.Walk)),
         new("stand", 2.0, (s, t) => { s.Hold(); if (s.Once(t, 0.1)) s._controller.Crouch(false); }),
         new("stop_end", 2.5, (s, _) => s.Hold()),
+    };
+
+    // The same route with the camera close to the body - a front quarter, the front, the side and from above - for the legs and feet in
+    // each gait.
+    private static List<Step> Closeup() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.2f, Distance: 2.2f),
+        new("walk_front_quarter", 4.0, (s, _) => s.Go(Gait.Walk), CameraTurn: 150, Pitch: -0.2f, Distance: 2.2f),
+        new("run_front_quarter", 4.0, (s, _) => s.Go(Gait.Run), CameraTurn: 150, Pitch: -0.2f, Distance: 2.4f),
+        new("run_front", 4.0, (s, _) => s.Go(Gait.Run), CameraTurn: 180, Pitch: -0.15f, Distance: 2.4f),
+        new("run_side", 4.0, (s, _) => s.Go(Gait.Run), CameraTurn: 90, Pitch: -0.1f, Distance: 2.4f),
+        new("run_above", 4.0, (s, _) => s.Go(Gait.Run), CameraTurn: 120, Pitch: -0.9f, Distance: 2.6f),
+        new("sprint_front_quarter", 3.5, (s, _) => s.Go(Gait.Sprint), CameraTurn: 150, Pitch: -0.2f, Distance: 2.8f),
+        new("sprint_side", 3.5, (s, _) => s.Go(Gait.Sprint), CameraTurn: 90, Pitch: -0.1f, Distance: 2.8f),
+        new("walk_side", 4.0, (s, _) => s.Go(Gait.Walk), CameraTurn: 90, Pitch: -0.1f, Distance: 2.2f),
+        new("stop", 2.5, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.2f, Distance: 2.2f),
     };
 
     private static List<Step> Sword() => new()
@@ -134,6 +152,20 @@ public sealed class Showcase
         new("end", 2.0, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.12f, Distance: 3.0f),
     };
 
+    // Phase B demo (from the acceptance playthrough's own save, which ends home with Tavar following): back out along the way he came
+    // home, walking, running, sprinting and stopping with the camera turned back on him - the companion's gaits on his own body.
+    private static List<Step> Companion() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.15f, Distance: 4.5f),
+        new("walk", 6.0, (s, _) => s.Walk(OutWithTavar, Gait.Walk), CameraTurn: 160, Pitch: -0.15f, Distance: 4.5f),
+        new("run", 6.0, (s, _) => s.Walk(OutWithTavar, Gait.Run), CameraTurn: 160, Pitch: -0.15f, Distance: 4.5f),
+        new("sprint", 4.0, (s, _) => s.Walk(OutWithTavar, Gait.Sprint), CameraTurn: 160, Pitch: -0.15f, Distance: 5.0f),
+        new("stop", 4.0, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.15f, Distance: 4.5f),
+        new("run_side", 5.0, (s, _) => s.Walk(OutWithTavar, Gait.Run), CameraTurn: 90, Pitch: -0.12f, Distance: 4.5f),
+        new("stop_end", 3.0, (s, _) => s.Hold(), CameraTurn: 90, Pitch: -0.12f, Distance: 4.5f),
+    };
+
+    private static readonly (double X, double Z)[] OutWithTavar = { (62, 130), (80, 118), (100, 100), (135, 70), (150, 45) };
     private static readonly (double X, double Z)[] ToTheSmithy = { (51.8, 136), (51.8, 142) };
     private static readonly (double X, double Z)[] OutOfTheSmithy = { (54.4, 142), (51.8, 142), (49.5, 145.5), (46.5, 149.2) };
     private static readonly (double X, double Z)[] AwayFromTheSmithy = { (41.5, 153.4), (35, 156.2) };

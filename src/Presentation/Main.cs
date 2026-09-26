@@ -907,14 +907,16 @@ public partial class Main : Node3D
         if (_stateLog is null)
         {
             _stateLog = new StreamWriter(Path.GetFullPath(path), append: false) { AutoFlush = true };
-            _stateLog.WriteLine("t_s,frame_s,alpha,player_speed,player_state,player_phase,cam_dist,cam_pitch,fov,effects,npcs");
+            _stateLog.WriteLine("t_s,frame_s,alpha,player_speed,player_state,player_phase,cam_dist,cam_pitch,fov,effects,npcs,foot_l,foot_r");
         }
         _stateClock += delta;
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         string npcs = string.Join(";", _npcs.States().Select(n => $"{n.Id}={n.Speed.ToString("0.00", inv)}:{n.State}"));
         _stateLog.WriteLine(string.Join(",", _stateClock.ToString("0.000", inv), delta.ToString("0.0000", inv), _drawnAlpha.ToString("0.00", inv),
             speed.ToString("0.00", inv), _avatar.ClipState ?? "-", simulation.Combat.Phase, _camera.EffectiveDistance.ToString("0.00", inv),
-            _camera.Pitch.ToString("0.00", inv), _camera.Camera.Fov.ToString("0", inv), string.Join("|", simulation.Combat.Effects.Select(e => e.EffectId)), npcs));
+            _camera.Pitch.ToString("0.00", inv), _camera.Camera.Fov.ToString("0", inv), string.Join("|", simulation.Combat.Effects.Select(e => e.EffectId)), npcs,
+            Point(_avatar.Foot("L")), Point(_avatar.Foot("R"))));
+        string Point(Vector3? p) => p is { } v ? $"{v.X.ToString("0.000", inv)} {v.Y.ToString("0.000", inv)} {v.Z.ToString("0.000", inv)}" : "-";
     }
 
     private void Draw(double alpha, double delta)
