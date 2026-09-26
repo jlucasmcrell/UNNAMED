@@ -254,12 +254,28 @@ public partial class StructuresView : Node3D
                 }
                 if (piece.Family == PieceFamily.Doorway)
                     root.AddChild(Lintel(piece, terrain, material, ghost is null));
+                if (piece.Family == PieceFamily.Station)
+                    root.AddChild(AnvilBlock(piece, terrain, ghost ?? Palette.Iron));
                 break;
             }
         }
         if (ghost is not null)
             NoShadows(root);
         return root;
+    }
+
+    /// <summary>
+    /// The bench's anvil (M7 design §9.3.1): a 0.62 x 0.24 x 0.26 m iron block on the bench's top, its long side along the bench's, drawn
+    /// only - the box is the bench's collider.
+    /// </summary>
+    private static Node3D AnvilBlock(PieceView bench, TerrainGrid terrain, Material material)
+    {
+        var part = bench.Parts[0];
+        var box = new BoxBlocker("bench", part.MinXMm, part.MinZMm, part.MaxXMm, part.MaxZMm, part.HeightMm);
+        bool alongX = part.MaxXMm - part.MinXMm >= part.MaxZMm - part.MinZMm;
+        var block = Part("anvil", alongX ? new Vector3(0.62f, 0.26f, 0.24f) : new Vector3(0.24f, 0.26f, 0.62f), material, false);
+        block.Position = new Vector3(box.CenterXMm / 1000f, LowestUnder(terrain, box) + part.HeightMm / 1000f + 0.13f, box.CenterZMm / 1000f);
+        return block;
     }
 
     private const string HingeName = "hinge";

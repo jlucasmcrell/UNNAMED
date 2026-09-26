@@ -152,9 +152,16 @@ public partial class BuildMode : Node3D
         ArmedUntil = now + 2.0;
     }
 
+    /// <summary>The mend key (E8): the target, when it has blocking parts, is mended - no confirmation; the authority refuses one whole.</summary>
+    public void Repair(PlayerController controller)
+    {
+        if (Target is { Parts.IsEmpty: false } target)
+            controller.Repair(target.Id);
+    }
+
     /// <summary>
     /// One frame of build mode: aim, snap, ask the authority, tone the ghost, find the target, and write the panel and the two lines.
-    /// Returns nothing to the world; <see cref="Place"/> and <see cref="Dismantle"/> submit.
+    /// Returns nothing to the world; <see cref="Place"/>, <see cref="Dismantle"/> and <see cref="Repair"/> submit.
     /// </summary>
     public void BuildFrame(Simulation simulation, CameraRig camera, Body body, double now)
     {
@@ -209,7 +216,7 @@ public partial class BuildMode : Node3D
                 ? $"Press {HelpPanel.Key("build_dismantle")} again to take down the {name}"
                 : target.Parts.IsEmpty
                     ? $"{name} - [{HelpPanel.Key("build_dismantle")}] take down"
-                    : $"{name} {target.HealthCurrent}/{target.HealthMax} - [{HelpPanel.Key("build_dismantle")}] take down";
+                    : $"{name} {target.HealthCurrent}/{target.HealthMax} - [{HelpPanel.Key("build_repair")}] mend   [{HelpPanel.Key("build_dismantle")}] take down";
             _structures.Highlight(target.Id.Value, ArmedKey == target.Id.Value ? Palette.GhostRefused : Palette.Highlight);
         }
         else
@@ -236,7 +243,7 @@ public partial class BuildMode : Node3D
             text.Append($"Carried: {carried.GetValueOrDefault(item)} {_session.DisplayName(item)}\n");
         text.Append($"Turned {Rotation * 90} degrees\n");
         text.Append($"[{HelpPanel.Key("build_piece_next")}]/[{HelpPanel.Key("build_piece_prev")}] next/previous   [{HelpPanel.Key("build_rotate")}] turn\n");
-        text.Append($"[{HelpPanel.Key("build_place")}] place   [{HelpPanel.Key("build_dismantle")}] x2 take down   [{HelpPanel.Key("build_mode")}]/[{HelpPanel.Key("release_mouse")}] leave");
+        text.Append($"[{HelpPanel.Key("build_place")}] place   [{HelpPanel.Key("build_repair")}] mend   [{HelpPanel.Key("build_dismantle")}] x2 take down   [{HelpPanel.Key("build_mode")}]/[{HelpPanel.Key("release_mouse")}] leave");
         return text.ToString();
     }
 

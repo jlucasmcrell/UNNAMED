@@ -810,6 +810,8 @@ public partial class Main : Node3D
                 _build.Place(_controller);
             if (Input.IsActionJustPressed("build_dismantle"))
                 _build.Dismantle(_controller, Time.GetTicksMsec() / 1000.0);
+            if (Input.IsActionJustPressed("build_repair"))
+                _build.Repair(_controller);
         }
 
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
@@ -907,6 +909,12 @@ public partial class Main : Node3D
             return;
         if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
             _inventory.ContainerGone();
+        // A placed bench taken down or destroyed (M7) takes its station with it: the panel it was opened from closes.
+        if (_inventory.OpenStation is { } station && _session.Simulation!.Stations.All(s => s.Key != station.Key))
+        {
+            CloseInventory();
+            return;
+        }
         long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
         if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
@@ -1113,6 +1121,23 @@ public partial class Main : Node3D
             foreach (var line in e.Refund)
                 _hud.Toast($"Took down the {_session.DisplayName(e.DefId)}: +{line.Count} {_session.DisplayName(line.ItemId)}", 3);
         });
+        // Blows and mending (E8): a blow on a piece in place of the miss; a piece destroyed, and a chest's spill; a piece mended.
+        _session.Subscribe<PieceDamaged>(e =>
+        {
+            int max = _session.Setup.Building.Catalog.Find(e.DefId)?.HealthMax ?? e.HealthNow;
+            _hud.Log($"You strike the {_session.DisplayName(e.DefId)} ({e.HealthNow}/{max})");
+        });
+        _session.Subscribe<PieceDestroyed>(e =>
+        {
+            _structures.MarkDirty();
+            bool storage = _session.Setup.Building.Catalog.Find(e.DefId)?.Container is not null;
+            _hud.Log($"The {_session.DisplayName(e.DefId)} is destroyed{(storage ? "; what it held lies on the ground" : "")}");
+        });
+        _session.Subscribe<PieceRepaired>(e =>
+        {
+            if (_session.Simulation!.Pieces.FirstOrDefault(p => p.Id == e.PieceId) is { } piece)
+                _hud.Toast($"Mended the {_session.DisplayName(piece.DefId)}", 3);
+        });
         _session.Subscribe<StructuresChanged>(e =>
         {
             _structures.MarkDirty();
@@ -1121,7 +1146,7 @@ public partial class Main : Node3D
         _session.Subscribe<NavigationRebuilt>(_ => _structures.MarkDirty());
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is PlacePieceCommand or DismantlePieceCommand)
+            if (e.Command is PlacePieceCommand or DismantlePieceCommand or RepairPieceCommand)
                 _hud.Toast(BuildMode.Words(_session, e.Reason), 3);
         });
         _session.Subscribe<CommandRejected>(e =>
@@ -1613,7 +1638,7 @@ public partial class Main : Node3D
 
     private void OpenStation(string key)
     {
-        _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
+        _inventory.OpenAt(_session.Simulation!.Stations.Single(s => s.Key == key));   // authored, or a placed bench's (M7)
     }
 
     private void CloseInventory()
@@ -1630,6 +1655,9 @@ public partial class Main : Node3D
         session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains"
         : key.StartsWith("pce_", StringComparison.Ordinal) && session.Simulation?.Pieces.FirstOrDefault(p => p.Id.Value == key) is { } piece
             ? session.DisplayName(piece.DefId)
+        : (key.StartsWith("container.pce_", StringComparison.Ordinal) || key.StartsWith("station.pce_", StringComparison.Ordinal))
+          && session.Simulation?.Pieces.FirstOrDefault(p => p.ContainerKey == key || p.StationKey == key) is { } placed
+            ? session.DisplayName(placed.DefId)
         : Describe(key);
 
     /// <summary>A door, container or station key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
@@ -1704,6 +1732,7 @@ public partial class Main : Node3D
         Bind("build_piece_prev", Key.Pageup);
         Bind("build_rotate", Key.R);
         Bind("build_dismantle", Key.Z, Key.Delete);
+        Bind("build_repair", Key.T);
         Bind("faction_debug", Key.F6);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);

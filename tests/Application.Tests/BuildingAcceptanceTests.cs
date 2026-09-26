@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using UNNAMED.Application.Evidence;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -53,6 +54,9 @@ public class BuildingAcceptanceTests
             session.Subscribe<NavigationRebuilt>(Rebuilt.Add);
             session.Subscribe<RoutePlanned>(Routes.Add);
             session.Subscribe<CompanionCaughtUp>(CaughtUp.Add);
+            session.Subscribe<PieceDamaged>(Damaged.Add);
+            session.Subscribe<PieceDestroyed>(Destroyed.Add);
+            session.Subscribe<PieceRepaired>(Repaired.Add);
         }
 
         public GameSession Session { get; }
@@ -63,6 +67,12 @@ public class BuildingAcceptanceTests
         public List<NavigationRebuilt> Rebuilt { get; } = new();
         public List<RoutePlanned> Routes { get; } = new();
         public List<CompanionCaughtUp> CaughtUp { get; } = new();
+        public List<PieceDamaged> Damaged { get; } = new();
+        public List<PieceDestroyed> Destroyed { get; } = new();
+        public List<PieceRepaired> Repaired { get; } = new();
+
+        /// <summary>What each pick-up took from the ground, by the item's ID in this run: how a replay finds the same item (R35).</summary>
+        public Dictionary<string, (string DefId, int Count, long XMm, long ZMm)> PickedUp { get; } = new(StringComparer.Ordinal);
 
         /// <summary>Each action played: the tick it applied at, its refusal (null: accepted), and whether the state digest was the same after it.</summary>
         public Dictionary<WorkshopAction, (long Tick, string? Refused, bool DigestKept)> Outcomes { get; } = new(ReferenceEqualityComparer.Instance);
@@ -100,6 +110,8 @@ public class BuildingAcceptanceTests
             var player = Simulation.PlayerId;
             if (row.Pose is { } pose)
             {
+                for (int i = 1; i < row.After; i++)
+                    Frame();
                 StandAt(Session, pose, row.Id);
                 EachTick?.Invoke(Simulation);
             }
@@ -109,8 +121,13 @@ public class BuildingAcceptanceTests
                     Frame();
             }
             long first = Simulation.WorldTick;
+            bool firstAction = true;
             foreach (var action in row.Landed)
             {
+                // "+20 each": a row's later blows wait out the gap after the one before.
+                for (int i = 1; !firstAction && i < action.Gap; i++)
+                    Frame();
+                firstAction = false;
                 switch (action)
                 {
                     case PlaceAction place:
@@ -144,6 +161,34 @@ public class BuildingAcceptanceTests
                     case SaveAction:
                         Session.Save(SaveSlots.Quick);
                         Outcomes[action] = (Simulation.WorldTick, null, true);
+                        break;
+                    case CraftAction craft:
+                        Outcomes[action] = Submit(craft.Command(player));
+                        break;
+                    case AttackAction attack:
+                        Outcomes[action] = Submit(attack.Command(player));
+                        break;
+                    case RepairAction repair:
+                        var mend = repair.Piece(Simulation);
+                        Assert.True(mend is not null, $"{row.Id}: no {repair.DefId} at ({repair.XMm}, {repair.ZMm})");
+                        Outcomes[action] = Submit(new RepairPieceCommand(player, mend!.Id));
+                        break;
+                    case StoreAction store:
+                        var put = store.Command(Simulation);
+                        Assert.True(put is not null, $"{row.Id}: nothing to store {store.Count} timber from, or no chest");
+                        Outcomes[action] = Submit(put!);
+                        break;
+                    case TakeAllAction takeAll:
+                        var chest = takeAll.Piece(Simulation);
+                        Assert.True(chest?.ContainerKey is not null, $"{row.Id}: no chest at ({takeAll.XMm}, {takeAll.ZMm})");
+                        Outcomes[action] = Submit(new TakeAllCommand(player, chest!.ContainerKey!));
+                        break;
+                    case PickUpAction pickUp:
+                        var take = pickUp.Command(Simulation);
+                        Assert.True(take is not null, $"{row.Id}: no timber lying at ({pickUp.XMm}, {pickUp.ZMm})");
+                        var lying = Simulation.WorldItems.Single(i => i.Id.Value == ((MoveItemCommand)take!).Item);
+                        PickedUp[lying.Id.Value] = (lying.DefId, lying.Count, lying.XMm, lying.ZMm);
+                        Outcomes[action] = Submit(take!);
                         break;
                     default:
                         throw new InvalidOperationException($"{row.Id}: no player for {action}");
@@ -188,7 +233,8 @@ public class BuildingAcceptanceTests
     }
 
     /// <summary>A command log replayed into a simulation at the ticks it was logged at, with something done at every boundary between.</summary>
-    private static void Replay(Simulation simulation, IEnumerable<LoggedCommand> log, long until, Action<Simulation>? atEachBoundary = null)
+    private static void Replay(Simulation simulation, IEnumerable<LoggedCommand> log, long until, Action<Simulation>? atEachBoundary = null,
+        IReadOnlyDictionary<string, (string DefId, int Count, long XMm, long ZMm)>? ground = null)
     {
         void StepTo(long tick)
         {
@@ -202,10 +248,25 @@ public class BuildingAcceptanceTests
         foreach (var entry in log.Where(e => e.Tick < until))
         {
             StepTo(entry.Tick);
-            simulation.Enqueue(entry.Command);
+            simulation.Enqueue(Translated(simulation, entry, ground));
             simulation.DrainCommands();
         }
         StepTo(until);
+    }
+
+    /// <summary>
+    /// A logged command as the replay gives it. Item IDs are minted from the clock (D-04), so an item the run minted - a split stack, the
+    /// timber a destroyed chest spilled - has another ID in the replay: a <see cref="MoveItemCommand"/> naming one names, instead, the
+    /// item of the same definition and count lying at the same place in the replay's world (R-B4). Everything else is replayed as logged.
+    /// </summary>
+    private static GameCommand Translated(Simulation replay, LoggedCommand entry,
+        IReadOnlyDictionary<string, (string DefId, int Count, long XMm, long ZMm)>? ground)
+    {
+        if (entry.Command is not MoveItemCommand { From.Kind: PlaceKind.Ground } move || replay.WorldItems.Any(i => i.Id.Value == move.Item)
+            || ground?.GetValueOrDefault(move.Item) is not { } was)
+            return entry.Command;
+        var same = replay.WorldItems.FirstOrDefault(i => i.DefId == was.DefId && i.Count == was.Count && i.XMm == was.XMm && i.ZMm == was.ZMm);
+        return same is null ? entry.Command : move with { Item = same.Id.Value };
     }
 
     private static void Copy(string from, string to)
@@ -227,6 +288,92 @@ public class BuildingAcceptanceTests
     /// <summary>A row's refusal the placement ghost gives in the same state: the rule, for the rows whose Expect names one.</summary>
     private static PlacementRule? RuleOf(Simulation simulation, PlaceAction place) =>
         simulation.PreviewPlacement(place.DefId, place.XMm, place.ZMm, place.Rotation, checkNavigability: false).Failed;
+
+    // N-A3's steps 4 and 8 (E8)
+    /// <summary>
+    /// Step 4: the March Spear made at the placed bench, no authored anvil in reach. Step 8: three blows on the north wall (170), its
+    /// mending for one timber, a fourth blow (190, kept to the end); the chest's cycle - a store gives the record its derived identity, a
+    /// take-all leaves the empty record, a store finds the same identity - then ten blows destroy it and the two timber lie at its site
+    /// with their item ID; picked up. Step 9's second chest takes two timber. No blow rebuilds navigation but the one that destroys.
+    /// </summary>
+    [Fact]
+    public void CrossingWorkshop_4and8_CraftBlowsMendAndSpill()
+    {
+        using var profile = new TempProfile();
+        var run = new WorkshopRun(LoadS0(profile));
+        var simulation = run.Simulation;
+        var crafted = new List<ItemCrafted>();
+        run.Session.Subscribe<ItemCrafted>(crafted.Add);
+        run.Through("R14");
+        int ingots = simulation.Player.Inventory.Where(e => e.DefId == IronIngot).Sum(e => e.Count);
+
+        // Step 4: 1.36 m from the bench's site, the nearest authored anvil far out of reach.
+        run.Through("R15");
+        Assert.Null(run.Outcome("R15").Refused);
+        var body = simulation.Player.Body;
+        var bench = simulation.Pieces.Single(p => p.DefId == Bench);
+        var site = simulation.Stations.Single(s => s.Key == bench.StationKey);
+        Assert.InRange(Math.Sqrt(Math.Pow(site.XMm - body.XMm, 2) + Math.Pow(site.ZMm - body.ZMm, 2)), 1_300, 1_420);
+        Assert.All(simulation.Setup.Layout.Stations.Where(s => s.Kind == "anvil"),
+            s => Assert.True(Math.Sqrt(Math.Pow(s.XMm - body.XMm, 2) + Math.Pow(s.ZMm - body.ZMm, 2)) > simulation.Setup.Items.Inventory.ReachMm));
+        Assert.Equal(ingots - 1, simulation.Player.Inventory.Where(e => e.DefId == IronIngot).Sum(e => e.Count));
+
+        // Step 8: the north wall's blows and mending.
+        var north = simulation.Pieces.Single(p => p.DefId == Wall && p.XMm == 100_500 && p.ZMm == 105_000);
+        run.Through("R26");   // after the vestibule of step 7 (R22-R25)
+        int rebuilds = run.Rebuilt.Count;
+        long sequence = simulation.World.StructureSequence;
+        run.Through("R27");
+        int timber = TimberCarried(simulation);
+        run.Through("R28");
+        // A blow lands at its swing's end, 8 ticks after it is asked for: the third before the mending, 20 ticks on.
+        Assert.Equal(new[] { 190, 180, 170 }, run.Damaged.Select(d => d.HealthNow));
+        Assert.All(run.Damaged, d => Assert.Equal((north.Id, "melee", 10), (d.PieceId, d.Source, d.Amount)));
+        Assert.Null(run.Outcome("R28").Refused);
+        Assert.Equal((north.Id, 170, 200), (Assert.Single(run.Repaired).PieceId, run.Repaired[0].From, run.Repaired[0].To));
+        Assert.Equal(timber - 1, TimberCarried(simulation));
+        run.Through("R29");
+        run.Through("R30");
+        Assert.Equal(190, simulation.Pieces.Single(p => p.Id == north.Id).HealthCurrent);
+        Assert.True(simulation.Pieces.Single(p => p.DefId == Door).DoorOpen);
+        Assert.Equal((sequence, rebuilds), (simulation.World.StructureSequence, run.Rebuilt.Count));
+
+        // The chest's cycle: one identity throughout, and the emptied record kept.
+        var chest = simulation.Pieces.Single(p => p.DefId == Chest && p.XMm == 103_500 && p.ZMm == 103_500);
+        string key = chest.ContainerKey!;
+        var derived = EntityId.Derived(EntityKind.Container, chest.Id.Timestamp, "unnamed.piece-container/v1", chest.Id.Value);
+        run.Through("R31");
+        Assert.Null(run.Outcome("R31").Refused);
+        Assert.Equal((derived, 2), (simulation.World.Container(key)!.InstanceId, simulation.World.Container(key)!.Items.Sum(i => i.Count)));
+        run.Through("R32");
+        Assert.Null(run.Outcome("R32").Refused);
+        Assert.Equal((derived, 0), (simulation.World.Container(key)!.InstanceId, simulation.World.Container(key)!.Items.Length));
+        run.Through("R33");
+        Assert.Null(run.Outcome("R33").Refused);
+        var stored = Assert.Single(simulation.World.Container(key)!.Items);
+        Assert.Equal((derived, 2), (simulation.World.Container(key)!.InstanceId, stored.Count));
+
+        // Ten blows: the tenth destroys it, and what it held lies at its site with its identity.
+        run.Through("R34");
+        run.Through("R35");
+        var destroyed = Assert.Single(run.Destroyed);
+        Assert.Equal((chest.Id, Chest, "melee", sequence + 1), (destroyed.PieceId, destroyed.DefId, destroyed.Source, destroyed.Revision));
+        Assert.Equal(Enumerable.Range(1, 9).Select(n => 100 - 10 * n), run.Damaged.Skip(4).Select(d => d.HealthNow));
+        Assert.Null(simulation.World.Container(key));
+        Assert.Equal(rebuilds + 1, run.Rebuilt.Count);
+        var pickUp = (MoveItemCommand)simulation.CommandLog.Last(e => e.Command is MoveItemCommand { From.Kind: PlaceKind.Ground }).Command;
+        Assert.Equal(stored.ItemId.Value, pickUp.Item);
+        Assert.Null(run.Outcome("R35").Refused);
+        Assert.DoesNotContain(simulation.WorldItems, i => i.Id == stored.ItemId);
+
+        // Step 9's second chest, with two timber in it.
+        run.Through("R37");
+        Assert.All(new[] { "R36", "R37" }, id => Assert.Null(run.Outcome(id).Refused));
+        var second = simulation.Pieces.Single(p => p.DefId == Chest);
+        Assert.Equal(new PiecePartView(104_100, 100_000, 104_700, 101_000, 700, TraversalClass.Solid), Assert.Single(second.Parts));
+        Assert.Equal(2, simulation.World.Container(second.ContainerKey!)!.Items.Sum(i => i.Count));
+        Assert.Equal(0, run.Session.SubscriberFailures);
+    }
 
     [Fact]
     public void CrossingWorkshop_1to3_BuildRefuseAndWalkIn()
@@ -268,6 +415,24 @@ public class BuildingAcceptanceTests
         var door = simulation.Pieces.Single(p => p.DefId == Door);
         Assert.False(door.DoorOpen);
 
+        // E8: the bench across x = 100 and the chest in the north-east square - sequence 18 and 19, a rebuild each; the bench an anvil at
+        // its part's centre, its worker's anchor 0.65 m west of it facing it; the chest's site inside its own box.
+        run.Through("R08");
+        Assert.All(new[] { "R07", "R08" }, id => Assert.Null(run.Outcome(id).Refused));
+        Assert.Equal((Bench, 18L, Chest, 19L), (run.Placed[^2].DefId, run.Placed[^2].Revision, run.Placed[^1].DefId, run.Placed[^1].Revision));
+        Assert.Equal(11, run.Rebuilt.Count);
+        var bench = simulation.Pieces.Single(p => p.DefId == Bench);
+        Assert.Equal(new PiecePartView(99_500, 103_000, 100_100, 104_000, 900, TraversalClass.Solid), Assert.Single(bench.Parts));
+        var site = simulation.Stations.Single(s => s.Key == bench.StationKey);
+        Assert.Equal(("anvil", 99_800L, 103_500L), (site.Kind, site.XMm, site.ZMm));
+        var station = simulation.Setup.Building.Catalog.Find(Bench)!.Station!;
+        var (ax, az) = QuarterTurn.Apply(station.AnchorXMm, station.AnchorZMm, bench.Rotation);
+        Assert.Equal((100_750L, 103_500L, 270_000), (bench.XMm + ax, bench.ZMm + az, (station.FacingMdeg + bench.Rotation * 90_000) % 360_000));
+        var chest = simulation.Pieces.Single(p => p.DefId == Chest);
+        Assert.Equal(new PiecePartView(103_000, 104_100, 104_000, 104_700, 700, TraversalClass.Solid), Assert.Single(chest.Parts));
+        var chestSite = simulation.Containers.Single(c => c.Site.Key == chest.ContainerKey).Site;
+        Assert.Equal((103_500L, 104_400L), (chestSite.XMm, chestSite.ZMm));
+
         // The step-1 counts, and one PiecePlaced a row.
         var (pieces, spent, sequence) = Counts.StepOne;
         Assert.Equal(pieces, simulation.Pieces.Length);
@@ -302,7 +467,7 @@ public class BuildingAcceptanceTests
         Assert.True(simulation.Pieces.Single(p => p.Id == door.Id).DoorOpen);
         Assert.Equal(3, run.Toggled.Count);
         // A toggle is not a change of the structures.
-        Assert.Equal((Counts.StepOne.Sequence, 9), (simulation.World.StructureSequence, run.Rebuilt.Count));
+        Assert.Equal((Counts.StepOne.Sequence, 11), (simulation.World.StructureSequence, run.Rebuilt.Count));
         run.Through("R14");
         Assert.InRange(run.Aimed.XMm, 99_200, 99_210);
         Assert.False(run.Aimed.OnCreature);
@@ -416,9 +581,9 @@ public class BuildingAcceptanceTests
         bool passedInW2 = passed;
 
         Assert.Equal(w1.WorldTick, w2.WorldTick);
-        Assert.Equal(w1.StateDigest(), w2.StateDigest());
         var differences = StateDump.Compare(StateDump.Render(w1), StateDump.Render(w2), out int leaves);
         Assert.True(differences.Count == 0, $"{differences.Count} of {leaves} fields differ: {string.Join("; ", differences.Take(5))}");
+        Assert.Equal(w1.StateDigest(), w2.StateDigest());
         Assert.Equal(Counts.End.Sequence, w2.World.StructureSequence);
         foreach (var (world, through) in new[] { (w1, passedInW1), (w2, passedInW2) })
         {
@@ -461,7 +626,7 @@ public class BuildingAcceptanceTests
         Assert.Equal(Derived(zero, Counts.StepOne.Pieces), zero.Pieces.Select(p => p.Id).Order());
 
         var eleven = LoadS0(profile).Simulation!;
-        Replay(eleven, log, end);
+        Replay(eleven, log, end, ground: run.PickedUp);
         var differences = StateDump.Compare(StateDump.Render(played, replayable: true), StateDump.Render(eleven, replayable: true), out int leaves);
         Assert.True(differences.Count == 0, $"{differences.Count} of {leaves} fields differ: {string.Join("; ", differences.Take(5))}");
         Assert.Equal(played.Pieces.Select(p => p.Id), eleven.Pieces.Select(p => p.Id));
@@ -486,7 +651,7 @@ public class BuildingAcceptanceTests
 
         var plain = LoadS0(profile).Simulation!;
         var held = ItemIds(plain);
-        Replay(plain, log, end);
+        Replay(plain, log, end, ground: run.PickedUp);
         var previewed = LoadS0(profile).Simulation!;
         string[] defs = { Pad, Wall, Doorway, Roof, "piece.nowhere" };
         int asked = 0;
@@ -495,15 +660,18 @@ public class BuildingAcceptanceTests
             for (int i = 0; i < 2 && asked < 1_000; i++, asked++)
                 Assert.NotNull(s.PreviewPlacement(defs[asked % defs.Length], 84_000 + asked * 1_500 % 36_000, 84_000 + asked * 3_000 % 36_000,
                     asked % 4, checkNavigability: asked % 2 == 0));
-        });
+        }, run.PickedUp);
         Assert.Equal(1_000, asked);
 
         Assert.Empty(StateDump.Compare(StateDump.Render(plain, replayable: true), StateDump.Render(previewed, replayable: true), out _));
         Assert.Equal(plain.Pieces.Select(p => p.Id), previewed.Pieces.Select(p => p.Id));
         Assert.Equal(plain.CommandLog.Select(e => (e.Tick, e.RejectedReason)), previewed.CommandLog.Select(e => (e.Tick, e.RejectedReason)));
         Assert.Equal(System.Text.Json.JsonSerializer.Serialize(plain.Navigation.Counters), System.Text.Json.JsonSerializer.Serialize(previewed.Navigation.Counters));
-        Assert.Subset(held, ItemIds(plain));
-        Assert.Equal(plain.StateDigest(), previewed.StateDigest());
+        // The raw digest only for a window that minted no item (G8): from E8 the spear's making and the chest's splits mint.
+        if (ItemIds(plain).IsSubsetOf(held))
+            Assert.Equal(plain.StateDigest(), previewed.StateDigest());
+        else
+            Assert.True(CrossingWorkshop.Landed >= CrossingWorkshop.E8, "the window minted an item before E8");
     }
 
     /// <summary>

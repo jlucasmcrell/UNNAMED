@@ -18,8 +18,14 @@ namespace UNNAMED.Application.Evidence;
 /// </summary>
 public sealed record WorkshopPose(ImmutableArray<(double X, double Z)> Legs, double X, double Z, int FacingDeg);
 
-/// <summary>What a row does at its tick. Each action after a row's first is one tick after the one before (§4.22 "+1 each").</summary>
-public abstract record WorkshopAction(int From);
+/// <summary>
+/// What a row does at its tick. Each action after a row's first is <see cref="Gap"/> ticks after the one before: one (§4.22 "+1 each"),
+/// or twenty for a row of blows ("+20 each").
+/// </summary>
+public abstract record WorkshopAction(int From)
+{
+    public int Gap { get; init; } = 1;
+}
 
 /// <summary><c>Place(def, x, z, r)</c>: a <see cref="PlacePieceCommand"/> from the player.</summary>
 public sealed record PlaceAction(string DefId, long XMm, long ZMm, int Rotation, int From = CrossingWorkshop.E5) : WorkshopAction(From)
@@ -46,6 +52,55 @@ public sealed record DismantleAction(string DefId, long XMm, long ZMm, int From 
         simulation.Pieces.FirstOrDefault(p => p.DefId == DefId && p.XMm == XMm && p.ZMm == ZMm)?.Id;
 }
 
+/// <summary>A piece of a definition at an anchor, in a world: what the E8 rows act on.</summary>
+public abstract record PieceAction(string DefId, long XMm, long ZMm, int From) : WorkshopAction(From)
+{
+    public PieceView? Piece(Simulation simulation) => simulation.Pieces.FirstOrDefault(p => p.DefId == DefId && p.XMm == XMm && p.ZMm == ZMm);
+}
+
+/// <summary><c>CraftCommand(recipe)</c> (R15: the March Spear at the placed bench).</summary>
+public sealed record CraftAction(string RecipeId, int From = CrossingWorkshop.E8) : WorkshopAction(From)
+{
+    public GameCommand Command(EntityId player) => new CraftCommand(player, RecipeId);
+}
+
+/// <summary><c>AttackCommand</c>: a swing along the pose's facing (R27, R29, R34).</summary>
+public sealed record AttackAction(int From = CrossingWorkshop.E8) : WorkshopAction(From)
+{
+    public GameCommand Command(EntityId player) => new AttackCommand(player);
+}
+
+/// <summary><c>RepairPieceCommand</c> on the placed piece of a definition at an anchor (R28: the north wall).</summary>
+public sealed record RepairAction(string DefId, long XMm, long ZMm, int From = CrossingWorkshop.E8) : PieceAction(DefId, XMm, ZMm, From);
+
+/// <summary>
+/// Timber into a placed chest: <c>MoveItemCommand(timber, Carried -> In(chest key), count)</c> from the smallest carried stack that holds
+/// the count (R31, R33, R37).
+/// </summary>
+public sealed record StoreAction(string DefId, long XMm, long ZMm, int Count, int From = CrossingWorkshop.E8) : PieceAction(DefId, XMm, ZMm, From)
+{
+    public GameCommand? Command(Simulation simulation)
+    {
+        if (Piece(simulation)?.ContainerKey is not { } key)
+            return null;
+        var stack = simulation.Player.Inventory.Where(e => e.DefId == CrossingWorkshop.Timber && e.Count >= Count)
+            .OrderBy(e => e.Count).ThenBy(e => e.ItemId.Value, StringComparer.Ordinal).FirstOrDefault();
+        return stack is null ? null : new MoveItemCommand(simulation.PlayerId, stack.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), Count);
+    }
+}
+
+/// <summary><c>TakeAllCommand(chest key)</c> at a placed chest (R32).</summary>
+public sealed record TakeAllAction(string DefId, long XMm, long ZMm, int From = CrossingWorkshop.E8) : PieceAction(DefId, XMm, ZMm, From);
+
+/// <summary>What a destroyed chest spilled, picked up: the timber lying at a point, <c>MoveItemCommand(Ground -> Carried)</c> (R35).</summary>
+public sealed record PickUpAction(long XMm, long ZMm, int From = CrossingWorkshop.E8) : WorkshopAction(From)
+{
+    public GameCommand? Command(Simulation simulation) =>
+        simulation.WorldItems.FirstOrDefault(i => i.DefId == CrossingWorkshop.Timber && i.XMm == XMm && i.ZMm == ZMm) is { } item
+            ? new MoveItemCommand(simulation.PlayerId, item.Id.Value, ItemPlace.Ground, ItemPlace.Carried, item.Count)
+            : null;
+}
+
 /// <summary>A move held for a number of ticks, one <see cref="MoveCommand"/> a tick (R12: north at a walk for 40 ticks).</summary>
 public sealed record HoldAction(MoveIntent Intent, int Ticks, int From = CrossingWorkshop.E5) : WorkshopAction(From);
 
@@ -62,8 +117,9 @@ public sealed record OrderAction(string NpcId, CompanionOrder Order, int From = 
 public sealed record SaveAction(int ContinueTicks, int From = CrossingWorkshop.E5) : WorkshopAction(From);
 
 /// <summary>
-/// One row of the command table. A row with a pose starts at the first tick boundary after the pose is reached; one without starts
-/// <paramref name="After"/> ticks after the previous row's last action. <paramref name="Expect"/> is §4.22's column, for transcripts; each
+/// One row of the command table. A row with a pose starts at the first tick boundary after the pose is reached - after first waiting
+/// <paramref name="After"/> ticks from the previous row's last action, when it is set (R30: a blow lands at its swing's end, so the walk
+/// waits for it); one without starts <paramref name="After"/> ticks after the previous row's last action. <paramref name="Expect"/> is §4.22's column, for transcripts; each
 /// consumer asserts it.
 /// </summary>
 public sealed record WorkshopRow(string Id, int Step, int From, WorkshopPose? Pose, int After, ImmutableArray<WorkshopAction> Actions, string Expect)
@@ -83,13 +139,13 @@ public static class CrossingWorkshop
     public const int E5 = 5, E6 = 6, E7 = 7, E8 = 8, E9 = 9;
 
     /// <summary>The slices landed so far.</summary>
-    public const int Landed = E7;
+    public const int Landed = E8;
 
     /// <summary>S0's world seed: the playthrough's (<c>Playthrough.Seed</c>, presentation), so both proofs play one world.</summary>
     public const ulong Seed = 0x0A5E_2026_0924_0001;
 
     public const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber",
-        Door = "piece.door.timber";
+        Door = "piece.door.timber", Chest = "piece.storage.chest", Bench = "piece.station.anvil";
     public const string Timber = "item.material.timber", IronIngot = "item.material.iron_ingot", AshHaft = "item.material.ash_haft";
     public const string SpearRecipe = "recipe.smithing.march_spear";
     public const string Kera = "npc.ashen_hollow.kera_voss", Tavar = "npc.ashen_hollow.tavar_orr";
@@ -140,10 +196,15 @@ public static class CrossingWorkshop
 
     private static PlaceAction Place(string def, long x, long z, int r) => new(def, x, z, r);
 
+    /// <summary><paramref name="count"/> blows, twenty ticks apart (§4.22 "+20 each").</summary>
+    private static WorkshopAction[] Blows(int count) =>
+        Enumerable.Range(0, count).Select(i => new AttackAction { Gap = i == 0 ? 1 : 20 }).ToArray<WorkshopAction>();
+
     /// <summary>
-    /// The table as far as E7 has built it: rows R00-R06, R09-R14 (the door hung, worked from both sides, and the walk north stopped by
-    /// it), R22-R25 (the vestibule refused as unnavigable, and taken down), R39-R42, R45 and R46. E8-E9 add the rest, and E9 changes R45's
-    /// pose (§4.22).
+    /// The table as far as E8 has built it: rows R00-R15 (the workshop with its door, bench and chest; the door worked from both sides and
+    /// the walk north stopped by it; the spear made at the bench), R22-R25 (the vestibule refused as unnavigable, and taken down), R26-R37
+    /// (blows on the north wall and its mending; the chest's cycle, its destruction and spill; a second chest), R39-R42, R45 and R46. E9
+    /// adds the rest and changes R45's pose (§4.22).
     /// </summary>
     public static readonly ImmutableArray<WorkshopRow> Rows = ImmutableArray.Create(
         Row("R00", 0, null, 0, "S0 loaded"),
@@ -157,6 +218,10 @@ public static class CrossingWorkshop
         Row("R05", 1, null, 1, "seq 13-16; no rebuild",
             Place(Roof, 100_500, 100_500, 0), Place(Roof, 103_500, 100_500, 0), Place(Roof, 100_500, 103_500, 0), Place(Roof, 103_500, 103_500, 0)),
         RowFrom(E6, "R06", 1, null, 1, "seq 17; one rebuild; placed closed", new PlaceAction(Door, 100_500, 99_000, 0, E6)),
+        RowFrom(E8, "R07", 1, null, 1, "seq 18; part x [99 500, 100 100], z [103 000, 104 000]; site (99 800, 103 500); anchor (100 750, 103 500) facing 270 000",
+            new PlaceAction(Bench, 100_500, 103_500, 3, E8)),
+        RowFrom(E8, "R08", 1, null, 1, "seq 19; part x [103 000, 104 000], z [104 100, 104 700]; site (103 500, 104 400)",
+            new PlaceAction(Chest, 103_500, 103_500, 0, E8)),
         Row("R09", 2, null, 1, "refused Slot, \"a Timber Doorway already stands there\"; StateDigest unchanged", Place(Wall, 100_500, 99_000, 0)),
         Row("R10", 3, At(100.5, 100.3, 180), 0, "E6+: the door opened", TheDoor),
         Row("R11", 3, At(100.5, 97.6, 0), 0, "E6+: the door closed", TheDoor),
@@ -164,12 +229,28 @@ public static class CrossingWorkshop
             new HoldAction(new MoveIntent(0, MoveIntent.FullDeflection, Gait.Walk, 0), 40)),
         RowFrom(E6, "R13", 3, null, 1, "the door opened", TheDoor),
         Row("R14", 3, At(100.5, 101.0, 270), 0, "stop x in [99 200, 99 210], OnCreature false", new AimAction(270_000, 20_000)),
+        RowFrom(E8, "R15", 4, At(100.6, 102.4, 315), 0, "accepted, 1.36 m from the bench site, no authored anvil in reach", new CraftAction(SpearRecipe)),
         RowFrom(E7, "R22", 7, At(100.5, 94.5, 0), 0, "accepted", new PlaceAction(Pad, 100_500, 97_500, 0, E7)),
         RowFrom(E7, "R23", 7, null, 1, "accepted", new PlaceAction(Wall, 99_000, 97_500, 1, E7), new PlaceAction(Wall, 102_000, 97_500, 1, E7)),
         RowFrom(E7, "R24", 7, null, 1, "refused Navigability, rule V-N1; E9 text \"that would cut Kera Voss's work place off\"; digest unchanged",
             new PlaceAction(Wall, 100_500, 96_000, 0, E7)),
         RowFrom(E7, "R25", 7, null, 1, "refunds 1, 1, 0",
             new DismantleAction(Wall, 99_000, 97_500), new DismantleAction(Wall, 102_000, 97_500), new DismantleAction(Pad, 100_500, 97_500)),
+        RowFrom(E8, "R26", 8, At(100.5, 105.8, 180, (106.5, 96.0), (106.5, 106.0)), 0, "-"),
+        RowFrom(E8, "R27", 8, null, 20, "PieceDamaged x 3, source melee, north wall (100500, 105000) at 170", Blows(3)),
+        RowFrom(E8, "R28", 8, null, 20, "1 timber; PieceRepaired(170, 200)", new RepairAction(Wall, 100_500, 105_000)),
+        RowFrom(E8, "R29", 8, null, 1, "190, kept to the end", new AttackAction()),
+        RowFrom(E8, "R30", 8, At(103.5, 102.9, 0, (106.5, 106.0), (106.5, 96.0), (100.5, 97.6), (100.5, 100.3)), 20,
+            "the door is open (the walk waits 20 ticks: R29's blow lands at its swing's end, 8 ticks on)"),
+        RowFrom(E8, "R31", 8, null, 1, "the record materialises with the derived cnt_", new StoreAction(Chest, 103_500, 103_500, 2)),
+        RowFrom(E8, "R32", 8, null, 1, "2 back; the empty record stays", new TakeAllAction(Chest, 103_500, 103_500)),
+        RowFrom(E8, "R33", 8, null, 1, "stored; one cnt_ throughout; no exception", new StoreAction(Chest, 103_500, 103_500, 2)),
+        RowFrom(E8, "R34", 8, null, 20, "the tenth: PieceDestroyed; the 2 timber lie at (103.5, 104.4) with their item ID unchanged", Blows(10)),
+        RowFrom(E8, "R35", 8, null, 20, "picked up (20 ticks on, not 1: the tenth blow lands at its swing's end, 8 ticks on)",
+            new PickUpAction(103_500, 104_400)),
+        RowFrom(E8, "R36", 9, At(102.9, 100.5, 90), 0, "part x [104 100, 104 700], z [100 000, 101 000]; site (104 400, 100 500)",
+            new PlaceAction(Chest, 103_500, 100_500, 1, E8)),
+        RowFrom(E8, "R37", 9, null, 1, "stored", new StoreAction(Chest, 103_500, 100_500, 2)),
         Row("R39", 9, At(97.5, 102.0, 270, (100.5, 100.3), (100.5, 97.6), (97.5, 97.0)), 0, "accepted",
             Place(Pad, 97_500, 100_500, 0), Place(Pad, 97_500, 103_500, 0)),
         Row("R40", 9, null, 1, "accepted", Place(Wall, 96_000, 100_500, 1)),

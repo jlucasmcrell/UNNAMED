@@ -169,6 +169,7 @@ public class M7GuardTests
                      "Bind(\"build_mode\", Key.B)", "Bind($\"build_piece_{n}\", Key.Key1 + n - 1)", "Bind(\"build_piece_next\", Key.Pagedown)",
                      "Bind(\"build_piece_prev\", Key.Pageup)", "Bind(\"build_rotate\", Key.R)", "Bind(\"build_dismantle\", Key.Z, Key.Delete)",
                      "(\"build_place\", MouseButton.Left)", "Bind(\"build_debug\", Key.F2)", "Bind(\"faction_debug\", Key.F6)",
+                     "Bind(\"build_repair\", Key.T)",
                  })
             Assert.Contains(binding, define);
         Assert.Matches(new Regex(@"for \(int n = 1; n <= 7; n\+\+\)\s*\n\s*Bind\(\$""build_piece_\{n\}"""), define);

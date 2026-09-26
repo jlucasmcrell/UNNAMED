@@ -58,6 +58,9 @@ public sealed class BuildShots
     private readonly List<string> _toasts = new();
     private readonly List<DoorToggled> _toggled = new();
     private readonly List<PieceRemoved> _removed = new();
+    private readonly List<PieceDamaged> _damaged = new();
+    private readonly List<PieceRepaired> _repaired = new();
+    private readonly List<PieceDestroyed> _destroyed = new();
     private readonly List<long> _walkNorth = new();
     private readonly List<Action> _checks = new();
     private readonly List<(long Tick, string Row)> _rowStarts = new();
@@ -77,6 +80,7 @@ public sealed class BuildShots
     private int _held;
     private long _lastActionTick;
     private (long XMm, long ZMm, bool OnCreature) _aimed;
+    private long _waitUntil;
 
     // Tavar from the order on (R45): whether he has come through the doorway's opening, northwards.
     private Body? _tavarLast;
@@ -114,6 +118,21 @@ public sealed class BuildShots
         {
             _removed.Add(e);
             Row($"`PieceRemoved` {e.DefId}, refund {e.Refund.Sum(c => c.Count)}, sequence {e.Revision}", e.Tick);
+        });
+        session.Subscribe<PieceDamaged>(e =>
+        {
+            _damaged.Add(e);
+            Row($"`PieceDamaged` {e.DefId} -{e.Amount} ({e.Source}), now {e.HealthNow}", e.Tick);
+        });
+        session.Subscribe<PieceRepaired>(e =>
+        {
+            _repaired.Add(e);
+            Row($"`PieceRepaired` {e.From} -> {e.To}", e.Tick);
+        });
+        session.Subscribe<PieceDestroyed>(e =>
+        {
+            _destroyed.Add(e);
+            Row($"`PieceDestroyed` {e.DefId} ({e.Source}), sequence {e.Revision}", e.Tick);
         });
         session.Subscribe<NavigationRebuilt>(e =>
         {
@@ -255,20 +274,31 @@ public sealed class BuildShots
                 () => Steps(() => Play("R02"), () => Then(PadsPlaced))),
             new Beat("b05_edges", "The doorway across x = 100 and seven walls: sequence 5-12, exactly 8 rebuilds; seen from 9 m (CameraRig.Cap)", 120, true,
                 () => Steps(() => Play("R03"), () => Play("R04"), () => Then(EdgesPlaced), () => Look(200, CameraRig.BuildMaxDistance))),
-            new Beat("b06_roofs_and_door", "Four roofs, sequence 13-16 with no rebuild; the door hung in the doorway, sequence 17, one rebuild, shut; step 1 is 17 pieces for 25 timber",
+            new Beat("b06_roofs_and_door", "Four roofs, sequence 13-16 with no rebuild; the door hung in the doorway, sequence 17, one rebuild, shut: 17 pieces for 25 timber so far",
                 120, true, () => Steps(() => Play("R05"), () => Play("R06"), () => Then(RoofsAndDoorPlaced), () => Look(200, CameraRig.BuildMaxDistance))),
+            new Beat("b07_bench_and_chest", "The bench across x = 100 and the chest in the north-east square, sequence 18 and 19: step 1 is 19 pieces for 31 timber, their IDs derived 1-19",
+                60, true, () => Steps(() => Play("R07"), () => Play("R08"), () => Then(BenchAndChestPlaced), () => Look(0, CameraRig.BuildMaxDistance))),
             new Beat("b08_overlap_refused", "A wall on the doorway's edge: refused in words - the ghost and the toast say why - and nothing changes", 60, true,
                 () => Steps(OverlapGhost, () => Play("R09"), () => Then(OverlapRefused), () => Look(200, CameraRig.BuildMaxDistance))),
             new Beat("b09_door_and_inside", "The door opened from inside and shut from outside; the walk north stopped by the shut leaf; opened with E; the aim from inside stops at the west wall",
                 600, true, () => Steps(ExitBuildMode, () => Play("R10"), () => Then(() => DoorIs(true, "R10")), () => Play("R11"),
                     () => Then(() => DoorIs(false, "R11")), () => Play("R12"), StoppedByTheDoor, () => Play("R13"), () => Then(() => DoorIs(true, "R13")),
                     () => Play("R14"), AimStopsAtTheWall, () => Look(90, 4f))),
+            new Beat("b10_craft_at_home", "The March Spear made at the placed bench, 1.36 m from its site, no authored anvil in reach", 300, false,
+                () => Steps(() => Play("R15"), () => Then(CraftedAtHome))),
             new Beat("b14_vestibule", "South of the door, a pad and two walls; the wall that would close the vestibule refused as unnavigable - the red ghost and the toast say why - then all taken down for 1, 1 and 0 timber",
                 600, false, () => Steps(() => Play("R22"), () => Play("R23"), () => Then(() => ExpectAccepted("R22", "R23")), VestibuleGhost, () => Play("R24"),
                     () => Then(VestibuleRefused), () => Look(0, CameraRig.BuildMaxDistance), () => Still("b14_vestibule"), ExitBuildMode, () => Play("R25"),
                     () => Then(VestibuleDown))),
-            new Beat("b17_route_west", "West of the workshop: two pads and a wall; the second wall refused while the character stands on its line, then placed",
-                1_500, true, () => Steps(() => Play("R39"), () => Play("R40"), () => Play("R41"), () => Then(StandingOnTheLine), () => Play("R42"),
+            new Beat("b15_blows_and_mending", "Round the east side to the north wall: three blows (170), mended with T for one timber (200), a fourth blow (190); its target line in words",
+                600, false, () => Steps(() => Play("R26"), () => Play("R27"), () => Play("R28"), () => Then(BlowsAndMend), () => Play("R29"), () => Wait(20),
+                    () => Then(FourthBlow), TargetLineShown, () => Look(180, 4f), () => Still("b15_blows_and_mending"), ExitBuildMode)),
+            new Beat("b16_chest_cycle_and_spill", "In by the doorway to the chest: two timber stored, taken back, stored again under one derived ID; ten blows destroy it, and the two timber lie where it stood, picked up",
+                800, false, () => Steps(() => Play("R30"), () => Play("R31"), () => Then(ChestStored), () => Play("R32"), () => Then(ChestEmptied), () => Play("R33"),
+                    () => Then(ChestRefilled), () => Play("R34"), () => Wait(20), () => Then(ChestDestroyed), () => Look(0, 4f), () => Still("b16_chest_cycle_and_spill"),
+                    () => Play("R35"), () => Then(SpillPickedUp))),
+            new Beat("b17_route_west", "A second chest with two timber in it; west of the workshop: two pads and a wall; the second wall refused while the character stands on its line, then placed",
+                1_500, true, () => Steps(() => Play("R36"), () => Play("R37"), () => Then(SecondChest), () => Play("R39"), () => Play("R40"), () => Play("R41"), () => Then(StandingOnTheLine), () => Play("R42"),
                     () => Then(TheLineAtX96), () => Look(90, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
             new Beat("b18_companion_in", "Tavar told to follow from inside: he plans a route round to the doorway", 400, true,
                 () => Steps(() => Play("R45"), () => Then(TavarPlans), () => Look(0, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
@@ -382,11 +412,149 @@ public sealed class BuildShots
         Expect(_placed.Count == 17 && _placed[16].DefId == Door && _placed[16].Revision == 17, "the door was not placed 17th");
         Expect(_rebuilt.Count == 9, $"{_rebuilt.Count} rebuilds after the roofs and the door, not 9 (the door's one)");
         Expect(simulation.Pieces.SingleOrDefault(p => p.DefId == Door) is { DoorOpen: false }, "the door is not hung shut");
+        Expect(simulation.Pieces.Length == 17 && 45 - TimberCarried() == 25 && simulation.World.StructureSequence == 17,
+            $"the roofs and the door left {simulation.Pieces.Length} pieces, {45 - TimberCarried()} timber spent and sequence " +
+            $"{simulation.World.StructureSequence}, not 17 / 25 / 17");
+    }
+
+    /// <summary>b07: the bench and the chest end step 1 (§4.22's counts), a rebuild each; every piece's ID derived from its ordinal.</summary>
+    private void BenchAndChestPlaced()
+    {
+        var simulation = _session.Simulation!;
+        ExpectAccepted("R07", "R08");
+        Expect(_placed.Count == 19 && _placed[17].DefId == Bench && _placed[17].Revision == 18 && _placed[18].DefId == Chest && _placed[18].Revision == 19,
+            "the bench and the chest were not placed 18th and 19th");
+        Expect(_rebuilt.Count == 11, $"{_rebuilt.Count} rebuilds after the bench and the chest, not 11");
         var (pieces, spent, sequence) = Counts.StepOne;
         Expect(simulation.Pieces.Length == pieces && 45 - TimberCarried() == spent && simulation.World.StructureSequence == sequence,
             $"step 1 left {simulation.Pieces.Length} pieces, {45 - TimberCarried()} timber spent and sequence {simulation.World.StructureSequence}, " +
             $"not {pieces} / {spent} / {sequence}");
+        var derived = Enumerable.Range(1, pieces).Select(n => Domain.EntityId.Derived(Domain.EntityKind.Piece, n, "unnamed.piece/v1", simulation.PlayerId.Value));
+        Expect(simulation.Pieces.Select(p => p.Id).Order().SequenceEqual(derived.Order()), "the pieces' IDs are not Derived(Piece, 1..19)");
         Row($"Step 1: {simulation.Pieces.Length} pieces, {45 - TimberCarried()} timber spent, sequence {simulation.World.StructureSequence}", simulation.WorldTick);
+    }
+
+    private int _ingotsBefore = -1;
+
+    /// <summary>b10: the spear made at the placed bench, 1.36 m from its site; every authored anvil out of reach; an ingot spent.</summary>
+    private void CraftedAtHome()
+    {
+        var simulation = _session.Simulation!;
+        Expect(Outcome("R15") is null, $"the spear at the bench: \"{Outcome("R15")}\"");
+        var body = simulation.Player.Body;
+        var bench = simulation.Pieces.Single(p => p.DefId == Bench);
+        var site = simulation.Stations.Single(s => s.Key == bench.StationKey);
+        double distance = Math.Sqrt(Math.Pow(site.XMm - body.XMm, 2) + Math.Pow(site.ZMm - body.ZMm, 2));
+        Expect(distance is >= 1_300 and <= 1_420, $"the spear was made {distance:0} mm from the bench's site, not about 1 360");
+        Expect(_session.Setup.Layout.Stations.Where(s => s.Kind == "anvil")
+                .All(s => Math.Sqrt(Math.Pow(s.XMm - body.XMm, 2) + Math.Pow(s.ZMm - body.ZMm, 2)) > _session.Setup.Items.Inventory.ReachMm),
+            "an authored anvil is in reach");
+        Expect(Ingots() == _ingotsBefore - 1, $"{Ingots()} ingots carried after the spear, not {_ingotsBefore - 1}");
+        Row($"R15: the March Spear made {distance:0} mm from the bench's site", simulation.WorldTick);
+    }
+
+    private int Ingots() => _session.Simulation!.Player.Inventory.Where(e => e.DefId == IronIngot).Sum(e => e.Count);
+
+    private (Domain.EntityId? North, int Timber) _mend;
+
+    /// <summary>b15, after R28: three melee blows of 10 on the north wall (170), then its mending for one timber (170 to 200).</summary>
+    private void BlowsAndMend()
+    {
+        var simulation = _session.Simulation!;
+        var north = simulation.Pieces.Single(p => p.DefId == Wall && p.XMm == 100_500 && p.ZMm == 105_000);
+        Expect(_damaged.Select(d => d.HealthNow).SequenceEqual(new[] { 190, 180, 170 }), $"the blows left {string.Join(", ", _damaged.Select(d => d.HealthNow))}");
+        Expect(_damaged.All(d => d.PieceId == north.Id && d.Source == "melee" && d.Amount == 10), "a blow was not a melee 10 on the north wall");
+        Expect(Outcome("R28") is null, $"the mending: \"{Outcome("R28")}\"");
+        Expect(_repaired.Count == 1 && _repaired[0].PieceId == north.Id && _repaired[0].From == 170 && _repaired[0].To == 200,
+            $"the mending was {string.Join("; ", _repaired.Select(r => $"{r.From} -> {r.To}"))}, not 170 -> 200");
+        Expect(TimberCarried() == _mend.Timber - 1, $"the mending cost {_mend.Timber - TimberCarried()} timber, not 1");
+        _mend.North = north.Id;
+    }
+
+    private void FourthBlow()
+    {
+        var wall = _session.Simulation!.Pieces.Single(p => p.Id == _mend.North);
+        Expect(wall.HealthCurrent == 190, $"after the fourth blow the north wall is at {wall.HealthCurrent}, not 190");
+    }
+
+    /// <summary>b15's still: build mode, facing the north wall; its target line names it, its health and the keys, in words.</summary>
+    private bool TargetLineShown()
+    {
+        if (_phase == 0)
+        {
+            Expect(_build.Enter(_camera), "build mode would not open");
+            Aim(Pad, 100_500, 106_500);
+            _phase = 1;
+        }
+        if (++_phase < 12)
+            return false;
+        const string want = "Timber Wall 190/200 - [T] mend   [Z] take down";
+        Expect(_build.TargetLine == want, $"the target line reads \"{_build.TargetLine}\", not \"{want}\"");
+        Row($"b15: the target line \"{_build.TargetLine}\"", _session.Simulation!.WorldTick);
+        return _broken is null;
+    }
+
+    private (string Key, Domain.EntityId? Derived, Domain.EntityId? Chest) _chest;
+
+    /// <summary>b16, after R31: the chest's record materialises under the ID derived from the piece's, with the two timber in it.</summary>
+    private void ChestStored()
+    {
+        var simulation = _session.Simulation!;
+        var chest = simulation.Pieces.Single(p => p.DefId == Chest && p.XMm == 103_500 && p.ZMm == 103_500);
+        _chest = (chest.ContainerKey!, Domain.EntityId.Derived(Domain.EntityKind.Container, chest.Id.Timestamp, "unnamed.piece-container/v1", chest.Id.Value), chest.Id);
+        Expect(Outcome("R31") is null, $"storing two timber: \"{Outcome("R31")}\"");
+        Expect(simulation.World.Container(_chest.Key) is { } record && record.InstanceId == _chest.Derived && record.Items.Sum(i => i.Count) == 2,
+            "the chest's record did not materialise with its derived ID and two timber");
+    }
+
+    private void ChestEmptied()
+    {
+        var simulation = _session.Simulation!;
+        Expect(Outcome("R32") is null, $"taking all: \"{Outcome("R32")}\"");
+        Expect(simulation.World.Container(_chest.Key) is { } record && record.InstanceId == _chest.Derived && record.Items.IsEmpty,
+            "the emptied chest's record did not stay, empty, with its derived ID");
+    }
+
+    private ContainerItem? _stored;
+
+    private void ChestRefilled()
+    {
+        var simulation = _session.Simulation!;
+        Expect(Outcome("R33") is null, $"storing two timber again: \"{Outcome("R33")}\"");
+        var record = simulation.World.Container(_chest.Key);
+        Expect(record is { Items.Length: 1 } && record.InstanceId == _chest.Derived && record.Items[0].Count == 2,
+            "the refilled chest does not hold one stack of two under its derived ID");
+        _stored = record?.Items.FirstOrDefault();
+    }
+
+    /// <summary>b16, 20 ticks after R34's tenth blow: the chest destroyed by it, its record gone, the two timber lying at its site.</summary>
+    private void ChestDestroyed()
+    {
+        var simulation = _session.Simulation!;
+        Expect(_destroyed.Count == 1 && _destroyed[0].PieceId == _chest.Chest && _destroyed[0].DefId == Chest && _destroyed[0].Source == "melee",
+            "the tenth blow did not destroy the chest");
+        Expect(_damaged.Skip(4).Select(d => d.HealthNow).SequenceEqual(Enumerable.Range(1, 9).Select(n => 100 - 10 * n)),
+            $"the chest's blows left {string.Join(", ", _damaged.Skip(4).Select(d => d.HealthNow))}");
+        Expect(simulation.World.Container(_chest.Key) is null, "the destroyed chest's record remains");
+        Expect(_stored is { } stored && simulation.WorldItems.Any(i => i.Id == stored.ItemId && i.DefId == Timber && i.Count == 2 && i.XMm == 103_500 && i.ZMm == 104_400),
+            "the two timber do not lie at (103.5, 104.4) with their item ID");
+    }
+
+    private void SpillPickedUp()
+    {
+        var simulation = _session.Simulation!;
+        Expect(Outcome("R35") is null, $"the pick-up: \"{Outcome("R35")}\"");
+        Expect(_stored is { } stored && simulation.WorldItems.All(i => i.Id != stored.ItemId), "the spilled timber still lies there");
+    }
+
+    /// <summary>b17's chest rows: a second chest east of the doorway, with two timber in it.</summary>
+    private void SecondChest()
+    {
+        var simulation = _session.Simulation!;
+        ExpectAccepted("R36", "R37");
+        var chest = simulation.Pieces.SingleOrDefault(p => p.DefId == Chest);
+        Expect(chest is not null && simulation.World.Container(chest.ContainerKey!) is { } record && record.Items.Sum(i => i.Count) == 2,
+            "the second chest does not hold two timber");
     }
 
     /// <summary>b08: the wall chosen and aimed at the doorway's edge: the ghost refuses, in the words the command will.</summary>
@@ -631,6 +799,8 @@ public sealed class BuildShots
         {
             if (row.Pose is { } pose)
             {
+                if (_waypoint == 0 && simulation.WorldTick < _lastActionTick + row.After)
+                    return false;
                 if (!Walk(pose.Legs) || !Pose(Mm(pose.X), Mm(pose.Z)))
                     return false;
                 Face(pose.FacingDeg);
@@ -646,6 +816,12 @@ public sealed class BuildShots
         if (_action >= actions.Count)
             return true;
         var action = actions[_action];
+        if (_action > 0 && simulation.WorldTick < _lastActionTick + action.Gap)
+            return false;
+        if (_action == 0 && action is RepairAction)
+            _mend.Timber = TimberCarried();
+        if (_action == 0 && action is CraftAction)
+            _ingotsBefore = Ingots();
         _appliedAt[action] = simulation.WorldTick;
         switch (action)
         {
@@ -684,6 +860,27 @@ public sealed class BuildShots
             case SaveAction:
                 _session.Save(SaveSlots.Quick);
                 break;
+            case CraftAction craft:
+                _controller.Craft(craft.RecipeId);
+                break;
+            case AttackAction:
+                _controller.Attack();
+                break;
+            case RepairAction repair:
+                _controller.Repair((repair.Piece(simulation) ?? throw new InvalidOperationException($"{row.Id}: no {repair.DefId} at ({repair.XMm}, {repair.ZMm})")).Id);
+                break;
+            case StoreAction store:
+                // What the container panel sends when a stack is moved into the chest.
+                _session.Submit(store.Command(simulation) ?? throw new InvalidOperationException($"{row.Id}: no chest, or no stack of {store.Count} timber"));
+                break;
+            case TakeAllAction takeAll:
+                string key = takeAll.Piece(simulation)?.ContainerKey ?? throw new InvalidOperationException($"{row.Id}: no chest at ({takeAll.XMm}, {takeAll.ZMm})");
+                _session.Submit(new TakeAllCommand(simulation.PlayerId, key));
+                break;
+            case PickUpAction pickUp:
+                var take = (MoveItemCommand?)pickUp.Command(simulation) ?? throw new InvalidOperationException($"{row.Id}: no timber at ({pickUp.XMm}, {pickUp.ZMm})");
+                _controller.PickUp(take.Item);
+                break;
             default:
                 throw new InvalidOperationException($"{row.Id}: no player for {action}");
         }
@@ -697,7 +894,8 @@ public sealed class BuildShots
         var action = LandedRows.Single(r => r.Id == rowId).Landed.ElementAt(index);
         long tick = _appliedAt[action];
         return _session.Simulation!.CommandLog
-            .Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand or DismantlePieceCommand).RejectedReason;
+            .Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand or DismantlePieceCommand or CraftCommand
+                or AttackCommand or RepairPieceCommand or MoveItemCommand or TakeAllCommand).RejectedReason;
     }
 
     private void ExpectAccepted(params string[] rows)
@@ -757,6 +955,18 @@ public sealed class BuildShots
             _phase = 0;
         }
         return true;
+    }
+
+    /// <summary>Some ticks inside a beat: a blow lands at its swing's end, 8 ticks after it is asked for.</summary>
+    private bool Wait(int ticks)
+    {
+        var simulation = _session.Simulation!;
+        if (_phase == 0)
+        {
+            _waitUntil = simulation.WorldTick + ticks;
+            _phase = 1;
+        }
+        return simulation.WorldTick >= _waitUntil;
     }
 
     /// <summary>A still in the middle of a beat: taken this frame; the beat goes on next frame.</summary>

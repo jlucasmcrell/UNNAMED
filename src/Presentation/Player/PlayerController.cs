@@ -170,8 +170,9 @@ public sealed class PlayerController
         }
         foreach (var site in simulation.Containers.Select(c => c.Site))
         {
-            // A corpse is searched like a chest, and named for the creature it was.
-            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId ?? site.Key;
+            // A corpse is searched like a chest, and named for the creature it was; a placed chest (M7) for its piece.
+            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId
+                ?? simulation.Pieces.FirstOrDefault(p => p.ContainerKey == site.Key)?.DefId ?? site.Key;
             candidates.Add((new Focus(FocusKind.Container, site.Key, defId, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
         }
         foreach (var item in simulation.WorldItems)
@@ -179,7 +180,7 @@ public sealed class PlayerController
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
         foreach (var node in simulation.Nodes)
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
-        foreach (var station in _session.Setup.Layout.Stations)
+        foreach (var station in simulation.Stations)   // the authored ones, then each placed bench (M7)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
@@ -256,6 +257,8 @@ public sealed class PlayerController
 
     /// <summary>Take a piece down (M7).</summary>
     public void Dismantle(Domain.EntityId pieceId) => _session.Submit(new DismantlePieceCommand(_session.Simulation!.PlayerId, pieceId));
+
+    public void Repair(Domain.EntityId pieceId) => _session.Submit(new RepairPieceCommand(_session.Simulation!.PlayerId, pieceId));
 
     /// <summary>The recipes the character knows that are worked at a station of this kind. None is named here.</summary>
     public IReadOnlyList<Domain.Crafting.RecipeDefinition> Recipes(string stationKind)
