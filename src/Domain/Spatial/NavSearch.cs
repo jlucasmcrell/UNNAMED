@@ -320,7 +320,8 @@ public static class NavSearch
 
             Touch(startIdx);
             g[startIdx] = 0;
-            int h0 = Estimate(startIdx % w, startIdx / w);
+            int si = Math.Abs(goalI - startIdx % w), sj = Math.Abs(goalJ - startIdx / w);
+            int h0 = si > sj ? 1000 * si + 414 * sj : 1000 * sj + 414 * si;
             Place(Key(h0, h0), startIdx, count++);
 
             int expansions = 0;
@@ -339,53 +340,80 @@ public static class NavSearch
                 int li = idx % w, lj = idx / w;
                 if (li == 0 || li == lastI || lj == 0 || lj == lastJ)
                     touchedBorder = true;
-                int gHere = g[idx];
-                // The orthogonal neighbours (E, N, W, S), their walkability kept: a diagonal step needs both it passes between.
-                bool east = li < lastI && Open(idx + 1, li + 1, lj);
-                bool north = lj < lastJ && Open(idx + w, li, lj + 1);
-                bool west = li > 0 && Open(idx - 1, li - 1, lj);
-                bool south = lj > 0 && Open(idx - w, li, lj - 1);
-                if (east)
-                    Relax(idx + 1, li + 1, lj, 0, gHere + 1000);
-                if (north)
-                    Relax(idx + w, li, lj + 1, 1, gHere + 1000);
-                if (west)
-                    Relax(idx - 1, li - 1, lj, 2, gHere + 1000);
-                if (south)
-                    Relax(idx - w, li, lj - 1, 3, gHere + 1000);
+                int gHere = g[idx], straight = gHere + 1000, diagonal = gHere + 1414, n;
+                // The orthogonal neighbours (E, N, W, S), their walkability kept: a diagonal step needs both it passes between. A node
+                // seen before is read from its bits here; only one seen for the first time goes to Walk. A step is taken only onto a node
+                // still open, and only when it is shorter.
+                bool east = false, north = false, west = false, south = false;
+                if (li < lastI)
+                {
+                    n = idx + 1;
+                    east = generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li + 1, _wj0 + lj);
+                    if (east && (dir[n] & Closed) == 0 && straight < g[n])
+                        Improve(n, li + 1, lj, 0, straight);
+                }
+                if (lj < lastJ)
+                {
+                    n = idx + w;
+                    north = generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li, _wj0 + lj + 1);
+                    if (north && (dir[n] & Closed) == 0 && straight < g[n])
+                        Improve(n, li, lj + 1, 1, straight);
+                }
+                if (li > 0)
+                {
+                    n = idx - 1;
+                    west = generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li - 1, _wj0 + lj);
+                    if (west && (dir[n] & Closed) == 0 && straight < g[n])
+                        Improve(n, li - 1, lj, 2, straight);
+                }
+                if (lj > 0)
+                {
+                    n = idx - w;
+                    south = generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li, _wj0 + lj - 1);
+                    if (south && (dir[n] & Closed) == 0 && straight < g[n])
+                        Improve(n, li, lj - 1, 3, straight);
+                }
                 // NE, NW, SW, SE: out of the window whenever an orthogonal they need is.
-                if (east && north && Open(idx + w + 1, li + 1, lj + 1))
-                    Relax(idx + w + 1, li + 1, lj + 1, 4, gHere + 1414);
-                if (west && north && Open(idx + w - 1, li - 1, lj + 1))
-                    Relax(idx + w - 1, li - 1, lj + 1, 5, gHere + 1414);
-                if (west && south && Open(idx - w - 1, li - 1, lj - 1))
-                    Relax(idx - w - 1, li - 1, lj - 1, 6, gHere + 1414);
-                if (east && south && Open(idx - w + 1, li + 1, lj - 1))
-                    Relax(idx - w + 1, li + 1, lj - 1, 7, gHere + 1414);
+                if (east && north)
+                {
+                    n = idx + w + 1;
+                    if ((generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li + 1, _wj0 + lj + 1))
+                        && (dir[n] & Closed) == 0 && diagonal < g[n])
+                        Improve(n, li + 1, lj + 1, 4, diagonal);
+                }
+                if (west && north)
+                {
+                    n = idx + w - 1;
+                    if ((generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li - 1, _wj0 + lj + 1))
+                        && (dir[n] & Closed) == 0 && diagonal < g[n])
+                        Improve(n, li - 1, lj + 1, 5, diagonal);
+                }
+                if (west && south)
+                {
+                    n = idx - w - 1;
+                    if ((generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li - 1, _wj0 + lj - 1))
+                        && (dir[n] & Closed) == 0 && diagonal < g[n])
+                        Improve(n, li - 1, lj - 1, 6, diagonal);
+                }
+                if (east && south)
+                {
+                    n = idx - w + 1;
+                    if ((generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + li + 1, _wj0 + lj - 1))
+                        && (dir[n] & Closed) == 0 && diagonal < g[n])
+                        Improve(n, li + 1, lj - 1, 7, diagonal);
+                }
             }
             return (touchedBorder ? NavOutcome.NotInWindow : NavOutcome.Exhausted, expansions);
 
-            // The octile distance to the goal, as Heuristic gives it.
-            int Estimate(int i, int j)
+            // A shorter way onto an open node: its parent and g, and its entry - new, or moved up. The heuristic is the octile distance.
+            void Improve(int n, int i, int j, int d, int ng)
             {
-                int di = Math.Abs(goalI - i), dj = Math.Abs(goalJ - j);
-                return di > dj ? 1000 * di + 414 * dj : 1000 * dj + 414 * di;
-            }
-
-            // Whether a window node is walkable: its cached bits once known, else worked out once.
-            bool Open(int n, int i, int j) =>
-                generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + i, _wj0 + j);
-
-            // A step onto a walkable node: kept when it is still open and this way is shorter - a new entry, or its entry moved up.
-            void Relax(int n, int i, int j, int d, int ng)
-            {
-                int was = g[n];
-                if ((dir[n] & Closed) != 0 || ng >= was)
-                    return;
+                bool entered = g[n] != int.MaxValue;
                 g[n] = ng;
                 dir[n] = (byte)((dir[n] & ~0x0F) | NavScratch.ParentSet | d);
-                int h = Estimate(i, j);
-                Place(Key(ng + h, h), n, was == int.MaxValue ? count++ : at[n]);
+                int di = Math.Abs(goalI - i), dj = Math.Abs(goalJ - j);
+                int h = di > dj ? 1000 * di + 414 * dj : 1000 * dj + 414 * di;
+                Place(Key(ng + h, h), n, entered ? at[n] : count++);
             }
 
             // (f, h) as one number, f above h: h is below 2^20 in any window, so the pair orders as (f, h) does.
