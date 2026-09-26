@@ -180,17 +180,21 @@ public static class Terrain3DView
                 second = i;
         int baseLayer = SlotLayer[first], overlay = SlotLayer[second];
         float blend = weights[second] / MathF.Max(weights[first] + weights[second], 1e-4f);
+        // An override (the worn path, a steep face) takes the overlay with a blend that starts from nothing at its threshold: switching the
+        // overlay at the blend the neighbouring ground already had drew a hard, jagged edge between vertices a metre apart.
         float path = ground.PathAt(x, z);
         if (path > 0.08f)
         {
             overlay = Trail;
-            blend = MathF.Max(blend, path);
+            blend = GroundField.SmoothStep(0.08f, 0.6f, path);
         }
+        // Inside the hollow a steep bank takes the dark rock only halfway: the scenery's cliff rock at full strength read as a black stain
+        // on the quarry's pale gravel.
         float slope = ground.Slope(x, z);
-        if (slope > 0.55f)
+        if (slope > 0.5f)
         {
             overlay = Cliff;
-            blend = MathF.Max(blend, GroundField.SmoothStep(0.55f, 1.1f, slope));
+            blend = 0.55f * GroundField.SmoothStep(0.5f, 1.6f, slope);
         }
         return Encode(baseLayer, overlay, (int)MathF.Round(Math.Clamp(blend, 0f, 1f) * 255f), auto: false);
     }

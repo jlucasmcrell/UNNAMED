@@ -44,6 +44,38 @@
     "piece.door.timber": { "model": "piece_timber_door", "material": "wood", "note": "The leaf's origin is its hinge edge (local x = -0.8 of the part box)." },
     "piece.roof.timber": { "model": "piece_timber_roof", "material": "wood", "note": "Its ridge runs along local x: modules stitch along x only (no hips or valleys yet)." }
   },
+  "people_clips_by_visual_option": {
+    "clips=ext": {
+      "player": {
+        "note": "Phase B (B12): the player's states played by the retargeted KayKit and UAL2 clips (CC0; review/retarget/B12_CATALOGUE.md), each gait at its measured pace.",
+        "clips": {
+          "idle": "player.veth_wanderer.ext_idle",
+          "walk": "player.veth_wanderer.ext_walk",
+          "run": "player.veth_wanderer.ext_run",
+          "sprint": "player.veth_wanderer.ext_sprint",
+          "sword_ready": "player.veth_wanderer.ext_sword_ready",
+          "sword_attack": "player.veth_wanderer.ext_sword_attack_1",
+          "sword_block": "player.veth_wanderer.ext_sword_block",
+          "bow_ready": "player.veth_wanderer.ext_bow_ready",
+          "bow_draw": "player.veth_wanderer.ext_bow_draw",
+          "spear_ready": "player.veth_wanderer.ext_spear_ready",
+          "spear_thrust": "player.veth_wanderer.ext_spear_thrust",
+          "cast": "player.veth_wanderer.ext_cast",
+          "hit": "player.veth_wanderer.ext_hit",
+          "death": "player.veth_wanderer.ext_death",
+          "interact": "player.veth_wanderer.ext_interact",
+          "crouch_idle": "player.veth_wanderer.ext_crouch_idle",
+          "crouch_walk": "player.veth_wanderer.ext_crouch_walk"
+        },
+        "paces": {
+          "walk": 1.93,
+          "run": 3.57,
+          "sprint": 3.81,
+          "crouch_walk": 1.01
+        }
+      }
+    }
+  },
   "structures_by_visual_option": {
     "foldscar=proof": {
       "rock_foldscar_heart": { "model": "scifi_artifact_a", "surface": "mat_acg_onyx015", "surface_tint": [0.2, 0.21, 0.26], "material": "stone", "note": "Phase B (B0.6): the heart as a staged alien artifact - Alien Artifacts sculpture 1 (CC0, zonked, OpenGameArt) fitted to the heart's circle, wearing ambientCG Onyx015 (CC0) over its own carving." }

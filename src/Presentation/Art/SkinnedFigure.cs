@@ -46,7 +46,7 @@ public sealed partial class SkinnedFigure : Figure
     {
         if (!bindings.People.TryGetValue(personId, out var person) || SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings };
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces };
         figure.AddChild(model);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
@@ -163,6 +163,11 @@ public sealed partial class SkinnedFigure : Figure
         }
     }
 
+    /// <summary>The pace a gait clip was authored at: the bindings' (a retargeted clip's own), or the game's clips' default.</summary>
+    private float Pace(string state, float fallback) => _paces.GetValueOrDefault(state, fallback);
+
+    private IReadOnlyDictionary<string, float> _paces = new Dictionary<string, float>();
+
     private void Animate(float speed, double delta)
     {
         var m = _model;
@@ -238,7 +243,7 @@ public sealed partial class SkinnedFigure : Figure
         if (_crouched && m.Has("crouch_idle"))
         {
             if (speed > 0.25f && m.Has("crouch_walk"))
-                m.Play("crouch_walk", 0.25f, Mathf.Clamp(speed / 1.6f, 0.6f, 1.6f));
+                m.Play("crouch_walk", 0.25f, Mathf.Clamp(speed / Pace("crouch_walk", 1.6f), 0.6f, 1.6f));
             else
                 m.Play("crouch_idle", 0.3f);
             return;
@@ -248,9 +253,9 @@ public sealed partial class SkinnedFigure : Figure
         {
             (string gait, float pace) = speed switch
             {
-                > 4.2f when m.Has("sprint") => ("sprint", 5f),
-                > 2.2f when m.Has("run") => ("run", 3.2f),
-                _ => ("walk", 1.4f),
+                > 4.2f when m.Has("sprint") => ("sprint", Pace("sprint", 5f)),
+                > 2.2f when m.Has("run") => ("run", Pace("run", 3.2f)),
+                _ => ("walk", Pace("walk", 1.4f)),
             };
             m.Play(gait, 0.2f, Mathf.Clamp(speed / pace, 0.6f, 1.6f));
             return;

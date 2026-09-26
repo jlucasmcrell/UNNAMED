@@ -138,7 +138,10 @@ public static class RavineDressing
             float o = 5.48f * s + 1.2f + random.RandfRange(0, 1.5f);
             var at = Ground(a, o);
             var turn = new Vector3(random.RandfRange(-4, 2), edge.FacingYaw + random.RandfRange(-5, 5), random.RandfRange(-2, 2));
-            if (Place(root, art, CliffWall, at - new Vector3(0, 2.0f * s, 0), turn, s))
+            // The run is a shell open at the back: its top (10.3 m x the scale) is kept under the ground eight metres further out, or the
+            // sky shows through it from the hollow.
+            float y = Mathf.Min(at.Y - 2.0f * s, Ground(a, o + 8f).Y - 1.0f - 10.3f * s);
+            if (Place(root, art, CliffWall, new Vector3(at.X, y, at.Z), turn, s))
                 placed++;
         }
         for (float a = edge.From + random.RandfRange(0, 8); a < edge.To; a += random.RandfRange(6, 13))

@@ -110,7 +110,9 @@ public partial class Main : Node3D
     private void Start()
     {
         ParseArguments(OS.GetCmdlineUserArgs());
-        VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
+        // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
+        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--content-root" or "--profile" or "--visual"));
+        VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
         VisualOptions.Apply(GetViewport());
         if (_flags.Contains("--spike"))
@@ -295,6 +297,8 @@ public partial class Main : Node3D
             if (VisualOptions.Tier != "phase_a")
             {
                 _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height };
+                _graphics = new Ui.GraphicsPanel { Name = "Graphics" };
+                AddChild(_graphics);
                 AddChild(_startCamera);
                 // The ground's scatter from a preview seed, so the shot is not bare earth; a world places its own on start.
                 _scatter.Build(0x5CE4E5EED);
@@ -1350,6 +1354,7 @@ public partial class Main : Node3D
 
     /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
     private StartCamera? _startCamera;
+    private Ui.GraphicsPanel? _graphics;
 
     private void Started()
     {
@@ -1359,6 +1364,8 @@ public partial class Main : Node3D
             _startCamera = null;
             _camera.Camera.MakeCurrent();
             StartCamera.Track(this, _camera.Camera);
+            _graphics?.QueueFree();
+            _graphics = null;
         }
         _saves.Close();
         _hud.Visible = true;

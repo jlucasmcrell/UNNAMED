@@ -39,7 +39,11 @@ public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, strin
 /// and which way a held weapon points - a rig without hand sockets gets them here, stated), and the clips by state.
 /// </summary>
 public sealed record PersonArt(string Model, string Hand, string? OffHand, IReadOnlyDictionary<string, string> Clips, Transform3D? Grip,
-    Transform3D? OffGrip);
+    Transform3D? OffGrip)
+{
+    /// <summary>The pace (m/s) each gait clip was authored at, where it is not the game's own (walk 1.4, run 3.2, sprint 5, crouched 1.6).</summary>
+    public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
+}
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
 public sealed record WeaponArt(string Model, string Family, bool OffHand);
@@ -178,8 +182,9 @@ public sealed class ArtBindings
                         c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1), StringComparer.Ordinal)
                     : new Dictionary<string, CreatureArt>(),
                 People = root.TryGetProperty("people", out var people)
-                    ? people.EnumerateObject().ToDictionary(p => p.Name, p => new PersonArt(Text(p.Value, "model")!, Text(p.Value, "hand") ?? "hand_r",
-                        Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip")), StringComparer.Ordinal)
+                    ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
+                        Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))),
+                        StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
                 Weapons = root.TryGetProperty("weapons", out var weapons)
                     ? weapons.EnumerateObject().ToDictionary(w => w.Name, w => Weapon(w.Value), StringComparer.Ordinal)
@@ -235,6 +240,30 @@ public sealed class ArtBindings
             GD.PushWarning($"UNNAMED art: the bindings at {resourcePath} could not be read ({e.Message}); drawing greybox");
             return Empty;
         }
+    }
+
+    /// <summary>
+    /// A person's clips under the run's visual options (Phase B, B12: <c>people_clips_by_visual_option</c>): each named state's clip replaced,
+    /// the rest kept, with the replacing clips' authored paces.
+    /// </summary>
+    private static PersonArt OptionClips(JsonElement root, string person, PersonArt look)
+    {
+        if (!root.TryGetProperty("people_clips_by_visual_option", out var byOption))
+            return look;
+        foreach (var option in byOption.EnumerateObject())
+        {
+            string[] kv = option.Name.Split('=', 2);
+            if (kv.Length != 2 || VisualOptions.All.GetValueOrDefault(kv[0]) != kv[1] || !option.Value.TryGetProperty(person, out var over))
+                continue;
+            var clips = look.Clips.ToDictionary(c => c.Key, c => c.Value, StringComparer.Ordinal);
+            foreach (var (state, clip) in Strings(over, "clips"))
+                clips[state] = clip;
+            var paces = over.TryGetProperty("paces", out var p) && p.ValueKind == JsonValueKind.Object
+                ? p.EnumerateObject().Where(x => x.Value.ValueKind == JsonValueKind.Number).ToDictionary(x => x.Name, x => (float)x.Value.GetDouble(), StringComparer.Ordinal)
+                : new Dictionary<string, float>(StringComparer.Ordinal);
+            look = look with { Clips = clips, Paces = paces };
+        }
+        return look;
     }
 
     private static Placement Look(JsonElement e) => new(

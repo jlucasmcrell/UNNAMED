@@ -11,7 +11,8 @@ namespace UNNAMED.Presentation.Art;
 /// The runtime glTF path and the loose material maps upload every texture as uncompressed RGBA8, and every level of a model (each LOD file
 /// embeds its own copy) uploads it again. This cache holds each distinct image once, block-compressed (BC7, a quarter of RGBA8) with its
 /// mip chain - alpha-tested colour maps keep their coverage down the chain - in <c>texture_cache/&lt;hash&gt;.dds</c>, and a manifest from
-/// each source (a model file and its image index, or a map file) to its entry, checked against the source's size and time. A source not in
+/// each source (a model file and its image index, or a map file) to its entry, checked against the source's size and a hash of its first
+/// and last 64 KB (not its time: a ZIP extraction rounds times to two seconds, and a copy may reset them). A source not in
 /// the manifest, or changed since, loads as before. Compressing needs the editor binary (<see cref="Image.Compress"/> is editor-only):
 /// run any harness with <c>--texture-cache</c> and every texture it loads is added; the exported game only reads.
 /// </summary>
@@ -20,7 +21,7 @@ public sealed class TextureCache
     public const string Folder = "texture_cache";
     private const string ManifestName = "manifest.json";
 
-    private sealed record Entry(string Dds, long Size, long Ticks, string Role);
+    private sealed record Entry(string Dds, long Size, string Sig, string Role);
 
     private readonly string? _root;
     private readonly Dictionary<string, Entry> _entries = new(StringComparer.Ordinal);
@@ -50,8 +51,12 @@ public sealed class TextureCache
         {
             using var json = JsonDocument.Parse(File.ReadAllText(manifest));
             foreach (var e in json.RootElement.GetProperty("entries").EnumerateObject())
-                _entries[e.Name] = new Entry(e.Value.GetProperty("dds").GetString()!, e.Value.GetProperty("size").GetInt64(),
-                    e.Value.GetProperty("ticks").GetInt64(), e.Value.GetProperty("role").GetString()!);
+            {
+                // An entry from an older manifest (checked by time) is skipped: rebuilding the cache re-signs it without recompressing.
+                if (e.Value.TryGetProperty("sig", out var sig))
+                    _entries[e.Name] = new Entry(e.Value.GetProperty("dds").GetString()!, e.Value.GetProperty("size").GetInt64(), sig.GetString()!,
+                        e.Value.GetProperty("role").GetString()!);
+            }
         }
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or IOException)
         {
@@ -74,7 +79,7 @@ public sealed class TextureCache
         var info = new FileInfo(source);
         if (!info.Exists)
             return null;
-        if (_entries.TryGetValue(key, out var entry) && entry.Size == info.Length && entry.Ticks == info.LastWriteTimeUtc.Ticks
+        if (_entries.TryGetValue(key, out var entry) && entry.Size == info.Length && entry.Sig == Signature(source)
             && Load(entry.Dds) is { } cached)
         {
             Hits++;
@@ -88,7 +93,7 @@ public sealed class TextureCache
             Failed++;
             return null;
         }
-        _entries[key] = new Entry(dds, info.Length, info.LastWriteTimeUtc.Ticks, role);
+        _entries[key] = new Entry(dds, info.Length, Signature(source), role);
         _dirty = true;
         Added++;
         Save();
@@ -114,6 +119,26 @@ public sealed class TextureCache
             return null;
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         return image.SaveDds(path) == Error.Ok ? name : null;
+    }
+
+    private readonly Dictionary<string, string> _signatures = new(StringComparer.Ordinal);
+
+    /// <summary>A source file's signature: SHA-256 of its first and last 64 KB (once a run per file).</summary>
+    private string Signature(string path)
+    {
+        if (_signatures.TryGetValue(path, out var known))
+            return known;
+        using var stream = File.OpenRead(path);
+        var buffer = new byte[Math.Min(131072, stream.Length)];
+        int head = stream.Read(buffer, 0, (int)Math.Min(65536, stream.Length));
+        if (stream.Length > 65536)
+        {
+            stream.Seek(-Math.Min(65536, stream.Length - head), SeekOrigin.End);
+            stream.ReadExactly(buffer, head, buffer.Length - head);
+        }
+        string signature = Convert.ToHexString(SHA256.HashData(buffer))[..24];
+        _signatures[path] = signature;
+        return signature;
     }
 
     private static Image WithMips(Image image)
@@ -147,7 +172,7 @@ public sealed class TextureCache
         if (!_dirty || _root is null)
             return;
         var entries = _entries.OrderBy(e => e.Key, StringComparer.Ordinal).ToDictionary(e => e.Key,
-            e => new Dictionary<string, object> { ["dds"] = e.Value.Dds, ["size"] = e.Value.Size, ["ticks"] = e.Value.Ticks, ["role"] = e.Value.Role });
+            e => new Dictionary<string, object> { ["dds"] = e.Value.Dds, ["size"] = e.Value.Size, ["sig"] = e.Value.Sig, ["role"] = e.Value.Role });
         var document = new Dictionary<string, object>
         {
             ["comment"] = "Phase B texture cache (TextureCache.cs): each source image (a model file's image index, or a map file) to its BC7 DDS copy.",
