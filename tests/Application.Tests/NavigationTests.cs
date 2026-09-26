@@ -12,7 +12,17 @@ using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
+/// <summary>
+/// Runs alone, after every parallel test: N-A10's per-call bounds time single calls, and in the parallel run the other test classes'
+/// work landed in them (a placement check's worst at 47 ms against a median under 2 ms).
+/// </summary>
+[CollectionDefinition(nameof(NavigationTimings), DisableParallelization = true)]
+public class NavigationTimings
+{
+}
+
 /// <summary>Navigation over the game's own region (M7 design §3.20.3), through a real session.</summary>
+[Collection(nameof(NavigationTimings))]
 public class NavigationTests
 {
     private static readonly NavAgent Person = new(0, true);
