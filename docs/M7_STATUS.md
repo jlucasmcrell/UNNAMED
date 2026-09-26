@@ -3,7 +3,9 @@
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
 **State:** E0-E10 done (2026-09-26). M7 is complete on its branch and awaits the owner's integration decision: nothing is merged, no tag
-is made, and M8 is not begun. The closeout below takes the M6 form; the slice records, the STOPs and their rulings follow it.
+is made, and M8 is not begun. **The final tested commit is `1278b9c`**: every runtime mode ran on it, and CI is green on it (run
+36270151122). The commit after it adds only this record, the acceptance evidence and the integration handoff (`docs/` alone). The
+closeout below takes the M6 form; the slice records, the STOPs and their rulings follow it.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -28,6 +30,8 @@ is made, and M8 is not begun. The closeout below takes the M6 form; the slice re
   schema 16 (the character's vitals) and 17 (a creature's attack in progress); a single-writer save lane.
 - **Evidence and budgets (E10).** N-A8, T2 and the final N-A10; `FrameStats`' `sim_ms`, `ticks` and `save_ms`; the ASTRAL perf trial
   with the `building` segment; lever 3 and the capture's allocation fix (the owner's ruling).
+- **Integration.** `docs/M7_VISUAL_INTEGRATION_HANDOFF.md`: the tested commit, migration and compatibility, the runtime evidence, the files
+  shared with the visual branches (recomputed read-only), and the tests a combined build must pass.
 
 ### Exit criteria, one by one (design §11)
 
@@ -98,13 +102,35 @@ The budget sheet's other lines, as the owner's E10 ruling measures them:
   over the 4 ms world-system budget, and an `off_line` replan at the workshop's door can repeat it once. Accepted residue (§14.3); the
   per-tick plan budget stays unbuilt unless RAZER measures a hitch.
 
-The ASTRAL perf trial (`--perf --perf-route extended`, 1920x1080, vsync off, RTX 5090; the raw capture outside the repository in
-`G:\UNNAMED_HISTORY\M7_EVIDENCE\e10_perf_astral\`): the `building` segment holds the design's four frame pass lines, 1% low 143.3 fps
-(line 60), frame p99 5.38 ms (16.7), `sim_ms` p99 over tick frames 0.29 ms (4), no hitch over 33 ms (the worst frame 26.6 ms); the most
-ticks in one frame 1. Its placements show 3.3-4.5 ms frames around each commit, 13.3 ms after the first doorway, and 8.8 and 13.8 ms
-around Kera's walk-home plans. The script's own synchronous save (capture, encode and write together, not the player's path) took
-17.2 ms. The route reports the character struck once (a clean capture is 0). The other segments' hitches are Phase-1's recorded
-first-use hitches, not M7's (R17). M7's RAZER capture of the segment is owed, when the owner has a window.
+The ASTRAL perf trial (`--perf --perf-route extended`, 1920x1080, vsync off, Ryzen 9 9950X3D and RTX 5090), run twice, the raw captures
+outside the repository in `G:\UNNAMED_HISTORY\M7_EVIDENCE\`. The `building` segment holds the design's four frame pass lines both times:
+
+| Run | Average | 1% low (line 60) | Frame p99 (line 16.7 ms) | `sim_ms` p99, tick frames (line 4 ms) | Hitches over 33 ms | Worst frame |
+|---|---|---|---|---|---|---|
+| `f1e7594` (`e10_perf_astral`) | 270.5 fps | 143.3 fps | 5.38 ms | 0.29 ms | 0 | 26.6 ms |
+| `1278b9c`, the final commit (`e10_final_perf`) | 275.5 fps | 163.1 fps | 4.76 ms | 0.24 ms | 0 | 18.7 ms |
+
+- The most ticks in one frame is 1.
+- In the first run's event marks, frames are 3.3-4.5 ms around each placement and 13.3 ms after the first doorway. Around Kera's walk-home plans they are 8.8 and 13.8 ms.
+- The script's own synchronous save (capture, encode and write together, not the player's path) took 17.2 and 16.3 ms.
+- The route reports the character struck once in the first run and three times in the second, over the whole route; a clean capture is 0. The summary does not say in which segment.
+- The other segments' hitches are Phase-1's recorded first-use hitches, not M7's (R17).
+- M7's RAZER capture of the segment is owed, when the owner has a window.
+
+### Final runtime checks (every mode of §13, on `1278b9c`, 2026-09-26, ASTRAL)
+
+| Proof | Result |
+|---|---|
+| `dotnet test src/UNNAMED.sln` | 1,093 passed: Domain 186, Application 322, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32. CI green (run 36270151122) |
+| Content lint | 116 definitions, 0 errors |
+| `--smoke`, `--quit-after 300` | PASS, exit 0. The smoke plays a new game on a fresh seed each run. It took 798 frames on seed 0x0BE4FE1183509700; three more smokes on the same commit with other seeds took 766 each, as every gate from E4 to E9 did, so the length follows the seed. The 975 error lines are all headless Godot's "Not supported by this display server", scaling with the frames |
+| `--build-shots`, verify, a second run | 19 beats, every one passed, `SubscriberFailures` 0. v1 1,535 fields and v2 1,523 fields, 0 differences; v3 home on tick 3,929. `state_replay.json` byte-identical, SHA-256 `304095a5dd36f50037c80a2d34dfa7bb985d842664441314a008728eefc7e239`: E9's, so lever 3 and the capture fix changed nothing in the state |
+| `--playthrough`, verify, a second run | every beat passed; verify 1,216 fields, 0 differences. `state_replay.json` byte-identical, SHA-256 `bc57ee2a3912865ef8d396b0b8c8df17f89630080caf384f5a0bcb438b108a7b`, as at E8 and E9. Both transcripts are E9's row for row but hashes |
+| `--ui-shots`, `--delta-shots`, `--input-check`, `--layout-check` (1366x768, 1280x720) | all exit 0, 0 error lines; the input check and both layout checks PASS |
+| The seam recording | the whole `--build-shots` run again, windowed: 3,951 frames, 197.6 s at 20 fps, real time; 19 beats passed. Outside the repository: `G:\UNNAMED_HISTORY\M7_EVIDENCE\e10_final_seam\build_shots_final.mp4` (137 MB) and `seam_b11_b13.mp4` (82 MB); E9's recording is beside it in `e9_seam\` |
+| The perf trial | above |
+| Captures | before each run the gate waited for other agents' Godot captures to end (15 s once); none ran beside another |
+| Evidence | `docs/acceptance/m7/` (the playthrough) and `docs/acceptance/m7_build/` (the build shots): transcripts, command logs, state files, diffs, coverage reports and JPEG stills from these runs |
 
 ### Owner process (criterion 37)
 
