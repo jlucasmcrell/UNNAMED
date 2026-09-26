@@ -1,0 +1,4 @@
+baseline_phaseA -> tier_low: 37 shots; GPU median 2.93 -> 1.73 ms (delta median -1.17, worst -0.43 at 64_edge_down_ravine); VRAM 5782 -> 2317 MB (-3465)
+baseline_phaseA -> tier_medium: 37 shots; GPU median 2.93 -> 2.63 ms (delta median -0.28, worst +0.57 at 64_edge_down_ravine); VRAM 5782 -> 3052 MB (-2730)
+baseline_phaseA -> tier_high: 37 shots; GPU median 2.93 -> 3.17 ms (delta median +0.44, worst +1.25 at 71_near_ground_charwood); VRAM 5782 -> 3307 MB (-2475)
+baseline_phaseA -> tier_ultra: 37 shots; GPU median 2.93 -> 6.60 ms (delta median +3.80, worst +5.49 at 05_charwood); VRAM 5782 -> 3802 MB (-1980)
