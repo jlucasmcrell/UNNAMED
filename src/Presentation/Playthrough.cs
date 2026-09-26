@@ -251,7 +251,9 @@ public sealed class Playthrough
             return _phase > 0 || (_broken = $"{key} was empty before anything was taken") is null;
         if (_phase++ > 3)
             _broken = $"{key} still holds {box.Items.Length} stacks: the takes were refused";
-        foreach (var item in box.Items)
+        // Last stack first: a stack's reference is its place in the container, so taking the first renumbered the rest and their takes
+        // were refused on screen ("there is no ...#01 in the container").
+        foreach (var item in box.Items.Reverse())
             _session.Submit(new MoveItemCommand(_session.Simulation!.PlayerId, item.Ref, ItemPlace.In(key), ItemPlace.Carried, item.Count));
         return false;
     }

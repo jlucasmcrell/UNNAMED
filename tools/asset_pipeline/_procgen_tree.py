@@ -34,6 +34,7 @@ centred on X/Z, lowest point at y = 0.
 
 Usage:
   blender --background --factory-startup --python tools/asset_pipeline/_procgen_tree.py -- --species oak|pine|dead
+          (or a variant: oak_b|oak_c|pine_b|pine_c|dead_b)
           [--seed N] [--out-dir DIR] [--work-dir DIR] [--res 2048] [--samples 16] [--device auto|cpu] [--no-bake]
 
 Writes <out-dir>/<id>.glb and <id>_provenance.json (default <out-dir>: assets/_staging/procedural/<id>). Textures and
@@ -239,6 +240,95 @@ SPECIES = {
         "wood": {"fresh": (196, 172, 132), "weathered": (150, 140, 120), "grey": 0.4, "shader": "rings"},
     },
 }
+
+
+def _variant(base, **over):
+    """A species variant: a deep copy of a base preset with top-level keys replaced or (for dicts) merged. The base's
+    own entry is never modified, so the original ids grow exactly as before."""
+    import copy
+    sp = copy.deepcopy(SPECIES[base])
+    for k, v in over.items():
+        if isinstance(v, dict) and isinstance(sp.get(k), dict):
+            sp[k].update(v)
+        else:
+            sp[k] = v
+    sp["builder"] = base
+    sp["variant_of"] = SPECIES[base]["asset_id"]
+    return sp
+
+
+def _scale_profile(profile, lo=1.0, hi=None, f_split=0.6):
+    """A crown profile with its half widths scaled: `lo` below f_split, blending to `hi` at the top."""
+    hi = lo if hi is None else hi
+    return [(f, round(w * (lo if f <= f_split else lo + (hi - lo) * (f - f_split) / (1.0 - f_split)), 4))
+            for f, w in profile]
+
+
+def _lift_profile(profile, f0):
+    """The same crown shape starting at height fraction f0 instead of the profile's own start (a higher crown base)."""
+    a = profile[0][0]
+    return [(round(f0 + (f - a) * (1.0 - f0) / (1.0 - a), 4), w) for f, w in profile]
+
+
+# Charwood variants (new ids; the three originals above are untouched). Different seeds and modestly different heights
+# and crown proportions inside each species' concept silhouette. The broadleaf variants carry "clump": each branch's
+# spray of cards shades as its own rounded mass (normals bent toward the spray's centre as well as the crown's), and
+# inner branches carry cards too, so the crown reads as layered lobes rather than one ball.
+OAK_CLUMP = {"group_level": 2, "mix": 0.6, "min_cards": 5}
+SPECIES["oak_b"] = _variant(
+    "oak", asset_id="flora_oak_tree_b", seed=3217, height=11.3,
+    crown={"profile": _scale_profile(OAK_PROFILE, 1.12, 1.02), "lump": 0.2, "underside_frac": [0.27, 0.2]},
+    trunk={"dbh_radius": 0.44, "wobble_m": 0.36},
+    scaffold={"count": [9, 10], "z_frac": [0.23, 0.58], "alpha_low_deg": [70, 80], "max_len": 10.0},
+    foliage={"card_m": [1.5, 2.1], "branch_from": 0.12, "min_shell": 0.12, "bend": 0.6, "roll": 1.1,
+             "clump": OAK_CLUMP},
+    height_range_m=[11.5, 14.0])
+SPECIES["oak_c"] = _variant(
+    "oak", asset_id="flora_oak_tree_c", seed=3343, height=13.1,
+    crown={"profile": _scale_profile(_lift_profile(OAK_PROFILE, 0.23), 0.94, 1.1), "lump": 0.18,
+           "underside_frac": [0.31, 0.24]},
+    trunk={"dbh_radius": 0.40, "top_frac": 0.8, "straight_frac": 0.3},
+    scaffold={"count": [8, 9], "z_frac": [0.27, 0.64], "alpha_low_deg": [60, 72], "alpha_high_deg": [24, 34]},
+    foliage={"card_m": [1.5, 2.1], "branch_from": 0.12, "min_shell": 0.12, "bend": 0.6, "roll": 1.1,
+             "clump": OAK_CLUMP},
+    height_range_m=[12.5, 15.0])
+SPECIES["pine_b"] = _variant(
+    "pine", asset_id="flora_pine_tree_b", seed=2311, height=14.9,
+    crown={"profile": _scale_profile(_lift_profile(PINE_PROFILE, 0.36), 0.86, 0.9)},
+    trunk={"dbh_radius": 0.36, "straight_frac": 0.45},
+    stubs={"count": 8, "z_m": [2.8, 5.2]},
+    whorl={"start_frac": 0.375, "spacing_m": [0.7, 1.05], "skip": 0.2},
+    foliage={"bend": 0.55, "clump": {"group_level": 1, "mix": 0.5, "min_cards": 4}},
+    height_range_m=[14.0, 16.0])
+SPECIES["pine_c"] = _variant(
+    "pine", asset_id="flora_pine_tree_c", seed=2423, height=13.7,
+    crown={"profile": _scale_profile(_lift_profile(PINE_PROFILE, 0.31), 1.04, 0.95), "lump": 0.12},
+    trunk={"dbh_radius": 0.38, "wobble_m": 0.1},
+    whorl={"start_frac": 0.325, "spacing_m": [0.62, 0.98], "count": [4, 5], "skip": 0.3},
+    foliage={"bend": 0.55, "clump": {"group_level": 1, "mix": 0.5, "min_cards": 4}},
+    height_range_m=[13.0, 15.0])
+# A snag of the same concept: the crown's spread turned about the trunk, a lean the other way, the leader snapped.
+SPECIES["dead_b"] = _variant(
+    "dead", asset_id="flora_dead_tree_b", seed=1523, height=11.9,
+    crown={"profile": [(0.30, 0.0), (0.32, 0.10), (0.45, 0.14), (0.50, 0.36), (0.55, 0.40), (0.60, 0.41),
+                       (0.65, 0.40), (0.70, 0.38), (0.75, 0.35), (0.80, 0.30), (0.85, 0.25), (0.90, 0.2),
+                       (0.95, 0.15), (1.0, 0.10), (1.001, 0.0)]},
+    trunk={"dbh_radius": 0.41, "lean_m": [0.35, -0.3], "top_frac": 0.93, "wobble_m": 0.16},
+    limbs=[
+        ("right_low", 0.45, -8, 4, 5.8, 0.05, "tip"),
+        ("right_high", 0.6, 22, 18, 4.6, 0.05, "tip"),
+        ("left_mid", 0.52, 172, 14, 5.6, 0.04, "tip"),
+        ("left_leader", 0.57, 196, 55, 5.4, 0.02, "tip"),
+        ("top_right", 0.74, -30, 62, 3.0, 0.02, "tip"),
+        ("top_left", 0.8, 150, 58, 1.9, 0.0, "broken"),
+        ("back", 0.55, 95, 24, 4.2, 0.05, "tip"),
+        ("front", 0.65, -85, 30, 3.8, 0.04, "tip"),
+        ("front_left", 0.7, -130, 38, 2.4, 0.03, "broken"),
+        ("back_right", 0.68, 45, 40, 2.8, 0.03, "broken"),
+        ("stub_right", 0.38, 20, 45, 1.1, 0.0, "broken"),
+        ("stub_left", 0.43, 200, 36, 1.4, 0.04, "tip"),
+    ],
+    height_range_m=[11.0, 13.5])
 
 
 def sub_rng(seed, *keys):
@@ -920,6 +1010,8 @@ def plan_cards(sp, hosts, trunk, env, seed):
                 cards.append({"A": P, "D": D, "size": size, "out": face, "roll": crng.uniform(-1, 1),
                               "cell": crng.randrange(4), "prio": (0 if tip else 1 + q, crng.random()),
                               "br": br.level})
+                if fo.get("clump"):
+                    cards[-1]["host"] = br
     if fo.get("leader_m"):
         rng = sub_rng(seed, "leader_cards")
         s0 = trunk.length - fo["leader_m"]
@@ -952,6 +1044,7 @@ class Builder:
     def __init__(self):
         self.verts, self.faces, self.fuv, self.fmat, self.fpart = [], [], [], [], []
         self.parts = []
+        self.card_verts = []    # (first vertex, card) per placed card quad: the per-clump normals and the LODs read it
 
     def part(self, name, kind):
         self.parts.append({"name": name, "kind": kind, "f0": len(self.faces), "v0": len(self.verts)})
@@ -1119,14 +1212,15 @@ def card_geo(b, c, cells, bend_axis):
     u0, v0, u1, v1 = cells[c["cell"]]
     uv = [(u0, v0), (u1, v0), (u1, v1), (u0, v1)]
     b.part("card", "card")
+    b.card_verts.append((len(b.verts), c))
     fr = [b.v(p) for p in q]
     b.f(fr, uv, LEAF)
     bk = [b.v(p) for p in q]
     b.f([bk[0], bk[3], bk[2], bk[1]], [uv[0], uv[3], uv[2], uv[1]], LEAF)
 
 
-def card_normals(c, crossed):
-    """Plane normals for a card (or a crossed pair): facing outward, rolled about the card's axis."""
+def card_normals(c, crossed, roll=0.5):
+    """Plane normals for a card (or a crossed pair): facing outward, rolled about the card's axis (up to `roll` rad)."""
     D, out = c["D"], c["out"]
     base = out - D * out.dot(D)
     if base.length < 1e-4:
@@ -1143,7 +1237,7 @@ def card_normals(c, crossed):
         rot = 0.35 * c["roll"]
         a = (up * math.cos(rot) + D.cross(up) * math.sin(rot)).normalized()
         return [a, D.cross(a).normalized()]
-    rot = 0.5 * c["roll"]
+    rot = roll * c["roll"]
     return [(base * math.cos(rot) + side * math.sin(rot)).normalized()]
 
 
@@ -1227,8 +1321,9 @@ def select_only(obj):
     bpy.context.view_layer.objects.active = obj
 
 
-def finish_topology(obj, crown_c, crown_ax, bend):
-    """Triangulate; smooth bark with sharp caps; foliage corners bent toward the crown's outward normal."""
+def finish_topology(obj, crown_c, crown_ax, bend, targets=None):
+    """Triangulate; smooth bark with sharp caps; foliage corners bent toward the crown's outward normal (or, where
+    `targets` - unit vectors per vertex, zero where unset - gives one, toward that direction instead)."""
     me = obj.data
     bm = bmesh.new()
     bm.from_mesh(me)
@@ -1259,11 +1354,56 @@ def finish_topology(obj, crown_c, crown_ax, bend):
         p = co[lv[sel]]
         g = (p - np.array(crown_c, dtype=np.float32)) / (np.array(crown_ax, dtype=np.float32) ** 2)
         g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-6)
+        if targets is not None:
+            t = np.asarray(targets, dtype=np.float32)[lv[sel]]
+            has = np.linalg.norm(t, axis=1) > 0.5
+            g[has] = t[has]
         mix = fn[lf[sel]] * (1.0 - bend) + g * bend
         mix /= np.maximum(np.linalg.norm(mix, axis=1, keepdims=True), 1e-6)
         cn[sel] = mix
     me.normals_split_custom_set(cn.tolist())
     me.update()
+
+
+def card_group(c, level):
+    """The branch whose spray a card belongs to for per-clump shading: its host's ancestor at `level`."""
+    br = c.get("host")
+    if br is None:
+        return "leader"
+    while br.parent is not None and br.level > level:
+        br = br.parent
+    return br.name
+
+
+def clump_targets(b, clump, crown_c, crown_ax):
+    """Per-vertex normal targets for the cards (foliage.clump): each branch's spray is a rounded mass whose normals
+    point away from the spray's centre, mixed with the whole crown's outward normal, so the crown shades as layered
+    lobes. A spray of fewer than min_cards joins its parent's. Unit vectors per vertex; zero off the cards."""
+    level, mix, min_cards = clump["group_level"], clump["mix"], clump.get("min_cards", 4)
+    verts = np.array([tuple(v) for v in b.verts], dtype=np.float64)
+    groups = {}
+    for start, c in b.card_verts:
+        groups.setdefault(card_group(c, level), []).append((start, c))
+    if level > 1:
+        for key in [k for k, v in groups.items() if len(v) < min_cards and k != "leader"]:
+            members = groups.pop(key)
+            up = card_group(members[0][1], level - 1)
+            groups.setdefault(up, []).extend(members)
+    targets = np.zeros_like(verts)
+    cc, ax = np.array(crown_c), np.array(crown_ax)
+    for members in groups.values():
+        centres = np.array([tuple(c["A"] + c["D"] * (c["size"] * 0.43)) for _, c in members])
+        C = centres.mean(axis=0)
+        idx = np.concatenate([np.arange(s, s + 8) for s, _ in members])
+        p = verts[idx]
+        d = p - C
+        dl = np.linalg.norm(d, axis=1, keepdims=True)
+        g = (p - cc) / ax ** 2
+        g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-9)
+        d = np.where(dl > 1e-3, d / np.maximum(dl, 1e-9), g)
+        t = d * mix + g * (1.0 - mix)
+        targets[idx] = t / np.maximum(np.linalg.norm(t, axis=1, keepdims=True), 1e-9)
+    return targets
 
 
 def mesh_checks(me, res):
@@ -2102,7 +2242,7 @@ def parse_args():
 
 
 def build_once(sp, env, seed, species):
-    branches, hosts, trunk = BUILDERS[species](sp, env, seed)
+    branches, hosts, trunk = BUILDERS[sp.get("builder", species)](sp, env, seed)
     cards = plan_cards(sp, hosts, trunk, env, seed)
     return branches, cards, trunk
 
@@ -2122,11 +2262,47 @@ def assemble(sp, branches, cards, res, budget):
         kept = sorted(cards, key=lambda c: c["prio"])[:room]
         cells = atlas_cells(res)
         for c in kept:
-            for n in card_normals(c, fo["crossed"]):
+            for n in card_normals(c, fo["crossed"], fo.get("roll", 0.5)):
                 cc = dict(c)
                 cc["n"] = n
                 card_geo(b, cc, cells, None)
+    b.kept_cards = kept
     return b, bark_tris, len(kept), len(cards)
+
+
+def grow_standing(sp, species, seed, res, budget):
+    """Grow a standing tree; re-centre the envelope until the model's bounds centre on the trunk. Returns the best
+    ((branches, cards, trunk), (builder, bark_tris, cards_placed, cards_planned)) and the centring history."""
+    H = sp["height"]
+    history = []
+    env = Envelope(sp["crown"], H, sub_rng(seed, "envelope"))
+    best = None
+    for attempt in range(8):
+        built = build_once(sp, env, seed, species)
+        asm = assemble(sp, built[0], built[1], res, budget)
+        xs = [v.x for v in asm[0].verts]
+        ys = [v.y for v in asm[0].verts]
+        off = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
+        mag = math.hypot(*off)
+        history.append({"env_centre": [round(env.cx, 3), round(env.cy, 3)],
+                        "bounds_centre": [round(off[0], 3), round(off[1], 3)]})
+        print(f"  attempt {attempt}: bounds centre off the trunk by {mag:.3f} m", flush=True)
+        if best is None or mag < best[0]:
+            best = (mag, built, asm)
+        if mag < 0.03:
+            break
+        env.cx -= off[0] * 0.9
+        env.cy -= off[1] * 0.9
+    return best[1], best[2], history
+
+
+def crown_frame(sp, bounds_centre):
+    """The crown ellipsoid the card normals bend toward: centre and semi-axes (Blender frame)."""
+    prof = sp["crown"]["profile"]
+    f_lo = prof[0][0]
+    H = sp["height"]
+    return ((bounds_centre[0], bounds_centre[1], H * (f_lo + 1.0) / 2),
+            (max(w for _, w in prof) * H, max(w for _, w in prof) * H, H * (1.0 - f_lo) / 2))
 
 
 def main():
@@ -2148,25 +2324,8 @@ def main():
 
     if kind == "tree":
         # grow; re-centre the envelope until the model's bounds centre on the trunk
-        env = Envelope(sp["crown"], H, sub_rng(seed, "envelope"))
-        best = None
-        for attempt in range(8):
-            built = build_once(sp, env, seed, species)
-            asm = assemble(sp, built[0], built[1], args.res, budget)
-            xs = [v.x for v in asm[0].verts]
-            ys = [v.y for v in asm[0].verts]
-            off = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
-            mag = math.hypot(*off)
-            history.append({"env_centre": [round(env.cx, 3), round(env.cy, 3)],
-                            "bounds_centre": [round(off[0], 3), round(off[1], 3)]})
-            print(f"  attempt {attempt}: bounds centre off the trunk by {mag:.3f} m", flush=True)
-            if best is None or mag < best[0]:
-                best = (mag, built, asm)
-            if mag < 0.03:
-                break
-            env.cx -= off[0] * 0.9
-            env.cy -= off[1] * 0.9
-        _, (branches, cards, trunk), (b, bark_tris, n_cards, n_planned) = best
+        (branches, cards, trunk), (b, bark_tris, n_cards, n_planned), history = grow_standing(sp, species, seed,
+                                                                                               args.res, budget)
     elif kind == "log":
         branches = build_log(sp)
         cards = []
@@ -2237,15 +2396,15 @@ def main():
     # crown normal field for the cards (standing trees only: a log/beam carries no foliage, and a cluster's three
     # small crowns have no single shared centre to bend toward, so those keep the mesh's own face normals)
     if kind == "tree":
-        prof = sp["crown"]["profile"]
-        f_lo = prof[0][0]
-        crown_c = (bounds_centre[0], bounds_centre[1], H * (f_lo + 1.0) / 2)
-        crown_ax = (max(w for _, w in prof) * H, max(w for _, w in prof) * H, H * (1.0 - f_lo) / 2)
+        crown_c, crown_ax = crown_frame(sp, bounds_centre)
         bend = sp["foliage"]["bend"] if sp["foliage"] else 0.0
     else:
         crown_c, crown_ax, bend = (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), 0.0
+    targets = None
+    if kind == "tree" and sp["foliage"] and sp["foliage"].get("clump"):
+        targets = clump_targets(b, sp["foliage"]["clump"], crown_c, crown_ax)
     obj = make_object(b, asset)
-    finish_topology(obj, crown_c, crown_ax, bend)
+    finish_topology(obj, crown_c, crown_ax, bend, targets)
     checks = mesh_checks(obj.data, args.res)
     print("MESH", json.dumps(checks), flush=True)
 
@@ -2316,7 +2475,8 @@ def main():
                               export_image_format="AUTO", use_selection=False)
 
     tris_by = {"bark_and_wood": bark_tris, "foliage": checks["triangles"] - bark_tris}
-    concept = os.path.join(REPO, "assets", "concepts", asset + ".png")
+    concept_id = sp.get("variant_of", asset)
+    concept = os.path.join(REPO, "assets", "concepts", concept_id + ".png")
     concept_sha = hashlib.sha256(open(concept, "rb").read()).hexdigest() if os.path.exists(concept) else None
     script_sha = hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest()
     not_a_replacement = ("new asset (docs/WAVE_0_MODULAR_ASSET_STANDARD.md section 17, template_variant of "
@@ -2324,8 +2484,9 @@ def main():
     if kind == "tree":
         height = dims.z
         width = max(dims.x, dims.y)
+        h_lo, h_hi = sp.get("height_range_m", (12.0, 14.0))
         fits = {
-            "height_12_to_14_m": 12.0 <= height <= 14.0,
+            f"height_{h_lo:g}_to_{h_hi:g}_m".replace(".", "_"): h_lo <= height <= h_hi,
             "covers_blocker_width": 2 * BLOCKER["radius"] - width <= 2 * BLOCKER["side_margin"],
             "reaches_blocker_height": BLOCKER["height"] - height <= BLOCKER["height_shortfall"],
             "trunk_radius_0_35_to_0_45_at_1_3m": 0.35 <= r13 <= 0.45,
@@ -2333,6 +2494,8 @@ def main():
         }
         replaces, blocker_info = f"assets/ready/{asset} (image-to-3D reconstruction: shard-triangle canopy, " \
                                  "leaning trunk)", BLOCKER
+        if "variant_of" in sp:
+            replaces = f"new asset: a variant of {sp['variant_of']} (seed {seed}); no prior assets/ready/{asset}"
     elif kind == "log":
         length, diam = dims.x, max(dims.y, dims.z)
         tgt = sp["target"]
@@ -2382,7 +2545,7 @@ def main():
         "seed": seed,
         "date": datetime.datetime.now().isoformat(timespec="seconds"),
         "parameters": sp,
-        "concept": f"assets/concepts/{asset}.png",
+        "concept": f"assets/concepts/{concept_id}.png",
         "concept_sha256": concept_sha,
         "concept_profile": "crown.profile: (height fraction, half width / height), measured from the concept "
                            "(background removed, largest component, trunk-centred per-row extents, upper hull)",

@@ -74,7 +74,7 @@ public partial class WindField : Node
     /// </summary>
     public const string TreeShader = @"
 shader_type spatial;
-render_mode cull_disabled, depth_draw_opaque;
+render_mode cull_back, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
 global uniform float wind_time;

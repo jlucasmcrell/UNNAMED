@@ -131,7 +131,11 @@ public sealed class ArtLibrary
         var root = new Node3D { Name = id };
         var extent = ArtGallery.Bounds(full).Size;
         float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
-        float[] from = { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
+        // A tree's levels come sooner than its size alone would bring them (docs/phase_b/demo/trees/TREES.md): its needles and twigs thin
+        // to sky on the lighter meshes past about 130 m, where the crossed-plane impostor holds a solid crown.
+        float[] from = id.StartsWith("flora_", StringComparison.Ordinal) && id.Contains("_tree", StringComparison.Ordinal)
+            ? new[] { 0f, 35f, 80f, 150f }
+            : new[] { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
         for (int i = 0; i < all.Count; i++)
         {
             root.AddChild(all[i]);
@@ -275,6 +279,10 @@ public sealed class ArtLibrary
                     if (candidate is not BaseMaterial3D material || !seen.Add(material.GetInstanceId()))
                         continue;
                     material.TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
+                    // A file's baked occlusion is not drawn: the generated and scanned models' occlusion channels are black over whole
+                    // islands (the rim boulder over 57 % of its surface, a third of the models likewise: tools/visual_review/ao_check.py),
+                    // which Godot applies as black patches where Blender shows none. Contact shading is the renderer's own occlusion.
+                    material.AOEnabled = false;
                     for (int p = 0; p < (int)BaseMaterial3D.TextureParam.Max; p++)
                     {
                         var param = (BaseMaterial3D.TextureParam)p;
