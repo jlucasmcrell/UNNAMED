@@ -260,6 +260,12 @@ public sealed class PlayerController
 
     public void Repair(Domain.EntityId pieceId) => _session.Submit(new RepairPieceCommand(_session.Simulation!.PlayerId, pieceId));
 
+    /// <summary>Ask an NPC to work at a station (E9); the authority checks everything.</summary>
+    public void Assign(string npcId, Domain.EntityId pieceId) => _session.Submit(new AssignWorkerCommand(_session.Simulation!.PlayerId, npcId, pieceId));
+
+    /// <summary>Let an NPC who works for the character go home (E9).</summary>
+    public void Release(string npcId) => _session.Submit(new ReleaseWorkerCommand(_session.Simulation!.PlayerId, npcId));
+
     /// <summary>The recipes the character knows that are worked at a station of this kind. None is named here.</summary>
     public IReadOnlyList<Domain.Crafting.RecipeDefinition> Recipes(string stationKind)
     {

@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Greybox;
@@ -22,6 +23,7 @@ public partial class NavigationOverlay : Node3D
     public static readonly Color Shut = new(0.9f, 0.1f, 0.1f, 0.5f);
     public static readonly Color Open = new(0.15f, 0.85f, 0.25f, 0.5f);
     private static readonly Color RouteColour = new(0.2f, 0.75f, 1f, 0.9f);
+    private static readonly Color AnchorColour = new(1f, 0.85f, 0.2f, 0.95f);
     private static readonly Color MarkColour = new(1f, 1f, 1f, 0.8f);
 
     private readonly MultiMeshInstance3D _nodes = new() { Name = "Nodes" };
@@ -96,8 +98,9 @@ public partial class NavigationOverlay : Node3D
     }
 
     /// <summary>
-    /// Each mover's active route (M7 design §8.14) as a line 0.3 m above the ground, from where it stands through its corners, and each
-    /// companion's trail marks as posts - redrawn at most four times a second.
+    /// Each mover's active route (M7 design §8.14) as a line 0.3 m above the ground, from where it stands through its corners; each
+    /// companion's trail marks as posts; and each work anchor (E9) as a post with a stroke the way the worker will face - redrawn at most
+    /// four times a second.
     /// </summary>
     public void DrawRoutes(Simulation simulation, double delta, bool now = false)
     {
@@ -107,7 +110,7 @@ public partial class NavigationOverlay : Node3D
         if (!now && _routesSince < 0.25)
             return;
         _routesSince = 0;
-        var bodies = simulation.Companions.ToDictionary(c => c.NpcId, c => c.Body, StringComparer.Ordinal);
+        var bodies = simulation.Npcs.ToDictionary(n => n.Id, n => n.Body, StringComparer.Ordinal);   // companions and errands alike
         var lines = new List<(Vector3 From, Vector3 To, Color Colour)>();
         foreach (var mover in simulation.Navigation.Movers)
         {
@@ -125,6 +128,14 @@ public partial class NavigationOverlay : Node3D
         {
             foreach (var mark in companion.Trail)
                 lines.Add((Above(mark.XMm, mark.ZMm, 0.05f), Above(mark.XMm, mark.ZMm, 0.45f), MarkColour));
+        }
+        foreach (var work in simulation.WorkAssignments.Where(w => w.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+        {
+            var at = Above(work.AnchorXMm, work.AnchorZMm, 0.05f);
+            lines.Add((at, Above(work.AnchorXMm, work.AnchorZMm, 1.2f), AnchorColour));
+            double facing = work.FacingMdeg / 1000.0 * Math.PI / 180;
+            lines.Add((Above(work.AnchorXMm, work.AnchorZMm, 0.6f),
+                Above(work.AnchorXMm + (long)(Math.Sin(facing) * 500), work.AnchorZMm + (long)(Math.Cos(facing) * 500), 0.6f), AnchorColour));
         }
         var mesh = (ImmediateMesh)_routes.Mesh;
         mesh.ClearSurfaces();

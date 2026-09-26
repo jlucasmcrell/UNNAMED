@@ -35,7 +35,8 @@ public sealed class BuildShots
     /// <summary>Where the committed start save lives, under the repository.</summary>
     public static readonly string[] StartSave = { "tests", "Application.Tests", "GameSaves", "m7_crossing_start", "save" };
 
-    private sealed record Beat(string Name, string Says, int Budget, bool Still, Func<bool> Run);
+    /// <summary>A beat; <paramref name="Stage"/> is F2's stage from its first frame (b11-b13 run with the navigation stage on: §13.6's seam recording).</summary>
+    private sealed record Beat(string Name, string Says, int Budget, bool Still, Func<bool> Run, BuildDebugStage Stage = BuildDebugStage.Off);
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;
@@ -61,6 +62,10 @@ public sealed class BuildShots
     private readonly List<PieceDamaged> _damaged = new();
     private readonly List<PieceRepaired> _repaired = new();
     private readonly List<PieceDestroyed> _destroyed = new();
+    private readonly List<WorkerAssigned> _assigned = new();
+    private readonly List<WorkerReleased> _released = new();
+    private readonly List<NpcArrivedAtWork> _arrived = new();
+    private readonly List<NpcReturnedHome> _home = new();
     private readonly List<long> _walkNorth = new();
     private readonly List<Action> _checks = new();
     private readonly List<(long Tick, string Row)> _rowStarts = new();
@@ -81,6 +86,19 @@ public sealed class BuildShots
     private long _lastActionTick;
     private (long XMm, long ZMm, bool OnCreature) _aimed;
     private long _waitUntil;
+
+    // Kera from her assignment to her arrival (E9, criterion 14): her last body, the plan's length, her worst step, whether she was ever
+    // not clear, the nearest the character came, where she crossed z = 100 m, the x she came through the doorway at, and in and out.
+    private Body? _keraLast;
+    private double? _keraL;
+    private long _keraWorstStep;
+    private readonly List<string> _keraUnclear = new();
+    private double _keraDeepest;
+    private double _keraNearest = double.MaxValue;
+    private readonly List<(string From, string To)> _keraCrossings = new();
+    private readonly List<long> _keraDoorway = new();
+    private bool _keraEntered, _keraLeft;
+    private string? _keraCell;
 
     // Tavar from the order on (R45): whether he has come through the doorway's opening, northwards.
     private Body? _tavarLast;
@@ -133,6 +151,26 @@ public sealed class BuildShots
         {
             _destroyed.Add(e);
             Row($"`PieceDestroyed` {e.DefId} ({e.Source}), sequence {e.Revision}", e.Tick);
+        });
+        session.Subscribe<WorkerAssigned>(e =>
+        {
+            _assigned.Add(e);
+            Row($"`WorkerAssigned` {e.NpcId}: to ({e.AnchorXMm}, {e.AnchorZMm}) facing {e.FacingMdeg}", e.Tick);
+        });
+        session.Subscribe<WorkerReleased>(e =>
+        {
+            _released.Add(e);
+            Row($"`WorkerReleased` {e.NpcId}: {e.Reason}", e.Tick);
+        });
+        session.Subscribe<NpcArrivedAtWork>(e =>
+        {
+            _arrived.Add(e);
+            Row($"`NpcArrivedAtWork` {e.NpcId}", e.Tick);
+        });
+        session.Subscribe<NpcReturnedHome>(e =>
+        {
+            _home.Add(e);
+            Row($"`NpcReturnedHome` {e.NpcId}", e.Tick);
         });
         session.Subscribe<NavigationRebuilt>(e =>
         {
@@ -211,7 +249,7 @@ public sealed class BuildShots
         }
         var beat = _beats[_beat];
         if (_stepAt == 0 && _phase == 0)
-            _stage(BuildDebugStage.Off);
+            _stage(beat.Stage);
         if (_broken is null && simulation.WorldTick - _beatTick > beat.Budget)
             _broken = $"it did not finish in {beat.Budget} ticks (refusals: {string.Join("; ", _refused.TakeLast(3))})";
         bool done = false;
@@ -286,6 +324,16 @@ public sealed class BuildShots
                     () => Play("R14"), AimStopsAtTheWall, () => Look(90, 4f))),
             new Beat("b10_craft_at_home", "The March Spear made at the placed bench, 1.36 m from its site, no authored anvil in reach", 300, false,
                 () => Steps(() => Play("R15"), () => Then(CraftedAtHome))),
+            new Beat("b11_assign", "The door shut from outside; round to the forge shed, its door opened; Kera asked at the bench; the shed door shut behind; away to the vantage",
+                6_000, false, () => Steps(() => Play("R16"), () => Then(() => DoorIs(false, "R16")), () => Then(() => ShedGate(false)), () => Play("R17"),
+                    () => Then(() => ShedGate(true)), () => Play("R18"), () => Then(KeraAsked), () => Play("R19"), () => Then(() => ShedGate(false)), () => Play("R20")),
+                BuildDebugStage.Navigation),
+            new Beat("b12_kera_walks", "Kera on her way, opening both doors: F2's navigation stage as she comes into the workshop's doorway", 3_000, false,
+                () => Steps(() => Look(270, CameraRig.MaxDistance, BuildDebugStage.Navigation), KeraInTheDoorway, () => Still("b12_kera_walks")),
+                BuildDebugStage.Navigation),
+            new Beat("b13_kera_at_work", "Kera at the bench: exactly on its work anchor, facing it, within the arrival bound; in, through and round, as criterion 14 says",
+                3_000, true, () => Steps(() => Play("R21"), () => Then(KeraArrived), () => Look(270, CameraRig.MaxDistance, BuildDebugStage.Navigation)),
+                BuildDebugStage.Navigation),
             new Beat("b14_vestibule", "South of the door, a pad and two walls; the wall that would close the vestibule refused as unnavigable - the red ghost and the toast say why - then all taken down for 1, 1 and 0 timber",
                 600, false, () => Steps(() => Play("R22"), () => Play("R23"), () => Then(() => ExpectAccepted("R22", "R23")), VestibuleGhost, () => Play("R24"),
                     () => Then(VestibuleRefused), () => Look(0, CameraRig.BuildMaxDistance), () => Still("b14_vestibule"), ExitBuildMode, () => Play("R25"),
@@ -297,13 +345,16 @@ public sealed class BuildShots
                 800, false, () => Steps(() => Play("R30"), () => Play("R31"), () => Then(ChestStored), () => Play("R32"), () => Then(ChestEmptied), () => Play("R33"),
                     () => Then(ChestRefilled), () => Play("R34"), () => Wait(20), () => Then(ChestDestroyed), () => Look(0, 4f), () => Still("b16_chest_cycle_and_spill"),
                     () => Play("R35"), () => Then(SpillPickedUp))),
-            new Beat("b17_route_west", "A second chest with two timber in it; west of the workshop: two pads and a wall; the second wall refused while the character stands on its line, then placed",
-                1_500, true, () => Steps(() => Play("R36"), () => Play("R37"), () => Then(SecondChest), () => Play("R39"), () => Play("R40"), () => Play("R41"), () => Then(StandingOnTheLine), () => Play("R42"),
-                    () => Then(TheLineAtX96), () => Look(90, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
+            new Beat("b17_route_west", "A second chest with two timber in it; west of the workshop: two pads and a wall, the second refused while the character stands on its line, then placed; Kera let go, her way home round the new line",
+                1_500, true, () => Steps(() => Play("R36"), () => Play("R37"), () => Then(SecondChest), () => Play("R38"), () => Play("R39"), () => Play("R40"), () => Play("R41"),
+                    () => Then(StandingOnTheLine), () => Play("R42"), () => Then(TheLineAtX96), () => Play("R43"), () => Then(KeraLetGo), () => Play("R44"),
+                    () => Then(KeraOutOfTheWorkshop), () => Look(90, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
             new Beat("b18_companion_in", "Tavar told to follow from inside: he plans a route round to the doorway", 400, true,
                 () => Steps(() => Play("R45"), () => Then(TavarPlans), () => Look(0, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
-            new Beat("b19_save", "Saved to quick with Tavar on his route; 600 ticks on he is inside, having come through the doorway", 800, false,
+            new Beat("b19_save", "Saved to quick with Tavar on his route and Kera walking home; 600 ticks on he is inside, having come through the doorway", 800, false,
                 () => Steps(() => Play("R46"), SaveAndDump, ContinueAndDump)),
+            new Beat("b20_kera_home", "Kera home: exactly at her place, facing its way, the errand retired", 3_000, true,
+                () => Steps(() => Play("R47"), () => Then(KeraHome), () => Look(300, CameraRig.MaxDistance))),
         });
     }
 
@@ -313,6 +364,7 @@ public sealed class BuildShots
         {
             new Beat("v1_loaded", "The quick save loaded: complete, the same digest, and field by field as saved", 60, false, LoadedAsSaved),
             new Beat("v2_continued", "600 ticks on from the load: field by field as the run went on, and the same digest", 700, false, ContinuedAsRun),
+            new Beat("v3_kera_home", "Kera home on the same tick as the run's b20, in the same pose", 3_000, false, KeraHomeAsRun),
         });
     }
 
@@ -547,6 +599,111 @@ public sealed class BuildShots
         Expect(_stored is { } stored && simulation.WorldItems.All(i => i.Id != stored.ItemId), "the spilled timber still lies there");
     }
 
+    /// <summary>b11: the forge shed's door as navigation's gate shows it (F2 draws it red shut and green open).</summary>
+    private void ShedGate(bool open)
+    {
+        var gate = _session.Simulation!.Navigation.Gates.Single(g => g.Key == ShedDoor);
+        Expect(gate.Open == open, $"the forge shed's gate is {(gate.Open ? "open" : "shut")}, not {(open ? "open" : "shut")}");
+    }
+
+    private void KeraAsked()
+    {
+        Expect(Outcome("R18") is null, $"Kera asked to work: \"{Outcome("R18")}\"");
+        Expect(_assigned.Count == 1 && (_assigned[0].AnchorXMm, _assigned[0].AnchorZMm, _assigned[0].FacingMdeg) == KeraAtWork,
+            "WorkerAssigned did not name the bench's work anchor");
+    }
+
+    /// <summary>b12: frames until her body is in the workshop's doorway (z 98.6-99.4 m, between the jambs), for the still.</summary>
+    private bool KeraInTheDoorway()
+    {
+        var kera = _session.Simulation!.Npcs.Single(n => n.Id == Kera).Body;
+        Expect(_arrived.Count == 0, "Kera arrived before she was seen in the doorway");
+        // The opening between the doorway's jambs: on her way round the west side her z passes the same band outside the wall.
+        if (kera.ZMm is < 98_600 or > 99_400 || kera.XMm is < 99_700 or > 101_300)
+            return false;
+        Row($"b12: Kera in the doorway at ({kera.XMm}, {kera.ZMm})", _session.Simulation.WorldTick);
+        return _broken is null;
+    }
+
+    /// <summary>b13 (criterion 14): exactly at the anchor within ⌈1.25 × L / 80⌉ + 40 ticks; both doors hers to open; in, through and round.</summary>
+    private void KeraArrived()
+    {
+        var simulation = _session.Simulation!;
+        var kera = simulation.Npcs.Single(n => n.Id == Kera);
+        Expect((kera.Body.XMm, kera.Body.ZMm, kera.Body.FacingMdeg) == KeraAtWork, $"Kera arrived at {kera.Body}, not exactly the anchor");
+        Expect(_keraL is not null, "no route was planned after WorkerAssigned");
+        if (_keraL is { } length && _arrived.Count == 1)
+        {
+            long bound = (long)Math.Ceiling(1.25 * length / 80) + 40, took = _arrived[0].Tick - _assigned[0].Tick;
+            Expect(took <= bound, $"she arrived {took} ticks after being asked; the bound is {bound} (L {length:0} mm)");
+            Row($"b13: L {length:0} mm; arrived in {took} ticks (bound {bound}); worst step {_keraWorstStep} mm; nearest the character {_keraNearest:0} mm; " +
+                $"deepest contact {_keraDeepest:0.###} mm", simulation.WorldTick);
+        }
+        string door = simulation.Pieces.Single(p => p.DefId == Door).Id.Value;
+        Expect(_toggled.Any(t => t.Actor == kera.InstanceId && t.DoorKey == ShedDoor && t.Open), "Kera never opened the forge shed's door");
+        Expect(_toggled.Any(t => t.Actor == kera.InstanceId && t.DoorKey == door && t.Open), "Kera never opened the workshop's door");
+        Expect(!_toggled.Any(t => t.Actor == kera.InstanceId && !t.Open), "Kera closed a door");
+        Expect(_keraCrossings.Count == 1 && _keraCrossings[0] == ("r_0_0:c_01_00", "r_0_0:c_01_01"),
+            $"she crossed z = 100 m inside the workshop {_keraCrossings.Count} times ({string.Join("; ", _keraCrossings)})");
+        Expect(_keraDoorway.All(x => x is >= 100_050 and <= 100_950), $"she came through the doorway at x {string.Join(", ", _keraDoorway)}");
+        Expect(_keraEntered && !_keraLeft, $"entered {_keraEntered}, left again {_keraLeft}");
+        Expect(_keraWorstStep <= 81, $"she moved {_keraWorstStep} mm in one tick");
+        Expect(_keraUnclear.Count == 0, $"{_keraUnclear.Count} ticks not clear: {string.Join("; ", _keraUnclear.Take(3))}");
+        Expect(_keraNearest >= 1_000, $"the character came within {_keraNearest:0} mm of her");
+    }
+
+    /// <summary>b17 (E9): let go; her first route home goes round the new line on x = 96, never across it inside z 98.8-105.2 m.</summary>
+    private void KeraLetGo()
+    {
+        var simulation = _session.Simulation!;
+        Expect(Outcome("R43") is null, $"Kera let go: \"{Outcome("R43")}\"");
+        Expect(_released.Count == 1 && _released[0].Reason == "released", "no WorkerReleased(released)");
+        var kera = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        var route = simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Route.Corners;
+        var a = (X: kera.XMm, Z: kera.ZMm);
+        foreach (var c in route)
+        {
+            if ((a.X - 96_000) * (c.XMm - 96_000) <= 0 && a.X != c.XMm)
+            {
+                double z = a.Z + (double)(96_000 - a.X) / (c.XMm - a.X) * (c.ZMm - a.Z);
+                Expect(z is < 98_800 or > 105_200, $"her route home crosses the new line at z {z:0}");
+            }
+            a = (c.XMm, c.ZMm);
+        }
+    }
+
+    private void KeraOutOfTheWorkshop()
+    {
+        var kera = _session.Simulation!.Npcs.Single(n => n.Id == Kera).Body;
+        Expect(!(kera.XMm is >= 98_800 and <= 105_200 && kera.ZMm is >= 98_800 and <= 105_200), $"300 ticks on Kera is at {kera}, still inside");
+    }
+
+    /// <summary>b20: home exactly, the errand retired; the tick written for the relaunch's v3.</summary>
+    private void KeraHome()
+    {
+        var simulation = _session.Simulation!;
+        var kera = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Expect((kera.XMm, kera.ZMm, kera.FacingMdeg) == KeraAtHome, $"Kera is home at {kera}, not exactly her place");
+        Expect(simulation.World.NpcErrand(Kera) is null, "Kera's errand did not retire");
+        Expect(_home.Count == 1, $"{_home.Count} returns home");
+        if (_home.Count == 1)
+            File.WriteAllText(Path.Combine(Directory, "kera_home_tick.txt"), _home[0].Tick.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>v3: the loaded world's Kera home on the same tick as the run's, in the same pose.</summary>
+    private bool KeraHomeAsRun()
+    {
+        var simulation = _session.Simulation!;
+        if (_home.Count == 0)
+            return false;
+        var kera = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Expect((kera.XMm, kera.ZMm, kera.FacingMdeg) == KeraAtHome, $"after the load Kera is home at {kera}, not exactly her place");
+        Expect(Read("kera_home_tick.txt") == _home[0].Tick.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            $"after the load Kera was home at {_home[0].Tick}, the run at {Read("kera_home_tick.txt")}");
+        Expect(_session.SubscriberFailures == 0, $"{_session.SubscriberFailures} subscriber failures");
+        return _broken is null;
+    }
+
     /// <summary>b17's chest rows: a second chest east of the doorway, with two timber in it.</summary>
     private void SecondChest()
     {
@@ -622,6 +779,7 @@ public sealed class BuildShots
         var simulation = _session.Simulation!;
         string? refused = Outcome("R24");
         Expect(refused is not null, "the vestibule wall was placed");
+        Expect(refused == "that would cut Kera Voss's work place off", $"the vestibule was refused as \"{refused}\", not for Kera's work place (E9)");
         string words = $"Timber Wall: {BuildMode.Words(_session, refused ?? "")}";
         Expect(_vestibuleGhost.Status == words, $"the ghost said \"{_vestibuleGhost.Status}\", the command \"{words}\"");
         Expect(_toasts.Any(t => t.Contains(BuildMode.Words(_session, refused ?? "?"), StringComparison.Ordinal)), "no toast said why");
@@ -701,6 +859,7 @@ public sealed class BuildShots
         var simulation = _session.Simulation!;
         var tavar = simulation.CaptureRecord().Companions.Single(c => c.NpcId == Tavar);
         Expect(tavar.Route.Status == NavRouteStatus.Active, $"at the save Tavar's route is {tavar.Route.Status}, not active");
+        Expect(simulation.World.NpcErrand(Kera)?.Phase == NpcErrandPhase.ToHome, "at the save Kera is not walking home");
         File.WriteAllText(Path.Combine(Directory, "state_saved.json"), StateDump.Render(simulation));
         File.WriteAllText(Path.Combine(Directory, "state_replay.json"), StateDump.Render(simulation, replayable: true));
         File.WriteAllText(Path.Combine(Directory, "state_digest.txt"), simulation.StateDigest());
@@ -877,6 +1036,22 @@ public sealed class BuildShots
                 string key = takeAll.Piece(simulation)?.ContainerKey ?? throw new InvalidOperationException($"{row.Id}: no chest at ({takeAll.XMm}, {takeAll.ZMm})");
                 _session.Submit(new TakeAllCommand(simulation.PlayerId, key));
                 break;
+            case InteractAction interactKey:
+                _controller.Interact(interactKey.Key);
+                break;
+            case AssignAction assign:
+                var bench = simulation.Pieces.FirstOrDefault(p => p.DefId == Bench) ?? throw new InvalidOperationException($"{row.Id}: no bench");
+                _controller.Assign(assign.NpcId, bench.Id);
+                break;
+            case ReleaseAction release:
+                _controller.Release(release.NpcId);
+                break;
+            case UntilAction until:
+                // A wait, a frame at a time: the row ends in the frame the event has arrived.
+                var seen = until.Event == UntilAction.Arrived ? _arrived.Count : _home.Count;
+                if (seen == 0)
+                    return false;
+                break;
             case PickUpAction pickUp:
                 var take = (MoveItemCommand?)pickUp.Command(simulation) ?? throw new InvalidOperationException($"{row.Id}: no timber at ({pickUp.XMm}, {pickUp.ZMm})");
                 _controller.PickUp(take.Item);
@@ -895,7 +1070,7 @@ public sealed class BuildShots
         long tick = _appliedAt[action];
         return _session.Simulation!.CommandLog
             .Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand or DismantlePieceCommand or CraftCommand
-                or AttackCommand or RepairPieceCommand or MoveItemCommand or TakeAllCommand).RejectedReason;
+                or AttackCommand or RepairPieceCommand or MoveItemCommand or TakeAllCommand or AssignWorkerCommand or ReleaseWorkerCommand).RejectedReason;
     }
 
     private void ExpectAccepted(params string[] rows)
@@ -1008,12 +1183,67 @@ public sealed class BuildShots
             if (ex > part.MinXMm && ex < part.MaxXMm && ez > part.MinZMm && ez < part.MaxZMm && ey < ground + part.HeightMm)
                 _broken ??= $"the camera's eye ({ex}, {ey}, {ez}) is inside a piece's part";
         }
+        if (_assigned.Count > 0 && _arrived.Count == 0)
+            WatchKera(simulation);
+        if (simulation.Npcs.FirstOrDefault(n => n.Id == Kera) is { } walker && simulation.World.NpcErrand(Kera) is not null)
+        {
+            string cell = CellKey.OfWorld(walker.Body.XMm / 1000.0, walker.Body.ZMm / 1000.0).ToString();
+            if (cell != _keraCell)
+                Row($"Kera's host cell: {cell}", simulation.WorldTick);
+            _keraCell = cell;
+        }
         if (simulation.Companions.FirstOrDefault(c => c.NpcId == Tavar) is { Order: CompanionOrder.Follow } tavar)
         {
             if (_tavarLast is { } last && last.ZMm < 99_000 && tavar.Body.ZMm >= 99_000 && tavar.Body.XMm is >= 99_700 and <= 101_300)
                 _tavarPassed = true;
             _tavarLast = tavar.Body;
         }
+    }
+
+    /// <summary>Criterion 14, a tick at a time: her step, her clearance, the character's distance, the seam and the doorway, in and out.</summary>
+    private void WatchKera(Simulation simulation)
+    {
+        var kera = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        var player = simulation.Player.Body;
+        long radius = _session.Setup.Movement.BodyRadiusMm;
+        if (_keraL is null && _routes.Any(r => r.MoverKey == Kera && r.Tick >= _assigned[0].Tick))
+        {
+            double length = 0;
+            var from = (X: (double)kera.XMm, Z: (double)kera.ZMm);
+            foreach (var c in simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Route.Corners)
+            {
+                length += Math.Sqrt(Math.Pow(c.XMm - from.X, 2) + Math.Pow(c.ZMm - from.Z, 2));
+                from = (c.XMm, c.ZMm);
+            }
+            _keraL = length;
+        }
+        _keraNearest = Math.Min(_keraNearest, Math.Sqrt(Math.Pow(kera.XMm - player.XMm, 2) + Math.Pow(kera.ZMm - player.ZMm, 2)));
+        static bool Inside(Body b) => b.XMm is >= 98_800 and <= 105_200 && b.ZMm is >= 98_800 and <= 105_200;
+        if (_keraLast is { } was)
+        {
+            long dx = kera.XMm - was.XMm, dz = kera.ZMm - was.ZMm;
+            _keraWorstStep = Math.Max(_keraWorstStep, (long)Math.Ceiling(Math.Sqrt(dx * dx + dz * dz)));
+            if ((was.ZMm < 100_000) != (kera.ZMm < 100_000) && Inside(was) && Inside(kera))
+                _keraCrossings.Add((CellKey.OfWorld(was.XMm / 1000.0, was.ZMm / 1000.0).ToString(), CellKey.OfWorld(kera.XMm / 1000.0, kera.ZMm / 1000.0).ToString()));
+            if (was.ZMm < 99_000 && kera.ZMm >= 99_000)
+                _keraDoorway.Add(kera.XMm);
+        }
+        _keraEntered |= Inside(kera) && kera.ZMm >= 99_000;
+        _keraLeft |= _keraEntered && !Inside(kera);
+        var blockers = simulation.DynamicBlockers.Where(b => b.Id != Kera).ToList();
+        blockers.Add(new CircleBlocker("player", player.XMm, player.ZMm, radius, 0));
+        blockers.AddRange(simulation.Companions.Select(c => (Blocker)new CircleBlocker(c.NpcId, c.Body.XMm, c.Body.ZMm, radius, 0)));
+        // Kinematics.Step resolves a push in doubles and rounds the body to whole millimetres, so a body in contact may sit up to a
+        // millimetre inside (Phase 1; the headless twin allows the same); a millimetre or more is an overlap.
+        double overlap = new[] { simulation.Space.MinXMm - (kera.XMm - radius), kera.XMm + radius - simulation.Space.MaxXMm,
+                simulation.Space.MinZMm - (kera.ZMm - radius), kera.ZMm + radius - simulation.Space.MaxZMm }
+            .Select(d => (double)d)
+            .Concat(simulation.Space.Blockers.Concat(blockers).Select(b => radius - b.DistanceTo(kera.XMm, kera.ZMm)))
+            .Where(d => d > 0).DefaultIfEmpty(0).Max();
+        _keraDeepest = Math.Max(_keraDeepest, overlap);
+        if (overlap >= 1)
+            _keraUnclear.Add($"{simulation.WorldTick}: {kera} by {overlap:0.##} mm");
+        _keraLast = kera;
     }
 
     // ── moving and looking ──────────────────────────────────────────────────

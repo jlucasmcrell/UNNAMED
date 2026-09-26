@@ -8,6 +8,7 @@ using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Perf;
@@ -230,12 +231,22 @@ public sealed class PerfActivities
         ("piece.wall.timber", 99_000, 103_500, 1), ("piece.wall.timber", 105_000, 100_500, 1), ("piece.wall.timber", 105_000, 103_500, 1),
         ("piece.roof.timber", 100_500, 100_500, 0), ("piece.roof.timber", 103_500, 100_500, 0), ("piece.roof.timber", 100_500, 103_500, 0),
         ("piece.roof.timber", 103_500, 103_500, 0),
+        ("piece.station.anvil", 100_500, 103_500, 3),   // E9: the bench Kera is asked to
     };
+
+    /// <summary>Out by the doorway and round to the forge shed's door (R17's way), then in to Kera's side (R18).</summary>
+    private static readonly (double X, double Z)[] ToTheShed =
+        { (100.5, 100.3), (100.5, 97.6), (100.5, 96.0), (96.0, 96.0), (90.0, 112.0), (80.0, 118.0), (62.0, 130.0), (51.8, 136.0), (51.8, 142.0) };
+
+    private static readonly (double X, double Z)[] ToKera = { (54.5, 142.0), (60.4, 140.0) };
+
+    private const string Kera = "npc.ashen_hollow.kera_voss";
 
     /// <summary>
     /// The building segment (M7 design §14, R17): timber taken at the stack; build mode entered in the workshop's square and its first step
-    /// placed, a row every half second, the ghost following each; the ghost swept over the area for 10 s; one wall taken down and put back
-    /// twice; and one synchronous save with the pieces standing. The session's events mark each placement and rebuild.
+    /// placed, with the bench, a row every half second, the ghost following each; the ghost swept over the area for 10 s; one wall taken
+    /// down and put back twice; one synchronous save with the pieces standing; then (E9) Kera asked at the forge shed to work at the bench,
+    /// her plan awaited, and let go - her walk-home plan is the known worst tick. The session's events mark each placement, rebuild and plan.
     /// </summary>
     public bool BuildAtTheCrossing(double delta)
     {
@@ -313,7 +324,7 @@ public sealed class PerfActivities
                     Next();
                 return false;
             }
-            default:
+            case 7:
             {
                 if (_clock - _since < 0.5)
                     return false;
@@ -321,9 +332,52 @@ public sealed class PerfActivities
                 _session.Save(SaveSlots.Manual("perf_building"));
                 _notes.Add($"building: {simulation.Pieces.Length} pieces standing, saved in {clock.Elapsed.TotalMilliseconds:0.0} ms");
                 _build.Exit(_camera);
-                return true;
+                _waypoint = 0;
+                Next();
+                return false;
             }
+            case 8:
+                if (!Walk(ToTheShed))
+                    return false;
+                if (!simulation.Doors.Single(d => d.Site.Key == "door.forge_shed").Open)
+                    _controller.Interact("door.forge_shed");
+                _waypoint = 0;
+                Next();
+                return false;
+            case 9:
+            {
+                if (!Walk(ToKera))
+                    return false;
+                if (simulation.Pieces.FirstOrDefault(p => p.DefId == "piece.station.anvil") is not { } bench)
+                {
+                    _notes.Add("building: no bench to ask Kera to");
+                    return true;
+                }
+                _controller.Assign(Kera, bench.Id);
+                Next();
+                return false;
+            }
+            case 10:
+                // Her walk to work planned: let her go, and her walk home is planned next.
+                if (simulation.Navigation.Movers.FirstOrDefault(m => m.NpcId == Kera)?.Route.Status != NavRouteStatus.Active)
+                    return _clock - _since > 10 && Gave("building: Kera never planned her walk to work");
+                _controller.Release(Kera);
+                Next();
+                return false;
+            default:
+                if (simulation.WorkAssignments.FirstOrDefault(w => w.NpcId == Kera) is not { Phase: NpcErrandPhase.ToHome } home
+                    || simulation.Navigation.Movers.FirstOrDefault(m => m.NpcId == Kera)?.Route.Status != NavRouteStatus.Active)
+                    return _clock - _since > 10 && Gave("building: Kera never planned her walk home");
+                _notes.Add($"building: Kera asked and let go; walking home to ({home.AnchorXMm}, {home.AnchorZMm})");
+                return true;
         }
+    }
+
+    /// <summary>A goal given up on, with its note: the capture says so.</summary>
+    private bool Gave(string note)
+    {
+        _notes.Add(note);
+        return true;
     }
 
     private void Next()

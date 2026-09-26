@@ -35,6 +35,7 @@ public partial class HelpPanel : CanvasLayer
             ("Next or previous piece", new[] { "build_piece_next", "build_piece_prev" }), ("Turn the piece", new[] { "build_rotate" }),
             ("Place it (a room needs a doorway)", new[] { "build_place" }), ("Take down what you face (press twice)", new[] { "build_dismantle" }),
             ("Mend what you face", new[] { "build_repair" }),
+            ("Ask someone to work at your bench, or let them go", new[] { "work_order" }),
             ("Cancel: leave build mode, dropping the ghost and any armed take-down", new[] { "release_mouse" }),
         }),
         ("SCREENS", new[]

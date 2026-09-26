@@ -873,6 +873,8 @@ public partial class Main : Node3D
                     break;
             }
         }
+        if (Input.IsActionJustPressed("work_order"))
+            WorkOrder();
         if (Input.IsActionJustPressed("companion_order"))
         {
             // One key for every companion on their feet: those following wait, those waiting follow.
@@ -1014,7 +1016,8 @@ public partial class Main : Node3D
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Describe(station.Key)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {_session.DisplayName(npc.Key)} up",
-            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null
+                : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}{WorkSuffix(simulation, npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
             { } item => $"[{HelpPanel.Key("interact")}] Pick up {ItemName(_session, item.DefId, item.Quality)}",
@@ -1101,6 +1104,12 @@ public partial class Main : Node3D
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
+        // The worker (M7 design §8.10): asked and let go in toasts, arriving and home in the log.
+        _session.Subscribe<WorkerAssigned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} will work at your {PieceName(e.PieceId)}", 3));
+        _session.Subscribe<WorkerReleased>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} heads home" +
+            (e.Reason is "dismantled" or "destroyed" ? $" (the {PieceName(e.PieceId)} is gone)" : ""), 3));
+        _session.Subscribe<NpcArrivedAtWork>(e => _hud.Log($"{_session.DisplayName(e.NpcId)} is at your {PieceName(e.PieceId)}"));
+        _session.Subscribe<NpcReturnedHome>(e => _hud.Log($"{_session.DisplayName(e.NpcId)} is home"));
         _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
         _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
         _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
@@ -1647,6 +1656,65 @@ public partial class Main : Node3D
     }
 
     /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
+    /// <summary>
+    /// Y (M7 design §8.9): ask the NPC in focus to work at a station of yours, or let them go home if they work for you. Presentation only
+    /// chooses what to name - a station of a kind they work first, then the nearest, unmanned and yours - and submits even on a mismatch,
+    /// so the authority's refusal explains itself.
+    /// </summary>
+    private void WorkOrder()
+    {
+        var simulation = _session.Simulation!;
+        if (_controller.FocusOn(_camera) is not { Kind: FocusKind.Npc } focus || DownedCompanion(focus.Key) is not null)
+        {
+            _hud.Toast("No one to ask", 2);
+            return;
+        }
+        if (simulation.WorkAssignments.Any(w => w.NpcId == focus.Key && w.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+        {
+            _controller.Release(focus.Key);
+            return;
+        }
+        if (Workplace(simulation, focus.Key) is not { } station)
+        {
+            _hud.Toast("You have no workplace for anyone to work at", 2);
+            return;
+        }
+        _controller.Assign(focus.Key, station.Id);
+    }
+
+    /// <summary>The station Y would name for an NPC: unmanned and yours, of a kind they work first, then the nearest, then by ID.</summary>
+    private PieceView? Workplace(Simulation simulation, string npcId)
+    {
+        var worksAt = _session.Setup.Social.Npcs.TryGetValue(npcId, out var npc) ? npc.WorksAt : System.Collections.Immutable.ImmutableArray<string>.Empty;
+        var body = simulation.Player.Body;
+        return simulation.Pieces
+            .Where(p => p.Family == UNNAMED.Domain.Building.PieceFamily.Station && p.Owner == simulation.PlayerId && p.WorkerNpcId is null)
+            .OrderBy(p => worksAt.Contains(_session.Setup.Building.Catalog.Find(p.DefId)?.Station?.Kind ?? "") ? 0 : 1)
+            .ThenBy(p => Math.Pow(p.XMm - body.XMm, 2) + Math.Pow(p.ZMm - body.ZMm, 2))
+            .ThenBy(p => p.Id.Value, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// The Y suffix on an NPC's prompt (§8.9): let them go home while they work for you, or ask them to work at a matching station of yours;
+    /// nothing for NPCs who work nowhere.
+    /// </summary>
+    private string WorkSuffix(Simulation simulation, string npcId)
+    {
+        if (!_session.Setup.Social.Npcs.TryGetValue(npcId, out var npc) || npc.WorksAt.IsEmpty)
+            return "";
+        string name = _session.DisplayName(npcId);
+        if (simulation.WorkAssignments.Any(w => w.NpcId == npcId && w.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+            return $"   [{HelpPanel.Key("work_order")}] Let {name} go home";
+        return Workplace(simulation, npcId) is { } station && npc.WorksAt.Contains(_session.Setup.Building.Catalog.Find(station.DefId)?.Station?.Kind ?? "")
+            ? $"   [{HelpPanel.Key("work_order")}] Ask {name} to work at your {_session.DisplayName(station.DefId)}"
+            : "";
+    }
+
+    /// <summary>A piece's name while it stands, or "workplace" once it is gone.</summary>
+    private string PieceName(UNNAMED.Domain.EntityId pieceId) =>
+        _session.Simulation!.Pieces.FirstOrDefault(p => p.Id == pieceId) is { } piece ? _session.DisplayName(piece.DefId) : "workplace";
+
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
 
@@ -1733,6 +1801,7 @@ public partial class Main : Node3D
         Bind("build_rotate", Key.R);
         Bind("build_dismantle", Key.Z, Key.Delete);
         Bind("build_repair", Key.T);
+        Bind("work_order", Key.Y);
         Bind("faction_debug", Key.F6);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
