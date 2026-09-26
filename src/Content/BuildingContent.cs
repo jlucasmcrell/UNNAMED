@@ -1,5 +1,5 @@
 // UNNAMED Content - building pieces, config.building and the build areas (M7 design §4.3, §4.10, §4.16, §4.20)
-// Validates and builds the piece catalogue and building's numbers; lints BLD001-BLD004, BLD006, BLD007 and BLD009.
+// Validates and builds the piece catalogue and building's numbers; lints BLD001-BLD004 and BLD006-BLD009.
 
 using System.Collections.Immutable;
 using System.Globalization;
@@ -87,6 +87,8 @@ public static class BuildingContent
                 errors.Add(Error("BLD007", problem, file));
             foreach (string problem in CeilingProblems(layout))
                 errors.Add(Error("BLD009", problem, file));
+            foreach (string problem in SealProblems(loader, layout))
+                errors.Add(Error("BLD008", problem, file));
         }
         return errors;
     }
@@ -368,6 +370,59 @@ public static class BuildingContent
         catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException or InvalidOperationException)
         {
             return null;   // the CMB and WLD codes report it
+        }
+    }
+
+    /// <summary>
+    /// BLD008 (M7 design §3.13): what the placement check's flood must be able to decide. (a) Each area grown by the 200 mm overhang
+    /// holds at most <c>seal_limit_nodes</c> nodes, so a pocket inside it is always found before the flood gives up. (b) Filled solid, it
+    /// cuts off no node outside it from the spawn - every gate passable, for a person - so a pocket can only ever lie inside an area.
+    /// </summary>
+    private static IEnumerable<string> SealProblems(ContentLoader loader, RegionLayout layout)
+    {
+        NavConfig config;
+        try
+        {
+            config = NavigationContent.Build(loader);
+        }
+        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
+        {
+            yield break;   // the NAV codes report it
+        }
+        long node = config.NodeMm, half = node / 2;
+        NavGrid? before = null;
+        NavReach? reachBefore = null;
+        foreach (var area in layout.BuildAreas)
+        {
+            var grown = new NavRect(area.MinXMm - 200, area.MinZMm - 200, area.MaxXMm + 200, area.MaxZMm + 200);
+            long columns = NavGeometry.FloorDiv(grown.MaxXMm - half, node) - NavGeometry.CeilDiv(grown.MinXMm - half, node) + 1;
+            long rows = NavGeometry.FloorDiv(grown.MaxZMm - half, node) - NavGeometry.CeilDiv(grown.MinZMm - half, node) + 1;
+            if (columns * rows > config.Limits.SealLimitNodes)
+            {
+                yield return $"{area.Key} holds {columns * rows} nodes grown by 200 mm; the placement check floods at most {config.Limits.SealLimitNodes} (seal_limit_nodes)";
+                continue;
+            }
+            before ??= NavigationLayout.Build(layout, config);
+            var spawn = new NavPoint(layout.Spawn.XMm, layout.Spawn.ZMm);
+            reachBefore ??= NavReach.FromSpawn(before, config, spawn);
+            var filled = before.With(grown, NavigationLayout.AuthoredInputs(layout, config)
+                .Add(new NavInput(NavInputKind.Solid, new BoxBlocker(area.Key, grown.MinXMm, grown.MinZMm, grown.MaxXMm, grown.MaxZMm, 0), null)));
+            var reachAfter = NavReach.FromSpawn(filled, config, spawn);
+            int person = config.Classes.Select((c, k) => (c, k)).Single(p => p.c.Id == "person").k;
+            (long I, long J)? cut = null;
+            for (long j = filled.NodeMinJ; j <= filled.NodeMaxJ && cut is null; j++)
+            {
+                for (long i = filled.NodeMinI; i <= filled.NodeMaxI; i++)
+                {
+                    if (reachBefore.Reached(i, j) && !reachAfter.Reached(i, j) && filled.SolidFitAt(i, j) > person)
+                    {
+                        cut = (i, j);
+                        break;
+                    }
+                }
+            }
+            if (cut is { } n)
+                yield return $"{area.Key}, filled solid, cuts off ({filled.CentreOf(n.I)}, {filled.CentreOf(n.J)}) from the spawn";
         }
     }
 

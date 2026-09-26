@@ -175,6 +175,9 @@ public class BuildingContentTests
         Refused("BLD007", "overlaps", (Region, Area, Area.Replace("[87, 87, 114, 114]", "[48, 135, 63, 147]")));
         // BLD009: the ceilings.
         Refused("BLD009", "allow 300 pieces; a region holds at most 256", (Region, Area, Area.Replace("256", "300")));
+        // BLD008 (E7): an area too big for the placement check's flood; and one across the region, which filled solid would cut it in two.
+        Refused("BLD008", "nodes grown by 200 mm; the placement check floods at most 16384", (Region, Area, Area.Replace("[87, 87, 114, 114]", "[84, 84, 120, 120]")));
+        Refused("BLD008", "filled solid, cuts off", (Region, Area, Area.Replace("[87, 87, 114, 114]", "[0, 102, 200, 105]")));
         Refused("BLD009", "the build areas meeting r_0_0:c_00_00 allow 300 pieces", (Region, Area, Area.Replace("256", "300")));
         // WLD015: the area's shape.
         Refused("WLD015", "build area key 'area.crossing' must start with 'build_area.'", (Region, Area, Area.Replace("build_area.hollow_crossing", "area.crossing")));
