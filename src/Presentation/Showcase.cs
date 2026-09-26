@@ -102,6 +102,8 @@ public sealed class Showcase
     private static readonly (double X, double Z)[] ToTheSouthWestStone = { (135, 60), (123.5, 38) };
     private static readonly (double X, double Z)[] ToTheSouthEastStone = { (140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31) };
     private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 50.2) };
+    private static readonly (double X, double Z)[] ToTheFold = { (150.5, 50), (147.9, 45.2) };
+    private static readonly (double X, double Z)[] ToTheHeartSide = { (150.5, 50), (151.4, 50.2) };
     private static readonly (double X, double Z)[] AwayWithTavar = { (150, 47), (144, 58), (138, 68) };
 
     private static List<Step> Locomotion() => new()
@@ -162,18 +164,18 @@ public sealed class Showcase
         new("ward_cast", 4.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.warding.brace_ward"); }, CameraTurn: 150, Pitch: -0.2f, Distance: 4.0f),
         new("ward_side", 3.0, (s, _) => s.Hold(), CameraTurn: 95, Pitch: -0.15f, Distance: 4.8f),
         new("ward_close", 2.5, (s, _) => s.Hold(), CameraTurn: 165, Pitch: -0.08f, Distance: 2.0f),
-        new("ward_expiry", 3.5, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.2f, Distance: 4.0f),
+        new("ward_expiry", 3.5, (s, _) => s.Go(Gait.Walk), CameraTurn: 150, Pitch: -0.2f, Distance: 4.0f),
         new("mending_cast", 3.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.vital.mending_thread"); }, CameraTurn: 150, Pitch: -0.2f, Distance: 4.5f),
         new("mending_far", 2.5, (s, _) => s.Hold(), CameraTurn: 120, Pitch: -0.18f, Distance: 6.0f),
         new("mending_close", 1.8, (s, _) => s.Hold(), CameraTurn: 170, Pitch: -0.05f, Distance: 1.8f),
-        new("mending_end", 2.5, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.2f, Distance: 4.0f),
+        new("mending_end", 2.5, (s, _) => s.Go(Gait.Walk), CameraTurn: 150, Pitch: -0.2f, Distance: 4.0f),
         new("to_the_wallow", 40, (s, _) => s.Walk(ToTheWallow), Until: s => s.Arrived),
         new("aim", 2.0, (s, t) => { s.AimAtNearest((WallowX, WallowZ)); if (s.Once(t, 0.1)) s.LogCreatures(); }),
-        new("bolt_beside", 3.5, (s, t) => { s.Hold(); if (s.Once(t, 1.4)) s.Cast("spell.force.impulse_bolt"); }, CameraTurn: 70, Pitch: -0.12f, Distance: 5.0f),
+        new("bolt_beside", 3.5, (s, t) => { s.Hold(); if (s.Once(t, 1.4)) s.Cast("spell.force.impulse_bolt"); }, CameraTurn: 42, Pitch: -0.12f, Distance: 5.0f),
         new("bolt_behind", 3.5, (s, t) => { s.AimAtNearest(); if (s.Once(t, 1.1)) s.Cast("spell.force.impulse_bolt"); }, Pitch: -0.18f, Distance: 3.8f),
-        new("ward_the_charge", 7.0, (s, _) => s.WardTheCharge(), CameraTurn: 25, Pitch: -0.2f, Distance: 4.4f),
-        new("fight", 7.0, (s, t) => s.Fight(t), CameraTurn: 35, Pitch: -0.2f, Distance: 4.2f),
-        new("end", 2.5, (s, _) => s.Hold(), CameraTurn: 35, Pitch: -0.2f, Distance: 4.2f),
+        new("ward_the_charge", 7.0, (s, _) => s.WardTheCharge(), CameraTurn: 65, Pitch: -0.18f, Distance: 4.6f),
+        new("fight", 7.0, (s, t) => s.Fight(t), CameraTurn: 65, Pitch: -0.2f, Distance: 4.4f),
+        new("end", 2.5, (s, _) => s.Hold(), CameraTurn: 65, Pitch: -0.2f, Distance: 4.4f),
     };
 
     /// <summary>
@@ -196,10 +198,14 @@ public sealed class Showcase
         new("to_southeast_stone", 60, (s, _) => s.Travel(ToTheSouthEastStone), Until: s => s.Arrived),
         new("southeast_stone", 6.0, (s, t) => s.Work("switch.stone_southeast", t), CameraTurn: 35, Pitch: -0.18f, Distance: 4.4f),
         new("to_the_heart", 60, (s, _) => s.Travel(ToTheHeart), Until: s => s.Arrived),
-        new("the_fold", 4.5, (s, _) => { s.Hold(); s.Look(145, 42); }, CameraTurn: 20, Pitch: -0.14f, Distance: 4.6f),
-        new("steady_the_heart", 8.0, (s, t) => { s.Look(145, 42); if (s.Every(t, 0.5) && !s.IsSet("switch.foldscar_heart")) s._controller.Interact("switch.foldscar_heart"); s.Hold(); },
-            CameraTurn: 20, Pitch: -0.14f, Distance: 4.6f),
-        new("approach_tavar", 20, (s, _) => s.Approach(Tavar, (149.5, 49.5)), Until: s => s.Arrived),
+        // Up to the fold first, as a player would: Tavar a few metres off, out of true, and a hand that stops short of him.
+        new("to_the_fold", 20, (s, _) => s.Walk(ToTheFold), Until: s => s.Arrived),
+        new("the_fold", 6.0, (s, _) => { s.Hold(); s.Look(145, 42); }, CameraTurn: 65, Pitch: -0.14f, Distance: 3.8f),
+        new("back_to_the_heart", 20, (s, _) => s.Walk(ToTheHeartSide), Until: s => s.Arrived),
+        // Steadied from the heart's north-west side, where the heart does not stand between the character and Tavar.
+        new("steady_the_heart", 9.0, (s, t) => { s.Look(145, 42); if (t >= 1.2 && s.Every(t, 0.5) && !s.IsSet("switch.foldscar_heart")) s._controller.Interact("switch.foldscar_heart"); s.Hold(); },
+            CameraTurn: -28, Pitch: -0.2f, Distance: 5.2f),
+        new("approach_tavar", 20, (s, _) => s.Approach(Tavar), Until: s => s.Arrived),
         new("tavar", 30, (s, t) => s.Converse(Tavar, t, 2.8, "sent", "join"), CameraTurn: 70, Pitch: -0.12f, Distance: 3.4f, Until: s => s.Conversed),
         new("away_with_tavar", 30, (s, _) => s.Walk(AwayWithTavar, Gait.Walk), CameraTurn: 160, Pitch: -0.2f, Distance: 5.0f, Until: s => s.Arrived),
         new("look_back", 4.0, (s, _) => { s.Hold(); s.Look(145, 42); }, CameraTurn: 0, Pitch: -0.18f, Distance: 4.5f),
