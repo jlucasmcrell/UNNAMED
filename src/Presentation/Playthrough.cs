@@ -100,6 +100,8 @@ public sealed class Playthrough
     private readonly List<ActRecorded> _acts = new();
     private readonly List<FactionLearned> _learned = new();
     private readonly List<ReputationChanged> _standing = new();
+    private readonly List<PiecePlaced> _placed = new();
+    private readonly List<NavigationRebuilt> _rebuilt = new();
     private string? _refused;
     private int _stage;
     private int _learnedAtStart;
@@ -249,6 +251,11 @@ public sealed class Playthrough
             new Beat("m7_tell_sel_armour", "Sel told of the armour: the Survey drops back to neutral, and the notes close", 1_500, () => Steps(
                 StartOfSel, () => ConverseThen(Sel, NotesClosed, "armour", "back"), SelToldOfTheArmour, () => Still("25_factions_f6"),
                 () => Walk(new[] { (62.0, 130.0), (48.0, 137.0) }))),
+            // M7 E5 (design §13.7): a new game's first building, from the crossing's timber stack, clear of every later leg.
+            new Beat("m7_build", "A pad and a wall built by the crossing, from the timber stack", 1_500, () => Steps(
+                () => Walk(new[] { (62.0, 130.0), (80.0, 118.0), (84.0, 116.6) }), () => FaceBearing(0), TakeTimber,
+                () => Walk(new[] { (88.5, 116.0) }), () => FaceBearing(180), PlacePadAndWall, () => Still("26_first_build", factions: false),
+                FirstBuildStands, () => Walk(new[] { (80.0, 118.0), (62.0, 130.0), (48.0, 137.0) }))),
             new Beat("ward", "Brace Wards worked at home until Strain passed tolerance and cost health (§33: Health and Strain not at rest)", 1_200,
                 () => Strain(magic.Formulas.Keys.First(f => magic.Formulas[f].Targeting == Targeting.Self && f.Contains("ward", StringComparison.Ordinal))), "20_ward"),
             new Beat("save", "Saved - then the application quits (§30)", 60, SaveAndDump, "21_saved"),
@@ -669,6 +676,17 @@ public sealed class Playthrough
             Note($"{Name(e.FactionId)}: {e.From} -> {e.To} ({e.TierFrom} -> {e.TierTo})");
         });
         _session.Subscribe<CommandRejected>(e => _refused = e.Reason);
+        // M7 E5: the building.
+        _session.Subscribe<PiecePlaced>(e =>
+        {
+            _placed.Add(e);
+            Note($"Placed: {Name(e.DefId)} at {Where(new Body(e.XMm, 0, e.ZMm, 0))}, sequence {e.Revision}");
+        });
+        _session.Subscribe<NavigationRebuilt>(e =>
+        {
+            _rebuilt.Add(e);
+            Note($"Navigation rebuilt: {e.NodesRestamped} nodes");
+        });
     }
 
     private void Note(string line)
@@ -713,16 +731,70 @@ public sealed class Playthrough
     }
 
     /// <summary>A still in the middle of a beat, with F6 open for it: open, wait for the picture, close.</summary>
-    private bool Still(string name)
+    private bool Still(string name, bool factions = true)
     {
         if (_phase++ == 0)
         {
-            _showFactions?.Invoke(true);
+            if (factions)
+                _showFactions?.Invoke(true);
             _pending = name;
             _wait = 6;
             return false;
         }
         _showFactions?.Invoke(false);
+        return true;
+    }
+
+    // ── M7: the first building (design §13.7) ───────────────────────────────
+
+    private const string Timber = "item.material.timber";
+    private const string TimberStack = "container.timber_stack";
+
+    /// <summary>One frame standing, facing a bearing (0 = +Z, clockwise).</summary>
+    private bool FaceBearing(int bearingDeg)
+    {
+        _camera.Yaw = Mathf.DegToRad(bearingDeg + 180);
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
+        return true;
+    }
+
+    /// <summary>Three timber from the untouched stack, by its first entry, as the inventory panel takes it.</summary>
+    private bool TakeTimber()
+    {
+        _placedAtStart = _placed.Count;
+        _rebuiltAtStart = _rebuilt.Count;
+        _session.Submit(new MoveItemCommand(_session.Simulation!.PlayerId, $"{TimberStack}#00", ItemPlace.In(TimberStack), ItemPlace.Carried, 3));
+        return true;
+    }
+
+    private int _placedAtStart;
+    private int _rebuiltAtStart;
+
+    /// <summary>A pad at (88.5, 112.5), then a wall on its west edge, a tick apart.</summary>
+    private bool PlacePadAndWall()
+    {
+        if (_phase++ == 0)
+        {
+            _controller.Place("piece.pad.timber", 88_500, 112_500, 0);
+            return false;
+        }
+        _controller.Place("piece.wall.timber", 87_000, 112_500, 1);
+        return true;
+    }
+
+    private bool FirstBuildStands()
+    {
+        var simulation = _session.Simulation!;
+        var stack = simulation.Containers.Single(c => c.Site.Key == TimberStack);
+        int left = stack.Items.Where(i => i.DefId == Timber).Sum(i => i.Count);
+        int carried = simulation.Player.Inventory.Where(e => e.DefId == Timber).Sum(e => e.Count);
+        if (_placed.Count - _placedAtStart != 2 || _rebuilt.Count - _rebuiltAtStart != 1)
+            return Fail($"{_placed.Count - _placedAtStart} pieces placed and {_rebuilt.Count - _rebuiltAtStart} rebuilds, not 2 and 1 ({_refused})");
+        if (simulation.World.StructureSequence != 2 || stack.Id is null || left != 77 || carried != 0)
+            return Fail($"sequence {simulation.World.StructureSequence}, the stack's record {(stack.Id is null ? "absent" : "present")} with {left} timber, " +
+                        $"{carried} carried; not 2, present, 77 and 0");
+        Note($"Built: {string.Join(" and ", _placed.Skip(_placedAtStart).Select(p => _session.DisplayName(p.DefId)))}; sequence " +
+             $"{simulation.World.StructureSequence}; {left} timber left in the stack");
         return true;
     }
 

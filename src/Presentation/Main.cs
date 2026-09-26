@@ -139,7 +139,8 @@ public partial class Main : Node3D
         // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
-        string? buildShots = _options.GetValueOrDefault("--build-shots");
+        string? buildShots = _options.GetValueOrDefault("--build-shots") ?? _options.GetValueOrDefault("--build-shots-verify");
+        bool buildVerify = _options.ContainsKey("--build-shots-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
             : buildShots is not null ? Path.Combine(Path.GetFullPath(buildShots), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
@@ -150,8 +151,13 @@ public partial class Main : Node3D
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         if (_options.GetValueOrDefault("--playthrough") is { } run)
             Playthrough.Clear(Path.GetFullPath(run));
-        if (buildShots is not null)
-            BuildShots.Clear(Path.GetFullPath(buildShots));
+        // --build-shots starts from the committed start save S0, copied into the run's own profile before the session boots (M7 design §13.3).
+        if (buildShots is not null && !buildVerify && BuildShots.Prepare(Path.GetFullPath(buildShots), Home()) is { } missing)
+        {
+            GD.PushError($"UNNAMED build shots: {missing}");
+            GetTree().Quit(2);
+            return;
+        }
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
         _session.SubscriberFailed += SubscriberFailed;
@@ -164,8 +170,8 @@ public partial class Main : Node3D
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
-        if (scripted && !verify)
-            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") || buildShots is not null ? Playthrough.Seed : 0);
+        if (scripted && !verify && buildShots is null)
+            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -267,7 +273,19 @@ public partial class Main : Node3D
         Subscribe();
         DefineInput();
 
-        if (verify)
+        LoadResult? buildStart = null;
+        if (buildShots is not null)
+        {
+            // Both runs load quick by name: the run's copy of S0, the relaunch the run's own save.
+            buildStart = LoadChosen(SaveSlots.Quick, SaveCopy.Current);
+            if (buildStart is null)
+            {
+                GD.PushError($"UNNAMED build shots: {SaveSlots.Quick} would not load");
+                GetTree().Quit(2);
+                return;
+            }
+        }
+        else if (verify)
         {
             _continued = Continue();
             if (_continued is null)
@@ -320,7 +338,8 @@ public partial class Main : Node3D
         {
             // One tick a frame at the tick rate, like the playthrough: each still is taken at the same moment every run.
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _buildShots = new BuildShots(_session, _controller, _camera, _navOverlay, SetBuildDebug, Path.GetFullPath(buildShots));
+            _buildShots = new BuildShots(_session, _controller, _camera, _navOverlay, SetBuildDebug, _build, _help, _hud, _structures, _art.Coverage,
+                Path.GetFullPath(buildShots), buildVerify, buildStart);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
         {
@@ -527,13 +546,13 @@ public partial class Main : Node3D
             {
                 case "done":
                     ReportPieceCoverage();
-                    WriteReports(_buildShots.Directory, "build-shots");
+                    WriteReports(_buildShots.Directory, _buildShots.Verify ? "build-shots-verify" : "build-shots", _buildShots.Verify ? "_verify" : "");
                     GetTree().Quit(0);
                     return;
                 case "failed":
                     SaveStill(_buildShots.Directory, "failed");
                     ReportPieceCoverage();
-                    WriteReports(_buildShots.Directory, "build-shots (failed)");
+                    WriteReports(_buildShots.Directory, _buildShots.Verify ? "build-shots-verify (failed)" : "build-shots (failed)", _buildShots.Verify ? "_verify" : "");
                     GetTree().Quit(1);
                     return;
                 case { } still:
@@ -1631,7 +1650,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
-                    or "--build-shots"
+                    or "--build-shots" or "--build-shots-verify"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
                 && i + 1 < arguments.Length)

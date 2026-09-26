@@ -143,6 +143,13 @@ public class GameSaveTests
         var notes = sel.Nodes["again"].Choices.Single(c => c.Id == "notes");
         Assert.False(Assert.Single(notes.Conditions) is ReputationCondition standing
             && standing.MinLevel <= simulation.Factions.Single(f => f.Id == standing.FactionId).Level);
+        // E5: the timber stack untouched - no record, its table's full 80 - and nothing built or audited.
+        var stack = simulation.Containers.Single(c => c.Site.Key == "container.timber_stack");
+        Assert.Null(stack.Id);
+        Assert.Equal(80, stack.Items.Where(i => i.DefId == "item.material.timber").Sum(i => i.Count));
+        Assert.Empty(simulation.StructureAudit);
+        Assert.Empty(simulation.Pieces);
+        Assert.Equal(0, simulation.StructureRevision);
 
         var saved = JsonNode.Parse(File.ReadAllText(Path.Combine(Fixture("m6_acceptance"), "state_saved.json")))!;
         var tavar = Assert.Single(simulation.CaptureRecord().Companions);

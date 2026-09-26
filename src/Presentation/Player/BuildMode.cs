@@ -363,7 +363,7 @@ public partial class BuildMode : Node3D
         _ghostTone = null;
     }
 
-    private static readonly System.Text.RegularExpressions.Regex DottedId =
+    internal static readonly System.Text.RegularExpressions.Regex DottedId =
         new(@"(?<![A-Za-z0-9_.])[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+(?![A-Za-z0-9_])", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
     /// <summary>

@@ -318,8 +318,12 @@ public partial class Hud : CanvasLayer
         _tracker.Visible = !_debug.Visible;
     }
 
+    /// <summary>Every notice as it is posted: what a scripted run checks is in words (M7 design §13.4).</summary>
+    public event Action<string>? Toasted;
+
     public void Toast(string text, double seconds = 4)
     {
+        Toasted?.Invoke(text);
         // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
         int live = _live.FindIndex(t => t.Label.Text == text);
         if (live >= 0)

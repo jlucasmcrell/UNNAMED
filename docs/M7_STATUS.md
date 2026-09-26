@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E4 done (2026-09-26). E5 in progress: its E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** in progress. E0-E5 done (2026-09-26); E6 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -63,7 +63,7 @@
 | E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
 | E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), `c4c8f9d` (the S5 STOP record), `ee3d18a` (E3.5 and E3.6, one commit) | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
 | E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
-| E5 | Build mode: pads, walls, doorways, roofs | in progress | `9361019` (E5.1), `373e874` (the S1 STOP record), E5.2 | E5.2: 972 (Domain 182, Application 232, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 26) | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1" and the ruling after it |
+| E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
 | E6 | Piece doors | - | | | 114 expected | |
 | E7 | Navigable by construction | - | | | 114 | |
 | E8 | Chest, bench, blows and mending | - | | | 116 expected | |
@@ -338,6 +338,29 @@ The owner chose option (b) and amended BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
 
+## E5 evidence (2026-09-26, the machine that ran E1-E4)
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors; the Phase-1 warnings only (the xUnit analyzers, `MagicContent.cs(165,21)`) and Godot's `BuildMode.Rotation` CS0108 |
+| `dotnet test src/UNNAMED.sln` | 1,009 tests: 1,008 passed; the one failure in the full-solution run is the recorded Phase-1 `AsyncSaveTests` flake (below), which then passed alone 3 of 3. Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 |
+| Content lint | 113 definitions, 0 errors (BLD007 and BLD009 accept the shipped area) |
+| `--smoke` (headless) | PASS; its save/load digest identical (911 error lines, all "Not supported by this display server", as in E1-E4) |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` (from S0) | every beat passed: b02, b03 (two stills: build mode, F1), b04, b05, b06, b08, b09, b17, b18, b19. Step 1: 16 pieces, 24 timber spent, sequence 16; the table's end: 20 pieces, 15 timber carried, sequence 20. The aim west from (100.5, 101.0) stops at x 99 201. Tavar saved on his route (`Active`), inside at (100.754, 99.891) 600 ticks on, through the doorway's opening; 0 `CompanionCaughtUp`; `SubscriberFailures` 0 |
+| `--build-shots-verify` | v1: **1,343 fields**, 0 differences, the same digest; v2 (600 ticks on): **1,337 fields**, 0 differences, the same digest; `SubscriberFailures` 0. The relaunch replans Tavar's route at the run's tick, 588 |
+| A second `--build-shots` | `state_replay.json` byte-identical, SHA-256 `5e0382ad386a87f2e90f30d70151788f9d2ae5eb6fcd8b96ec074dc6c0fe770e` |
+| `piece:*` art coverage (R16) | **4 of 4 piece entries fall back to greybox**, in both runs and the relaunch: reported, not allowlisted, not a failure. M7 ships no piece art |
+| `--playthrough` then `--playthrough-verify` | every beat passed (553 s), `m7_build` included; verify: **1,182 fields**, 0 differences (E4's 1,080 plus the two pieces, the timber stack's record and the structure rows) |
+| Rows before `m7_build` | E4's, byte for byte: every one of the 99 rows up to and including `m7_tell_sel_armour`. Only the header differs, in the content hash that E5.2's content changes (the `Space` switch is neutral while nothing is built) |
+| `m7_build` | two `PiecePlaced`, one `NavigationRebuilt` (the wall), sequence 2, 77 timber left in the stack's record, 0 carried; still `26_first_build` |
+| A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `1c4788615d6820be719acf207d66f450a094e6e657399e41489b901b0580d343` |
+| `--ui-shots`, `--delta-shots` | both exit 0, 0 error lines |
+| `--input-check` (windowed) | PASS, the build steps included (every panel, L's included, ends build mode; Esc leaves build mode and keeps the mouse; the click that takes the mouse back places nothing) |
+| `--layout-check` at 1366x768 and 1280x720 | PASS at both sizes, the build panel on screen, over a full-pack content copy |
+| Tests E5.6 adds | `CrossingWorkshop_1to3_BuildRefuseAndWalkIn`, `CrossingWorkshop_9_ANewWallChangesHerWayHome`, `CrossingWorkshop_10_SaveQuitReloadGoesOnTheSame`, `CrossingWorkshop_0and11_ReplaysFromTheLog`, `PreviewsInterleaved_ChangeNothing`, `TheCommittedBuildStart_IsTheCrossingWorkshopStart`, `TheCrossingWorkshopStart_IsWrittenOnlyWhenAsked` (the env-gated writer), `ANewGame_TakesTimber_BuildsAPadAndAWall_AndLoadsEqual`, `ACreatureChasingRoundTheWorkshop_NeverOverlapsAPiece` (`BuildingAcceptanceTests.cs`); and `TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand`'s E5 rows (the untouched timber stack, no audit, no pieces, revision 0). The chase test fails when the creature step sites use the authored space (checked by mutation, then restored) |
+| Budgets | `SixtyCreatures_TickWithinTheBudget` and N-A10's one-piece rebuild (108 nodes, under 6 ms) pass in the suite |
+
 ## E4 evidence (2026-09-26, the machine that ran E1-E3)
 
 | Proof | Result |
@@ -496,6 +519,29 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E4 | Trail marks on F2 | Read from `Simulation.CaptureRecord().Companions` at most four times a second while F2 is on: no view carries the trail, and §8.14 adds none. The route lines are read from `Navigation.Movers` and the companions' bodies |
 | E4 | F1's F2 row | Unchanged ("the grid and its gates") until E5 gives it the design's wording |
 | E4 | `FactionContent.cs:421` | E3's own CS8601 (`FilePath = file` with a nullable `file`), fixed with `?? string.Empty` as `ContentChecks.cs:212` does |
+| E5 | `PlacementContext` | Carries the player's ID beside the actor's: `RuntimeState` holds no player ID |
+| E5 | Rule 1's "dead" | Never met at a command boundary: a death and the return at the Waystone are one tick. The test covers the unknown actor |
+| E5 | Support refusal texts | Beyond the wall's: an edge mount "a {family} needs a floor pad on one side" (wall, doorway); a square mount "a {name} needs a floor pad under it"; a door "a door needs a doorway" |
+| E5 | `PieceView.Parts` | `PiecePartView`s with no part IDs: a part ID embeds the `pce_` value, which the replayable dump cannot mask |
+| E5 | Protected-zone labels | "the spawn point", "{NPC name}'s place", otherwise the site key or node name. Patrol legs are sampled every 500 mm (⌈length / 500⌉ steps, ends included) |
+| E5 | BLD002 and BLD003 | BLD002's closed set holds the envelope (`id`, `kind`, `schema`, `display_key`, `tags`, `notes`, `defines`, `deprecated`) and `name`. BLD003 also requires a mount's or door provider's axis to be x at turn 0, pads and roofs to have no parts, and bounds to be the union of the parts |
+| E5 | `Space` with nothing built | The authored `WalkSpace` itself, not a copy |
+| E5 | Load-audit texts | "{def} is not a piece this build knows", "health X is above {name}'s Y: clamped", "a {family} is not a door: its door_open is read as shut", "it is off the building grid", "it stands outside every build area", "it stands over {id}", "it stands on ground kept clear ({what})", "nothing holds it up now" |
+| E5 | Tests on edited setups | `EachPlacementRule` and `Preview_EqualsTheCommand` (0.10 m relief, a post at (97.5, 103.5), Renn moved to (97.5, 97.5), room for six pieces); Kera behind a wall (Kera at (100.5, 101.2), NPC protection 0); `Creatures_AreBlockedByPieces` (a roamer route across the wall line, added after placement); G9 (a spawner on the wall). The shipped area's relief was cross-checked against the region grid for every square (228 and 96 as §4.8 states) |
+| E5 | Words | Dotted IDs become display names through `BuildMode.Words` (`DottedId`, now internal so `--build-shots` checks with the same pattern), used by `Main`'s refusal filter and the status line |
+| E5 | The target line and F2 | No "[T] mend" until E8 binds `build_repair`. F2's markers are the provider sockets, ID tails within 12 m and the last change's rectangle; work-anchor discs come with stations (E8). `StructuresView.SetDoor` is a no-op until E6 hangs doors |
+| E5 | The `building` perf segment | Built (`PerfActivities.BuildAtTheCrossing`, the `building` segment) and run only in the E10 ASTRAL trial and the owed RAZER window |
+| E5 | `LayoutCheck` | Checks the build panel's rectangle on screen; F1's BUILDING fit is its existing help-panel check |
+| E5 | The table as data | `CrossingWorkshop.Rows` holds E5's rows (R00-R05, R09-R12, R14, R39-R42, R45, R46); each row and action names its slice, and E6-E9 add theirs (the door commands of R06, R10, R11 and R13 among them) |
+| E5 | R46's save point | 60 ticks after Tavar's order, not 100. At 100 he has just come into clear view of the character through the doorway (headless: his route is `Active` to tick +99 and `None` at +100), so the save would miss "his route `Active`" by a tick. At 60 he is in the west corridor with a margin either way; the step-10 assertions are otherwise as written. The same kind of move as E4's N-A6 (a) |
+| E5 | G8's "no `itm_` minted" | `WorldDelta.Registry` is internal to World, which `Application.Tests` cannot reach, so the raw-digest replays assert it through the state: no item ID appears in the dump that was not there before the window. `PreviewsInterleaved_ChangeNothing` compares `NavCounters` by its JSON (its dictionaries compare by reference) |
+| E5 | R-A7 at a corner | `Kinematics.Step` resolves a push in doubles and rounds the body to whole millimetres, so at a convex corner a body can sit less than a millimetre inside contact (measured: 0.39 mm at the workshop's north-east corner). That is Phase 1's step, the same against an authored box. The chase test allows the rounding and nothing more (an overlap of 1 mm or more fails); it fails at 187 mm when the creature steps read the authored space |
+| E5 | The chase | The wolf starts at (104, 93), 5 m from the lap, so it hears the character's run (8 m); its spawn facing is seeded, so sight alone may never find the character |
+| E5 | b08's digest | Presentation may not drain commands (`PresentationSource_NeverReachesPastThePublicReadAndCommandSurface`), and the digest carries the tick, so "`StateDigest` unchanged" is asserted headless (`CrossingWorkshop_1to3` reads the digest either side of the command, before the tick). Windowed, b08 asserts the pieces, the sequence and the pack unchanged |
+| E5 | F1 and build mode | The help panel is not one of the panels that end build mode (`Main.Modal`: the inventory, a conversation, the character sheet, the saves list), so b03's F1 still is taken over build mode |
+| E5 | `--build-shots` timing | Rows play a tick a frame. A row's outcome is checked a frame later (`Then`), and a row's `+n` wait counts ticks from the previous row's last action, so a still in between shifts nothing. Each run records its own ticks in `commands.tsv` (tick, row, command). The files: `state_saved.json`, `state_replay.json`, `state_digest.txt` at the save; `state_continued.json` and `state_continued_digest.txt` 600 ticks on; the relaunch writes `state_loaded.json`, `state_diff.txt`, `state_continued_loaded.json`, `state_continued_diff.txt`, `transcript_verify.md` and `commands_verify.tsv`. `Hud.Toasted` carries each notice to the words check |
+| E5 | S0 | Written by `TheCrossingWorkshopStart_IsWrittenOnlyWhenAsked` under `UNNAMED_WRITE_BUILD_START=1` (refused under `CI=true`) through `SaveStore`, as the `quick` slot; `GameSaves/README.md` has its row. `Main` copies it into `<dir>/profile/quick` before `Boot`, and both `--build-shots` and its relaunch load `quick` by name (exit 2 when they cannot) |
+| E5 | The playthrough's still | `Still` gains `factions: false`, so `26_first_build` is taken without F6 |
 | E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
 
 ## Local risks (not promoted to RISK_REGISTER)
@@ -505,7 +551,8 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | Tier hysteresis is unsaved but gates the companion and creatures (owed before M9) | §15, R-X18 |
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
 | Kera's walk-home plan is modelled at about 4.6 ms on ASTRAL, one plan over the 4 ms tick | §3.18, §14; measured in E9 |
-| `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, and 1 of 3 with `FactionTests` excluded. It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
+| `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, 1 of 3 with `FactionTests` excluded, and 1 of 1 at E5.6 (then 3 of 3 alone). It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
+| `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so at a convex corner a body can sit under 1 mm inside contact (Phase 1). E9's step 6 asserts Kera `IsClear` every tick, which is strict, and her route turns corners inside the workshop | Here; measured in E9 against the rows it would fail, before any change |
 
 ## Residues and deferrals
 
@@ -525,3 +572,6 @@ See §5.19 and §16. They are recorded here as each slice lands.
 | E4 | NPCs never close doors: a door Tavar opens stays open until the character closes it |
 | E4 | The mid-route save proves the companion's half of G15; the errand's half (N-A6 (b)) and Kera's routes against the two-thirds bound are E8-E9 |
 | E3 | `o_ore` and `o_billet` (Quest 1) are `acquire_item` objectives with `or_item_refs`: once the Waystation is accepted, a bought billet satisfies both - reachable only after the armour kill and a report. `o_spear` still needs the anvil (C-01) |
+| E5 | No piece art: every placed piece and the ghost are greybox (4 of 4 `piece:*` coverage entries fall back), reported in every run |
+| E5 | Creatures never path: a chaser slides along a wall and can lose the character behind the workshop (R-A7, accepted) |
+| E5 | Doorways stand open until E6 hangs doors; the vestibule and every sealing refusal wait for E7's check 15 |
