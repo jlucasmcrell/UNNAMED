@@ -11,7 +11,7 @@ using UNNAMED.World.Runtime;
 namespace UNNAMED.Presentation;
 
 /// <summary>
-/// <c>--showcase &lt;dir&gt; --showcase-scene locomotion|sword|spells|formulas|rescue</c> (with <c>--profile</c> for a scene that needs a
+/// <c>--showcase &lt;dir&gt; --showcase-scene locomotion|sword|spells|formulas|bolts|mending|rescue</c> (with <c>--profile</c> for a scene that needs a
 /// later save): a fixed script of the player's own commands in real time - idle, walk, run, stop, turn, sprint, jump; the sword's ready
 /// stance, attacks in a row, block and back to running; each formula cast; each formula through to its end and the Impulse Bolt thrown at
 /// a creature (<c>formulas</c>); the Foldscar's three Quiet Stones turned, the heart steadied, Tavar spoken to and following (<c>rescue</c>,
@@ -59,8 +59,10 @@ public sealed class Showcase
             "sword" => (Sword(), Route[0]),
             "spells" => (Spells(), Route[0]),
             "formulas" => (Formulas(), Route[0]),
+            "bolts" => (Bolts(), Route[0]),
+            "mending" => (Mending(), Route[0]),
             "rescue" => (Rescue(), ToSel[0]),
-            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas or rescue"),
+            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas, bolts, mending or rescue"),
         };
         // What the world did, with the clip's time, for cutting the recording and for the evidence (what was hit, set, joined).
         string Name(string id) => session.DisplayName(id);
@@ -176,6 +178,40 @@ public sealed class Showcase
         new("ward_the_charge", 7.0, (s, _) => s.WardTheCharge(), CameraTurn: 65, Pitch: -0.18f, Distance: 4.6f),
         new("fight", 7.0, (s, t) => s.Fight(t), CameraTurn: 65, Pitch: -0.2f, Distance: 4.4f),
         new("end", 2.5, (s, _) => s.Hold(), CameraTurn: 65, Pitch: -0.2f, Distance: 4.4f),
+    };
+
+    /// <summary>
+    /// The Mending Thread in the open, at 3, 4.5 and 6 m (the formulas scene's 6 m view is taken by a longhouse post): out past the
+    /// waystation's fence, the mending worked, watched from three distances, then walked on. From the acceptance save.
+    /// </summary>
+    private static List<Step> Mending() => new()
+    {
+        new("to_the_field", 40, (s, _) => s.Walk(ToTheField), Until: s => s.Arrived),
+        new("settle", 6.0, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.18f, Distance: 4.5f),
+        new("mending_cast", 1.5, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.vital.mending_thread"); }, CameraTurn: 150, Pitch: -0.18f, Distance: 4.5f),
+        new("mending_4_5m", 1.8, (s, _) => s.Hold(), CameraTurn: 150, Pitch: -0.18f, Distance: 4.5f),
+        new("mending_6m", 2.0, (s, _) => s.Hold(), CameraTurn: 120, Pitch: -0.2f, Distance: 6.0f),
+        new("mending_3m", 1.5, (s, _) => s.Hold(), CameraTurn: 200, Pitch: -0.12f, Distance: 3.0f),
+        new("mending_walk", 2.5, (s, _) => s.Walk(PastTheField, Gait.Walk), CameraTurn: 160, Pitch: -0.18f, Distance: 4.5f),
+        new("end", 1.5, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.18f, Distance: 4.5f),
+    };
+
+    private static readonly (double X, double Z)[] ToTheField = { (60, 118), (46, 108) };
+    private static readonly (double X, double Z)[] PastTheField = { (36, 100) };
+
+    /// <summary>
+    /// The Impulse Bolt as the player throws it, from behind: out to the boar's wallow, one bolt at the boar, then one thrown wide of it
+    /// that bursts at the end of its reach. From the acceptance save.
+    /// </summary>
+    private static List<Step> Bolts() => new()
+    {
+        new("to_the_wallow", 40, (s, _) => s.Walk(ToTheWallow), Until: s => s.Arrived),
+        new("aim", 1.8, (s, _) => s.AimAtNearest((WallowX, WallowZ)), Pitch: -0.16f, Distance: 3.6f),
+        new("bolt_hit", 3.0, (s, t) => { s.AimAtNearest((WallowX, WallowZ)); if (s.Once(t, 0.3)) s.Cast("spell.force.impulse_bolt"); }, Pitch: -0.16f, Distance: 3.6f),
+        // Wide of the boar, to the west along the rim, where nothing stands in the bolt's 20 m.
+        new("aim_wide", 1.8, (s, _) => s.Aim(4, 86), Pitch: -0.14f, Distance: 3.6f),
+        new("bolt_miss", 3.2, (s, t) => { s.Aim(4, 86); if (s.Once(t, 0.3)) s.Cast("spell.force.impulse_bolt"); }, Pitch: -0.14f, Distance: 3.6f),
+        new("end", 1.0, (s, _) => s.Hold()),
     };
 
     /// <summary>

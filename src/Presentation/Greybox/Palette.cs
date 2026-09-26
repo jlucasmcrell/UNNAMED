@@ -60,6 +60,9 @@ uniform vec3 core_colour : source_color = vec3(0.22, 0.15, 0.38);
 uniform float distortion_amount : hint_range(0.0, 0.05) = 0.014;
 uniform float scroll_speed = 0.045;
 uniform float top_fade : hint_range(0.0, 1.0) = 0.60;
+// The Phase B VFX lane's release (FoldscarRegister): the doubled view closing into register, then the whole thinning away.
+uniform float in_register = 0.0;
+uniform float presence = 1.0;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
 float vnoise(vec2 p) {
@@ -80,7 +83,7 @@ void fragment() {
     vec2 offset = (vec2(vnoise(uv_a * 6.0 + 2.0), vnoise(uv_b * 7.0 + 9.0)) - 0.5) * distortion_amount;
     vec3 behind = textureLod(screen_tex, SCREEN_UV + offset, 0.0).rgb;
     // A second, more-displaced sample ghosted faintly under the first: the bible's ""slight image doubling"".
-    vec3 ghost = textureLod(screen_tex, SCREEN_UV + offset * 2.6 + vec2(0.006, -0.004), 1.5).rgb;
+    vec3 ghost = textureLod(screen_tex, SCREEN_UV + (offset * 2.6 + vec2(0.006, -0.004)) * (1.0 - in_register), 1.5).rgb;
 
     float bottom_fade = smoothstep(0.0, 0.10, UV.y);
     float top_alpha = 1.0 - smoothstep(top_fade, 1.0, UV.y);
@@ -94,7 +97,7 @@ void fragment() {
     vec3 colour = mix(warped, tint, 0.35 + fresnel * 0.45) + edge_colour * motes * 1.4;
 
     ALBEDO = colour;
-    ALPHA = clamp(0.22 + fresnel * 0.5 + shimmer * 0.1 + motes * 0.5, 0.0, 0.92) * mask;
+    ALPHA = clamp(0.22 + fresnel * 0.5 + shimmer * 0.1 + motes * 0.5, 0.0, 0.92) * mask * presence;
 }
 ",
         },
@@ -118,6 +121,9 @@ uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
 uniform float height_m = 2.6;
 uniform float warp_amount = 0.010;
 uniform float doubling = 0.010;
+// The Phase B VFX lane's release (FoldscarRegister): the doubled view closing into register, then the whole thinning away.
+uniform float in_register = 0.0;
+uniform float presence = 1.0;
 varying vec3 local;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
@@ -143,10 +149,10 @@ void fragment() {
     float foot = smoothstep(0.0, 0.12, h);
 
     vec2 p = vec2(around * 1.7, h * 2.2);
-    vec2 warp = (vec2(vnoise(p * 3.0 + vec2(TIME * 0.05, 0.0)), vnoise(p * 3.0 + vec2(7.3, -TIME * 0.04))) - 0.5) * warp_amount * body;
+    vec2 warp = (vec2(vnoise(p * 3.0 + vec2(TIME * 0.05, 0.0)), vnoise(p * 3.0 + vec2(7.3, -TIME * 0.04))) - 0.5) * warp_amount * body * (1.0 - 0.7 * in_register);
     vec4 behind = textureLod(screen_tex, SCREEN_UV + warp, 0.0);
     // The doubling: the same view again, a hair to one side and drifting slowly back and forth.
-    vec2 side = vec2(doubling * (0.6 + 0.4 * sin(TIME * 0.21)), doubling * 0.15);
+    vec2 side = vec2(doubling * (0.6 + 0.4 * sin(TIME * 0.21)), doubling * 0.15) * (1.0 - in_register);
     vec4 ghost = textureLod(screen_tex, SCREEN_UV + warp * 1.6 + side * body, 0.0);
     // What reaches the frame after the screen copy (a fading instance: the scatter's far chunks, a figure at its range) is not in it -
     // the copy holds nothing there (alpha 0). Draw only over what the copy holds, so those stay as they were drawn.
@@ -158,7 +164,7 @@ void fragment() {
     colour += vec3(0.55, 0.50, 0.80) * motes * 0.35;
 
     ALBEDO = colour;
-    ALPHA = clamp(body * top * foot + motes * 0.25 * top * foot, 0.0, 1.0) * held;
+    ALPHA = clamp(body * top * foot + motes * 0.25 * top * foot, 0.0, 1.0) * held * presence;
 }
 ",
         },
