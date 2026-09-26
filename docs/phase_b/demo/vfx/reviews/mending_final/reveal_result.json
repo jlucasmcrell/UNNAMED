@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T17:02:33.641720+00:00",
+  "payload_sha256": "3a379802cae2f6162d40a2487c2e8f56c3addd6630c044afd493b76595d29597",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T170212799656Z-review-a4cecf\\result.json",
+      "sha256": "026e7d133d24fbcbaeec9551c735dff45b512b037e5c95feb1512d8c6066bd7f"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "b0e0113ce6006face753c4f568813626081f19fb35d4243150bfa7c47b9bb9c1",
+    "assignments": {
+      "A": {
+        "id": "vfx-lane-final",
+        "settings": {
+          "camera": "formulas showcase 29.0-38.0 s: Mending Thread cast and held, 4.5 m, 6 m (camera pulled in by a post), 1.8 m, walking; third person",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 9.0
+        },
+        "media": [
+          {
+            "path": "media/after_vfx_lane_final.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.mp4",
+            "sha256": "6e03b644f34839167e824a604635a155788507281e41fe0f7027c6a4c08c7626"
+          }
+        ]
+      },
+      "B": {
+        "id": "baseline-a080596",
+        "settings": {
+          "camera": "formulas showcase 29.0-38.0 s: Mending Thread cast and held, 4.5 m, 6 m (camera pulled in by a post), 1.8 m, walking; third person",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 9.0
+        },
+        "media": [
+          {
+            "path": "media/before_a080596.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.mp4",
+            "sha256": "0b9f4f5bab1b363f1cb222cd8ac71fd090c2d4d40849ca20b43b6f8765fbebfd"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}

@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T16:24:05.459920+00:00",
+  "payload_sha256": "8425cb6c0141651329362b81af74b373c6433a7742a18fd7e3c84d76f46494bf",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T162343732489Z-review-2c8fc5\\result.json",
+      "sha256": "88b5457ae68c67fd9e0130b2e24eebfbea365d69c93304145927c2965652b233"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "ed908d3f1bdab36a51f31ed7fd200a19bce6bd3694bbfe8b4b8387d88958fbde",
+    "assignments": {
+      "A": {
+        "id": "vfx-lane",
+        "settings": {
+          "camera": "rescue showcase 150.5-165.0 s: Tavar held in the fold at 4 m, then the heart steadied and the fold released from the heart 10 m away; third person 3.8-5.2 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 14.5
+        },
+        "media": [
+          {
+            "path": "media/after_vfx_lane.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.mp4",
+            "sha256": "ff98a5b0eab2e988079875ce9be825b1f2d21f45129a843258c455fa9438097b"
+          }
+        ]
+      },
+      "B": {
+        "id": "baseline-a080596",
+        "settings": {
+          "camera": "rescue showcase 150.5-165.0 s: Tavar held in the fold at 4 m, then the heart steadied and the fold released from the heart 10 m away; third person 3.8-5.2 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 14.5
+        },
+        "media": [
+          {
+            "path": "media/before_a080596.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.mp4",
+            "sha256": "30d14ad7a2fa00b6328d7c990de0d22968ef75a3d0a74cc7b56ee1b7b4ee143f"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}

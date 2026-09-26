@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "rubric": "vfx",
+  "rubric_version": "1.0.0",
+  "candidates": [
+    {
+      "label": "A",
+      "media": [
+        {
+          "path": "A-00.mp4",
+          "sha256": "4e0f8eda4b060f5d6fedc1900193faa0fae71cc0aff0253aa99e1b2e520e17fa",
+          "kind": "video",
+          "continuous_video": true,
+          "width": 854,
+          "height": 480,
+          "duration_s": 9.002,
+          "frame_rate": "60/1",
+          "transform": "metadata stripped; H264 CRF18/AAC reencode"
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "media": [
+        {
+          "path": "B-00.mp4",
+          "sha256": "86831c4acc1e7b4cb068f2d0d5d0b1d5a451998bb7a49ad8807271b213928e37",
+          "kind": "video",
+          "continuous_video": true,
+          "width": 854,
+          "height": 480,
+          "duration_s": 9.002,
+          "frame_rate": "60/1",
+          "transform": "metadata stripped; H264 CRF18/AAC reencode"
+        }
+      ]
+    }
+  ],
+  "comparability_limitations": [
+    "Visible labels, HUD text or baked-in watermarks can reveal identity; owner must inspect payload before submission.",
+    "Settings are caller-declared; this tool does not independently measure camera, scale or lighting equivalence."
+  ],
+  "evidence_context": "Anonymous candidate evidence; implementation and production status withheld."
+}

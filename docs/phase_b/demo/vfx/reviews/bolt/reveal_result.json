@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T16:24:05.204437+00:00",
+  "payload_sha256": "1eaa5c4f1e80208569c7e9a92099534ccee1d6b48230520d60e3d8c0e0ab05c3",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T162327617036Z-review-7d4a0d\\result.json",
+      "sha256": "0c311181830d384925a7d8da68c0d57b70d156b9ef6b253f7a3075d52aed8720"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "0dd4c5c9f580bb755e85ee39124a807f8fb858e3911f48cc3d800b33fab70f2a",
+    "assignments": {
+      "A": {
+        "id": "vfx-lane",
+        "settings": {
+          "camera": "formulas showcase 60.5-71.5 s: Impulse Bolt at a boar from 42 degrees (hit) and from behind (fizzled), Brace Ward as the boar charges; third person 3.8-5 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 11.0
+        },
+        "media": [
+          {
+            "path": "media/after_vfx_lane.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.mp4",
+            "sha256": "f02dcef8cf95a92629de41d7aab3ba1d0a6164dc8748239cc34edc83e4c976cf"
+          }
+        ]
+      },
+      "B": {
+        "id": "baseline-a080596",
+        "settings": {
+          "camera": "formulas showcase 60.5-71.5 s: Impulse Bolt at a boar from 42 degrees (hit) and from behind (fizzled), Brace Ward as the boar charges; third person 3.8-5 m",
+          "lighting": "day, fair, same world clock",
+          "scale": 1,
+          "framing": "gameplay third person, identical scripted camera",
+          "tier": "high (default Phase-B tier)",
+          "duration_s": 11.0
+        },
+        "media": [
+          {
+            "path": "media/before_a080596.mp4"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.mp4",
+            "sha256": "10c5b96294e1aeff3542b9ead975bdb04118c9dd8f179de5e2e24265497b3b7c"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}
