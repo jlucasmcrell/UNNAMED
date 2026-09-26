@@ -198,5 +198,23 @@ void fragment() {
         },
     };
 
+    // Building (M7): the placement ghost's three tones, the target's highlight and the build-area outline - translucent, lit from within,
+    // seen from both sides; the nodes wearing them cast no shadow.
+    public static StandardMaterial3D GhostAllowed { get; } = Glass(new Color(0.35f, 0.85f, 0.45f, 0.35f));
+    public static StandardMaterial3D GhostUnchecked { get; } = Glass(new Color(0.95f, 0.75f, 0.25f, 0.35f));
+    public static StandardMaterial3D GhostRefused { get; } = Glass(new Color(0.95f, 0.30f, 0.25f, 0.35f));
+    public static StandardMaterial3D Highlight { get; } = Glass(new Color(1.00f, 0.95f, 0.70f, 0.25f));
+    public static StandardMaterial3D AreaOutline { get; } = Glass(new Color(1.00f, 0.85f, 0.20f, 0.35f));
+
+    private static StandardMaterial3D Glass(Color color) => new()
+    {
+        AlbedoColor = color,
+        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+        EmissionEnabled = true,
+        Emission = new Color(color.R, color.G, color.B),
+        EmissionEnergyMultiplier = 0.4f,
+        CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+    };
+
     private static StandardMaterial3D Flat(Color color, float roughness = 0.9f) => new() { AlbedoColor = color, Roughness = roughness };
 }

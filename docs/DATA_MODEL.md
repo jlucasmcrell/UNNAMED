@@ -558,6 +558,8 @@ nodes:
 
 **Phase-1 audit remediation (2026-09-24, H-01, L-18).** A `once` line is spent when it is heard, not when it is answered. So SOC001 refuses a reply with consequences on a `once` line unless its `next_if_exhausted` line offers a reply with the same `id` and the same consequences. The author gates that second reply on whatever marks the answer received, typically the line it leads to not yet being visited; the lint does not check the gate. When a reply's receipt matters, it leads to a line of its own: Sel's primer is given on `primer_given`, and her later lines are gated on having visited it, not on having heard the offer.
 
+**As built (M7).** The `reputation` condition takes tier keys, `{ kind: reputation, faction_ref, min_tier?, max_tier? }` (defaults anathema and exalted; `not` is refused), and holds while the character's tier with the faction is in that range. Two M7 kinds join the closed set: the condition `act_done` (`{ kind: act_done, act, creature_ref | flag_ref }`: the character's act log holds that act) and the consequence `report_act` (the same fields: the character tells the speaker of that act). `add_reputation` stays unbuilt and is refused by name: standing moves only through acts a faction learns of. Lint FAC001 holds a `reputation` condition to the speaker's own faction, `act_done` to a reply that reports the same act, and `report_act` to a conversation whose participants all belong to one faction that reacts to it.
+
 ### 4.13 FactionDefinition — `kind: faction`
 
 ```yaml
@@ -583,6 +585,15 @@ joinable: true
 join_requirements: { reputation: { faction_ref: faction.settlement.stoneford_covenant, min: 150 }, quest_ref: quest.settlement.stoneford_missing_flour }
 # note: Starting faction; its tiers are the tutorial for 'reputation buys access, not power' (D-09).
 ```
+
+**As built (M7).** A faction takes `name`, `seat_location_ref`, `reactions: [{ act, creature_ref | flag_ref, delta }]` and `relations: [{ faction_ref, attitude }]` (attitude one of `close`, `cordial`, `indifferent`, `strained`, `opposed`). The shape above maps as follows:
+- `members` - the NPC's own `faction_ref`; membership is definition data, not saved.
+- `player_start_reputation` and `reputation_tiers` - one ladder in `config.factions` for every faction (PROGRESSION §10); every standing starts at 0.
+- `attitude_default` and `enemy_of` - replaced by attitude words, so no number can be combined with a standing, and hostility is not a faction field.
+- `laws` - crime is Phase 3; law belongs to places, not to a faction.
+- `territory`, `services_gated`, `joinable` and `join_requirements` - not built in M7.
+
+FAC001 refuses each by name, with its reason. A reaction names a built act kind (`creature_killed`, `switch_set`) and one single-instance subject: a creature every spawner places once, or a flag only a switch sets.
 
 ### 4.14 LootTableDefinition — `kind: loot`
 
@@ -631,6 +642,8 @@ repair_service: false
 Phase 1 (M3b) matches `buys_tags` against the item's `category`; the tag vocabulary arrives later. A merchant buys at `config.economy`'s `sell_ratio` of `value_base` and sells at `value_base × price_bias`.
 
 **As implemented (M4).** A profile is opened by the NPC that names it (`merchant_ref`); Phase 1's is `merchant.ashen_hollow.kera_voss` (M3b's `merchant.smith_orren`, renamed before any save could name it). Its `stock` is the trader's wares at the start; what the trader buys joins them, asking `value_base` for anything they did not stock. `restock_min`, `gold_reserve` and `trade_skill_effect` are not built.
+
+**As built (M7).** A stock row may take `requires: { faction_ref, min_tier }`: the ware is listed and sold only while the character's tier with that faction is at `min_tier` or above; selling to the trader is not gated. The gate is keyed by item, and enforced by the trade system (`TradeSystem.Withheld`), not the dialogue. FAC001 requires the faction to be that of every NPC who trades from the merchant, and the item to appear in one stock row. Kera Voss's iron billets are gated at the Waystation's `accepted`.
 
 ### 4.16 NodeDefinition — `kind: node`
 
@@ -851,10 +864,12 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 
 **Rules.**
 
-1. **Additive changes with a default are migration-free** — add the field, document the default, keep the same `schema_version`.
+1. **Every added persisted field bumps `schema_version` and is required on decode** - a migration step writes its value for older saves, and a current save without it is corrupt, never defaulted. (Corrected at M7: this rule first read "additive changes with a default are migration-free - add the field, document the default, keep the same `schema_version`", which no schema since M2b has followed; a silently defaulted field is how state is lost across a load without anyone noticing.)
 2. **Structural changes require an ordered, pure, testable migration step** (rename, split, merge, type change, meaning change). Every shipped version needs a fixture save exercised by `Migrate(from, to)`.
 3. **Deleting content is never a silent drop** (D-05): either map forward in `_aliases.yaml` or record the loss explicitly in the migration with a player-facing recovery action.
 4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently. (As implemented, M2b supports remap (`removed: old: new`) and an explicit, reported destroy (`removed: old: ~`). Relic conversion arrives with item instance records that carry rolled properties.)
+**Save-sensitive M7 constants.** The `EntityId.Derived` tags `unnamed.piece/v1` and `unnamed.piece-container/v1`: a change re-keys every placed piece and piece chest. `config.building.module_m`: pieces are anchored in absolute millimetres, so a retune leaves saved anchors off the new lattice; they are audited, never migrated. Not save-locked: the faction ladder (tiers are derived from saved points) and `config.navigation.node_m` (routes are saved in millimetres, and the grid is rebuilt).
+
 5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on the baseline tuple: the world seed and the generator contract, including its placement data. Changing generation code or `placement` data changes the baseline hash of every cell it affects. A save with changed cells there needs a registered transition (`PERSISTENCE.md` §6.4), or it refuses to load - never a silent regeneration (`RK-01`, D-05). A runtime-only content change (a creature's stats, an item's price) is not a generation input and moves no baseline.
 6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (staging + rename + verify) with two backup generations (`PERSISTENCE.md` §7.3), and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
 

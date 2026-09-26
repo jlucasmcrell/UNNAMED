@@ -1,0 +1,13 @@
+id: faction.ashen_hollow.survey
+kind: faction
+schema: 1
+display_key: faction.ashen_hollow.survey.name
+tags: [faction]
+name: the Survey                # working name; the institution behind Sel is deliberately unnamed
+notes: Sel Arien's survey of the Foldscar and the old workings around Ashen Hollow. Wants old things recorded before they are used up, and the Quiet Stones set right. An M7 working faction.
+seat_location_ref: location.outpost
+reactions:
+  - { act: switch_set,      flag_ref: world.foldscar.steadied,                delta: 100 }    # the stones set right, the fold quiet
+  - { act: creature_killed, creature_ref: creature.construct.animated_armour, delta: -100 }   # an old working destroyed before anyone recorded who set it there, or why
+relations:
+  - { faction_ref: faction.ashen_hollow.waystation, attitude: cordial }

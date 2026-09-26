@@ -119,6 +119,12 @@ internal sealed record CorpseEmptied(string CorpseKey) : InternalCommand;
 internal sealed record DiscardContainer(string Key) : InternalCommand;
 
 /// <summary>
+/// A destroyed chest's contents fall where it stood (M7 design §4.13): each stack to the ground at its site, keeping its item ID; only
+/// the chest's own identity retires.
+/// </summary>
+internal sealed record SpillContainer(string Key) : InternalCommand;
+
+/// <summary>
 /// Owns: <see cref="StateSlice.Creatures"/> and the creature records of the world delta (S-23 and S-31). It places each
 /// spawner's creatures, lets them perceive - sight in a cone past no wall, and sound, each carrying only so far - and act
 /// on what they perceive, infer or are told through a call, in the manner of their role. There is no shared awareness:
@@ -171,6 +177,7 @@ internal sealed class CreatureSystem
     /// <summary>World start: every spawner's creatures at their baseline places, then each record's divergence over it.</summary>
     public void Populate()
     {
+        // The authored space, never the built one: a home must not depend on what the player has built (M7 design G9).
         var space = _context.Setup.Layout.Space;
         foreach (var site in Setup.Spawns)
         {
@@ -222,7 +229,12 @@ internal sealed class CreatureSystem
                         StaggerImmuneUntil = record.StaggerImmuneUntil,
                         Action = record.StaggeredTick is { } staggered
                             ? ActionState.Begin(ActionKind.Staggered, staggered) with { LastsTicks = record.StaggerLastsTicks }
-                            : ActionState.Idle,
+                            : record.AttackTick is { } began
+                                ? ActionState.Begin(ActionKind.Attack, began, definition.Attack) with
+                                {
+                                    Struck = record.AttackStruck is { } struck ? ImmutableHashSet.Create(struck) : ImmutableHashSet<EntityId>.Empty,
+                                }
+                                : ActionState.Idle,
                     };
                 }
                 State.SetCreature(_owner, state);
@@ -596,7 +608,7 @@ internal sealed class CreatureSystem
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
         others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
-        var moved = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        var moved = Kinematics.Step(c.Body, intent, rules, _context.Space, others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
             // It ran into something solid: rock, wall or tree takes the charge, and the charger reels.
@@ -634,7 +646,7 @@ internal sealed class CreatureSystem
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
             obstacles.AddRange(Companions());
-            c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
+            c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Space, obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
@@ -722,7 +734,10 @@ internal sealed class CreatureSystem
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
         if (killer == _player)
+        {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
+            _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.CreatureKilled, c.Definition.Id, _context.State.Body.XMm, _context.State.Body.ZMm));
+        }
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {
@@ -816,9 +831,11 @@ internal sealed class CreatureSystem
         long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
         long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
         bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
+        bool attacking = alive && c.Action.Kind == ActionKind.Attack && c.Action.PhaseAt(next, C).Phase != CombatPhase.Idle;
         bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.Definition.MaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
-                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
+                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered
+                        && !attacking;
         var existing = State.World.Creature(c.Key);
         if (baseline)
         {
@@ -841,6 +858,9 @@ internal sealed class CreatureSystem
             StaggerImmuneUntil = immune,
             StaggeredTick = staggered ? c.Action.StartTick : null,
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
+            AttackTick = attacking ? c.Action.StartTick : null,
+            // One swing lands on one body (L-23): at most one.
+            AttackStruck = attacking ? c.Action.Struck.SingleOrDefault() : null,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);
@@ -865,7 +885,7 @@ internal sealed class CreatureSystem
         others.AddRange(Companions());
         others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
-        return Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        return Kinematics.Step(from, intent, rules, _context.Space, others, TickMs);
     }
 
     /// <summary>
@@ -921,7 +941,7 @@ internal sealed class CreatureSystem
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls() => _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors());
+    private IEnumerable<Blocker> Walls() => _context.SightWalls();
 
     private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
 

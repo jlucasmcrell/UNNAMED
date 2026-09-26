@@ -19,4 +19,9 @@
     <ProjectReference Include="..\World\World.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- G11 (M7): the definition-ID pass and the rebase are called directly by Persistence.Tests. -->
+    <InternalsVisibleTo Include="Persistence.Tests" />
+  </ItemGroup>
+
 </Project>

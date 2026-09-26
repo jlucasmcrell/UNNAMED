@@ -455,7 +455,9 @@ public class NpcTests
             Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, ware.Count)));
         }
         Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
-        Assert.Empty(arena.Simulation.World.Container(Wares)!.Items);
+        // M7: the waystation's billets are withheld from a neutral character, so they are all that stays with her.
+        var billets = Assert.Single(arena.Simulation.World.Container(Wares)!.Items);
+        Assert.Equal(("item.material.iron_ingot", 3), (billets.DefId, billets.Count));
         Assert.Equal((60, 1, 1), (Carried(arena, Arrows), Carried(arena, "item.armor.hide_vest"), Carried(arena, "item.armor.hide_cap")));
         arena.Tick(2);
         Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
@@ -467,7 +469,7 @@ public class NpcTests
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         Assert.Empty(again.Simulation.Wares(Kera)!.Wares);
-        Assert.Empty(again.Simulation.World.Container(Wares)!.Items);
+        Assert.Equal(billets, Assert.Single(again.Simulation.World.Container(Wares)!.Items));
         // What she is sold afterwards joins her wares, as it always did.
         Assert.Null(again.Submit(new SellCommand(again.Player, Kera, again.Simulation.Player.Inventory.Single(e => e.DefId == "item.armor.hide_vest").ItemId, 1)));
         Assert.Equal("item.armor.hide_vest", Assert.Single(again.Simulation.Wares(Kera)!.Wares).ItemId);

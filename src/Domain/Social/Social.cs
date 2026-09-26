@@ -12,6 +12,12 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>Set for an NPC who can join the character (M6): how they fight.</summary>
     public CompanionProfile? Companion { get; init; }
 
+    /// <summary>The faction the NPC belongs to (M7), or none. Definition data: nothing can change it, so it is not saved.</summary>
+    public string? FactionId { get; init; }
+
+    /// <summary>The station kinds the NPC will work at when asked (M7, <c>works_at</c>); none for everyone else.</summary>
+    public ImmutableArray<string> WorksAt { get; init; } = ImmutableArray<string>.Empty;
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -100,6 +106,12 @@ public sealed record QuestStateCondition(string QuestId, string? ObjectiveId, st
 /// </summary>
 public sealed record CompanionPresentCondition(string NpcId, CompanionOrder? Order, bool Negated) : DialogueCondition;
 
+/// <summary><c>reputation</c> (M7): the character's standing with a faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, by level.</summary>
+public sealed record ReputationCondition(string FactionId, int MinLevel, int MaxLevel) : DialogueCondition;
+
+/// <summary><c>act_done</c> (M7): the character's act log holds at least one act of this kind and subject.</summary>
+public sealed record ActDoneCondition(string Kind, string Subject) : DialogueCondition;
+
 /// <summary>A closed-set consequence (DATA_MODEL.md §4.12): dialogue emits these as commands and never writes state itself.</summary>
 public abstract record DialogueConsequence;
 
@@ -127,6 +139,9 @@ public sealed record RecruitCompanionConsequence : DialogueConsequence;
 /// <summary><c>order_companion</c> (M6): the speaker, already a companion, takes an order - follow or wait.</summary>
 public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;
 
+/// <summary><c>report_act</c> (M7): the character tells the speaker of every logged act of this kind and subject; the speaker's faction learns them.</summary>
+public sealed record ReportActConsequence(string Kind, string Subject) : DialogueConsequence;
+
 /// <summary>What a condition may ask of the world, answered by the simulation (read only).</summary>
 public interface IDialogueFacts
 {
@@ -147,6 +162,12 @@ public interface IDialogueFacts
 
     /// <summary>The order an NPC who is the character's companion is under; null when they are not a companion (M6).</summary>
     CompanionOrder? CompanionOrderOf(string npcId);
+
+    /// <summary>The level of the character's standing tier with a faction (M7); 0, neutral, when nothing moved it.</summary>
+    int StandingLevel(string factionId);
+
+    /// <summary>Whether the character's act log holds an act of this kind and subject (M7).</summary>
+    bool ActDone(string kind, string subject);
 }
 
 public static class DialogueRules
@@ -161,6 +182,8 @@ public static class DialogueRules
         LevelCondition l => facts.Level >= l.Min,
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
+        ReputationCondition r => facts.StandingLevel(r.FactionId) is var level && level >= r.MinLevel && level <= r.MaxLevel,
+        ActDoneCondition a => facts.ActDone(a.Kind, a.Subject),
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),
     };
 

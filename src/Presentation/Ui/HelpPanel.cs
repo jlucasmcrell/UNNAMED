@@ -29,6 +29,15 @@ public partial class HelpPanel : CanvasLayer
             ("Guard, or aim the bow (hold)", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
             ("Work a formula", new[] { "cast_1", "cast_2", "cast_3" }), ("Take all, from a container", new[] { "take_all" }),
         }),
+        ("BUILDING", new[]
+        {
+            ("Build mode, on or off", new[] { "build_mode" }), ("Choose a piece", new[] { "build_piece_1", "build_piece_7" }),
+            ("Next or previous piece", new[] { "build_piece_next", "build_piece_prev" }), ("Turn the piece", new[] { "build_rotate" }),
+            ("Place it (a room needs a doorway)", new[] { "build_place" }), ("Take down what you face (press twice)", new[] { "build_dismantle" }),
+            ("Mend what you face", new[] { "build_repair" }),
+            ("Ask someone to work at your bench, or let them go", new[] { "work_order" }),
+            ("Cancel: leave build mode, dropping the ghost and any armed take-down", new[] { "release_mouse" }),
+        }),
         ("SCREENS", new[]
         {
             ("Inventory", new[] { "inventory" }), ("Journal", new[] { "journal" }), ("Character", new[] { "character" }),
@@ -45,10 +54,12 @@ public partial class HelpPanel : CanvasLayer
     private static readonly (string Does, string[] Actions)[] Developer =
     {
         ("Debug overlay (with the aim line)", new[] { "debug_overlay" }), ("Quest debugger", new[] { "quest_debug" }),
+        ("Structure debug (again: the navigation grid)", new[] { "build_debug" }),
+        ("Faction debug", new[] { "faction_debug" }),
     };
 
     /// <summary>The sections in the left column; the rest, and the developer's keys, go in the right, so the whole list fits the screen.</summary>
-    private const int LeftSections = 3;
+    private const int LeftSections = 4;
 
     private readonly GridContainer _left = new() { Columns = 2 };
     private readonly GridContainer _right = new() { Columns = 2 };

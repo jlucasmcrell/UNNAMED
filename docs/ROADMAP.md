@@ -284,6 +284,14 @@ Rationale for each link:
 - **Exit criteria:** Build a structure, assign an NPC to work in it, verify the NPC navigates in, through, and around it — **including a structure straddling a cell boundary**, which is `RK-14`'s explicitly unsolved case and must be proven here rather than discovered in playtest; save/load preserves every piece with correct ownership and health; damage/repair works and is explicit rather than emergent; the navmesh updates on placement; the same act moves two factions in opposite directions in a fixture.
 - **Proof:** Playable build; navmesh path test including the straddling-seam case; structure round-trip through save; a reputation fixture table.
 - **Notes:** Less creative freedom than voxel building is the accepted cost of guaranteed navigability and clean persistence (D-08). If playtest says expression is limited, the answer is **more pieces, not physics**.
+- **M7 reconciliation (2026-09-24), owner rulings 2026-09-24 and 2026-09-25.** How this entry is read, per `M7_IMPLEMENTATION_DESIGN.md` §1 (Phase 1 closed at `a696931`):
+  - "Navmesh" means the **domain navigation grid** (`D-13`): derived, deterministic, headless, restamped on each placement, dismantle or destroy; Godot navigation is never authoritative. The path test is headless plus a runtime recording.
+  - "Foundations ... floors" are **ground pads**: building v1 is one storey (`D-14`); nothing walkable is raised above the terrain.
+  - "Free rotation" is staged as quarter turns on a 3 m lattice (Q1, approved 2026-09-25).
+  - Crime, bounty and pardon records, and territory gating, are **deferred** to Phase 3 (Q2, approved 2026-09-25). The act log and the gate-access sets are the seams; nothing derives legal status or hostility from standing.
+  - "Assign an NPC to work in it" is one persisted work-anchor assignment: Kera Voss walks to a player-built anvil bench and back (Q3, approved 2026-09-25). No production, schedules or hirelings (M10).
+  - Building happens in one content-defined build area that crosses a cell seam (Q4, approved 2026-09-25). A structure straddling a cell boundary is required and proven.
+  - The entry criterion "NPCs and companions path reliably" is met inside M7, by slices E1 (the grid and planner) and E4 (companion routes), before any building slice.
 
 ### M8 — Dungeon, Boss, and the First Multi-Stage Quest — `FEATURE` — **PHASE 2**
 

@@ -69,6 +69,9 @@ public class ArchitectureTests
             nameof(WorldDelta.FindCreated), nameof(WorldDelta.Container), nameof(WorldDelta.ContainersIn),
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
+            // M7: placed pieces, the structure sequence and NPC errands, read only.
+            nameof(WorldDelta.Piece), nameof(WorldDelta.PiecesIn), "get_" + nameof(WorldDelta.Pieces), "get_" + nameof(WorldDelta.StructureSequence),
+            nameof(WorldDelta.NpcErrand), nameof(WorldDelta.NpcErrandsIn), "get_" + nameof(WorldDelta.NpcErrands),   // E9: the mover reads every errand
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -120,6 +123,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
+            nameof(UNNAMED.World.Runtime.Simulation.PreviewPlacement),   // the placement ghost (M7)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

@@ -86,7 +86,7 @@ Owner-approved design direction. **Directional/future unless their milestone own
 | `SOCIAL_INTERACTION_LANGUAGES_AND_KNOWLEDGE.md` | M4: structured dialogue and minimal continuity only; all deeper social systems are future |
 | `QUESTS_DUNGEONS_WORLD_EVENTS_AND_REPOPULATION.md` | M5 (quest framework); dungeons M8 |
 | `COMPANIONS_HIRELINGS_RELATIONSHIPS_AND_PARTIES.md`, `COMPANION_MATRIX.md` | M6 (one companion); player + 3 later |
-| `CRIME_LAW_REPUTATION_AND_JUSTICE.md` | M7 (factions, reputation); crime is Phase 3 |
+| `CRIME_LAW_REPUTATION_AND_JUSTICE.md` | M7 (factions, reputation); crime is Phase 3. M7 reconciled: act records and faction knowledge only; crime is Phase 3 |
 | `WORLD_BUILDING_AND_PROPERTY_DESIGN.md` | M7 (Building v1) |
 | `ECONOMY.md` | M10 regional economy (M3b has only a currency stub) |
 | `WEATHER_SEASONS_SURVIVAL_AND_ENVIRONMENT.md` | Phase 2+ |

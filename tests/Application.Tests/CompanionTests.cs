@@ -361,6 +361,7 @@ public class CompanionTests
             (after.NpcId, after.Order, after.Condition, after.XMm, after.ZMm, after.FacingMdeg, after.Health));
         Assert.Equal((before.DownedTick, before.StuckTicks, before.LastCombatTick), (after.DownedTick, after.StuckTicks, after.LastCombatTick));
         Assert.Equal(before.Trail, after.Trail);
+        Assert.Equal(before.Route, after.Route);
         Assert.Equal(CompanionOrder.Wait, after.Order);
         Assert.InRange(Apart(loaded), 15_000, 21_000);
         Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());

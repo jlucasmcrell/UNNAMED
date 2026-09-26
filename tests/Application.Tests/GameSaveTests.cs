@@ -1,6 +1,9 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World.Runtime;
@@ -29,6 +32,18 @@ public class GameSaveTests
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.StaggeredTick$"), "null"),
         (new Regex(@"^\$\.world\.Noises$"), "[]"),
+        // Schema 15: the world gains its placed pieces - none - and their sequence, and the named NPCs' errands - none; the player a
+        // faction ledger that knows nothing, and each companion a route - none.
+        (new Regex(@"^\$\.world\.(Pieces|NpcErrands)$"), "[]"),
+        (new Regex(@"^\$\.world\.StructureSequence$"), "0"),
+        (new Regex(@"^\$\.player\.Factions$"), """{"NextActSeq":1,"Acts":[],"Knowledge":[],"Standing":[]}"""),
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Route$"),
+            """{"Status":"None","GoalXMm":0,"GoalZMm":0,"Corners":[],"PlannedTick":0,"Stamp":0,"Watch":{"MinXMm":0,"MinZMm":0,"MaxXMm":0,"MaxZMm":0},"Partial":false}"""),
+        // Schema 16 (the owner's ruling on the M7 E8.5 STOP): the player gains their vitals, at rest - as every older save loaded.
+        (new Regex(@"^\$\.player\.Vitals$"),
+            """{"LastCombatTick":-1000000,"LastExertionTick":-1000000,"LastCastTick":-1000000,"HealthMilli":0,"StaminaMilli":0,"FocusMilli":0,"StrainMilli":0,"SprintMilli":0}"""),
+        // Schema 17 (the owner's ruling on the second M7 E8.5 STOP): every creature record gains its attack in progress - none was kept.
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(AttackTick|AttackStruck)$"), "null"),
     };
 
     [Fact]
@@ -61,7 +76,10 @@ public class GameSaveTests
         }
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
-        Assert.Equal(2 + 4 * creatureRecords + 1, differences.Count);   // the posture and digest, four fields a record, the noises
+        int companions = expected["player"]!["Companions"]!.AsArray().Count;
+        // The posture and digest, four fields a record, the noises; M7's world three, the ledger and a route a companion; schema 16's vitals;
+        // schema 17's two fields a record.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + companions + 1 + 2 * creatureRecords, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
@@ -85,6 +103,78 @@ public class GameSaveTests
         Assert.NotEmpty(simulation.Quests);
         foreach (var quest in simulation.Quests)
             Assert.Empty(simulation.Diagnose(quest.Id).Problems);
+    }
+
+    /// <summary>
+    /// The same save under M7 (design §7.14), for what the field-by-field compare does not name: the fourth migration step, no transition
+    /// and nothing to resolve, nothing built, no errand and no act known, Tavar with no route, and a first save that keeps the original
+    /// byte for byte. E3 and E5 add their rows here.
+    /// </summary>
+    [Fact]
+    public void TheM6AcceptanceSave_LoadsIntoM7_NothingBuiltNeutralNoErrand()
+    {
+        using var profile = new TempProfile();
+        string slot = SaveSlots.Manual("acceptance");
+        string committed = Path.Combine(Fixture("m6_acceptance"), "save");
+        Copy(committed, Path.Combine(profile.Root, slot));
+        var session = Harness.Boot(profile);
+        var loaded = session.Load(slot);
+
+        // Four schemas traversed, three migrations run: 14 -> 15 is the third of three.
+        Assert.Equal(5, loaded.Report.Steps.Count);
+        Assert.StartsWith("schema 12 -> 13:", loaded.Report.Steps[0]);
+        Assert.StartsWith("schema 13 -> 14:", loaded.Report.Steps[1]);
+        Assert.StartsWith("schema 14 -> 15:", loaded.Report.Steps[2]);
+        Assert.StartsWith("schema 15 -> 16:", loaded.Report.Steps[3]);
+        Assert.StartsWith("schema 16 -> 17:", loaded.Report.Steps[4]);
+        Assert.Empty(loaded.Report.CellsRebased);
+        Assert.Empty(loaded.Report.CellsMismatched);
+        Assert.Empty(loaded.Report.Blockers);
+        Assert.Empty(loaded.Report.Loss);
+        Assert.Empty(loaded.Report.Aliases);
+        Assert.Equal(session.Generator.Fingerprint, loaded.Manifest.WorldgenFingerprint);
+
+        var simulation = session.Simulation!;
+        Assert.Empty(simulation.World.Pieces);
+        Assert.Equal(0, simulation.World.StructureSequence);
+        Assert.Null(simulation.World.NpcErrand("npc.ashen_hollow.kera_voss"));
+        var site = session.Setup.Layout.Npcs.Single(n => n.NpcId == "npc.ashen_hollow.kera_voss");
+        var kera = simulation.Npcs.Single(n => n.Id == "npc.ashen_hollow.kera_voss");
+        Assert.Equal((site.XMm, site.ZMm), (kera.Body.XMm, kera.Body.ZMm));
+        Assert.Equal(FactionLedger.Empty, simulation.CaptureRecord().Factions);
+        // E3: every faction neutral, nothing in the act log, Kera's billets withheld and Sel's notes not offered.
+        Assert.Equal(new[] { "faction.ashen_hollow.survey", "faction.ashen_hollow.waystation" }, simulation.Factions.Select(f => f.Id));
+        Assert.All(simulation.Factions, f => Assert.Equal((0, "neutral", 0), (f.Points, f.Tier, f.Level)));
+        Assert.Empty(simulation.Acts);
+        Assert.DoesNotContain(simulation.Wares("npc.ashen_hollow.kera_voss")!.Wares, w => w.ItemId == "item.material.iron_ingot");
+        var sel = session.Setup.Social.Dialogues["dialogue.ashen_hollow.sel_arien"];
+        var notes = sel.Nodes["again"].Choices.Single(c => c.Id == "notes");
+        Assert.False(Assert.Single(notes.Conditions) is ReputationCondition standing
+            && standing.MinLevel <= simulation.Factions.Single(f => f.Id == standing.FactionId).Level);
+        // E5: the timber stack untouched - no record, its table's full 80 - and nothing built or audited.
+        var stack = simulation.Containers.Single(c => c.Site.Key == "container.timber_stack");
+        Assert.Null(stack.Id);
+        Assert.Equal(80, stack.Items.Where(i => i.DefId == "item.material.timber").Sum(i => i.Count));
+        Assert.Empty(simulation.StructureAudit);
+        Assert.Empty(simulation.Pieces);
+        Assert.Equal(0, simulation.StructureRevision);
+
+        var saved = JsonNode.Parse(File.ReadAllText(Path.Combine(Fixture("m6_acceptance"), "state_saved.json")))!;
+        var tavar = Assert.Single(simulation.CaptureRecord().Companions);
+        Assert.Equal(NavRoute.None, tavar.Route);
+        Assert.Equal(saved["player"]!["Companions"]![0]!["Trail"]!.ToJsonString(), JsonSerializer.Serialize(tavar.Trail));
+
+        // The first save keeps the original exactly as committed, under its exact pre-migration name (L-05), and reloads unchanged.
+        string before = StateDump.Render(simulation);
+        session.Save(slot);
+        string original = Path.Combine(profile.Root, $"pre_migration_12_{slot}");
+        foreach (string file in Directory.GetFiles(committed))
+            Assert.Equal(File.ReadAllBytes(file), File.ReadAllBytes(Path.Combine(original, Path.GetFileName(file))));
+        var reloaded = Harness.Boot(profile);
+        reloaded.Load(slot);
+        Assert.Empty(StateDump.Compare(before, StateDump.Render(reloaded.Simulation!), out _));
+        Assert.Equal(0, session.SubscriberFailures);
+        Assert.Equal(0, reloaded.SubscriberFailures);
     }
 
     private static void Copy(string from, string to)

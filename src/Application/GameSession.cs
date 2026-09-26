@@ -125,10 +125,14 @@ public sealed class GameSession : IDomainEvents, IDisposable
         }
     }
 
-    /// <summary>Finish the saves being written (up to 10 s), and let go of the profile if this session held it.</summary>
+    /// <summary>
+    /// Finish the saves being written (up to 10 s), close the save lane - its thread ends once it is free - and let go of the profile if
+    /// this session held it.
+    /// </summary>
     public void Dispose()
     {
-        WaitForSaves(TimeSpan.FromSeconds(10));
+        bool finished = WaitForSaves(TimeSpan.FromSeconds(10));
+        _saves.Close(finished ? TimeSpan.FromSeconds(10) : TimeSpan.Zero);   // a save still running after 10 s is not waited for twice
         _lock?.Dispose();
     }
 
@@ -156,6 +160,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Crafting = CraftingContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
+            Navigation = NavigationContent.Build(loader),
+            Building = BuildingContent.Build(loader),
+            Factions = FactionContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
@@ -263,6 +270,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private sealed record PendingSave(string Slot, bool Auto, double Playtime, Task Written);
 
     private readonly List<PendingSave> _pending = new();
+    private readonly SaveLane _saves = new("UNNAMED save lane");
+
+    /// <summary>Whether the session's save lane has a live thread: from its first background save until the session is disposed.</summary>
+    public bool SaveLaneRunning => _saves.IsRunning;
     private Task _writer = Task.CompletedTask;
 
     private SaveDocument Capture()
@@ -275,8 +286,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private void Queue(string slot, bool auto)
     {
         var document = Capture();
-        // One writer, in capture order: each save starts once the one before it has finished, however that one went.
-        var written = _writer.ContinueWith(_ => _store.Save(slot, document), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        // One writer, in capture order, on the session's own lane: each save starts once the one before it has finished, however that one
+        // went, and never waits for a free thread of the shared pool.
+        var written = _saves.Enqueue(() => _store.Save(slot, document));
         _writer = written;
         _pending.Add(new PendingSave(slot, auto, document.PlaytimeSeconds, written));
     }

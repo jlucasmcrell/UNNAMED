@@ -455,6 +455,9 @@ That is the systemic-hostility seam (`CRIME_LAW_REPUTATION_AND_JUSTICE.md`, `SOC
 
 ---
 
+
+**As built (M7).** The ladder's numbers live in `config.factions`: eleven tiers on points [-1000, 1000], neutral from -99 to 99, accepted from 100; an ordinary reaction stops at -999, so anathema (-1000) is unreachable until atonement content exists. The tier is derived from the points each time it is read and never stored, so a ladder change reclassifies saved points without a migration. Decay is deferred. "Trade volume" in this section means goods supplied, never coin: no act kind is a trade, so coin never buys standing (E-7). Standing and the personal relationship stay separate layers (ruling 3): a relationship moves by an NPC's own events, standing by what a faction learns of the character's acts, and no code connects them.
+
 ## 11. `AX-EQP`, `AX-CMP`
 
 ### 11.1 Equipment (`AX-EQP`)

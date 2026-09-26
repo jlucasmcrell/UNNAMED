@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Presentation.Player;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -43,6 +44,10 @@ public partial class Hud : CanvasLayer
     private readonly Label _targetName = Text(18);
     private readonly ProgressBar _target = Bar(new Color(0.7f, 0.2f, 0.18f));
     private readonly Label _log = Text(16);
+    private readonly PanelContainer _buildPanel = new() { Visible = false };
+    private readonly Label _buildText = Text(15);
+    private readonly Label _buildStatus = Text(18);
+    private readonly Label _buildTarget = Text(17);
     private readonly Queue<string> _logLines = new();
     private readonly Compass _compass = new();
     private readonly Reticle _reticle = new();
@@ -125,6 +130,23 @@ public partial class Hud : CanvasLayer
         target.AddChild(_targetName);
         target.AddChild(_target);
         AddChild(target);
+
+        // Build mode (M7 design §8.4): the panel top right, clear of the tracker and the log; the status and target lines under the prompt.
+        _buildPanel.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _buildPanel.Position = new Vector2(-380, 290);
+        _buildPanel.CustomMinimumSize = new Vector2(360, 0);
+        _buildText.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _buildText.CustomMinimumSize = new Vector2(340, 0);
+        _buildPanel.AddChild(_buildText);
+        AddChild(_buildPanel);
+        foreach (var (line, y) in new[] { (_buildStatus, -100f), (_buildTarget, -72f) })
+        {
+            line.SetAnchorsPreset(Control.LayoutPreset.CenterBottom);
+            line.HorizontalAlignment = HorizontalAlignment.Center;
+            line.Position = new Vector2(-400, y);
+            line.Size = new Vector2(800, 28);
+            AddChild(line);
+        }
 
         _log.SetAnchorsPreset(Control.LayoutPreset.BottomRight);
         _log.Position = new Vector2(-560, -190);
@@ -241,6 +263,28 @@ public partial class Hud : CanvasLayer
 
     public void SetStatus(string text) => _status.Text = text;
 
+    /// <summary>
+    /// Build mode's HUD (M7 design §8.4): the panel, the status line toned as the ghost is, and the target line; all hidden with null.
+    /// Colour is never the only signal - the status line's words say what the tone does.
+    /// </summary>
+    public void SetBuild(string? panel, string? status, string? target, BuildTone tone)
+    {
+        _buildPanel.Visible = panel is not null;
+        _buildText.Text = panel ?? string.Empty;
+        _buildStatus.Text = status ?? string.Empty;
+        _buildStatus.AddThemeColorOverride("font_color", tone switch
+        {
+            BuildTone.Allowed => new Color(0.55f, 0.95f, 0.60f),
+            BuildTone.Unchecked => new Color(1.00f, 0.85f, 0.40f),
+            BuildTone.Refused => new Color(1.00f, 0.50f, 0.45f),
+            _ => Colors.White,
+        });
+        _buildTarget.Text = target ?? string.Empty;
+    }
+
+    /// <summary>The build panel, as drawn: what a layout check measures.</summary>
+    public Control BuildPanel => _buildPanel;
+
     public void SetPrompt(string? text) => _prompt.Text = text ?? string.Empty;
 
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
@@ -274,8 +318,12 @@ public partial class Hud : CanvasLayer
         _tracker.Visible = !_debug.Visible;
     }
 
+    /// <summary>Every notice as it is posted: what a scripted run checks is in words (M7 design §13.4).</summary>
+    public event Action<string>? Toasted;
+
     public void Toast(string text, double seconds = 4)
     {
+        Toasted?.Invoke(text);
         // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
         int live = _live.FindIndex(t => t.Label.Text == text);
         if (live >= 0)

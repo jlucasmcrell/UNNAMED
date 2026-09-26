@@ -285,6 +285,14 @@ public static class ContentKindRegistry
             IdPrefix: "world"
         );
         
+        // 28. piece (M7): a building piece the player places
+        kinds["piece"] = new ContentKindDefinition(
+            Kind: "piece",
+            FullKind: "piece",
+            Directory: "pieces",
+            IdPrefix: "piece"
+        );
+        
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

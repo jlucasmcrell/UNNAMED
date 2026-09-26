@@ -3,6 +3,7 @@ using System.Text.Json;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Tests;
@@ -143,6 +144,7 @@ internal static class CanonicalState
                     json.WriteNumberValue(mark.ZMm);
                 }
                 json.WriteEndArray();
+                WriteRoute(json, companion.Route);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -150,6 +152,59 @@ internal static class CanonicalState
             json.WriteString("stance", StanceKeys.Key(player.Posture.Stance));
             json.WriteBoolean("airborne", player.Posture.Airborne);
             json.WriteNumber("air_ms", player.Posture.AirMs);
+            json.WriteEndObject();
+            json.WriteStartObject("factions");
+            json.WriteNumber("next_act_seq", player.Factions.NextActSeq);
+            json.WriteStartArray("acts");
+            foreach (var act in player.Factions.Acts)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("seq", act.Seq);
+                json.WriteString("kind", act.Kind);
+                json.WriteString("subject", act.Subject);
+                json.WriteString("cell_key", act.CellKey);
+                json.WriteNumber("x_mm", act.XMm);
+                json.WriteNumber("z_mm", act.ZMm);
+                json.WriteNumber("tick", act.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("knowledge");
+            foreach (var row in player.Factions.Knowledge)
+            {
+                json.WriteStartObject();
+                json.WriteString("knower", row.Knower);
+                json.WriteNumber("act", row.Act);
+                json.WriteString("identity", row.Identity);
+                json.WriteString("source", row.Source);
+                if (row.Via is { } via)
+                    json.WriteString("via", via);
+                else
+                    json.WriteNull("via");
+                json.WriteNumber("tick", row.Tick);
+                json.WriteNumber("delta", row.Delta);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("standing");
+            foreach (var row in player.Factions.Standing)
+            {
+                json.WriteStartObject();
+                json.WriteString("faction_id", row.FactionId);
+                json.WriteNumber("points", row.Points);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteEndObject();
+            json.WriteStartObject("vitals");
+            json.WriteNumber("last_combat_tick", player.Vitals.LastCombatTick);
+            json.WriteNumber("last_exertion_tick", player.Vitals.LastExertionTick);
+            json.WriteNumber("last_cast_tick", player.Vitals.LastCastTick);
+            json.WriteNumber("health_milli", player.Vitals.HealthMilli);
+            json.WriteNumber("stamina_milli", player.Vitals.StaminaMilli);
+            json.WriteNumber("focus_milli", player.Vitals.FocusMilli);
+            json.WriteNumber("strain_milli", player.Vitals.StrainMilli);
+            json.WriteNumber("sprint_milli", player.Vitals.SprintMilli);
             json.WriteEndObject();
             json.WriteEndObject();
 
@@ -267,6 +322,20 @@ internal static class CanonicalState
                 else
                     json.WriteNull("staggered_tick");
                 json.WriteNumber("stagger_lasts_ticks", creature.StaggerLastsTicks);
+                if (creature.AttackTick is { } began)
+                {
+                    json.WriteStartObject("attack");
+                    json.WriteNumber("start_tick", began);
+                    if (creature.AttackStruck is { } struck)
+                        json.WriteString("struck", struck.Value);
+                    else
+                        json.WriteNull("struck");
+                    json.WriteEndObject();
+                }
+                else
+                {
+                    json.WriteNull("attack");
+                }
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -286,9 +355,80 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            json.WriteNumber("structure_seq", snapshot.StructureSequence);
+            json.WriteStartArray("pieces");
+            foreach (var piece in snapshot.Pieces)
+            {
+                json.WriteStartObject();
+                json.WriteString("instance_id", piece.InstanceId.Value);
+                json.WriteString("def_id", piece.DefId);
+                json.WriteString("host_cell", piece.HostCell);
+                json.WriteString("baseline_hash", piece.BaselineHash);
+                json.WriteNumber("x_mm", piece.XMm);
+                json.WriteNumber("z_mm", piece.ZMm);
+                json.WriteNumber("rotation", piece.Rotation);
+                json.WriteString("owner", piece.Owner.Value);
+                json.WriteNumber("health", piece.HealthCurrent);
+                json.WriteBoolean("door_open", piece.DoorOpen);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("npc_errands");
+            foreach (var errand in snapshot.NpcErrands)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", errand.NpcId);
+                json.WriteString("host_cell", errand.HostCell);
+                json.WriteString("baseline_hash", errand.BaselineHash);
+                json.WriteString("phase", NpcErrandPhases.Key(errand.Phase));
+                if (errand.PieceId is { } piece)
+                    json.WriteString("piece_id", piece.Value);
+                else
+                    json.WriteNull("piece_id");
+                if (errand.WorkOwner is { } owner)
+                    json.WriteString("work_owner", owner.Value);
+                else
+                    json.WriteNull("work_owner");
+                json.WriteNumber("x_mm", errand.XMm);
+                json.WriteNumber("z_mm", errand.ZMm);
+                json.WriteNumber("facing_mdeg", errand.FacingMdeg);
+                WriteRoute(json, errand.Route);
+                json.WriteNumber("stuck_ticks", errand.StuckTicks);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";
+    }
+
+    /// <summary>A mover's route (schema 15), every field: its status by key, the stamp as the seed is written.</summary>
+    private static void WriteRoute(Utf8JsonWriter json, NavRoute route)
+    {
+        json.WriteStartObject("route");
+        json.WriteString("status", NavRoute.StatusKey(route.Status));
+        json.WriteStartArray("goal_mm");
+        json.WriteNumberValue(route.GoalXMm);
+        json.WriteNumberValue(route.GoalZMm);
+        json.WriteEndArray();
+        json.WriteStartArray("corners_mm");
+        foreach (var corner in route.Corners)
+        {
+            json.WriteNumberValue(corner.XMm);
+            json.WriteNumberValue(corner.ZMm);
+        }
+        json.WriteEndArray();
+        json.WriteNumber("planned_tick", route.PlannedTick);
+        json.WriteString("stamp", World.WorldSeed.Format(route.Stamp));
+        json.WriteStartArray("watch_mm");
+        json.WriteNumberValue(route.Watch.MinXMm);
+        json.WriteNumberValue(route.Watch.MinZMm);
+        json.WriteNumberValue(route.Watch.MaxXMm);
+        json.WriteNumberValue(route.Watch.MaxZMm);
+        json.WriteEndArray();
+        json.WriteBoolean("partial", route.Partial);
+        json.WriteEndObject();
     }
 
     /// <summary>The progression record (schema 4), every field, in canonical order.</summary>

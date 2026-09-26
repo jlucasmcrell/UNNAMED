@@ -112,6 +112,8 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Revisit if.** Save size becomes a measured problem that sparse deltas do not solve — in which case switch instance IDs to a save-local integer table with ULIDs retained as the authoring/cross-save key. This is a contained change *because* identity is centralized in the registry.
 
+**Note (M7 reconciliation (2026-09-24)).** Derived identities (NPC since M4, creature since M3d, piece and piece chest since M7) are ULID-shaped with an ordinal or constant timestamp. They are replay-stable, never time-ordered across worlds, and never compared across saves. The piece ordinal is a per-world persisted counter, acceptable because single-player saves never merge.
+
 ---
 
 ## D-05 — Persistence: sparse deltas over a deterministic baseline
@@ -183,6 +185,8 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 **Revisit if.** Playtesting shows the snap catalogue is the actual limiter on player expression — the response is more/better pieces, not a physics engine.
 
+**Note (M7 reconciliation (2026-09-24)).** Building v1 stages "free rotation/socketing" as quarter turns on a 3 m lattice (owner Q1, approved 2026-09-25): every piece stays an axis-aligned box, so the shared movement function, combat traces, sight and prediction are untouched. The saved rotation is an integer and footprints are derived, so 45° or free rotation can arrive later without a save-shape change. Snapping alone does not guarantee navigability across cell seams; M7 validates navigability at placement against the domain navigation grid (D-13). Building is one storey (D-14).
+
 ---
 
 ## D-09 — Progression: orthogonal axes with distinct questions
@@ -252,6 +256,26 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 **Consequences.** Some future multiplayer work will be genuinely harder than if we had designed for it now. That is the accepted trade. The four extension points we *do* preserve are: (1) state mutation only via commands (D-02), (2) stable identities (D-04), (3) sparse, versioned persistence (D-05), (4) tiered simulation (D-06).
 
 **Revisit if.** Multiplayer becomes a scheduled milestone rather than a possibility.
+
+## D-13 — Navigation: a domain grid, deterministic and headless (owner ruling 2026-09-24)
+
+**Decision (M7 reconciliation (2026-09-24)).** Authoritative navigation is a domain-side representation inside the simulation: a derived, integer, deterministic grid and planner that run headless and replay exactly. It is derived from authoritative world and structure state, rebuilt when a building edit changes a footprint, and it does not depend on cell seams. Godot navigation (`NavigationServer3D`, `NavigationAgent3D`, `NavigationRegion3D`, baked navigation meshes) is never authoritative; presentation may draw the grid for debugging and nothing else.
+
+**Why selected.** Movement, collision and tiers are already pure domain functions (`Kinematics.Step` is shared by the simulation and presentation's prediction), and D-02 and D-11 forbid presentation from deciding outcomes. A navmesh baked by the engine would put an authoritative input outside the replayable, headless simulation and would make RK-14's seam test depend on the engine.
+
+**Consequences.** The navigation grid is derived state: never saved, rebuilt in the `Simulation` constructor and on each footprint change. A mover's committed route is mover state and is saved with the body it moves. The grid lives in `src/Domain/Spatial` (pure integer functions) and a World system that owns it as a transient slice. The first milestone that builds it is M7 (`M7_IMPLEMENTATION_DESIGN.md` §3).
+
+**Revisit if.** A measured navigation cost in a 2×2 km region cannot be met by the grid with a portal layer and tier-A residency; the response is a better domain structure, not engine authority.
+
+## D-14 — Building: one storey (owner ruling 2026-09-24)
+
+**Decision (M7 reconciliation (2026-09-24)).** Building v1 is one storey. There are no upper floors, stairs, lifts, ladders, climbing, walkable elevated surfaces, vertical navigation, voxel terrain construction or structural physics. A "floor" or "foundation" is a ground pad: a visual placement anchor with a terrain-relief gate, while gameplay stays on the terrain. Roofs never block walkers. Construction remains socket/snap assembly (D-08).
+
+**Why selected.** Bodies stand only on terrain today (`Kinematics.Step`), and navigation is a 2-D grid (D-13). A walkable elevated surface would change the movement function every mover shares and would require 3-D navigation; neither is justified by M7's scope.
+
+**Consequences.** Less expressive building in v1. If playtest pressure asks for lofts or stairs, the answer stays "more pieces, not physics" until an owner ruling reopens vertical building.
+
+**Revisit if.** A later milestone schedules vertical building explicitly.
 
 ---
 

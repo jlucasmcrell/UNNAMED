@@ -1,0 +1,17 @@
+{
+  "save_format": 1,
+  "schema_version": 15,
+  "content_version": "0.3.0",
+  "content_hash": "sha256:652591658b10bc960752873dfe771ff8ac31f8612b90ab7f471f0df7243170b5",
+  "world_seed": "0x0A5E202609240001",
+  "worldgen_version": 2,
+  "worldgen_fingerprint": "sha256:f3c86098ae869e63e9dbf3855d7ddf1a05ad402c140d963454365bdeda490a6b",
+  "rng_contract_version": 2,
+  "world_tick": 0,
+  "world_time_advanced_ticks": 0,
+  "build_timestamp": "2026-09-26T08:22:59Z",
+  "playtime_seconds": 0,
+  "flags": {
+    "quarantined_sections": []
+  }
+}

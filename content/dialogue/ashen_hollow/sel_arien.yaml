@@ -24,6 +24,7 @@ nodes:
         consequences:
           - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+          - { command: report_act, act: switch_set, flag_ref: world.foldscar.steadied }
         next: tavar_back
       - id: leave
         text: "I'll leave you to it."
@@ -67,7 +68,20 @@ nodes:
         consequences:
           - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+          - { command: report_act, act: switch_set, flag_ref: world.foldscar.steadied }
         next: tavar_back
+      - id: notes
+        text: "What's in the notes you keep back?"   # DRAFT (tone review)
+        conditions: [{ kind: reputation, faction_ref: faction.ashen_hollow.survey, min_tier: accepted }]
+        next: notes
+      - id: armour
+        text: "The armour in Blackvein Cut is down."   # DRAFT
+        conditions:
+          - { kind: act_done, act: creature_killed, creature_ref: creature.construct.animated_armour }
+          - { kind: visited, node: armour_down, not: true }
+        consequences:
+          - { command: report_act, act: creature_killed, creature_ref: creature.construct.animated_armour }
+        next: armour_down
       - id: leave
         text: "Another time."
   primer:
@@ -126,3 +140,13 @@ nodes:
       - id: back
         text: "I'll remember."
         next: again
+  notes:
+    text: "The stones weren't knocked out of line. Each was turned the same quarter, by someone who knew the ring. That's more than I've written down."   # DRAFT; a lore hook the owner may reject
+    choices:
+      - { id: back, text: "I'll keep it to myself.", next: again }   # DRAFT
+  armour_down:
+    text: "Down. It kept that post longer than this waystation has stood, and now nobody can ask it who set it there."   # DRAFT
+    once: true
+    next_if_exhausted: again
+    choices:
+      - { id: back, text: "It was in the way.", next: again }   # DRAFT

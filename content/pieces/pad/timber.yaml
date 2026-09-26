@@ -1,0 +1,20 @@
+id: piece.pad.timber
+kind: piece
+schema: 1
+display_key: piece.pad.timber.name
+tags: [piece]
+name: Timber Pad                      # DRAFT display name
+notes: A 3 m timber ground pad (M7) - the foundation and the floor are one ground piece, one storey. It blocks nothing; walls stand on its edges.
+family: pad
+slot: square
+rotations: [0, 1, 2, 3]
+bounds_m: [-1.5, -1.5, 1.5, 1.5]
+sockets:
+  - { type: edge, at_m: [0, 1.5], axis: x }
+  - { type: edge, at_m: [0, -1.5], axis: x }
+  - { type: edge, at_m: [1.5, 0], axis: z }
+  - { type: edge, at_m: [-1.5, 0], axis: z }
+  - { type: square, at_m: [0, 0] }
+cost:
+  - { item_ref: item.material.timber, count: 1 }
+health_max: 200

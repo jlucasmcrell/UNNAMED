@@ -234,7 +234,11 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     }
 }
 
-/// <summary>The player's transient combat state. Never saved: a load starts at rest, with pools and effects from the save.</summary>
+/// <summary>
+/// The player's combat state. What their pools go on to do is saved as <see cref="Vitals"/> (schema 16): the three pauses and the five
+/// part-points. The rest is a blow or an action in progress - the swing, dodge, working or stagger, the raised guard, the stagger
+/// immunity after one, the last blows for a death recap - and is not saved: a load resumes at rest in all of that (PERSISTENCE.md §5.1).
+/// </summary>
 internal sealed record PlayerCombat(ActionState Action, bool Blocking, long StaggerImmuneUntil, long LastExertion, long LastCombat,
     ImmutableArray<DeathRecapLine> Recent)
 {
@@ -254,6 +258,22 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     /// <summary>The last working begun or released: Focus and Strain return only after a pause from it.</summary>
     public long LastCast { get; init; } = -1_000_000;
+
+    /// <summary>What the pools do next, as a save keeps it.</summary>
+    public VitalsClock Vitals => new(LastCombat, LastExertion, LastCast, HealthMilli, StaminaMilli, FocusMilli, StrainMilli, SprintMilli);
+
+    /// <summary>At rest in everything a save does not keep, and going on from the saved <paramref name="vitals"/>.</summary>
+    public static PlayerCombat Resumed(VitalsClock vitals) => Rested with
+    {
+        LastCombat = vitals.LastCombatTick,
+        LastExertion = vitals.LastExertionTick,
+        LastCast = vitals.LastCastTick,
+        HealthMilli = vitals.HealthMilli,
+        StaminaMilli = vitals.StaminaMilli,
+        FocusMilli = vitals.FocusMilli,
+        StrainMilli = vitals.StrainMilli,
+        SprintMilli = vitals.SprintMilli,
+    };
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
@@ -509,7 +529,34 @@ internal sealed partial class CombatSystem
         }
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = State.PlayerCombat.Action with { Struck = struck } });
         if (struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
-            _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+        {
+            // A swing that struck no creature may land on a placed piece (M7 design §4.12, the one damage rule), in place of a miss.
+            if (StruckPiece(body, attack.ReachMm) is { } piece)
+                _context.Dispatch(new DamagePiece(piece, _context.Setup.Building.Constants.Damage.GetValueOrDefault(MeleeDamage), MeleeDamage));
+            else
+                _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+        }
+    }
+
+    /// <summary>The one damage source of M7's building (<c>config.building</c>'s <c>damage</c> key).</summary>
+    private const string MeleeDamage = "melee";
+
+    /// <summary>
+    /// The piece a swing lands on (M7 design §4.12): the first blocker along the facing within reach, when every blocker the line meets
+    /// there is part of a placed piece - an authored wall, door or barrier among them shields it.
+    /// </summary>
+    private EntityId? StruckPiece(Body from, long reachMm)
+    {
+        var (_, hit) = FirstStop(from, reachMm);
+        EntityId? first = null;
+        foreach (var blocker in hit)
+        {
+            int hash = blocker.Id.IndexOf('#');
+            if (hash <= 0 || !blocker.Id.StartsWith("pce_", StringComparison.Ordinal) || !EntityId.TryParse(blocker.Id[..hash], out var id))
+                return null;
+            first ??= id;
+        }
+        return first;
     }
 
     /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>
@@ -531,22 +578,34 @@ internal sealed partial class CombatSystem
             return (target.Body.XMm, target.Body.ZMm, target);
         double facing = from.FacingMdeg / 1000.0 * Math.PI / 180;
         double dx = Math.Sin(facing), dz = Math.Cos(facing);
-        double reach = rangeMm;
-        if (Walled(from.XMm, from.ZMm, from.XMm + dx * reach, from.ZMm + dz * reach))
-        {
-            // The line crosses a wall somewhere short of the range: halve the gap down to a centimetre.
-            double clear = 0;
-            while (reach - clear > 10)
-            {
-                double mid = (clear + reach) / 2;
-                if (Walled(from.XMm, from.ZMm, from.XMm + dx * mid, from.ZMm + dz * mid))
-                    reach = mid;
-                else
-                    clear = mid;
-            }
-            reach = clear;
-        }
+        var (reach, _) = FirstStop(from, rangeMm);
         return ((long)Math.Round(from.XMm + dx * reach, MidpointRounding.AwayFromZero), (long)Math.Round(from.ZMm + dz * reach, MidpointRounding.AwayFromZero), null);
+    }
+
+    /// <summary>
+    /// How far the line along the body's facing runs clear of every wall, closed door and barrier, and what stops it (M7 design §4.12):
+    /// the whole length and nothing when it is clear; else the gap halved down to a centimetre, and every blocker the line to the far side
+    /// of that centimetre crosses, in <c>SightWalls()</c> order.
+    /// </summary>
+    private (double ClearMm, ImmutableArray<Blocker> Hit) FirstStop(Body from, long lengthMm)
+    {
+        double facing = from.FacingMdeg / 1000.0 * Math.PI / 180;
+        double dx = Math.Sin(facing), dz = Math.Cos(facing);
+        double reach = lengthMm;
+        if (!Walled(from.XMm, from.ZMm, from.XMm + dx * reach, from.ZMm + dz * reach))
+            return (reach, ImmutableArray<Blocker>.Empty);
+        // The line crosses a wall somewhere short of its length: halve the gap down to a centimetre.
+        double clear = 0;
+        while (reach - clear > 10)
+        {
+            double mid = (clear + reach) / 2;
+            if (Walled(from.XMm, from.ZMm, from.XMm + dx * mid, from.ZMm + dz * mid))
+                reach = mid;
+            else
+                clear = mid;
+        }
+        double x1 = from.XMm + dx * reach, z1 = from.ZMm + dz * reach;
+        return (clear, _context.SightWalls().Where(b => b.Crosses(from.XMm, from.ZMm, x1, z1)).ToImmutableArray());
     }
 
     /// <summary>The first living creature along the facing within range whose body the line meets before any wall does.</summary>
@@ -572,7 +631,7 @@ internal sealed partial class CombatSystem
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.SightWalls().Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)

@@ -195,6 +195,21 @@ public class ContentLoader
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
+
+            // Navigation's tuning, and that every authored place can be reached (NAV codes)
+            var navigationErrors = NavigationContent.Validate(this);
+            _errors.AddRange(navigationErrors);
+            success &= navigationErrors.Count == 0;
+
+            // Building: pieces, config.building and the build areas (BLD codes)
+            var buildingErrors = BuildingContent.Validate(this);
+            _errors.AddRange(buildingErrors);
+            success &= buildingErrors.Count == 0;
+
+            // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001)
+            var factionErrors = FactionContent.Validate(this);
+            _errors.AddRange(factionErrors);
+            success &= factionErrors.Count == 0;
         }
         
         return success;

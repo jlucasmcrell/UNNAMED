@@ -383,6 +383,22 @@ internal sealed class InventorySystem
         return null;
     }
 
+    /// <summary>
+    /// A destroyed chest spills (M7 design §4.13): each stack, in record order, lies on the ground at the chest's site as a stack of its
+    /// own with its item ID kept - nothing is minted or retired but the container's own identity.
+    /// </summary>
+    public string? Handle(SpillContainer command)
+    {
+        if (State.World.Container(command.Key) is not { } record || _context.FindContainer(command.Key) is not { } site)
+            return $"there is no container '{command.Key}'";
+        var cell = CellOf(site.XMm, site.ZMm);
+        var (minX, minZ) = CellOrigin(cell);
+        foreach (var item in record.Items)
+            State.PlaceItem(_owner, cell, item.ItemId, item.DefId, item.Count, (int)((site.XMm - minX) / 10), (int)((site.ZMm - minZ) / 10), item.Quality);
+        State.ReleaseContainer(_owner, command.Key);
+        return null;
+    }
+
     /// <summary>Spend carried items by definition, oldest stacks first: an arrow at release. Equipped items are never spent.</summary>
     public string? Handle(ConsumeItem command, long tick)
     {
@@ -459,6 +475,8 @@ internal sealed class InventorySystem
         bool wares = Items.Merchants.ContainsKey(site.Key);
         if (wares != trading)
             return wares ? $"{site.Key} is a trader's wares: buy and sell" : $"{site.Key} is not a trader's wares";
+        if (site.Owner is { } owner && owner != _player)
+            return "that chest is not yours";
         return !trading && Distance(site.XMm, site.ZMm) > Items.Inventory.ReachMm ? $"{site.Key} is out of reach" : null;
     }
 
@@ -499,6 +517,9 @@ internal sealed class InventorySystem
     /// <summary>The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16).</summary>
     private List<LootDrop> Baseline(ContainerSite site)
     {
+        // A placed chest (M7) starts empty: it has no loot table.
+        if (site.LootTableId.Length == 0 && !Items.Merchants.ContainsKey(site.Key))
+            return new List<LootDrop>();
         var cell = CellOf(site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
         // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
@@ -521,7 +542,10 @@ internal sealed class InventorySystem
         if (State.World.Container(site.Key) is { } existing)
             return existing;
         var registry = State.World.Registry;
-        var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
+        // A placed chest keeps the identity its piece derives (M7 G8); an authored one is given a new one.
+        var chest = site.InstanceId is { } derived
+            ? registry.CreateEntity(DefinitionId.Parse(site.Key), derived).InstanceId
+            : registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
         var items = Baseline(site).Select(drop => new ContainerItem(NewItem(drop.ItemId), drop.ItemId, drop.Count)).ToImmutableArray();
         var record = new ContainerRecord(site.Key, chest, CellOf(site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
@@ -580,7 +604,9 @@ internal sealed class InventorySystem
             case PlaceKind.Inventory:
             {
                 var entries = State.Inventory.ToList();
-                int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
+                // The fullest stack first, then the ID (M7 G20): equal-count stacks are interchangeable, so the counts left never depend on IDs.
+                int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality)
+                        .OrderByDescending(e => e.Count).ThenBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
                     entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
@@ -604,7 +630,8 @@ internal sealed class InventorySystem
                 var site = _context.FindContainer(place.ContainerKey!)!;
                 var record = Materialize(site);
                 var items = record.Items.ToList();
-                int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
+                int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality)
+                        .OrderByDescending(i => i.Count).ThenBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
                     items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
@@ -682,7 +709,7 @@ internal sealed class InventorySystem
         (((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000,
          ((long)cell.Region.Rz * WorldMath.RegionSizeMeters + (long)cell.Cz * WorldMath.CellSizeMeters) * 1000);
 
-    private static (long X, long Z) WorldPosition(CellKey cell, int xCm, int zCm)
+    internal static (long X, long Z) WorldPosition(CellKey cell, int xCm, int zCm)
     {
         var (minX, minZ) = CellOrigin(cell);
         return (minX + xCm * 10L, minZ + zCm * 10L);

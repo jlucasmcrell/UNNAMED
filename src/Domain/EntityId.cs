@@ -42,7 +42,10 @@ public sealed class EntityId : IComparable<EntityId>, IEquatable<EntityId>
     /// <summary>The 26-character canonical ULID without the prefix.</summary>
     public string Ulid { get; }
 
-    /// <summary>Creation time in Unix milliseconds, decoded from the ULID.</summary>
+    /// <summary>
+    /// Creation time in Unix milliseconds, decoded from the ULID. For a derived identity (<see cref="Derived"/>: a piece, a piece
+    /// chest) it holds the derivation ordinal instead, not a time.
+    /// </summary>
     public long Timestamp => DecodeTimestamp(Ulid);
 
     public static EntityId NewId(EntityKind kind)
@@ -53,7 +56,8 @@ public sealed class EntityId : IComparable<EntityId>, IEquatable<EntityId>
     }
 
     /// <summary>
-    /// Build an ID from explicit parts. For fixtures and tests; runtime code uses <see cref="NewId"/>.
+    /// Build an ID from explicit parts. For fixtures and tests, and for <see cref="Derived"/>; runtime code mints with <see cref="NewId"/>
+    /// or derives with <see cref="Derived"/>.
     /// </summary>
     public static EntityId Create(EntityKind kind, long timestampMs, ReadOnlySpan<byte> random)
     {
@@ -67,6 +71,16 @@ public sealed class EntityId : IComparable<EntityId>, IEquatable<EntityId>
             bytes[i] = (byte)(timestampMs >> (40 - 8 * i));
         random.CopyTo(bytes[6..]);
         return new EntityId(kind, Encode(bytes));
+    }
+
+    /// <summary>
+    /// A runtime identity derived from what made it (M7 design §4.18; DECISIONS D-04 note): the same commands make the same IDs, so a
+    /// replay and a save-then-continue mint identically. The timestamp field holds the ordinal, not a time, so these IDs sort by it.
+    /// </summary>
+    public static EntityId Derived(EntityKind kind, long ordinal, string tag, string salt)
+    {
+        using var h = new CanonicalHasher();
+        return Create(kind, ordinal, h.Add(tag).Add(salt).Add(ordinal).FinishBytes().AsSpan(0, 10));
     }
 
     public static EntityId Parse(string value) =>

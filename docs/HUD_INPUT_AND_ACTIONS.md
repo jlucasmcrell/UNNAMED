@@ -33,7 +33,7 @@ Support several simultaneous ways to reach abilities:
 - contextual actions;
 - controller-friendly layers.
 
-Players who like many keybinds should not be artificially capped. Controller users should retain the same underlying capability through context/radials.
+Players who like many keybinds should not be artificially capped. Controller users should retain the same underlying capability through context actions and direct bindings; a radial is only ever an optional mirror of actions reachable without it, and no core action requires one (M7 reconciliation (2026-09-24); owner ruling 5, `PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §20).
 
 ## 4. Fundamental resources
 

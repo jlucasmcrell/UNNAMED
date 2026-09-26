@@ -58,11 +58,25 @@ nodes:
           - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1, not: true }
           - { kind: visited, node: judged, not: true }
         next: judged
+      - id: armour
+        text: "The armour at the seam won't stand guard any more."   # DRAFT (tone review)
+        conditions:
+          - { kind: act_done, act: creature_killed, creature_ref: creature.construct.animated_armour }
+          - { kind: visited, node: armour_down, not: true }
+        consequences:
+          - { command: report_act, act: creature_killed, creature_ref: creature.construct.animated_armour }
+        next: armour_down
       - id: trade
         text: "What do you have for sale?"
         consequences: [{ command: open_service, service: trade }]
       - id: leave
         text: "Nothing today."
+  armour_down:
+    text: "Then the seam's only a seam again. I keep a few billets back for the waystation's own. Ask, and they're yours to buy."   # DRAFT
+    once: true
+    next_if_exhausted: again
+    choices:
+      - { id: back, text: "I'll look.", next: again }   # DRAFT
   lesson:
     text: "Then bring me iron. There's a seam in Blackvein Cut, the old quarry south of the road - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft - Charwood's full of ash - make a spear at the anvil. Make one and show me. And don't blame the iron."
     once: true

@@ -52,6 +52,13 @@ public partial class Main : Node3D
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
+    private StructureDebugPanel _structureDebug = null!;
+    private FactionDebugPanel _factionDebug = null!;
+    private NavigationOverlay _navOverlay = null!;
+    private StructuresView _structures = null!;
+    private BuildMode _build = null!;
+    private StructuresChanged? _lastChange;
+    private BuildDebugStage _buildDebug;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
@@ -67,6 +74,7 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private Playthrough? _play;
     private DeltaShots? _delta;
+    private BuildShots? _buildShots;
     private LayoutCheck? _layout;
     private VisualAudit? _audit;
     private VisualAuditAB? _auditAb;
@@ -131,7 +139,10 @@ public partial class Main : Node3D
         // --content-root: another copy of the content, for a harness that needs different data (the layout check's full pack).
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
+        string? buildShots = _options.GetValueOrDefault("--build-shots") ?? _options.GetValueOrDefault("--build-shots-verify");
+        bool buildVerify = _options.ContainsKey("--build-shots-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
+            : buildShots is not null ? Path.Combine(Path.GetFullPath(buildShots), "profile")
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab")
@@ -140,11 +151,18 @@ public partial class Main : Node3D
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         if (_options.GetValueOrDefault("--playthrough") is { } run)
             Playthrough.Clear(Path.GetFullPath(run));
+        // --build-shots starts from the committed start save S0, copied into the run's own profile before the session boots (M7 design §13.3).
+        if (buildShots is not null && !buildVerify && BuildShots.Prepare(Path.GetFullPath(buildShots), Home()) is { } missing)
+        {
+            GD.PushError($"UNNAMED build shots: {missing}");
+            GetTree().Quit(2);
+            return;
+        }
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
-        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+        bool scripted = playthrough is not null || buildShots is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab");
@@ -152,7 +170,7 @@ public partial class Main : Node3D
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
-        if (scripted && !verify)
+        if (scripted && !verify && buildShots is null)
             _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
@@ -223,6 +241,10 @@ public partial class Main : Node3D
         AddChild(_journal);
         _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
         AddChild(_questDebug);
+        _structureDebug = new StructureDebugPanel { Name = "StructureDebug" };
+        AddChild(_structureDebug);
+        _factionDebug = new FactionDebugPanel { Name = "FactionDebug" };
+        AddChild(_factionDebug);
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
@@ -251,7 +273,19 @@ public partial class Main : Node3D
         Subscribe();
         DefineInput();
 
-        if (verify)
+        LoadResult? buildStart = null;
+        if (buildShots is not null)
+        {
+            // Both runs load quick by name: the run's copy of S0, the relaunch the run's own save.
+            buildStart = LoadChosen(SaveSlots.Quick, SaveCopy.Current);
+            if (buildStart is null)
+            {
+                GD.PushError($"UNNAMED build shots: {SaveSlots.Quick} would not load");
+                GetTree().Quit(2);
+                return;
+            }
+        }
+        else if (verify)
         {
             _continued = Continue();
             if (_continued is null)
@@ -282,12 +316,13 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--layout-check", out string? layout))
         {
-            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, Path.GetFullPath(layout));
+            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, _build, _hud,
+                Path.GetFullPath(layout));
         }
         else if (_flags.Contains("--input-check"))
         {
             _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
-                _character, _saves);
+                _character, _saves, _build);
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -297,7 +332,14 @@ public partial class Main : Node3D
         {
             // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued, ShowFactions);
+        }
+        else if (buildShots is not null)
+        {
+            // One tick a frame at the tick rate, like the playthrough: each still is taken at the same moment every run.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _buildShots = new BuildShots(_session, _controller, _camera, _navOverlay, SetBuildDebug, _build, _help, _hud, _structures, _art.Coverage,
+                Path.GetFullPath(buildShots), buildVerify, buildStart);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
         {
@@ -321,7 +363,7 @@ public partial class Main : Node3D
             _stats = new FrameStats(GetViewport());
             // --perf-route extended: the play the gate's route avoids, and past 300 s so the autosave is in it (the Phase-1 audit, P-01, P-07).
             _perf = new PerfRun(Seconds(), _options.GetValueOrDefault("--perf-route") == "extended"
-                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory)
+                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory, _build, what => _stats?.Mark(what))
                 : null);
             _perf.SpawnProxies(this, _session.Setup.Layout);
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
@@ -391,6 +433,16 @@ public partial class Main : Node3D
         _npcs = new NpcsView { Name = "Npcs" };
         _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
+        _navOverlay = new NavigationOverlay { Name = "NavigationOverlay" };
+        _navOverlay.Bind(layout.Space.Terrain);
+        AddChild(_navOverlay);
+        // The pieces the player builds, the ghost and build mode (M7).
+        _structures = new StructuresView { Name = "Structures" };
+        _structures.Bind(layout, _session.Setup.Building.Catalog, _art.Coverage);
+        AddChild(_structures);
+        _build = new BuildMode { Name = "BuildMode" };
+        _build.Bind(_session, _structures, _art.Coverage);
+        AddChild(_build);
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
@@ -488,6 +540,26 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_buildShots is not null)
+        {
+            switch (_buildShots.Update())
+            {
+                case "done":
+                    ReportPieceCoverage();
+                    WriteReports(_buildShots.Directory, _buildShots.Verify ? "build-shots-verify" : "build-shots", _buildShots.Verify ? "_verify" : "");
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveStill(_buildShots.Directory, "failed");
+                    ReportPieceCoverage();
+                    WriteReports(_buildShots.Directory, _buildShots.Verify ? "build-shots-verify (failed)" : "build-shots (failed)", _buildShots.Verify ? "_verify" : "");
+                    GetTree().Quit(1);
+                    return;
+                case { } still:
+                    SaveStill(_buildShots.Directory, still);
+                    break;
+            }
+        }
         else if (_audit is not null)
         {
             if (_audit.Update() is { } finished)
@@ -530,7 +602,8 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _audit is not null || _auditAb is not null ? _session.TickSeconds : delta);
+        var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _buildShots is not null || _audit is not null || _auditAb is not null
+            ? _session.TickSeconds : delta);
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -549,6 +622,9 @@ public partial class Main : Node3D
             _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
         Draw(frame.Alpha, delta);
+        // Build mode ends with any panel, and with death: one check a frame, harness runs included (M7 design §8.4).
+        if (_build.Active && (Modal || _session.Simulation!.Combat.Health == 0))
+            _build.Exit(_camera);
         UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -673,6 +749,15 @@ public partial class Main : Node3D
             _questDebug.Visible = !_questDebug.Visible;
             _questDebug.Refresh(_session, 0, now: true);
         }
+        if (Input.IsActionJustPressed("build_debug"))
+            SetBuildDebug(_buildDebug switch
+            {
+                BuildDebugStage.Off => BuildDebugStage.Structures,
+                BuildDebugStage.Structures => BuildDebugStage.Navigation,
+                _ => BuildDebugStage.Off,
+            });
+        if (Input.IsActionJustPressed("faction_debug"))
+            ShowFactions(!_factionDebug.Visible);
         if (modal)
         {
             // Nothing reaches the world: the character stands, and lowers a raised guard.
@@ -691,13 +776,50 @@ public partial class Main : Node3D
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
+
+        // Build mode (M7 design §8.2-§8.3): B in and out; 1-7 and PageUp/PageDown choose, R turns, the left button places, Z or Delete
+        // twice takes down; Esc leaves it, and only the next Esc frees the mouse.
+        bool leftBuild = false;
+        if (Input.IsActionJustPressed("build_mode"))
+        {
+            if (_build.Active)
+                _build.Exit(_camera);
+            else if (!_build.Enter(_camera))
+                _hud.Toast("Nothing to build with here", 2);
+        }
+        else if (_build.Active && Input.IsActionJustPressed("release_mouse"))
+        {
+            _build.Exit(_camera);
+            leftBuild = true;
+        }
+        if (_build.Active)
+        {
+            for (int n = 1; n <= 7; n++)
+            {
+                if (Input.IsActionJustPressed($"build_piece_{n}"))
+                    _build.Select(n - 1);
+            }
+            if (Input.IsActionJustPressed("build_piece_next"))
+                _build.Cycle(1);
+            if (Input.IsActionJustPressed("build_piece_prev"))
+                _build.Cycle(-1);
+            if (Input.IsActionJustPressed("build_rotate"))
+                _build.Turn();
+            if (captured && Input.IsActionJustPressed("build_place"))
+                _build.Place(_controller);
+            if (Input.IsActionJustPressed("build_dismantle"))
+                _build.Dismantle(_controller, Time.GetTicksMsec() / 1000.0);
+            if (Input.IsActionJustPressed("build_repair"))
+                _build.Repair(_controller);
+        }
 
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
-        // A swing, a guard and an aimed bow all go where the camera looks.
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
-        bool holding = captured && Input.IsActionPressed("guard");
-        bool swing = captured && Input.IsActionJustPressed("attack");
-        int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
+        // A swing, a guard and an aimed bow all go where the camera looks. Build mode suppresses them all.
+        bool fighting = captured && !_build.Active;
+        bool holding = fighting && Input.IsActionPressed("guard");
+        bool swing = fighting && Input.IsActionJustPressed("attack");
+        int slot = fighting ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
         _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || slot >= 0 || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
@@ -713,7 +835,7 @@ public partial class Main : Node3D
         bool guard = holding && !combat.Weapon.Ranged;
         if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
             _controller.Guard(guard);
-        if (captured && Input.IsActionJustPressed("dodge"))
+        if (fighting && Input.IsActionJustPressed("dodge"))
         {
             var wish = stick.LengthSquared() > 0.01f ? stick.Normalized() : Vector2.Zero;
             _controller.Dodge(_camera.GroundForward * wish.Y + _camera.GroundRight * wish.X);
@@ -751,6 +873,8 @@ public partial class Main : Node3D
                     break;
             }
         }
+        if (Input.IsActionJustPressed("work_order"))
+            WorkOrder();
         if (Input.IsActionJustPressed("companion_order"))
         {
             // One key for every companion on their feet: those following wait, those waiting follow.
@@ -772,7 +896,7 @@ public partial class Main : Node3D
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse"))
+        if (Input.IsActionJustPressed("release_mouse") && !leftBuild)
             _mouseFreed = true;
     }
 
@@ -787,6 +911,12 @@ public partial class Main : Node3D
             return;
         if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
             _inventory.ContainerGone();
+        // A placed bench taken down or destroyed (M7) takes its station with it: the panel it was opened from closes.
+        if (_inventory.OpenStation is { } station && _session.Simulation!.Stations.All(s => s.Key != station.Key))
+        {
+            CloseInventory();
+            return;
+        }
         long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
         if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
@@ -800,6 +930,12 @@ public partial class Main : Node3D
     private bool Aim(Simulation simulation, CombatView combat)
     {
         long range = 0;
+        if (_build.Active)
+        {
+            _hud.SetReticle(null, false);
+            _projectiles.ShowAimLine(null, null);
+            return false;
+        }
         bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !Modal;
         if (combat.Casting is { } casting && _session.Setup.Magic.Formulas.TryGetValue(casting, out var formula) && formula.Targeting == UNNAMED.Domain.Magic.Targeting.Projectile
             && combat.Phase is CombatPhase.Windup)
@@ -857,19 +993,31 @@ public partial class Main : Node3D
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
         bool aiming = Aim(simulation, combat);
-        _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);
+        _hud.SetCrosshair((_camera.IsFirstPerson || _build.Active) && !aiming);
+        // The pieces drawn once a frame at most, after any change (P-02, P-03); build mode's ghost, target and lines.
+        _structures.SyncIfDirty(simulation);
+        if (_build.Active)
+        {
+            _build.BuildFrame(simulation, _camera, _controller.Authoritative, Time.GetTicksMsec() / 1000.0);
+            _hud.SetBuild(_build.Panel, _build.Status, _build.TargetLine, _build.Tone);
+        }
+        else
+        {
+            _hud.SetBuild(null, null, null, BuildTone.Plain);
+        }
 
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(_session, door.Key)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[{HelpPanel.Key("interact")}] Open the {Describe(container.Key)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {_session.DisplayName(container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Describe(station.Key)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {_session.DisplayName(npc.Key)} up",
-            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null
+                : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}{WorkSuffix(simulation, npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
             { } item => $"[{HelpPanel.Key("interact")}] Pick up {ItemName(_session, item.DefId, item.Quality)}",
@@ -894,7 +1042,7 @@ public partial class Main : Node3D
         var formulas = _controller.Formulas();
         _hud.SetMagic((combat.Casting is { } casting ? $"Casting {_session.DisplayName(casting)}\n" : "") +
             string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {_session.DisplayName(f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
-            (combat.Strained ? "   Strained" : ""), formulas);
+            (combat.Strained ? "   Strained" : ""), _build.Active ? Array.Empty<string>() : formulas);
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
             $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
             combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
@@ -911,6 +1059,14 @@ public partial class Main : Node3D
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
+        _factionDebug.Refresh(_session, delta);
+        if (_buildDebug != BuildDebugStage.Off)
+        {
+            _navOverlay.Draw(simulation.Navigation, feet, delta);
+            _navOverlay.DrawRoutes(simulation, delta);
+            _structureDebug.Refresh(simulation, delta, _build, _lastChange);
+            _structures.DrawDebug(simulation, feet, _lastChange, delta);
+        }
         _character.Refresh();
 
         if (_hud.DebugVisible)
@@ -935,6 +1091,7 @@ public partial class Main : Node3D
         {
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
+            _structures.SetDoor(e.DoorKey, e.Open);
         });
         // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
         _session.Subscribe<SwitchSet>(e =>
@@ -943,9 +1100,16 @@ public partial class Main : Node3D
                 _hud.Toast(site.DoneText, 6);
         });
         _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers));
+        _session.Subscribe<RoutePlanned>(e => _structureDebug.LastRoute = e);
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
+        // The worker (M7 design §8.10): asked and let go in toasts, arriving and home in the log.
+        _session.Subscribe<WorkerAssigned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} will work at your {PieceName(e.PieceId)}", 3));
+        _session.Subscribe<WorkerReleased>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} heads home" +
+            (e.Reason is "dismantled" or "destroyed" ? $" (the {PieceName(e.PieceId)} is gone)" : ""), 3));
+        _session.Subscribe<NpcArrivedAtWork>(e => _hud.Log($"{_session.DisplayName(e.NpcId)} is at your {PieceName(e.PieceId)}"));
+        _session.Subscribe<NpcReturnedHome>(e => _hud.Log($"{_session.DisplayName(e.NpcId)} is home"));
         _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
         _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
         _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
@@ -956,6 +1120,43 @@ public partial class Main : Node3D
             long kept = e.Awarded - e.Repaid;
             string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
             _hud.Toast(e.LevelsGained > 0 ? $"{xp} - level {e.Level}!" : xp, 3);
+        });
+        // Building (M7 design §8.10): events mark the pieces dirty and nothing is rebuilt inside a handler; a take-down's refund is said;
+        // a refused placement or take-down is said in words, never IDs.
+        _session.Subscribe<PiecePlaced>(_ => _structures.MarkDirty());
+        _session.Subscribe<PieceRemoved>(e =>
+        {
+            _structures.MarkDirty();
+            foreach (var line in e.Refund)
+                _hud.Toast($"Took down the {_session.DisplayName(e.DefId)}: +{line.Count} {_session.DisplayName(line.ItemId)}", 3);
+        });
+        // Blows and mending (E8): a blow on a piece in place of the miss; a piece destroyed, and a chest's spill; a piece mended.
+        _session.Subscribe<PieceDamaged>(e =>
+        {
+            int max = _session.Setup.Building.Catalog.Find(e.DefId)?.HealthMax ?? e.HealthNow;
+            _hud.Log($"You strike the {_session.DisplayName(e.DefId)} ({e.HealthNow}/{max})");
+        });
+        _session.Subscribe<PieceDestroyed>(e =>
+        {
+            _structures.MarkDirty();
+            bool storage = _session.Setup.Building.Catalog.Find(e.DefId)?.Container is not null;
+            _hud.Log($"The {_session.DisplayName(e.DefId)} is destroyed{(storage ? "; what it held lies on the ground" : "")}");
+        });
+        _session.Subscribe<PieceRepaired>(e =>
+        {
+            if (_session.Simulation!.Pieces.FirstOrDefault(p => p.Id == e.PieceId) is { } piece)
+                _hud.Toast($"Mended the {_session.DisplayName(piece.DefId)}", 3);
+        });
+        _session.Subscribe<StructuresChanged>(e =>
+        {
+            _structures.MarkDirty();
+            _lastChange = e;
+        });
+        _session.Subscribe<NavigationRebuilt>(_ => _structures.MarkDirty());
+        _session.Subscribe<CommandRejected>(e =>
+        {
+            if (e.Command is PlacePieceCommand or DismantlePieceCommand or RepairPieceCommand)
+                _hud.Toast(BuildMode.Words(_session, e.Reason), 3);
         });
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -1065,6 +1266,17 @@ public partial class Main : Node3D
         });
         _session.Subscribe<RelationshipChanged>(e =>
             _hud.Log($"{_session.DisplayName(e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
+        // Factions (M7 design §8.10, §8.13): a reported change is a log line in the regard style; everything else is F6's.
+        string FactionName(string id) => _session.Simulation?.Factions.FirstOrDefault(f => f.Id == id)?.Name ?? id;
+        _session.Subscribe<ActRecorded>(e => _factionDebug.Note($"act #{e.Seq} {e.Kind} {e.Subject} at tick {e.Tick}"));
+        _session.Subscribe<FactionLearned>(e =>
+            _factionDebug.Note($"{FactionName(e.FactionId)} learned act #{e.ActSeq} ({e.Source} via {e.Via ?? "(none)"}, {e.Identity}{(e.Upgraded ? ", upgraded" : "")})"));
+        _session.Subscribe<ReputationChanged>(e =>
+        {
+            _factionDebug.Note($"{FactionName(e.FactionId)}: {e.From} -> {e.To}, {e.TierFrom} -> {e.TierTo} (act #{e.ActSeq})");
+            if (e.Source == UNNAMED.Domain.Factions.KnowledgeSources.Reported)
+                _hud.Log(FactionLines.Reported(e, FactionName(e.FactionId), e.Via is { } via ? _session.DisplayName(via) : "(nobody)"));
+        });
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
@@ -1204,6 +1416,9 @@ public partial class Main : Node3D
     private void Resync()
     {
         _controller.Resync();
+        _build.Exit(_camera);
+        _structures.Sync(_session.Simulation!);
+        _lastChange = null;
         _creatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
             _hollow.SetDoor(door.Site.Key, door.Open);
@@ -1380,6 +1595,46 @@ public partial class Main : Node3D
 
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
+    /// <summary>A still of a <c>--build-shots</c> beat, as JPEG (M7 design §13.3).</summary>
+    private void SaveStill(string directory, string name)
+    {
+        Directory.CreateDirectory(directory);
+        GetViewport().GetTexture().GetImage().SaveJpg(Path.Combine(directory, name + ".jpg"), 0.9f);
+    }
+
+    /// <summary>
+    /// F2 (M7 design §8.14): the structure and navigation debugger, off or on at its stage. E1 has one stage, navigation: the grid drawn in
+    /// the world, and the panel.
+    /// </summary>
+    /// <summary>F6 on or off (M7), redrawn at once.</summary>
+    private void ShowFactions(bool show)
+    {
+        _factionDebug.Visible = show;
+        _factionDebug.Refresh(_session, 0, now: true);
+    }
+
+    private void SetBuildDebug(BuildDebugStage stage)
+    {
+        _buildDebug = stage;
+        _structureDebug.Visible = stage != BuildDebugStage.Off;
+        _structureDebug.Stage = stage;
+        _structures.ShowDebug(stage != BuildDebugStage.Off);
+        if (stage == BuildDebugStage.Navigation)
+            _navOverlay.Visible = true;
+        else
+            _navOverlay.Close();
+        if (_session.Simulation is { } simulation)
+            _structureDebug.Refresh(simulation, 0, _build, _lastChange, now: true);
+    }
+
+    /// <summary>
+    /// The art coverage gate counts and never fails; the build shots name its <c>piece:*</c> greybox fallbacks outright (the owner's ruling:
+    /// reported honestly, never allowlisted).
+    /// </summary>
+    private void ReportPieceCoverage() =>
+        GD.Print($"UNNAMED art coverage: {_art.Coverage.Entries.Count(e => e.Kind == "piece" && e.Fallbacks > 0)} piece:* greybox fallbacks " +
+                 $"(of {_art.Coverage.Entries.Count(e => e.Kind == "piece")} piece entries)");
+
     private void OpenInventory(string? container)
     {
         _inventory.Open(container);
@@ -1392,7 +1647,7 @@ public partial class Main : Node3D
 
     private void OpenStation(string key)
     {
-        _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
+        _inventory.OpenAt(_session.Simulation!.Stations.Single(s => s.Key == key));   // authored, or a placed bench's (M7)
     }
 
     private void CloseInventory()
@@ -1401,12 +1656,77 @@ public partial class Main : Node3D
     }
 
     /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
+    /// <summary>
+    /// Y (M7 design §8.9): ask the NPC in focus to work at a station of yours, or let them go home if they work for you. Presentation only
+    /// chooses what to name - a station of a kind they work first, then the nearest, unmanned and yours - and submits even on a mismatch,
+    /// so the authority's refusal explains itself.
+    /// </summary>
+    private void WorkOrder()
+    {
+        var simulation = _session.Simulation!;
+        if (_controller.FocusOn(_camera) is not { Kind: FocusKind.Npc } focus || DownedCompanion(focus.Key) is not null)
+        {
+            _hud.Toast("No one to ask", 2);
+            return;
+        }
+        if (simulation.WorkAssignments.Any(w => w.NpcId == focus.Key && w.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+        {
+            _controller.Release(focus.Key);
+            return;
+        }
+        if (Workplace(simulation, focus.Key) is not { } station)
+        {
+            _hud.Toast("You have no workplace for anyone to work at", 2);
+            return;
+        }
+        _controller.Assign(focus.Key, station.Id);
+    }
+
+    /// <summary>The station Y would name for an NPC: unmanned and yours, of a kind they work first, then the nearest, then by ID.</summary>
+    private PieceView? Workplace(Simulation simulation, string npcId)
+    {
+        var worksAt = _session.Setup.Social.Npcs.TryGetValue(npcId, out var npc) ? npc.WorksAt : System.Collections.Immutable.ImmutableArray<string>.Empty;
+        var body = simulation.Player.Body;
+        return simulation.Pieces
+            .Where(p => p.Family == UNNAMED.Domain.Building.PieceFamily.Station && p.Owner == simulation.PlayerId && p.WorkerNpcId is null)
+            .OrderBy(p => worksAt.Contains(_session.Setup.Building.Catalog.Find(p.DefId)?.Station?.Kind ?? "") ? 0 : 1)
+            .ThenBy(p => Math.Pow(p.XMm - body.XMm, 2) + Math.Pow(p.ZMm - body.ZMm, 2))
+            .ThenBy(p => p.Id.Value, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// The Y suffix on an NPC's prompt (§8.9): let them go home while they work for you, or ask them to work at a matching station of yours;
+    /// nothing for NPCs who work nowhere.
+    /// </summary>
+    private string WorkSuffix(Simulation simulation, string npcId)
+    {
+        if (!_session.Setup.Social.Npcs.TryGetValue(npcId, out var npc) || npc.WorksAt.IsEmpty)
+            return "";
+        string name = _session.DisplayName(npcId);
+        if (simulation.WorkAssignments.Any(w => w.NpcId == npcId && w.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+            return $"   [{HelpPanel.Key("work_order")}] Let {name} go home";
+        return Workplace(simulation, npcId) is { } station && npc.WorksAt.Contains(_session.Setup.Building.Catalog.Find(station.DefId)?.Station?.Kind ?? "")
+            ? $"   [{HelpPanel.Key("work_order")}] Ask {name} to work at your {_session.DisplayName(station.DefId)}"
+            : "";
+    }
+
+    /// <summary>A piece's name while it stands, or "workplace" once it is gone.</summary>
+    private string PieceName(UNNAMED.Domain.EntityId pieceId) =>
+        _session.Simulation!.Pieces.FirstOrDefault(p => p.Id == pieceId) is { } piece ? _session.DisplayName(piece.DefId) : "workplace";
+
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
 
-    /// <summary>A container read as words; a corpse is named for the creature it was.</summary>
+    /// <summary>A key read as words: a corpse is named for the creature it was, a placed piece (M7) for its definition.</summary>
     internal static string Describe(GameSession session, string key) =>
-        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
+        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains"
+        : key.StartsWith("pce_", StringComparison.Ordinal) && session.Simulation?.Pieces.FirstOrDefault(p => p.Id.Value == key) is { } piece
+            ? session.DisplayName(piece.DefId)
+        : (key.StartsWith("container.pce_", StringComparison.Ordinal) || key.StartsWith("station.pce_", StringComparison.Ordinal))
+          && session.Simulation?.Pieces.FirstOrDefault(p => p.ContainerKey == key || p.StationKey == key) is { } placed
+            ? session.DisplayName(placed.DefId)
+        : Describe(key);
 
     /// <summary>A door, container or station key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
     internal static string Describe(string key) => key switch
@@ -1430,6 +1750,7 @@ public partial class Main : Node3D
         for (int i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
+                    or "--build-shots" or "--build-shots-verify"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--coverage-out" or "--anim-sheet" or "--audit-shots"
                 && i + 1 < arguments.Length)
@@ -1471,6 +1792,17 @@ public partial class Main : Node3D
         Bind("shoulder_swap", Key.Q);
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
+        Bind("build_debug", Key.F2);
+        Bind("build_mode", Key.B);
+        for (int n = 1; n <= 7; n++)
+            Bind($"build_piece_{n}", Key.Key1 + n - 1);   // in build mode, the number keys choose a piece
+        Bind("build_piece_next", Key.Pagedown);
+        Bind("build_piece_prev", Key.Pageup);
+        Bind("build_rotate", Key.R);
+        Bind("build_dismantle", Key.Z, Key.Delete);
+        Bind("build_repair", Key.T);
+        Bind("work_order", Key.Y);
+        Bind("faction_debug", Key.F6);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
@@ -1484,7 +1816,7 @@ public partial class Main : Node3D
             Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
-        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
+        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right), ("build_place", MouseButton.Left) })
         {
             if (!InputMap.HasAction(action))
                 InputMap.AddAction(action);
