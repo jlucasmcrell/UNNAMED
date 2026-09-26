@@ -58,8 +58,8 @@
 |---|---|---|---|---|---|---|
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
-| E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), E2.5 | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
-| E3 | Factions v1 | - | | | 106 expected | |
+| E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
+| E3 | Factions v1 | **stopped** (S5, `m7_armour`) | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4) | 952 at E3.4: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | See "STOP - E3.5, S5 (`m7_armour`)" |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
 | E6 | Piece doors | - | | | 114 expected | |
@@ -327,6 +327,33 @@ E2.4 adds a test and E2.5 documents; neither changes a runtime path, so these ru
 | A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `e566931abe91bac8250a084662971abb5bcd17ea6101417e6068b1018341fe78` |
 | `--ui-shots`, `--delta-shots` | both exit 0 (283 s, 161 s), 0 error lines. The smoke log's 911 headless keyboard-layout lines are E1's pre-existing noise |
 
+## STOP - E3.5, S5 (`m7_armour`) (2026-09-25)
+
+**What fired.** §13.7: "If `m7_armour` fails (a death or the budget): STOP on the first failure; the run is deterministic. Report to the owner with the transcript, with two options." S5 also names it: a scripted runtime proof failing once. The first `--playthrough` with the six faction beats died in `m7_armour`:
+
+| 5:07 | 6145 | Act 1: switch_set world.foldscar.steadied |
+|---|---|---|
+| 5:58 | 7167 | Tavar Orr: wait |
+| 5:58 | 7168 | **Tavar told to wait before the fight** |
+| 6:03 | 7265 | **Kera will not sell the waystation's billets to a stranger** |
+| 7:04 | 8483 | The character died: ability.creature.armour_slam (Animated Armour); XP debt added 78 |
+| 7:04 | 8484 | FAILED at 'm7_armour': the character died |
+
+The beats before it passed: `m7_wait`, and `m7_billet_refused` (the raw buy refused with "Kera Voss will not sell you that", no billet listed). The `heart` beat gained its act row as designed.
+
+**Why, measured.** In the playthrough's world (seed `0x0A5E202609240001`) the sentinel stands at (65, 34) facing 242°. Its senses are 15 m sight in a 100° cone and 18 m hearing all round; it has 90 health, and the character 120. The beat, as built, leaves the smithy by `HomeToTheSmithy` reversed to (54, 74). It then runs to `ToTheArmour` (58, 55), which lies on a bearing of 342° from the sentinel, 22 m out, and runs straight on to the point 1.8 m behind it (66.6, 34.8) before `Engage`. That approach is outside the sight cone (100° off its facing), but a running character is heard within 18 m. The sentinel turns, and the fight is face to face, plate first. The headless P script never meets this: it starts the character 1.8 m behind a sentinel that has not noticed it.
+
+**The options** (§13.7):
+
+| Option | What changes | Consequence |
+|---|---|---|
+| (a) Tune the beat | For example: a mending stop before the fight (the beat does not mend; `Travel` mends only below half health), and the last leg walked or crouched round behind the sentinel so that it is not heard. Both are script changes inside `m7_armour`; no rule, number or content changes | The playthrough keeps the kill, and the Waystation learns of it by report as designed. Whether a quieter approach avoids the hearing radius needs a measured run |
+| (b) Drop the kill from the playthrough | `m7_armour` and `m7_tell_kera` leave the playthrough. It keeps `m7_tell_sel_tavar`, since the heart act alone opens the Survey's gate, and `m7_tell_sel_armour` goes too | P1-P5 stay proven headless on shipped dialogue and gates by `ReputationTableTests` and `TheSameKnownAct_MovesTwoFactionsInOppositeDirections`. The runtime transcript then shows one faction gate, not both |
+
+**Recommendation.** (a), mending first and approaching from behind at a walk, because it keeps the runtime proof of both gates and the kill. If the tuned beat still dies, (b).
+
+**State at the STOP.** E3.1-E3.4 are committed and pushed: the domain rules, the content and FAC001, the runtime with its gates and guards, and the generated reputation table. E3.5 (F6, the HUD line and the beats) and E3.6 (the documents) are written and uncommitted in the worktree, backed up at `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\drafts\wip\E3.5-6_wip_2026-09-25.patch`. With them, 952 tests pass and the Presentation build is clean. The E3 runtime gate did not run past the first playthrough.
+
 ## Scope ledger
 
 Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase or a design row. Deviations and as-built readings are listed here as they arise.
@@ -353,6 +380,13 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E2 | `StateDump.Live` | `pieces`, `work_assignments` and `factions` read the world's records and the faction slice until their views land (factions E3, pieces E5, work assignments E8-E9). All three are empty in play at E2 and add no leaf |
 | E2 | `ASaveAndALoad_CompareEqual_FieldByField` | Measured: 662 leaves, 660 without the M7 keys, so exactly +2 (`StructureSequence`, `NextActSeq`), as §7.9 states |
 | E2 | The older `expected.json` diffs | Reviewed line by line, exactly §7.12's (no S4). In v1-v14: a comma after `posture`, then the 6-line `factions` object; a comma after `noises`, then the three root lines. In v12-v14 also: a comma after the warden's `trail_mm`, then the 17-line `route`. The removed lines are only the closing lines those commas change |
+| E3 | Commit order | `FactionSetup`, `SimulationSetup.Factions`, `RuntimeState.StandingOf` and the two explicit `IDialogueFacts` members land in E3.1, with the domain rules: adding `StandingLevel` and `ActDone` to `IDialogueFacts` breaks the World build until both implementations exist. Kera's billet stock row lands in E3.3, with its gate, not in E3.2's content: without `TradeSystem.Withheld` the billets would be sold at neutral |
+| E3 | The 0.2.10 rule | FAC001's FAC-R5 (b) refused the fixture pack's `faction.fixture.diggers` reaction to `world.lever.mill_gate`, which no switch in the fixture region sets. The pack dropped that reaction under 0.2.10 (`Fixtures.ContentVersion`, `CurrentContentVersion`, `CurrentContentHash`, the `_aliases.yaml` header and README policy 4 in the same commit); no `expected.json` changed |
+| E3 | The act_done description | F4 describes `act_done` by the creature's definition ID ("needs the character to have killed creature.construct.animated_armour; the act log holds none"): the World holds no creature display names, and the quest debugger names creatures by ID throughout |
+| E3 | The P script | Built as `Begin` and `Step(run, n)` so that the save-then-continue and replay tests can resume it. Tavar is approached at (145, 43.3), inside talk reach. The raw billet buy is made at Kera's side in P3, before she is told, because from Blackvein Cut the reach check refuses first |
+| E3 | `ACompanionsKill_IsNotThePlayersAct` | The fixture armour is a `pack_hunter` placed so it sees the character: a sentinel that has not noticed the character never engages, so Tavar has nothing to fight |
+| E3 | `NpcTests.ATraderBoughtOut_StaysEmpty_AcrossASaveAndLoad` | The design's permitted edit (§5.7.2): after the buy-out at neutral, Kera's container holds exactly the three withheld billets, before and after the load |
+| E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
@@ -361,6 +395,7 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | Tier hysteresis is unsaved but gates the companion and creatures (owed before M9) | §15, R-X18 |
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
 | Kera's walk-home plan is modelled at about 4.6 ms on ASTRAL, one plan over the 4 ms tick | §3.18, §14; measured in E9 |
+| `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, and 1 of 3 with `FactionTests` excluded. It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
 
 ## Residues and deferrals
 
