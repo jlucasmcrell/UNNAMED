@@ -44,6 +44,7 @@ def args():
     ap.add_argument("--cut-below-chin", type=float, default=0.035, help="the seam plane under the chin landmark")
     ap.add_argument("--collar-gap", type=float, default=0.015, help="the body's opening is this much wider than the new neck")
     ap.add_argument("--relax", type=int, default=6, help="smoothing passes over the bridge")
+    ap.add_argument("--min-fragment", type=int, default=60, help="loose pieces near the head smaller than this are dropped")
     ap.add_argument("--align", choices=("seam", "face"), default="seam",
                     help="seam: the cameras' scale, translation fitted at the seam; face: a similarity to the body's face landmarks")
     ap.add_argument("--head-group", default="head")
@@ -316,6 +317,16 @@ def main():
         made = bmesh.ops.bridge_loops(bm, edges=bl + hl)
         report["bridge_faces"] = len(made["faces"])
         tri = bmesh.ops.triangulate(bm, faces=made["faces"])["faces"]
+        # The bridge's winding follows whichever loop bridge_loops started from: face every bridge triangle away from
+        # the neck's axis (inward faces render black and take no projection).
+        flipped = 0
+        for fc in tri:
+            fc.normal_update()
+            c = fc.calc_center_median()
+            if fc.normal.dot(Vector((c.x - axis.x, c.y - axis.y, 0))) < 0:
+                fc.normal_flip()
+                flipped += 1
+        report["bridge_faces_flipped"] = flipped
         # The two rings differ in length (the parts' tessellations differ): relax the bridge and its neighbours so
         # the fan of long triangles becomes a smooth collar.
         ring_verts = {v for fc in tri for v in fc.verts}
@@ -328,6 +339,24 @@ def main():
             report["seam_holes_filled"] = len(bmesh.ops.holes_fill(bm, edges=rest, sides=len(rest))["faces"])
     else:
         report["bridge_faces"] = 0
+    # Fragments the cuts left floating near the head (a hair tip, a sliver of the old collar) are dropped.
+    bm.faces.ensure_lookup_table()
+    seen, dropped = set(), 0
+    for fc in list(bm.faces):
+        if fc in seen or not fc.is_valid:
+            continue
+        stack, comp = [fc], set()
+        while stack:
+            x = stack.pop()
+            if x not in comp:
+                comp.add(x)
+                stack.extend(l.face for e in x.edges for l in e.link_loops if l.face not in comp)
+        seen |= comp
+        if len(comp) < a.min_fragment and max(f.calc_center_median().z for f in comp) > z_cut - 0.15:
+            bmesh.ops.delete(bm, geom=list(comp), context="FACES")
+            dropped += len(comp)
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    report["fragment_faces_dropped"] = dropped
     for fc in bm.faces:
         fc.smooth = True
     bm.normal_update()

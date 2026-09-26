@@ -26,6 +26,7 @@ def parse():
     p.add_argument("--samples", type=int, default=64)
     p.add_argument("--clay", action="store_true")
     p.add_argument("--views", default="face,face34,body,back")
+    p.add_argument("--no-normal", action="store_true", help="normal maps disconnected (to tell shading from colour)")
     return p.parse_args(sys.argv[sys.argv.index("--") + 1:])
 
 
@@ -49,6 +50,9 @@ def main():
     os.makedirs(a.outdir, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=a.input, disable_bone_shape=True)
+    # LOD0 only: an authored chain's _LOD1/_LOD2 meshes sit on the same skeleton and would show through it.
+    for o in [o for o in bpy.context.scene.objects if o.type == "MESH" and o.name.rsplit("_LOD", 1)[-1].isdigit()]:
+        bpy.data.objects.remove(o)
     meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     lo = Vector((1e9,) * 3)
     hi = Vector((-1e9,) * 3)
@@ -70,6 +74,13 @@ def main():
             o.data.materials.clear()
             o.data.materials.append(clay)
 
+    if a.no_normal:
+        for mat in bpy.data.materials:
+            if mat.use_nodes:
+                for node in mat.node_tree.nodes:
+                    if node.type == "BSDF_PRINCIPLED":
+                        for link in list(node.inputs["Normal"].links):
+                            mat.node_tree.links.remove(link)
     scene = bpy.context.scene
     scene.render.resolution_x = scene.render.resolution_y = a.size
     world = bpy.data.worlds.new("studio")

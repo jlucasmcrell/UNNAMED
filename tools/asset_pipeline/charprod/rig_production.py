@@ -6,9 +6,10 @@ are kept. Mesh and garments are not touched: the rig is fitted to them.
 
   * Finger joints: the concept's hand landmarks (hand_landmarks.py, MediaPipe's 21 per hand) ray-cast onto the hand
     through the concept camera and pushed into the finger by its half-thickness; the hand the detector missed is the
-    found one mirrored across the body's midplane. The landmark wrist is shifted onto the rig's wrist.
+    found one mirrored across the body's midplane. A landmark wrist within --snap-wrist of the rig's is moved onto it;
+    one further off means the fit's wrist is up the sleeve, and the landmarks (on the hand itself) stay.
   * Each finger bone is rolled so its local X is the finger's bend axis (palm normal x finger direction), so a grip is a
-    rotation about X.
+    rotation about X; the palm's side is the one facing inward and down (an A-pose's thigh, a T-pose's floor).
   * Weights are redistributed, never re-solved: a hand's weight moves onto the finger segments along each finger past
     its knuckle; spine and chest weight is shared out with spine_mid by height; a foot's weight moves onto the toe past
     the ball of the foot. Four influences, normalised.
@@ -39,6 +40,7 @@ def args():
     ap.add_argument("--hands", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--ball", type=float, default=0.68, help="the ball of the foot, as a fraction from ankle to toe tip")
+    ap.add_argument("--snap-wrist", type=float, default=0.03, help="landmark wrists this close to the rig's are snapped onto it")
     ap.add_argument("--report")
     return ap.parse_args(sys.argv[sys.argv.index("--") + 1:])
 
@@ -113,15 +115,52 @@ def main():
         pts = np.array([list(p) for p in pts])
         shift = np.array(list(bones[f"hand.{rig_side}"][0])) - pts[0]
         report[f"hand.{rig_side}_landmark_wrist_offset_m"] = round(float(np.linalg.norm(shift)), 4)
-        pts = pts + shift
+        # A small offset is the lift's error: the joints move onto the rig's wrist. A large one is the fit's (a wrist
+        # placed up the sleeve): the landmarks are on the hand itself (the reconstruction is pixel-aligned), so they stay.
+        if np.linalg.norm(shift) < a.snap_wrist:
+            pts = pts + shift
         joints[rig_side] = pts
         lifted = rig_side
-    assert lifted, "no hand landmarks to fit fingers to"
+    if not lifted:
+        # No hand read in the concept (a claw, a glove, a hand the detector does not know): the 21 joints from standard
+        # hand proportions in the hand's own frame - its bone's axis for the length, the flattest axis of its vertices
+        # for the palm's normal, the thumb toward the body's front.
+        for side in ("R", "L"):
+            hw = Wd.get(f"hand.{side}", np.zeros(len(P)))
+            Q = P[hw > 0.5]
+            wrist = np.array(list(bones[f"hand.{side}"][0]))
+            d = np.array(list(bones[f"hand.{side}"][1] - bones[f"hand.{side}"][0]))
+            d /= np.linalg.norm(d)
+            rel = Q - wrist
+            along = rel @ d
+            length = float(np.percentile(along, 99))
+            perp = rel - np.outer(along, d)
+            _, _, vt = np.linalg.svd(perp - perp.mean(0), full_matrices=False)
+            n = vt[2] - d * (vt[2] @ d)
+            n /= np.linalg.norm(n)
+            s = np.cross(d, n)
+            if s @ np.array([0.0, -1.0, 0.0]) < 0:
+                s = -s
+            near_mcp = np.abs(along - 0.45 * length) < 0.08 * length
+            half = float(np.percentile(np.abs((perp[near_mcp] if near_mcp.any() else perp) @ s), 90))
+            depth = float(np.median((perp @ n)[near_mcp])) if near_mcp.any() else 0.0
+            # (fraction of length along the hand, fraction of the half-width across it; + is the thumb's side)
+            template = [(0, 0),
+                        (0.12, 0.55), (0.28, 0.85), (0.42, 1.0), (0.55, 1.05),        # thumb
+                        (0.45, 0.62), (0.64, 0.64), (0.76, 0.65), (0.88, 0.66),       # index
+                        (0.47, 0.2), (0.68, 0.2), (0.82, 0.2), (0.96, 0.2),           # middle
+                        (0.45, -0.2), (0.65, -0.21), (0.78, -0.22), (0.92, -0.22),    # ring
+                        (0.42, -0.58), (0.58, -0.6), (0.7, -0.61), (0.8, -0.62)]      # pinky
+            joints[side] = np.array([wrist + fa * length * d + fb * half * s + (depth * n if i else 0) for i, (fa, fb) in enumerate(template)])
+            report[f"hand.{side}_template"] = {"length_m": round(length, 3), "half_width_m": round(half, 3)}
+        lifted = "R"
     other = "L" if lifted == "R" else "R"
     if other not in joints:
         m = joints[lifted].copy()
         m[:, 0] = 2 * x_mid - m[:, 0]
-        m = m + (np.array(list(bones[f"hand.{other}"][0])) - m[0])
+        mirror_shift = np.array(list(bones[f"hand.{other}"][0])) - m[0]
+        if np.linalg.norm(mirror_shift) < a.snap_wrist:
+            m = m + mirror_shift
         joints[other] = m
         report["mirrored_hand"] = other
 
@@ -144,7 +183,12 @@ def main():
         J = [inv @ Vector(p) for p in joints[side]]
         wrist = J[0]
         palm = (J[5] - wrist).cross(J[17] - wrist).normalized()
-        if side == "L":
+        # Which way the palm faces, whatever the bind pose: in an A-pose it faces the thigh, in a T-pose the floor -
+        # inward and down, taken across the finger axis.
+        axis_f = (J[9] - wrist).normalized()
+        expected = Vector((-0.7 if side == "L" else 0.7, 0.0, -0.7))
+        expected = (expected - axis_f * expected.dot(axis_f)).normalized()
+        if palm.dot(expected) < 0:
             palm = -palm
         hand = eb[f"hand.{side}"]
         for name in FINGERS:

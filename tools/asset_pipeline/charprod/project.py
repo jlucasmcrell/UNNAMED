@@ -46,6 +46,7 @@ def main():
     ap.add_argument("--facing", type=float, nargs=2, default=(0.2, 0.55), help="facing ramp (cos) for the projection weight")
     ap.add_argument("--depth-tolerance", type=float, default=0.006, help="metres behind the nearest surface still 'seen'")
     ap.add_argument("--mask-erode", type=int, default=5, help="px of the figure mask's edge not trusted")
+    ap.add_argument("--normal-smoothing", type=int, default=12, help="passes of normal smoothing for the facing test")
     ap.add_argument("--rim-guard", type=float, default=0.0, help="bright pixels this near the silhouette (image fraction) are not projected (0: off)")
     args = ap.parse_args()
 
@@ -53,6 +54,21 @@ def main():
     m = g.mesh()
     P, N, F, UV = m["POSITION"].astype(np.float64), m["NORMAL"].astype(np.float64), m["faces"], m["TEXCOORD_0"]
     S = args.size
+    # The projection's facing test reads normals smoothed over the welded surface: a reconstruction's vertex normals
+    # are noisy, and on an oblique surface (a shoulder) the raw ones flip neighbouring faces between the concept's
+    # colour and the texture's, a patchwork.
+    _, weld = np.unique(np.round(P, 6), axis=0, return_inverse=True)
+    weld = weld.ravel()
+    nw = np.zeros((weld.max() + 1, 3))
+    np.add.at(nw, weld, N)
+    Fw = weld[F]
+    for _ in range(args.normal_smoothing):
+        acc = np.zeros_like(nw)
+        for k in range(3):
+            np.add.at(acc, Fw[:, k], nw[Fw[:, (k + 1) % 3]] + nw[Fw[:, (k + 2) % 3]])
+        nw = nw + 0.5 * acc / (np.linalg.norm(acc, axis=1, keepdims=True) + 1e-12) * np.linalg.norm(nw, axis=1, keepdims=True)
+        nw /= np.linalg.norm(nw, axis=1, keepdims=True) + 1e-12
+    N = nw[weld]
 
     # UV-space surface: which point each texel stands for.
     tri, bary, _ = rasterize(UV * S, np.zeros(len(UV), np.float32), F, S, S)

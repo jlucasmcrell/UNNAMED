@@ -50,7 +50,7 @@ def args():
     ap.add_argument("--face-density", type=float, default=2.5)
     ap.add_argument("--head-density", type=float, default=1.4)
     ap.add_argument("--hand-density", type=float, default=1.4)
-    ap.add_argument("--inner-density", type=float, default=0.35, help="surfaces facing into the body (garment linings)")
+    ap.add_argument("--inner-density", type=float, default=1.0, help="surfaces facing into the body (garment linings; the enclosed shell is gone by now, what faces in is visible)")
     ap.add_argument("--face-facing", type=float, default=0.2, help="min cos between a face's normal and the view ray")
     ap.add_argument("--margin", type=float, default=0.003)
     ap.add_argument("--min-chart-faces", type=int, default=40)

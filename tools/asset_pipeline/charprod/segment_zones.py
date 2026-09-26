@@ -46,32 +46,44 @@ def main():
     figure = np.asarray(Image.open(a.mask).convert("L")) > 127 if a.mask else np.ones((H, W), bool)
     ys, xs = np.nonzero(figure)
     fig_area = float((xs.max() - xs.min()) * (ys.max() - ys.min()))
+    # One detection per phrase (a multi-phrase prompt lets one phrase's box land on another part), a SAM mask per box.
+    parts = []  # (mask, zone index, score)
     for zi, zone in enumerate(spec, start=1):
-        text = ". ".join(p.lower() for p in zone["prompts"]) + "."
-        inputs = dproc(images=image, text=text, return_tensors="pt").to(device)
-        with torch.no_grad():
-            out = dmodel(**inputs)
-        det = dproc.post_process_grounded_object_detection(out, inputs.input_ids, threshold=a.box_threshold,
-                                                           text_threshold=a.text_threshold, target_sizes=[(H, W)])[0]
-        # A box around most of the figure is a whole-person detection, not the part asked for.
-        keep = [i for i, b in enumerate(det["boxes"].tolist())
-                if (b[2] - b[0]) * (b[3] - b[1]) <= zone.get("max_box", 0.4) * fig_area]
-        boxes = [det["boxes"].tolist()[i] for i in keep]
-        zone_mask = np.zeros((H, W), bool)
-        if boxes:
-            sin = sproc(images=image, input_boxes=[boxes], return_tensors="pt").to(device)
+        found = 0
+        for phrase in zone["prompts"]:
+            inputs = dproc(images=image, text=phrase.lower() + ".", return_tensors="pt").to(device)
+            with torch.no_grad():
+                out = dmodel(**inputs)
+            det = dproc.post_process_grounded_object_detection(out, inputs.input_ids, threshold=zone.get("threshold", a.box_threshold),
+                                                               text_threshold=a.text_threshold, target_sizes=[(H, W)])[0]
+            # A box around most of the figure is a whole-person detection, not the part asked for.
+            boxes = [(b, float(sc)) for b, sc in zip(det["boxes"].tolist(), det["scores"].tolist())
+                     if (b[2] - b[0]) * (b[3] - b[1]) <= zone.get("max_box", 0.4) * fig_area]
+            if not boxes:
+                continue
+            sin = sproc(images=image, input_boxes=[[b for b, _ in boxes]], return_tensors="pt").to(device)
             with torch.no_grad():
                 sout = smodel(**sin, multimask_output=False)
             masks = sproc.post_process_masks(sout.pred_masks.cpu(), sin["original_sizes"].cpu())[0]
-            for mk, b in zip(masks, boxes):
+            for mk, (b, sc) in zip(masks, boxes):
                 clip = np.zeros((H, W), bool)
                 x0, y0, x1, y1 = [int(round(v)) for v in b]
                 clip[max(0, y0 - 4):y1 + 4, max(0, x0 - 4):x1 + 4] = True
-                zone_mask |= mk.squeeze(0).numpy().astype(bool) & clip
-        labels[zone_mask] = zi
-        report.append({"zone": zone["name"], "boxes": len(boxes), "scores": [round(float(det["scores"][i]), 2) for i in keep],
-                       "phrases": det.get("text_labels", det.get("labels")), "pixels": int(zone_mask.sum())})
-        print(f"ZONE {zone['name']}: {len(boxes)} boxes, {int(zone_mask.sum())} px", flush=True)
+                m = mk.squeeze(0).numpy().astype(bool) & clip
+                if m.any():
+                    parts.append((m, zi, sc, phrase))
+                    found += 1
+        print(f"ZONE {zone['name']}: {found} masks", flush=True)
+    # Overlaps: the more specific (smaller) mask paints later, but only over pixels held by a mask it is not far less
+    # sure than (a pauldron inside an arm's mask becomes the pauldron; a stray low-score box does not repaint the boots).
+    score_map = np.zeros((H, W), np.float32)
+    for m, zi, sc, phrase in sorted(parts, key=lambda x: -x[0].sum()):
+        take = m & (sc >= 0.6 * score_map)
+        labels[take] = zi
+        score_map[take] = np.maximum(score_map[take], sc)
+    for zi, zone in enumerate(spec, start=1):
+        mine = [(p, round(sc, 2)) for m, z, sc, p in parts if z == zi]
+        report.append({"zone": zone["name"], "masks": len(mine), "detections": mine, "pixels": int((labels == zi).sum())})
     if a.mask:
         labels[np.asarray(Image.open(a.mask).convert("L")) <= 127] = 0
     Image.fromarray(labels).save(a.out)

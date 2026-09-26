@@ -1,0 +1,89 @@
+{
+ "id": "npc_veth_magistrate_prod",
+ "body_concept": "_staging/charprod/renn/concepts/npc_veth_magistrate_bind_s333.png",
+ "body_name": "npc_veth_magistrate",
+ "height": 1.8,
+ "concept": "_staging/charprod/renn/concepts/npc_veth_magistrate_bind_s333.png",
+ "work": "_staging/charprod/renn",
+ "seed": 333,
+ "material_prefix": "MAT_renn",
+ "zones": [
+  {
+   "name": "skin",
+   "prompts": [
+    "face",
+    "neck",
+    "hand",
+    "ear"
+   ],
+   "material": "skin"
+  },
+  {
+   "name": "robe",
+   "prompts": [
+    "black robe",
+    "gown",
+    "wide sleeve"
+   ],
+   "material": "cloth",
+   "threshold": 0.25
+  },
+  {
+   "name": "trousers",
+   "prompts": [
+    "trousers"
+   ],
+   "material": "cloth_heavy",
+   "threshold": 0.25
+  },
+  {
+   "name": "shirt",
+   "prompts": [
+    "white shirt collar",
+    "necktie"
+   ],
+   "material": "cloth",
+   "max_box": 0.1,
+   "wraps": false
+  },
+  {
+   "name": "shoes",
+   "prompts": [
+    "black leather shoes"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "belt",
+   "prompts": [
+    "black leather belt"
+   ],
+   "material": "leather",
+   "max_box": 0.15,
+   "wraps": false
+  },
+  {
+   "name": "silver",
+   "prompts": [
+    "silver chain",
+    "belt buckle"
+   ],
+   "material": "metal",
+   "max_box": 0.2,
+   "wraps": false
+  },
+  {
+   "name": "hair",
+   "prompts": [
+    "grey hair"
+   ],
+   "material": "hair",
+   "max_box": 0.2
+  }
+ ],
+ "head_crop": 0.27,
+ "cut_below_chin": 0.035,
+ "atlas": 4096,
+ "lod_ratios": "0.3,0.09",
+ "uv_margin": 0.0015
+}

@@ -1,0 +1,75 @@
+{
+ "id": "npc_siann_archivist_prod",
+ "rigged": "rigged/npc_siann_archivist/npc_siann_archivist_rigged.glb",
+ "concept": "_staging/sel_regen/concepts/npc_siann_archivist_bind_s111.png",
+ "work": "_staging/charprod/sel",
+ "seed": 111,
+ "material_prefix": "MAT_sel",
+ "zones": [
+  {
+   "name": "skin",
+   "prompts": [
+    "face",
+    "neck",
+    "hand",
+    "ear"
+   ],
+   "material": "skin"
+  },
+  {
+   "name": "dress",
+   "prompts": [
+    "long white dress",
+    "linen gown",
+    "wide sleeve",
+    "long skirt",
+    "skirt"
+   ],
+   "material": "cloth",
+   "threshold": 0.2
+  },
+  {
+   "name": "sash",
+   "prompts": [
+    "grey sash",
+    "waist sash",
+    "cloth belt"
+   ],
+   "material": "cloth",
+   "max_box": 0.2,
+   "wraps": false
+  },
+  {
+   "name": "boots",
+   "prompts": [
+    "boots"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "satchel",
+   "prompts": [
+    "brown leather satchel",
+    "bag strap"
+   ],
+   "material": "leather",
+   "max_box": 0.25,
+   "threshold": 0.25,
+   "wraps": false
+  },
+  {
+   "name": "hair",
+   "prompts": [
+    "silver hair",
+    "braid"
+   ],
+   "material": "hair",
+   "max_box": 0.35
+  }
+ ],
+ "head_crop": 0.27,
+ "cut_below_chin": 0.035,
+ "atlas": 4096,
+ "lod_ratios": "0.3,0.09",
+ "uv_margin": 0.0015
+}

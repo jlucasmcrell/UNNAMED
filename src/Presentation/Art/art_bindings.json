@@ -49,6 +49,14 @@
       "player": {
         "model": "player_veth_wanderer_prod",
         "note": "Phase B (character fidelity): the player's production mesh - the reconstruction's enclosed inner shell removed, a face-priority atlas at 4096 with the concept's own pixels projected on (tools/asset_pipeline/charprod)."
+      },
+      "npc.ashen_hollow.kera_voss": {
+        "model": "npc_kal_smith_prod",
+        "note": "Phase B (character fidelity): Kera's production mesh (tools/asset_pipeline/charprod, specs/kera.json)."
+      },
+      "npc.ashen_hollow.sel_arien": {
+        "model": "npc_siann_archivist_prod",
+        "note": "Phase B (character fidelity): Sel's production mesh (tools/asset_pipeline/charprod, specs/sel.json)."
       }
     }
   },

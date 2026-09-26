@@ -1,0 +1,76 @@
+{
+ "id": "npc_kal_smith_prod",
+ "rigged": "rigged/npc_kal_smith/npc_kal_smith_rigged.glb",
+ "concept": "_staging/kera_regen/concepts/npc_kal_smith_bind2_s444.png",
+ "work": "_staging/charprod/kera",
+ "seed": 444,
+ "material_prefix": "MAT_kera",
+ "zones": [
+  {
+   "name": "skin",
+   "prompts": [
+    "bald head",
+    "face",
+    "neck",
+    "arm",
+    "hand",
+    "ear"
+   ],
+   "material": "skin"
+  },
+  {
+   "name": "trousers",
+   "prompts": [
+    "dark trousers",
+    "pants",
+    "legs"
+   ],
+   "material": "cloth_heavy",
+   "threshold": 0.22
+  },
+  {
+   "name": "apron",
+   "prompts": [
+    "leather apron"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "boots",
+   "prompts": [
+    "boots"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "straps",
+   "prompts": [
+    "leather strap",
+    "belt",
+    "holster"
+   ],
+   "material": "leather",
+   "max_box": 0.3,
+   "wraps": false
+  },
+  {
+   "name": "iron",
+   "prompts": [
+    "iron shoulder armor",
+    "iron pauldron",
+    "iron bracer",
+    "metal gauntlet",
+    "metal buckle"
+   ],
+   "material": "metal",
+   "max_box": 0.2,
+   "threshold": 0.25,
+   "wraps": false
+  }
+ ],
+ "head_crop": 0.27,
+ "cut_below_chin": 0.035,
+ "atlas": 4096,
+ "lod_ratios": "0.3,0.09",
+ "uv_margin": 0.0015
+}

@@ -1,0 +1,57 @@
+{
+ "id": "player_veth_wanderer_prod",
+ "rigged": "rigged/player_veth_wanderer/player_veth_wanderer_rigged.glb",
+ "concept": "_staging/player_wanderer/concepts/player_veth_wanderer_bind2_s888.png",
+ "work": "_staging/charprod/player",
+ "seed": 888,
+ "material_prefix": "MAT_player",
+ "zones": [
+  {
+   "name": "skin",
+   "prompts": [
+    "face",
+    "neck",
+    "arm",
+    "hand",
+    "ear"
+   ],
+   "material": "skin"
+  },
+  {
+   "name": "cloth",
+   "prompts": [
+    "tank top",
+    "knit vest"
+   ],
+   "material": "cloth"
+  },
+  {
+   "name": "trousers",
+   "prompts": [
+    "trousers",
+    "pants"
+   ],
+   "material": "cloth_heavy"
+  },
+  {
+   "name": "boots",
+   "prompts": [
+    "boots"
+   ],
+   "material": "leather"
+  },
+  {
+   "name": "hair",
+   "prompts": [
+    "hair"
+   ],
+   "material": "hair",
+   "max_box": 0.2
+  }
+ ],
+ "head_crop": 0.27,
+ "cut_below_chin": 0.035,
+ "atlas": 4096,
+ "lod_ratios": "0.3,0.09",
+ "uv_margin": 0.0015
+}
