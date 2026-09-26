@@ -418,6 +418,6 @@ public static class FactionContent
         SeverityLevel = ValidationError.Severity.Error,
         Code = Code,
         Message = message,
-        FilePath = file,
+        FilePath = file ?? string.Empty,
     };
 }

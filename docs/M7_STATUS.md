@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0 done. E1 stopped at N-A10 on 2026-09-25, and the owner resolved the STOP the same day (see "STOP - E1, N-A10" and the ruling after it); E1 continues under the corrected bounds.
+**State:** in progress. E0-E4 done (2026-09-26); E5 next. The STOPs so far (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -60,8 +60,8 @@
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
 | E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
-| E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), E3.5, E3.6 | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
-| E4 | Companion routes and opened doors | - | | | 106 | |
+| E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), `c4c8f9d` (the S5 STOP record), `ee3d18a` (E3.5 and E3.6, one commit) | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
+| E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
 | E6 | Piece doors | - | | | 114 expected | |
 | E7 | Navigable by construction | - | | | 114 | |
@@ -295,11 +295,31 @@ The 11 -> 12, 12 -> 13 and 13 -> 14 steps write the frozen shapes, and `SchemaV1
 - The region layout (authored structures, doors and barriers) is outside the baseline hash (`src/World/Generation.cs:144-162`), so a later layout edit under a placed piece is not caught by the baseline proof. The structure audit reports it (unscheduled).
 - `StateDump.Order` sorts arrays of objects by content, so route corners and trail marks are order-checked only by the raw dump and the digests.
 
+## E4 evidence (2026-09-26, the machine that ran E1-E3)
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors. 6 warnings, all Phase 1's xUnit analyzer warnings in test projects (`ReachabilityTests` 3, `PickUpItemTests` 2, `SaveFailureTests` 1). Content was already built, so Phase 1's `MagicContent.cs(165,21)` CS8602 did not reprint; E3's `FactionContent.cs` CS8601 is fixed |
+| `dotnet test src/UNNAMED.sln` | 962 passed, 0 failed |
+| Content lint | 106 definitions, 0 errors |
+| `--smoke` (headless) | PASS; its save/load digest identical. Its 911 error lines are all "Not supported by this display server" (headless), as in E1-E3 |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` | exit 0 (b01, b02) |
+| `--playthrough` then `--playthrough-verify` | every beat passed (522 s); verify: **1,080 fields**, 0 differences (as E3: the companion's route was already in the dump since E2) |
+| A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `6ac18af17e4e068510b628e063fdb66ed81ae4bea48a53acdb3d9744f021246a` |
+| `SubscriberFailures` | 0 in both runs: both playthrough logs hold 0 error lines |
+| `--ui-shots`, `--delta-shots` | both exit 0 (303 s, 161 s), 0 error lines |
+| The `follow` beat | 0 "caught up" rows (0 in the whole run). One `RoutePlanned` row: at tick 6987, "Tavar Orr planned a route: found (none), 2 corners, 19 expansions" |
+| Rows up to and including `follow` | E3's 77 rows, byte for byte, with the one `RoutePlanned` row added. After `follow` the rows are E3's except the persistence-acceptance save row: Tavar waits at (51.2, 135.4), not (51.3, 135.4), having come home by his route, so the digest at the save differs. That is outside the E4 STOP window and is the save the verify compares with 0 differences |
+| Companion routes against the E1 ruling | Actual companion plans: 19 expansions (the playthrough) and 49 (N-A11), against the two-thirds bound of 43,690; each well under a millisecond in the Debug test run. Kera's routes are measured in E8-E9 |
+| Tests E4 adds | N-D2, N-D7, N-D8, N-D10, N-D17, N-D18 (Domain); `OpenDoor_ACompanionInReach_OpensAnAuthoredDoor_AndNeverClosesIt` (World); `NoDoorCloses_OnAnyBody` (its authored half), N-A11, N-A6 (a) (Application). N-A11 fails when nav mode is replaced by the Phase-1 trail rule (checked by mutation, then restored) |
+| Existing tests | Every `CompanionTests` case passes unmodified except the permitted route assertion in `HisState_RoundTripsThroughASave_FieldByField_AndGoesOnTheSame`; C16 and `FollowWaitFollow` still see 0 `CompanionCaughtUp`. `AScripted200CommandSession_…` and `SixtyCreatures_TickWithinTheBudget` pass. G5 and G27 gain `RoutePlanned` |
+
 ## E3 evidence (2026-09-26, the machine that ran E1 and E2)
 
 | Proof | Result |
 |---|---|
-| `dotnet build src/UNNAMED.sln` | 0 errors; the one warning is the pre-existing `MagicContent.cs(165,21)` CS8602 |
+| `dotnet build src/UNNAMED.sln` | 0 errors. (Corrected in E4: this line said "the one warning is the pre-existing `MagicContent.cs(165,21)` CS8602". A full rebuild also showed E3's own `FactionContent.cs(421,20)` CS8601, fixed in E4, and six Phase-1 xUnit analyzer warnings in test projects) |
 | `dotnet test src/UNNAMED.sln` | 952 passed, 0 failed (the Phase-1 async-save flake did not fire in this run; see the local risks) |
 | Content lint | 106 definitions, 0 errors |
 | `--smoke` (headless) | PASS; its save/load digest identical |
@@ -421,6 +441,18 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E3 | The P script | Built as `Begin` and `Step(run, n)` so that the save-then-continue and replay tests can resume it. Tavar is approached at (145, 43.3), inside talk reach. The raw billet buy is made at Kera's side in P3, before she is told, because from Blackvein Cut the reach check refuses first |
 | E3 | `ACompanionsKill_IsNotThePlayersAct` | The fixture armour is a `pack_hunter` placed so it sees the character: a sentinel that has not noticed the character never engages, so Tavar has nothing to fight |
 | E3 | `NpcTests.ATraderBoughtOut_StaysEmpty_AcrossASaveAndLoad` | The design's permitted edit (§5.7.2): after the buy-out at neutral, Kera's container holds exactly the three withheld billets, before and after the load |
+| E4 | `NavFollower.Next`'s reach | `Next` takes a `reachMm` argument that §3.8's signature leaves implicit: the door step opens only a door within the reach a body interacts at. `NavigationSystem.Follow` keeps the design's signature and passes `InteractReachMm` (1.6 m) |
+| E4 | `OpenDoor`'s order of checks | A companion (else "<npc> opens no doors"), a door by that key, reach from the NPC's body, then the already-open no-op: the order §4's `OperatePieceDoor` gives piece doors. The record lives in `Navigation.cs` beside `RoutePlanned` (§3.14) |
+| E4 | Turning at a gate | On `OpenGate` the companion turns towards the corner beyond the door, which lies across that line, not the door's centre: the step carries the gate key and the corner, and a piece door (E6) has no authored footprint to look up |
+| E4 | Unreachable in route mode | The Phase-1 fallback (the oldest mark, or the character with an empty trail) applies to an unreachable step from route mode's replan as well as from nav mode |
+| E4 | `CatchUp`'s route reset | On both of its returns, including the one that finds no spot |
+| E4 | `RoutePlanned.Corners` | The corners of the route the mover now follows, after that tick's advance past corners already reached; 0 when unreachable |
+| E4 | N-A6 (a)'s save point | 10 ticks after Tavar's first `RoutePlanned`, not 20. In N-A11's script his route is active for about 16 ticks (planned at tick 65; the door open by tick 81 and the route `None`, Direct, by tick 83), so at 20 it would already be `None`. At 10 the route is active and the door still shut; the continuation covers the open, and both worlds publish the same `DoorToggled` |
+| E4 | Where E4's tests live | `NoDoorCloses_OnAnyBody` (the authored half), N-A11 and N-A6 (a) are in `tests/Application.Tests/NavigationTests.cs` (§3.20's home). The `OpenDoor` checks are `OpenDoor_ACompanionInReach_OpensAnAuthoredDoor_AndNeverClosesIt` in World.Tests, through `InteractionSystem.Handle` by reflection, as N-W3 reaches `_navigation`; `TestWorlds.HollowSimulation` gains an optional `change` for the player record |
+| E4 | G5 and G27 | G5's scripted session has no mover, so the view test asserts no movers and no `RoutePlanned`, and holds a write-attempting `RoutePlanned` view; N-A11 and N-A6 carry the companion's events. G27 subscribes `RoutePlanned` on the new game and on the load |
+| E4 | Trail marks on F2 | Read from `Simulation.CaptureRecord().Companions` at most four times a second while F2 is on: no view carries the trail, and §8.14 adds none. The route lines are read from `Navigation.Movers` and the companions' bodies |
+| E4 | F1's F2 row | Unchanged ("the grid and its gates") until E5 gives it the design's wording |
+| E4 | `FactionContent.cs:421` | E3's own CS8601 (`FilePath = file` with a nullable `file`), fixed with `?? string.Empty` as `ContentChecks.cs:212` does |
 | E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
 
 ## Local risks (not promoted to RISK_REGISTER)
@@ -446,4 +478,7 @@ See §5.19 and §16. They are recorded here as each slice lands.
 | E3 | Relevance is fixed at boot; an act evicted from the 256-act log can no longer be reported |
 | E3 | All new dialogue text is DRAFT for the owner's tone review; Sel's `notes` line is a lore hook the owner may reject |
 | E3 | The live tier reaches the character only through the HUD line and F6 (no faction screen in M7) |
+| E4 | The companion plans only when neither the character nor a trail mark is in clear view (and keeps an active route until the character is). C16 and the M6 tests still run through Direct and Trail almost everywhere |
+| E4 | NPCs never close doors: a door Tavar opens stays open until the character closes it |
+| E4 | The mid-route save proves the companion's half of G15; the errand's half (N-A6 (b)) and Kera's routes against the two-thirds bound are E8-E9 |
 | E3 | `o_ore` and `o_billet` (Quest 1) are `acquire_item` objectives with `or_item_refs`: once the Waystation is accepted, a bought billet satisfies both - reachable only after the armour kill and a report. `o_spear` still needs the anvil (C-01) |
