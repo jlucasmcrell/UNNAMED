@@ -11,7 +11,8 @@ namespace UNNAMED.Presentation.Greybox;
 /// F2's navigation stage (M7 design §8.14): the lattice nodes a person cannot stand on within 24 m of the viewer, as flat 0.25 m quads just
 /// above the ground, and every gate, red while shut and green while open, read as it is drawn. The nodes are read from
 /// <see cref="NavigationView.Grid"/> - the grid the simulation plans on, never one of its own - and redrawn when the grid changes,
-/// after the viewer moves 2 m, and at most twice a second. What it drew is kept, so a scripted run can check it.
+/// after the viewer moves 2 m, and at most twice a second. Each mover's route is drawn as a line through its corners, and a companion's
+/// trail marks as short posts. What it drew is kept, so a scripted run can check it.
 /// </summary>
 public partial class NavigationOverlay : Node3D
 {
@@ -20,20 +21,27 @@ public partial class NavigationOverlay : Node3D
     private static readonly Color Unwalkable = new(0.95f, 0.25f, 0.2f, 0.55f);
     public static readonly Color Shut = new(0.9f, 0.1f, 0.1f, 0.5f);
     public static readonly Color Open = new(0.15f, 0.85f, 0.25f, 0.5f);
+    private static readonly Color RouteColour = new(0.2f, 0.75f, 1f, 0.9f);
+    private static readonly Color MarkColour = new(1f, 1f, 1f, 0.8f);
 
     private readonly MultiMeshInstance3D _nodes = new() { Name = "Nodes" };
+    private readonly MeshInstance3D _routes = new() { Name = "Routes" };
     private readonly Dictionary<string, MeshInstance3D> _gates = new(StringComparer.Ordinal);
     private readonly Dictionary<string, StandardMaterial3D> _gateMaterials = new(StringComparer.Ordinal);
     private TerrainGrid _terrain = null!;
     private NavGrid? _drawnFor;
     private Vector3 _drawnAt = new(float.NaN, 0, float.NaN);
     private double _since = double.MaxValue;
+    private double _routesSince = double.MaxValue;
 
     /// <summary>Every node looked at in the last redraw, with whether a person may stand there, in the order drawn.</summary>
     public IReadOnlyList<(long I, long J, bool Walkable)> Sampled { get; private set; } = Array.Empty<(long, long, bool)>();
 
     /// <summary>How many quads the last redraw drew: one per unwalkable node sampled.</summary>
     public int Quads => _nodes.Multimesh?.VisibleInstanceCount ?? 0;
+
+    /// <summary>How many lines the last route redraw drew: one per leg of a mover's route, and one per trail mark.</summary>
+    public int RouteLines { get; private set; }
 
     /// <summary>The colour each gate was last drawn in.</summary>
     public IReadOnlyDictionary<string, Color> GateColours => _gateMaterials.ToDictionary(g => g.Key, g => g.Value.AlbedoColor, StringComparer.Ordinal);
@@ -52,6 +60,14 @@ public partial class NavigationOverlay : Node3D
         _nodes.Multimesh = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, Mesh = quad };
         _nodes.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         AddChild(_nodes);
+        _routes.Mesh = new ImmediateMesh();
+        _routes.MaterialOverride = new StandardMaterial3D
+        {
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, VertexColorUseAsAlbedo = true,
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha, NoDepthTest = true,
+        };
+        _routes.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+        AddChild(_routes);
     }
 
     /// <summary>Hide it, and forget what was drawn, so showing it again draws afresh.</summary>
@@ -78,6 +94,55 @@ public partial class NavigationOverlay : Node3D
         _drawnAt = viewer;
         DrawNodes(view, viewer);
     }
+
+    /// <summary>
+    /// Each mover's active route (M7 design §8.14) as a line 0.3 m above the ground, from where it stands through its corners, and each
+    /// companion's trail marks as posts - redrawn at most four times a second.
+    /// </summary>
+    public void DrawRoutes(Simulation simulation, double delta, bool now = false)
+    {
+        if (!Visible)
+            return;
+        _routesSince += delta;
+        if (!now && _routesSince < 0.25)
+            return;
+        _routesSince = 0;
+        var bodies = simulation.Companions.ToDictionary(c => c.NpcId, c => c.Body, StringComparer.Ordinal);
+        var lines = new List<(Vector3 From, Vector3 To, Color Colour)>();
+        foreach (var mover in simulation.Navigation.Movers)
+        {
+            if (mover.Route.Status != NavRouteStatus.Active || !bodies.TryGetValue(mover.NpcId, out var body))
+                continue;
+            var from = Above(body.XMm, body.ZMm, 0.3f);
+            foreach (var corner in mover.Route.Corners)
+            {
+                var to = Above(corner.XMm, corner.ZMm, 0.3f);
+                lines.Add((from, to, RouteColour));
+                from = to;
+            }
+        }
+        foreach (var companion in simulation.CaptureRecord().Companions)
+        {
+            foreach (var mark in companion.Trail)
+                lines.Add((Above(mark.XMm, mark.ZMm, 0.05f), Above(mark.XMm, mark.ZMm, 0.45f), MarkColour));
+        }
+        var mesh = (ImmediateMesh)_routes.Mesh;
+        mesh.ClearSurfaces();
+        RouteLines = lines.Count;
+        if (lines.Count == 0)
+            return;
+        mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
+        foreach (var (a, b, colour) in lines)
+        {
+            mesh.SurfaceSetColor(colour);
+            mesh.SurfaceAddVertex(a);
+            mesh.SurfaceSetColor(colour);
+            mesh.SurfaceAddVertex(b);
+        }
+        mesh.SurfaceEnd();
+    }
+
+    private Vector3 Above(long xMm, long zMm, float metres) => new(xMm / 1000f, _terrain.HeightAtMm(xMm, zMm) / 1000f + metres, zMm / 1000f);
 
     private void DrawNodes(NavigationView view, Vector3 viewer)
     {

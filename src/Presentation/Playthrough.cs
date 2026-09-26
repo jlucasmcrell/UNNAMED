@@ -640,6 +640,7 @@ public sealed class Playthrough
         _session.Subscribe<CompanionCaughtUp>(e => Note($"{Name(e.NpcId)} caught up ({e.Reason})"));
         _session.Subscribe<CompanionDowned>(e => Note($"{Name(e.NpcId)} downed by {Name(e.ByDefId)}"));
         _session.Subscribe<CompanionFell>(e => Note($"{Name(e.NpcId)} fell, back at the Waystone"));
+        _session.Subscribe<RoutePlanned>(e => Note($"{Name(e.MoverKey)} planned a route: {e.Outcome} ({e.Reason}), {e.Corners} corners, {e.Expansions} expansions"));
         _session.Subscribe<PlayerDied>(e =>
         {
             _deaths++;

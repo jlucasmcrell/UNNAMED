@@ -962,6 +962,7 @@ public partial class Main : Node3D
         if (_buildDebug != BuildDebugStage.Off)
         {
             _navOverlay.Draw(simulation.Navigation, feet, delta);
+            _navOverlay.DrawRoutes(simulation, delta);
             _structureDebug.Refresh(simulation, delta);
         }
         _character.Refresh();
@@ -996,6 +997,7 @@ public partial class Main : Node3D
                 _hud.Toast(site.DoneText, 6);
         });
         _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers));
+        _session.Subscribe<RoutePlanned>(e => _structureDebug.LastRoute = e);
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));

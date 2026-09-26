@@ -12,9 +12,9 @@ namespace UNNAMED.Presentation.Ui;
 public enum BuildDebugStage { Off, Navigation }
 
 /// <summary>
-/// F2's panel (M7 design §8.14), a developer's view like the quest debugger: in E1 its navigation block alone - the grid's digest and
-/// tiles, every gate and its state, the movers' routes, and the work counts - redrawn at most four times a second. The counts are read
-/// here and in tests only; nothing in the game decides by them.
+/// F2's panel (M7 design §8.14), a developer's view like the quest debugger: its navigation block alone until E5 - the grid's digest and
+/// tiles, every gate and its state, the movers' routes and the last one planned, and the work counts - redrawn at most four times a
+/// second. The counts are read here and in tests only; nothing in the game decides by them.
 /// </summary>
 public partial class StructureDebugPanel : CanvasLayer
 {
@@ -22,6 +22,9 @@ public partial class StructureDebugPanel : CanvasLayer
     private double _since;
     private NavGrid? _digestOf;
     private string _digest = "";
+
+    /// <summary>The last route a mover planned, as the event told it; for display only.</summary>
+    public RoutePlanned? LastRoute { get; set; }
 
     public override void _Ready()
     {
@@ -47,10 +50,10 @@ public partial class StructureDebugPanel : CanvasLayer
             _digestOf = view.Grid;
             _digest = view.Grid.Digest();
         }
-        _text.Text = Render(view, _digest);
+        _text.Text = Render(view, _digest, LastRoute);
     }
 
-    public static string Render(NavigationView view, string digest)
+    public static string Render(NavigationView view, string digest, RoutePlanned? lastRoute = null)
     {
         var grid = view.Grid;
         var c = view.Counters;
@@ -66,6 +69,8 @@ public partial class StructureDebugPanel : CanvasLayer
             text.Append($"    {mover.NpcId}: {NavRoute.StatusKey(r.Status)} to ({r.GoalXMm}, {r.GoalZMm}), {r.Corners.Length} corners{(r.Partial ? " (partial)" : "")}, " +
                         $"planned at tick {r.PlannedTick}{(mover.Blocked ? ", BLOCKED" : "")}\n");
         }
+        text.Append("  last route planned: ").Append(lastRoute is { } p
+            ? $"{p.MoverKey} {p.Outcome} ({p.Reason}), {p.Corners} corners, {p.Expansions} expansions, tick {p.Tick}" : "none").Append('\n');
         text.Append($"  builds: {c.FullBuilds} full, {c.RectRebuilds} by rectangle; {c.TilesRestamped} tiles and {c.NodesRestamped} nodes stamped\n");
         text.Append($"  plans: {c.Plans} ({(c.PlansByOutcome.IsEmpty ? "none" : string.Join(", ", c.PlansByOutcome.Select(p => $"{p.Key} {p.Value}")))}); " +
                     $"{c.Expansions} expansions, at most {c.MaxExpansionsOneQuery} in one\n");
