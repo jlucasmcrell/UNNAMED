@@ -34,7 +34,14 @@ public static class SkyView
         var sky = new WorldEnvironment { Name = "Sky3D", Environment = environment };
         sky.SetScript(script);
         // Sky3D makes its sun, moon, dome and clock when it enters the tree - which, built with the scene, is later than here: set it up then.
-        sky.Ready += () => Configure(sky, classicSun);
+        sky.Ready += () =>
+        {
+            Configure(sky, classicSun);
+            // Never in the tree (Sky3D's sun replaces it): left alone it leaks its light at exit, where a release build dies of
+            // heap corruption (0xC0000374).
+            if (GodotObject.IsInstanceValid(classicSun))
+                classicSun.Free();
+        };
         parent.AddChild(sky);
         return sky;
     }
