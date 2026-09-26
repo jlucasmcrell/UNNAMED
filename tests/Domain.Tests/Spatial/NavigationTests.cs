@@ -134,6 +134,83 @@ public class NavigationTests
         Assert.Equal(digest, grid.Digest());
     }
 
+    // N-D19
+    /// <summary>
+    /// The placement navigability check's four rules (M7 design §3.13) on synthetic ground: each refusal with its rule and reason, the
+    /// shapes it must allow, and a flood count that does not depend on the scratch's history.
+    /// </summary>
+    [Fact]
+    public void EditCheck_Rules()
+    {
+        var none = ImmutableArray<NavInput>.Empty;
+        var noPoints = ImmutableArray<NavProtectedPoint>.Empty;
+        NavEditVerdict Check(IEnumerable<NavInput> existing, IEnumerable<NavInput> solids, IEnumerable<NavInput>? doors = null,
+            IEnumerable<NavProtectedPoint>? points = null, NavScratch? scratch = null)
+        {
+            var grid = Field(40_000, 40_000, existing);
+            return NavEditCheck.Check(grid, grid.Config, scratch ?? new NavScratch(), solids.ToImmutableArray(), (doors ?? none).ToImmutableArray(),
+                (points ?? noPoints).ToImmutableArray());
+        }
+        static NavRect At(long x, long z) => new(x, z, x, z);
+        void Refused(string rule, string reason, NavEditVerdict verdict) =>
+            Assert.Equal((false, rule, reason), (verdict.Ok, verdict.Rule, verdict.Reason));
+
+        // V-N1: the room's doorway walled up seals it - with no protected point inside, the generic reason.
+        var seal = Box("seal", 19_200, 16_000, 20_800, 16_400);
+        var sealedHut = Check(Room(doorway: true), new[] { seal });
+        Refused("V-N1", NavEditCheck.SealedReason, sealedHut);
+        Assert.True(sealedHut.NodesFlooded > 0);
+        // A doorless one-square hut: three walls standing, and the fourth closes it - a placement is one piece, so the pocket borders it.
+        var hut = new[]
+        {
+            Box("hut_s", 9_800, 9_800, 13_200, 10_200), Box("hut_n", 9_800, 12_800, 13_200, 13_200),
+            Box("hut_w", 9_800, 9_800, 10_200, 13_200), Box("hut_e", 12_800, 9_800, 13_200, 13_200),
+        };
+        Refused("V-N1", NavEditCheck.SealedReason, Check(hut.Take(3), hut.Skip(3)));
+        // With someone inside, the refusal names them.
+        var you = new NavProtectedPoint("you", NavPointKind.Body, At(11_500, 11_500), 350, 1_600);
+        Refused("V-N1", "that would shut you in", Check(hut.Take(3), hut.Skip(3), points: new[] { you }));
+
+        // V-N2: a lone post over an NPC's place.
+        var renn = new NavProtectedPoint("Renn Vale", NavPointKind.NpcSite, At(5_000, 5_000), 350, 1_600);
+        Refused("V-N2", "that would wall in Renn Vale's place", Check(none, new[] { Box("post", 4_800, 4_800, 5_600, 5_600) }, points: new[] { renn }));
+
+        // V-N3: a bench whose work anchor stands against a wall that is already there.
+        var anchor = new NavProtectedPoint("Anvil Bench", NavPointKind.NewSite, At(30_600, 32_000), 350, 250);
+        Refused("V-N3", "nothing could reach the Anvil Bench", Check(new[] { Box("wall", 30_000, 30_000, 30_400, 34_000) },
+            new[] { Box("bench", 31_000, 31_500, 31_600, 32_500) }, points: new[] { anchor }));
+
+        // V-N4: a door whose far side opens onto a wall.
+        var leaf = Box("pce_door", 5_200, 20_000, 6_800, 20_400, NavInputKind.Door);
+        Refused("V-N4", NavEditCheck.DoorReason, Check(new[] { Box("behind", 5_000, 20_800, 7_000, 22_000) }, none, new[] { leaf }));
+
+        // Allowed: a U-shaped hut; the room's south wall with a 1.6 m gap; a wall against a room already sealed.
+        Assert.True(Check(none, hut.Take(3)).Ok);
+        var roomWithoutSouth = Room(doorway: false).Where(w => !w.Shape.Id.StartsWith("south", StringComparison.Ordinal)).ToList();
+        Assert.True(Check(roomWithoutSouth, new[] { Box("south_west", 15_000, 16_000, 19_200, 16_400), Box("south_east", 20_800, 16_000, 25_000, 16_400) }).Ok);
+        Assert.True(Check(Room(doorway: false), new[] { Box("beside", 25_000, 18_000, 25_400, 22_000) }).Ok);
+        Assert.True(Check(none, none, new[] { leaf }).Ok);
+
+        // The same check on a fresh scratch and on one a thousand searches old floods the same nodes.
+        var used = new NavScratch();
+        for (int k = 0; k < 1_000; k++)
+            used.Begin(16);
+        Assert.Equal(sealedHut.NodesFlooded, Check(Room(doorway: true), new[] { seal }, scratch: used).NodesFlooded);
+    }
+
+    // N-D20
+    /// <summary>A chest's site lies inside its own solid part: V-N3 takes it as a reach point, and finds open ground within 1.6 m.</summary>
+    [Fact]
+    public void EditCheck_AChestSiteInsideItsOwnBox_IsAReachPoint()
+    {
+        var grid = Field(40_000, 40_000, Array.Empty<NavInput>());
+        var chest = Box("chest", 10_000, 10_000, 11_000, 10_600);
+        var site = new NavProtectedPoint("Storage Chest", NavPointKind.NewSite, new NavRect(10_500, 10_300, 10_500, 10_300), 0, 1_600);
+        var verdict = NavEditCheck.Check(grid, grid.Config, new NavScratch(), ImmutableArray.Create(chest), ImmutableArray<NavInput>.Empty,
+            ImmutableArray.Create(site));
+        Assert.True(verdict.Ok, verdict.Reason);
+    }
+
     // N-D6
     [Fact]
     public void BodyClasses_ThroughDoors()

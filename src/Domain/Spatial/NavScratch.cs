@@ -53,6 +53,24 @@ public sealed class NavScratch
         return ++_generation;
     }
 
+    /// <summary>A second flood's marks (the placement check's flood of the grid before an edit), valid when they equal its stamp.</summary>
+    internal int[] Before { get; private set; } = Array.Empty<int>();
+
+    private int _beforeStamp;
+
+    /// <summary>A new stamp for <see cref="Before"/> over a window of <paramref name="cells"/> nodes, growing it if needed.</summary>
+    internal int BeginBefore(long cells)
+    {
+        if (cells > Before.Length)
+            Before = new int[cells];
+        if (_beforeStamp == int.MaxValue)
+        {
+            Array.Clear(Before);
+            _beforeStamp = 0;
+        }
+        return ++_beforeStamp;
+    }
+
     /// <summary>The flood queue, at least <paramref name="capacity"/> long.</summary>
     internal int[] QueueOf(int capacity)
     {
