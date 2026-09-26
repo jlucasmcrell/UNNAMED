@@ -45,7 +45,7 @@ public class BuildingAcceptanceTests
     /// The table's player: poses as §4.22's notation says (run legs to 300 mm, the pose to 50 mm at a walk, one idle frame facing it),
     /// every command through the session's own queue and frame loop, one tick a frame, and what came of each.
     /// </summary>
-    private sealed class WorkshopRun
+    internal sealed class WorkshopRun
     {
         private int _next;
 
@@ -272,7 +272,7 @@ public class BuildingAcceptanceTests
     }
 
     /// <summary>A command log replayed into a simulation at the ticks it was logged at, with something done at every boundary between.</summary>
-    private static void Replay(Simulation simulation, IEnumerable<LoggedCommand> log, long until, Action<Simulation>? atEachBoundary = null,
+    internal static void Replay(Simulation simulation, IEnumerable<LoggedCommand> log, long until, Action<Simulation>? atEachBoundary = null,
         IReadOnlyDictionary<string, (string DefId, int Count, long XMm, long ZMm)>? ground = null)
     {
         void StepTo(long tick)
@@ -321,7 +321,7 @@ public class BuildingAcceptanceTests
         Enumerable.Range(1, count).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, simulation.PlayerId.Value)).ToArray();
 
     /// <summary>Every item instance ID the state holds, anywhere: the window minted none when no new one appears (G8).</summary>
-    private static HashSet<string> ItemIds(Simulation simulation) =>
+    internal static HashSet<string> ItemIds(Simulation simulation) =>
         Regex.Matches(StateDump.Render(simulation), "itm_[0-9A-Za-z]{26}").Select(m => m.Value).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>A row's refusal the placement ghost gives in the same state: the rule, for the rows whose Expect names one.</summary>

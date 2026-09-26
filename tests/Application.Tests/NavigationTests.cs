@@ -241,6 +241,56 @@ public class NavigationTests
         Assert.Equal(0, session.SubscriberFailures);
     }
 
+    // N-A8
+    /// <summary>
+    /// A building session replays to the same state (M7 design §3.20.3): from the Crossing Workshop start save, the command table's steps
+    /// 1-9 played through the session; its command log replayed at the same boundaries into a fresh load of the start. The grid digest, every
+    /// route planned and every mover's route, the (tick, rejected) pairs and the navigation counters are equal, and the replayable dump
+    /// shows no difference. The raw digest is compared over step 1's window, which mints no <c>itm_</c>; the whole table mints some (a
+    /// chest's spill, R34), so it is compared by the replayable dump (G8).
+    /// </summary>
+    [Fact]
+    public void APlacementSession_ReplaysToTheSameState()
+    {
+        using var profile = new TempProfile();
+        var run = new BuildingAcceptanceTests.WorkshopRun(BuildingAcceptanceTests.LoadS0(profile));
+        var played = run.Simulation;
+        var held = BuildingAcceptanceTests.ItemIds(played);
+        string lastOfStepOne = UNNAMED.Application.Evidence.CrossingWorkshop.LandedRows.Last(r => r.Step == 1).Id;
+        run.Through(lastOfStepOne);
+        long stepOne = run.RowTicks[lastOfStepOne].End;
+        Assert.Subset(held, BuildingAcceptanceTests.ItemIds(played));   // step 1 minted no item
+        string digestAtStepOne = played.StateDigest();
+        run.Through(UNNAMED.Application.Evidence.CrossingWorkshop.LandedRows.Last(r => r.Step == 9).Id);
+        Assert.NotEmpty(BuildingAcceptanceTests.ItemIds(played).Except(held));   // the whole table did: the replayable dump decides
+        long end = played.WorldTick;
+        var log = played.CommandLog.ToList();
+
+        var one = BuildingAcceptanceTests.LoadS0(profile).Simulation!;
+        BuildingAcceptanceTests.Replay(one, log, stepOne);
+        Assert.Equal(digestAtStepOne, one.StateDigest());
+
+        var replaySession = BuildingAcceptanceTests.LoadS0(profile);
+        var replayRoutes = new List<RoutePlanned>();
+        replaySession.Subscribe<RoutePlanned>(replayRoutes.Add);
+        var replay = replaySession.Simulation!;
+        BuildingAcceptanceTests.Replay(replay, log, end, ground: run.PickedUp);
+        Assert.Equal(played.Navigation.Grid.Digest(), replay.Navigation.Grid.Digest());
+        Assert.Equal(run.Routes, replayRoutes);
+        Assert.Equal(played.Navigation.Movers.Select(m => (m.NpcId, m.Route, m.Blocked)), replay.Navigation.Movers.Select(m => (m.NpcId, m.Route, m.Blocked)));
+        Assert.Equal(log.Select(e => (e.Tick, e.RejectedReason)), replay.CommandLog.Select(e => (e.Tick, e.RejectedReason)));
+        var (a, b) = (played.Navigation.Counters, replay.Navigation.Counters);
+        Assert.Equal((a.FullBuilds, a.RectRebuilds, a.TilesRestamped, a.NodesRestamped, a.Plans, a.Expansions, a.MaxExpansionsOneQuery, a.EditChecks, a.FloodNodes),
+            (b.FullBuilds, b.RectRebuilds, b.TilesRestamped, b.NodesRestamped, b.Plans, b.Expansions, b.MaxExpansionsOneQuery, b.EditChecks, b.FloodNodes));
+        Assert.Equal(a.PlansByOutcome, b.PlansByOutcome);
+        Assert.Equal(a.EditRefusalsByRule, b.EditRefusalsByRule);
+        var differences = StateDump.Compare(StateDump.Render(played, replayable: true), StateDump.Render(replay, replayable: true), out int leaves);
+        Assert.True(differences.Count == 0, $"{differences.Count} of {leaves} fields differ: {string.Join("; ", differences.Take(5))}");
+        _output.WriteLine($"steps 1-9 replayed: {log.Count} commands to tick {end}; {run.Routes.Count} routes; {leaves} fields; {a.Plans} plans, " +
+            $"{a.EditChecks} edit checks, {a.RectRebuilds} rebuilds");
+        Assert.Equal(0, replaySession.SubscriberFailures);
+    }
+
     // NoDoorCloses_OnAnyBody: the authored-door half (E4; E6 adds the piece doors)
     /// <summary>
     /// The character cannot close an authored door on anyone standing in it - themselves, a companion, any other NPC or a living
