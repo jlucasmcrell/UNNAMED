@@ -55,6 +55,9 @@ public partial class Main : Node3D
     private StructureDebugPanel _structureDebug = null!;
     private FactionDebugPanel _factionDebug = null!;
     private NavigationOverlay _navOverlay = null!;
+    private StructuresView _structures = null!;
+    private BuildMode _build = null!;
+    private StructuresChanged? _lastChange;
     private BuildDebugStage _buildDebug;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
@@ -295,12 +298,13 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--layout-check", out string? layout))
         {
-            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, Path.GetFullPath(layout));
+            _layout = new LayoutCheck(_session, _controller, _camera, GetViewport(), _inventory, _dialogue, _saves, _help, _character, _build, _hud,
+                Path.GetFullPath(layout));
         }
         else if (_flags.Contains("--input-check"))
         {
             _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
-                _character, _saves);
+                _character, _saves, _build);
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -340,7 +344,7 @@ public partial class Main : Node3D
             _stats = new FrameStats(GetViewport());
             // --perf-route extended: the play the gate's route avoids, and past 300 s so the autosave is in it (the Phase-1 audit, P-01, P-07).
             _perf = new PerfRun(Seconds(), _options.GetValueOrDefault("--perf-route") == "extended"
-                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory)
+                ? new PerfActivities(_session, _controller, _camera, _dialogue, _inventory, _build, what => _stats?.Mark(what))
                 : null);
             _perf.SpawnProxies(this, _session.Setup.Layout);
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
@@ -413,6 +417,13 @@ public partial class Main : Node3D
         _navOverlay = new NavigationOverlay { Name = "NavigationOverlay" };
         _navOverlay.Bind(layout.Space.Terrain);
         AddChild(_navOverlay);
+        // The pieces the player builds, the ghost and build mode (M7).
+        _structures = new StructuresView { Name = "Structures" };
+        _structures.Bind(layout, _session.Setup.Building.Catalog, _art.Coverage);
+        AddChild(_structures);
+        _build = new BuildMode { Name = "BuildMode" };
+        _build.Bind(_session, _structures, _art.Coverage);
+        AddChild(_build);
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
@@ -592,6 +603,9 @@ public partial class Main : Node3D
             _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
         Draw(frame.Alpha, delta);
+        // Build mode ends with any panel, and with death: one check a frame, harness runs included (M7 design §8.4).
+        if (_build.Active && (Modal || _session.Simulation!.Combat.Health == 0))
+            _build.Exit(_camera);
         UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -717,7 +731,12 @@ public partial class Main : Node3D
             _questDebug.Refresh(_session, 0, now: true);
         }
         if (Input.IsActionJustPressed("build_debug"))
-            SetBuildDebug(_buildDebug == BuildDebugStage.Off ? BuildDebugStage.Navigation : BuildDebugStage.Off);
+            SetBuildDebug(_buildDebug switch
+            {
+                BuildDebugStage.Off => BuildDebugStage.Structures,
+                BuildDebugStage.Structures => BuildDebugStage.Navigation,
+                _ => BuildDebugStage.Off,
+            });
         if (Input.IsActionJustPressed("faction_debug"))
             ShowFactions(!_factionDebug.Visible);
         if (modal)
@@ -738,13 +757,48 @@ public partial class Main : Node3D
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
+
+        // Build mode (M7 design §8.2-§8.3): B in and out; 1-7 and PageUp/PageDown choose, R turns, the left button places, Z or Delete
+        // twice takes down; Esc leaves it, and only the next Esc frees the mouse.
+        bool leftBuild = false;
+        if (Input.IsActionJustPressed("build_mode"))
+        {
+            if (_build.Active)
+                _build.Exit(_camera);
+            else if (!_build.Enter(_camera))
+                _hud.Toast("Nothing to build with here", 2);
+        }
+        else if (_build.Active && Input.IsActionJustPressed("release_mouse"))
+        {
+            _build.Exit(_camera);
+            leftBuild = true;
+        }
+        if (_build.Active)
+        {
+            for (int n = 1; n <= 7; n++)
+            {
+                if (Input.IsActionJustPressed($"build_piece_{n}"))
+                    _build.Select(n - 1);
+            }
+            if (Input.IsActionJustPressed("build_piece_next"))
+                _build.Cycle(1);
+            if (Input.IsActionJustPressed("build_piece_prev"))
+                _build.Cycle(-1);
+            if (Input.IsActionJustPressed("build_rotate"))
+                _build.Turn();
+            if (captured && Input.IsActionJustPressed("build_place"))
+                _build.Place(_controller);
+            if (Input.IsActionJustPressed("build_dismantle"))
+                _build.Dismantle(_controller, Time.GetTicksMsec() / 1000.0);
+        }
 
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
-        // A swing, a guard and an aimed bow all go where the camera looks.
-        bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
-        bool holding = captured && Input.IsActionPressed("guard");
-        bool swing = captured && Input.IsActionJustPressed("attack");
-        int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
+        // A swing, a guard and an aimed bow all go where the camera looks. Build mode suppresses them all.
+        bool fighting = captured && !_build.Active;
+        bool holding = fighting && Input.IsActionPressed("guard");
+        bool swing = fighting && Input.IsActionJustPressed("attack");
+        int slot = fighting ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
         _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || slot >= 0 || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
@@ -760,7 +814,7 @@ public partial class Main : Node3D
         bool guard = holding && !combat.Weapon.Ranged;
         if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
             _controller.Guard(guard);
-        if (captured && Input.IsActionJustPressed("dodge"))
+        if (fighting && Input.IsActionJustPressed("dodge"))
         {
             var wish = stick.LengthSquared() > 0.01f ? stick.Normalized() : Vector2.Zero;
             _controller.Dodge(_camera.GroundForward * wish.Y + _camera.GroundRight * wish.X);
@@ -819,7 +873,7 @@ public partial class Main : Node3D
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse"))
+        if (Input.IsActionJustPressed("release_mouse") && !leftBuild)
             _mouseFreed = true;
     }
 
@@ -847,6 +901,12 @@ public partial class Main : Node3D
     private bool Aim(Simulation simulation, CombatView combat)
     {
         long range = 0;
+        if (_build.Active)
+        {
+            _hud.SetReticle(null, false);
+            _projectiles.ShowAimLine(null, null);
+            return false;
+        }
         bool free = Input.MouseMode == Input.MouseModeEnum.Captured && !Modal;
         if (combat.Casting is { } casting && _session.Setup.Magic.Formulas.TryGetValue(casting, out var formula) && formula.Targeting == UNNAMED.Domain.Magic.Targeting.Projectile
             && combat.Phase is CombatPhase.Windup)
@@ -904,7 +964,18 @@ public partial class Main : Node3D
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
         bool aiming = Aim(simulation, combat);
-        _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);
+        _hud.SetCrosshair((_camera.IsFirstPerson || _build.Active) && !aiming);
+        // The pieces drawn once a frame at most, after any change (P-02, P-03); build mode's ghost, target and lines.
+        _structures.SyncIfDirty(simulation);
+        if (_build.Active)
+        {
+            _build.BuildFrame(simulation, _camera, _controller.Authoritative, Time.GetTicksMsec() / 1000.0);
+            _hud.SetBuild(_build.Panel, _build.Status, _build.TargetLine, _build.Tone);
+        }
+        else
+        {
+            _hud.SetBuild(null, null, null, BuildTone.Plain);
+        }
 
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
@@ -941,7 +1012,7 @@ public partial class Main : Node3D
         var formulas = _controller.Formulas();
         _hud.SetMagic((combat.Casting is { } casting ? $"Casting {_session.DisplayName(casting)}\n" : "") +
             string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {_session.DisplayName(f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
-            (combat.Strained ? "   Strained" : ""), formulas);
+            (combat.Strained ? "   Strained" : ""), _build.Active ? Array.Empty<string>() : formulas);
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
             $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
             combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
@@ -963,7 +1034,8 @@ public partial class Main : Node3D
         {
             _navOverlay.Draw(simulation.Navigation, feet, delta);
             _navOverlay.DrawRoutes(simulation, delta);
-            _structureDebug.Refresh(simulation, delta);
+            _structureDebug.Refresh(simulation, delta, _build, _lastChange);
+            _structures.DrawDebug(simulation, feet, _lastChange, delta);
         }
         _character.Refresh();
 
@@ -1011,6 +1083,26 @@ public partial class Main : Node3D
             long kept = e.Awarded - e.Repaid;
             string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
             _hud.Toast(e.LevelsGained > 0 ? $"{xp} - level {e.Level}!" : xp, 3);
+        });
+        // Building (M7 design §8.10): events mark the pieces dirty and nothing is rebuilt inside a handler; a take-down's refund is said;
+        // a refused placement or take-down is said in words, never IDs.
+        _session.Subscribe<PiecePlaced>(_ => _structures.MarkDirty());
+        _session.Subscribe<PieceRemoved>(e =>
+        {
+            _structures.MarkDirty();
+            foreach (var line in e.Refund)
+                _hud.Toast($"Took down the {_session.DisplayName(e.DefId)}: +{line.Count} {_session.DisplayName(line.ItemId)}", 3);
+        });
+        _session.Subscribe<StructuresChanged>(e =>
+        {
+            _structures.MarkDirty();
+            _lastChange = e;
+        });
+        _session.Subscribe<NavigationRebuilt>(_ => _structures.MarkDirty());
+        _session.Subscribe<CommandRejected>(e =>
+        {
+            if (e.Command is PlacePieceCommand or DismantlePieceCommand)
+                _hud.Toast(BuildMode.Words(_session, e.Reason), 3);
         });
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -1270,6 +1362,9 @@ public partial class Main : Node3D
     private void Resync()
     {
         _controller.Resync();
+        _build.Exit(_camera);
+        _structures.Sync(_session.Simulation!);
+        _lastChange = null;
         _creatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
             _hollow.SetDoor(door.Site.Key, door.Open);
@@ -1468,12 +1563,14 @@ public partial class Main : Node3D
     {
         _buildDebug = stage;
         _structureDebug.Visible = stage != BuildDebugStage.Off;
+        _structureDebug.Stage = stage;
+        _structures.ShowDebug(stage != BuildDebugStage.Off);
         if (stage == BuildDebugStage.Navigation)
             _navOverlay.Visible = true;
         else
             _navOverlay.Close();
         if (_session.Simulation is { } simulation)
-            _structureDebug.Refresh(simulation, 0, now: true);
+            _structureDebug.Refresh(simulation, 0, _build, _lastChange, now: true);
     }
 
     /// <summary>
@@ -1577,6 +1674,13 @@ public partial class Main : Node3D
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
         Bind("build_debug", Key.F2);
+        Bind("build_mode", Key.B);
+        for (int n = 1; n <= 7; n++)
+            Bind($"build_piece_{n}", Key.Key1 + n - 1);   // in build mode, the number keys choose a piece
+        Bind("build_piece_next", Key.Pagedown);
+        Bind("build_piece_prev", Key.Pageup);
+        Bind("build_rotate", Key.R);
+        Bind("build_dismantle", Key.Z, Key.Delete);
         Bind("faction_debug", Key.F6);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
@@ -1591,7 +1695,7 @@ public partial class Main : Node3D
             Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
-        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
+        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right), ("build_place", MouseButton.Left) })
         {
             if (!InputMap.HasAction(action))
                 InputMap.AddAction(action);

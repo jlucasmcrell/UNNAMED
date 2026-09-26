@@ -27,7 +27,7 @@ public sealed class InputCheck
     private static readonly string[] Gameplay =
     {
         "move_forward", "sprint", "attack", "guard", "dodge", "use", "interact", "jump", "crouch", "cast_1", "companion_order", "quicksave",
-        "quickload", "first_person",
+        "quickload", "first_person", "build_mode", "build_place", "build_dismantle", "build_rotate", "build_piece_1",
     };
 
     // From the Ashen Waystone to Sel's table, by the lodge's south side.
@@ -39,6 +39,7 @@ public sealed class InputCheck
     private readonly Func<bool> _modal;
     private readonly Func<string, LoadResult?> _load;
     private readonly (DialoguePanel Dialogue, InventoryPanel Inventory, CharacterPanel Character, SavesPanel Saves) _panels;
+    private readonly BuildMode _build;
     private readonly List<string> _passed = new();
     private int _step;
     private int _frames;
@@ -48,8 +49,9 @@ public sealed class InputCheck
     private Simulation? _world;
 
     public InputCheck(GameSession session, PlayerController controller, CameraRig camera, Func<bool> modal, Func<string, LoadResult?> load,
-        DialoguePanel dialogue, InventoryPanel inventory, CharacterPanel character, SavesPanel saves)
+        DialoguePanel dialogue, InventoryPanel inventory, CharacterPanel character, SavesPanel saves, BuildMode build)
     {
+        _build = build;
         _session = session;
         _controller = controller;
         _camera = camera;
@@ -74,6 +76,11 @@ public sealed class InputCheck
             return null;
         }
         var simulation = _session.Simulation!;
+        if (_tapped is not null && _step >= 28)
+        {
+            Release(_tapped);
+            _tapped = null;
+        }
         switch (_step)
         {
             case 0:
@@ -193,6 +200,81 @@ public sealed class InputCheck
                 if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
                     return Fail("the click did not take the mouse back");
                 _passed.Add("the click that took the mouse back did not swing");
+                return Next(2);
+            // Build mode (M7 design §8.19): every panel ends it, L's included; Esc leaves it before it frees the mouse; the click that takes
+            // the mouse back never also places a piece.
+            case 27:
+                return Tap("build_mode");
+            case 28:
+                return !_build.Active ? Fail("B did not enter build mode") : Tap("inventory");
+            case 29:
+                if (_build.Active || !_panels.Inventory.Visible)
+                    return Fail("the inventory did not end build mode");
+                return Tap("inventory");
+            case 30:
+                return Tap("build_mode");
+            case 31:
+                return !_build.Active ? Fail("B did not enter build mode again") : Tap("character");
+            case 32:
+                if (_build.Active || !_panels.Character.Visible)
+                    return Fail("the character sheet did not end build mode");
+                return Tap("character");
+            case 33:
+                return Tap("build_mode");
+            case 34:
+                return !_build.Active ? Fail("B did not enter build mode again") : Tap("saves");
+            case 35:
+                if (_build.Active || !_panels.Saves.Visible)
+                    return Fail("L did not end build mode");
+                return Tap("release_mouse");
+            case 36:
+                return _panels.Saves.Visible ? Fail("Escape did not close the saves list") : Tap("build_mode");
+            case 37:
+                if (!_build.Active)
+                    return Fail("B did not enter build mode again");
+                Reading = false;
+                _controller.Talk(Sel);
+                return Next(10);
+            case 38:
+                if (!_panels.Dialogue.Visible)
+                    return Fail("Sel's conversation did not open in build mode");
+                if (_build.Active)
+                    return Fail("the conversation did not end build mode");
+                Reading = true;
+                _passed.Add("every panel, L's included, ended build mode");
+                return Tap("release_mouse");
+            case 39:
+                return _panels.Dialogue.Visible ? Fail("Escape did not walk away from the conversation") : Tap("build_mode");
+            case 40:
+                return !_build.Active ? Fail("B did not enter build mode again") : Tap("release_mouse");
+            case 41:
+                if (_build.Active)
+                    return Fail("Escape did not leave build mode");
+                if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
+                    return Fail("the Escape that left build mode also freed the mouse");
+                _passed.Add("Escape left build mode and kept the mouse");
+                return Tap("release_mouse");
+            case 42:
+                if (Windowed && Input.MouseMode != Input.MouseModeEnum.Visible)
+                    return Fail("the second Escape did not free the mouse");
+                return Tap("build_mode");
+            case 43:
+                if (!_build.Active)
+                    return Fail("B did not enter build mode with the mouse free");
+                _logMark = simulation.CommandLog.Count;
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = new Vector2(1500, 600) });
+                return Next(3);
+            case 44:
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = new Vector2(1500, 600) });
+                if (simulation.CommandLog.Skip(_logMark).Any(c => c.Command is PlacePieceCommand or AttackCommand))
+                    return Fail("the click that took the mouse back also placed a piece");
+                if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
+                    return Fail("the click did not take the mouse back in build mode");
+                _passed.Add("the click that took the mouse back did not place a piece");
+                return Tap("build_mode");
+            case 45:
+                if (_build.Active)
+                    return Fail("B did not leave build mode");
                 GD.Print($"UNNAMED input check: PASS - {string.Join("; ", _passed)}" + (Windowed ? "" : " (headless: the mouse was not checked)"));
                 return 0;
         }
@@ -250,6 +332,16 @@ public sealed class InputCheck
     }
 
     private static void Press(string action) => Input.ActionPress(action);
+
+    /// <summary>A key pressed for a frame and let go, as a player taps it; the next step reads what it did three frames on.</summary>
+    private int? Tap(string action)
+    {
+        Press(action);
+        _tapped = action;
+        return Next(3);
+    }
+
+    private string? _tapped;
 
     private static void Release(string action) => Input.ActionRelease(action);
 

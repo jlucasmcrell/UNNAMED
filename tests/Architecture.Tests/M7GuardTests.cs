@@ -153,6 +153,30 @@ public class M7GuardTests
         Assert.All(hits, hit => Assert.StartsWith("src/World/Runtime/Building.cs:", hit));
     }
 
+    /// <summary>
+    /// Ruling 5 (M7 design §8.2): every M7 action is bound to a key or a mouse button in <c>Main.DefineInput</c>, and none needs a radial or
+    /// a pointer-driven menu. E8 adds build_repair; E9 adds work_order.
+    /// </summary>
+    [Fact]
+    public void EveryM7Action_IsBoundToADirectKey()
+    {
+        string main = string.Join("\n", Sources("src/Presentation").Single(f => f.Path == "src/Presentation/Main.cs").Lines);
+        int start = main.IndexOf("private static void DefineInput()", StringComparison.Ordinal);
+        Assert.True(start >= 0, "Main.DefineInput not found");
+        string define = main[start..];
+        foreach (string binding in new[]
+                 {
+                     "Bind(\"build_mode\", Key.B)", "Bind($\"build_piece_{n}\", Key.Key1 + n - 1)", "Bind(\"build_piece_next\", Key.Pagedown)",
+                     "Bind(\"build_piece_prev\", Key.Pageup)", "Bind(\"build_rotate\", Key.R)", "Bind(\"build_dismantle\", Key.Z, Key.Delete)",
+                     "(\"build_place\", MouseButton.Left)", "Bind(\"build_debug\", Key.F2)", "Bind(\"faction_debug\", Key.F6)",
+                 })
+            Assert.Contains(binding, define);
+        Assert.Matches(new Regex(@"for \(int n = 1; n <= 7; n\+\+\)\s*\n\s*Bind\(\$""build_piece_\{n\}"""), define);
+        // Code only: a comment may say there is no radial.
+        var code = Sources("src/Presentation").SelectMany(f => f.Lines).Select(l => l.Contains("//", StringComparison.Ordinal) ? l[..l.IndexOf("//", StringComparison.Ordinal)] : l);
+        Assert.DoesNotContain(code, l => l.Contains("radial", StringComparison.OrdinalIgnoreCase));
+    }
+
     // G4
     [Fact]
     public void PresentationUsesNoPhysicsQueries()

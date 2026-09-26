@@ -240,6 +240,13 @@ public sealed class PlayerController
     /// <summary>Work a recipe at the station in reach (M3f).</summary>
     public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));
 
+    /// <summary>Place a piece at a pose on the building lattice (M7): the authority judges it, whatever the ghost showed.</summary>
+    public void Place(string pieceDefId, long xMm, long zMm, int rotation) =>
+        _session.Submit(new PlacePieceCommand(_session.Simulation!.PlayerId, pieceDefId, xMm, zMm, rotation));
+
+    /// <summary>Take a piece down (M7).</summary>
+    public void Dismantle(Domain.EntityId pieceId) => _session.Submit(new DismantlePieceCommand(_session.Simulation!.PlayerId, pieceId));
+
     /// <summary>The recipes the character knows that are worked at a station of this kind. None is named here.</summary>
     public IReadOnlyList<Domain.Crafting.RecipeDefinition> Recipes(string stationKind)
     {

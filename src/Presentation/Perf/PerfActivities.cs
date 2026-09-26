@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Persistence;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
@@ -30,7 +31,10 @@ public sealed class PerfActivities
     private readonly CameraRig _camera;
     private readonly DialoguePanel _dialogue;
     private readonly InventoryPanel _inventory;
+    private readonly BuildMode _build;
     private readonly List<string> _notes = new();
+    private int _row;
+    private int _cycles;
     private int _waypoint;
     private int _phase;
     private double _clock;
@@ -38,13 +42,19 @@ public sealed class PerfActivities
     private int _killed;
     private string? _corpse;
 
-    public PerfActivities(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, InventoryPanel inventory)
+    public PerfActivities(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, InventoryPanel inventory,
+        BuildMode build, Action<string> mark)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
         _dialogue = dialogue;
         _inventory = inventory;
+        _build = build;
+        // The building segment's moments, each set against the segment's median frame (M7 design §14, R17).
+        session.Subscribe<PiecePlaced>(e => mark($"piece placed ({e.DefId})"));
+        session.Subscribe<NavigationRebuilt>(e => mark($"navigation rebuilt ({e.NodesRestamped} nodes)"));
+        session.Subscribe<RoutePlanned>(e => mark($"route planned ({e.MoverKey})"));
         session.Subscribe<CreatureKilled>(e =>
         {
             if (e.Killer == session.Simulation!.PlayerId)
@@ -204,6 +214,116 @@ public sealed class PerfActivities
         _notes.Add($"loot: {what} searched with the inventory open, Take All on {stacks} stacks");
         Next();
         return false;
+    }
+
+    // From the end of the first-person traversal, by the lodge's east side, to the timber stack by the crossing; then into the square of the
+    // Crossing Workshop, where its first step is built (M7 design §4.22, rows R01-R05).
+    private static readonly (double X, double Z)[] ToTheTimber = { (60, 156), (65, 136), (80, 120), (84, 116.6) };
+    private static readonly (double X, double Z)[] IntoTheWorkshop = { (95, 110), (102, 102) };
+    private const string Stack = "container.timber_stack";
+
+    private static readonly (string Def, long X, long Z, int R)[] StepOne =
+    {
+        ("piece.pad.timber", 100_500, 100_500, 0), ("piece.pad.timber", 103_500, 100_500, 0), ("piece.pad.timber", 100_500, 103_500, 0),
+        ("piece.pad.timber", 103_500, 103_500, 0), ("piece.doorway.timber", 100_500, 99_000, 0), ("piece.wall.timber", 103_500, 99_000, 0),
+        ("piece.wall.timber", 100_500, 105_000, 0), ("piece.wall.timber", 103_500, 105_000, 0), ("piece.wall.timber", 99_000, 100_500, 1),
+        ("piece.wall.timber", 99_000, 103_500, 1), ("piece.wall.timber", 105_000, 100_500, 1), ("piece.wall.timber", 105_000, 103_500, 1),
+        ("piece.roof.timber", 100_500, 100_500, 0), ("piece.roof.timber", 103_500, 100_500, 0), ("piece.roof.timber", 100_500, 103_500, 0),
+        ("piece.roof.timber", 103_500, 103_500, 0),
+    };
+
+    /// <summary>
+    /// The building segment (M7 design §14, R17): timber taken at the stack; build mode entered in the workshop's square and its first step
+    /// placed, a row every half second, the ghost following each; the ghost swept over the area for 10 s; one wall taken down and put back
+    /// twice; and one synchronous save with the pieces standing. The session's events mark each placement and rebuild.
+    /// </summary>
+    public bool BuildAtTheCrossing(double delta)
+    {
+        _clock += delta;
+        var simulation = _session.Simulation!;
+        switch (_phase)
+        {
+            case 0:
+                if (Walk(ToTheTimber))
+                    Open(Stack);
+                return false;
+            case 1:
+                return TakeAll(Stack, "the timber stack");
+            case 2:
+                if (_clock - _since < 1.5)
+                    return false;
+                _inventory.Close();
+                _waypoint = 0;
+                Next();
+                return false;
+            case 3:
+                if (!Walk(IntoTheWorkshop))
+                    return false;
+                if (!_build.Enter(_camera))
+                {
+                    _notes.Add("building: nothing to build with");
+                    return true;
+                }
+                _row = 0;
+                Next();
+                return false;
+            case 4:
+            {
+                if (_clock - _since < 0.5)
+                    return false;
+                if (_row >= StepOne.Length)
+                {
+                    _notes.Add($"building: {simulation.Pieces.Length} pieces standing after the first step");
+                    Next();
+                    return false;
+                }
+                var (def, x, z, r) = StepOne[_row++];
+                _build.Select(_build.Pieces.ToList().FindIndex(p => p.Id == def));
+                _build.ScriptedAim = (x, z);
+                _controller.Place(def, x, z, r);
+                _since = _clock;
+                return false;
+            }
+            case 5:
+            {
+                double t = _clock - _since;
+                if (t >= 10)
+                {
+                    _build.ScriptedAim = null;
+                    _cycles = 0;
+                    Next();
+                    return false;
+                }
+                _build.ScriptedAim = (94_000 + (long)(12_000 * Math.Abs(Math.Sin(t * 0.7))), 94_000 + (long)(12_000 * Math.Abs(Math.Cos(t * 0.5))));
+                _camera.Yaw += (float)delta * 0.4f;
+                return false;
+            }
+            case 6:
+            {
+                // The north-east wall down and up again, twice.
+                if (_clock - _since < 0.5)
+                    return false;
+                var wall = simulation.Pieces.FirstOrDefault(p => p.DefId == "piece.wall.timber" && p.XMm == 103_500 && p.ZMm == 105_000);
+                if (wall is not null)
+                    _controller.Dismantle(wall.Id);
+                else
+                    _controller.Place("piece.wall.timber", 103_500, 105_000, 0);
+                _since = _clock;
+                if (++_cycles >= 4)
+                    Next();
+                return false;
+            }
+            default:
+            {
+                if (_clock - _since < 0.5)
+                    return false;
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                _session.Save(SaveSlots.Manual("perf_building"));
+                _notes.Add($"building: {simulation.Pieces.Length} pieces standing, saved in {clock.Elapsed.TotalMilliseconds:0.0} ms");
+                _build.Exit(_camera);
+                return true;
+            }
+        }
     }
 
     private void Next()
