@@ -9,6 +9,13 @@ using Godot;
 namespace UNNAMED.Presentation.Perf;
 
 /// <summary>
+/// What a frame's simulation cost (M7 design §14.12.2): the wall time of <c>GameSession.Frame</c>, the ticks it ran, and the synchronous
+/// save capture it paid - a quicksave's capture, or the whole frame when it took an autosave (the capture runs inside it). A save's encode
+/// and write run on the session's save lane and never land here; their completion shows through <see cref="FrameStats.Mark"/>.
+/// </summary>
+public readonly record struct FrameProbe(double SimMs, int Ticks, double SaveMs);
+
+/// <summary>
 /// Records every frame: its wall time, the renderer's CPU and GPU time, and memory - and once a second, the worst frame's
 /// time in process callbacks, as Godot reports it. Writes <c>frames.csv</c> and a <c>summary.json</c> with, per segment, the frame-time distribution, 1% and
 /// 0.1% lows, hitches, RAM and VRAM peaks, and the machine it ran on. The owner reads the numbers; this code draws no
@@ -46,7 +53,7 @@ public sealed class FrameStats
     /// </summary>
     public void Mark(string what) => _events.Add((_samples.Count, Segment, what));
 
-    public void Record(double delta)
+    public void Record(double delta, in FrameProbe probe)
     {
         // Godot's process-time monitor holds the worst frame's process time of the last second, refreshed once a second: each new
         // figure is kept once - but not the first, from before the capture, nor the one that takes in a screenshot's frame.
@@ -76,19 +83,22 @@ public sealed class FrameStats
             RenderingServer.ViewportGetMeasuredRenderTimeGpu(_viewport),
             (long)Performance.GetMonitor(Performance.Monitor.MemoryStatic),
             _workingSetBytes,
-            (long)Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)));
+            (long)Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed),
+            probe.SimMs,
+            probe.Ticks,
+            probe.SaveMs));
     }
 
     /// <summary>Write the capture. Returns the summary text.</summary>
     public string Write(string directory, IReadOnlyDictionary<string, string> notes)
     {
         Directory.CreateDirectory(directory);
-        var csv = new StringBuilder("segment,frame,frame_ms,process_ms,render_cpu_ms,render_gpu_ms,static_mb,working_set_mb,vram_mb\n");
+        var csv = new StringBuilder("segment,frame,frame_ms,process_ms,render_cpu_ms,render_gpu_ms,static_mb,working_set_mb,vram_mb,sim_ms,ticks,save_ms\n");
         for (int i = 0; i < _samples.Count; i++)
         {
             var s = _samples[i];
             csv.Append(CultureInfo.InvariantCulture,
-                $"{s.Segment},{i},{s.FrameMs:0.###},{s.ProcessMs:0.###},{s.RenderCpuMs:0.###},{s.RenderGpuMs:0.###},{Mb(s.StaticBytes):0.#},{Mb(s.WorkingSetBytes):0.#},{Mb(s.VramBytes):0.#}\n");
+                $"{s.Segment},{i},{s.FrameMs:0.###},{s.ProcessMs:0.###},{s.RenderCpuMs:0.###},{s.RenderGpuMs:0.###},{Mb(s.StaticBytes):0.#},{Mb(s.WorkingSetBytes):0.#},{Mb(s.VramBytes):0.#},{s.SimMs:0.###},{s.Ticks},{s.SaveMs:0.###}\n");
         }
         File.WriteAllText(Path.Combine(directory, "frames.csv"), csv.ToString());
 
@@ -142,6 +152,13 @@ public sealed class FrameStats
             ["working_set_peak_mb"] = Math.Round(Mb(frames.Max(f => f.WorkingSetBytes)), 1),
             ["vram_peak_mb"] = Math.Round(Mb(frames.Max(f => f.VramBytes)), 1),
             ["sustained_60_fps_by_one_percent_low"] = Low(0.01) >= 60,
+            // The simulation's share (M7 design §14.12.2): over every frame, and over the frames that ran a tick.
+            ["sim_ms"] = Distribution(frames.Select(f => f.SimMs).OrderBy(v => v).ToList()),
+            ["sim_ms_tick_frames"] = frames.Any(f => f.Ticks >= 1)
+                ? Distribution(frames.Where(f => f.Ticks >= 1).Select(f => f.SimMs).OrderBy(v => v).ToList()) : new Dictionary<string, double>(),
+            ["max_ticks_in_a_frame"] = frames.Max(f => f.Ticks),
+            ["save_frames"] = frames.Count(f => f.SaveMs > 0),
+            ["save_ms_max"] = Math.Round(frames.Max(f => f.SaveMs), 3),
         };
     }
 
@@ -176,5 +193,6 @@ public sealed class FrameStats
     };
 
     private readonly record struct Sample(
-        string Segment, double FrameMs, double ProcessMs, double RenderCpuMs, double RenderGpuMs, long StaticBytes, long WorkingSetBytes, long VramBytes);
+        string Segment, double FrameMs, double ProcessMs, double RenderCpuMs, double RenderGpuMs, long StaticBytes, long WorkingSetBytes, long VramBytes,
+        double SimMs, int Ticks, double SaveMs);
 }

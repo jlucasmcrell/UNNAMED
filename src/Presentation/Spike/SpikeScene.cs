@@ -87,7 +87,7 @@ public partial class SpikeScene : Node3D
         if (_bake.IsRunning && _bake.Elapsed.TotalSeconds < 300)
         {
             FlyCamera(0);
-            _stats.Record(delta);
+            _stats.Record(delta, default);   // no simulation runs in the spike
             return;
         }
         if (_bake.IsRunning)
@@ -109,7 +109,7 @@ public partial class SpikeScene : Node3D
         }
         _elapsed += delta;
         FlyCamera(_elapsed);
-        _stats.Record(delta);
+        _stats.Record(delta, default);   // no simulation runs in the spike
         if (!_shot && _elapsed >= _segments[_segment].Seconds / 2)
         {
             Main.SaveScreenshot(GetViewport(), _out, _segments[_segment].Name);

@@ -602,8 +602,10 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
+        var simClock = System.Diagnostics.Stopwatch.StartNew();
         var frame = _session.Frame(_smoke is not null || _play is not null || _delta is not null || _buildShots is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
+        double simMs = simClock.Elapsed.TotalMilliseconds;
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -626,7 +628,10 @@ public partial class Main : Node3D
         if (_build.Active && (Modal || _session.Simulation!.Combat.Health == 0))
             _build.Exit(_camera);
         UpdateMouse();
-        _stats?.Record(delta);
+        // save_ms (M7 design §14.12.2, the owner's E10 ruling): the synchronous capture only - a quicksave's, or the autosave frame's whole
+        // simulation time, which carries its capture; the encode and the write run on the save lane.
+        _stats?.Record(delta, new FrameProbe(simMs, frame.TicksRun, _quickSaveMs ?? (frame.AutosaveTaken is null ? 0 : simMs)));
+        _quickSaveMs = null;
         if (_perf is { ScreenshotDue: true })
         {
             SaveScreenshot(_perfOut, _perf.SegmentName);
@@ -1492,7 +1497,15 @@ public partial class Main : Node3D
     }
 
     /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
-    private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
+    private void QuickSave()
+    {
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        _session.SaveInBackground(SaveSlots.Quick);
+        _quickSaveMs = clock.Elapsed.TotalMilliseconds;
+    }
+
+    /// <summary>The synchronous capture of a quicksave asked for this frame, for <see cref="FrameProbe.SaveMs"/>; null when none was.</summary>
+    private double? _quickSaveMs;
 
     private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
 
