@@ -228,6 +228,10 @@ public partial class HudView : Control
         column.AddChild(_companions);
     }
 
+    /// <summary>
+    /// The bottom-left panel: the active effects, the formulas on their keys, and the pools. Kept short (under 205 px with one row of
+    /// effects, so from about y 843 down) because a full pack's inventory list reaches down to y 838 over this corner.
+    /// </summary>
     private void BuildBottomLeft()
     {
         var column = new VBoxContainer
@@ -235,34 +239,33 @@ public partial class HudView : Control
             AnchorTop = 1, AnchorBottom = 1, OffsetLeft = Margin, OffsetRight = Margin, OffsetTop = -Margin, OffsetBottom = -Margin,
             GrowVertical = GrowDirection.Begin,
         };
-        column.AddThemeConstantOverride("separation", 8);
         AddChild(column);
 
-        _effects.AddThemeConstantOverride("h_separation", 6);
-        _effects.AddThemeConstantOverride("v_separation", 6);
-        _effects.Visible = false;
-        column.AddChild(_effects);
-
         var panel = new PanelContainer();
-        panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(14, 11));
+        panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6));
         var rows = new VBoxContainer();
-        rows.AddThemeConstantOverride("separation", 6);
+        rows.AddThemeConstantOverride("separation", 4);
 
-        _spells.AddThemeConstantOverride("separation", 7);
+        _effects.AddThemeConstantOverride("h_separation", 6);
+        _effects.AddThemeConstantOverride("v_separation", 4);
+        _effects.Visible = false;
+        rows.AddChild(_effects);
+
+        _spells.AddThemeConstantOverride("separation", 5);
         _casting.AddThemeConstantOverride("separation", 8);
         _casting.AddChild(HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ember, caps: true).Say("Casting"));
         _casting.AddChild(_castingName);
         _casting.Visible = false;
         _spells.AddChild(_casting);
-        _slots.AddThemeConstantOverride("separation", 12);
+        _slots.AddThemeConstantOverride("separation", 14);
         _spells.AddChild(_slots);
-        _spells.AddChild(HudStyle.Rule(4));
+        _spells.AddChild(HudStyle.Rule(3));
         _spells.Visible = false;
         rows.AddChild(_spells);
 
         var pools = new GridContainer { Columns = 4 };
         pools.AddThemeConstantOverride("h_separation", 9);
-        pools.AddThemeConstantOverride("v_separation", 5);
+        pools.AddThemeConstantOverride("v_separation", 2);
         PoolRow(pools, "health", PoolName("Health"), _health, _healthValue);
         PoolRow(pools, "stamina", PoolName("Stamina"), _stamina, _staminaValue);
         PoolRow(pools, "focus", PoolName("Focus"), _focus, _focusValue);
@@ -278,12 +281,12 @@ public partial class HudView : Control
     {
         var icon = new TextureRect
         {
-            CustomMinimumSize = new Vector2(20, 20), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            CustomMinimumSize = new Vector2(18, 18), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, Material = HudStyle.IconMaterial, Visible = false,
             SizeFlagsVertical = SizeFlags.ShrinkCenter,
         };
         _poolIcons[key] = icon;
-        var cell = new Control { CustomMinimumSize = new Vector2(20, 20) };
+        var cell = new Control { CustomMinimumSize = new Vector2(18, 18), SizeFlagsVertical = SizeFlags.ShrinkCenter };
         cell.AddChild(icon);
         grid.AddChild(cell);
         grid.AddChild(name);
@@ -484,25 +487,24 @@ public partial class HudView : Control
                 child.QueueFree();
             for (int i = 0; i < formulas.Count; i++)
             {
+                // A slot: the framed icon with its key on the lower left corner, the name and the Focus cost beside it.
                 var formula = formulas[i];
-                var column = new VBoxContainer { CustomMinimumSize = new Vector2(96, 0) };
-                column.AddThemeConstantOverride("separation", 2);
-                var holder = new Control { CustomMinimumSize = new Vector2(48, 50), SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
-                var frame = HudStyle.IconSlot(_icons.For(formula.Id), 42);
+                var unit = new HBoxContainer();
+                unit.AddThemeConstantOverride("separation", 8);
+                var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
+                var frame = HudStyle.IconSlot(_icons.For(formula.Id), 34);
                 holder.AddChild(frame);
-                // The key on the frame's lower left corner, where the eye finds it before the picture.
-                var key = new KeyCap($"{i + 4}") { Position = new Vector2(-7, 27) };
+                var key = new KeyCap($"{i + 4}", 14) { Position = new Vector2(-6, 20) };
                 holder.AddChild(key);
-                column.AddChild(holder);
-                var name = HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(formula.Name);
-                name.HorizontalAlignment = HorizontalAlignment.Center;
-                column.AddChild(name);
-                var cost = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Muted, caps: true).Say($"{formula.FocusCost} Focus");
-                cost.HorizontalAlignment = HorizontalAlignment.Center;
-                column.AddChild(cost);
-                _slots.AddChild(column);
+                unit.AddChild(holder);
+                var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
+                words.AddThemeConstantOverride("separation", -1);
+                words.AddChild(HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(formula.Name));
+                words.AddChild(HudStyle.Text(HudStyle.Caps, 14, HudStyle.Muted, caps: true).Say($"{formula.FocusCost} Focus"));
+                unit.AddChild(words);
+                _slots.AddChild(unit);
                 _slotFrames.Add((frame, formula.Name));
-                Quiet(column);
+                Quiet(unit);
             }
         }
         if (casting == _castingNow)
@@ -542,19 +544,22 @@ public partial class HudView : Control
         for (int i = 0; i < parts.Length; i++)
         {
             var chip = new PanelContainer();
-            chip.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(8, 4));
+            var box = HudStyle.ChipBox(HudStyle.Iron);
+            box.ContentMarginLeft = 2;
+            box.ContentMarginTop = box.ContentMarginBottom = 1;
+            chip.AddThemeStyleboxOverride("panel", box);
             var row = new HBoxContainer();
-            row.AddThemeConstantOverride("separation", 7);
+            row.AddThemeConstantOverride("separation", 6);
             var icon = i < keys.Count ? _icons.For(keys[i]) : null;
             if (icon is not null)
-                row.AddChild(HudStyle.IconSlot(icon, 20));
+                row.AddChild(HudStyle.IconSlot(icon, 16));
             var match = Seconds.Match(parts[i]);
-            var name = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : parts[i]);
+            var name = HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : parts[i]);
             name.VerticalAlignment = VerticalAlignment.Center;
             row.AddChild(name);
             if (match.Success)
             {
-                var time = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Brass).Say(match.Groups[2].Value);
+                var time = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Brass).Say(match.Groups[2].Value);
                 time.VerticalAlignment = VerticalAlignment.Center;
                 row.AddChild(time);
             }
@@ -775,7 +780,7 @@ public partial class HudView : Control
 
     private static Label PoolValue()
     {
-        var label = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Bone);
+        var label = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Bone);
         label.CustomMinimumSize = new Vector2(78, 0);
         label.HorizontalAlignment = HorizontalAlignment.Right;
         label.VerticalAlignment = VerticalAlignment.Center;
@@ -815,13 +820,14 @@ public partial class HudView : Control
         {
         }
 
-        public KeyCap(string key)
+        public KeyCap(string key, int size = 15)
         {
             AddThemeStyleboxOverride("panel", HudStyle.KeyBox());
             MouseFilter = MouseFilterEnum.Ignore;
             SizeFlagsVertical = SizeFlags.ShrinkCenter;
+            _label.AddThemeFontSizeOverride("font_size", size);
             _label.HorizontalAlignment = HorizontalAlignment.Center;
-            _label.CustomMinimumSize = new Vector2(11, 21);
+            _label.CustomMinimumSize = new Vector2(11, size + 6);
             _label.VerticalAlignment = VerticalAlignment.Center;
             AddChild(_label);
             Key = key;
