@@ -258,7 +258,7 @@ public static class NavEditCheck
 
         public bool IsOpen(int label) => _open[label];
 
-        private ImmutableArray<byte> _tileFit;
+        private NavLayer _tileFit;
         private long _tileI0 = long.MinValue, _tileJ0 = long.MinValue;
 
         /// <summary>A node's walkability before the edit, the last tile's bytes kept at hand (a flood stays mostly inside one).</summary>

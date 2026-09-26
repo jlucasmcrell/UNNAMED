@@ -193,8 +193,8 @@ public sealed class NavGrid
         foreach (var tile in Tiles)
         {
             h.Add(tile.Key.Tx).Add(tile.Key.Tz).Add(tile.Stamp)
-                .Add(Convert.ToHexString(SHA256.HashData(tile.SolidFit.AsSpan())))
-                .Add(Convert.ToHexString(SHA256.HashData(tile.ClosedFit.AsSpan())));
+                .Add(tile.SolidFit.Sha256Hex())
+                .Add(tile.ClosedFit.Sha256Hex());
         }
         return h.Finish();
     }

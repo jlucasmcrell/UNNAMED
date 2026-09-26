@@ -4,7 +4,7 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace UNNAMED.Domain.Spatial;
 
@@ -60,6 +60,75 @@ internal sealed class NavLattice
 }
 
 /// <summary>
+/// One byte a node of a tile, row by row from its south-west node, held in blocks of 16,384 bytes, below the large-object heap's 85,000
+/// (M7 design §14.15, lever 3). A tile restamped after an edit copies only the blocks its rectangle touches and shares the rest with the
+/// tile it replaces, so a footprint edit allocates no large object. Read-only once its tile is built.
+/// </summary>
+public readonly struct NavLayer
+{
+    internal const int Shift = 14;
+    internal const int BlockBytes = 1 << Shift;
+    internal const int Mask = BlockBytes - 1;
+
+    private readonly byte[][] _blocks;
+
+    private NavLayer(byte[][] blocks, int length)
+    {
+        _blocks = blocks;
+        Length = length;
+    }
+
+    /// <summary>The number of nodes.</summary>
+    public int Length { get; }
+
+    public bool IsDefault => _blocks is null;
+
+    public byte this[int local] => _blocks[local >> Shift][local & Mask];
+
+    /// <summary>Whether two layers hold the same bytes.</summary>
+    public bool SequenceEqual(NavLayer other)
+    {
+        if (Length != other.Length)
+            return false;
+        for (int b = 0; b < _blocks.Length; b++)
+        {
+            if (!_blocks[b].AsSpan().SequenceEqual(other._blocks[b]))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>The SHA-256 of the bytes in order, as one array of them would hash.</summary>
+    internal string Sha256Hex()
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        foreach (var block in _blocks)
+            hash.AppendData(block);
+        return Convert.ToHexString(hash.GetHashAndReset());
+    }
+
+    /// <summary>Zeroed blocks for <paramref name="length"/> nodes; the last holds the remainder.</summary>
+    internal static byte[][] NewBlocks(int length)
+    {
+        var blocks = new byte[(length + Mask) >> Shift][];
+        for (int b = 0; b < blocks.Length; b++)
+            blocks[b] = new byte[Math.Min(BlockBytes, length - (b << Shift))];
+        return blocks;
+    }
+
+    /// <summary>This layer's blocks, with those holding nodes <paramref name="first"/> to <paramref name="last"/> copied to be written.</summary>
+    internal byte[][] CopyTouching(int first, int last)
+    {
+        var blocks = (byte[][])_blocks.Clone();
+        for (int b = first >> Shift; b <= last >> Shift; b++)
+            blocks[b] = (byte[])_blocks[b].Clone();
+        return blocks;
+    }
+
+    internal static NavLayer Of(byte[][] blocks, int length) => new(blocks, length);
+}
+
+/// <summary>
 /// One tile of the lattice (M7 design §3.2): for each of its nodes, how many classes fit against the solids (<see cref="SolidFit"/>)
 /// and against the solids and every gate shut (<see cref="ClosedFit"/>); the inputs within the influence radius of its nodes, the gates
 /// among them, and the stamp of those inputs. A tile is a pure function of its key and the inputs: built alone, rebuilt after an edit
@@ -69,7 +138,7 @@ public sealed class NavTile
 {
     private readonly NavLattice _lattice;
 
-    private NavTile(NavLattice lattice, NavTileKey key, ImmutableArray<byte> solidFit, ImmutableArray<byte> closedFit, ImmutableArray<NavInput> inputs)
+    private NavTile(NavLattice lattice, NavTileKey key, NavLayer solidFit, NavLayer closedFit, ImmutableArray<NavInput> inputs)
     {
         _lattice = lattice;
         Key = key;
@@ -85,10 +154,10 @@ public sealed class NavTile
     public NavTileKey Key { get; }
 
     /// <summary>Per node, row by row from the tile's south-west node: the classes that fit against the solids.</summary>
-    public ImmutableArray<byte> SolidFit { get; }
+    public NavLayer SolidFit { get; }
 
     /// <summary>Per node: the classes that fit against the solids and every gate, all shut.</summary>
-    public ImmutableArray<byte> ClosedFit { get; }
+    public NavLayer ClosedFit { get; }
 
     /// <summary>The inputs whose bounds, inflated by the influence radius, meet the tile's node centres, in canonical order.</summary>
     public ImmutableArray<NavInput> Inputs { get; }
@@ -106,11 +175,12 @@ public sealed class NavTile
     internal static NavTile Build(NavLattice lattice, NavTileKey key, ImmutableArray<NavInput> sortedInputs, out long nodes)
     {
         long n = lattice.TileNodes;
-        var solid = new byte[n * n];
-        var closed = new byte[n * n];
+        int length = (int)(n * n);
+        var solid = NavLayer.NewBlocks(length);
+        var closed = NavLayer.NewBlocks(length);
         var inputs = Relevant(lattice, key, sortedInputs);
         nodes = StampRect(lattice, key, solid, closed, 0, 0, n - 1, n - 1, inputs);
-        return new NavTile(lattice, key, ImmutableCollectionsMarshal.AsImmutableArray(solid), ImmutableCollectionsMarshal.AsImmutableArray(closed), inputs);
+        return new NavTile(lattice, key, NavLayer.Of(solid, length), NavLayer.Of(closed, length), inputs);
     }
 
     /// <summary>
@@ -126,11 +196,18 @@ public sealed class NavTile
         var (j0, j1) = _lattice.NodesWithin(rect.MinZMm, rect.MaxZMm);
         long li0 = Math.Max(i0 - I0, 0), li1 = Math.Min(i1 - I0, n - 1);
         long lj0 = Math.Max(j0 - J0, 0), lj1 = Math.Min(j1 - J0, n - 1);
-        var solid = SolidFit.ToArray();
-        var closed = ClosedFit.ToArray();
         var inputs = Relevant(_lattice, Key, sortedInputs);
-        nodes = li0 <= li1 && lj0 <= lj1 ? StampRect(_lattice, Key, solid, closed, li0, lj0, li1, lj1, inputs) : 0;
-        return new NavTile(_lattice, Key, ImmutableCollectionsMarshal.AsImmutableArray(solid), ImmutableCollectionsMarshal.AsImmutableArray(closed), inputs);
+        if (li0 > li1 || lj0 > lj1)
+        {
+            nodes = 0;
+            return new NavTile(_lattice, Key, SolidFit, ClosedFit, inputs);
+        }
+        // Only the blocks holding the rectangle's rows are copied and written; the rest are shared with this tile.
+        int first = (int)(lj0 * n + li0), last = (int)(lj1 * n + li1);
+        var solid = SolidFit.CopyTouching(first, last);
+        var closed = ClosedFit.CopyTouching(first, last);
+        nodes = StampRect(_lattice, Key, solid, closed, li0, lj0, li1, lj1, inputs);
+        return new NavTile(_lattice, Key, NavLayer.Of(solid, SolidFit.Length), NavLayer.Of(closed, ClosedFit.Length), inputs);
     }
 
     /// <summary>The rectangle of the tile's node centres.</summary>
@@ -160,7 +237,7 @@ public sealed class NavTile
     /// or edit order gives the same bytes. Returns the number of nodes stamped.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static long StampRect(NavLattice lattice, NavTileKey key, byte[] solid, byte[] closed, long li0, long lj0, long li1, long lj1,
+    private static long StampRect(NavLattice lattice, NavTileKey key, byte[][] solid, byte[][] closed, long li0, long lj0, long li1, long lj1,
         ImmutableArray<NavInput> inputs)
     {
         long n = lattice.TileNodes;
@@ -176,8 +253,9 @@ public sealed class NavTile
             for (long li = li0; li <= li1; li++)
             {
                 byte v = Math.Min(fitX[li - li0], fz);
-                solid[row + li] = v;
-                closed[row + li] = v;
+                long idx = row + li;
+                solid[idx >> NavLayer.Shift][idx & NavLayer.Mask] = v;
+                closed[idx >> NavLayer.Shift][idx & NavLayer.Mask] = v;
             }
         }
 
@@ -199,10 +277,15 @@ public sealed class NavTile
                     long cx = lattice.Centre(gi0 + li);
                     byte f = Fit(input.Shape, cx, cz, rp);
                     long idx = row + li;
-                    if (f < closed[idx])
-                        closed[idx] = f;
-                    if (isSolid && f < solid[idx])
-                        solid[idx] = f;
+                    ref byte c = ref closed[idx >> NavLayer.Shift][idx & NavLayer.Mask];
+                    if (f < c)
+                        c = f;
+                    if (isSolid)
+                    {
+                        ref byte s = ref solid[idx >> NavLayer.Shift][idx & NavLayer.Mask];
+                        if (f < s)
+                            s = f;
+                    }
                 }
             }
         }
