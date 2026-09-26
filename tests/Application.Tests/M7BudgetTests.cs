@@ -332,7 +332,10 @@ public class CapWorkshopBudgetTests
     /// of the area: the tick stays within the budget (CI: mean under 6 ms, three times the 2 ms ASTRAL target). Folded in and logged: each
     /// placement's drain (T3), the preview with and without navigability (T5), the edit tick in which the movers replan (T4), and a save's
     /// capture and encode (T7). The character resumes at (84.0, 110.0) and the edit takes down the west wall at (87000, 106500): the owner's
-    /// ruling on the E10 STOP, as §14.12.3's (126.0, 100.0) lies inside the crowd and 35 m from Tavar, beyond his catch-up.
+    /// ruling on the E10 STOP, as §14.12.3's (126.0, 100.0) lies inside the crowd and 35 m from Tavar, beyond his catch-up. The owner's
+    /// ruling on the second E10 STOP sets the measures: each placement follows the player's path, the ghost's ask and then the commit, timed
+    /// apart, with the session's cold first use of the navigability check recorded on its own; a save is timed as the synchronous capture
+    /// (the frame's work; its first, cold, recorded on its own), the encode (the save lane's work) and end to end through the store.
     /// </summary>
     [Fact]
     public void TheCapWorkshop_SixtyCreaturesAndTwoMovers_TickWithinTheBudget()
@@ -344,8 +347,20 @@ public class CapWorkshopBudgetTests
         var w0 = Arena.OpenCreatures(session, session.Setup, (100.5, 94.5), 0, Array.Empty<(string, double, double, string)>(),
             r => FullAreaLayout.Start(session, r));
         var layout = FullAreaLayout.Build(w0);
+        var asks = layout.Asks.Select(a => a.Ms).ToList();
+        int cold = layout.Asks.FindIndex(a => a.Verdict != NavVerdict.NotApplicable);
+        _output.WriteLine($"the ghost's asks: {Distribution(asks, 10)}; the cold first use of the navigability check, the session's first ask " +
+            $"that runs it: #{cold + 1} {layout.Asks[cold].Def} at ({layout.Asks[cold].X}, {layout.Asks[cold].Z}) {layout.Asks[cold].Ms:F3} ms " +
+            $"(the hitch line 33 ms); the first ask of all {layout.Asks[0].Ms:F3} ms");
+        Assert.True(layout.Asks[cold].Ms < 33, $"the cold first use took {layout.Asks[cold].Ms:F3} ms, over the 33 ms hitch line");
         var drains = layout.Drains.Select(d => d.Ms).ToList();
-        _output.WriteLine($"placements: {drains.Count}; drain {Distribution(drains, 10)} (ASTRAL target: median 2 ms, max 10 ms)");
+        _output.WriteLine($"committed placements: {drains.Count}; drain {Distribution(drains, 10)} (ASTRAL target: median 2 ms, max 10 ms)");
+        // Every commit counts above. Beside it, the two kinds of commit apart: a kind's first commit in the session is the cold first use of
+        // that kind's commit path (the ghost's ask cannot pay it: it runs only on a commit); every other commit is the ordinary one.
+        var firsts = layout.Drains.Select((d, i) => (d, i)).Where(x => layout.Drains.FindIndex(e => e.Def == x.d.Def) == x.i).ToList();
+        _output.WriteLine($"  the first commit of each kind (cold): {string.Join("; ", firsts.Select(x => $"#{x.i + 1} {x.d.Def} {x.d.Ms:F3} ms"))}");
+        var ordinary = layout.Drains.Where((d, i) => !firsts.Any(x => x.i == i)).Select(d => d.Ms).ToList();
+        _output.WriteLine($"  the ordinary commits: {Distribution(ordinary, 10)}");
         foreach (var (d, i) in layout.Drains.Select((d, i) => (d, i)).OrderByDescending(x => x.d.Ms).Take(6))
             _output.WriteLine($"  slowest: #{i + 1} {d.Def} at ({d.X}, {d.Z}) {d.Ms:F3} ms; collections gen0 {d.Gen0}, gen1 {d.Gen1}, gen2 {d.Gen2}, paused {d.PauseMs:F3} ms" +
                 (layout.Drains.FindIndex(e => e.Def == d.Def) == i ? " (the first of its kind)" : ""));
@@ -469,27 +484,39 @@ public class CapWorkshopBudgetTests
         Assert.Null(w1.Submit(new PlacePieceCommand(w1.Player, FullAreaLayout.Wall, 87_000, 106_500, 1)));
         Assert.Equal(256, w1.Simulation.Pieces.Length);
 
-        // 7. A save's capture and encode, no disk, 100 times.
-        var saves = new List<double>();
-        var captures = new List<double>();
-        var saveGcs = new List<int>();
+        // 7. Saves (the T7 fold, as the owner's ruling measures them): 100 synchronous captures (the frame's work in play), each encoded
+        // apart (the save lane's work, no disk); then 20 end to end through the store, capture to committed files.
+        var captures = new List<(double Ms, int Gen0, long Bytes)>();
+        var encodes = new List<double>();
         int entitiesBytes = 0, playerBytes = 0;
         for (int n = 0; n < 100; n++)
         {
             int collections = GC.CollectionCount(0);
+            long allocated = GC.GetAllocatedBytesForCurrentThread();
             clock.Restart();
             var document = SaveDocuments.Capture(w1.Simulation.World, w1.Simulation.CaptureRecord(), session.Content, w1.Simulation.WorldTick, 0);
-            captures.Add(clock.Elapsed.TotalMilliseconds);
+            captures.Add((clock.Elapsed.TotalMilliseconds, GC.CollectionCount(0) - collections, GC.GetAllocatedBytesForCurrentThread() - allocated));
+            clock.Restart();
             entitiesBytes = SectionCodec.EncodeEntities(document.Delta).Length;
             playerBytes = SectionCodec.EncodePlayer(document.Player).Length;
-            saves.Add(clock.Elapsed.TotalMilliseconds);
-            saveGcs.Add(GC.CollectionCount(0) - collections);
+            encodes.Add(clock.Elapsed.TotalMilliseconds);
         }
-        _output.WriteLine($"a save's capture and encode: {Distribution(saves, 1)} (ASTRAL target p99 1 ms); the first {saves[0]:F3} ms; " +
-            $"entities.msgpack {entitiesBytes:N0} B, player.msgpack {playerBytes:N0} B");
-        _output.WriteLine($"  the capture alone (what a frame pays in play; the encode runs on the save lane): {Distribution(captures, 1)}");
-        _output.WriteLine($"  saves with a collection: {saveGcs.Count(c => c > 0)}; the saves over 1 ms: " +
-            string.Join(", ", saves.Select((ms, i) => (ms, i)).Where(x => x.ms > 1).Select(x => $"#{x.i + 1} {x.ms:F3} ms{(saveGcs[x.i] > 0 ? " (collected)" : "")}")));
+        var steady = captures.Skip(1).Select(c => c.Ms).ToList();
+        _output.WriteLine($"a save's synchronous capture: the cold first {captures[0].Ms:F3} ms; the other 99 {Distribution(steady, 1)} " +
+            $"(ASTRAL target p99 1 ms); {captures.Select(c => c.Bytes).Order().ElementAt(50):N0} B allocated a capture (median)");
+        _output.WriteLine($"  captures with a collection: {string.Join(", ", captures.Select((c, i) => (c, i)).Where(x => x.c.Gen0 > 0).Select(x => $"#{x.i + 1} {x.c.Ms:F3} ms"))}");
+        _output.WriteLine($"the encode (the save lane's work, no disk): {Distribution(encodes, 1)}; entities.msgpack {entitiesBytes:N0} B, " +
+            $"player.msgpack {playerBytes:N0} B");
+        var endToEnd = new List<double>();
+        for (int n = 0; n < 20; n++)
+        {
+            clock.Restart();
+            store.Save(SaveSlots.Manual("cap_end_to_end"), SaveDocuments.Capture(w1.Simulation.World, w1.Simulation.CaptureRecord(), session.Content,
+                w1.Simulation.WorldTick, 0));
+            endToEnd.Add(clock.Elapsed.TotalMilliseconds);
+        }
+        _output.WriteLine($"a save end to end (capture, encode and the store's atomic commit, on this thread): p50 {Percentile(endToEnd, 0.5):F3}, " +
+            $"p95 {Percentile(endToEnd, 0.95):F3}, max {endToEnd.Max():F3} ms of 20");
         Assert.Equal(0, session.SubscriberFailures);
     }
 }

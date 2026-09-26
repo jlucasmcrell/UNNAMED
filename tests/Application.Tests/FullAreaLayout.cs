@@ -29,10 +29,16 @@ internal sealed class FullAreaLayout
     private FullAreaLayout(Arena arena) => _arena = arena;
 
     /// <summary>
-    /// Each placement's <c>Submit</c> with its drain, in milliseconds, in order (the T3 fold), with the garbage collections of each
-    /// generation that ran inside it.
+    /// Each committed placement's <c>Submit</c> with its drain, in milliseconds, in order (the T3 fold), with the garbage collections of
+    /// each generation that ran inside it.
     /// </summary>
     public List<(string Def, long X, long Z, double Ms, int Gen0, int Gen1, int Gen2, double PauseMs)> Drains { get; } = new();
+
+    /// <summary>
+    /// The ghost's ask before each placement, as build mode makes it (<c>BuildMode.BuildFrame</c>: navigability asked at a new pose), in
+    /// milliseconds, with its verdict. The first ask that runs the navigability check pays the session's cold first use of that path.
+    /// </summary>
+    public List<(string Def, long X, long Z, double Ms, NavVerdict Verdict)> Asks { get; } = new();
 
     /// <summary>
     /// The crafted start: at (100.5, 94.5) carrying 17 stacks of 20 timber (weight is checked only when items enter the pack), with Tavar
@@ -171,8 +177,15 @@ internal sealed class FullAreaLayout
 
     private bool Placed(string def, long x, long z) => _arena.Simulation.Pieces.Any(p => p.DefId == def && p.XMm == x && p.ZMm == z);
 
+    /// <summary>
+    /// The player's path to a placement: the ghost at the pose asks the authority with navigability, as build mode does whenever the pose
+    /// changes, and then the placement is committed. The ask and the commit are timed apart.
+    /// </summary>
     private void Place(string def, long x, long z, int r)
     {
+        var ask = Stopwatch.StartNew();
+        var ghost = _arena.Simulation.PreviewPlacement(def, x, z, r, checkNavigability: true);
+        Asks.Add((def, x, z, ask.Elapsed.TotalMilliseconds, ghost.Navigability));
         int gen0 = GC.CollectionCount(0), gen1 = GC.CollectionCount(1), gen2 = GC.CollectionCount(2);
         var paused = GC.GetTotalPauseDuration();
         var clock = Stopwatch.StartNew();
