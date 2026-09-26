@@ -15,6 +15,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>The faction the NPC belongs to (M7), or none. Definition data: nothing can change it, so it is not saved.</summary>
     public string? FactionId { get; init; }
 
+    /// <summary>The station kinds the NPC will work at when asked (M7, <c>works_at</c>); none for everyone else.</summary>
+    public ImmutableArray<string> WorksAt { get; init; } = ImmutableArray<string>.Empty;
+
     public bool Offers(string service) => Services.Contains(service);
 }
 

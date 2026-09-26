@@ -64,6 +64,7 @@ public class BuildingContentTests
     private const string Config = "config/building.yaml";
     private const string Region = "regions/ashen_hollow.yaml";
     private const string Area = "{ key: build_area.hollow_crossing, box_m: [87, 87, 114, 114], max_pieces: 256 }";
+    private const string Kera = "npcs/ashen_hollow/kera_voss.yaml";
 
     [Fact]
     public void TheGamePack_BuildsTheCatalogueTheAreaAndTheTimberStack()
@@ -155,6 +156,30 @@ public class BuildingContentTests
             Bld006("pieces", noArea, (Config, "refund_percent: 50", "refund_percent: 50\nnavigability_radius_m: 0.35")));
     }
 
+    /// <summary>
+    /// E9: Kera works at an anvil or a forge - kinds the recipes are worked at - and no one else works anywhere; the shipped area's farthest
+    /// corner is 52.6 m from her place on an axis, inside the 85 m a walk to work plans within. A kind named twice does not build.
+    /// </summary>
+    [Fact]
+    public void KerasWorksAt_Parses_AndIsRecipeUsed()
+    {
+        var loader = Load(GameContent);
+        Assert.DoesNotContain(loader.Errors, e => e.Code == "BLD005");
+        var npcs = SocialContent.BuildNpcs(loader);
+        var kera = npcs["npc.ashen_hollow.kera_voss"];
+        Assert.Equal(new[] { "anvil", "forge" }, kera.WorksAt);
+        Assert.All(npcs.Values.Where(n => n.Id != kera.Id), n => Assert.Empty(n.WorksAt));
+        var stations = CraftingContent.BuildRecipes(loader).Values.Select(r => r.StationKind).ToHashSet(StringComparer.Ordinal);
+        Assert.All(kera.WorksAt, kind => Assert.Contains(kind, stations));
+        var layout = WorldContent.BuildLayout(loader, "region.ashen_hollow");
+        var site = layout.Npcs.Single(n => n.NpcId == kera.Id);
+        var area = Assert.Single(layout.BuildAreas);
+        Assert.Equal(52_600, new[] { area.MinXMm - site.XMm, area.MaxXMm - site.XMm, area.MinZMm - site.ZMm, area.MaxZMm - site.ZMm }.Max(Math.Abs));
+
+        using var twice = new EditedContent(GameContent, (Kera, "works_at: [anvil, forge]", "works_at: [anvil, anvil]"));
+        Assert.Contains(Load(twice.Root).Errors, e => e.Message.Contains("works_at names at least one station kind, each once", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void EachBuildingLint_RefusesItsCraftedBadFile()
     {
@@ -187,6 +212,10 @@ public class BuildingContentTests
         Refused("BLD005", "the work anchor lies within 0.65 m of a part", (Bench, "work_anchor_m: [0, -0.25]", "work_anchor_m: [0, 0]"));
         Refused("BLD005", "the work anchor lies within 0.65 m of the square's edge", (Bench, "work_anchor_m: [0, -0.25]", "work_anchor_m: [0, -0.7]"));
         Refused("BLD005", "a station has a station", (Bench, Station, ""));
+        // And (E9) what an NPC works at is worked at by some recipe, and every build area lies within a planned walk of their place.
+        Refused("BLD005", "npc.ashen_hollow.kera_voss: works_at names 'loom', and no recipe is worked at one", (Kera, "works_at: [anvil, forge]", "works_at: [anvil, loom]"));
+        Refused("BLD005", "npc.ashen_hollow.kera_voss: build_area.hollow_crossing reaches 88.4 m from their place on an axis; a walk to work plans within 85 m",
+            (Region, Area, Area.Replace("[87, 87, 114, 114]", "[147, 87, 150, 90]")));
         // BLD006: config.building present exactly when there is something to build, and sane.
         Refused("BLD006", "place_reach_m must be between 1 and 12", (Config, "place_reach_m: 6.0", "place_reach_m: 20.0"));
         Refused("BLD006", "module_m must be 3.0", (Config, "module_m: 3.0", "module_m: 2.0"));

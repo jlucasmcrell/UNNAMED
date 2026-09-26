@@ -11,3 +11,4 @@ merchant_ref: merchant.ashen_hollow.kera_voss
 dialogue_ref: dialogue.ashen_hollow.kera_voss
 unique: true
 faction_ref: faction.ashen_hollow.waystation
+works_at: [anvil, forge]

@@ -79,6 +79,7 @@ public static class BuildingContent
 
         foreach (var envelope in pieces.Values.OrderBy(p => p.Id, StringComparer.Ordinal))
             errors.AddRange(PieceProblems(loader, envelope));
+        errors.AddRange(WorksAtProblems(loader, layouts));
 
         foreach (var layout in layouts.Where(l => !l.BuildAreas.IsEmpty))
         {
@@ -207,6 +208,55 @@ public static class BuildingContent
                 yield return Error("BLD004", $"{id}: cost names '{line.ItemId}', which is not an item", file);
             if (line.Count < 1)
                 yield return Error("BLD004", $"{id}: every cost line is at least 1", file);
+        }
+    }
+
+    /// <summary>
+    /// BLD005 (E9): what an NPC works at is a kind some recipe is worked at, and every corner of every build area in their region lies within
+    /// the planner's reach of their place on each axis - <c>window_max_m</c> less twice <c>window_margin_m</c> and both snaps (85 m shipped) -
+    /// so a walk to any bench that can be built is always a plan the window holds.
+    /// </summary>
+    private static IEnumerable<ValidationError> WorksAtProblems(ContentLoader loader, IReadOnlyList<RegionLayout> layouts)
+    {
+        var stations = RecipeStations(loader);
+        long? span = WindowSpanMm(loader);
+        foreach (var npc in loader.GetByKind("npc").Values.OrderBy(n => n.Id, StringComparer.Ordinal))
+        {
+            if (Read(npc.YamlSource).GetValueOrDefault("works_at") is not List<object> kinds)
+                continue;
+            string file = npc.SourceFile ?? "";
+            foreach (string kind in kinds.OfType<string>().Where(k => !stations.Contains(k)))
+                yield return Error("BLD005", $"{npc.Id}: works_at names '{kind}', and no recipe is worked at one", file);
+            if (span is not { } limit)
+                continue;
+            foreach (var layout in layouts)
+            {
+                foreach (var site in layout.Npcs.Where(s => s.NpcId == npc.Id))
+                {
+                    foreach (var area in layout.BuildAreas)
+                    {
+                        long far = Math.Max(Math.Max(Math.Abs(area.MinXMm - site.XMm), Math.Abs(area.MaxXMm - site.XMm)),
+                            Math.Max(Math.Abs(area.MinZMm - site.ZMm), Math.Abs(area.MaxZMm - site.ZMm)));
+                        if (far > limit)
+                            yield return Error("BLD005", string.Create(CultureInfo.InvariantCulture,
+                                $"{npc.Id}: {area.Key} reaches {far / 1000.0:0.###} m from their place on an axis; a walk to work plans within {limit / 1000.0:0.###} m"), file);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>The planner's reach on each axis from a start: the window less its margins and both snaps; null when the config does not build.</summary>
+    private static long? WindowSpanMm(ContentLoader loader)
+    {
+        try
+        {
+            var l = NavigationContent.Build(loader).Limits;
+            return l.WindowMaxMm - 2 * l.WindowMarginMm - l.StartSnapMm - l.GoalSnapMm;
+        }
+        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
+        {
+            return null;   // the NAV codes report it
         }
     }
 

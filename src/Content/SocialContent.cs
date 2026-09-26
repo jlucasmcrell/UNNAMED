@@ -93,8 +93,20 @@ public static class SocialContent
             {
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
+                WorksAt = WorksAt(id, map),
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    /// <summary><c>works_at</c> (M7): the station kinds an NPC works at when asked, each once, as text; none when absent. BLD005 checks the kinds.</summary>
+    private static ImmutableArray<string> WorksAt(string id, Dictionary<object, object> map)
+    {
+        if (!map.ContainsKey("works_at"))
+            return ImmutableArray<string>.Empty;
+        var kinds = List(map, "works_at").Select(k => k as string ?? throw new FormatException($"{id}: works_at names station kinds as text")).ToImmutableArray();
+        if (kinds.IsEmpty || kinds.Distinct(StringComparer.Ordinal).Count() != kinds.Length)
+            throw new FormatException($"{id}: works_at names at least one station kind, each once");
+        return kinds;
+    }
 
     /// <summary>
     /// <c>companion</c> (M6): what an NPC who can join the character fights with - <c>health</c>, a <c>weapon_item_ref</c> (a melee weapon;
