@@ -65,7 +65,9 @@ public static class NavEditCheck
                     int label = run.FloodAfter(i, j);
                     if (run.IsOpen(label) || !run.FloodBeforeIsOpen(i, j))
                         continue;
-                    var named = inside.FirstOrDefault(p => run.NearestWalkAfter(p) is { } n && run.LabelOf(n.I, n.J) == label);
+                    var pocket = run.PocketBox;
+                    var named = inside.FirstOrDefault(p => p.Target.Inflated(p.ReachMm).Meets(pocket)
+                                                           && run.NearestWalkAfter(p) is { } n && run.LabelOf(n.I, n.J) == label);
                     Fail("V-N1", named is null ? SealedReason : Phrase(named), out var sealedVerdict);
                     return sealedVerdict;
                 }
@@ -182,6 +184,8 @@ public static class NavEditCheck
         private readonly long _height;
         private readonly int[] _generation, _labels;
         private readonly byte[] _walk;
+        private readonly int _w, _h, _cap;
+        private readonly long _node, _half, _affMinX, _affMinZ, _affMaxX, _affMaxZ;
 
         public Run(NavGrid before, NavConfig config, NavScratch scratch, ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors)
         {
@@ -203,9 +207,16 @@ public static class NavEditCheck
             _height = Math.Max(0, _wj1 - _wj0 + 1);
             _gen = scratch.Begin(_width * _height);
             (_generation, _labels, _walk) = (scratch.Generation, scratch.G, scratch.Dir);
+            (_w, _h, _cap) = ((int)_width, (int)_height, config.Limits.SealLimitNodes);
+            (_node, _half) = (config.NodeMm, config.NodeMm / 2);
+            // Where the added solids can lower a node's fit: their bounds grown by the largest planning radius.
+            (_affMinX, _affMinZ, _affMaxX, _affMaxZ) = (_added.MinXMm - _reach, _added.MinZMm - _reach, _added.MaxXMm + _reach, _added.MaxZMm + _reach);
         }
 
         public NavRect Window { get; }
+
+        /// <summary>The node centres the last flood reached, as a box: a point far from it cannot have a node in its component.</summary>
+        public NavRect PocketBox { get; private set; }
 
         public int Flooded { get; private set; }
 
@@ -247,19 +258,19 @@ public static class NavEditCheck
 
         public bool IsOpen(int label) => _open[label];
 
-        private NavTile? _tile;
+        private ImmutableArray<byte> _tileFit;
+        private long _tileI0 = long.MinValue, _tileJ0 = long.MinValue;
 
-        /// <summary>A node's walkability before the edit, the last tile kept at hand (a flood stays mostly inside one).</summary>
+        /// <summary>A node's walkability before the edit, the last tile's bytes kept at hand (a flood stays mostly inside one).</summary>
         public bool WalkBefore(long i, long j)
         {
-            var tile = _tile;
-            if (tile is null || i < tile.I0 || j < tile.J0 || i >= tile.I0 + _tileNodes || j >= tile.J0 + _tileNodes)
+            if (_tileFit.IsDefault || i < _tileI0 || j < _tileJ0 || i >= _tileI0 + _tileNodes || j >= _tileJ0 + _tileNodes)
             {
-                if (!_before.TryLocate(i, j, out tile, out _))
+                if (!_before.TryLocate(i, j, out var tile, out _))
                     return false;
-                _tile = tile;
+                (_tileFit, _tileI0, _tileJ0) = (tile.SolidFit, tile.I0, tile.J0);
             }
-            return tile.SolidFit[(int)((j - tile.J0) * _tileNodes + (i - tile.I0))] > Person;
+            return _tileFit[(int)((j - _tileJ0) * _tileNodes + (i - _tileI0))] > Person;
         }
 
         /// <summary>Whether the edit can change walkability within a point's reach: only nodes near the added solids are lowered.</summary>
@@ -291,8 +302,8 @@ public static class NavEditCheck
         /// <summary>The classes that fit at a node against the added solids alone.</summary>
         private int AddedFit(long i, long j)
         {
-            long cx = _before.CentreOf(i), cz = _before.CentreOf(j);
-            if (DistanceSquared(_added, cx, cz) >= _reach * _reach)
+            long cx = i * _node + _half, cz = j * _node + _half;
+            if (cx < _affMinX || cx > _affMaxX || cz < _affMinZ || cz > _affMaxZ || DistanceSquared(_added, cx, cz) >= _reach * _reach)
                 return _config.Classes.Length;
             int fit = _config.Classes.Length;
             foreach (var solid in _addSolids)
@@ -308,36 +319,61 @@ public static class NavEditCheck
         {
             int label = _open.Count;
             _open.Add(false);
-            int cap = _config.Limits.SealLimitNodes;
-            var queue = _scratch.QueueOf(cap + 1);
+            int w = _w, h = _h, cap = _cap, g = _gen;
+            int[] queue = _scratch.QueueOf(cap + 1), generation = _generation, labels = _labels;
+            byte[] walk = _walk;
             int seed = Index(si, sj);
             WalkAfterAt(seed, si, sj);
-            _labels[seed] = label;
+            labels[seed] = label;
             queue[0] = seed;
             int head = 0, tail = 1;
             bool open = OnBorder(si, sj);
             while (head < tail && !open)
             {
                 int idx = queue[head++];
-                long li = idx % _width, lj = idx / _width;
+                int li = idx % w, lj = idx / w;
+                // The four neighbours, south, west, east, north, in that order.
                 for (int d = 0; d < 4; d++)
                 {
-                    var (di, dj) = Step(d);
-                    long ni = li + di, nj = lj + dj;
-                    if (ni < 0 || nj < 0 || ni >= _width || nj >= _height)
+                    int ni = d == 1 ? li - 1 : d == 2 ? li + 1 : li;
+                    int nj = d == 0 ? lj - 1 : d == 3 ? lj + 1 : lj;
+                    if (ni < 0 || nj < 0 || ni >= w || nj >= h)
                         continue;
-                    int n = (int)(nj * _width + ni);
-                    if (!WalkAfterAt(n, _wi0 + ni, _wj0 + nj))
+                    int n = nj * w + ni;
+                    if (generation[n] != g)
+                    {
+                        generation[n] = g;
+                        labels[n] = 0;
+                        walk[n] = 0;
+                    }
+                    byte bits = walk[n];
+                    if ((bits & NavScratch.WalkKnown) == 0)
+                    {
+                        long gi = _wi0 + ni, gj = _wj0 + nj;
+                        var fits = _tileFit;
+                        bool ok = !fits.IsDefault && gi >= _tileI0 && gj >= _tileJ0 && gi < _tileI0 + _tileNodes && gj < _tileJ0 + _tileNodes
+                            ? fits[(int)((gj - _tileJ0) * _tileNodes + (gi - _tileI0))] > Person
+                            : WalkBefore(gi, gj);
+                        if (ok)
+                        {
+                            long cx = gi * _node + _half, cz = gj * _node + _half;
+                            if (cx >= _affMinX && cx <= _affMaxX && cz >= _affMinZ && cz <= _affMaxZ)
+                                ok = AddedFit(gi, gj) > Person;
+                        }
+                        bits = (byte)(NavScratch.WalkKnown | (ok ? NavScratch.WalkOk : 0));
+                        walk[n] = bits;
+                    }
+                    if ((bits & NavScratch.WalkOk) == 0)
                         continue;
-                    int other = _labels[n];
+                    int other = labels[n];
                     if (other != 0)
                     {
                         if (other != label && _open[other])
                             open = true;
                         continue;
                     }
-                    _labels[n] = label;
-                    if (ni == 0 || nj == 0 || ni == _width - 1 || nj == _height - 1 || tail >= cap)
+                    labels[n] = label;
+                    if (ni == 0 || nj == 0 || ni == w - 1 || nj == h - 1 || tail >= cap)
                     {
                         open = true;
                         break;
@@ -347,13 +383,23 @@ public static class NavEditCheck
             }
             Flooded += tail;
             _open[label] = open;
+            if (!open)
+            {
+                int i0 = int.MaxValue, j0 = int.MaxValue, i1 = int.MinValue, j1 = int.MinValue;
+                for (int k = 0; k < tail; k++)
+                {
+                    int li = queue[k] % w, lj = queue[k] / w;
+                    (i0, i1, j0, j1) = (Math.Min(i0, li), Math.Max(i1, li), Math.Min(j0, lj), Math.Max(j1, lj));
+                }
+                PocketBox = new NavRect((_wi0 + i0) * _node + _half, (_wj0 + j0) * _node + _half, (_wi0 + i1) * _node + _half, (_wj0 + j1) * _node + _half);
+            }
             return label;
         }
 
         /// <summary>Whether a seed's walkable component reached open ground before the edit: a flood of its own, stamped apart.</summary>
         public bool FloodBeforeIsOpen(long si, long sj)
         {
-            int cap = _config.Limits.SealLimitNodes;
+            int w = _w, h = _h, cap = _cap;
             var queue = _scratch.QueueOf(cap + 1);
             int stamp = _scratch.BeginBefore(_width * _height);
             var seen = _scratch.Before;
@@ -366,18 +412,31 @@ public static class NavEditCheck
             while (head < tail)
             {
                 int idx = queue[head++];
-                long li = idx % _width, lj = idx / _width;
+                int li = idx % w, lj = idx / w;
                 for (int d = 0; d < 4; d++)
                 {
-                    var (di, dj) = Step(d);
-                    long ni = li + di, nj = lj + dj;
-                    if (ni < 0 || nj < 0 || ni >= _width || nj >= _height)
+                    int ni = d == 1 ? li - 1 : d == 2 ? li + 1 : li;
+                    int nj = d == 0 ? lj - 1 : d == 3 ? lj + 1 : lj;
+                    if (ni < 0 || nj < 0 || ni >= w || nj >= h)
                         continue;
-                    int n = (int)(nj * _width + ni);
-                    if (seen[n] == stamp || !WalkBefore(_wi0 + ni, _wj0 + nj))
+                    int n = nj * w + ni;
+                    if (seen[n] == stamp)
+                        continue;
+                    // A node of a component found open after the edit was walkable, and joined to it, before the edit as well: open.
+                    if (_generation[n] == _gen && _labels[n] != 0 && _open[_labels[n]])
+                    {
+                        Flooded += tail;
+                        return true;
+                    }
+                    long gi = _wi0 + ni, gj = _wj0 + nj;
+                    var fits = _tileFit;
+                    bool walkable = !fits.IsDefault && gi >= _tileI0 && gj >= _tileJ0 && gi < _tileI0 + _tileNodes && gj < _tileJ0 + _tileNodes
+                        ? fits[(int)((gj - _tileJ0) * _tileNodes + (gi - _tileI0))] > Person
+                        : WalkBefore(gi, gj);
+                    if (!walkable)
                         continue;
                     seen[n] = stamp;
-                    if (ni == 0 || nj == 0 || ni == _width - 1 || nj == _height - 1 || tail >= cap)
+                    if (ni == 0 || nj == 0 || ni == w - 1 || nj == h - 1 || tail >= cap)
                     {
                         Flooded += tail + 1;
                         return true;
@@ -389,8 +448,6 @@ public static class NavEditCheck
             return false;
         }
 
-        /// <summary>The four neighbours' steps: south, west, east, north.</summary>
-        private static (long Di, long Dj) Step(int d) => d switch { 0 => (0, -1), 1 => (-1, 0), 2 => (1, 0), _ => (0, 1) };
 
         /// <summary>The nodes whose centres lie within a point's reach of its target, nearest first, then by (j, i).</summary>
         private IEnumerable<(long I, long J)> WithinReach(NavRect target, long reachMm)
