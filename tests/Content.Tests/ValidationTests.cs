@@ -535,7 +535,7 @@ public class ContentLoaderTests
                 "merchant.ashen_hollow.kera_voss",
                 "node.ore.iron_seam", "node.wood.ash_stand",
                 "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
-                "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.wall.timber",
+                "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.wall.timber",
                 "quest.ashen_hollow.iron_under_ash", "quest.ashen_hollow.three_quiet_stones",
                 "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
                 "region.ashen_hollow", "resource.ore.iron", "resource.wood.ash",

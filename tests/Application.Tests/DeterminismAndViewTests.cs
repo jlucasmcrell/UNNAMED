@@ -35,6 +35,52 @@ public class DeterminismAndViewTests
         }
     }
 
+    /// <summary>
+    /// The start, carrying four timber from the crossing's stack (M7, E6), saved: taking from an untouched container mints the stack its
+    /// IDs, so both sessions must load it already taken.
+    /// </summary>
+    private static void SaveBuilderStart(TempProfile profile)
+    {
+        var session = Harness.Boot(profile);
+        session.Load(SaveSlots.Manual("start"));
+        var simulation = session.Simulation!;
+        Assert.True(Harness.WalkPath(session, (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
+        Assert.True(Harness.WalkTo(session, 84_000, 116_600, Gait.Walk, toleranceMm: 50));
+        session.Submit(new MoveItemCommand(simulation.PlayerId, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 4));
+        session.Frame(session.TickSeconds);
+        Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
+        session.Save(SaveSlots.Manual("builder_start"));
+    }
+
+    /// <summary>
+    /// Before the script (M7, E6): from the longhouse door to the crossing, a pad and a doorway built at (88.5, 112.5) with a door hung in
+    /// it, the door opened and shut again - a placed door's toggles, which set no flag - and back.
+    /// </summary>
+    private static void HangAndWorkADoor(GameSession session)
+    {
+        var simulation = session.Simulation!;
+        var player = simulation.PlayerId;
+        Assert.True(Harness.WalkPath(session, (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
+        Assert.True(Harness.WalkTo(session, 88_000, 112_500, Gait.Walk, toleranceMm: 50));
+        foreach (var command in new GameCommand[]
+                 {
+                     new PlacePieceCommand(player, "piece.pad.timber", 88_500, 112_500, 0),
+                     new PlacePieceCommand(player, "piece.doorway.timber", 87_000, 112_500, 1),
+                     new PlacePieceCommand(player, "piece.door.timber", 87_000, 112_500, 1),
+                 })
+        {
+            session.Submit(command);
+            session.Frame(session.TickSeconds);
+        }
+        string door = simulation.Pieces.Single(p => p.DefId == "piece.door.timber").Id.Value;
+        for (int i = 0; i < 2; i++)
+        {
+            session.Submit(new InteractCommand(player, door));
+            session.Frame(session.TickSeconds);
+        }
+        Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
+    }
+
     /// <summary>A new world, walked to the longhouse door and saved, so two sessions can start from the identical state.</summary>
     private static void SaveStart(TempProfile profile)
     {
@@ -81,14 +127,16 @@ public class DeterminismAndViewTests
     {
         using var profile = new TempProfile();
         SaveStart(profile);
+        SaveBuilderStart(profile);
 
         // Control: the same session with nobody listening.
         var control = Harness.Boot(profile);
-        control.Load(SaveSlots.Manual("start"));
+        control.Load(SaveSlots.Manual("builder_start"));
+        HangAndWorkADoor(control);
         PlayScript(control, seed: 11);
 
         var session = Harness.Boot(profile);
-        session.Load(SaveSlots.Manual("start"));
+        session.Load(SaveSlots.Manual("builder_start"));
         var start = session.Simulation!.Player.Body;
         var knownAtStart = session.Simulation.Player.Discoveries.Select(d => d.LocationId).ToHashSet();
         long xpAtStart = session.Simulation.Player.Progression.LifetimeXp.Values.Sum();
@@ -110,6 +158,7 @@ public class DeterminismAndViewTests
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
         session.Subscribe<RoutePlanned>(e => _ = e with { Corners = 0 });
+        HangAndWorkADoor(session);
         PlayScript(session, seed: 11);
         var simulation = session.Simulation!;
         var log = simulation.CommandLog;
@@ -119,11 +168,16 @@ public class DeterminismAndViewTests
         // Rejections: one event per refused command, in order, with the logged reason.
         Assert.Equal(log.Where(e => e.RejectedReason is not null).Select(e => (e.Command, e.RejectedReason)),
             rejected.Select(e => (e.Command, (string?)e.Reason)));
-        // Doors: one toggle per accepted interaction, each with its flag change.
+        // Doors: one toggle per accepted interaction; an authored door's with its flag change, a placed door's (E6) with none.
         Assert.Equal(log.Count(e => e.Command is InteractCommand && e.RejectedReason is null), toggled.Count);
-        Assert.Equal(toggled.Count, flags.Count);
+        var authored = toggled.Where(t => !t.DoorKey.StartsWith("pce_", StringComparison.Ordinal)).ToList();
+        Assert.Equal(authored.Count, flags.Count);
         Assert.Equal(simulation.Doors.Where(d => d.Open).Select(d => d.Site.Key).OrderBy(k => k),
-            toggled.GroupBy(t => t.DoorKey).Where(g => g.Last().Open).Select(g => g.Key).OrderBy(k => k));
+            authored.GroupBy(t => t.DoorKey).Where(g => g.Last().Open).Select(g => g.Key).OrderBy(k => k));
+        var placedDoor = simulation.Pieces.Single(p => p.DefId == "piece.door.timber");
+        Assert.Equal(new[] { (placedDoor.Id.Value, true), (placedDoor.Id.Value, false) },
+            toggled.Except(authored).Select(t => (t.DoorKey, t.Open)));
+        Assert.Equal(placedDoor.DoorOpen, toggled.Last(t => t.DoorKey == placedDoor.Id.Value).Open);
         // Movement: an unbroken chain from where the body started to where it is.
         Assert.NotEmpty(moved);
         Assert.Equal(start, moved[0].From);
@@ -140,7 +194,7 @@ public class DeterminismAndViewTests
         // Routes: this script has no mover, so nothing plans.
         Assert.Empty(simulation.Navigation.Movers);
         Assert.Empty(routes);
-        // Pieces: one placing or taking down per change of the structures, and the sequence is their count.
+        // Pieces: one placing or taking down per change of the structures (a door's toggles are none), and the sequence is their count.
         Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count);
         Assert.Equal(placed.Count + removed.Count, structures.Count);
         Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(), placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Order());

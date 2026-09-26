@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using UNNAMED.Content;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -195,6 +196,64 @@ public class NavigationTests
         Assert.Equal(0, session.SubscriberFailures);
     }
 
+    // NoDoorCloses_OnAnyBody: the piece-door half (E6)
+    /// <summary>
+    /// The same for a placed door, through the same predicate: hung in a doorway at the crossing and saved open, it will not shut on the
+    /// character standing in it, Tavar, Renn or a sleeping wolf there; with the doorway clear it shuts.
+    /// </summary>
+    [Fact]
+    public void NoPieceDoorCloses_OnAnyBody()
+    {
+        const string renn = "npc.ashen_hollow.renn_vale";
+        const long inX = 100_500, inZ = 99_000;   // the middle of the doorway
+        var none = Array.Empty<(string, double, double, string)>();
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var built = Arena.OpenCreatures(session, session.Setup, (100.5, 97.8), 0, none,
+            r => r.WithInventory(r.Inventory.Append(Arena.Stack("item.material.timber", 5))));
+        Assert.Null(built.Submit(new PlacePieceCommand(built.Player, "piece.pad.timber", 100_500, 100_500, 0)));
+        Assert.Null(built.Submit(new PlacePieceCommand(built.Player, "piece.doorway.timber", inX, inZ, 0)));
+        Assert.Null(built.Submit(new PlacePieceCommand(built.Player, "piece.door.timber", inX, inZ, 0)));
+        string door = built.Simulation.Pieces.Single(p => p.DefId == "piece.door.timber").Id.Value;
+        Assert.Null(built.Submit(new InteractCommand(built.Player, door)));
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("open"), SaveDocuments.Capture(built.Simulation.World, built.Simulation.CaptureRecord(), session.Content,
+            built.Simulation.WorldTick, 0));
+        // Each world its own load: a loaded world is the one simulation that plays it.
+        LoadResult Saved() => store.Load(SaveSlots.Manual("open"), new LoadContext(session.Generator, session.Content, new Registry()));
+
+        (string? Refused, bool Open) Close(Arena arena)
+        {
+            string? refused = arena.Submit(new InteractCommand(arena.Player, door));
+            return (refused, arena.Simulation.Pieces.Single(p => p.Id.Value == door).DoorOpen);
+        }
+        var refusal = ("the door cannot close: something is in the doorway", true);
+
+        // The character in the doorway.
+        var self = Arena.Resume(session.Setup, Saved());
+        Assert.True(self.WalkTo(100.5, 99.0));
+        Assert.Equal(refusal, Close(self));
+        // Tavar waiting in it; Renn standing in it; a wolf asleep in it.
+        var tavar = new CompanionRecord(Tavar, CompanionOrder.Wait, CompanionCondition.Up, inX, inZ, 90_000, 100);
+        var withTavar = Saved();
+        Assert.Equal(refusal, Close(Arena.Resume(session.Setup, withTavar with { Player = withTavar.Player.WithCompanions(new[] { tavar }) })));
+        var rennInTheDoorway = session.Setup with
+        {
+            Layout = session.Setup.Layout with
+            {
+                Npcs = session.Setup.Layout.Npcs.Select(n => n.NpcId == renn ? n with { XMm = inX, ZMm = inZ } : n).ToImmutableArray(),
+            },
+        };
+        Assert.Equal(refusal, Close(Arena.Resume(rennInTheDoorway, Saved())));
+        var wolf = new SpawnSite("spawn.test.sleeper", inX, inZ, 0, ImmutableArray.Create(new SpawnMember(Arena.Wolf, "sleeper")));
+        var wolfInTheDoorway = session.Setup with { Combat = session.Setup.Combat with { Spawns = session.Setup.Combat.Spawns.Add(wolf) } };
+        Assert.Equal(refusal, Close(Arena.Resume(wolfInTheDoorway, Saved())));
+
+        // The doorway clear: it shuts.
+        Assert.Equal(((string?)null, false), Close(Arena.Resume(session.Setup, Saved())));
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
     private const string Tavar = "npc.ashen_hollow.tavar_orr";
 
     /// <summary>
@@ -244,6 +303,98 @@ public class NavigationTests
         Assert.Empty(caughtUp);
         foreach (var p in planned)
             _output.WriteLine($"tick {p.Tick}: {p.Outcome} ({p.Reason}), {p.Corners} corners, {p.Expansions} expansions");
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    /// <summary>
+    /// A line of three pads at the crossing with walls on their south edges and a door hung in the middle one's doorway, shut, built by
+    /// <paramref name="builder"/> from (100.5, 102.0); Tavar waiting south of it at (100.5, 96.0), where neither the character nor any
+    /// mark is in his sight. The way round the line is twice the way through the door.
+    /// </summary>
+    private static (Arena Arena, string Door) BehindAShutDoor(GameSession session, TempProfile profile, bool theirs)
+    {
+        var none = Array.Empty<(string, double, double, string)>();
+        var tavar = new CompanionRecord(Tavar, CompanionOrder.Wait, CompanionCondition.Up, 100_500, 96_000, 0, 100);
+        var arena = Arena.OpenCreatures(session, session.Setup, (100.5, 102.0), 180, none,
+            r => r.WithInventory(r.Inventory.Append(Arena.Stack("item.material.timber", 20))).WithCompanions(new[] { tavar }));
+        foreach (var (def, x, z) in new[] { ("piece.pad.timber", 97_500L, 100_500L), ("piece.pad.timber", 100_500L, 100_500L),
+                     ("piece.pad.timber", 103_500L, 100_500L), ("piece.wall.timber", 97_500L, 99_000L), ("piece.doorway.timber", 100_500L, 99_000L),
+                     ("piece.wall.timber", 103_500L, 99_000L), ("piece.door.timber", 100_500L, 99_000L) })
+            Assert.Null(arena.Submit(new PlacePieceCommand(arena.Player, def, x, z, 0)));
+        string door = arena.Simulation.Pieces.Single(p => p.DefId == "piece.door.timber").Id.Value;
+        if (!theirs)
+            return (arena, door);
+        // Played by another character with Tavar at their side: the door is the first character's.
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("theirs"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("theirs"), new LoadContext(session.Generator, session.Content, new Registry()));
+        var r = loaded.Player;
+        var other = loaded with
+        {
+            Player = new PlayerRecord(EntityId.NewId(EntityKind.Character), r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory, r.Progression,
+                r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency, r.Effects, r.Relationships, r.Conversations, r.Quests, r.Companions),
+        };
+        return (Arena.Resume(session.Setup, other), door);
+    }
+
+    /// <summary>
+    /// <c>CanOperate</c>'s companion clause (M7 design §4.9): told to follow from behind the shut door, Tavar plans through it, opens it
+    /// from within reach - an NPC opens, never shuts - and comes through, with no catch-up.
+    /// </summary>
+    [Fact]
+    public void ACompanion_OpensTheOwnersPieceDoor()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, door) = BehindAShutDoor(session, profile, theirs: false);
+        var planned = arena.Record<RoutePlanned>();
+        var toggled = arena.Record<DoorToggled>();
+        var caughtUp = arena.Record<CompanionCaughtUp>();
+        Assert.Null(arena.Submit(new OrderCompanionCommand(arena.Player, Tavar, CompanionOrder.Follow)));
+
+        arena.Tick(400);
+
+        Assert.Equal((Tavar, "found"), (planned.First().MoverKey, planned.First().Outcome));
+        Assert.Equal(new[] { (arena.Simulation.Companions.Single().InstanceId, door, true) }, toggled.Select(t => (t.Actor, t.DoorKey, t.Open)));
+        Assert.True(arena.Simulation.Pieces.Single(p => p.Id.Value == door).DoorOpen);
+        Assert.True(arena.Simulation.Companions.Single().Body.ZMm > 99_200, $"Tavar is at {arena.Simulation.Companions.Single().Body}, still outside");
+        Assert.InRange(Apart(arena), 0, 4_000);
+        Assert.Empty(caughtUp);
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    // G26: the companion (E6; E9 adds the errand)
+    /// <summary>
+    /// A door Tavar may not open - the first character's, in a world a second character plays - stalls him as stuck, never forever: each
+    /// tick at it one refused open (no toggle), a stuck replan once he has made no headway for 20 ticks, and his Phase-1 snag catch-up.
+    /// </summary>
+    [Fact]
+    public void ARefusedDoor_CountsAsStuck_ForBothMovers()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, door) = BehindAShutDoor(session, profile, theirs: true);
+        var planned = arena.Record<RoutePlanned>();
+        var toggled = arena.Record<DoorToggled>();
+        var caughtUp = arena.Record<CompanionCaughtUp>();
+        Assert.Null(arena.Submit(new OrderCompanionCommand(arena.Player, Tavar, CompanionOrder.Follow)));
+
+        var stuck = new List<int>();
+        for (int i = 0; i < 300 && caughtUp.Count == 0; i++)
+        {
+            arena.Tick();
+            stuck.Add(arena.Simulation.CaptureRecord().Companions.Single().StuckTicks);
+        }
+
+        Assert.Empty(toggled);
+        Assert.False(arena.Simulation.Pieces.Single(p => p.Id.Value == door).DoorOpen);
+        // At the door the count climbs at most one a tick - one refused open a tick - to a stuck replan and on to the snag.
+        Assert.Contains(1, stuck);
+        Assert.All(stuck.Zip(stuck.Skip(1)), p => Assert.True(p.Second <= p.First + 1, $"the stuck count jumped from {p.First} to {p.Second}"));
+        Assert.Contains(planned, p => p.MoverKey == Tavar && p.Reason == NavFollower.Stuck);
+        var snag = Assert.Single(caughtUp);
+        Assert.Equal((Tavar, "snag"), (snag.NpcId, snag.Reason));
         Assert.Equal(0, session.SubscriberFailures);
     }
 

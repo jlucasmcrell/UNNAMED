@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -112,12 +113,15 @@ internal sealed class NavigationSystem
     }
 
     /// <summary>
-    /// The inputs in canonical order: the authored statics that stop a standing body, the authored doors and barriers as gates, and every
-    /// placed solid part (M7). It reads the authored layout and the footprints, never the rebuilt collision space, which already holds them.
+    /// The inputs in canonical order: the authored statics that stop a standing body, the authored doors and barriers as gates, every
+    /// placed solid part, and every placed door's leaf as a gate keyed by its piece (M7). It reads the authored layout and the footprints,
+    /// never the rebuilt collision space, which already holds them.
     /// </summary>
     public ImmutableArray<NavInput> CurrentInputs() =>
         NavigationLayout.AuthoredInputs(_context.Setup.Layout, Config)
-            .AddRange(_context.StructureFootprints.Where(f => f.Class == TraversalClass.Solid).Select(f => new NavInput(NavInputKind.Solid, f.Box(), null)))
+            .AddRange(_context.StructureFootprints.Select(f => f.Class == TraversalClass.Solid
+                ? new NavInput(NavInputKind.Solid, f.Box(), null)
+                : new NavInput(NavInputKind.Door, f.Box(), f.PieceId.Value)))
             .Sort(NavInputOrder.Instance);
 
     /// <summary>
@@ -157,9 +161,10 @@ internal sealed class NavigationSystem
 
     public NavigationView View() => new(Grid, Gates(), Movers(), Counters.Snapshot());
 
-    /// <summary>A gate's state now: a door's flag, a barrier's lift.</summary>
+    /// <summary>A gate's state now: a door's flag, a placed door's row, a barrier's lift.</summary>
     private bool IsGateOpen(NavInput gate) => gate.Kind switch
     {
+        NavInputKind.Door when PieceDoor(gate.GateKey!) is { } row => row.DoorOpen,
         NavInputKind.Door => _doors.TryGetValue(gate.GateKey!, out var door) && _context.IsOpen(door),
         NavInputKind.Barrier => _barriers.TryGetValue(gate.GateKey!, out var barrier) && _context.IsLifted(barrier),
         _ => false,
@@ -170,8 +175,14 @@ internal sealed class NavigationSystem
         _context.State.Companions.Values.OrderBy(c => c.NpcId, StringComparer.Ordinal)
             .Select(c => new NavMoverView(c.NpcId, c.Route, c.StuckTicks >= Config.Limits.BlockedViewTicks)).ToImmutableArray();
 
+    /// <summary>A placed door by its gate key, or null for an authored door's.</summary>
+    private PieceRecord? PieceDoor(string key) =>
+        key.StartsWith("pce_", StringComparison.Ordinal) && EntityId.TryParse(key, out var id) ? _context.State.World.Piece(id) : null;
+
     private ImmutableArray<NavGateView> Gates() =>
         _context.Setup.Layout.Doors.Select(d => new NavGateView(d.Key, "door", d.ClosedFootprint, _context.IsOpen(d)))
+            .Concat(_context.StructureFootprints.Where(f => f.Class == TraversalClass.Door)
+                .Select(f => new NavGateView(f.PieceId.Value, "door", f.Box(), PieceDoor(f.PieceId.Value)?.DoorOpen == true)))
             .Concat(_context.Setup.Layout.Barriers.Select(b => new NavGateView(b.Key, "barrier", b.Footprint, _context.IsLifted(b))))
             .ToImmutableArray();
 }

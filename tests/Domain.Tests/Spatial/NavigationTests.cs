@@ -109,11 +109,13 @@ public class NavigationTests
         Assert.Empty(plan.Corners);
     }
 
-    // N-D5
-    [Fact]
-    public void AClosedDoor_StopsANonOpener_NotAnOpener()
+    // N-D5 (E6: a placed door's gate, keyed by its piece, too)
+    [Theory]
+    [InlineData("door.test")]
+    [InlineData("pce_01JZZZZZZZZZZZZZZZZZZZZZZZ")]
+    public void AClosedDoor_StopsANonOpener_NotAnOpener(string key)
     {
-        var door = Box("door.test", 19_200, 16_000, 20_800, 16_400, NavInputKind.Door);
+        var door = Box(key, 19_200, 16_000, 20_800, 16_400, NavInputKind.Door);
         var grid = Field(40_000, 40_000, Room(doorway: true).Append(door));
         string digest = grid.Digest();
         bool open = false;

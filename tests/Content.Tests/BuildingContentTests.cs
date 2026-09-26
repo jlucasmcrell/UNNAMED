@@ -72,8 +72,9 @@ public class BuildingContentTests
         Assert.DoesNotContain(loader.Errors, e => e.Code.StartsWith("BLD", StringComparison.Ordinal) || e.Code == "WLD015");
         var setup = BuildingContent.Build(loader);
 
-        // The pieces of §4.21 that E5 ships.
-        Assert.Equal(new[] { "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.wall.timber" }, setup.Catalog.Pieces.Keys);
+        // The pieces of §4.21 that E5 and E6 ship.
+        Assert.Equal(new[] { "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.wall.timber" },
+            setup.Catalog.Pieces.Keys);
         var pad = setup.Catalog.Find("piece.pad.timber")!;
         Assert.Equal((PieceFamily.Pad, PieceSlot.Square, new BoundsMm(-1500, -1500, 1500, 1500), 200, false),
             (pad.Family, pad.Slot, pad.Bounds, pad.HealthMax, pad.SupportsRoof));
@@ -88,7 +89,14 @@ public class BuildingContentTests
         Assert.Equal(new[] { SocketType.EdgeMount, SocketType.Door }, doorway.Sockets.Select(s => s.Type));
         var roof = setup.Catalog.Find("piece.roof.timber")!;
         Assert.Equal((PieceSlot.Roof, 100, 0, 0), (roof.Slot, roof.HealthMax, roof.Parts.Length, roof.Sockets.Length));
-        Assert.Equal(new[] { 1, 2, 2, 1 }, new[] { pad, wall, doorway, roof }.Select(p => Assert.Single(p.Cost).Count));
+        // E6: the door, a leaf the width of the doorway's opening that blocks while shut, on the doorway's door socket.
+        var door = setup.Catalog.Find("piece.door.timber")!;
+        Assert.Equal((PieceFamily.Door, PieceSlot.Door, new BoundsMm(-800, -200, 800, 200), 120, false),
+            (door.Family, door.Slot, door.Bounds, door.HealthMax, door.SupportsRoof));
+        Assert.Equal(new PiecePart(new BoundsMm(-800, -200, 800, 200), 2400, TraversalClass.Door), Assert.Single(door.Parts));
+        var mount = Assert.Single(door.Sockets);
+        Assert.Equal((SocketType.DoorMount, 0L, 0L, SocketAxis.X), (mount.Type, mount.XMm, mount.ZMm, mount.Axis));
+        Assert.Equal(new[] { 1, 2, 2, 1, 1 }, new[] { pad, wall, doorway, roof, door }.Select(p => Assert.Single(p.Cost).Count));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal("item.material.timber", Assert.Single(p.Cost).ItemId));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal(new[] { 0, 1, 2, 3 }, p.Rotations));
 

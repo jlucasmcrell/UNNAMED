@@ -45,7 +45,10 @@ internal sealed class SystemContext
     public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
+    /// <summary>Every closed door and standing barrier the region authored, then the leaves of the placed doors standing shut (M7).</summary>
+    public ImmutableArray<Blocker> ClosedDoors() => State.ClosedPieceLeaves.IsEmpty
+        ? Setup.Layout.ClosedDoors(IsOpen, IsLifted)
+        : Setup.Layout.ClosedDoors(IsOpen, IsLifted).AddRange(State.ClosedPieceLeaves);
 
     /// <summary>
     /// Where bodies move (M7): the authored space with every placed piece's solid parts after the authored blockers, in
@@ -299,6 +302,11 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        // A placed door first (M7): its toggle is the building system's.
+        if (command.TargetKey.StartsWith("pce_", StringComparison.Ordinal))
+            return EntityId.TryParse(command.TargetKey, out var piece)
+                ? _context.Dispatch(new OperatePieceDoor(piece, _player, null, null))
+                : "there is no such door";
         if (_context.Setup.Layout.FindSwitch(command.TargetKey) is { } site)
             return Work(site, tick);
         var door = _context.Setup.Layout.FindDoor(command.TargetKey);
@@ -320,13 +328,17 @@ internal sealed class InteractionSystem
     }
 
     /// <summary>
-    /// A companion opens an authored door in their way (M7 design §3.11): from within reach of their own body, and open only - NPCs never
-    /// close a door. One already open is left as it is.
+    /// A companion opens a door in their way (M7 design §3.11): from within reach of their own body, and open only - NPCs never close a
+    /// door. One already open is left as it is. A placed door is the building system's, and asks whether they may.
     /// </summary>
     public string? Handle(OpenDoor command, long tick)
     {
         if (!_context.State.Companions.ContainsKey(command.NpcId) || !_context.State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"{command.NpcId} opens no doors";
+        if (command.DoorKey.StartsWith("pce_", StringComparison.Ordinal))
+            return EntityId.TryParse(command.DoorKey, out var piece)
+                ? _context.Dispatch(new OperatePieceDoor(piece, NpcSystem.InstanceIdOf(command.NpcId), command.NpcId, true))
+                : $"there is no door called '{command.DoorKey}'";
         var door = _context.Setup.Layout.FindDoor(command.DoorKey);
         if (door is null)
             return $"there is no door called '{command.DoorKey}'";

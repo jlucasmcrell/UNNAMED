@@ -85,6 +85,12 @@ public sealed record PlacePieceCommand(EntityId Actor, string PieceDefId, long X
 /// <summary>Take down a piece the actor owns (M7 design §4.13), for half its cost back.</summary>
 public sealed record DismantlePieceCommand(EntityId Actor, EntityId PieceId) : GameCommand(Actor);
 
+/// <summary>
+/// Open or shut a placed door (M7 design §4.9): the player's toggle (<paramref name="Open"/> null), or an NPC's open. The operator is the
+/// player's or the NPC's instance ID; <paramref name="OperatorNpcId"/> names the NPC, when it is one.
+/// </summary>
+internal sealed record OperatePieceDoor(EntityId PieceId, EntityId Operator, string? OperatorNpcId, bool? Open) : InternalCommand;
+
 /// <summary>The fifteen placement checks (M7 design §4.5), in the order they run.</summary>
 public enum PlacementRule
 {
@@ -214,6 +220,35 @@ internal sealed class BuildingSystem
     }
 
     /// <summary>
+    /// A door opened or shut (M7 design §4.9), checked in order: an intact door; one the operator may work; within reach of their body;
+    /// never shut on a body in the doorway; and asking for the state it is in already changes nothing. Only the closed-leaf cache follows
+    /// it: navigation reads a door's state when it plans, and the structure sequence does not move.
+    /// </summary>
+    public string? Handle(OperatePieceDoor command, long tick)
+    {
+        if (State.World.Piece(command.PieceId) is not { } row || Catalog.Find(row.DefId) is not { Family: PieceFamily.Door } piece)
+            return "there is no such door";
+        if (!BuildingRules.CanOperate(command.Operator, command.OperatorNpcId, row, State, _player))
+            return "that door is not yours";
+        var body = command.OperatorNpcId is { } npc && State.Npcs.TryGetValue(npc, out var npcState) ? npcState.Body : State.Body;
+        var closed = BuildingMath.WorldBounds(piece, row.XMm, row.ZMm, row.Rotation);
+        var box = new BoxBlocker(row.InstanceId.Value, closed.MinXMm, closed.MinZMm, closed.MaxXMm, closed.MaxZMm, 0);
+        long reach = _context.Setup.Movement.InteractReachMm;
+        double distance = box.DistanceTo(body.XMm, body.ZMm);
+        if (distance > reach)
+            return string.Create(CultureInfo.InvariantCulture, $"the door is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m");
+        bool open = command.Open ?? !row.DoorOpen;
+        if (!open && _context.BodyIn(box))
+            return "the door cannot close: something is in the doorway";
+        if (open == row.DoorOpen)
+            return null;
+        State.SetPiece(_owner, row with { DoorOpen = open });
+        State.SetClosedPieceLeaves(_owner, ClosedLeaves());
+        _context.Events.Publish(new DoorToggled(command.Operator, row.InstanceId.Value, open, tick));
+        return null;
+    }
+
+    /// <summary>
     /// Why a piece cannot come down yet, or null: a doorway holds its door; a pad holds the furniture on its square and every wall or
     /// doorway on its edges with no pad on the other side. Removal only ever opens the way, so nothing else depends on anything.
     /// </summary>
@@ -322,7 +357,6 @@ internal sealed class BuildingSystem
     private void Rebuild()
     {
         var solids = new List<BoxBlocker>();
-        var leaves = new List<BoxBlocker>();
         var footprints = new List<NavFootprint>();
         var slots = ImmutableSortedDictionary.CreateBuilder<string, EntityId>(StringComparer.Ordinal);
         var providers = new Dictionary<(SocketType, long, long, SocketAxis), int>();
@@ -344,17 +378,33 @@ internal sealed class BuildingSystem
                 footprints.Add(new NavFootprint(row.InstanceId, i, part.MinXMm, part.MinZMm, part.MaxXMm, part.MaxZMm, part.HeightMm, traversal, row.Owner));
                 if (traversal == TraversalClass.Solid)
                     solids.Add(part);
-                else if (!row.DoorOpen)
-                    leaves.Add(part);
             }
         }
         solids.Sort(StructureOrder.Instance);
-        leaves.Sort(StructureOrder.Instance);
         footprints.Sort(StructureOrder.Instance);
         var authored = _context.Setup.Layout.Space;
         var space = solids.Count == 0 ? authored : authored with { Blockers = authored.Blockers.AddRange(solids) };
-        State.SetStructureDerived(_owner, space, leaves.ToImmutableArray<Blocker>(),
+        State.SetStructureDerived(_owner, space, ClosedLeaves(),
             new StructureIndex(slots.ToImmutable(), providers.ToImmutableDictionary()), footprints.ToImmutableArray());
+    }
+
+    /// <summary>The door parts of the doors standing shut, in <see cref="StructureOrder"/>: what <c>ClosedDoors()</c> appends.</summary>
+    private ImmutableArray<Blocker> ClosedLeaves()
+    {
+        var leaves = new List<BoxBlocker>();
+        foreach (var row in State.World.Pieces.Where(p => !p.DoorOpen))
+        {
+            if (Catalog.Find(row.DefId) is not { } piece)
+                continue;
+            var parts = BuildingMath.WorldParts(piece, row.XMm, row.ZMm, row.Rotation, row.InstanceId.Value);
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (piece.Parts[i].Traversal == TraversalClass.Door)
+                    leaves.Add(parts[i]);
+            }
+        }
+        leaves.Sort(StructureOrder.Instance);
+        return leaves.ToImmutableArray<Blocker>();
     }
 
     /// <summary>Every placed piece, by ID.</summary>

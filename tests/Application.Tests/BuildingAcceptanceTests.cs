@@ -47,6 +47,7 @@ public class BuildingAcceptanceTests
         public WorkshopRun(GameSession session)
         {
             Session = session;
+            session.Subscribe<DoorToggled>(Toggled.Add);
             session.Subscribe<PiecePlaced>(Placed.Add);
             session.Subscribe<NavigationRebuilt>(Rebuilt.Add);
             session.Subscribe<RoutePlanned>(Routes.Add);
@@ -56,6 +57,7 @@ public class BuildingAcceptanceTests
         public GameSession Session { get; }
         public Simulation Simulation => Session.Simulation!;
         public List<PiecePlaced> Placed { get; } = new();
+        public List<DoorToggled> Toggled { get; } = new();
         public List<NavigationRebuilt> Rebuilt { get; } = new();
         public List<RoutePlanned> Routes { get; } = new();
         public List<CompanionCaughtUp> CaughtUp { get; } = new();
@@ -114,6 +116,11 @@ public class BuildingAcceptanceTests
                         break;
                     case OrderAction order:
                         Outcomes[action] = Submit(order.Command(player));
+                        break;
+                    case InteractPieceAction interact:
+                        var target = interact.Target(Simulation);
+                        Assert.True(target is not null, $"{row.Id}: no {interact.DefId} at ({interact.XMm}, {interact.ZMm})");
+                        Outcomes[action] = Submit(new InteractCommand(player, target!.Value));
                         break;
                     case HoldAction hold:
                         Outcomes[action] = (Simulation.WorldTick, null, false);
@@ -246,6 +253,14 @@ public class BuildingAcceptanceTests
         Assert.Equal(Enumerable.Range(13, 4).Select(n => (long)n), run.Placed.Skip(12).Select(p => p.Revision));
         Assert.Equal(8, run.Rebuilt.Count);
 
+        // E6: the door hung in the doorway - sequence 17, one rebuild, placed shut.
+        run.Through("R06");
+        Assert.Null(run.Outcome("R06").Refused);
+        Assert.Equal((Door, 17L), (run.Placed[^1].DefId, run.Placed[^1].Revision));
+        Assert.Equal(9, run.Rebuilt.Count);
+        var door = simulation.Pieces.Single(p => p.DefId == Door);
+        Assert.False(door.DoorOpen);
+
         // The step-1 counts, and one PiecePlaced a row.
         var (pieces, spent, sequence) = Counts.StepOne;
         Assert.Equal(pieces, simulation.Pieces.Length);
@@ -261,9 +276,26 @@ public class BuildingAcceptanceTests
         Assert.Equal(("a Timber Doorway already stands there", true), (run.Outcome("R09").Refused, run.Outcome("R09").DigestKept));
         Assert.Equal(pieces, run.Placed.Count);
 
-        // Step 3: in by the doorway, out again, north through it (no door until E6), and the aim stops at the west wall.
+        // Step 3: opened from inside, shut from outside; the walk north stops short of the shut leaf on every tick, as at a wall; opened
+        // with E; and from inside the aim stops at the west wall.
+        run.Through("R10");
+        Assert.Equal((door.Id.Value, true), (run.Toggled[^1].DoorKey, run.Toggled[^1].Open));
+        Assert.Equal(simulation.PlayerId, run.Toggled[^1].Actor);
+        run.Through("R11");
+        Assert.Equal((door.Id.Value, false), (run.Toggled[^1].DoorKey, run.Toggled[^1].Open));
+        var zs = new List<long>();
+        run.EachTick = s => zs.Add(s.Player.Body.ZMm);
         run.Through("R12");
-        Assert.True(simulation.Player.Body.ZMm > 99_200, $"the walk north ended at {simulation.Player.Body}");
+        run.EachTick = null;
+        Assert.Equal(41, zs.Count);   // the pose, then the 40 ticks north
+        Assert.All(zs, z => Assert.True(z <= 98_450, $"the body went to z {z}, into the shut door"));
+        Assert.InRange(zs[^1], 98_400, 98_450);
+        run.Through("R13");
+        Assert.Null(run.Outcome("R13").Refused);
+        Assert.True(simulation.Pieces.Single(p => p.Id == door.Id).DoorOpen);
+        Assert.Equal(3, run.Toggled.Count);
+        // A toggle is not a change of the structures.
+        Assert.Equal((Counts.StepOne.Sequence, 9), (simulation.World.StructureSequence, run.Rebuilt.Count));
         run.Through("R14");
         Assert.InRange(run.Aimed.XMm, 99_200, 99_210);
         Assert.False(run.Aimed.OnCreature);
@@ -374,8 +406,9 @@ public class BuildingAcceptanceTests
         var run = new WorkshopRun(LoadS0(profile));
         var played = run.Simulation;
         var held = ItemIds(played);
-        run.Through("R05");
-        long stepOne = run.RowTicks["R05"].End;
+        string lastOfStepOne = LandedRows.Last(r => r.Step == 1).Id;
+        run.Through(lastOfStepOne);
+        long stepOne = run.RowTicks[lastOfStepOne].End;
         string digestAtStepOne = played.StateDigest();
         var piecesAtStepOne = played.Pieces.Select(p => p.Id).ToList();
         Assert.Subset(held, ItemIds(played));

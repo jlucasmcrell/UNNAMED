@@ -27,6 +27,17 @@ public sealed record PlaceAction(string DefId, long XMm, long ZMm, int Rotation,
     public GameCommand Command(EntityId player) => new PlacePieceCommand(player, DefId, XMm, ZMm, Rotation);
 }
 
+/// <summary>
+/// <c>InteractCommand(door)</c> on the placed piece of a definition at an anchor (R10, R11, R13: the workshop's door), resolved to its
+/// <c>pce_</c> key when the row plays.
+/// </summary>
+public sealed record InteractPieceAction(string DefId, long XMm, long ZMm, int From = CrossingWorkshop.E6) : WorkshopAction(From)
+{
+    /// <summary>The piece this action works, in a world.</summary>
+    public EntityId? Target(Simulation simulation) =>
+        simulation.Pieces.FirstOrDefault(p => p.DefId == DefId && p.XMm == XMm && p.ZMm == ZMm)?.Id;
+}
+
 /// <summary>A move held for a number of ticks, one <see cref="MoveCommand"/> a tick (R12: north at a walk for 40 ticks).</summary>
 public sealed record HoldAction(MoveIntent Intent, int Ticks, int From = CrossingWorkshop.E5) : WorkshopAction(From);
 
@@ -64,12 +75,13 @@ public static class CrossingWorkshop
     public const int E5 = 5, E6 = 6, E7 = 7, E8 = 8, E9 = 9;
 
     /// <summary>The slices landed so far.</summary>
-    public const int Landed = E5;
+    public const int Landed = E6;
 
     /// <summary>S0's world seed: the playthrough's (<c>Playthrough.Seed</c>, presentation), so both proofs play one world.</summary>
     public const ulong Seed = 0x0A5E_2026_0924_0001;
 
-    public const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber";
+    public const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber",
+        Door = "piece.door.timber";
     public const string Timber = "item.material.timber", IronIngot = "item.material.iron_ingot", AshHaft = "item.material.ash_haft";
     public const string SpearRecipe = "recipe.smithing.march_spear";
     public const string Kera = "npc.ashen_hollow.kera_voss", Tavar = "npc.ashen_hollow.tavar_orr";
@@ -110,13 +122,19 @@ public static class CrossingWorkshop
     private static WorkshopPose At(double x, double z, int facingDeg, params (double X, double Z)[] legs) => new(legs.ToImmutableArray(), x, z, facingDeg);
 
     private static WorkshopRow Row(string id, int step, WorkshopPose? pose, int after, string expect, params WorkshopAction[] actions) =>
-        new(id, step, E5, pose, after, actions.ToImmutableArray(), expect);
+        RowFrom(E5, id, step, pose, after, expect, actions);
+
+    private static WorkshopRow RowFrom(int from, string id, int step, WorkshopPose? pose, int after, string expect, params WorkshopAction[] actions) =>
+        new(id, step, from, pose, after, actions.ToImmutableArray(), expect);
+
+    /// <summary>The workshop's door, as R10, R11 and R13 work it.</summary>
+    private static InteractPieceAction TheDoor => new(Door, 100_500, 99_000);
 
     private static PlaceAction Place(string def, long x, long z, int r) => new(def, x, z, r);
 
     /// <summary>
-    /// The table as far as E5 has built it: rows R00-R05, R09-R14 (their door commands arrive in E6), R39-R42, R45 and R46. E6-E9 add the
-    /// rest, and E9 changes R45's pose (§4.22).
+    /// The table as far as E6 has built it: rows R00-R06, R09-R14 (the door hung, worked from both sides, and the walk north stopped by
+    /// it), R39-R42, R45 and R46. E7-E9 add the rest, and E9 changes R45's pose (§4.22).
     /// </summary>
     public static readonly ImmutableArray<WorkshopRow> Rows = ImmutableArray.Create(
         Row("R00", 0, null, 0, "S0 loaded"),
@@ -129,11 +147,13 @@ public static class CrossingWorkshop
             Place(Wall, 99_000, 103_500, 1), Place(Wall, 105_000, 100_500, 1), Place(Wall, 105_000, 103_500, 1)),
         Row("R05", 1, null, 1, "seq 13-16; no rebuild",
             Place(Roof, 100_500, 100_500, 0), Place(Roof, 103_500, 100_500, 0), Place(Roof, 100_500, 103_500, 0), Place(Roof, 103_500, 103_500, 0)),
+        RowFrom(E6, "R06", 1, null, 1, "seq 17; one rebuild; placed closed", new PlaceAction(Door, 100_500, 99_000, 0, E6)),
         Row("R09", 2, null, 1, "refused Slot, \"a Timber Doorway already stands there\"; StateDigest unchanged", Place(Wall, 100_500, 99_000, 0)),
-        Row("R10", 3, At(100.5, 100.3, 180), 0, "E6+: the door opened"),
-        Row("R11", 3, At(100.5, 97.6, 0), 0, "E6+: the door closed"),
+        Row("R10", 3, At(100.5, 100.3, 180), 0, "E6+: the door opened", TheDoor),
+        Row("R11", 3, At(100.5, 97.6, 0), 0, "E6+: the door closed", TheDoor),
         Row("R12", 3, At(100.5, 97.0, 0), 0, "E6+: body z <= 98 450 on every tick and >= 98 400 at the end; E5: z > 99 200 at the end",
             new HoldAction(new MoveIntent(0, MoveIntent.FullDeflection, Gait.Walk, 0), 40)),
+        RowFrom(E6, "R13", 3, null, 1, "the door opened", TheDoor),
         Row("R14", 3, At(100.5, 101.0, 270), 0, "stop x in [99 200, 99 210], OnCreature false", new AimAction(270_000, 20_000)),
         Row("R39", 9, At(97.5, 102.0, 270, (100.5, 100.3), (100.5, 97.6), (97.5, 97.0)), 0, "accepted",
             Place(Pad, 97_500, 100_500, 0), Place(Pad, 97_500, 103_500, 0)),

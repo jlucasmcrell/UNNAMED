@@ -121,6 +121,14 @@ internal static class BuildingRules
         return new PlacementCheck(true, null, null, bounds, parts, takes, verdict);
     }
 
+    /// <summary>
+    /// Who may work a placed door (M7 design §4.9): its owner, or the owner's companion when the owner is the player. An NPC working for
+    /// the owner joins them with errands (E9). Creatures never work doors.
+    /// </summary>
+    public static bool CanOperate(EntityId operatorId, string? operatorNpcId, PieceRecord door, RuntimeState state, EntityId player) =>
+        operatorId == door.Owner
+        || (operatorNpcId is { } npc && state.Companions.ContainsKey(npc) && door.Owner == player);
+
     /// <summary>The ghost's reading of a check: its bounds, parts, and each cost line against what is carried.</summary>
     public static PlacementPreview Preview(SystemContext context, PlacementCheck check, string defId)
     {

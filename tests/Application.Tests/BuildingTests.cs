@@ -17,7 +17,8 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class BuildingTests
 {
-    private const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber";
+    private const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber",
+        Door = "piece.door.timber";
     private const string Timber = "item.material.timber";
     private const string Renn = "npc.ashen_hollow.renn_vale", Kera = "npc.ashen_hollow.kera_voss";
     private const string Tag = "unnamed.piece/v1";
@@ -76,7 +77,7 @@ public class BuildingTests
         var placed = arena.Record<PiecePlaced>();
         var changed = arena.Record<StructuresChanged>();
         int authored = arena.Simulation.Space.Blockers.Length;
-        var id = Enumerable.Range(1, 4).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
+        var id = Enumerable.Range(1, 5).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
 
         // A pad: one timber, from the smallest stack; no parts, no footprint, nothing in the collision space.
         Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
@@ -109,23 +110,33 @@ public class BuildingTests
         Assert.Equal((PieceFamily.Roof, 100, 100), (roof.Family, roof.HealthCurrent, roof.HealthMax));
         Assert.Empty(roof.Parts);
 
+        // A door in the doorway (E6): one timber; one leaf across the opening, hung shut - a closed door, not part of the space.
+        Assert.Null(Place(arena, Door, 99_000, 100_500, 1));
+        Assert.Equal(new[] { 18, 20 }, Stacks(arena));
+        var door = arena.Simulation.Pieces.Single(p => p.Id == id[4]);
+        Assert.Equal((PieceFamily.Door, 120, 120, false), (door.Family, door.HealthCurrent, door.HealthMax, door.DoorOpen));
+        Assert.Equal(new[] { new PiecePartView(98_800, 99_700, 99_200, 101_300, 2_400, TraversalClass.Door) }, door.Parts);
+        Assert.Contains(arena.Simulation.DynamicBlockers, b => b is BoxBlocker { MinXMm: 98_800, MinZMm: 99_700, MaxXMm: 99_200, MaxZMm: 101_300 });
+
         // Derived IDs by sequence; one event of each per piece; the rows hosted by their anchors.
         Assert.Equal(id, placed.Select(p => p.PieceId));
-        Assert.Equal(new long[] { 1, 2, 3, 4 }, placed.Select(p => p.Revision));
-        Assert.Equal(new[] { Pad, Wall, Doorway, Roof }, placed.Select(p => p.DefId));
+        Assert.Equal(new long[] { 1, 2, 3, 4, 5 }, placed.Select(p => p.Revision));
+        Assert.Equal(new[] { Pad, Wall, Doorway, Roof, Door }, placed.Select(p => p.DefId));
         Assert.All(placed, p => Assert.Equal(arena.Player, p.Owner));
         Assert.Equal(new[] { (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 98_800L, 102_200L, 99_200L), (98_800L, 98_800L, 99_200L, 102_200L),
-            (99_000L, 99_000L, 102_000L, 102_000L) }, changed.Select(c => (c.MinXMm, c.MinZMm, c.MaxXMm, c.MaxZMm)));
+            (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 99_700L, 99_200L, 101_300L) }, changed.Select(c => (c.MinXMm, c.MinZMm, c.MaxXMm, c.MaxZMm)));
         Assert.All(changed, c => Assert.Equal(StructureChangeKind.Placed, c.Kind));
-        Assert.Equal(4, arena.Simulation.StructureRevision);
-        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01" },
+        Assert.Equal(5, arena.Simulation.StructureRevision);
+        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_00_01" },
             id.Select(i => arena.Simulation.World.Piece(i)!.HostCell));
 
-        // Space appends exactly the solid parts, in structure order, after the authored blockers; the footprints are those parts.
+        // Space appends exactly the solid parts, in structure order, after the authored blockers; the footprints are those parts and the
+        // door's leaf.
         var footprints = arena.Simulation.StructureFootprints;
-        Assert.Equal(3, footprints.Length);
-        Assert.All(footprints, f => Assert.Equal(TraversalClass.Solid, f.Class));
-        Assert.Equal(footprints.Select(f => (f.MinXMm, f.MinZMm, f.MaxXMm, f.MaxZMm, f.HeightMm)),
+        Assert.Equal(4, footprints.Length);
+        Assert.Equal(3, footprints.Count(f => f.Class == TraversalClass.Solid));
+        Assert.Equal(id[4], Assert.Single(footprints, f => f.Class == TraversalClass.Door).PieceId);
+        Assert.Equal(footprints.Where(f => f.Class == TraversalClass.Solid).Select(f => (f.MinXMm, f.MinZMm, f.MaxXMm, f.MaxZMm, f.HeightMm)),
             arena.Simulation.Space.Blockers.Skip(authored).Cast<BoxBlocker>().Select(b => (b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm, b.HeightMm)));
         Assert.Equal(authored + 3, arena.Simulation.Space.Blockers.Length);
     }
@@ -168,6 +179,18 @@ public class BuildingTests
         string digest = room.Simulation.StateDigest();
         Assert.Equal("this build area already holds 6 pieces", Place(room, Pad, 97_500, 106_500, 0));
         Assert.Equal(digest, room.Simulation.StateDigest());
+
+        // The door's cases (E6): rule 4, off every doorway; rule 7, on a doorway that has its door.
+        var doors = Builder(session, (102.0, 102.0));
+        Assert.Null(Place(doors, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(doors, Doorway, 100_500, 99_000, 0));
+        digest = doors.Simulation.StateDigest();
+        Assert.Equal("that is not on the building grid", Place(doors, Door, 100_500, 102_000, 0));
+        Assert.Equal(digest, doors.Simulation.StateDigest());
+        Assert.Null(Place(doors, Door, 100_500, 99_000, 0));
+        digest = doors.Simulation.StateDigest();
+        Assert.Equal("that doorway already has a door", Place(doors, Door, 100_500, 99_000, 0));
+        Assert.Equal(digest, doors.Simulation.StateDigest());
         // Rule 1's other half, "dead", is never met at a command boundary: a death and the return to the Waystone are one tick.
     }
 
@@ -249,6 +272,28 @@ public class BuildingTests
             arena.Tick();
         }
         Assert.True(arena.Simulation.Player.Body.ZMm > 99_200, $"the doorway held the body at z {arena.Simulation.Player.Body.ZMm}");
+
+        // A door hung in it (E6), shut: the body stops short of the leaf as of a wall; opened with E, it walks through.
+        Assert.True(arena.WalkTo(100.5, 97.0));
+        Assert.Null(Place(arena, Door, 100_500, 99_000, 0));
+        var door = PieceAt(arena, Door, 100_500, 99_000);
+        zs.Clear();
+        for (int i = 0; i < 40; i++)
+        {
+            arena.Simulation.Enqueue(new MoveCommand(arena.Player, north));
+            arena.Tick();
+            zs.Add(arena.Simulation.Player.Body.ZMm);
+        }
+        Assert.All(zs, z => Assert.True(z <= 98_450, $"the body went to z {z}, into the shut door"));
+        Assert.InRange(zs[^1], 98_400, 98_450);
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, door.Value)));
+        Assert.True(arena.Simulation.Pieces.Single(p => p.Id == door).DoorOpen);
+        for (int i = 0; i < 40; i++)
+        {
+            arena.Simulation.Enqueue(new MoveCommand(arena.Player, north));
+            arena.Tick();
+        }
+        Assert.True(arena.Simulation.Player.Body.ZMm > 99_200, $"the open door held the body at z {arena.Simulation.Player.Body.ZMm}");
     }
 
     [Fact]
@@ -385,8 +430,10 @@ public class BuildingTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Builder(session, (102.0, 102.0));
+        var arena = Builder(session, (100.5, 97.8));
         Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Doorway, 100_500, 99_000, 0));
+        Assert.Null(Place(arena, Door, 100_500, 99_000, 0));
         var loaded = SaveAndLoad(profile, session, arena, "theirs");
 
         // The same world, played by another character: the pad is not theirs.
@@ -397,10 +444,15 @@ public class BuildingTests
                 r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency, r.Effects, r.Relationships, r.Conversations),
         };
         var world = Arena.Resume(session.Setup, other);
-        var pad = Assert.Single(world.Simulation.Pieces);
+        var pad = world.Simulation.Pieces.Single(p => p.DefId == Pad);
         Assert.NotEqual(world.Player, pad.Owner);
         Assert.Equal("that is not yours to take down", Dismantle(world, pad.Id));
-        Assert.Single(world.Simulation.Pieces);
+        // Nor is their door (E6): it will not open for this character, standing beside it, nor come down.
+        var door = world.Simulation.Pieces.Single(p => p.DefId == Door);
+        Assert.Equal("that door is not yours", world.Submit(new InteractCommand(world.Player, door.Id.Value)));
+        Assert.False(world.Simulation.Pieces.Single(p => p.Id == door.Id).DoorOpen);
+        Assert.Equal("that is not yours to take down", Dismantle(world, door.Id));
+        Assert.Equal(3, world.Simulation.Pieces.Length);
     }
 
     [Fact]
@@ -535,7 +587,7 @@ public class BuildingTests
         var set = new (string Def, long X, long Z, int R)[]
         {
             (Pad, 100_500, 100_500, 0), (Pad, 103_500, 100_500, 0), (Wall, 100_500, 99_000, 0), (Wall, 103_500, 99_000, 2),
-            (Doorway, 102_000, 100_500, 1), (Wall, 99_000, 100_500, 3), (Roof, 100_500, 100_500, 0),
+            (Doorway, 102_000, 100_500, 1), (Wall, 99_000, 100_500, 3), (Roof, 100_500, 100_500, 0), (Door, 102_000, 100_500, 1),
         };
         Arena Build(IEnumerable<(string Def, long X, long Z, int R)> order)
         {
@@ -545,7 +597,7 @@ public class BuildingTests
             return arena;
         }
         var first = Build(set);
-        var second = Build(set.Take(2).Reverse().Concat(new[] { set[4], set[6] }).Concat(set.Skip(2).Take(2).Reverse()).Append(set[5]));
+        var second = Build(set.Take(2).Reverse().Concat(new[] { set[4], set[7], set[6] }).Concat(set.Skip(2).Take(2).Reverse()).Append(set[5]));
 
         static (string, long, long, long, long, long, long) Projection(Blocker b) => b switch
         {
@@ -566,6 +618,10 @@ public class BuildingTests
         var placedB = second.Simulation.Space.Blockers.Where(b => b.Id.Contains('#')).ToList();
         Assert.Equal(5, placedA.Count);
         Assert.Equal(placedA.Select(p => Owner(first, p)), placedB.Select(p => Owner(second, p)));
+        // And the door's closed leaf, among the closed doors (E6).
+        var leafA = Assert.Single(first.Simulation.DynamicBlockers, b => b.Id.Contains('#'));
+        var leafB = Assert.Single(second.Simulation.DynamicBlockers, b => b.Id.Contains('#'));
+        Assert.Equal(Owner(first, leafA), Owner(second, leafB));
     }
 
     // G20 (E5: a placement's spend and a take-down's refund)
@@ -614,7 +670,7 @@ public class BuildingTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Builder(session, (102.0, 103.0));
+        var arena = Builder(session, (102.0, 102.6));
         var rebuilt = arena.Record<NavigationRebuilt>();
         string empty = arena.Simulation.Navigation.Grid.Digest();
         long revision = 0;
@@ -636,8 +692,20 @@ public class BuildingTests
         Change(() => Place(arena, Doorway, 102_000, 100_500, 1), "placed");
         Assert.Equal(108, rebuilt[^1].NodesRestamped);   // the union of its jambs
         Change(() => Place(arena, Roof, 100_500, 100_500, 0), null);
+        // A door hung (E6) is a change with a leaf; opening and shutting it is none: no rebuild, no sequence, the same grid.
+        Change(() => Place(arena, Door, 102_000, 100_500, 1), "placed");
+        string hung = arena.Simulation.Navigation.Grid.Digest();
+        var door = PieceAt(arena, Door, 102_000, 100_500);
+        foreach (bool open in new[] { true, false })
+        {
+            int before = rebuilt.Count;
+            Assert.Null(arena.Submit(new InteractCommand(arena.Player, door.Value)));
+            Assert.Equal(open, arena.Simulation.Pieces.Single(p => p.Id == door).DoorOpen);
+            Assert.Equal((revision, before, hung), (arena.Simulation.StructureRevision, rebuilt.Count, arena.Simulation.Navigation.Grid.Digest()));
+        }
         Change(() => Dismantle(arena, PieceAt(arena, Roof, 100_500, 100_500)), null);
         Change(() => Dismantle(arena, PieceAt(arena, Wall, 100_500, 99_000)), "dismantled");
+        Change(() => Dismantle(arena, door), "dismantled");
         Change(() => Dismantle(arena, PieceAt(arena, Doorway, 102_000, 100_500)), "dismantled");
         Change(() => Dismantle(arena, PieceAt(arena, Pad, 100_500, 100_500)), null);
         Assert.All(rebuilt, r => Assert.Equal(arena.Simulation.WorldTick, r.Tick));
