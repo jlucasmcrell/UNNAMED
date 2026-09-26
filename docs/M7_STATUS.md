@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E4 done (2026-09-26); E5 next. The STOPs so far (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** in progress. E0-E4 done (2026-09-26). E5 stopped at E5.2 on S1 (2026-09-26): see "STOP - E5.2, S1". The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -62,7 +62,7 @@
 | E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
 | E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), `c4c8f9d` (the S5 STOP record), `ee3d18a` (E3.5 and E3.6, one commit) | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
 | E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
-| E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
+| E5 | Build mode: pads, walls, doorways, roofs | stopped (S1) | `9361019` (E5.1); E5.2 written, not committed | E5.1: 952 + 7 Domain | 113 (E5.2, in the worktree) | Stopped at E5.2: BLD006 as written fails a Phase-1 content test. See "STOP - E5.2, S1" |
 | E6 | Piece doors | - | | | 114 expected | |
 | E7 | Navigable by construction | - | | | 114 | |
 | E8 | Chest, bench, blows and mending | - | | | 116 expected | |
@@ -294,6 +294,34 @@ The 11 -> 12, 12 -> 13 and 13 -> 14 steps write the frozen shapes, and `SchemaV1
 **Recorded limits.**
 - The region layout (authored structures, doors and barriers) is outside the baseline hash (`src/World/Generation.cs:144-162`), so a later layout edit under a placed piece is not caught by the baseline proof. The structure audit reports it (unscheduled).
 - `StateDump.Order` sorts arrays of objects by content, so route corners and trail marks are order-checked only by the raw dump and the digests.
+
+## STOP - E5.2, S1 (2026-09-26)
+
+**What fired.** S1: an existing test must change beyond the edits §12.10 lists by name.
+
+**Where.** E5.2, the building content. §4.20 defines BLD006 as "`config.building` present iff any piece or build area exists".
+
+**The test.** `tests/Content.Tests/ProgressionContentTests.cs`, `ACopyOfTheGameConfig_Lints` (Phase 1, M2c).
+- Its constructor copies every file of `content/config` and `content/skills` into a temporary pack, except `inventory.yaml` and `damage_constants.yaml`, and the test asserts the loader reports no error.
+- With E5's `content/config/building.yaml` shipped, that pack holds `config.building` and no piece or build area.
+- The "only if" half of BLD006 therefore refuses it: "BLD006: config.building is present, but there is no piece and no build area".
+- The test is not in §12.10's list, and the design does not name it anywhere.
+
+**The two readings.**
+- **(a) As written, both directions.** BLD006 keeps the refusal. The Phase-1 test must then leave out `building.yaml`, as it already leaves out `inventory.yaml` and `damage_constants.yaml`: a one-line edit that §12.10 does not permit. That is S1.
+- **(b) Required when needed.** BLD006 refuses a pack whose pieces or build areas lack `config.building`, and keeps every value check (module, turns, reach, relief, refund, repair, protections, damage, the closed setting list). A `config.building` with nothing to build is allowed, as `config.navigation` and `config.factions` already are in the same test's pack. No test changes.
+
+**Recommendation: (b).** The "only if" half guards nothing a player can reach: a `config.building` with no pieces changes no behaviour. The two other M7 configs already work this way, and no Phase-1 test is touched. Nothing else changes: BLD001-BLD004, BLD007, BLD009 and WLD015 stand as built.
+
+**State at the STOP.**
+- E5.1 (`9361019`, the building domain and its seven Domain tests) is committed and pushed.
+- E5.2 is written and not committed: the content (the four pieces, `config.building`, timber, `loot.timber_stack`, `container.timber_stack`, `build_area.hollow_crossing`); `BuildingContent` with BLD001-BLD004, BLD006, BLD007 and BLD009; WLD015; `BuildingSetup`, `ProtectedZones`, `SimulationSetup.Building`; `BuildingContentTests` (2 tests, 25 crafted refusals); and the `LoadAll_Loads_Yaml_Files` IDs.
+- Measured with reading (a) as written:
+  - lint: 113 definitions, 0 errors. BLD007 finds the shipped area clear, and the relief is as §4.8 states.
+  - tests: Content 184 of 185 (this test); Application 231 of 232; everything else green.
+  - The Application failure is the recorded Phase-1 `AsyncSaveTests` flake. It passes alone (5 of 5), and nothing in E5.2 touches it.
+- Measured with reading (b): Content 185 of 185.
+
 
 ## E4 evidence (2026-09-26, the machine that ran E1-E3)
 
