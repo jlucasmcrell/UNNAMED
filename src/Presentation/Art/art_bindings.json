@@ -44,6 +44,14 @@
     "piece.door.timber": { "model": "piece_timber_door", "material": "wood", "note": "The leaf's origin is its hinge edge (local x = -0.8 of the part box)." },
     "piece.roof.timber": { "model": "piece_timber_roof", "material": "wood", "note": "Its ridge runs along local x: modules stitch along x only (no hips or valleys yet)." }
   },
+  "people_by_visual_option": {
+    "people=production": {
+      "player": {
+        "model": "player_veth_wanderer_prod",
+        "note": "Phase B (character fidelity): the player's production mesh - the reconstruction's enclosed inner shell removed, a face-priority atlas at 4096 with the concept's own pixels projected on (tools/asset_pipeline/charprod)."
+      }
+    }
+  },
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
@@ -57,6 +65,23 @@
           "hit": "player.veth_wanderer.ext_hit",
           "death": "player.veth_wanderer.ext_death",
           "interact": "player.veth_wanderer.ext_interact"
+        },
+        "paces": {
+          "walk": 0.96,
+          "sprint": 2.92,
+          "crouch_walk": 0.75
+        }
+      }
+    },
+    "people=production": {
+      "player": {
+        "note": "Phase B (character fidelity): the player's locomotion retargeted onto the production rig (tools/asset_pipeline/retarget_maps/quaternius_ual_prod.json) - the Quaternius UAL clips (CC0) one-to-one, fingers, three spine bones and toes included; the rest as under clips=ext (by bone name).",
+        "clips": {
+          "idle": "player.veth_wanderer_prod.idle",
+          "walk": "player.veth_wanderer_prod.walk",
+          "sprint": "player.veth_wanderer_prod.sprint",
+          "crouch_idle": "player.veth_wanderer_prod.crouch_idle",
+          "crouch_walk": "player.veth_wanderer_prod.crouch_walk"
         },
         "paces": {
           "walk": 0.96,

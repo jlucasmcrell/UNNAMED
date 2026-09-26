@@ -33,6 +33,7 @@ public partial class NpcsView : Node3D
     public Node3D PlayerHead { get; } = new() { Name = "PlayerHead" };
 
     private readonly Dictionary<string, LookAtModifier3D> _looks = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, IReadOnlyList<LookAtModifier3D>> _eyes = new(StringComparer.Ordinal);
 
     public void Draw(Simulation simulation, double delta)
     {
@@ -59,6 +60,9 @@ public partial class NpcsView : Node3D
                     Art.BodyModifiers.PlantFeet(body.Skeleton, body, ground);
                     if (Art.BodyModifiers.LookAt(body.Skeleton, body, PlayerHead) is { } look)
                         _looks[npc.Id] = look;
+                    // A production rig's eyes follow the player too, with the head (character fidelity).
+                    if (Art.BodyModifiers.EyesLook(body.Skeleton, body, PlayerHead) is { Count: > 0 } eyes)
+                        _eyes[npc.Id] = eyes;
                 }
             }
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
@@ -76,6 +80,11 @@ public partial class NpcsView : Node3D
                 // Within 6 m (and not downed) the head follows the player; further off it eases back to the clip's.
                 float near = feet.DistanceTo(PlayerHead.GlobalPosition) < 6f && !npc.Downed ? 1f : 0f;
                 head.Influence = Mathf.MoveToward(head.Influence, near, (float)delta * 2.5f);
+                if (_eyes.TryGetValue(npc.Id, out var eyes))
+                {
+                    foreach (var eye in eyes)
+                        eye.Influence = head.Influence;
+                }
             }
             if (!figure.SetDowned(npc.Downed) && npc.Downed)
                 figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);

@@ -1,0 +1,55 @@
+{
+  "note": "Phase B (character fidelity): what the production characters' zone materials add to their glTF (CharacterMaterials.cs). Roughness and metalness per zone are already in each character's ORM atlas (tools/asset_pipeline/charprod/orm_zones.py); these are the effects glTF has no field for.",
+  "kinds": {
+    "skin": {
+      "specular": 0.35,
+      "sss": 0.22,
+      "sss_skin": true,
+      "backlight": [
+        0.1,
+        0.03,
+        0.02
+      ]
+    },
+    "hair": {
+      "specular": 0.3,
+      "backlight": [
+        0.08,
+        0.05,
+        0.03
+      ],
+      "rim": 0.15,
+      "rim_tint": 0.7
+    },
+    "cloth": {
+      "specular": 0.25,
+      "rim": 0.3,
+      "rim_tint": 0.6
+    },
+    "cloth_heavy": {
+      "specular": 0.35,
+      "rim": 0.15,
+      "rim_tint": 0.5
+    },
+    "leather": {
+      "specular": 0.45,
+      "clearcoat": 0.15,
+      "clearcoat_roughness": 0.55
+    },
+    "metal": {
+      "specular": 0.5
+    },
+    "eye": {
+      "specular": 0.6,
+      "roughness": 0.05,
+      "clearcoat": 1.0,
+      "clearcoat_roughness": 0.02
+    }
+  },
+  "lods": {
+    "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch cross-fades over margin.",
+    "lod0_end": 18.0,
+    "lod1_end": 45.0,
+    "margin": 2.0
+  }
+}

@@ -66,6 +66,11 @@ public sealed partial class SkinnedFigure : Figure
             figure._offHand = model.Attach(off);
             figure._offGrip = person.OffGrip ?? SocketGrip(model, off);
         }
+        // A rig with finger bones closes the hand that holds a weapon and relaxes the other (Phase B, character fidelity).
+        figure._fingers = BodyModifiers.Grip(model.Skeleton, person.Hand);
+        string otherHand = person.OffHand ?? (person.Hand.EndsWith(".R", StringComparison.Ordinal) ? person.Hand[..^1] + "L" : person.Hand[..^1] + "R");
+        figure._offFingers = BodyModifiers.Grip(model.Skeleton, otherHand);
+        figure.Relax();
         return figure;
     }
 
@@ -88,6 +93,20 @@ public sealed partial class SkinnedFigure : Figure
 
     private Transform3D? _grip;
     private Transform3D? _offGrip;
+    private HandGrip? _fingers;
+    private HandGrip? _offFingers;
+
+    /// <summary>How closed an empty hand rests (a relaxed curl, not the rest pose's flat fingers).</summary>
+    private const float RelaxedHand = 0.2f;
+
+    private void Relax()
+    {
+        bool off = _equipped?.OffHand == true && _offHand is not null;
+        if (_fingers is not null)
+            _fingers.Closed = _held is not null && !off ? 1f : RelaxedHand;
+        if (_offFingers is not null)
+            _offFingers.Closed = _held is not null && off ? 1f : RelaxedHand;
+    }
 
     public override void SetStance(CombatStance stance) => _stance = stance;
 
@@ -131,6 +150,7 @@ public sealed partial class SkinnedFigure : Figure
         _held?.QueueFree();
         _held = null;
         bool off = weapon?.OffHand == true && _offHand is not null;
+        Relax();
         if (weapon is null)
             return;
         if ((off ? _offHand : _hand) is not { } bone || (off ? _offGrip : _grip) is not { } grip)
@@ -144,6 +164,7 @@ public sealed partial class SkinnedFigure : Figure
         model.Name = "Held";
         bone.AddChild(model);
         _held = model;
+        Relax();
     }
 
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)

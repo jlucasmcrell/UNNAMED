@@ -60,6 +60,43 @@ public static class BodyModifiers
         return look;
     }
 
+    /// <summary>
+    /// The eyes (the production rig's <c>eye.L</c> / <c>eye.R</c>) turned toward <paramref name="target"/> within an eye's range, on top of the
+    /// head's own look; empty on a rig without eye bones.
+    /// </summary>
+    public static IReadOnlyList<LookAtModifier3D> EyesLook(Skeleton3D skeleton, Node3D body, Node3D target)
+    {
+        var looks = new List<LookAtModifier3D>();
+        foreach (string bone in new[] { "eye.L", "eye.R" })
+        {
+            int eye = skeleton.FindBone(bone);
+            if (eye < 0)
+                continue;
+            var look = new LookAtModifier3D
+            {
+                Name = "EyeLook." + bone[^1], BoneName = bone, ForwardAxis = FaceAxis(skeleton, body, eye), UseAngleLimitation = true,
+                SymmetryLimitation = true, PrimaryLimitAngle = Mathf.DegToRad(60), SecondaryLimitAngle = Mathf.DegToRad(40), Duration = 0.08f,
+            };
+            skeleton.AddChild(look);
+            look.TargetNode = look.GetPathTo(target);
+            looks.Add(look);
+        }
+        return looks;
+    }
+
+    /// <summary>A hand's fingers curled closed (around a held weapon) or relaxed; null on a rig without finger bones for that hand.</summary>
+    public static HandGrip? Grip(Skeleton3D skeleton, string handBone)
+    {
+        var grip = new HandGrip { Name = "Grip." + handBone };
+        if (!grip.Bind(skeleton, handBone))
+        {
+            grip.Free();
+            return null;
+        }
+        skeleton.AddChild(grip);
+        return grip;
+    }
+
     /// <summary>A single trailing bone (a tail) made springy: it lags and swings as the body turns and moves; null without the bone.</summary>
     public static SpringBoneSimulator3D? Spring(Skeleton3D skeleton, string bone, float length, float stiffness = 0.6f, float drag = 0.35f, float gravity = 0.4f)
     {
@@ -162,5 +199,49 @@ public partial class FootPlanting : SkeletonModifier3D
             Targets[i].GlobalPosition = feet[i] + new Vector3(0, rise[i], 0);
             Poles[i].GlobalPosition = toWorld * skeleton.GetBoneGlobalPose(_shins[i]).Origin + ahead;
         }
+    }
+}
+
+/// <summary>
+/// A hand's finger bones curled about their bend axis on top of the clip: <see cref="Closed"/> 1 is a grip around a haft, 0 the clip's
+/// own fingers. The production rig (tools/asset_pipeline/charprod/rig_production.py) rolls every finger bone so its local X is the bend
+/// axis and a grip is a negative turn about it.
+/// </summary>
+public partial class HandGrip : SkeletonModifier3D
+{
+    /// <summary>How closed the hand is asked to be (0..1); the fingers ease there.</summary>
+    public float Closed { get; set; }
+
+    private float _now;
+    private readonly List<(int Bone, float Angle)> _bones = new();
+
+    // A grip's curl per segment, in degrees: the fingers' knuckle, middle and end joints; the thumb curls less.
+    private static readonly float[] Finger = { 62f, 78f, 48f };
+    private static readonly float[] Thumb = { 12f, 32f, 28f };
+
+    public bool Bind(Skeleton3D skeleton, string handBone)
+    {
+        string side = handBone.Length > 2 && handBone[^2] == '.' ? handBone[^1..] : handBone.EndsWith("_r", StringComparison.Ordinal) ? "R" : "L";
+        foreach (string name in new[] { "thumb", "index", "middle", "ring", "pinky" })
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                int bone = skeleton.FindBone($"{name}_0{k + 1}.{side}");
+                if (bone >= 0)
+                    _bones.Add((bone, Mathf.DegToRad(name == "thumb" ? Thumb[k] : Finger[k])));
+            }
+        }
+        return _bones.Count > 0;
+    }
+
+    public override void _ProcessModificationWithDelta(double delta)
+    {
+        if (GetSkeleton() is not { } skeleton)
+            return;
+        _now = delta <= 0 ? Closed : Mathf.MoveToward(_now, Closed, (float)delta * 6f);
+        if (_now <= 0.001f)
+            return;
+        foreach (var (bone, angle) in _bones)
+            skeleton.SetBonePoseRotation(bone, skeleton.GetBonePoseRotation(bone) * new Quaternion(Vector3.Right, -angle * _now));
     }
 }

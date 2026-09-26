@@ -28,6 +28,7 @@ public static class VisualOptions
         ["hooks"] = new[] { "none", "on" },
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)
+        ["people"] = new[] { "phase_a", "production" },  // production: the character-fidelity pass's models (people_by_visual_option)
         ["audio"] = new[] { "v3", "proof", "proof_open" },  // proof_open: only proofs whose sources set no AI/ML restriction (reviewable by an AI)
         ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
@@ -52,6 +53,7 @@ public static class VisualOptions
         ["hooks"] = "none",
         ["body"] = "none",
         ["clips"] = "procedural",
+        ["people"] = "phase_a",
     };
 
     /// <summary>

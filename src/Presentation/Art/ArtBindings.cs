@@ -248,6 +248,7 @@ public sealed class ArtBindings
     /// </summary>
     private static PersonArt OptionClips(JsonElement root, string person, PersonArt look)
     {
+        look = OptionModel(root, person, look);
         if (!root.TryGetProperty("people_clips_by_visual_option", out var byOption))
             return look;
         foreach (var option in byOption.EnumerateObject())
@@ -262,6 +263,31 @@ public sealed class ArtBindings
                 ? p.EnumerateObject().Where(x => x.Value.ValueKind == JsonValueKind.Number).ToDictionary(x => x.Name, x => (float)x.Value.GetDouble(), StringComparer.Ordinal)
                 : new Dictionary<string, float>(StringComparer.Ordinal);
             look = look with { Clips = clips, Paces = paces };
+        }
+        return look;
+    }
+
+    /// <summary>
+    /// A person's model under the run's visual options (Phase B, character fidelity: <c>people_by_visual_option</c>): the model, and the hand
+    /// bones and grips where the replacing model's rig names them differently.
+    /// </summary>
+    private static PersonArt OptionModel(JsonElement root, string person, PersonArt look)
+    {
+        if (!root.TryGetProperty("people_by_visual_option", out var byOption))
+            return look;
+        foreach (var option in byOption.EnumerateObject())
+        {
+            string[] kv = option.Name.Split('=', 2);
+            if (kv.Length != 2 || VisualOptions.All.GetValueOrDefault(kv[0]) != kv[1] || !option.Value.TryGetProperty(person, out var over))
+                continue;
+            look = look with
+            {
+                Model = Text(over, "model") ?? look.Model,
+                Hand = Text(over, "hand") ?? look.Hand,
+                OffHand = Text(over, "off_hand") ?? look.OffHand,
+                Grip = Grip(over, "grip") ?? look.Grip,
+                OffGrip = Grip(over, "off_grip") ?? look.OffGrip,
+            };
         }
         return look;
     }

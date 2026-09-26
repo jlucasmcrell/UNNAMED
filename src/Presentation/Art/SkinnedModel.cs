@@ -36,6 +36,8 @@ public sealed partial class SkinnedModel : Node3D
         }
         var figure = new SkinnedModel { Name = assetId, Skeleton = skeleton };
         figure.AddChild(model);
+        CharacterMaterials.Upgrade(model);
+        CharacterMaterials.ApplyLods(model);
         // Imported players (none in these files today) would fight ours over the same bones.
         foreach (var imported in model.FindChildren("*", nameof(AnimationPlayer), true, false))
             imported.QueueFree();
