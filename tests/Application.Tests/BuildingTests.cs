@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Building;
+using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
@@ -394,6 +396,298 @@ public class BuildingTests
         Assert.Equal((1, 1), (Carried(Ingot), Carried(Haft)));
     }
 
+    // ── blows and mending (E8) ──────────────────────────────────────────────────
+
+    /// <summary>Swing along the facing <paramref name="count"/> times, each once the last is over (waiting out any refusal).</summary>
+    internal static void Blows(Arena arena, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            int waited = 0;
+            while (arena.Submit(new AttackCommand(arena.Player)) is { } refused)
+            {
+                Assert.True(++waited < 400, $"blow {i + 1} refused: {refused}");
+                arena.Tick();
+            }
+            arena.Tick(arena.Simulation.Combat.Weapon.TotalTicks + 1);
+        }
+    }
+
+    private static int Health(Arena arena, EntityId piece) => arena.Simulation.Pieces.Single(p => p.Id == piece).HealthCurrent;
+
+    /// <summary>
+    /// The one damage rule (M7 design §4.12): the sword's blow that meets no creature takes 10 from the piece it lands on, in place of a
+    /// miss; swung at open air it still misses. An arrow and the impulse bolt stop at the same wall and take nothing.
+    /// </summary>
+    [Fact]
+    public void DamageRules_OnlyAMeleeBlow_DamagesAPiece()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string Bow = "item.weapon.hunting_bow", Arrow = "item.ammo.arrow_rough", Impulse = "spell.force.impulse_bolt";
+        var arena = Arena.OpenCreatures(session, session.Setup, (100.5, 100.0), 180, None, r =>
+            Carrying(r.WithInventory(r.Inventory.Concat(new[] { Arena.Stack(Bow, 1), Arena.Stack(Arrow, 5) })), 20).WithProgression(r.Progression with
+            {
+                Known = r.Progression.Known.SetItem(Impulse, new KnownTechnique(LearningSource.Book, "item.tome.resonance_primer", 0)),
+                Skills = r.Progression.Skills.SetItem("skill.force", new SkillState(5, 0)),
+            }));
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Wall, 100_500, 99_000, 0));
+        var wall = PieceAt(arena, Wall, 100_500, 99_000);
+        var damaged = arena.Record<PieceDamaged>();
+        var missed = arena.Record<AttackMissed>();
+
+        Blows(arena, 1);
+        var blow = Assert.Single(damaged);
+        Assert.Equal((wall, Wall, 10, 190, "melee"), (blow.PieceId, blow.DefId, blow.Amount, blow.HealthNow, blow.Source));
+        Assert.Empty(missed);
+        Assert.Equal(190, Health(arena, wall));
+
+        arena.TurnTo(0);
+        arena.Tick();
+        Blows(arena, 1);
+        Assert.Single(missed);
+        Assert.Single(damaged);
+
+        // The bow: the arrow stops at the wall's face and takes nothing.
+        arena.TurnTo(180);
+        arena.Tick();
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, arena.Simulation.Player.Inventory.Single(e => e.DefId == Bow).ItemId)));
+        var shots = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(40);
+        Assert.InRange(Assert.Single(shots).ToZMm, 99_200, 99_210);
+        // The impulse bolt likewise.
+        Assert.Null(arena.Submit(new CastCommand(arena.Player, Impulse)));
+        arena.Tick(80);
+        Assert.Single(damaged);
+        Assert.Equal(190, Health(arena, wall));
+
+        // A boar's charge that ends on a piece stuns the boar and takes nothing: shot from 9.8 m, it charges; the character steps aside
+        // and it runs on into the wall on the pad's north edge, 1 m behind where they stood.
+        const string Boar = "creature.beast.bristleback_boar";
+        var field = Arena.OpenCreatures(session, session.Setup, (100.5, 100.8), 180, new[] { (Boar, 100.5, 91.0, "sentinel") }, r =>
+        {
+            var bow = Arena.Stack(Bow, 1);
+            var armed = Carrying(r.WithInventory(r.Inventory.Concat(new[] { bow, Arena.Stack(Arrow, 5) })), 20);
+            return new PlayerRecord(armed.Id, armed.Name, armed.XMm, armed.YMm, armed.ZMm, armed.AppearanceSeed, armed.Inventory, armed.Progression,
+                armed.FacingMdeg, armed.Discoveries, new[] { KeyValuePair.Create(EquipSlot.MainHand, bow.ItemId) }, armed.Currency, armed.Effects);
+        });
+        Assert.Null(Place(field, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(field, Wall, 100_500, 102_000, 0));
+        var north = PieceAt(field, Wall, 100_500, 102_000);
+        var stunned = field.Record<CreatureStunned>();
+        var struck = field.Record<PieceDamaged>();
+        Assert.Null(field.Submit(new AttackCommand(field.Player)));
+        field.Tick(field.Simulation.Combat.Weapon.TotalTicks + 1);
+        bool dodged = false;
+        for (int i = 0; i < 200 && stunned.Count == 0; i++)
+        {
+            if (!dodged && field.Creature().Phase == CombatPhase.Active && field.Simulation.Combat.Phase == CombatPhase.Idle)
+            {
+                Assert.Null(field.Submit(new DodgeCommand(field.Player, 1000, 0)));
+                dodged = true;
+            }
+            field.Tick();
+        }
+        Assert.True(dodged);
+        Assert.Single(stunned);
+        Assert.True(field.Creature().Body.ZMm > 100_800, $"the boar stopped at {field.Creature().Body}, short of the wall");
+        Assert.Empty(struck);
+        Assert.Equal(200, Health(field, north));
+    }
+
+    /// <summary>A swing that strikes a creature strikes no piece (M7 design §4.12): the piece's jamb on the facing line is left whole.</summary>
+    [Fact]
+    public void ABlowThatHitsACreature_DamagesNoPiece()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The facing line meets the doorway's west jamb 0.8 m off. Built first, then loaded with a wolf in the opening - inside the
+        // swing's arc and reach - since a spawner's ground is kept clear of building.
+        var built = Arena.OpenCreatures(session, session.Setup, (99.6, 100.0), 180, None, r => Carrying(r, 20));
+        Assert.Null(Place(built, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(built, Doorway, 100_500, 99_000, 0));
+        var doorway = PieceAt(built, Doorway, 100_500, 99_000);
+        var wolf = new SpawnSite("spawn.test.wolf_0", 100_300, 99_000, 0, ImmutableArray.Create(new SpawnMember(Arena.Wolf, "sentinel")));
+        var withWolf = session.Setup with { Combat = session.Setup.Combat with { Spawns = ImmutableArray.Create(wolf) } };
+        var arena = Arena.Resume(withWolf, SaveAndLoad(profile, session, built, "wolf"));
+        Assert.Equal((100_300L, 99_000L), (arena.Creature().Body.XMm, arena.Creature().Body.ZMm));
+        var damaged = arena.Record<PieceDamaged>();
+        var hits = arena.Record<HitResolved>();
+        Blows(arena, 1);
+        Assert.Contains(hits, h => h.Attacker == arena.Player && h.Target == arena.Creature().Id);
+        Assert.Empty(damaged);
+        Assert.Equal(200, Health(arena, doorway));
+
+        // With the wolf gone, the same swing lands on the jamb.
+        var alone = Arena.OpenCreatures(session, session.Setup, (99.6, 100.0), 180, None, r => Carrying(r, 20));
+        Assert.Null(Place(alone, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(alone, Doorway, 100_500, 99_000, 0));
+        Blows(alone, 1);
+        Assert.Equal(190, Health(alone, PieceAt(alone, Doorway, 100_500, 99_000)));
+    }
+
+    /// <summary>
+    /// An authored wall shields a piece it touches (M7 design §4.12): a blow whose line meets an authored blocker damages no piece; the
+    /// same blow without it lands on the piece.
+    /// </summary>
+    [Fact]
+    public void AnAuthoredWall_ShieldsATouchingPiece()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var layout = session.Setup.Layout;
+        // A low authored box against the west face of a wall piece on a pad's west edge, 0.8 m before the body, off the pad's square.
+        var shielded = session.Setup with
+        {
+            Layout = layout with
+            {
+                Space = layout.Space with { Blockers = layout.Space.Blockers.Add(new BoxBlocker("wall.test", 98_400, 100_000, 98_800, 101_000, 1_000)) },
+            },
+        };
+        foreach (var (rules, expected) in new[] { (shielded, 200), (session.Setup, 190) })
+        {
+            var arena = Builder(session, (97.6, 100.5), 90, rules, new[] { 20 });
+            Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+            Assert.Null(Place(arena, Wall, 99_000, 100_500, 1));
+            var wall = PieceAt(arena, Wall, 99_000, 100_500);
+            var missed = arena.Record<AttackMissed>();
+            Blows(arena, 1);
+            Assert.Equal(expected, Health(arena, wall));
+            Assert.Equal(expected == 200 ? 1 : 0, missed.Count);
+        }
+    }
+
+    /// <summary>
+    /// A piece at 0 is destroyed (M7 design §4.13), with nothing back; a destroyed doorway takes its door first - two removals, two
+    /// rebuilds, the sequence twice - and the pad it stood on is left.
+    /// </summary>
+    [Fact]
+    public void APieceAtZero_IsDestroyed_AndADoorwayTakesItsDoor()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The facing line meets the doorway's west jamb, beside the door's leaf.
+        var arena = Builder(session, (99.25, 100.0), 180);
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Doorway, 100_500, 99_000, 0));
+        Assert.Null(Place(arena, Door, 100_500, 99_000, 0));
+        var doorway = PieceAt(arena, Doorway, 100_500, 99_000);
+        var door = PieceAt(arena, Door, 100_500, 99_000);
+        var stacks = Stacks(arena);
+        long revision = arena.Simulation.StructureRevision;
+        var damaged = arena.Record<PieceDamaged>();
+        var destroyed = arena.Record<PieceDestroyed>();
+        var removed = arena.Record<PieceRemoved>();
+        var changed = arena.Record<StructuresChanged>();
+        var rebuilt = arena.Record<NavigationRebuilt>();
+
+        Blows(arena, 19);
+        Assert.Equal(Enumerable.Range(1, 19).Select(n => 200 - 10 * n), damaged.Select(d => d.HealthNow));
+        Assert.All(damaged, d => Assert.Equal((doorway, "melee"), (d.PieceId, d.Source)));
+        Assert.Equal((revision, 0, 120), (arena.Simulation.StructureRevision, rebuilt.Count, Health(arena, door)));
+        Blows(arena, 1);
+
+        Assert.Equal(new[] { (door, Door, "melee", revision + 1), (doorway, Doorway, "melee", revision + 2) },
+            destroyed.Select(d => (d.PieceId, d.DefId, d.Source, d.Revision)));
+        Assert.Empty(removed);
+        Assert.Equal(new[] { (StructureChangeKind.Destroyed, revision + 1), (StructureChangeKind.Destroyed, revision + 2) },
+            changed.Select(c => (c.Kind, c.Revision)));
+        Assert.Equal(new[] { "destroyed", "destroyed" }, rebuilt.Select(r => r.Reason));
+        Assert.Equal(revision + 2, arena.Simulation.StructureRevision);
+        Assert.Equal(Pad, Assert.Single(arena.Simulation.Pieces).DefId);
+        Assert.Equal(stacks, Stacks(arena));   // nothing back
+        Assert.Null(arena.Simulation.World.Piece(door));
+        Assert.Null(arena.Simulation.World.Piece(doorway));
+        Assert.DoesNotContain(arena.Simulation.Space.Blockers, b => b.Id.StartsWith(doorway.Value, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Mending (M7 design §4.12): refused in order - the actor, the piece, reach, whole already, the materials - and otherwise one cost,
+    /// the cost line scaled by the health missing and rounded up, for the whole of it.
+    /// </summary>
+    [Fact]
+    public void Repair_CostsTheScaledTimber_AndRefusesInOrder()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Builder(session, (100.5, 100.0), 180, timber: new[] { 20 });
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Wall, 100_500, 99_000, 0));
+        var wall = PieceAt(arena, Wall, 100_500, 99_000);
+        var repaired = arena.Record<PieceRepaired>();
+        var stranger = EntityId.Parse("chr_01JZZZZZZZZZZZZZZZZZZZZZZZ");
+
+        Assert.Equal($"unknown actor {stranger}", arena.Submit(new RepairPieceCommand(stranger, wall)));
+        Assert.Equal("there is no such piece", arena.Submit(new RepairPieceCommand(arena.Player, EntityId.NewId(EntityKind.Piece))));
+        Assert.Equal("it needs no repair", arena.Submit(new RepairPieceCommand(arena.Player, wall)));
+        Blows(arena, 3);
+        Assert.Equal(170, Health(arena, wall));
+        Assert.True(arena.WalkTo(110.5, 102.0));
+        string far = arena.Submit(new RepairPieceCommand(arena.Player, wall))!;
+        Assert.StartsWith("that is ", far);
+        Assert.EndsWith(" m away; building reach is 6.00 m", far);
+        Assert.True(arena.WalkTo(100.5, 100.3));
+        Assert.Empty(repaired);
+
+        // 170 of 200: ⌈2 × 30 × 100 / 20 000⌉ = 1 timber, for the whole of it.
+        string digest = arena.Simulation.StateDigest();
+        Assert.Null(arena.Submit(new RepairPieceCommand(arena.Player, wall)));
+        Assert.Equal((wall, 170, 200), (Assert.Single(repaired).PieceId, repaired[0].From, repaired[0].To));
+        Assert.Equal(200, Health(arena, wall));
+        Assert.Equal(new[] { 16 }, Stacks(arena));
+        Assert.NotEqual(digest, arena.Simulation.StateDigest());
+
+        // Without the timber: refused, and nothing changes.
+        var poor = Builder(session, (100.5, 100.0), 180, timber: new[] { 3 });
+        Assert.Null(Place(poor, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(poor, Wall, 100_500, 99_000, 0));
+        Blows(poor, 3);
+        string before = poor.Simulation.StateDigest();
+        Assert.Equal($"needs 1 {Timber}", poor.Submit(new RepairPieceCommand(poor.Player, PieceAt(poor, Wall, 100_500, 99_000))));
+        Assert.Equal(before, poor.Simulation.StateDigest());
+    }
+
+    /// <summary>
+    /// A destroyed chest spills (M7 design §4.13): each stack it held lies on the ground at its site with its item ID kept, and only the
+    /// chest's own identity goes; nothing is lost and nothing minted.
+    /// </summary>
+    [Fact]
+    public void ADestroyedChest_SpillsItsStacks_KeepingTheirIds()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string Ingot = "item.material.iron_ingot";
+        var arena = Arena.OpenCreatures(session, session.Setup, (100.5, 102.6), 180, None,
+            r => Carrying(r.WithInventory(r.Inventory.Add(Arena.Stack(Ingot, 1))), 20));
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Chest, 100_500, 100_500, 0));
+        var chest = PieceAt(arena, Chest, 100_500, 100_500);
+        string key = arena.Simulation.Pieces.Single(p => p.Id == chest).ContainerKey!;
+        Assert.Null(Store(arena, key, 2));
+        var ingot = arena.Simulation.Player.Inventory.Single(e => e.DefId == Ingot);
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, ingot.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), 1)));
+        var held = arena.Simulation.World.Container(key)!.Items;
+        Assert.Equal(2, held.Length);
+        var destroyed = arena.Record<PieceDestroyed>();
+
+        Blows(arena, 10);
+        Assert.Equal((chest, Chest, "melee"), (Assert.Single(destroyed).PieceId, destroyed[0].DefId, destroyed[0].Source));
+        Assert.Null(arena.Simulation.World.Container(key));
+        Assert.DoesNotContain(arena.Simulation.Containers, c => c.Site.Key == key);
+        var spilled = arena.Simulation.WorldItems.Where(i => held.Any(h => h.ItemId == i.Id)).ToList();
+        Assert.Equal(held.Select(h => (h.ItemId, h.DefId, h.Count, 100_500L, 101_400L)).Order(),
+            spilled.Select(s => (s.Id, s.DefId, s.Count, s.XMm, s.ZMm)).Order());
+
+        // They are ordinary ground stacks: picked up, the timber joins the carried stack and the ingot keeps its identity.
+        foreach (var item in held)
+            Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, item.ItemId.Value, ItemPlace.Ground, ItemPlace.Carried, item.Count)));
+        Assert.Equal(new[] { 17 }, Stacks(arena));
+        Assert.Equal(held.Single(h => h.DefId == Ingot).ItemId, arena.Simulation.Player.Inventory.Single(e => e.DefId == Ingot).ItemId);
+        Assert.DoesNotContain(arena.Simulation.WorldItems, i => held.Any(h => h.ItemId == i.Id));
+    }
+
     // F-E10
     /// <summary>
     /// Two fresh new games that take timber from the stack, place a pad and a chest, and store 2 timber give equal replayable dumps: the
@@ -675,6 +969,7 @@ public class BuildingTests
         var pad = world.Simulation.Pieces.Single(p => p.DefId == Pad);
         Assert.NotEqual(world.Player, pad.Owner);
         Assert.Equal("that is not yours to take down", Dismantle(world, pad.Id));
+        Assert.Equal("that is not yours to mend", world.Submit(new RepairPieceCommand(world.Player, pad.Id)));   // E8
         // Nor is their door (E6): it will not open for this character, standing beside it, nor come down.
         var door = world.Simulation.Pieces.Single(p => p.DefId == Door);
         Assert.Equal("that door is not yours", world.Submit(new InteractCommand(world.Player, door.Id.Value)));
@@ -893,6 +1188,19 @@ public class BuildingTests
         Assert.Equal(new[] { 4 }, Stored(worlds[0]));
         Assert.Equal(new[] { 5 }, Stacks(worlds[0]));
         Assert.Equal(Stored(worlds[0]), Stored(worlds[1]));
+
+        // And a repair's spend (E8): the wall again, three blows, and the one timber it costs to mend.
+        foreach (var world in worlds)
+        {
+            Assert.Null(Place(world, Wall, 100_500, 99_000, 0));
+            Assert.True(world.WalkTo(102.0, 102.6) && world.WalkTo(102.0, 100.3));
+            world.TurnTo(180);
+            world.Tick();
+            Blows(world, 3);
+            Assert.Null(world.Submit(new RepairPieceCommand(world.Player, PieceAt(world, Wall, 100_500, 99_000))));
+        }
+        Assert.Equal(new[] { 2 }, Stacks(worlds[0]));
+        Assert.Equal(Stacks(worlds[0]), Stacks(worlds[1]));
         Assert.Equal(Stacks(worlds[0]), Stacks(worlds[1]));
     }
 
@@ -957,6 +1265,30 @@ public class BuildingTests
         Change(() => Dismantle(arena, PieceAt(arena, Doorway, 102_000, 100_500)), "dismantled");
         Change(() => Dismantle(arena, PieceAt(arena, Pad, 100_500, 100_500)), null);
         Assert.All(rebuilt, r => Assert.Equal(arena.Simulation.WorldTick, r.Tick));
+
+        // Blows and mending (E8): damage that leaves a piece standing, and a repair, are no change - no rebuild, no sequence; a piece
+        // destroyed is one change, and a doorway destroyed with its door two.
+        Change(() => Place(arena, Pad, 100_500, 100_500, 0), null);
+        Change(() => Place(arena, Wall, 100_500, 99_000, 0), "placed");
+        Change(() => Place(arena, Doorway, 102_000, 100_500, 1), "placed");
+        Change(() => Place(arena, Door, 102_000, 100_500, 1), "placed");
+        Assert.True(arena.WalkTo(101.2, 102.6) && arena.WalkTo(100.5, 100.0));
+        arena.TurnTo(180);
+        arena.Tick();
+        int rebuilds = rebuilt.Count;
+        Blows(arena, 3);
+        Assert.Null(arena.Submit(new RepairPieceCommand(arena.Player, PieceAt(arena, Wall, 100_500, 99_000))));
+        Assert.Equal((revision, rebuilds), (arena.Simulation.StructureRevision, rebuilt.Count));
+        Blows(arena, 20);
+        Assert.Equal((++revision, rebuilds + 1, "destroyed"), (arena.Simulation.StructureRevision, rebuilt.Count, rebuilt[^1].Reason));
+        Assert.True(arena.WalkTo(101.0, 102.0));
+        arena.TurnTo(90);
+        arena.Tick();
+        Blows(arena, 20);
+        revision += 2;
+        Assert.Equal((revision, rebuilds + 3), (arena.Simulation.StructureRevision, rebuilt.Count));
+        Assert.All(rebuilt.TakeLast(2), r => Assert.Equal("destroyed", r.Reason));
+        Change(() => Dismantle(arena, PieceAt(arena, Pad, 100_500, 100_500)), null);
 
         // Everything gone, the grid is the grid it started as.
         Assert.Equal(empty, arena.Simulation.Navigation.Grid.Digest());

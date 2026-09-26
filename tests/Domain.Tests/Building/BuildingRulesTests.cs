@@ -277,6 +277,27 @@ public class BuildingRulesTests
         Assert.Equal(0, BuildingMath.DistanceSquared(a, 5_000, 5_000));
     }
 
+    [Fact]
+    public void RepairCost_RoundsUp_AndRefund_RoundsDown()
+    {
+        // Mending: the percentage of each cost line, scaled by the health missing, rounded up - a wall at 170/200 is ⌈2 × 30 × 100 /
+        // 20 000⌉ = 1 timber, at 10/200 ⌈2 × 190 × 100 / 20 000⌉ = 2, and one point short still a whole timber; whole, nothing.
+        Assert.Equal(1, BuildingMath.RepairCost(2, 30, 200, 100));
+        Assert.Equal(2, BuildingMath.RepairCost(2, 190, 200, 100));
+        Assert.Equal(1, BuildingMath.RepairCost(2, 1, 200, 100));
+        Assert.Equal(0, BuildingMath.RepairCost(2, 0, 200, 100));
+        Assert.Equal(0, BuildingMath.RepairCost(2, 30, 200, 0));
+        Assert.Equal(6, BuildingMath.RepairCost(4, 150, 300, 300));    // exact: 4 × 150 × 300 / 30 000
+        Assert.Equal(20, BuildingMath.RepairCost(2, 200, 200, 1_000)); // the largest percentage, from nothing
+        Assert.Equal(int.MaxValue, BuildingMath.RepairCost(int.MaxValue, 1_000, 1_000, 100));   // no overflow on the way
+
+        // Taking down: the percentage, rounded down - half of 1 is nothing, of 2 is 1, of 5 is 2.
+        Assert.Equal(0, BuildingMath.Refund(1, 50));
+        Assert.Equal(1, BuildingMath.Refund(2, 50));
+        Assert.Equal(2, BuildingMath.Refund(5, 50));
+        Assert.Equal(4, BuildingMath.Refund(4, 100));
+    }
+
     private static string RepoRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)

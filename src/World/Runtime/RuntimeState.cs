@@ -311,6 +311,13 @@ internal sealed class RuntimeState
         World.RemoveContainer(key);
     }
 
+    /// <summary>A container's record goes while its items live on elsewhere (M7: a destroyed chest's spill): only its own identity retires.</summary>
+    public void ReleaseContainer(SliceOwner owner, string key)
+    {
+        Require(owner, StateSlice.WorldItems);
+        World.ReleaseContainer(key);
+    }
+
     public void SetEffects(SliceOwner owner, EntityId body, ImmutableArray<ActiveEffect> effects)
     {
         Require(owner, StateSlice.Effects);

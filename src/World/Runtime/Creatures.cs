@@ -119,6 +119,12 @@ internal sealed record CorpseEmptied(string CorpseKey) : InternalCommand;
 internal sealed record DiscardContainer(string Key) : InternalCommand;
 
 /// <summary>
+/// A destroyed chest's contents fall where it stood (M7 design §4.13): each stack to the ground at its site, keeping its item ID; only
+/// the chest's own identity retires.
+/// </summary>
+internal sealed record SpillContainer(string Key) : InternalCommand;
+
+/// <summary>
 /// Owns: <see cref="StateSlice.Creatures"/> and the creature records of the world delta (S-23 and S-31). It places each
 /// spawner's creatures, lets them perceive - sight in a cone past no wall, and sound, each carrying only so far - and act
 /// on what they perceive, infer or are told through a call, in the manner of their role. There is no shared awareness:

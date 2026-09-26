@@ -36,8 +36,8 @@ public class DeterminismAndViewTests
     }
 
     /// <summary>
-    /// The start, carrying four timber from the crossing's stack (M7, E6), saved: taking from an untouched container mints the stack its
-    /// IDs, so both sessions must load it already taken.
+    /// The start, carrying five timber from the crossing's stack (M7, E6; E8 one more, for a repair), saved: taking from an untouched
+    /// container mints the stack its IDs, so both sessions must load it already taken.
     /// </summary>
     private static void SaveBuilderStart(TempProfile profile)
     {
@@ -46,7 +46,7 @@ public class DeterminismAndViewTests
         var simulation = session.Simulation!;
         Assert.True(Harness.WalkPath(session, (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
         Assert.True(Harness.WalkTo(session, 84_000, 116_600, Gait.Walk, toleranceMm: 50));
-        session.Submit(new MoveItemCommand(simulation.PlayerId, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 4));
+        session.Submit(new MoveItemCommand(simulation.PlayerId, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 5));
         session.Frame(session.TickSeconds);
         Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
         session.Save(SaveSlots.Manual("builder_start"));
@@ -54,7 +54,8 @@ public class DeterminismAndViewTests
 
     /// <summary>
     /// Before the script (M7, E6): from the longhouse door to the crossing, a pad and a doorway built at (88.5, 112.5) with a door hung in
-    /// it, the door opened and shut again - a placed door's toggles, which set no flag - and back.
+    /// it, the door opened and shut again - a placed door's toggles, which set no flag - and back. E8: two blows on the door, its mending,
+    /// and blows until it is destroyed.
     /// </summary>
     private static void HangAndWorkADoor(GameSession session)
     {
@@ -78,6 +79,22 @@ public class DeterminismAndViewTests
             session.Submit(new InteractCommand(player, door));
             session.Frame(session.TickSeconds);
         }
+        // Facing the shut door from the pad: two blows, the mending, then blows until it is gone.
+        session.Submit(new MoveCommand(player, MoveIntent.Idle(270_000)));
+        session.Frame(session.TickSeconds);
+        void Blow()
+        {
+            session.Submit(new AttackCommand(player));
+            for (int t = 0; t <= simulation.Combat.Weapon.TotalTicks; t++)
+                session.Frame(session.TickSeconds);
+        }
+        Blow();
+        Blow();
+        session.Submit(new RepairPieceCommand(player, UNNAMED.Domain.EntityId.Parse(door)));
+        session.Frame(session.TickSeconds);
+        for (int i = 0; i < 30 && simulation.Pieces.Any(p => p.Id.Value == door); i++)
+            Blow();
+        Assert.DoesNotContain(simulation.Pieces, p => p.Id.Value == door);
         Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
     }
 
@@ -154,6 +171,9 @@ public class DeterminismAndViewTests
         var removed = Harness.Record<PieceRemoved>(session);
         var structures = Harness.Record<StructuresChanged>(session);
         var rebuilt = Harness.Record<NavigationRebuilt>(session);
+        var damaged = Harness.Record<PieceDamaged>(session);           // E8
+        var destroyed = Harness.Record<PieceDestroyed>(session);
+        var repaired = Harness.Record<PieceRepaired>(session);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
@@ -174,10 +194,9 @@ public class DeterminismAndViewTests
         Assert.Equal(authored.Count, flags.Count);
         Assert.Equal(simulation.Doors.Where(d => d.Open).Select(d => d.Site.Key).OrderBy(k => k),
             authored.GroupBy(t => t.DoorKey).Where(g => g.Last().Open).Select(g => g.Key).OrderBy(k => k));
-        var placedDoor = simulation.Pieces.Single(p => p.DefId == "piece.door.timber");
-        Assert.Equal(new[] { (placedDoor.Id.Value, true), (placedDoor.Id.Value, false) },
-            toggled.Except(authored).Select(t => (t.DoorKey, t.Open)));
-        Assert.Equal(placedDoor.DoorOpen, toggled.Last(t => t.DoorKey == placedDoor.Id.Value).Open);
+        // The placed door (E6), opened and shut before its blows (E8) destroyed it.
+        string placedDoor = Assert.Single(destroyed).PieceId.Value;
+        Assert.Equal(new[] { (placedDoor, true), (placedDoor, false) }, toggled.Except(authored).Select(t => (t.DoorKey, t.Open)));
         // Movement: an unbroken chain from where the body started to where it is.
         Assert.NotEmpty(moved);
         Assert.Equal(start, moved[0].From);
@@ -194,10 +213,17 @@ public class DeterminismAndViewTests
         // Routes: this script has no mover, so nothing plans.
         Assert.Empty(simulation.Navigation.Movers);
         Assert.Empty(routes);
-        // Pieces: one placing or taking down per change of the structures (a door's toggles are none), and the sequence is their count.
-        Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count);
-        Assert.Equal(placed.Count + removed.Count, structures.Count);
-        Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(), placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Order());
+        // Pieces: one placing, taking down or destroying per change of the structures (a door's toggles, blows it stands and mending are
+        // none), and the sequence is their count.
+        Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count + destroyed.Count);
+        Assert.Equal(placed.Count + removed.Count + destroyed.Count, structures.Count);
+        Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(),
+            placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Except(destroyed.Select(d => d.PieceId)).Order());
+        // Blows: 10 each, the health they leave counting down from the maximum and back up at the mending; the last one destroys.
+        var hung = Assert.Single(destroyed);
+        Assert.All(damaged, d => Assert.Equal((hung.PieceId, 10, "melee"), (d.PieceId, d.Amount, d.Source)));
+        Assert.Equal(new[] { 110, 100 }.Concat(Enumerable.Range(1, 11).Select(n => 120 - 10 * n)), damaged.Select(d => d.HealthNow));
+        Assert.Equal((hung.PieceId, 100, 120), (Assert.Single(repaired).PieceId, repaired[0].From, repaired[0].To));
         Assert.True(rebuilt.Count <= structures.Count, "a rebuild without a change of the structures");
     }
 
@@ -236,6 +262,9 @@ public class DeterminismAndViewTests
         writer.Subscribe<PieceRemoved>(anything.Add);
         writer.Subscribe<StructuresChanged>(anything.Add);
         writer.Subscribe<NavigationRebuilt>(anything.Add);
+        writer.Subscribe<PieceDamaged>(anything.Add);
+        writer.Subscribe<PieceDestroyed>(anything.Add);
+        writer.Subscribe<PieceRepaired>(anything.Add);
         var simulation = writer.NewGame("Wanderer", seed: 42);
         Assert.Empty(anything);
 
@@ -257,6 +286,9 @@ public class DeterminismAndViewTests
         reader.Subscribe<PieceRemoved>(anything.Add);
         reader.Subscribe<StructuresChanged>(anything.Add);
         reader.Subscribe<NavigationRebuilt>(anything.Add);
+        reader.Subscribe<PieceDamaged>(anything.Add);
+        reader.Subscribe<PieceDestroyed>(anything.Add);
+        reader.Subscribe<PieceRepaired>(anything.Add);
         reader.Load(SaveSlots.Manual("known"));
         Harness.Ticks(reader, 20);
 

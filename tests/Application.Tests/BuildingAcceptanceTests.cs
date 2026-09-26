@@ -24,7 +24,7 @@ public class BuildingAcceptanceTests
     private static string StartSave => Path.Combine(Harness.RepoRoot(), "tests", "Application.Tests", "GameSaves", "m7_crossing_start", "save");
 
     /// <summary>The committed S0 copied into a profile and loaded (a load records its proof beside the slot, so never in place).</summary>
-    private static GameSession LoadS0(TempProfile profile)
+    internal static GameSession LoadS0(TempProfile profile)
     {
         string slot = Path.Combine(profile.Root, S0Slot);
         if (!Directory.Exists(slot))

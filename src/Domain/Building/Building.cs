@@ -341,6 +341,16 @@ public static class BuildingMath
 
     /// <summary>What taking a piece down gives back of one cost line: the percentage, rounded down.</summary>
     public static int Refund(int count, int refundPercent) => (int)((long)count * refundPercent / 100);
+
+    /// <summary>
+    /// What mending a piece costs of one cost line (M7 design §4.12): the percentage of the line, scaled by the health missing of its
+    /// maximum, rounded up - a wall at 170/200 costs ⌈2 × 30 × 100 / 20 000⌉ = 1 timber.
+    /// </summary>
+    public static int RepairCost(int count, int missing, int healthMax, int repairPercent)
+    {
+        long scaled = (long)count * missing * repairPercent, whole = (long)healthMax * 100;
+        return (int)((scaled + whole - 1) / whole);
+    }
 }
 
 /// <summary>A placed piece as the snapper sees it: which it is, and where.</summary>

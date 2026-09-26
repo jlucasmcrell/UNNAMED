@@ -85,6 +85,12 @@ public sealed record PlacePieceCommand(EntityId Actor, string PieceDefId, long X
 /// <summary>Take down a piece the actor owns (M7 design §4.13), for half its cost back.</summary>
 public sealed record DismantlePieceCommand(EntityId Actor, EntityId PieceId) : GameCommand(Actor);
 
+/// <summary>Mend a piece the actor owns to full health (M7 design §4.12), for its cost scaled by the health missing.</summary>
+public sealed record RepairPieceCommand(EntityId Actor, EntityId PieceId) : GameCommand(Actor);
+
+/// <summary>A blow on a piece (M7 design §4.12): so much off its health, from the one damage rule's source. At 0 it is destroyed.</summary>
+internal sealed record DamagePiece(EntityId PieceId, int Amount, string Source) : InternalCommand;
+
 /// <summary>
 /// Open or shut a placed door (M7 design §4.9): the player's toggle (<paramref name="Open"/> null), or an NPC's open. The operator is the
 /// player's or the NPC's instance ID; <paramref name="OperatorNpcId"/> names the NPC, when it is one.
@@ -132,6 +138,15 @@ public sealed record PiecePlaced(EntityId PieceId, string DefId, long XMm, long 
 
 /// <summary>A piece was taken down, and what came back.</summary>
 public sealed record PieceRemoved(EntityId PieceId, string DefId, EntityId Actor, ImmutableArray<CostView> Refund, long Revision, long Tick);
+
+/// <summary>A piece lost health to a blow and stands; <see cref="HealthNow"/> is what it has left.</summary>
+public sealed record PieceDamaged(EntityId PieceId, string DefId, int Amount, int HealthNow, string Source, long Tick);
+
+/// <summary>A piece's health reached 0 and it is gone, with nothing back.</summary>
+public sealed record PieceDestroyed(EntityId PieceId, string DefId, string Source, long Revision, long Tick);
+
+/// <summary>A piece was mended from one health to its maximum.</summary>
+public sealed record PieceRepaired(EntityId PieceId, int From, int To, long Tick);
 
 /// <summary>The structures changed over this rectangle; <see cref="Revision"/> is the structure sequence now.</summary>
 public sealed record StructuresChanged(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, StructureChangeKind Kind, long Revision, long Tick);
@@ -208,17 +223,82 @@ internal sealed class BuildingSystem
             return "there is no such piece";
         if (row.Owner != command.Actor)
             return "that is not yours to take down";
-        var bounds = BuildingMath.WorldBounds(piece, row.XMm, row.ZMm, row.Rotation);
-        long reach = _context.Setup.Building.Constants.PlaceReachMm;
-        long d2 = BuildingMath.DistanceSquared(bounds, State.Body.XMm, State.Body.ZMm);
-        if (d2 > reach * reach)
-            return string.Create(CultureInfo.InvariantCulture, $"that is {Math.Sqrt(d2) / 1000:0.00} m away; building reach is {reach / 1000.0:0.00} m");
+        if (OutOfReach(row, piece) is { } far)
+            return far;
         if (Dependents(row, piece) is { } dependents)
             return dependents;
         if (piece.Container is not null && State.World.Container(WorldDelta.PieceChestKey(row.InstanceId)) is { Items.IsEmpty: false })
             return "empty the chest first";
-        RemoveCore(row, piece, StructureChangeKind.Dismantled, command.Actor, tick);
+        RemoveCore(row, piece, StructureChangeKind.Dismantled, command.Actor, null, tick);
         return null;
+    }
+
+    /// <summary>
+    /// A piece mended to full health (M7 design §4.12), checked in order: the actor; an intact piece; theirs; within building reach; not
+    /// whole already; and the materials, each cost line scaled by the health missing. One command, one cost: no partial repair.
+    /// </summary>
+    public string? Handle(RepairPieceCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        if (State.World.Piece(command.PieceId) is not { } row || Catalog.Find(row.DefId) is not { } piece)
+            return "there is no such piece";
+        if (row.Owner != command.Actor)
+            return "that is not yours to mend";
+        if (OutOfReach(row, piece) is { } far)
+            return far;
+        if (row.HealthCurrent >= piece.HealthMax)
+            return "it needs no repair";
+        int missing = piece.HealthMax - row.HealthCurrent, percent = _context.Setup.Building.Constants.RepairCostPercent;
+        var cost = piece.Cost.Select(c => c with { Count = BuildingMath.RepairCost(c.Count, missing, piece.HealthMax, percent) })
+            .Where(c => c.Count > 0).ToImmutableArray();
+        var takes = BuildingRules.Takes(_context, cost, out string? lacking);
+        if (lacking is not null)
+            return lacking;
+        if (!takes.IsEmpty && _context.Dispatch(new ExchangeItems(takes, null, 0, 0)) is { } refused)
+            return refused;
+        State.SetPiece(_owner, row with { HealthCurrent = piece.HealthMax });
+        _context.Events.Publish(new PieceRepaired(row.InstanceId, row.HealthCurrent, piece.HealthMax, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A blow on a piece (M7 design §4.12): its amount off the piece's health; at 0 the piece is destroyed (§4.13). Damage that leaves it
+    /// standing changes no footprint: the sequence and navigation stay as they are.
+    /// </summary>
+    public string? Handle(DamagePiece command, long tick)
+    {
+        if (State.World.Piece(command.PieceId) is not { } row || Catalog.Find(row.DefId) is not { } piece)
+            return "there is no such piece";
+        if (command.Amount < 1)
+            return "no damage";
+        int to = Math.Max(0, row.HealthCurrent - command.Amount);
+        if (to > 0)
+        {
+            State.SetPiece(_owner, row with { HealthCurrent = to });
+            _context.Events.Publish(new PieceDamaged(row.InstanceId, row.DefId, command.Amount, to, command.Source, tick));
+            return null;
+        }
+        // A destroyed doorway destroys its door first (L9), each with a removal of its own. No other cascade exists.
+        if (piece.Family == PieceFamily.Doorway
+            && State.StructureIndex.Slots.TryGetValue(Lattice.SlotKey(PieceSlot.Door, row.XMm, row.ZMm, row.Rotation), out var doorId)
+            && State.World.Piece(doorId) is { } door && Catalog.Find(door.DefId) is { } doorPiece)
+            RemoveCore(door, doorPiece, StructureChangeKind.Destroyed, null, command.Source, tick);
+        RemoveCore(row, piece, StructureChangeKind.Destroyed, null, command.Source, tick);
+        return null;
+    }
+
+    /// <summary>Building reach (check 6's rule) from the body to a piece's bounds, or null when it is within it.</summary>
+    private string? OutOfReach(PieceRecord row, PieceDefinition piece)
+    {
+        var bounds = BuildingMath.WorldBounds(piece, row.XMm, row.ZMm, row.Rotation);
+        long reach = _context.Setup.Building.Constants.PlaceReachMm;
+        long d2 = BuildingMath.DistanceSquared(bounds, State.Body.XMm, State.Body.ZMm);
+        return d2 > reach * reach
+            ? string.Create(CultureInfo.InvariantCulture, $"that is {Math.Sqrt(d2) / 1000:0.00} m away; building reach is {reach / 1000.0:0.00} m")
+            : null;
     }
 
     /// <summary>
@@ -275,15 +355,20 @@ internal sealed class BuildingSystem
     }
 
     /// <summary>
-    /// A piece leaves the world (M7 design §4.13): the row goes and its identity retires, the sequence moves on, what is derived is
-    /// rebuilt, and - taken down - half its cost comes back.
+    /// A piece leaves the world (M7 design §4.13), taken down by <paramref name="actor"/> or destroyed by <paramref name="source"/>: the
+    /// row goes and its identity retires, the sequence moves on, what is derived is rebuilt, and - taken down - half its cost comes back.
     /// </summary>
-    private void RemoveCore(PieceRecord row, PieceDefinition piece, StructureChangeKind kind, EntityId actor, long tick)
+    private void RemoveCore(PieceRecord row, PieceDefinition piece, StructureChangeKind kind, EntityId? actor, string? source, long tick)
     {
-        // A chest's record goes with it: taken down, it is empty by then and is discarded.
+        // A chest's record goes with it: taken down, it is empty by then and is discarded; destroyed, what it held falls where it stood.
         string chest = WorldDelta.PieceChestKey(row.InstanceId);
         if (piece.Container is not null && State.World.Container(chest) is not null)
-            _context.Dispatch(new DiscardContainer(chest));
+        {
+            if (kind == StructureChangeKind.Destroyed)
+                _context.Dispatch(new SpillContainer(chest));
+            else
+                _context.Dispatch(new DiscardContainer(chest));
+        }
         long sequence = State.World.StructureSequence + 1;
         State.RemovePiece(_owner, row.InstanceId, sequence);
         Rebuild();
@@ -294,7 +379,10 @@ internal sealed class BuildingSystem
         var refund = kind == StructureChangeKind.Dismantled
             ? piece.Cost.Select(c => new CostView(c.ItemId, BuildingMath.Refund(c.Count, percent), 0)).Where(c => c.Count > 0).ToImmutableArray()
             : ImmutableArray<CostView>.Empty;
-        _context.Events.Publish(new PieceRemoved(row.InstanceId, row.DefId, actor, refund, sequence, tick));
+        if (kind == StructureChangeKind.Destroyed)
+            _context.Events.Publish(new PieceDestroyed(row.InstanceId, row.DefId, source!, sequence, tick));
+        else
+            _context.Events.Publish(new PieceRemoved(row.InstanceId, row.DefId, actor!, refund, sequence, tick));
         var b = BuildingMath.WorldBounds(piece, row.XMm, row.ZMm, row.Rotation);
         _context.Events.Publish(new StructuresChanged(b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm, kind, sequence, tick));
         foreach (var line in refund)

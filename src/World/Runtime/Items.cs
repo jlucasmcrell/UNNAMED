@@ -383,6 +383,22 @@ internal sealed class InventorySystem
         return null;
     }
 
+    /// <summary>
+    /// A destroyed chest spills (M7 design §4.13): each stack, in record order, lies on the ground at the chest's site as a stack of its
+    /// own with its item ID kept - nothing is minted or retired but the container's own identity.
+    /// </summary>
+    public string? Handle(SpillContainer command)
+    {
+        if (State.World.Container(command.Key) is not { } record || _context.FindContainer(command.Key) is not { } site)
+            return $"there is no container '{command.Key}'";
+        var cell = CellOf(site.XMm, site.ZMm);
+        var (minX, minZ) = CellOrigin(cell);
+        foreach (var item in record.Items)
+            State.PlaceItem(_owner, cell, item.ItemId, item.DefId, item.Count, (int)((site.XMm - minX) / 10), (int)((site.ZMm - minZ) / 10), item.Quality);
+        State.ReleaseContainer(_owner, command.Key);
+        return null;
+    }
+
     /// <summary>Spend carried items by definition, oldest stacks first: an arrow at release. Equipped items are never spent.</summary>
     public string? Handle(ConsumeItem command, long tick)
     {

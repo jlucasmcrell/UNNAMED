@@ -509,7 +509,34 @@ internal sealed partial class CombatSystem
         }
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = State.PlayerCombat.Action with { Struck = struck } });
         if (struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
-            _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+        {
+            // A swing that struck no creature may land on a placed piece (M7 design §4.12, the one damage rule), in place of a miss.
+            if (StruckPiece(body, attack.ReachMm) is { } piece)
+                _context.Dispatch(new DamagePiece(piece, _context.Setup.Building.Constants.Damage.GetValueOrDefault(MeleeDamage), MeleeDamage));
+            else
+                _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+        }
+    }
+
+    /// <summary>The one damage source of M7's building (<c>config.building</c>'s <c>damage</c> key).</summary>
+    private const string MeleeDamage = "melee";
+
+    /// <summary>
+    /// The piece a swing lands on (M7 design §4.12): the first blocker along the facing within reach, when every blocker the line meets
+    /// there is part of a placed piece - an authored wall, door or barrier among them shields it.
+    /// </summary>
+    private EntityId? StruckPiece(Body from, long reachMm)
+    {
+        var (_, hit) = FirstStop(from, reachMm);
+        EntityId? first = null;
+        foreach (var blocker in hit)
+        {
+            int hash = blocker.Id.IndexOf('#');
+            if (hash <= 0 || !blocker.Id.StartsWith("pce_", StringComparison.Ordinal) || !EntityId.TryParse(blocker.Id[..hash], out var id))
+                return null;
+            first ??= id;
+        }
+        return first;
     }
 
     /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>

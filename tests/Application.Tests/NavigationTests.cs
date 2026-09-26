@@ -59,7 +59,7 @@ public class NavigationTests
         }
     }
 
-    // N-A10 (E1: the full build, and every authored protected-point pair; E4 and E9 add the mover routes)
+    // N-A10 (E1: the full build, and every authored protected-point pair; E4 and E9 add the mover routes; E8 Kera's workshop routes)
     [Fact]
     public void Navigation_StaysWithinBudget()
     {
@@ -172,6 +172,47 @@ public class NavigationTests
         _output.WriteLine($"placement checks: median {checkMedian:F3} ms, worst {checkWorst:F3} ms of {checks.Count}");
         Assert.True(checkMedian < 6, $"the placement check's median is {checkMedian:F3} ms (CI bound 6 ms; ASTRAL target 2 ms)");
         Assert.True(checkWorst < 30, $"the placement check's worst is {checkWorst:F3} ms (CI bound 30 ms; ASTRAL target 10 ms)");
+
+        // Kera's three workshop routes (E8, §3.18): the actual mover plans once the workshop stands with its door, bench and chest (step
+        // 1) - her place to the bench's work anchor, the walk home, and the walk home after step 9's wall on x = 96 m - for a person who
+        // opens doors. Each is found within two thirds of the cap; the time is ASTRAL evidence in Release, under the CI bound here.
+        var workshop = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(workshop);
+        foreach (var (def, x, z, r) in new[] { ("piece.door.timber", 100_500L, 99_000L, 0), ("piece.station.anvil", 100_500L, 103_500L, 3),
+                     ("piece.storage.chest", 103_500L, 103_500L, 0) })
+            Assert.Null(BuildingTests.Place(workshop, def, x, z, r));
+        NavPoint site = new(61_600, 139_600), anchor = new(100_750, 103_500);
+        (NavPlan Plan, double Ms) Timed(NavPoint from, NavPoint to)
+        {
+            var q = new NavQuery(workshop.Simulation.Navigation.Grid, EveryGatePassable, config, new NavScratch(), null);
+            NavSearch.Plan(q, Person, from, to);   // the scratch's first use
+            var runs = new List<(NavPlan Plan, double Ms)>();
+            for (int n = 0; n < 5; n++)
+            {
+                var clock = Stopwatch.StartNew();
+                var plan = NavSearch.Plan(q, Person, from, to);
+                runs.Add((plan, clock.Elapsed.TotalMilliseconds));
+            }
+            return runs.OrderBy(x => x.Ms).ElementAt(2);
+        }
+        var routes = new List<(string Label, NavPlan Plan, double Ms)>();
+        foreach (var (label, from, to) in new[] { ("Kera's place -> the bench", site, anchor), ("the bench -> Kera's place", anchor, site) })
+        {
+            var (plan, ms) = Timed(from, to);
+            routes.Add((label, plan, ms));
+        }
+        foreach (var (def, x, z, r) in new[] { ("piece.pad.timber", 97_500L, 100_500L, 0), ("piece.pad.timber", 97_500L, 103_500L, 0),
+                     ("piece.wall.timber", 96_000L, 100_500L, 1), ("piece.wall.timber", 96_000L, 103_500L, 1) })
+            Assert.Null(BuildingTests.Place(workshop, def, x, z, r));
+        var (after, afterMs) = Timed(anchor, site);
+        routes.Add(("the bench -> Kera's place, the wall on x = 96", after, afterMs));
+        foreach (var (label, plan, ms) in routes)
+        {
+            _output.WriteLine($"Kera's route {label}: {plan.Outcome}, {plan.Expansions} expansions, {plan.Corners.Length} corners, median {ms:F3} ms");
+            Assert.Equal(NavOutcome.Found, plan.Outcome);
+            Assert.True(plan.Expansions <= 2 * config.Limits.MaxExpansions / 3, $"{label}: {plan.Expansions} expansions (two thirds of the cap)");
+            Assert.True(ms < 45, $"{label}: {ms:F3} ms (CI bound 45 ms; ASTRAL target 15 ms in Release)");
+        }
 
         Assert.Empty(failures);
         Assert.All(all, x => Assert.True(x.Expansions <= config.Limits.MaxExpansions, x.Pair));

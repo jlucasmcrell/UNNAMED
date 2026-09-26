@@ -341,6 +341,7 @@ public sealed class Simulation
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
                 PlacePieceCommand place => _building.Handle(place, WorldTick),
                 DismantlePieceCommand dismantle => _building.Handle(dismantle, WorldTick),
+                RepairPieceCommand repair => _building.Handle(repair, WorldTick),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
@@ -454,6 +455,7 @@ public sealed class Simulation
         ForgetPlayer forget => _creatures.Handle(forget),
         CorpseEmptied emptied => _creatures.Handle(emptied, Now),
         DiscardContainer discard => _inventory.Handle(discard),
+        SpillContainer spill => _inventory.Handle(spill),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
@@ -470,6 +472,7 @@ public sealed class Simulation
         ReportAct report => _factions.Handle(report, Now),
         OpenDoor open => _interaction.Handle(open, Now),
         OperatePieceDoor door => _building.Handle(door, Now),
+        DamagePiece damage => _building.Handle(damage, Now),
         RebuildNavigation rebuild => _navigation.Handle(rebuild, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
