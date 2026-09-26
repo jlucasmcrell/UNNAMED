@@ -140,6 +140,9 @@ internal static class BuildingRules
     /// <summary>A body's circle and the reach within which a walkable node must stay (§3.13's table).</summary>
     public const long BodyRadiusMm = 350, SiteReachMm = 1_600;
 
+    /// <summary>How near a walkable node must lie to a work anchor (M7 design §4.17, V-N3).</summary>
+    public const long AnchorReachMm = 250;
+
     /// <summary>
     /// What an edit must not cut off (M7 design §3.13), in the canonical order that names a sealed pocket: the character and their companions,
     /// every authored NPC's place, the spawn, everything worked by reaching it, and both approaches of every door. A candidate's own sites
@@ -155,11 +158,17 @@ internal static class BuildingRules
         static NavRect At(long x, long z) => new(x, z, x, z);
         string Name(string npcId) => setup.Social.Npcs.TryGetValue(npcId, out var npc) ? npc.Name : npcId;
 
-        // The candidate's own site: a chest's, which lies inside its own box and must be reached (E8).
+        // The candidate's own site: a chest's, which lies inside its own box and must be reached; a bench's work anchor, which must be
+        // stood at (E8).
         if (candidate is { Piece.Container: { } container } placing)
         {
             var (dx, dz) = QuarterTurn.Apply(container.XMm, container.ZMm, placing.Rotation);
             points.Add(new NavProtectedPoint(placing.Piece.Name, NavPointKind.NewSite, At(placing.XMm + dx, placing.ZMm + dz), 0, SiteReachMm));
+        }
+        if (candidate is { Piece.Station: { } station } working)
+        {
+            var (dx, dz) = QuarterTurn.Apply(station.AnchorXMm, station.AnchorZMm, working.Rotation);
+            points.Add(new NavProtectedPoint(working.Piece.Name, NavPointKind.NewSite, At(working.XMm + dx, working.ZMm + dz), BodyRadiusMm, AnchorReachMm));
         }
 
         points.Add(new NavProtectedPoint("you", NavPointKind.Body, At(state.Body.XMm, state.Body.ZMm), BodyRadiusMm, SiteReachMm));
@@ -181,6 +190,8 @@ internal static class BuildingRules
             points.Add(Reach("the chest", c.XMm, c.ZMm));
         foreach (var s in layout.Stations.OrderBy(s => s.Key, StringComparer.Ordinal))
             points.Add(Reach(Words(s.Key), s.XMm, s.ZMm));
+        foreach (var s in context.PieceStationSites().OrderBy(s => s.Key, StringComparer.Ordinal))
+            points.Add(Reach("the bench", s.XMm, s.ZMm));
         foreach (var n in layout.Nodes.OrderBy(n => n.Name, StringComparer.Ordinal))
             points.Add(Reach(Words(n.Name), n.XMm, n.ZMm));
         foreach (var s in layout.Switches.OrderBy(s => s.Key, StringComparer.Ordinal))

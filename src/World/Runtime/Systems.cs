@@ -87,6 +87,23 @@ internal sealed class SystemContext
         }
     }
 
+    /// <summary>A placed bench's station key (M7): <c>station.pce_</c> and its piece's ULID in lower case.</summary>
+    internal static string PieceStationKey(EntityId pieceId) => "station." + pieceId.Value.ToLowerInvariant();
+
+    /// <summary>Every station (M7 design §4.14): the authored ones in content order, then each standing bench's.</summary>
+    public IEnumerable<StationSite> Stations() => Setup.Layout.Stations.Concat(PieceStationSites());
+
+    /// <summary>Each standing bench's station, in <see cref="StructureOrder"/>: keyed by its piece, of its definition's kind, at its part's centre.</summary>
+    public IEnumerable<StationSite> PieceStationSites()
+    {
+        foreach (var part in State.StructureFootprints)
+        {
+            if (part.Part != 0 || State.World.Piece(part.PieceId) is not { } row || Setup.Building.Catalog.Find(row.DefId)?.Station is not { } station)
+                continue;
+            yield return new StationSite(PieceStationKey(part.PieceId), station.Kind, (part.MinXMm + part.MaxXMm) / 2, (part.MinZMm + part.MaxZMm) / 2);
+        }
+    }
+
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;
 

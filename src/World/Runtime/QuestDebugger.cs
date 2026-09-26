@@ -432,7 +432,7 @@ internal sealed class QuestDebugger
     private string Recipe(RecipeDefinition recipe)
     {
         bool known = Domain.Progression.ProgressionEngine.Knows(State.Progression, recipe.Id);
-        var station = Setup.Layout.Stations.Where(s => s.Kind == recipe.StationKind)
+        var station = _context.Stations().Where(s => s.Kind == recipe.StationKind)
             .OrderBy(s => Math.Pow(s.XMm - State.Body.XMm, 2) + Math.Pow(s.ZMm - State.Body.ZMm, 2)).FirstOrDefault();
         string inputs = string.Join(", ", recipe.Inputs.Select(i => $"{i.Count} {i.ItemId} (carried {_quests.Carried(i.ItemId, Quality.Crude)})"));
         return $"{recipe.Id} at a {recipe.StationKind}" + (station is null ? " (none in this region)" : $" ({Point(station.XMm, station.ZMm)})") +

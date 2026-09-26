@@ -73,7 +73,8 @@ public class BuildingContentTests
         var setup = BuildingContent.Build(loader);
 
         // The pieces of §4.21 that E5, E6 and E8 ship.
-        Assert.Equal(new[] { "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.storage.chest", "piece.wall.timber" },
+        Assert.Equal(new[] { "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.station.anvil", "piece.storage.chest",
+                "piece.wall.timber" },
             setup.Catalog.Pieces.Keys);
         var pad = setup.Catalog.Find("piece.pad.timber")!;
         Assert.Equal((PieceFamily.Pad, PieceSlot.Square, new BoundsMm(-1500, -1500, 1500, 1500), 200, false),
@@ -101,7 +102,12 @@ public class BuildingContentTests
         Assert.Equal((PieceFamily.Storage, PieceSlot.Furniture, 100), (chest.Family, chest.Slot, chest.HealthMax));
         Assert.Equal(new PiecePart(new BoundsMm(-500, 600, 500, 1200), 700, TraversalClass.Solid), Assert.Single(chest.Parts));
         Assert.Equal(new PieceContainer(12, 0, 900), chest.Container);
-        Assert.Equal(new[] { 1, 2, 2, 1, 1, 2 }, new[] { pad, wall, doorway, roof, door, chest }.Select(p => Assert.Single(p.Cost).Count));
+        // And the bench, an anvil against the north side, its worker's anchor 0.65 m before it and facing it.
+        var bench = setup.Catalog.Find("piece.station.anvil")!;
+        Assert.Equal((PieceFamily.Station, PieceSlot.Furniture, 300), (bench.Family, bench.Slot, bench.HealthMax));
+        Assert.Equal(new PiecePart(new BoundsMm(-500, 400, 500, 1000), 900, TraversalClass.Solid), Assert.Single(bench.Parts));
+        Assert.Equal(new PieceStation("anvil", 0, -250, 0), bench.Station);
+        Assert.Equal(new[] { 1, 2, 2, 1, 1, 2, 4 }, new[] { pad, wall, doorway, roof, door, chest, bench }.Select(p => Assert.Single(p.Cost).Count));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal("item.material.timber", Assert.Single(p.Cost).ItemId));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal(new[] { 0, 1, 2, 3 }, p.Rotations));
 
@@ -174,6 +180,13 @@ public class BuildingContentTests
         Refused("BLD005", "a container holds at least one stack", (Chest, "stack_slots: 12", "stack_slots: 0"));
         Refused("BLD005", "the container's site at_m lies outside the piece's bounds", (Chest, "at_m: [0, 0.9]", "at_m: [0, 2.0]"));
         Refused("BLD005", "storage has a container", (Chest, "container: { stack_slots: 12, at_m: [0, 0.9] }\n", ""));
+        // And a station on stations alone, of a kind a recipe is worked at, with room for a worker at its anchor; and a station has one.
+        const string Bench = "pieces/station/anvil.yaml", Station = "station: { kind: anvil, work_anchor_m: [0, -0.25], work_facing_deg: 0 }";
+        Refused("BLD005", "only a station has a station", (Chest, "container: { stack_slots: 12, at_m: [0, 0.9] }", "container: { stack_slots: 12, at_m: [0, 0.9] }\n" + Station));
+        Refused("BLD005", "no recipe is worked at a 'loom'", (Bench, "kind: anvil", "kind: loom"));
+        Refused("BLD005", "the work anchor lies within 0.65 m of a part", (Bench, "work_anchor_m: [0, -0.25]", "work_anchor_m: [0, 0]"));
+        Refused("BLD005", "the work anchor lies within 0.65 m of the square's edge", (Bench, "work_anchor_m: [0, -0.25]", "work_anchor_m: [0, -0.7]"));
+        Refused("BLD005", "a station has a station", (Bench, Station, ""));
         // BLD006: config.building present exactly when there is something to build, and sane.
         Refused("BLD006", "place_reach_m must be between 1 and 12", (Config, "place_reach_m: 6.0", "place_reach_m: 20.0"));
         Refused("BLD006", "module_m must be 3.0", (Config, "module_m: 3.0", "module_m: 2.0"));

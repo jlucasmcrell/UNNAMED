@@ -185,6 +185,19 @@ public static class BuildingContent
         else if (piece.Family == PieceFamily.Storage)
             yield return Error("BLD005", $"{id}: storage has a container", file);
 
+        // BLD005: a bench's station, on stations alone: a kind some recipe is worked at, and room for a worker at its anchor.
+        if (piece.Station is { } station)
+        {
+            if (piece.Family != PieceFamily.Station)
+                yield return Error("BLD005", $"{id}: only a station has a station", file);
+            if (!RecipeStations(loader).Contains(station.Kind))
+                yield return Error("BLD005", $"{id}: no recipe is worked at a '{station.Kind}'", file);
+            if (PersonRadiusMm(loader) is { } radius && AnchorProblem(piece, station, radius + AnchorSpareMm) is { } problem)
+                yield return Error("BLD005", $"{id}: {problem}", file);
+        }
+        else if (piece.Family == PieceFamily.Station)
+            yield return Error("BLD005", $"{id}: a station has a station", file);
+
         // BLD004: it costs defined items.
         if (piece.Cost.IsEmpty)
             yield return Error("BLD004", $"{id}: a piece costs something (cost)", file);
@@ -195,6 +208,44 @@ public static class BuildingContent
             if (line.Count < 1)
                 yield return Error("BLD004", $"{id}: every cost line is at least 1", file);
         }
+    }
+
+    /// <summary>The room a work anchor keeps beyond a person's radius, from every part and from the furniture limit (§4.20: 350 + 300).</summary>
+    private const long AnchorSpareMm = 300;
+
+    /// <summary>The station kinds the recipes are worked at.</summary>
+    private static HashSet<string> RecipeStations(ContentLoader loader) =>
+        loader.GetByKind("recipe").Values.Select(r => Read(r.YamlSource).GetValueOrDefault("station") as string).OfType<string>()
+            .ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>The person class's radius from <c>config.navigation</c>, or null when it does not build (the NAV codes report it).</summary>
+    private static long? PersonRadiusMm(ContentLoader loader)
+    {
+        try
+        {
+            return NavigationContent.Build(loader).Classes.FirstOrDefault(c => c.Id == "person")?.RadiusMm;
+        }
+        catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>A work anchor a body cannot stand at: nearer than <paramref name="clearMm"/> to a part or to the furniture limit.</summary>
+    private static string? AnchorProblem(PieceDefinition piece, PieceStation station, long clearMm)
+    {
+        long x = station.AnchorXMm, z = station.AnchorZMm;
+        string metres = (clearMm / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
+        if (FurnitureLimit.MaxXMm - Math.Abs(x) < clearMm || FurnitureLimit.MaxZMm - Math.Abs(z) < clearMm)
+            return $"the work anchor lies within {metres} m of the square's edge (work_anchor_m)";
+        foreach (var part in piece.Parts)
+        {
+            long dx = Math.Max(0, Math.Max(part.Box.MinXMm - x, x - part.Box.MaxXMm));
+            long dz = Math.Max(0, Math.Max(part.Box.MinZMm - z, z - part.Box.MaxZMm));
+            if (dx * dx + dz * dz < clearMm * clearMm)
+                return $"the work anchor lies within {metres} m of a part (work_anchor_m)";
+        }
+        return null;
     }
 
     private static IEnumerable<string> ShapeProblems(Dictionary<object, object> map)

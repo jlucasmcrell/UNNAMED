@@ -232,6 +232,9 @@ public sealed class Simulation
     public ImmutableArray<ContainerView> Containers =>
         Setup.Layout.Containers.Concat(_context.CorpseSites()).Concat(_context.PieceChestSites()).Select(_inventory.View).ToImmutableArray();
 
+    /// <summary>Every station (M7): the authored ones, then each standing bench's.</summary>
+    public ImmutableArray<StationSite> Stations => _context.Stations().ToImmutableArray();
+
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
 

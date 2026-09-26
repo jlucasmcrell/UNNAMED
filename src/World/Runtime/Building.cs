@@ -425,7 +425,8 @@ internal sealed class BuildingSystem
                     .Select((p, i) => new PiecePartView(p.MinXMm, p.MinZMm, p.MaxXMm, p.MaxZMm, p.HeightMm, piece.Parts[i].Traversal)).ToImmutableArray();
             return new PieceView(row.InstanceId, row.DefId, piece?.Family ?? PieceFamily.Pad, row.XMm, row.ZMm, row.Rotation, row.Owner, row.HealthCurrent,
                 piece?.HealthMax ?? row.HealthCurrent, row.DoorOpen && piece?.Family == PieceFamily.Door, null, bounds.MinXMm, bounds.MinZMm, bounds.MaxXMm,
-                bounds.MaxZMm, parts, piece?.Container is null ? null : WorldDelta.PieceChestKey(row.InstanceId), null);
+                bounds.MaxZMm, parts, piece?.Container is null ? null : WorldDelta.PieceChestKey(row.InstanceId),
+                piece?.Station is null ? null : SystemContext.PieceStationKey(row.InstanceId));
         }).ToImmutableArray();
 
     /// <summary>The union of a piece's parts, not inflated: what navigation restamps around.</summary>

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Building;
+using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -18,7 +19,7 @@ namespace UNNAMED.Application.Tests;
 public class BuildingTests
 {
     private const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber",
-        Door = "piece.door.timber", Chest = "piece.storage.chest";
+        Door = "piece.door.timber", Chest = "piece.storage.chest", Bench = "piece.station.anvil";
     private const string Timber = "item.material.timber";
     private const string Renn = "npc.ashen_hollow.renn_vale", Kera = "npc.ashen_hollow.kera_voss";
     private const string Tag = "unnamed.piece/v1";
@@ -83,7 +84,7 @@ public class BuildingTests
         var placed = arena.Record<PiecePlaced>();
         var changed = arena.Record<StructuresChanged>();
         int authored = arena.Simulation.Space.Blockers.Length;
-        var id = Enumerable.Range(1, 6).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
+        var id = Enumerable.Range(1, 8).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
 
         // A pad: one timber, from the smallest stack; no parts, no footprint, nothing in the collision space.
         Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
@@ -135,28 +136,42 @@ public class BuildingTests
         Assert.Equal((100_500L, 101_400L, 12, "", arena.Player), (site.XMm, site.ZMm, site.StackSlots, site.LootTableId, site.Owner!));
         Assert.Null(arena.Simulation.World.Container(chest.ContainerKey!));
 
+        // A bench on a second pad (E8): four timber; one solid part against the north side; its station keyed by the piece, an anvil at
+        // the part's centre, after the authored ones.
+        Assert.Null(Place(arena, Pad, 103_500, 100_500, 0));
+        Assert.Null(Place(arena, Bench, 103_500, 100_500, 0));
+        Assert.Equal(new[] { 11, 20 }, Stacks(arena));
+        var bench = arena.Simulation.Pieces.Single(p => p.Id == id[7]);
+        Assert.Equal(new[] { new PiecePartView(103_000, 100_900, 104_000, 101_500, 900, TraversalClass.Solid) }, bench.Parts);
+        Assert.Equal((PieceFamily.Station, 300, 300, (string?)null), (bench.Family, bench.HealthCurrent, bench.HealthMax, bench.ContainerKey));
+        Assert.Equal(new StationSite("station." + id[7].Value.ToLowerInvariant(), "anvil", 103_500, 101_200), arena.Simulation.Stations[^1]);
+        Assert.Equal(arena.Simulation.Setup.Layout.Stations, arena.Simulation.Stations.SkipLast(1));
+        Assert.Equal(arena.Simulation.Stations[^1].Key, bench.StationKey);
+
         // Derived IDs by sequence; one event of each per piece; the rows hosted by their anchors.
         Assert.Equal(id, placed.Select(p => p.PieceId));
-        Assert.Equal(new long[] { 1, 2, 3, 4, 5, 6 }, placed.Select(p => p.Revision));
-        Assert.Equal(new[] { Pad, Wall, Doorway, Roof, Door, Chest }, placed.Select(p => p.DefId));
+        Assert.Equal(new long[] { 1, 2, 3, 4, 5, 6, 7, 8 }, placed.Select(p => p.Revision));
+        Assert.Equal(new[] { Pad, Wall, Doorway, Roof, Door, Chest, Pad, Bench }, placed.Select(p => p.DefId));
         Assert.All(placed, p => Assert.Equal(arena.Player, p.Owner));
         Assert.Equal(new[] { (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 98_800L, 102_200L, 99_200L), (98_800L, 98_800L, 99_200L, 102_200L),
-            (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 99_700L, 99_200L, 101_300L), (100_000L, 101_100L, 101_000L, 101_700L) },
+            (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 99_700L, 99_200L, 101_300L), (100_000L, 101_100L, 101_000L, 101_700L),
+            (102_000L, 99_000L, 105_000L, 102_000L), (103_000L, 100_900L, 104_000L, 101_500L) },
             changed.Select(c => (c.MinXMm, c.MinZMm, c.MaxXMm, c.MaxZMm)));
         Assert.All(changed, c => Assert.Equal(StructureChangeKind.Placed, c.Kind));
-        Assert.Equal(6, arena.Simulation.StructureRevision);
-        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_00_01", "r_0_0:c_01_01" },
+        Assert.Equal(8, arena.Simulation.StructureRevision);
+        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_01_01",
+                "r_0_0:c_01_01" },
             id.Select(i => arena.Simulation.World.Piece(i)!.HostCell));
 
         // Space appends exactly the solid parts, in structure order, after the authored blockers; the footprints are those parts and the
         // door's leaf.
         var footprints = arena.Simulation.StructureFootprints;
-        Assert.Equal(5, footprints.Length);
-        Assert.Equal(4, footprints.Count(f => f.Class == TraversalClass.Solid));
+        Assert.Equal(6, footprints.Length);
+        Assert.Equal(5, footprints.Count(f => f.Class == TraversalClass.Solid));
         Assert.Equal(id[4], Assert.Single(footprints, f => f.Class == TraversalClass.Door).PieceId);
         Assert.Equal(footprints.Where(f => f.Class == TraversalClass.Solid).Select(f => (f.MinXMm, f.MinZMm, f.MaxXMm, f.MaxZMm, f.HeightMm)),
             arena.Simulation.Space.Blockers.Skip(authored).Cast<BoxBlocker>().Select(b => (b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm, b.HeightMm)));
-        Assert.Equal(authored + 4, arena.Simulation.Space.Blockers.Length);
+        Assert.Equal(authored + 5, arena.Simulation.Space.Blockers.Length);
     }
 
     [Fact]
@@ -350,6 +365,33 @@ public class BuildingTests
         Assert.Null(Dismantle(arena, chest));
         Assert.Null(arena.Simulation.World.Container(key));
         Assert.DoesNotContain(arena.Simulation.Containers, c => c.Site.Key == key);
+    }
+
+    /// <summary>The station piece (M7 design §4.14): a bench is an anvil for the March Spear while it stands, and not once it is taken down.</summary>
+    [Fact]
+    public void APieceAnvil_Crafts_UntilTakenDown()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string Ingot = "item.material.iron_ingot", Haft = "item.material.ash_haft", Spear = "recipe.smithing.march_spear";
+        var arena = Arena.OpenCreatures(session, session.Setup, (100.5, 102.6), 0, None, r =>
+            Carrying(r.WithInventory(r.Inventory.Concat(new[] { Arena.Stack(Ingot, 2), Arena.Stack(Haft, 2) })), 20).WithProgression(r.Progression with { Known = r.Progression.Known.SetItem(Spear, new KnownTechnique(LearningSource.Teacher, Kera, 0)) }));
+        int Carried(string def) => arena.Simulation.Player.Inventory.Where(e => e.DefId == def).Sum(e => e.Count);
+
+        Assert.Equal("no anvil in reach", arena.Submit(new CraftCommand(arena.Player, Spear)));
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Bench, 100_500, 100_500, 0));
+        var bench = arena.Simulation.Pieces.Single(p => p.DefId == Bench);
+        var site = arena.Simulation.Stations.Single(s => s.Key == bench.StationKey);
+        Assert.Equal(("anvil", 100_500L, 101_200L), (site.Kind, site.XMm, site.ZMm));
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, Spear)));
+        arena.Tick(200);
+        Assert.Equal((1, 1, 1), (Carried(Ingot), Carried(Haft), Carried("item.weapon.march_spear")));
+
+        Assert.Null(Dismantle(arena, bench.Id));
+        Assert.DoesNotContain(arena.Simulation.Stations, s => s.Key == bench.StationKey);
+        Assert.Equal("no anvil in reach", arena.Submit(new CraftCommand(arena.Player, Spear)));
+        Assert.Equal((1, 1), (Carried(Ingot), Carried(Haft)));
     }
 
     // F-E10
