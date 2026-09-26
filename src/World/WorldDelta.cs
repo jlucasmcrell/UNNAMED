@@ -635,6 +635,13 @@ public sealed class WorldDelta
     /// </summary>
     public DeltaSnapshot TakeSnapshot()
     {
+        // Each cell's baseline digest once a snapshot: the digest is hashed afresh on every read, and every record in a cell names the same
+        // one (the save's synchronous capture budget, M7 E10).
+        var digests = new Dictionary<CellKey, string>();
+        var hosts = new Dictionary<string, string>(StringComparer.Ordinal);
+        string DigestOf(CellKey cell) => digests.TryGetValue(cell, out var d) ? d : digests[cell] = Baseline(cell).Digest;
+        string DigestOfHost(string hostCell) => hosts.TryGetValue(hostCell, out var d) ? d : hosts[hostCell] = DigestOf(CellKey.Parse(hostCell));
+
         var entities = ImmutableArray.CreateBuilder<EntityDeltaRecord>();
         foreach (string slotKey in _entities.Keys.OrderBy(k => k, StringComparer.Ordinal).ToList())
         {
@@ -654,7 +661,7 @@ public sealed class WorldDelta
                     _registry.DestroyEntity(record.InstanceId);
                 continue;
             }
-            var proven = normalized with { BaselineHash = Baseline(CellOfSlot(slotKey)).Digest };
+            var proven = normalized with { BaselineHash = DigestOf(CellOfSlot(slotKey)) };
             _entities[slotKey] = proven;
             entities.Add(proven);
         }
@@ -678,7 +685,7 @@ public sealed class WorldDelta
 
             cells.Add(new CellDeltaRecord(
                 cell.ToString(),
-                Baseline(cell).Digest,
+                DigestOf(cell),
                 reasons.ToImmutableArray(),
                 state.Flags.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToImmutableArray(),
                 state.Nodes.Values.OrderBy(n => n.NodeKey, StringComparer.Ordinal).ToImmutableArray(),
@@ -687,25 +694,25 @@ public sealed class WorldDelta
 
         var created = _created.Values
             .OrderBy(c => c.InstanceId.Value, StringComparer.Ordinal)
-            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .Select(c => c with { BaselineHash = DigestOfHost(c.HostCell) })
             .ToImmutableArray();
 
         // A changed container stays recorded even if its contents come back to what they were: its baseline is content,
         // which this layer never sees, and one small record per touched container is the cost.
         var containers = _containers.Values
-            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .Select(c => c with { BaselineHash = DigestOfHost(c.HostCell) })
             .ToImmutableArray();
 
         var creatures = _creatures.Values
-            .Select(c => c with { BaselineHash = Baseline(CellKey.Parse(c.HostCell)).Digest })
+            .Select(c => c with { BaselineHash = DigestOfHost(c.HostCell) })
             .ToImmutableArray();
 
         // New arrays, never views of the stores: a captured snapshot is encoded later, off the frame thread (G29).
         var pieces = _pieces.Values
-            .Select(p => p with { BaselineHash = Baseline(CellKey.Parse(p.HostCell)).Digest })
+            .Select(p => p with { BaselineHash = DigestOfHost(p.HostCell) })
             .ToImmutableArray();
         var errands = _errands.Values
-            .Select(e => e with { BaselineHash = Baseline(CellKey.Parse(e.HostCell)).Digest })
+            .Select(e => e with { BaselineHash = DigestOfHost(e.HostCell) })
             .ToImmutableArray();
 
         return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
