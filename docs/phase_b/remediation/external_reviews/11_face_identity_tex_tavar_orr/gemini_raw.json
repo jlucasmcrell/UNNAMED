@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate A\n\n- **IDENTITY:**  \n  Shares basic broad features and hair color, but lacks the sharp jawline, hollowed cheeks, rugged aged texture, and distinct spiky hairstyle of Reference R. Similarity is weak to moderate.\n\n- **ANATOMY:**  \n  Basic proportions are roughly human, but facial planes are flat and the jaw/chin transition appears bloated and blocky rather than natural.\n\n- **FACE:**  \n  Features suffer from uncanny execution. The mouth appears painted-on with compressed, unnatural lips. The furrowed brow is baked into the texture rather than sculpted, and the eyes lack depth and believable lid margins.\n\n- **NECK:**  \n  The neck forms an adequate transition to the shoulders, though it appears stiff, smooth, and lacks detailed muscular definition matching the head.\n\n- **SKIN AND HAIR:**  \n  The skin texture is muddy with flat specular maps and poorly integrated painted-on stubble. The hair lacks strand breakup, reading as a single low-detail polygonal helmet.\n\n- **ANIMATION:**  \n  n/a (no dynamic animation or deformation shown).\n\n- **PRODUCTION:**  \n  Verdict: prototype.\n\n---\n\n### Rankings\n\n- **IDENTITY:**  \n  1. Candidate A\n\n- **PRODUCTION:**  \n  1. Candidate A",
+            "thoughtSignature": "EoEKCv4JAWkUfRNjT321sF/qjRu32EezyMvxB2epB5/DdLW35QYG7NfW94U1iHnlvVEX1UGVL/ZH4JapfCKVZCIbLA8SKQueXceX1qtVDCpB3QZ7giTpkPfTKBtjD07KEzLVfKdGqg45UUTWoVs5S/bNMZtvLANP87MAHff+haFIPuShjZan25JTUv2AldCTqYhnhcwGabXMPkMirEGjOVbAkj0FIoWow0HRNpO8i9ouMaXdGmiEoOXw5Q4WOioIewPIBpb6tK98ZtEy5PhR8V1Cu0pR3SFQP3BV9Y82aDaKc8WnQfp2vjvv/FRWHpgsyujYPlFwe6e+wYtu4aSJfrqiJSl4WIr1ftI9/0Nxd1676XdA/SAtK69Kn6a5KEadHwoSC6PlhxECzoz1NnwV5GNJYbkF68pXVtu0IsUA3RpCDchbiz0lsdCeicxEw3205o+7Kla/dmkf+u8FTH4fok442HmifT4nOtoOJlyXeAC1DIJdee0In7yqW151Kyxp4b5xZ7nWErsu0rdhdzyk+AlwNMgRbPV8HyPdNx5PqE4vLo4Ddaik16uzls75ZDgRk+FgF676tIm+b/Tr6ehmqQaebQWiczkKQgqeNpTtpVKd68F/01JXsXZvLOQelQhCaIDMwha9219EcHoFy8FXl8bw7YWweemrKe4v7v+FTUOL88G6mpr51nEYITR7fUeYWnH304WlZ8GhBiNJz047AFdXVPxO8+FPEK/b4aNJ1HWCLwrV8NgRPAH6mBLKOQs2+dT9NdQyPBYkqPQxPCZdYAgcZ5sX+LE2dml1A37Ou0CkmSYcZOuxB4R4R9qNtQtyxM+DsKFDSbrJinLUF1JEPmxSF3ijDVgGFfY/Us/rqEt+gPp/Cu+zA3+18eVykQ9IYezWHvkFIDuwRTrwpJ6e93NNHQXcSapEtmyAeTE1ASEhiWVAt0LvajStFEI4ZMNwTG6OE0ZzG8UvE2gQVbbii28L+J3ozFz8Rt9Rk9gAMIRRy0s6KXf3rvGzb1iRSy2dHeWT6fRrMC06h6ujloS8NO3lpQ1he+MRq2b88jCOPaTCKf+pIOd2VXi4f9ET+v+NhYMQmIO9ZiNs1t+WyDT3Z80bo1geBnzWLBToKKRqh6J2PbNayD0g71H1QZQLiyTCdTaDBNHDbYXY6dVGjMYb0RBmH0Qst/KkfOXT0wYZfmzYi2V04h9+ekQdsW9bSmHnnkNJxQUr0PVajZhFLLKyuuhJzdX1qmKE/UZFO2+pXLT4q5WXS7R4ljLywRWPG8sbjmYpLCcHAc+glHyINF7OMYJtbLf0wZqAZNL+aPtfyT864/z2CGANmaqVLnH2dTjmwO2WSyhBchGNn1ikaXfA+UYCRowtOI6N4OuzDIooxqHHn0P+ykzRBaoTTbQOaAga8Rqp23gtaDH2HoVwA9yxnTnEVm9pHFy/xeNGWaFMlLFYV6C6BAmLm0+ebmBgDrd9mT4B9AXky4eMSC71PzP2dU8M5FD2VPCzJXabPOS+Cqu+LuWBLAVKhSsC5v2LGwL9Npd0FBBRXVJxg6hH4Ais8CSK35zEWc5yPWO/HZe+TzHBVtNOsIR8xogTySVfll6s3shLRF8UZjORz5ZAlA86nf4FGK6qSIRK7tWQfFRC50wPFu423xfUCaNAlgs3EV/Zz5cqIHIjszX2VsVBIE/HWqP70F99oM3HD0rNXb4qVfMI/Db/"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 2483,
+    "candidatesTokenCount": 275,
+    "totalTokenCount": 3028,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 314
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 2169
+      }
+    ],
+    "thoughtsTokenCount": 270,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "pqm3aqWWDcib_uMP4NaW8Q0"
+}

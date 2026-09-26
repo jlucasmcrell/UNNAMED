@@ -1,0 +1,11 @@
+{
+  "name": "face_identity_tex_tavar_orr",
+  "seed": 3533802398,
+  "labels": {
+    "A": {
+      "candidate": "std_textured",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\tavar_orr\\bakeoff_tex\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "3b7d516b-2331-4ae3-b494-b9d591eb0ffa",
+  "data": "Candidate A:\n\nIDENTITY: The candidate image A does not convincingly represent the intended person shown in reference image R. The facial features, hair, and overall appearance are significantly different from the reference image.\n\nANATOMY: The head and face in candidate A look plausible and finished. The proportions and structure appear realistic and well-defined.\n\nFACE: The eyes, eyelids, mouth, lips, teeth, and jaw are convincing. There are no uncanny or broken details observed in the facial features.\n\nNECK: The head belongs to the body convincingly. The neck, its join to the chest, and shoulders are well-integrated and look natural.\n\nSKIN AND HAIR: The skin and hair/scalp are convincing. The textures and details are realistic and well-rendered.\n\nANIMATION: No motion is shown in the candidate image, so this criterion is not applicable.\n\nPRODUCTION: This candidate would pass as a character in a modern commercially released RPG. Verdict: commercial.\n\nRankings:\n- IDENTITY: A (worst)\n- PRODUCTION readiness: A (best)",
+  "finish_reason": "stop",
+  "usage": {
+    "output_tokens": 230,
+    "input_tokens": 4632
+  }
+}

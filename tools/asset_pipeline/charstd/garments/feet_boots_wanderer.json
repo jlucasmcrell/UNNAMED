@@ -1,0 +1,30 @@
+{
+ "id": "feet_boots_wanderer",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "footwear",
+ "layer": "base",
+ "hides": [
+  "foot_L",
+  "foot_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "shoes03",
+  "author": "Data Collection AB / Joel Palmius (MakeHuman)",
+  "license": "CC0 1.0",
+  "attribution": null,
+  "url": "http://www.makehumancommunity.org/"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/feet_boots_wanderer/base_color.png",
+  "roughness": 0.55,
+  "texture_origin": "the Phase B player's own boots texture baked onto this garment's UVs"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "sole_m": 0.0255,
+ "sole_why": "the sole's depth below the bare foot; an outfit with this footwear stands the character on it (build_character.py lifts the root)"
+}

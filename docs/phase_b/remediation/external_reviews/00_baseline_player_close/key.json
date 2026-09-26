@@ -1,0 +1,15 @@
+{
+  "name": "baseline_player_close",
+  "seed": 1701451422,
+  "labels": {
+    "A": {
+      "candidate": "phase_a",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\shots\\chars_default\\raw\\c_player_close.png"
+    },
+    "B": {
+      "candidate": "phaseb_prod",
+      "source": "G:\\UNNAMED_HISTORY\\phaseB\\shots\\chars_prod_v9\\raw\\c_player_close.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

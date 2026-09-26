@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate A\n\n* **IDENTITY:** Moderately captures R\u2019s general facial structure, hair silhouette, and weathered styling, though the resting expression appears wider-eyed and more manic than the reference.\n* **ANATOMY:** Basic head and facial proportions are structurally coherent, though slightly stylized and elongated.\n* **FACE:** Eyelids pull back excessively in neutral and expressive poses, exposing too much sclera. The open-jaw shape reveals flat, unconvincing dental geometry.\n* **NECK:** The neck connects smoothly to the torso with consistent texture work and anatomical transitions.\n* **SKIN AND HAIR:** Hair cards feel chunky with noticeable clipping. Skin textures capture the grime from R but suffer from harsh specular hotspots.\n* **ANIMATION:** Blinks deform properly, but brow and eye expressions create unnatural stretching and exaggerated bulging around the orbits.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Candidate B\n\n* **IDENTITY:** Low resemblance to R. The facial proportions, jaw structure, and floppy hairstyle deviate significantly from the reference.\n* **ANATOMY:** The facial planes are irregular, and the left eye region appears sunken and structurally compromised.\n* **FACE:** Severe lid deformation issues around the left eye across multiple expressions. The mouth opening is rigid and reveals poorly integrated teeth.\n* **NECK:** The neck transition to the shoulders is adequate, though anatomical definition is soft and indistinct.\n* **SKIN AND HAIR:** Hair cards are flat, ribbon-like, and lack depth. Skin shading is muddy with insufficient subsurface response.\n* **ANIMATION:** Expressions deform stiffly; the blink blendshape is broken on the left eye, failing to close properly.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Rankings\n\n* **IDENTITY (Best to Worst):** A, B\n* **PRODUCTION (Best to Worst):** A, B",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3604,
+    "candidatesTokenCount": 385,
+    "totalTokenCount": 4498,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 3267
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 337
+      }
+    ],
+    "thoughtsTokenCount": 509,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "e6m3aofkB8nI-sAP38HPgQo"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "face_performance_reuse_tex",
+  "kind": "videos",
+  "labels": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "gemini_model": "gemini-3.8-flash",
+  "started": "2026-09-26T07:17:06",
+  "gemini": {
+    "status": 200,
+    "mode": "true video watch (Files API)"
+  },
+  "pegasus": {
+    "status": 200,
+    "mode": "true video watch",
+    "attempts": 1,
+    "transcoded": null
+  },
+  "finished": "2026-09-26T07:17:39"
+}

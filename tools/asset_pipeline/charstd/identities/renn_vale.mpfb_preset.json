@@ -1,0 +1,36 @@
+{
+ "identity": "renn_vale",
+ "archetype": "humanoid_masculine_a",
+ "reference": "_staging/charprod/renn/head_crop.png",
+ "max_weight": 0.5,
+ "how": "art-directed against the concept portrait: bounded MPFB modifiers (0.1-0.45), no solver",
+ "weights": {
+  "head/head-rectangular": 0.4,
+  "head/head-age-incr": 0.35,
+  "head/head-fat-decr": 0.15,
+  "forehead/forehead-scale-vert-incr": 0.2,
+  "eyebrows/eyebrows-trans-down": 0.25,
+  "eyebrows/eyebrows-angle-down": 0.1,
+  "eyes/l-eye-height2-decr": 0.35,
+  "eyes/r-eye-height2-decr": 0.35,
+  "eyes/l-eye-bag-height-incr": 0.3,
+  "eyes/r-eye-bag-height-incr": 0.3,
+  "nose/nose-scale-vert-incr": 0.35,
+  "nose/nose-width1-decr": 0.2,
+  "nose/nose-point-width-decr": 0.2,
+  "nose/nose-greek-incr": 0.2,
+  "mouth/mouth-upperlip-volume-decr": 0.3,
+  "mouth/mouth-lowerlip-volume-decr": 0.2,
+  "mouth/mouth-angles-down": 0.2,
+  "chin/chin-height-incr": 0.3,
+  "chin/chin-width-incr": 0.2,
+  "chin/chin-bones-incr": 0.3,
+  "cheek/l-cheek-bones-incr": 0.3,
+  "cheek/r-cheek-bones-incr": 0.3,
+  "cheek/l-cheek-volume-decr": 0.3,
+  "cheek/r-cheek-volume-decr": 0.3
+ },
+ "rest_face": {
+  "mouthClose": 0.3
+ }
+}

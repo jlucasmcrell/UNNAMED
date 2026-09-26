@@ -1,0 +1,40 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate A\n\n* **IDENTITY:** Low resemblance to Reference R. The facial structure is broader, hair color and style differ completely, and key distinguishing rugged traits are missing.\n* **ANATOMY:** Plausible overall proportions, though facial planes and volume definition are somewhat simplified.\n* **FACE:** Facial features function consistently. Eyes and lids blink adequately, but the mouth deformation and cheek creasing during expressions appear slightly stiff.\n* **NECK:** The neck connects adequately to the torso, though the transition and musculature definition are basic.\n* **SKIN AND HAIR:** Skin shading is flat with minimal subsurface scattering or micro-detail. Hair looks like a rigid, low-resolution mesh shell.\n* **ANIMATION:** Motion tracks the performance evenly, though deformations around the lips and eyes lack fleshy elasticity.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Candidate B\n\n* **IDENTITY:** Poor match to Reference R. Represents a visibly older character with slicked-back grey hair and distinct facial proportions.\n* **ANATOMY:** Cranial and facial anatomy are structurally sound and read as a coherent human face.\n* **FACE:** Eyelids close properly and mouth shape maintains form, though skin folds around expression extremes look slightly mechanical.\n* **NECK:** Neck alignment with the shoulders and clothing is functional without obvious seam disconnects.\n* **SKIN AND HAIR:** Skin texture is clean but lacks dynamic surface breakup. Hair geometry is dense but reads as a solid, stylized mass.\n* **ANIMATION:** The performance transfers smoothly; head rotation, blinks, and mouth movements deform reasonably well without breaking.\n* **PRODUCTION:** Borderline.\n\n---\n\n### Candidate C\n\n* **IDENTITY:** Moderate-low resemblance. While ruggedness and facial grime align loosely with R, facial proportions and features diverge.\n* **ANATOMY:** General proportions are acceptable, though facial depth and cheekbone structure appear slightly recessed.\n* **FACE:** Eye shapes and asymmetry during the squint look somewhat unnatural; eyelid pinching and lip compression lack anatomical softness.\n* **NECK:** Neck-to-body transition is acceptable, though skin weighting creates minor stretching during head turns.\n* **SKIN AND HAIR:** Grimy skin texture captures basic tone but lacks depth. Hair strands look sparse, unrefined, and float above the scalp.\n* **ANIMATION:** Facial motions track, but the expression deformations appear slightly distorted around the eyes and upper lip.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Candidate D\n\n* **IDENTITY:** Moderate resemblance to R. Captures the spiky hair silhouette, leaner bone structure, and rugged facial demeanor closer than the others.\n* **ANATOMY:** Convincing head proportions and jaw structure that read as anatomically cohesive.\n* **FACE:** Eyes, jaw, and lip movements read clearly. The smirk and gaze shifts hold reasonable form, though the eyelid closure shows slight geometric creasing.\n* **NECK:** Neck integrates appropriately with the shoulders, maintaining plausible tension during head movements.\n* **SKIN AND HAIR:** Hair matches the reference's styling moderately well despite rough strand cards. Skin texturing has adequate breakup, though shader response is basic.\n* **ANIMATION:** Facial performance transfers fluidly, with natural head movement and cohesive brow-to-mouth coordination.\n* **PRODUCTION:** Borderline.\n\n---\n\n### Rankings (Best to Worst)\n\n**IDENTITY:**\n1. Candidate D\n2. Candidate C\n3. Candidate A\n4. Candidate B\n\n**PRODUCTION:**\n1. Candidate D\n2. Candidate B\n3. Candidate A\n4. Candidate C",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 4281,
+    "candidatesTokenCount": 751,
+    "totalTokenCount": 5349,
+    "promptTokensDetails": [
+      {
+        "modality": "VIDEO",
+        "tokenCount": 2848
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 344
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1089
+      }
+    ],
+    "thoughtsTokenCount": 317,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "tqm3ata0DuHLjMcPuOmjoQY"
+}

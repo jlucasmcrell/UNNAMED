@@ -1,0 +1,31 @@
+{
+ "id": "player_veth_wanderer_std",
+ "archetype": "humanoid_masculine_a",
+ "identity_preset": "identities/player_veth_wanderer.mpfb_preset.json",
+ "mpfb": {
+  "macro": {
+   "age": 0.6,
+   "muscle": 0.68,
+   "weight": 0.42,
+   "height": 0.62,
+   "proportions": 0.75
+  },
+  "hair": "cortu_short_messy_hair",
+  "skin": "middleage_caucasian_male",
+  "eyebrows": "eyebrow002"
+ },
+ "hair_colour": [
+  0.52,
+  0.38,
+  0.25
+ ],
+ "height_m": 1.8,
+ "outfit": [
+  "top_tank_wanderer",
+  "bottom_trousers_wanderer",
+  "feet_boots_wanderer"
+ ],
+ "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "iris": "grey",
+ "skin_texture": "../../../assets/_staging/charstd/characters/player_veth_wanderer/identity_texture/skin_albedo.png"
+}

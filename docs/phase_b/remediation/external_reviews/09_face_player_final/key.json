@@ -1,0 +1,23 @@
+{
+  "name": "face_player_final_routes",
+  "seed": 1243409628,
+  "labels": {
+    "A": {
+      "candidate": "mpfb_std_textured",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\player_veth_wanderer\\bakeoff_tex\\static.png"
+    },
+    "B": {
+      "candidate": "mpfb_std_untextured",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\player_veth_wanderer\\bakeoff\\static.png"
+    },
+    "C": {
+      "candidate": "rejected_phaseB",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\rejected_baseline\\static.png"
+    },
+    "D": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\wrap\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

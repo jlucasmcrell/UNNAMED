@@ -1,0 +1,50 @@
+{
+ "id": "bottom_trousers_wanderer",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "bottom",
+ "layer": "base",
+ "hides": [
+  "groin",
+  "thigh_L",
+  "thigh_R",
+  "knee_L",
+  "knee_R",
+  "shin_L",
+  "shin_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "male_casualsuit06",
+  "author": "Data Collection AB / Joel Palmius (MakeHuman)",
+  "license": "CC0 1.0",
+  "attribution": null,
+  "url": "http://www.makehumancommunity.org/"
+ },
+ "cut": {
+  "keep_bones": [
+   "hips",
+   "thigh",
+   "shin",
+   "foot",
+   "toe"
+  ],
+  "keep_below_m": 1.106,
+  "why": "the one-piece suit's lower half; its upper half kept to 4 cm above the tank's hem (1.066 m on the canonical body) so no skin shows between (authored once)",
+  "keep_below_bones": [
+   "spine",
+   "spine_mid",
+   "chest"
+  ]
+ },
+ "material": {
+  "kind": "cloth_heavy",
+  "base_color": "_staging/charstd/garments/bottom_trousers_wanderer/base_color.png",
+  "normal": "mpfb:male_casualsuit06_normal.png",
+  "roughness": 0.85,
+  "texture_origin": "the Phase B player's own trousers texture baked onto this garment's UVs"
+ },
+ "offset_m": 0.0,
+ "authored_edits": []
+}

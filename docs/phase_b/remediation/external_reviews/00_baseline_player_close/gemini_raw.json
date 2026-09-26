@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### 1. Independent Evaluation\n\n#### Candidate A\n* **Player Perception:** An ordinary player would instantly identify this as an early prototype, tech-test, or a severe level-of-detail (LOD) streaming bug. \n* **Visual Reasons:**\n  * **Severe LOD/Texture Streaming Failure:** The character model appears stuck in a distant LOD state or mipmap. The facial features are melted, blurry smudges without distinct geometry for the nose tip, lips, or eyelids.\n  * **Hair Definition:** The hair is an undifferentiated, clay-like blob with muddy shading and zero strand definition.\n  * **Material Quality:** The clothing lacks normal maps or fabric weave; it looks like a flat, low-resolution gray texture mapped over basic polygonal shapes.\n  * **Environment Contrast:** While the background terrain has standard modern grass cards and landscape textures, the foreground character looks two decades behind, creating an extreme visual mismatch.\n* **Verdict:** Prototype\n\n---\n\n#### Candidate B\n* **Player Perception:** An ordinary player would likely view this as **borderline** (leaning toward an indie commercial release or early-access AA title, but definitely not a polished modern AAA RPG).\n* **Visual Reasons:**\n  * **Character Fidelity:** The face mesh, skin normal maps, dirt specular breakup, and facial sculpting are reasonably detailed and modern.\n  * **Hair Quality:** The hair is styled with individual polygonal clump geometry and basic anisotropic-style shading, fitting modern indie/mid-tier standards.\n  * **Neck/Collar Artifacts:** There are glaring clipping/mesh-weighting issues at the base of the neck where the collarbone meets the ragged shirt neckline; jagged, torn polygons appear to float or penetrate unnaturally.\n  * **Environment/Lighting:** The scene lighting is very flat and diffuse, lacking strong ambient occlusion, dynamic shadows on the character's torso/face, or modern post-processing (bloom, subtle depth-of-field, color grading).\n* **Verdict:** Borderline\n\n---\n\n### 2. Detailed Scoring (1\u201310)\n\n| Criterion | Candidate A | Candidate B |\n| :--- | :---: | :---: |\n| **Anatomy** | 3/10 | 6/10 |\n| **Head/neck integration** | 3/10 | 4/10 |\n| **Face construction** | 1/10 | 7/10 |\n| **Eyes** | 1/10 | 6/10 |\n| **Hair** | 1/10 | 6/10 |\n| **Hands** | n/a *(not visible in frame)* | n/a *(not visible in frame)* |\n| **Skin** | 2/10 | 6/10 |\n| **Clothing/material quality** | 2/10 | 5/10 |\n| **Visible equipment** | 4/10 | 4/10 |\n| **Posture** | 5/10 | 5/10 |\n| **Lighting** | 3/10 | 4/10 |\n\n---\n\n### 3. Ranking and Recommendations\n\n**Rank:**\n1. **Candidate B** (Best)\n2. **Candidate A** (Worst)\n\n#### What Would Most Improve Each:\n\n* **Candidate B:**\n  * **Fix Mesh Weighting & Clothing Seams:** Clean up the ragged collar geometry and skin weight painting around the clavicle/neck junction to eliminate polygon tearing and clipping artifacts.\n  * **Upgraded Lighting & Shading:** Implement contact shadows, screen-space ambient occlusion (SSAO/GTAO), and directional sunlight to give the character depth against the environment. Adding subsurface scattering (SSS) to the ears and face would dramatically soften the plastic/hard-edged look of the skin.\n\n* **Candidate A:**\n  * **Fix LOD / Asset Streaming:** Ensure the highest-resolution LOD mesh, normal maps, and diffuse textures load properly when the camera is in close-up third-person range. As presented, it represents an asset streaming failure or a placeholder asset that is not fit for close inspection.",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 2396,
+    "candidatesTokenCount": 889,
+    "totalTokenCount": 3752,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 196
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 2200
+      }
+    ],
+    "thoughtsTokenCount": 467,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "nnC3asntKL2zjMcPoaSPuQc"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "player_pipeline_round1",
+  "seed": 1495890585,
+  "labels": {
+    "A": {
+      "candidate": "current_prod",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\A0.png"
+    },
+    "B": {
+      "candidate": "trellis2",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\B2.png"
+    },
+    "C": {
+      "candidate": "mpfb_hybrid_v4",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\D4.png"
+    },
+    "D": {
+      "candidate": "pixal3d_mv",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\C.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

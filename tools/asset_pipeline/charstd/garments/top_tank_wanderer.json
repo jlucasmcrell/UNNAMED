@@ -1,0 +1,29 @@
+{
+ "id": "top_tank_wanderer",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "top",
+ "layer": "base",
+ "hides": [
+  "chest",
+  "abdomen",
+  "back"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "elvs_male_tankshirt1",
+  "author": "Elvaerwyn (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Men's tank top by Elvaerwyn, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/content/user_contributed_assets.html"
+ },
+ "material": {
+  "kind": "cloth",
+  "base_color": "_staging/charstd/garments/top_tank_wanderer/base_color.png",
+  "roughness": 0.9,
+  "texture_origin": "the Phase B player's own tank texture baked onto this garment's UVs (charprod2 hybrid_bake.py + compose_hybrid.py)"
+ },
+ "offset_m": 0.0,
+ "authored_edits": []
+}

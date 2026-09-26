@@ -1,0 +1,23 @@
+{
+  "name": "face_bakeoff_video",
+  "seed": 1215294369,
+  "labels": {
+    "A": {
+      "candidate": "mpfb_targets_native",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\targets_native\\video.mp4"
+    },
+    "B": {
+      "candidate": "mpfb_targets_projected",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\targets_projected\\video.mp4"
+    },
+    "C": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\wrap\\video.mp4"
+    },
+    "D": {
+      "candidate": "mpfb_plain",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\mpfb_plain\\video.mp4"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

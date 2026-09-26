@@ -1,0 +1,40 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate A\n\n- **IDENTITY:** No. Features, bone structure, and hair show no correlation with Reference R.\n- **ANATOMY:** Basic stylized human proportions, but lacks defined skeletal structure and refined facial anatomy.\n- **FACE:** Eyelids deform unnaturally during blinks with stretching artifacts. Lip movement and jaw articulation appear rubbery and lack underlying muscular tension.\n- **NECK:** Connection to the torso is rudimentary with minimal anatomical detail across the clavicle and trapezius.\n- **SKIN AND HAIR:** Skin lacks pores, micro-detail, and subsurface scattering, appearing plastic. Hair is a low-detail helmet mesh with painted textures.\n- **ANIMATION:** Motion transfers rigidly; eyelid closures and mouth shapes deform with noticeable linear stretching.\n- **PRODUCTION:** Prototype.\n\n---\n\n### Candidate B\n\n- **IDENTITY:** No. Does not resemble the facial structure or character design of Reference R.\n- **ANATOMY:** Shares the same rudimentary base anatomy as A, lacking structural fidelity.\n- **FACE:** Blinking produces collapsed eyelid geometry. Mouth shaping during speech and smiling is flat and poorly articulated.\n- **NECK:** Basic cylindrical form with simplistic integration into the shoulders.\n- **SKIN AND HAIR:** Flat, waxy skin shading. Hair consists of floating alpha-card clusters that lack volume and realistic scalp rooting.\n- **ANIMATION:** Facial weight is poorly distributed, resulting in loose, unnatural deformation around the midface and eyes.\n- **PRODUCTION:** Prototype.\n\n---\n\n### Candidate C\n\n- **IDENTITY:** Yes, moderately plausible. Matches R's hair silhouette, facial scruff, lean jaw, and distressed aesthetic, though at lower fidelity.\n- **ANATOMY:** Plausible facial proportions consistent with stylized realism, though slightly exaggerated in the brow.\n- **FACE:** Eye movement tracks adequately, but eyelid closures pinch slightly at the corners. Asymmetrical smirk animates with reasonable cohesion.\n- **NECK:** Plausibly integrated with visible sternocleidomastoid definition into the collar area.\n- **SKIN AND HAIR:** Features textured grime and stubble resembling R. Hair geometry is chunky and stylized with visible faceted cards.\n- **ANIMATION:** Expressions and blinks deform reasonably well, capturing character intent despite slight clipping around the eyelids.\n- **PRODUCTION:** Borderline.\n\n---\n\n### Candidate D\n\n- **IDENTITY:** No. Features a significantly older subject with slicked-back graying hair and completely distinct facial proportions from R.\n- **ANATOMY:** Recognizable human head shape, though features are smoothed out and lack realistic subcutaneous variation.\n- **FACE:** Eyes lack depth; blinks appear mechanical. Mouth shapes smile without proper cheek or nasolabial activation.\n- **NECK:** Stiff, blocky connection into the upper chest with limited anatomical definition.\n- **SKIN AND HAIR:** Monolithic, flat skin texture. Hair mesh sits rigidly on the skull with painted-on perimeter transitions.\n- **ANIMATION:** Facial movement behaves like a simple shape blend without believable soft-tissue dynamics.\n- **PRODUCTION:** Prototype.\n\n---\n\n### Rankings\n\n**IDENTITY (Best to Worst):**  \n1. C  \n2. A  \n3. B  \n4. D  \n\n**PRODUCTION Readiness (Best to Worst):**  \n1. C  \n2. D  \n3. A  \n4. B",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 4292,
+    "candidatesTokenCount": 717,
+    "totalTokenCount": 5477,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1089
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 355
+      },
+      {
+        "modality": "VIDEO",
+        "tokenCount": 2848
+      }
+    ],
+    "thoughtsTokenCount": 468,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "nKS3apXAHvTkjMcP5OaXmAE"
+}

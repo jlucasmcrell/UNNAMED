@@ -1,0 +1,39 @@
+{
+ "id": "torso_hide_vest_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "outer_torso",
+ "layer": "outer",
+ "hides": [
+  "abdomen",
+  "back"
+ ],
+ "replaces_roles": [
+  "top"
+ ],
+ "compatibility": "replaces the base top rather than layering over it (curated: no tank-under-vest clipping to manage)",
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "drednicolson_asymmetric_tunic_and_sash",
+  "author": "DredNicolson (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Asymmetric Tunic and Sash by DredNicolson, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/content/user_contributed_assets.html"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/torso_hide_vest_a/base_color.png",
+  "normal": "_staging/charstd/garments/torso_hide_vest_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/torso_hide_vest_a/roughness.png",
+  "uv_scale": 2.0,
+  "texture_origin": "ambientCG Leather014 (CC0 1.0), tiled on the tunic's own UVs; F:/Otherreach_External_Assets/materials/ambientcg__Leather014"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [
+  {
+   "what": "hides chest removed",
+   "why": "the vest sits higher at the neck than the tank; hiding chest opened a see-through gap inside its collar (QA sheet, 2026-09-26); the chest skin stays under it"
+  }
+ ],
+ "presentation_binding": "item.armor.hide_vest (chest slot) - art_bindings, presentation only"
+}

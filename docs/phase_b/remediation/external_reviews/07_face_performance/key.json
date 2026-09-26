@@ -1,0 +1,23 @@
+{
+  "name": "face_performance_reuse",
+  "seed": 2857768917,
+  "labels": {
+    "A": {
+      "candidate": "tavar_std",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\performance\\perf_a_tavar_orr.mp4"
+    },
+    "B": {
+      "candidate": "mpfb_parametric_std",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\performance\\perf_a_player_veth_wanderer.mp4"
+    },
+    "C": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\performance\\perf_a_custom_wrap.mp4"
+    },
+    "D": {
+      "candidate": "renn_std",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\performance\\perf_a_renn_vale.mp4"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

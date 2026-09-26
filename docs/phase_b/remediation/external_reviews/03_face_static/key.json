@@ -1,0 +1,27 @@
+{
+  "name": "face_bakeoff_static",
+  "seed": 2735302188,
+  "labels": {
+    "A": {
+      "candidate": "mpfb_plain",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\mpfb_plain\\static.png"
+    },
+    "B": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\wrap\\static.png"
+    },
+    "C": {
+      "candidate": "mpfb_targets_native",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\targets_native\\static.png"
+    },
+    "D": {
+      "candidate": "mpfb_targets_projected",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\targets_projected\\static.png"
+    },
+    "E": {
+      "candidate": "rejected_phaseB",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\rejected_baseline\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

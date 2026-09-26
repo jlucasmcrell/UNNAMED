@@ -1,0 +1,11 @@
+{
+  "name": "face_identity_tavar_orr",
+  "seed": 2858629582,
+  "labels": {
+    "A": {
+      "candidate": "std",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\tavar_orr\\bakeoff\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

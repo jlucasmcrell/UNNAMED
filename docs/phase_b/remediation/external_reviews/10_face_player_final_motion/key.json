@@ -1,0 +1,15 @@
+{
+  "name": "face_player_final_motion",
+  "seed": 2322538311,
+  "labels": {
+    "A": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\wrap\\motion.png"
+    },
+    "B": {
+      "candidate": "mpfb_std_textured",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\player_veth_wanderer\\bakeoff_tex\\motion.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

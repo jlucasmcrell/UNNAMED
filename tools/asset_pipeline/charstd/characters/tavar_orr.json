@@ -1,0 +1,31 @@
+{
+ "id": "tavar_orr_std",
+ "archetype": "humanoid_masculine_a",
+ "identity_preset": "identities/tavar_orr.mpfb_preset.json",
+ "mpfb": {
+  "macro": {
+   "age": 0.55,
+   "muscle": 0.78,
+   "weight": 0.55,
+   "height": 0.58,
+   "proportions": 0.7
+  },
+  "hair": "short02",
+  "skin": "middleage_caucasian_male",
+  "eyebrows": "eyebrow002"
+ },
+ "hair_colour": [
+  0.3,
+  0.2,
+  0.13
+ ],
+ "height_m": 1.78,
+ "outfit": [
+  "top_tank_wanderer",
+  "bottom_trousers_wanderer",
+  "feet_boots_wanderer"
+ ],
+ "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "iris": "brown",
+ "skin_texture": "../../../assets/_staging/charstd/characters/tavar_orr/identity_texture/skin_albedo.png"
+}

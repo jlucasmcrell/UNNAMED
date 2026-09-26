@@ -1,0 +1,41 @@
+{
+ "identity": "player_veth_wanderer",
+ "archetype": "humanoid_masculine_a",
+ "how": "art-directed against the concept portrait (refs/gemini/face_front.png): bounded MPFB modifiers, each 0.1-0.4 - a per-face configuration, the same kind of values a character creator's sliders set. No solver.",
+ "weights": {
+  "head/head-square": 0.35,
+  "head/head-age-incr": 0.2,
+  "head/head-fat-decr": 0.2,
+  "forehead/forehead-trans-forward": 0.15,
+  "eyebrows/eyebrows-trans-down": 0.35,
+  "eyebrows/eyebrows-trans-forward": 0.3,
+  "eyebrows/eyebrows-angle-down": 0.15,
+  "eyes/l-eye-height2-decr": 0.3,
+  "eyes/r-eye-height2-decr": 0.3,
+  "eyes/l-eye-push1-in": 0.2,
+  "eyes/r-eye-push1-in": 0.2,
+  "eyes/l-eye-eyefold-down": 0.25,
+  "eyes/r-eye-eyefold-down": 0.25,
+  "nose/nose-scale-vert-incr": 0.2,
+  "nose/nose-hump-incr": 0.15,
+  "nose/nose-scale-depth-incr": 0.15,
+  "mouth/mouth-scale-horiz-incr": 0.1,
+  "mouth/mouth-laugh-lines-out": 0.3,
+  "chin/chin-width-incr": 0.35,
+  "chin/chin-prominent-incr": 0.2,
+  "chin/chin-bones-incr": 0.2,
+  "cheek/l-cheek-bones-incr": 0.25,
+  "cheek/r-cheek-bones-incr": 0.25,
+  "cheek/l-cheek-volume-decr": 0.2,
+  "cheek/r-cheek-volume-decr": 0.2
+ },
+ "rest_face": {
+  "mouthClose": 0.3
+ },
+ "skin": {
+  "base": "middleage_caucasian_male",
+  "identity_texture": "the concept face projected at 0.5 opacity (grime, stubble)"
+ },
+ "max_weight": 0.5,
+ "reference": "_staging/charprod2/player/refs/gemini/face_front.png"
+}

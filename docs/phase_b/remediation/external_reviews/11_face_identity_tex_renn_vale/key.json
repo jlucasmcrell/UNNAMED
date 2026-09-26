@@ -1,0 +1,11 @@
+{
+  "name": "face_identity_tex_renn_vale",
+  "seed": 1837371113,
+  "labels": {
+    "A": {
+      "candidate": "std_textured",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\renn_vale\\bakeoff_tex\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

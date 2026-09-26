@@ -1,0 +1,93 @@
+{
+ "id": "humanoid_a_v1",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "note": "The production humanoid skeleton (charprod/rig_production.py's vocabulary: 55 bones - root, hips, spine, spine_mid, chest, neck, head, eye.L/R, shoulder/upper_arm/forearm/hand .L/.R, three bones per finger with the thumb, thigh/shin/foot/toe .L/.R) as MPFB2's game-engine rig renamed one to one, plus the eye bones and the hand sockets. Every retarget map in retarget_maps/*_prod.json targets these names.",
+ "rename_from_mpfb_game_engine": {
+  "Root": "root",
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_02": "spine_mid",
+  "spine_03": "chest",
+  "neck_01": "neck",
+  "head": "head",
+  "clavicle_l": "shoulder.L",
+  "clavicle_r": "shoulder.R",
+  "upperarm_l": "upper_arm.L",
+  "upperarm_r": "upper_arm.R",
+  "lowerarm_l": "forearm.L",
+  "lowerarm_r": "forearm.R",
+  "hand_l": "hand.L",
+  "hand_r": "hand.R",
+  "thigh_l": "thigh.L",
+  "thigh_r": "thigh.R",
+  "calf_l": "shin.L",
+  "calf_r": "shin.R",
+  "foot_l": "foot.L",
+  "foot_r": "foot.R",
+  "ball_l": "toe.L",
+  "ball_r": "toe.R",
+  "thumb_01_l": "thumb_01.L",
+  "thumb_01_r": "thumb_01.R",
+  "thumb_02_l": "thumb_02.L",
+  "thumb_02_r": "thumb_02.R",
+  "thumb_03_l": "thumb_03.L",
+  "thumb_03_r": "thumb_03.R",
+  "index_01_l": "index_01.L",
+  "index_01_r": "index_01.R",
+  "index_02_l": "index_02.L",
+  "index_02_r": "index_02.R",
+  "index_03_l": "index_03.L",
+  "index_03_r": "index_03.R",
+  "middle_01_l": "middle_01.L",
+  "middle_01_r": "middle_01.R",
+  "middle_02_l": "middle_02.L",
+  "middle_02_r": "middle_02.R",
+  "middle_03_l": "middle_03.L",
+  "middle_03_r": "middle_03.R",
+  "ring_01_l": "ring_01.L",
+  "ring_01_r": "ring_01.R",
+  "ring_02_l": "ring_02.L",
+  "ring_02_r": "ring_02.R",
+  "ring_03_l": "ring_03.L",
+  "ring_03_r": "ring_03.R",
+  "pinky_01_l": "pinky_01.L",
+  "pinky_01_r": "pinky_01.R",
+  "pinky_02_l": "pinky_02.L",
+  "pinky_02_r": "pinky_02.R",
+  "pinky_03_l": "pinky_03.L",
+  "pinky_03_r": "pinky_03.R"
+ },
+ "added": {
+  "eye.L": {
+   "parent": "head",
+   "head": "the left eyeball's centre",
+   "tail": "2 cm forward (-Y)",
+   "weights": "the left eyeball, 1.0"
+  },
+  "eye.R": {
+   "parent": "head",
+   "head": "the right eyeball's centre",
+   "tail": "2 cm forward (-Y)",
+   "weights": "the right eyeball, 1.0"
+  },
+  "SOCK_hand.R": {
+   "parent": "hand.R",
+   "head": "the grip centre: the knuckle line's midpoint (index_01 to pinky_01 heads), 2.5 cm into the palm",
+   "axes": "Y along the grip (pinky knuckle toward index knuckle: the way a held blade leaves the fist), Z the palm's normal",
+   "use": "SkinnedFigure.SocketGrip: the held weapon's grip frame"
+  },
+  "SOCK_hand.L": {
+   "parent": "hand.L",
+   "head": "as SOCK_hand.R, mirrored",
+   "axes": "as SOCK_hand.R",
+   "use": "the off-hand grip"
+  }
+ },
+ "attachment_points": {
+  "weapon_primary": "SOCK_hand.R",
+  "weapon_off_hand": "SOCK_hand.L",
+  "back": "chest",
+  "hip": "hips",
+  "head": "head"
+ }
+}

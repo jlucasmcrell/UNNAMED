@@ -1,0 +1,98 @@
+{
+ "id": "player_veth_wanderer_prod2",
+ "refs": "_staging/charprod2/player/refs",
+ "work": "_staging/charprod2/player",
+ "mpfb": {
+  "macro": {
+   "gender": 1.0,
+   "age": 0.6,
+   "muscle": 0.68,
+   "weight": 0.42,
+   "height": 0.62,
+   "proportions": 0.75,
+   "race": {
+    "caucasian": 1.0,
+    "african": 0.0,
+    "asian": 0.0
+   }
+  },
+  "height_m": 1.8,
+  "eyes": "high-poly",
+  "eyebrows": "eyebrow002",
+  "eyelashes": "eyelashes01",
+  "teeth": "teeth_base",
+  "tongue": "tongue01",
+  "hair": "cortu_short_messy_hair",
+  "skin": "middleage_caucasian_male",
+  "rig": "game_engine",
+  "clothes": [
+   "elvs_male_tankshirt1",
+   "male_casualsuit06",
+   "shoes03"
+  ],
+  "garments": {
+   "vest": {
+    "source": "clothes/elvs_male_tankshirt1/toptex1.png",
+    "colour": [
+     0.36,
+     0.38,
+     0.3
+    ],
+    "use": "luma",
+    "knit": true,
+    "grime": 0.6
+   },
+   "trousers": {
+    "source": "clothes/male_casualsuit06/male_casualsuit06_diffuse.png",
+    "colour": [
+     0.33,
+     0.25,
+     0.18
+    ],
+    "use": "luma",
+    "grime": 0.5
+   },
+   "boots": {
+    "source": "clothes/shoes03/shoes03_diffuse.png",
+    "colour": [
+     0.36,
+     0.24,
+     0.15
+    ],
+    "use": "luma",
+    "grime": 0.3
+   },
+   "hair": {
+    "source": "hair/cortu_short_messy_hair/short_messy_diff.png",
+    "colour": [
+     0.52,
+     0.4,
+     0.27
+    ],
+    "use": "luma"
+   }
+  },
+  "eye_texture": "eyes/materials/blue_eye.png",
+  "wear": {
+   "elvs_male_tankshirt1": {
+    "part": "all",
+    "texture": "vest",
+    "kind": "cloth",
+    "roughness": 0.9
+   },
+   "male_casualsuit06": {
+    "part": "legs",
+    "texture": "trousers",
+    "kind": "cloth_heavy",
+    "roughness": 0.85
+   },
+   "shoes03": {
+    "part": "all",
+    "texture": "boots",
+    "kind": "leather",
+    "roughness": 0.55
+   }
+  }
+ },
+ "material_prefix": "MAT_player2"
+}

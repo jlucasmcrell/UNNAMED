@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate A\n\n* **IDENTITY:** Low resemblance. It lacks the weathered maturity, stubble, intense hooded brow, and facial scarring characteristic of R.\n* **ANATOMY:** Plausible base proportions, but the facial planes appear overly simplified and softened.\n* **FACE:** Eyes appear slightly vacant; eyelids deform rigidly. The open mouth reveals flat, simplified teeth and a stiff tongue.\n* **NECK:** Proportions connect adequately to the clavicle, though sternocleidomastoid definition is subdued.\n* **SKIN AND HAIR:** Skin texture is overly clean and plastic without micro-details. The hair card placement leaves harsh detachment lines along the temple.\n* **ANIMATION:** Expression blends are rudimentary; brow and smile deformations pinch unnaturally around the mouth corners.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Candidate B\n\n* **IDENTITY:** Moderate resemblance. Captures the grime, stubble, and rugged facial structure of R better than other candidates, though eye shape diverges.\n* **ANATOMY:** Solid structural bone foundation aligned with a mature adult male, albeit slightly exaggerated in brow depth.\n* **FACE:** Piercing eyes show excessive upper sclera, creating a persistent startled glare. Jaw and lip shapes hold structure well across poses.\n* **NECK:** Good anatomical continuity from jaw to trapezius, matching the rougher skin treatment.\n* **SKIN AND HAIR:** Weathered textures and beard stubble reflect the reference well. Hair remains blocky and lacks fine stranded integration.\n* **ANIMATION:** Shape deformations function reasonably across basic blends, though extreme brow poses exaggerate the bulging eye issue.\n* **PRODUCTION:** Borderline.\n\n---\n\n### Candidate C\n\n* **IDENTITY:** Weak resemblance. The narrow nasal bridge, elongated midface, and distinct brow ridge diverge significantly from R.\n* **ANATOMY:** Proportionally thin with an overly pronounced, angular nasal structure.\n* **FACE:** Mouth appears consistently pursed; inner mouth assets during the open jaw pose are rigid and low-detail.\n* **NECK:** Slender neck connects smoothly, matching the overall leaner facial anatomy.\n* **SKIN AND HAIR:** Includes surface dirt and light stubble, though execution looks painted-on. Hair integration at the scalp is abrupt.\n* **ANIMATION:** Facial action units cause harsh creasing near the nasolabial fold; expressions lack subtle secondary movement.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Candidate D\n\n* **IDENTITY:** Very low resemblance. Clean, unblemished skin and elongated features do not represent the rugged character in R.\n* **ANATOMY:** Elongated midface and sharp nasal profile produce a slightly stylized, non-standard facial structure.\n* **FACE:** Mouth neutral pose is overly compressed. Blinks flatten the geometry awkwardly, and open jaw reveals basic oral cavity assets.\n* **NECK:** Neck transition is structurally adequate but lacks muscular definition.\n* **SKIN AND HAIR:** Skin shader lacks realistic subsurface scattering and texture breakup. Hair cards float visibly off the scalp line.\n* **ANIMATION:** Viseme and emotive targets deform stiffly, particularly around the lips and upper brow.\n* **PRODUCTION:** Prototype.\n\n---\n\n### Rankings\n\n**IDENTITY (Best to Worst):**\n1. Candidate B\n2. Candidate A\n3. Candidate C\n4. Candidate D\n\n**PRODUCTION READINESS (Best to Worst):**\n1. Candidate B\n2. Candidate A\n3. Candidate C\n4. Candidate D",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 5792,
+    "candidatesTokenCount": 733,
+    "totalTokenCount": 6941,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 5445
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 347
+      }
+    ],
+    "thoughtsTokenCount": 416,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "UJ-3av3zA97sjrEPzKq_oQk"
+}

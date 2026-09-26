@@ -1,0 +1,19 @@
+{
+  "name": "face_player_three_routes",
+  "seed": 1608652293,
+  "labels": {
+    "A": {
+      "candidate": "mpfb_parametric_std",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charstd\\characters\\player_veth_wanderer\\bakeoff\\static.png"
+    },
+    "B": {
+      "candidate": "custom_wrap",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\wrap\\static.png"
+    },
+    "C": {
+      "candidate": "rejected_phaseB",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bakeoff\\rejected_baseline\\static.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}

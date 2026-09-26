@@ -1,0 +1,31 @@
+{
+ "id": "renn_vale_std",
+ "archetype": "humanoid_masculine_a",
+ "identity_preset": "identities/renn_vale.mpfb_preset.json",
+ "mpfb": {
+  "macro": {
+   "age": 0.72,
+   "muscle": 0.55,
+   "weight": 0.5,
+   "height": 0.6,
+   "proportions": 0.7
+  },
+  "hair": "short04",
+  "skin": "middleage_caucasian_male",
+  "eyebrows": "eyebrow002"
+ },
+ "hair_colour": [
+  0.6,
+  0.6,
+  0.62
+ ],
+ "height_m": 1.8,
+ "outfit": [
+  "torso_hide_vest_a",
+  "bottom_trousers_wanderer",
+  "feet_boots_wanderer"
+ ],
+ "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "iris": "bluegreen",
+ "skin_texture": "../../../assets/_staging/charstd/characters/renn_vale/identity_texture/skin_albedo.png"
+}

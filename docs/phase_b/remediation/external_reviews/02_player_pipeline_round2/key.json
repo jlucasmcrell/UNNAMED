@@ -1,0 +1,15 @@
+{
+  "name": "player_pipeline_round2",
+  "seed": 1778597333,
+  "labels": {
+    "A": {
+      "candidate": "current_prod",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\A0v2.png"
+    },
+    "B": {
+      "candidate": "hybrid_e1",
+      "source": "G:\\UNNAMED_PHASEB\\assets\\_staging\\charprod2\\player\\bench\\review_sheets\\E1.png"
+    }
+  },
+  "note": "PRIVATE KEY - never sent to a reviewer"
+}
