@@ -1,0 +1,62 @@
+{
+  "kind": "reveal",
+  "created": "2026-09-26T16:28:58.070448+00:00",
+  "payload_sha256": "8258aea4b58027e8ddd570979447e90591877e9d189893a69b222a9c4dcd9bb1",
+  "review_receipts": [
+    {
+      "path": "G:\\OtherreachTools\\visual-qa\\runs\\20260926T162800587778Z-review-ecca03\\result.json",
+      "sha256": "54403bf1f92e0ba40760b3e842ac58db0bde1e4516f10204d70eab1e6b0e05fd"
+    }
+  ],
+  "identities": {
+    "seed": "20260926",
+    "source_manifest_sha256": "e25cfdb27c45e1e190499aa8380abdb864fc7453c3c972ecd67ca4927271c3f9",
+    "assignments": {
+      "A": {
+        "id": "hud-finished",
+        "settings": {
+          "camera": "third-person gameplay",
+          "lighting": "in-game",
+          "scale": 1,
+          "framing": "two gameplay moments side by side (dialogue; notices after a quest completes), 1920x1080 each",
+          "tier": "high",
+          "duration_s": null
+        },
+        "media": [
+          {
+            "path": "finished.png"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\A-00.png",
+            "sha256": "54899da23f52bea9cc9597b8c06238a1bb5c5548c07eee8ab23e29b606a09a4a"
+          }
+        ]
+      },
+      "B": {
+        "id": "hud-classic",
+        "settings": {
+          "camera": "third-person gameplay",
+          "lighting": "in-game",
+          "scale": 1,
+          "framing": "two gameplay moments side by side (dialogue; notices after a quest completes), 1920x1080 each",
+          "tier": "high",
+          "duration_s": null
+        },
+        "media": [
+          {
+            "path": "classic.png"
+          }
+        ],
+        "preserved_originals": [
+          {
+            "path": "private\\B-00.png",
+            "sha256": "76c829ff52931c084c256071e247f08658fffbca5c78f49bc5f3612900aa52ef"
+          }
+        ]
+      }
+    }
+  },
+  "owner_decision": null
+}

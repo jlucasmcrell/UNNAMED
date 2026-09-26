@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"observations\": [\n    {\n      \"candidate\": \"A\",\n      \"criterion\": \"hierarchy\",\n      \"result\": \"pass\",\n      \"observation\": \"Clear framing, typography weights, and darkened backgrounds provide distinct contrast and legibility across all HUD elements.\",\n      \"references\": [\"A-00.png\"]\n    },\n    {\n      \"candidate\": \"A\",\n      \"criterion\": \"layout\",\n      \"result\": \"pass\",\n      \"observation\": \"HUD modules and interaction prompts are neatly anchored with consistent margins and no overlapping elements.\",\n      \"references\": [\"A-00.png\"]\n    },\n    {\n      \"candidate\": \"A\",\n      \"criterion\": \"context\",\n      \"result\": \"pass\",\n      \"observation\": \"Dialogue window, skill panels, and quest notifications display clear context-specific containers and readable state information.\",\n      \"references\": [\"A-00.png\"]\n    },\n    {\n      \"candidate\": \"B\",\n      \"criterion\": \"hierarchy\",\n      \"result\": \"defect\",\n      \"observation\": \"Unframed text at the top-left and right log lacks background backing, resulting in poor contrast against bright environment surfaces.\",\n      \"references\": [\"B-00.png\"]\n    },\n    {\n      \"candidate\": \"B\",\n      \"criterion\": \"layout\",\n      \"result\": \"defect\",\n      \"observation\": \"Unstructured text clusters lack consistent padding, alignment, and visual container boundaries.\",\n      \"references\": [\"B-00.png\"]\n    },\n    {\n      \"candidate\": \"B\",\n      \"criterion\": \"context\",\n      \"result\": \"defect\",\n      \"observation\": \"Dialogue and event notifications render with minimal visual framing, degrading contextual readability.\",\n      \"references\": [\"B-00.png\"]\n    }\n  ],\n  \"functional_issues\": [],\n  \"summary\": \"Candidate A provides superior hierarchy, legibility, and contextual framing with dedicated UI panels, whereas Candidate B suffers from unbacked text and weak contrast.\"\n}",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 2799,
+    "candidatesTokenCount": 458,
+    "totalTokenCount": 3970,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 657
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 2142
+      }
+    ],
+    "thoughtsTokenCount": 713,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "kPK3aqaeEqzSjMcPhuzf2QE"
+}

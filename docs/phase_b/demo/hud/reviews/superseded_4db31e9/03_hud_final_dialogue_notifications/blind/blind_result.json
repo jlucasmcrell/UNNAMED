@@ -1,0 +1,53 @@
+{
+  "kind": "blind",
+  "created": "2026-09-26T15:15:34.606079+00:00",
+  "payload": {
+    "schema_version": 1,
+    "rubric": "hud",
+    "rubric_version": "1.0.0",
+    "candidates": [
+      {
+        "label": "A",
+        "media": [
+          {
+            "path": "A-00.png",
+            "sha256": "ac1424ce61ce53de20bfd0e7724789698a744269a6ca7387e0b92749c8a4f4b2",
+            "kind": "still",
+            "continuous_video": false,
+            "width": 3840,
+            "height": 1080,
+            "duration_s": null,
+            "frame_rate": null,
+            "transform": "decoded PNG; metadata stripped"
+          }
+        ]
+      },
+      {
+        "label": "B",
+        "media": [
+          {
+            "path": "B-00.png",
+            "sha256": "66887d711d2aca2edf00faa05356256ba813f3020a736b818f6ae7739049db92",
+            "kind": "still",
+            "continuous_video": false,
+            "width": 3840,
+            "height": 1080,
+            "duration_s": null,
+            "frame_rate": null,
+            "transform": "decoded PNG; metadata stripped"
+          }
+        ]
+      }
+    ],
+    "comparability_limitations": [
+      "Visible labels, HUD text or baked-in watermarks can reveal identity; owner must inspect payload before submission.",
+      "Settings are caller-declared; this tool does not independently measure camera, scale or lighting equivalence."
+    ],
+    "evidence_context": "Anonymous candidate evidence; implementation and production status withheld."
+  },
+  "owner_decision": null,
+  "missing_evidence": [
+    "Visible labels, HUD text or baked-in watermarks can reveal identity; owner must inspect payload before submission.",
+    "Settings are caller-declared; this tool does not independently measure camera, scale or lighting equivalence."
+  ]
+}
