@@ -48,6 +48,12 @@ public sealed record StationSite(string Key, string Kind, long XMm, long ZMm);
 /// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
 public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
 
+/// <summary>
+/// Where the player may build (M7 design §4.16): a box on the building lattice, edges included, and how many pieces may stand in it.
+/// Build areas are layout, not baseline.
+/// </summary>
+public sealed record BuildAreaSite(string Key, long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, int MaxPieces);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -83,6 +89,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's barriers (M6).</summary>
     public ImmutableArray<BarrierSite> Barriers { get; init; } = ImmutableArray<BarrierSite>.Empty;
+
+    /// <summary>Where the player may build (M7).</summary>
+    public ImmutableArray<BuildAreaSite> BuildAreas { get; init; } = ImmutableArray<BuildAreaSite>.Empty;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 
