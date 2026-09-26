@@ -270,6 +270,14 @@ public static class M2Fixtures
             var meat = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
             world.SetContainer(new ContainerRecord("corpse.fixture_den.m1_g0", corpse, TenCells[1].ToString(), ImmutableArray.Create(
                 new ContainerItem(meat, "item.potion.healing_draught", 1))));
+            // Schema 17 (the owner's ruling on the second M7 E8.5 STOP): a third wolf of the den, at Aelin since tick 5000 and biting - its
+            // bite began at tick 4996 and has landed on Aelin, so it will not land again.
+            world.SetCreature(new CreatureRecord("spawn.fixture.den#2", "creature.beast.wolf_grey", Creature(4), TenCells[1].ToString(), 0,
+                CreatureCondition.Alive, 11_500, 68_250, 45_000, 30, 0, 0)
+            {
+                Mind = CreatureMind.Engaged, Awareness = 100, Knows = true, KnownXMm = 12_000, KnownZMm = 69_000, LastSeenTick = 5_000,
+                AttackTick = 4_996, AttackStruck = PlayerId,
+            });
             world.SetCreature(new CreatureRecord("spawn.fixture.ridge#0", "creature.beast.ash_hound", Creature(3), TenCells[2].ToString(), 2,
                 CreatureCondition.Gone, 20_000, 30_000, 0, 0, 4_900, 30_000));
 

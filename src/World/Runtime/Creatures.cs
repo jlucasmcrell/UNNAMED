@@ -229,7 +229,12 @@ internal sealed class CreatureSystem
                         StaggerImmuneUntil = record.StaggerImmuneUntil,
                         Action = record.StaggeredTick is { } staggered
                             ? ActionState.Begin(ActionKind.Staggered, staggered) with { LastsTicks = record.StaggerLastsTicks }
-                            : ActionState.Idle,
+                            : record.AttackTick is { } began
+                                ? ActionState.Begin(ActionKind.Attack, began, definition.Attack) with
+                                {
+                                    Struck = record.AttackStruck is { } struck ? ImmutableHashSet.Create(struck) : ImmutableHashSet<EntityId>.Empty,
+                                }
+                                : ActionState.Idle,
                     };
                 }
                 State.SetCreature(_owner, state);
@@ -826,9 +831,11 @@ internal sealed class CreatureSystem
         long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
         long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
         bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
+        bool attacking = alive && c.Action.Kind == ActionKind.Attack && c.Action.PhaseAt(next, C).Phase != CombatPhase.Idle;
         bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.Definition.MaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
-                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
+                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered
+                        && !attacking;
         var existing = State.World.Creature(c.Key);
         if (baseline)
         {
@@ -851,6 +858,9 @@ internal sealed class CreatureSystem
             StaggerImmuneUntil = immune,
             StaggeredTick = staggered ? c.Action.StartTick : null,
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
+            AttackTick = attacking ? c.Action.StartTick : null,
+            // One swing lands on one body (L-23): at most one.
+            AttackStruck = attacking ? c.Action.Struck.SingleOrDefault() : null,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);

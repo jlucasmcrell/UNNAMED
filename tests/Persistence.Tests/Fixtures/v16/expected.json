@@ -459,7 +459,8 @@
       "next_charge_tick": 5060,
       "stagger_immune_until": 5020,
       "staggered_tick": 4995,
-      "stagger_lasts_ticks": 40
+      "stagger_lasts_ticks": 40,
+      "attack": null
     },
     {
       "key": "spawn.fixture.den#1",
@@ -486,7 +487,8 @@
       "next_charge_tick": 0,
       "stagger_immune_until": 0,
       "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "stagger_lasts_ticks": 0,
+      "attack": null
     },
     {
       "key": "spawn.fixture.ridge#0",
@@ -513,7 +515,8 @@
       "next_charge_tick": 0,
       "stagger_immune_until": 0,
       "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "stagger_lasts_ticks": 0,
+      "attack": null
     }
   ],
   "noises": [

@@ -373,6 +373,17 @@ public sealed class CreatureContinuationDto
     [Key("stagger_immune_until")] public long StaggerImmuneUntil { get; set; }
     [Key("staggered_tick")] public long? StaggeredTick { get; set; }
     [Key("stagger_lasts_ticks")] public int StaggerLastsTicks { get; set; }
+
+    /// <summary>The ordinary attack it is in, or nil (schema 17). The 16 -> 17 step gives older saves none: the attack was not kept.</summary>
+    [Key("attack")] public CreatureAttackDto? Attack { get; set; }
+}
+
+/// <summary>A creature's ordinary attack in progress (schema 17): the tick it began, and whom it has landed on (nil while it has not).</summary>
+[MessagePackObject]
+public sealed class CreatureAttackDto
+{
+    [Key("start_tick")] public long StartTick { get; set; }
+    [Key("struck")] public string? Struck { get; set; }
 }
 
 [MessagePackObject]
@@ -807,6 +818,7 @@ public static class SectionCodec
                     StaggerImmuneUntil = c.StaggerImmuneUntil,
                     StaggeredTick = c.StaggeredTick,
                     StaggerLastsTicks = c.StaggerLastsTicks,
+                    Attack = c.AttackTick is { } began ? new CreatureAttackDto { StartTick = began, Struck = c.AttackStruck?.Value } : null,
                 },
             }).ToArray(),
             Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
@@ -889,6 +901,8 @@ public static class SectionCodec
                     StaggerImmuneUntil = continuation.StaggerImmuneUntil,
                     StaggeredTick = continuation.StaggeredTick,
                     StaggerLastsTicks = continuation.StaggerLastsTicks,
+                    AttackTick = continuation.Attack?.StartTick,
+                    AttackStruck = continuation.Attack?.Struck is { } struck ? EntityId.Parse(struck) : null,
                 };
             })
             .ToImmutableArray();

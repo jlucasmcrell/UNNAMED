@@ -4,7 +4,7 @@
 // The player shape schema 15 wrote (14 -> 15 writes it). The v15 fixture pins it. Its parts that schema 16 did not change are the
 // current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto,
 // CompanionDto, PostureDto, FactionsDto); the step that next changes one of those must freeze a copy of it first. Schema 16 changed
-// only the player: the entities and cells shapes schema 15 wrote are the current ones.
+// only the player: the entities and cells shapes schema 15 wrote are schema 16's (the entities shape frozen as V16.EntitiesSection).
 
 using MessagePack;
 

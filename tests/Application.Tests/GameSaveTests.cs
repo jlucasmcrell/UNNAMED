@@ -42,6 +42,8 @@ public class GameSaveTests
         // Schema 16 (the owner's ruling on the M7 E8.5 STOP): the player gains their vitals, at rest - as every older save loaded.
         (new Regex(@"^\$\.player\.Vitals$"),
             """{"LastCombatTick":-1000000,"LastExertionTick":-1000000,"LastCastTick":-1000000,"HealthMilli":0,"StaminaMilli":0,"FocusMilli":0,"StrainMilli":0,"SprintMilli":0}"""),
+        // Schema 17 (the owner's ruling on the second M7 E8.5 STOP): every creature record gains its attack in progress - none was kept.
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(AttackTick|AttackStruck)$"), "null"),
     };
 
     [Fact]
@@ -75,8 +77,9 @@ public class GameSaveTests
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
         int companions = expected["player"]!["Companions"]!.AsArray().Count;
-        // The posture and digest, four fields a record, the noises; M7's world three, the ledger and a route a companion; schema 16's vitals.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + companions + 1, differences.Count);
+        // The posture and digest, four fields a record, the noises; M7's world three, the ledger and a route a companion; schema 16's vitals;
+        // schema 17's two fields a record.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + companions + 1 + 2 * creatureRecords, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
@@ -118,11 +121,12 @@ public class GameSaveTests
         var loaded = session.Load(slot);
 
         // Four schemas traversed, three migrations run: 14 -> 15 is the third of three.
-        Assert.Equal(4, loaded.Report.Steps.Count);
+        Assert.Equal(5, loaded.Report.Steps.Count);
         Assert.StartsWith("schema 12 -> 13:", loaded.Report.Steps[0]);
         Assert.StartsWith("schema 13 -> 14:", loaded.Report.Steps[1]);
         Assert.StartsWith("schema 14 -> 15:", loaded.Report.Steps[2]);
         Assert.StartsWith("schema 15 -> 16:", loaded.Report.Steps[3]);
+        Assert.StartsWith("schema 16 -> 17:", loaded.Report.Steps[4]);
         Assert.Empty(loaded.Report.CellsRebased);
         Assert.Empty(loaded.Report.CellsMismatched);
         Assert.Empty(loaded.Report.Blockers);

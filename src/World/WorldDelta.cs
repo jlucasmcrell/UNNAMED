@@ -199,6 +199,16 @@ public sealed record CreatureRecord(
 
     /// <summary>How long that stagger lasts; 0 for the usual.</summary>
     public int StaggerLastsTicks { get; init; }
+
+    // Its ordinary attack in progress (schema 17; the owner's ruling on the second M7 E8.5 STOP): what the uninterrupted attack's next
+    // ticks depend on beyond its body. The blow is its definition's one ordinary attack, and whom it strikes is decided at the impact
+    // tick, as it always was, so neither is stored. Written only while the attack still matters.
+
+    /// <summary>The tick the attack it is in began, or null.</summary>
+    public long? AttackTick { get; init; }
+
+    /// <summary>Whom that attack has already landed on - the character or a companion - or null while it has not: a swing lands once.</summary>
+    public EntityId? AttackStruck { get; init; }
 }
 
 /// <summary>
@@ -794,7 +804,7 @@ public sealed class WorldDelta
         var baseline = Baseline(cell);
         _cells.TryGetValue(cell, out var state);
         using var h = new CanonicalHasher();
-        h.Add("unnamed.effective-cell/v3").Add(baseline.Digest);
+        h.Add("unnamed.effective-cell/v4").Add(baseline.Digest);
 
         var flags = state?.Flags.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToList() ?? new();
         h.Add(flags.Count);
@@ -830,7 +840,7 @@ public sealed class WorldDelta
             h.Add(c.Key).Add(c.DefId).Add(c.InstanceId.Value).Add(c.Generation).Add((int)c.Condition).Add(c.XMm).Add(c.ZMm).Add(c.FacingMdeg)
                 .Add(c.Health).Add(c.DiedTick).Add(c.RespawnTick).Add((int)c.Mind).Add(c.Awareness).Add(c.Knows).Add(c.KnownXMm).Add(c.KnownZMm)
                 .Add(c.LastSeenTick).Add(c.SearchUntil).Add(c.HasCalled).Add(c.NextChargeTick).Add(c.StaggerImmuneUntil).Add(c.StaggeredTick ?? -1)
-                .Add(c.StaggerLastsTicks);
+                .Add(c.StaggerLastsTicks).Add(c.AttackTick ?? -1).Add(c.AttackStruck?.Value ?? "-");
         }
 
         foreach (var population in baseline.Populations)
@@ -1109,6 +1119,11 @@ public sealed class WorldDelta
             || record.SearchUntil < 0 || record.NextChargeTick < 0 || record.StaggerImmuneUntil < 0 || record.StaggeredTick < 0
             || record.StaggerLastsTicks < 0 || (record.StaggeredTick is null && record.StaggerLastsTicks != 0))
             return "its state is out of range";
+        // An attack in progress is the living creature's one action, and what it landed on is a body that can be struck.
+        if (record.AttackTick is < 0 || (record.AttackTick is null && record.AttackStruck is not null)
+            || (record.AttackTick is not null && (record.Condition != CreatureCondition.Alive || record.StaggeredTick is not null))
+            || record.AttackStruck is { Kind: not (EntityKind.Character or EntityKind.Npc) })
+            return "its attack in progress is impossible";
         if (!seenIds.Add(record.InstanceId))
             return $"instance ID {record.InstanceId} appears twice";
         if (_registry.Exists(record.InstanceId))

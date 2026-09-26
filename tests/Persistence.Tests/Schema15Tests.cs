@@ -52,7 +52,7 @@ public class Schema15Tests
     // ── quarantine and row rejection (§7.13): each hash-valid but damaged section loads without crashing past the loader (L-04) ──
 
     /// <summary>The v15 fixture's player and world, saved; <paramref name="damage"/> then rewrites the entities section with a valid hash.</summary>
-    private static (TempProfile Profile, SaveStore Store) SavedFixture(Action<EntitiesSectionDto>? damage = null)
+    internal static (TempProfile Profile, SaveStore Store) SavedFixture(Action<EntitiesSectionDto>? damage = null)
     {
         var profile = new TempProfile();
         var store = new SaveStore(profile.Root);
@@ -78,7 +78,7 @@ public class Schema15Tests
         File.WriteAllText(root, string.Join("\n", lines) + "\n");
     }
 
-    private static LoadResult LoadSaved(SaveStore store) => store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry()));
+    internal static LoadResult LoadSaved(SaveStore store) => store.Load(M2Fixtures.Slot, M2Fixtures.Context(new Registry()));
 
     private static string PieceKey(long ordinal, EntityId owner) => M2Fixtures.Historical.PieceId(ordinal, owner).Value;
 
@@ -221,7 +221,7 @@ public class Schema15Tests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 14 -> 15:", "schema 15 -> 16:" }, report.Steps.Select(s => s[..16]));
+        Assert.Equal(new[] { "schema 14 -> 15:", "schema 15 -> 16:", "schema 16 -> 17:" }, report.Steps.Select(s => s[..16]));
         string slot = store.SlotPath(SaveSlots.Quick);
         var entities = SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities)));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));

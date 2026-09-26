@@ -195,15 +195,24 @@ public class HistoricalFixtureTests
         var creatures = loaded.World.CreaturesIn(CellKey.Parse("r_0_0:c_00_01")).Concat(loaded.World.CreaturesIn(CellKey.Parse("r_0_0:c_00_02"))).ToList();
         if (schema >= 8)
         {
-            Assert.Equal(new[] { "spawn.fixture.den#0", "spawn.fixture.den#1", "spawn.fixture.ridge#0" }, creatures.Select(c => c.Key));
+            // Schema 17 added a third wolf of the den, biting.
+            Assert.Equal(schema >= 17
+                    ? new[] { "spawn.fixture.den#0", "spawn.fixture.den#1", "spawn.fixture.den#2", "spawn.fixture.ridge#0" }
+                    : new[] { "spawn.fixture.den#0", "spawn.fixture.den#1", "spawn.fixture.ridge#0" },
+                creatures.Select(c => c.Key));
+            var ridge = creatures.Single(c => c.Key == "spawn.fixture.ridge#0");
             Assert.Equal((CreatureCondition.Alive, 12_345L, 67_890L, 21), (creatures[0].Condition, creatures[0].XMm, creatures[0].ZMm, creatures[0].Health));
             Assert.Equal((CreatureCondition.Corpse, 4_800L), (creatures[1].Condition, creatures[1].DiedTick));
             Assert.Equal(("creature.beast.ash_ember_hound", CreatureCondition.Gone, 2, 30_000L),
-                (creatures[2].DefId, creatures[2].Condition, creatures[2].Generation, creatures[2].RespawnTick));   // renamed via _aliases.yaml
+                (ridge.DefId, ridge.Condition, ridge.Generation, ridge.RespawnTick));   // renamed via _aliases.yaml
             Assert.Equal("item.potion.minor_healing", Assert.Single(loaded.World.Container("corpse.fixture_den.m1_g0")!.Items).DefId);
             // Schema 14: what den#0's next ticks depend on - a charge, a stun, a stagger immunity. Before, none of it was kept.
             Assert.Equal(schema >= 14 ? (5_060L, 5_020L, (long?)4_995, 40) : (0L, 0L, null, 0),
                 (creatures[0].NextChargeTick, creatures[0].StaggerImmuneUntil, creatures[0].StaggeredTick, creatures[0].StaggerLastsTicks));
+            // Schema 17: den#2's bite in progress, begun at 4996 and landed on Aelin. Before, no attack was kept.
+            Assert.All(creatures.Where(c => c.Key != "spawn.fixture.den#2"), c => Assert.Equal((null, null), (c.AttackTick, c.AttackStruck)));
+            if (schema >= 17)
+                Assert.Equal(((long?)4_996, M2Fixtures.PlayerId), (creatures[2].AttackTick, creatures[2].AttackStruck));
         }
         else
         {

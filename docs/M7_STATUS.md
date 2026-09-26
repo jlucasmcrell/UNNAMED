@@ -2,7 +2,11 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** STOPPED again at E8.5 (S9; 2026-09-26). The owner ruled option (a) on the first E8.5 STOP, and schema 16 now saves the character's vitals (`1dd66e7`, CI green). With it the vitals are equal across the save, but step 10 still differs: at the save a wolf is one tick from biting, and a creature's attack in progress is, by the documented policy, not saved. See "STOP - E8.5 (second), S9". E0-E7 are done; E8.1-E8.4 and schema 16 are done and pushed; E8.5 is written and not committed. Every earlier STOP was resolved by an owner ruling, recorded below.
+**State:** E8.5 in progress (2026-09-26). The owner ruled on the second E8.5 STOP:
+- **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
+- **The save lane** runs background saves on a thread of the session's own (`682c449`).
+
+See "Schema 17 record" and "AsyncSave record". E8.5's runtime gate, E9 and E10 remain. E0-E7 and E8.1-E8.4 are done, with schemas 16 and 17 pushed. Every STOP so far was resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -21,8 +25,8 @@
 | Pull-request convention | One persistent draft PR, `claude/m7-factions-building` → `main`, opened after E0 is pushed and kept as a draft through E10. The agent merges nothing to `main` and creates no tag |
 | Base verification (2026-09-25) | `origin/main` = `a696931`; the new worktree clean at `a696931`; no uncommitted work |
 | Baseline tests at the base | 825 passed, 0 failed: Domain 147, Application 204, Persistence 173, Content 146, World 61, Presentation 57, EntityRegistry 23, Architecture 14 |
-| Save schema at the base | 14. M7 migrates 14 → 15 |
-| Digests at the base | `unnamed.player/v9`, `unnamed.effective-cell/v2`, `unnamed.simulation/v2`. M7: v10, v3, v3 |
+| Save schema at the base | 14. M7 migrates 14 → 15; by the owner's rulings on the E8.5 STOPs, also 15 → 16 (the character's vitals) and 16 → 17 (a creature's attack in progress) |
+| Digests at the base | `unnamed.player/v9`, `unnamed.effective-cell/v2`, `unnamed.simulation/v2`. M7: v10, then v11 (schema 16); v3, then v4 (schema 17); v3 |
 
 ## The rulings, as applied
 
@@ -68,7 +72,7 @@
 | E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
 | E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
-| E8 | Chest, bench, blows and mending | stopped at E8.5 (second) | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling); E8.5 written, not committed | 1,046 at `1dd66e7`, all passing in a clean worktree; 1,035 at E8.4: Domain 186, Application 285, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9). See "STOP - E8.5 (second), S9" |
+| E8 | Chest, bench, blows and mending | E8.5 in progress | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane) and schema 17 (the owner's second ruling); E8.5 written, not committed | 1,046 at `1dd66e7`, all passing in a clean worktree; 1,035 at E8.4: Domain 186, Application 285, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9). See "STOP - E8.5 (second), S9" |
 | E9 | Kera works at your bench | - | | | 116 | |
 | E10 | Evidence and closeout | - | | | 116 | |
 
@@ -361,6 +365,44 @@ The owner chose option (b) and amended BLD006.
 - Pushed, CI green (run 36246528627): schema 16, `1dd66e7`, on E8.1-E8.4.
 - E8.5 written, not committed (as at the first STOP). The runtime gate, the E8 beats, E9 and E10 wait on the ruling: `--build-shots-verify`'s continuation check and the table's step 10 meet the same save.
 - Coordination: `docs/M7_VISUAL_INTEGRATION_HANDOFF.md` (the shared files, the input and HUD contracts, the save format, the combined-build tests, and why the inventory request is not implemented).
+
+## Schema 17 record (2026-09-26)
+
+- **The regression, preserved.** `CrossingWorkshop_10` is unchanged: its file and the evidence script are byte-identical to the copies backed up at the STOP. It passes with schema 17: the saved-and-loaded world and the one that went on end equal, by the test's own comparison. With the capture disabled, it fails again, and so do four of `CreatureAttackContinuationTests`' five save moments (the fifth, no attack in progress, passes either way).
+- **The attack path, traced (`Creatures.Act`, `Aim`, `Strike`; `Combat.Handle(CreatureStrike)`).**
+  - The attack is the definition's one ordinary attack: the first of its `attack_set`; a second ability may only be a charge. It is taken from the definition, not stored.
+  - No target is latched. `Foe` picks the character, or a nearer companion who is up, at every tick, and the blow lands on whichever the wolf faces at impact.
+  - Nothing random is chosen at the start. The roll is keyed at impact on the creature, "player", the body and the tick.
+  - The phase and ticks left follow from the start tick and the attack's timing. `Struck` marks a swing spent: one swing lands once (L-23).
+  - The direction fields are used only by a charge.
+- **Persisted.** The continuation's `attack`: `start_tick` and `struck`, written only while the attack still matters (its phase at the next tick is not idle). Not persisted:
+  - animation, sounds, presentation timers, the published `AttackStarted`;
+  - a charge's run;
+  - a companion's action in progress;
+  - the character's own action in progress (the ruling's narrow scope; no separate equality failure calls for them).
+- **The load rule (target invalidation).** No target is stored, so a restored attack picks its foe the way the running one does, and none can go stale. `struck` is never looked up: a landing that names someone no longer there keeps the swing spent (tested). Refused as corrupt, each record rejected alone and reported:
+  - an attack on a creature that is not alive;
+  - an attack alongside a stagger;
+  - a start before tick 0;
+  - a landing on anything but a character or an NPC.
+
+  A `struck` that is not an instance ID fails the section's decode.
+- **Persistence.**
+  - Schema 16's shapes are frozen as `Sections/V16`: the creature, its continuation, and the entities section. 13 -> 14 and 14 -> 15 are repointed at them, and `V14.EntitiesSection` names `V16.Creature`.
+  - 16 -> 17 gives every creature no attack in progress. That is the documented compatibility limitation: a schema-16 save taken mid-attack loses the attack, and its creature begins again (tested).
+  - Schema 16's meaning and bytes are unchanged.
+  - The cell digest is `unnamed.effective-cell/v4`.
+- **Fixtures.**
+  - v1-v16 are untouched byte for byte. The `expected.json` of v8-v16 each gain only `"attack": null` on their three creatures (27 lines in all, nothing removed).
+  - v17 was written by the probe with writer pack 0.1.7. It adds `spawn.fixture.den#2`, a wolf whose bite began at 4996 and has landed on Aelin, with both fields set. Its player and cells sections are v16's sizes.
+  - The README gains the row and the provenance of v16 (missed at `1dd66e7`) and v17.
+- **Migration counts** carry the new step, with every order check kept: the v1-v14 chains, `Schema14To15_…` (three steps), `Schema13To14_…` (four), and the M6 acceptance save. That save now has five steps, and its added-field table gains the attack, two fields a creature record.
+- **Tests.**
+  - `CreatureAttackContinuationTests`: five save moments compared tick by tick and field by field with the unsaved world over 600 ticks (19 bites and 5 bleeds in the unsaved run); the migrated schema-16 save; an absent landing.
+  - `Schema17Tests`: round trips; the impossible attacks; a bad `struck`; the step alone.
+  - `WorldDeltaTests`: the digest and the load rule.
+- **Verified.** 1,071 tests with E8.5's WIP in the tree, all passing.
+- **Documents.** PERSISTENCE.md §5.1's contract now separates the two kinds of state: transient state, not persisted; and authoritative state whose omission changes the continuation, persisted when the owning system requires it. Also §5.3's attack paragraph, §6.2's chain, and the schema-17 tests; the fixture README.
 
 ## AsyncSave record (2026-09-26)
 
@@ -719,7 +761,7 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
 | Kera's walk-home plan: 6.0 ms in Release on this machine (E8, N-A10), one plan over the 4 ms tick when it happens | §3.18, §14; the in-game plan measured in E9 |
 | CI runner variance on the 3× budgets: `SixtyCreatures_TickWithinTheBudget` failed once at 4.94 ms (run 36237433970, first attempt; 0.49 ms here) and passed on the re-run | Here. A second failure on a re-run would be S7 |
-| The character's regeneration clocks are not saved (Phase 1): a save taken in a fight resumes regeneration early | "STOP - E8.5, S9 and S2" |
+| Resolved by schema 16 (`1dd66e7`): the character's regeneration clocks were not saved (Phase 1), so a save taken in a fight resumed regeneration early | "Schema 16 record" |
 | Resolved: `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) failed intermittently in full local runs from E3.2 on. The background save ran on the shared thread pool and waited up to 13 s just to begin | "AsyncSave record" |
 | `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so at a convex corner a body can sit under 1 mm inside contact (Phase 1). E9's step 6 asserts Kera `IsClear` every tick, which is strict, and her route turns corners inside the workshop | Here; measured in E9 against the rows it would fail, before any change |
 

@@ -22,6 +22,7 @@ using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
+using V16 = UNNAMED.Persistence.Sections.V16;
 
 namespace UNNAMED.Persistence;
 
@@ -84,7 +85,8 @@ public static class SchemaMigrations
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
         new SchemaV14ToV15(),
-        new SchemaV15ToV16());
+        new SchemaV15ToV16(),
+        new SchemaV16ToV17());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -776,7 +778,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                 Created = old.Created,
                 Baselines = old.Baselines,
                 Containers = old.Containers,
-                Creatures = old.Creatures?.Select(c => new CreatureDto
+                Creatures = old.Creatures?.Select(c => new V16.Creature
                 {
                     Key = c.Key,
                     DefId = c.DefId,
@@ -798,7 +800,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                     LastSeenTick = c.LastSeenTick,
                     SearchUntil = c.SearchUntil,
                     HasCalled = c.HasCalled,
-                    Continuation = new CreatureContinuationDto(),
+                    Continuation = new V16.CreatureContinuation(),
                 }).ToArray(),
                 Noises = Array.Empty<NoiseDto>(),
             }, options);
@@ -873,7 +875,7 @@ public sealed class SchemaV14ToV15 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V14.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V16.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
@@ -930,6 +932,74 @@ public sealed class SchemaV15ToV16 : SchemaMigration
                 Posture = old.Posture,
                 Factions = old.Factions,
                 Vitals = VitalsDto.Rested,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 16 to 17 (the owner's ruling on the second M7 E8.5 STOP): each creature record's continuation gains the ordinary attack it is
+/// in - the tick it began and whom it has landed on. A save that predates it kept none: its creatures resume with no attack in progress,
+/// as they always loaded, and one caught mid-attack begins again. The attack that was not kept cannot be reconstructed.
+/// </summary>
+public sealed class SchemaV16ToV17 : SchemaMigration
+{
+    public override int From => 16;
+
+    public override string Summary => "schema 16 -> 17: creature records gain the attack in progress (none - as older saves always loaded)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V16.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures?.Select(c => new CreatureDto
+                {
+                    Key = c.Key,
+                    DefId = c.DefId,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Generation = c.Generation,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DiedTick = c.DiedTick,
+                    RespawnTick = c.RespawnTick,
+                    Mind = c.Mind,
+                    Awareness = c.Awareness,
+                    Knows = c.Knows,
+                    KnownXMm = c.KnownXMm,
+                    KnownZMm = c.KnownZMm,
+                    LastSeenTick = c.LastSeenTick,
+                    SearchUntil = c.SearchUntil,
+                    HasCalled = c.HasCalled,
+                    // A schema-16 creature without its continuation stays without one: the decoder refuses it as corrupt, not defaulted.
+                    Continuation = c.Continuation is { } k
+                        ? new CreatureContinuationDto
+                        {
+                            NextChargeTick = k.NextChargeTick,
+                            StaggerImmuneUntil = k.StaggerImmuneUntil,
+                            StaggeredTick = k.StaggeredTick,
+                            StaggerLastsTicks = k.StaggerLastsTicks,
+                            Attack = null,
+                        }
+                        : null,
+                }).ToArray(),
+                Noises = old.Noises,
+                Pieces = old.Pieces,
+                StructureSeq = old.StructureSeq,
+                NpcErrands = old.NpcErrands,
             }, options);
         }
         document.Manifest["schema_version"] = To;

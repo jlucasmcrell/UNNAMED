@@ -5,7 +5,8 @@
 // and the entities shape schema 14 wrote (13 -> 14 writes it, with the creature continuation and the sounds waiting to be heard). The
 // v12-v14 fixtures pin them. Their parts that schema 15 did not change are the current DTOs (InventoryDto, ProgressionDto,
 // DiscoveryDto, EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto, PostureDto, EntityDto, CreatedDto,
-// CellBaselineDto, ContainerDto, CreatureDto, NoiseDto); the step that next changes one of those must freeze a copy of it first.
+// CellBaselineDto, ContainerDto, CreatureDto, NoiseDto); the step that next changes one of those must freeze a copy of it first. Schema 17
+// changed the creature: its schema 14-16 shape is frozen as V16.Creature.
 
 using MessagePack;
 
@@ -57,6 +58,6 @@ public sealed class EntitiesSection
     [Key("created")] public CreatedDto[] Created { get; set; } = Array.Empty<CreatedDto>();
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
     [Key("containers")] public ContainerDto[]? Containers { get; set; }
-    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+    [Key("creatures")] public V16.Creature[]? Creatures { get; set; }
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
 }

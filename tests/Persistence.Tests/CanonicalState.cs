@@ -322,6 +322,20 @@ internal static class CanonicalState
                 else
                     json.WriteNull("staggered_tick");
                 json.WriteNumber("stagger_lasts_ticks", creature.StaggerLastsTicks);
+                if (creature.AttackTick is { } began)
+                {
+                    json.WriteStartObject("attack");
+                    json.WriteNumber("start_tick", began);
+                    if (creature.AttackStruck is { } struck)
+                        json.WriteString("struck", struck.Value);
+                    else
+                        json.WriteNull("struck");
+                    json.WriteEndObject();
+                }
+                else
+                {
+                    json.WriteNull("attack");
+                }
                 json.WriteEndObject();
             }
             json.WriteEndArray();
