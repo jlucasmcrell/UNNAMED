@@ -201,6 +201,11 @@ public class ContentLoader
             _errors.AddRange(navigationErrors);
             success &= navigationErrors.Count == 0;
 
+            // Building: pieces, config.building and the build areas (BLD codes)
+            var buildingErrors = BuildingContent.Validate(this);
+            _errors.AddRange(buildingErrors);
+            success &= buildingErrors.Count == 0;
+
             // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001)
             var factionErrors = FactionContent.Validate(this);
             _errors.AddRange(factionErrors);

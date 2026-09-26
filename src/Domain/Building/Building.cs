@@ -138,7 +138,7 @@ public sealed record BuildingConstants(long ModuleMm, int RotationStepDeg, long 
     public string? Problem()
     {
         if (ModuleMm != Lattice.ModuleMm)
-            return $"module_m must be {Lattice.ModuleMm / 1000.0:0.0}: anchors are absolute, so the module is save-locked";
+            return "module_m must be 3.0: anchors are absolute, so the module is save-locked";
         if (RotationStepDeg != 90)
             return "rotation_step_deg must be 90: quarter turns only";
         if (PlaceReachMm < 1_000 || PlaceReachMm > 12_000)

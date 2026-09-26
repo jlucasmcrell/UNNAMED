@@ -147,6 +147,7 @@ containers:
   - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [112, 189], stack_slots: 12 }        # the den, Charwood's north-west corner
   - { key: container.waystation_chest, loot_ref: loot.waystation_chest, position_m: [38, 137], stack_slots: 12 }   # bible §5's storage chest
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
+  - { key: container.timber_stack, loot_ref: loot.timber_stack, position_m: [84, 118], stack_slots: 12 }    # M7: the building timber, 5 m from the area's corner
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
@@ -161,6 +162,10 @@ nodes:
 stations:
   - { key: station.forge_hearth, kind: forge, position_m: [60.5, 143.5] }
   - { key: station.forge_anvil, kind: anvil, position_m: [57.5, 140.5] }
+# Where the player may build (M7): boxes on the 3 m building lattice, clear of authored geometry, spawns and NPC stands.
+# It sits on the four-cell corner (100, 100), so a structure there straddles both seams (ROADMAP M7 exit).
+build_areas:
+  - { key: build_area.hollow_crossing, box_m: [87, 87, 114, 114], max_pieces: 256 }
 # Switches (M6): each stands on a structure and sets a world flag in its cell, once, when every flag it requires is set there.
 # The three Quiet Stones and the Foldscar's heart (bible §16).
 switches:

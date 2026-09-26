@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E4 done (2026-09-26). E5 stopped at E5.2 on S1 (2026-09-26): see "STOP - E5.2, S1". The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** in progress. E0-E4 done (2026-09-26). E5 in progress: its E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -52,6 +52,7 @@
 | E2.3 STOP (S9): the fixture pack's `config.navigation` | Option (b). The current fixture pack omits the optional `config.navigation`, so `NavigationContent.Build` uses `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the production file. The writer pack `content-0.1.7` keeps its copy; production `content/config/navigation.yaml` is unchanged; NAV001-NAV007 are unchanged. Options (a), completing the fixture's combat and magic content, and (c), skipping the NAV lint without a tick, are rejected. The ruling covers this optional file only; it is not general permission to omit a required fixture definition | 2026-09-25 |
 | E2.4 STOP (S9/S10): the M6 save's step count | Option (a). The schema-12 save traverses four schema versions and executes three migrations: `Steps.Count == 3`, in order `schema 12 -> 13:`, `schema 13 -> 14:`, `schema 14 -> 15:`, asserted exactly. §7.14's "the fourth of four" was a counting error, corrected to "the third of three". M7 still has exactly one new migration, `SchemaV14ToV15`; no other step, and no save-format change beyond schema 15, is authorized | 2026-09-25 |
 | E3 STOP (S5): `m7_armour` | Option (a): tune the runtime beat only - a mending stop, and an approach to the sentinel's rear using movement the authoritative perception rules treat as quiet. Nothing about the sentinel, combat, the character, content, factions or the encounter changes; no teleport, disabled hearing, paused AI or forced awareness. Pre-authorized fallback to option (b) if one reasonable tuned version still dies, or if the rules make an undetected rear approach impossible. The Phase-1 async-save flake stays a recorded local risk, not an E3 edit | 2026-09-26 |
+| E5.2 STOP (S1): BLD006 | Option (b). BLD006's "iff" is amended: `config.building` is required when any piece or build area exists; when present it is validated in full, even in a pack with nothing to build, and a valid inert one is allowed. The converse is not required. `ProgressionContentTests.ACopyOfTheGameConfig_Lints` is not edited (§2.18, §12.10). §4.20 amended; no other building rule changes. Tests prove the three cases | 2026-09-26 |
 
 ## Slices
 
@@ -62,7 +63,7 @@
 | E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
 | E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), `c4c8f9d` (the S5 STOP record), `ee3d18a` (E3.5 and E3.6, one commit) | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
 | E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
-| E5 | Build mode: pads, walls, doorways, roofs | stopped (S1) | `9361019` (E5.1); E5.2 written, not committed | E5.1: 969 (E4's 962 and the 7 Domain building tests; Domain 182) | 113 (E5.2, in the worktree) | Stopped at E5.2: BLD006 as written fails a Phase-1 content test. See "STOP - E5.2, S1" |
+| E5 | Build mode: pads, walls, doorways, roofs | in progress | `9361019` (E5.1), `373e874` (the S1 STOP record), E5.2 | E5.2: 972 (Domain 182, Application 232, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 26) | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1" and the ruling after it |
 | E6 | Piece doors | - | | | 114 expected | |
 | E7 | Navigable by construction | - | | | 114 | |
 | E8 | Chest, bench, blows and mending | - | | | 116 expected | |
@@ -321,6 +322,20 @@ The 11 -> 12, 12 -> 13 and 13 -> 14 steps write the frozen shapes, and `SchemaV1
   - tests: Content 184 of 185 (this test); Application 231 of 232; everything else green.
   - The Application failure is the recorded Phase-1 `AsyncSaveTests` flake. It passes alone (5 of 5), and nothing in E5.2 touches it.
 - Measured with reading (b): Content 185 of 185.
+
+
+## Owner ruling on the E5 STOP (2026-09-26)
+
+The owner chose option (b) and amended BLD006.
+- **The rule now.** If the pack contains any piece definition or build area, `config.building` is required. If `config.building` is present, every value is validated exactly as before: `module_m` 3.0 and a whole multiple of the navigation node size, `rotation_step_deg` 90, the reach, relief, refund and repair ranges, protections at least 0, and damage keys closed to `melee`. With no pieces and no build areas, `config.building` may be absent, or present and valid. A valid inert config file is never required to be removed.
+- **Why.** The rule exists so that buildable content is never read without the configuration that defines its building semantics. A valid config in a pack with nothing to build creates no ambiguous authoritative state and switches on no building content.
+- **The Phase-1 test.** `ProgressionContentTests.ACopyOfTheGameConfig_Lints` copies the general game configuration into a pack without every feature's content. It stays unedited; §2.18 and §12.10 keep that protection.
+- **Design.** §4.20's BLD006 row now reads "`config.building` is required when any piece or build area exists; when present, it is validated fully even if the pack contains no buildable content", with the ruling noted in place. No other section repeated the building "iff" (the `config.factions` "required iff any faction exists" of §5 is unrelated and unchanged).
+- **As built.** `BuildingContent.Validate` drops the "present, but there is no piece and no build area" refusal and nothing else. `Bld006_RequiresTheConfigWhereAnythingCanBeBuilt_AndValidatesItWheneverPresent` proves the three cases:
+  1. pieces and an area with no config, and an area alone with no config: BLD006 "config.building is missing";
+  2. no pieces, no area and a valid config: no BLD error;
+  3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
+- **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
 
 ## E4 evidence (2026-09-26, the machine that ran E1-E3)

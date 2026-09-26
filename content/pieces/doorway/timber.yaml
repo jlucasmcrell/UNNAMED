@@ -1,0 +1,21 @@
+id: piece.doorway.timber
+kind: piece
+schema: 1
+display_key: piece.doorway.timber.name
+tags: [piece]
+name: Timber Doorway                  # DRAFT display name
+notes: A 3 m timber wall with a 1.6 m opening, as wide as the authored doors (M7). The lintel above the opening is drawn only - it blocks nothing.
+family: doorway
+slot: edge
+rotations: [0, 1, 2, 3]
+bounds_m: [-1.7, -0.2, 1.7, 0.2]
+parts:
+  - { box_m: [-1.7, -0.2, -0.8, 0.2], height_m: 3.0, traversal: solid }
+  - { box_m: [0.8, -0.2, 1.7, 0.2], height_m: 3.0, traversal: solid }
+sockets:
+  - { type: edge_mount, at_m: [0, 0], axis: x }
+  - { type: door, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 200
+supports_roof: true

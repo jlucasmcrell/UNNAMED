@@ -82,6 +82,7 @@ internal static class TestWorlds
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Navigation = NavigationContent.Build(loader),
+            Building = BuildingContent.Build(loader),
         };
     }
 

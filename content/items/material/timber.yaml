@@ -1,0 +1,13 @@
+id: item.material.timber
+kind: item
+schema: 1
+display_key: item.material.timber.name
+tags: [item]
+name: Rough Timber
+notes: What M7's pieces are built from (content/pieces). Traders do not buy it.
+category: material
+stack_max: 20
+weight: 0.5
+value_base: 2
+rarity: common
+no_sell: true

@@ -34,6 +34,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>The navigation lattice and its limits (M7; D-13).</summary>
     public NavConfig Navigation { get; init; } = NavConfig.Default;
 
+    /// <summary>Building (M7): the pieces and building's numbers.</summary>
+    public BuildingSetup Building { get; init; } = BuildingSetup.Empty;
+
     /// <summary>The factions, the standing ladder and the act log's capacity (M7).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 }

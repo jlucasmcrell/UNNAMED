@@ -1,0 +1,14 @@
+id: piece.roof.timber
+kind: piece
+schema: 1
+display_key: piece.roof.timber.name
+tags: [piece]
+name: Timber Roof                     # DRAFT display name
+notes: A timber roof over one square (M7) - drawn as a slab at wall top; it blocks nothing, and nothing stands on it. It needs a wall under one of its edges, or a roofed neighbour that has one.
+family: roof
+slot: roof
+rotations: [0, 1, 2, 3]
+bounds_m: [-1.5, -1.5, 1.5, 1.5]
+cost:
+  - { item_ref: item.material.timber, count: 1 }
+health_max: 100
