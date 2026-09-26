@@ -42,6 +42,7 @@ public partial class Main : Node3D
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
     private CameraRig _camera = null!;
+    private TalkCamera _talkCamera = null!;
     private PlayerController _controller = null!;
     private Hud _hud = null!;
     private ItemsView _items = null!;
@@ -428,6 +429,8 @@ public partial class Main : Node3D
         AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
+        _talkCamera = new TalkCamera { Name = "TalkCamera" };
+        AddChild(_talkCamera);
         _hud = new Hud { Name = "Hud" };
         AddChild(_hud);
         _items = new ItemsView { Name = "Items" };
@@ -935,6 +938,8 @@ public partial class Main : Node3D
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
+        _avatar.Wear(simulation.Player.Equipment.TryGetValue(EquipSlot.Chest, out var chest)
+            ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == chest)?.DefId : null);
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
@@ -950,6 +955,9 @@ public partial class Main : Node3D
         LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
+        // A conversation frames the speaker's face over the character's shoulder (not in first person).
+        _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
+            _avatar.Head, _camera.Camera, delta);
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
         bool aiming = Aim(simulation, combat);
         _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);

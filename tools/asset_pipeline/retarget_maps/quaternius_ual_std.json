@@ -1,0 +1,317 @@
+{
+ "map_version": 1,
+ "source_skeleton": "Quaternius Universal Animation Library 1/2 (65 joints, UE-mannequin style, 4-segment fingers, T-pose rest, faces +Z)",
+ "target_rig": "production humanoid (charprod/rig_production.py): humanoid20's bones plus spine_mid, toe.L/R, three bones per finger with the thumb, eye.L/R + the character standard rig (charstd/skeleton_humanoid_a.json)",
+ "notes": "One-to-one onto the production rig: the three UAL spine bones onto spine, spine_mid and chest; every finger's three segments onto the rig's (aimed at the next joint, the tip at the _04_leaf); the ball onto the toe. Arms, legs and fingers are rest-aligned (the pack's T-pose onto the fitted A-pose). The eyes follow the head. [std variant: 3 target bones with no source follow their parent at rest: hand sockets, the importer neutral bone.]",
+ "source_root": "root",
+ "source_lateral": [
+  "thigh_l",
+  "thigh_r"
+ ],
+ "target_lateral": [
+  "thigh.L",
+  "thigh.R"
+ ],
+ "target_legs": [
+  [
+   "thigh.L",
+   "shin.L",
+   "foot.L"
+  ],
+  [
+   "thigh.R",
+   "shin.R",
+   "foot.R"
+  ]
+ ],
+ "target_arms": [
+  [
+   "shoulder.L",
+   "upper_arm.L",
+   "forearm.L",
+   "hand.L"
+  ],
+  [
+   "shoulder.R",
+   "upper_arm.R",
+   "forearm.R",
+   "hand.R"
+  ]
+ ],
+ "target_chain": {
+  "root": "hips",
+  "hips": "spine",
+  "spine": "spine_mid",
+  "chest": "neck",
+  "neck": "head",
+  "shoulder.L": "upper_arm.L",
+  "upper_arm.L": "forearm.L",
+  "forearm.L": "hand.L",
+  "shoulder.R": "upper_arm.R",
+  "upper_arm.R": "forearm.R",
+  "forearm.R": "hand.R",
+  "thigh.L": "shin.L",
+  "shin.L": "foot.L",
+  "thigh.R": "shin.R",
+  "shin.R": "foot.R",
+  "spine_mid": "chest",
+  "thumb_01.L": "thumb_02.L",
+  "thumb_02.L": "thumb_03.L",
+  "index_01.L": "index_02.L",
+  "index_02.L": "index_03.L",
+  "middle_01.L": "middle_02.L",
+  "middle_02.L": "middle_03.L",
+  "ring_01.L": "ring_02.L",
+  "ring_02.L": "ring_03.L",
+  "pinky_01.L": "pinky_02.L",
+  "pinky_02.L": "pinky_03.L",
+  "thumb_01.R": "thumb_02.R",
+  "thumb_02.R": "thumb_03.R",
+  "index_01.R": "index_02.R",
+  "index_02.R": "index_03.R",
+  "middle_01.R": "middle_02.R",
+  "middle_02.R": "middle_03.R",
+  "ring_01.R": "ring_02.R",
+  "ring_02.R": "ring_03.R",
+  "pinky_01.R": "pinky_02.R",
+  "pinky_02.R": "pinky_03.R"
+ },
+ "bones": {
+  "root": {
+   "source": "root"
+  },
+  "hips": {
+   "source": "pelvis"
+  },
+  "spine": {
+   "source": "spine_01"
+  },
+  "chest": {
+   "source": "spine_03"
+  },
+  "neck": {
+   "source": "neck_01"
+  },
+  "head": {
+   "source": "Head"
+  },
+  "shoulder.L": {
+   "source": "clavicle_l"
+  },
+  "upper_arm.L": {
+   "source": "upperarm_l",
+   "align": true
+  },
+  "forearm.L": {
+   "source": "lowerarm_l",
+   "align": true
+  },
+  "hand.L": {
+   "source": "hand_l",
+   "align": true,
+   "aim": "middle_01_l"
+  },
+  "shoulder.R": {
+   "source": "clavicle_r"
+  },
+  "upper_arm.R": {
+   "source": "upperarm_r",
+   "align": true
+  },
+  "forearm.R": {
+   "source": "lowerarm_r",
+   "align": true
+  },
+  "hand.R": {
+   "source": "hand_r",
+   "align": true,
+   "aim": "middle_01_r"
+  },
+  "thigh.L": {
+   "source": "thigh_l",
+   "align": true
+  },
+  "shin.L": {
+   "source": "calf_l",
+   "align": true
+  },
+  "foot.L": {
+   "source": "foot_l"
+  },
+  "thigh.R": {
+   "source": "thigh_r",
+   "align": true
+  },
+  "shin.R": {
+   "source": "calf_r",
+   "align": true
+  },
+  "foot.R": {
+   "source": "foot_r"
+  },
+  "spine_mid": {
+   "source": "spine_02"
+  },
+  "thumb_01.L": {
+   "source": "thumb_01_l",
+   "align": true
+  },
+  "thumb_02.L": {
+   "source": "thumb_02_l",
+   "align": true
+  },
+  "thumb_03.L": {
+   "source": "thumb_03_l",
+   "align": true,
+   "aim": "thumb_04_leaf_l"
+  },
+  "index_01.L": {
+   "source": "index_01_l",
+   "align": true
+  },
+  "index_02.L": {
+   "source": "index_02_l",
+   "align": true
+  },
+  "index_03.L": {
+   "source": "index_03_l",
+   "align": true,
+   "aim": "index_04_leaf_l"
+  },
+  "middle_01.L": {
+   "source": "middle_01_l",
+   "align": true
+  },
+  "middle_02.L": {
+   "source": "middle_02_l",
+   "align": true
+  },
+  "middle_03.L": {
+   "source": "middle_03_l",
+   "align": true,
+   "aim": "middle_04_leaf_l"
+  },
+  "ring_01.L": {
+   "source": "ring_01_l",
+   "align": true
+  },
+  "ring_02.L": {
+   "source": "ring_02_l",
+   "align": true
+  },
+  "ring_03.L": {
+   "source": "ring_03_l",
+   "align": true,
+   "aim": "ring_04_leaf_l"
+  },
+  "pinky_01.L": {
+   "source": "pinky_01_l",
+   "align": true
+  },
+  "pinky_02.L": {
+   "source": "pinky_02_l",
+   "align": true
+  },
+  "pinky_03.L": {
+   "source": "pinky_03_l",
+   "align": true,
+   "aim": "pinky_04_leaf_l"
+  },
+  "toe.L": {
+   "source": "ball_l"
+  },
+  "eye.L": {
+   "source": null
+  },
+  "thumb_01.R": {
+   "source": "thumb_01_r",
+   "align": true
+  },
+  "thumb_02.R": {
+   "source": "thumb_02_r",
+   "align": true
+  },
+  "thumb_03.R": {
+   "source": "thumb_03_r",
+   "align": true,
+   "aim": "thumb_04_leaf_r"
+  },
+  "index_01.R": {
+   "source": "index_01_r",
+   "align": true
+  },
+  "index_02.R": {
+   "source": "index_02_r",
+   "align": true
+  },
+  "index_03.R": {
+   "source": "index_03_r",
+   "align": true,
+   "aim": "index_04_leaf_r"
+  },
+  "middle_01.R": {
+   "source": "middle_01_r",
+   "align": true
+  },
+  "middle_02.R": {
+   "source": "middle_02_r",
+   "align": true
+  },
+  "middle_03.R": {
+   "source": "middle_03_r",
+   "align": true,
+   "aim": "middle_04_leaf_r"
+  },
+  "ring_01.R": {
+   "source": "ring_01_r",
+   "align": true
+  },
+  "ring_02.R": {
+   "source": "ring_02_r",
+   "align": true
+  },
+  "ring_03.R": {
+   "source": "ring_03_r",
+   "align": true,
+   "aim": "ring_04_leaf_r"
+  },
+  "pinky_01.R": {
+   "source": "pinky_01_r",
+   "align": true
+  },
+  "pinky_02.R": {
+   "source": "pinky_02_r",
+   "align": true
+  },
+  "pinky_03.R": {
+   "source": "pinky_03_r",
+   "align": true,
+   "aim": "pinky_04_leaf_r"
+  },
+  "toe.R": {
+   "source": "ball_r"
+  },
+  "eye.R": {
+   "source": null
+  },
+  "neutral_bone": {
+   "source": null
+  },
+  "SOCK_hand.L": {
+   "source": null
+  },
+  "SOCK_hand.R": {
+   "source": null
+  }
+ },
+ "contacts": {
+  "foot.L": {
+   "ankle": "foot_l",
+   "toe": "ball_l"
+  },
+  "foot.R": {
+   "ankle": "foot_r",
+   "toe": "ball_r"
+  }
+ }
+}

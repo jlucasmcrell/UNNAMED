@@ -1,0 +1,40 @@
+{
+ "id": "dress_archivist_a",
+ "archetype": "humanoid_feminine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "robe_coat",
+ "layer": "outer",
+ "hides": [
+  "abdomen",
+  "back",
+  "groin",
+  "thigh_L",
+  "thigh_R",
+  "knee_L",
+  "knee_R",
+  "upperarm_L",
+  "upperarm_R",
+  "elbow_L",
+  "elbow_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "medieval_dress_nonhistorical",
+  "author": "punkduck (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Medieval Dress (non-historical) by punkduck, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/medieval_dress_nonhistorical/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "cloth",
+  "base_color": "_staging/charstd/garments/dress_archivist_a/base_color.png",
+  "normal": "_staging/charstd/garments/dress_archivist_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/dress_archivist_a/roughness.png",
+  "texture_origin": "ambientCG Fabric019 (CC0 1.0) repeated 10x over the garment's UVs, tinted 0.80,0.77,0.70, modulated by the source's own diffuse (detail 0.45); garment_texture.py"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "note": "Sel's long ivory wool dress with bell sleeves (the medieval dress's cut, re-materialled). Keeps the chest: its square neckline showed the hole where the chest was hidden (in-game stills, 2026-09-26)."
+}

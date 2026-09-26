@@ -28,7 +28,25 @@ public static class Terrain3DView
         ("terrain_ph_rocky_trail", 0.25f, Colors.White),                     // 2: trodden paths, the Foldscar's broken ground
         ("terrain_ph_rock_ground", 0.20f, Colors.White),                     // 3: the quarry floor
         ("terrain_ph_dark_rock_02", 0.10f, Colors.White),                    // 4: steep faces (slopes inside; the ravine and ridges outside), projected on steep slopes
+        // Phase B demo (composition): the ground under things, not only per cell.
+        ("terrain_ph_forest_ground_04", 0.22f, new Color(0.78f, 0.74f, 0.70f)), // 5: leafy ground under the Charwood's crowns
+        ("terrain_ph_brown_mud", 0.30f, new Color(0.92f, 0.86f, 0.78f)),     // 6: trodden earth by doors and walls; the Charwood drainage
+        ("terrain_ph_gravel_stones", 0.30f, new Color(0.86f, 0.84f, 0.82f)), // 7: the quarry's spoil and loose gravel
+        ("terrain_ph_aerial_grass_rock", 0.12f, Colors.White),              // 8: thin grass over rock, breaking up the meadow and the rims
     };
+
+    private const int ForestGround = 5, Earth = 6, Gravel = 7, GrassRock = 8;
+
+    /// <summary>
+    /// What the ground lies under and beside (Phase B demo): tree crowns (x, z, radius in metres), building footprints, and the drainage
+    /// lines, so the ground reads as a place - leaf litter under the trees with grass in the clearings, trodden earth round the buildings,
+    /// mud along the water - not one material per cell. Presentation only: drawn from the layout the simulation already has.
+    /// </summary>
+    public sealed record Detail(IReadOnlyList<Vector3> Crowns, IReadOnlyList<Rect2> Buildings, IReadOnlyList<Vector2[]> Drainage);
+
+    /// <summary>The Charwood's shallow drainage (content bible section 6: the stream path to the Foldscar).</summary>
+    public static readonly Vector2[] CharwoodStream =
+        { new(190, 195), new(170, 165), new(150, 132), new(132, 108), new(126, 96) };
 
     private const int Cliff = 4, Trail = 2;
     private const int RegionSize = 128;             // metres at 1 m a vertex; the imported area is whole regions, aligned to them
@@ -38,7 +56,7 @@ public static class Terrain3DView
     private static readonly int[] SlotLayer = { 3, 0, 2, 1 };
 
     /// <summary>Terrain3D under <paramref name="parent"/>, or null (and why) when the extension or a layer is unavailable.</summary>
-    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why)
+    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why, Detail? detail = null)
     {
         why = null;
         if (!ClassDB.ClassExists("Terrain3D"))
@@ -84,9 +102,9 @@ public static class Terrain3DView
         material.Call("set_shader_param", "enable_macro_variation", true);
 
         var origin = Origin(ground);
-        var (height, control) = Images(grid, ground, origin);
+        var (height, control, colour) = Images(grid, ground, origin, detail ?? new Detail(Array.Empty<Vector3>(), Array.Empty<Rect2>(), Array.Empty<Vector2[]>()));
         var data = (GodotObject)terrain.Get("data");
-        data.Call("import_images", new Godot.Collections.Array { height, control, default }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
+        data.Call("import_images", new Godot.Collections.Array { height, control, colour }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {Regions}x{Regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
         int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
@@ -122,13 +140,17 @@ public static class Terrain3DView
         return $"height check at {n} walkable 1 m points: worst |terrain3d - domain| = {worst * 1000:0.0} mm";
     }
 
-    /// <summary>The height image (metres, FORMAT_RF) and control image (Terrain3D's uint32 per texel, bit-exact) at 1 m.</summary>
-    private static (Image Height, Image Control) Images(TerrainGrid grid, GroundField ground, Vector2 origin)
+    /// <summary>
+    /// The height image (metres, FORMAT_RF), control image (Terrain3D's uint32 per texel, bit-exact) and colour map (albedo tint and a
+    /// roughness offset, neutral 1,1,1,0.5) at 1 m.
+    /// </summary>
+    private static (Image Height, Image Control, Image Colour) Images(TerrainGrid grid, GroundField ground, Vector2 origin, Detail detail)
     {
         var region = ground.Region;
         int size = RegionSize * Regions;
         var heights = new byte[size * size * 4];
         var controls = new byte[size * size * 4];
+        var colours = new byte[size * size * 4];
         var noise = Noise;
         for (int py = 0; py < size; py++)
         for (int px = 0; px < size; px++)
@@ -137,10 +159,11 @@ public static class Terrain3DView
             bool inside = x >= region.Position.X && x <= region.End.X && z >= region.Position.Y && z <= region.End.Y;
             float h;
             uint c;
+            Color tint = new(1, 1, 1, 0.5f);
             if (inside)
             {
                 h = grid.HeightAtMm((long)MathF.Round(x * 1000), (long)MathF.Round(z * 1000)) / 1000f;
-                c = Inside(ground, x, z);
+                (c, tint) = Composed(ground, x, z, detail);
             }
             else
             {
@@ -150,8 +173,116 @@ public static class Terrain3DView
             int at = (py * size + px) * 4;
             BitConverter.TryWriteBytes(heights.AsSpan(at, 4), h);
             BitConverter.TryWriteBytes(controls.AsSpan(at, 4), c);    // the control word's bits as they are: never through a float
+            colours[at] = (byte)(Math.Clamp(tint.R, 0, 1) * 255);
+            colours[at + 1] = (byte)(Math.Clamp(tint.G, 0, 1) * 255);
+            colours[at + 2] = (byte)(Math.Clamp(tint.B, 0, 1) * 255);
+            colours[at + 3] = (byte)(Math.Clamp(tint.A, 0, 1) * 255);
         }
-        return (Image.CreateFromData(size, size, false, Image.Format.Rf, heights), Image.CreateFromData(size, size, false, Image.Format.Rf, controls));
+        return (Image.CreateFromData(size, size, false, Image.Format.Rf, heights), Image.CreateFromData(size, size, false, Image.Format.Rf, controls),
+            Image.CreateFromData(size, size, false, Image.Format.Rgba8, colours));
+    }
+
+    private static readonly FastNoiseLite Patches = new() { Seed = 9127, NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth, Frequency = 0.045f,
+        FractalType = FastNoiseLite.FractalTypeEnum.Fbm, FractalOctaves = 3 };
+    private static readonly FastNoiseLite Macro = new() { Seed = 7741, NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth, Frequency = 0.012f };
+
+    /// <summary>
+    /// A walkable texel's two layers and colour: the cells' own grounds as before (<see cref="Inside"/>), then what the texel lies under
+    /// or beside - leaf litter under the crowns and grass in the Charwood's clearings, trodden earth round the buildings, mud along the
+    /// drainage, gravel spoil in the quarry, thin grass over rock breaking up the meadow - weighed together and the two strongest drawn.
+    /// The colour map carries a slow tint so no meadow is one flat green, darker wet ground by the water, and the Foldscar's ash.
+    /// </summary>
+    private static (uint Control, Color Tint) Composed(GroundField ground, float x, float z, Detail detail)
+    {
+        var w = ground.CellWeights(x, z);
+        // slots: (W,S) quarry, (W,N) waystation, (E,S) Foldscar, (E,N) Charwood
+        float quarry = w.X, meadow = w.Y, fold = w.Z, wood = w.W;
+        var weight = new float[Layers.Length];
+        float patch = Patches.GetNoise2D(x, z);                 // -1..1, clumps a few metres across
+        float macro = Macro.GetNoise2D(x, z);
+
+        // The meadow: grass, with thin-grass-over-rock patches and the odd bare scar.
+        weight[0] += meadow * (1 - 0.7f * GroundField.SmoothStep(0.25f, 0.65f, patch));
+        weight[GrassRock] += meadow * 0.7f * GroundField.SmoothStep(0.25f, 0.65f, patch);
+
+        // The Charwood: leaf litter under each crown, fading out at its edge; grass in the clearings between.
+        float canopy = 0;
+        foreach (var crown in detail.Crowns)
+        {
+            float d = new Vector2(x - crown.X, z - crown.Y).Length();
+            canopy = MathF.Max(canopy, 1 - GroundField.SmoothStep(crown.Z * 0.55f, crown.Z * 1.15f, d));
+        }
+        weight[ForestGround] += wood * canopy;
+        weight[1] += wood * (1 - canopy) * (0.55f + 0.3f * GroundField.SmoothStep(-0.3f, 0.4f, patch));
+        weight[0] += wood * (1 - canopy) * 0.45f * (1 - GroundField.SmoothStep(-0.3f, 0.4f, patch));
+        // Crowns just over a cell edge still drop their litter on the meadow.
+        weight[ForestGround] += meadow * canopy * 0.6f;
+
+        // The quarry: rock ground with gravel spoil in drifts.
+        weight[3] += quarry * (1 - 0.6f * GroundField.SmoothStep(0.0f, 0.5f, patch));
+        weight[Gravel] += quarry * 0.6f * GroundField.SmoothStep(0.0f, 0.5f, patch);
+
+        // The Foldscar: broken trodden ground with rock showing through.
+        weight[2] += fold * (1 - 0.45f * GroundField.SmoothStep(0.1f, 0.6f, patch));
+        weight[3] += fold * 0.45f * GroundField.SmoothStep(0.1f, 0.6f, patch);
+
+        // Round the buildings: trodden earth, strongest at the walls.
+        float nearWall = 0;
+        foreach (var b in detail.Buildings)
+        {
+            float dx = MathF.Max(MathF.Max(b.Position.X - x, x - b.End.X), 0), dz = MathF.Max(MathF.Max(b.Position.Y - z, z - b.End.Y), 0);
+            nearWall = MathF.Max(nearWall, 1 - GroundField.SmoothStep(1.0f, 4.5f + 1.5f * patch, MathF.Sqrt(dx * dx + dz * dz)));
+        }
+        weight[Earth] += nearWall * 1.4f;
+
+        // The drainage: mud in a ragged band.
+        float wet = 0;
+        foreach (var line in detail.Drainage)
+            wet = MathF.Max(wet, 1 - GroundField.SmoothStep(0.8f, 3.2f + patch, Distance(line, x, z)));
+        weight[Earth] += wet * 1.6f;
+
+        // The worn paths and steep banks keep their Phase-B rules (overrides, blended from nothing at their thresholds).
+        float path = ground.PathAt(x, z);
+        weight[Trail] += 2.2f * GroundField.SmoothStep(0.08f, 0.6f, path);
+        int first = 0;
+        for (int i = 1; i < weight.Length; i++)
+            if (weight[i] > weight[first])
+                first = i;
+        int second = first == 0 ? 1 : 0;
+        for (int i = 0; i < weight.Length; i++)
+            if (i != first && weight[i] > weight[second])
+                second = i;
+        float blend = weight[second] / MathF.Max(weight[first] + weight[second], 1e-4f);
+        // A steep bank takes the dark rock only halfway, over whatever the ground is (the Phase-B rule: at full strength it read as a black
+        // stain on the quarry's pale gravel).
+        float slope = ground.Slope(x, z);
+        if (slope > 0.5f)
+        {
+            second = Cliff;
+            blend = 0.55f * GroundField.SmoothStep(0.5f, 1.6f, slope);
+        }
+
+        // Colour: a slow warm/cool drift across the open ground, wet ground darker and glossier, the Foldscar's ash greyer.
+        float drift = 1 + 0.07f * macro;
+        var tint = new Color(drift * (1 + 0.03f * macro), drift, drift * (1 - 0.04f * macro), 0.5f);
+        tint = tint.Lerp(new Color(0.72f, 0.70f, 0.68f, 0.38f), wet * 0.8f);
+        tint = tint.Lerp(new Color(0.88f, 0.87f, 0.88f, 0.5f), fold * 0.5f);
+        tint = tint.Lerp(new Color(0.86f, 0.84f, 0.80f, 0.5f), canopy * wood * 0.35f);
+        return (Encode(first, second, (int)MathF.Round(Math.Clamp(blend, 0f, 1f) * 255f), auto: false), tint);
+    }
+
+    private static float Distance(Vector2[] line, float x, float z)
+    {
+        var p = new Vector2(x, z);
+        float best = float.MaxValue;
+        for (int i = 0; i + 1 < line.Length; i++)
+        {
+            var a = line[i];
+            var ab = line[i + 1] - a;
+            float t = Math.Clamp((p - a).Dot(ab) / MathF.Max(ab.LengthSquared(), 1e-4f), 0, 1);
+            best = MathF.Min(best, (a + ab * t - p).Length());
+        }
+        return best;
     }
 
     private static readonly FastNoiseLite Noise = new() { Seed = 4271, NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth, Frequency = 0.012f,

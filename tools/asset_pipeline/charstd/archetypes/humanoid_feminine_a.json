@@ -1,0 +1,64 @@
+{
+ "id": "humanoid_feminine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "fit_family": "standard_humanoid",
+ "skeleton": "skeleton_humanoid_a.json",
+ "regions": "archetypes/humanoid_masculine_a.regions.json",
+ "note": "The feminine counterpart of humanoid_masculine_a: the same MakeHuman base mesh (identical topology and vertex order, so the masculine archetype's authored regions apply unchanged) at gender 0 and neutral macros, 1.70 m, the same components, face channels and production skeleton. Garments for feminine instances are fitted to this body once.",
+ "mpfb": {
+  "macro": {
+   "gender": 0.0,
+   "age": 0.5,
+   "muscle": 0.5,
+   "weight": 0.5,
+   "height": 0.5,
+   "proportions": 0.5,
+   "race": {
+    "caucasian": 1.0,
+    "african": 0.0,
+    "asian": 0.0
+   }
+  },
+  "height_m": 1.7,
+  "eyes": "high-poly",
+  "eyebrows": "eyebrow002",
+  "eyelashes": "eyelashes01",
+  "teeth": "teeth_base",
+  "tongue": "tongue01",
+  "rig": "game_engine",
+  "clothes": [],
+  "skin": "middleage_caucasian_female"
+ },
+ "morphs": {
+  "supported": [
+   "muscle",
+   "weight",
+   "proportions",
+   "age",
+   "height"
+  ],
+  "range": {
+   "muscle": [
+    0.3,
+    0.9
+   ],
+   "weight": [
+    0.3,
+    0.8
+   ],
+   "proportions": [
+    0.3,
+    0.9
+   ],
+   "age": [
+    0.35,
+    0.8
+   ],
+   "height_m": [
+    1.55,
+    1.85
+   ]
+  },
+  "how": "MPFB macro targets at instance build; garments follow through build_character.py's conform (a Surface Deform bound on the canonical body)"
+ }
+}

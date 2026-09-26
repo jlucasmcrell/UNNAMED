@@ -139,3 +139,24 @@ def hide_regions(body, regions, hidden):
     bm.to_mesh(body.data)
     bm.free()
     return len(doomed)
+
+
+def tag_variant_faces(body, regions, hides, variants):
+    """Outfit variants (one character, several outfits the game switches between, e.g. the player's base top and the hide vest): each
+    face of a region some variants hide and others do not gets the bitmask of the variants that SHOW it in the face attribute
+    `outfit_show` (bit i = variants[i]); the export turns each distinct mask into its own body surface and the runtime hides the
+    surfaces the current variant does not show. Faces every variant hides must already be removed; untouched faces carry all bits."""
+    which = face_regions(body, regions)
+    full = (1 << len(variants)) - 1
+    attr = body.data.attributes.get("outfit_show") or body.data.attributes.new("outfit_show", "INT", "FACE")
+    masks = []
+    for r in which:
+        m = full
+        for i, v in enumerate(variants):
+            if r in hides[v]:
+                m &= ~(1 << i)
+        masks.append(m)
+    attr.data.foreach_set("value", masks)
+    body["outfit_variants"] = ",".join(variants)
+    return Counter(masks)
+

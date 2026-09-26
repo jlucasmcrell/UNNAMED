@@ -1,0 +1,35 @@
+{
+ "id": "coat_long_guide_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "robe_coat",
+ "layer": "outer",
+ "hides": [
+  "upperarm_L",
+  "upperarm_R",
+  "elbow_L",
+  "elbow_R",
+  "back_upper",
+  "back"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "elvs_male_trench_coat1",
+  "author": "Elvaerwyn (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Elvs Male Trench Coat1 by Elvaerwyn, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/elvs_male_trench_coat1/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/coat_long_guide_a/base_color.png",
+  "normal": "_staging/charstd/garments/coat_long_guide_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/coat_long_guide_a/roughness.png",
+  "texture_origin": "ambientCG Leather030 (CC0 1.0) repeated 5x over the garment's UVs, tinted 0.24,0.17,0.11, modulated by the source's own diffuse (detail 0.55); garment_texture.py"
+ },
+ "offset_m": 0.006,
+ "authored_edits": [],
+ "note": "Tavar's long weathered leather coat (the trench coat's cut, open at the front over his shirt)."
+}

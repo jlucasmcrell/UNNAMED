@@ -81,10 +81,16 @@ public partial class HollowView : Node3D
         foreach (var barrier in layout.Barriers)
             AddChild(BuildBarrier(barrier, terrain));
         AddChild(BuildWater(layout.Space));
+        // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
+        if (VisualOptions.Tier != "phase_a")
+        {
+            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
+            GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
+        }
         var ravine = BuildRavine(layout.Space, terrain);
         AddChild(ravine);
         if (VisualOptions.Terrain == "terrain3d")
-            DrawWithTerrain3D(terrain, ground, ravine);
+            DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
         if (VisualOptions.Recipes && _ground is { } field)
         {
@@ -115,14 +121,31 @@ public partial class HollowView : Node3D
     /// Phase B (B0.1): Terrain3D draws the ground and the scenery beyond the edge. The Phase-A ground mesh and ravine boxes stop drawing
     /// but stay as the camera's colliders; nothing else changes. Without the extension or its layers, the Phase-A ground stays, and says why.
     /// </summary>
-    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine)
+    /// <summary>What the ground lies under and beside (Terrain3DView.Detail): the trees' crowns, the buildings' footprints, the drainage.</summary>
+    private static Terrain3DView.Detail TerrainDetail(RegionLayout layout)
+    {
+        var crowns = layout.Space.Blockers.OfType<CircleBlocker>().Where(b => b.Id.StartsWith("tree_", StringComparison.Ordinal))
+            .Select(b => new Vector3(b.CenterXMm / 1000f, b.CenterZMm / 1000f, 5.5f)).ToList();
+        var buildings = new List<Rect2>();
+        foreach (var group in layout.Space.Blockers.OfType<BoxBlocker>().GroupBy(b => b.Id.Split('_')[0]))
+        {
+            if (group.Count() < 3)
+                continue;   // a building is a group of walls; a lone box is a prop
+            float x0 = group.Min(b => b.MinXMm) / 1000f, z0 = group.Min(b => b.MinZMm) / 1000f;
+            float x1 = group.Max(b => b.MaxXMm) / 1000f, z1 = group.Max(b => b.MaxZMm) / 1000f;
+            buildings.Add(new Rect2(x0, z0, x1 - x0, z1 - z0));
+        }
+        return new Terrain3DView.Detail(crowns, buildings, new[] { Terrain3DView.CharwoodStream });
+    }
+
+    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine, Terrain3DView.Detail detail)
     {
         if (_ground is null)
         {
             Coverage.Fallback("terrain", "terrain3d", "no ground field to take the layers from: the Phase-A ground stands");
             return;
         }
-        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why);
+        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why, detail);
         if (drawn is null)
         {
             Coverage.Fallback("terrain", "terrain3d", why ?? "Terrain3D did not build: the Phase-A ground stands");

@@ -121,7 +121,9 @@ for o in bpy.data.objects:
                     px = px.reshape(-1, 4)
                     lum = px[:, :3] @ np.array([0.2126, 0.7152, 0.0722], np.float32)
                     mean = max(float(lum[px[:, 3] > 0.5].mean()) if (px[:, 3] > 0.5).any() else float(lum.mean()), 0.02)
-                    px[:, :3] = np.clip(np.array(char["hair_colour"], np.float32)[None] * (lum / mean)[:, None], 0, 1)
+                    # "hair_contrast" < 1 compresses the strands' light and dark (a platinum dye of a dark texture reads striped at 1)
+                    rel = 1.0 + float(char.get("hair_contrast", 1.0)) * (lum / mean - 1.0)
+                    px[:, :3] = np.clip(np.array(char["hair_colour"], np.float32)[None] * rel[:, None], 0, 1)
                     dyed = bpy.data.images.new(f"{char['id']}_{o.name.split('.')[-1]}_dyed", src.size[0], src.size[1], alpha=True)
                     dyed.pixels.foreach_set(px.ravel())
                     dyed.filepath_raw = os.path.join(out, dyed.name + ".png")
@@ -145,13 +147,23 @@ if char.get("skin_texture"):
             img.reload()
 
 # The outfit: garments fitted once to the archetype's canonical body, conformed to this body, skinned, their regions hidden.
-regions = common.load(os.path.join(HERE, "archetypes", char["archetype"] + ".regions.json"))
+regions = common.load(os.path.join(HERE, arch.get("regions", os.path.join("archetypes", char["archetype"] + ".regions.json"))))
 canon = None
 for m in body.modifiers:
     if m.type == "MASK" and m.name != "Hide helpers":
         body.modifiers.remove(m)
 hidden = set()
-if char.get("outfit"):
+# Outfit variants: {"variants": {"base": [...], "hide_vest": [...]}} builds every garment of every variant; the body loses only the
+# regions EVERY variant hides and keeps the rest tagged by which variants show them (common.tag_variant_faces). A plain "outfit" list is
+# one variant.
+variants = char.get("variants") or ({"base": char["outfit"]} if char.get("outfit") else {})
+names = list(variants)
+worn = {}
+for v, gids in variants.items():
+    for gid in gids:
+        worn.setdefault(gid, []).append(v)
+hides = {v: set().union(*(set(common.descriptor(g)["hides"]) for g in gids)) if gids else set() for v, gids in variants.items()}
+if worn:
     # The canonical body as the garments were fitted to it: the archetype's own body and rig (its world transform included).
     ref = os.path.abspath(os.path.join(garments_dir, "..", "archetypes", char["archetype"], "archetype.blend"))
     before = set(bpy.data.objects)
@@ -165,11 +177,14 @@ if char.get("outfit"):
     canon = common.shaped(ref_obj)
     for o in loaded:
         bpy.data.objects.remove(o)
-    for gid in char["outfit"]:
+    for gid, shown in worn.items():
         g = common.append(os.path.join(garments_dir, gid, gid + ".blend"), gid)
         common.conform(g, canon, body)
         common.skin(g, body, rig)
-        hidden |= set(common.descriptor(gid)["hides"])
+        g["outfit_variants"] = ",".join(shown) if len(names) > 1 and len(shown) < len(names) else ""
+    hidden = set.intersection(*hides.values()) if hides else set()
+    if len(names) > 1:   # tagged before the removal: region membership is by the canonical vertex indices
+        print("OUTFIT_VARIANT_FACES", dict(common.tag_variant_faces(body, regions, hides, names)))
     common.hide_regions(body, regions, hidden)
 bpy.ops.wm.save_as_mainfile(filepath=final)
-print("BUILD_CHARACTER", final, {"identity_modifiers": len(preset["weights"]), "outfit": char.get("outfit", []), "hidden": sorted(hidden)})
+print("BUILD_CHARACTER", final, {"identity_modifiers": len(preset["weights"]), "variants": variants, "hidden": sorted(hidden)})

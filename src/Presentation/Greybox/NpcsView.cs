@@ -81,6 +81,7 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetTalking(npc.Talking);
+            figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : null);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
             if (npc.Id == FoldEcho.Held && figure is Art.SkinnedFigure && VisualOptions.BodyModifiers)
             {
@@ -134,4 +135,8 @@ public partial class NpcsView : Node3D
         var colour = Color.FromHsv(hash % 360 / 360f, 0.45f, 0.55f);
         return new StandardMaterial3D { AlbedoColor = colour, Roughness = 0.9f };
     }
+
+    /// <summary>Where an NPC's head is drawn (for the conversation framing), or null when they are not drawn.</summary>
+    public Vector3? HeadOf(string npcId) =>
+        _figures.TryGetValue(npcId, out var figure) ? figure.Head ?? figure.GlobalPosition + Vector3.Up * 1.6f : null;
 }

@@ -1,0 +1,31 @@
+{
+ "id": "sel_arien_std",
+ "archetype": "humanoid_feminine_a",
+ "identity_preset": "identities/sel_arien.mpfb_preset.json",
+ "mpfb": {
+  "macro": {
+   "age": 0.38,
+   "muscle": 0.35,
+   "weight": 0.32,
+   "height": 0.55,
+   "proportions": 0.85
+  },
+  "hair": "elvs_french_braid_variation",
+  "skin": "middleage_caucasian_female",
+  "eyebrows": "eyebrow002"
+ },
+ "hair_colour": [
+  0.84,
+  0.83,
+  0.86
+ ],
+ "height_m": 1.72,
+ "outfit": [
+  "dress_archivist_a",
+  "boots_archivist_a"
+ ],
+ "iris": "lavender",
+ "note": "Sel Arien (Siann archivist) on the character standard: platinum-white braided hair, ivory dress, grey boots; Siann skin and lavender-ringed eyes are set in the game's material (character_materials).",
+ "skin_texture": "../../../assets/_staging/charstd/characters/sel_arien/identity_texture/skin_albedo.png",
+ "hair_contrast": 0.35
+}

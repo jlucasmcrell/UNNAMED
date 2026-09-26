@@ -1,0 +1,32 @@
+{
+ "id": "kera_voss_std",
+ "archetype": "humanoid_masculine_a",
+ "identity_preset": "identities/kera_voss.mpfb_preset.json",
+ "mpfb": {
+  "macro": {
+   "age": 0.55,
+   "muscle": 1.0,
+   "weight": 0.72,
+   "height": 0.2,
+   "proportions": 0.3
+  },
+  "skin": "middleage_caucasian_male",
+  "eyebrows": "eyebrow002"
+ },
+ "hair_colour": [
+  0.22,
+  0.16,
+  0.12
+ ],
+ "height_m": 1.66,
+ "outfit": [
+  "apron_smith_a",
+  "bracers_smith_a",
+  "pauldron_smith_a",
+  "trousers_smith_a",
+  "boots_smith_a"
+ ],
+ "iris": "brown",
+ "note": "Kera Voss (Kal smith) on the character standard: broad, short and dense (muscle 1.0 beyond the archetype's authored range - the Kal family's own archetype is future work, CHARACTER_ASSET_STANDARD.md section 17), bald, scorched leather apron, bracers, a left pauldron.",
+ "skin_texture": "../../../assets/_staging/charstd/characters/kera_voss/identity_texture/skin_albedo.png"
+}

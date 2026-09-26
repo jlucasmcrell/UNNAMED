@@ -69,10 +69,18 @@ public sealed partial class SkinnedFigure : Figure
             figure._offGrip = person.OffGrip ?? SocketGrip(model, off);
         }
         // A rig with finger bones closes the hand that holds a weapon and relaxes the other (Phase B, character fidelity).
-        figure._fingers = BodyModifiers.Grip(model.Skeleton, person.Hand);
-        string otherHand = person.OffHand ?? (person.Hand.EndsWith(".R", StringComparison.Ordinal) ? person.Hand[..^1] + "L" : person.Hand[..^1] + "R");
+        // (A hand bound at its socket - the character standard's SOCK_hand.R - closes the fingers of the hand bone it sits on.)
+        static string Bone(string hand) => hand.StartsWith("SOCK_", StringComparison.Ordinal) ? hand[5..] : hand;
+        figure._fingers = BodyModifiers.Grip(model.Skeleton, Bone(person.Hand));
+        string otherHand = Bone(person.OffHand ?? (person.Hand.EndsWith(".R", StringComparison.Ordinal) ? person.Hand[..^1] + "L" : person.Hand[..^1] + "R"));
         figure._offFingers = BodyModifiers.Grip(model.Skeleton, otherHand);
         figure.Relax();
+        // A character-standard face: blinks, and the line on screen spoken (FaceDriver).
+        if (FaceDriver.Attach(model, personId) is { } face)
+        {
+            figure.AddChild(face);
+            figure._face = face;
+        }
         return figure;
     }
 
@@ -133,6 +141,17 @@ public sealed partial class SkinnedFigure : Figure
     public override void Interact() => _reaching = 0.001;
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
+
+    private FaceDriver? _face;
+
+    public override void Say(string? line) => _face?.Say(line);
+
+    public override Vector3? Head => _model.Skeleton.FindBone("head") is int head and >= 0
+        ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(head).Origin + Vector3.Up * 0.06f
+        : null;
+
+    public override void Wear(string? chestItemDefId) =>
+        _model.SetOutfit(chestItemDefId is null ? "base" : chestItemDefId[(chestItemDefId.LastIndexOf('.') + 1)..]);
 
     /// <summary>The weapon for an item definition on its hand bone (the bindings' <c>weapons</c>), or empty hands.</summary>
     public override void Hold(string? itemDefId)

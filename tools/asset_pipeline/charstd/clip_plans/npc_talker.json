@@ -1,0 +1,95 @@
+{
+ "note": "NPC talker clip set (Renn, Kera, Sel): standing idle, talking and a walk, retargeted onto each character-standard rig.",
+ "maps": {
+  "retarget_maps/quaternius_ual_prod.json": "retarget_maps/quaternius_ual_std.json",
+  "retarget_maps/cmu_rancidmilk_prod.json": "retarget_maps/cmu_rancidmilk_std.json",
+  "retarget_maps/kaykit_rig_medium.json": "retarget_maps/kaykit_rig_medium_std.json"
+ },
+ "entries": [
+  {
+   "state": "idle",
+   "from_record": "player.veth_wanderer_prod.idle"
+  },
+  {
+   "state": "talk",
+   "clip": "Idle_Talking_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "social",
+   "clip_type": "idle",
+   "loop": true
+  },
+  {
+   "state": "walk",
+   "file": "walk_16_22.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "idle_folded",
+   "clip": "Idle_FoldArms_Loop",
+   "archive": "UAL2_Standard.zip",
+   "member": "Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "social",
+   "clip_type": "idle"
+  },
+  {
+   "state": "hit",
+   "clip": "Hit_Chest",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "react"
+  },
+  {
+   "state": "death",
+   "clip": "Death01",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "death"
+  },
+  {
+   "state": "interact",
+   "clip": "Interact",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "interaction",
+   "clip_type": "transition"
+  }
+ ]
+}

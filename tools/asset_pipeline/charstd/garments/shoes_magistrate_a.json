@@ -1,0 +1,31 @@
+{
+ "id": "shoes_magistrate_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "footwear",
+ "layer": "base",
+ "hides": [
+  "foot_L",
+  "foot_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "male_boots",
+  "author": "culturalibre (MakeHuman community)",
+  "license": "CC0 1.0",
+  "attribution": null,
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/male_boots/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/shoes_magistrate_a/base_color.png",
+  "normal": "_staging/charstd/garments/shoes_magistrate_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/shoes_magistrate_a/roughness.png",
+  "texture_origin": "ambientCG Leather032 (CC0 1.0) repeated 3x over the garment's UVs, tinted 0.05,0.045,0.04, modulated by the source's own diffuse (detail 0.8); garment_texture.py"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "note": "Renn's black leather boots."
+}

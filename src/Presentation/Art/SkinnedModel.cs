@@ -62,7 +62,56 @@ public sealed partial class SkinnedModel : Node3D
         }
         player.AddAnimationLibrary("", library);
         figure._player = player;
+        figure.FindOutfits(model);
+        figure.SetOutfit("base");
         return figure;
+    }
+
+    // Outfit variants (charstd export_character.py): a surface whose material is named "<variants>::<material>" shows only under those
+    // variants - a garment, or the body under a garment only some variants wear. Everything else always shows.
+    private readonly List<(MeshInstance3D Mesh, int Surface, string[] Variants, bool Whole)> _outfitParts = new();
+    private string? _outfit;
+    private static ShaderMaterial? _unseen;
+
+    private void FindOutfits(Node model)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            var tagged = new List<(int, string[])>();
+            for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
+            {
+                string name = mesh.Mesh.SurfaceGetMaterial(i)?.ResourceName ?? string.Empty;
+                int cut = name.IndexOf("::", StringComparison.Ordinal);
+                if (cut > 0)
+                    tagged.Add((i, name[..cut].Split(',')));
+            }
+            bool whole = tagged.Count == mesh.Mesh.GetSurfaceCount() && tagged.All(t => t.Item2.SequenceEqual(tagged[0].Item2));
+            foreach (var (surface, variants) in tagged)
+                _outfitParts.Add((mesh, surface, variants, whole));
+        }
+    }
+
+    /// <summary>Show one outfit variant (unknown names show <c>base</c>); a model without variants ignores it.</summary>
+    public void SetOutfit(string variant)
+    {
+        if (_outfitParts.Count == 0)
+            return;
+        if (!_outfitParts.Any(p => p.Variants.Contains(variant)))
+            variant = "base";
+        if (variant == _outfit)
+            return;
+        _outfit = variant;
+        _unseen ??= new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, cull_disabled; void fragment() { discard; }" } };
+        foreach (var (mesh, surface, variants, whole) in _outfitParts)
+        {
+            bool shown = variants.Contains(variant);
+            if (whole)
+                mesh.Visible = shown;
+            else
+                mesh.SetSurfaceOverrideMaterial(surface, shown ? null : _unseen);
+        }
     }
 
     public bool Has(string state) => _states.Contains(state);

@@ -1,0 +1,40 @@
+{
+ "identity": "kera_voss",
+ "archetype": "humanoid_masculine_a",
+ "reference": "_staging/charprod/kera/head_crop.png",
+ "max_weight": 0.5,
+ "how": "art-directed against the concept portrait and RACES.md (Kal - broad, short, dense; not an ogre or a dwarf): bounded MPFB modifiers",
+ "weights": {
+  "head/head-square": 0.45,
+  "head/head-scale-horiz-incr": 0.3,
+  "head/head-fat-incr": 0.2,
+  "forehead/forehead-trans-forward": 0.35,
+  "eyebrows/eyebrows-trans-down": 0.45,
+  "eyebrows/eyebrows-trans-forward": 0.45,
+  "eyes/l-eye-scale-decr": 0.2,
+  "eyes/r-eye-scale-decr": 0.2,
+  "nose/nose-scale-horiz-incr": 0.45,
+  "nose/nose-flaring-incr": 0.4,
+  "nose/nose-volume-incr": 0.35,
+  "mouth/mouth-scale-horiz-incr": 0.25,
+  "chin/chin-width-incr": 0.5,
+  "chin/chin-bones-incr": 0.45,
+  "chin/chin-prominent-incr": 0.3,
+  "cheek/l-cheek-bones-incr": 0.3,
+  "cheek/r-cheek-bones-incr": 0.3,
+  "neck/neck-scale-horiz-incr": 0.5,
+  "neck/neck-scale-vert-decr": 0.35,
+  "torso/torso-scale-horiz-incr": 0.4,
+  "torso/torso-vshape-incr": 0.4,
+  "torso/measure-shoulder-dist-incr": 0.45,
+  "arms/l-upperarm-muscle-incr": 0.4,
+  "arms/r-upperarm-muscle-incr": 0.4,
+  "arms/l-lowerarm-muscle-incr": 0.4,
+  "arms/r-lowerarm-muscle-incr": 0.4,
+  "hands/l-hand-scale-incr": 0.4,
+  "hands/r-hand-scale-incr": 0.4
+ },
+ "rest_face": {
+  "mouthClose": 0.3
+ }
+}

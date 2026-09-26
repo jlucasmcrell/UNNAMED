@@ -1,0 +1,35 @@
+{
+ "id": "pauldron_smith_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "shoulders",
+ "layer": "outer",
+ "hides": [],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "leather_armor",
+  "author": "MaciekG (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Leather Armor by MaciekG, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/leather_armor/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "metal",
+  "base_color": "_staging/charstd/garments/pauldron_smith_a/base_color.png",
+  "normal": "_staging/charstd/garments/pauldron_smith_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/pauldron_smith_a/roughness.png",
+  "texture_origin": "ambientCG Metal063 (CC0 1.0) repeated 2x over the garment's UVs, tinted 0.22,0.19,0.16, modulated by the source's own diffuse (detail 0.6); garment_texture.py"
+ },
+ "offset_m": 0.006,
+ "authored_edits": [],
+ "note": "Kera's single iron pauldron on the left shoulder.",
+ "cut": {
+  "keep_bones": [
+   "shoulder.L",
+   "upper_arm.L"
+  ],
+  "why": "the left pauldron only, as in the concept (authored once)"
+ }
+}

@@ -37,6 +37,22 @@ public abstract partial class Figure : Node3D
     /// <summary>The clip state being drawn (a skinned body's), for the state log; null for a figure without clips.</summary>
     public virtual string? ClipState => null;
 
+    /// <summary>
+    /// What is worn on the chest, by its item definition ID, or nothing: a body with outfit variants shows the variant named after the
+    /// item (<c>item.armor.hide_vest</c> -> <c>hide_vest</c>), else its base outfit. Presentation only: the equipment is the simulation's.
+    /// </summary>
+    public virtual void Wear(string? chestItemDefId)
+    {
+    }
+
+    /// <summary>The line this person is saying now, or null (a face that can speak shows it).</summary>
+    public virtual void Say(string? line)
+    {
+    }
+
+    /// <summary>Where the head is drawn (the eyes' height), or null when the figure has no head bone.</summary>
+    public virtual Vector3? Head => null;
+
     /// <summary>What is in the hand, by its item definition ID, or nothing.</summary>
     public virtual void Hold(string? itemDefId)
     {

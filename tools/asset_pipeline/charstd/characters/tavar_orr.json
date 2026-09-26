@@ -23,9 +23,10 @@
  "outfit": [
   "top_tank_wanderer",
   "bottom_trousers_wanderer",
-  "feet_boots_wanderer"
+  "boots_tall_guide_a",
+  "coat_long_guide_a"
  ],
- "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "note": "Tavar Orr (Orenth guide, first companion) on the character standard: long weathered leather coat over a dark shirt, trousers, tall boots.",
  "iris": "brown",
  "skin_texture": "../../../assets/_staging/charstd/characters/tavar_orr/identity_texture/skin_albedo.png"
 }

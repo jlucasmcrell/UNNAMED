@@ -21,11 +21,10 @@
  ],
  "height_m": 1.8,
  "outfit": [
-  "torso_hide_vest_a",
-  "bottom_trousers_wanderer",
-  "feet_boots_wanderer"
+  "robe_magistrate_a",
+  "shoes_magistrate_a"
  ],
- "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "note": "Renn Vale (Veth magistrate) on the character standard: charcoal magistrate robe, black boots.",
  "iris": "bluegreen",
  "skin_texture": "../../../assets/_staging/charstd/characters/renn_vale/identity_texture/skin_albedo.png"
 }

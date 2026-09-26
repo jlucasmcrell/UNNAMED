@@ -1,0 +1,28 @@
+{
+ "id": "bracers_smith_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "gloves",
+ "layer": "outer",
+ "hides": [],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "powerman_bracers",
+  "author": "culturalibre (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Powerman bracers by culturalibre, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/powerman_bracers/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "metal",
+  "base_color": "_staging/charstd/garments/bracers_smith_a/base_color.png",
+  "normal": "_staging/charstd/garments/bracers_smith_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/bracers_smith_a/roughness.png",
+  "texture_origin": "ambientCG Metal063 (CC0 1.0) repeated 2x over the garment's UVs, tinted 0.20,0.18,0.16, modulated by the source's own diffuse (detail 0.5); garment_texture.py"
+ },
+ "offset_m": 0.004,
+ "authored_edits": [],
+ "note": "Kera's iron-banded forearm bracers."
+}

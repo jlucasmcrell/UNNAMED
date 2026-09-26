@@ -250,6 +250,8 @@ public partial class ScatterView : Node3D
             d *= kind.UnderTreesKeep + (1 - kind.UnderTreesKeep) * GroundField.SmoothStep(kind.UnderTreesFromM, kind.UnderTreesToM, tree);
         if (kind.NearTreesAdd > 0 && kind.NearTreesToM > kind.NearTreesFromM)
             d += kind.NearTreesAdd * (1f - GroundField.SmoothStep(kind.NearTreesFromM, kind.NearTreesToM, tree));
+        if (kind.NearWaterAdd > 0 && kind.NearWaterToM > kind.NearWaterFromM)
+            d += kind.NearWaterAdd * (1f - GroundField.SmoothStep(kind.NearWaterFromM, kind.NearWaterToM, WaterDistance(x, z)));
         float path = _ground.PathAt(x, z);
         if (kind.PathShoulders > 0)
             d += kind.PathShoulders * GroundField.SmoothStep(0.05f, 0.3f, path) * (1f - GroundField.SmoothStep(0.4f, 0.7f, path));
@@ -257,6 +259,22 @@ public partial class ScatterView : Node3D
         if (!kind.OffPath)
             d *= 1f - GroundField.SmoothStep(0.45f, 0.7f, path);
         return d;
+    }
+
+    /// <summary>Metres to the Charwood's drainage line (Terrain3DView.CharwoodStream).</summary>
+    private static float WaterDistance(float x, float z)
+    {
+        var line = Terrain3DView.CharwoodStream;
+        var p = new Vector2(x, z);
+        float best = float.MaxValue;
+        for (int i = 0; i + 1 < line.Length; i++)
+        {
+            var a = line[i];
+            var ab = line[i + 1] - a;
+            float t = Math.Clamp((p - a).Dot(ab) / MathF.Max(ab.LengthSquared(), 1e-4f), 0, 1);
+            best = MathF.Min(best, (a + ab * t - p).Length());
+        }
+        return best;
     }
 
     /// <summary>1 in the open, 0 inside a footprint, thinning over a metre or two outside one; 0 on a path (for most kinds), under water, on a steep slope.</summary>

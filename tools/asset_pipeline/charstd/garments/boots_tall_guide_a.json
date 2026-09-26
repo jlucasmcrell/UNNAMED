@@ -1,0 +1,33 @@
+{
+ "id": "boots_tall_guide_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "footwear",
+ "layer": "base",
+ "hides": [
+  "foot_L",
+  "foot_R",
+  "shin_L",
+  "shin_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "boots_viking",
+  "author": "RehmanPolanski (MakeHuman community)",
+  "license": "CC0 1.0",
+  "attribution": null,
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/boots_viking/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/boots_tall_guide_a/base_color.png",
+  "normal": "_staging/charstd/garments/boots_tall_guide_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/boots_tall_guide_a/roughness.png",
+  "texture_origin": "ambientCG Leather037 (CC0 1.0) repeated 3x over the garment's UVs, tinted 0.17,0.12,0.08, modulated by the source's own diffuse (detail 0.7); garment_texture.py"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "note": "Tavar's tall worn boots."
+}

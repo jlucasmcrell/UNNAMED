@@ -1,0 +1,28 @@
+{
+ "id": "apron_smith_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "outer_torso",
+ "layer": "outer",
+ "hides": [],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "elvs_mens_apron1",
+  "author": "Elvaerwyn (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Elvs Mens Apron1 by Elvaerwyn, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/elvs_mens_apron1/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/apron_smith_a/base_color.png",
+  "normal": "_staging/charstd/garments/apron_smith_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/apron_smith_a/roughness.png",
+  "texture_origin": "ambientCG Leather032 (CC0 1.0) repeated 4x over the garment's UVs, tinted 0.11,0.085,0.07, modulated by the source's own diffuse (detail 0.6); garment_texture.py"
+ },
+ "offset_m": 0.008,
+ "authored_edits": [],
+ "note": "Kera's heavy scorched leather smithing apron over the bare torso (hides nothing: the apron is open at the sides)."
+}

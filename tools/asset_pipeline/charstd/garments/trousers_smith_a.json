@@ -1,0 +1,36 @@
+{
+ "id": "trousers_smith_a",
+ "archetype": "humanoid_masculine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "bottom",
+ "layer": "base",
+ "hides": [
+  "groin",
+  "thigh_L",
+  "thigh_R",
+  "knee_L",
+  "knee_R",
+  "shin_L",
+  "shin_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "leather_pants",
+  "author": "MaciekG (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "Leather Pants by MaciekG, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/leather_pants/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "cloth_heavy",
+  "base_color": "_staging/charstd/garments/trousers_smith_a/base_color.png",
+  "normal": "_staging/charstd/garments/trousers_smith_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/trousers_smith_a/roughness.png",
+  "texture_origin": "ambientCG Fabric061 (CC0 1.0) repeated 8x over the garment's UVs, tinted 0.16,0.13,0.10, modulated by the source's own diffuse (detail 0.6); garment_texture.py"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "note": "Kera's heavy work trousers."
+}

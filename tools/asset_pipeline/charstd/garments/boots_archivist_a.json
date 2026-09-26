@@ -1,0 +1,33 @@
+{
+ "id": "boots_archivist_a",
+ "archetype": "humanoid_feminine_a",
+ "doc": "docs/phase_b/remediation/CHARACTER_ASSET_STANDARD.md",
+ "role": "footwear",
+ "layer": "base",
+ "hides": [
+  "foot_L",
+  "foot_R",
+  "shin_L",
+  "shin_R"
+ ],
+ "replaces_roles": [],
+ "source": {
+  "kind": "mpfb_clothes",
+  "asset": "female_knee_boots",
+  "author": "punkduck (MakeHuman community)",
+  "license": "CC-BY 4.0",
+  "attribution": "female knee boots by punkduck, MakeHuman community assets, CC-BY 4.0",
+  "url": "http://www.makehumancommunity.org/clothes.html",
+  "provenance": "F:/Otherreach_External_3D/mpfb/community_clothes/female_knee_boots/PROVENANCE.json"
+ },
+ "material": {
+  "kind": "leather",
+  "base_color": "_staging/charstd/garments/boots_archivist_a/base_color.png",
+  "normal": "_staging/charstd/garments/boots_archivist_a/normal.png",
+  "roughness_map": "_staging/charstd/garments/boots_archivist_a/roughness.png",
+  "texture_origin": "ambientCG Leather032 (CC0 1.0) repeated 3x over the garment's UVs, tinted 0.33,0.33,0.34, modulated by the source's own diffuse (detail 0.7); garment_texture.py"
+ },
+ "offset_m": 0.0,
+ "authored_edits": [],
+ "note": "Sel's soft grey knee boots."
+}

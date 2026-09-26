@@ -24,6 +24,11 @@ public sealed record ScatterKind(
     float? ChunkM = null, IReadOnlyList<float>? LodsM = null, float SizeMin = 1, float SizeMax = 1, float Stiffness = 1,
     IReadOnlyDictionary<string, string>? OnlyWhen = null)
 {
+    /// <summary>Density added near the drainage (<c>near_water</c>: add, from_m, to_m) - reeds along the Charwood stream (Phase B demo).</summary>
+    public float NearWaterAdd { get; init; }
+    public float NearWaterFromM { get; init; }
+    public float NearWaterToM { get; init; }
+
     /// <summary>The prepared model this kind scatters (<c>mesh: "model:&lt;id&gt;"</c>), or null for a procedural mesh.</summary>
     public string? ModelId => Mesh.StartsWith("model:", StringComparison.Ordinal) ? Mesh["model:".Length..] : null;
 }
@@ -126,6 +131,7 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
         var yard = e.TryGetProperty("bare_yard", out var y) && y.ValueKind == JsonValueKind.Object ? y : default;
         var under = e.TryGetProperty("under_trees", out var u) && u.ValueKind == JsonValueKind.Object ? u : default;
         var near = e.TryGetProperty("near_trees", out var t) && t.ValueKind == JsonValueKind.Object ? t : default;
+        var water = e.TryGetProperty("near_water", out var nw) && nw.ValueKind == JsonValueKind.Object ? nw : default;
         var grounds = yard.ValueKind == JsonValueKind.Object && yard.TryGetProperty("grounds", out var g) && g.ValueKind == JsonValueKind.Array
             ? g.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String).Select(v => v.GetString()!).ToList()
             : new List<string>();
@@ -139,7 +145,10 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
             Numbers(e, "size") is { Count: 2 } size2 && size2[0] > 0 && size2[1] >= size2[0] ? size2[1] : 1, Positive(e, "stiffness", 1),
             e.TryGetProperty("only_when", out var when) && when.ValueKind == JsonValueKind.Object
                 ? when.EnumerateObject().Where(p => p.Value.ValueKind == JsonValueKind.String).ToDictionary(p => p.Name, p => p.Value.GetString()!, StringComparer.Ordinal)
-                : null);
+                : null)
+        {
+            NearWaterAdd = Number(water, "add", 0), NearWaterFromM = Number(water, "from_m", 0), NearWaterToM = Number(water, "to_m", 0),
+        };
     }
 
     /// <summary>An array of numbers (the level distances, a size range), or null.</summary>

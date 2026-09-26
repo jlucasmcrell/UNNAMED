@@ -1,0 +1,165 @@
+{
+ "note": "The companion clip set (Tavar): gaits, spear ready and two thrusts, hit, death, talk.",
+ "maps": {
+  "retarget_maps/quaternius_ual_prod.json": "retarget_maps/quaternius_ual_std.json",
+  "retarget_maps/cmu_rancidmilk_prod.json": "retarget_maps/cmu_rancidmilk_std.json",
+  "retarget_maps/kaykit_rig_medium.json": "retarget_maps/kaykit_rig_medium_std.json"
+ },
+ "entries": [
+  {
+   "state": "idle",
+   "from_record": "player.veth_wanderer_prod.idle"
+  },
+  {
+   "state": "talk",
+   "clip": "Idle_Talking_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "social",
+   "clip_type": "idle",
+   "loop": true
+  },
+  {
+   "state": "walk",
+   "file": "walk_16_22.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "run",
+   "from_record": "player.veth_wanderer_prod.run_cmu3517"
+  },
+  {
+   "state": "sprint",
+   "from_record": "player.veth_wanderer_prod.sprint_cmu12707"
+  },
+  {
+   "state": "spear_ready",
+   "clip": "Melee_2H_Idle",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "idle",
+   "loop": true,
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "attack",
+   "clip": "Melee_2H_Attack_Stab",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "attack_2",
+   "clip": "Melee_2H_Attack_Slice",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "hit",
+   "clip": "Hit_Chest",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "react"
+  },
+  {
+   "state": "death",
+   "clip": "Death01",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "death"
+  },
+  {
+   "state": "interact",
+   "clip": "Interact",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "interaction",
+   "clip_type": "transition"
+  },
+  {
+   "state": "crouch_idle",
+   "from_record": "player.veth_wanderer_prod.crouch_idle"
+  },
+  {
+   "state": "crouch_walk",
+   "clip": "Sneaking",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementAdvanced.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "jump_start",
+   "from_record": "player.veth_wanderer_prod.jump_start"
+  },
+  {
+   "state": "fall",
+   "from_record": "player.veth_wanderer_prod.fall"
+  },
+  {
+   "state": "land",
+   "from_record": "player.veth_wanderer_prod.land"
+  }
+ ]
+}

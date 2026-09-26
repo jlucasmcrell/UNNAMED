@@ -1,0 +1,501 @@
+{
+ "note": "The player-role clip set for a character-standard rig (retarget_set.py). from_record entries replay the production clips; the rest are new sources (UAL1/UAL2 CC0, KayKit CC0).",
+ "entries": [
+  {
+   "state": "idle",
+   "from_record": "player.veth_wanderer_prod.idle"
+  },
+  {
+   "state": "walk_cmu3501",
+   "from_record": "player.veth_wanderer_prod.walk_cmu3501"
+  },
+  {
+   "state": "walk_cmu3507",
+   "from_record": "player.veth_wanderer_prod.walk_cmu3507"
+  },
+  {
+   "state": "walk_ual",
+   "from_record": "player.veth_wanderer_prod.walk"
+  },
+  {
+   "state": "run",
+   "from_record": "player.veth_wanderer_prod.run_cmu3517"
+  },
+  {
+   "state": "run_cmu1635",
+   "from_record": "player.veth_wanderer_prod.run_cmu1635"
+  },
+  {
+   "state": "sprint",
+   "from_record": "player.veth_wanderer_prod.sprint_cmu12707"
+  },
+  {
+   "state": "crouch_idle",
+   "from_record": "player.veth_wanderer_prod.crouch_idle"
+  },
+  {
+   "state": "crouch_walk",
+   "from_record": "player.veth_wanderer_prod.crouch_walk"
+  },
+  {
+   "state": "jump_start",
+   "from_record": "player.veth_wanderer_prod.jump_start"
+  },
+  {
+   "state": "fall",
+   "from_record": "player.veth_wanderer_prod.fall"
+  },
+  {
+   "state": "land",
+   "from_record": "player.veth_wanderer_prod.land"
+  },
+  {
+   "state": "sword_ready",
+   "from_record": "player.veth_wanderer_prod.sword_ready"
+  },
+  {
+   "state": "sword_attack_1",
+   "from_record": "player.veth_wanderer_prod.sword_attack_1"
+  },
+  {
+   "state": "sword_attack_2",
+   "from_record": "player.veth_wanderer_prod.sword_attack_2"
+  },
+  {
+   "state": "sword_attack_3",
+   "from_record": "player.veth_wanderer_prod.sword_attack_3"
+  },
+  {
+   "state": "sword_attack_4",
+   "from_record": "player.veth_wanderer_prod.sword_attack_4"
+  },
+  {
+   "state": "sword_block",
+   "from_record": "player.veth_wanderer_prod.sword_block"
+  },
+  {
+   "state": "hit",
+   "clip": "Hit_Chest",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "react"
+  },
+  {
+   "state": "death",
+   "clip": "Death01",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "death"
+  },
+  {
+   "state": "interact",
+   "clip": "Interact",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "interaction",
+   "clip_type": "transition"
+  },
+  {
+   "state": "talk",
+   "clip": "Idle_Talking_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "social",
+   "clip_type": "idle",
+   "loop": true
+  },
+  {
+   "state": "cast",
+   "clip": "Spell_Simple_Shoot",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "magic",
+   "clip_type": "transition"
+  },
+  {
+   "state": "cast_ready",
+   "clip": "Spell_Simple_Idle_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "magic",
+   "clip_type": "idle",
+   "loop": true
+  },
+  {
+   "state": "hit_head",
+   "clip": "Hit_Head",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "react"
+  },
+  {
+   "state": "knockback",
+   "clip": "Hit_Knockback",
+   "archive": "UAL2_Standard.zip",
+   "member": "Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "react"
+  },
+  {
+   "state": "bow_ready",
+   "clip": "Ranged_Bow_Idle",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "idle",
+   "loop": true,
+   "hand_left": "grip_primary"
+  },
+  {
+   "state": "bow_draw",
+   "clip": "Ranged_Bow_Draw",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_left": "grip_primary"
+  },
+  {
+   "state": "bow_aim",
+   "clip": "Ranged_Bow_Aiming_Idle",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "idle",
+   "loop": true,
+   "hand_left": "grip_primary"
+  },
+  {
+   "state": "bow_release",
+   "clip": "Ranged_Bow_Release",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_left": "grip_primary"
+  },
+  {
+   "state": "spear_ready",
+   "clip": "Melee_2H_Idle",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "idle",
+   "loop": true,
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "spear_thrust",
+   "clip": "Melee_2H_Attack_Stab",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "spear_slice",
+   "clip": "Melee_2H_Attack_Slice",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "combat",
+   "clip_type": "transition",
+   "hand_right": "grip_primary",
+   "hand_left": "grip_secondary"
+  },
+  {
+   "state": "pickup",
+   "clip": "PickUp_Table",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "interaction",
+   "clip_type": "transition"
+  },
+  {
+   "state": "jog",
+   "clip": "Jog_Fwd_Loop",
+   "archive": "Universal Animation Library[Standard].zip",
+   "member": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "locomotion",
+   "clip_type": "move",
+   "loop": true
+  },
+  {
+   "state": "walk_carry",
+   "clip": "Walk_Carry_Loop",
+   "archive": "UAL2_Standard.zip",
+   "member": "Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+   "map": "retarget_maps/quaternius_ual_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "category": "locomotion",
+   "clip_type": "move",
+   "loop": true
+  },
+  {
+   "state": "walk_cmu0803",
+   "file": "walk_08_03.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "walk_cmu0802",
+   "file": "walk_08_02.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "walk_cmu1622",
+   "file": "walk_16_22.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "walk_cmu0202",
+   "file": "walk_02_02.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "run_cmu3518",
+   "file": "run_35_18.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "run_cmu3519",
+   "file": "run_35_19.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "sprint_cmu12708",
+   "file": "sprint_127_08.glb",
+   "clip": "Cycle",
+   "map": "retarget_maps/cmu_rancidmilk_prod.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move",
+   "hand_right": "grip_primary"
+  },
+  {
+   "state": "crouch_sneak",
+   "clip": "Sneaking",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementAdvanced.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "crouch_kk",
+   "clip": "Crouching",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementAdvanced.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "walk_kk_a",
+   "clip": "Walking_A",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementBasic.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "walk_kk_b",
+   "clip": "Walking_B",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementBasic.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  },
+  {
+   "state": "run_kk_a",
+   "clip": "Running_A",
+   "archive": "KayKit_Character_Animations_Free_1.1.zip",
+   "member": "KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/Rig_Medium_MovementBasic.glb",
+   "map": "retarget_maps/kaykit_rig_medium.json",
+   "root": "inplace",
+   "scale": "legs",
+   "feet": "ik",
+   "fps": 60.0,
+   "loop": true,
+   "category": "locomotion",
+   "clip_type": "move"
+  }
+ ],
+ "maps": {
+  "retarget_maps/quaternius_ual_prod.json": "retarget_maps/quaternius_ual_std.json",
+  "retarget_maps/cmu_rancidmilk_prod.json": "retarget_maps/cmu_rancidmilk_std.json",
+  "retarget_maps/kaykit_rig_medium.json": "retarget_maps/kaykit_rig_medium_std.json"
+ }
+}

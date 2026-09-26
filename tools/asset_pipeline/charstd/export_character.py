@@ -103,7 +103,7 @@ for o in bpy.data.objects:
         iris = next((i for m in o.data.materials if m and m.node_tree for i in images(m.node_tree) if i.name.lower().endswith("_eye.png")
                      or "eye" in i.name.lower()), None)
         if iris is not None:
-            eye = simple_material(o.name.split(".")[0] + "_eyes", iris, None, 0.15, cutout=True)   # the cornea shell is clear
+            eye = simple_material(o.name.split(".")[0] + "_eye", iris, None, 0.15, cutout=True)   # the cornea shell is clear
             o.data.materials.clear()
             o.data.materials.append(eye)
             for poly in o.data.polygons:
@@ -130,10 +130,59 @@ for o in bpy.data.objects:
             m.node_tree.links.new(gt.outputs[0], bsdf.inputs["Alpha"])
         else:
             bsdf.inputs["Alpha"].default_value = 1.0
+# Material names the runtime reads (CharacterMaterials: the kind is the name's suffix): a garment's MAT_<id>_base becomes
+# MAT_<id>_<its descriptor's material kind>.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import common  # noqa: E402
+for m in bpy.data.materials:
+    if m.name.startswith("MAT_") and m.name.endswith("_base"):
+        gid = m.name[4:-5]
+        if os.path.exists(os.path.join(common.HERE, "garments", gid + ".json")):
+            m.name = f"MAT_{gid}_{common.descriptor(gid)['material'].get('kind', 'cloth')}"
+
+# Outfit variants (build_character.py): what only some variants show is named "<variants>::<material>"; the runtime hides it under
+# the others. A garment carries its variants on the object; the body's faces carry theirs in the `outfit_show` face attribute.
+for o in bpy.data.objects:
+    if o.type != "MESH":
+        continue
+    tag = o.get("outfit_variants", "")
+    if tag and not ObjectService.object_is_basemesh(o):
+        for i, m in enumerate(o.data.materials):
+            if m:
+                c = m.copy()
+                c.name = f"{tag}::{m.name}"
+                o.data.materials[i] = c
+    elif ObjectService.object_is_basemesh(o) and o.get("outfit_variants") and o.data.attributes.get("outfit_show"):
+        variants = o["outfit_variants"].split(",")
+        full = (1 << len(variants)) - 1
+        masks = [0] * len(o.data.polygons)
+        o.data.attributes["outfit_show"].data.foreach_get("value", masks)
+        skin = o.data.materials[0]
+        slot_of = {full: 0}
+        for mask in sorted(set(masks) - {full}):
+            c = skin.copy()
+            c.name = ",".join(v for i, v in enumerate(variants) if mask & (1 << i)) + "::" + skin.name
+            o.data.materials.append(c)
+            slot_of[mask] = len(o.data.materials) - 1
+        for poly, mask in zip(o.data.polygons, masks):
+            poly.material_index = slot_of[mask]
+        print("OUTFIT_BODY_SURFACES", {m.name: sum(1 for x in masks if slot_of[x] == i) for i, m in enumerate(o.data.materials)})
+
+# Texture budget: 2048 px for everything but the skin (4096 - the face is seen close in conversation).
+skin_images = {i.name for o in bpy.data.objects if o.type == "MESH" and ObjectService.object_is_basemesh(o)
+               for m in o.data.materials if m and m.node_tree for i in images(m.node_tree)}
+for img in bpy.data.images:
+    cap = 4096 if img.name in skin_images else 2048
+    if img.size[0] > cap or img.size[1] > cap:
+        f = cap / max(img.size[0], img.size[1])
+        img.scale(max(1, int(img.size[0] * f)), max(1, int(img.size[1] * f)))
+        img.pack()   # the exporter otherwise copies the file on disk at its full size
+
 rig = next(o for o in bpy.data.objects if o.type == "ARMATURE")
 for pb in rig.pose.bones:
     pb.matrix_basis.identity()
 out = os.path.abspath(arg("--out"))
 bpy.ops.export_scene.gltf(filepath=out, export_format="GLB", export_skins=True, export_morph=True, export_morph_normal=False,
-                          export_apply=False, export_animations=False, export_yup=True)
+                          export_apply=False, export_animations=False, export_yup=True,
+                          export_image_format="WEBP", export_image_quality=90)
 print("EXPORT_CHARACTER", out, os.path.getsize(out))

@@ -20,12 +20,25 @@
   0.25
  ],
  "height_m": 1.8,
- "outfit": [
-  "top_tank_wanderer",
-  "bottom_trousers_wanderer",
-  "feet_boots_wanderer"
- ],
- "note": "a reuse proof of the character standard; not a production replacement until the owner approves the pipeline",
+ "note": "the player on the character standard: the base outfit, and the hide vest when item.armor.hide_vest is equipped in the chest slot (presentation reads the equipment state; no new game data)",
  "iris": "grey",
- "skin_texture": "../../../assets/_staging/charstd/characters/player_veth_wanderer/identity_texture/skin_albedo.png"
+ "skin_texture": "../../../assets/_staging/charstd/characters/player_veth_wanderer/identity_texture/skin_albedo.png",
+ "variants": {
+  "base": [
+   "top_tank_wanderer",
+   "bottom_trousers_wanderer",
+   "feet_boots_wanderer"
+  ],
+  "hide_vest": [
+   "torso_hide_vest_a",
+   "bottom_trousers_wanderer",
+   "feet_boots_wanderer"
+  ]
+ },
+ "variant_bindings": {
+  "hide_vest": {
+   "slot": "chest",
+   "item": "item.armor.hide_vest"
+  }
+ }
 }

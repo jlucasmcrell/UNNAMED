@@ -1,0 +1,34 @@
+{
+ "identity": "sel_arien",
+ "archetype": "humanoid_feminine_a",
+ "reference": "_staging/charprod/sel/head_crop.png",
+ "max_weight": 0.5,
+ "how": "art-directed against the concept portrait and RACES.md (Siann): bounded MPFB modifiers, no solver - a slightly elongated neck, narrow shoulders, long fine hands, precise symmetric face",
+ "weights": {
+  "head/head-oval": 0.4,
+  "head/head-scale-horiz-decr": 0.1,
+  "chin/chin-width-decr": 0.25,
+  "chin/chin-height-incr": 0.1,
+  "nose/nose-scale-horiz-decr": 0.25,
+  "nose/nose-point-width-decr": 0.2,
+  "nose/nose-volume-decr": 0.15,
+  "eyes/l-eye-scale-incr": 0.2,
+  "eyes/r-eye-scale-incr": 0.2,
+  "eyes/l-eye-corner2-up": 0.15,
+  "eyes/r-eye-corner2-up": 0.15,
+  "mouth/mouth-scale-horiz-decr": 0.1,
+  "mouth/mouth-lowerlip-volume-incr": 0.15,
+  "cheek/l-cheek-bones-incr": 0.25,
+  "cheek/r-cheek-bones-incr": 0.25,
+  "neck/neck-scale-vert-incr": 0.45,
+  "neck/neck-scale-horiz-decr": 0.2,
+  "torso/measure-shoulder-dist-decr": 0.35,
+  "hands/l-hand-fingers-length-incr": 0.4,
+  "hands/r-hand-fingers-length-incr": 0.4,
+  "hands/l-hand-fingers-diameter-decr": 0.3,
+  "hands/r-hand-fingers-diameter-decr": 0.3
+ },
+ "rest_face": {
+  "mouthClose": 0.3
+ }
+}

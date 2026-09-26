@@ -257,6 +257,215 @@
       "clear_margin": 1.0,
       "off_path": true,
       "note": "Phase B (B3): Poly Haven dandelion_01 (CC0) flowering in drifts over the meadow, on the wind."
+    },
+    "brambles": {
+      "mesh": "model:flora_bramble_bush",
+      "max_per_m2": 0.1,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        10,
+        24,
+        45
+      ],
+      "size": [
+        0.9,
+        1.5
+      ],
+      "stiffness": 1.6,
+      "fade_m": 70,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.012,
+        "material_packed_dirt_ground": 0.002
+      },
+      "patches": [
+        {
+          "scale_m": 14,
+          "from": 0.45,
+          "to": 0.7
+        }
+      ],
+      "near_trees": {
+        "add": 0.05,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 1.5,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: bramble thickets round the Charwood's trees and at its clearings' edges."
+    },
+    "mirrorferns": {
+      "mesh": "model:flora_mirrorfern",
+      "max_per_m2": 0.4,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        1.5,
+        2.4
+      ],
+      "stiffness": 1.2,
+      "fade_m": 50,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.03
+      },
+      "near_trees": {
+        "add": 0.22,
+        "from_m": 1,
+        "to_m": 5
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: the ferns under the Charwood's crowns."
+    },
+    "heather": {
+      "mesh": "model:flora_heather_patch",
+      "max_per_m2": 0.25,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        1.6,
+        2.6
+      ],
+      "stiffness": 1.3,
+      "fade_m": 50,
+      "shadows": false,
+      "per_m2": {
+        "material_packed_dirt_ground": 0.05,
+        "material_churned_wet_mud": 0.07,
+        "material_marsh_grass_turf": 0.02
+      },
+      "patches": [
+        {
+          "scale_m": 20,
+          "from": 0.5,
+          "to": 0.72
+        }
+      ],
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: heather in drifts on the open ground and the Foldscar's approach."
+    },
+    "boneleaf": {
+      "mesh": "model:flora_boneleaf_bush",
+      "max_per_m2": 0.05,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        10,
+        24,
+        45
+      ],
+      "size": [
+        0.8,
+        1.3
+      ],
+      "stiffness": 1.5,
+      "fade_m": 65,
+      "shadows": true,
+      "per_m2": {
+        "material_churned_wet_mud": 0.02
+      },
+      "patches": [
+        {
+          "scale_m": 11,
+          "from": 0.55,
+          "to": 0.75
+        }
+      ],
+      "clear_margin": 1.2,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: the pale boneleaf bushes that grow round the Foldscar (setting flora)."
+    },
+    "reeds": {
+      "mesh": "model:flora_cattail_clump",
+      "max_per_m2": 0.5,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        0.7,
+        1.15
+      ],
+      "stiffness": 1.0,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": {},
+      "near_water": {
+        "add": 0.35,
+        "from_m": 0.6,
+        "to_m": 3.0
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: reeds along the Charwood drainage (Terrain3DView.CharwoodStream)."
+    },
+    "rock_clusters": {
+      "mesh": "model:rock_field_cluster",
+      "max_per_m2": 0.05,
+      "chunk_m": 16,
+      "lods_m": [
+        0,
+        15,
+        35,
+        70
+      ],
+      "size": [
+        0.8,
+        2.6
+      ],
+      "stiffness": 1000,
+      "fade_m": 110,
+      "shadows": true,
+      "per_m2": {
+        "material_loose_gravel": 0.02,
+        "material_churned_wet_mud": 0.01,
+        "material_packed_dirt_ground": 0.003,
+        "material_marsh_grass_turf": 0.004
+      },
+      "patches": [
+        {
+          "scale_m": 16,
+          "from": 0.5,
+          "to": 0.72
+        }
+      ],
+      "clear_margin": 1.5,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: scanned rock clusters settled into the quarry spoil, the Foldscar and the meadow."
     }
   }
 }
