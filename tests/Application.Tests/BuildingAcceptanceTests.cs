@@ -48,6 +48,7 @@ public class BuildingAcceptanceTests
         {
             Session = session;
             session.Subscribe<DoorToggled>(Toggled.Add);
+            session.Subscribe<PieceRemoved>(Removed.Add);
             session.Subscribe<PiecePlaced>(Placed.Add);
             session.Subscribe<NavigationRebuilt>(Rebuilt.Add);
             session.Subscribe<RoutePlanned>(Routes.Add);
@@ -58,6 +59,7 @@ public class BuildingAcceptanceTests
         public Simulation Simulation => Session.Simulation!;
         public List<PiecePlaced> Placed { get; } = new();
         public List<DoorToggled> Toggled { get; } = new();
+        public List<PieceRemoved> Removed { get; } = new();
         public List<NavigationRebuilt> Rebuilt { get; } = new();
         public List<RoutePlanned> Routes { get; } = new();
         public List<CompanionCaughtUp> CaughtUp { get; } = new();
@@ -121,6 +123,11 @@ public class BuildingAcceptanceTests
                         var target = interact.Target(Simulation);
                         Assert.True(target is not null, $"{row.Id}: no {interact.DefId} at ({interact.XMm}, {interact.ZMm})");
                         Outcomes[action] = Submit(new InteractCommand(player, target!.Value));
+                        break;
+                    case DismantleAction dismantle:
+                        var piece = dismantle.Target(Simulation);
+                        Assert.True(piece is not null, $"{row.Id}: no {dismantle.DefId} at ({dismantle.XMm}, {dismantle.ZMm})");
+                        Outcomes[action] = Submit(new DismantlePieceCommand(player, piece!));
                         break;
                     case HoldAction hold:
                         Outcomes[action] = (Simulation.WorldTick, null, false);
@@ -302,6 +309,37 @@ public class BuildingAcceptanceTests
         Assert.Equal(0, run.Session.SubscriberFailures);
     }
 
+    /// <summary>
+    /// Step 7: a pad and two walls south of the workshop's door, then a wall closing the vestibule - refused, because with the workshop
+    /// behind it it would seal a walkable pocket (rule V-N1; until E9 names Kera's work place, its words are not asserted), and nothing
+    /// changes; the walls and the pad come down for 1, 1 and 0 timber.
+    /// </summary>
+    [Fact]
+    public void CrossingWorkshop_7_TheVestibuleIsRefused()
+    {
+        using var profile = new TempProfile();
+        var run = new WorkshopRun(LoadS0(profile));
+        var simulation = run.Simulation;
+        run.Through("R23");
+        Assert.All(new[] { "R22", "R23" }.SelectMany(r => run.Row(r).Landed), a => Assert.Null(run.Outcomes[a].Refused));
+
+        var vestibule = (PlaceAction)run.Row("R24").Landed.Single();
+        Assert.Equal(PlacementRule.Navigability, simulation.PreviewPlacement(vestibule.DefId, vestibule.XMm, vestibule.ZMm, vestibule.Rotation,
+            checkNavigability: true).Failed);
+        long refusedBefore = simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1");
+        run.Through("R24");
+        var (_, refused, kept) = run.Outcome("R24");
+        Assert.NotNull(refused);
+        Assert.True(kept, "the refused vestibule changed the state");
+        Assert.Equal(refusedBefore + 1, simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
+
+        run.Through("R25");
+        Assert.All(run.Row("R25").Landed, a => Assert.Null(run.Outcomes[a].Refused));
+        Assert.Equal(new[] { 1, 1, 0 }, run.Removed.Select(r => r.Refund.Sum(c => c.Count)));
+        Assert.DoesNotContain(simulation.Pieces, p => p.ZMm is >= 96_000 and <= 97_500 && p.XMm is >= 99_000 and <= 102_000);
+        Assert.Equal(0, run.Session.SubscriberFailures);
+    }
+
     [Fact]
     public void CrossingWorkshop_9_ANewWallChangesHerWayHome()
     {
@@ -456,7 +494,7 @@ public class BuildingAcceptanceTests
         {
             for (int i = 0; i < 2 && asked < 1_000; i++, asked++)
                 Assert.NotNull(s.PreviewPlacement(defs[asked % defs.Length], 84_000 + asked * 1_500 % 36_000, 84_000 + asked * 3_000 % 36_000,
-                    asked % 4, checkNavigability: false));
+                    asked % 4, checkNavigability: asked % 2 == 0));
         });
         Assert.Equal(1_000, asked);
 

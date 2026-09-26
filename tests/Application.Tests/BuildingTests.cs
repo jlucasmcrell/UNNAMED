@@ -33,6 +33,12 @@ public class BuildingTests
 
     internal static string? Place(Arena arena, string def, long x, long z, int r) => arena.Submit(new PlacePieceCommand(arena.Player, def, x, z, r));
 
+    /// <summary>A pad at (106.5, 100.5) and three walls round it, then the fourth that would close it: reached from (102, 102).</summary>
+    private static readonly (string Def, long X, long Z, int R)[] Hut =
+    {
+        (Pad, 106_500, 100_500, 0), (Wall, 106_500, 99_000, 0), (Wall, 106_500, 102_000, 0), (Wall, 105_000, 100_500, 1), (Wall, 108_000, 100_500, 1),
+    };
+
     private static string? Dismantle(Arena arena, EntityId piece) => arena.Submit(new DismantlePieceCommand(arena.Player, piece));
 
     private static int[] Stacks(Arena arena) =>
@@ -191,6 +197,14 @@ public class BuildingTests
         digest = doors.Simulation.StateDigest();
         Assert.Equal("that doorway already has a door", Place(doors, Door, 100_500, 99_000, 0));
         Assert.Equal(digest, doors.Simulation.StateDigest());
+
+        // Rule 15 (E7): the wall that would close a hut with no way in.
+        foreach (var (def, x, z, r) in Hut.SkipLast(1))
+            Assert.Null(Place(doors, def, x, z, r));
+        digest = doors.Simulation.StateDigest();
+        var (lastDef, lastX, lastZ, lastR) = Hut[^1];
+        Assert.Equal(NavEditCheck.SealedReason, Place(doors, lastDef, lastX, lastZ, lastR));
+        Assert.Equal(digest, doors.Simulation.StateDigest());
         // Rule 1's other half, "dead", is never met at a command boundary: a death and the return to the Waystone are one tick.
     }
 
@@ -235,9 +249,44 @@ public class BuildingTests
                 allowed++;
         }
         Assert.True(allowed >= 5, $"only {allowed} poses were allowed");
-        Assert.Equal(new[] { PlacementRule.Definition, PlacementRule.Rotation, PlacementRule.Lattice, PlacementRule.BuildArea, PlacementRule.Reach, PlacementRule.Slot,
-            PlacementRule.Support, PlacementRule.Terrain, PlacementRule.Authored, PlacementRule.Protected, PlacementRule.Bodies, PlacementRule.PieceCap,
-            PlacementRule.Materials }, failed.Order());
+
+        // Rule 15 (E7) needs room and timber the edited rules do not give: the hut, and its fourth wall, on the game's own rules - the
+        // ghost asked with navigability, as it asks when the pose changes.
+        var hut = Builder(session, (102.0, 102.0));
+        foreach (var (def, x, z, r) in Hut)
+        {
+            var preview = hut.Simulation.PreviewPlacement(def, x, z, r, checkNavigability: true);
+            string? refused = Place(hut, def, x, z, r);
+            Assert.True(preview.Allowed == (refused is null), $"{def} at ({x}, {z}) r{r}: the ghost says {preview.Allowed}, the command {refused ?? "yes"}");
+            Assert.Equal(refused, preview.Reason);
+            Assert.Equal(preview.Allowed ? (def == Pad ? NavVerdict.NotApplicable : NavVerdict.Proven) : NavVerdict.Refused, preview.Navigability);
+            if (preview.Failed is { } rule)
+                failed.Add(rule);
+        }
+        Assert.Equal(Enum.GetValues<PlacementRule>().Where(r => r != PlacementRule.Actor), failed.Order());
+    }
+
+    // L6
+    /// <summary>
+    /// A hut of one square with no way in is refused as its last wall goes up (M7 design §3.13, V-N1), with no protected point in it:
+    /// rooms need a doorway. With a doorway in that side instead, it stands.
+    /// </summary>
+    [Fact]
+    public void ADoorlessOneSquareHut_IsRefused()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Builder(session, (102.0, 102.0));
+        foreach (var (def, x, z, r) in Hut.SkipLast(1))
+            Assert.Null(Place(arena, def, x, z, r));
+        string digest = arena.Simulation.StateDigest();
+        var (_, lastX, lastZ, lastR) = Hut[^1];
+        var preview = arena.Simulation.PreviewPlacement(Wall, lastX, lastZ, lastR, checkNavigability: true);
+        Assert.Equal((false, (PlacementRule?)PlacementRule.Navigability, NavVerdict.Refused), (preview.Allowed, preview.Failed, preview.Navigability));
+        Assert.Equal("that would close off a space with no way in; rooms need a doorway", Place(arena, Wall, lastX, lastZ, lastR));
+        Assert.Equal(digest, arena.Simulation.StateDigest());
+        Assert.Equal(1, arena.Simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
+        Assert.Null(Place(arena, Doorway, lastX, lastZ, lastR));
     }
 
     [Fact]

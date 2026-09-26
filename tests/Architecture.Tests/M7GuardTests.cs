@@ -192,6 +192,7 @@ public class M7GuardTests
         var files = Sources("src/World/Runtime").Concat(Sources("src/Domain/Spatial"))
             .Where(f => f.Path.EndsWith("/BuildingRules.cs", StringComparison.Ordinal) || f.Path.EndsWith("/NavEditCheck.cs", StringComparison.Ordinal)).ToList();
         Assert.Contains(files, f => f.Path.EndsWith("/BuildingRules.cs", StringComparison.Ordinal));
+        Assert.Contains(files, f => f.Path.EndsWith("/NavEditCheck.cs", StringComparison.Ordinal));   // E7
         var hits = Hits(files, new Regex(@"Dispatch\(|Events\.Publish|State\.Set|State\.Place|State\.Remove|Registry\.|NewId")).ToList();
         Assert.True(hits.Count == 0, "The placement rules write:\n" + string.Join("\n", hits));
     }

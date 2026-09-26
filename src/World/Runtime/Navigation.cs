@@ -136,6 +136,18 @@ internal sealed class NavigationSystem
         return null;
     }
 
+    /// <summary>
+    /// Whether an edit keeps the world navigable (M7 design §3.13): the one rule, on the grid as it stands, with the scratch and counter
+    /// sink given - the command path's, or the ghost's own and none. It never writes the grid.
+    /// </summary>
+    internal NavEditVerdict CheckEdit(ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors, ImmutableArray<NavProtectedPoint> points,
+        NavScratch scratch, NavCounterSink? counters)
+    {
+        var verdict = NavEditCheck.Check(Grid, Config, scratch, addSolids, addDoors, points);
+        counters?.CountEditCheck(verdict.Ok ? null : verdict.Rule, verdict.NodesFlooded);
+        return verdict;
+    }
+
     /// <summary>A structure change's key: <c>placed</c>, <c>dismantled</c> or <c>destroyed</c>.</summary>
     public static string KindKey(StructureChangeKind kind) => kind switch
     {

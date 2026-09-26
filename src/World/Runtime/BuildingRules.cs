@@ -22,8 +22,9 @@ internal sealed record PlacementCheck(bool Allowed, PlacementRule? Failed, strin
 
 /// <summary>
 /// The fifteen placement checks (M7 design §4.5), in order; the first failure is returned. One function for the command and the ghost,
-/// so a preview at equal state answers as the command would (§4.6). Check 15, navigability, lands in E7: until then it answers
-/// <see cref="NavVerdict.NotApplicable"/> for pads and roofs and <see cref="NavVerdict.NotChecked"/> otherwise.
+/// so a preview at equal state answers as the command would (§4.6). Check 15, navigability (§3.13), runs only for a piece with a solid
+/// part or a door: <see cref="NavVerdict.NotApplicable"/> for pads and roofs, <see cref="NavVerdict.NotChecked"/> when the ghost does
+/// not ask it, otherwise proven or refused.
 /// </summary>
 internal static class BuildingRules
 {
@@ -117,8 +118,88 @@ internal static class BuildingRules
         if (missing is not null)
             return Refuse(PlacementRule.Materials, missing, bounds, parts, verdict);
 
-        // 15. Navigability: E7.
-        return new PlacementCheck(true, null, null, bounds, parts, takes, verdict);
+        // 15. Navigability: the edit leaves no newly sealed pocket and cuts off no protected point (§3.13).
+        if (verdict == NavVerdict.NotApplicable || !ctx.CheckNavigability)
+            return new PlacementCheck(true, null, null, bounds, parts, takes, verdict);
+        var solids = ImmutableArray.CreateBuilder<NavInput>();
+        var doors = ImmutableArray.CreateBuilder<NavInput>();
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (piece.Parts[i].Traversal == TraversalClass.Solid)
+                solids.Add(new NavInput(NavInputKind.Solid, parts[i], null));
+            else
+                doors.Add(new NavInput(NavInputKind.Door, parts[i], parts[i].Id));
+        }
+        var edit = ctx.Navigation.CheckEdit(solids.ToImmutable(), doors.ToImmutable(), ProtectedPoints(context), ctx.Scratch, ctx.Counters);
+        return edit.Ok
+            ? new PlacementCheck(true, null, null, bounds, parts, takes, NavVerdict.Proven)
+            : Refuse(PlacementRule.Navigability, edit.Reason!, bounds, parts, NavVerdict.Refused);
+    }
+
+    /// <summary>A body's circle and the reach within which a walkable node must stay (§3.13's table).</summary>
+    public const long BodyRadiusMm = 350, SiteReachMm = 1_600;
+
+    /// <summary>
+    /// What an edit must not cut off (M7 design §3.13), in the canonical order that names a sealed pocket: the character and their companions,
+    /// every authored NPC's place, the spawn, everything worked by reaching it, and both approaches of every door. A candidate's own sites
+    /// (chests and stations, E8) and the places NPCs work at (E9) join the list with their pieces and errands.
+    /// </summary>
+    public static ImmutableArray<NavProtectedPoint> ProtectedPoints(SystemContext context)
+    {
+        var state = context.State;
+        var setup = context.Setup;
+        var layout = setup.Layout;
+        var points = ImmutableArray.CreateBuilder<NavProtectedPoint>();
+        static NavRect At(long x, long z) => new(x, z, x, z);
+        string Name(string npcId) => setup.Social.Npcs.TryGetValue(npcId, out var npc) ? npc.Name : npcId;
+
+        points.Add(new NavProtectedPoint("you", NavPointKind.Body, At(state.Body.XMm, state.Body.ZMm), BodyRadiusMm, SiteReachMm));
+        foreach (string npcId in state.Companions.Keys)
+        {
+            if (state.Npcs.TryGetValue(npcId, out var npc))
+                points.Add(new NavProtectedPoint(Name(npcId), NavPointKind.Body, At(npc.Body.XMm, npc.Body.ZMm), BodyRadiusMm, SiteReachMm));
+        }
+        foreach (var site in layout.Npcs.OrderBy(n => n.NpcId, StringComparer.Ordinal))
+            points.Add(new NavProtectedPoint(Name(site.NpcId), NavPointKind.NpcSite, At(site.XMm, site.ZMm), BodyRadiusMm, SiteReachMm));
+        points.Add(new NavProtectedPoint("the waystone", NavPointKind.Spawn, At(layout.Spawn.XMm, layout.Spawn.ZMm), BodyRadiusMm, SiteReachMm));
+
+        NavProtectedPoint Reach(string label, long x, long z) => new(label, NavPointKind.Reach, At(x, z), 0, SiteReachMm);
+        foreach (var c in layout.Containers.OrderBy(c => c.Key, StringComparer.Ordinal))
+            points.Add(Reach(Words(c.Key), c.XMm, c.ZMm));
+        foreach (var c in context.CorpseSites().OrderBy(c => c.Key, StringComparer.Ordinal))
+            points.Add(Reach("the remains", c.XMm, c.ZMm));
+        foreach (var s in layout.Stations.OrderBy(s => s.Key, StringComparer.Ordinal))
+            points.Add(Reach(Words(s.Key), s.XMm, s.ZMm));
+        foreach (var n in layout.Nodes.OrderBy(n => n.Name, StringComparer.Ordinal))
+            points.Add(Reach(Words(n.Name), n.XMm, n.ZMm));
+        foreach (var s in layout.Switches.OrderBy(s => s.Key, StringComparer.Ordinal))
+            points.Add(new NavProtectedPoint(s.Name.Length > 0 ? $"the {s.Name}" : Words(s.Key), NavPointKind.Reach, NavGeometry.Aabb(s.Body), 0, SiteReachMm));
+        var stacks = layout.CellKeys.Select(CellKey.Parse)
+            .SelectMany(cell => state.World.CreatedIn(cell).Select(c => (Position: InventorySystem.WorldPosition(cell, c.XCm, c.ZCm), c.DefId, c.Count)))
+            .OrderBy(s => s.Position.X).ThenBy(s => s.Position.Z).ThenBy(s => s.DefId, StringComparer.Ordinal).ThenBy(s => s.Count);
+        foreach (var (position, defId, _) in stacks)
+            points.Add(Reach(defId, position.X, position.Z));
+
+        foreach (var door in layout.Doors.OrderBy(d => d.Key, StringComparer.Ordinal))
+        {
+            foreach (var (x, z) in NavEditCheck.Approaches(NavGeometry.Aabb(door.ClosedFootprint)))
+                points.Add(new NavProtectedPoint(Words(door.Key), NavPointKind.DoorApproach, At(x, z), 0, NavEditCheck.DoorApproachReachMm));
+        }
+        foreach (var leaf in context.StructureFootprints.Where(f => f.Class == TraversalClass.Door))
+        {
+            string label = state.World.Piece(leaf.PieceId) is { } row && setup.Building.Catalog.Find(row.DefId) is { } piece ? $"the {piece.Name}" : "the door";
+            foreach (var (x, z) in NavEditCheck.Approaches(new NavRect(leaf.MinXMm, leaf.MinZMm, leaf.MaxXMm, leaf.MaxZMm)))
+                points.Add(new NavProtectedPoint(label, NavPointKind.DoorApproach, At(x, z), 0, NavEditCheck.DoorApproachReachMm));
+        }
+        return points.ToImmutable();
+    }
+
+    /// <summary>A key read as words for a refusal: <c>container.timber_stack</c> is "the timber stack", <c>door.forge_shed</c> "the forge shed door".</summary>
+    private static string Words(string key)
+    {
+        int dot = key.IndexOf('.');
+        string tail = (dot >= 0 ? key[(dot + 1)..] : key).Replace('_', ' ').Replace('.', ' ');
+        return key.StartsWith("door.", StringComparison.Ordinal) ? $"the {tail} door" : $"the {tail}";
     }
 
     /// <summary>

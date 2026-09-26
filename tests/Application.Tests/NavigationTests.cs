@@ -148,6 +148,31 @@ public class NavigationTests
         Assert.Equal(108, restamped);
         Assert.True(rebuildMs < 6, $"a one-piece rebuild took {rebuildMs:F3} ms (CI bound 6 ms; ASTRAL target 2 ms)");
 
+        // The placement check (E7, §3.13): after the workshop's first step, the ghost asked with navigability over a wall south of a pad
+        // beside the workshop (open ground: a flood to the seal limit, proven) and over the vestibule's wall (a sealed pocket, refused).
+        var arena = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(arena);
+        Assert.True(arena.WalkTo(100.5, 100.3) && arena.WalkTo(100.5, 94.5), $"the walk out stopped at {arena.Simulation.Player.Body}");
+        foreach (var (def, x, z, r) in new[] { ("piece.pad.timber", 100_500L, 97_500L, 0), ("piece.wall.timber", 99_000L, 97_500L, 1),
+                     ("piece.wall.timber", 102_000L, 97_500L, 1), ("piece.pad.timber", 103_500L, 97_500L, 0) })
+            Assert.Null(BuildingTests.Place(arena, def, x, z, r));
+        arena.Simulation.PreviewPlacement("piece.wall.timber", 103_500, 96_000, 0, checkNavigability: true);   // the scratch's first use, and the JIT
+        var checks = new List<double>();
+        foreach (var (x, z, verdict) in new[] { (103_500L, 96_000L, NavVerdict.Proven), (100_500L, 96_000L, NavVerdict.Refused) })
+        {
+            for (int n = 0; n < 9; n++)
+            {
+                var clock = Stopwatch.StartNew();
+                var preview = arena.Simulation.PreviewPlacement("piece.wall.timber", x, z, 0, checkNavigability: true);
+                checks.Add(clock.Elapsed.TotalMilliseconds);
+                Assert.Equal(verdict, preview.Navigability);
+            }
+        }
+        double checkMedian = checks.Order().ElementAt(checks.Count / 2), checkWorst = checks.Max();
+        _output.WriteLine($"placement checks: median {checkMedian:F3} ms, worst {checkWorst:F3} ms of {checks.Count}");
+        Assert.True(checkMedian < 6, $"the placement check's median is {checkMedian:F3} ms (CI bound 6 ms; ASTRAL target 2 ms)");
+        Assert.True(checkWorst < 30, $"the placement check's worst is {checkWorst:F3} ms (CI bound 30 ms; ASTRAL target 10 ms)");
+
         Assert.Empty(failures);
         Assert.All(all, x => Assert.True(x.Expansions <= config.Limits.MaxExpansions, x.Pair));
         Assert.True(times.Count > 100, $"only {times.Count} pairs");
@@ -395,6 +420,39 @@ public class NavigationTests
         Assert.Contains(planned, p => p.MoverKey == Tavar && p.Reason == NavFollower.Stuck);
         var snag = Assert.Single(caughtUp);
         Assert.Equal((Tavar, "snag"), (snag.NpcId, snag.Reason));
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    // N-A13 (E7: cases (a) and (b); E8 adds (c), the door onto a chest)
+    /// <summary>
+    /// The ROADMAP's "placement validation that rejects un-navigable configurations", on the game's own content after the workshop's
+    /// first step: a one-square hut at (91.5, 91.5) closed from outside is refused with the generic reason; built round the character,
+    /// its last wall is refused as shutting them in. Nothing changes either time.
+    /// </summary>
+    [Fact]
+    public void PlacementIsRefused_WhenNavigationWouldBreak()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var walls = new (string Def, long X, long Z, int R)[]
+        {
+            ("piece.pad.timber", 91_500, 91_500, 0), ("piece.wall.timber", 91_500, 90_000, 0), ("piece.wall.timber", 91_500, 93_000, 0),
+            ("piece.wall.timber", 90_000, 91_500, 1), ("piece.wall.timber", 93_000, 91_500, 1),
+        };
+        foreach (var ((x, z), expected) in new[] { ((95.0, 91.5), "that would close off a space with no way in; rooms need a doorway"),
+                     ((91.5, 91.5), "that would shut you in") })
+        {
+            var arena = BuildingTests.Builder(session, (102.0, 102.0));
+            BuildingTests.WorkshopStepOne(arena);
+            Assert.True(arena.WalkTo(100.5, 100.3) && arena.WalkTo(100.5, 97.0) && arena.WalkTo(x, z), $"the walk out stopped at {arena.Simulation.Player.Body}");
+            foreach (var (def, px, pz, r) in walls.SkipLast(1))
+                Assert.Null(BuildingTests.Place(arena, def, px, pz, r));
+            string digest = arena.Simulation.StateDigest();
+            var last = walls[^1];
+            Assert.Equal(expected, BuildingTests.Place(arena, last.Def, last.X, last.Z, last.R));
+            Assert.Equal(digest, arena.Simulation.StateDigest());
+            Assert.Equal(1, arena.Simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
+        }
         Assert.Equal(0, session.SubscriberFailures);
     }
 

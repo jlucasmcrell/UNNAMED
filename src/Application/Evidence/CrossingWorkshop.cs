@@ -38,6 +38,14 @@ public sealed record InteractPieceAction(string DefId, long XMm, long ZMm, int F
         simulation.Pieces.FirstOrDefault(p => p.DefId == DefId && p.XMm == XMm && p.ZMm == ZMm)?.Id;
 }
 
+/// <summary><c>DismantlePieceCommand</c> on the placed piece of a definition at an anchor (R25: the vestibule taken down).</summary>
+public sealed record DismantleAction(string DefId, long XMm, long ZMm, int From = CrossingWorkshop.E7) : WorkshopAction(From)
+{
+    /// <summary>The piece this action takes down, in a world.</summary>
+    public EntityId? Target(Simulation simulation) =>
+        simulation.Pieces.FirstOrDefault(p => p.DefId == DefId && p.XMm == XMm && p.ZMm == ZMm)?.Id;
+}
+
 /// <summary>A move held for a number of ticks, one <see cref="MoveCommand"/> a tick (R12: north at a walk for 40 ticks).</summary>
 public sealed record HoldAction(MoveIntent Intent, int Ticks, int From = CrossingWorkshop.E5) : WorkshopAction(From);
 
@@ -75,7 +83,7 @@ public static class CrossingWorkshop
     public const int E5 = 5, E6 = 6, E7 = 7, E8 = 8, E9 = 9;
 
     /// <summary>The slices landed so far.</summary>
-    public const int Landed = E6;
+    public const int Landed = E7;
 
     /// <summary>S0's world seed: the playthrough's (<c>Playthrough.Seed</c>, presentation), so both proofs play one world.</summary>
     public const ulong Seed = 0x0A5E_2026_0924_0001;
@@ -133,8 +141,9 @@ public static class CrossingWorkshop
     private static PlaceAction Place(string def, long x, long z, int r) => new(def, x, z, r);
 
     /// <summary>
-    /// The table as far as E6 has built it: rows R00-R06, R09-R14 (the door hung, worked from both sides, and the walk north stopped by
-    /// it), R39-R42, R45 and R46. E7-E9 add the rest, and E9 changes R45's pose (§4.22).
+    /// The table as far as E7 has built it: rows R00-R06, R09-R14 (the door hung, worked from both sides, and the walk north stopped by
+    /// it), R22-R25 (the vestibule refused as unnavigable, and taken down), R39-R42, R45 and R46. E8-E9 add the rest, and E9 changes R45's
+    /// pose (§4.22).
     /// </summary>
     public static readonly ImmutableArray<WorkshopRow> Rows = ImmutableArray.Create(
         Row("R00", 0, null, 0, "S0 loaded"),
@@ -155,6 +164,12 @@ public static class CrossingWorkshop
             new HoldAction(new MoveIntent(0, MoveIntent.FullDeflection, Gait.Walk, 0), 40)),
         RowFrom(E6, "R13", 3, null, 1, "the door opened", TheDoor),
         Row("R14", 3, At(100.5, 101.0, 270), 0, "stop x in [99 200, 99 210], OnCreature false", new AimAction(270_000, 20_000)),
+        RowFrom(E7, "R22", 7, At(100.5, 94.5, 0), 0, "accepted", new PlaceAction(Pad, 100_500, 97_500, 0, E7)),
+        RowFrom(E7, "R23", 7, null, 1, "accepted", new PlaceAction(Wall, 99_000, 97_500, 1, E7), new PlaceAction(Wall, 102_000, 97_500, 1, E7)),
+        RowFrom(E7, "R24", 7, null, 1, "refused Navigability, rule V-N1; E9 text \"that would cut Kera Voss's work place off\"; digest unchanged",
+            new PlaceAction(Wall, 100_500, 96_000, 0, E7)),
+        RowFrom(E7, "R25", 7, null, 1, "refunds 1, 1, 0",
+            new DismantleAction(Wall, 99_000, 97_500), new DismantleAction(Wall, 102_000, 97_500), new DismantleAction(Pad, 100_500, 97_500)),
         Row("R39", 9, At(97.5, 102.0, 270, (100.5, 100.3), (100.5, 97.6), (97.5, 97.0)), 0, "accepted",
             Place(Pad, 97_500, 100_500, 0), Place(Pad, 97_500, 103_500, 0)),
         Row("R40", 9, null, 1, "accepted", Place(Wall, 96_000, 100_500, 1)),

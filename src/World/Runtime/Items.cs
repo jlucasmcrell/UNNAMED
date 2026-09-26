@@ -685,7 +685,7 @@ internal sealed class InventorySystem
         (((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000,
          ((long)cell.Region.Rz * WorldMath.RegionSizeMeters + (long)cell.Cz * WorldMath.CellSizeMeters) * 1000);
 
-    private static (long X, long Z) WorldPosition(CellKey cell, int xCm, int zCm)
+    internal static (long X, long Z) WorldPosition(CellKey cell, int xCm, int zCm)
     {
         var (minX, minZ) = CellOrigin(cell);
         return (minX + xCm * 10L, minZ + zCm * 10L);
