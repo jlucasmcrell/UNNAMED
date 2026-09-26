@@ -51,6 +51,7 @@
 | E1 N-A10 STOP: speed target | The 6 ms walk-home STOP is superseded. Actual M7 mover plans on ASTRAL in Release: ≤ 15 ms target, > 20 ms STOP; also STOP on a repeatable, player-visible planning hitch. Diagnostic pairs are measured and reported, never the mover criterion. Escalation: profile, optimize without changing results, re-measure, then the per-tick plan budget seam; any algorithmic change needs owner review | 2026-09-25 |
 | E2.3 STOP (S9): the fixture pack's `config.navigation` | Option (b). The current fixture pack omits the optional `config.navigation`, so `NavigationContent.Build` uses `NavConfig.Default`, which `NavConfigDefault_IsTheShippedFile` pins to the production file. The writer pack `content-0.1.7` keeps its copy; production `content/config/navigation.yaml` is unchanged; NAV001-NAV007 are unchanged. Options (a), completing the fixture's combat and magic content, and (c), skipping the NAV lint without a tick, are rejected. The ruling covers this optional file only; it is not general permission to omit a required fixture definition | 2026-09-25 |
 | E2.4 STOP (S9/S10): the M6 save's step count | Option (a). The schema-12 save traverses four schema versions and executes three migrations: `Steps.Count == 3`, in order `schema 12 -> 13:`, `schema 13 -> 14:`, `schema 14 -> 15:`, asserted exactly. §7.14's "the fourth of four" was a counting error, corrected to "the third of three". M7 still has exactly one new migration, `SchemaV14ToV15`; no other step, and no save-format change beyond schema 15, is authorized | 2026-09-25 |
+| E3 STOP (S5): `m7_armour` | Option (a): tune the runtime beat only - a mending stop, and an approach to the sentinel's rear using movement the authoritative perception rules treat as quiet. Nothing about the sentinel, combat, the character, content, factions or the encounter changes; no teleport, disabled hearing, paused AI or forced awareness. Pre-authorized fallback to option (b) if one reasonable tuned version still dies, or if the rules make an undetected rear approach impossible. The Phase-1 async-save flake stays a recorded local risk, not an E3 edit | 2026-09-26 |
 
 ## Slices
 
@@ -59,7 +60,7 @@
 | E0 | The rulings on paper | done | `b0846a5`, `3515f03`, `13a5cca` | 825 (unchanged) | 102 | Documents only. Draft PR #8 CI green (`build-and-test`, run 36178835111) |
 | E1 | Navigation you can see | done | `521d7d0` (E1.1), `f279a4d` (E1.2), `7766e95` and `9e2a7f1` (E1.3), `355fda5` (E1.4) | 867: Domain 161, Application 206, Persistence 173, Content 160, World 64, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at N-A10, resolved by the owner's ruling the same day (below). See "E1 evidence" |
 | E2 | Schema 15, landed once | done | `d17a67e` (E2.1), `f7931e1` (E2.2), `e5f221d` (E2.3), `fd12b6c` (E2.4), `8ff394b` (E2.5) | 899: Domain 162, Application 209, Persistence 198, Content 160, World 67, Presentation 57, EntityRegistry 23, Architecture 23 | 103 | Stopped at E2.3 (S9) and E2.4 (S9/S10), both resolved by the owner the same day. See "E2 evidence" |
-| E3 | Factions v1 | **stopped** (S5, `m7_armour`) | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4) | 952 at E3.4: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | See "STOP - E3.5, S5 (`m7_armour`)" |
+| E3 | Factions v1 | done | `a36d286` (E3.1), `c7e088d` (E3.2), `8dea83a` (E3.3), `f922db0` (E3.4), E3.5, E3.6 | 952: Domain 169, Application 229, Persistence 198, Content 183, World 67, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | Stopped at `m7_armour` (S5), resolved by the owner (option (a), the beat tuned). See "E3 evidence" |
 | E4 | Companion routes and opened doors | - | | | 106 | |
 | E5 | Build mode: pads, walls, doorways, roofs | - | | | 113 expected | |
 | E6 | Piece doors | - | | | 114 expected | |
@@ -294,6 +295,23 @@ The 11 -> 12, 12 -> 13 and 13 -> 14 steps write the frozen shapes, and `SchemaV1
 - The region layout (authored structures, doors and barriers) is outside the baseline hash (`src/World/Generation.cs:144-162`), so a later layout edit under a placed piece is not caught by the baseline proof. The structure audit reports it (unscheduled).
 - `StateDump.Order` sorts arrays of objects by content, so route corners and trail marks are order-checked only by the raw dump and the digests.
 
+## E3 evidence (2026-09-26, the machine that ran E1 and E2)
+
+| Proof | Result |
+|---|---|
+| `dotnet build src/UNNAMED.sln` | 0 errors; the one warning is the pre-existing `MagicContent.cs(165,21)` CS8602 |
+| `dotnet test src/UNNAMED.sln` | 952 passed, 0 failed (the Phase-1 async-save flake did not fire in this run; see the local risks) |
+| Content lint | 106 definitions, 0 errors |
+| `--smoke` (headless) | PASS; its save/load digest identical |
+| `--quit-after 300` (headless) | exit 0 |
+| `--build-shots` | exit 0 (b01, b02) |
+| `--playthrough` then `--playthrough-verify` | every beat passed (523 s), the six faction beats included; verify: **1,080 fields**, 0 differences. Over E2's 968: the ledger's 37 (two acts, three knowledge rows, one standing row), and the rest from Kera's wares record, the bought billet, and the new dialogue memory and relationship rows |
+| A second `--playthrough` | `state_replay.json` byte-identical, SHA-256 `5023c13aa3a59ed96230661a0e4d9c62a907962648d32a6bc715ead5ec97ee74` |
+| `SubscriberFailures` | 0 in both runs. `Main` pushes an error for every handler that throws ("a handler for ... threw"), and both playthrough logs hold 0 error lines |
+| `--ui-shots`, `--delta-shots` | both exit 0 (295 s, 160 s), 0 error lines |
+| The faction beats | `m7_wait`, `m7_billet_refused` (refused with "Kera Voss will not sell you that"; no billet listed), `m7_armour`, `m7_tell_kera` (the Waystation 0 -> 100, neutral -> accepted, act 2 via Kera; one billet bought for 20 coin; Kera's respect and trust unchanged), `m7_tell_sel_tavar` (the Survey 0 -> 100 on act 1; Sel's trust +5 only; `notes` offered), `m7_tell_sel_armour` (the Survey 100 -> 0 on act 2; `notes` closed; the HUD line "The Survey: neutral (-100), told to Sel Arien"; Sel's trust unchanged). Stills `22_armour_down` to `25_factions_f6`. M6's transcript rows appear in order, with only M7 rows added |
+| The armour, measured | At the step in, the sentinel is `suspicious`, awareness 60 (it heard the last walking step), facing 256° (it had turned 14° from 242°), 2.68 m away; the character at 120/120 health after the mending stop. The character killed it and ended at 27/120. `CreatureKilled` names the character; act 2 was recorded; no faction learned of it until Kera was told |
+
 ## E2 evidence (E2.4 + E2.5, 2026-09-25, ASTRAL)
 
 | Proof | Result |
@@ -354,6 +372,23 @@ The beats before it passed: `m7_wait`, and `m7_billet_refused` (the raw buy refu
 
 **State at the STOP.** E3.1-E3.4 are committed and pushed: the domain rules, the content and FAC001, the runtime with its gates and guards, and the generated reputation table. E3.5 (F6, the HUD line and the beats) and E3.6 (the documents) are written and uncommitted in the worktree, backed up at `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\drafts\wip\E3.5-6_wip_2026-09-25.patch`. With them, 952 tests pass and the Presentation build is clean. The E3 runtime gate did not run past the first playthrough.
 
+## Owner ruling on the E3 STOP (2026-09-26)
+
+The owner chose option (a). What the current rules say, verified in code before tuning:
+- The character's footfalls are a `Noise` whose carry is set by gait alone (`CreatureSystem.PlayerNoises`, `config.creature_behaviour` `noise_m`): walk 3 m, run 8 m, sprint 16 m. A body that is not moving makes none. A swing's windup and active phases carry 10 m, whatever the gait.
+- A creature hears a noise within both the noise's carry and its own hearing (`Perception.Hears`). The sentinel's hearing is 18 m, so a run is heard at 8 m and a walk at 3 m. Hearing sets awareness to 60 (`heard_noise`) and gives it a place to look, never the target itself. It engages only once it sees the character at full awareness, and it turns at 90° a second.
+- The spear lands within 2.7 m of the sentinel's centre (reach 2.4 m, plus its 0.45 m body, less the 0.15 m margin `Engage` keeps). So no approach reaches striking range entirely unheard: the last 0.3 m of a walk is audible. The rules still let a walker be heard a fraction of a second before the first swing, rather than a second or more as a run was.
+
+**The tuned beat, as built.** The beat, in order:
+1. `HomeToTheSmithy` reversed to (54, 74), then `ToTheArmour` (58, 55), both as before.
+2. A run to 12 m behind the sentinel along its facing. The whole leg stays outside its 100° sight cone and at least 11.2 m from it, beyond a run's 8 m.
+3. A mending stop: the mending formula, or a salve, until nine tenths of health, or until nothing more can be worked without strain costing health.
+4. A walk to 3.1 m behind it, beyond a walk's 3 m.
+5. The last step in, at a walk.
+6. `Engage`, unchanged.
+
+Nothing in the game changed: the sentinel, combat, the character, the content and the encounter are as shipped. The first run of the tuned beat passed: the armour was killed by the character, act 2 was recorded, and no faction learned of it until Kera was told. The measured awareness at the step in, and the character's health before and after, are in the E3 evidence below. The fallback, option (b), was not needed.
+
 ## Scope ledger
 
 Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase or a design row. Deviations and as-built readings are listed here as they arise.
@@ -400,3 +435,15 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 ## Residues and deferrals
 
 See §5.19 and §16. They are recorded here as each slice lands.
+
+| Slice | Residue |
+|---|---|
+| E3 | A companion's kill is not the character's act: if Tavar lands the killing blow, nothing can be reported |
+| E3 | No history before M7: a migrated save starts with an empty act log and every faction neutral, whatever it had already done |
+| E3 | A Kera wares container already traded with before M7 is a persisted record that never re-reads stock, so it never shows the billets. A Kera bought fully out under a pre-audit build left no record, so it shows the full authored stock, billets included, until bought out again (M-01) |
+| E3 | Knowledge is pooled at once (K6): Kera, told at the bench about 62 m from the seat, moves the Waystation at that tick (D30). Unobservable in shipped content |
+| E3 | Every faction learns by report; NPCs do not notice deeds on their own until M9's witnessed channel |
+| E3 | Relevance is fixed at boot; an act evicted from the 256-act log can no longer be reported |
+| E3 | All new dialogue text is DRAFT for the owner's tone review; Sel's `notes` line is a lore hook the owner may reject |
+| E3 | The live tier reaches the character only through the HUD line and F6 (no faction screen in M7) |
+| E3 | `o_ore` and `o_billet` (Quest 1) are `acquire_item` objectives with `or_item_refs`: once the Waystation is accepted, a bought billet satisfies both - reachable only after the armour kill and a report. `o_spear` still needs the anvil (C-01) |

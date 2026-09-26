@@ -46,6 +46,7 @@ public partial class HelpPanel : CanvasLayer
     {
         ("Debug overlay (with the aim line)", new[] { "debug_overlay" }), ("Quest debugger", new[] { "quest_debug" }),
         ("Navigation debug (the grid and its gates)", new[] { "build_debug" }),
+        ("Faction debug", new[] { "faction_debug" }),
     };
 
     /// <summary>The sections in the left column; the rest, and the developer's keys, go in the right, so the whole list fits the screen.</summary>

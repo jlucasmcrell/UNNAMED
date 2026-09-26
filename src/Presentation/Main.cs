@@ -53,6 +53,7 @@ public partial class Main : Node3D
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
     private StructureDebugPanel _structureDebug = null!;
+    private FactionDebugPanel _factionDebug = null!;
     private NavigationOverlay _navOverlay = null!;
     private BuildDebugStage _buildDebug;
     private CharacterPanel _character = null!;
@@ -233,6 +234,8 @@ public partial class Main : Node3D
         AddChild(_questDebug);
         _structureDebug = new StructureDebugPanel { Name = "StructureDebug" };
         AddChild(_structureDebug);
+        _factionDebug = new FactionDebugPanel { Name = "FactionDebug" };
+        AddChild(_factionDebug);
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
@@ -307,7 +310,7 @@ public partial class Main : Node3D
         {
             // One tick a frame, at the tick rate: the run is the same every time, and plays in real time (toasts and all).
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued, ShowFactions);
         }
         else if (buildShots is not null)
         {
@@ -715,6 +718,8 @@ public partial class Main : Node3D
         }
         if (Input.IsActionJustPressed("build_debug"))
             SetBuildDebug(_buildDebug == BuildDebugStage.Off ? BuildDebugStage.Navigation : BuildDebugStage.Off);
+        if (Input.IsActionJustPressed("faction_debug"))
+            ShowFactions(!_factionDebug.Visible);
         if (modal)
         {
             // Nothing reaches the world: the character stands, and lowers a raised guard.
@@ -953,6 +958,7 @@ public partial class Main : Node3D
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
+        _factionDebug.Refresh(_session, delta);
         if (_buildDebug != BuildDebugStage.Off)
         {
             _navOverlay.Draw(simulation.Navigation, feet, delta);
@@ -1112,6 +1118,17 @@ public partial class Main : Node3D
         });
         _session.Subscribe<RelationshipChanged>(e =>
             _hud.Log($"{_session.DisplayName(e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
+        // Factions (M7 design §8.10, §8.13): a reported change is a log line in the regard style; everything else is F6's.
+        string FactionName(string id) => _session.Simulation?.Factions.FirstOrDefault(f => f.Id == id)?.Name ?? id;
+        _session.Subscribe<ActRecorded>(e => _factionDebug.Note($"act #{e.Seq} {e.Kind} {e.Subject} at tick {e.Tick}"));
+        _session.Subscribe<FactionLearned>(e =>
+            _factionDebug.Note($"{FactionName(e.FactionId)} learned act #{e.ActSeq} ({e.Source} via {e.Via ?? "(none)"}, {e.Identity}{(e.Upgraded ? ", upgraded" : "")})"));
+        _session.Subscribe<ReputationChanged>(e =>
+        {
+            _factionDebug.Note($"{FactionName(e.FactionId)}: {e.From} -> {e.To}, {e.TierFrom} -> {e.TierTo} (act #{e.ActSeq})");
+            if (e.Source == UNNAMED.Domain.Factions.KnowledgeSources.Reported)
+                _hud.Log(FactionLines.Reported(e, FactionName(e.FactionId), e.Via is { } via ? _session.DisplayName(via) : "(nobody)"));
+        });
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
@@ -1438,6 +1455,13 @@ public partial class Main : Node3D
     /// F2 (M7 design §8.14): the structure and navigation debugger, off or on at its stage. E1 has one stage, navigation: the grid drawn in
     /// the world, and the panel.
     /// </summary>
+    /// <summary>F6 on or off (M7), redrawn at once.</summary>
+    private void ShowFactions(bool show)
+    {
+        _factionDebug.Visible = show;
+        _factionDebug.Refresh(_session, 0, now: true);
+    }
+
     private void SetBuildDebug(BuildDebugStage stage)
     {
         _buildDebug = stage;
@@ -1551,6 +1575,7 @@ public partial class Main : Node3D
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
         Bind("build_debug", Key.F2);
+        Bind("faction_debug", Key.F6);
         Bind("journal", Key.J);
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
