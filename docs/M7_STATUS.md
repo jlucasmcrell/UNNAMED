@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E6 done (2026-09-26); E7 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** in progress. E0-E7 done (2026-09-26); E8 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -65,7 +65,7 @@
 | E4 | Companion routes and opened doors | done | `ebf1012` (E4.1), `e1686e7` (E4.2), `d7acca4` (E4.3), `9d76d77` (E4.4), and the status commit | 962: Domain 175, Application 232, Persistence 198, Content 183, World 68, Presentation 57, EntityRegistry 23, Architecture 26 | 106 | No STOP. Closes criterion 5 (N-D10 with E1's N-D9 and N-W1); criterion 7 has all but N-A12 (E5). See "E4 evidence" |
 | E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
 | E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
-| E7 | Navigable by construction | - | | | 114 | |
+| E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
 | E8 | Chest, bench, blows and mending | - | | | 116 expected | |
 | E9 | Kera works at your bench | - | | | 116 | |
 | E10 | Evidence and closeout | - | | | 116 | |
@@ -338,6 +338,23 @@ The owner chose option (b) and amended BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
 
+## E7 evidence (2026-09-26, the machine that ran E1-E6)
+
+| Proof | Result |
+|---|---|
+| `dotnet test src/UNNAMED.sln` | 1,018 tests: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32. All pass but the recorded Phase-1 `AsyncSaveTests` flake, which failed in both full-solution runs and in one of two Application-only runs, and passes alone every time (the local risk below) |
+| Content lint | 114 definitions, 0 errors: BLD008 accepts the shipped area |
+| `--smoke`, `--quit-after 300` (headless) | PASS (save/load digest identical; 911 display-server lines, as before); exit 0 |
+| `--build-shots` (from S0) | every beat passed, b14 among them: from (100.5, 94.5) a pad and two walls south of the door; the ghost of the wall across the vestibule red, and its status the command's refusal in words; the command refused, counted by the command path as rule V-N1, in the words "that would close off the Timber Door" (the door's approach is the first protected point in the pocket, as §4.22 foresaw for E7); the walls and the pad taken down for 1, 1 and 0 timber. Step 1: 17 / 25 / 17; the table's end: 21 pieces, 11 timber carried, sequence 27; `SubscriberFailures` 0 |
+| `--build-shots-verify` | v1: **1,376 fields**, 0 differences; v2: **1,370 fields**, 0 differences; digests equal |
+| A second `--build-shots` | `state_replay.json` byte-identical, SHA-256 `4fa4a82893cb4a318507a2f50e4acf37f84445aa822af9ec779d20498be95611` |
+| `piece:*` art coverage (R16) | 5 of 5 piece entries fall back to greybox: reported, not allowlisted |
+| `--playthrough`, verify, a second run | every beat passed (554 s); verify **1,182 fields**, 0 differences; `state_replay.json` byte-identical, SHA-256 `1c4788615d6820be719acf207d66f450a094e6e657399e41489b901b0580d343` (E5's and E6's); the transcript is E6's row for row but the save's run-specific raw digest |
+| `--ui-shots`, `--delta-shots`, `--input-check`, `--layout-check` (both sizes) | all PASS, 0 error lines |
+| The check's budget (N-A10, this machine) | Release: median **1.04 ms**, worst **1.72 ms** over a proven wall and the refused vestibule (targets 2 ms and 10 ms; the STOP is a worst over 10 ms); Debug: median 2.2 ms (the CI bound is 6 ms, three times the target) |
+| Tests E7 adds | N-D19 `EditCheck_Rules`, N-D20; BLD008's two refusals; `EachPlacementRule` rule 15; `ADoorlessOneSquareHut_IsRefused`; preview parity over all fifteen rules; `PreviewsInterleaved_ChangeNothing` asking navigability; `CrossingWorkshop_7_TheVestibuleIsRefused`; N-A13 (a) and (b); N-A10's check timings; G7 over `NavEditCheck.cs` |
+| STOPs | none: the worst check is 1.72 ms; BLD008 accepts the shipped area; preview and command agree everywhere they are compared |
+
 ## E6 evidence (2026-09-26, the machine that ran E1-E5)
 
 | Proof | Result |
@@ -566,6 +583,14 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E6 | The view test | Its sessions load `builder_start`, the start with four timber taken first: taking from an untouched container mints the stack's IDs, which the two sessions would not share. The door segment runs before the random script, from the longhouse door to the crossing and back |
 | E6 | `--build-shots` | b06 is `b06_roofs_and_door`. The eye check skips an open door's leaf, which has swung out of its shut box. b09 asserts the leaf's drawn position through `StructuresView.LeafCentre` |
 | E6 | The door prompt | "[E] Open the Timber Door": `Main.Describe(session, key)` names a `pce_` key by its definition |
+| E7 | V-N1's seeds | The ring round the edit, as §3.13 says: a new pocket borders the change, and a placement is one piece. N-D19's doorless hut is three walls standing and the fourth added; four walls added in one edit would enclose their pocket inside the ring, which no placement can do |
+| E7 | Naming the pocket | A protected point is in a pocket when its nearest walkable node after the edit, within its reach (by distance, then j, then i), lies in it |
+| E7 | V-N2 (b) | Asked only where the edit can lower walkability: where the point's reach meets the added solids grown by the largest planning radius. Fits change nowhere else, so the verdict is the same |
+| E7 | The points' words | "you"; the NPCs' names; "the waystone"; containers, stations, nodes and switches by their keys in words ("the timber stack"); corpses "the remains"; ground stacks by their item's definition, which presentation's words turn into its name; authored doors "the forge shed door"; placed doors "the Timber Door". The candidate's own sites (E8) and work places (E9) join with their pieces and errands |
+| E7 | The refusal's rule | §6's `PlacementPreview` carries no rule, so the tests (and b14) read V-N1 from the command path's `EditRefusalsByRule` |
+| E7 | The check's cost | Its first version measured a 4.1 ms median and an 18 ms worst in Release; the flood's inner loop was then tightened (the scratch arrays held directly, neighbours by index, the second flood stamped in the scratch, V-N2 (b) only where affected) with every verdict unchanged, to the figures above. `NavScratch` gains `Before`, the second flood's stamps |
+| E7 | Preview parity over rule 15 | The forty poses stay on the edited rules; the hut and its fourth wall follow on the game's own, which have the room and the timber for it |
+| E7 | BLD008's cost | About 43 ms a content load in Debug (a second grid of the region and two floods from the spawn): 215 to 259 ms |
 | E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
 
 ## Local risks (not promoted to RISK_REGISTER)
@@ -575,7 +600,7 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | Tier hysteresis is unsaved but gates the companion and creatures (owed before M9) | §15, R-X18 |
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
 | Kera's walk-home plan is modelled at about 4.6 ms on ASTRAL, one plan over the 4 ms tick | §3.18, §14; measured in E9 |
-| `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, 1 of 3 with `FactionTests` excluded, and 1 of 1 at E5.6 (then 3 of 3 alone). It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
+| `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, 1 of 3 with `FactionTests` excluded, 1 of 1 at E5.6 (then 3 of 3 alone), and at E7 2 of 2 full-solution runs and 1 of 2 Application-only runs (every boot now also runs BLD008). It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
 | `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so at a convex corner a body can sit under 1 mm inside contact (Phase 1). E9's step 6 asserts Kera `IsClear` every tick, which is strict, and her route turns corners inside the workshop | Here; measured in E9 against the rows it would fail, before any change |
 
 ## Residues and deferrals
@@ -601,3 +626,4 @@ See §5.19 and §16. They are recorded here as each slice lands.
 | E5 | The vestibule and every sealing refusal wait for E7's check 15 |
 | E6 | NPCs never close doors: a door Tavar opens stays open until the character shuts it. No locks or keys |
 | E6 | Every door is passable to a door-opening mover whoever owns it: a foreign door (a crafted save only) stalls the companion to his snag catch-up (G26) |
+| E7 | The check treats every door and barrier as passable: a room whose only way in is a door is open, whoever may open it |

@@ -57,6 +57,7 @@ public sealed class BuildShots
     private readonly List<CompanionCaughtUp> _caughtUp = new();
     private readonly List<string> _toasts = new();
     private readonly List<DoorToggled> _toggled = new();
+    private readonly List<PieceRemoved> _removed = new();
     private readonly List<long> _walkNorth = new();
     private readonly List<Action> _checks = new();
     private readonly List<(long Tick, string Row)> _rowStarts = new();
@@ -108,6 +109,11 @@ public sealed class BuildShots
         {
             _placed.Add(e);
             Row($"`PiecePlaced` {e.DefId} at ({e.XMm}, {e.ZMm}) r{e.Rotation}, sequence {e.Revision}", e.Tick);
+        });
+        session.Subscribe<PieceRemoved>(e =>
+        {
+            _removed.Add(e);
+            Row($"`PieceRemoved` {e.DefId}, refund {e.Refund.Sum(c => c.Count)}, sequence {e.Revision}", e.Tick);
         });
         session.Subscribe<NavigationRebuilt>(e =>
         {
@@ -257,6 +263,10 @@ public sealed class BuildShots
                 600, true, () => Steps(ExitBuildMode, () => Play("R10"), () => Then(() => DoorIs(true, "R10")), () => Play("R11"),
                     () => Then(() => DoorIs(false, "R11")), () => Play("R12"), StoppedByTheDoor, () => Play("R13"), () => Then(() => DoorIs(true, "R13")),
                     () => Play("R14"), AimStopsAtTheWall, () => Look(90, 4f))),
+            new Beat("b14_vestibule", "South of the door, a pad and two walls; the wall that would close the vestibule refused as unnavigable - the red ghost and the toast say why - then all taken down for 1, 1 and 0 timber",
+                600, false, () => Steps(() => Play("R22"), () => Play("R23"), () => Then(() => ExpectAccepted("R22", "R23")), VestibuleGhost, () => Play("R24"),
+                    () => Then(VestibuleRefused), () => Look(0, CameraRig.BuildMaxDistance), () => Still("b14_vestibule"), ExitBuildMode, () => Play("R25"),
+                    () => Then(VestibuleDown))),
             new Beat("b17_route_west", "West of the workshop: two pads and a wall; the second wall refused while the character stands on its line, then placed",
                 1_500, true, () => Steps(() => Play("R39"), () => Play("R40"), () => Play("R41"), () => Then(StandingOnTheLine), () => Play("R42"),
                     () => Then(TheLineAtX96), () => Look(90, CameraRig.MaxDistance, BuildDebugStage.Navigation))),
@@ -415,6 +425,49 @@ public sealed class BuildShots
         _build.ScriptedAim = null;
         _build.Exit(_camera);
         return true;
+    }
+
+    private (BuildTone Tone, string? Status, long Refusals) _vestibuleGhost;
+
+    /// <summary>b14: build mode, the wall chosen and aimed across the vestibule's open side; the ghost, asked with navigability, refuses.</summary>
+    private bool VestibuleGhost()
+    {
+        if (_phase == 0)
+        {
+            Expect(_build.Enter(_camera), "build mode would not open");
+            Aim(Wall, 100_500, 96_000);
+            _phase = 1;
+        }
+        if (++_phase < 12)
+            return false;
+        _vestibuleGhost = (_build.Tone, _build.Status, _session.Simulation!.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
+        Expect(_build.Tone == BuildTone.Refused, $"the vestibule wall's ghost is {_build.Tone}, not refused");
+        return _broken is null;
+    }
+
+    /// <summary>
+    /// The command refuses as the ghost did, in the same words, as an unnavigable edit (rule V-N1, counted by the command path; E9 names
+    /// Kera's work place), and nothing is built.
+    /// </summary>
+    private void VestibuleRefused()
+    {
+        var simulation = _session.Simulation!;
+        string? refused = Outcome("R24");
+        Expect(refused is not null, "the vestibule wall was placed");
+        string words = $"Timber Wall: {BuildMode.Words(_session, refused ?? "")}";
+        Expect(_vestibuleGhost.Status == words, $"the ghost said \"{_vestibuleGhost.Status}\", the command \"{words}\"");
+        Expect(_toasts.Any(t => t.Contains(BuildMode.Words(_session, refused ?? "?"), StringComparison.Ordinal)), "no toast said why");
+        Expect(simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1") == _vestibuleGhost.Refusals + 1,
+            "the command's refusal was not counted as rule V-N1");
+        Expect(!simulation.Pieces.Any(p => p.XMm == 100_500 && p.ZMm == 96_000), "a wall stands across the vestibule");
+        Row($"R24: the vestibule refused - \"{refused}\"", simulation.WorldTick);
+    }
+
+    private void VestibuleDown()
+    {
+        ExpectAccepted("R25");
+        Expect(_removed.TakeLast(3).Select(r => r.Refund.Sum(c => c.Count)).SequenceEqual(new[] { 1, 1, 0 }),
+            $"the vestibule came down for {string.Join(", ", _removed.TakeLast(3).Select(r => r.Refund.Sum(c => c.Count)))} timber, not 1, 1, 0");
     }
 
     /// <summary>The door as a row left it, and who worked it: the character.</summary>
@@ -606,6 +659,10 @@ public sealed class BuildShots
                 _tavarLast = null;
                 _tavarPassed = false;
                 break;
+            case DismantleAction dismantle:
+                var piece = dismantle.Target(simulation) ?? throw new InvalidOperationException($"{row.Id}: no {dismantle.DefId} at ({dismantle.XMm}, {dismantle.ZMm})");
+                _controller.Dismantle(piece);
+                break;
             case InteractPieceAction interact:
                 var target = interact.Target(simulation) ?? throw new InvalidOperationException($"{row.Id}: no {interact.DefId} at ({interact.XMm}, {interact.ZMm})");
                 _controller.Interact(target.Value);
@@ -639,8 +696,8 @@ public sealed class BuildShots
     {
         var action = LandedRows.Single(r => r.Id == rowId).Landed.ElementAt(index);
         long tick = _appliedAt[action];
-        return _session.Simulation!.CommandLog.Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand)
-            .RejectedReason;
+        return _session.Simulation!.CommandLog
+            .Last(e => e.Tick == tick && e.Command is PlacePieceCommand or OrderCompanionCommand or InteractCommand or DismantlePieceCommand).RejectedReason;
     }
 
     private void ExpectAccepted(params string[] rows)
