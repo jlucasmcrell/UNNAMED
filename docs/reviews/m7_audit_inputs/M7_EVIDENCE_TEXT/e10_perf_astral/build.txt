@@ -1,0 +1,11 @@
+G:\UNNAMED_M7\src\Content\MagicContent.cs(165,21): warning CS8602: Dereference of a possibly null reference. [G:\UNNAMED_M7\src\Content\Content.csproj]
+G:\UNNAMED_M7\src\Presentation\Player\BuildMode.cs(46,16): warning CS0108: 'BuildMode.Rotation' hides inherited member 'Node3D.Rotation'. Use the new keyword if hiding was intended. [G:\UNNAMED_M7\src\Presentation\UNNAMED.Presentation.csproj]
+
+Build succeeded.
+
+G:\UNNAMED_M7\src\Content\MagicContent.cs(165,21): warning CS8602: Dereference of a possibly null reference. [G:\UNNAMED_M7\src\Content\Content.csproj]
+G:\UNNAMED_M7\src\Presentation\Player\BuildMode.cs(46,16): warning CS0108: 'BuildMode.Rotation' hides inherited member 'Node3D.Rotation'. Use the new keyword if hiding was intended. [G:\UNNAMED_M7\src\Presentation\UNNAMED.Presentation.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.28

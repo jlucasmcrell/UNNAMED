@@ -1,0 +1,2024 @@
+{
+  "world_tick": 3894,
+  "player": {
+    "Id": "chr_01M3ECYY5671G34HVWKQXPQ463",
+    "Name": "Wanderer",
+    "XMm": 102000,
+    "YMm": 6444,
+    "ZMm": 102000,
+    "AppearanceSeed": 768699976060672442,
+    "Inventory": [
+      {
+        "ItemId": "itm_01M3ECYY57246EQD0YXMZB15FZ",
+        "DefId": "item.consumable.salve_minor",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm_01M3ECYY57GBRT5T0ESWEP7JD0",
+        "DefId": "item.tool.water_flask",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm_01M3ECYY57TCC0QCNBPAEF3GSD",
+        "DefId": "item.weapon.rusted_sword",
+        "Count": 1,
+        "Quality": 0
+      },
+      {
+        "ItemId": "itm_01M3FENDXPMQJY7W22VYJS5KPJ",
+        "DefId": "item.weapon.march_spear",
+        "Count": 1,
+        "Quality": 0
+      }
+    ],
+    "Progression": {
+      "Level": 1,
+      "LevelProgressXp": 40,
+      "XpDebt": 0,
+      "LifetimeXp": {
+        "Production": 40
+      },
+      "Allocation": {},
+      "UnspentAttributePoints": 0,
+      "Grants": [],
+      "Skills": {
+        "skill.smithing": {
+          "Level": 1,
+          "ProgressXp": 22
+        }
+      },
+      "Known": {
+        "recipe.smithing.march_spear": {
+          "Source": "Teacher",
+          "SourceRef": "npc.ashen_hollow.kera_voss",
+          "Tick": 0
+        }
+      },
+      "ProductionFirsts": [
+        "item.weapon.march_spear"
+      ],
+      "NoveltyFirsts": [
+        "item.weapon.march_spear"
+      ],
+      "Pools": {
+        "Health": null,
+        "Stamina": null,
+        "Focus": null,
+        "Strain": 0
+      },
+      "Guards": {
+        "SpeciesToday": {},
+        "SpeciesEverKilled": [],
+        "ClusterKills": {}
+      },
+      "Digest": "sha256:02a794b571e87c71cf9c15ff2a8fc363027fd5f3b80302522a28aa06472e1947"
+    },
+    "FacingMdeg": 0,
+    "Discoveries": [
+      {
+        "LocationId": "location.outpost",
+        "Method": "Visited",
+        "Tick": 637
+      }
+    ],
+    "Equipment": {
+      "MainHand": "itm_01M3ECYY57TCC0QCNBPAEF3GSD"
+    },
+    "Currency": 0,
+    "Effects": [],
+    "Relationships": [],
+    "Conversations": [],
+    "Quests": [],
+    "Companions": [
+      {
+        "NpcId": "npc.ashen_hollow.tavar_orr",
+        "Order": "Follow",
+        "Condition": "Up",
+        "XMm": 100754,
+        "ZMm": 99891,
+        "FacingMdeg": 30575,
+        "Health": 100,
+        "DownedTick": 0,
+        "StuckTicks": 0,
+        "LastCombatTick": 2852,
+        "Trail": [
+          {
+            "XMm": 102000,
+            "ZMm": 102000
+          }
+        ],
+        "Route": {
+          "Status": "None",
+          "GoalXMm": 0,
+          "GoalZMm": 0,
+          "Corners": [],
+          "PlannedTick": 0,
+          "Stamp": 0,
+          "Watch": {
+            "MinXMm": 0,
+            "MinZMm": 0,
+            "MaxXMm": 0,
+            "MaxZMm": 0
+          },
+          "Partial": false
+        }
+      }
+    ],
+    "Posture": {
+      "Stance": "Standing",
+      "Airborne": false,
+      "AirMs": 0
+    },
+    "Factions": {
+      "NextActSeq": 1,
+      "Acts": [],
+      "Knowledge": [],
+      "Standing": []
+    },
+    "Vitals": {
+      "LastCombatTick": -1000000,
+      "LastExertionTick": 2644,
+      "LastCastTick": -1000000,
+      "HealthMilli": 0,
+      "StaminaMilli": 0,
+      "FocusMilli": 0,
+      "StrainMilli": 0,
+      "SprintMilli": 0
+    },
+    "Digest": "sha256:56b9df74ea65d8a515f788d239d2d37fe892c5eddeeaa2634ffba7896668c658"
+  },
+  "world": {
+    "Cells": [
+      {
+        "CellKey": "r_0_0:c_00_01",
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DirtyReasons": [
+          "flags"
+        ],
+        "Flags": [
+          {
+            "Key": "world.hollow.forge_shed_door_open",
+            "Value": 1
+          }
+        ],
+        "HarvestedNodes": [],
+        "PopulationAlive": []
+      }
+    ],
+    "Entities": [],
+    "Created": [],
+    "Containers": [
+      {
+        "Key": "container.pce_000000000v5cjvcj02ehrbedm9",
+        "InstanceId": "cnt_000000000VFNXQ6FCAHYR086C1",
+        "HostCell": "r_0_0:c_01_01",
+        "Items": [
+          {
+            "ItemId": "itm_01M3FEQ7ZT5N4TRTE0TJFPES9R",
+            "DefId": "item.material.timber",
+            "Count": 2,
+            "Quality": 0
+          }
+        ],
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b"
+      }
+    ],
+    "Creatures": [
+      {
+        "Key": "spawn.hollow.boar_wallow#0",
+        "DefId": "creature.beast.bristleback_boar",
+        "InstanceId": "crt_0000000001J069GTMS2Z4GAWSS",
+        "HostCell": "r_0_0:c_00_00",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 15053,
+        "ZMm": 72802,
+        "FacingMdeg": 292704,
+        "Health": 70,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.charwood_hound#0",
+        "DefId": "creature.beast.ash_ember_hound",
+        "InstanceId": "crt_0000000001WGH8YDFFZ7TB5FF2",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 127316,
+        "ZMm": 154393,
+        "FacingMdeg": 273553,
+        "Health": 35,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.east_pack#0",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt_0000000001TEQV11K8HREERFWX",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 182838,
+        "ZMm": 192142,
+        "FacingMdeg": 304193,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.east_pack#1",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt_0000000001X2K6BS181CE1JYNY",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 194641,
+        "ZMm": 181916,
+        "FacingMdeg": 282661,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.iron_shelf_husk#0",
+        "DefId": "creature.undead.bone_walker_husk",
+        "InstanceId": "crt_0000000001GAZ93WMF1FF9TQH5",
+        "HostCell": "r_0_0:c_00_00",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 40649,
+        "ZMm": 61970,
+        "FacingMdeg": 272603,
+        "Health": 55,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:9c540333ded7cf005d8e8eeb18a910f644a30bfe8ee99720d773c25e9423f08a",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.valley_strays#0",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt_0000000001ESJ0R2YSJQ00ED4C",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 116146,
+        "ZMm": 127719,
+        "FacingMdeg": 281592,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      },
+      {
+        "Key": "spawn.hollow.valley_strays#1",
+        "DefId": "creature.beast.wolf_grey",
+        "InstanceId": "crt_0000000001WKTD2MWDZB9AB2SW",
+        "HostCell": "r_0_0:c_01_01",
+        "Generation": 0,
+        "Condition": "Alive",
+        "XMm": 115473,
+        "ZMm": 132772,
+        "FacingMdeg": 155331,
+        "Health": 50,
+        "DiedTick": 0,
+        "RespawnTick": 0,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Knows": false,
+        "KnownXMm": 0,
+        "KnownZMm": 0,
+        "LastSeenTick": 0,
+        "SearchUntil": 0,
+        "HasCalled": false,
+        "NextChargeTick": 0,
+        "StaggerImmuneUntil": 0,
+        "StaggeredTick": null,
+        "StaggerLastsTicks": 0,
+        "AttackTick": null,
+        "AttackStruck": null
+      }
+    ],
+    "Noises": [],
+    "Pieces": [
+      {
+        "InstanceId": "pce_000000000170BXC0EB01G0BFZR",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000002DG5X5F8N93PYMAXK",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000003WCH5S2DGK66Y92C0",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000004Q7KTK8CJFDX7JDHG",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_00000000052EFKY5K32GPVSMKD",
+        "DefId": "piece.doorway.timber",
+        "HostCell": "r_0_0:c_01_00",
+        "XMm": 100500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:8a3ba7c52d8483f71d21b0bbe3ace5f12ef78e03881f12f0de0a29fd1bb98097",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000006JG8P1JWQHZ2W3XWP",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_01_00",
+        "XMm": 103500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:8a3ba7c52d8483f71d21b0bbe3ace5f12ef78e03881f12f0de0a29fd1bb98097",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_00000000075KB91EC7VC0AAZ2G",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 105000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 190,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000008K3EY7BJAE678NEWS",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 105000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_0000000009JKBEQG9CH5D6MYAT",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 99000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000ABSZ5PGZXNV510HMD",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 99000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000BQ4GXDM61QWM62BC2",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 105000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000C3B0ES6NY54NYKB95",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 105000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000D9DNYXQRV2118V37J",
+        "DefId": "piece.roof.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000EA06FKT1MFRG5MT08",
+        "DefId": "piece.roof.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000FDMJMQMCGC032ZGWW",
+        "DefId": "piece.roof.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000GCV86K1REV32CFMBZ",
+        "DefId": "piece.roof.timber",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000HXJZ41QX3ADRZAGGV",
+        "DefId": "piece.door.timber",
+        "HostCell": "r_0_0:c_01_00",
+        "XMm": 100500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 120,
+        "BaselineHash": "sha256:8a3ba7c52d8483f71d21b0bbe3ace5f12ef78e03881f12f0de0a29fd1bb98097",
+        "DoorOpen": true
+      },
+      {
+        "InstanceId": "pce_000000000J70G06JY0JP2Y004N",
+        "DefId": "piece.station.anvil",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 3,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 300,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000V5CJVCJ02EHRBEDM9",
+        "DefId": "piece.storage.chest",
+        "HostCell": "r_0_0:c_01_01",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "BaselineHash": "sha256:ebfdee0ee8ed0980491894e2d27623a19dbe78705e9b02b1ec36b4ae6dc6b49b",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000W22QCGHB4HEW05R0T",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 97500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000XP0QDS252XQPP3FC1",
+        "DefId": "piece.pad.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 97500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000YWJGYR9E77DB86SJE",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 96000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      },
+      {
+        "InstanceId": "pce_000000000Z0B94E4P02M78GBPG",
+        "DefId": "piece.wall.timber",
+        "HostCell": "r_0_0:c_00_01",
+        "XMm": 96000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "DoorOpen": false
+      }
+    ],
+    "StructureSequence": 31,
+    "NpcErrands": [
+      {
+        "NpcId": "npc.ashen_hollow.kera_voss",
+        "HostCell": "r_0_0:c_00_01",
+        "Phase": "ToHome",
+        "PieceId": null,
+        "WorkOwner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "XMm": 59696,
+        "ZMm": 140053,
+        "FacingMdeg": 103395,
+        "BaselineHash": "sha256:072086af47aab44f3349eb5dc8b9257e8400a2deb7fe8796e7e55c5975723ed9",
+        "Route": {
+          "Status": "Active",
+          "GoalXMm": 61600,
+          "GoalZMm": 139600,
+          "Corners": [
+            {
+              "XMm": 61600,
+              "ZMm": 139600
+            }
+          ],
+          "PlannedTick": 3803,
+          "Stamp": 8584934521106852754,
+          "Watch": {
+            "MinXMm": 32500,
+            "MinZMm": 119500,
+            "MaxXMm": 81749,
+            "MaxZMm": 161499
+          },
+          "Partial": false
+        },
+        "StuckTicks": 0
+      }
+    ]
+  },
+  "live": {
+    "creatures": [
+      {
+        "Id": "crt_0000000001J069GTMS2Z4GAWSS",
+        "Key": "spawn.hollow.boar_wallow#0",
+        "DefId": "creature.beast.bristleback_boar",
+        "RoleId": "territorial",
+        "Body": {
+          "XMm": 15053,
+          "YMm": 9256,
+          "ZMm": 72802,
+          "FacingMdeg": 292704
+        },
+        "Health": 70,
+        "MaxHealth": 70,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_boar_wallow.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001WGH8YDFFZ7TB5FF2",
+        "Key": "spawn.hollow.charwood_hound#0",
+        "DefId": "creature.beast.ash_ember_hound",
+        "RoleId": "hunter",
+        "Body": {
+          "XMm": 127316,
+          "YMm": 6981,
+          "ZMm": 154393,
+          "FacingMdeg": 273553
+        },
+        "Health": 35,
+        "MaxHealth": 35,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_charwood_hound.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001CYQHERPE7595VDVM",
+        "Key": "spawn.hollow.den_pack#0",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "den_guardian",
+        "Body": {
+          "XMm": 111311,
+          "YMm": 7460,
+          "ZMm": 182848,
+          "FacingMdeg": 171472
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_den_pack.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_00000000012GG56RV32RA5TKJK",
+        "Key": "spawn.hollow.den_pack#1",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "pack_hunter",
+        "Body": {
+          "XMm": 113181,
+          "YMm": 7412,
+          "ZMm": 182035,
+          "FacingMdeg": 129443
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_den_pack.m1_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001QJV58G56PHZR7RBF",
+        "Key": "spawn.hollow.den_pack#2",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "pack_hunter",
+        "Body": {
+          "XMm": 111272,
+          "YMm": 7517,
+          "ZMm": 184346,
+          "FacingMdeg": 4728
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_den_pack.m2_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001DCBZ4AESQVSJB4EJ",
+        "Key": "spawn.hollow.den_pack#3",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "sleeper",
+        "Body": {
+          "XMm": 113523,
+          "YMm": 7524,
+          "ZMm": 185440,
+          "FacingMdeg": 242256
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": true,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_den_pack.m3_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001TEQV11K8HREERFWX",
+        "Key": "spawn.hollow.east_pack#0",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "roamer",
+        "Body": {
+          "XMm": 182838,
+          "YMm": 6579,
+          "ZMm": 192142,
+          "FacingMdeg": 304193
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_east_pack.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001X2K6BS181CE1JYNY",
+        "Key": "spawn.hollow.east_pack#1",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "roamer",
+        "Body": {
+          "XMm": 194641,
+          "YMm": 6108,
+          "ZMm": 181916,
+          "FacingMdeg": 282661
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_east_pack.m1_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001QK21RGRFQ8C87X3W",
+        "Key": "spawn.hollow.iron_shelf_armour#0",
+        "DefId": "creature.construct.animated_armour",
+        "RoleId": "sentinel",
+        "Body": {
+          "XMm": 65000,
+          "YMm": 6114,
+          "ZMm": 34000,
+          "FacingMdeg": 242115
+        },
+        "Health": 90,
+        "MaxHealth": 90,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_iron_shelf_armour.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001GAZ93WMF1FF9TQH5",
+        "Key": "spawn.hollow.iron_shelf_husk#0",
+        "DefId": "creature.undead.bone_walker_husk",
+        "RoleId": "roamer",
+        "Body": {
+          "XMm": 40649,
+          "YMm": 2027,
+          "ZMm": 61970,
+          "FacingMdeg": 272603
+        },
+        "Health": 55,
+        "MaxHealth": 55,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_iron_shelf_husk.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001AFKWHYQAKDC1R4PT",
+        "Key": "spawn.hollow.spider_lair#0",
+        "DefId": "creature.beast.cave_hunting_spider",
+        "RoleId": "ambusher",
+        "Body": {
+          "XMm": 172000,
+          "YMm": 2600,
+          "ZMm": 48000,
+          "FacingMdeg": 255530
+        },
+        "Health": 40,
+        "MaxHealth": 40,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_spider_lair.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001ESJ0R2YSJQ00ED4C",
+        "Key": "spawn.hollow.valley_strays#0",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "stray",
+        "Body": {
+          "XMm": 116146,
+          "YMm": 6660,
+          "ZMm": 127719,
+          "FacingMdeg": 281592
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_valley_strays.m0_g0",
+        "Generation": 0
+      },
+      {
+        "Id": "crt_0000000001WKTD2MWDZB9AB2SW",
+        "Key": "spawn.hollow.valley_strays#1",
+        "DefId": "creature.beast.wolf_grey",
+        "RoleId": "stray",
+        "Body": {
+          "XMm": 115473,
+          "YMm": 6689,
+          "ZMm": 132772,
+          "FacingMdeg": 155331
+        },
+        "Health": 50,
+        "MaxHealth": 50,
+        "Condition": "Alive",
+        "Mind": "Unaware",
+        "Awareness": 0,
+        "Asleep": false,
+        "Alive": true,
+        "Hostile": false,
+        "CorpseKey": "corpse.hollow_valley_strays.m1_g0",
+        "Generation": 0
+      }
+    ],
+    "npcs": [
+      {
+        "Id": "npc.ashen_hollow.kera_voss",
+        "InstanceId": "npc_00000000016AR2TTGP8A46K14V",
+        "Name": "Kera Voss",
+        "Body": {
+          "XMm": 59696,
+          "YMm": 7200,
+          "ZMm": 140053
+        },
+        "Downed": false
+      },
+      {
+        "Id": "npc.ashen_hollow.renn_vale",
+        "InstanceId": "npc_0000000001FMWPDA7QQTKWYP0A",
+        "Name": "Renn Vale",
+        "Body": {
+          "XMm": 46500,
+          "YMm": 7200,
+          "ZMm": 126200
+        },
+        "Downed": false
+      },
+      {
+        "Id": "npc.ashen_hollow.sel_arien",
+        "InstanceId": "npc_000000000183BTR9WWKM16S0ZH",
+        "Name": "Sel Arien",
+        "Body": {
+          "XMm": 72000,
+          "YMm": 7200,
+          "ZMm": 122000
+        },
+        "Downed": false
+      },
+      {
+        "Id": "npc.ashen_hollow.tavar_orr",
+        "InstanceId": "npc_0000000001B38EFGQ0B1JPAG8H",
+        "Name": "Tavar Orr",
+        "Body": {
+          "XMm": 100754,
+          "YMm": 6386,
+          "ZMm": 99891
+        },
+        "Downed": false
+      }
+    ],
+    "companions": [
+      {
+        "NpcId": "npc.ashen_hollow.tavar_orr",
+        "InstanceId": "npc_0000000001B38EFGQ0B1JPAG8H",
+        "Name": "Tavar Orr",
+        "Order": "Follow",
+        "Condition": "Up",
+        "Health": 100,
+        "MaxHealth": 100,
+        "Body": {
+          "XMm": 100754,
+          "YMm": 6386,
+          "ZMm": 99891,
+          "FacingMdeg": 30575
+        },
+        "FallsAtTick": null,
+        "Standing": "healthy"
+      }
+    ],
+    "containers": [
+      {
+        "Site": {
+          "Key": "container.den_cache",
+          "LootTableId": "loot.den_cache",
+          "XMm": 112000,
+          "ZMm": 189000,
+          "StackSlots": 12,
+          "InstanceId": null,
+          "Owner": null
+        },
+        "Id": null,
+        "Items": [
+          {
+            "Ref": "container.den_cache#00",
+            "DefId": "item.ammo.arrow_rough",
+            "Count": 12,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.den_cache#01",
+            "DefId": "item.consumable.salve_minor",
+            "Count": 2,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.den_cache#02",
+            "DefId": "item.material.iron_ingot",
+            "Count": 3,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.den_cache#03",
+            "DefId": "item.quest.halda_token",
+            "Count": 1,
+            "Quality": 0
+          }
+        ]
+      },
+      {
+        "Site": {
+          "Key": "container.merchant_cart",
+          "LootTableId": "loot.merchant_cart",
+          "XMm": 157000,
+          "ZMm": 160200,
+          "StackSlots": 8,
+          "InstanceId": null,
+          "Owner": null
+        },
+        "Id": null,
+        "Items": [
+          {
+            "Ref": "container.merchant_cart#00",
+            "DefId": "item.ammo.arrow_rough",
+            "Count": 12,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.merchant_cart#01",
+            "DefId": "item.weapon.hunting_bow",
+            "Count": 1,
+            "Quality": 0
+          }
+        ]
+      },
+      {
+        "Site": {
+          "Key": "container.pce_000000000v5cjvcj02ehrbedm9",
+          "LootTableId": "",
+          "XMm": 104400,
+          "ZMm": 100500,
+          "StackSlots": 12,
+          "InstanceId": "cnt_000000000VFNXQ6FCAHYR086C1",
+          "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463"
+        },
+        "Id": "cnt_000000000VFNXQ6FCAHYR086C1",
+        "Items": [
+          {
+            "Ref": "itm_01M3FEQ7ZT5N4TRTE0TJFPES9R",
+            "DefId": "item.material.timber",
+            "Count": 2,
+            "Quality": 0
+          }
+        ]
+      },
+      {
+        "Site": {
+          "Key": "container.timber_stack",
+          "LootTableId": "loot.timber_stack",
+          "XMm": 84000,
+          "ZMm": 118000,
+          "StackSlots": 12,
+          "InstanceId": null,
+          "Owner": null
+        },
+        "Id": null,
+        "Items": [
+          {
+            "Ref": "container.timber_stack#00",
+            "DefId": "item.material.timber",
+            "Count": 20,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.timber_stack#01",
+            "DefId": "item.material.timber",
+            "Count": 20,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.timber_stack#02",
+            "DefId": "item.material.timber",
+            "Count": 20,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.timber_stack#03",
+            "DefId": "item.material.timber",
+            "Count": 20,
+            "Quality": 0
+          }
+        ]
+      },
+      {
+        "Site": {
+          "Key": "container.waystation_chest",
+          "LootTableId": "loot.waystation_chest",
+          "XMm": 38000,
+          "ZMm": 137000,
+          "StackSlots": 12,
+          "InstanceId": null,
+          "Owner": null
+        },
+        "Id": null,
+        "Items": [
+          {
+            "Ref": "container.waystation_chest#00",
+            "DefId": "item.ammo.arrow_rough",
+            "Count": 6,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.waystation_chest#01",
+            "DefId": "item.consumable.salve_minor",
+            "Count": 1,
+            "Quality": 0
+          },
+          {
+            "Ref": "container.waystation_chest#02",
+            "DefId": "item.material.herb_ashbloom",
+            "Count": 2,
+            "Quality": 0
+          }
+        ]
+      }
+    ],
+    "world_items": [],
+    "nodes": [
+      {
+        "Key": "node.r_0_0:c_00_00.iron_seam.00",
+        "Name": "iron_seam",
+        "NodeDefId": "node.ore.iron_seam",
+        "ItemId": "item.material.iron_ore",
+        "XMm": 28000,
+        "ZMm": 45100,
+        "Ready": true
+      },
+      {
+        "Key": "node.r_0_0:c_01_01.ash_stand.00",
+        "Name": "ash_stand",
+        "NodeDefId": "node.wood.ash_stand",
+        "ItemId": "item.material.ash_haft",
+        "XMm": 180000,
+        "ZMm": 138000,
+        "Ready": true
+      }
+    ],
+    "switches": [
+      {
+        "Site": {
+          "Key": "switch.stone_north",
+          "FlagId": "world.foldscar.stone_north_aligned",
+          "Body": {
+            "Id": "rock_stone_north",
+            "HeightMm": 2800,
+            "ClearanceMm": 0
+          },
+          "Requires": [],
+          "Name": "north Quiet Stone",
+          "Verb": "Turn",
+          "DoneText": "The stone grinds a hand\u0027s width round and stops, square to the ring. The air beside it goes still.",
+          "LockedText": null
+        },
+        "Set": false
+      },
+      {
+        "Site": {
+          "Key": "switch.stone_southwest",
+          "FlagId": "world.foldscar.stone_southwest_aligned",
+          "Body": {
+            "Id": "rock_stone_southwest",
+            "HeightMm": 2800,
+            "ClearanceMm": 0
+          },
+          "Requires": [],
+          "Name": "south-west Quiet Stone",
+          "Verb": "Turn",
+          "DoneText": "The stone turns with a sound that arrives a moment late, and settles square to the ring.",
+          "LockedText": null
+        },
+        "Set": false
+      },
+      {
+        "Site": {
+          "Key": "switch.stone_southeast",
+          "FlagId": "world.foldscar.stone_southeast_aligned",
+          "Body": {
+            "Id": "rock_stone_southeast",
+            "HeightMm": 2800,
+            "ClearanceMm": 0
+          },
+          "Requires": [],
+          "Name": "south-east Quiet Stone",
+          "Verb": "Turn",
+          "DoneText": "The stone comes round into line. For a moment your shadow points two ways, then one.",
+          "LockedText": null
+        },
+        "Set": false
+      },
+      {
+        "Site": {
+          "Key": "switch.foldscar_heart",
+          "FlagId": "world.foldscar.steadied",
+          "Body": {
+            "Id": "rock_foldscar_heart",
+            "HeightMm": 3500,
+            "ClearanceMm": 0
+          },
+          "Requires": [
+            "world.foldscar.stone_north_aligned",
+            "world.foldscar.stone_southwest_aligned",
+            "world.foldscar.stone_southeast_aligned"
+          ],
+          "Name": "heart of the Foldscar",
+          "Verb": "Steady",
+          "DoneText": "The heart holds. The ring goes quiet all at once, and across it Tavar\u0027s shadow catches up with him.",
+          "LockedText": "It slides out from under your hand. Somewhere in the ring a Quiet Stone is still out of line."
+        },
+        "Set": false
+      }
+    ],
+    "doors": [
+      {
+        "Site": {
+          "Key": "door.longhouse",
+          "FlagId": "world.hollow.longhouse_door_open",
+          "ClosedFootprint": {
+            "MinXMm": 51600,
+            "MinZMm": 127200,
+            "MaxXMm": 52000,
+            "MaxZMm": 128800,
+            "CenterXMm": 51800,
+            "CenterZMm": 128000,
+            "Id": "door.longhouse",
+            "HeightMm": 2400,
+            "ClearanceMm": 0
+          }
+        },
+        "Open": false
+      },
+      {
+        "Site": {
+          "Key": "door.forge_shed",
+          "FlagId": "world.hollow.forge_shed_door_open",
+          "ClosedFootprint": {
+            "MinXMm": 53000,
+            "MinZMm": 141200,
+            "MaxXMm": 53400,
+            "MaxZMm": 142800,
+            "CenterXMm": 53200,
+            "CenterZMm": 142000,
+            "Id": "door.forge_shed",
+            "HeightMm": 2400,
+            "ClearanceMm": 0
+          }
+        },
+        "Open": true
+      }
+    ],
+    "barriers": [
+      {
+        "Site": {
+          "Key": "barrier.foldscar_fold",
+          "FlagId": "world.foldscar.steadied",
+          "Footprint": {
+            "Id": "barrier.foldscar_fold",
+            "HeightMm": 2600,
+            "ClearanceMm": 0
+          },
+          "Prompt": "Tavar Orr, half a breath out of true - your hand stops short of him"
+        },
+        "Standing": true
+      }
+    ],
+    "quests": [],
+    "pieces": [
+      {
+        "Id": "pce_000000000170BXC0EB01G0BFZR",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 100500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 99000,
+        "MinZMm": 99000,
+        "MaxXMm": 102000,
+        "MaxZMm": 102000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000002DG5X5F8N93PYMAXK",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 102000,
+        "MinZMm": 99000,
+        "MaxXMm": 105000,
+        "MaxZMm": 102000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000003WCH5S2DGK66Y92C0",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 99000,
+        "MinZMm": 102000,
+        "MaxXMm": 102000,
+        "MaxZMm": 105000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000004Q7KTK8CJFDX7JDHG",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 103500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 102000,
+        "MinZMm": 102000,
+        "MaxXMm": 105000,
+        "MaxZMm": 105000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_00000000052EFKY5K32GPVSMKD",
+        "DefId": "piece.doorway.timber",
+        "Family": "Doorway",
+        "XMm": 100500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 98800,
+        "MinZMm": 98800,
+        "MaxXMm": 102200,
+        "MaxZMm": 99200,
+        "Parts": [
+          {
+            "MinXMm": 98800,
+            "MinZMm": 98800,
+            "MaxXMm": 99700,
+            "MaxZMm": 99200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          },
+          {
+            "MinXMm": 101300,
+            "MinZMm": 98800,
+            "MaxXMm": 102200,
+            "MaxZMm": 99200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000006JG8P1JWQHZ2W3XWP",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 103500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 101800,
+        "MinZMm": 98800,
+        "MaxXMm": 105200,
+        "MaxZMm": 99200,
+        "Parts": [
+          {
+            "MinXMm": 101800,
+            "MinZMm": 98800,
+            "MaxXMm": 105200,
+            "MaxZMm": 99200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_00000000075KB91EC7VC0AAZ2G",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 100500,
+        "ZMm": 105000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 190,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 98800,
+        "MinZMm": 104800,
+        "MaxXMm": 102200,
+        "MaxZMm": 105200,
+        "Parts": [
+          {
+            "MinXMm": 98800,
+            "MinZMm": 104800,
+            "MaxXMm": 102200,
+            "MaxZMm": 105200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000008K3EY7BJAE678NEWS",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 103500,
+        "ZMm": 105000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 101800,
+        "MinZMm": 104800,
+        "MaxXMm": 105200,
+        "MaxZMm": 105200,
+        "Parts": [
+          {
+            "MinXMm": 101800,
+            "MinZMm": 104800,
+            "MaxXMm": 105200,
+            "MaxZMm": 105200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_0000000009JKBEQG9CH5D6MYAT",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 99000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 98800,
+        "MinZMm": 98800,
+        "MaxXMm": 99200,
+        "MaxZMm": 102200,
+        "Parts": [
+          {
+            "MinXMm": 98800,
+            "MinZMm": 98800,
+            "MaxXMm": 99200,
+            "MaxZMm": 102200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000ABSZ5PGZXNV510HMD",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 99000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 98800,
+        "MinZMm": 101800,
+        "MaxXMm": 99200,
+        "MaxZMm": 105200,
+        "Parts": [
+          {
+            "MinXMm": 98800,
+            "MinZMm": 101800,
+            "MaxXMm": 99200,
+            "MaxZMm": 105200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000BQ4GXDM61QWM62BC2",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 105000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 104800,
+        "MinZMm": 98800,
+        "MaxXMm": 105200,
+        "MaxZMm": 102200,
+        "Parts": [
+          {
+            "MinXMm": 104800,
+            "MinZMm": 98800,
+            "MaxXMm": 105200,
+            "MaxZMm": 102200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000C3B0ES6NY54NYKB95",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 105000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 104800,
+        "MinZMm": 101800,
+        "MaxXMm": 105200,
+        "MaxZMm": 105200,
+        "Parts": [
+          {
+            "MinXMm": 104800,
+            "MinZMm": 101800,
+            "MaxXMm": 105200,
+            "MaxZMm": 105200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000D9DNYXQRV2118V37J",
+        "DefId": "piece.roof.timber",
+        "Family": "Roof",
+        "XMm": 100500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "HealthMax": 100,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 99000,
+        "MinZMm": 99000,
+        "MaxXMm": 102000,
+        "MaxZMm": 102000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000EA06FKT1MFRG5MT08",
+        "DefId": "piece.roof.timber",
+        "Family": "Roof",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "HealthMax": 100,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 102000,
+        "MinZMm": 99000,
+        "MaxXMm": 105000,
+        "MaxZMm": 102000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000FDMJMQMCGC032ZGWW",
+        "DefId": "piece.roof.timber",
+        "Family": "Roof",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "HealthMax": 100,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 99000,
+        "MinZMm": 102000,
+        "MaxXMm": 102000,
+        "MaxZMm": 105000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000GCV86K1REV32CFMBZ",
+        "DefId": "piece.roof.timber",
+        "Family": "Roof",
+        "XMm": 103500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "HealthMax": 100,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 102000,
+        "MinZMm": 102000,
+        "MaxXMm": 105000,
+        "MaxZMm": 105000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000HXJZ41QX3ADRZAGGV",
+        "DefId": "piece.door.timber",
+        "Family": "Door",
+        "XMm": 100500,
+        "ZMm": 99000,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 120,
+        "HealthMax": 120,
+        "DoorOpen": true,
+        "WorkerNpcId": null,
+        "MinXMm": 99700,
+        "MinZMm": 98800,
+        "MaxXMm": 101300,
+        "MaxZMm": 99200,
+        "Parts": [
+          {
+            "MinXMm": 99700,
+            "MinZMm": 98800,
+            "MaxXMm": 101300,
+            "MaxZMm": 99200,
+            "HeightMm": 2400,
+            "Traversal": "Door"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000J70G06JY0JP2Y004N",
+        "DefId": "piece.station.anvil",
+        "Family": "Station",
+        "XMm": 100500,
+        "ZMm": 103500,
+        "Rotation": 3,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 300,
+        "HealthMax": 300,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 99500,
+        "MinZMm": 103000,
+        "MaxXMm": 100100,
+        "MaxZMm": 104000,
+        "Parts": [
+          {
+            "MinXMm": 99500,
+            "MinZMm": 103000,
+            "MaxXMm": 100100,
+            "MaxZMm": 104000,
+            "HeightMm": 900,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": "station.pce_000000000j70g06jy0jp2y004n"
+      },
+      {
+        "Id": "pce_000000000V5CJVCJ02EHRBEDM9",
+        "DefId": "piece.storage.chest",
+        "Family": "Storage",
+        "XMm": 103500,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 100,
+        "HealthMax": 100,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 104100,
+        "MinZMm": 100000,
+        "MaxXMm": 104700,
+        "MaxZMm": 101000,
+        "Parts": [
+          {
+            "MinXMm": 104100,
+            "MinZMm": 100000,
+            "MaxXMm": 104700,
+            "MaxZMm": 101000,
+            "HeightMm": 700,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": "container.pce_000000000v5cjvcj02ehrbedm9",
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000W22QCGHB4HEW05R0T",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 97500,
+        "ZMm": 100500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 96000,
+        "MinZMm": 99000,
+        "MaxXMm": 99000,
+        "MaxZMm": 102000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000XP0QDS252XQPP3FC1",
+        "DefId": "piece.pad.timber",
+        "Family": "Pad",
+        "XMm": 97500,
+        "ZMm": 103500,
+        "Rotation": 0,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 96000,
+        "MinZMm": 102000,
+        "MaxXMm": 99000,
+        "MaxZMm": 105000,
+        "Parts": [],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000YWJGYR9E77DB86SJE",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 96000,
+        "ZMm": 100500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 95800,
+        "MinZMm": 98800,
+        "MaxXMm": 96200,
+        "MaxZMm": 102200,
+        "Parts": [
+          {
+            "MinXMm": 95800,
+            "MinZMm": 98800,
+            "MaxXMm": 96200,
+            "MaxZMm": 102200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      },
+      {
+        "Id": "pce_000000000Z0B94E4P02M78GBPG",
+        "DefId": "piece.wall.timber",
+        "Family": "Wall",
+        "XMm": 96000,
+        "ZMm": 103500,
+        "Rotation": 1,
+        "Owner": "chr_01M3ECYY5671G34HVWKQXPQ463",
+        "HealthCurrent": 200,
+        "HealthMax": 200,
+        "DoorOpen": false,
+        "WorkerNpcId": null,
+        "MinXMm": 95800,
+        "MinZMm": 101800,
+        "MaxXMm": 96200,
+        "MaxZMm": 105200,
+        "Parts": [
+          {
+            "MinXMm": 95800,
+            "MinZMm": 101800,
+            "MaxXMm": 96200,
+            "MaxZMm": 105200,
+            "HeightMm": 3000,
+            "Traversal": "Solid"
+          }
+        ],
+        "ContainerKey": null,
+        "StationKey": null
+      }
+    ],
+    "piece_stations": [
+      {
+        "Key": "station.pce_000000000j70g06jy0jp2y004n",
+        "Kind": "anvil",
+        "XMm": 99800,
+        "ZMm": 103500
+      }
+    ],
+    "work_assignments": [
+      {
+        "NpcId": "npc.ashen_hollow.kera_voss",
+        "PieceId": null,
+        "AnchorXMm": 61600,
+        "AnchorZMm": 139600,
+        "FacingMdeg": 300000,
+        "Phase": "ToHome"
+      }
+    ],
+    "factions": [],
+    "combat": {
+      "Weapon": {
+        "Source": "item.weapon.rusted_sword",
+        "DamageMin": 7,
+        "DamageMax": 7,
+        "DamageType": "physical_slash",
+        "ReachMm": 1800,
+        "WindupTicks": 6,
+        "ActiveTicks": 3,
+        "RecoveryTicks": 5,
+        "StaminaCost": 8,
+        "Ranged": false,
+        "AmmoDefId": null,
+        "SkillId": "skill.one_hand_blade",
+        "OnHitEffect": null,
+        "OnHitEffectPercent": 0,
+        "LungeMm": 0,
+        "ChargeSpeedMmPerSecond": 0,
+        "ChargeMinRangeMm": 0,
+        "StunTicks": 0,
+        "CooldownTicks": 0,
+        "ForcesStagger": false,
+        "Advances": false,
+        "Magic": false,
+        "IsCharge": false,
+        "TotalTicks": 14
+      },
+      "Health": 120,
+      "MaxHealth": 120,
+      "Stamina": 100,
+      "MaxStamina": 100,
+      "Effects": [],
+      "Focus": 80,
+      "MaxFocus": 80,
+      "Strain": 0,
+      "StrainTolerance": 40,
+      "Strained": false
+    },
+    "left_out": [
+      "combat.Phase",
+      "combat.PhaseTicksLeft",
+      "combat.AttackSource",
+      "combat.Blocking",
+      "combat.Casting",
+      "creatures[].Phase",
+      "creatures[].PhaseTicksLeft",
+      "npcs[].Talking",
+      "npcs[].Body.FacingMdeg",
+      "companions[].Doing"
+    ]
+  }
+}

@@ -1,0 +1,903 @@
+{
+  "machine": {
+    "host": "ASTRAL",
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "gpu_vendor": "NVIDIA",
+    "graphics_api": "1.4.351",
+    "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor",
+    "cpu_threads": 16,
+    "os": "Windows 10.0.26200",
+    "godot": "4.7.2-stable (official)",
+    "renderer": "forward_plus",
+    "resolution": "(1920, 1080)",
+    "vsync": "Disabled",
+    "captured_utc": "2026-09-26 20:32:18Z"
+  },
+  "notes": {
+    "scene": "PROTOTYPE greybox: Ashen Hollow, 200 m x 200 m, 4 cells",
+    "script": "segments: warmup 5 s at camera distance 3.5 m, conversation 90 s at camera distance 3.5 m, magic 60 s at camera distance 3.5 m, combat 150 s at camera distance 3.5 m, loot 60 s at camera distance 3.5 m, third_person 150 s at camera distance 3.5 m, first_person 150 s at camera distance 0 m, building 150 s at camera distance 3.5 m; 12 presentation-only stand-in bodies for the prototype\u0027s entity budget; what the goals did: conversation: the primer taken and read, 3 formulas known; magic: 3 formulas worked; combat: 1 killed; its body is corpse.hollow_charwood_hound.m0_g0; loot: the body searched with the inventory open, Take All on 0 stacks; loot: the merchant cart searched with the inventory open, Take All on 2 stacks; loot: the timber stack searched with the inventory open, Take All on 4 stacks; building: 17 pieces standing after the first step; building: 17 pieces standing, saved in 17.2 ms; building: Kera asked and let go; walking home to (61600, 139600)",
+    "vsync": "disabled for the capture, so frame times show headroom rather than the refresh rate",
+    "screenshots": "one per segment, halfway through; the frame after each is left out of the numbers (the capture stalls the GPU)",
+    "gate": "owner ruling 2026-09-23: sustained 60 FPS at 1080p on RAZER\u0027s RTX 4070 Ti with OBS, H3 and other GPU workloads stopped",
+    "route": "warmup 0 waypoints, conversation goal met in 16.3 s, magic goal met in 4.5 s, combat goal met in 25.3 s, loot goal met in 20.1 s, third_person 18 waypoints, first_person 17 waypoints, building goal met in 82.7 s; the character was struck 1 times and died 0 times (a clean capture: 0 and 0)"
+  },
+  "events": [
+    {
+      "frame": 77941,
+      "segment": "first_person",
+      "what": "autosave to auto_01 taken at 300.0 s of play",
+      "frame_ms_then": [
+        3.7,
+        5.53,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 77982,
+      "segment": "first_person",
+      "what": "auto_01 written in the background",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106468,
+      "segment": "building",
+      "what": "piece placed (piece.pad.timber)",
+      "frame_ms_then": [
+        3.7,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106596,
+      "segment": "building",
+      "what": "piece placed (piece.pad.timber)",
+      "frame_ms_then": [
+        4.17,
+        4.55,
+        4.55
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106724,
+      "segment": "building",
+      "what": "piece placed (piece.pad.timber)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106852,
+      "segment": "building",
+      "what": "piece placed (piece.pad.timber)",
+      "frame_ms_then": [
+        3.35,
+        4.17,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106979,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        13.28,
+        9.73
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 106979,
+      "segment": "building",
+      "what": "piece placed (piece.doorway.timber)",
+      "frame_ms_then": [
+        3.7,
+        13.28,
+        9.73
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107103,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        4.17,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107103,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        4.17,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107232,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        3.89,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107232,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        3.89,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107363,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107363,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107496,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        3.73,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107496,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        3.73,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107620,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        4.17,
+        4.17,
+        4.04
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107620,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        4.17,
+        4.17,
+        4.04
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107752,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107752,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107875,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 107875,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108030,
+      "segment": "building",
+      "what": "piece placed (piece.roof.timber)",
+      "frame_ms_then": [
+        3.03,
+        3.82,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108138,
+      "segment": "building",
+      "what": "piece placed (piece.roof.timber)",
+      "frame_ms_then": [
+        4.17,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108265,
+      "segment": "building",
+      "what": "piece placed (piece.roof.timber)",
+      "frame_ms_then": [
+        3.03,
+        3.12,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108411,
+      "segment": "building",
+      "what": "piece placed (piece.roof.timber)",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.24
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108564,
+      "segment": "building",
+      "what": "navigation rebuilt (56 nodes)",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 108564,
+      "segment": "building",
+      "what": "piece placed (piece.station.anvil)",
+      "frame_ms_then": [
+        3.33,
+        3.33,
+        3.33
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111538,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        4.17,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111667,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        4.48,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111667,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        4.48,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111795,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        3.7
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111929,
+      "segment": "building",
+      "what": "navigation rebuilt (108 nodes)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 111929,
+      "segment": "building",
+      "what": "piece placed (piece.wall.timber)",
+      "frame_ms_then": [
+        3.7,
+        3.7,
+        4.17
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 119699,
+      "segment": "building",
+      "what": "route planned (npc.ashen_hollow.kera_voss)",
+      "frame_ms_then": [
+        3.7,
+        8.83,
+        13.78
+      ],
+      "segment_median_ms": 3.7
+    },
+    {
+      "frame": 119706,
+      "segment": "building",
+      "what": "route planned (npc.ashen_hollow.kera_voss)",
+      "frame_ms_then": [
+        6.67,
+        6.67
+      ],
+      "segment_median_ms": 3.7
+    }
+  ],
+  "segments": {
+    "warmup": {
+      "frames": 1230,
+      "seconds": 4.87,
+      "average_fps": 252.7,
+      "one_percent_low_fps": 30.4,
+      "point_one_percent_low_fps": 7.5,
+      "minimum_fps": 7,
+      "frame_ms": {
+        "mean": 3.958,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 8.109,
+        "max": 141.876
+      },
+      "frames_within_16_7_ms_percent": 99.76,
+      "hitches_over_33_ms": 3,
+      "hitches_over_twice_median": 14,
+      "process_ms_worst_each_second": {
+        "mean": 169.894,
+        "p50": 13.956,
+        "p95": 929.182,
+        "p99": 929.182,
+        "max": 929.182
+      },
+      "render_cpu_ms": {
+        "mean": 1.208,
+        "p50": 1.155,
+        "p95": 1.625,
+        "p99": 1.761,
+        "max": 7.453
+      },
+      "render_gpu_ms": {
+        "mean": 2.669,
+        "p50": 2.714,
+        "p95": 2.939,
+        "p99": 3.332,
+        "max": 3.715
+      },
+      "static_memory_peak_mb": 317.6,
+      "working_set_peak_mb": 1632.8,
+      "vram_peak_mb": 1150.4,
+      "sustained_60_fps_by_one_percent_low": false,
+      "sim_ms": {
+        "mean": 0.033,
+        "p50": 0.002,
+        "p95": 0.142,
+        "p99": 0.207,
+        "max": 16.341
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.398,
+        "p50": 0.149,
+        "p95": 0.299,
+        "p99": 16.341,
+        "max": 16.341
+      },
+      "max_ticks_in_a_frame": 3,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "conversation": {
+      "frames": 4341,
+      "seconds": 16.19,
+      "average_fps": 268.1,
+      "one_percent_low_fps": 144.2,
+      "point_one_percent_low_fps": 68.8,
+      "minimum_fps": 35.6,
+      "frame_ms": {
+        "mean": 3.729,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 4.769,
+        "max": 28.082
+      },
+      "frames_within_16_7_ms_percent": 99.98,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 11,
+      "process_ms_worst_each_second": {
+        "mean": 14.453,
+        "p50": 13.179,
+        "p95": 29.34,
+        "p99": 29.34,
+        "max": 29.34
+      },
+      "render_cpu_ms": {
+        "mean": 1.191,
+        "p50": 1.147,
+        "p95": 1.594,
+        "p99": 1.793,
+        "max": 2.227
+      },
+      "render_gpu_ms": {
+        "mean": 2.674,
+        "p50": 2.708,
+        "p95": 3.017,
+        "p99": 3.231,
+        "max": 3.879
+      },
+      "static_memory_peak_mb": 315.6,
+      "working_set_peak_mb": 1627.3,
+      "vram_peak_mb": 1155,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.02,
+        "p50": 0.002,
+        "p95": 0.15,
+        "p99": 0.175,
+        "max": 7.142
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.18,
+        "p50": 0.153,
+        "p95": 0.213,
+        "p99": 0.283,
+        "max": 5.986
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "magic": {
+      "frames": 1115,
+      "seconds": 4.38,
+      "average_fps": 254.3,
+      "one_percent_low_fps": 70.7,
+      "point_one_percent_low_fps": 21.8,
+      "minimum_fps": 20.9,
+      "frame_ms": {
+        "mean": 3.933,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 5.133,
+        "max": 47.835
+      },
+      "frames_within_16_7_ms_percent": 99.82,
+      "hitches_over_33_ms": 2,
+      "hitches_over_twice_median": 6,
+      "process_ms_worst_each_second": {
+        "mean": 26.596,
+        "p50": 13.741,
+        "p95": 40.018,
+        "p99": 40.018,
+        "max": 40.018
+      },
+      "render_cpu_ms": {
+        "mean": 1.161,
+        "p50": 1.114,
+        "p95": 1.516,
+        "p99": 1.65,
+        "max": 5.709
+      },
+      "render_gpu_ms": {
+        "mean": 2.775,
+        "p50": 2.787,
+        "p95": 3.005,
+        "p99": 3.117,
+        "max": 5.566
+      },
+      "static_memory_peak_mb": 316.8,
+      "working_set_peak_mb": 1702.5,
+      "vram_peak_mb": 1155.2,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.02,
+        "p50": 0.002,
+        "p95": 0.152,
+        "p99": 0.199,
+        "max": 2.93
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.22,
+        "p50": 0.157,
+        "p95": 0.27,
+        "p99": 2.93,
+        "max": 2.93
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "combat": {
+      "frames": 6619,
+      "seconds": 25.16,
+      "average_fps": 263.1,
+      "one_percent_low_fps": 184.8,
+      "point_one_percent_low_fps": 106.7,
+      "minimum_fps": 60,
+      "frame_ms": {
+        "mean": 3.801,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 4.289,
+        "max": 16.667
+      },
+      "frames_within_16_7_ms_percent": 100,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 4,
+      "process_ms_worst_each_second": {
+        "mean": 12.734,
+        "p50": 12.644,
+        "p95": 13.155,
+        "p99": 17.519,
+        "max": 17.519
+      },
+      "render_cpu_ms": {
+        "mean": 1.008,
+        "p50": 0.964,
+        "p95": 1.36,
+        "p99": 1.529,
+        "max": 1.801
+      },
+      "render_gpu_ms": {
+        "mean": 2.797,
+        "p50": 2.827,
+        "p95": 3.124,
+        "p99": 3.302,
+        "max": 5.048
+      },
+      "static_memory_peak_mb": 316.4,
+      "working_set_peak_mb": 1708.9,
+      "vram_peak_mb": 1155,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.018,
+        "p50": 0.002,
+        "p95": 0.157,
+        "p99": 0.205,
+        "max": 6.104
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.21,
+        "p50": 0.163,
+        "p95": 0.268,
+        "p99": 0.718,
+        "max": 6.104
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "loot": {
+      "frames": 5047,
+      "seconds": 19.97,
+      "average_fps": 252.8,
+      "one_percent_low_fps": 206.4,
+      "point_one_percent_low_fps": 150.5,
+      "minimum_fps": 114.6,
+      "frame_ms": {
+        "mean": 3.956,
+        "p50": 4.061,
+        "p95": 4.167,
+        "p99": 4.397,
+        "max": 8.725
+      },
+      "frames_within_16_7_ms_percent": 100,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 1,
+      "process_ms_worst_each_second": {
+        "mean": 12.388,
+        "p50": 12.17,
+        "p95": 14.585,
+        "p99": 14.585,
+        "max": 14.585
+      },
+      "render_cpu_ms": {
+        "mean": 0.877,
+        "p50": 0.827,
+        "p95": 1.241,
+        "p99": 1.425,
+        "max": 1.617
+      },
+      "render_gpu_ms": {
+        "mean": 2.968,
+        "p50": 2.978,
+        "p95": 3.263,
+        "p99": 3.404,
+        "max": 5.141
+      },
+      "static_memory_peak_mb": 317,
+      "working_set_peak_mb": 1673,
+      "vram_peak_mb": 1155.1,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.017,
+        "p50": 0.002,
+        "p95": 0.149,
+        "p99": 0.197,
+        "max": 9.81
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.163,
+        "p50": 0.153,
+        "p95": 0.217,
+        "p99": 0.268,
+        "max": 0.94
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "third_person": {
+      "frames": 39732,
+      "seconds": 149.88,
+      "average_fps": 265.1,
+      "one_percent_low_fps": 139.9,
+      "point_one_percent_low_fps": 81.8,
+      "minimum_fps": 28.7,
+      "frame_ms": {
+        "mean": 3.772,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 5.538,
+        "max": 34.884
+      },
+      "frames_within_16_7_ms_percent": 99.99,
+      "hitches_over_33_ms": 1,
+      "hitches_over_twice_median": 112,
+      "process_ms_worst_each_second": {
+        "mean": 14.393,
+        "p50": 13.679,
+        "p95": 18.513,
+        "p99": 25.883,
+        "max": 33.381
+      },
+      "render_cpu_ms": {
+        "mean": 1.083,
+        "p50": 1.044,
+        "p95": 1.532,
+        "p99": 1.799,
+        "max": 31.446
+      },
+      "render_gpu_ms": {
+        "mean": 2.658,
+        "p50": 2.698,
+        "p95": 3.246,
+        "p99": 3.467,
+        "max": 5.301
+      },
+      "static_memory_peak_mb": 317.3,
+      "working_set_peak_mb": 1713,
+      "vram_peak_mb": 1155.1,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.015,
+        "p50": 0.002,
+        "p95": 0.152,
+        "p99": 0.191,
+        "max": 0.662
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.167,
+        "p50": 0.158,
+        "p95": 0.232,
+        "p99": 0.279,
+        "max": 0.662
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    },
+    "first_person": {
+      "frames": 39273,
+      "seconds": 149.88,
+      "average_fps": 262,
+      "one_percent_low_fps": 104.7,
+      "point_one_percent_low_fps": 60.5,
+      "minimum_fps": 34.6,
+      "frame_ms": {
+        "mean": 3.816,
+        "p50": 3.704,
+        "p95": 5,
+        "p99": 7.576,
+        "max": 28.924
+      },
+      "frames_within_16_7_ms_percent": 99.96,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 417,
+      "process_ms_worst_each_second": {
+        "mean": 14.185,
+        "p50": 13.025,
+        "p95": 19.452,
+        "p99": 23.841,
+        "max": 32.491
+      },
+      "render_cpu_ms": {
+        "mean": 1.135,
+        "p50": 1.075,
+        "p95": 1.734,
+        "p99": 2.094,
+        "max": 3.907
+      },
+      "render_gpu_ms": {
+        "mean": 2.524,
+        "p50": 2.548,
+        "p95": 3.182,
+        "p99": 3.415,
+        "max": 4.612
+      },
+      "static_memory_peak_mb": 317.3,
+      "working_set_peak_mb": 1719.6,
+      "vram_peak_mb": 1155.1,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.017,
+        "p50": 0.002,
+        "p95": 0.153,
+        "p99": 0.229,
+        "max": 9.662
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.183,
+        "p50": 0.162,
+        "p95": 0.275,
+        "p99": 0.332,
+        "max": 9.662
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 1,
+      "save_ms_max": 9.662
+    },
+    "building": {
+      "frames": 22351,
+      "seconds": 82.62,
+      "average_fps": 270.5,
+      "one_percent_low_fps": 143.3,
+      "point_one_percent_low_fps": 75.6,
+      "minimum_fps": 37.6,
+      "frame_ms": {
+        "mean": 3.696,
+        "p50": 3.704,
+        "p95": 4.167,
+        "p99": 5.381,
+        "max": 26.604
+      },
+      "frames_within_16_7_ms_percent": 99.99,
+      "hitches_over_33_ms": 0,
+      "hitches_over_twice_median": 56,
+      "process_ms_worst_each_second": {
+        "mean": 14.41,
+        "p50": 13.397,
+        "p95": 21.927,
+        "p99": 26.221,
+        "max": 26.221
+      },
+      "render_cpu_ms": {
+        "mean": 1.135,
+        "p50": 1.094,
+        "p95": 1.556,
+        "p99": 1.804,
+        "max": 2.659
+      },
+      "render_gpu_ms": {
+        "mean": 2.47,
+        "p50": 2.489,
+        "p95": 2.945,
+        "p99": 3.221,
+        "max": 5.477
+      },
+      "static_memory_peak_mb": 317.3,
+      "working_set_peak_mb": 1725.6,
+      "vram_peak_mb": 1155.7,
+      "sustained_60_fps_by_one_percent_low": true,
+      "sim_ms": {
+        "mean": 0.018,
+        "p50": 0.002,
+        "p95": 0.15,
+        "p99": 0.192,
+        "max": 13.025
+      },
+      "sim_ms_tick_frames": {
+        "mean": 0.171,
+        "p50": 0.156,
+        "p95": 0.227,
+        "p99": 0.293,
+        "max": 8.806
+      },
+      "max_ticks_in_a_frame": 1,
+      "save_frames": 0,
+      "save_ms_max": 0
+    }
+  }
+}

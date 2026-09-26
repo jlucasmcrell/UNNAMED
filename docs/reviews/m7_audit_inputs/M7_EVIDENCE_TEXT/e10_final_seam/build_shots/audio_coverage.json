@@ -1,0 +1,1390 @@
+{
+  "run": "build-shots",
+  "gate": "UNNAMED audio coverage: 0 ids, 0 reachable, 0 unreachable, 103 mapped missing, 0 without file; this run 0 requested, 0 resolved, 0 missing, 0 malformed, 0 runtime errors, 0 unmapped",
+  "static": {
+    "ids": 0,
+    "reachable": 0,
+    "unreachable": [],
+    "mapped_missing": [
+      {
+        "Family": "amb.ashen_hollow.waystation.01",
+        "Event": "ambience bed",
+        "Optional": false
+      },
+      {
+        "Family": "amb.blackvein_cut.01",
+        "Event": "ambience bed",
+        "Optional": false
+      },
+      {
+        "Family": "amb.charwood_verge.01",
+        "Event": "ambience bed",
+        "Optional": false
+      },
+      {
+        "Family": "amb.foldscar_ruin.01",
+        "Event": "ambience bed",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.ashen_hollow.forge_distant.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.ashen_hollow.settlement_activity.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.ashen_hollow.timber_creak.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.blackvein.pebble_fall.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.blackvein.rock_shift.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.blackvein.winch_creak.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.charwood.branch_movement.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.charwood.raven_call.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.charwood.stream_detail.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.foldscar.stone_resonance.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.amb.foldscar.tone_displacement.01",
+        "Event": "cell_detail()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.crafting.anvil.strike",
+        "Event": "craft_hit()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.crafting.complete",
+        "Event": "craft_complete()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.crafting.forge.ambience.01",
+        "Event": "station_ambience()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.crafting.mining.strike",
+        "Event": "gather_hit()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.crafting.ore.break",
+        "Event": "gather_complete()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.alert",
+        "Event": "alert()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.attack",
+        "Event": "attack()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.hurt",
+        "Event": "hurt()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.idle",
+        "Event": "idle()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.move_heavy",
+        "Event": "move_heavy_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.animated_armour.walk",
+        "Event": "walk_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.alert",
+        "Event": "alert()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.attack",
+        "Event": "attack()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.hurt",
+        "Event": "hurt()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.idle",
+        "Event": "idle()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.run",
+        "Event": "run_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.ash_ember_hound.walk",
+        "Event": "walk_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.alert",
+        "Event": "alert()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.attack",
+        "Event": "attack()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.hurt",
+        "Event": "hurt()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.idle",
+        "Event": "idle()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.move_fast",
+        "Event": "move_fast_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bone_walker_husk.walk",
+        "Event": "walk_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.alert",
+        "Event": "alert()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.attack",
+        "Event": "attack()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.charge",
+        "Event": "charge_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.hurt",
+        "Event": "hurt()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.idle",
+        "Event": "idle()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.bristleback_boar.walk",
+        "Event": "walk_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.alert",
+        "Event": "alert()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.attack",
+        "Event": "attack()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.hurt",
+        "Event": "hurt()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.idle",
+        "Event": "idle()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.scuttle",
+        "Event": "scuttle_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.creature.cave_hunting_spider.scuttle_fast",
+        "Event": "scuttle_fast_step()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.chest.close",
+        "Event": "interaction_close()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.chest.open",
+        "Event": "interaction_open()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.door.close",
+        "Event": "interaction_close(door)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.door.open",
+        "Event": "interaction_open(door)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.loot.take_all",
+        "Event": "loot_take_all()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.interaction.pickup",
+        "Event": "interaction_pickup()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.magic.strain.critical.01",
+        "Event": "strain(critical)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.magic.strain.high.01",
+        "Event": "strain(high)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.magic.strain.moderate.01",
+        "Event": "strain(moderate)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.crouch.enter",
+        "Event": "crouch_enter()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.crouch.exit",
+        "Event": "crouch_exit()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.death",
+        "Event": "death()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.dirt.run",
+        "Event": "footstep(surface, run)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.dirt.walk",
+        "Event": "footstep(surface, walk)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.stone.run",
+        "Event": "footstep(surface, run)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.stone.walk",
+        "Event": "footstep(surface, walk)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.wood.run",
+        "Event": "footstep(surface, run)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.footstep.wood.walk",
+        "Event": "footstep(surface, walk)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.gear.cloth",
+        "Event": "gear_shift(cloth)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.gear.metal",
+        "Event": "gear_shift(metal)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.hurt.heavy",
+        "Event": "hurt(heavy)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.hurt.light",
+        "Event": "hurt(light)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.jump.effort",
+        "Event": "jump_effort()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.land.dirt",
+        "Event": "land(dirt)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.land.stone",
+        "Event": "land(stone)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.weapon.bow.nock",
+        "Event": "nock()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.weapon.spear.ready",
+        "Event": "ready(polearm)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.player.weapon.sword.sheath",
+        "Event": "sheathe(sword)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.back",
+        "Event": "ui back",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.equip",
+        "Event": "ui equip",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.error",
+        "Event": "ui error",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.menu.close",
+        "Event": "ui menu.close",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.menu.open",
+        "Event": "ui menu.open",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.ui.select",
+        "Event": "ui select",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.arrow.flight",
+        "Event": "projectile_flight(bow)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.arrow.impact.flesh",
+        "Event": "impact(bow, flesh)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.arrow.impact.stone",
+        "Event": "impact(arrow, stone): a structure",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.arrow.impact.wood",
+        "Event": "impact(arrow, wood): a structure",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.draw",
+        "Event": "draw_bow()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.bow.release",
+        "Event": "swing(bow): release",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.polearm.impact.flesh",
+        "Event": "impact(polearm, flesh)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.polearm.impact.plate",
+        "Event": "impact(bow, plate)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.polearm.thrust",
+        "Event": "swing(polearm)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.sword.block",
+        "Event": "block()",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.sword.draw",
+        "Event": "draw(sword)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.sword.impact.flesh",
+        "Event": "impact(sword, flesh)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.sword.impact.plate",
+        "Event": "impact(sword, plate)",
+        "Optional": false
+      },
+      {
+        "Family": "sfx.weapon.sword.swing.light",
+        "Event": "swing(sword, light)",
+        "Optional": false
+      }
+    ],
+    "optional_absent": [
+      {
+        "Family": "sfx.magic.brace_ward.activate",
+        "Event": "activate()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.cast",
+        "Event": "cast_start()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.end",
+        "Event": "end()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.hit",
+        "Event": "ward_hit()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.impact",
+        "Event": "impact()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.resolve",
+        "Event": "resolve()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.brace_ward.travel",
+        "Event": "travel()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.activate",
+        "Event": "activate()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.cast",
+        "Event": "cast_start()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.end",
+        "Event": "end()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.hit",
+        "Event": "ward_hit()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.impact",
+        "Event": "impact()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.resolve",
+        "Event": "resolve()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.impulse_bolt.travel",
+        "Event": "travel()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.activate",
+        "Event": "activate()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.cast",
+        "Event": "cast_start()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.end",
+        "Event": "end()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.hit",
+        "Event": "ward_hit()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.impact",
+        "Event": "impact()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.resolve",
+        "Event": "resolve()",
+        "Optional": true
+      },
+      {
+        "Family": "sfx.magic.mending_thread.travel",
+        "Event": "travel()",
+        "Optional": true
+      }
+    ],
+    "without_file": []
+  },
+  "runtime": {
+    "requested": {},
+    "resolved": [],
+    "missing": [],
+    "malformed": [],
+    "errors": {},
+    "unmapped": [],
+    "mapped_never_requested": [
+      "sfx.player.footstep.dirt.walk",
+      "sfx.player.footstep.dirt.run",
+      "sfx.player.footstep.stone.walk",
+      "sfx.player.footstep.stone.run",
+      "sfx.player.footstep.wood.walk",
+      "sfx.player.footstep.wood.run",
+      "sfx.player.land.stone",
+      "sfx.player.land.dirt",
+      "sfx.player.jump.effort",
+      "sfx.player.crouch.enter",
+      "sfx.player.crouch.exit",
+      "sfx.player.hurt.light",
+      "sfx.player.hurt.heavy",
+      "sfx.player.death",
+      "sfx.player.gear.metal",
+      "sfx.player.gear.cloth",
+      "sfx.weapon.sword.swing.light",
+      "sfx.weapon.sword.block",
+      "sfx.weapon.sword.draw",
+      "sfx.player.weapon.sword.sheath",
+      "sfx.weapon.sword.impact.flesh",
+      "sfx.weapon.sword.impact.plate",
+      "sfx.player.weapon.bow.nock",
+      "sfx.weapon.bow.draw",
+      "sfx.weapon.bow.release",
+      "sfx.weapon.bow.arrow.flight",
+      "sfx.weapon.bow.arrow.impact.flesh",
+      "sfx.weapon.polearm.impact.plate",
+      "sfx.weapon.bow.arrow.impact.wood",
+      "sfx.weapon.bow.arrow.impact.stone",
+      "sfx.weapon.polearm.thrust",
+      "sfx.player.weapon.spear.ready",
+      "sfx.weapon.polearm.impact.flesh",
+      "sfx.creature.ash_ember_hound.idle",
+      "sfx.creature.ash_ember_hound.alert",
+      "sfx.creature.ash_ember_hound.attack",
+      "sfx.creature.ash_ember_hound.hurt",
+      "sfx.creature.ash_ember_hound.death",
+      "sfx.creature.ash_ember_hound.walk",
+      "sfx.creature.ash_ember_hound.run",
+      "sfx.creature.bristleback_boar.idle",
+      "sfx.creature.bristleback_boar.alert",
+      "sfx.creature.bristleback_boar.attack",
+      "sfx.creature.bristleback_boar.hurt",
+      "sfx.creature.bristleback_boar.death",
+      "sfx.creature.bristleback_boar.walk",
+      "sfx.creature.bristleback_boar.charge",
+      "sfx.creature.cave_hunting_spider.idle",
+      "sfx.creature.cave_hunting_spider.alert",
+      "sfx.creature.cave_hunting_spider.attack",
+      "sfx.creature.cave_hunting_spider.hurt",
+      "sfx.creature.cave_hunting_spider.death",
+      "sfx.creature.cave_hunting_spider.scuttle",
+      "sfx.creature.cave_hunting_spider.scuttle_fast",
+      "sfx.creature.bone_walker_husk.idle",
+      "sfx.creature.bone_walker_husk.alert",
+      "sfx.creature.bone_walker_husk.attack",
+      "sfx.creature.bone_walker_husk.hurt",
+      "sfx.creature.bone_walker_husk.death",
+      "sfx.creature.bone_walker_husk.walk",
+      "sfx.creature.bone_walker_husk.move_fast",
+      "sfx.creature.animated_armour.idle",
+      "sfx.creature.animated_armour.alert",
+      "sfx.creature.animated_armour.attack",
+      "sfx.creature.animated_armour.hurt",
+      "sfx.creature.animated_armour.death",
+      "sfx.creature.animated_armour.walk",
+      "sfx.creature.animated_armour.move_heavy",
+      "sfx.magic.impulse_bolt.impact",
+      "sfx.magic.impulse_bolt.cast",
+      "sfx.magic.impulse_bolt.activate",
+      "sfx.magic.impulse_bolt.resolve",
+      "sfx.magic.impulse_bolt.travel",
+      "sfx.magic.impulse_bolt.end",
+      "sfx.magic.impulse_bolt.hit",
+      "sfx.magic.brace_ward.impact",
+      "sfx.magic.brace_ward.cast",
+      "sfx.magic.brace_ward.activate",
+      "sfx.magic.brace_ward.resolve",
+      "sfx.magic.brace_ward.travel",
+      "sfx.magic.brace_ward.end",
+      "sfx.magic.brace_ward.hit",
+      "sfx.magic.mending_thread.impact",
+      "sfx.magic.mending_thread.cast",
+      "sfx.magic.mending_thread.activate",
+      "sfx.magic.mending_thread.resolve",
+      "sfx.magic.mending_thread.travel",
+      "sfx.magic.mending_thread.end",
+      "sfx.magic.mending_thread.hit",
+      "sfx.magic.strain.moderate.01",
+      "sfx.magic.strain.high.01",
+      "sfx.magic.strain.critical.01",
+      "sfx.interaction.chest.open",
+      "sfx.interaction.chest.close",
+      "sfx.interaction.door.open",
+      "sfx.interaction.door.close",
+      "sfx.interaction.loot.take_all",
+      "sfx.interaction.pickup",
+      "sfx.crafting.mining.strike",
+      "sfx.crafting.ore.break",
+      "sfx.crafting.anvil.strike",
+      "sfx.crafting.complete",
+      "sfx.crafting.forge.ambience.01",
+      "amb.ashen_hollow.waystation.01",
+      "sfx.amb.ashen_hollow.forge_distant.01",
+      "sfx.amb.ashen_hollow.timber_creak.01",
+      "sfx.amb.ashen_hollow.settlement_activity.01",
+      "amb.charwood_verge.01",
+      "sfx.amb.charwood.branch_movement.01",
+      "sfx.amb.charwood.raven_call.01",
+      "sfx.amb.charwood.stream_detail.01",
+      "amb.blackvein_cut.01",
+      "sfx.amb.blackvein.pebble_fall.01",
+      "sfx.amb.blackvein.rock_shift.01",
+      "sfx.amb.blackvein.winch_creak.01",
+      "amb.foldscar_ruin.01",
+      "sfx.amb.foldscar.stone_resonance.01",
+      "sfx.amb.foldscar.tone_displacement.01",
+      "sfx.ui.menu.open",
+      "sfx.ui.menu.close",
+      "sfx.ui.select",
+      "sfx.ui.back",
+      "sfx.ui.equip",
+      "sfx.ui.error"
+    ]
+  },
+  "mapping": [
+    {
+      "Family": "sfx.player.footstep.dirt.walk",
+      "Event": "footstep(surface, walk)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.footstep.dirt.run",
+      "Event": "footstep(surface, run)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.footstep.stone.walk",
+      "Event": "footstep(surface, walk)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.footstep.stone.run",
+      "Event": "footstep(surface, run)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.footstep.wood.walk",
+      "Event": "footstep(surface, walk)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.footstep.wood.run",
+      "Event": "footstep(surface, run)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.land.stone",
+      "Event": "land(stone)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.land.dirt",
+      "Event": "land(dirt)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.jump.effort",
+      "Event": "jump_effort()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.crouch.enter",
+      "Event": "crouch_enter()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.crouch.exit",
+      "Event": "crouch_exit()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.hurt.light",
+      "Event": "hurt(light)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.hurt.heavy",
+      "Event": "hurt(heavy)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.gear.metal",
+      "Event": "gear_shift(metal)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.gear.cloth",
+      "Event": "gear_shift(cloth)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.sword.swing.light",
+      "Event": "swing(sword, light)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.sword.block",
+      "Event": "block()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.sword.draw",
+      "Event": "draw(sword)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.weapon.sword.sheath",
+      "Event": "sheathe(sword)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.sword.impact.flesh",
+      "Event": "impact(sword, flesh)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.sword.impact.plate",
+      "Event": "impact(sword, plate)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.weapon.bow.nock",
+      "Event": "nock()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.draw",
+      "Event": "draw_bow()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.release",
+      "Event": "swing(bow): release",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.arrow.flight",
+      "Event": "projectile_flight(bow)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.arrow.impact.flesh",
+      "Event": "impact(bow, flesh)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.polearm.impact.plate",
+      "Event": "impact(bow, plate)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.arrow.impact.wood",
+      "Event": "impact(arrow, wood): a structure",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.bow.arrow.impact.stone",
+      "Event": "impact(arrow, stone): a structure",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.polearm.thrust",
+      "Event": "swing(polearm)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.player.weapon.spear.ready",
+      "Event": "ready(polearm)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.weapon.polearm.impact.flesh",
+      "Event": "impact(polearm, flesh)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.idle",
+      "Event": "idle()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.alert",
+      "Event": "alert()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.attack",
+      "Event": "attack()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.hurt",
+      "Event": "hurt()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.walk",
+      "Event": "walk_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.ash_ember_hound.run",
+      "Event": "run_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.idle",
+      "Event": "idle()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.alert",
+      "Event": "alert()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.attack",
+      "Event": "attack()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.hurt",
+      "Event": "hurt()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.walk",
+      "Event": "walk_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bristleback_boar.charge",
+      "Event": "charge_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.idle",
+      "Event": "idle()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.alert",
+      "Event": "alert()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.attack",
+      "Event": "attack()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.hurt",
+      "Event": "hurt()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.scuttle",
+      "Event": "scuttle_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.cave_hunting_spider.scuttle_fast",
+      "Event": "scuttle_fast_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.idle",
+      "Event": "idle()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.alert",
+      "Event": "alert()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.attack",
+      "Event": "attack()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.hurt",
+      "Event": "hurt()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.walk",
+      "Event": "walk_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.bone_walker_husk.move_fast",
+      "Event": "move_fast_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.idle",
+      "Event": "idle()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.alert",
+      "Event": "alert()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.attack",
+      "Event": "attack()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.hurt",
+      "Event": "hurt()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.death",
+      "Event": "death()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.walk",
+      "Event": "walk_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.creature.animated_armour.move_heavy",
+      "Event": "move_heavy_step()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.impact",
+      "Event": "impact()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.cast",
+      "Event": "cast_start()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.activate",
+      "Event": "activate()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.resolve",
+      "Event": "resolve()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.travel",
+      "Event": "travel()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.end",
+      "Event": "end()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.impulse_bolt.hit",
+      "Event": "ward_hit()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.impact",
+      "Event": "impact()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.cast",
+      "Event": "cast_start()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.activate",
+      "Event": "activate()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.resolve",
+      "Event": "resolve()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.travel",
+      "Event": "travel()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.end",
+      "Event": "end()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.brace_ward.hit",
+      "Event": "ward_hit()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.impact",
+      "Event": "impact()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.cast",
+      "Event": "cast_start()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.activate",
+      "Event": "activate()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.resolve",
+      "Event": "resolve()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.travel",
+      "Event": "travel()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.end",
+      "Event": "end()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.mending_thread.hit",
+      "Event": "ward_hit()",
+      "Optional": true
+    },
+    {
+      "Family": "sfx.magic.strain.moderate.01",
+      "Event": "strain(moderate)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.magic.strain.high.01",
+      "Event": "strain(high)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.magic.strain.critical.01",
+      "Event": "strain(critical)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.chest.open",
+      "Event": "interaction_open()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.chest.close",
+      "Event": "interaction_close()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.door.open",
+      "Event": "interaction_open(door)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.door.close",
+      "Event": "interaction_close(door)",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.loot.take_all",
+      "Event": "loot_take_all()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.interaction.pickup",
+      "Event": "interaction_pickup()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.crafting.mining.strike",
+      "Event": "gather_hit()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.crafting.ore.break",
+      "Event": "gather_complete()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.crafting.anvil.strike",
+      "Event": "craft_hit()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.crafting.complete",
+      "Event": "craft_complete()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.crafting.forge.ambience.01",
+      "Event": "station_ambience()",
+      "Optional": false
+    },
+    {
+      "Family": "amb.ashen_hollow.waystation.01",
+      "Event": "ambience bed",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.ashen_hollow.forge_distant.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.ashen_hollow.timber_creak.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.ashen_hollow.settlement_activity.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "amb.charwood_verge.01",
+      "Event": "ambience bed",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.charwood.branch_movement.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.charwood.raven_call.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.charwood.stream_detail.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "amb.blackvein_cut.01",
+      "Event": "ambience bed",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.blackvein.pebble_fall.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.blackvein.rock_shift.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.blackvein.winch_creak.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "amb.foldscar_ruin.01",
+      "Event": "ambience bed",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.foldscar.stone_resonance.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.amb.foldscar.tone_displacement.01",
+      "Event": "cell_detail()",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.menu.open",
+      "Event": "ui menu.open",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.menu.close",
+      "Event": "ui menu.close",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.select",
+      "Event": "ui select",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.back",
+      "Event": "ui back",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.equip",
+      "Event": "ui equip",
+      "Optional": false
+    },
+    {
+      "Family": "sfx.ui.error",
+      "Event": "ui error",
+      "Optional": false
+    }
+  ]
+}

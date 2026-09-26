@@ -1,0 +1,2191 @@
+{
+  "run": "build-shots",
+  "gate": "UNNAMED art coverage: 129 requested, 9 resolved, 120 fallbacks, 119 unexpected",
+  "counts": {
+    "requested": 129,
+    "resolved": 9,
+    "fallbacks": 120,
+    "unexpected": 119
+  },
+  "by_kind": {
+    "barrier": {
+      "requested": 1,
+      "resolved": 1,
+      "fallbacks": 0,
+      "unexpected": 0
+    },
+    "building": {
+      "requested": 2,
+      "resolved": 0,
+      "fallbacks": 2,
+      "unexpected": 2
+    },
+    "cliffs": {
+      "requested": 1,
+      "resolved": 0,
+      "fallbacks": 1,
+      "unexpected": 1
+    },
+    "container": {
+      "requested": 3,
+      "resolved": 0,
+      "fallbacks": 3,
+      "unexpected": 3
+    },
+    "creature": {
+      "requested": 6,
+      "resolved": 0,
+      "fallbacks": 6,
+      "unexpected": 6
+    },
+    "debug": {
+      "requested": 1,
+      "resolved": 0,
+      "fallbacks": 1,
+      "unexpected": 0
+    },
+    "door": {
+      "requested": 2,
+      "resolved": 0,
+      "fallbacks": 2,
+      "unexpected": 2
+    },
+    "effect": {
+      "requested": 2,
+      "resolved": 0,
+      "fallbacks": 2,
+      "unexpected": 2
+    },
+    "ghost": {
+      "requested": 6,
+      "resolved": 6,
+      "fallbacks": 0,
+      "unexpected": 0
+    },
+    "icon": {
+      "requested": 7,
+      "resolved": 0,
+      "fallbacks": 7,
+      "unexpected": 7
+    },
+    "node": {
+      "requested": 4,
+      "resolved": 0,
+      "fallbacks": 4,
+      "unexpected": 4
+    },
+    "overlay": {
+      "requested": 1,
+      "resolved": 1,
+      "fallbacks": 0,
+      "unexpected": 0
+    },
+    "person": {
+      "requested": 5,
+      "resolved": 0,
+      "fallbacks": 5,
+      "unexpected": 5
+    },
+    "piece": {
+      "requested": 7,
+      "resolved": 0,
+      "fallbacks": 7,
+      "unexpected": 7
+    },
+    "roof": {
+      "requested": 2,
+      "resolved": 0,
+      "fallbacks": 2,
+      "unexpected": 2
+    },
+    "scatter": {
+      "requested": 1,
+      "resolved": 0,
+      "fallbacks": 1,
+      "unexpected": 1
+    },
+    "station": {
+      "requested": 2,
+      "resolved": 0,
+      "fallbacks": 2,
+      "unexpected": 2
+    },
+    "structure": {
+      "requested": 64,
+      "resolved": 0,
+      "fallbacks": 64,
+      "unexpected": 64
+    },
+    "switch_mark": {
+      "requested": 4,
+      "resolved": 0,
+      "fallbacks": 4,
+      "unexpected": 4
+    },
+    "terrain": {
+      "requested": 4,
+      "resolved": 0,
+      "fallbacks": 4,
+      "unexpected": 4
+    },
+    "water": {
+      "requested": 1,
+      "resolved": 1,
+      "fallbacks": 0,
+      "unexpected": 0
+    },
+    "weapon": {
+      "requested": 3,
+      "resolved": 0,
+      "fallbacks": 3,
+      "unexpected": 3
+    }
+  },
+  "unexpected": [
+    {
+      "key": "building:forge",
+      "asset": "forge_shed",
+      "why": "not drawn: its walls and roof are drawn in greybox"
+    },
+    {
+      "key": "building:longhouse",
+      "asset": "longhouse",
+      "why": "not drawn: its walls and roof are drawn in greybox"
+    },
+    {
+      "key": "cliffs:ravine",
+      "asset": "material_rubble_stone_wall",
+      "why": "its material would not load"
+    },
+    {
+      "key": "container:container.den_cache",
+      "asset": "container_chest_iron_banded",
+      "why": "not drawn: a brown box"
+    },
+    {
+      "key": "container:container.timber_stack",
+      "asset": null,
+      "why": "no binding: a brown box"
+    },
+    {
+      "key": "container:container.waystation_chest",
+      "asset": "container_chest_iron_banded",
+      "why": "not drawn: a brown box"
+    },
+    {
+      "key": "creature:creature.beast.ash_ember_hound",
+      "asset": "creature_ash_ember_hound",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "creature:creature.beast.bristleback_boar",
+      "asset": "creature_bristleback_boar",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "creature:creature.beast.cave_hunting_spider",
+      "asset": "creature_cave_hunting_spider",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "creature:creature.beast.wolf_grey",
+      "asset": "creature_frost_wolf",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "creature:creature.construct.animated_armour",
+      "asset": "creature_animated_armour",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "creature:creature.undead.bone_walker_husk",
+      "asset": "creature_bone_walker_husk",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "door:door.forge_shed",
+      "asset": "prop_iron_banded_oak_door",
+      "why": "its building is drawn in greybox, so its door is a panel"
+    },
+    {
+      "key": "door:door.longhouse",
+      "asset": "prop_iron_banded_oak_door",
+      "why": "its building is drawn in greybox, so its door is a panel"
+    },
+    {
+      "key": "effect:cast_charge",
+      "asset": "vfx.magic.cast_charge",
+      "why": "its flipbook is not in the effect manifest, or would not load: the greybox tell"
+    },
+    {
+      "key": "effect:strain",
+      "asset": "vfx.resonance.strain_overlay",
+      "why": "its flipbook is not in the effect manifest, or would not load: the greybox tell"
+    },
+    {
+      "key": "icon:compass",
+      "asset": "ui.hud.compass",
+      "why": "no compass dial in the icon manifest: a plain strip"
+    },
+    {
+      "key": "icon:focus",
+      "asset": "ui.resource.focus",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "icon:follow",
+      "asset": "ui.companion.follow",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "icon:health",
+      "asset": "ui.resource.health",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "icon:stamina",
+      "asset": "ui.resource.stamina",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "icon:strained",
+      "asset": "ui.status.strained",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "icon:wait",
+      "asset": "ui.companion.wait",
+      "why": "its icon is not in the icon manifest, or would not load"
+    },
+    {
+      "key": "node:node.ore.iron_seam:ready",
+      "asset": "node_iron_seam_ore",
+      "why": "not drawn: greybox lumps"
+    },
+    {
+      "key": "node:node.ore.iron_seam:spent",
+      "asset": "node_iron_seam_worked",
+      "why": "not drawn: greybox lumps, spent"
+    },
+    {
+      "key": "node:node.wood.ash_stand:ready",
+      "asset": "flora_young_ash_stand",
+      "why": "not drawn: three greybox trunks"
+    },
+    {
+      "key": "node:node.wood.ash_stand:spent",
+      "asset": "flora_ash_stumps",
+      "why": "not drawn: three greybox trunks, spent"
+    },
+    {
+      "key": "person:npc.ashen_hollow.kera_voss",
+      "asset": "npc_kal_smith",
+      "why": "not drawn: the greybox mannequin"
+    },
+    {
+      "key": "person:npc.ashen_hollow.renn_vale",
+      "asset": "npc_veth_magistrate",
+      "why": "not drawn: the greybox mannequin"
+    },
+    {
+      "key": "person:npc.ashen_hollow.sel_arien",
+      "asset": "npc_siann_archivist",
+      "why": "not drawn: the greybox mannequin"
+    },
+    {
+      "key": "person:npc.ashen_hollow.tavar_orr",
+      "asset": "npc_orenth_guide",
+      "why": "not drawn: the greybox mannequin"
+    },
+    {
+      "key": "person:player",
+      "asset": "player_veth_wanderer",
+      "why": "not drawn: the greybox mannequin"
+    },
+    {
+      "key": "piece:piece.door.timber",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.doorway.timber",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.pad.timber",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.roof.timber",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.station.anvil",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.storage.chest",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "piece:piece.wall.timber",
+      "asset": null,
+      "why": "M7 ships no piece art"
+    },
+    {
+      "key": "roof:forge_roof",
+      "asset": null,
+      "why": "its building is drawn in greybox: a flat slab over the walls"
+    },
+    {
+      "key": "roof:longhouse_roof",
+      "asset": null,
+      "why": "its building is drawn in greybox: a flat slab over the walls"
+    },
+    {
+      "key": "scatter:stones",
+      "asset": "material_limestone_ashlar",
+      "why": "its material would not load"
+    },
+    {
+      "key": "station:anvil",
+      "asset": "prop_blacksmith_anvil_stump",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "station:forge",
+      "asset": "prop_forge_hearth",
+      "why": "not drawn: greybox blocks"
+    },
+    {
+      "key": "structure:beam_woundmoss",
+      "asset": "prop_woundmoss_beam",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:cart_wreck",
+      "asset": "prop_cart_damaged_merchant",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:den_rock_back",
+      "asset": "rock_den_back",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:den_rock_east",
+      "asset": "rock_den_east",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:den_rock_west",
+      "asset": "rock_den_west",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:fallen_timber",
+      "asset": "flora_fallen_log",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:fence_smithy",
+      "asset": "building_fence_panel",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:forge_east",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:forge_north",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:forge_south",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:forge_west_north",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:forge_west_south",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:longhouse_east_north",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:longhouse_east_south",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:longhouse_north",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:longhouse_south",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:longhouse_west",
+      "asset": null,
+      "why": "no binding: a box"
+    },
+    {
+      "key": "structure:rock_beam_east",
+      "asset": "rock_outcrop_beam_support",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_beam_west",
+      "asset": "rock_outcrop_beam_support",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_blocked_shaft",
+      "asset": "prop_blocked_shaft",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:rock_foldscar_heart",
+      "asset": "landmark_foldscar_heart",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_iron_seam",
+      "asset": "rock_iron_seam_outcrop",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_rim_01",
+      "asset": "rock_outcrop_rim_a",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_rim_02",
+      "asset": "rock_outcrop_rim_b",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_rim_03",
+      "asset": "rock_outcrop_rim_c",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_rim_04",
+      "asset": "rock_outcrop_rim_a",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_stone_north",
+      "asset": "landmark_quiet_stone",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_stone_southeast",
+      "asset": "landmark_quiet_stone",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_stone_southwest",
+      "asset": "landmark_quiet_stone",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_waystone",
+      "asset": "landmark_ashen_waystone",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:rock_well",
+      "asset": "building_well",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:survey_table",
+      "asset": "prop_long_trestle_table",
+      "why": "not drawn: a box"
+    },
+    {
+      "key": "structure:tree_01",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_02",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_03",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_04",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_05",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_06",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_07",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_08",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_09",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_10",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_11",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_12",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_13",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_14",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_15",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_16",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_17",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_18",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_19",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_20",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_21",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_22",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_23",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_24",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_25",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_26",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_27",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_28",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_29",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_30",
+      "asset": "flora_dead_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_31",
+      "asset": "flora_oak_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "structure:tree_32",
+      "asset": "flora_pine_tree",
+      "why": "not drawn: a cylinder"
+    },
+    {
+      "key": "switch_mark:switch.foldscar_heart",
+      "asset": null,
+      "why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset"
+    },
+    {
+      "key": "switch_mark:switch.stone_north",
+      "asset": null,
+      "why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset"
+    },
+    {
+      "key": "switch_mark:switch.stone_southeast",
+      "asset": null,
+      "why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset"
+    },
+    {
+      "key": "switch_mark:switch.stone_southwest",
+      "asset": null,
+      "why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset"
+    },
+    {
+      "key": "terrain:r_0_0:c_00_00",
+      "asset": "material_loose_gravel",
+      "why": "its material would not load"
+    },
+    {
+      "key": "terrain:r_0_0:c_00_01",
+      "asset": "material_packed_dirt_ground",
+      "why": "its material would not load"
+    },
+    {
+      "key": "terrain:r_0_0:c_01_00",
+      "asset": "material_churned_wet_mud",
+      "why": "its material would not load"
+    },
+    {
+      "key": "terrain:r_0_0:c_01_01",
+      "asset": "material_marsh_grass_turf",
+      "why": "its material would not load"
+    },
+    {
+      "key": "weapon:weapon_arming_sword",
+      "asset": "weapon_arming_sword",
+      "why": "not drawn: a greybox weapon"
+    },
+    {
+      "key": "weapon:weapon_boar_spear_hunting",
+      "asset": "weapon_boar_spear_hunting",
+      "why": "not drawn: a greybox weapon"
+    },
+    {
+      "key": "weapon:weapon_yew_longbow_warbow",
+      "asset": "weapon_yew_longbow_warbow",
+      "why": "not drawn: a greybox weapon"
+    }
+  ],
+  "allowed": [
+    {
+      "key": "debug:discovery_rings",
+      "asset": null,
+      "why": "the F3 overlay\u0027s discovery rings, flat translucent discs",
+      "allowed_because": "the F3 debug overlay\u0027s markers, drawn only while a developer has the overlay on; never shown in normal play (charter \u00A73: no markers)"
+    }
+  ],
+  "entries": [
+    {
+      "Key": "barrier:barrier.foldscar_fold",
+      "Kind": "barrier",
+      "Id": "barrier.foldscar_fold",
+      "Asset": "a refractive violet shimmer shader with drifting motes (Palette.FoldscarBarrier); an effect, not a model",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "building:forge",
+      "Kind": "building",
+      "Id": "forge",
+      "Asset": "forge_shed",
+      "Outcome": "fallback",
+      "Why": "not drawn: its walls and roof are drawn in greybox",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "building:longhouse",
+      "Kind": "building",
+      "Id": "longhouse",
+      "Asset": "longhouse",
+      "Outcome": "fallback",
+      "Why": "not drawn: its walls and roof are drawn in greybox",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "cliffs:ravine",
+      "Kind": "cliffs",
+      "Id": "ravine",
+      "Asset": "material_rubble_stone_wall",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "container:container.den_cache",
+      "Kind": "container",
+      "Id": "container.den_cache",
+      "Asset": "container_chest_iron_banded",
+      "Outcome": "fallback",
+      "Why": "not drawn: a brown box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "container:container.timber_stack",
+      "Kind": "container",
+      "Id": "container.timber_stack",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a brown box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "container:container.waystation_chest",
+      "Kind": "container",
+      "Id": "container.waystation_chest",
+      "Asset": "container_chest_iron_banded",
+      "Outcome": "fallback",
+      "Why": "not drawn: a brown box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.beast.ash_ember_hound",
+      "Kind": "creature",
+      "Id": "creature.beast.ash_ember_hound",
+      "Asset": "creature_ash_ember_hound",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.beast.bristleback_boar",
+      "Kind": "creature",
+      "Id": "creature.beast.bristleback_boar",
+      "Asset": "creature_bristleback_boar",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.beast.cave_hunting_spider",
+      "Kind": "creature",
+      "Id": "creature.beast.cave_hunting_spider",
+      "Asset": "creature_cave_hunting_spider",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.beast.wolf_grey",
+      "Kind": "creature",
+      "Id": "creature.beast.wolf_grey",
+      "Asset": "creature_frost_wolf",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 8,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.construct.animated_armour",
+      "Kind": "creature",
+      "Id": "creature.construct.animated_armour",
+      "Asset": "creature_animated_armour",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "creature:creature.undead.bone_walker_husk",
+      "Kind": "creature",
+      "Id": "creature.undead.bone_walker_husk",
+      "Asset": "creature_bone_walker_husk",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "debug:discovery_rings",
+      "Kind": "debug",
+      "Id": "discovery_rings",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "the F3 overlay\u0027s discovery rings, flat translucent discs",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": "the F3 debug overlay\u0027s markers, drawn only while a developer has the overlay on; never shown in normal play (charter \u00A73: no markers)"
+    },
+    {
+      "Key": "door:door.forge_shed",
+      "Kind": "door",
+      "Id": "door.forge_shed",
+      "Asset": "prop_iron_banded_oak_door",
+      "Outcome": "fallback",
+      "Why": "its building is drawn in greybox, so its door is a panel",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "door:door.longhouse",
+      "Kind": "door",
+      "Id": "door.longhouse",
+      "Asset": "prop_iron_banded_oak_door",
+      "Outcome": "fallback",
+      "Why": "its building is drawn in greybox, so its door is a panel",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "effect:cast_charge",
+      "Kind": "effect",
+      "Id": "cast_charge",
+      "Asset": "vfx.magic.cast_charge",
+      "Outcome": "fallback",
+      "Why": "its flipbook is not in the effect manifest, or would not load: the greybox tell",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "effect:strain",
+      "Kind": "effect",
+      "Id": "strain",
+      "Asset": "vfx.resonance.strain_overlay",
+      "Outcome": "fallback",
+      "Why": "its flipbook is not in the effect manifest, or would not load: the greybox tell",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.doorway.timber",
+      "Kind": "ghost",
+      "Id": "piece.doorway.timber",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.pad.timber",
+      "Kind": "ghost",
+      "Id": "piece.pad.timber",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 5,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.roof.timber",
+      "Kind": "ghost",
+      "Id": "piece.roof.timber",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 4,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.station.anvil",
+      "Kind": "ghost",
+      "Id": "piece.station.anvil",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.storage.chest",
+      "Kind": "ghost",
+      "Id": "piece.storage.chest",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "ghost:piece.wall.timber",
+      "Kind": "ghost",
+      "Id": "piece.wall.timber",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 9,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:compass",
+      "Kind": "icon",
+      "Id": "compass",
+      "Asset": "ui.hud.compass",
+      "Outcome": "fallback",
+      "Why": "no compass dial in the icon manifest: a plain strip",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:focus",
+      "Kind": "icon",
+      "Id": "focus",
+      "Asset": "ui.resource.focus",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:follow",
+      "Kind": "icon",
+      "Id": "follow",
+      "Asset": "ui.companion.follow",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:health",
+      "Kind": "icon",
+      "Id": "health",
+      "Asset": "ui.resource.health",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:stamina",
+      "Kind": "icon",
+      "Id": "stamina",
+      "Asset": "ui.resource.stamina",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:strained",
+      "Kind": "icon",
+      "Id": "strained",
+      "Asset": "ui.status.strained",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "icon:wait",
+      "Kind": "icon",
+      "Id": "wait",
+      "Asset": "ui.companion.wait",
+      "Outcome": "fallback",
+      "Why": "its icon is not in the icon manifest, or would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "node:node.ore.iron_seam:ready",
+      "Kind": "node",
+      "Id": "node.ore.iron_seam:ready",
+      "Asset": "node_iron_seam_ore",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox lumps",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "node:node.ore.iron_seam:spent",
+      "Kind": "node",
+      "Id": "node.ore.iron_seam:spent",
+      "Asset": "node_iron_seam_worked",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox lumps, spent",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "node:node.wood.ash_stand:ready",
+      "Kind": "node",
+      "Id": "node.wood.ash_stand:ready",
+      "Asset": "flora_young_ash_stand",
+      "Outcome": "fallback",
+      "Why": "not drawn: three greybox trunks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "node:node.wood.ash_stand:spent",
+      "Kind": "node",
+      "Id": "node.wood.ash_stand:spent",
+      "Asset": "flora_ash_stumps",
+      "Outcome": "fallback",
+      "Why": "not drawn: three greybox trunks, spent",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "overlay:build_area.hollow_crossing",
+      "Kind": "overlay",
+      "Id": "build_area.hollow_crossing",
+      "Asset": "m7_effect",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "person:npc.ashen_hollow.kera_voss",
+      "Kind": "person",
+      "Id": "npc.ashen_hollow.kera_voss",
+      "Asset": "npc_kal_smith",
+      "Outcome": "fallback",
+      "Why": "not drawn: the greybox mannequin",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "person:npc.ashen_hollow.renn_vale",
+      "Kind": "person",
+      "Id": "npc.ashen_hollow.renn_vale",
+      "Asset": "npc_veth_magistrate",
+      "Outcome": "fallback",
+      "Why": "not drawn: the greybox mannequin",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "person:npc.ashen_hollow.sel_arien",
+      "Kind": "person",
+      "Id": "npc.ashen_hollow.sel_arien",
+      "Asset": "npc_siann_archivist",
+      "Outcome": "fallback",
+      "Why": "not drawn: the greybox mannequin",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "person:npc.ashen_hollow.tavar_orr",
+      "Kind": "person",
+      "Id": "npc.ashen_hollow.tavar_orr",
+      "Asset": "npc_orenth_guide",
+      "Outcome": "fallback",
+      "Why": "not drawn: the greybox mannequin",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "person:player",
+      "Kind": "person",
+      "Id": "player",
+      "Asset": "player_veth_wanderer",
+      "Outcome": "fallback",
+      "Why": "not drawn: the greybox mannequin",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.door.timber",
+      "Kind": "piece",
+      "Id": "piece.door.timber",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.doorway.timber",
+      "Kind": "piece",
+      "Id": "piece.doorway.timber",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.pad.timber",
+      "Kind": "piece",
+      "Id": "piece.pad.timber",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 7,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.roof.timber",
+      "Kind": "piece",
+      "Id": "piece.roof.timber",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 4,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.station.anvil",
+      "Kind": "piece",
+      "Id": "piece.station.anvil",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.storage.chest",
+      "Kind": "piece",
+      "Id": "piece.storage.chest",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 2,
+      "Allowed": null
+    },
+    {
+      "Key": "piece:piece.wall.timber",
+      "Kind": "piece",
+      "Id": "piece.wall.timber",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "M7 ships no piece art",
+      "Resolved": 0,
+      "Fallbacks": 11,
+      "Allowed": null
+    },
+    {
+      "Key": "roof:forge_roof",
+      "Kind": "roof",
+      "Id": "forge_roof",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "its building is drawn in greybox: a flat slab over the walls",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "roof:longhouse_roof",
+      "Kind": "roof",
+      "Id": "longhouse_roof",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "its building is drawn in greybox: a flat slab over the walls",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "scatter:stones",
+      "Kind": "scatter",
+      "Id": "stones",
+      "Asset": "material_limestone_ashlar",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "station:anvil",
+      "Kind": "station",
+      "Id": "anvil",
+      "Asset": "prop_blacksmith_anvil_stump",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "station:forge",
+      "Kind": "station",
+      "Id": "forge",
+      "Asset": "prop_forge_hearth",
+      "Outcome": "fallback",
+      "Why": "not drawn: greybox blocks",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:beam_woundmoss",
+      "Kind": "structure",
+      "Id": "beam_woundmoss",
+      "Asset": "prop_woundmoss_beam",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:cart_wreck",
+      "Kind": "structure",
+      "Id": "cart_wreck",
+      "Asset": "prop_cart_damaged_merchant",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:den_rock_back",
+      "Kind": "structure",
+      "Id": "den_rock_back",
+      "Asset": "rock_den_back",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:den_rock_east",
+      "Kind": "structure",
+      "Id": "den_rock_east",
+      "Asset": "rock_den_east",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:den_rock_west",
+      "Kind": "structure",
+      "Id": "den_rock_west",
+      "Asset": "rock_den_west",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:fallen_timber",
+      "Kind": "structure",
+      "Id": "fallen_timber",
+      "Asset": "flora_fallen_log",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:fence_smithy",
+      "Kind": "structure",
+      "Id": "fence_smithy",
+      "Asset": "building_fence_panel",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:forge_east",
+      "Kind": "structure",
+      "Id": "forge_east",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:forge_north",
+      "Kind": "structure",
+      "Id": "forge_north",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:forge_south",
+      "Kind": "structure",
+      "Id": "forge_south",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:forge_west_north",
+      "Kind": "structure",
+      "Id": "forge_west_north",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:forge_west_south",
+      "Kind": "structure",
+      "Id": "forge_west_south",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:longhouse_east_north",
+      "Kind": "structure",
+      "Id": "longhouse_east_north",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:longhouse_east_south",
+      "Kind": "structure",
+      "Id": "longhouse_east_south",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:longhouse_north",
+      "Kind": "structure",
+      "Id": "longhouse_north",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:longhouse_south",
+      "Kind": "structure",
+      "Id": "longhouse_south",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:longhouse_west",
+      "Kind": "structure",
+      "Id": "longhouse_west",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "no binding: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_beam_east",
+      "Kind": "structure",
+      "Id": "rock_beam_east",
+      "Asset": "rock_outcrop_beam_support",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_beam_west",
+      "Kind": "structure",
+      "Id": "rock_beam_west",
+      "Asset": "rock_outcrop_beam_support",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_blocked_shaft",
+      "Kind": "structure",
+      "Id": "rock_blocked_shaft",
+      "Asset": "prop_blocked_shaft",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_foldscar_heart",
+      "Kind": "structure",
+      "Id": "rock_foldscar_heart",
+      "Asset": "landmark_foldscar_heart",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_iron_seam",
+      "Kind": "structure",
+      "Id": "rock_iron_seam",
+      "Asset": "rock_iron_seam_outcrop",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_rim_01",
+      "Kind": "structure",
+      "Id": "rock_rim_01",
+      "Asset": "rock_outcrop_rim_a",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_rim_02",
+      "Kind": "structure",
+      "Id": "rock_rim_02",
+      "Asset": "rock_outcrop_rim_b",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_rim_03",
+      "Kind": "structure",
+      "Id": "rock_rim_03",
+      "Asset": "rock_outcrop_rim_c",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_rim_04",
+      "Kind": "structure",
+      "Id": "rock_rim_04",
+      "Asset": "rock_outcrop_rim_a",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_stone_north",
+      "Kind": "structure",
+      "Id": "rock_stone_north",
+      "Asset": "landmark_quiet_stone",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_stone_southeast",
+      "Kind": "structure",
+      "Id": "rock_stone_southeast",
+      "Asset": "landmark_quiet_stone",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_stone_southwest",
+      "Kind": "structure",
+      "Id": "rock_stone_southwest",
+      "Asset": "landmark_quiet_stone",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_waystone",
+      "Kind": "structure",
+      "Id": "rock_waystone",
+      "Asset": "landmark_ashen_waystone",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:rock_well",
+      "Kind": "structure",
+      "Id": "rock_well",
+      "Asset": "building_well",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:survey_table",
+      "Kind": "structure",
+      "Id": "survey_table",
+      "Asset": "prop_long_trestle_table",
+      "Outcome": "fallback",
+      "Why": "not drawn: a box",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_01",
+      "Kind": "structure",
+      "Id": "tree_01",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_02",
+      "Kind": "structure",
+      "Id": "tree_02",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_03",
+      "Kind": "structure",
+      "Id": "tree_03",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_04",
+      "Kind": "structure",
+      "Id": "tree_04",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_05",
+      "Kind": "structure",
+      "Id": "tree_05",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_06",
+      "Kind": "structure",
+      "Id": "tree_06",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_07",
+      "Kind": "structure",
+      "Id": "tree_07",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_08",
+      "Kind": "structure",
+      "Id": "tree_08",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_09",
+      "Kind": "structure",
+      "Id": "tree_09",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_10",
+      "Kind": "structure",
+      "Id": "tree_10",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_11",
+      "Kind": "structure",
+      "Id": "tree_11",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_12",
+      "Kind": "structure",
+      "Id": "tree_12",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_13",
+      "Kind": "structure",
+      "Id": "tree_13",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_14",
+      "Kind": "structure",
+      "Id": "tree_14",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_15",
+      "Kind": "structure",
+      "Id": "tree_15",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_16",
+      "Kind": "structure",
+      "Id": "tree_16",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_17",
+      "Kind": "structure",
+      "Id": "tree_17",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_18",
+      "Kind": "structure",
+      "Id": "tree_18",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_19",
+      "Kind": "structure",
+      "Id": "tree_19",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_20",
+      "Kind": "structure",
+      "Id": "tree_20",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_21",
+      "Kind": "structure",
+      "Id": "tree_21",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_22",
+      "Kind": "structure",
+      "Id": "tree_22",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_23",
+      "Kind": "structure",
+      "Id": "tree_23",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_24",
+      "Kind": "structure",
+      "Id": "tree_24",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_25",
+      "Kind": "structure",
+      "Id": "tree_25",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_26",
+      "Kind": "structure",
+      "Id": "tree_26",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_27",
+      "Kind": "structure",
+      "Id": "tree_27",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_28",
+      "Kind": "structure",
+      "Id": "tree_28",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_29",
+      "Kind": "structure",
+      "Id": "tree_29",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_30",
+      "Kind": "structure",
+      "Id": "tree_30",
+      "Asset": "flora_dead_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_31",
+      "Kind": "structure",
+      "Id": "tree_31",
+      "Asset": "flora_oak_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "structure:tree_32",
+      "Kind": "structure",
+      "Id": "tree_32",
+      "Asset": "flora_pine_tree",
+      "Outcome": "fallback",
+      "Why": "not drawn: a cylinder",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "switch_mark:switch.foldscar_heart",
+      "Kind": "switch_mark",
+      "Id": "switch.foldscar_heart",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "switch_mark:switch.stone_north",
+      "Kind": "switch_mark",
+      "Id": "switch.stone_north",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "switch_mark:switch.stone_southeast",
+      "Kind": "switch_mark",
+      "Id": "switch.stone_southeast",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "switch_mark:switch.stone_southwest",
+      "Kind": "switch_mark",
+      "Id": "switch.stone_southwest",
+      "Asset": null,
+      "Outcome": "fallback",
+      "Why": "a pale band drawn in code round the greybox stone\u0027s top, shown once it is set; no asset",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "terrain:r_0_0:c_00_00",
+      "Kind": "terrain",
+      "Id": "r_0_0:c_00_00",
+      "Asset": "material_loose_gravel",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "terrain:r_0_0:c_00_01",
+      "Kind": "terrain",
+      "Id": "r_0_0:c_00_01",
+      "Asset": "material_packed_dirt_ground",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "terrain:r_0_0:c_01_00",
+      "Kind": "terrain",
+      "Id": "r_0_0:c_01_00",
+      "Asset": "material_churned_wet_mud",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "terrain:r_0_0:c_01_01",
+      "Kind": "terrain",
+      "Id": "r_0_0:c_01_01",
+      "Asset": "material_marsh_grass_turf",
+      "Outcome": "fallback",
+      "Why": "its material would not load",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "water:stream",
+      "Kind": "water",
+      "Id": "stream",
+      "Asset": "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model",
+      "Outcome": "resolved",
+      "Why": null,
+      "Resolved": 1,
+      "Fallbacks": 0,
+      "Allowed": null
+    },
+    {
+      "Key": "weapon:weapon_arming_sword",
+      "Kind": "weapon",
+      "Id": "weapon_arming_sword",
+      "Asset": "weapon_arming_sword",
+      "Outcome": "fallback",
+      "Why": "not drawn: a greybox weapon",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "weapon:weapon_boar_spear_hunting",
+      "Kind": "weapon",
+      "Id": "weapon_boar_spear_hunting",
+      "Asset": "weapon_boar_spear_hunting",
+      "Outcome": "fallback",
+      "Why": "not drawn: a greybox weapon",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    },
+    {
+      "Key": "weapon:weapon_yew_longbow_warbow",
+      "Kind": "weapon",
+      "Id": "weapon_yew_longbow_warbow",
+      "Asset": "weapon_yew_longbow_warbow",
+      "Outcome": "fallback",
+      "Why": "not drawn: a greybox weapon",
+      "Resolved": 0,
+      "Fallbacks": 1,
+      "Allowed": null
+    }
+  ],
+  "asset_root": null,
+  "library_problems": {},
+  "library_used": [],
+  "load": {
+    "scene_build_ms": 502,
+    "ground_field_ms": 141,
+    "model_files": 0,
+    "model_files_ms": 0,
+    "model_textures_mipmapped": 0,
+    "mipmap_pass_ms": 0,
+    "material_maps": 0,
+    "material_maps_ms": 0,
+    "texture_mb_as_loaded": 0,
+    "texture_mb_with_mipmaps": 0,
+    "scatter_ms": 337.4,
+    "scatter_instances": {
+      "grass": 60048,
+      "leaves": 2194,
+      "stones": 7849
+    }
+  }
+}
