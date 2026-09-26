@@ -333,7 +333,7 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--showcase", out string? showcase))
         {
-            _showcase = new Showcase(_session, _controller, _camera, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
+            _showcase = new Showcase(_session, _controller, _camera, _dialogue, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -529,6 +529,11 @@ public partial class Main : Node3D
                 case "done":
                     WriteReports(_showcase.Directory, "showcase");
                     GetTree().Quit(0);
+                    return;
+                case "failed":
+                    SaveScreenshot(_showcase.Directory, "failed");
+                    WriteReports(_showcase.Directory, "showcase (failed)");
+                    GetTree().Quit(1);
                     return;
                 case { } shot:
                     SaveScreenshot(_showcase.Directory, shot);
