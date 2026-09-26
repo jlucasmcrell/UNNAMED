@@ -96,23 +96,26 @@ internal sealed record ChangeRelationship(string NpcId, string Dimension, int De
 // ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24). Each named NPC stands where the region puts them, turned
-/// the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the vertical slice) and no
-/// simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID (D-10). A
-/// companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
-/// everyone else stands where the region puts them, so nothing about their bodies needs saving.
+/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24) - and <see cref="StateSlice.NpcErrands"/> (M7). Each named NPC stands
+/// where the region puts them, turned the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the
+/// vertical slice) and no simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID
+/// (D-10). A companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
+/// an NPC on an errand (M7) is walked by the errand mover (<c>Errands.cs</c>) and saved with the errand; everyone else stands where the
+/// region puts them, so nothing about their bodies needs saving.
 /// </summary>
-internal sealed class NpcSystem
+internal sealed partial class NpcSystem
 {
     private const int TurnMdegPerTick = 18_000;   // 360 degrees a second at 20 Hz
 
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
+    private readonly NavigationSystem _navigation;
 
-    public NpcSystem(SystemContext context, SliceOwner owner)
+    public NpcSystem(SystemContext context, SliceOwner owner, NavigationSystem navigation)
     {
         _context = context;
         _owner = owner;
+        _navigation = navigation;
     }
 
     private RuntimeState State => _context.State;
@@ -124,8 +127,14 @@ internal sealed class NpcSystem
         return EntityId.Create(EntityKind.Npc, 1, h.Add("unnamed.npc/v1").Add(npcId).FinishBytes().AsSpan(0, 10));
     }
 
-    public void Populate()
+    /// <summary>
+    /// World start: every named NPC at their place - or, on an errand (M7), at the errand's pose, once the saved errands are repaired
+    /// against the saved companions and the pieces (<c>Errands.cs</c>). Publishes nothing.
+    /// </summary>
+    public void Populate(ImmutableArray<CompanionRecord> companions)
     {
+        RepairErrands(companions);
+        var terrain = _context.Setup.Layout.Space.Terrain;
         foreach (var site in _context.Setup.Layout.Npcs)
         {
             if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition))
@@ -133,8 +142,8 @@ internal sealed class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.Layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm);
-            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
+            var (x, z, facing) = State.World.NpcErrand(site.NpcId) is { } errand ? (errand.XMm, errand.ZMm, errand.FacingMdeg) : (site.XMm, site.ZMm, site.FacingMdeg);
+            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(x, terrain.HeightAtMm(x, z), z, facing)));
         }
     }
 
@@ -148,9 +157,11 @@ internal sealed class NpcSystem
 
     public void Tick(long tick)
     {
+        // Errands first (M7): only the mover writes an errand NPC's body, facing included, so the facing loop below skips them.
+        TickErrands(tick);
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
-        foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))
+        foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && State.World.NpcErrand(n.Definition.Id) is null))
         {
             int wanted = npc.Definition.Id == talking
                 ? CombatRules.FacingTowards(npc.Body.XMm, npc.Body.ZMm, player.XMm, player.ZMm)
@@ -234,6 +245,11 @@ internal sealed class DialogueSystem : IDialogueFacts
             return $"{npc.Definition.Name} has nothing to say";
         if (State.Companions.TryGetValue(command.NpcId, out var companion) && companion.Condition == CompanionCondition.Downed)
             return $"{npc.Definition.Name} is down";
+        // Read from the saved errand's phase (G21): walking, they do not stop to talk; at work they talk and trade as ever.
+        if (State.World.NpcErrand(command.NpcId)?.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.ToHome)
+            return State.World.NpcErrand(command.NpcId)!.Phase == NpcErrandPhase.ToWork
+                ? $"{npc.Definition.Name} is walking to work"
+                : $"{npc.Definition.Name} is walking home";
         if (!_context.InTalkReach(npc.Body))
             return $"{npc.Definition.Name} is out of reach";
         if (State.Conversation is { } open)

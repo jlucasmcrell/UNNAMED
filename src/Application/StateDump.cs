@@ -81,11 +81,11 @@ public static partial class StateDump
             ["doors"] = View("doors", simulation.Doors),
             ["barriers"] = View("barriers", simulation.Barriers),
             ["quests"] = View("quests", simulation.Quests.OrderBy(q => q.Id, StringComparer.Ordinal)),
-            // M7's paths, empty in play until something is built, an errand run or an act known. Pieces are their view (E5); until their
-            // views land (work assignments E8-E9) the others read the world's records and the faction slice.
+            // M7's paths, empty in play until something is built, an errand run or an act known: the pieces, the benches' stations and the
+            // work assignments (E9) as the game shows them - the errand records are the world's - and the faction slice.
             ["pieces"] = View("pieces", simulation.Pieces),
             ["piece_stations"] = View("piece_stations", simulation.Stations.Where(s => s.Key.StartsWith("station.pce_", StringComparison.Ordinal))),
-            ["work_assignments"] = View("work_assignments", simulation.World.TakeSnapshot().NpcErrands),
+            ["work_assignments"] = View("work_assignments", simulation.WorkAssignments),
             ["factions"] = View("factions", simulation.CaptureRecord().Factions.Standing),
             ["combat"] = combat,
             ["left_out"] = leftOut,

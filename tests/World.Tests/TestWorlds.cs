@@ -86,8 +86,12 @@ internal static class TestWorlds
         };
     }
 
-    /// <summary>A new character in a new world of the region, as a new game starts one.</summary>
-    public static Simulation HollowSimulation(SimulationSetup setup, IEventBus events, ulong seed = Seed, Func<PlayerRecord, PlayerRecord>? change = null)
+    /// <summary>
+    /// A new character in a new world of the region, as a new game starts one; <paramref name="craft"/> may write the world first, as a save
+    /// would have left it, given the character's ID.
+    /// </summary>
+    public static Simulation HollowSimulation(SimulationSetup setup, IEventBus events, ulong seed = Seed, Func<PlayerRecord, PlayerRecord>? change = null,
+        Action<WorldDelta, EntityId>? craft = null)
     {
         var layout = setup.Layout;
         var terrain = new TerrainRule(layout.Generation.TerrainBaseHeightMm, layout.Generation.TerrainAmplitudeMm, layout.Generation.TerrainSamplesPerAxis);
@@ -97,7 +101,9 @@ internal static class TestWorlds
         var id = EntityId.NewId(EntityKind.Character);
         var player = Simulation.NewCharacter(setup, id, "Tester", PlayerRecord.DerivedAppearanceSeed(id));
         player = change?.Invoke(player) ?? player;
-        return Simulation.Start(setup, player, new WorldDelta(generator, seed, new Registry()), 0, events);
+        var world = new WorldDelta(generator, seed, new Registry());
+        craft?.Invoke(world, player.Id);
+        return Simulation.Start(setup, player, world, 0, events);
     }
 
     public static void CopyDirectory(string from, string to)

@@ -143,7 +143,7 @@ public sealed class Simulation
         _crafting = new CraftingSystem(_context, player.Id);
         _navigation = new NavigationSystem(_context, _state.Claim(nameof(NavigationSystem), StateSlice.Navigation));
         _building = new BuildingSystem(_context, _state.Claim(nameof(BuildingSystem), StateSlice.Structures), player.Id, _navigation);
-        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
+        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcErrands), _navigation);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
@@ -156,7 +156,7 @@ public sealed class Simulation
         _effects.Seed(player.Id, player.Effects);
         _building.Populate();
         _navigation.Build();
-        _npcs.Populate();
+        _npcs.Populate(player.Companions);
         _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
@@ -285,8 +285,11 @@ public sealed class Simulation
     /// <summary>The structure sequence (M7): one more on every place and take-down.</summary>
     public long StructureRevision => _state.World.StructureSequence;
 
-    /// <summary>What the load found wrong with the saved pieces, kept and reported (M7).</summary>
-    public ImmutableArray<StructureConflict> StructureAudit => _state.StructureAudit;
+    /// <summary>What the load found wrong with the saved pieces, kept and reported, then with the saved errands and repaired (M7).</summary>
+    public ImmutableArray<StructureConflict> StructureAudit => _state.StructureAudit.AddRange(_state.ErrandAudit);
+
+    /// <summary>Every errand (E9), by NPC ID: who works where, or is walking home.</summary>
+    public ImmutableArray<WorkAssignmentView> WorkAssignments => _npcs.WorkAssignments();
 
     /// <summary>Every placed part as navigation reads it (M7).</summary>
     public ImmutableArray<NavFootprint> StructureFootprints => _context.StructureFootprints;
@@ -342,6 +345,8 @@ public sealed class Simulation
                 PlacePieceCommand place => _building.Handle(place, WorldTick),
                 DismantlePieceCommand dismantle => _building.Handle(dismantle, WorldTick),
                 RepairPieceCommand repair => _building.Handle(repair, WorldTick),
+                AssignWorkerCommand assign => _building.Handle(assign, WorldTick),
+                ReleaseWorkerCommand release => _building.Handle(release, WorldTick),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
@@ -468,6 +473,8 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
+        BeginWork begin => _npcs.Handle(begin, Now),
+        EndWork end => _npcs.Handle(end, Now),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),
         OpenDoor open => _interaction.Handle(open, Now),

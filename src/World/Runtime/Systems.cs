@@ -371,7 +371,9 @@ internal sealed class InteractionSystem
     /// </summary>
     public string? Handle(OpenDoor command, long tick)
     {
-        if (!_context.State.Companions.ContainsKey(command.NpcId) || !_context.State.Npcs.TryGetValue(command.NpcId, out var npc))
+        // Companions and NPCs on an errand (M7) open doors in their way; no one else does, and no NPC ever closes one.
+        if ((!_context.State.Companions.ContainsKey(command.NpcId) && _context.State.World.NpcErrand(command.NpcId) is null)
+            || !_context.State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"{command.NpcId} opens no doors";
         if (command.DoorKey.StartsWith("pce_", StringComparison.Ordinal))
             return EntityId.TryParse(command.DoorKey, out var piece)

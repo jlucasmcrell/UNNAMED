@@ -956,6 +956,11 @@ public class BuildingTests
         Assert.Null(Place(arena, Doorway, 100_500, 99_000, 0));
         Assert.Null(Place(arena, Door, 100_500, 99_000, 0));
         Assert.Null(Place(arena, Chest, 100_500, 100_500, 0));
+        // And a bench (E9), with Kera sent to work at it; the other character then stands beside her in the forge shed.
+        Assert.Null(Place(arena, Pad, 100_500, 103_500, 0));
+        Assert.Null(Place(arena, Bench, 100_500, 103_500, 3));
+        ErrandTests.ToKera(arena, (97.0, 97.0));
+        Assert.Null(ErrandTests.Assign(arena, Kera, arena.Simulation.Pieces.Single(p => p.DefId == Bench).Id));
         var loaded = SaveAndLoad(profile, session, arena, "theirs");
 
         // The same world, played by another character: the pad is not theirs.
@@ -966,7 +971,7 @@ public class BuildingTests
                 r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency, r.Effects, r.Relationships, r.Conversations),
         };
         var world = Arena.Resume(session.Setup, other);
-        var pad = world.Simulation.Pieces.Single(p => p.DefId == Pad);
+        var pad = world.Simulation.Pieces.Single(p => p.DefId == Pad && p.ZMm == 100_500);
         Assert.NotEqual(world.Player, pad.Owner);
         Assert.Equal("that is not yours to take down", Dismantle(world, pad.Id));
         Assert.Equal("that is not yours to mend", world.Submit(new RepairPieceCommand(world.Player, pad.Id)));   // E8
@@ -979,7 +984,11 @@ public class BuildingTests
         var chest = world.Simulation.Pieces.Single(p => p.DefId == Chest);
         var carried = world.Simulation.Player.Inventory.First();
         Assert.Equal("that chest is not yours", world.Submit(new MoveItemCommand(world.Player, carried.ItemId.Value, ItemPlace.Carried, ItemPlace.In(chest.ContainerKey!), 1)));
-        Assert.Equal(4, world.Simulation.Pieces.Length);
+        // Nor their bench (E9): no one is asked to work at it, and the one who works there does not work for this character.
+        var bench = world.Simulation.Pieces.Single(p => p.DefId == Bench);
+        Assert.Equal("that Anvil Bench is not yours", world.Submit(new AssignWorkerCommand(world.Player, Kera, bench.Id)));
+        Assert.Equal("Kera Voss does not work for you", world.Submit(new ReleaseWorkerCommand(world.Player, Kera)));
+        Assert.Equal(6, world.Simulation.Pieces.Length);
     }
 
     [Fact]
@@ -1075,6 +1084,11 @@ public class BuildingTests
         Assert.True(arena.Simulation.Walled(100_500, 102_600, 100_500, 101_200));
         Assert.Equal("Kera Voss is out of reach", arena.Submit(new TalkCommand(arena.Player, Kera)));
         Assert.Equal("Kera Voss is out of reach", arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, 1)));
+        // Nor is she asked to work (E9): asking is in person, through the same reach.
+        Assert.Null(Place(arena, Pad, 103_500, 103_500, 0));
+        Assert.Null(Place(arena, Bench, 103_500, 103_500, 0));
+        var bench = arena.Simulation.Pieces.Single(p => p.DefId == Bench).Id;
+        Assert.Equal("Kera Voss is out of reach", arena.Submit(new AssignWorkerCommand(arena.Player, Kera, bench)));
     }
 
     // G9

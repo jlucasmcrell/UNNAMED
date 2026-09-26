@@ -88,6 +88,12 @@ public enum StateSlice
     /// YAML's <c>structures:</c>, which are authored blockers.
     /// </summary>
     Structures,
+
+    /// <summary>
+    /// Named NPCs away from their place (M7): walking to work, at work, walking home - the errand rows in the world delta, saved. The load
+    /// audit of the errands is derived.
+    /// </summary>
+    NpcErrands,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -166,6 +172,9 @@ internal sealed class RuntimeState
     public StructureIndex StructureIndex { get; private set; } = StructureIndex.Empty;
     public ImmutableArray<NavFootprint> StructureFootprints { get; private set; } = ImmutableArray<NavFootprint>.Empty;
     public ImmutableArray<StructureConflict> StructureAudit { get; private set; } = ImmutableArray<StructureConflict>.Empty;
+
+    // What the load found wrong with the saved errands and repaired, reported after the piece lines (M7); derived, never saved.
+    public ImmutableArray<StructureConflict> ErrandAudit { get; private set; } = ImmutableArray<StructureConflict>.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -421,6 +430,24 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Structures);
         StructureAudit = lines;
+    }
+
+    public void SetNpcErrand(SliceOwner owner, NpcErrandRecord record)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        World.SetNpcErrand(record);
+    }
+
+    public void RemoveNpcErrand(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        World.RemoveNpcErrand(npcId);
+    }
+
+    public void SetErrandAudit(SliceOwner owner, ImmutableArray<StructureConflict> lines)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        ErrandAudit = lines;
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

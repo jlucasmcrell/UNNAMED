@@ -37,6 +37,57 @@ public class StateDumpTests
         Assert.Contains("world.hollow.longhouse_door_open", saved);   // the world delta is in it, not just the player
     }
 
+    /// <summary>
+    /// F-E6 (M7): the whole M7 state through <see cref="GameSession"/> - the workshop's step 1 with its bench and a chest holding timber,
+    /// Kera on her way to work at the bench, and a faction ledger with an act the waystation knows - saved, loaded, saved and loaded again,
+    /// compares equal field by field, with at least 265 more fields than a new game's.
+    /// </summary>
+    [Fact]
+    public void ABuiltStaffedAndKnownWorld_CompareEqual_FieldByField()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var fresh = Harness.Boot(profile);
+        string newGame = StateDump.Render(fresh.NewGame("Wanderer", seed: 42));
+        Assert.Empty(StateDump.Compare(newGame, newGame, out int newGameLeaves));
+
+        var arena = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(arena);
+        Assert.Null(BuildingTests.Place(arena, "piece.station.anvil", 100_500, 103_500, 3));
+        Assert.Null(BuildingTests.Place(arena, "piece.storage.chest", 103_500, 103_500, 0));
+        var chest = arena.Simulation.Pieces.Single(p => p.DefId == "piece.storage.chest");
+        var timber = arena.Simulation.Player.Inventory.First(e => e.DefId == "item.material.timber");
+        Assert.True(arena.WalkTo(103.5, 102.9), $"the walk to the chest stopped at {arena.Simulation.Player.Body}");
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, timber.ItemId.Value, ItemPlace.Carried, ItemPlace.In(chest.ContainerKey!), 2)));
+        ErrandTests.ToKera(arena, (100.5, 100.3), (100.5, 97.6), (97.0, 97.0));
+        Assert.Null(ErrandTests.Assign(arena, "npc.ashen_hollow.kera_voss", arena.Simulation.Pieces.Single(p => p.DefId == "piece.station.anvil").Id));
+        arena.Tick(40);
+        Assert.Equal(NpcErrandPhase.ToWork, arena.Simulation.World.NpcErrand("npc.ashen_hollow.kera_voss")!.Phase);
+
+        var act = new UNNAMED.Domain.Factions.ActRecord(1, UNNAMED.Domain.Factions.ActKinds.CreatureKilled, "creature.construct.animated_armour",
+            CellKey.OfWorld(120, 63).ToString(), 120_000, 63_000, 10);
+        var ledger = new UNNAMED.Domain.Factions.FactionLedger(2, System.Collections.Immutable.ImmutableArray.Create(act),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionKnowledge("faction.ashen_hollow.waystation", 1,
+                UNNAMED.Domain.Factions.Identities.Identified, UNNAMED.Domain.Factions.KnowledgeSources.Reported, "npc.ashen_hollow.kera_voss", 12, 100)),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionStanding("faction.ashen_hollow.waystation", 100)));
+        new SaveStore(profile.Root).Save(SaveSlots.Manual("built"), SaveDocuments.Capture(arena.Simulation.World,
+            arena.Simulation.CaptureRecord() with { Factions = ledger }, session.Content, arena.Simulation.WorldTick, 0));
+
+        var first = Harness.Boot(profile);
+        Assert.True(first.Load(SaveSlots.Manual("built")).IsComplete);
+        string once = StateDump.Render(first.Simulation!);
+        first.Save(SaveSlots.Quick);
+        var second = Harness.Boot(profile);
+        Assert.True(second.Load(SaveSlots.Quick).IsComplete);
+        string twice = StateDump.Render(second.Simulation!);
+
+        var differences = StateDump.Compare(once, twice, out int leaves);
+        Assert.True(differences.Count == 0, string.Join("; ", differences.Take(6)));
+        Assert.True(leaves >= newGameLeaves + 265, $"{leaves} fields, {leaves - newGameLeaves} beyond a new game's {newGameLeaves}");
+        Assert.Contains("npc.ashen_hollow.kera_voss", once);
+        Assert.Contains("faction.ashen_hollow.waystation", once);
+    }
+
     [Fact]
     public void ALoadMidHunt_ComparesTheWorldTheGameRebuilt_NotOnlyItsRecords()
     {

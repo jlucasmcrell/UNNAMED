@@ -44,8 +44,8 @@ public static class NavigationLayout
 }
 
 /// <summary>
-/// To <see cref="InteractionSystem"/>: an NPC opens a door in their way - a companion, until the errand mover (M7 design §6). NPCs open
-/// doors and never close them.
+/// To <see cref="InteractionSystem"/>: an NPC opens a door in their way - a companion, or an NPC on an errand (M7 design §6). NPCs
+/// open doors and never close them.
 /// </summary>
 internal sealed record OpenDoor(string DoorKey, string NpcId) : InternalCommand;
 
@@ -182,10 +182,11 @@ internal sealed class NavigationSystem
         _ => false,
     };
 
-    /// <summary>Every mover: the companions, by NPC ID. Blocked once stuck for <c>blocked_view_s</c>.</summary>
+    /// <summary>Every mover: the companions and the NPCs on errands (E9), by NPC ID. Blocked once stuck for <c>blocked_view_s</c>.</summary>
     private ImmutableArray<NavMoverView> Movers() =>
-        _context.State.Companions.Values.OrderBy(c => c.NpcId, StringComparer.Ordinal)
-            .Select(c => new NavMoverView(c.NpcId, c.Route, c.StuckTicks >= Config.Limits.BlockedViewTicks)).ToImmutableArray();
+        _context.State.Companions.Values.Select(c => new NavMoverView(c.NpcId, c.Route, c.StuckTicks >= Config.Limits.BlockedViewTicks))
+            .Concat(_context.State.World.NpcErrands.Select(e => new NavMoverView(e.NpcId, e.Route, e.StuckTicks >= Config.Limits.BlockedViewTicks)))
+            .OrderBy(m => m.NpcId, StringComparer.Ordinal).ToImmutableArray();
 
     /// <summary>A placed door by its gate key, or null for an authored door's.</summary>
     private PieceRecord? PieceDoor(string key) =>

@@ -71,7 +71,7 @@ public class ArchitectureTests
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
             // M7: placed pieces, the structure sequence and NPC errands, read only.
             nameof(WorldDelta.Piece), nameof(WorldDelta.PiecesIn), "get_" + nameof(WorldDelta.Pieces), "get_" + nameof(WorldDelta.StructureSequence),
-            nameof(WorldDelta.NpcErrand), nameof(WorldDelta.NpcErrandsIn),
+            nameof(WorldDelta.NpcErrand), nameof(WorldDelta.NpcErrandsIn), "get_" + nameof(WorldDelta.NpcErrands),   // E9: the mover reads every errand
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

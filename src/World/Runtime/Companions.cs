@@ -173,6 +173,9 @@ internal sealed class CompanionSystem
             return $"there is no one called {command.NpcId} here";
         if (npc.Definition.Companion is not { } profile || Tuning is null || AttackOf(profile) is not { } attack)
             return $"{npc.Definition.Name} cannot join you";
+        // Never both a companion and an errand (G23): two systems would walk one body.
+        if (State.World.NpcErrand(command.NpcId) is not null)
+            return $"{npc.Definition.Name} cannot join you while on an errand";
         State.SetCompanion(_owner, new CompanionState(command.NpcId, profile, attack, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth));
         _context.Events.Publish(new CompanionRecruited(command.NpcId, tick));
         return null;

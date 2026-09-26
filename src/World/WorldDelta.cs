@@ -582,6 +582,9 @@ public sealed class WorldDelta
     /// <summary>A named NPC's errand, or null while they stand at their site.</summary>
     public NpcErrandRecord? NpcErrand(string npcId) => _errands.GetValueOrDefault(npcId);
 
+    /// <summary>Every errand, sorted by NPC ID.</summary>
+    public IReadOnlyList<NpcErrandRecord> NpcErrands => _errands.Values.ToList();
+
     /// <summary>The errands hosted in a cell, sorted by NPC ID.</summary>
     public IReadOnlyList<NpcErrandRecord> NpcErrandsIn(CellKey cell)
     {

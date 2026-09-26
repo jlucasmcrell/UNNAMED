@@ -174,6 +174,11 @@ public class DeterminismAndViewTests
         var damaged = Harness.Record<PieceDamaged>(session);           // E8
         var destroyed = Harness.Record<PieceDestroyed>(session);
         var repaired = Harness.Record<PieceRepaired>(session);
+        var workerEvents = new List<object>();                            // E9
+        session.Subscribe<WorkerAssigned>(workerEvents.Add);
+        session.Subscribe<WorkerReleased>(workerEvents.Add);
+        session.Subscribe<NpcArrivedAtWork>(workerEvents.Add);
+        session.Subscribe<NpcReturnedHome>(workerEvents.Add);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
@@ -210,9 +215,11 @@ public class DeterminismAndViewTests
         Assert.Equal(simulation.Acts.Select(a => a.Seq), acts.Select(e => e.Seq));
         Assert.Equal(simulation.Acts.Sum(a => a.Known.Length), learned.Count);
         Assert.All(simulation.Factions, f => Assert.Equal(f.Points, standing.Where(e => e.FactionId == f.Id).Sum(e => e.To - e.From)));
-        // Routes: this script has no mover, so nothing plans.
+        // Routes and errands: this script has no mover and asks no one to work, so nothing plans and no one sets off.
         Assert.Empty(simulation.Navigation.Movers);
         Assert.Empty(routes);
+        Assert.Empty(simulation.WorkAssignments);
+        Assert.Empty(workerEvents);
         // Pieces: one placing, taking down or destroying per change of the structures (a door's toggles, blows it stands and mending are
         // none), and the sequence is their count.
         Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count + destroyed.Count);
@@ -265,6 +272,10 @@ public class DeterminismAndViewTests
         writer.Subscribe<PieceDamaged>(anything.Add);
         writer.Subscribe<PieceDestroyed>(anything.Add);
         writer.Subscribe<PieceRepaired>(anything.Add);
+        writer.Subscribe<WorkerAssigned>(anything.Add);
+        writer.Subscribe<WorkerReleased>(anything.Add);
+        writer.Subscribe<NpcArrivedAtWork>(anything.Add);
+        writer.Subscribe<NpcReturnedHome>(anything.Add);
         var simulation = writer.NewGame("Wanderer", seed: 42);
         Assert.Empty(anything);
 
@@ -289,6 +300,10 @@ public class DeterminismAndViewTests
         reader.Subscribe<PieceDamaged>(anything.Add);
         reader.Subscribe<PieceDestroyed>(anything.Add);
         reader.Subscribe<PieceRepaired>(anything.Add);
+        reader.Subscribe<WorkerAssigned>(anything.Add);
+        reader.Subscribe<WorkerReleased>(anything.Add);
+        reader.Subscribe<NpcArrivedAtWork>(anything.Add);
+        reader.Subscribe<NpcReturnedHome>(anything.Add);
         reader.Load(SaveSlots.Manual("known"));
         Harness.Ticks(reader, 20);
 

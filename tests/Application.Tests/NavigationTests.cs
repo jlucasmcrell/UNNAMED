@@ -330,7 +330,7 @@ public class NavigationTests
         Assert.Equal(0, session.SubscriberFailures);
     }
 
-    private const string Tavar = "npc.ashen_hollow.tavar_orr";
+    private const string Tavar = "npc.ashen_hollow.tavar_orr", Kera = "npc.ashen_hollow.kera_voss";
 
     /// <summary>
     /// N-A11's script: Tavar with the character, told to wait inside the lodge at (46.0, 128.0); the character walks out through
@@ -440,10 +440,11 @@ public class NavigationTests
         Assert.Equal(0, session.SubscriberFailures);
     }
 
-    // G26: the companion (E6; E9 adds the errand)
+    // G26: the companion (E6) and the errand (E9)
     /// <summary>
-    /// A door Tavar may not open - the first character's, in a world a second character plays - stalls him as stuck, never forever: each
-    /// tick at it one refused open (no toggle), a stuck replan once he has made no headway for 20 ticks, and his Phase-1 snag catch-up.
+    /// A door a mover may not open - the first character's, in a world a second character plays - stalls it as stuck, never forever: each
+    /// tick at it one refused open (no toggle), and a stuck replan once it has made no headway for 20 ticks. Tavar then catches up (his
+    /// Phase-1 snag); Kera, sent by the second character to a bench beyond the door, shows blocked at 200 ticks and never moves on.
     /// </summary>
     [Fact]
     public void ARefusedDoor_CountsAsStuck_ForBothMovers()
@@ -472,6 +473,55 @@ public class NavigationTests
         var snag = Assert.Single(caughtUp);
         Assert.Equal((Tavar, "snag"), (snag.NpcId, snag.Reason));
         Assert.Equal(0, session.SubscriberFailures);
+
+        // The errand: the Crossing workshop's first step with its door, the first character's, shut from outside - its only way in.
+        var first = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(first);
+        Assert.Null(BuildingTests.Place(first, "piece.door.timber", 100_500, 99_000, 0));
+        string lineDoor = first.Simulation.Pieces.Single(p => p.DefId == "piece.door.timber").Id.Value;
+        Assert.True(first.WalkTo(100.5, 100.3), $"the walk to the door stopped at {first.Simulation.Player.Body}");
+        first.TurnTo(180);
+        first.Tick();
+        Assert.Null(first.Submit(new InteractCommand(first.Player, lineDoor)));
+        Assert.True(first.WalkTo(100.5, 97.6), $"the walk out stopped at {first.Simulation.Player.Body}");
+        first.TurnTo(0);
+        first.Tick();
+        Assert.Null(first.Submit(new InteractCommand(first.Player, lineDoor)));
+        Assert.False(first.Simulation.Pieces.Single(p => p.Id.Value == lineDoor).DoorOpen);
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("their_workshop"), SaveDocuments.Capture(first.Simulation.World, first.Simulation.CaptureRecord(), session.Content,
+            first.Simulation.WorldTick, 0));
+        var saved = store.Load(SaveSlots.Manual("their_workshop"), new LoadContext(session.Generator, session.Content, new Registry()));
+        var p = saved.Player;
+        var second = Arena.Resume(session.Setup, saved with
+        {
+            Player = new PlayerRecord(EntityId.NewId(EntityKind.Character), p.Name, p.XMm, p.YMm, p.ZMm, p.AppearanceSeed, p.Inventory, p.Progression,
+                p.FacingMdeg, p.Discoveries, p.Equipment, p.Currency, p.Effects, p.Relationships, p.Conversations),
+        });
+        // The second character's bench inside, placed through the doorway; Kera, asked, plans in by the door - a person who opens doors.
+        Assert.Null(BuildingTests.Place(second, "piece.station.anvil", 100_500, 103_500, 3));
+        ErrandTests.ToKera(second, (97.0, 97.0));
+        Assert.Null(ErrandTests.Assign(second, Kera, second.Simulation.Pieces.Single(q => q.DefId == "piece.station.anvil").Id));
+        foreach (var (x, z) in new[] { (54.5, 142.0), (51.8, 142.0), (51.8, 136.0), (62.0, 130.0), (70.0, 112.0) })
+            Assert.True(second.WalkTo(x, z), $"the walk away stopped at {second.Simulation.Player.Body}");
+        var herToggles = second.Record<DoorToggled>();
+        var herPlans = second.Record<RoutePlanned>();
+        var herStuck = new List<int>();
+        for (int i = 0; i < 3_000 && !second.Simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Blocked; i++)
+        {
+            second.Tick();
+            herStuck.Add(second.Simulation.World.NpcErrand(Kera)!.StuckTicks);
+        }
+        Assert.True(second.Simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Blocked, "Kera never showed blocked");
+        Assert.Equal(200, herStuck[^1]);
+        Assert.All(herStuck.Zip(herStuck.Skip(1)), q => Assert.True(q.Second <= q.First + 1 && (q.Second == 0 || q.Second >= q.First),
+            $"her stuck count went from {q.First} to {q.Second}"));
+        Assert.DoesNotContain(herToggles, t => t.DoorKey == lineDoor);
+        Assert.False(second.Simulation.Pieces.Single(q => q.Id.Value == lineDoor).DoorOpen);
+        Assert.Contains(herPlans, q => q.MoverKey == Kera && q.Reason == NavFollower.Stuck);
+        var body = second.Simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Assert.True(body.ZMm < 98_800, $"Kera is at {body}: through a door she may not open");
+        Assert.Equal(NpcErrandPhase.ToWork, second.Simulation.World.NpcErrand(Kera)!.Phase);
     }
 
     // N-A13 (E7: cases (a) and (b); E8 adds (c), the door onto a chest)

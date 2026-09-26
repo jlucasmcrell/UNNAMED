@@ -171,11 +171,26 @@ internal static class BuildingRules
             points.Add(new NavProtectedPoint(working.Piece.Name, NavPointKind.NewSite, At(working.XMm + dx, working.ZMm + dz), BodyRadiusMm, AnchorReachMm));
         }
 
+        // Where each NPC who works here stands to work (E9): cut off, they could not get to it.
+        foreach (var errand in state.World.NpcErrands.Where(e => e.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+        {
+            if (state.World.Piece(errand.PieceId!) is { } row && setup.Building.Catalog.Find(row.DefId)?.Station is { } workStation)
+            {
+                var (ax, az, _) = WorkAnchors.Of(workStation, row);
+                points.Add(new NavProtectedPoint(Name(errand.NpcId), NavPointKind.WorkAnchor, At(ax, az), BodyRadiusMm, AnchorReachMm));
+            }
+        }
+
         points.Add(new NavProtectedPoint("you", NavPointKind.Body, At(state.Body.XMm, state.Body.ZMm), BodyRadiusMm, SiteReachMm));
         foreach (string npcId in state.Companions.Keys)
         {
             if (state.Npcs.TryGetValue(npcId, out var npc))
                 points.Add(new NavProtectedPoint(Name(npcId), NavPointKind.Body, At(npc.Body.XMm, npc.Body.ZMm), BodyRadiusMm, SiteReachMm));
+        }
+        foreach (var errand in state.World.NpcErrands)
+        {
+            if (state.Npcs.TryGetValue(errand.NpcId, out var npc))
+                points.Add(new NavProtectedPoint(Name(errand.NpcId), NavPointKind.Body, At(npc.Body.XMm, npc.Body.ZMm), BodyRadiusMm, SiteReachMm));
         }
         foreach (var site in layout.Npcs.OrderBy(n => n.NpcId, StringComparer.Ordinal))
             points.Add(new NavProtectedPoint(Name(site.NpcId), NavPointKind.NpcSite, At(site.XMm, site.ZMm), BodyRadiusMm, SiteReachMm));
@@ -225,12 +240,13 @@ internal static class BuildingRules
     }
 
     /// <summary>
-    /// Who may work a placed door (M7 design §4.9): its owner, or the owner's companion when the owner is the player. An NPC working for
-    /// the owner joins them with errands (E9). Creatures never work doors.
+    /// Who may work a placed door (M7 design §4.9): its owner; the owner's companion when the owner is the player; or an NPC on an errand
+    /// for the owner - to work, at work, or walking home from it (E9). Creatures never work doors.
     /// </summary>
     public static bool CanOperate(EntityId operatorId, string? operatorNpcId, PieceRecord door, RuntimeState state, EntityId player) =>
         operatorId == door.Owner
-        || (operatorNpcId is { } npc && state.Companions.ContainsKey(npc) && door.Owner == player);
+        || (operatorNpcId is { } npc && state.Companions.ContainsKey(npc) && door.Owner == player)
+        || (operatorNpcId is { } worker && state.World.NpcErrand(worker)?.WorkOwner is { } owner && owner == door.Owner);
 
     /// <summary>The ghost's reading of a check: its bounds, parts, and each cost line against what is carried.</summary>
     public static PlacementPreview Preview(SystemContext context, PlacementCheck check, string defId)

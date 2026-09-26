@@ -88,6 +88,12 @@ public sealed record DismantlePieceCommand(EntityId Actor, EntityId PieceId) : G
 /// <summary>Mend a piece the actor owns to full health (M7 design §4.12), for its cost scaled by the health missing.</summary>
 public sealed record RepairPieceCommand(EntityId Actor, EntityId PieceId) : GameCommand(Actor);
 
+/// <summary>Ask a named NPC, in person, to work at a station the actor placed (E9): they walk to its work anchor and stand working there.</summary>
+public sealed record AssignWorkerCommand(EntityId Actor, string NpcId, EntityId PieceId) : GameCommand(Actor);
+
+/// <summary>Let a named NPC who works for the actor go home (E9).</summary>
+public sealed record ReleaseWorkerCommand(EntityId Actor, string NpcId) : GameCommand(Actor);
+
 /// <summary>A blow on a piece (M7 design §4.12): so much off its health, from the one damage rule's source. At 0 it is destroyed.</summary>
 internal sealed record DamagePiece(EntityId PieceId, int Amount, string Source) : InternalCommand;
 
@@ -290,6 +296,56 @@ internal sealed class BuildingSystem
         return null;
     }
 
+    /// <summary>
+    /// An NPC asked, in person, to work at a station (M7 design §4.15), refused in order: the actor; an NPC here; not a companion; within
+    /// talk reach and not walled off; an intact station; the actor's; a kind the NPC works at; no one else working there; not already
+    /// working (one walking home is asked again); and a way there for a person who opens doors. Then the NPC sets off.
+    /// </summary>
+    public string? Handle(AssignWorkerCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
+            return $"there is no one called {command.NpcId} here";
+        string name = npc.Definition.Name;
+        if (State.Companions.ContainsKey(command.NpcId))
+            return $"{name} travels with you";
+        if (!_context.InTalkReach(npc.Body))
+            return $"{name} is out of reach";
+        if (State.World.Piece(command.PieceId) is not { } row || Catalog.Find(row.DefId) is not { Family: PieceFamily.Station, Station: { } station } piece)
+            return "there is no such station";
+        if (row.Owner != command.Actor)
+            return $"that {piece.Name} is not yours";
+        if (!npc.Definition.WorksAt.Contains(station.Kind))
+            return $"{name} does not work an {station.Kind}";
+        if (State.World.NpcErrands.Any(e => e.PieceId == row.InstanceId && e.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork))
+            return "someone already works there";
+        if (State.World.NpcErrand(command.NpcId)?.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork)
+            return $"{name} already works for you";
+        var (x, z, facing) = WorkAnchors.Of(station, row);
+        if (!_navigation.Reachable(new NavAgent(0, true), new NavPoint(npc.Body.XMm, npc.Body.ZMm), new NavPoint(x, z)))
+            return $"{name} cannot get there";
+        return _context.Dispatch(new BeginWork(command.NpcId, row.InstanceId, row.Owner, x, z, facing));
+    }
+
+    /// <summary>An NPC who works for the actor let go home (M7 design §4.15), refused in order: the actor; working for them; in talk reach.</summary>
+    public string? Handle(ReleaseWorkerCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        string name = State.Npcs.TryGetValue(command.NpcId, out var npc) ? npc.Definition.Name : command.NpcId;
+        if (npc is null || State.World.NpcErrand(command.NpcId) is not { Phase: NpcErrandPhase.ToWork or NpcErrandPhase.AtWork, PieceId: { } pieceId }
+            || State.World.Piece(pieceId)?.Owner != command.Actor)
+            return $"{name} does not work for you";
+        if (!_context.InTalkReach(npc.Body))
+            return $"{name} is out of reach";
+        return _context.Dispatch(new EndWork(command.NpcId, "released"));
+    }
+
     /// <summary>Building reach (check 6's rule) from the body to a piece's bounds, or null when it is within it.</summary>
     private string? OutOfReach(PieceRecord row, PieceDefinition piece)
     {
@@ -360,6 +416,9 @@ internal sealed class BuildingSystem
     /// </summary>
     private void RemoveCore(PieceRecord row, PieceDefinition piece, StructureChangeKind kind, EntityId? actor, string? source, long tick)
     {
+        // Whoever works at it walks home: a bench taken down or destroyed is no work place (E9).
+        foreach (var errand in State.World.NpcErrands.Where(e => e.PieceId == row.InstanceId).ToList())
+            _context.Dispatch(new EndWork(errand.NpcId, NavigationSystem.KindKey(kind)));
         // A chest's record goes with it: taken down, it is empty by then and is discarded; destroyed, what it held falls where it stood.
         string chest = WorldDelta.PieceChestKey(row.InstanceId);
         if (piece.Container is not null && State.World.Container(chest) is not null)
@@ -512,7 +571,9 @@ internal sealed class BuildingSystem
                 : BuildingMath.WorldParts(piece, row.XMm, row.ZMm, row.Rotation, "part")
                     .Select((p, i) => new PiecePartView(p.MinXMm, p.MinZMm, p.MaxXMm, p.MaxZMm, p.HeightMm, piece.Parts[i].Traversal)).ToImmutableArray();
             return new PieceView(row.InstanceId, row.DefId, piece?.Family ?? PieceFamily.Pad, row.XMm, row.ZMm, row.Rotation, row.Owner, row.HealthCurrent,
-                piece?.HealthMax ?? row.HealthCurrent, row.DoorOpen && piece?.Family == PieceFamily.Door, null, bounds.MinXMm, bounds.MinZMm, bounds.MaxXMm,
+                piece?.HealthMax ?? row.HealthCurrent, row.DoorOpen && piece?.Family == PieceFamily.Door,
+                State.World.NpcErrands.FirstOrDefault(e => e.PieceId == row.InstanceId && e.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.AtWork)?.NpcId,
+                bounds.MinXMm, bounds.MinZMm, bounds.MaxXMm,
                 bounds.MaxZMm, parts, piece?.Container is null ? null : WorldDelta.PieceChestKey(row.InstanceId),
                 piece?.Station is null ? null : SystemContext.PieceStationKey(row.InstanceId));
         }).ToImmutableArray();

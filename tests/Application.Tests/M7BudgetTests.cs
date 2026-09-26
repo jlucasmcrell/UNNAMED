@@ -125,8 +125,9 @@ public class M7BudgetTests
     /// <summary>
     /// One command of the script, and the frames it takes. The script aims at the world: it builds on the lattice round the player
     /// (pads, then walls and doorways on their edges, doors in doorways, roofs, chests and benches on pads), walks up to a piece before
-    /// striking, storing, taking or working a door, and mends what is damaged - and, one time in six, places anything anywhere on the
-    /// lattice, inside the area or a module beyond it, and takes down or mends an unknown piece, for the refusals.
+    /// striking, storing, taking or working a door, and mends what is damaged; asks someone to work at a bench or lets them go (E9) - and,
+    /// one time in six, places anything anywhere on the lattice, inside the area or a module beyond it, and takes down or mends an unknown
+    /// piece, for the refusals.
     /// </summary>
     private static void Act(GameSession session, Simulation simulation, Lcg random)
     {
@@ -264,6 +265,14 @@ public class M7BudgetTests
                 Do(new MoveCommand(player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, x, z))));
                 for (int blow = 1 + random.Next(4); blow > 0; blow--)
                     Do(new AttackCommand(player), simulation.Combat.Weapon.TotalTicks + 1);
+                break;
+            }
+            case < 80:
+            {
+                // E9: ask someone to work at a piece, or let someone go - mostly refused (out of reach, no station, not working), never thrown.
+                string[] npcs = { "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.tavar_orr", "npc.ashen_hollow.nobody" };
+                string npc = npcs[random.Next(npcs.Length)];
+                Do(random.Next(2) == 0 ? new AssignWorkerCommand(player, npc, Some(p => p.Family == PieceFamily.Station)?.Id ?? Any()) : new ReleaseWorkerCommand(player, npc));
                 break;
             }
             default:
