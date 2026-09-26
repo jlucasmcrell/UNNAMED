@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** E8 done (2026-09-26); E9 in progress. The owner ruled on the second E8.5 STOP:
+**State:** E9 done (2026-09-26); E10 in progress. The owner ruled on the second E8.5 STOP:
 - **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
 - **The save lane** runs background saves on a thread of the session's own (`682c449`).
 
-See "Schema 17 record", "AsyncSave record" and "E8 evidence". E9 and E10 remain. Every STOP so far was resolved by an owner ruling, recorded below.
+See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10 remains. Every STOP so far was resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -73,7 +73,7 @@ See "Schema 17 record", "AsyncSave record" and "E8 evidence". E9 and E10 remain.
 | E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
 | E8 | Chest, bench, blows and mending | done | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane), `a8f2ce1` (schema 17, the owner's second ruling), `d362069` (E8.5), and this status | 1,071 at `d362069`, all passing in a clean worktree: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9), resolved by the owner (option (a), schema 17, and the save lane). See "E8 evidence" |
-| E9 | Kera works at your bench | - | | | 116 | |
+| E9 | Kera works at your bench | done | `c3ddefe` (E9.1), `6f7565c` (E9.2), `6b84ad7` (E9.3), `1fe89dc` (E9.4), and this status | 1,091 at `1fe89dc`, all passing in a clean worktree: Domain 186, Application 320, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 (E9.2 alone: 1,087; E9.3: 1,091) | 116 | No STOP. The criterion-14 local risk fired as foreseen, at 0.483 mm, and was handled as E5's chase test handles it (below). See "E9 evidence" |
 | E10 | Evidence and closeout | - | | | 116 | |
 
 ## E0 checklist
@@ -343,6 +343,26 @@ The owner chose option (b) and amended BLD006.
   3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
+
+## E9 evidence (2026-09-26, ASTRAL)
+
+The runtime gate and the seam recording ran on `1fe89dc`'s build.
+
+| Proof | Result |
+|---|---|
+| `dotnet test src/UNNAMED.sln` (a clean worktree at `1fe89dc`) | 1,091 tests, all pass: Domain 186, Application 320, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32. Each E9 commit passes alone: `6f7565c` 1,087, `6b84ad7` 1,091 |
+| Content lint | 116 definitions, 0 errors, with Kera's `works_at: [anvil, forge]` (BLD005's span: 52.6 m, within the 85 m a walk to work plans in) |
+| `--smoke`, `--quit-after 300` (headless) | PASS (save/load digest identical; 911 display-server lines, as before); exit 0 |
+| `--build-shots` (from S0) | 19 beats, every one passed; `SubscriberFailures` 0. b11: Kera asked at the forge shed, `WorkerAssigned` naming the anchor (100 750, 103 500) facing 270 000; her first route `Found`, 7 corners, **22,685 expansions** (two thirds of the cap: 43,690). b12: in the doorway's opening at (100 030, 98 628), F2's navigation stage on. b13 (criterion 14): L **80,366 mm** (model 80.45 m); arrived **1,011 ticks** after `WorkerAssigned` (bound 1,296); worst step **81 mm**; nearest the character 1,798 mm; deepest contact **0.483 mm**; both doors opened by her, none shut; z = 100 m crossed once inside the footprint, never out again. Her host cells, logged: `c_00_01 → c_00_00 → c_01_00 → c_01_01` (the model's). R24 refused as "that would cut Kera Voss's work place off". b17: let go, her way home round the new line. b19: saved with Tavar on his route and Kera walking home. b20: home exactly at (61 600, 139 600) facing 300 000, the errand retired, `NpcReturnedHome` at tick 3,929 |
+| `--build-shots-verify` | v1: **1,535 fields**, 0 differences; v2: **1,523 fields**, 0 differences; v3: `NpcReturnedHome` at tick 3,929, the same tick and pose as the run's b20 |
+| A second `--build-shots` | `state_replay.json` byte-identical, SHA-256 `304095a5dd36f50037c80a2d34dfa7bb985d842664441314a008728eefc7e239` |
+| `piece:*` art coverage (R16) | 7 of 7 piece entries fall back to greybox: reported, not allowlisted |
+| `--playthrough`, verify, a second run | every beat passed (553 s each); verify 1,216 fields, 0 differences; `state_replay.json` byte-identical to E8's, SHA-256 `bc57ee2a3912865ef8d396b0b8c8df17f89630080caf384f5a0bcb438b108a7b`: a new game never gives Kera an errand. Both transcripts are E8's row for row but the content hash (Kera's new field) and the save's digests |
+| `--ui-shots`, `--delta-shots`, `--input-check`, `--layout-check` (both sizes) | all exit 0, with 0 error lines; the input check and both layout checks PASS |
+| The seam recording (§13.6) | the whole `--build-shots` run, windowed on ASTRAL, `--write-movie` at 1920x1080 and 20 fps, one tick a frame: 3,951 frames, 197.6 s, real time. An asserted run: its own transcript has all 19 beats passed and 0 subscriber failures. b11-b13 run with F2's navigation stage on throughout. Kept outside the repository in `G:\UNNAMED_HISTORY\M7_EVIDENCE\e9_seam\`: `build_shots_e9.mp4` (137 MB, H.264), `seam_b11_b13.mp4` (82 MB, ticks 334-1,927), and the run's transcript |
+| Kera's plans in play (ASTRAL, Release) | The walk home when she is let go at R43 (the wall on x = 96 standing): `Found`, 6 corners, **40,639 expansions** (the model's). That tick's frame took **7.02 ms** median over 7 runs (6.66-8.00); the frames around it took 0.04-0.22 ms. The owner's target is 15 ms and the STOP 20 ms: it holds. It is one frame over the 4 ms tick when she is let go. In the build-shots run an `off_line` replan follows 61 ticks later at the workshop's door (40,485 expansions), a second such frame. On the way to work, two `off_line` replans near the shed door take 22,650 and 21,590 expansions |
+| Captures | before each run the gate waited for other agents' Godot captures to end (75 s to 210 s), so none ran beside another |
+| STOPs | none: no step over 81 mm; the arrival bound met; one crossing inside the footprint, never leaving it; save-then-continue equal (v1-v3, N-A6 (b), `CrossingWorkshop_10`); her first route `Found` within two thirds of the cap |
 
 ## E8 evidence (2026-09-26, the machine that ran E1-E7)
 
@@ -770,6 +790,13 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E8 | The view test | `HangAndWorkADoor` adds two blows on the hung door, its mending, and blows until it is destroyed; `builder_start` takes five timber, one for the mending |
 | E8 | `ADestroyedChest_…` | The spilled timber, picked up, joins the carried stack of its kind; the ingot, alone of its kind, keeps its ID into the pack |
 | E8 | `ABlowThatHitsACreature_…` | The wolf is loaded in after the building: a spawner's disc is ground kept clear |
+| E9 | Criterion 14's clearance | "`IsClear` every tick" is asserted with `Kinematics.Step`'s millimetre rounding allowed and nothing more: an overlap of 1 mm or more fails, as E5's chase test. Measured: 0.483 mm at the shed door's jamb, 0.1 mm passing Sel, 0.13 mm at the doorway's corner. The same rule in `CrossingWorkshop_5to6`, N-A3 and b13, each reporting the deepest contact |
+| E9 | N-A4's precondition | "Her route goes round the wall" is asserted over the route's own segments. After an `off_line` replan she walks from her body to the first corner, a leg the planner did not check, which grazes the wall's end |
+| E9 | "In the doorway" | b12's still and N-A6 (b)'s save take the doorway as its opening, z in [98 600, 99 400] and x in [99 700, 101 300]: on her way round the west side her z passes the same band outside the wall |
+| E9 | G26's errand case | The foreign door is the Crossing workshop's own, shut from outside, with the second character's bench inside: a wall line with a door leaves a way round its ends, as short as the way through to within 0.2 m |
+| E9 | `ForeignPieces_…`, F-E6 | The pad is named by its place, now that a second pad carries the bench; F-E6 walks to R30's spot before storing, as the chest is beyond reach from (102, 102) |
+| E9 | The seam recording | The whole build-shots run is recorded (b11-b13 are cut from it by tick); each beat carries its F2 stage, b11-b13 the navigation stage |
+| E9 | `WorkshopRun.EveryTick` | Beside `EachTick` (the ticks the runner frames, and one after a pose), which `CrossingWorkshop_1to3` counts, a hook on every tick, pose walks included, for criterion 14 |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
@@ -777,11 +804,11 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 |---|---|
 | Tier hysteresis is unsaved but gates the companion and creatures (owed before M9) | §15, R-X18 |
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
-| Kera's walk-home plan: 6.0 ms in Release on this machine (E8, N-A10), one plan over the 4 ms tick when it happens | §3.18, §14; the in-game plan measured in E9 |
+| Kera's walk-home plan: 6.0 ms in Release on this machine (E8, N-A10); in play, the frame that plans it takes 7.02 ms median (E9), one frame over the 4 ms tick when she is let go, and an `off_line` replan can repeat it once | §3.18, §14; E10's perf run on the `building` segment |
 | CI runner variance on the 3× budgets: `SixtyCreatures_TickWithinTheBudget` failed once at 4.94 ms (run 36237433970, first attempt; 0.49 ms here) and passed on the re-run | Here. A second failure on a re-run would be S7 |
 | Resolved by schema 16 (`1dd66e7`): the character's regeneration clocks were not saved (Phase 1), so a save taken in a fight resumed regeneration early | "Schema 16 record" |
 | Resolved: `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) failed intermittently in full local runs from E3.2 on. The background save ran on the shared thread pool and waited up to 13 s just to begin | "AsyncSave record" |
-| `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so at a convex corner a body can sit under 1 mm inside contact (Phase 1). E9's step 6 asserts Kera `IsClear` every tick, which is strict, and her route turns corners inside the workshop | Here; measured in E9 against the rows it would fail, before any change |
+| Handled in E9: `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so a body in contact can sit under 1 mm inside (Phase 1). It fired in step 6 (0.483 mm at most) and is asserted as E5's chase test asserts it: 1 mm or more fails | Scope ledger, E9 |
 
 ## Residues and deferrals
 
@@ -807,3 +834,6 @@ See §5.19 and §16. They are recorded here as each slice lands.
 | E6 | NPCs never close doors: a door Tavar opens stays open until the character shuts it. No locks or keys |
 | E6 | Every door is passable to a door-opening mover whoever owns it: a foreign door (a crafted save only) stalls the companion to his snag catch-up (G26) |
 | E7 | The check treats every door and barrier as passable: a room whose only way in is a door is open, whoever may open it |
+| E9 | One worker, one station, no schedule, production or wages; Kera works only where she is asked and until she is let go |
+| E9 | NPCs never close doors: the doors Kera opens stay open. A foreign door (a crafted save only) holds her at it, shown "Blocked" after 10 s (G26) |
+| E9 | Her walk is not tier-gated and runs wherever the character is: the region is 200 m and the walk at most 85 m on an axis |
