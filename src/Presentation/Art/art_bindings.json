@@ -47,31 +47,21 @@
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
-        "note": "Phase B (B12): the player's states played by the retargeted KayKit and UAL2 clips (CC0; review/retarget/B12_CATALOGUE.md), each gait at its measured pace.",
+        "note": "Phase B (B12): the player's locomotion from the retargeted Quaternius UAL clips (CC0, realistic proportions; the KayKit clips flared the arms), with KayKit's hit, death and reach; run and every weapon state stay procedural (the weapon grips are calibrated to them). Each gait plays at its measured pace. review/retarget/B12_CATALOGUE.md.",
         "clips": {
-          "idle": "player.veth_wanderer.ext_idle",
-          "walk": "player.veth_wanderer.ext_walk",
-          "run": "player.veth_wanderer.ext_run",
-          "sprint": "player.veth_wanderer.ext_sprint",
-          "sword_ready": "player.veth_wanderer.ext_sword_ready",
-          "sword_attack": "player.veth_wanderer.ext_sword_attack_1",
-          "sword_block": "player.veth_wanderer.ext_sword_block",
-          "bow_ready": "player.veth_wanderer.ext_bow_ready",
-          "bow_draw": "player.veth_wanderer.ext_bow_draw",
-          "spear_ready": "player.veth_wanderer.ext_spear_ready",
-          "spear_thrust": "player.veth_wanderer.ext_spear_thrust",
-          "cast": "player.veth_wanderer.ext_cast",
+          "idle": "player.veth_wanderer.ext_idle_ual",
+          "walk": "player.veth_wanderer.ext_walk_ual",
+          "sprint": "player.veth_wanderer.ext_sprint_ual",
+          "crouch_idle": "player.veth_wanderer.ext_crouch_idle_ual",
+          "crouch_walk": "player.veth_wanderer.ext_crouch_walk_ual",
           "hit": "player.veth_wanderer.ext_hit",
           "death": "player.veth_wanderer.ext_death",
-          "interact": "player.veth_wanderer.ext_interact",
-          "crouch_idle": "player.veth_wanderer.ext_crouch_idle",
-          "crouch_walk": "player.veth_wanderer.ext_crouch_walk"
+          "interact": "player.veth_wanderer.ext_interact"
         },
         "paces": {
-          "walk": 1.93,
-          "run": 3.57,
-          "sprint": 3.81,
-          "crouch_walk": 1.01
+          "walk": 0.96,
+          "sprint": 2.92,
+          "crouch_walk": 0.75
         }
       }
     }

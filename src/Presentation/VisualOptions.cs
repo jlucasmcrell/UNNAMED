@@ -61,10 +61,10 @@ public static class VisualOptions
     /// </summary>
     private static readonly Dictionary<string, Dictionary<string, string>> Tiers = new()
     {
-        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["aa"] = "smaa" },
-        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["aa"] = "taa" },
-        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["aa"] = "taa" },
-        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["aa"] = "msaa_taa" },
+        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["aa"] = "smaa" },
+        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["aa"] = "taa" },
+        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["aa"] = "taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["aa"] = "msaa_taa" },
     };
 
     public static string Tier => Values["tier"];
