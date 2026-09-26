@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** in progress. E0-E7 done (2026-09-26); E8 next. E5's E5.2 STOP (S1) was resolved by the owner the same day (option (b); see "Owner ruling on the E5 STOP"). The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5) were each resolved by an owner ruling, recorded below.
+**State:** STOPPED at E8.5 (S9, with S2 for the fix at the root; 2026-09-26). §4.22's step 10 cannot pass once E8's rows put the save inside a fight with a wolf: the character's regeneration clocks are not saved, a Phase-1 gap. E0-E7 are done; E8.1-E8.4 are done and pushed, with CI green; E8.5 is written and not committed. See "STOP - E8.5, S9 and S2". The earlier STOPs (E1 N-A10, E2.3 S9, E2.4 S9/S10, E3 S5, E5.2 S1) were each resolved by an owner ruling, recorded below.
 
 **Normative design:** `M7_IMPLEMENTATION_DESIGN.md`, with its executive brief `M7_EXECUTIVE_BRIEF.md`. Both live outside this repository, in the project history folder `G:\UNNAMED_HISTORY\M7_DESIGN_2026-09-24\`. Section references below (§N) are to that design.
 
@@ -66,7 +66,7 @@
 | E5 | Build mode: pads, walls, doorways, roofs | done | `9361019` (E5.1), `373e874` and `137aef8` (the S1 STOP record), `1638b06` (E5.2), `47a9e1f` (E5.3), `aad371f` (E5.4), `7509c36` (E5.5), and E5.6 with this status | 1,009: Domain 182, Application 263, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 113 | Stopped at E5.2 (S1), resolved by the owner (option (b), BLD006 corrected). See "STOP - E5.2, S1", the ruling after it, and "E5 evidence" |
 | E6 | Piece doors | done | `d18da45` (E6.1), and E6.2 with this status | 1,013: Domain 183, Application 266, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E6 evidence" |
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
-| E8 | Chest, bench, blows and mending | - | | | 116 expected | |
+| E8 | Chest, bench, blows and mending | stopped at E8.5 | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4); E8.5 written, not committed | 1,035 at E8.4: Domain 186, Application 285, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2). See "STOP - E8.5, S9 and S2" |
 | E9 | Kera works at your bench | - | | | 116 | |
 | E10 | Evidence and closeout | - | | | 116 | |
 
@@ -338,6 +338,48 @@ The owner chose option (b) and amended BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
 
+## STOP - E8.5, S9 and S2 (2026-09-26)
+
+**What fired.** S9: §4.22's step 10 cannot be met as written, with E8's rows, in the shipped world, without inventing a rule. The fix at the root needs a new persisted field after E2, which is S2. Both readings are reported below; neither has been picked.
+
+**Where.** E8.5 lands the Crossing Workshop's E8 rows (R07, R08, R15, R26-R37) in `CrossingWorkshop.Rows`, with `Landed = E8`. `CrossingWorkshop_10_SaveQuitReloadGoesOnTheSame` then fails. After the R46 save, W1 goes on 600 ticks, and W2, a fresh session loading the save, goes on 600 ticks. They differ in 4 of 1,465 fields:
+- the character's health, 80 in W1 and 85 in W2 (`$.live.combat.Health` and `$.player.Progression.Pools.Health`);
+- the two digests that cover it.
+
+Every other field is equal: every piece row, the structure sequence (31), the grid digest, Tavar and his route, and every creature.
+
+**Why, measured.**
+- E8's rows add about 700 ticks before the vestibule and the west walls. At tick 1175, during R39's walk from (100.5, 97.6) to (97.5, 97.0), a grey wolf bites the character (4 damage, 120 to 116). The E7 table, 700 ticks shorter, never met it. The wolf is still at the character when R46 saves, and keeps biting in both W1 and W2.
+- The character's regeneration clocks are not saved. `PlayerCombat.LastCombat` is the last blow taken or dealt, and holds health regeneration for `out_of_combat_s` (8 s). The same holds for `LastExertion` and `LastCast`, and for the part-point accumulators `HealthMilli` and `StaminaMilli`.
+- A load starts them all from `PlayerCombat.Rested` (`RuntimeState.cs:147`, `Combat.cs:243`). W2 therefore regenerates at once, where W1 still waits out the 8 s since the last bite, and W2 gains health that W1 does not.
+- This is a Phase-1 gap, not an E8 change. A save taken while the character is hurt resumes regeneration early, by up to 8 s and up to one point's accumulator. It never showed before because no Phase-1 or earlier M7 save-and-continue proof saves in a fight. The creatures' own transients have been saved since L-06 (schema 14); the character's are not.
+
+**The two readings.**
+- **(a) Save the character's regeneration clocks** in the player record: `LastCombat`, `LastExertion` and `LastCast` as absolute ticks, plus `HealthMilli` and `StaminaMilli`. Save-and-continue is then exact in a fight, and step 10 passes as written. This is a new persisted field after E2 (S2), beyond the ruling on the E2.4 STOP ("no save-format change beyond schema 15"). It touches the player digest, the codec, `PlayerRecordCompletenessTests` and the fixtures.
+- **(b) Keep the save format.** Record the gap as a Phase-1 residue. Change the table so that step 10 saves only at rest: no blow taken, dealt or worked within `out_of_combat_s`, and the pools full. R46 could wait for that, or the table's world could keep the wolf away. This invents a precondition the design does not state. It may also break again at E9, whose rows (R16-R21, Kera's walk) move the timeline by about 1,000 more ticks.
+
+**Recommendation: (a).** It removes the defect rather than the evidence of it: any save taken in a fight diverges today. (b) would hide the gap in the one proof that found it.
+
+**State at the STOP.**
+- Committed and pushed, with draft-PR CI green (run 36240458313): E8.1 `194bab7`, E8.2 `f776dfd`, E8.3 `6c5efef`, the planner `fb16e33` and `8573229`, and E8.4 `fb525f7`.
+- E8.5 is written and not committed. It contains:
+  - presentation: the mend key T (`build_repair`) with its F1 row, the target line, the panel legend, the controller's submitter and the `InputCheck` action; the damage, destruction and mending log lines and toast; piece chests and benches in focus; `OpenStation` reading `Simulation.Stations`; `Describe` naming `container.pce_` and `station.pce_` keys; the panel closing when its bench goes; and the bench's anvil block;
+  - `EveryM7Action_IsBoundToADirectKey` with `build_repair`;
+  - the E8 rows with their new actions and "+20 each" gaps, played by both runners;
+  - `CrossingWorkshop_1to3` with R07 and R08, and the new `CrossingWorkshop_4and8_CraftBlowsMendAndSpill`;
+  - the step-11 replay's translation of a picked-up item the run minted (below);
+  - `PreviewsInterleaved`'s raw digest, compared only for a window that minted nothing (G8).
+- Not yet written: the `--build-shots` beats b07, b10, b15, b16 and b17's chest rows. The E8 runtime gate has not run.
+- Measured with E8.5 as written: 1,036 tests, all passing except `CrossingWorkshop_10` (this STOP) and the recorded `AsyncSaveTests` flake. Lint: 116 definitions, 0 errors.
+
+**E8 so far**, for the E8 evidence once resumed:
+- **E8.3 proven neutral.** Every combat and `Aim` test passes unchanged. The playthrough transcript equals E7's row for row, apart from the content hash and the save's run-specific raw digest. Verify compared 1,192 fields with 0 differences. Its replayable dump differs from E7's only by E8.1's null `InstanceId` and `Owner` on the five authored container sites and E8.2's empty `piece_stations`.
+- **Kera's three workshop routes (N-A10).** They take 22,685, 40,751 and 40,639 expansions with 7, 7 and 6 corners, exactly the design's model; all are within two thirds of the cap (43,690).
+  - Release medians: 3.5, 6.0 and 6.1 ms (target 15 ms; the STOP is 20 ms).
+  - Debug medians: 4.1, 7.2 and 7.3 ms (CI bound 45 ms).
+  - Before the two planner commits, the walk home took 22.1 ms in Debug and 8.8 ms in Release. `fb16e33`'s message says "about 3.5 ms Release", written before measuring. The measured value was 6.6 ms, and 6.0 ms after `8573229`.
+- **CI.** The first attempt of run 36237433970 failed `SixtyCreatures_TickWithinTheBudget` at 4.94 ms (0.49 ms on this machine; runner variance), and the re-run passed. T10 takes 12-15 s a seed on CI.
+
 ## E7 evidence (2026-09-26, the machine that ran E1-E6)
 
 | Proof | Result |
@@ -592,6 +634,17 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 | E7 | Preview parity over rule 15 | The forty poses stay on the edited rules; the hut and its fourth wall follow on the game's own, which have the room and the timber for it |
 | E7 | BLD008's cost | About 43 ms a content load in Debug (a second grid of the region and two floods from the spawn): 215 to 259 ms |
 | E3 | FAC001's cost | FAC001 reads the layouts, spawns, NPCs, dialogues, quests and merchants once per validation (about 30 ms on the shipped content) |
+| E8 | The replayable dump's one mask | It masks `station.pce_` keys as well as `container.pce_` ones. A bench's key, in `PieceView.StationKey` and in `StateDump.Live`'s new `piece_stations`, embeds its piece's ID, which a fresh run mints anew; unmasked, two fresh runs would differ |
+| E8 | `SystemContext.Stations()` | The authored stations in content order, then each bench, in the `StructureOrder` of its one part, at that part's centre |
+| E8 | BLD005's work anchor | Clearance is `config.navigation`'s person radius plus 300 mm (650 mm), from every part and from the ±1300 faces. The check is skipped when `config.navigation` does not build, which the NAV codes report |
+| E8 | Protected points | A new bench's work anchor is a `NewSite` (radius 350 mm, reach 250 mm). Standing chests and benches are `Reach` points, "the chest" and "the bench" |
+| E8 | The planner (`fb16e33`, `8573229`) | Under the E1 ruling's path, after Kera's routes took 22 ms a plan in Debug (CI bound 45 ms; CI has run up to 10 times slower). A* keeps one heap entry per node and moves it up on a shorter way; the pop order is unchanged, since the key (f, h, index) is a total order and a node's better entry always popped first. (f, h) is one `long`; the loop runs in window coordinates; a diagonal reuses its two orthogonals' walkability. All 231 plans N-A10 makes have equal expansions, probe nodes and paths before and after. The heap holds at most a window's nodes (was 8 × the cap), plus `NavScratch.HeapAt`, 4 bytes a window node |
+| E8 | T10's script | Aimed at the world, not uniform. It builds round the character, walks up to a piece before a blow, a store or a door, mends what is damaged, fetches timber from the stack, and places at random one time in six. Seeds 1-5 place 20-54 pieces, strike 157-198 times, destroy 1-6 and store 2-9 times; the test asserts a minimum of each. "Replay" is the same script run again, since the log's item IDs are minted anew |
+| E8 | R30 and R35 wait 20 ticks | A blow lands at its swing's end, 8 ticks after it is asked for. §4.22's "+1" and "pose" would read R29's blow and the tenth of R34 before they land |
+| E8 | The step-11 replay | A logged pick-up of an item the run minted (the spilled timber, R35) names the replay's item of the same definition and count at the same place (R-B4). The runner records what each pick-up took |
+| E8 | The view test | `HangAndWorkADoor` adds two blows on the hung door, its mending, and blows until it is destroyed; `builder_start` takes five timber, one for the mending |
+| E8 | `ADestroyedChest_…` | The spilled timber, picked up, joins the carried stack of its kind; the ingot, alone of its kind, keeps its ID into the pack |
+| E8 | `ABlowThatHitsACreature_…` | The wolf is loaded in after the building: a spawner's disc is ground kept clear |
 
 ## Local risks (not promoted to RISK_REGISTER)
 
@@ -599,7 +652,9 @@ Every M7 type, command, event, content item and test maps to a ROADMAP M7 phrase
 |---|---|
 | Tier hysteresis is unsaved but gates the companion and creatures (owed before M9) | §15, R-X18 |
 | The companion's conversation hold reads the transient conversation (pre-existing) | §2.16 |
-| Kera's walk-home plan is modelled at about 4.6 ms on ASTRAL, one plan over the 4 ms tick | §3.18, §14; measured in E9 |
+| Kera's walk-home plan: 6.0 ms in Release on this machine (E8, N-A10), one plan over the 4 ms tick when it happens | §3.18, §14; the in-game plan measured in E9 |
+| CI runner variance on the 3× budgets: `SixtyCreatures_TickWithinTheBudget` failed once at 4.94 ms (run 36237433970, first attempt; 0.49 ms here) and passed on the re-run | Here. A second failure on a re-run would be S7 |
+| The character's regeneration clocks are not saved (Phase 1): a save taken in a fight resumes regeneration early | "STOP - E8.5, S9 and S2" |
 | `AsyncSaveTests.AQuicksave_AskedForDuringAnAutosave_WaitsItsTurn_AndHoldsTheLaterWorld` (Phase 1, P-01) intermittently fails in full-solution local runs from E3.2 on: "Expected: 1, Actual: 0" at `Held.WaitReached(1)`, which allows the background save 5 s (500 × 10 ms) to reach its hook. Measured on this machine, with about a third of its 16 logical cores busy with other work while idle: 0 of 3 at `8ff394b` (E2), 1-2 of 3 at E3.3, 1 of 3 with `FactionTests` excluded, 1 of 1 at E5.6 (then 3 of 3 alone), and at E7 2 of 2 full-solution runs and 1 of 2 Application-only runs (every boot now also runs BLD008). It passes alone every time, and CI has stayed green. E3 made test boots heavier (FAC001) and added heavier tests, so the save worker is starved longer under load | Here. Not changed: the test is Phase 1's, outside §12.10's permitted edits. If it reaches CI, the fix is to give `WaitReached` a longer budget, an owner decision |
 | `Kinematics.Step` rounds a body to whole millimetres after resolving a push, so at a convex corner a body can sit under 1 mm inside contact (Phase 1). E9's step 6 asserts Kera `IsClear` every tick, which is strict, and her route turns corners inside the workshop | Here; measured in E9 against the rows it would fail, before any change |
 
