@@ -1,0 +1,19 @@
+id: piece.storage.chest
+kind: piece
+schema: 1
+display_key: piece.storage.chest.name
+tags: [piece]
+name: Storage Chest                   # DRAFT display name
+notes: A timber chest on a pad (M7) - twelve stacks, for its owner alone. Destroyed, it spills what it holds.
+family: storage
+slot: furniture
+rotations: [0, 1, 2, 3]
+bounds_m: [-0.5, 0.6, 0.5, 1.2]       # local [min_x, min_z, max_x, max_z] at r0, against the square's north side
+parts:
+  - { box_m: [-0.5, 0.6, 0.5, 1.2], height_m: 0.7, traversal: solid }
+sockets:
+  - { type: square_mount, at_m: [0, 0] }
+container: { stack_slots: 12, at_m: [0, 0.9] }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 100

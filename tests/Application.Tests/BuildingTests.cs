@@ -18,7 +18,7 @@ namespace UNNAMED.Application.Tests;
 public class BuildingTests
 {
     private const string Pad = "piece.pad.timber", Wall = "piece.wall.timber", Doorway = "piece.doorway.timber", Roof = "piece.roof.timber",
-        Door = "piece.door.timber";
+        Door = "piece.door.timber", Chest = "piece.storage.chest";
     private const string Timber = "item.material.timber";
     private const string Renn = "npc.ashen_hollow.renn_vale", Kera = "npc.ashen_hollow.kera_voss";
     private const string Tag = "unnamed.piece/v1";
@@ -83,7 +83,7 @@ public class BuildingTests
         var placed = arena.Record<PiecePlaced>();
         var changed = arena.Record<StructuresChanged>();
         int authored = arena.Simulation.Space.Blockers.Length;
-        var id = Enumerable.Range(1, 5).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
+        var id = Enumerable.Range(1, 6).Select(n => EntityId.Derived(EntityKind.Piece, n, Tag, arena.Player.Value)).ToArray();
 
         // A pad: one timber, from the smallest stack; no parts, no footprint, nothing in the collision space.
         Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
@@ -124,27 +124,39 @@ public class BuildingTests
         Assert.Equal(new[] { new PiecePartView(98_800, 99_700, 99_200, 101_300, 2_400, TraversalClass.Door) }, door.Parts);
         Assert.Contains(arena.Simulation.DynamicBlockers, b => b is BoxBlocker { MinXMm: 98_800, MinZMm: 99_700, MaxXMm: 99_200, MaxZMm: 101_300 });
 
+        // A chest on the pad (E8): two timber; one solid part against the square's north side; its container keyed by the piece, its site
+        // inside its box, no record until something goes in.
+        Assert.Null(Place(arena, Chest, 100_500, 100_500, 0));
+        Assert.Equal(new[] { 16, 20 }, Stacks(arena));
+        var chest = arena.Simulation.Pieces.Single(p => p.Id == id[5]);
+        Assert.Equal(new[] { new PiecePartView(100_000, 101_100, 101_000, 101_700, 700, TraversalClass.Solid) }, chest.Parts);
+        Assert.Equal("container." + id[5].Value.ToLowerInvariant(), chest.ContainerKey);
+        var site = arena.Simulation.Containers.Single(c => c.Site.Key == chest.ContainerKey).Site;
+        Assert.Equal((100_500L, 101_400L, 12, "", arena.Player), (site.XMm, site.ZMm, site.StackSlots, site.LootTableId, site.Owner!));
+        Assert.Null(arena.Simulation.World.Container(chest.ContainerKey!));
+
         // Derived IDs by sequence; one event of each per piece; the rows hosted by their anchors.
         Assert.Equal(id, placed.Select(p => p.PieceId));
-        Assert.Equal(new long[] { 1, 2, 3, 4, 5 }, placed.Select(p => p.Revision));
-        Assert.Equal(new[] { Pad, Wall, Doorway, Roof, Door }, placed.Select(p => p.DefId));
+        Assert.Equal(new long[] { 1, 2, 3, 4, 5, 6 }, placed.Select(p => p.Revision));
+        Assert.Equal(new[] { Pad, Wall, Doorway, Roof, Door, Chest }, placed.Select(p => p.DefId));
         Assert.All(placed, p => Assert.Equal(arena.Player, p.Owner));
         Assert.Equal(new[] { (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 98_800L, 102_200L, 99_200L), (98_800L, 98_800L, 99_200L, 102_200L),
-            (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 99_700L, 99_200L, 101_300L) }, changed.Select(c => (c.MinXMm, c.MinZMm, c.MaxXMm, c.MaxZMm)));
+            (99_000L, 99_000L, 102_000L, 102_000L), (98_800L, 99_700L, 99_200L, 101_300L), (100_000L, 101_100L, 101_000L, 101_700L) },
+            changed.Select(c => (c.MinXMm, c.MinZMm, c.MaxXMm, c.MaxZMm)));
         Assert.All(changed, c => Assert.Equal(StructureChangeKind.Placed, c.Kind));
-        Assert.Equal(5, arena.Simulation.StructureRevision);
-        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_00_01" },
+        Assert.Equal(6, arena.Simulation.StructureRevision);
+        Assert.Equal(new[] { "r_0_0:c_01_01", "r_0_0:c_01_00", "r_0_0:c_00_01", "r_0_0:c_01_01", "r_0_0:c_00_01", "r_0_0:c_01_01" },
             id.Select(i => arena.Simulation.World.Piece(i)!.HostCell));
 
         // Space appends exactly the solid parts, in structure order, after the authored blockers; the footprints are those parts and the
         // door's leaf.
         var footprints = arena.Simulation.StructureFootprints;
-        Assert.Equal(4, footprints.Length);
-        Assert.Equal(3, footprints.Count(f => f.Class == TraversalClass.Solid));
+        Assert.Equal(5, footprints.Length);
+        Assert.Equal(4, footprints.Count(f => f.Class == TraversalClass.Solid));
         Assert.Equal(id[4], Assert.Single(footprints, f => f.Class == TraversalClass.Door).PieceId);
         Assert.Equal(footprints.Where(f => f.Class == TraversalClass.Solid).Select(f => (f.MinXMm, f.MinZMm, f.MaxXMm, f.MaxZMm, f.HeightMm)),
             arena.Simulation.Space.Blockers.Skip(authored).Cast<BoxBlocker>().Select(b => (b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm, b.HeightMm)));
-        Assert.Equal(authored + 3, arena.Simulation.Space.Blockers.Length);
+        Assert.Equal(authored + 4, arena.Simulation.Space.Blockers.Length);
     }
 
     [Fact]
@@ -264,6 +276,120 @@ public class BuildingTests
                 failed.Add(rule);
         }
         Assert.Equal(Enum.GetValues<PlacementRule>().Where(r => r != PlacementRule.Actor), failed.Order());
+    }
+
+    /// <summary>A chest at (100.5, 100.5) on its pad, reached from (100.5, 102.6), and its container's key.</summary>
+    private static (Arena Arena, string Key) WithAChest(GameSession session)
+    {
+        var arena = Builder(session, (100.5, 102.6));
+        Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
+        Assert.Null(Place(arena, Chest, 100_500, 100_500, 0));
+        return (arena, arena.Simulation.Pieces.Single(p => p.DefId == Chest).ContainerKey!);
+    }
+
+    private static string? Store(Arena arena, string key, int count)
+    {
+        var stack = arena.Simulation.Player.Inventory.Where(e => e.DefId == Timber).OrderBy(e => e.Count).First(e => e.Count >= count);
+        return arena.Submit(new MoveItemCommand(arena.Player, stack.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), count));
+    }
+
+    /// <summary>
+    /// The C1 boundary (M7 design §4.13): a placed chest's first store gives its record the identity its piece derives; emptied, the
+    /// record stays - the corpse clause never matches a piece chest's key - so the next store finds the same identity, with no exception.
+    /// </summary>
+    [Fact]
+    public void APieceChest_EmptiedAndRefilled_KeepsOneIdentity()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = WithAChest(session);
+        var chest = arena.Simulation.Pieces.Single(p => p.DefId == Chest).Id;
+        var derived = EntityId.Derived(EntityKind.Container, chest.Timestamp, "unnamed.piece-container/v1", chest.Value);
+
+        Assert.Null(Store(arena, key, 2));
+        Assert.Equal(derived, arena.Simulation.World.Container(key)!.InstanceId);
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, key)));
+        var emptied = arena.Simulation.World.Container(key);
+        Assert.NotNull(emptied);
+        Assert.Empty(emptied!.Items);
+        Assert.Equal(derived, emptied.InstanceId);
+        Assert.Null(Store(arena, key, 2));
+        Assert.Equal(derived, arena.Simulation.World.Container(key)!.InstanceId);
+        Assert.Equal(2, arena.Simulation.World.Container(key)!.Items.Sum(i => i.Count));
+    }
+
+    /// <summary>The same across a save: the emptied record is kept, loads as the chest's, and takes the next store.</summary>
+    [Fact]
+    public void APieceChest_EmptiedAndRefilled_AcrossASave_KeepsOneIdentity()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = WithAChest(session);
+        Assert.Null(Store(arena, key, 2));
+        var identity = arena.Simulation.World.Container(key)!.InstanceId;
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, key)));
+        var loaded = Arena.Resume(session.Setup, SaveAndLoad(profile, session, arena, "emptied"));
+        Assert.Equal((identity, 0), (loaded.Simulation.World.Container(key)!.InstanceId, loaded.Simulation.World.Container(key)!.Items.Length));
+        Assert.Null(Store(loaded, key, 2));
+        Assert.Equal(identity, loaded.Simulation.World.Container(key)!.InstanceId);
+    }
+
+    /// <summary>A chest holding anything cannot be taken down; emptied, it can, and its record goes with it.</summary>
+    [Fact]
+    public void AChestWithItems_CannotBeTakenDown()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = WithAChest(session);
+        var chest = arena.Simulation.Pieces.Single(p => p.DefId == Chest).Id;
+        Assert.Null(Store(arena, key, 2));
+        string digest = arena.Simulation.StateDigest();
+        Assert.Equal("empty the chest first", Dismantle(arena, chest));
+        Assert.Equal(digest, arena.Simulation.StateDigest());
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, key)));
+        Assert.Null(Dismantle(arena, chest));
+        Assert.Null(arena.Simulation.World.Container(key));
+        Assert.DoesNotContain(arena.Simulation.Containers, c => c.Site.Key == key);
+    }
+
+    // F-E10
+    /// <summary>
+    /// Two fresh new games that take timber from the stack, place a pad and a chest, and store 2 timber give equal replayable dumps: the
+    /// chest's key, which embeds its piece's ID, is named as its piece is.
+    /// </summary>
+    [Fact]
+    public void TwoFreshRuns_WithAPieceChest_ProduceTheSameReplayableDump()
+    {
+        string Run()
+        {
+            using var profile = new TempProfile();
+            var session = Harness.Boot(profile);
+            var simulation = session.NewGame("Wanderer", seed: 42);
+            var player = simulation.PlayerId;
+            void Do(GameCommand command)
+            {
+                session.Submit(command);
+                session.Frame(session.TickSeconds);
+            }
+            Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
+            Assert.True(Harness.WalkTo(session, 84_000, 116_600, Gait.Walk, toleranceMm: 50));
+            Do(new MoveItemCommand(player, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 5));
+            Assert.True(Harness.WalkTo(session, 88_000, 112_500, Gait.Walk, toleranceMm: 50));
+            Do(new PlacePieceCommand(player, Pad, 88_500, 112_500, 0));
+            Do(new PlacePieceCommand(player, Chest, 88_500, 112_500, 0));
+            string key = simulation.Pieces.Single(p => p.DefId == Chest).ContainerKey!;
+            Do(new MoveItemCommand(player, simulation.Player.Inventory.Single(e => e.DefId == Timber).ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), 2));
+            Assert.Equal(2, simulation.World.Container(key)!.Items.Sum(i => i.Count));
+            Assert.DoesNotContain(simulation.Player.Inventory, e => e.DefId == Timber);
+            // The C1 boundary: IsCorpse matches only a creature's corpse key, and every one of the world's is corpse.*, never a chest's.
+            Assert.NotEmpty(simulation.Creatures);
+            Assert.All(simulation.Creatures, c => Assert.StartsWith("corpse.", c.CorpseKey));
+            return StateDump.Render(simulation, replayable: true);
+        }
+        string first = Run(), second = Run();
+        Assert.Empty(StateDump.Compare(first, second, out _));
+        Assert.Contains("container.pce#", first);
+        Assert.DoesNotContain("container.pce_", first);
     }
 
     // L6
@@ -465,6 +591,7 @@ public class BuildingTests
         Assert.Null(arena.Simulation.World.Piece(south));
         Assert.Equal(40, Stacks(arena).Sum());
 
+
         // A pad whose only wall has a pad beyond it comes down; half of one timber is nothing.
         Assert.Null(Dismantle(arena, pad));
         Assert.Empty(removed[^1].Refund);
@@ -472,6 +599,15 @@ public class BuildingTests
         Assert.Null(Dismantle(arena, between));
         Assert.Equal(41, Stacks(arena).Sum());
         Assert.Equal(before + 3, arena.Simulation.StructureRevision);
+
+        // A chest holding anything comes down last of all (E8): "empty the chest first".
+        Assert.Null(Place(arena, Chest, 103_500, 100_500, 0));
+        var chest = PieceAt(arena, Chest, 103_500, 100_500);
+        string key = arena.Simulation.Pieces.Single(p => p.Id == chest).ContainerKey!;
+        Assert.True(arena.WalkTo(103.5, 102.6));
+        var one = arena.Simulation.Player.Inventory.First(e => e.DefId == Timber);
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, one.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), 1)));
+        Assert.Equal("empty the chest first", Dismantle(arena, chest));
     }
 
     [Fact]
@@ -483,6 +619,7 @@ public class BuildingTests
         Assert.Null(Place(arena, Pad, 100_500, 100_500, 0));
         Assert.Null(Place(arena, Doorway, 100_500, 99_000, 0));
         Assert.Null(Place(arena, Door, 100_500, 99_000, 0));
+        Assert.Null(Place(arena, Chest, 100_500, 100_500, 0));
         var loaded = SaveAndLoad(profile, session, arena, "theirs");
 
         // The same world, played by another character: the pad is not theirs.
@@ -501,7 +638,11 @@ public class BuildingTests
         Assert.Equal("that door is not yours", world.Submit(new InteractCommand(world.Player, door.Id.Value)));
         Assert.False(world.Simulation.Pieces.Single(p => p.Id == door.Id).DoorOpen);
         Assert.Equal("that is not yours to take down", Dismantle(world, door.Id));
-        Assert.Equal(3, world.Simulation.Pieces.Length);
+        // Nor their chest (E8): nothing goes into it.
+        var chest = world.Simulation.Pieces.Single(p => p.DefId == Chest);
+        var carried = world.Simulation.Player.Inventory.First();
+        Assert.Equal("that chest is not yours", world.Submit(new MoveItemCommand(world.Player, carried.ItemId.Value, ItemPlace.Carried, ItemPlace.In(chest.ContainerKey!), 1)));
+        Assert.Equal(4, world.Simulation.Pieces.Length);
     }
 
     [Fact]
@@ -694,6 +835,22 @@ public class BuildingTests
         foreach (var world in worlds)
             Assert.Null(Dismantle(world, PieceAt(world, Wall, 100_500, 99_000)));
         Assert.Equal(new[] { 3, 8 }, Stacks(worlds[0]));   // the refund goes to the fullest partial stack, whatever its ID
+        Assert.Equal(Stacks(worlds[0]), Stacks(worlds[1]));
+
+        // A chest's stores (E8) merge the same way, whichever stack each came from.
+        foreach (var world in worlds)
+        {
+            Assert.True(world.WalkTo(100.5, 102.6));
+            Assert.Null(Place(world, Chest, 100_500, 100_500, 0));
+            string key = world.Simulation.Pieces.Single(p => p.DefId == Chest).ContainerKey!;
+            Assert.Null(Store(world, key, 1));
+            Assert.Null(Store(world, key, 3));
+        }
+        int[] Stored(Arena world) => world.Simulation.World.Container(world.Simulation.Pieces.Single(p => p.DefId == Chest).ContainerKey!)!.Items
+            .Select(i => i.Count).Order().ToArray();
+        Assert.Equal(new[] { 4 }, Stored(worlds[0]));
+        Assert.Equal(new[] { 5 }, Stacks(worlds[0]));
+        Assert.Equal(Stored(worlds[0]), Stored(worlds[1]));
         Assert.Equal(Stacks(worlds[0]), Stacks(worlds[1]));
     }
 

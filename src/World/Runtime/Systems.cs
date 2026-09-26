@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
@@ -62,9 +63,29 @@ internal sealed class SystemContext
     /// <summary>What stops a line of sight, a blow or a shot: the walls and structures, placed pieces among them, and every closed door.</summary>
     public IEnumerable<Blocker> SightWalls() => Space.Blockers.Concat(ClosedDoors());
 
-    /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
+    /// <summary>An authored container, a corpse lying where its creature fell (M3d), a trader's wares, or a placed chest (M7).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key)
+        ?? (key.StartsWith(WorldDelta.PieceChestPrefix, StringComparison.Ordinal) ? PieceChestSites().FirstOrDefault(s => s.Key == key) : null);
+
+    /// <summary>
+    /// Every standing chest's container (M7 design §4.14), by piece ID: keyed by its piece, its site the world point of the definition's
+    /// <c>at_m</c>, no loot table, its identity derived from the piece and its owner the piece's.
+    /// </summary>
+    public IEnumerable<ContainerSite> PieceChestSites()
+    {
+        foreach (var row in State.World.Pieces.OrderBy(p => p.InstanceId.Value, StringComparer.Ordinal))
+        {
+            if (Setup.Building.Catalog.Find(row.DefId)?.Container is not { } container)
+                continue;
+            var (dx, dz) = QuarterTurn.Apply(container.XMm, container.ZMm, row.Rotation);
+            yield return new ContainerSite(WorldDelta.PieceChestKey(row.InstanceId), string.Empty, row.XMm + dx, row.ZMm + dz, container.StackSlots)
+            {
+                InstanceId = WorldDelta.PieceChestId(row.InstanceId),
+                Owner = row.Owner,
+            };
+        }
+    }
 
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;

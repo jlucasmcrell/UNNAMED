@@ -215,6 +215,8 @@ internal sealed class BuildingSystem
             return string.Create(CultureInfo.InvariantCulture, $"that is {Math.Sqrt(d2) / 1000:0.00} m away; building reach is {reach / 1000.0:0.00} m");
         if (Dependents(row, piece) is { } dependents)
             return dependents;
+        if (piece.Container is not null && State.World.Container(WorldDelta.PieceChestKey(row.InstanceId)) is { Items.IsEmpty: false })
+            return "empty the chest first";
         RemoveCore(row, piece, StructureChangeKind.Dismantled, command.Actor, tick);
         return null;
     }
@@ -278,6 +280,10 @@ internal sealed class BuildingSystem
     /// </summary>
     private void RemoveCore(PieceRecord row, PieceDefinition piece, StructureChangeKind kind, EntityId actor, long tick)
     {
+        // A chest's record goes with it: taken down, it is empty by then and is discarded.
+        string chest = WorldDelta.PieceChestKey(row.InstanceId);
+        if (piece.Container is not null && State.World.Container(chest) is not null)
+            _context.Dispatch(new DiscardContainer(chest));
         long sequence = State.World.StructureSequence + 1;
         State.RemovePiece(_owner, row.InstanceId, sequence);
         Rebuild();
@@ -419,7 +425,7 @@ internal sealed class BuildingSystem
                     .Select((p, i) => new PiecePartView(p.MinXMm, p.MinZMm, p.MaxXMm, p.MaxZMm, p.HeightMm, piece.Parts[i].Traversal)).ToImmutableArray();
             return new PieceView(row.InstanceId, row.DefId, piece?.Family ?? PieceFamily.Pad, row.XMm, row.ZMm, row.Rotation, row.Owner, row.HealthCurrent,
                 piece?.HealthMax ?? row.HealthCurrent, row.DoorOpen && piece?.Family == PieceFamily.Door, null, bounds.MinXMm, bounds.MinZMm, bounds.MaxXMm,
-                bounds.MaxZMm, parts, null, null);
+                bounds.MaxZMm, parts, piece?.Container is null ? null : WorldDelta.PieceChestKey(row.InstanceId), null);
         }).ToImmutableArray();
 
     /// <summary>The union of a piece's parts, not inflated: what navigation restamps around.</summary>

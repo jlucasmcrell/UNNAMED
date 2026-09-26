@@ -72,8 +72,8 @@ public class BuildingContentTests
         Assert.DoesNotContain(loader.Errors, e => e.Code.StartsWith("BLD", StringComparison.Ordinal) || e.Code == "WLD015");
         var setup = BuildingContent.Build(loader);
 
-        // The pieces of §4.21 that E5 and E6 ship.
-        Assert.Equal(new[] { "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.wall.timber" },
+        // The pieces of §4.21 that E5, E6 and E8 ship.
+        Assert.Equal(new[] { "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.storage.chest", "piece.wall.timber" },
             setup.Catalog.Pieces.Keys);
         var pad = setup.Catalog.Find("piece.pad.timber")!;
         Assert.Equal((PieceFamily.Pad, PieceSlot.Square, new BoundsMm(-1500, -1500, 1500, 1500), 200, false),
@@ -96,7 +96,12 @@ public class BuildingContentTests
         Assert.Equal(new PiecePart(new BoundsMm(-800, -200, 800, 200), 2400, TraversalClass.Door), Assert.Single(door.Parts));
         var mount = Assert.Single(door.Sockets);
         Assert.Equal((SocketType.DoorMount, 0L, 0L, SocketAxis.X), (mount.Type, mount.XMm, mount.ZMm, mount.Axis));
-        Assert.Equal(new[] { 1, 2, 2, 1, 1 }, new[] { pad, wall, doorway, roof, door }.Select(p => Assert.Single(p.Cost).Count));
+        // E8: the chest, a box against the square's north side with twelve stacks, its site inside its own box.
+        var chest = setup.Catalog.Find("piece.storage.chest")!;
+        Assert.Equal((PieceFamily.Storage, PieceSlot.Furniture, 100), (chest.Family, chest.Slot, chest.HealthMax));
+        Assert.Equal(new PiecePart(new BoundsMm(-500, 600, 500, 1200), 700, TraversalClass.Solid), Assert.Single(chest.Parts));
+        Assert.Equal(new PieceContainer(12, 0, 900), chest.Container);
+        Assert.Equal(new[] { 1, 2, 2, 1, 1, 2 }, new[] { pad, wall, doorway, roof, door, chest }.Select(p => Assert.Single(p.Cost).Count));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal("item.material.timber", Assert.Single(p.Cost).ItemId));
         Assert.All(setup.Catalog.Pieces.Values, p => Assert.Equal(new[] { 0, 1, 2, 3 }, p.Rotations));
 
@@ -163,6 +168,12 @@ public class BuildingContentTests
         Refused("BLD003", "a square or roof piece's bounds are exactly the square", (Pad, "bounds_m: [-1.5, -1.5, 1.5, 1.5]", "bounds_m: [-1.5, -1.5, 1.5, 1.4]"));
         // BLD004: the cost is in defined items.
         Refused("BLD004", "cost names 'item.material.oak', which is not an item", (Wall, "item_ref: item.material.timber", "item_ref: item.material.oak"));
+        // BLD005 (E8): a container on storage alone, holding a stack at least, its site inside the piece; and storage has one.
+        const string Chest = "pieces/storage/chest.yaml";
+        Refused("BLD005", "only storage has a container", (Wall, "supports_roof: true", "supports_roof: true\ncontainer: { stack_slots: 12, at_m: [0, 0] }"));
+        Refused("BLD005", "a container holds at least one stack", (Chest, "stack_slots: 12", "stack_slots: 0"));
+        Refused("BLD005", "the container's site at_m lies outside the piece's bounds", (Chest, "at_m: [0, 0.9]", "at_m: [0, 2.0]"));
+        Refused("BLD005", "storage has a container", (Chest, "container: { stack_slots: 12, at_m: [0, 0.9] }\n", ""));
         // BLD006: config.building present exactly when there is something to build, and sane.
         Refused("BLD006", "place_reach_m must be between 1 and 12", (Config, "place_reach_m: 6.0", "place_reach_m: 20.0"));
         Refused("BLD006", "module_m must be 3.0", (Config, "module_m: 3.0", "module_m: 2.0"));

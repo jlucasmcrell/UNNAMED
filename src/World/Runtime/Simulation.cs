@@ -229,7 +229,8 @@ public sealed class Simulation
         Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor());
 
     /// <summary>Every authored container and what it holds now.</summary>
-    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
+    public ImmutableArray<ContainerView> Containers =>
+        Setup.Layout.Containers.Concat(_context.CorpseSites()).Concat(_context.PieceChestSites()).Select(_inventory.View).ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();

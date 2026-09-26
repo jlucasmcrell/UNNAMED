@@ -427,7 +427,7 @@ public class NavigationTests
     /// <summary>
     /// The ROADMAP's "placement validation that rejects un-navigable configurations", on the game's own content after the workshop's
     /// first step: a one-square hut at (91.5, 91.5) closed from outside is refused with the generic reason; built round the character,
-    /// its last wall is refused as shutting them in. Nothing changes either time.
+    /// its last wall is refused as shutting them in; and a door that would open onto a chest is refused. Nothing changes any time.
     /// </summary>
     [Fact]
     public void PlacementIsRefused_WhenNavigationWouldBreak()
@@ -453,6 +453,18 @@ public class NavigationTests
             Assert.Equal(digest, arena.Simulation.StateDigest());
             Assert.Equal(1, arena.Simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
         }
+
+        // (c) (E8): a chest set against a doorway's inner side is accepted; a door hung in that doorway would open onto it.
+        var porch = BuildingTests.Builder(session, (102.0, 102.0));
+        BuildingTests.WorkshopStepOne(porch);
+        Assert.True(porch.WalkTo(100.5, 100.3) && porch.WalkTo(100.5, 97.0) && porch.WalkTo(100.5, 94.5), $"the walk out stopped at {porch.Simulation.Player.Body}");
+        Assert.Null(BuildingTests.Place(porch, "piece.pad.timber", 100_500, 94_500, 0));
+        Assert.Null(BuildingTests.Place(porch, "piece.doorway.timber", 100_500, 96_000, 0));
+        Assert.Null(BuildingTests.Place(porch, "piece.storage.chest", 100_500, 94_500, 0));
+        string unchanged = porch.Simulation.StateDigest();
+        Assert.Equal("the door would open onto a wall", BuildingTests.Place(porch, "piece.door.timber", 100_500, 96_000, 0));
+        Assert.Equal(unchanged, porch.Simulation.StateDigest());
+        Assert.Equal(1, porch.Simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N4"));
         Assert.Equal(0, session.SubscriberFailures);
     }
 

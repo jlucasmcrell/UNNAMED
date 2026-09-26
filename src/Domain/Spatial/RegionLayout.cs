@@ -34,7 +34,14 @@ public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryR
 /// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,
 /// rolled the same way every time; the key is its identity in saves.
 /// </summary>
-public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots);
+public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
+{
+    /// <summary>A placed chest's identity, derived from its piece (M7); null for an authored container, which is given one when first changed.</summary>
+    public EntityId? InstanceId { get; init; }
+
+    /// <summary>Who may use a placed chest (M7); null for an authored container, which anyone may.</summary>
+    public EntityId? Owner { get; init; }
+}
 
 /// <summary>
 /// An authored resource node (M3f): a node definition at a fixed place. Its identity and harvest state belong to the world

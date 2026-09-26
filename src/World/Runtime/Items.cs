@@ -459,6 +459,8 @@ internal sealed class InventorySystem
         bool wares = Items.Merchants.ContainsKey(site.Key);
         if (wares != trading)
             return wares ? $"{site.Key} is a trader's wares: buy and sell" : $"{site.Key} is not a trader's wares";
+        if (site.Owner is { } owner && owner != _player)
+            return "that chest is not yours";
         return !trading && Distance(site.XMm, site.ZMm) > Items.Inventory.ReachMm ? $"{site.Key} is out of reach" : null;
     }
 
@@ -499,6 +501,9 @@ internal sealed class InventorySystem
     /// <summary>The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16).</summary>
     private List<LootDrop> Baseline(ContainerSite site)
     {
+        // A placed chest (M7) starts empty: it has no loot table.
+        if (site.LootTableId.Length == 0 && !Items.Merchants.ContainsKey(site.Key))
+            return new List<LootDrop>();
         var cell = CellOf(site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
         // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
@@ -521,7 +526,10 @@ internal sealed class InventorySystem
         if (State.World.Container(site.Key) is { } existing)
             return existing;
         var registry = State.World.Registry;
-        var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
+        // A placed chest keeps the identity its piece derives (M7 G8); an authored one is given a new one.
+        var chest = site.InstanceId is { } derived
+            ? registry.CreateEntity(DefinitionId.Parse(site.Key), derived).InstanceId
+            : registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
         var items = Baseline(site).Select(drop => new ContainerItem(NewItem(drop.ItemId), drop.ItemId, drop.Count)).ToImmutableArray();
         var record = new ContainerRecord(site.Key, chest, CellOf(site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);

@@ -172,6 +172,19 @@ public static class BuildingContent
         foreach (string problem in LatticeProblems(piece))
             yield return Error("BLD003", $"{id}: {problem}", file);
 
+        // BLD005: a chest's container, on storage alone, its site inside the piece.
+        if (piece.Container is { } container)
+        {
+            if (piece.Family != PieceFamily.Storage)
+                yield return Error("BLD005", $"{id}: only storage has a container", file);
+            if (container.StackSlots < 1)
+                yield return Error("BLD005", $"{id}: a container holds at least one stack (stack_slots)", file);
+            if (!piece.Bounds.Contains(new BoundsMm(container.XMm, container.ZMm, container.XMm, container.ZMm)))
+                yield return Error("BLD005", $"{id}: the container's site at_m lies outside the piece's bounds", file);
+        }
+        else if (piece.Family == PieceFamily.Storage)
+            yield return Error("BLD005", $"{id}: storage has a container", file);
+
         // BLD004: it costs defined items.
         if (piece.Cost.IsEmpty)
             yield return Error("BLD004", $"{id}: a piece costs something (cost)", file);

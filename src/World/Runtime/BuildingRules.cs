@@ -130,7 +130,8 @@ internal static class BuildingRules
             else
                 doors.Add(new NavInput(NavInputKind.Door, parts[i], parts[i].Id));
         }
-        var edit = ctx.Navigation.CheckEdit(solids.ToImmutable(), doors.ToImmutable(), ProtectedPoints(context), ctx.Scratch, ctx.Counters);
+        var edit = ctx.Navigation.CheckEdit(solids.ToImmutable(), doors.ToImmutable(), ProtectedPoints(context, (piece, xMm, zMm, rotation)), ctx.Scratch,
+            ctx.Counters);
         return edit.Ok
             ? new PlacementCheck(true, null, null, bounds, parts, takes, NavVerdict.Proven)
             : Refuse(PlacementRule.Navigability, edit.Reason!, bounds, parts, NavVerdict.Refused);
@@ -144,7 +145,8 @@ internal static class BuildingRules
     /// every authored NPC's place, the spawn, everything worked by reaching it, and both approaches of every door. A candidate's own sites
     /// (chests and stations, E8) and the places NPCs work at (E9) join the list with their pieces and errands.
     /// </summary>
-    public static ImmutableArray<NavProtectedPoint> ProtectedPoints(SystemContext context)
+    public static ImmutableArray<NavProtectedPoint> ProtectedPoints(SystemContext context,
+        (PieceDefinition Piece, long XMm, long ZMm, int Rotation)? candidate = null)
     {
         var state = context.State;
         var setup = context.Setup;
@@ -152,6 +154,13 @@ internal static class BuildingRules
         var points = ImmutableArray.CreateBuilder<NavProtectedPoint>();
         static NavRect At(long x, long z) => new(x, z, x, z);
         string Name(string npcId) => setup.Social.Npcs.TryGetValue(npcId, out var npc) ? npc.Name : npcId;
+
+        // The candidate's own site: a chest's, which lies inside its own box and must be reached (E8).
+        if (candidate is { Piece.Container: { } container } placing)
+        {
+            var (dx, dz) = QuarterTurn.Apply(container.XMm, container.ZMm, placing.Rotation);
+            points.Add(new NavProtectedPoint(placing.Piece.Name, NavPointKind.NewSite, At(placing.XMm + dx, placing.ZMm + dz), 0, SiteReachMm));
+        }
 
         points.Add(new NavProtectedPoint("you", NavPointKind.Body, At(state.Body.XMm, state.Body.ZMm), BodyRadiusMm, SiteReachMm));
         foreach (string npcId in state.Companions.Keys)
@@ -168,6 +177,8 @@ internal static class BuildingRules
             points.Add(Reach(Words(c.Key), c.XMm, c.ZMm));
         foreach (var c in context.CorpseSites().OrderBy(c => c.Key, StringComparer.Ordinal))
             points.Add(Reach("the remains", c.XMm, c.ZMm));
+        foreach (var c in context.PieceChestSites())
+            points.Add(Reach("the chest", c.XMm, c.ZMm));
         foreach (var s in layout.Stations.OrderBy(s => s.Key, StringComparer.Ordinal))
             points.Add(Reach(Words(s.Key), s.XMm, s.ZMm));
         foreach (var n in layout.Nodes.OrderBy(n => n.Name, StringComparer.Ordinal))
