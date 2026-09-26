@@ -86,7 +86,7 @@ internal static class TestWorlds
     }
 
     /// <summary>A new character in a new world of the region, as a new game starts one.</summary>
-    public static Simulation HollowSimulation(SimulationSetup setup, IEventBus events, ulong seed = Seed)
+    public static Simulation HollowSimulation(SimulationSetup setup, IEventBus events, ulong seed = Seed, Func<PlayerRecord, PlayerRecord>? change = null)
     {
         var layout = setup.Layout;
         var terrain = new TerrainRule(layout.Generation.TerrainBaseHeightMm, layout.Generation.TerrainAmplitudeMm, layout.Generation.TerrainSamplesPerAxis);
@@ -95,6 +95,7 @@ internal static class TestWorlds
         var generator = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrain, fixedNodes));
         var id = EntityId.NewId(EntityKind.Character);
         var player = Simulation.NewCharacter(setup, id, "Tester", PlayerRecord.DerivedAppearanceSeed(id));
+        player = change?.Invoke(player) ?? player;
         return Simulation.Start(setup, player, new WorldDelta(generator, seed, new Registry()), 0, events);
     }
 

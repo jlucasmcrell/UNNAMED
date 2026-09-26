@@ -370,7 +370,7 @@ internal sealed class CompanionSystem
     private CompanionState CatchUp(CompanionState c, NpcState npc, string reason, long tick)
     {
         var player = State.Body;
-        var obstacles = Obstacles(c.NpcId);
+        var obstacles = _context.PersonObstacles(c.NpcId);
         long radius = _context.Setup.Movement.BodyRadiusMm;
         var space = _context.Setup.Layout.Space;
         (long X, long Z)? spot = null;
@@ -517,7 +517,7 @@ internal sealed class CompanionSystem
     private CompanionState Fall(CompanionState c, NpcState npc, long tick)
     {
         var spawn = _context.Setup.Layout.Spawn;
-        var obstacles = Obstacles(c.NpcId);
+        var obstacles = _context.PersonObstacles(c.NpcId);
         var at = Ring(spawn, spawn.FacingMdeg + 90_000, 2_000, obstacles) ?? (spawn.XMm, spawn.ZMm);
         var to = new Body(at.X, _context.Setup.Layout.Space.Terrain.HeightAtMm(at.X, at.Z), at.Z, spawn.FacingMdeg);
         Place(npc, to);
@@ -567,20 +567,7 @@ internal sealed class CompanionSystem
             return from;
         var intent = new MoveIntent((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection), gait,
             CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm));
-        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.Layout.Space, Obstacles(npc.Definition.Id), TickMs);
-    }
-
-    /// <summary>What a companion's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people.</summary>
-    private List<Blocker> Obstacles(string npcId)
-    {
-        long radius = _context.Setup.Movement.BodyRadiusMm;
-        var obstacles = new List<Blocker>(_context.ClosedDoors());
-        obstacles.AddRange(State.Creatures.Values.Where(x => x.Alive)
-            .Select(x => (Blocker)new CircleBlocker(x.Key, x.Body.XMm, x.Body.ZMm, x.Definition.RadiusMm, 0)));
-        obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, radius, 0));
-        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != npcId)
-            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, radius, 0)));
-        return obstacles;
+        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.Layout.Space, _context.PersonObstacles(npc.Definition.Id), TickMs);
     }
 
     /// <summary>A straight line with room for a body along it: nothing solid across the middle or either edge.</summary>

@@ -1,6 +1,9 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using UNNAMED.Content;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit.Abstractions;
 
@@ -129,6 +132,48 @@ public class NavigationTests
         Assert.Empty(failures);
         Assert.All(all, x => Assert.True(x.Expansions <= config.Limits.MaxExpansions, x.Pair));
         Assert.True(times.Count > 100, $"only {times.Count} pairs");
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    // NoDoorCloses_OnAnyBody: the authored-door half (E4; E6 adds the piece doors)
+    /// <summary>
+    /// The character cannot close an authored door on anyone standing in it - themselves, a companion, any other NPC or a living
+    /// creature (the Phase-1 technical audit, L-16, now <c>SystemContext.BodyIn</c>) - and closes it as before once the doorway is clear.
+    /// </summary>
+    [Fact]
+    public void NoDoorCloses_OnAnyBody()
+    {
+        const string door = "door.longhouse", tavar = "npc.ashen_hollow.tavar_orr", renn = "npc.ashen_hollow.renn_vale";
+        const long inX = 51_800, inZ = 128_000;   // the middle of the lodge doorway
+        (double X, double Z) doorway = (51.8, 128), outside = (53.5, 128);
+        var none = Array.Empty<(string, double, double, string)>();
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var rennInTheDoorway = session.Setup with
+        {
+            Layout = session.Setup.Layout with
+            {
+                Npcs = session.Setup.Layout.Npcs.Select(n => n.NpcId == renn ? n with { XMm = inX, ZMm = inZ } : n).ToImmutableArray(),
+            },
+        };
+        var tavarWaiting = new CompanionRecord(tavar, CompanionOrder.Wait, CompanionCondition.Up, inX, inZ, 90_000, 100);
+
+        (string? Refused, bool Open) OpenThenClose(Arena arena)
+        {
+            Assert.Null(arena.Submit(new InteractCommand(arena.Player, door)));
+            arena.Tick();
+            string? refused = arena.Submit(new InteractCommand(arena.Player, door));
+            return (refused, arena.Simulation.Doors.Single(d => d.Site.Key == door).Open);
+        }
+
+        var refusal = ("door.longhouse cannot close: something is in the doorway", true);
+        Assert.Equal(refusal, OpenThenClose(Arena.OpenCreatures(session, session.Setup, doorway, 270, none)));
+        Assert.Equal(refusal, OpenThenClose(Arena.OpenCreatures(session, session.Setup, outside, 270, none, r => r.WithCompanions(new[] { tavarWaiting }))));
+        Assert.Equal(refusal, OpenThenClose(Arena.OpenCreatures(session, rennInTheDoorway, outside, 270, none)));
+        Assert.Equal(refusal, OpenThenClose(Arena.OpenCreatures(session, session.Setup, outside, 270, new[] { (Arena.Wolf, 51.8, 128.0, "sleeper") })));
+
+        // The doorway clear: it closes, as it always has.
+        Assert.Equal(((string?)null, false), OpenThenClose(Arena.OpenCreatures(session, session.Setup, outside, 270, none)));
         Assert.Equal(0, session.SubscriberFailures);
     }
 

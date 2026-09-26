@@ -1,5 +1,6 @@
 using System.Reflection;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -99,6 +100,36 @@ public class NavigationRuntimeTests
         Assert.Equal(0, b.Navigation.Counters.Plans);
         Assert.Equal(digestA, a.Navigation.Grid.Digest());
         Assert.Equal(digestB, b.Navigation.Grid.Digest());
+    }
+
+    // E4: the internal OpenDoor (M7 design §3.11, §6)
+    [Fact]
+    public void OpenDoor_ACompanionInReach_OpensAnAuthoredDoor_AndNeverClosesIt()
+    {
+        const string tavar = "npc.ashen_hollow.tavar_orr", door = "door.longhouse";
+        var bus = new RecordingBus();
+        // Tavar with the character, waiting inside the lodge 0.9 m from its closed door.
+        var simulation = TestWorlds.HollowSimulation(Hollow.Value, bus, change: r => r.WithCompanions(new[]
+            { new CompanionRecord(tavar, CompanionOrder.Wait, CompanionCondition.Up, 50_700, 128_000, 90_000, 100) }));
+        var interaction = (InteractionSystem)typeof(Simulation).GetField("_interaction", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(simulation)!;
+        bool Open(string key) => simulation.Doors.Single(d => d.Site.Key == key).Open;
+        var toggled = bus.Published.OfType<DoorToggled>();
+
+        // Only a companion opens a door, only a door that exists, and only from within reach of their own body.
+        Assert.Equal("npc.ashen_hollow.renn_vale opens no doors", interaction.Handle(new OpenDoor(door, "npc.ashen_hollow.renn_vale"), 1));
+        Assert.Equal("there is no door called 'door.nowhere'", interaction.Handle(new OpenDoor("door.nowhere", tavar), 1));
+        Assert.Equal("door.forge_shed is 13.40 m away; reach is 1.60 m", interaction.Handle(new OpenDoor("door.forge_shed", tavar), 1));
+        Assert.False(Open(door));
+        Assert.Empty(toggled);
+
+        Assert.Null(interaction.Handle(new OpenDoor(door, tavar), 1));
+        Assert.True(Open(door));
+        Assert.Equal(new DoorToggled(NpcSystem.InstanceIdOf(tavar), door, true, 1), Assert.Single(toggled));
+
+        // Asked again, the door is already open: accepted, and nothing happens - an NPC never closes one.
+        Assert.Null(interaction.Handle(new OpenDoor(door, tavar), 2));
+        Assert.True(Open(door));
+        Assert.Single(toggled);
     }
 
     private static NavigationSystem SystemOf(Simulation simulation) =>

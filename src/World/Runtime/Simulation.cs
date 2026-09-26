@@ -428,6 +428,7 @@ public sealed class Simulation
         PlaceNpc place => _npcs.Handle(place),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),
+        OpenDoor open => _interaction.Handle(open, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

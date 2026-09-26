@@ -92,6 +92,28 @@ internal sealed class SystemContext
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
             .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id))
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
+
+    /// <summary>What an NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people.</summary>
+    public List<Blocker> PersonObstacles(string npcId)
+    {
+        long radius = Setup.Movement.BodyRadiusMm;
+        var obstacles = new List<Blocker>(ClosedDoors());
+        obstacles.AddRange(State.Creatures.Values.Where(x => x.Alive)
+            .Select(x => (Blocker)new CircleBlocker(x.Key, x.Body.XMm, x.Body.ZMm, x.Definition.RadiusMm, 0)));
+        obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, radius, 0));
+        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != npcId)
+            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, radius, 0)));
+        return obstacles;
+    }
+
+    /// <summary>
+    /// Anyone standing in a footprint: the character, a living creature, or an NPC, companions included - who would be shut inside the
+    /// wall if a door closed on them (the Phase-1 technical audit, L-16).
+    /// </summary>
+    public bool BodyIn(Blocker blocker) =>
+        blocker.Separation(State.Body.XMm, State.Body.ZMm, Setup.Movement.BodyRadiusMm) is not null
+        || State.Creatures.Values.Any(c => c.Alive && blocker.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
+        || State.Npcs.Values.Any(n => blocker.Separation(n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm) is not null);
 }
 
 /// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>
@@ -277,15 +299,34 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
-        // Nor on anyone else standing in it - a creature or an NPC - who would be shut inside the wall (the Phase-1 technical audit, L-16).
-        bool blocked = door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null
-                       || _context.State.Creatures.Values.Any(c => c.Alive && door.ClosedFootprint.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
-                       || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
-        if (open && blocked)
+        if (open && _context.BodyIn(door.ClosedFootprint))
             return $"{door.Key} cannot close: something is in the doorway";
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A companion opens an authored door in their way (M7 design §3.11): from within reach of their own body, and open only - NPCs never
+    /// close a door. One already open is left as it is.
+    /// </summary>
+    public string? Handle(OpenDoor command, long tick)
+    {
+        if (!_context.State.Companions.ContainsKey(command.NpcId) || !_context.State.Npcs.TryGetValue(command.NpcId, out var npc))
+            return $"{command.NpcId} opens no doors";
+        var door = _context.Setup.Layout.FindDoor(command.DoorKey);
+        if (door is null)
+            return $"there is no door called '{command.DoorKey}'";
+        var rules = _context.Setup.Movement;
+        double distance = door.ClosedFootprint.DistanceTo(npc.Body.XMm, npc.Body.ZMm);
+        if (distance > rules.InteractReachMm)
+            return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
+        if (_context.IsOpen(door))
+            return null;
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, 1)) is { } refused)
+            return refused;
+        _context.Events.Publish(new DoorToggled(NpcSystem.InstanceIdOf(command.NpcId), door.Key, true, tick));
         return null;
     }
 

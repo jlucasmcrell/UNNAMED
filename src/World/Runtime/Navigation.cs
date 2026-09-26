@@ -42,6 +42,12 @@ public static class NavigationLayout
         NavGrid.Build(config, Bounds(layout), TileKeys(layout), AuthoredInputs(layout, config), counters);
 }
 
+/// <summary>
+/// To <see cref="InteractionSystem"/>: an NPC opens a door in their way - a companion, until the errand mover (M7 design §6). NPCs open
+/// doors and never close them.
+/// </summary>
+internal sealed record OpenDoor(string DoorKey, string NpcId) : InternalCommand;
+
 /// <summary>A gate as the navigation view shows it: a door (<c>door</c>, <c>piece_door</c>) or a barrier, and whether it is open now.</summary>
 public sealed record NavGateView(string Key, string Kind, Blocker Footprint, bool Open);
 
