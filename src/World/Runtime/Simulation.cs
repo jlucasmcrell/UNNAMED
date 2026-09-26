@@ -96,6 +96,7 @@ public sealed class Simulation
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
     private readonly NavigationSystem _navigation;
+    private readonly BuildingSystem _building;
     private readonly NpcSystem _npcs;
     private readonly RelationshipSystem _relationships;
     private readonly FactionSystem _factions;
@@ -107,6 +108,7 @@ public sealed class Simulation
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
+    private NavScratch? _previewScratch;
 
     private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
     {
@@ -140,6 +142,7 @@ public sealed class Simulation
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id);
         _navigation = new NavigationSystem(_context, _state.Claim(nameof(NavigationSystem), StateSlice.Navigation));
+        _building = new BuildingSystem(_context, _state.Claim(nameof(BuildingSystem), StateSlice.Structures), player.Id, _navigation);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
@@ -151,6 +154,7 @@ public sealed class Simulation
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
+        _building.Populate();
         _navigation.Build();
         _npcs.Populate();
         _companions.Populate();
@@ -268,6 +272,33 @@ public sealed class Simulation
     /// <summary>Navigation (M7): the grid, the gates and their state, the movers' routes and the work counts. Read-only.</summary>
     public NavigationView Navigation => _navigation.View();
 
+    /// <summary>Every placed piece, by ID (M7).</summary>
+    public ImmutableArray<PieceView> Pieces => _building.Views();
+
+    /// <summary>Where bodies move (M7): the authored space and every placed piece's solid parts.</summary>
+    public WalkSpace Space => _context.Space;
+
+    /// <summary>The structure sequence (M7): one more on every place and take-down.</summary>
+    public long StructureRevision => _state.World.StructureSequence;
+
+    /// <summary>What the load found wrong with the saved pieces, kept and reported (M7).</summary>
+    public ImmutableArray<StructureConflict> StructureAudit => _state.StructureAudit;
+
+    /// <summary>Every placed part as navigation reads it (M7).</summary>
+    public ImmutableArray<NavFootprint> StructureFootprints => _context.StructureFootprints;
+
+    /// <summary>
+    /// The placement ghost (M7 design §4.6): what placing this piece here would do, by the command's own rules on a scratch of its own.
+    /// Advisory and read-only - it dispatches, publishes, counts and writes nothing.
+    /// </summary>
+    public PlacementPreview PreviewPlacement(string pieceDefId, long xMm, long zMm, int rotation, bool checkNavigability)
+    {
+        _previewScratch ??= new NavScratch();
+        var check = BuildingRules.Validate(new PlacementContext(_context, _navigation, _identity.Id, _identity.Id, _previewScratch, null, checkNavigability),
+            pieceDefId, xMm, zMm, rotation);
+        return BuildingRules.Preview(_context, check, pieceDefId);
+    }
+
     /// <summary>Every faction as the character stands with it, in ordinal ID order (M7).</summary>
     public ImmutableArray<FactionView> Factions => _factions.Views();
 
@@ -304,6 +335,8 @@ public sealed class Simulation
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
+                PlacePieceCommand place => _building.Handle(place, WorldTick),
+                DismantlePieceCommand dismantle => _building.Handle(dismantle, WorldTick),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),

@@ -100,7 +100,7 @@ public sealed class PlayerMotion
                 break;
         }
         // With the posture (the owner's M6 playtest): a jump's arc and a crouch's pace are drawn as the next tick will have them.
-        return Kinematics.Step(Body, simulation.Posture, intent, setup.Movement, setup.Layout.Space, simulation.DynamicBlockers,
+        return Kinematics.Step(Body, simulation.Posture, intent, setup.Movement, simulation.Space, simulation.DynamicBlockers,
             (int)Math.Round(alpha * setup.TickMilliseconds)).Body;
     }
 }

@@ -580,7 +580,9 @@ internal sealed class InventorySystem
             case PlaceKind.Inventory:
             {
                 var entries = State.Inventory.ToList();
-                int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
+                // The fullest stack first, then the ID (M7 G20): equal-count stacks are interchangeable, so the counts left never depend on IDs.
+                int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality)
+                        .OrderByDescending(e => e.Count).ThenBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
                     entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
@@ -604,7 +606,8 @@ internal sealed class InventorySystem
                 var site = _context.FindContainer(place.ContainerKey!)!;
                 var record = Materialize(site);
                 var items = record.Items.ToList();
-                int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
+                int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality)
+                        .OrderByDescending(i => i.Count).ThenBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
                     items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });

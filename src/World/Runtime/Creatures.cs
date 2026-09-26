@@ -171,6 +171,7 @@ internal sealed class CreatureSystem
     /// <summary>World start: every spawner's creatures at their baseline places, then each record's divergence over it.</summary>
     public void Populate()
     {
+        // The authored space, never the built one: a home must not depend on what the player has built (M7 design G9).
         var space = _context.Setup.Layout.Space;
         foreach (var site in Setup.Spawns)
         {
@@ -596,7 +597,7 @@ internal sealed class CreatureSystem
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
         others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
-        var moved = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        var moved = Kinematics.Step(c.Body, intent, rules, _context.Space, others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
             // It ran into something solid: rock, wall or tree takes the charge, and the charger reels.
@@ -634,7 +635,7 @@ internal sealed class CreatureSystem
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
             obstacles.AddRange(Companions());
-            c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
+            c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Space, obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
@@ -868,7 +869,7 @@ internal sealed class CreatureSystem
         others.AddRange(Companions());
         others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
-        return Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        return Kinematics.Step(from, intent, rules, _context.Space, others, TickMs);
     }
 
     /// <summary>
@@ -924,7 +925,7 @@ internal sealed class CreatureSystem
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls() => _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors());
+    private IEnumerable<Blocker> Walls() => _context.SightWalls();
 
     private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
 

@@ -47,6 +47,18 @@ internal sealed class SystemContext
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
 
+    /// <summary>
+    /// Where bodies move (M7): the authored space with every placed piece's solid parts after the authored blockers, in
+    /// <see cref="StructureOrder"/>. It is the authored space itself while nothing is built.
+    /// </summary>
+    public WalkSpace Space => State.Space ?? Setup.Layout.Space;
+
+    /// <summary>Every placed part, solid or door, as navigation reads it (M7), in <see cref="StructureOrder"/>.</summary>
+    public ImmutableArray<NavFootprint> StructureFootprints => State.StructureFootprints;
+
+    /// <summary>What stops a line of sight, a blow or a shot: the walls and structures, placed pieces among them, and every closed door.</summary>
+    public IEnumerable<Blocker> SightWalls() => Space.Blockers.Concat(ClosedDoors());
+
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
         Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
@@ -71,7 +83,7 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.Layout.Space.Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        SightWalls().Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(Body npc) =>
@@ -167,7 +179,7 @@ internal sealed class MovementSystem
         var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
         if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
             return "busy";
-        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Space))
             return "no room to stand";
         _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
         _context.Events.Publish(new Jumped(_player, tick));
@@ -192,7 +204,7 @@ internal sealed class MovementSystem
             return "in the air";
         if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
             return "mid-dodge";
-        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Space))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
@@ -248,7 +260,7 @@ internal sealed class MovementSystem
         }
 
         var posture = _context.State.Posture;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)
             _context.State.SetPosture(_owner, next);
         if (to == from)

@@ -413,7 +413,7 @@ internal sealed class CompanionSystem
         var player = State.Body;
         var obstacles = _context.PersonObstacles(c.NpcId);
         long radius = _context.Setup.Movement.BodyRadiusMm;
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Space;
         (long X, long Z)? spot = null;
         int from = c.Trail.Length;
         for (int i = c.Trail.Length - 1; i >= 0 && spot is null; i--)
@@ -439,7 +439,7 @@ internal sealed class CompanionSystem
     /// <summary>The first point on a ring round a place, starting from a facing and going round in eighths, where a body fits in sight of it.</summary>
     private (long X, long Z)? Ring(Body around, long startMdeg, long radiusMm, IReadOnlyList<Blocker> obstacles)
     {
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Space;
         long body = _context.Setup.Movement.BodyRadiusMm;
         for (int i = 0; i < 8; i++)
         {
@@ -609,7 +609,7 @@ internal sealed class CompanionSystem
             return from;
         var intent = new MoveIntent((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection), gait,
             CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm));
-        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.Layout.Space, _context.PersonObstacles(npc.Definition.Id), TickMs);
+        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Space, _context.PersonObstacles(npc.Definition.Id), TickMs);
     }
 
     /// <summary>A straight line with room for a body along it: nothing solid across the middle or either edge.</summary>
@@ -627,7 +627,7 @@ internal sealed class CompanionSystem
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.SightWalls().Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as NPCs turn.</summary>
     private Body Turn(Body body, int towardMdeg)

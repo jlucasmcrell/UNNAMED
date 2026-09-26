@@ -82,6 +82,12 @@ public enum StateSlice
     /// <c>RebuildNavigation</c>; never saved.
     /// </summary>
     Navigation,
+
+    /// <summary>
+    /// Player-placed pieces (M7): the rows and the structure sequence in the world delta, and what is derived from them. Not the region
+    /// YAML's <c>structures:</c>, which are authored blockers.
+    /// </summary>
+    Structures,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -152,6 +158,13 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public NavGrid? Navigation { get; private set; }
+
+    // Derived from the piece rows (M7), never saved: rebuilt by BuildingSystem on every place and take-down and at world start.
+    public WalkSpace? Space { get; private set; }
+    public ImmutableArray<Blocker> ClosedPieceLeaves { get; private set; } = ImmutableArray<Blocker>.Empty;
+    public StructureIndex StructureIndex { get; private set; } = StructureIndex.Empty;
+    public ImmutableArray<NavFootprint> StructureFootprints { get; private set; } = ImmutableArray<NavFootprint>.Empty;
+    public ImmutableArray<StructureConflict> StructureAudit { get; private set; } = ImmutableArray<StructureConflict>.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -360,6 +373,46 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Navigation);
         Navigation = grid;
+    }
+
+    public void PlacePiece(SliceOwner owner, PieceRecord record, long sequence)
+    {
+        Require(owner, StateSlice.Structures);
+        World.PlacePiece(record, sequence);
+    }
+
+    public void SetPiece(SliceOwner owner, PieceRecord record)
+    {
+        Require(owner, StateSlice.Structures);
+        World.SetPiece(record);
+    }
+
+    public void RemovePiece(SliceOwner owner, EntityId id, long sequence)
+    {
+        Require(owner, StateSlice.Structures);
+        World.RemovePiece(id, sequence);
+    }
+
+    public void SetStructureDerived(SliceOwner owner, WalkSpace space, ImmutableArray<Blocker> closedLeaves, StructureIndex index,
+        ImmutableArray<NavFootprint> footprints)
+    {
+        Require(owner, StateSlice.Structures);
+        Space = space;
+        ClosedPieceLeaves = closedLeaves;
+        StructureIndex = index;
+        StructureFootprints = footprints;
+    }
+
+    public void SetClosedPieceLeaves(SliceOwner owner, ImmutableArray<Blocker> closedLeaves)
+    {
+        Require(owner, StateSlice.Structures);
+        ClosedPieceLeaves = closedLeaves;
+    }
+
+    public void SetStructureAudit(SliceOwner owner, ImmutableArray<StructureConflict> lines)
+    {
+        Require(owner, StateSlice.Structures);
+        StructureAudit = lines;
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

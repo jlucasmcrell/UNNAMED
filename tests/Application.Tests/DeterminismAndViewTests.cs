@@ -102,6 +102,9 @@ public class DeterminismAndViewTests
         var learned = Harness.Record<FactionLearned>(session);
         var standing = Harness.Record<ReputationChanged>(session);
         var routes = Harness.Record<RoutePlanned>(session);              // E4
+        var placed = Harness.Record<PiecePlaced>(session);               // E5
+        var removed = Harness.Record<PieceRemoved>(session);
+        var structures = Harness.Record<StructuresChanged>(session);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
@@ -136,6 +139,10 @@ public class DeterminismAndViewTests
         // Routes: this script has no mover, so nothing plans.
         Assert.Empty(simulation.Navigation.Movers);
         Assert.Empty(routes);
+        // Pieces: one placing or taking down per change of the structures, and the sequence is their count.
+        Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count);
+        Assert.Equal(placed.Count + removed.Count, structures.Count);
+        Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(), placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Order());
     }
 
     [Fact]
@@ -169,6 +176,9 @@ public class DeterminismAndViewTests
         writer.Subscribe<FactionLearned>(anything.Add);
         writer.Subscribe<ReputationChanged>(anything.Add);
         writer.Subscribe<RoutePlanned>(anything.Add);
+        writer.Subscribe<PiecePlaced>(anything.Add);
+        writer.Subscribe<PieceRemoved>(anything.Add);
+        writer.Subscribe<StructuresChanged>(anything.Add);
         var simulation = writer.NewGame("Wanderer", seed: 42);
         Assert.Empty(anything);
 
@@ -186,6 +196,9 @@ public class DeterminismAndViewTests
         reader.Subscribe<FactionLearned>(anything.Add);
         reader.Subscribe<ReputationChanged>(anything.Add);
         reader.Subscribe<RoutePlanned>(anything.Add);
+        reader.Subscribe<PiecePlaced>(anything.Add);
+        reader.Subscribe<PieceRemoved>(anything.Add);
+        reader.Subscribe<StructuresChanged>(anything.Add);
         reader.Load(SaveSlots.Manual("known"));
         Harness.Ticks(reader, 20);
 

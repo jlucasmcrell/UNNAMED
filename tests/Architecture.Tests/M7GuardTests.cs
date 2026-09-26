@@ -118,12 +118,16 @@ public class M7GuardTests
     [Fact]
     public void M7Code_NamesItsComparers()
     {
+        string[] world = { "/Navigation.cs", "/Factions.cs", "/Building.cs", "/BuildingRules.cs" };
+        string[] content = { "/NavigationContent.cs", "/FactionContent.cs", "/BuildingContent.cs" };
         var files = NavDomainFiles()
-            .Concat(Sources("src/World/Runtime").Where(f => f.Path.EndsWith("/Navigation.cs", StringComparison.Ordinal) || f.Path.EndsWith("/Factions.cs", StringComparison.Ordinal)))
-            .Concat(Sources("src/Domain/Factions"))
-            .Concat(Sources("src/Content").Where(f => f.Path.EndsWith("/NavigationContent.cs", StringComparison.Ordinal)
-                || f.Path.EndsWith("/FactionContent.cs", StringComparison.Ordinal))).ToList();
+            .Concat(Sources("src/World/Runtime").Where(f => world.Any(w => f.Path.EndsWith(w, StringComparison.Ordinal))))
+            .Concat(Sources("src/Domain/Factions")).Concat(Sources("src/Domain/Building"))
+            .Concat(Sources("src/Domain/Spatial").Where(f => f.Path.EndsWith("/StructureFootprints.cs", StringComparison.Ordinal)))
+            .Concat(Sources("src/Content").Where(f => content.Any(c => f.Path.EndsWith(c, StringComparison.Ordinal)))).ToList();
         Assert.Contains(files, f => f.Path == "src/Domain/Factions/Factions.cs");
+        Assert.Contains(files, f => f.Path == "src/World/Runtime/BuildingRules.cs");
+        Assert.Contains(files, f => f.Path == "src/Domain/Building/Building.cs");
         var construction = new Regex(@"ToImmutableSortedDictionary\(|ImmutableSortedDictionary\.Create|ToImmutableSortedSet\(|ImmutableSortedSet\.Create|new SortedDictionary<string|new SortedSet<string|SortedDictionary<string[^>]*>\s+\w+\s*=\s*new\(|SortedSet<string>\s+\w+\s*=\s*new\(");
         var offenders = new List<string>();
         foreach (var (path, lines) in files)
@@ -138,6 +142,52 @@ public class M7GuardTests
             }
         }
         Assert.True(offenders.Count == 0, "A sorted collection without an ordinal comparer:\n" + string.Join("\n", offenders));
+    }
+
+    // G4
+    [Fact]
+    public void PresentationUsesNoPhysicsQueries()
+    {
+        var hits = Hits(Sources("src/Presentation"), new Regex(@"\b(IntersectRay|PhysicsRayQueryParameters3D|RayCast3D|ShapeCast3D)\b")).ToList();
+        Assert.True(hits.Count == 0, "Presentation asks the physics engine where things are:\n" + string.Join("\n", hits));
+    }
+
+    // G7
+    [Fact]
+    public void PlacementRules_AreReadOnly()
+    {
+        var files = Sources("src/World/Runtime").Concat(Sources("src/Domain/Spatial"))
+            .Where(f => f.Path.EndsWith("/BuildingRules.cs", StringComparison.Ordinal) || f.Path.EndsWith("/NavEditCheck.cs", StringComparison.Ordinal)).ToList();
+        Assert.Contains(files, f => f.Path.EndsWith("/BuildingRules.cs", StringComparison.Ordinal));
+        var hits = Hits(files, new Regex(@"Dispatch\(|Events\.Publish|State\.Set|State\.Place|State\.Remove|Registry\.|NewId")).ToList();
+        Assert.True(hits.Count == 0, "The placement rules write:\n" + string.Join("\n", hits));
+    }
+
+    // G13
+    [Fact]
+    public void BuildingNeverRecordsAnAct()
+    {
+        var files = Sources("src/World/Runtime")
+            .Where(f => f.Path.EndsWith("/Building.cs", StringComparison.Ordinal) || f.Path.EndsWith("/BuildingRules.cs", StringComparison.Ordinal)).ToList();
+        Assert.Equal(2, files.Count);
+        var hits = Hits(files, new Regex(@"new\s+RecordAct\(")).ToList();
+        Assert.True(hits.Count == 0, "Building records a faction act:\n" + string.Join("\n", hits));
+    }
+
+    /// <summary>Ruling 2, one storey: building adds nothing to how a body moves - no member on the movement rules or the kinematics.</summary>
+    [Fact]
+    public void MovementRules_GainsNoMembers()
+    {
+        static IEnumerable<string> Members(Type type) =>
+            type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                .Where(m => m is not MethodInfo { IsSpecialName: true }).Select(m => m.Name).Distinct().Order(StringComparer.Ordinal);
+        Assert.Equal(new[]
+        {
+            ".ctor", "<Clone>$", "AirtimeMs", "BaseSpeedMmPerSecond", "BodyRadiusMm", "CrouchHeightMm", "CrouchPercent", "Deconstruct", "Equals", "GetHashCode",
+            "HeightMm", "InteractReachMm", "JumpApexMm", "JumpRiseMs", "JumpTuckRadiusMm", "LiftMm", "SpeedMmPerSecond", "SprintPercent", "StandHeightMm",
+            "ToString", "WalkPercent",
+        }, Members(typeof(MovementRules)));
+        Assert.Equal(new[] { "Blocks", "CanStand", "IsClear", "Step" }, Members(typeof(Kinematics)).Where(n => n is not ("Equals" or "GetHashCode" or "ToString" or "GetType")));
     }
 
     // G25
