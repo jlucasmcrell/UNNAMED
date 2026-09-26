@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** E9 done (2026-09-26); E10 stopped at T2 (S9), see "STOP - E10.1, S9". The owner ruled on the second E8.5 STOP:
+**State:** E9 done (2026-09-26). E10 stopped at T2 (S9), ruled (option (b)); stopped again on two Release numbers against §14.11, see
+"STOP - E10.1 (second), the Release budget sheet". The owner ruled on the second E8.5 STOP:
 - **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
 - **The save lane** runs background saves on a thread of the session's own (`682c449`).
 
@@ -57,6 +58,7 @@ See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10
 | E2.4 STOP (S9/S10): the M6 save's step count | Option (a). The schema-12 save traverses four schema versions and executes three migrations: `Steps.Count == 3`, in order `schema 12 -> 13:`, `schema 13 -> 14:`, `schema 14 -> 15:`, asserted exactly. §7.14's "the fourth of four" was a counting error, corrected to "the third of three". M7 still has exactly one new migration, `SchemaV14ToV15`; no other step, and no save-format change beyond schema 15, is authorized | 2026-09-25 |
 | E3 STOP (S5): `m7_armour` | Option (a): tune the runtime beat only - a mending stop, and an approach to the sentinel's rear using movement the authoritative perception rules treat as quiet. Nothing about the sentinel, combat, the character, content, factions or the encounter changes; no teleport, disabled hearing, paused AI or forced awareness. Pre-authorized fallback to option (b) if one reasonable tuned version still dies, or if the rules make an undetected rear approach impossible. The Phase-1 async-save flake stays a recorded local risk, not an E3 edit | 2026-09-26 |
 | E8.5 second STOP (S9): a creature's attack in progress; the AsyncSave finding | Option (a): persist the minimum authoritative state that continues an ordinary creature attack in progress deterministically, as schema 16 -> 17 (schema 16's meaning and bytes unchanged; older saves migrate as "no attack in progress", a documented limitation). Trace the actual attack path; no animation, VFX, audio, presentation timers or runtime objects; the character's own transient actions stay excluded unless a separate equality failure proves otherwise. PERSISTENCE.md distinguishes transient state (not persisted) from authoritative state whose omission changes deterministic continuation (persisted when the owning system requires it), not broadened beyond this case in M7. A restored attack whose target cannot validly be restored follows an explicit, tested load rule. `CrossingWorkshop_10` passes unchanged: no moved save, removed wolf, weaker equality, "nothing attacking" precondition, altered timing or combat reset on load. AsyncSave: an isolated single-writer lane (one long-lived worker, not a thread per save, no parallel writers), with ordering, atomic writes, profile locking, queue semantics, shutdown, and error propagation kept; the 5 s test budget kept and proven under the parallel suite; if it still fails, STOP with measurements. Then finish E8.5, E9 and E10; no M8, merge or tag | 2026-09-26 |
+| E10.1 STOP (S9): T2's setup | Option (b), a fixture and scenario correction, not a gameplay rule change: the character resumes at (84, 110) and the edit takes down the west wall at (87, 106.5), the tested setup. T2 keeps every check: Tavar's planned route (his catch-up beyond 30 m is not route planning), the teardown, no unintended death; follower, creature and combat rules unchanged. The E9 criterion-14 allowance (under 1 mm, the step's millimetre rounding) is accepted and not to be increased. Then the Release measurements by E10's protocol, without optimising against Debug numbers; a Release miss of an authored target is a STOP with the target, the distribution, the scenario, gate or budget, the likely cause and the smallest correction; no target relaxed silently. Then complete E10; no merge, tag or M8 | 2026-09-26 |
 | E8.5 STOP (S9, S2): the character's regeneration clocks | Option (a): correct persistence of the player's regeneration continuation state, by a versioned schema change and migration (a narrow exception to the E2.4 restriction). Not to be hidden: no moving the save out of combat, removing the wolf, a resting precondition, a weaker equality assertion or a changed workshop sequence. Trace the whole pool-continuation state; save what continuation needs, not the whole runtime object; keep the rates and cooldowns; keep the documented policy for attacks and actions in progress separate, and if it conflicts with an equality guarantee, name the case and state the contract honestly. Schema 16, deterministic defaults for older saves (historical timing cannot be reconstructed), fixtures byte-for-byte, the new fixture by the procedure, migration counts reconciled with their order kept. First a focused regression showing the failure. Investigate the AsyncSave failure honestly. Then finish E8.5 through E10; do not stop at the fix; no M8. Coordinate with Claude 1 (the Ashen Hollow visual demo, `G:\UNNAMED_PHASEB`, not to be modified) and Codex B/C (review and QA tooling; no competing graphical captures, no killing another task's process) | 2026-09-26 |
 | E5.2 STOP (S1): BLD006 | Option (b). BLD006's "iff" is amended: `config.building` is required when any piece or build area exists; when present it is validated in full, even in a pack with nothing to build, and a valid inert one is allowed. The converse is not required. `ProgressionContentTests.ACopyOfTheGameConfig_Lints` is not edited (§2.18, §12.10). §4.20 amended; no other building rule changes. Tests prove the three cases | 2026-09-26 |
 
@@ -74,7 +76,7 @@ See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
 | E8 | Chest, bench, blows and mending | done | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane), `a8f2ce1` (schema 17, the owner's second ruling), `d362069` (E8.5), and this status | 1,071 at `d362069`, all passing in a clean worktree: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9), resolved by the owner (option (a), schema 17, and the save lane). See "E8 evidence" |
 | E9 | Kera works at your bench | done | `c3ddefe` (E9.1), `6f7565c` (E9.2), `6b84ad7` (E9.3), `1fe89dc` (E9.4), and this status | 1,091 at `1fe89dc`, all passing in a clean worktree: Domain 186, Application 320, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 (E9.2 alone: 1,087; E9.3: 1,091) | 116 | No STOP. The criterion-14 local risk fired as foreseen, at 0.483 mm, and was handled as E5's chase test handles it (below). See "E9 evidence" |
-| E10 | Evidence and closeout | stopped | T2 and its layout written, not committed | | 116 | Stopped at E10.1 (S9): T2's setup contradicts the companion catch-up and the crowd's reach. See "STOP - E10.1, S9" |
+| E10 | Evidence and closeout | stopped | T2 as ruled and N-A10's memory lines, with this status | 1,092, all passing: Domain 186, Application 321, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E10.1 (S9), resolved by the owner (option (b)); stopped again on the placement drain's maximum and the save's p99 in Release. See "STOP - E10.1 (second), the Release budget sheet" |
 
 ## E0 checklist
 
@@ -343,6 +345,81 @@ The owner chose option (b) and amended BLD006.
   3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
+
+## STOP - E10.1 (second), the Release budget sheet (2026-09-26)
+
+**What fired.** E10's STOP: "an ASTRAL number misses its section 3.18 or section 14 target", and the owner's ruling to stop on any Release
+miss of an authored target. T2, as ruled, runs green in Release on ASTRAL. Two of the lines it logs against §14.11 miss:
+
+| Line (§14.11) | Target | CI | Budget it belongs to |
+|---|---|---|---|
+| Placement command drain, per command | median ≤ 2 ms, **max ≤ 10 ms** | logged | the frame; the 33 ms hitch line |
+| Save capture and encode, no disk, per save | **p99 ≤ 1 ms** | logged | ≤ 2 ms P99 (WORLD_ARCHITECTURE :455); `save_ms` on RAZER |
+
+Both are budget-sheet targets that the CI only logs. Neither is among criterion 33's acceptance lines, which list §3.18's targets and
+T2's mean. They fall under E10's STOP rule, and are reported here, not relaxed.
+
+**Everything criterion 33 names is met in Release on ASTRAL (3 runs of N-A10, 8 of T2):**
+- the full build 0.99-1.03 ms (target < 20);
+- one piece's rebuild 0.05-0.06 ms median (target < 2);
+- `CheckEdit` median 0.32-0.36 ms and worst 0.77-0.86 ms (targets 2 and 10);
+- Kera's three workshop routes 3.9-4.0, 6.5-6.6 and 6.6-6.9 ms, at 22,685, 40,751 and 40,639 expansions (target 15 ms, STOP 20 ms, cap two thirds 43,690);
+- the authored pairs all `Found`, mean 1.02-1.04 ms, about 230 ns an expansion (target < 2);
+- T2's timed tick mean 0.52-0.60 ms, p95 0.64-0.80 ms (target 2);
+- the edit tick 1.8-2.4 ms (target 6); the preview 0.002 ms, and with navigability 0.001 ms median (target 0.05).
+
+Memory: the tiles are 1,280,000 B, the design's figure exactly. The first use of a planning scratch, for the largest of Kera's routes,
+allocates 2,463,872 B; the preview scratch's first flood allocates 1,045,136 B. The design's 8.7 MB and 2.4 MB are the computed ceilings
+at the largest window.
+
+**The placement drain, measured** (8 Release runs, 256 placements each, default GC):
+
+| p50 | p90 | p95 | p99 | max | Over 10 ms |
+|---|---|---|---|---|---|
+| 0.41-0.44 ms | 0.88-0.97 ms | 1.1-1.4 ms | 8.1-16.2 ms | 15.9-18.5 ms | 1-3 of 256 a run |
+
+What exceeds 10 ms, and why:
+1. **The first piece with parts in a session** (#82, the first doorway): 15.6-17.1 ms in every run, with no collection. It is the
+   navigability check's first use (JIT and its scratch): warming the check with one ghost preview first takes 14.2 ms, after which #82
+   costs 1.7 ms. In play, build mode's ghost asks that check every frame before any placement is made, so the one-time cost falls on the
+   first ghost frame of a session, under the 33 ms hitch line, not on a command.
+2. **Ordinary walls, now and then** (#130, #141, #142, #153; 0-2 a run, a different one each run): 14-18 ms, with no collection and no
+   pause inside them. With concurrent GC off (`DOTNET_gcConcurrent=0`) they disappear, and the build's gen-2 collections instead pause
+   their own placements for 3.3-3.7 ms (the worst such placement 4.5 ms). They are placements overlapping a background gen-2 collection.
+   Its garbage is the navigation tiles' large-object copy-on-write (§14.2: about 45 MB over the build; 7-9 gen-2 collections in every
+   build).
+3. The first bench (#171, 9.1-10.8 ms) and the first pad (#1, 7.5-9.0 ms): the first use of their paths, at or just under the line.
+
+**The save's capture and encode, measured** (100 a run, 8 runs, default GC):
+
+| p50 | p90 | p95 | p99 | max | Over 1 ms |
+|---|---|---|---|---|---|
+| 0.65-0.79 ms | 0.77-0.98 ms | 0.86-1.03 ms | 2.1-2.9 ms | 2.8-3.5 ms | 3-7 of 100 |
+
+- In every run the two largest samples are the first capture (JIT) and the one capture with a gen-0 collection (#76-#78). The p99 of 100
+  is the smaller of the two. With concurrent GC off the picture is the same (the collected capture at #98).
+- In play, only the capture runs on the frame (`save_ms`, R8). The encode and the write run on the session's save lane (the AsyncSave
+  ruling). The capture alone (2 runs): p50 0.53-0.56 ms, p95 0.64-0.75 ms, p99 0.79-1.24 ms.
+
+**Smallest corrections, for the owner:**
+- **A. The GC-overlap spikes (drain cause 2):** §14.15's lever 3, sub-tile navigation blocks below 85,000 B, so that a footprint edit's
+  copy-on-write stops allocating on the large-object heap. Its trigger, gen-2 collections logged by T2 during the build, is measured
+  in every run. It is a Domain storage change only: the grid is never saved, and the grid digest and every plan stay unchanged, pinned by
+  the existing tests. E10's STOP rule has the implementer apply the lever the measurement names; under the owner's ruling it waits for
+  approval.
+- **B. The first-use costs (drain causes 1 and 3):** no code change. Record them as a session's one-time first-use costs, and measure
+  T2's drain as play meets it, after one ghost preview. The alternative is a warm-up at world start, which play does not need.
+- **C. The save's p99:** either apply the 1 ms target to what the frame pays (the capture, p95 ≤ 0.75 ms), reporting the encode
+  separately; or reduce the capture and encode's allocation (pooled buffers in Persistence), so that a gen-0 collection lands inside a
+  save more rarely. Neither the first-capture JIT nor a collection is excluded without the owner's word.
+
+**Recommendation.** A, then re-measure T2 in Release. B as the protocol for the drain maximum, with the first-use costs recorded. C, the
+first option: the target applied to the capture on the frame, the capture-and-encode distribution recorded beside it.
+
+**State at this STOP.**
+- T2 is committed as ruled, green at its CI bound; N-A10 logs the memory lines. The whole suite passes: 1,092 tests.
+- The rest of E10 waits on this ruling: N-A8, the `FrameStats` columns, the ASTRAL perf trial, the documents, the evidence and the
+  final runs.
 
 ## STOP - E10.1, S9 (2026-09-26)
 
