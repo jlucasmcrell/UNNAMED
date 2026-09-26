@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-25.
 **Authorization:** owner authorization of 2026-09-25 ("M7 is now explicitly AUTHORIZED").
-**State:** E9 done (2026-09-26); E10 in progress. The owner ruled on the second E8.5 STOP:
+**State:** E9 done (2026-09-26); E10 stopped at T2 (S9), see "STOP - E10.1, S9". The owner ruled on the second E8.5 STOP:
 - **Schema 17** saves a creature's ordinary attack in progress. `CrossingWorkshop_10` now passes unchanged.
 - **The save lane** runs background saves on a thread of the session's own (`682c449`).
 
@@ -74,7 +74,7 @@ See "Schema 17 record", "AsyncSave record", "E8 evidence" and "E9 evidence". E10
 | E7 | Navigable by construction | done | `881dc98` (E7.1), `0aa235f` (E7.2), `9ff759c` (E7.3), and E7.4 with this status | 1,018: Domain 185, Application 269, Persistence 198, Content 186, World 68, Presentation 57, EntityRegistry 23, Architecture 32 | 114 | No STOP. See "E7 evidence" |
 | E8 | Chest, bench, blows and mending | done | `194bab7` (E8.1), `f776dfd` (E8.2), `6c5efef` (E8.3), `fb16e33` and `8573229` (the planner, results unchanged), `fb525f7` (E8.4), `1dd66e7` (schema 16, the owner's ruling), `682c449` (the save lane), `a8f2ce1` (schema 17, the owner's second ruling), `d362069` (E8.5), and this status | 1,071 at `d362069`, all passing in a clean worktree: Domain 186, Application 304, Persistence 214, Content 186, World 69, Presentation 57, EntityRegistry 23, Architecture 32 | 116 | Stopped at E8.5 (S9, S2), resolved by the owner (option (a), schema 16); stopped again at E8.5 (S9), resolved by the owner (option (a), schema 17, and the save lane). See "E8 evidence" |
 | E9 | Kera works at your bench | done | `c3ddefe` (E9.1), `6f7565c` (E9.2), `6b84ad7` (E9.3), `1fe89dc` (E9.4), and this status | 1,091 at `1fe89dc`, all passing in a clean worktree: Domain 186, Application 320, Persistence 214, Content 187, World 72, Presentation 57, EntityRegistry 23, Architecture 32 (E9.2 alone: 1,087; E9.3: 1,091) | 116 | No STOP. The criterion-14 local risk fired as foreseen, at 0.483 mm, and was handled as E5's chase test handles it (below). See "E9 evidence" |
-| E10 | Evidence and closeout | - | | | 116 | |
+| E10 | Evidence and closeout | stopped | T2 and its layout written, not committed | | 116 | Stopped at E10.1 (S9): T2's setup contradicts the companion catch-up and the crowd's reach. See "STOP - E10.1, S9" |
 
 ## E0 checklist
 
@@ -343,6 +343,56 @@ The owner chose option (b) and amended BLD006.
   3. no pieces, no area and an invalid config (reach 20 m; an unknown setting): BLD006.
 - **Measured at E5.2.** Content 186 of 186, `ACopyOfTheGameConfig_Lints` included, unmodified; the whole suite 972 of 972.
 
+
+## STOP - E10.1, S9 (2026-09-26)
+
+**What fired.** S9: "two sections of this document contradict each other on something the slice needs". T2
+(`TheCapWorkshop_SixtyCreaturesAndTwoMovers_TickWithinTheBudget`, §14.12.3) cannot run as written, for two reasons.
+
+1. **Tavar never plans in the warm-up.** The layout leaves him waiting at (91.5, 107.5) in the north-west room. Step 4 resumes the
+   character at (126.0, 100.0), 35.3 m away. The Phase-1 companion rule catches a follower up at once beyond `catch_up_beyond_m: 30`
+   (content/config/companion.yaml, C16). Measured: at the `Follow` order's first tick, `CompanionCaughtUp` fires with reason `distance`,
+   moving him from (91.5, 107.5) to (128.5, 100.0). He then follows the character in clear view, with no route: 0 `RoutePlanned` in the
+   warm-up. So step 5's "Tavar has published at least one `RoutePlanned`" cannot hold.
+2. **The character dies in the timed window.** The crowd moved to x 120-192, z 80-120 is "clear of the area", but the character's pose
+   (126.0, 100.0), taken from `SixtyCreatures_TickWithinTheBudget`, lies inside it. Measured: an ash ember hound's lunge kills the
+   character at tick 4580, 176 ticks into the window, and they respawn at the Waystone (30, 158). So step 6's walk to (116.0, 97.5) and
+   its edit cannot happen. `SixtyCreatures_TickWithinTheBudget` only ticks, so there a death passes unnoticed.
+
+Everything before the warm-up holds as written:
+- The full-area layout places all 256 pieces through commands, every one accepted.
+- Its asserts pass: sequence 256, 94 `NavigationRebuilt`, no audit, every room centre reachable for an opener from (84.0, 100.5).
+- Kera is taken on at the bench over both seams, and the save loads.
+
+**The two readings.**
+- **(a) Keep the poses and change the assertions.** Tavar's warm-up check becomes "caught up at the order, reason `distance`, and
+  following". Step 6 walks from wherever the character stands after the window, a death and respawn included. T2 then times a tick in
+  which only Kera plans, and a death, which is not what its name and §14.11's row describe.
+- **(b) Keep the assertions and change two poses.** The character resumes somewhere the crowd does not reach and within 30 m of Tavar.
+  Step 6's edit then takes down a wall near that spot.
+
+  Tried (temporarily, never committed): the character at (84.0, 110.0) facing 90, west of the area, 36 m from the crowd's nearest
+  column and 7.9 m from Tavar; the edit takes down the west wall at (87000, 106500) r1 from (85.2, 106.5). Every T2 assertion then
+  holds: no death, Tavar plans in the warm-up, and Kera replans for geometry on the edit, exactly the movers predicted.
+
+  Measured in Debug on ASTRAL, not yet the Release evidence:
+
+  | What | Debug measurement | ASTRAL target (Release) |
+  |---|---|---|
+  | The timed tick | mean 0.56 ms, p95 0.68 ms, max 6.4 ms; no gen-2 collection | mean 2 ms (CI bound 6 ms) |
+  | The edit tick | 2.1 ms | 6 ms |
+  | Each placement's drain | median 0.42 ms, max 15.0 ms | median 2 ms, max 10 ms |
+  | The preview | mean 0.002 ms; with navigability, median 0.001 ms | 0.05 ms |
+  | A save's capture and encode | p99 2.2 ms; entities 59,880 B, player 1,481 B | p99 1 ms |
+
+**Recommendation: (b)**, with the poses above, or any the owner prefers that keep the character alive and within 30 m of Tavar. It
+measures what T2 is for: a full area, both movers planning, and the crowd ticking. The drain maximum and the save p99 must still be
+measured in Release before E10 can call them met or missed.
+
+**State at this STOP.**
+- Pushed, CI green (run 36261991975): E9, `3461870`.
+- E10 so far: `FullAreaLayout.cs` and T2, written as designed, and not committed. They wait on the ruling, together with N-A8, the
+  N-A10 memory lines, the `FrameStats` columns, the documents, the evidence and the final runs.
 
 ## E9 evidence (2026-09-26, ASTRAL)
 
