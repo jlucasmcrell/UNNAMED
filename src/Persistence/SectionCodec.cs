@@ -65,6 +65,38 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 15. The 14 -> 15 step gives older saves an empty ledger: no act was recorded before M7.</summary>
     [Key("factions")] public FactionsDto? Factions { get; set; }
+
+    /// <summary>
+    /// Required from schema 16. The 15 -> 16 step gives older saves a character at rest: nothing pending, nothing accrued - how every
+    /// older save has always loaded, since the timing was not kept and cannot be reconstructed.
+    /// </summary>
+    [Key("vitals")] public VitalsDto? Vitals { get; set; }
+}
+
+/// <summary>
+/// What the character's pools do next (schema 16): the absolute world tick of the last blow taken or dealt, exertion and working, or
+/// -1000000 for never; and the thousandths accrued towards the next point of health, stamina, Focus and Strain, and drained by a sprint.
+/// </summary>
+[MessagePackObject]
+public sealed class VitalsDto
+{
+    [Key("last_combat_tick")] public long LastCombatTick { get; set; }
+    [Key("last_exertion_tick")] public long LastExertionTick { get; set; }
+    [Key("last_cast_tick")] public long LastCastTick { get; set; }
+    [Key("health_milli")] public int HealthMilli { get; set; }
+    [Key("stamina_milli")] public int StaminaMilli { get; set; }
+    [Key("focus_milli")] public int FocusMilli { get; set; }
+    [Key("strain_milli")] public int StrainMilli { get; set; }
+    [Key("sprint_milli")] public int SprintMilli { get; set; }
+
+    /// <summary>A character at rest: what the 15 -> 16 step writes.</summary>
+    public static VitalsDto Rested => From(VitalsClock.Rested);
+
+    public static VitalsDto From(VitalsClock v) => new()
+    {
+        LastCombatTick = v.LastCombatTick, LastExertionTick = v.LastExertionTick, LastCastTick = v.LastCastTick, HealthMilli = v.HealthMilli,
+        StaminaMilli = v.StaminaMilli, FocusMilli = v.FocusMilli, StrainMilli = v.StrainMilli, SprintMilli = v.SprintMilli,
+    };
 }
 
 /// <summary>The player's faction ledger (schema 15): the acts recorded, what each faction knows of them, and standing.</summary>
@@ -513,6 +545,7 @@ public static class SectionCodec
             })
             .ToArray(),
         Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
+        Vitals = VitalsDto.From(player.Vitals),
         Factions = new FactionsDto
         {
             NextActSeq = player.Factions.NextActSeq,
@@ -621,6 +654,11 @@ public static class SectionCodec
         var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
         var factions = Ledger(dto.Factions);
+        var v = dto.Vitals ?? throw new FormatException("player.msgpack has no vitals (required from schema 16)");
+        var vitals = new VitalsClock(v.LastCombatTick, v.LastExertionTick, v.LastCastTick, v.HealthMilli, v.StaminaMilli, v.FocusMilli, v.StrainMilli,
+            v.SprintMilli);
+        if (vitals.Problem() is { } problem)
+            throw new FormatException($"player vitals: {problem}");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -642,7 +680,7 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs), Factions = factions };
+            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs), Factions = factions, Vitals = vitals };
     }
 
     private static CompanionRecord Companion(CompanionDto c)

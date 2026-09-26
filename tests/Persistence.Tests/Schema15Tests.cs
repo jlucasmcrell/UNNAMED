@@ -221,7 +221,7 @@ public class Schema15Tests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.StartsWith("schema 14 -> 15:", Assert.Single(report.Steps));
+        Assert.Equal(new[] { "schema 14 -> 15:", "schema 15 -> 16:" }, report.Steps.Select(s => s[..16]));
         string slot = store.SlotPath(SaveSlots.Quick);
         var entities = SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities)));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));

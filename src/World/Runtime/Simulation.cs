@@ -411,7 +411,7 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture, Factions = _state.Factions };
+            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture, Factions = _state.Factions, Vitals = _state.PlayerCombat.Vitals };
     }
 
     /// <summary>

@@ -53,7 +53,8 @@ public class PlayerRecordCompletenessTests
                         Route = NavRoute.Unreachable(new NavPoint(152_000, -38_000), 4_985, 0x0F1E2D3C4B5A6978, new NavRect(131_000, -59_000, 173_000, -17_000)),
                     }))
             // Room above the last act, so an act's sequence can move alone.
-            { Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120), Factions = player.Factions with { NextActSeq = player.Factions.NextActSeq + 1 } };
+            { Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120), Factions = player.Factions with { NextActSeq = player.Factions.NextActSeq + 1 },
+                Vitals = player.Vitals };
     }
 
     [Fact]

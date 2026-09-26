@@ -229,32 +229,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Factions = Factions };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Factions = Factions, Vitals = Vitals };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -376,6 +376,19 @@ public sealed record PlayerRecord
         static bool IsFaction(string id) => DefinitionId.IsValid(id) && id.StartsWith("faction.", StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// What the character's pools do on the next ticks (schema 16; the owner's ruling on the M7 E8.5 STOP): when each pause before a pool
+    /// returns began, and the thousandths each pool has accrued. A save taken in a fight, after a sprint or after a working loads to the
+    /// same next ticks. Validated as it is set.
+    /// </summary>
+    public VitalsClock Vitals
+    {
+        get => _vitals;
+        init => _vitals = value.Problem() is { } problem ? throw new ArgumentException($"Invalid vitals: {problem}", nameof(Vitals)) : value;
+    }
+
+    private readonly VitalsClock _vitals = VitalsClock.Rested;
+
     /// <summary>The same player holding themselves differently.</summary>
     public PlayerRecord WithPosture(Posture posture) => this with { Posture = posture };
 
@@ -385,7 +398,7 @@ public sealed record PlayerRecord
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v11").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -433,8 +446,43 @@ public sealed record PlayerRecord
             h.Add(Factions.Standing.Length);
             foreach (var st in Factions.Standing)
                 h.Add(st.FactionId).Add(st.Points);
+            h.Add(Vitals.LastCombatTick).Add(Vitals.LastExertionTick).Add(Vitals.LastCastTick).Add(Vitals.HealthMilli).Add(Vitals.StaminaMilli)
+                .Add(Vitals.FocusMilli).Add(Vitals.StrainMilli).Add(Vitals.SprintMilli);
             return h.Finish();
         }
+    }
+}
+
+/// <summary>
+/// What the character's pools depend on next (schema 16; the owner's ruling on the M7 E8.5 STOP). Each pool returns only after a pause:
+/// health after the last blow taken or dealt, stamina after the last exertion, Focus and Strain after the last working - kept as the
+/// absolute world tick each began, or <see cref="Never"/>. Each pool moves a whole point at a time from thousandths accrued a tick at a
+/// time: what health, stamina, Focus and Strain have accrued towards their next point, and what a sprint has drained, each 0-999.
+/// </summary>
+public sealed record VitalsClock(long LastCombatTick, long LastExertionTick, long LastCastTick, int HealthMilli, int StaminaMilli, int FocusMilli,
+    int StrainMilli, int SprintMilli)
+{
+    /// <summary>A pause that began long enough ago to be over whatever the tuning: what "never" is.</summary>
+    public const long Never = -1_000_000;
+
+    /// <summary>Nothing pending and nothing accrued: a new character, and what a save from before schema 16 loads to.</summary>
+    public static VitalsClock Rested { get; } = new(Never, Never, Never, 0, 0, 0, 0, 0);
+
+    /// <summary>Why this cannot be held, or null: a tick is <see cref="Never"/> or a world tick, and each part-point is 0-999.</summary>
+    public string? Problem()
+    {
+        foreach (var (name, tick) in new[] { ("last_combat_tick", LastCombatTick), ("last_exertion_tick", LastExertionTick), ("last_cast_tick", LastCastTick) })
+        {
+            if (tick != Never && tick < 0)
+                return $"{name} {tick} is neither a world tick nor never ({Never})";
+        }
+        foreach (var (name, milli) in new[] { ("health_milli", HealthMilli), ("stamina_milli", StaminaMilli), ("focus_milli", FocusMilli),
+                     ("strain_milli", StrainMilli), ("sprint_milli", SprintMilli) })
+        {
+            if (milli is < 0 or > 999)
+                return $"{name} {milli} is not 0-999";
+        }
+        return null;
     }
 }
 

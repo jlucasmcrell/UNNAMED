@@ -117,6 +117,7 @@ internal sealed class RuntimeState
         WorldTick = worldTick;
         Body = body;
         Posture = player.Posture;
+        PlayerCombat = PlayerCombat.Resumed(player.Vitals);
         Factions = player.Factions;
         Progression = player.Progression;
         Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);

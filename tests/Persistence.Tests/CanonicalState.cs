@@ -196,6 +196,16 @@ internal static class CanonicalState
             }
             json.WriteEndArray();
             json.WriteEndObject();
+            json.WriteStartObject("vitals");
+            json.WriteNumber("last_combat_tick", player.Vitals.LastCombatTick);
+            json.WriteNumber("last_exertion_tick", player.Vitals.LastExertionTick);
+            json.WriteNumber("last_cast_tick", player.Vitals.LastCastTick);
+            json.WriteNumber("health_milli", player.Vitals.HealthMilli);
+            json.WriteNumber("stamina_milli", player.Vitals.StaminaMilli);
+            json.WriteNumber("focus_milli", player.Vitals.FocusMilli);
+            json.WriteNumber("strain_milli", player.Vitals.StrainMilli);
+            json.WriteNumber("sprint_milli", player.Vitals.SprintMilli);
+            json.WriteEndObject();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

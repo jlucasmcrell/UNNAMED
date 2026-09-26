@@ -175,6 +175,9 @@ public static class M2Fixtures
                     new FactionKnowledge("faction.fixture.delvers", 1, Identities.Identified, KnowledgeSources.Reported, "npc.fixture.smith", 4_300, -100),
                     new FactionKnowledge("faction.fixture.keepers", 1, Identities.Identified, KnowledgeSources.Reported, "npc.fixture.warden", 4_150, 100)),
                 ImmutableArray.Create(new FactionStanding("faction.fixture.delvers", -100), new FactionStanding("faction.fixture.keepers", 100))),
+            // Schema 16 (the owner's ruling on the M7 E8.5 STOP): at tick 5000, ten ticks from a blow (inside health's pause), two from
+            // an exertion and forty from a working, with part-points in every pool - health's a thousandth short of a point.
+            Vitals = new VitalsClock(4_990, 4_998, 4_960, 999, 1, 350, 500, 250),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

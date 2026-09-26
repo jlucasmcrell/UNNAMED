@@ -205,44 +205,98 @@
           -40125
         ],
         "route": {
-          "status": "none",
+          "status": "active",
           "goal_mm": [
-            0,
-            0
+            150250,
+            -40125
           ],
-          "corners_mm": [],
-          "planned_tick": 0,
-          "stamp": "0x0000000000000000",
+          "corners_mm": [
+            149250,
+            -41000,
+            149750,
+            -40750,
+            150250,
+            -40125
+          ],
+          "planned_tick": 4990,
+          "stamp": "0x0123456789ABCDEF",
           "watch_mm": [
-            0,
-            0,
-            0,
-            0
+            129000,
+            -61000,
+            171000,
+            -20000
           ],
-          "partial": false
+          "partial": true
         }
       }
     ],
     "posture": {
-      "stance": "standing",
+      "stance": "crouched",
       "airborne": false,
       "air_ms": 0
     },
     "factions": {
-      "next_act_seq": 1,
-      "acts": [],
-      "knowledge": [],
-      "standing": []
+      "next_act_seq": 3,
+      "acts": [
+        {
+          "seq": 1,
+          "kind": "creature_killed",
+          "subject": "creature.beast.wolf_grey",
+          "cell_key": "r_0_0:c_00_02",
+          "x_mm": 20000,
+          "z_mm": 250000,
+          "tick": 4100
+        },
+        {
+          "seq": 2,
+          "kind": "switch_set",
+          "subject": "world.lever.mill_gate",
+          "cell_key": "r_0_0:c_00_07",
+          "x_mm": 50000,
+          "z_mm": 750000,
+          "tick": 4200
+        }
+      ],
+      "knowledge": [
+        {
+          "knower": "faction.fixture.diggers",
+          "act": 1,
+          "identity": "identified",
+          "source": "reported",
+          "via": "npc.fixture.smith",
+          "tick": 4300,
+          "delta": -100
+        },
+        {
+          "knower": "faction.fixture.keepers",
+          "act": 1,
+          "identity": "identified",
+          "source": "reported",
+          "via": "npc.fixture.warden_sera",
+          "tick": 4150,
+          "delta": 100
+        }
+      ],
+      "standing": [
+        {
+          "faction_id": "faction.fixture.diggers",
+          "points": -100
+        },
+        {
+          "faction_id": "faction.fixture.keepers",
+          "points": 100
+        }
+      ]
     },
     "vitals": {
-      "last_combat_tick": -1000000,
-      "last_exertion_tick": -1000000,
-      "last_cast_tick": -1000000,
-      "health_milli": 0,
-      "stamina_milli": 0,
-      "focus_milli": 0,
-      "strain_milli": 0,
-      "sprint_milli": 0
+      "last_combat_tick": 4990,
+      "last_exertion_tick": 4998,
+      "last_cast_tick": 4960,
+      "health_milli": 999,
+      "stamina_milli": 1,
+      "focus_milli": 350,
+      "strain_milli": 500,
+      "sprint_milli": 250
     }
   },
   "cells": [
@@ -289,7 +343,7 @@
   ],
   "entities": [
     {
-      "instance_id": "crt_01M38NHKNZYDTVVDDP8C6QF6Z2",
+      "instance_id": "crt_01M3EZAACPR10EM2E4TDT7Z34D",
       "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
       "def_id": "creature.beast.wolf_grey",
       "alive": false,
@@ -298,7 +352,7 @@
       "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
     },
     {
-      "instance_id": "crt_01M38NHKP0C001PV5KH54A2SBX",
+      "instance_id": "crt_01M3EZAACR86G3RKVVDSRP1K6J",
       "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
       "def_id": "creature.beast.deer",
       "alive": null,
@@ -309,7 +363,7 @@
   ],
   "created": [
     {
-      "instance_id": "itm_01M38NHKP0M3RQ0ADMF4F5FV06",
+      "instance_id": "itm_01M3EZAACS0E4RX8DR5935ZFZG",
       "def_id": "item.potion.minor_healing",
       "host_cell": "r_0_0:c_00_08",
       "x_cm": 700,
@@ -319,7 +373,7 @@
       "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
     },
     {
-      "instance_id": "itm_01M38NHKP0ZN3Q5T7BHNWDRBF8",
+      "instance_id": "itm_01M3EZAACSMCB3HYW41T72HZGZ",
       "def_id": "item.weapon.iron_sword",
       "host_cell": "r_0_0:c_00_06",
       "x_cm": 500,
@@ -332,18 +386,18 @@
   "containers": [
     {
       "key": "container.fixture_chest",
-      "instance_id": "cnt_01M38NHKP1PNYT5PDWZNJ5SQXT",
+      "instance_id": "cnt_01M3EZAACSRM8QNH9CRHT5X1DE",
       "host_cell": "r_0_0:c_00_09",
       "baseline_hash": "sha256:c715927a0968c5fcc31b60c8d8781c33387ee23a66968bcddd89eea9f2f60256",
       "items": [
         {
-          "item_id": "itm_01M38NHKP19E6YFQG8S390W2EJ",
+          "item_id": "itm_01M3EZAACSKNDJTNJ4D2CZYHG1",
           "def_id": "item.weapon.iron_sword",
           "count": 1,
           "quality": 0
         },
         {
-          "item_id": "itm_01M38NHKP1KRX6X5K5WTY4QSP3",
+          "item_id": "itm_01M3EZAACSQHHSNF5E6S388SHY",
           "def_id": "item.potion.minor_healing",
           "count": 4,
           "quality": -1
@@ -351,13 +405,27 @@
       ]
     },
     {
+      "key": "container.pce_0000000007gwq3mmfwg37msrmh",
+      "instance_id": "cnt_0000000007BGNYE1FMV4YJWRMM",
+      "host_cell": "r_0_0:c_00_05",
+      "baseline_hash": "sha256:79df1f88c645abc430ad368b2188420da664aa0fd53147e63c904e13744a79b5",
+      "items": [
+        {
+          "item_id": "itm_01M3EZAACWBN6Z8FPZ2V4TJJN8",
+          "def_id": "item.material.timber",
+          "count": 3,
+          "quality": 0
+        }
+      ]
+    },
+    {
       "key": "corpse.fixture_den.m1_g0",
-      "instance_id": "cnt_01M38NHKP2WD7W46ZE42YJZK88",
+      "instance_id": "cnt_01M3EZAACVQ01WAZY5R4NT4CYP",
       "host_cell": "r_0_0:c_00_01",
       "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
       "items": [
         {
-          "item_id": "itm_01M38NHKP29Z8X6ZQ1HDCDA1N1",
+          "item_id": "itm_01M3EZAACWZ6DGTR8PHTMY52WB",
           "def_id": "item.potion.minor_healing",
           "count": 1,
           "quality": 0
@@ -388,10 +456,10 @@
       "last_seen_tick": 4990,
       "search_until": 5110,
       "has_called": true,
-      "next_charge_tick": 0,
-      "stagger_immune_until": 0,
-      "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "next_charge_tick": 5060,
+      "stagger_immune_until": 5020,
+      "staggered_tick": 4995,
+      "stagger_lasts_ticks": 40
     },
     {
       "key": "spawn.fixture.den#1",
@@ -448,8 +516,131 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": [],
-  "structure_seq": 0,
-  "pieces": [],
-  "npc_errands": []
+  "noises": [
+    {
+      "x_mm": 12345,
+      "z_mm": 67890,
+      "radius_mm": 30000,
+      "call": true,
+      "caller_kind": "creature.beast.ash_ember_hound"
+    },
+    {
+      "x_mm": 14000,
+      "z_mm": 66000,
+      "radius_mm": 12000,
+      "call": false,
+      "caller_kind": null
+    }
+  ],
+  "structure_seq": 9,
+  "pieces": [
+    {
+      "instance_id": "pce_0000000001EV6ZA733XSBNQ32Y",
+      "def_id": "piece.fixture.pad",
+      "host_cell": "r_0_0:c_00_04",
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b",
+      "x_mm": 49500,
+      "z_mm": 499500,
+      "rotation": 0,
+      "owner": "chr_01HF7YAT00041061050R3GG28A",
+      "health": 200,
+      "door_open": false
+    },
+    {
+      "instance_id": "pce_0000000002AGM9HM9F8TF1XCE4",
+      "def_id": "piece.fixture.doorway",
+      "host_cell": "r_0_0:c_00_04",
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b",
+      "x_mm": 49500,
+      "z_mm": 498000,
+      "rotation": 0,
+      "owner": "chr_01HF7YAT00041061050R3GG28A",
+      "health": 200,
+      "door_open": false
+    },
+    {
+      "instance_id": "pce_0000000003Q5F0MC7BH00MBDX8",
+      "def_id": "piece.fixture.door",
+      "host_cell": "r_0_0:c_00_04",
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b",
+      "x_mm": 49500,
+      "z_mm": 498000,
+      "rotation": 0,
+      "owner": "chr_01HF7YAT00041061050R3GG28A",
+      "health": 120,
+      "door_open": true
+    },
+    {
+      "instance_id": "pce_0000000005EG0NGHQJ84RZX7WE",
+      "def_id": "piece.fixture.wall",
+      "host_cell": "r_0_0:c_00_05",
+      "baseline_hash": "sha256:79df1f88c645abc430ad368b2188420da664aa0fd53147e63c904e13744a79b5",
+      "x_mm": 49500,
+      "z_mm": 501000,
+      "rotation": 0,
+      "owner": "chr_01HF7YAT00041061050R3GG28A",
+      "health": 150,
+      "door_open": false
+    },
+    {
+      "instance_id": "pce_0000000007GWQ3MMFWG37MSRMH",
+      "def_id": "piece.fixture.chest",
+      "host_cell": "r_0_0:c_00_04",
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b",
+      "x_mm": 49500,
+      "z_mm": 499500,
+      "rotation": 0,
+      "owner": "chr_01HF7YAT00041061050R3GG28A",
+      "health": 100,
+      "door_open": false
+    },
+    {
+      "instance_id": "pce_0000000009C0Z6E0XSJ9R3VBM8",
+      "def_id": "piece.fixture.pad",
+      "host_cell": "r_0_0:c_00_04",
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b",
+      "x_mm": 61500,
+      "z_mm": 499500,
+      "rotation": 1,
+      "owner": "chr_01HF7YAT680M2GA1850M2GA185",
+      "health": 200,
+      "door_open": false
+    }
+  ],
+  "npc_errands": [
+    {
+      "npc_id": "npc.fixture.smith",
+      "host_cell": "r_0_0:c_00_00",
+      "baseline_hash": "sha256:0e96f61267a5fb32ced534dfad115d39a70e8ac6d3667ddc812003a67b51adfe",
+      "phase": "to_home",
+      "piece_id": null,
+      "work_owner": "chr_01HF7YAT00041061050R3GG28A",
+      "x_mm": 40000,
+      "z_mm": 120000,
+      "facing_mdeg": 180000,
+      "route": {
+        "status": "active",
+        "goal_mm": [
+          32000,
+          70000
+        ],
+        "corners_mm": [
+          36000,
+          95000,
+          32000,
+          70000
+        ],
+        "planned_tick": 4980,
+        "stamp": "0xFEDCBA9876543210",
+        "watch_mm": [
+          12000,
+          50000,
+          60000,
+          140000
+        ],
+        "partial": false
+      },
+      "stuck_ticks": 3
+    }
+  ]
 }

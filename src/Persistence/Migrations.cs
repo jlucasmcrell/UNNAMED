@@ -21,6 +21,7 @@ using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
+using V15 = UNNAMED.Persistence.Sections.V15;
 
 namespace UNNAMED.Persistence;
 
@@ -82,7 +83,8 @@ public static class SchemaMigrations
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
-        new SchemaV14ToV15());
+        new SchemaV14ToV15(),
+        new SchemaV15ToV16());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -824,7 +826,7 @@ public sealed class SchemaV14ToV15 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V15.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -882,6 +884,52 @@ public sealed class SchemaV14ToV15 : SchemaMigration
                 Pieces = Array.Empty<PieceDto>(),
                 StructureSeq = 0,
                 NpcErrands = Array.Empty<NpcErrandDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 15 to 16 (the owner's ruling on the M7 E8.5 STOP): the player gains what their pools do next - the pauses after a blow, an
+/// exertion and a working, and the part-points accrued. A save that predates them kept none of it: its character resumes at rest, with
+/// every pause over and nothing accrued, as it always loaded. The timing that was not kept cannot be reconstructed.
+/// </summary>
+public sealed class SchemaV15ToV16 : SchemaMigration
+{
+    public override int From => 15;
+
+    public override string Summary => "schema 15 -> 16: the player gains their vitals (at rest: every pause over, nothing accrued - as older saves always loaded)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Factions = old.Factions,
+                Vitals = VitalsDto.Rested,
             }, options);
         }
         document.Manifest["schema_version"] = To;

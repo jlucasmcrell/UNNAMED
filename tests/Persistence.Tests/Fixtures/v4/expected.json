@@ -118,6 +118,16 @@
       "acts": [],
       "knowledge": [],
       "standing": []
+    },
+    "vitals": {
+      "last_combat_tick": -1000000,
+      "last_exertion_tick": -1000000,
+      "last_cast_tick": -1000000,
+      "health_milli": 0,
+      "stamina_milli": 0,
+      "focus_milli": 0,
+      "strain_milli": 0,
+      "sprint_milli": 0
     }
   },
   "cells": [

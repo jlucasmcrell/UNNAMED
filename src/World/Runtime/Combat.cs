@@ -234,7 +234,11 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     }
 }
 
-/// <summary>The player's transient combat state. Never saved: a load starts at rest, with pools and effects from the save.</summary>
+/// <summary>
+/// The player's combat state. What their pools go on to do is saved as <see cref="Vitals"/> (schema 16): the three pauses and the five
+/// part-points. The rest is a blow or an action in progress - the swing, dodge, working or stagger, the raised guard, the stagger
+/// immunity after one, the last blows for a death recap - and is not saved: a load resumes at rest in all of that (PERSISTENCE.md §5.1).
+/// </summary>
 internal sealed record PlayerCombat(ActionState Action, bool Blocking, long StaggerImmuneUntil, long LastExertion, long LastCombat,
     ImmutableArray<DeathRecapLine> Recent)
 {
@@ -254,6 +258,22 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     /// <summary>The last working begun or released: Focus and Strain return only after a pause from it.</summary>
     public long LastCast { get; init; } = -1_000_000;
+
+    /// <summary>What the pools do next, as a save keeps it.</summary>
+    public VitalsClock Vitals => new(LastCombat, LastExertion, LastCast, HealthMilli, StaminaMilli, FocusMilli, StrainMilli, SprintMilli);
+
+    /// <summary>At rest in everything a save does not keep, and going on from the saved <paramref name="vitals"/>.</summary>
+    public static PlayerCombat Resumed(VitalsClock vitals) => Rested with
+    {
+        LastCombat = vitals.LastCombatTick,
+        LastExertion = vitals.LastExertionTick,
+        LastCast = vitals.LastCastTick,
+        HealthMilli = vitals.HealthMilli,
+        StaminaMilli = vitals.StaminaMilli,
+        FocusMilli = vitals.FocusMilli,
+        StrainMilli = vitals.StrainMilli,
+        SprintMilli = vitals.SprintMilli,
+    };
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
