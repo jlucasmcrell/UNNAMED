@@ -39,12 +39,12 @@ public sealed partial class TalkCamera : Camera3D
             toward = toward.Normalized();
             var right = toward.Cross(Vector3.Up).Normalized();
             // Behind and beside the character's head, a little above: the speaker's face at about a third of the frame's width.
-            var eye = character - toward * 0.75f + right * 0.42f + Vector3.Up * 0.12f;
+            var eye = character - toward * 1.25f + right * 0.62f + Vector3.Up * 0.16f;
             _framing = new Transform3D(Basis.Identity, eye).LookingAt(speaker + Vector3.Down * 0.04f, Vector3.Up);
         }
         float s = _weight * _weight * (3 - 2 * _weight);
         GlobalTransform = gameplay.GlobalTransform.InterpolateWith(_framing, s);
-        Fov = Mathf.Lerp(gameplay.Fov, 42f, s);
+        Fov = Mathf.Lerp(gameplay.Fov, 38f, s);
         Near = gameplay.Near;
         Far = gameplay.Far;
         Environment = gameplay.Environment;

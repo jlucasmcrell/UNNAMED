@@ -1,0 +1,906 @@
+{
+ "rest": {
+  "plate_pairs": 0,
+  "cloth_pairs": 341,
+  "by_bones": {}
+ },
+ "idle": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 151,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   },
+   {
+    "frame": 8.0,
+    "plate_pairs": 27,
+    "cloth_pairs": 145,
+    "by_bones": {
+     "hips|thigh.L": 27
+    }
+   },
+   {
+    "frame": 16.0,
+    "plate_pairs": 27,
+    "cloth_pairs": 134,
+    "by_bones": {
+     "hips|thigh.L": 27
+    }
+   },
+   {
+    "frame": 24.0,
+    "plate_pairs": 27,
+    "cloth_pairs": 132,
+    "by_bones": {
+     "hips|thigh.L": 27
+    }
+   },
+   {
+    "frame": 32.0,
+    "plate_pairs": 27,
+    "cloth_pairs": 134,
+    "by_bones": {
+     "hips|thigh.L": 27
+    }
+   },
+   {
+    "frame": 40.0,
+    "plate_pairs": 27,
+    "cloth_pairs": 145,
+    "by_bones": {
+     "hips|thigh.L": 27
+    }
+   },
+   {
+    "frame": 48.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 151,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   },
+   {
+    "frame": 56.0,
+    "plate_pairs": 57,
+    "cloth_pairs": 162,
+    "by_bones": {
+     "hips|thigh.L": 29,
+     "hips|thigh.R": 28
+    }
+   },
+   {
+    "frame": 64.0,
+    "plate_pairs": 62,
+    "cloth_pairs": 162,
+    "by_bones": {
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 31
+    }
+   },
+   {
+    "frame": 72.0,
+    "plate_pairs": 69,
+    "cloth_pairs": 162,
+    "by_bones": {
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 38
+    }
+   },
+   {
+    "frame": 80.0,
+    "plate_pairs": 62,
+    "cloth_pairs": 162,
+    "by_bones": {
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 31
+    }
+   },
+   {
+    "frame": 88.0,
+    "plate_pairs": 57,
+    "cloth_pairs": 162,
+    "by_bones": {
+     "hips|thigh.L": 29,
+     "hips|thigh.R": 28
+    }
+   },
+   {
+    "frame": 96.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 151,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   }
+  ],
+  "worst_frame": 72.0,
+  "worst_plate_pairs": 69
+ },
+ "walk": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 326,
+    "cloth_pairs": 164,
+    "by_bones": {
+     "foot.L|shin.L": 46,
+     "hips|thigh.L": 21,
+     "shoulder.L|upper_arm.L": 126,
+     "shoulder.R|upper_arm.R": 133
+    }
+   },
+   {
+    "frame": 2.4,
+    "plate_pairs": 35,
+    "cloth_pairs": 168,
+    "by_bones": {
+     "hips|thigh.L": 20,
+     "shoulder.R|upper_arm.R": 15
+    }
+   },
+   {
+    "frame": 4.8,
+    "plate_pairs": 118,
+    "cloth_pairs": 212,
+    "by_bones": {
+     "hips|thigh.L": 20,
+     "hips|thigh.R": 98
+    }
+   },
+   {
+    "frame": 7.2,
+    "plate_pairs": 352,
+    "cloth_pairs": 273,
+    "by_bones": {
+     "foot.L|shin.L": 154,
+     "foot.R|shin.R": 55,
+     "hips|thigh.L": 26,
+     "hips|thigh.R": 100,
+     "shoulder.L|upper_arm.L": 17
+    }
+   },
+   {
+    "frame": 9.6,
+    "plate_pairs": 148,
+    "cloth_pairs": 233,
+    "by_bones": {
+     "foot.L|shin.L": 113,
+     "hips|thigh.R": 35
+    }
+   },
+   {
+    "frame": 12.0,
+    "plate_pairs": 120,
+    "cloth_pairs": 273,
+    "by_bones": {
+     "foot.L|shin.L": 73,
+     "hips|thigh.L": 32,
+     "shoulder.R|upper_arm.R": 15
+    }
+   },
+   {
+    "frame": 14.4,
+    "plate_pairs": 326,
+    "cloth_pairs": 164,
+    "by_bones": {
+     "foot.L|shin.L": 46,
+     "hips|thigh.L": 21,
+     "shoulder.L|upper_arm.L": 126,
+     "shoulder.R|upper_arm.R": 133
+    }
+   },
+   {
+    "frame": 16.8,
+    "plate_pairs": 35,
+    "cloth_pairs": 168,
+    "by_bones": {
+     "hips|thigh.L": 20,
+     "shoulder.R|upper_arm.R": 15
+    }
+   },
+   {
+    "frame": 19.2,
+    "plate_pairs": 118,
+    "cloth_pairs": 212,
+    "by_bones": {
+     "hips|thigh.L": 20,
+     "hips|thigh.R": 98
+    }
+   },
+   {
+    "frame": 21.6,
+    "plate_pairs": 352,
+    "cloth_pairs": 273,
+    "by_bones": {
+     "foot.L|shin.L": 154,
+     "foot.R|shin.R": 55,
+     "hips|thigh.L": 26,
+     "hips|thigh.R": 100,
+     "shoulder.L|upper_arm.L": 17
+    }
+   },
+   {
+    "frame": 24.0,
+    "plate_pairs": 148,
+    "cloth_pairs": 233,
+    "by_bones": {
+     "foot.L|shin.L": 113,
+     "hips|thigh.R": 35
+    }
+   },
+   {
+    "frame": 26.4,
+    "plate_pairs": 120,
+    "cloth_pairs": 273,
+    "by_bones": {
+     "foot.L|shin.L": 73,
+     "hips|thigh.L": 32,
+     "shoulder.R|upper_arm.R": 15
+    }
+   },
+   {
+    "frame": 28.8,
+    "plate_pairs": 326,
+    "cloth_pairs": 164,
+    "by_bones": {
+     "foot.L|shin.L": 46,
+     "hips|thigh.L": 21,
+     "shoulder.L|upper_arm.L": 126,
+     "shoulder.R|upper_arm.R": 133
+    }
+   }
+  ],
+  "worst_frame": 7.2,
+  "worst_plate_pairs": 352
+ },
+ "run": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 715,
+    "cloth_pairs": 478,
+    "by_bones": {
+     "foot.L|shin.L": 50,
+     "foot.R|shin.R": 141,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 33,
+     "shoulder.L|upper_arm.L": 225,
+     "shoulder.R|upper_arm.R": 216
+    }
+   },
+   {
+    "frame": 1.6,
+    "plate_pairs": 629,
+    "cloth_pairs": 386,
+    "by_bones": {
+     "foot.R|shin.R": 105,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 32,
+     "hips|thigh.R": 89,
+     "shoulder.L|upper_arm.L": 193,
+     "shoulder.R|upper_arm.R": 160
+    }
+   },
+   {
+    "frame": 3.2,
+    "plate_pairs": 164,
+    "cloth_pairs": 310,
+    "by_bones": {
+     "foot.L|shin.L": 8,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.R": 75,
+     "shoulder.L|upper_arm.L": 31
+    }
+   },
+   {
+    "frame": 4.8,
+    "plate_pairs": 737,
+    "cloth_pairs": 372,
+    "by_bones": {
+     "foot.L|shin.L": 266,
+     "foot.R|shin.R": 59,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 12,
+     "hips|thigh.R": 77,
+     "shoulder.L|upper_arm.L": 263,
+     "shoulder.R|upper_arm.R": 10
+    }
+   },
+   {
+    "frame": 6.4,
+    "plate_pairs": 294,
+    "cloth_pairs": 361,
+    "by_bones": {
+     "foot.L|shin.L": 159,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 39,
+     "hips|thigh.R": 15,
+     "shoulder.L|upper_arm.L": 31
+    }
+   },
+   {
+    "frame": 8.0,
+    "plate_pairs": 446,
+    "cloth_pairs": 390,
+    "by_bones": {
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 43,
+     "shoulder.L|upper_arm.L": 193,
+     "shoulder.R|upper_arm.R": 160
+    }
+   },
+   {
+    "frame": 9.6,
+    "plate_pairs": 715,
+    "cloth_pairs": 478,
+    "by_bones": {
+     "foot.L|shin.L": 50,
+     "foot.R|shin.R": 141,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 33,
+     "shoulder.L|upper_arm.L": 225,
+     "shoulder.R|upper_arm.R": 216
+    }
+   },
+   {
+    "frame": 11.2,
+    "plate_pairs": 629,
+    "cloth_pairs": 386,
+    "by_bones": {
+     "foot.R|shin.R": 105,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 32,
+     "hips|thigh.R": 89,
+     "shoulder.L|upper_arm.L": 193,
+     "shoulder.R|upper_arm.R": 160
+    }
+   },
+   {
+    "frame": 12.8,
+    "plate_pairs": 164,
+    "cloth_pairs": 310,
+    "by_bones": {
+     "foot.L|shin.L": 8,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.R": 75,
+     "shoulder.L|upper_arm.L": 31
+    }
+   },
+   {
+    "frame": 14.4,
+    "plate_pairs": 737,
+    "cloth_pairs": 372,
+    "by_bones": {
+     "foot.L|shin.L": 266,
+     "foot.R|shin.R": 59,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 12,
+     "hips|thigh.R": 77,
+     "shoulder.L|upper_arm.L": 263,
+     "shoulder.R|upper_arm.R": 10
+    }
+   },
+   {
+    "frame": 16.0,
+    "plate_pairs": 294,
+    "cloth_pairs": 361,
+    "by_bones": {
+     "foot.L|shin.L": 159,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 39,
+     "hips|thigh.R": 15,
+     "shoulder.L|upper_arm.L": 31
+    }
+   },
+   {
+    "frame": 17.6,
+    "plate_pairs": 446,
+    "cloth_pairs": 390,
+    "by_bones": {
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 43,
+     "shoulder.L|upper_arm.L": 193,
+     "shoulder.R|upper_arm.R": 160
+    }
+   },
+   {
+    "frame": 19.2,
+    "plate_pairs": 715,
+    "cloth_pairs": 478,
+    "by_bones": {
+     "foot.L|shin.L": 50,
+     "foot.R|shin.R": 141,
+     "forearm.R|upper_arm.R": 50,
+     "hips|thigh.L": 33,
+     "shoulder.L|upper_arm.L": 225,
+     "shoulder.R|upper_arm.R": 216
+    }
+   }
+  ],
+  "worst_frame": 4.8,
+  "worst_plate_pairs": 737
+ },
+ "attack": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 248,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   },
+   {
+    "frame": 1.8,
+    "plate_pairs": 51,
+    "cloth_pairs": 152,
+    "by_bones": {
+     "hips|thigh.L": 27,
+     "hips|thigh.R": 24
+    }
+   },
+   {
+    "frame": 3.6,
+    "plate_pairs": 250,
+    "cloth_pairs": 254,
+    "by_bones": {
+     "forearm.R|upper_arm.R": 30,
+     "hips|thigh.L": 26,
+     "hips|thigh.R": 29,
+     "shoulder.L|upper_arm.L": 5,
+     "shoulder.R|upper_arm.R": 160
+    }
+   },
+   {
+    "frame": 5.4,
+    "plate_pairs": 457,
+    "cloth_pairs": 593,
+    "by_bones": {
+     "forearm.R|upper_arm.R": 48,
+     "hips|thigh.L": 24,
+     "hips|thigh.R": 37,
+     "shoulder.L|upper_arm.L": 197,
+     "shoulder.R|upper_arm.R": 151
+    }
+   },
+   {
+    "frame": 7.2,
+    "plate_pairs": 515,
+    "cloth_pairs": 555,
+    "by_bones": {
+     "foot.L|shin.L": 4,
+     "forearm.R|upper_arm.R": 61,
+     "hips|thigh.L": 24,
+     "hips|thigh.R": 41,
+     "shoulder.L|upper_arm.L": 224,
+     "shoulder.R|upper_arm.R": 161
+    }
+   },
+   {
+    "frame": 9.0,
+    "plate_pairs": 472,
+    "cloth_pairs": 599,
+    "by_bones": {
+     "foot.L|shin.L": 6,
+     "forearm.R|upper_arm.R": 65,
+     "hips|thigh.L": 24,
+     "hips|thigh.R": 38,
+     "shoulder.L|upper_arm.L": 213,
+     "shoulder.R|upper_arm.R": 126
+    }
+   },
+   {
+    "frame": 10.8,
+    "plate_pairs": 581,
+    "cloth_pairs": 613,
+    "by_bones": {
+     "chest|hips": 4,
+     "foot.L|shin.L": 68,
+     "forearm.R|upper_arm.R": 16,
+     "head|neck": 16,
+     "hips|thigh.L": 21,
+     "hips|thigh.R": 24,
+     "shoulder.L|upper_arm.L": 312,
+     "shoulder.R|upper_arm.R": 120
+    }
+   },
+   {
+    "frame": 12.6,
+    "plate_pairs": 628,
+    "cloth_pairs": 541,
+    "by_bones": {
+     "chest|neck": 28,
+     "foot.L|shin.L": 83,
+     "foot.R|shin.R": 24,
+     "head|neck": 116,
+     "hips|thigh.L": 23,
+     "shoulder.L|upper_arm.L": 230,
+     "shoulder.R|upper_arm.R": 124
+    }
+   },
+   {
+    "frame": 14.4,
+    "plate_pairs": 628,
+    "cloth_pairs": 541,
+    "by_bones": {
+     "chest|neck": 28,
+     "foot.L|shin.L": 83,
+     "foot.R|shin.R": 24,
+     "head|neck": 116,
+     "hips|thigh.L": 23,
+     "shoulder.L|upper_arm.L": 230,
+     "shoulder.R|upper_arm.R": 124
+    }
+   },
+   {
+    "frame": 16.2,
+    "plate_pairs": 626,
+    "cloth_pairs": 539,
+    "by_bones": {
+     "chest|neck": 28,
+     "foot.L|shin.L": 78,
+     "foot.R|shin.R": 14,
+     "head|neck": 101,
+     "hips|thigh.L": 25,
+     "shoulder.L|upper_arm.L": 253,
+     "shoulder.R|upper_arm.R": 127
+    }
+   },
+   {
+    "frame": 18.0,
+    "plate_pairs": 457,
+    "cloth_pairs": 381,
+    "by_bones": {
+     "chest|hips": 4,
+     "foot.L|shin.L": 32,
+     "head|neck": 8,
+     "hips|thigh.L": 21,
+     "hips|thigh.R": 10,
+     "shoulder.L|upper_arm.L": 112,
+     "shoulder.R|upper_arm.R": 270
+    }
+   },
+   {
+    "frame": 19.8,
+    "plate_pairs": 49,
+    "cloth_pairs": 175,
+    "by_bones": {
+     "foot.L|shin.L": 6,
+     "hips|thigh.L": 26,
+     "hips|thigh.R": 17
+    }
+   },
+   {
+    "frame": 21.6,
+    "plate_pairs": 38,
+    "cloth_pairs": 248,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   }
+  ],
+  "worst_frame": 12.6,
+  "worst_plate_pairs": 628
+ },
+ "hit": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 248,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   },
+   {
+    "frame": 1.1,
+    "plate_pairs": 63,
+    "cloth_pairs": 183,
+    "by_bones": {
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 32
+    }
+   },
+   {
+    "frame": 2.2,
+    "plate_pairs": 78,
+    "cloth_pairs": 176,
+    "by_bones": {
+     "head|neck": 10,
+     "hips|thigh.L": 33,
+     "hips|thigh.R": 35
+    }
+   },
+   {
+    "frame": 3.3,
+    "plate_pairs": 238,
+    "cloth_pairs": 247,
+    "by_bones": {
+     "head|neck": 97,
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 33,
+     "shoulder.L|upper_arm.L": 77
+    }
+   },
+   {
+    "frame": 4.4,
+    "plate_pairs": 359,
+    "cloth_pairs": 297,
+    "by_bones": {
+     "head|neck": 118,
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 35,
+     "shoulder.L|upper_arm.L": 175
+    }
+   },
+   {
+    "frame": 5.5,
+    "plate_pairs": 439,
+    "cloth_pairs": 272,
+    "by_bones": {
+     "forearm.L|hand.L": 6,
+     "forearm.R|upper_arm.R": 16,
+     "head|neck": 123,
+     "hips|thigh.L": 29,
+     "hips|thigh.R": 33,
+     "shoulder.L|upper_arm.L": 232
+    }
+   },
+   {
+    "frame": 6.6,
+    "plate_pairs": 464,
+    "cloth_pairs": 259,
+    "by_bones": {
+     "forearm.L|hand.L": 6,
+     "forearm.R|upper_arm.R": 16,
+     "head|neck": 134,
+     "hips|thigh.L": 29,
+     "hips|thigh.R": 45,
+     "shoulder.L|upper_arm.L": 234
+    }
+   },
+   {
+    "frame": 7.7,
+    "plate_pairs": 439,
+    "cloth_pairs": 272,
+    "by_bones": {
+     "forearm.L|hand.L": 6,
+     "forearm.R|upper_arm.R": 16,
+     "head|neck": 123,
+     "hips|thigh.L": 29,
+     "hips|thigh.R": 33,
+     "shoulder.L|upper_arm.L": 232
+    }
+   },
+   {
+    "frame": 8.8,
+    "plate_pairs": 359,
+    "cloth_pairs": 297,
+    "by_bones": {
+     "head|neck": 118,
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 35,
+     "shoulder.L|upper_arm.L": 175
+    }
+   },
+   {
+    "frame": 9.9,
+    "plate_pairs": 238,
+    "cloth_pairs": 247,
+    "by_bones": {
+     "head|neck": 97,
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 33,
+     "shoulder.L|upper_arm.L": 77
+    }
+   },
+   {
+    "frame": 11.0,
+    "plate_pairs": 78,
+    "cloth_pairs": 176,
+    "by_bones": {
+     "head|neck": 10,
+     "hips|thigh.L": 33,
+     "hips|thigh.R": 35
+    }
+   },
+   {
+    "frame": 12.1,
+    "plate_pairs": 63,
+    "cloth_pairs": 183,
+    "by_bones": {
+     "hips|thigh.L": 31,
+     "hips|thigh.R": 32
+    }
+   },
+   {
+    "frame": 13.2,
+    "plate_pairs": 38,
+    "cloth_pairs": 248,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   }
+  ],
+  "worst_frame": 6.6,
+  "worst_plate_pairs": 464
+ },
+ "death": {
+  "frames": [
+   {
+    "frame": 0.0,
+    "plate_pairs": 38,
+    "cloth_pairs": 134,
+    "by_bones": {
+     "hips|thigh.L": 28,
+     "hips|thigh.R": 10
+    }
+   },
+   {
+    "frame": 3.8,
+    "plate_pairs": 141,
+    "cloth_pairs": 223,
+    "by_bones": {
+     "chest|hips": 18,
+     "foot.L|shin.L": 43,
+     "hips|thigh.L": 21,
+     "hips|thigh.R": 59
+    }
+   },
+   {
+    "frame": 7.6,
+    "plate_pairs": 292,
+    "cloth_pairs": 513,
+    "by_bones": {
+     "chest|hips": 11,
+     "foot.L|shin.L": 104,
+     "foot.R|shin.R": 56,
+     "hips|thigh.L": 21,
+     "hips|thigh.R": 100
+    }
+   },
+   {
+    "frame": 11.4,
+    "plate_pairs": 274,
+    "cloth_pairs": 303,
+    "by_bones": {
+     "chest|hips": 19,
+     "foot.L|shin.L": 71,
+     "foot.R|shin.R": 32,
+     "hips|thigh.L": 48,
+     "hips|thigh.R": 91,
+     "shoulder.R|upper_arm.R": 13
+    }
+   },
+   {
+    "frame": 15.2,
+    "plate_pairs": 595,
+    "cloth_pairs": 254,
+    "by_bones": {
+     "chest|hips": 45,
+     "hips|thigh.L": 82,
+     "hips|thigh.R": 2,
+     "shoulder.L|upper_arm.L": 258,
+     "shoulder.R|upper_arm.R": 208
+    }
+   },
+   {
+    "frame": 19.0,
+    "plate_pairs": 654,
+    "cloth_pairs": 332,
+    "by_bones": {
+     "chest|hips": 20,
+     "foot.L|shin.L": 62,
+     "foot.R|shin.R": 59,
+     "head|neck": 69,
+     "hips|thigh.L": 90,
+     "shoulder.L|upper_arm.L": 136,
+     "shoulder.R|upper_arm.R": 218
+    }
+   },
+   {
+    "frame": 22.8,
+    "plate_pairs": 635,
+    "cloth_pairs": 336,
+    "by_bones": {
+     "chest|neck": 34,
+     "foot.L|shin.L": 72,
+     "foot.R|shin.R": 77,
+     "head|neck": 116,
+     "shoulder.L|upper_arm.L": 122,
+     "shoulder.R|upper_arm.R": 214
+    }
+   },
+   {
+    "frame": 26.6,
+    "plate_pairs": 883,
+    "cloth_pairs": 413,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 272,
+     "shoulder.R|upper_arm.R": 129
+    }
+   },
+   {
+    "frame": 30.4,
+    "plate_pairs": 882,
+    "cloth_pairs": 401,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 251,
+     "shoulder.R|upper_arm.R": 149
+    }
+   },
+   {
+    "frame": 34.2,
+    "plate_pairs": 983,
+    "cloth_pairs": 420,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 205,
+     "shoulder.R|upper_arm.R": 296
+    }
+   },
+   {
+    "frame": 38.0,
+    "plate_pairs": 1006,
+    "cloth_pairs": 396,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 207,
+     "shoulder.R|upper_arm.R": 317
+    }
+   },
+   {
+    "frame": 41.8,
+    "plate_pairs": 1006,
+    "cloth_pairs": 396,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 207,
+     "shoulder.R|upper_arm.R": 317
+    }
+   },
+   {
+    "frame": 45.6,
+    "plate_pairs": 1006,
+    "cloth_pairs": 396,
+    "by_bones": {
+     "chest|neck": 147,
+     "foot.L|shin.L": 84,
+     "foot.R|shin.R": 91,
+     "head|neck": 160,
+     "shoulder.L|upper_arm.L": 207,
+     "shoulder.R|upper_arm.R": 317
+    }
+   }
+  ],
+  "worst_frame": 38.0,
+  "worst_plate_pairs": 1006
+ }
+}

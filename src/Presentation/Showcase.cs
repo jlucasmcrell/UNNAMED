@@ -43,7 +43,9 @@ public sealed class Showcase
             "locomotion" => Locomotion(),
             "sword" => Sword(),
             "spells" => Spells(),
-            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword or spells"),
+            "dialogue" => Dialogue(),
+            "equipment" => Equipment(),
+            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, dialogue or equipment"),
         };
     }
 
@@ -96,6 +98,146 @@ public sealed class Showcase
         new("walk_mending", 2.5, (s, _) => s.Go(Gait.Walk), CameraTurn: 30),
         new("end", 2.0, (s, _) => s.Hold()),
     };
+
+    private const string Sel = "npc.ashen_hollow.sel_arien";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
+    private const string Vest = "item.armor.hide_vest";
+
+    // Phase B demo: a conversation from a new game - to Sel at her survey table, her greeting, two replies, goodbye - for the face
+    // (blinks, the line spoken as visemes) and the conversation framing, with the player's own commands.
+    private static List<Step> Dialogue() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold()),
+        new("to_sel", 24.0, (s, _) => s.Approach(Sel, Gait.Run)),
+        new("greeting", 8.0, (s, t) => { s.Approach(Sel, Gait.Walk); if (s.Once(t, 0.2)) s._controller.Talk(Sel); }),
+        new("reply_1", 8.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s.Choose(0); }),
+        new("reply_2", 8.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s.Choose(0); }),
+        new("goodbye", 3.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s.Leave(); }),
+    };
+
+    // Phase B demo (from a save that has earned the coin - the acceptance playthrough's own): into the smithy, the hide vest bought from
+    // Kera's wares and put on, the character shown before and after, and the vest taken off again - the torso-item swap through the
+    // game's own trade and equipment commands.
+    private static List<Step> Equipment() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold()),
+        new("to_smithy", 14.0, (s, t) => { if (s.Walk(ToTheSmithy, Gait.Run)) s.OpenForgeDoor(); }),
+        new("to_kera", 6.0, (s, _) => s.Approach(Kera, Gait.Walk)),
+        new("trade", 7.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s._controller.Talk(Kera); if (s.Once(t, 1.5)) s.Choose("trade"); if (s.Every(t, 0.5) && t > 2.0 && t < 4.0) s.SellForVest(); if (s.Once(t, 4.2)) s.BuyVest(); if (s.Once(t, 5.5)) s.Leave(); }),
+        new("out", 8.0, (s, _) => s.Walk(OutOfTheSmithy, Gait.Walk)),
+        new("before", 4.0, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.12f, Distance: 3.0f),
+        new("put_on", 3.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.EquipVest(); }, CameraTurn: 160, Pitch: -0.12f, Distance: 3.0f),
+        new("after_front", 4.0, (s, _) => s.Hold(), CameraTurn: 180, Pitch: -0.12f, Distance: 2.6f),
+        new("after_side", 4.0, (s, _) => s.Hold(), CameraTurn: 90, Pitch: -0.12f, Distance: 2.6f),
+        new("walk_in_vest", 5.0, (s, _) => s.Walk(AwayFromTheSmithy, Gait.Walk), CameraTurn: 30),
+        new("take_off", 3.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s._session.Submit(new UNNAMED.World.Runtime.UnequipCommand(s._session.Simulation!.PlayerId, UNNAMED.Domain.Items.EquipSlot.Chest)); }, CameraTurn: 160, Pitch: -0.12f, Distance: 3.0f),
+        new("end", 2.0, (s, _) => s.Hold(), CameraTurn: 160, Pitch: -0.12f, Distance: 3.0f),
+    };
+
+    private static readonly (double X, double Z)[] ToTheSmithy = { (51.8, 136), (51.8, 142) };
+    private static readonly (double X, double Z)[] OutOfTheSmithy = { (54.4, 142), (51.8, 142), (49.5, 145.5), (46.5, 149.2) };
+    private static readonly (double X, double Z)[] AwayFromTheSmithy = { (41.5, 153.4), (35, 156.2) };
+
+    private bool _askedDoor;
+    private (double X, double Z)[]? _walking;
+    private int _walkPoint;
+
+    /// <summary>Along a route at a gait, the camera behind the way; true once at its end (then in place).</summary>
+    private bool Walk((double X, double Z)[] route, Gait gait)
+    {
+        if (!ReferenceEquals(route, _walking))
+        {
+            _walking = route;
+            _walkPoint = 0;
+        }
+        var body = _controller.Authoritative;
+        while (_walkPoint < route.Length)
+        {
+            var to = new Vector3((float)(route[_walkPoint].X - body.XMm / 1000.0), 0, (float)(route[_walkPoint].Z - body.ZMm / 1000.0));
+            if (to.Length() > 0.5f)
+            {
+                _heading = to.Normalized();
+                _controller.SteerWorld(_heading, gait, _camera);
+                return false;
+            }
+            _walkPoint++;
+        }
+        Hold();
+        return true;
+    }
+
+    /// <summary>To 1.3 m from an NPC, then facing them.</summary>
+    private void Approach(string npcId, Gait gait)
+    {
+        var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
+        var body = _controller.Authoritative;
+        var at = new Vector3(npc.Body.XMm / 1000f, 0, npc.Body.ZMm / 1000f);
+        var me = new Vector3(body.XMm / 1000f, 0, body.ZMm / 1000f);
+        var stand = at + (me - at).Normalized() * 1.3f;
+        var to = stand - me;
+        if (to.Length() > 0.4f)
+        {
+            _heading = to.Normalized();
+            _controller.SteerWorld(_heading, gait, _camera);
+            return;
+        }
+        _heading = (at - me).Normalized();
+        Hold();
+    }
+
+    private void Choose(int index)
+    {
+        if (_session.Simulation!.Conversation is { } talk && index < talk.Replies.Length)
+            _session.Submit(new UNNAMED.World.Runtime.ChooseCommand(_session.Simulation.PlayerId, talk.Replies[index].Id));
+    }
+
+    private void Choose(string replyId)
+    {
+        if (_session.Simulation!.Conversation is { } talk && talk.Replies.Any(r => r.Id == replyId))
+            _session.Submit(new UNNAMED.World.Runtime.ChooseCommand(_session.Simulation.PlayerId, replyId));
+    }
+
+    private void Leave() => _session.Submit(new UNNAMED.World.Runtime.LeaveCommand(_session.Simulation!.PlayerId));
+
+    private void OpenForgeDoor()
+    {
+        if (!_controller.IsOpen("door.forge_shed") && !_askedDoor)
+        {
+            _controller.Interact("door.forge_shed");
+            _askedDoor = true;
+        }
+    }
+
+    /// <summary>Short of the vest's price: sell Kera one stack of what is carried and not worn (loot and materials), as a player would.</summary>
+    private void SellForVest()
+    {
+        var simulation = _session.Simulation!;
+        var vest = simulation.Wares(Kera)?.Wares.FirstOrDefault(w => w.ItemId == Vest);
+        if (vest is null || simulation.Player.Currency >= vest.Price)
+            return;
+        var worn = simulation.Player.Equipment.Values.ToHashSet();
+        if (simulation.Player.Inventory.FirstOrDefault(e => !worn.Contains(e.ItemId) && !e.DefId.StartsWith("item.weapon", StringComparison.Ordinal)
+                && !e.DefId.StartsWith("item.ammo", StringComparison.Ordinal) && !e.DefId.StartsWith("item.book", StringComparison.Ordinal)) is { } goods)
+            _session.Submit(new UNNAMED.World.Runtime.SellCommand(simulation.PlayerId, Kera, goods.ItemId, goods.Count));
+    }
+
+    private void BuyVest()
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.Wares(Kera)?.Wares.FirstOrDefault(w => w.ItemId == Vest) is { } vest && vest.Price <= simulation.Player.Currency)
+            _session.Submit(new UNNAMED.World.Runtime.BuyCommand(simulation.PlayerId, Kera, vest.Ref, 1));
+        else
+            GD.PushWarning("UNNAMED showcase: the hide vest is not on sale or the coin does not reach its price");
+    }
+
+    private void EquipVest()
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.Player.Inventory.FirstOrDefault(e => e.DefId == Vest) is { } vest)
+            _session.Submit(new UNNAMED.World.Runtime.EquipCommand(simulation.PlayerId, vest.ItemId));
+        else
+            GD.PushWarning("UNNAMED showcase: no hide vest to put on");
+    }
 
     /// <summary>True on the first frame at or past <paramref name="at"/> seconds into the step.</summary>
     private bool Once(double t, double at) => _lastT < at && t >= at;

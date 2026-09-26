@@ -244,7 +244,7 @@
     "creature.beast.bristleback_boar": { "model": "creature_bristleback_boar", "clips": "creature.bristleback_boar", "voice": "bristleback_boar", "flesh": "flesh", "steps": { "walk": "walk", "run": "charge" } },
     "creature.beast.cave_hunting_spider": { "model": "creature_cave_hunting_spider", "clips": "creature.cave_hunting_spider", "voice": "cave_hunting_spider", "flesh": "flesh", "steps": { "walk": "scuttle", "run": "scuttle_fast" }, "steps_per_sound": 2 },
     "creature.undead.bone_walker_husk": { "model": "creature_bone_walker_husk", "clips": "creature.bone_walker_husk", "voice": "bone_walker_husk", "flesh": "flesh", "steps": { "walk": "walk", "run": "move_fast" } },
-    "creature.construct.animated_armour": { "model": "creature_animated_armour", "clips": "creature.animated_armour", "voice": "animated_armour", "flesh": "plate", "steps": { "walk": "walk", "run": "move_heavy" } },
+    "creature.construct.animated_armour": { "model": "creature_animated_armour_v2", "clips": "creature.animated_armour", "voice": "animated_armour", "flesh": "plate", "steps": { "walk": "walk", "run": "move_heavy" } },
     "creature.beast.wolf_grey": { "model": "creature_frost_wolf", "clips": "creature.frost_wolf", "voice": "ash_ember_hound", "flesh": "flesh", "steps": { "walk": "walk", "run": "run" }, "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists." }
   },
 
