@@ -29,9 +29,11 @@ public sealed class NavScratch
     internal int[] Generation { get; private set; } = Array.Empty<int>();
     internal byte[] Dir { get; private set; } = Array.Empty<byte>();
     internal int[] Queue { get; private set; } = Array.Empty<int>();
-    internal int[] HeapF { get; private set; } = Array.Empty<int>();
-    internal int[] HeapH { get; private set; } = Array.Empty<int>();
+    internal long[] HeapKey { get; private set; } = Array.Empty<long>();
     internal int[] HeapIdx { get; private set; } = Array.Empty<int>();
+
+    /// <summary>Per window node: its slot in the heap while it has an entry (valid once its <see cref="G"/> is set this generation).</summary>
+    internal int[] HeapAt { get; private set; } = Array.Empty<int>();
 
     /// <summary>The generation now in use; a node's entries are valid only when its <see cref="Generation"/> equals it.</summary>
     internal int Current => _generation;
@@ -44,6 +46,7 @@ public sealed class NavScratch
             G = new int[cells];
             Generation = new int[cells];
             Dir = new byte[cells];
+            HeapAt = new int[cells];
         }
         if (_generation == int.MaxValue)
         {
@@ -79,13 +82,12 @@ public sealed class NavScratch
         return Queue;
     }
 
-    /// <summary>The heap arrays, room for <paramref name="capacity"/> entries.</summary>
+    /// <summary>The heap arrays, room for <paramref name="capacity"/> entries: one per window node at most.</summary>
     internal void EnsureHeap(int capacity)
     {
-        if (HeapF.Length >= capacity)
+        if (HeapKey.Length >= capacity)
             return;
-        HeapF = new int[capacity];
-        HeapH = new int[capacity];
+        HeapKey = new long[capacity];
         HeapIdx = new int[capacity];
     }
 }

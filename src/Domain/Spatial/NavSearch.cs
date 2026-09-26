@@ -296,21 +296,32 @@ public static class NavSearch
             return Probe.Enclosed;
         }
 
+        /// <summary>
+        /// Optimal A* over the window, 8-connected, no corner cutting. The heap orders by (f, h, index), a total order, so the nodes pop
+        /// in one sequence whatever the heap's layout or the order a node's neighbours are relaxed in. A node has one entry: a shorter
+        /// way to it moves its entry up rather than adding another - the better entry of the two would always have popped first, and the
+        /// other found it closed - so the sequence is the one a heap of every entry gives. Everything in the loop is in the window's own
+        /// int coordinates (li, lj), a node's index being lj * width + li; a node's walkability is read from its cached bits once known.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private (NavOutcome Outcome, int Expansions) AStar(int startIdx, int goalIdx, long gi, long gj, long cells)
         {
             _gen = _scratch.Begin(cells);
             int max = _limits.MaxExpansions;
-            _scratch.EnsureHeap(8 * max + 1);
-            int[] hf = _scratch.HeapF, hh = _scratch.HeapH, hx = _scratch.HeapIdx;
-            int[] g = _scratch.G;
+            _scratch.EnsureHeap((int)cells);
+            long[] hk = _scratch.HeapKey;
+            int[] hx = _scratch.HeapIdx, at = _scratch.HeapAt;
+            int[] g = _scratch.G, generation = _scratch.Generation;
             byte[] dir = _scratch.Dir;
-            int count = 0;
+            int gen = _gen, count = 0;
+            int w = (int)_ww, lastI = w - 1, lastJ = (int)(_wj1 - _wj0);
+            int goalI = (int)(gi - _wi0), goalJ = (int)(gj - _wj0);
+            const byte Known = NavScratch.WalkKnown, Ok = NavScratch.WalkOk, Closed = NavScratch.Closed;
 
             Touch(startIdx);
             g[startIdx] = 0;
-            int h0 = Heuristic(_wi0 + startIdx % _ww, _wj0 + startIdx / _ww, gi, gj);
-            Push(h0, h0, startIdx);
+            int h0 = Estimate(startIdx % w, startIdx / w);
+            Place(Key(h0, h0), startIdx, count++);
 
             int expansions = 0;
             bool touchedBorder = false;
@@ -318,97 +329,121 @@ public static class NavSearch
             {
                 int idx = hx[0];
                 Pop();
-                if ((dir[idx] & NavScratch.Closed) != 0)
-                    continue;
                 // Every node popped counts, the goal among them; the cap is never passed.
                 if (expansions == max)
                     return (NavOutcome.Budget, expansions);
                 expansions++;
                 if (idx == goalIdx)
                     return (NavOutcome.Found, expansions);
-                dir[idx] |= NavScratch.Closed;
-                long i = _wi0 + idx % _ww, j = _wj0 + idx / _ww;
-                if (OnBorder(i, j))
+                dir[idx] |= Closed;
+                int li = idx % w, lj = idx / w;
+                if (li == 0 || li == lastI || lj == 0 || lj == lastJ)
                     touchedBorder = true;
                 int gHere = g[idx];
-                for (int d = 0; d < 8; d++)
-                {
-                    var (di, dj, cost) = Neighbours[d];
-                    long ni = i + di, nj = j + dj;
-                    if (ni < _wi0 || ni > _wi1 || nj < _wj0 || nj > _wj1)
-                        continue;
-                    int n = Index(ni, nj);
-                    if (!Walk(n, ni, nj))
-                        continue;
-                    if (d >= 4 && (!Walk(Index(ni, j), ni, j) || !Walk(Index(i, nj), i, nj)))
-                        continue;
-                    if ((dir[n] & NavScratch.Closed) != 0)
-                        continue;
-                    int ng = gHere + cost;
-                    if (ng >= g[n])
-                        continue;
-                    g[n] = ng;
-                    dir[n] = (byte)((dir[n] & ~0x0F) | NavScratch.ParentSet | d);
-                    int h = Heuristic(ni, nj, gi, gj);
-                    Push(ng + h, h, n);
-                }
+                // The orthogonal neighbours (E, N, W, S), their walkability kept: a diagonal step needs both it passes between.
+                bool east = li < lastI && Open(idx + 1, li + 1, lj);
+                bool north = lj < lastJ && Open(idx + w, li, lj + 1);
+                bool west = li > 0 && Open(idx - 1, li - 1, lj);
+                bool south = lj > 0 && Open(idx - w, li, lj - 1);
+                if (east)
+                    Relax(idx + 1, li + 1, lj, 0, gHere + 1000);
+                if (north)
+                    Relax(idx + w, li, lj + 1, 1, gHere + 1000);
+                if (west)
+                    Relax(idx - 1, li - 1, lj, 2, gHere + 1000);
+                if (south)
+                    Relax(idx - w, li, lj - 1, 3, gHere + 1000);
+                // NE, NW, SW, SE: out of the window whenever an orthogonal they need is.
+                if (east && north && Open(idx + w + 1, li + 1, lj + 1))
+                    Relax(idx + w + 1, li + 1, lj + 1, 4, gHere + 1414);
+                if (west && north && Open(idx + w - 1, li - 1, lj + 1))
+                    Relax(idx + w - 1, li - 1, lj + 1, 5, gHere + 1414);
+                if (west && south && Open(idx - w - 1, li - 1, lj - 1))
+                    Relax(idx - w - 1, li - 1, lj - 1, 6, gHere + 1414);
+                if (east && south && Open(idx - w + 1, li + 1, lj - 1))
+                    Relax(idx - w + 1, li + 1, lj - 1, 7, gHere + 1414);
             }
             return (touchedBorder ? NavOutcome.NotInWindow : NavOutcome.Exhausted, expansions);
 
-            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-            void Push(int f, int h, int x)
+            // The octile distance to the goal, as Heuristic gives it.
+            int Estimate(int i, int j)
             {
-                int c = count++;
+                int di = Math.Abs(goalI - i), dj = Math.Abs(goalJ - j);
+                return di > dj ? 1000 * di + 414 * dj : 1000 * dj + 414 * di;
+            }
+
+            // Whether a window node is walkable: its cached bits once known, else worked out once.
+            bool Open(int n, int i, int j) =>
+                generation[n] == gen && (dir[n] & Known) != 0 ? (dir[n] & Ok) != 0 : Walk(n, _wi0 + i, _wj0 + j);
+
+            // A step onto a walkable node: kept when it is still open and this way is shorter - a new entry, or its entry moved up.
+            void Relax(int n, int i, int j, int d, int ng)
+            {
+                int was = g[n];
+                if ((dir[n] & Closed) != 0 || ng >= was)
+                    return;
+                g[n] = ng;
+                dir[n] = (byte)((dir[n] & ~0x0F) | NavScratch.ParentSet | d);
+                int h = Estimate(i, j);
+                Place(Key(ng + h, h), n, was == int.MaxValue ? count++ : at[n]);
+            }
+
+            // (f, h) as one number, f above h: h is below 2^20 in any window, so the pair orders as (f, h) does.
+            static long Key(int f, int h) => ((long)f << 20) | (uint)h;
+
+            // An entry with a smaller key than before, or a new one at the end: sifted up from its slot to where it belongs.
+            void Place(long k, int x, int c)
+            {
                 while (c > 0)
                 {
                     int p = (c - 1) >> 1;
-                    if (!Less(f, h, x, hf[p], hh[p], hx[p]))
+                    long pk = hk[p];
+                    if (k > pk || (k == pk && x >= hx[p]))
                         break;
-                    hf[c] = hf[p];
-                    hh[c] = hh[p];
+                    hk[c] = pk;
                     hx[c] = hx[p];
+                    at[hx[c]] = c;
                     c = p;
                 }
-                hf[c] = f;
-                hh[c] = h;
+                hk[c] = k;
                 hx[c] = x;
+                at[x] = c;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+            // The least entry leaves; the last one sifts down from the root.
             void Pop()
             {
                 count--;
                 if (count == 0)
                     return;
-                int f = hf[count], h = hh[count], x = hx[count];
+                long k = hk[count];
+                int x = hx[count];
                 int c = 0;
                 while (true)
                 {
                     int l = 2 * c + 1;
                     if (l >= count)
                         break;
-                    int r = l + 1;
-                    int m = r < count && Less(hf[r], hh[r], hx[r], hf[l], hh[l], hx[l]) ? r : l;
-                    if (!Less(hf[m], hh[m], hx[m], f, h, x))
+                    int r = l + 1, m = l;
+                    long mk = hk[l];
+                    int mx = hx[l];
+                    if (r < count)
+                    {
+                        long rk = hk[r];
+                        if (rk < mk || (rk == mk && hx[r] < mx))
+                            (m, mk, mx) = (r, rk, hx[r]);
+                    }
+                    if (mk > k || (mk == k && mx >= x))
                         break;
-                    hf[c] = hf[m];
-                    hh[c] = hh[m];
-                    hx[c] = hx[m];
+                    hk[c] = mk;
+                    hx[c] = mx;
+                    at[mx] = c;
                     c = m;
                 }
-                hf[c] = f;
-                hh[c] = h;
+                hk[c] = k;
                 hx[c] = x;
+                at[x] = c;
             }
-        }
-
-        private static bool Less(int f1, int h1, int x1, int f2, int h2, int x2) =>
-            f1 != f2 ? f1 < f2 : h1 != h2 ? h1 < h2 : x1 < x2;
-
-        private static int Heuristic(long i, long j, long gi, long gj)
-        {
-            long di = Math.Abs(gi - i), dj = Math.Abs(gj - j);
-            return (int)(1000 * Math.Max(di, dj) + 414 * Math.Min(di, dj));
         }
 
         /// <summary>The node path from the start to the goal, by the parent directions A* left.</summary>
