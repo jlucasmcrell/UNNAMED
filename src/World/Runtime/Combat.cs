@@ -531,22 +531,34 @@ internal sealed partial class CombatSystem
             return (target.Body.XMm, target.Body.ZMm, target);
         double facing = from.FacingMdeg / 1000.0 * Math.PI / 180;
         double dx = Math.Sin(facing), dz = Math.Cos(facing);
-        double reach = rangeMm;
-        if (Walled(from.XMm, from.ZMm, from.XMm + dx * reach, from.ZMm + dz * reach))
-        {
-            // The line crosses a wall somewhere short of the range: halve the gap down to a centimetre.
-            double clear = 0;
-            while (reach - clear > 10)
-            {
-                double mid = (clear + reach) / 2;
-                if (Walled(from.XMm, from.ZMm, from.XMm + dx * mid, from.ZMm + dz * mid))
-                    reach = mid;
-                else
-                    clear = mid;
-            }
-            reach = clear;
-        }
+        var (reach, _) = FirstStop(from, rangeMm);
         return ((long)Math.Round(from.XMm + dx * reach, MidpointRounding.AwayFromZero), (long)Math.Round(from.ZMm + dz * reach, MidpointRounding.AwayFromZero), null);
+    }
+
+    /// <summary>
+    /// How far the line along the body's facing runs clear of every wall, closed door and barrier, and what stops it (M7 design §4.12):
+    /// the whole length and nothing when it is clear; else the gap halved down to a centimetre, and every blocker the line to the far side
+    /// of that centimetre crosses, in <c>SightWalls()</c> order.
+    /// </summary>
+    private (double ClearMm, ImmutableArray<Blocker> Hit) FirstStop(Body from, long lengthMm)
+    {
+        double facing = from.FacingMdeg / 1000.0 * Math.PI / 180;
+        double dx = Math.Sin(facing), dz = Math.Cos(facing);
+        double reach = lengthMm;
+        if (!Walled(from.XMm, from.ZMm, from.XMm + dx * reach, from.ZMm + dz * reach))
+            return (reach, ImmutableArray<Blocker>.Empty);
+        // The line crosses a wall somewhere short of its length: halve the gap down to a centimetre.
+        double clear = 0;
+        while (reach - clear > 10)
+        {
+            double mid = (clear + reach) / 2;
+            if (Walled(from.XMm, from.ZMm, from.XMm + dx * mid, from.ZMm + dz * mid))
+                reach = mid;
+            else
+                clear = mid;
+        }
+        double x1 = from.XMm + dx * reach, z1 = from.ZMm + dz * reach;
+        return (clear, _context.SightWalls().Where(b => b.Crosses(from.XMm, from.ZMm, x1, z1)).ToImmutableArray());
     }
 
     /// <summary>The first living creature along the facing within range whose body the line meets before any wall does.</summary>
