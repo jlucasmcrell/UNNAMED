@@ -101,6 +101,34 @@ public sealed record PickUpAction(long XMm, long ZMm, int From = CrossingWorksho
             : null;
 }
 
+/// <summary><c>InteractCommand</c> on an authored door by its key (R17, R19: the forge shed's).</summary>
+public sealed record InteractAction(string Key, int From = CrossingWorkshop.E9) : WorkshopAction(From)
+{
+    public GameCommand Command(EntityId player) => new InteractCommand(player, Key);
+}
+
+/// <summary><c>AssignWorkerCommand(npc, the bench)</c> (R18): the one placed anvil bench, resolved when the row plays.</summary>
+public sealed record AssignAction(string NpcId, int From = CrossingWorkshop.E9) : WorkshopAction(From)
+{
+    public GameCommand? Command(Simulation simulation) =>
+        simulation.Pieces.FirstOrDefault(p => p.DefId == CrossingWorkshop.Bench) is { } bench ? new AssignWorkerCommand(simulation.PlayerId, NpcId, bench.Id) : null;
+}
+
+/// <summary><c>ReleaseWorkerCommand(npc)</c> (R43).</summary>
+public sealed record ReleaseAction(string NpcId, int From = CrossingWorkshop.E9) : WorkshopAction(From)
+{
+    public GameCommand Command(EntityId player) => new ReleaseWorkerCommand(player, NpcId);
+}
+
+/// <summary>
+/// A wait, not a command: frames until the errand's NPC arrives at work (<see cref="Arrived"/>, R21) or is home (<see cref="Home"/>, R47),
+/// at most <paramref name="CapTicks"/>; each consumer asserts the bound §4.22 gives.
+/// </summary>
+public sealed record UntilAction(string Event, int CapTicks, int From = CrossingWorkshop.E9) : WorkshopAction(From)
+{
+    public const string Arrived = "arrived", Home = "home";
+}
+
 /// <summary>A move held for a number of ticks, one <see cref="MoveCommand"/> a tick (R12: north at a walk for 40 ticks).</summary>
 public sealed record HoldAction(MoveIntent Intent, int Ticks, int From = CrossingWorkshop.E5) : WorkshopAction(From);
 
@@ -139,7 +167,7 @@ public static class CrossingWorkshop
     public const int E5 = 5, E6 = 6, E7 = 7, E8 = 8, E9 = 9;
 
     /// <summary>The slices landed so far.</summary>
-    public const int Landed = E8;
+    public const int Landed = E9;
 
     /// <summary>S0's world seed: the playthrough's (<c>Playthrough.Seed</c>, presentation), so both proofs play one world.</summary>
     public const ulong Seed = 0x0A5E_2026_0924_0001;
@@ -149,6 +177,10 @@ public static class CrossingWorkshop
     public const string Timber = "item.material.timber", IronIngot = "item.material.iron_ingot", AshHaft = "item.material.ash_haft";
     public const string SpearRecipe = "recipe.smithing.march_spear";
     public const string Kera = "npc.ashen_hollow.kera_voss", Tavar = "npc.ashen_hollow.tavar_orr";
+    public const string ShedDoor = "door.forge_shed";
+
+    /// <summary>Kera's work anchor at the bench (R07), and her place (R47), with their facings.</summary>
+    public static readonly (long XMm, long ZMm, int FacingMdeg) KeraAtWork = (100_750, 103_500, 270_000), KeraAtHome = (61_600, 139_600, 300_000);
 
     /// <summary>Where S0 stands the character, and Tavar waiting north of the workshop.</summary>
     public static readonly (long XMm, long ZMm, int FacingMdeg) Character = (100_500, 94_500, 0), TavarWaits = (100_500, 108_500, 180_000);
@@ -201,10 +233,11 @@ public static class CrossingWorkshop
         Enumerable.Range(0, count).Select(i => new AttackAction { Gap = i == 0 ? 1 : 20 }).ToArray<WorkshopAction>();
 
     /// <summary>
-    /// The table as far as E8 has built it: rows R00-R15 (the workshop with its door, bench and chest; the door worked from both sides and
-    /// the walk north stopped by it; the spear made at the bench), R22-R25 (the vestibule refused as unnavigable, and taken down), R26-R37
-    /// (blows on the north wall and its mending; the chest's cycle, its destruction and spill; a second chest), R39-R42, R45 and R46. E9
-    /// adds the rest and changes R45's pose (§4.22).
+    /// The whole table, as E9 completes it: rows R00-R15 (the workshop with its door, bench and chest; the door worked from both sides and
+    /// the walk north stopped by it; the spear made at the bench), R16-R21 (Kera asked at the forge shed, walking in through both doors to
+    /// the bench), R22-R25 (the vestibule refused as cutting her work place off, and taken down), R26-R37 (blows on the north wall and its
+    /// mending; the chest's cycle, its destruction and spill; a second chest), R38-R44 (a wall on x = 96 that changes her way home, and her
+    /// release), R45-R46 (Tavar in, the save) and R47 (her walk home ends).
     /// </summary>
     public static readonly ImmutableArray<WorkshopRow> Rows = ImmutableArray.Create(
         Row("R00", 0, null, 0, "S0 loaded"),
@@ -230,6 +263,14 @@ public static class CrossingWorkshop
         RowFrom(E6, "R13", 3, null, 1, "the door opened", TheDoor),
         Row("R14", 3, At(100.5, 101.0, 270), 0, "stop x in [99 200, 99 210], OnCreature false", new AimAction(270_000, 20_000)),
         RowFrom(E8, "R15", 4, At(100.6, 102.4, 315), 0, "accepted, 1.36 m from the bench site, no authored anvil in reach", new CraftAction(SpearRecipe)),
+        RowFrom(E9, "R16", 5, At(100.5, 97.6, 0, (100.5, 100.3)), 0, "closed", new InteractPieceAction(Door, 100_500, 99_000, E9)),
+        RowFrom(E9, "R17", 5, At(51.8, 142.0, 90, (100.5, 96.0), (96.0, 96.0), (90.0, 112.0), (80.0, 118.0), (62.0, 130.0), (51.8, 136.0)), 0, "opened",
+            new InteractAction(ShedDoor)),
+        RowFrom(E9, "R18", 5, At(60.0, 140.2, 110, (54.5, 142.0)), 0, "accepted; WorkerAssigned", new AssignAction(Kera)),
+        RowFrom(E9, "R19", 5, At(51.8, 142.0, 90, (54.5, 142.0)), 0, "closed (every body clear)", new InteractAction(ShedDoor)),
+        RowFrom(E9, "R20", 5, At(108.0, 95.0, 270, (51.8, 136.0), (62.0, 130.0), (80.0, 118.0), (90.0, 112.0), (106.5, 111.0), (106.5, 96.0)), 0,
+            "the character's body never within 1,000 mm of Kera's between WorkerAssigned and NpcArrivedAtWork"),
+        RowFrom(E9, "R21", 6, null, 0, "the step-6 assertions", new UntilAction(UntilAction.Arrived, 3_000)),
         RowFrom(E7, "R22", 7, At(100.5, 94.5, 0), 0, "accepted", new PlaceAction(Pad, 100_500, 97_500, 0, E7)),
         RowFrom(E7, "R23", 7, null, 1, "accepted", new PlaceAction(Wall, 99_000, 97_500, 1, E7), new PlaceAction(Wall, 102_000, 97_500, 1, E7)),
         RowFrom(E7, "R24", 7, null, 1, "refused Navigability, rule V-N1; E9 text \"that would cut Kera Voss's work place off\"; digest unchanged",
@@ -251,14 +292,19 @@ public static class CrossingWorkshop
         RowFrom(E8, "R36", 9, At(102.9, 100.5, 90), 0, "part x [104 100, 104 700], z [100 000, 101 000]; site (104 400, 100 500)",
             new PlaceAction(Chest, 103_500, 100_500, 1, E8)),
         RowFrom(E8, "R37", 9, null, 1, "stored", new StoreAction(Chest, 103_500, 100_500, 2)),
+        RowFrom(E9, "R38", 9, null, 0, "test-side: P2, a read-only plan from Kera's anchor to her site"),
         Row("R39", 9, At(97.5, 102.0, 270, (100.5, 100.3), (100.5, 97.6), (97.5, 97.0)), 0, "accepted",
             Place(Pad, 97_500, 100_500, 0), Place(Pad, 97_500, 103_500, 0)),
         Row("R40", 9, null, 1, "accepted", Place(Wall, 96_000, 100_500, 1)),
         Row("R41", 9, At(96.0, 103.5, 0), 0, "refused Bodies, \"someone is standing there\"", Place(Wall, 96_000, 103_500, 1)),
         Row("R42", 9, At(97.5, 103.5, 270), 0, "accepted; the line x = 96 runs z 98.8-105.2", Place(Wall, 96_000, 103_500, 1)),
-        Row("R45", 9, At(102.0, 102.0, 0, (97.5, 97.0), (100.5, 97.6), (100.5, 100.3)), 0, "RoutePlanned for Tavar",
-            new OrderAction(Tavar, CompanionOrder.Follow)),
-        Row("R46", 10, null, 60, "the step-10 assertions (saved 60 ticks on, not 100: at 100 Tavar has just come into clear view and left his route)", new SaveAction(600)));
+        RowFrom(E9, "R43", 9, At(101.5, 102.5, 300, (97.5, 97.0), (100.5, 97.6), (100.5, 100.3)), 0,
+            "WorkerReleased(released); P3 differs from P2 and does not cross x = 96 000, z in [98 800, 105 200]; her first route equals P3", new ReleaseAction(Kera)),
+        RowFrom(E9, "R44", 9, null, 300, "Kera's body outside [98 800, 105 200]^2"),
+        // E5-E8 walked in by (97.5, 97.0), (100.5, 97.6) and (100.5, 100.3); from E9 the character is inside already, after R43-R44.
+        Row("R45", 9, At(102.0, 102.0, 0), 0, "RoutePlanned for Tavar", new OrderAction(Tavar, CompanionOrder.Follow)),
+        Row("R46", 10, null, 60, "the step-10 assertions (saved 60 ticks on, not 100: at 100 Tavar has just come into clear view and left his route)", new SaveAction(600)),
+        RowFrom(E9, "R47", 10, null, 0, "W1: Kera exactly at (61 600, 139 600) facing 300 000; the errand retired", new UntilAction(UntilAction.Home, 3_000)));
 
     /// <summary>The rows whose slice has landed, in order.</summary>
     public static IEnumerable<WorkshopRow> LandedRows => Rows.Where(r => r.From <= Landed);

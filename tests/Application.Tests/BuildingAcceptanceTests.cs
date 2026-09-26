@@ -19,6 +19,10 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class BuildingAcceptanceTests
 {
+    private readonly Xunit.Abstractions.ITestOutputHelper _output;
+
+    public BuildingAcceptanceTests(Xunit.Abstractions.ITestOutputHelper output) => _output = output;
+
     private const string Tag = "unnamed.piece/v1";
     private const string S0Slot = "manual_s0";
 
@@ -57,6 +61,10 @@ public class BuildingAcceptanceTests
             session.Subscribe<PieceDamaged>(Damaged.Add);
             session.Subscribe<PieceDestroyed>(Destroyed.Add);
             session.Subscribe<PieceRepaired>(Repaired.Add);
+            session.Subscribe<WorkerAssigned>(Assigned.Add);
+            session.Subscribe<WorkerReleased>(Released.Add);
+            session.Subscribe<NpcArrivedAtWork>(Arrived.Add);
+            session.Subscribe<NpcReturnedHome>(Home.Add);
         }
 
         public GameSession Session { get; }
@@ -70,6 +78,10 @@ public class BuildingAcceptanceTests
         public List<PieceDamaged> Damaged { get; } = new();
         public List<PieceDestroyed> Destroyed { get; } = new();
         public List<PieceRepaired> Repaired { get; } = new();
+        public List<WorkerAssigned> Assigned { get; } = new();
+        public List<WorkerReleased> Released { get; } = new();
+        public List<NpcArrivedAtWork> Arrived { get; } = new();
+        public List<NpcReturnedHome> Home { get; } = new();
 
         /// <summary>What each pick-up took from the ground, by the item's ID in this run: how a replay finds the same item (R35).</summary>
         public Dictionary<string, (string DefId, int Count, long XMm, long ZMm)> PickedUp { get; } = new(StringComparer.Ordinal);
@@ -82,8 +94,11 @@ public class BuildingAcceptanceTests
 
         public (long XMm, long ZMm, bool OnCreature) Aimed { get; private set; }
 
-        /// <summary>Called after every tick this run frames itself (not during pose walks).</summary>
+        /// <summary>Called after every tick this run frames itself, and once after a pose (not during pose walks).</summary>
         public Action<Simulation>? EachTick { get; set; }
+
+        /// <summary>Called after every tick, the pose walks' included (E9: an errand is watched on every tick it moves).</summary>
+        public Action<Simulation>? EveryTick { get; set; }
 
         public WorkshopRow Row(string id) => LandedRows.Single(r => r.Id == id);
 
@@ -93,6 +108,7 @@ public class BuildingAcceptanceTests
         {
             Session.Frame(Session.TickSeconds);
             EachTick?.Invoke(Simulation);
+            EveryTick?.Invoke(Simulation);
         }
 
         /// <summary>Play the landed rows up to and including <paramref name="lastId"/>.</summary>
@@ -112,7 +128,7 @@ public class BuildingAcceptanceTests
             {
                 for (int i = 1; i < row.After; i++)
                     Frame();
-                StandAt(Session, pose, row.Id);
+                StandAt(Session, pose, row.Id, () => EveryTick?.Invoke(Simulation));
                 EachTick?.Invoke(Simulation);
             }
             else
@@ -183,6 +199,25 @@ public class BuildingAcceptanceTests
                         Assert.True(chest?.ContainerKey is not null, $"{row.Id}: no chest at ({takeAll.XMm}, {takeAll.ZMm})");
                         Outcomes[action] = Submit(new TakeAllCommand(player, chest!.ContainerKey!));
                         break;
+                    case InteractAction interactKey:
+                        Outcomes[action] = Submit(interactKey.Command(player));
+                        break;
+                    case AssignAction assign:
+                        var ask = assign.Command(Simulation);
+                        Assert.True(ask is not null, $"{row.Id}: no bench to assign {assign.NpcId} to");
+                        Outcomes[action] = Submit(ask!);
+                        break;
+                    case ReleaseAction release:
+                        Outcomes[action] = Submit(release.Command(player));
+                        break;
+                    case UntilAction until:
+                        var seen = until.Event == UntilAction.Arrived ? (System.Collections.IList)Arrived : Home;
+                        int before = seen.Count;
+                        for (int i = 0; i < until.CapTicks && seen.Count == before; i++)
+                            Frame();
+                        Assert.True(seen.Count > before, $"{row.Id}: not {until.Event} within {until.CapTicks} ticks");
+                        Outcomes[action] = (Simulation.WorldTick, null, false);
+                        break;
                     case PickUpAction pickUp:
                         var take = pickUp.Command(Simulation);
                         Assert.True(take is not null, $"{row.Id}: no timber lying at ({pickUp.XMm}, {pickUp.ZMm})");
@@ -212,16 +247,20 @@ public class BuildingAcceptanceTests
 
     private static long Mm(double metres) => (long)Math.Round(metres * 1000);
 
-    /// <summary>§4.22's pose: the run legs, each to 300 mm; the pose, to 50 mm at a walk; then one idle frame facing it.</summary>
-    private static void StandAt(GameSession session, WorkshopPose pose, string what)
+    /// <summary>
+    /// §4.22's pose: the run legs, each to 300 mm; the pose, to 50 mm at a walk; then one idle frame facing it. <paramref name="afterFrame"/>
+    /// runs after every frame of it (E9: what an errand does meanwhile is watched every tick).
+    /// </summary>
+    private static void StandAt(GameSession session, WorkshopPose pose, string what, Action? afterFrame = null)
     {
         var simulation = session.Simulation!;
         foreach (var (x, z) in pose.Legs)
-            Assert.True(Harness.WalkTo(session, Mm(x), Mm(z)), $"{what}: the leg to ({x}, {z}) stopped at {simulation.Player.Body}");
-        Assert.True(Harness.WalkTo(session, Mm(pose.X), Mm(pose.Z), Gait.Walk, toleranceMm: 50),
+            Assert.True(Harness.WalkTo(session, Mm(x), Mm(z), afterFrame: afterFrame), $"{what}: the leg to ({x}, {z}) stopped at {simulation.Player.Body}");
+        Assert.True(Harness.WalkTo(session, Mm(pose.X), Mm(pose.Z), Gait.Walk, toleranceMm: 50, afterFrame: afterFrame),
             $"{what}: the pose ({pose.X}, {pose.Z}) was not reached; stopped at {simulation.Player.Body}");
         session.Submit(new MoveCommand(simulation.PlayerId, MoveIntent.Idle(pose.FacingDeg * 1000 % MoveIntent.FullTurnMdeg)));
         session.Frame(session.TickSeconds);
+        afterFrame?.Invoke();
     }
 
     /// <summary>One command at the next boundary, and a frame: its refusal, or null.</summary>
@@ -479,6 +518,278 @@ public class BuildingAcceptanceTests
     /// behind it it would seal a walkable pocket (rule V-N1; until E9 names Kera's work place, its words are not asserted), and nothing
     /// changes; the walls and the pad come down for 1, 1 and 0 timber.
     /// </summary>
+    // N-A2 (criterion 14)
+    /// <summary>
+    /// Steps 5 and 6 (M7 design §4.22): the workshop's door shut from outside; the forge shed's opened; Kera asked there, at the bench; the
+    /// shed door shut behind the character, who goes round to the vantage south-east. Kera opens both doors, walks in through the doorway
+    /// across x = 100 and crosses z = 100 once, from c_01_00 into c_01_01, inside the footprint; once in, she never leaves it; she lands
+    /// exactly on the work anchor facing the work within ⌈1.25 × L / 80⌉ + 40 ticks of being asked, L her first route's length; never
+    /// more than 81 mm a tick, clear every tick, and never within a metre of the character.
+    /// </summary>
+    [Fact]
+    public void CrossingWorkshop_5to6_KeraWalksInThroughAndAround()
+    {
+        using var profile = new TempProfile();
+        var run = new WorkshopRun(LoadS0(profile));
+        var simulation = run.Simulation;
+        var keraId = simulation.Npcs.Single(n => n.Id == Kera).InstanceId;
+        long radius = simulation.Setup.Movement.BodyRadiusMm;
+        run.Through("R15");
+        string pieceDoor = simulation.Pieces.Single(p => p.DefId == Door).Id.Value;
+        run.Through("R16");
+        Assert.Null(run.Outcome("R16").Refused);
+        Assert.False(simulation.Pieces.Single(p => p.Id.Value == pieceDoor).DoorOpen);
+        run.Through("R17");
+        Assert.Null(run.Outcome("R17").Refused);
+        Assert.True(simulation.Doors.Single(d => d.Site.Key == ShedDoor).Open);
+
+        // From the assignment to the arrival, every tick.
+        double? length = null;
+        long plannedAt = -1;
+        Body? last = null;
+        long worstStep = 0;
+        double nearest = double.MaxValue;
+        var unclear = new List<string>();
+        double deepest = 0;
+        var cells = new List<string>();
+        var crossings = new List<(long Tick, long XMm, string From, string To)>();
+        var doorway = new List<long>();
+        bool entered = false, left = false;
+        static bool InFootprint(Body b) => b.XMm is >= 98_800 and <= 105_200 && b.ZMm is >= 98_800 and <= 105_200;
+        run.EveryTick = s =>
+        {
+            if (run.Assigned.Count == 0 || (run.Arrived.Count > 0 && run.Arrived[0].Tick < s.WorldTick))
+                return;
+            var kera = s.Npcs.Single(n => n.Id == Kera).Body;
+            var player = s.Player.Body;
+            if (length is null && run.Routes.FirstOrDefault(r => r.MoverKey == Kera && r.Tick >= run.Assigned[0].Tick) is { } plan)
+            {
+                var corners = s.Navigation.Movers.Single(m => m.NpcId == Kera).Route.Corners;
+                double l = 0;
+                var from = (X: (double)kera.XMm, Z: (double)kera.ZMm);
+                foreach (var c in corners)
+                {
+                    l += Math.Sqrt(Math.Pow(c.XMm - from.X, 2) + Math.Pow(c.ZMm - from.Z, 2));
+                    from = (c.XMm, c.ZMm);
+                }
+                (length, plannedAt) = (l, plan.Tick);
+            }
+            nearest = Math.Min(nearest, Math.Sqrt(Math.Pow(kera.XMm - player.XMm, 2) + Math.Pow(kera.ZMm - player.ZMm, 2)));
+            string cell = CellKey.OfWorld(kera.XMm / 1000.0, kera.ZMm / 1000.0).ToString();
+            if (cells.Count == 0 || cells[^1] != cell)
+                cells.Add(cell);
+            if (last is { } was)
+            {
+                long dx = kera.XMm - was.XMm, dz = kera.ZMm - was.ZMm;
+                worstStep = Math.Max(worstStep, (long)Math.Ceiling(Math.Sqrt(dx * dx + dz * dz)));
+                if ((was.ZMm < 100_000) != (kera.ZMm < 100_000) && InFootprint(was) && InFootprint(kera))
+                    crossings.Add((s.WorldTick, kera.XMm, CellKey.OfWorld(was.XMm / 1000.0, was.ZMm / 1000.0).ToString(), cell));
+                if (was.ZMm < 99_000 && kera.ZMm >= 99_000)
+                    doorway.Add(kera.XMm);
+            }
+            entered |= InFootprint(kera) && kera.ZMm >= 99_000;
+            left |= entered && !InFootprint(kera);
+            var blockers = s.DynamicBlockers.Where(b => b.Id != Kera).ToList();
+            blockers.Add(new CircleBlocker("player", player.XMm, player.ZMm, radius, 0));
+            blockers.AddRange(s.Companions.Select(c => (Blocker)new CircleBlocker(c.NpcId, c.Body.XMm, c.Body.ZMm, radius, 0)));
+            double overlap = Overlap(kera, radius, s.Space, blockers);
+            deepest = Math.Max(deepest, overlap);
+            if (overlap >= 1)
+                unclear.Add($"{s.WorldTick}: {kera} by {overlap:0.##} mm");
+            last = kera;
+        };
+        run.Through("R18");
+        Assert.Null(run.Outcome("R18").Refused);
+        var assigned = Assert.Single(run.Assigned);
+        var (ax, az, af) = KeraAtWork;
+        Assert.Equal((Kera, ax, az, af), (assigned.NpcId, assigned.AnchorXMm, assigned.AnchorZMm, assigned.FacingMdeg));
+        run.Through("R19");
+        Assert.Null(run.Outcome("R19").Refused);
+        run.Through("R21");
+
+        var arrived = Assert.Single(run.Arrived);
+        var body = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Assert.Equal(KeraAtWork, (body.XMm, body.ZMm, body.FacingMdeg));
+        Assert.NotNull(length);
+        long bound = (long)Math.Ceiling(1.25 * length!.Value / 80) + 40;
+        Assert.True(arrived.Tick - assigned.Tick <= bound, $"she arrived {arrived.Tick - assigned.Tick} ticks after being asked; the bound is {bound} (L {length:0} mm)");
+        var kinds = run.Toggled.Where(t => t.Actor == keraId).Select(t => (t.DoorKey, t.Open)).ToList();
+        Assert.Contains((ShedDoor, true), kinds);
+        Assert.Contains((pieceDoor, true), kinds);
+        Assert.DoesNotContain(run.Toggled, t => t.Actor == keraId && !t.Open);
+        var crossing = Assert.Single(crossings);
+        Assert.Equal(("r_0_0:c_01_00", "r_0_0:c_01_01"), (crossing.From, crossing.To));
+        Assert.All(doorway, x => Assert.InRange(x, 100_050, 100_950));
+        Assert.True(entered && !left, $"entered {entered}, left again {left}");
+        Assert.True(worstStep <= 81, $"she moved {worstStep} mm in one tick");
+        Assert.True(unclear.Count == 0, $"{unclear.Count} ticks not clear: {string.Join("; ", unclear.Take(4))}");
+        Assert.True(nearest >= 1_000, $"the character came within {nearest:0} mm of her");
+        Assert.Equal(0, run.Session.SubscriberFailures);
+        _output.WriteLine($"L {length:0} mm (planned at {plannedAt}); arrived {arrived.Tick - assigned.Tick} ticks after WorkerAssigned (bound {bound}); " +
+                          $"cells {string.Join(" -> ", cells)}; worst step {worstStep} mm; nearest the character {nearest:0} mm; " +
+                          $"deepest contact {deepest:0.###} mm");
+    }
+
+    /// <summary>
+    /// How far a body sits inside anything in its way, in millimetres (0 when <see cref="Kinematics.IsClear"/>). Kinematics.Step resolves a
+    /// push in doubles and rounds the body to whole millimetres, so a body in contact may sit up to a millimetre inside - against an authored
+    /// box, a piece or a person (Phase 1; E5's chase test allows the same); a millimetre or more is an overlap.
+    /// </summary>
+    private static double Overlap(Body body, long radius, WalkSpace space, IEnumerable<Blocker> blockers) =>
+        new[] { space.MinXMm - (body.XMm - radius), body.XMm + radius - space.MaxXMm, space.MinZMm - (body.ZMm - radius), body.ZMm + radius - space.MaxZMm }
+            .Select(d => (double)d)
+            .Concat(space.Blockers.Concat(blockers).Select(b => radius - b.DistanceTo(body.XMm, body.ZMm)))
+            .Where(d => d > 0).DefaultIfEmpty(0).Max();
+
+    /// <summary>
+    /// N-A3 and N-A4's script (M7 design §3.20.3): from the table after step 4, a pad at (91.5, 106.5) - and, for N-A4, a wall on its west
+    /// edge - placed from (91.5, 110.0); Kera asked at the forge shed; the character runs back to (91.5, 110.0) before she reaches x = 75 m.
+    /// </summary>
+    private WorkshopRun AskedPastThePad(TempProfile profile, bool wallFirst)
+    {
+        var run = new WorkshopRun(LoadS0(profile));
+        run.Through("R15");
+        var session = run.Session;
+        var player = run.Simulation.PlayerId;
+        void Legs(params (double X, double Z)[] legs)
+        {
+            foreach (var (x, z) in legs)
+                Assert.True(Harness.WalkTo(session, Mm(x), Mm(z)), $"the leg to ({x}, {z}) stopped at {run.Simulation.Player.Body}");
+        }
+        Legs((100.5, 97.0), (97.0, 97.0), (91.5, 110.0));
+        Assert.Null(Submit(session, new PlacePieceCommand(player, Pad, 91_500, 106_500, 0)));
+        if (wallFirst)
+            Assert.Null(Submit(session, new PlacePieceCommand(player, Wall, 90_000, 106_500, 1)));
+        Legs((70.0, 128.0), (51.5, 136.5), (52.0, 142.0));
+        Assert.Null(Submit(session, new MoveCommand(player, MoveIntent.Idle(90_000))));
+        if (!run.Simulation.Doors.Single(d => d.Site.Key == ShedDoor).Open)
+            Assert.Null(Submit(session, new InteractCommand(player, ShedDoor)));
+        Legs((53.9, 142.0));
+        Assert.True(Harness.WalkTo(session, 60_000, 140_200, Gait.Walk, toleranceMm: 50));
+        Assert.Null(Submit(session, new AssignWorkerCommand(player, Kera, run.Simulation.Pieces.Single(p => p.DefId == Bench).Id)));
+        Legs((53.9, 142.0), (50.0, 142.0), (51.5, 136.5), (70.0, 128.0), (91.5, 110.0));
+        Assert.True(run.Simulation.Npcs.Single(n => n.Id == Kera).Body.XMm < 75_000, "Kera reached x = 75 m before the character got back");
+        while (run.Simulation.Npcs.Single(n => n.Id == Kera).Body.XMm < 75_000)
+            run.Frame();
+        return run;
+    }
+
+    private static readonly BoxBlocker PadWall = new("wall", 89_800, 104_800, 90_200, 108_200, 3_000);
+
+    /// <summary>What is left of her route: from her body through its corners.</summary>
+    private static List<NavPoint> Remaining(Simulation simulation)
+    {
+        var body = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        return new[] { new NavPoint(body.XMm, body.ZMm) }.Concat(simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Route.Corners).ToList();
+    }
+
+    private static double LengthOf(List<NavPoint> polyline) =>
+        polyline.Zip(polyline.Skip(1)).Sum(p => Math.Sqrt(Math.Pow(p.Second.XMm - p.First.XMm, 2) + Math.Pow(p.Second.ZMm - p.First.ZMm, 2)));
+
+    // N-A3
+    [Fact]
+    public void AWallPlacedAcrossTheRoute_IsWalkedAround()
+    {
+        using var profile = new TempProfile();
+        var run = AskedPastThePad(profile, wallFirst: false);
+        var simulation = run.Simulation;
+        long radius = simulation.Setup.Movement.BodyRadiusMm;
+        var before = Remaining(simulation);
+        Assert.True(before.Zip(before.Skip(1)).Any(p => !NavGeometry.SegmentClear(p.First, p.Second, radius, PadWall)),
+            $"her route does not meet where the wall will stand: {string.Join(" ", before)}");
+
+        int rebuilt = run.Rebuilt.Count, planned = run.Routes.Count;
+        Assert.Null(Submit(run.Session, new PlacePieceCommand(simulation.PlayerId, Wall, 90_000, 106_500, 1)));
+        Assert.Equal(rebuilt + 1, run.Rebuilt.Count);
+        var replan = run.Routes.Skip(planned).First(r => r.MoverKey == Kera);
+        Assert.Equal((NavFollower.Geometry, simulation.WorldTick), (replan.Reason, replan.Tick));
+        var after = Remaining(simulation);
+        Assert.All(after.Zip(after.Skip(1)), p => Assert.True(NavGeometry.SegmentClear(p.First, p.Second, radius, PadWall), $"{p.First} -> {p.Second} meets the wall"));
+
+        var overlaps = new List<string>();
+        var wallOnly = simulation.Space with { Blockers = ImmutableArray.Create<Blocker>(PadWall) };
+        for (int i = 0; i < 3_000 && run.Arrived.Count == 0; i++)
+        {
+            run.Frame();
+            var kera = simulation.Npcs.Single(n => n.Id == Kera).Body;
+            if (Overlap(kera, radius, wallOnly, Array.Empty<Blocker>()) >= 1)
+                overlaps.Add(kera.ToString());
+        }
+        Assert.Empty(overlaps);
+        Assert.Single(run.Arrived);
+        var body = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Assert.Equal(KeraAtWork, (body.XMm, body.ZMm, body.FacingMdeg));
+    }
+
+    // N-A4
+    [Fact]
+    public void ARemovedWall_OpensTheShorterWay()
+    {
+        long Arrival(bool dismantle, out double oldRemainder, out double newRemainder)
+        {
+            using var profile = new TempProfile();
+            var run = AskedPastThePad(profile, wallFirst: true);
+            var simulation = run.Simulation;
+            long radius = simulation.Setup.Movement.BodyRadiusMm;
+            var before = Remaining(simulation);
+            var corners = before.Skip(1).ToList();
+            Assert.True(corners.Zip(corners.Skip(1)).All(p => NavGeometry.SegmentClear(p.First, p.Second, radius, PadWall)),
+                $"her route does not go round the wall: {string.Join(" ", corners)}");
+            (oldRemainder, newRemainder) = (LengthOf(before), 0);
+            if (dismantle)
+            {
+                int planned = run.Routes.Count;
+                var wall = simulation.Pieces.Single(p => p.DefId == Wall && p.XMm == 90_000 && p.ZMm == 106_500).Id;
+                Assert.Null(Submit(run.Session, new DismantlePieceCommand(simulation.PlayerId, wall)));
+                var replan = run.Routes.Skip(planned).First(r => r.MoverKey == Kera);
+                Assert.Equal((NavFollower.Geometry, simulation.WorldTick), (replan.Reason, replan.Tick));
+                newRemainder = LengthOf(Remaining(simulation));
+            }
+            for (int i = 0; i < 3_000 && run.Arrived.Count == 0; i++)
+                run.Frame();
+            return Assert.Single(run.Arrived).Tick;
+        }
+        long control = Arrival(false, out _, out _);
+        long opened = Arrival(true, out double old, out double shorter);
+        Assert.True(shorter < old, $"the route after the wall came down is {shorter:0} mm, not shorter than {old:0}");
+        Assert.True(opened < control, $"she arrived at {opened}, not before the control world's {control}");
+    }
+
+    // N-A6 (b): the errand
+    /// <summary>Saved on the first tick Kera stands in the workshop's doorway: the loaded world goes on as the running one, to the same arrival.</summary>
+    [Fact]
+    public void MidRoute_SaveLoad_GoesOnTheSame_ForTheErrand()
+    {
+        using var profile = new TempProfile();
+        var run = new WorkshopRun(LoadS0(profile));
+        run.Through("R20");
+        var w1 = run.Simulation;
+        static bool InTheDoorway(Body b) => b.ZMm is >= 98_600 and <= 99_400 && b.XMm is >= 99_700 and <= 101_300;
+        Assert.False(InTheDoorway(w1.Npcs.Single(n => n.Id == Kera).Body), "she was in the doorway before the character reached the vantage");
+        for (int i = 0; i < 3_000 && !InTheDoorway(w1.Npcs.Single(n => n.Id == Kera).Body); i++)
+            run.Frame();
+        Assert.True(InTheDoorway(w1.Npcs.Single(n => n.Id == Kera).Body), $"she never came into the doorway: {w1.Npcs.Single(n => n.Id == Kera).Body}");
+        run.Session.Save(SaveSlots.Quick);
+        var w2Session = Harness.Boot(profile);
+        Assert.True(w2Session.Load(SaveSlots.Quick).IsComplete);
+        var w2 = w2Session.Simulation!;
+        Assert.Equal(w1.Navigation.Grid.Digest(), w2.Navigation.Grid.Digest());
+        Assert.Equal(w1.World.NpcErrand(Kera)!.Route, w2.World.NpcErrand(Kera)!.Route);   // G28: equal by value
+        Assert.Equal(w1.StateDigest(), w2.StateDigest());
+        var arrivedInW2 = new List<NpcArrivedAtWork>();
+        w2Session.Subscribe<NpcArrivedAtWork>(arrivedInW2.Add);
+        for (int n = 0; n < 8; n++)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                run.Frame();
+                w2Session.Frame(w2Session.TickSeconds);
+            }
+            Assert.Equal(w1.StateDigest(), w2.StateDigest());
+        }
+        Assert.Equal(Assert.Single(run.Arrived).Tick, Assert.Single(arrivedInW2).Tick);
+    }
+
     [Fact]
     public void CrossingWorkshop_7_TheVestibuleIsRefused()
     {
@@ -492,9 +803,10 @@ public class BuildingAcceptanceTests
         Assert.Equal(PlacementRule.Navigability, simulation.PreviewPlacement(vestibule.DefId, vestibule.XMm, vestibule.ZMm, vestibule.Rotation,
             checkNavigability: true).Failed);
         long refusedBefore = simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1");
+        Assert.Equal(NpcErrandPhase.AtWork, simulation.World.NpcErrand(Kera)!.Phase);   // E9: she works at the bench, inside
         run.Through("R24");
         var (_, refused, kept) = run.Outcome("R24");
-        Assert.NotNull(refused);
+        Assert.Equal("that would cut Kera Voss's work place off", refused);   // from E9 the text is exact
         Assert.True(kept, "the refused vestibule changed the state");
         Assert.Equal(refusedBefore + 1, simulation.Navigation.Counters.EditRefusalsByRule.GetValueOrDefault("V-N1"));
 
@@ -511,6 +823,8 @@ public class BuildingAcceptanceTests
         using var profile = new TempProfile();
         var run = new WorkshopRun(LoadS0(profile));
         var simulation = run.Simulation;
+        run.Through("R38");
+        var p2 = (NavPlan?)PlanOf(simulation, new NavPoint(KeraAtWork.XMm, KeraAtWork.ZMm), new NavPoint(KeraAtHome.XMm, KeraAtHome.ZMm));   // R38
         run.Through("R40");
         Assert.All(new[] { "R39", "R40" }.SelectMany(r => run.Row(r).Landed), a => Assert.Null(run.Outcomes[a].Refused));
 
@@ -522,7 +836,52 @@ public class BuildingAcceptanceTests
         var line = simulation.Pieces.Where(p => p.DefId == Wall && p.XMm == 96_000).ToList();
         Assert.Equal(2, line.Count);
         Assert.Equal((98_800L, 105_200L), (line.Min(p => p.MinZMm), line.Max(p => p.MaxZMm)));
+
+        // E9: her way home changes with the new wall. P2 was her plan before it (R38); P3, planned as she is let go (R43), differs and goes
+        // round the line; the route she then walks is P3, and 300 ticks on she is out of the workshop (R44).
+        var anchor = new NavPoint(KeraAtWork.XMm, KeraAtWork.ZMm);
+        var home = new NavPoint(KeraAtHome.XMm, KeraAtHome.ZMm);
+        Assert.NotNull(p2);
+        run.Through("R43");
+        Assert.Null(run.Outcome("R43").Refused);
+        var released = Assert.Single(run.Released);
+        Assert.Equal((Kera, "released"), (released.NpcId, released.Reason));
+        var p3 = PlanOf(simulation, anchor, home);
+        Assert.Equal((NavOutcome.Found, NavOutcome.Found), (p2!.Outcome, p3.Outcome));
+        Assert.NotEqual(p2.Corners.ToList(), p3.Corners.ToList());
+        Assert.False(CrossesTheLine(anchor, p3.Corners), $"P3 crosses x = 96 000 inside z [98 800, 105 200]: {string.Join(" ", p3.Corners)}");
+        Assert.True(CrossesTheLine(anchor, p2.Corners), "P2 never crossed where the wall now stands: the test would not tell");
+        Assert.Equal(p3.Corners.ToList(), simulation.Navigation.Movers.Single(m => m.NpcId == Kera).Route.Corners.ToList());
+        run.Through("R44");
+        var body = simulation.Npcs.Single(n => n.Id == Kera).Body;
+        Assert.False(body.XMm is >= 98_800 and <= 105_200 && body.ZMm is >= 98_800 and <= 105_200, $"300 ticks on she is at {body}, still inside");
         Assert.Equal(0, run.Session.SubscriberFailures);
+    }
+
+    /// <summary>A person's plan now, read-only: the world's own grid and gates as they stand, on a scratch of the test's own.</summary>
+    private static NavPlan PlanOf(Simulation simulation, NavPoint from, NavPoint to)
+    {
+        var nav = simulation.Navigation;
+        var open = nav.Gates.ToDictionary(g => g.Key, g => g.Open, StringComparer.Ordinal);
+        return NavSearch.Plan(new NavQuery(nav.Grid, g => g.GateKey is { } key && open.GetValueOrDefault(key), simulation.Setup.Navigation, new NavScratch(), null),
+            new NavAgent(0, true), from, to);
+    }
+
+    /// <summary>Whether a polyline crosses x = 96 000 with z inside [98 800, 105 200] - where R42's line of walls stands.</summary>
+    private static bool CrossesTheLine(NavPoint from, IEnumerable<NavPoint> corners)
+    {
+        var a = from;
+        foreach (var b in corners)
+        {
+            if ((a.XMm - 96_000) * (b.XMm - 96_000) <= 0 && a.XMm != b.XMm)
+            {
+                double z = a.ZMm + (double)(96_000 - a.XMm) / (b.XMm - a.XMm) * (b.ZMm - a.ZMm);
+                if (z is >= 98_800 and <= 105_200)
+                    return true;
+            }
+            a = b;
+        }
+        return false;
     }
 
     [Fact]
@@ -552,6 +911,7 @@ public class BuildingAcceptanceTests
         run.Through("R46");
         string saved = StateDump.Render(w1);
         Assert.Equal(NavRouteStatus.Active, w1.CaptureRecord().Companions.Single().Route.Status);
+        Assert.Equal(NpcErrandPhase.ToHome, w1.World.NpcErrand(Kera)!.Phase);   // E9: at the save she is walking home
         bool passedAtSave = passed;
         var rows = w1.World.Pieces.Select(p => (p.InstanceId, p.DefId, p.HostCell, p.XMm, p.ZMm, p.Rotation, p.Owner, p.HealthCurrent, p.DoorOpen)).ToList();
 
@@ -593,6 +953,20 @@ public class BuildingAcceptanceTests
         }
         Assert.Empty(run.CaughtUp);
         Assert.Empty(caughtUpInW2);
+
+        // R47 (E9): both worlds on until she is home - on the same tick, exactly at her place, facing its way, the errand retired.
+        var homeInW2 = new List<NpcReturnedHome>();
+        w2Session.Subscribe<NpcReturnedHome>(homeInW2.Add);
+        run.Through("R47");
+        for (int i = 0; i < 3_000 && homeInW2.Count == 0; i++)
+            w2Session.Frame(w2Session.TickSeconds);
+        Assert.Equal(Assert.Single(run.Home).Tick, Assert.Single(homeInW2).Tick);
+        foreach (var world in new[] { w1, w2 })
+        {
+            var kera = world.Npcs.Single(n => n.Id == Kera).Body;
+            Assert.Equal(KeraAtHome, (kera.XMm, kera.ZMm, kera.FacingMdeg));
+            Assert.Null(world.World.NpcErrand(Kera));
+        }
         Assert.Equal(0, run.Session.SubscriberFailures);
         Assert.Equal(0, w2Session.SubscriberFailures);
     }
@@ -634,6 +1008,9 @@ public class BuildingAcceptanceTests
         Assert.Equal(Counts.End.Pieces, eleven.Pieces.Length);
         Assert.Equal(Counts.End.Carried, TimberCarried(eleven));
         Assert.Equal(Counts.End.Sequence, eleven.World.StructureSequence);
+        // E9: the replay asks Kera and lets her go as the table did - walking home at R45, on the same route.
+        Assert.Equal(NpcErrandPhase.ToHome, eleven.World.NpcErrand(Kera)!.Phase);
+        Assert.Equal(played.World.NpcErrand(Kera), eleven.World.NpcErrand(Kera));
     }
 
     /// <summary>
