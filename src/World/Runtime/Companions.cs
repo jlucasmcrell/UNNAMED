@@ -105,14 +105,19 @@ internal sealed class CompanionSystem
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
     private readonly ImmutableArray<CompanionRecord> _saved;
+    private readonly NavigationSystem _navigation;
 
-    public CompanionSystem(SystemContext context, SliceOwner owner, EntityId player, ImmutableArray<CompanionRecord> saved)
+    public CompanionSystem(SystemContext context, SliceOwner owner, EntityId player, ImmutableArray<CompanionRecord> saved, NavigationSystem navigation)
     {
         _context = context;
         _owner = owner;
         _player = player;
         _saved = saved;
+        _navigation = navigation;
     }
+
+    /// <summary>A companion plans as a person who opens doors (M7 design §3.11).</summary>
+    private static readonly NavAgent Person = new(0, true);
 
     private RuntimeState State => _context.State;
     private CompanionTuning? Tuning => _context.Setup.Social.Companions;
@@ -187,7 +192,7 @@ internal sealed class CompanionSystem
         if (c.Order == order)
             return null;
         // Told to follow, they set off from where they stand: the trail walked while they waited is not theirs to retrace.
-        State.SetCompanion(_owner, c with { Order = order, StuckTicks = 0, Trail = ImmutableArray<TrailMark>.Empty, TargetKey = null });
+        State.SetCompanion(_owner, c with { Order = order, StuckTicks = 0, Trail = ImmutableArray<TrailMark>.Empty, Route = NavRoute.None, TargetKey = null });
         _context.Events.Publish(new CompanionOrdered(npcId, order, tick));
         return null;
     }
@@ -242,6 +247,7 @@ internal sealed class CompanionSystem
             TargetKey = null,
             StuckTicks = 0,
             Trail = ImmutableArray<TrailMark>.Empty,
+            Route = NavRoute.None,
         });
         _context.Events.Publish(new CompanionDowned(c.NpcId, creature.Definition.Id, tick));
         return null;
@@ -321,9 +327,11 @@ internal sealed class CompanionSystem
     // ── following ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Keep close to the character: walk, run or sprint by how far behind, along the trail they walked - past the marks already
-    /// reached, straight for the farthest mark in clear view, or for the character when they are in clear view. Too far behind, or
-    /// making no headway for long enough, catch up at once.
+    /// Keep close to the character: walk, run or sprint by how far behind - straight for the character when they are in clear view;
+    /// along a planned route while one is active; else along the trail they walked, past the marks already reached, for the farthest
+    /// mark in clear view; and with no mark in clear view, along a route planned to the character, opening a closed door in the way (M7
+    /// design §3.11). With no route to be had, the oldest mark is the way back onto the trail. Too far behind, or making no headway for
+    /// long enough, catch up at once.
     /// </summary>
     private CompanionState Follow(CompanionState c, NpcState npc, long tick)
     {
@@ -336,14 +344,20 @@ internal sealed class CompanionSystem
         if (CompanionRules.FollowGait(distance, tuning) is not { } gait)
         {
             Place(npc, Turn(body, CombatRules.FacingTowards(body.XMm, body.ZMm, player.XMm, player.ZMm)));
-            return c with { StuckTicks = 0 };
+            return c with { StuckTicks = 0, Route = NavRoute.None };
         }
 
         var trail = c.Trail;
         while (!trail.IsEmpty && Distance(body.XMm, body.ZMm, trail[0].XMm, trail[0].ZMm) <= MarkReachedMm)
             trail = trail.RemoveAt(0);
         (long X, long Z) goal = (player.XMm, player.ZMm);
-        if (!InClearView(body, player.XMm, player.ZMm) && !trail.IsEmpty)
+        var route = c.Route;
+        NavStep? step = null;
+        if (InClearView(body, player.XMm, player.ZMm))
+            route = NavRoute.None;
+        else if (route.Status == NavRouteStatus.Active)
+            step = _navigation.Follow(Person, route, new NavPoint(body.XMm, body.ZMm), new NavPoint(player.XMm, player.ZMm), c.StuckTicks, tick);
+        else
         {
             int seen = -1;
             for (int i = trail.Length - 1; i >= 0 && seen < 0; i--)
@@ -351,16 +365,43 @@ internal sealed class CompanionSystem
                 if (InClearView(body, trail[i].XMm, trail[i].ZMm))
                     seen = i;
             }
-            // With no mark in clear view, the oldest is the way back onto the trail.
-            int next = Math.Max(0, seen);
-            goal = (trail[next].XMm, trail[next].ZMm);
-            trail = trail.RemoveRange(0, next);
+            if (seen >= 0)
+            {
+                goal = (trail[seen].XMm, trail[seen].ZMm);
+                trail = trail.RemoveRange(0, seen);
+            }
+            else
+            {
+                step = _navigation.Follow(Person, route, new NavPoint(body.XMm, body.ZMm), new NavPoint(player.XMm, player.ZMm), c.StuckTicks, tick);
+            }
+        }
+        if (step is not null)
+        {
+            route = step.Route;
+            if (step.ReplanReason is { } why)
+                _context.Events.Publish(new RoutePlanned(c.NpcId, NavSearch.OutcomeKey(step.Outcome!.Value), why, route.Corners.Length, step.Expansions, tick));
+            switch (step.Kind)
+            {
+                case NavStepKind.OpenGate:
+                    // A door opened costs no headway; one refused counts as stuck, so the stuck replans and the snag still come.
+                    bool refused = _context.Dispatch(new OpenDoor(step.GateKey!, c.NpcId)) is not null;
+                    Place(npc, Turn(body, CombatRules.FacingTowards(body.XMm, body.ZMm, step.Target.XMm, step.Target.ZMm)));
+                    return c with { Trail = trail, Route = route, StuckTicks = refused ? c.StuckTicks + 1 : c.StuckTicks };
+                case NavStepKind.Unreachable:
+                    // With no route to be had, the oldest mark is the way back onto the trail, as it always was.
+                    if (!trail.IsEmpty)
+                        goal = (trail[0].XMm, trail[0].ZMm);
+                    break;
+                default:
+                    goal = (step.Target.XMm, step.Target.ZMm);
+                    break;
+            }
         }
         var moved = Step(npc, goal.X, goal.Z, gait);
         double expected = _context.Setup.Movement.SpeedMmPerSecond(gait) * TickMs / 1000.0;
         bool headway = Distance(body.XMm, body.ZMm, moved.XMm, moved.ZMm) >= expected * 0.3;
         Place(npc, moved);
-        return c with { Trail = trail, StuckTicks = headway ? 0 : c.StuckTicks + 1 };
+        return c with { Trail = trail, Route = route, StuckTicks = headway ? 0 : c.StuckTicks + 1 };
     }
 
     /// <summary>
@@ -388,11 +429,11 @@ internal sealed class CompanionSystem
         }
         spot ??= Ring(player, player.FacingMdeg + 180_000, 2_500, obstacles);
         if (spot is not { } at)
-            return c with { StuckTicks = 0 };
+            return c with { StuckTicks = 0, Route = NavRoute.None };
         var to = new Body(at.X, space.Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, player.XMm, player.ZMm));
         Place(npc, to);
         _context.Events.Publish(new CompanionCaughtUp(c.NpcId, reason, npc.Body, to, tick));
-        return c with { StuckTicks = 0, Trail = c.Trail.RemoveRange(0, Math.Min(from, c.Trail.Length)) };
+        return c with { StuckTicks = 0, Trail = c.Trail.RemoveRange(0, Math.Min(from, c.Trail.Length)), Route = NavRoute.None };
     }
 
     /// <summary>The first point on a ring round a place, starting from a facing and going round in eighths, where a body fits in sight of it.</summary>
@@ -508,6 +549,7 @@ internal sealed class CompanionSystem
         TargetKey = null,
         StuckTicks = 0,
         Trail = ImmutableArray<TrailMark>.Empty,
+        Route = NavRoute.None,
     };
 
     /// <summary>

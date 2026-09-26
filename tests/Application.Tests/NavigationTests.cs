@@ -3,9 +3,11 @@ using System.Diagnostics;
 using UNNAMED.Content;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit.Abstractions;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
@@ -174,6 +176,110 @@ public class NavigationTests
 
         // The doorway clear: it closes, as it always has.
         Assert.Equal(((string?)null, false), OpenThenClose(Arena.OpenCreatures(session, session.Setup, outside, 270, none)));
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    private const string Tavar = "npc.ashen_hollow.tavar_orr";
+
+    /// <summary>
+    /// N-A11's script: Tavar with the character, told to wait inside the lodge at (46.0, 128.0); the character walks out through
+    /// <c>door.longhouse</c> to (53.0, 128.0), closes it behind them, walks on to (58.0, 128.0) and calls him. His trail is empty and the
+    /// character is out of sight, so the only way to them is a route through the closed door.
+    /// </summary>
+    private static Arena CalledThroughTheLodgeDoor(GameSession session)
+    {
+        var arena = Arena.OpenCreatures(session, session.Setup, (48.0, 128.0), 90, Array.Empty<(string, double, double, string)>(),
+            r => r.WithCompanions(new[] { new CompanionRecord(Tavar, CompanionOrder.Wait, CompanionCondition.Up, 46_000, 128_000, 90_000, 100) }));
+        Assert.True(arena.WalkTo(50.5, 128.0));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
+        Assert.True(arena.WalkTo(53.0, 128.0));
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
+        Assert.False(arena.Simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
+        Assert.True(arena.WalkTo(58.0, 128.0));
+        Assert.Null(arena.Submit(new OrderCompanionCommand(arena.Player, Tavar, CompanionOrder.Follow)));
+        return arena;
+    }
+
+    private static double Apart(Arena arena)
+    {
+        var him = arena.Simulation.Companions.Single().Body;
+        var me = arena.Simulation.Player.Body;
+        return Math.Sqrt(Math.Pow(him.XMm - me.XMm, 2) + Math.Pow(him.ZMm - me.ZMm, 2));
+    }
+
+    // N-A11
+    /// <summary>The entry criterion "companions path reliably": the M6 snag behind a closed door is gone.</summary>
+    [Fact]
+    public void TheCompanion_OpensTheLodgeDoor_AfterWaitThenFollow()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = CalledThroughTheLodgeDoor(session);
+        var planned = arena.Record<RoutePlanned>();
+        var toggled = arena.Record<DoorToggled>();
+        var caughtUp = arena.Record<CompanionCaughtUp>();
+
+        arena.Tick(400);
+
+        var first = planned.First();
+        Assert.Equal((Tavar, "found", NavFollower.None), (first.MoverKey, first.Outcome, first.Reason));
+        Assert.Equal(new[] { (arena.Simulation.Companions.Single().InstanceId, "door.longhouse", true) }, toggled.Select(t => (t.Actor, t.DoorKey, t.Open)));
+        Assert.InRange(Apart(arena), 0, 4_000);
+        Assert.Empty(caughtUp);
+        foreach (var p in planned)
+            _output.WriteLine($"tick {p.Tick}: {p.Outcome} ({p.Reason}), {p.Corners} corners, {p.Expansions} expansions");
+        Assert.Equal(0, session.SubscriberFailures);
+    }
+
+    // N-A6, part (a): the companion (E4; E9 adds the errand, part (b))
+    /// <summary>
+    /// Saved mid-route, 10 ticks after Tavar's first plan and before he reaches the door (his route is active for 16 ticks), the loaded
+    /// world goes on exactly as the saved one does: the grid, his route by value, the state digest at the load and every 50 ticks for 400
+    /// ticks, the door he opens, and the tick he arrives (G15).
+    /// </summary>
+    [Fact]
+    public void MidRoute_SaveLoad_GoesOnTheSame()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = CalledThroughTheLodgeDoor(session);
+        var planned = arena.Record<RoutePlanned>();
+        for (int i = 0; i < 400 && planned.Count == 0; i++)
+            arena.Tick();
+        Assert.NotEmpty(planned);
+        arena.Tick(10);
+        var saved = Assert.Single(arena.Simulation.CaptureRecord().Companions);
+        Assert.Equal(NavRouteStatus.Active, saved.Route.Status);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("mid_route"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("mid_route"), new LoadContext(session.Generator, session.Content, new Registry())));
+
+        Assert.Equal(arena.Simulation.Navigation.Grid.Digest(), loaded.Simulation.Navigation.Grid.Digest());
+        Assert.Equal(saved.Route, Assert.Single(loaded.Simulation.CaptureRecord().Companions).Route);
+        Assert.Equal(arena.Simulation.Navigation.Movers.ToList(), loaded.Simulation.Navigation.Movers.ToList());
+        Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
+
+        var opened = arena.Record<DoorToggled>();
+        var openedLoaded = loaded.Record<DoorToggled>();
+        long? Arrived(Arena world) => Apart(world) <= 3_000 ? world.Simulation.WorldTick : null;
+        long? arrivedSaved = null, arrivedLoaded = null;
+        for (int n = 0; n < 8; n++)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                arena.Tick();
+                loaded.Tick();
+                arrivedSaved ??= Arrived(arena);
+                arrivedLoaded ??= Arrived(loaded);
+            }
+            Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
+        }
+        Assert.Equal("door.longhouse", Assert.Single(opened).DoorKey);
+        Assert.Equal(opened, openedLoaded);
+        Assert.NotNull(arrivedSaved);
+        Assert.Equal(arrivedSaved, arrivedLoaded);
         Assert.Equal(0, session.SubscriberFailures);
     }
 

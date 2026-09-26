@@ -48,6 +48,12 @@ public static class NavigationLayout
 /// </summary>
 internal sealed record OpenDoor(string DoorKey, string NpcId) : InternalCommand;
 
+/// <summary>
+/// A mover planned (M7 design §3.14): the NPC, how the plan ended (<see cref="NavSearch.OutcomeKey"/>), why it replanned
+/// (<see cref="NavFollower"/>'s reasons), the corners of the route it now follows, and what the plan cost. For views only.
+/// </summary>
+public sealed record RoutePlanned(string MoverKey, string Outcome, string Reason, int Corners, int Expansions, long Tick);
+
 /// <summary>A gate as the navigation view shows it: a door (<c>door</c>, <c>piece_door</c>) or a barrier, and whether it is open now.</summary>
 public sealed record NavGateView(string Key, string Kind, Blocker Footprint, bool Open);
 
@@ -106,7 +112,15 @@ internal sealed class NavigationSystem
     public bool Reachable(NavAgent agent, NavPoint from, NavPoint to) =>
         NavSearch.Plan(new NavQuery(Grid, IsGateOpen, Config, Scratch, Counters), agent, from, to).Outcome == NavOutcome.Found;
 
-    public NavigationView View() => new(Grid, Gates(), ImmutableArray<NavMoverView>.Empty, Counters.Snapshot());
+    /// <summary>
+    /// One tick of a mover's route (M7 design §3.8): replanned on the authoritative scratch and counted, and a closed door opened only
+    /// from within the reach a body interacts at.
+    /// </summary>
+    public NavStep Follow(NavAgent agent, NavRoute route, NavPoint body, NavPoint goal, int stuckTicks, long tick) =>
+        NavFollower.Next(new NavQuery(Grid, IsGateOpen, Config, Scratch, Counters), agent, route, body, goal, stuckTicks, tick,
+            _context.Setup.Movement.InteractReachMm);
+
+    public NavigationView View() => new(Grid, Gates(), Movers(), Counters.Snapshot());
 
     /// <summary>A gate's state now: a door's flag, a barrier's lift.</summary>
     private bool IsGateOpen(NavInput gate) => gate.Kind switch
@@ -115,6 +129,11 @@ internal sealed class NavigationSystem
         NavInputKind.Barrier => _barriers.TryGetValue(gate.GateKey!, out var barrier) && _context.IsLifted(barrier),
         _ => false,
     };
+
+    /// <summary>Every mover: the companions, by NPC ID. Blocked once stuck for <c>blocked_view_s</c>.</summary>
+    private ImmutableArray<NavMoverView> Movers() =>
+        _context.State.Companions.Values.OrderBy(c => c.NpcId, StringComparer.Ordinal)
+            .Select(c => new NavMoverView(c.NpcId, c.Route, c.StuckTicks >= Config.Limits.BlockedViewTicks)).ToImmutableArray();
 
     private ImmutableArray<NavGateView> Gates() =>
         _context.Setup.Layout.Doors.Select(d => new NavGateView(d.Key, "door", d.ClosedFootprint, _context.IsOpen(d)))

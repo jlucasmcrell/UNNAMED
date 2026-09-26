@@ -101,9 +101,11 @@ public class DeterminismAndViewTests
         var acts = Harness.Record<ActRecorded>(session);                // M7 (G5): the faction events too
         var learned = Harness.Record<FactionLearned>(session);
         var standing = Harness.Record<ReputationChanged>(session);
+        var routes = Harness.Record<RoutePlanned>(session);              // E4
         // A view that tries its hardest to write: everything it receives is an immutable copy.
         session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
+        session.Subscribe<RoutePlanned>(e => _ = e with { Corners = 0 });
         PlayScript(session, seed: 11);
         var simulation = session.Simulation!;
         var log = simulation.CommandLog;
@@ -131,6 +133,9 @@ public class DeterminismAndViewTests
         Assert.Equal(simulation.Acts.Select(a => a.Seq), acts.Select(e => e.Seq));
         Assert.Equal(simulation.Acts.Sum(a => a.Known.Length), learned.Count);
         Assert.All(simulation.Factions, f => Assert.Equal(f.Points, standing.Where(e => e.FactionId == f.Id).Sum(e => e.To - e.From)));
+        // Routes: this script has no mover, so nothing plans.
+        Assert.Empty(simulation.Navigation.Movers);
+        Assert.Empty(routes);
     }
 
     [Fact]
@@ -163,6 +168,7 @@ public class DeterminismAndViewTests
         writer.Subscribe<ActRecorded>(anything.Add);
         writer.Subscribe<FactionLearned>(anything.Add);
         writer.Subscribe<ReputationChanged>(anything.Add);
+        writer.Subscribe<RoutePlanned>(anything.Add);
         var simulation = writer.NewGame("Wanderer", seed: 42);
         Assert.Empty(anything);
 
@@ -179,6 +185,7 @@ public class DeterminismAndViewTests
         reader.Subscribe<ActRecorded>(anything.Add);
         reader.Subscribe<FactionLearned>(anything.Add);
         reader.Subscribe<ReputationChanged>(anything.Add);
+        reader.Subscribe<RoutePlanned>(anything.Add);
         reader.Load(SaveSlots.Manual("known"));
         Harness.Ticks(reader, 20);
 
