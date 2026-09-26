@@ -24,6 +24,9 @@ public partial class MagicEffects : Node3D
     private const float BodyEffectHeight = 0.95f;
 
     private readonly Dictionary<string, (MeshInstance3D Quad, Flipbook Book, double Since)> _onBody = new(StringComparer.Ordinal);
+    // Phase B remediation: particle recipes standing in for a body effect's flipbook, when the run draws with recipes.
+    private readonly Dictionary<string, (Node3D Holder, float Lifetime)> _recipesOnBody = new(StringComparer.Ordinal);
+    private ParticleRecipes? _recipes;
     private readonly TextureRect _overlay = new()
     {
         MouseFilter = Control.MouseFilterEnum.Ignore, StretchMode = TextureRect.StretchModeEnum.Scale, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
@@ -42,6 +45,7 @@ public partial class MagicEffects : Node3D
         _bindings = bindings;
         _coverage = coverage;
         _chargeBook = Book(CastCharge);
+        _recipes = VisualOptions.Recipes ? ParticleRecipes.Load(assets.Root) : null;
     }
 
     private ArtCoverage? _coverage;
@@ -102,8 +106,26 @@ public partial class MagicEffects : Node3D
             _onBody[gone].Quad.QueueFree();
             _onBody.Remove(gone);
         }
+        foreach (string gone in _recipesOnBody.Keys.Where(k => !active.Contains(k)).ToList())
+        {
+            // The working has ended: no new particles, and the last ones finish their lives before the emitters go.
+            var (holder, lifetime) = _recipesOnBody[gone];
+            _recipesOnBody.Remove(gone);
+            foreach (var particles in holder.GetChildren().OfType<GpuParticles3D>())
+                particles.Emitting = false;
+            GetTree().CreateTimer(lifetime + 0.2).Timeout += () =>
+            {
+                if (IsInstanceValid(holder))
+                    holder.QueueFree();
+            };
+        }
         foreach (string effect in active)
         {
+            if (RecipesOnBody(effect) is { } recipes)
+            {
+                recipes.GlobalPosition = body.GlobalPosition;
+                continue;
+            }
             if (!_onBody.TryGetValue(effect, out var shown))
             {
                 if (Book(effect) is not { } book)
@@ -125,6 +147,31 @@ public partial class MagicEffects : Node3D
                 material.AlbedoColor = material.AlbedoColor with { A = left };
             }
         }
+    }
+
+    /// <summary>The recipes standing in for a body effect's flipbook (at the body's feet), built the first time; null when none do.</summary>
+    private Node3D? RecipesOnBody(string effect)
+    {
+        if (_recipesOnBody.TryGetValue(effect, out var shown))
+            return shown.Holder;
+        if (_recipes is null || !_bindings.Effects.TryGetValue(effect, out string? id) || _recipes.For(id) is not { Count: > 0 } names)
+            return null;
+        var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes" };
+        foreach (string name in names)
+        {
+            if (_recipes.Build(name) is { } particles)
+                holder.AddChild(particles);
+        }
+        if (holder.GetChildCount() == 0)
+        {
+            holder.Free();
+            return null;
+        }
+        AddChild(holder);
+        _recipesOnBody[effect] = (holder, _recipes.Lifetime(names));
+        if (_asked.Add(effect))
+            _coverage?.Resolved("effect_recipe", effect, string.Join(" + ", names));
+        return holder;
     }
 
     private void DrawStrain(double strain)

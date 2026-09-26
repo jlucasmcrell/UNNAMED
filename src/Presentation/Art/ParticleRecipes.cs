@@ -75,6 +75,21 @@ public sealed class ParticleRecipes
             process.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Box;
             process.EmissionBoxExtents = new Vector3(box[0], box[1], box[2]) / 2;
         }
+        // Emitted from an upright ring round the emitter (a working rising round a body): [radius, height].
+        if (Numbers(r, "ring") is { Length: 2 } ring)
+        {
+            process.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Ring;
+            process.EmissionRingAxis = Vector3.Up;
+            process.EmissionRingRadius = ring[0];
+            process.EmissionRingInnerRadius = ring[0] * 0.8f;
+            process.EmissionRingHeight = ring[1];
+        }
+        // Circling the emitter's upright axis as they go, turns a second.
+        if (Numbers(r, "orbit") is { Length: 2 } orbit)
+        {
+            process.OrbitVelocityMin = orbit[0];
+            process.OrbitVelocityMax = orbit[1];
+        }
         if (frames > 1)
         {
             // One pass through the book at its own rate across a particle's life, each particle starting somewhere in it.
@@ -105,7 +120,8 @@ public sealed class ParticleRecipes
             {
                 Size = Numbers(r, "quad") is { Length: 2 } q ? new Vector2(q[0], q[1]) * size.Item2 : new Vector2(size.Item2, size.Item2), Material = material,
             },
-            LocalCoords = false, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            // "local": the particles move with their emitter (an effect on a body that walks on); otherwise they stay where emitted.
+            LocalCoords = Flag(r, "local"), CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             // A stream starts as if it had been running a whole life (a chimney is already smoking when the camera arrives).
             Preprocess = burst ? 0 : lifetime,
             VisibilityAabb = Numbers(r, "box") is { Length: 3 } b

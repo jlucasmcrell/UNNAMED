@@ -147,6 +147,8 @@ uniform float stiffness = 1.0;
 uniform float flutter = 0.35;
 uniform vec3 backlight_colour : source_color = vec3(0.10, 0.12, 0.04);
 uniform float roughness_value = 0.85;
+// Grass blades carry normals bent to the sky: both sides shade alike (no dark undersides), unlike a leaf lit through from behind.
+uniform bool upright_normals = false;
 varying vec3 tint;
 
 void vertex() {
@@ -185,6 +187,9 @@ void fragment() {
     BACKLIGHT = backlight_colour;
     if (has_normal) {
         NORMAL_MAP = texture(normal_tex, UV).rgb;
+    }
+    if (upright_normals && !FRONT_FACING) {
+        NORMAL = -NORMAL;
     }
 }";
 }

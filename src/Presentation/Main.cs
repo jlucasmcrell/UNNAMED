@@ -65,6 +65,7 @@ public partial class Main : Node3D
     private Smoke? _smoke;
     private InputCheck? _inputCheck;
     private UiShots? _shots;
+    private Showcase? _showcase;
     private Playthrough? _play;
     private DeltaShots? _delta;
     private LayoutCheck? _layout;
@@ -152,6 +153,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
+              || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -164,13 +166,15 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
-                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition");
+                        || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
+                        || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
-        if (scripted && !verify)
-            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") ? Playthrough.Seed : 0);
+        bool showcaseContinues = _options.ContainsKey("--showcase") && _options.ContainsKey("--profile");
+        if (scripted && !verify && !showcaseContinues)
+            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--showcase") ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -275,12 +279,12 @@ public partial class Main : Node3D
         Subscribe();
         DefineInput();
 
-        if (verify)
+        if (verify || showcaseContinues)
         {
             _continued = Continue();
             if (_continued is null)
             {
-                GD.PushError("UNNAMED playthrough verification: Continue loaded nothing");
+                GD.PushError(verify ? "UNNAMED playthrough verification: Continue loaded nothing" : "UNNAMED showcase: the profile has no save to continue");
                 GetTree().Quit(1);
                 return;
             }
@@ -322,6 +326,10 @@ public partial class Main : Node3D
         {
             _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
                 _character, _saves);
+        }
+        else if (_options.TryGetValue("--showcase", out string? showcase))
+        {
+            _showcase = new Showcase(_session, _controller, _camera, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
         }
         else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
@@ -507,6 +515,19 @@ public partial class Main : Node3D
                     return;
                 case { } shot:
                     SaveScreenshot(_shots.Directory, shot);
+                    break;
+            }
+        }
+        else if (_showcase is not null)
+        {
+            switch (_showcase.Update(delta))
+            {
+                case "done":
+                    WriteReports(_showcase.Directory, "showcase");
+                    GetTree().Quit(0);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_showcase.Directory, shot);
                     break;
             }
         }
@@ -1485,6 +1506,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
+                    or "--showcase" or "--showcase-scene"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

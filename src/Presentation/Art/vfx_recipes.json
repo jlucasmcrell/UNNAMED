@@ -9,7 +9,8 @@
     "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it.",
     "vfx.force.impulse_bolt_travel": ["force_bolt_trail"],
     "vfx.force.impulse_bolt_impact": ["force_bolt_burst"],
-    "arrow_strike": ["impact_sparks"]
+    "arrow_strike": ["impact_sparks"],
+    "vfx.vital.mending_thread_restore": ["mending_threads", "mending_motes"]
   },
   "recipes": {
     "force_bolt_trail": {
@@ -81,6 +82,21 @@
       "amount": 18, "lifetime": 2.6, "size": [0.015, 0.03], "size_curve": [1.0, 0.3], "velocity": [0.3, 0.8], "spread": 25,
       "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 3.0,
       "color": ["#fff2c0ff", "#ff9a30ff", "#ff300000"]
+    },
+    "mending_threads": {
+      "note": "Mending Thread on the body (remediation): pale green-white threads rising round the body and circling it, each fading in and out, so nothing is cut off at a frame edge (the 128 px flipbook's threads ran into its cell edges). Project-owned strand (tools/asset_pipeline/_gen_vfx_strand.py).",
+      "mode": "stream", "texture": "vfx/gen_thread_strand.png", "quad": [0.125, 1.0], "billboard": "fixed_y", "local": true,
+      "ring": [0.42, 0.25], "orbit": [0.12, 0.24], "amount": 22, "lifetime": 1.8, "size": [0.45, 0.85], "size_curve": [0.7, 1.0],
+      "velocity": [0.35, 0.7], "spread": 6, "direction": [0, 1, 0], "gravity": [0, 0.1, 0], "damping": [0.1, 0.2], "angle": [0, 0],
+      "blend": "add", "energy": 1.6,
+      "color": ["#9ee0c400", "#c8fbe6cc", "#9ee0c4aa", "#9ee0c400"]
+    },
+    "mending_motes": {
+      "note": "Mending Thread's motes: small bright points rising and circling with the threads.",
+      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "local": true, "ring": [0.36, 0.5], "orbit": [0.18, 0.35],
+      "amount": 30, "lifetime": 1.9, "size": [0.02, 0.05], "size_curve": [1.0, 0.2], "velocity": [0.3, 0.8], "spread": 12,
+      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 2.4,
+      "color": ["#e8fff400", "#e8fff4ff", "#9ee0c4cc", "#9ee0c400"]
     }
   }
 }

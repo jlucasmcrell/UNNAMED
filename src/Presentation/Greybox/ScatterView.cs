@@ -480,6 +480,7 @@ public partial class ScatterView : Node3D
         var material = new ShaderMaterial { Shader = _foliageShader ??= new Shader { Code = WindField.FoliageShader } };
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
+        material.SetShaderParameter("upright_normals", kind.ModelId?.StartsWith("veg_gen_grass", StringComparison.Ordinal) == true);
         if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
         {
             if (image.IsCompressed())

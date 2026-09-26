@@ -1,0 +1,268 @@
+{
+  "map_version": 1,
+  "source_skeleton": "CMU Graphics Lab motion capture via cgspeed BVH and the rancidmilk FBX conversion (Biovision-style: hip, abdomen, chest, l/r Collar, Shldr, ForeArm, Hand, two-segment fingers, Buttock, Thigh, Shin, Foot; T-pose rest; one cycle cut by charprod2/cmu_cycle.py with its travel on the armature node cmu_root)",
+  "target_rig": "production humanoid (charprod/rig_production.py): humanoid20's bones plus spine_mid, toe.L/R, three bones per finger with the thumb, eye.L/R",
+  "notes": "CMU locomotion onto the production rig: hip onto hips, abdomen onto spine, chest onto chest (spine_mid keeps its rest), collars onto shoulders; arms and legs rest-aligned. The fingers, toes and eyes keep their rest (CMU's finger channels are near-static; HandGrip closes or relaxes the hands in game).",
+  "source_root": "cmu_root",
+  "source_lateral": [
+    "lThigh",
+    "rThigh"
+  ],
+  "target_lateral": [
+    "thigh.L",
+    "thigh.R"
+  ],
+  "target_legs": [
+    [
+      "thigh.L",
+      "shin.L",
+      "foot.L"
+    ],
+    [
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ]
+  ],
+  "target_arms": [
+    [
+      "shoulder.L",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L"
+    ],
+    [
+      "shoulder.R",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R"
+    ]
+  ],
+  "target_chain": {
+    "root": "hips",
+    "hips": "spine",
+    "spine": "spine_mid",
+    "chest": "neck",
+    "neck": "head",
+    "shoulder.L": "upper_arm.L",
+    "upper_arm.L": "forearm.L",
+    "forearm.L": "hand.L",
+    "shoulder.R": "upper_arm.R",
+    "upper_arm.R": "forearm.R",
+    "forearm.R": "hand.R",
+    "thigh.L": "shin.L",
+    "shin.L": "foot.L",
+    "thigh.R": "shin.R",
+    "shin.R": "foot.R",
+    "spine_mid": "chest",
+    "thumb_01.L": "thumb_02.L",
+    "thumb_02.L": "thumb_03.L",
+    "index_01.L": "index_02.L",
+    "index_02.L": "index_03.L",
+    "middle_01.L": "middle_02.L",
+    "middle_02.L": "middle_03.L",
+    "ring_01.L": "ring_02.L",
+    "ring_02.L": "ring_03.L",
+    "pinky_01.L": "pinky_02.L",
+    "pinky_02.L": "pinky_03.L",
+    "thumb_01.R": "thumb_02.R",
+    "thumb_02.R": "thumb_03.R",
+    "index_01.R": "index_02.R",
+    "index_02.R": "index_03.R",
+    "middle_01.R": "middle_02.R",
+    "middle_02.R": "middle_03.R",
+    "ring_01.R": "ring_02.R",
+    "ring_02.R": "ring_03.R",
+    "pinky_01.R": "pinky_02.R",
+    "pinky_02.R": "pinky_03.R"
+  },
+  "bones": {
+    "root": {
+      "source": "cmu_root"
+    },
+    "hips": {
+      "source": "hip"
+    },
+    "spine": {
+      "source": "abdomen"
+    },
+    "chest": {
+      "source": "chest"
+    },
+    "neck": {
+      "source": "neck"
+    },
+    "head": {
+      "source": "head"
+    },
+    "shoulder.L": {
+      "source": "lCollar"
+    },
+    "upper_arm.L": {
+      "source": "lShldr",
+      "align": true
+    },
+    "forearm.L": {
+      "source": "lForeArm",
+      "align": true
+    },
+    "hand.L": {
+      "source": "lHand",
+      "align": true,
+      "aim": "lMid1"
+    },
+    "shoulder.R": {
+      "source": "rCollar"
+    },
+    "upper_arm.R": {
+      "source": "rShldr",
+      "align": true
+    },
+    "forearm.R": {
+      "source": "rForeArm",
+      "align": true
+    },
+    "hand.R": {
+      "source": "rHand",
+      "align": true,
+      "aim": "rMid1"
+    },
+    "thigh.L": {
+      "source": "lThigh",
+      "align": true
+    },
+    "shin.L": {
+      "source": "lShin",
+      "align": true
+    },
+    "foot.L": {
+      "source": "lFoot"
+    },
+    "thigh.R": {
+      "source": "rThigh",
+      "align": true
+    },
+    "shin.R": {
+      "source": "rShin",
+      "align": true
+    },
+    "foot.R": {
+      "source": "rFoot"
+    },
+    "spine_mid": {
+      "source": null
+    },
+    "thumb_01.L": {
+      "source": null
+    },
+    "thumb_02.L": {
+      "source": null
+    },
+    "thumb_03.L": {
+      "source": null
+    },
+    "index_01.L": {
+      "source": null
+    },
+    "index_02.L": {
+      "source": null
+    },
+    "index_03.L": {
+      "source": null
+    },
+    "middle_01.L": {
+      "source": null
+    },
+    "middle_02.L": {
+      "source": null
+    },
+    "middle_03.L": {
+      "source": null
+    },
+    "ring_01.L": {
+      "source": null
+    },
+    "ring_02.L": {
+      "source": null
+    },
+    "ring_03.L": {
+      "source": null
+    },
+    "pinky_01.L": {
+      "source": null
+    },
+    "pinky_02.L": {
+      "source": null
+    },
+    "pinky_03.L": {
+      "source": null
+    },
+    "toe.L": {
+      "source": null
+    },
+    "eye.L": {
+      "source": null
+    },
+    "thumb_01.R": {
+      "source": null
+    },
+    "thumb_02.R": {
+      "source": null
+    },
+    "thumb_03.R": {
+      "source": null
+    },
+    "index_01.R": {
+      "source": null
+    },
+    "index_02.R": {
+      "source": null
+    },
+    "index_03.R": {
+      "source": null
+    },
+    "middle_01.R": {
+      "source": null
+    },
+    "middle_02.R": {
+      "source": null
+    },
+    "middle_03.R": {
+      "source": null
+    },
+    "ring_01.R": {
+      "source": null
+    },
+    "ring_02.R": {
+      "source": null
+    },
+    "ring_03.R": {
+      "source": null
+    },
+    "pinky_01.R": {
+      "source": null
+    },
+    "pinky_02.R": {
+      "source": null
+    },
+    "pinky_03.R": {
+      "source": null
+    },
+    "toe.R": {
+      "source": null
+    },
+    "eye.R": {
+      "source": null
+    }
+  },
+  "contacts": {
+    "foot.L": {
+      "ankle": "lFoot",
+      "toe": "lFoot"
+    },
+    "foot.R": {
+      "ankle": "rFoot",
+      "toe": "rFoot"
+    }
+  }
+}

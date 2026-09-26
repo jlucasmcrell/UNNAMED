@@ -1,5 +1,9 @@
 # Phase B final report - the visual overhaul
 
+> **REJECTED at the owner's visual review (2026-09-26).** Kept unchanged below as the baseline the remediation is measured
+> against (tag `phaseB-owner-review-rejected-baseline`, commit `dd5283c`). The remediation checkpoint is
+> `docs/phase_b/remediation/REMEDIATION_CHECKPOINT.md`.
+
 Stopped for the owner's visual review. Nothing is merged. This report answers the brief's items 1-25; the B0 decisions and
 their evidence are in `PHASE_B0_ADOPTION_REPORT.md` beside it.
 

@@ -43,6 +43,12 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 {
     /// <summary>The pace (m/s) each gait clip was authored at, where it is not the game's own (walk 1.4, run 3.2, sprint 5, crouched 1.6).</summary>
     public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
+
+    /// <summary>
+    /// Where each action clip's blow falls, as fractions of the clip: the end of the windup, the end of the active window and the end
+    /// of the recovery - the simulation's phases are mapped onto these (Phase B remediation); a clip without them uses 0.45 / 0.7 / 1.
+    /// </summary>
+    public IReadOnlyDictionary<string, float[]> Phases { get; init; } = new Dictionary<string, float[]>();
 }
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
@@ -262,7 +268,11 @@ public sealed class ArtBindings
             var paces = over.TryGetProperty("paces", out var p) && p.ValueKind == JsonValueKind.Object
                 ? p.EnumerateObject().Where(x => x.Value.ValueKind == JsonValueKind.Number).ToDictionary(x => x.Name, x => (float)x.Value.GetDouble(), StringComparer.Ordinal)
                 : new Dictionary<string, float>(StringComparer.Ordinal);
-            look = look with { Clips = clips, Paces = paces };
+            var phases = over.TryGetProperty("phases", out var ph) && ph.ValueKind == JsonValueKind.Object
+                ? ph.EnumerateObject().Where(x => x.Value.ValueKind == JsonValueKind.Array && x.Value.GetArrayLength() == 3)
+                    .ToDictionary(x => x.Name, x => x.Value.EnumerateArray().Select(v => (float)v.GetDouble()).ToArray(), StringComparer.Ordinal)
+                : new Dictionary<string, float[]>(StringComparer.Ordinal);
+            look = look with { Clips = clips, Paces = paces, Phases = phases };
         }
         return look;
     }

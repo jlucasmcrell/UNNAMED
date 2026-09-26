@@ -46,7 +46,7 @@ public sealed partial class SkinnedFigure : Figure
     {
         if (!bindings.People.TryGetValue(personId, out var person) || SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces };
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases };
         figure.AddChild(model);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
@@ -188,6 +188,27 @@ public sealed partial class SkinnedFigure : Figure
     private float Pace(string state, float fallback) => _paces.GetValueOrDefault(state, fallback);
 
     private IReadOnlyDictionary<string, float> _paces = new Dictionary<string, float>();
+    private IReadOnlyDictionary<string, float[]> _phases = new Dictionary<string, float[]>();
+
+    // Phase B remediation: the blow a new windup plays (a body with several attack clips takes the next each time), the gait held
+    // until the speed clearly leaves it (no flicking between two gaits at a threshold), and a landing played through once.
+    private string? _attack;
+    private CombatPhase _lastPhase = CombatPhase.Idle;
+    private int _attackTurn;
+    private string _gait = "walk";
+    private bool _wasAirborne;
+    private double _landing;
+
+    /// <summary>The attack clip for a weapon's action: its numbered variants in turn (<c>sword_attack_1</c>, <c>_2</c>...), else the one clip.</summary>
+    private string NextAttack(string action)
+    {
+        var variants = new List<string>();
+        for (int i = 1; _model.Has($"{action}_{i}"); i++)
+            variants.Add($"{action}_{i}");
+        if (variants.Count == 0)
+            return action;
+        return variants[_attackTurn++ % variants.Count];
+    }
 
     private void Animate(float speed, double delta)
     {
@@ -209,14 +230,6 @@ public sealed partial class SkinnedFigure : Figure
         }
         var s = _stance;
         float t = Mathf.Clamp(s.Progress, 0, 1);
-        // An attack's pose follows its phase: the windup to 45% of the clip, the active window to 70%, the recovery to the end.
-        float through = s.Phase switch
-        {
-            CombatPhase.Windup => 0.45f * t,
-            CombatPhase.Active => 0.45f + 0.25f * t,
-            CombatPhase.Recovery => 0.7f + 0.3f * t,
-            _ => -1,
-        };
         string? action = s switch
         {
             { Casting: true } => "cast",
@@ -225,9 +238,24 @@ public sealed partial class SkinnedFigure : Figure
             { Holds: Held.Bow } => "bow_draw",
             _ => null,
         };
-        if (through >= 0 && action is not null && m.Has(action))
+        // A fresh windup picks its blow; the same blow plays on through its active window and recovery.
+        if (s.Phase == CombatPhase.Windup && _lastPhase != CombatPhase.Windup && action is not null)
+            _attack = NextAttack(action);
+        _lastPhase = s.Phase;
+        string? clip = action is null ? null : _attack is { } chosen && chosen.StartsWith(action, StringComparison.Ordinal) ? chosen : action;
+        // An attack's pose follows its phase: the windup to the clip's blow, the active window through it, the recovery after it -
+        // at the clip's own marks where the bindings give them (0.45 / 0.7 / 1 otherwise).
+        var marks = clip is not null && _phases.TryGetValue(clip, out var p) ? p : new[] { 0.45f, 0.7f, 1f };
+        float through = s.Phase switch
         {
-            m.Hold(action, through);
+            CombatPhase.Windup => marks[0] * t,
+            CombatPhase.Active => marks[0] + (marks[1] - marks[0]) * t,
+            CombatPhase.Recovery => marks[1] + (marks[2] - marks[1]) * t,
+            _ => -1,
+        };
+        if (through >= 0 && clip is not null && m.Has(clip))
+        {
+            m.Hold(clip, through);
             return;
         }
         if (s.Phase == CombatPhase.Staggered && m.Has("hit"))
@@ -240,9 +268,32 @@ public sealed partial class SkinnedFigure : Figure
             string guard = s.Holds == Held.Bow ? "bow_ready" : s.Holds == Held.Spear ? "spear_ready" : "sword_block";
             if (m.Has(guard))
             {
-                m.Hold(guard, 0.5f, 0.15f);
+                // Held where the clip's guard is up (its first mark where the bindings give one).
+                m.Hold(guard, _phases.TryGetValue(guard, out var g) ? g[0] : 0.5f, 0.15f);
                 return;
             }
+        }
+        // In the air: the airborne loop; on landing, the landing played once (walking or running on cuts it short).
+        if (_airborne && m.Has("fall"))
+        {
+            _wasAirborne = true;
+            m.Play("fall", 0.15f);
+            return;
+        }
+        if (_wasAirborne)
+        {
+            _wasAirborne = false;
+            _landing = m.Has("land") ? 0.001 : 0;
+        }
+        if (_landing > 0)
+        {
+            _landing += delta;
+            if (_landing < Math.Min(0.6, m.Length("land")) && speed < 1.5f)
+            {
+                m.Play("land", 0.08f, 1f, _landing - delta <= 0.001);
+                return;
+            }
+            _landing = 0;
         }
         // A reach plays through once, standing (walking on cuts it short).
         if (_reaching > 0)
@@ -269,16 +320,31 @@ public sealed partial class SkinnedFigure : Figure
                 m.Play("crouch_idle", 0.3f);
             return;
         }
-        // Locomotion, the clip's pace following the body's (a walk clip is authored at about 1.4 m/s, a run 3.2, a sprint 5).
+        // Locomotion, the clip's pace following the body's (a walk clip is authored at about 1.4 m/s, a run 3.2, a sprint 5). A gait
+        // holds until the speed has clearly left it: accelerating or slowing through a threshold never flicks between two clips.
         if (speed > 0.25f && m.Has("walk"))
         {
-            (string gait, float pace) = speed switch
+            _gait = _gait switch
             {
-                > 4.2f when m.Has("sprint") => ("sprint", Pace("sprint", 5f)),
-                > 2.2f when m.Has("run") => ("run", Pace("run", 3.2f)),
-                _ => ("walk", Pace("walk", 1.4f)),
+                "sprint" when speed < 4.0f => speed < 2.0f ? "walk" : "run",
+                "run" when speed > 4.4f && m.Has("sprint") => "sprint",
+                "run" when speed < 2.0f => "walk",
+                "walk" when speed > 4.4f && m.Has("sprint") => "sprint",
+                "walk" when speed > 2.4f && m.Has("run") => "run",
+                _ => _gait,
             };
-            m.Play(gait, 0.2f, Mathf.Clamp(speed / pace, 0.6f, 1.6f));
+            if (!m.Has(_gait))
+                _gait = "walk";
+            float pace = Pace(_gait, _gait switch { "sprint" => 5f, "run" => 3.2f, _ => 1.4f });
+            m.Play(_gait, 0.2f, Mathf.Clamp(speed / pace, 0.6f, 1.6f));
+            return;
+        }
+        _gait = "walk";
+        // Standing with a weapon drawn: its ready stance, not the empty-handed idle.
+        string ready = s.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "" };
+        if (ready.Length > 0 && m.Has(ready))
+        {
+            m.Play(ready, 0.3f);
             return;
         }
         m.Play("idle", 0.3f);

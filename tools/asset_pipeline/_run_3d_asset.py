@@ -103,6 +103,10 @@ def build_prompt(info, workflow, overrides):
                 continue
             if name not in specs:
                 continue
+            # A widget whose input is linked (the template's "Switch to Trellis2" boolean into its switches) keeps its link: the
+            # stored widget value is stale, and taking it silently ran every --trellis2 build as Pixal3D.
+            if isinstance(inputs.get(name), list):
+                continue
             inputs[name] = value
 
         for name, value in overrides.get(node["id"], {}).items():
