@@ -14,15 +14,15 @@ __meta__ = {
 }
 
 [node name="sLabel" type="Label" parent="."]
-margin_right = 1920.0
-margin_bottom = 19.0
+offset_right = 1920.0
+offset_bottom = 19.0
 text = "Slider"
 align = 1
 
 [node name="slider" type="HSlider" parent="."]
-margin_top = 23.0
-margin_right = 1920.0
-margin_bottom = 39.0
+offset_top = 23.0
+offset_right = 1920.0
+offset_bottom = 39.0
 max_value = 1.0
 step = 0.005
 value = 0.21

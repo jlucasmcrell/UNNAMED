@@ -1,4 +1,4 @@
-extends Spatial
+extends Node3D
 
 func _ready():
 	_createButtons()
@@ -9,8 +9,7 @@ func _ready():
 func _createButtons():
 #https://godotengine.org/qa/5175/how-to-get-all-the-files-inside-a-folder
 	var characterList = []
-	var dir = Directory.new()
-	dir.open("res://SavedCharacter")
+	var dir = DirAccess.open("res://SavedCharacter")
 	dir.list_dir_begin()
 	while true:
 		var file = dir.get_next()
@@ -23,13 +22,13 @@ func _createButtons():
 		var bt = Button.new()
 		bt.text=file
 		bt.name=file
-		bt.connect("pressed",self,"_spawnCharacter",[file])
+		bt.connect("pressed", Callable(self, "_spawnCharacter").bind(file))
 		$GUI/P/List.add_child(bt)
 		
 func _spawnCharacter(n:String):
 	GameInstance._spawnPlayer(n)
 	$CameraMenu.character=GameInstance.currentPlayer
-	$CameraMenu.translation = $CameraMenu.initPos
+	$CameraMenu.position = $CameraMenu.initPos
 	$CameraMenu._setZoomTarget()
 	$GUI/vb/Label.text = GameInstance.currentPlayer.characterData.name
 	$GUI/vb.show()

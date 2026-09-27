@@ -1,23 +1,23 @@
 shader_type spatial;
-render_mode blend_mix,depth_draw_alpha_prepass, cull_disabled,diffuse_burley,specular_schlick_ggx;
-uniform vec4 hairColor : hint_color; uniform vec4 rootColor:hint_color ;uniform float rootOffset;
-uniform vec4 tipColor:hint_color;uniform float tipOffset;
+render_mode blend_mix,depth_prepass_alpha, cull_disabled,diffuse_burley,specular_schlick_ggx;
+uniform vec4 hairColor : source_color; uniform vec4 rootColor:source_color ;uniform float rootOffset;
+uniform vec4 tipColor:source_color;uniform float tipOffset;
 uniform float specular;uniform float metallic;uniform float roughness : hint_range(0,1);
 uniform float normal_scale : hint_range(-2,2);uniform float anisotropy_ratio : hint_range(0,1);
 uniform float ao_light_affect;
 uniform float punch;
 
-uniform sampler2D texture_albedo : hint_albedo;uniform sampler2D texture_metallic : hint_white;
+uniform sampler2D texture_albedo : source_color;uniform sampler2D texture_metallic : hint_default_white;
 uniform sampler2D texture_normal : hint_normal;
 uniform sampler2D masks_rt;
 //uniform vec4 metallic_texture_channel;
-uniform sampler2D texture_roughness : hint_white;uniform vec4 roughness_texture_channel;
+uniform sampler2D texture_roughness : hint_default_white;uniform vec4 roughness_texture_channel;
 
-uniform sampler2D texture_flowmap : hint_aniso;
-uniform sampler2D texture_ambient_occlusion : hint_white;
+uniform sampler2D texture_flowmap : hint_anisotropy;
+uniform sampler2D texture_ambient_occlusion : hint_default_white;
 uniform vec4 ao_texture_channel;
 //uniform float subsurface_scattering_strength : hint_range(0,1);
-uniform sampler2D texture_subsurface_scattering : hint_white;
+uniform sampler2D texture_subsurface_scattering : hint_default_white;
 uniform vec3 uv1_scale;
 uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
@@ -44,8 +44,8 @@ void fragment() {
 	float roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);
 	ROUGHNESS = roughness_tex * roughness;
 	SPECULAR = specular;
-	NORMALMAP = texture(texture_normal,base_uv).rgb;
-	NORMALMAP_DEPTH = normal_scale;
+	NORMAL_MAP = texture(texture_normal,base_uv).rgb;
+	NORMAL_MAP_DEPTH = normal_scale;
 	
 	
 	ALPHA = hairColor.a * albedo_tex.a*punch;

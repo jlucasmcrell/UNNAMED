@@ -1,18 +1,18 @@
-extends Spatial
-tool
+@tool
+extends Node3D
 
-onready var sk:Skeleton = $MainRig/Skeleton
+@onready var sk:Skeleton3D = $MainRig/Skeleton3D
 var parts:Array = ["head","torso","arms","legs"]
 var bonesMod:Array = ["spine_3","spine_2","spine_1","thigh_l","thigh_r","shin_l","forearm_l","forearm_r","shin_r","upper_arm_l","upper_arm_r","foot_l","foot_r","shoulder_l","shoulder_r"]
 
-onready var faceCam:Camera ;onready var faceViewport:Viewport
+var faceCam:Camera3D ;var faceViewport:SubViewport
 
-onready var matSkin = ResourceLoader.load("res://MainCharacter/Material/Skin.tres")
-onready var matCornea = ResourceLoader.load("res://MainCharacter/Material/Cornea.tres")
-onready var matEye = ResourceLoader.load("res://MainCharacter/Material/Eye.tres")
-onready var matUnderwear = ResourceLoader.load("res://MainCharacter/Material/Underwear.tres")
-onready var matHair = ResourceLoader.load("res://MainCharacter/Material/Hair.tres")
-var headMat:Material; var head:MeshInstance ; var currentHair:MeshInstance ; var currentBeard:MeshInstance
+@onready var matSkin = ResourceLoader.load("res://MainCharacter/Material/Skin.tres")
+@onready var matCornea = ResourceLoader.load("res://MainCharacter/Material/Cornea.tres")
+@onready var matEye = ResourceLoader.load("res://MainCharacter/Material/Eye.tres")
+@onready var matUnderwear = ResourceLoader.load("res://MainCharacter/Material/Underwear.tres")
+@onready var matHair = ResourceLoader.load("res://MainCharacter/Material/Hair.tres")
+var headMat:Material; var head:MeshInstance3D ; var currentHair:MeshInstance3D ; var currentBeard:MeshInstance3D
 var torsoMat:Material; 
 var armsMat:Material; var legsMat:Material ; var beardMat:Material ; var hairMat:Material
 var arrayMat:Array=[]
@@ -35,36 +35,36 @@ var preset:Dictionary={
 }
 func _ready():
 #	if not Engine.editor_hint:	
-	$AnimationPlayer.get_animation("idle").loop=true
+	$AnimationPlayer.get_animation("idle").loop_mode=Animation.LOOP_LINEAR
 	$AnimationPlayer.play("idle")
 #	$AnimationPlayer.play("idle2")
 	_generate()
-	$MouseTarget.set_as_toplevel(true)
+	$MouseTarget.set_as_top_level(true)
 	faceCam=$faceViewport/faceCam
 	faceViewport = $faceViewport
 
 
 func _generate():
-	$MainRig/Skeleton/dummy.queue_free()
+	$MainRig/Skeleton3D/dummy.queue_free()
 	for p in parts:
-		var scenePart:Spatial = ResourceLoader.load("res://MainCharacter/Mesh/Parts/"+p+".glb").instance()
-		var mesh:MeshInstance = scenePart.get_child(0).get_child(0).duplicate()
+		var scenePart:Node3D = ResourceLoader.load("res://MainCharacter/Mesh/Parts/"+p+".glb").instantiate()
+		var mesh:MeshInstance3D = scenePart.get_child(0).get_child(0).duplicate()
 		
 		#----------------------Assign material
 		var mat:ShaderMaterial = matSkin.duplicate()
-		mesh.set_surface_material(0,mat)
+		mesh.set_surface_override_material(0,mat)
 		#----------------------MESH RENAME BECAUSE IT WAS IMPOSSIBLE TO IMPORT IT AS "HEAD"
 		if mesh.name=="head":
 #			mesh.name="head"
 			headMat=mat
-			mat.set_shader_param("hairMask",ResourceLoader.load("res://MainCharacter/Material/Textures/subHair/subHair1_mask.jpg"))
+			mat.set_shader_parameter("hairMask",ResourceLoader.load("res://MainCharacter/Material/Textures/subHair/subHair1_mask.jpg"))
 		else:
 			var whiteMask = ResourceLoader.load("res://MainCharacter/Material/Textures/body/null_white.jpg")
-			mat.set_shader_param("hairMask",whiteMask)
-			mat.set_shader_param("subBeard",whiteMask)
-			mat.set_shader_param("darkSkinMask",ResourceLoader.load("res://MainCharacter/Material/Textures/body/null_black.jpg"))
-			mat.set_shader_param("eyebrows",whiteMask)
-			mat.set_shader_param("facePaint",whiteMask)
+			mat.set_shader_parameter("hairMask",whiteMask)
+			mat.set_shader_parameter("subBeard",whiteMask)
+			mat.set_shader_parameter("darkSkinMask",ResourceLoader.load("res://MainCharacter/Material/Textures/body/null_black.jpg"))
+			mat.set_shader_parameter("eyebrows",whiteMask)
+			mat.set_shader_parameter("facePaint",whiteMask)
 		if mesh.name=="torso":
 			torsoMat=mat
 		if mesh.name=="arms":
@@ -72,18 +72,18 @@ func _generate():
 		if mesh.name=="legs":
 			legsMat=mat
 		#Assign textures to material
-		mat.set_shader_param("albedo",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_a.jpg"))
-		mat.set_shader_param("ors",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_orsc.jpg"))
-		mat.set_shader_param("normal",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_n.jpg"))
-		mat.set_shader_param("normalDetail",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_n_detail.jpg"))
+		mat.set_shader_parameter("albedo",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_a.jpg"))
+		mat.set_shader_parameter("ors",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_orsc.jpg"))
+		mat.set_shader_parameter("normal",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_n.jpg"))
+		mat.set_shader_parameter("normalDetail",ResourceLoader.load("res://MainCharacter/Material/Textures/body/"+p+"_n_detail.jpg"))
 		
 		
 		
 		if p =="head":
-			mesh.set_surface_material(1,matEye)
-			mesh.set_surface_material(2,matCornea)
+			mesh.set_surface_override_material(1,matEye)
+			mesh.set_surface_override_material(2,matCornea)
 		if p =="legs":
-			mesh.set_surface_material(1,matUnderwear)
+			mesh.set_surface_override_material(1,matUnderwear)
 		sk.add_child(mesh)
 	#--HAIR
 	head=sk.get_node("head")
@@ -99,43 +99,44 @@ func _setMaterialParameter(param:String,part:String,col):
 		mat=beardMat
 	else:
 		mat=headMat
-	mat.set_shader_param(param,col)
+	mat.set_shader_parameter(param,col)
 	
 func _setParameterTexture(v,part,prop):
-	var mat = sk.get_node(part).get_surface_material(0)
-	mat.set_shader_param(prop,ResourceLoader.load("res://MainCharacter/Material/Textures/"+prop+"/"+prop+str(v)+"_mask.jpg"))
+	var mat = sk.get_node(part).get_surface_override_material(0)
+	# Sliders pass floats, and Godot 4's str(1.0) is "1.0", not Godot 3's "1".
+	mat.set_shader_parameter(prop,ResourceLoader.load("res://MainCharacter/Material/Textures/"+prop+"/"+prop+str(int(v))+"_mask.jpg"))
 
 func _setChubbiness(v):
 	for mesh in sk.get_children():
 		if v>=0 and v<=0.5:
-			mesh.set("blend_shapes/skinny",range_lerp(v,0,0.5,1,0))
+			mesh.set("blend_shapes/skinny",remap(v,0,0.5,1,0))
 			mesh.set("blend_shapes/chubby",0)
 		elif v>0.5 and v<=1:
-			mesh.set("blend_shapes/chubby",range_lerp(v,0.5,1,0,1))
+			mesh.set("blend_shapes/chubby",remap(v,0.5,1,0,1))
 			mesh.set("blend_shapes/skinny",0)
 		for i in arrayMat.size():
 			if v>=0.5:
-				var value = range_lerp(v,0.5,1,1,0)
-				arrayMat[i].set_shader_param("normalBlend",value)
+				var value = remap(v,0.5,1,1,0)
+				arrayMat[i].set_shader_parameter("normalBlend",value)
 			else:
-				var value = range_lerp(v,0,0.5,0.5,1)
-				arrayMat[i].set_shader_param("normalBlend",value)
+				var value = remap(v,0,0.5,0.5,1)
+				arrayMat[i].set_shader_parameter("normalBlend",value)
 				
 
 func _setBlendShape(part:String,prop:String,v:float):
-	yield(get_tree(),"idle_frame") 
-	var n = sk.find_node(part+"?",true,false)
+	await get_tree().process_frame
+	var n = sk.find_child(part+"?",true,false)
 	n.set("blend_shapes/"+prop,v)
 
 
 func _setMesh(part,v):
-	var n = sk.find_node(part+"?",true,false)
+	var n = sk.find_child(part+"?",true,false)
 	if n:
 		n.queue_free()
-		yield(n,"tree_exited")
+		await n.tree_exited
 	
 	
-	var scene = ResourceLoader.load("res://MainCharacter/Mesh/Parts/"+part+"/"+part+str(v)+".glb").instance()
+	var scene = ResourceLoader.load("res://MainCharacter/Mesh/Parts/"+part+"/"+part+str(int(v))+".glb").instantiate()
 	var mesh = scene.get_child(0).get_child(0).duplicate()
 	match part:
 		"hair":
@@ -143,7 +144,7 @@ func _setMesh(part,v):
 			if !hairMat:
 				hairMat = matHair.duplicate()
 			
-			mesh.set_surface_material(0,hairMat)
+			mesh.set_surface_override_material(0,hairMat)
 			if mesh.name=="hair3":
 				_setParameterTexture(v,"head","subHair")
 			elif mesh.name=="hair0":
@@ -154,7 +155,7 @@ func _setMesh(part,v):
 			currentBeard=mesh
 			if !beardMat:
 				beardMat=matHair.duplicate()
-			mesh.set_surface_material(0,beardMat)	
+			mesh.set_surface_override_material(0,beardMat)	
 
 	sk.add_child(mesh)
 	_matchBlendShapes(mesh)
@@ -168,18 +169,18 @@ func _matchBlendShapes(mesh):
 func _setSkinColor(c):
 	c = _convertColorFromJson(c)	
 	var sum = c[0]+c[1]+c[2]
-	var roughTweak = range_lerp(sum,0,3,1,0.5)
+	var roughTweak = remap(sum,0,3,1,0.5)
 	for mat in arrayMat:
 		print(mat)
-		mat.set_shader_param("skinTone",c)
-		mat.set_shader_param("rPunch",roughTweak)	
+		mat.set_shader_parameter("skinTone",c)
+		mat.set_shader_parameter("rPunch",roughTweak)	
 
 
 
 func _on_blinkTimer_timeout():
 	$blinkAnim.start()
 	randomize()
-	$blinkTimer.wait_time=rand_range(2,4)
+	$blinkTimer.wait_time=randf_range(2,4)
 	
 
 
@@ -197,12 +198,13 @@ func _on_blinkAnim_timeout():
 	head.set("blend_shapes/blink",blinkDelta)
 
 func _setBone(b:String,data):
-	var t:Transform
+	var poses := BoneCustomPoses.of(sk)
+	var t:Transform3D
 	var bone = sk.find_bone(b)
 	t=t.translated(Vector3(0,data.bonesY[b],0))
-	sk.set_bone_custom_pose(bone,t)
-	var t4 = sk.get_bone_custom_pose(sk.find_bone("thigh_r")) *sk.get_bone_custom_pose(sk.find_bone("shin_r"))
-	sk.set_bone_custom_pose(sk.find_bone("spine"),t4)
+	poses.set_bone_custom_pose(bone,t)
+	var t4 = poses.get_bone_custom_pose(sk.find_bone("thigh_r")) *poses.get_bone_custom_pose(sk.find_bone("shin_r"))
+	poses.set_bone_custom_pose(sk.find_bone("spine"),t4)
 	
 
 
@@ -216,9 +218,10 @@ func _saveBlendShapes():
 		preset.shapes[bs]=sk.get_node("torso").get("blend_shapes/"+bs)
 		characterData.shapes[bs]=sk.get_node("torso").get("blend_shapes/"+bs)
 func _saveBones():
+	var poses := BoneCustomPoses.of(sk)
 	for b in bonesMod:
-		preset.bonesY[b] = sk.get_bone_custom_pose(sk.find_bone(b)).origin.y
-	preset["headBone"] = sk.get_bone_custom_pose(sk.find_bone("head"))
+		preset.bonesY[b] = poses.get_bone_custom_pose(sk.find_bone(b)).origin.y
+	preset["headBone"] = _transformToJson(poses.get_bone_custom_pose(sk.find_bone("head")))
 	
 func _load(data):
 	_loadBones(data)
@@ -228,15 +231,20 @@ func _loadBones(data):
 	for b in bonesMod:
 		_setBone(b,data)
 		
-#	CONVERT FROM JSON
-	var split = data.headBone.split(",")
-	var x = Vector3(split[0],split[1],split[2])
-	var y = Vector3(split[3],split[4],split[5])
-	var z = Vector3(split[6],split[7],split[8])
-	var t = Transform(x,y,z,Vector3(0,0,0))
+	BoneCustomPoses.of(sk).set_bone_custom_pose(sk.find_bone("head"),_transformFromJson(data.headBone))
 
+# The head bone's custom pose is kept as Godot 3's str(Transform) wrote it - the basis row by row,
+# " - ", then the origin - so the shipped presets and saves still load. Godot 4's str() differs.
+func _transformToJson(t:Transform3D) -> String:
+	var b := t.basis
+	return "%s, %s, %s, %s, %s, %s, %s, %s, %s - %s, %s, %s" % [b.x.x, b.y.x, b.z.x, b.x.y, b.y.y, b.z.y, b.x.z, b.y.z, b.z.z, t.origin.x, t.origin.y, t.origin.z]
 
-	sk.set_bone_custom_pose(sk.find_bone("head"),t)
+func _transformFromJson(s:String) -> Transform3D:
+	var parts = s.split(" - ")
+	var v = Array(parts[0].split(",")).map(func(n): return n.to_float())
+	var o = Array(parts[1].split(",")).map(func(n): return n.to_float()) if parts.size() > 1 else [0.0, 0.0, 0.0]
+	var rows = Basis(Vector3(v[0],v[1],v[2]), Vector3(v[3],v[4],v[5]), Vector3(v[6],v[7],v[8]))
+	return Transform3D(rows.transposed(), Vector3(o[0],o[1],o[2]))
 
 func _loadBlendShapes(data):
 	for b in data.shapes:
@@ -275,17 +283,17 @@ func _saveCharacterData():
 	_saveBlendShapes()
 	characterData["bonesY"]=preset.bonesY
 	characterData["shapes"]=preset.shapes
-	characterData["headBone"]=sk.get_bone_custom_pose(sk.find_bone("head"))
-	characterData.colors["skinColor"] = headMat.get_shader_param("skinTone")
-	characterData.colors["facePaintColor"] = headMat.get_shader_param("facePaintColor")
-	characterData.colors.hair["rootColor"]=hairMat.get_shader_param("rootColor")
-	characterData.colors.hair["hairColor"]=hairMat.get_shader_param("hairColor")
-	characterData.colors.hair["tipColor"]=hairMat.get_shader_param("tipColor")
-	characterData.colors.beard["rootColor"]=beardMat.get_shader_param("rootColor")
-	characterData.colors.beard["hairColor"]=beardMat.get_shader_param("hairColor")
-	characterData.colors.beard["tipColor"]=beardMat.get_shader_param("tipColor")
-	characterData.colors["eyeColor1"]=matEye.get_shader_param("eyeColor1")
-	characterData.colors["eyeColor2"]=matEye.get_shader_param("eyeColor1")
+	characterData["headBone"]=_transformToJson(BoneCustomPoses.of(sk).get_bone_custom_pose(sk.find_bone("head")))
+	characterData.colors["skinColor"] = headMat.get_shader_parameter("skinTone")
+	characterData.colors["facePaintColor"] = headMat.get_shader_parameter("facePaintColor")
+	characterData.colors.hair["rootColor"]=hairMat.get_shader_parameter("rootColor")
+	characterData.colors.hair["hairColor"]=hairMat.get_shader_parameter("hairColor")
+	characterData.colors.hair["tipColor"]=hairMat.get_shader_parameter("tipColor")
+	characterData.colors.beard["rootColor"]=beardMat.get_shader_parameter("rootColor")
+	characterData.colors.beard["hairColor"]=beardMat.get_shader_parameter("hairColor")
+	characterData.colors.beard["tipColor"]=beardMat.get_shader_parameter("tipColor")
+	characterData.colors["eyeColor1"]=matEye.get_shader_parameter("eyeColor1")
+	characterData.colors["eyeColor2"]=matEye.get_shader_parameter("eyeColor1")
 	
 	characterData.meshes["hair"] = currentHair.name.substr(currentHair.name.length()-1)
 	characterData.meshes["beard"] = currentBeard.name.substr(currentBeard.name.length()-1)
@@ -294,11 +302,11 @@ func _saveCharacterData():
 	characterData.materialParameters["facePaint"]= _getStreamTexture("facePaint")
 	characterData.materialParameters["beard"]= _getStreamTexture("beard")
 	
-	characterData.materialParameters["eyeBrowHeight"] = headMat.get_shader_param("eyeBrowHeight")
-	characterData.materialParameters["hairTipOffset"] = hairMat.get_shader_param("tipOffset")
-	characterData.materialParameters["hairRootOffset"] = hairMat.get_shader_param("rootOffset")
-	characterData.materialParameters["beardTipOffset"] = beardMat.get_shader_param("tipOffset")
-	characterData.materialParameters["beardRootOffset"] = beardMat.get_shader_param("rootOffset")
+	characterData.materialParameters["eyeBrowHeight"] = headMat.get_shader_parameter("eyeBrowHeight")
+	characterData.materialParameters["hairTipOffset"] = hairMat.get_shader_parameter("tipOffset")
+	characterData.materialParameters["hairRootOffset"] = hairMat.get_shader_parameter("rootOffset")
+	characterData.materialParameters["beardTipOffset"] = beardMat.get_shader_parameter("tipOffset")
+	characterData.materialParameters["beardRootOffset"] = beardMat.get_shader_parameter("rootOffset")
 	
 	Save._saveCharacter(characterData.name,characterData)
 
@@ -306,14 +314,15 @@ func _saveCharacterData():
 
 func _getStreamTexture(param):
 	#res://.import/eyebrows1_mask.jpg-ab34963aa93c4c5a3912c2deb8558ff1.s3tc.stex
-	var split =headMat.get_shader_param(param).get_load_path().split("_")[0]
+	var split =headMat.get_shader_parameter(param).get_load_path().split("_")[0]
 	return _getLastCharacter(split)
 	
 func _getLastCharacter(string:String):
 	return string.substr(string.length()-1)
 
 func _convertColorFromJson(c):
-	if typeof(c)==4:
-		var split = c.split(",")
-		c=Color(split[0],split[1],split[2])	
+	# Godot 3 saved colours as "r,g,b,a"; Godot 4's JSON writes "(r, g, b, a)".
+	if typeof(c)==TYPE_STRING:
+		var split = c.trim_prefix("(").trim_suffix(")").split(",")
+		c=Color(split[0].to_float(),split[1].to_float(),split[2].to_float())
 	return c

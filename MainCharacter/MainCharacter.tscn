@@ -3,83 +3,83 @@
 [ext_resource path="res://MainCharacter/MainCharacter.gd" type="Script" id=1]
 [ext_resource path="res://MainCharacter/Mesh/MainRig.gltf" type="PackedScene" id=2]
 
-[sub_resource type="BoxShape" id=1]
+[sub_resource type="BoxShape3D" id=1]
 extents = Vector3( 0.02, 0.004, 0.0141144 )
 
-[sub_resource type="BoxShape" id=2]
+[sub_resource type="BoxShape3D" id=2]
 extents = Vector3( 0.0138002, 0.004, 0.0141144 )
 
-[sub_resource type="BoxShape" id=3]
+[sub_resource type="BoxShape3D" id=3]
 extents = Vector3( 0.0403148, 0.004, 0.0141144 )
 
-[sub_resource type="BoxShape" id=4]
+[sub_resource type="BoxShape3D" id=4]
 extents = Vector3( 0.078, 0.01, 0.014 )
 
-[sub_resource type="BoxShape" id=5]
+[sub_resource type="BoxShape3D" id=5]
 extents = Vector3( 0.0133906, 0.004, 0.0115085 )
 
-[sub_resource type="BoxShape" id=6]
+[sub_resource type="BoxShape3D" id=6]
 extents = Vector3( 0.0632065, 0.0101732, 0.0153002 )
 
-[sub_resource type="BoxShape" id=7]
+[sub_resource type="BoxShape3D" id=7]
 extents = Vector3( 0.0410302, 0.0101732, 0.0208616 )
 
-[sub_resource type="BoxShape" id=8]
+[sub_resource type="BoxShape3D" id=8]
 extents = Vector3( 0.0188183, 0.0101732, 0.0170995 )
 
-[sub_resource type="BoxShape" id=9]
+[sub_resource type="BoxShape3D" id=9]
 extents = Vector3( 0.0384315, 0.0101732, 0.0118783 )
 
-[sub_resource type="BoxShape" id=10]
+[sub_resource type="BoxShape3D" id=10]
 extents = Vector3( 0.0794304, 0.033699, 0.0274589 )
 
-[sub_resource type="BoxShape" id=11]
+[sub_resource type="BoxShape3D" id=11]
 extents = Vector3( 0.104331, 0.0284395, 0.029 )
 
-[sub_resource type="BoxShape" id=12]
+[sub_resource type="BoxShape3D" id=12]
 extents = Vector3( 0.0492188, 0.0106939, 0.0274589 )
 
-[sub_resource type="BoxShape" id=13]
+[sub_resource type="BoxShape3D" id=13]
 extents = Vector3( 0.0911653, 0.0307413, 0.0556901 )
 
-[sub_resource type="BoxShape" id=14]
+[sub_resource type="BoxShape3D" id=14]
 extents = Vector3( 0.130733, 0.0798159, 0.246 )
 
-[sub_resource type="BoxShape" id=15]
+[sub_resource type="BoxShape3D" id=15]
 extents = Vector3( 0.151, 0.07, 0.166 )
 
-[sub_resource type="BoxShape" id=16]
+[sub_resource type="BoxShape3D" id=16]
 extents = Vector3( 0.151, 0.07, 0.166 )
 
-[sub_resource type="BoxShape" id=17]
+[sub_resource type="BoxShape3D" id=17]
 extents = Vector3( 0.11999, 0.237399, 0.100214 )
 
-[sub_resource type="BoxShape" id=18]
+[sub_resource type="BoxShape3D" id=18]
 extents = Vector3( 0.0749605, 0.099, 0.236 )
 
-[sub_resource type="BoxShape" id=19]
+[sub_resource type="BoxShape3D" id=19]
 extents = Vector3( 0.0749605, 0.067305, 0.174222 )
 
-[sub_resource type="BoxShape" id=20]
+[sub_resource type="BoxShape3D" id=20]
 extents = Vector3( 0.262658, 0.108544, 0.118054 )
 
-[sub_resource type="BoxShape" id=21]
+[sub_resource type="BoxShape3D" id=21]
 extents = Vector3( 0.227982, 0.0843827, 0.118054 )
 
-[sub_resource type="BoxShape" id=22]
+[sub_resource type="BoxShape3D" id=22]
 extents = Vector3( 0.227982, 0.0843827, 0.118054 )
 
-[sub_resource type="BoxShape" id=23]
+[sub_resource type="BoxShape3D" id=23]
 extents = Vector3( 0.0965794, 0.0355255, 0.118054 )
 
 [sub_resource type="SphereMesh" id=24]
 
 [sub_resource type="QuadMesh" id=25]
 
-[sub_resource type="SpatialMaterial" id=26]
+[sub_resource type="StandardMaterial3D" id=26]
 
 [sub_resource type="GDScript" id=27]
-script/source = "extends Camera
+script/source = "extends Camera3D
 var last_position:Vector2
 func _ready():
 	pass
@@ -98,275 +98,259 @@ func _input(event):
 [node name="MainCharacter" instance=ExtResource( 2 )]
 script = ExtResource( 1 )
 
-[node name="Skeleton" parent="MainRig" index="0"]
-bones/1/bound_children = [ NodePath("spine_1") ]
-bones/2/bound_children = [ NodePath("spine_2") ]
-bones/3/bound_children = [ NodePath("spine_3") ]
-bones/4/bound_children = [ NodePath("fullHead") ]
-bones/5/bound_children = [ NodePath("attachHead") ]
-bones/7/bound_children = [ NodePath("upper_arm_L") ]
-bones/8/bound_children = [ NodePath("forearm_L") ]
-bones/25/bound_children = [ NodePath("upper_arm_R") ]
-bones/26/bound_children = [ NodePath("forearm_R") ]
-bones/42/bound_children = [ NodePath("thigh_L") ]
-bones/43/bound_children = [ NodePath("shin_L") ]
-bones/44/bound_children = [ NodePath("foot_L") ]
-bones/47/bound_children = [ NodePath("thigh_R") ]
-bones/48/bound_children = [ NodePath("shin_R") ]
-bones/49/bound_children = [ NodePath("foot_R") ]
+[node name="Skeleton3D" parent="MainRig" index="0"]
 
-[node name="attachHead" type="BoneAttachment" parent="MainRig/Skeleton" index="0"]
-transform = Transform( 0.999494, -0.0314872, -0.00437428, 0.0307786, 0.992928, -0.114661, 0.00795368, 0.114468, 0.993396, -0.108001, 1.74031, -0.0769312 )
+[node name="attachHead" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="0"]
+transform = Transform3D( 0.999494, -0.0314872, -0.00437428, 0.0307786, 0.992928, -0.114661, 0.00795368, 0.114468, 0.993396, -0.108001, 1.74031, -0.0769312 )
 bone_name = "head"
 
-[node name="nose_tip" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="0"]
-transform = Transform( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
+[node name="nose_tip" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="0"]
+transform = Transform3D( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/nose_tip" index="0"]
-transform = Transform( 1.00586, -0.00914258, -0.00298337, -0.0010732, 1.14945, -0.890583, 0.00456476, 2.28485, 0.448017, 0.00703045, -0.0281767, 0.0756862 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/nose_tip" index="0"]
+transform = Transform3D( 1.00586, -0.00914258, -0.00298337, -0.0010732, 1.14945, -0.890583, 0.00456476, 2.28485, 0.448017, 0.00703045, -0.0281767, 0.0756862 )
 shape = SubResource( 1 )
 
-[node name="forehead" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="1"]
-transform = Transform( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
+[node name="forehead" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="1"]
+transform = Transform3D( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/forehead" index="0"]
-transform = Transform( 1.00586, -0.0111892, -0.00160611, -0.0010732, 0.311141, -0.989523, 0.00456485, 2.53868, 0.121269, 0.00716671, 0.0240051, 0.0579246 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/forehead" index="0"]
+transform = Transform3D( 1.00586, -0.0111892, -0.00160611, -0.0010732, 0.311141, -0.989523, 0.00456485, 2.53868, 0.121269, 0.00716671, 0.0240051, 0.0579246 )
 shape = SubResource( 2 )
 
-[node name="forehead_top" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="2"]
-transform = Transform( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
+[node name="forehead_top" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="2"]
+transform = Transform3D( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/forehead_top" index="0"]
-transform = Transform( 1.00586, -0.0111893, -0.00160611, -0.00107319, 0.311141, -0.989523, 0.00456493, 2.53868, 0.121269, 0.00685602, 0.0673598, 0.0514053 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/forehead_top" index="0"]
+transform = Transform3D( 1.00586, -0.0111893, -0.00160611, -0.00107319, 0.311141, -0.989523, 0.00456493, 2.53868, 0.121269, 0.00685602, 0.0673598, 0.0514053 )
 shape = SubResource( 3 )
 
-[node name="forehead_side" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="3"]
-transform = Transform( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
+[node name="forehead_side" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="3"]
+transform = Transform3D( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/forehead_side" index="0"]
-transform = Transform( 1.00586, -0.0111893, -0.00160611, -0.00107318, 0.311141, -0.989523, 0.00456492, 2.53868, 0.121269, 0.00732267, 0.0364027, 0.0264746 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/forehead_side" index="0"]
+transform = Transform3D( 1.00586, -0.0111893, -0.00160611, -0.00107318, 0.311141, -0.989523, 0.00456492, 2.53868, 0.121269, 0.00732267, 0.0364027, 0.0264746 )
 shape = SubResource( 4 )
 
-[node name="nose_middle" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="4"]
-transform = Transform( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
+[node name="nose_middle" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="4"]
+transform = Transform3D( 0.997273, 0.000349594, -0.0737957, 0.00512198, 0.99725, 0.0739419, 0.0736186, -0.0741182, 0.994528, -0.00726943, 0.11264, 0.0568623 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/nose_middle" index="0"]
-transform = Transform( 1.00586, -0.00914264, -0.00298338, -0.0010732, 1.14945, -0.890582, 0.00456479, 2.28485, 0.448017, 0.00710668, -0.00449955, 0.0644525 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/nose_middle" index="0"]
+transform = Transform3D( 1.00586, -0.00914264, -0.00298338, -0.0010732, 1.14945, -0.890582, 0.00456479, 2.28485, 0.448017, 0.00710668, -0.00449955, 0.0644525 )
 shape = SubResource( 5 )
 
-[node name="cheek" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="5"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0.0985429, 0.101017 )
+[node name="cheek" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="5"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0.0985429, 0.101017 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/cheek" index="0"]
-transform = Transform( 1, 0, 1.77636e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, 1.39698e-09, 0.00344098, 0.00195263 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/cheek" index="0"]
+transform = Transform3D( 1, 0, 1.77636e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, 1.39698e-09, 0.00344098, 0.00195263 )
 shape = SubResource( 6 )
 
-[node name="chin" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="6"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="chin" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="6"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/chin" index="0"]
-transform = Transform( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -2.32831e-09, 0.0137913, 0.126899 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/chin" index="0"]
+transform = Transform3D( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -2.32831e-09, 0.0137913, 0.126899 )
 shape = SubResource( 7 )
 
-[node name="mouth" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="7"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="mouth" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="7"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/mouth" index="0"]
-transform = Transform( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -0.00487548, 0.0542034, 0.124311 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/mouth" index="0"]
+transform = Transform3D( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -0.00487548, 0.0542034, 0.124311 )
 shape = SubResource( 8 )
 
-[node name="mouth_side" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="8"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="mouth_side" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="8"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/mouth_side" index="0"]
-transform = Transform( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -0.00487548, 0.0525439, 0.118228 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/mouth_side" index="0"]
+transform = Transform3D( 1, 7.10543e-14, 7.4607e-14, 0, 0.2632, -0.964741, 0, 0.964742, 0.2632, -0.00487548, 0.0525439, 0.118228 )
 shape = SubResource( 9 )
 
-[node name="jaw" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="9"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="jaw" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="9"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/jaw" index="0"]
-transform = Transform( 1, -4.26326e-14, 4.26326e-14, 0, -0.47234, -0.881416, 0, 0.881417, -0.472339, -0.00487548, 0.0412941, 0.0609957 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/jaw" index="0"]
+transform = Transform3D( 1, -4.26326e-14, 4.26326e-14, 0, -0.47234, -0.881416, 0, 0.881417, -0.472339, -0.00487548, 0.0412941, 0.0609957 )
 shape = SubResource( 10 )
 
-[node name="ears" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="10"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="ears" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="10"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/ears" index="0"]
-transform = Transform( 1, -8.88178e-15, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.0979023, 0.00500514 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/ears" index="0"]
+transform = Transform3D( 1, -8.88178e-15, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.0979023, 0.00500514 )
 shape = SubResource( 11 )
 
-[node name="eyes" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="11"]
-transform = Transform( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
+[node name="eyes" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="11"]
+transform = Transform3D( 1, 3.55271e-15, 0, 0, 1, 1.49012e-08, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/eyes" index="0"]
-transform = Transform( 1, -2.66454e-14, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.126675, 0.0818985 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/eyes" index="0"]
+transform = Transform3D( 1, -2.66454e-14, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.126675, 0.0818985 )
 shape = SubResource( 12 )
 
-[node name="head_shape" type="StaticBody" parent="MainRig/Skeleton/attachHead" index="12"]
-transform = Transform( 1, 0, -1.42109e-14, -3.55271e-15, 1, 1.49012e-08, 0, 1.49012e-08, 0.999999, 0, 0, 0 )
+[node name="head_shape" type="StaticBody3D" parent="MainRig/Skeleton3D/attachHead" index="12"]
+transform = Transform3D( 1, 0, -1.42109e-14, -3.55271e-15, 1, 1.49012e-08, 0, 1.49012e-08, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/attachHead/head_shape" index="0"]
-transform = Transform( 1, -5.32907e-15, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.159426, -0.00867783 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/attachHead/head_shape" index="0"]
+transform = Transform3D( 1, -5.32907e-15, 0, 0, -0.997788, -0.066481, 0, 0.0664811, -0.997787, -0.00487547, 0.159426, -0.00867783 )
 shape = SubResource( 13 )
 
-[node name="upper_arm_R" type="BoneAttachment" parent="MainRig/Skeleton" index="1"]
-transform = Transform( -0.968025, -0.202356, 0.148254, 0.188788, -0.976847, -0.100637, 0.165186, -0.0694302, 0.983816, -0.303402, 1.55325, -0.155789 )
+[node name="upper_arm_R" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="1"]
+transform = Transform3D( -0.968025, -0.202356, 0.148254, 0.188788, -0.976847, -0.100637, 0.165186, -0.0694302, 0.983816, -0.303402, 1.55325, -0.155789 )
 bone_name = "upper_arm_r"
 
-[node name="upper" type="StaticBody" parent="MainRig/Skeleton/upper_arm_R" index="0"]
-transform = Transform( -0.767965, -0.586039, 0.258433, 0.640483, -0.700679, 0.314373, -0.00315609, 0.406951, 0.913444, -0.0124862, -0.334602, 0.149692 )
+[node name="upper" type="StaticBody3D" parent="MainRig/Skeleton3D/upper_arm_R" index="0"]
+transform = Transform3D( -0.767965, -0.586039, 0.258433, 0.640483, -0.700679, 0.314373, -0.00315609, 0.406951, 0.913444, -0.0124862, -0.334602, 0.149692 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/upper_arm_R/upper" index="0"]
-transform = Transform( 0.6131, 0.0915081, -0.278608, -0.737934, 0.420981, -0.187283, 0.282069, 0.902446, 0.115616, 0.307419, -0.400151, 0.0281646 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/upper_arm_R/upper" index="0"]
+transform = Transform3D( 0.6131, 0.0915081, -0.278608, -0.737934, 0.420981, -0.187283, 0.282069, 0.902446, 0.115616, 0.307419, -0.400151, 0.0281646 )
 shape = SubResource( 14 )
 
-[node name="upper_arm_L" type="BoneAttachment" parent="MainRig/Skeleton" index="2"]
-transform = Transform( -0.979647, 0.200728, 0.000362854, -0.19893, -0.970627, -0.135313, -0.0268089, -0.132631, 0.990803, 0.0996363, 1.60733, -0.112914 )
+[node name="upper_arm_L" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="2"]
+transform = Transform3D( -0.979647, 0.200728, 0.000362854, -0.19893, -0.970627, -0.135313, -0.0268089, -0.132631, 0.990803, 0.0996363, 1.60733, -0.112914 )
 bone_name = "upper_arm_l"
 
-[node name="upper" type="StaticBody" parent="MainRig/Skeleton/upper_arm_L" index="0"]
-transform = Transform( 0.492201, -0.796476, 0.351232, 0.87047, 0.452339, -0.194089, -0.00428925, 0.40127, 0.915949, -0.0103523, -0.315554, 0.149598 )
+[node name="upper" type="StaticBody3D" parent="MainRig/Skeleton3D/upper_arm_L" index="0"]
+transform = Transform3D( 0.492201, -0.796476, 0.351232, 0.87047, 0.452339, -0.194089, -0.00428925, 0.40127, 0.915949, -0.0103523, -0.315554, 0.149598 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/upper_arm_L/upper" index="0"]
-transform = Transform( 0.853451, 0.0915082, 0.182172, 0.43378, 0.420981, -0.282846, -0.288894, 0.902447, 0.113472, 0.410682, 0.14131, -0.227492 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/upper_arm_L/upper" index="0"]
+transform = Transform3D( 0.853451, 0.0915082, 0.182172, 0.43378, 0.420981, -0.282846, -0.288894, 0.902447, 0.113472, 0.410682, 0.14131, -0.227492 )
 shape = SubResource( 15 )
 
-[node name="forearm_R" type="BoneAttachment" parent="MainRig/Skeleton" index="3"]
-transform = Transform( -0.958008, -0.163891, 0.235287, 0.214613, -0.954008, 0.209308, 0.190162, 0.251015, 0.94912, -0.358435, 1.28759, -0.174671 )
+[node name="forearm_R" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="3"]
+transform = Transform3D( -0.958008, -0.163891, 0.235287, 0.214613, -0.954008, 0.209308, 0.190162, 0.251015, 0.94912, -0.358435, 1.28759, -0.174671 )
 bone_name = "forearm_r"
 
-[node name="forearm" type="StaticBody" parent="MainRig/Skeleton/forearm_R" index="0"]
-transform = Transform( -0.804043, -0.541281, 0.246023, 0.457606, -0.299175, 0.83731, -0.379616, 0.785818, 0.488244, 0.0239874, -0.369048, 0.503698 )
+[node name="forearm" type="StaticBody3D" parent="MainRig/Skeleton3D/forearm_R" index="0"]
+transform = Transform3D( -0.804043, -0.541281, 0.246023, 0.457606, -0.299175, 0.83731, -0.379616, 0.785818, 0.488244, 0.0239874, -0.369048, 0.503698 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/forearm_R/forearm" index="0"]
-transform = Transform( 0.527154, -0.8291, 0.0661528, -0.311983, -0.392773, -0.307159, 0.790433, 0.397915, -0.165354, 0.443898, -0.554337, 0.173929 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/forearm_R/forearm" index="0"]
+transform = Transform3D( 0.527154, -0.8291, 0.0661528, -0.311983, -0.392773, -0.307159, 0.790433, 0.397915, -0.165354, 0.443898, -0.554337, 0.173929 )
 shape = SubResource( 15 )
 
-[node name="forearm_L" type="BoneAttachment" parent="MainRig/Skeleton" index="4"]
-transform = Transform( -0.970092, 0.206302, -0.127914, -0.23755, -0.91523, 0.325462, -0.0499269, 0.346115, 0.936863, 0.154227, 1.34336, -0.148985 )
+[node name="forearm_L" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="4"]
+transform = Transform3D( -0.970092, 0.206302, -0.127914, -0.23755, -0.91523, 0.325462, -0.0499269, 0.346115, 0.936863, 0.154227, 1.34336, -0.148985 )
 bone_name = "forearm_l"
 
-[node name="forearm" type="StaticBody" parent="MainRig/Skeleton/forearm_L" index="0"]
-transform = Transform( -0.804043, -0.541281, 0.246023, 0.457606, -0.299175, 0.83731, -0.379616, 0.785818, 0.488244, 0.0239874, -0.369048, 0.503698 )
+[node name="forearm" type="StaticBody3D" parent="MainRig/Skeleton3D/forearm_L" index="0"]
+transform = Transform3D( -0.804043, -0.541281, 0.246023, 0.457606, -0.299175, 0.83731, -0.379616, 0.785818, 0.488244, 0.0239874, -0.369048, 0.503698 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/forearm_L/forearm" index="0"]
-transform = Transform( 0.447928, -0.682757, 0.204955, -0.343168, -0.727482, -0.210957, 0.825594, 0.0680441, -0.198886, 0.455199, -0.55391, 0.197508 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/forearm_L/forearm" index="0"]
+transform = Transform3D( 0.447928, -0.682757, 0.204955, -0.343168, -0.727482, -0.210957, 0.825594, 0.0680441, -0.198886, 0.455199, -0.55391, 0.197508 )
 shape = SubResource( 16 )
 
-[node name="thigh_L" type="BoneAttachment" parent="MainRig/Skeleton" index="5"]
-transform = Transform( 0.894502, 0.16747, -0.414511, 0.123926, -0.983737, -0.130018, -0.429544, 0.0649326, -0.900706, 0.000811964, 1.06699, -0.107593 )
+[node name="thigh_L" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="5"]
+transform = Transform3D( 0.894502, 0.16747, -0.414511, 0.123926, -0.983737, -0.130018, -0.429544, 0.0649326, -0.900706, 0.000811964, 1.06699, -0.107593 )
 bone_name = "thigh_l"
 
-[node name="thigh" type="StaticBody" parent="MainRig/Skeleton/thigh_L" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="thigh" type="StaticBody3D" parent="MainRig/Skeleton3D/thigh_L" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/thigh_L/thigh" index="0"]
-transform = Transform( 1, -2.24099e-08, -2.32831e-09, -6.77246e-08, 1, -9.31323e-09, -3.25963e-09, -1.49012e-08, 1, 0.017344, 0.222048, -0.0117421 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/thigh_L/thigh" index="0"]
+transform = Transform3D( 1, -2.24099e-08, -2.32831e-09, -6.77246e-08, 1, -9.31323e-09, -3.25963e-09, -1.49012e-08, 1, 0.017344, 0.222048, -0.0117421 )
 shape = SubResource( 17 )
 
-[node name="thigh_R" type="BoneAttachment" parent="MainRig/Skeleton" index="6"]
-transform = Transform( 0.962176, -0.0339333, 0.270308, -0.0181398, -0.997991, -0.0607136, 0.271825, 0.0535141, -0.960856, -0.191333, 1.07056, -0.146109 )
+[node name="thigh_R" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="6"]
+transform = Transform3D( 0.962176, -0.0339333, 0.270308, -0.0181398, -0.997991, -0.0607136, 0.271825, 0.0535141, -0.960856, -0.191333, 1.07056, -0.146109 )
 bone_name = "thigh_r"
 
-[node name="thigh" type="StaticBody" parent="MainRig/Skeleton/thigh_R" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="thigh" type="StaticBody3D" parent="MainRig/Skeleton3D/thigh_R" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/thigh_R/thigh" index="0"]
-transform = Transform( 1, -2.24099e-08, -2.32831e-09, -6.77246e-08, 1, -9.31323e-09, -3.25963e-09, -1.49012e-08, 1, 0.017344, 0.222048, -0.0117421 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/thigh_R/thigh" index="0"]
+transform = Transform3D( 1, -2.24099e-08, -2.32831e-09, -6.77246e-08, 1, -9.31323e-09, -3.25963e-09, -1.49012e-08, 1, 0.017344, 0.222048, -0.0117421 )
 shape = SubResource( 17 )
 
-[node name="shin_R" type="BoneAttachment" parent="MainRig/Skeleton" index="7"]
-transform = Transform( 0.994165, 0.0412577, 0.099673, 0.0190366, -0.976568, 0.214359, 0.106182, -0.211209, -0.971656, -0.209518, 0.53574, -0.117431 )
+[node name="shin_R" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="7"]
+transform = Transform3D( 0.994165, 0.0412577, 0.099673, 0.0190366, -0.976568, 0.214359, 0.106182, -0.211209, -0.971656, -0.209518, 0.53574, -0.117431 )
 bone_name = "shin_r"
 
-[node name="shin" type="StaticBody" parent="MainRig/Skeleton/shin_R" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="shin" type="StaticBody3D" parent="MainRig/Skeleton3D/shin_R" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/shin_R/shin" index="0"]
-transform = Transform( 0.165207, -0.986226, -0.00822364, 0.097966, 0.0247046, -0.994882, 0.981382, 0.163557, 0.1007, -0.0122064, 0.210806, 0.00333779 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/shin_R/shin" index="0"]
+transform = Transform3D( 0.165207, -0.986226, -0.00822364, 0.097966, 0.0247046, -0.994882, 0.981382, 0.163557, 0.1007, -0.0122064, 0.210806, 0.00333779 )
 shape = SubResource( 18 )
 
-[node name="shin_L" type="BoneAttachment" parent="MainRig/Skeleton" index="8"]
-transform = Transform( 0.942685, 0.165514, -0.289739, 0.139831, -0.984337, -0.107354, -0.30297, 0.0606863, -0.951065, 0.0905588, 0.539802, -0.0727954 )
+[node name="shin_L" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="8"]
+transform = Transform3D( 0.942685, 0.165514, -0.289739, 0.139831, -0.984337, -0.107354, -0.30297, 0.0606863, -0.951065, 0.0905588, 0.539802, -0.0727954 )
 bone_name = "shin_l"
 
-[node name="shin" type="StaticBody" parent="MainRig/Skeleton/shin_L" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="shin" type="StaticBody3D" parent="MainRig/Skeleton3D/shin_L" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/shin_L/shin" index="0"]
-transform = Transform( 0.165207, -0.986226, -0.00822364, 0.097966, 0.0247046, -0.994882, 0.981382, 0.163557, 0.1007, -0.0122064, 0.210806, 0.00333779 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/shin_L/shin" index="0"]
+transform = Transform3D( 0.165207, -0.986226, -0.00822364, 0.097966, 0.0247046, -0.994882, 0.981382, 0.163557, 0.1007, -0.0122064, 0.210806, 0.00333779 )
 shape = SubResource( 18 )
 
-[node name="foot_R" type="BoneAttachment" parent="MainRig/Skeleton" index="9"]
-transform = Transform( 0.683518, -0.479531, 0.550321, 0.00335386, -0.751861, -0.659311, 0.729928, 0.452497, -0.5123, -0.192029, 0.121771, -0.206962 )
+[node name="foot_R" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="9"]
+transform = Transform3D( 0.683518, -0.479531, 0.550321, 0.00335386, -0.751861, -0.659311, 0.729928, 0.452497, -0.5123, -0.192029, 0.121771, -0.206962 )
 bone_name = "foot_r"
 
-[node name="foot" type="StaticBody" parent="MainRig/Skeleton/foot_R" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="foot" type="StaticBody3D" parent="MainRig/Skeleton3D/foot_R" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/foot_R/foot" index="0"]
-transform = Transform( -0.0299073, -0.999555, 0.0004985, 0.56846, -0.0174207, -0.822526, 0.822169, -0.024314, 0.568727, -0.00278719, 0.114151, -0.0108158 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/foot_R/foot" index="0"]
+transform = Transform3D( -0.0299073, -0.999555, 0.0004985, 0.56846, -0.0174207, -0.822526, 0.822169, -0.024314, 0.568727, -0.00278719, 0.114151, -0.0108158 )
 shape = SubResource( 19 )
 
-[node name="foot_L" type="BoneAttachment" parent="MainRig/Skeleton" index="10"]
-transform = Transform( 0.812615, 0.511741, -0.278885, -0.0260221, -0.446188, -0.894559, -0.582219, 0.73419, -0.349263, 0.16072, 0.122541, -0.0470704 )
+[node name="foot_L" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="10"]
+transform = Transform3D( 0.812615, 0.511741, -0.278885, -0.0260221, -0.446188, -0.894559, -0.582219, 0.73419, -0.349263, 0.16072, 0.122541, -0.0470704 )
 bone_name = "foot_l"
 
-[node name="foot" type="StaticBody" parent="MainRig/Skeleton/foot_L" index="0"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
+[node name="foot" type="StaticBody3D" parent="MainRig/Skeleton3D/foot_L" index="0"]
+transform = Transform3D( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/foot_L/foot" index="0"]
-transform = Transform( -0.0299073, -0.999555, 0.0004985, 0.56846, -0.0174207, -0.822526, 0.822169, -0.024314, 0.568727, -0.00278719, 0.114151, -0.0108158 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/foot_L/foot" index="0"]
+transform = Transform3D( -0.0299073, -0.999555, 0.0004985, 0.56846, -0.0174207, -0.822526, 0.822169, -0.024314, 0.568727, -0.00278719, 0.114151, -0.0108158 )
 shape = SubResource( 19 )
 
-[node name="spine_3" type="BoneAttachment" parent="MainRig/Skeleton" index="11"]
-transform = Transform( 0.993545, -0.0791769, -0.0812328, 0.0850221, 0.993831, 0.0712128, 0.0750932, -0.0776599, 0.994148, -0.0981174, 1.45933, -0.0942796 )
+[node name="spine_3" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="11"]
+transform = Transform3D( 0.993545, -0.0791769, -0.0812328, 0.0850221, 0.993831, 0.0712128, 0.0750932, -0.0776599, 0.994148, -0.0981174, 1.45933, -0.0942796 )
 bone_name = "spine_3"
 
-[node name="spine_3" type="StaticBody" parent="MainRig/Skeleton/spine_3" index="0"]
-transform = Transform( 1, 0, 1.42109e-14, -7.10543e-15, 1, 0, 5.68434e-14, 0, 1, 5.45374e-09, 0.17626, 0.0228746 )
+[node name="spine_3" type="StaticBody3D" parent="MainRig/Skeleton3D/spine_3" index="0"]
+transform = Transform3D( 1, 0, 1.42109e-14, -7.10543e-15, 1, 0, 5.68434e-14, 0, 1, 5.45374e-09, 0.17626, 0.0228746 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/spine_3/spine_3" index="0"]
-transform = Transform( 1, 1.06581e-14, 0, -2.13163e-14, 1, -4.47035e-08, 1.7053e-13, 4.47035e-08, 1, -1.82872e-08, -0.0851667, -0.0272159 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/spine_3/spine_3" index="0"]
+transform = Transform3D( 1, 1.06581e-14, 0, -2.13163e-14, 1, -4.47035e-08, 1.7053e-13, 4.47035e-08, 1, -1.82872e-08, -0.0851667, -0.0272159 )
 shape = SubResource( 20 )
 
-[node name="spine_1" type="BoneAttachment" parent="MainRig/Skeleton" index="12"]
-transform = Transform( 0.984037, 0.0162372, -0.177224, -0.0479453, 0.983198, -0.176136, 0.171386, 0.181821, 0.968281, -0.0953104, 1.15654, -0.118454 )
+[node name="spine_1" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="12"]
+transform = Transform3D( 0.984037, 0.0162372, -0.177224, -0.0479453, 0.983198, -0.176136, 0.171386, 0.181821, 0.968281, -0.0953104, 1.15654, -0.118454 )
 bone_name = "spine_1"
 
-[node name="spine_1" type="StaticBody" parent="MainRig/Skeleton/spine_1" index="0"]
+[node name="spine_1" type="StaticBody3D" parent="MainRig/Skeleton3D/spine_1" index="0"]
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/spine_1/spine_1" index="0"]
-transform = Transform( 1, 0, 0, -4.23516e-22, 1, 0, 0, 0, 1, 6.04032e-16, 0.0520034, -0.0143324 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/spine_1/spine_1" index="0"]
+transform = Transform3D( 1, 0, 0, -4.23516e-22, 1, 0, 0, 0, 1, 6.04032e-16, 0.0520034, -0.0143324 )
 shape = SubResource( 21 )
 
-[node name="spine_2" type="BoneAttachment" parent="MainRig/Skeleton" index="13"]
-transform = Transform( 0.987612, -0.0301194, -0.153998, 0.0305593, 0.999533, 0.000489846, 0.153912, -0.00519001, 0.988071, -0.093074, 1.29196, -0.0934105 )
+[node name="spine_2" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="13"]
+transform = Transform3D( 0.987612, -0.0301194, -0.153998, 0.0305593, 0.999533, 0.000489846, 0.153912, -0.00519001, 0.988071, -0.093074, 1.29196, -0.0934105 )
 bone_name = "spine_2"
 
-[node name="spine_2" type="StaticBody" parent="MainRig/Skeleton/spine_2" index="0"]
+[node name="spine_2" type="StaticBody3D" parent="MainRig/Skeleton3D/spine_2" index="0"]
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/spine_2/spine_2" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.62125e-10, 0.0788308, -0.00591374 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/spine_2/spine_2" index="0"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.62125e-10, 0.0788308, -0.00591374 )
 shape = SubResource( 22 )
 
-[node name="fullHead" type="BoneAttachment" parent="MainRig/Skeleton" index="14"]
-transform = Transform( 0.992919, 0.0859489, -0.0820017, -0.112602, 0.900894, -0.419179, 0.0378468, 0.425444, 0.904193, -0.114814, 1.6689, -0.110656 )
+[node name="fullHead" type="BoneAttachment3D" parent="MainRig/Skeleton3D" index="14"]
+transform = Transform3D( 0.992919, 0.0859489, -0.0820017, -0.112602, 0.900894, -0.419179, 0.0378468, 0.425444, 0.904193, -0.114814, 1.6689, -0.110656 )
 bone_name = "neck"
 
-[node name="fullHead" type="StaticBody" parent="MainRig/Skeleton/fullHead" index="0"]
-transform = Transform( 0.99676, -0.0669551, 0.0445777, 0.0662775, 0.997665, 0.0165118, -0.0455792, -0.0135036, 0.998869, -0.00347762, -0.00175285, 0.000184536 )
+[node name="fullHead" type="StaticBody3D" parent="MainRig/Skeleton3D/fullHead" index="0"]
+transform = Transform3D( 0.99676, -0.0669551, 0.0445777, 0.0662775, 0.997665, 0.0165118, -0.0455792, -0.0135036, 0.998869, -0.00347762, -0.00175285, 0.000184536 )
 
-[node name="CollisionShape" type="CollisionShape" parent="MainRig/Skeleton/fullHead/fullHead" index="0"]
-transform = Transform( 0.99879, -0.0452682, -0.0192165, 0.049175, 0.923702, 0.379945, 0.000550913, -0.38043, 0.92481, 0.00368766, 0.0125387, -0.00955909 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainRig/Skeleton3D/fullHead/fullHead" index="0"]
+transform = Transform3D( 0.99879, -0.0452682, -0.0192165, 0.049175, 0.923702, 0.379945, 0.000550913, -0.38043, 0.92481, 0.00368766, 0.0125387, -0.00955909 )
 shape = SubResource( 23 )
 
-[node name="MouseTarget" type="MeshInstance" parent="." index="2"]
-transform = Transform( 0.00694742, 0, 0, 0, 0.00694742, 0, 0, 0, 0.00694742, 0, 0, 0 )
+[node name="MouseTarget" type="MeshInstance3D" parent="." index="2"]
+transform = Transform3D( 0.00694742, 0, 0, 0, 0.00694742, 0, 0, 0, 0.00694742, 0, 0, 0 )
 visible = false
 mesh = SubResource( 24 )
-material/0 = null
 
 [node name="blinkTimer" type="Timer" parent="." index="3"]
 wait_time = 2.0
@@ -375,25 +359,24 @@ autostart = true
 [node name="blinkAnim" type="Timer" parent="." index="4"]
 wait_time = 0.01
 
-[node name="headGrab" type="MeshInstance" parent="." index="5"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.81041, -0.302412 )
+[node name="headGrab" type="MeshInstance3D" parent="." index="5"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.81041, -0.302412 )
 visible = false
 mesh = SubResource( 25 )
-material/0 = SubResource( 26 )
+surface_material_override/0 = SubResource( 26 )
 
-[node name="faceViewport" type="Viewport" parent="." index="6"]
+[node name="faceViewport" type="SubViewport" parent="." index="6"]
 size = Vector2( 64, 64 )
-msaa = 4
-render_target_v_flip = true
+msaa_3d = 3
 
-[node name="faceCam" type="Camera" parent="faceViewport" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000900328, 1.85833, 0.56002 )
+[node name="faceCam" type="Camera3D" parent="faceViewport" index="0"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000900328, 1.85833, 0.56002 )
 fov = 35.0
 
-[node name="camTarget" type="Spatial" parent="." index="7"]
+[node name="camTarget" type="Node3D" parent="." index="7"]
 
-[node name="Camera" type="Camera" parent="camTarget" index="0"]
-transform = Transform( -1, 3.55271e-15, -8.74228e-08, -3.3475e-08, 0.923786, 0.382909, 8.07599e-08, 0.382909, -0.923786, 0, 2.42, -2.65562 )
+[node name="Camera3D" type="Camera3D" parent="camTarget" index="0"]
+transform = Transform3D( -1, 3.55271e-15, -8.74228e-08, -3.3475e-08, 0.923786, 0.382909, 8.07599e-08, 0.382909, -0.923786, 0, 2.42, -2.65562 )
 script = SubResource( 27 )
 [connection signal="timeout" from="blinkTimer" to="." method="_on_blinkTimer_timeout"]
 [connection signal="timeout" from="blinkAnim" to="." method="_on_blinkAnim_timeout"]

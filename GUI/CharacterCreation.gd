@@ -1,6 +1,6 @@
 extends Control
 var last_position = Vector2()
-onready var character = get_parent().get_node("MainCharacter")
+@onready var character = get_parent().get_node("MainCharacter")
 var hairName:Array=["Bald","Man Bun","Dad","Gnacker","Tal","Mullet"]
 var beardName:Array=["Beardless","Goatie","Amish","Moustache","Cantinflas"]
 var subBeard:Array=["Beardless","Hangover","Grut","Bigotelli"]
@@ -138,23 +138,23 @@ func _ready():
 		if bt.name!="random":
 			var style:StyleBoxFlat = StyleBoxFlat.new()
 			style.bg_color = hairTones[bt.name].hairColor
-			bt.set("custom_styles/normal",style)
-			bt.set("custom_styles/hover",style)
-			bt.connect("pressed",self,"_presetButtonClicked",[bt.name,"hair"])
+			bt.set("theme_override_styles/normal",style)
+			bt.set("theme_override_styles/hover",style)
+			bt.connect("pressed", Callable(self, "_presetButtonClicked").bind(bt.name,"hair"))
 			colorPresetsDict.hairColor[bt.name]=bt
 		else:
-			bt.connect("pressed",self,"_randomHairColorClicked",["hair"])
+			bt.connect("pressed", Callable(self, "_randomHairColorClicked").bind("hair"))
 	#- BEARD COLOUR PRESETS
 	for bt in $Panel/vb/hair/vb2/BeardColorPresets.get_children():
 		if bt.name!="random":
 			var style:StyleBoxFlat = StyleBoxFlat.new()
 			style.bg_color = hairTones[bt.name].hairColor
-			bt.set("custom_styles/normal",style)
-			bt.set("custom_styles/hover",style)
-			bt.connect("pressed",self,"_presetButtonClicked",[bt.name,"beard"])
+			bt.set("theme_override_styles/normal",style)
+			bt.set("theme_override_styles/hover",style)
+			bt.connect("pressed", Callable(self, "_presetButtonClicked").bind(bt.name,"beard"))
 			colorPresetsDict.beardColor[bt.name]=bt
 		else:
-			bt.connect("pressed",self,"_randomHairColorClicked",["beard"])	
+			bt.connect("pressed", Callable(self, "_randomHairColorClicked").bind("beard"))	
 	
 	
 	#- EYES COLOUR PRESETS
@@ -162,28 +162,28 @@ func _ready():
 		if bt.name!="random":
 			var style:StyleBoxFlat = StyleBoxFlat.new()	
 			style.bg_color = eyeTones[bt.name].eyeColor1
-			bt.set("custom_styles/normal",style)
-			bt.set("custom_styles/hover",style)
-			bt.connect("pressed",self,"_presetButtonClicked",[bt.name,"eyes"])	
+			bt.set("theme_override_styles/normal",style)
+			bt.set("theme_override_styles/hover",style)
+			bt.connect("pressed", Callable(self, "_presetButtonClicked").bind(bt.name,"eyes"))	
 			colorPresetsDict.eyesColor[bt.name]=bt
 		else:
-			bt.connect("pressed",self,"_randomEyesColorClicked")		
+			bt.connect("pressed", Callable(self, "_randomEyesColorClicked"))		
 
 	#- SKIN TONE PRESETS
 	for bt in $Panel/vb/body/vb/skinTonePresets.get_children():
 		if bt.name!="random":
 			var style:StyleBoxFlat = StyleBoxFlat.new()	
 			style.bg_color = skinTones[bt.name].skinColor
-			bt.set("custom_styles/normal",style)
-			bt.set("custom_styles/hover",style)
-			bt.connect("pressed",self,"_presetButtonClicked",[bt.name,"skin"])			
+			bt.set("theme_override_styles/normal",style)
+			bt.set("theme_override_styles/hover",style)
+			bt.connect("pressed", Callable(self, "_presetButtonClicked").bind(bt.name,"skin"))			
 			colorPresetsDict.skinTone[bt.name]=bt
 		else:
-			bt.connect("pressed",self,"_randomSkinToneClicked")	
+			bt.connect("pressed", Callable(self, "_randomSkinToneClicked"))	
 
 	#-PRESET BUTTONS
 	for bt in $Panel/vb/presets/GridContainer.get_children():
-		bt.connect("pressed",self,"_loadPreset",[bt.name])
+		bt.connect("pressed", Callable(self, "_loadPreset").bind(bt.name))
 		bt.texture_normal = ResourceLoader.load("res://Presets/"+bt.name+".png")
 	
 	
@@ -191,7 +191,7 @@ func _ready():
 	$Panel/vb/bt_presets.emit_signal("pressed")
 	
 	#WAIT TO THE CHARACTER LOAD
-	yield(get_tree(),"idle_frame")
+	await get_tree().process_frame
 	
 	#-SET VIEWPORT SNAPSHOT TEXTURE
 	$HB/vp.icon = character.faceViewport.get_texture()
@@ -241,9 +241,9 @@ func _initSlider(slider:HSlider,size:int,step:float,value,name):
 	
 func _randomHairColorClicked(type:String):
 	randomize()
-	var col1:Color = Color(rand_range(0,0.3),rand_range(0,0.3),rand_range(0,0.3))
-	var col2:Color = Color(rand_range(0,0.6),rand_range(0,0.6),rand_range(0,0.6))
-	var col3:Color = Color(rand_range(0.5,1),rand_range(0.5,1),rand_range(0.5,1))
+	var col1:Color = Color(randf_range(0,0.3),randf_range(0,0.3),randf_range(0,0.3))
+	var col2:Color = Color(randf_range(0,0.6),randf_range(0,0.6),randf_range(0,0.6))
+	var col3:Color = Color(randf_range(0.5,1),randf_range(0.5,1),randf_range(0.5,1))
 	if type=="hair":
 		character._setMaterialParameter("rootColor","hair",col1)
 		character._setMaterialParameter("hairColor","hair",col2)
@@ -261,8 +261,8 @@ func _randomHairColorClicked(type:String):
 		
 func _randomEyesColorClicked():	
 	randomize()
-	var col1:Color = Color(rand_range(0.5,1),rand_range(0.5,1),rand_range(0.5,1))
-	var col2:Color = Color(rand_range(0,0.2),rand_range(0,0.2),rand_range(0,0.2))
+	var col1:Color = Color(randf_range(0.5,1),randf_range(0.5,1),randf_range(0.5,1))
+	var col2:Color = Color(randf_range(0,0.2),randf_range(0,0.2),randf_range(0,0.2))
 	$Panel/vb/head/vb2/eyeColor1_eyes.color = col1
 	$Panel/vb/head/vb2/eyeColor2_eyes.color = col2
 	character._setMaterialParameter("eyeColor1","eyes",col1)
@@ -271,7 +271,7 @@ func _randomEyesColorClicked():
 func _randomSkinToneClicked():
 	randomize()
 	var vmin = 0.6
-	var col:Color = Color(rand_range(vmin,1),rand_range(vmin,1),rand_range(vmin,1))
+	var col:Color = Color(randf_range(vmin,1),randf_range(vmin,1),randf_range(vmin,1))
 	$Panel/vb/body/vb/skinTone_body.color = col
 	character._setSkinColor(col)
 	
@@ -318,21 +318,21 @@ func _sliderChange(v,type,prop):
 			character._setBlendShape("beard","length",v)
 		"h":
 			character._setMesh("hair",v)
-			$Panel/vb/hair/h_hairCut/sLabel.text = hairName[v]
+			$Panel/vb/hair/h_hairCut/sLabel.text = hairName[int(v)]
 		"i":
 			character._setMesh("beard",v)
-			$Panel/vb/hair/i_beard/sLabel.text=beardName[v]
+			$Panel/vb/hair/i_beard/sLabel.text=beardName[int(v)]
 		"d":
 			character._setParameterTexture(v,"head",prop)
-			$Panel/vb/head/d_beard/sLabel.text=subBeard[v]
+			$Panel/vb/head/d_beard/sLabel.text=subBeard[int(v)]
 		"e":
 			character._setParameterTexture(v,"head",prop)
-			$Panel/vb/head/e_eyebrows/sLabel.text=eyebrowsName[v]
+			$Panel/vb/head/e_eyebrows/sLabel.text=eyebrowsName[int(v)]
 		"w":
 			character._setMaterialParameter(prop,"head",v)	
 		"p":
 			character._setParameterTexture(v,"head",prop)
-			$Panel/vb/head/p_facePaint/sLabel.text=facePaintName[v]
+			$Panel/vb/head/p_facePaint/sLabel.text=facePaintName[int(v)]
 		"k":
 			character._setMaterialParameter(prop,"hair",v)
 		"o":
@@ -365,7 +365,7 @@ func _on_savePreset_pressed():
 	for s in slidersArray:
 		character.preset.sliders[s.get_parent().name] = s.value
 	for s in colorPresetsArray:
-		character.preset.colorPresets[s.name]= s.color.to_html()
+		character.preset.colorPresets[s.name]= _colorToArgb(s.color)
 	Save._savePreset($HB/VB/nameText.text,character.preset)
 	_snapshot()
 	
@@ -376,8 +376,17 @@ func _loadPreset(n:String):
 	for s in slidersArray:
 		s.value = data.sliders[s.get_parent().name]	
 	for c in colorPresetsArray:
-		c.color = data.colorPresets[c.name]
-		c.emit_signal("color_changed",data.colorPresets[c.name])
+		c.color = _colorFromArgb(data.colorPresets[c.name])
+		c.emit_signal("color_changed",c.color)
+
+# Preset colours are kept as Godot 3's to_html() wrote them, ARGB, so the shipped presets still load.
+# Godot 4's to_html() and Color(String) use RGBA.
+func _colorToArgb(c:Color) -> String:
+	var rgba = c.to_html(true)
+	return rgba.substr(6,2) + rgba.substr(0,6)
+
+func _colorFromArgb(argb:String) -> Color:
+	return Color(argb.substr(2,6) + argb.substr(0,2)) if argb.length()==8 else Color(argb)
 
 
 func _on_randomButton_pressed():
@@ -385,7 +394,7 @@ func _on_randomButton_pressed():
 
 
 func _snapshot():
-	var img:Image=character.faceViewport.get_texture().get_data()
+	var img:Image=character.faceViewport.get_texture().get_image()
 	img.save_png("res://Presets/"+$HB/VB/nameText.text+".png")
 	
 
