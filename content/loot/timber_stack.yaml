@@ -1,0 +1,9 @@
+id: loot.timber_stack
+kind: loot
+schema: 1
+display_key: loot.timber_stack.name
+tags: [loot]
+notes: The timber stack by the crossing (M7) - all static, taken once.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.timber, count_range: [80, 80] }

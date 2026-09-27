@@ -8,3 +8,4 @@ notes: The waystation's steward (content bible §9) - orientation, structured di
 role: steward
 dialogue_ref: dialogue.ashen_hollow.renn_vale
 unique: true
+faction_ref: faction.ashen_hollow.waystation

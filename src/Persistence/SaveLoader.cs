@@ -9,7 +9,9 @@ using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -141,10 +143,8 @@ internal static class SaveLoader
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }
         var cells = DecodeOrQuarantine(sections[SaveFormat.Cells], SaveFormat.Cells, SectionCodec.DecodeCells, quarantined, report);
-        var (entities, created, containers, creatures, noises) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities,
-            SectionCodec.DecodeEntitySection, quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty,
-                ImmutableArray<ContainerRecord>.Empty, ImmutableArray<CreatureRecord>.Empty, ImmutableArray<Noise>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures, Noises = noises };
+        var delta = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities, SectionCodec.DecodeEntitySection, quarantined, report,
+            DeltaSnapshot.Empty) with { Cells = cells };
         PlayerRecord player;
         try
         {
@@ -157,7 +157,17 @@ internal static class SaveLoader
 
         // e. Definition IDs (§6.3): a changed content pack resolves every stored ID, or the load stops.
         if (manifest.ContentHash != context.Content.Hash)
-            (player, delta) = ResolveDefinitions(player, delta, context.Content, report);
+        {
+            // A record the pass cannot rebuild validly blocks the load with the report; it never crashes it (M7 design §7.10).
+            try
+            {
+                (player, delta) = ResolveDefinitions(player, delta, context.Content, report);
+            }
+            catch (ArgumentException e)
+            {
+                report.Blockers.Add($"the definition-ID pass could not rebuild the save: {e.Message}");
+            }
+        }
         if (report.Blockers.Count > 0)
             return null;
 
@@ -204,7 +214,7 @@ internal static class SaveLoader
         return report;
     }
 
-    private static (PlayerRecord, DeltaSnapshot) ResolveDefinitions(
+    internal static (PlayerRecord, DeltaSnapshot) ResolveDefinitions(
         PlayerRecord player, DeltaSnapshot delta, ContentIdentity content, MigrationReport report)
     {
         string? Resolve(string id, string referencedBy)
@@ -364,11 +374,142 @@ internal static class SaveLoader
                 companions.TryAdd(id, companion with { NpcId = id });
         }
 
-        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values),
-            new DeltaSnapshot(cells, entities.ToImmutable())
+        // Placed pieces (schema 15): a piece whose definition was removed is dropped as a loss. A storage piece's chest spills its stacks
+        // to the ground where the piece stood, keeping their identities (the container pass above has resolved them), and an errand at a
+        // dropped piece walks home.
+        var pieces = ImmutableArray.CreateBuilder<PieceRecord>();
+        var droppedPieces = new List<PieceRecord>();
+        foreach (var piece in delta.Pieces)
+        {
+            if (Resolve(piece.DefId, $"piece {piece.InstanceId} in cell {piece.HostCell}") is { } id)
+                pieces.Add(piece with { DefId = id });
+            else
+                droppedPieces.Add(piece);
+        }
+        var spilled = new List<CreatedEntityRecord>();
+        foreach (var piece in droppedPieces)
+        {
+            string key = "container." + piece.InstanceId.Value.ToLowerInvariant();
+            if (containers.FirstOrDefault(c => c.Key == key) is not { } chest)
+                continue;
+            containers = containers.Remove(chest);
+            int xCm = (int)WorldMath.FloorMod(piece.XMm / 10, WorldMath.CellSizeCm), zCm = (int)WorldMath.FloorMod(piece.ZMm / 10, WorldMath.CellSizeCm);
+            spilled.AddRange(chest.Items.Select(item => new CreatedEntityRecord(item.ItemId, item.DefId, piece.HostCell, xCm, zCm, piece.BaselineHash)
             {
-                Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
+                Count = item.Count,
+                Quality = item.Quality,
+            }));
+            if (!chest.Items.IsEmpty)
+                report.Warnings.Add($"{chest.Items.Length} stacks from the chest of piece {piece.InstanceId} were put on the ground");
+        }
+
+        // NPC errands (schema 15): an NPC that was removed takes its errand with it; two that resolve to one keep the first by original ID.
+        var droppedIds = droppedPieces.Select(p => p.InstanceId).ToHashSet();
+        var errands = new SortedDictionary<string, NpcErrandRecord>(StringComparer.Ordinal);
+        foreach (var original in delta.NpcErrands.OrderBy(e => e.NpcId, StringComparer.Ordinal))
+        {
+            var errand = original;
+            if (errand.PieceId is { } workPlace && droppedIds.Contains(workPlace))
+            {
+                errand = errand with { Phase = NpcErrandPhase.ToHome, PieceId = null, Route = NavRoute.None, StuckTicks = 0 };
+                report.Warnings.Add($"npc errand {original.NpcId}: its work place {workPlace} was removed; they walk home");
+            }
+            if (Resolve(errand.NpcId, $"npc errand {original.NpcId}") is not { } npc)
+                continue;
+            if (!errands.TryAdd(npc, errand with { NpcId = npc }))
+                report.Loss.Add($"npc errand {original.NpcId}: merged into {npc}'s; its pose is dropped");
+        }
+
+        // The faction ledger (schema 15). An act whose subject was removed goes, with what any faction knew of it; standing stays, and
+        // the act sequence never goes back.
+        var ledger = player.Factions;
+        var acts = ImmutableArray.CreateBuilder<ActRecord>();
+        var droppedActs = new HashSet<long>();
+        foreach (var act in ledger.Acts)
+        {
+            if (Resolve(act.Subject, $"player act {act.Seq}") is { } subject)
+                acts.Add(act with { Subject = subject });
+            else
+                droppedActs.Add(act.Seq);
+        }
+        // Knowledge: a removed faction takes its rows; two that resolve to one keep the identified row, then the earlier. A removed
+        // reporter leaves the knowledge standing, without them.
+        var knowledge = new Dictionary<(string Knower, long Act), FactionKnowledge>();
+        foreach (var row in ledger.Knowledge)
+        {
+            if (droppedActs.Contains(row.Act) || Resolve(row.Knower, $"player faction knowledge of act {row.Act}") is not { } knower)
+                continue;
+            string? via = row.Via;
+            if (via is not null)
+            {
+                var resolution = content.Resolve(via);
+                switch (resolution.Outcome)
+                {
+                    case IdOutcome.Current:
+                        break;
+                    case IdOutcome.Renamed:
+                        report.CountAlias(via, resolution.CurrentId!);
+                        via = resolution.CurrentId;
+                        break;
+                    case IdOutcome.Replaced:
+                        report.CountReplacement(via, resolution.CurrentId!);
+                        via = resolution.CurrentId;
+                        break;
+                    case IdOutcome.Discarded:
+                        report.CountDiscard(via);
+                        report.Warnings.Add($"knowledge of act {row.Act} by {knower}: its reporter '{via}' was removed; the knowledge stays");
+                        via = null;
+                        break;
+                    default:
+                        report.Blockers.Add($"unresolved definition ID '{via}' (player faction knowledge of act {row.Act}): it is not defined and " +
+                                            $"content/_aliases.yaml does not map it ({resolution.Path})");
+                        via = null;
+                        break;
+                }
+            }
+            var resolved = row with { Knower = knower, Via = via };
+            if (!knowledge.TryGetValue((knower, row.Act), out var held)
+                || (resolved.Identity == Identities.Identified && held.Identity != Identities.Identified)
+                || (resolved.Identity == held.Identity && resolved.Tick < held.Tick))
+                knowledge[(knower, row.Act)] = resolved;
+        }
+        // Standing: a removed faction's goes; two that resolve to one are summed and clamped, and a sum of 0 is neutral, which is not kept.
+        var standing = new SortedDictionary<string, (int Points, List<string> From)>(StringComparer.Ordinal);
+        foreach (var row in ledger.Standing)
+        {
+            if (Resolve(row.FactionId, "player faction standing") is not { } id)
+                continue;
+            if (standing.TryGetValue(id, out var sum))
+            {
+                sum.From.Add(row.FactionId);
+                standing[id] = (Math.Clamp(sum.Points + row.Points, FactionLedger.OrdinaryFloor, FactionLedger.MaxPoints), sum.From);
+            }
+            else
+            {
+                standing[id] = (row.Points, new List<string> { row.FactionId });
+            }
+        }
+        foreach (var (id, (points, from)) in standing.Where(s => s.Value.Points == 0).ToList())
+        {
+            report.Warnings.Add($"standing with {string.Join(" and ", from)} merged to neutral");
+            standing.Remove(id);
+        }
+        var factions = new FactionLedger(ledger.NextActSeq, acts.ToImmutable(),
+            knowledge.Values.OrderBy(k => k.Knower, StringComparer.Ordinal).ThenBy(k => k.Act).ToImmutableArray(),
+            standing.Select(s => new FactionStanding(s.Key, s.Value.Points)).ToImmutableArray());
+
+        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
+                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values) with { Factions = factions },
+            delta with
+            {
+                Cells = cells,
+                Entities = entities.ToImmutable(),
+                Created = created.Concat(spilled).OrderBy(c => c.InstanceId.Value, StringComparer.Ordinal).ToImmutableArray(),
+                Containers = containers,
+                Creatures = creatures.ToImmutable(),
+                Noises = noises.ToImmutable(),
+                Pieces = pieces.ToImmutable(),
+                NpcErrands = errands.Values.ToImmutableArray(),
             });
     }
 
@@ -400,6 +541,11 @@ internal static class SaveLoader
         foreach (var record in delta.Containers)
             Check(record.HostCell, record.BaselineHash);
         foreach (var record in delta.Creatures)
+            Check(record.HostCell, record.BaselineHash);
+        // A piece is proven against its anchor's cell only; an errand against the cell of its NPC's site (M7).
+        foreach (var record in delta.Pieces)
+            Check(record.HostCell, record.BaselineHash);
+        foreach (var record in delta.NpcErrands)
             Check(record.HostCell, record.BaselineHash);
         proven.ExceptWith(mismatched.Keys);
         report.CellsMatched = proven.Count;

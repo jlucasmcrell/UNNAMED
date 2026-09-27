@@ -1,0 +1,6 @@
+id: spell.ember.firebolt
+kind: spell
+schema: 1
+display_key: spell.ember.firebolt.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.

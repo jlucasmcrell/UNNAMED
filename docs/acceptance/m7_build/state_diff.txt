@@ -1,0 +1,4 @@
+Field-by-field comparison: expected (state_saved.json) against actual (state_loaded.json).
+
+Fields compared: 1535
+Differences: 0

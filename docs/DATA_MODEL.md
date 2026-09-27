@@ -53,7 +53,7 @@ Load order (S-18): read all files → parse → resolve `kind` to a C# schema vi
 | `effect` | StatusEffectDefinition | `effect.` | `affix` | AffixDefinition (§4.20) | `affix.` |
 | `node` | NodeDefinition (§4.16) | `node.` | `spawn` | SpawnDefinition (§4.17) | `spawn.` |
 | `location` | LocationDefinition (§4.18) | `location.` | `config` | ConfigDefinition (§4.19) | `config.` |
-| `skill` | SkillDefinition (§4.21) | `skill.` | | | |
+| `skill` | SkillDefinition (§4.21) | `skill.` | `piece` | PieceDefinition (§4.22, M7) | `piece.` |
 
 **Referenced kinds — minimum shape.** These seven are the kinds `§5`'s cross-reference table resolves and `Assumptions` 1–2 previously left "implied". They are **in the closed table**, because a reference that resolves to a kind the validator does not know is a reference the validator cannot check. Each is specified to the minimum depth references require; full specification belongs to `WORLD_ARCHITECTURE.md` (regions, anchors, schedules) and `PROGRESSION.md` (attributes).
 
@@ -120,7 +120,9 @@ The loader resolves an alias on read and logs a deprecation warning. A save refe
 
 ### 2.2 Instance IDs (D-04, D-10)
 
-Format `<prefix>_<ULID>`: a lowercase kind prefix and a canonical 26-character Crockford-base32 ULID, which is uppercase, and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Parsing accepts a lowercase ULID and normalizes it; comparison is ordinal. (An earlier wording said "lowercase" for the whole ID while its own example was uppercase.) Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance, `chr` player character (added by M2).
+Format `<prefix>_<ULID>`: a lowercase kind prefix and a canonical 26-character Crockford-base32 ULID, which is uppercase, and sortable: `itm_01J8ZC4K9P4M2Q7X8B3NDTVW6R`. Parsing accepts a lowercase ULID and normalizes it; comparison is ordinal. (An earlier wording said "lowercase" for the whole ID while its own example was uppercase.) Generated **only** by the Entity Registry (S-02) at creation. Content files never contain instance IDs — a ULID-shaped value in YAML is a validation error. Prefixes: `itm` item, `npc` NPC, `crt` creature, `bld` building, `cnt` container, `qst` quest instance, `crp` corpse, `anc` travel anchor, `sum` summon, `plt` farm plot, `evt` world-event instance, `chr` player character (added by M2), `pce` placed building piece (added by M7).
+
+**Derived identities (M7; DECISIONS D-04 note).** Two instance kinds are derived from what made them rather than minted from the clock, so the same commands make the same IDs and a replay or a save-then-continue mints identically: a placed piece is `EntityId.Derived(Piece, structure sequence, "unnamed.piece/v1", owner)`, and a piece chest's container is `EntityId.Derived(Container, the piece's sequence, "unnamed.piece-container/v1", piece ID)`. The ULID's timestamp field holds the ordinal, so these IDs sort by it. They are registered like any instance when the row is created, and the tags are save-sensitive (§6). M7 systems mint nothing else.
 
 ---
 
@@ -306,6 +308,8 @@ relationships_init:
 ```
 
 Generic hostiles (`npc.bandit.road_cutter`) set `unique: false` with a `name_pool`; they carry no memory and persist only a death flag.
+
+**As built (M7).** `works_at` (optional): the station kinds the NPC works at when asked (Kera: `[anvil, forge]`), each named once and each one some recipe is worked at; BLD005 checks it, with the span of the NPC's walk to work.
 
 **As implemented (M4).** An NPC names its `name`, its `role` (the list above), the `services` Phase 1 builds (`trade`, which needs a `merchant_ref`), its `dialogue_ref`, and `unique: true`: Phase 1's people are all named. `species_ref`, `schedule_ref`, `anchors`, `combat_profile`, `relationships_init` and `name_pool` are not built and the SOC001 lint refuses them. Where each stands is the region's: its `npcs` list (`npc_ref`, `position_m`, `facing_deg`; lint WLD012 - defined, in bounds, clear of structures, placed once). The three are the content bible's: `npc.ashen_hollow.renn_vale` (steward), `npc.ashen_hollow.kera_voss` (smith, trader) and `npc.ashen_hollow.sel_arien` (archivist). **M6** adds the fourth, `npc.ashen_hollow.tavar_orr`, and the `companion` block an NPC who can join the character names - `health`, `weapon_item_ref` (a melee weapon, whose damage, reach and timing are the item's) and `armor` by region (SOC001) - in place of `combat_profile`, which stays refused: a Phase-1 companion's body is these numbers, not an AI profile.
 
@@ -558,6 +562,8 @@ nodes:
 
 **Phase-1 audit remediation (2026-09-24, H-01, L-18).** A `once` line is spent when it is heard, not when it is answered. So SOC001 refuses a reply with consequences on a `once` line unless its `next_if_exhausted` line offers a reply with the same `id` and the same consequences. The author gates that second reply on whatever marks the answer received, typically the line it leads to not yet being visited; the lint does not check the gate. When a reply's receipt matters, it leads to a line of its own: Sel's primer is given on `primer_given`, and her later lines are gated on having visited it, not on having heard the offer.
 
+**As built (M7).** The `reputation` condition takes tier keys, `{ kind: reputation, faction_ref, min_tier?, max_tier? }` (defaults anathema and exalted; `not` is refused), and holds while the character's tier with the faction is in that range. Two M7 kinds join the closed set: the condition `act_done` (`{ kind: act_done, act, creature_ref | flag_ref }`: the character's act log holds that act) and the consequence `report_act` (the same fields: the character tells the speaker of that act). `add_reputation` stays unbuilt and is refused by name: standing moves only through acts a faction learns of. Lint FAC001 holds a `reputation` condition to the speaker's own faction, `act_done` to a reply that reports the same act, and `report_act` to a conversation whose participants all belong to one faction that reacts to it.
+
 ### 4.13 FactionDefinition — `kind: faction`
 
 ```yaml
@@ -583,6 +589,15 @@ joinable: true
 join_requirements: { reputation: { faction_ref: faction.settlement.stoneford_covenant, min: 150 }, quest_ref: quest.settlement.stoneford_missing_flour }
 # note: Starting faction; its tiers are the tutorial for 'reputation buys access, not power' (D-09).
 ```
+
+**As built (M7).** A faction takes `name`, `seat_location_ref`, `reactions: [{ act, creature_ref | flag_ref, delta }]` and `relations: [{ faction_ref, attitude }]` (attitude one of `close`, `cordial`, `indifferent`, `strained`, `opposed`). The shape above maps as follows:
+- `members` - the NPC's own `faction_ref`; membership is definition data, not saved.
+- `player_start_reputation` and `reputation_tiers` - one ladder in `config.factions` for every faction (PROGRESSION §10); every standing starts at 0.
+- `attitude_default` and `enemy_of` - replaced by attitude words, so no number can be combined with a standing, and hostility is not a faction field.
+- `laws` - crime is Phase 3; law belongs to places, not to a faction.
+- `territory`, `services_gated`, `joinable` and `join_requirements` - not built in M7.
+
+FAC001 refuses each by name, with its reason. A reaction names a built act kind (`creature_killed`, `switch_set`) and one single-instance subject: a creature every spawner places once, or a flag only a switch sets.
 
 ### 4.14 LootTableDefinition — `kind: loot`
 
@@ -631,6 +646,8 @@ repair_service: false
 Phase 1 (M3b) matches `buys_tags` against the item's `category`; the tag vocabulary arrives later. A merchant buys at `config.economy`'s `sell_ratio` of `value_base` and sells at `value_base × price_bias`.
 
 **As implemented (M4).** A profile is opened by the NPC that names it (`merchant_ref`); Phase 1's is `merchant.ashen_hollow.kera_voss` (M3b's `merchant.smith_orren`, renamed before any save could name it). Its `stock` is the trader's wares at the start; what the trader buys joins them, asking `value_base` for anything they did not stock. `restock_min`, `gold_reserve` and `trade_skill_effect` are not built.
+
+**As built (M7).** A stock row may take `requires: { faction_ref, min_tier }`: the ware is listed and sold only while the character's tier with that faction is at `min_tier` or above; selling to the trader is not gated. The gate is keyed by item, and enforced by the trade system (`TradeSystem.Withheld`), not the dialogue. FAC001 requires the faction to be that of every NPC who trades from the merchant, and the item to appear in one stock row. Kera Voss's iron billets are gated at the Waystation's `accepted`.
 
 ### 4.16 NodeDefinition — `kind: node`
 
@@ -802,6 +819,35 @@ xp_debt_fraction: 0.10            # AG-8, of the current level's XP span
 #       tables | skill XP curve | novelty bonus | the default starting package (attributes, skills, techniques)
 ```
 
+### 4.22 PieceDefinition — `kind: piece` (M7, as built)
+
+A building piece (D-08; D-14: one storey), snapped to the 3 m lattice in quarter turns. The definition holds what every placed piece of it shares. A placed piece is a `pce_` row in the world delta (§2.2) holding its pose, owner, current health, door state and host cell (`PERSISTENCE.md`).
+
+```yaml
+id: piece.wall.timber
+kind: piece
+family: wall                          # pad | wall | doorway | door | roof | storage | station
+slot: edge                            # square | edge | door (a doorway's opening) | roof | furniture (on a square)
+rotations: [0, 1, 2, 3]               # the quarter turns allowed
+bounds_m: [-1.7, -0.2, 1.7, 0.2]      # the local footprint at rotation 0: [min_x, min_z, max_x, max_z]
+parts:                                # the blocking boxes; traversal solid, or door for a door's leaf
+  - { box_m: [-1.7, -0.2, 1.7, 0.2], height_m: 3.0, traversal: solid }
+sockets:                              # offered (edge, square) or mounted on (edge_mount, square_mount, door_mount)
+  - { type: edge_mount, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 200
+supports_roof: true
+# also: container { stack_slots, at_m } (a piece chest) | station { kind, work_anchor_m, work_facing_deg } (a crafting station
+#       and where its worker stands)
+```
+
+- Parts never overhang (`clearance_m` 0): lintels and roofs exist only in presentation, so a height-blind check never closes a doorway. Pads and roofs have no parts: they block nothing and never rebuild navigation.
+- A station's `kind` is the one recipes name for the station they are worked at; an NPC's `works_at` names the same kinds (§4.5).
+- `config.building` (§4.19) holds the lattice module, building reach, refund and repair percentages, and the damage and protection rules. A region's `build_areas` bound where building is allowed and how many pieces each takes (lints BLD001-BLD009).
+- Shipped: `piece.pad.timber`, `piece.wall.timber`, `piece.doorway.timber`, `piece.door.timber`, `piece.roof.timber`, `piece.storage.chest`, `piece.station.anvil`.
+- `piece_ref` names a piece definition in the `construct_building` objective (§4.11), which stays not built (`ObjectiveTypes.NotBuilt`) until quest content needs it, M9 or later.
+
 ---
 
 ## 5. Cross-references and validation
@@ -851,10 +897,12 @@ Four independent axes — conflating them is the classic failure. `PERSISTENCE.m
 
 **Rules.**
 
-1. **Additive changes with a default are migration-free** — add the field, document the default, keep the same `schema_version`.
+1. **Every added persisted field bumps `schema_version` and is required on decode** - a migration step writes its value for older saves, and a current save without it is corrupt, never defaulted. (Corrected at M7: this rule first read "additive changes with a default are migration-free - add the field, document the default, keep the same `schema_version`", which no schema since M2b has followed; a silently defaulted field is how state is lost across a load without anyone noticing.)
 2. **Structural changes require an ordered, pure, testable migration step** (rename, split, merge, type change, meaning change). Every shipped version needs a fixture save exercised by `Migrate(from, to)`.
 3. **Deleting content is never a silent drop** (D-05): either map forward in `_aliases.yaml` or record the loss explicitly in the migration with a player-facing recovery action.
 4. **Instances of a removed definition must be handled explicitly** — remap to the successor, or convert to a "relic" record preserving the player's item, its rolled properties, and a `legacy_definition` field. Never delete player property silently. (As implemented, M2b supports remap (`removed: old: new`) and an explicit, reported destroy (`removed: old: ~`). Relic conversion arrives with item instance records that carry rolled properties.)
+**Save-sensitive M7 constants.** The `EntityId.Derived` tags `unnamed.piece/v1` and `unnamed.piece-container/v1`: a change re-keys every placed piece and piece chest. `config.building.module_m`: pieces are anchored in absolute millimetres, so a retune leaves saved anchors off the new lattice; they are audited, never migrated. Not save-locked: the faction ladder (tiers are derived from saved points) and `config.navigation.node_m` (routes are saved in millimetres, and the grid is rebuilt).
+
 5. **Baseline-locked surfaces** (generated cells, spawn placement, loot reproducibility) depend on the baseline tuple: the world seed and the generator contract, including its placement data. Changing generation code or `placement` data changes the baseline hash of every cell it affects. A save with changed cells there needs a registered transition (`PERSISTENCE.md` §6.4), or it refuses to load - never a silent regeneration (`RK-01`, D-05). A runtime-only content change (a creature's stats, an item's price) is not a generation input and moves no baseline.
 6. **Integrity:** `PERSISTENCE.md` §3.2/§6.1 is the authority for the integrity root — it is `sections.sha256`, which covers every other file **including `manifest.json`**. The manifest deliberately carries **no** checksum of itself (a self-referential checksum is a trap), so the earlier phrasing in this document that implied one was wrong. Writes are atomic (staging + rename + verify) with two backup generations (`PERSISTENCE.md` §7.3), and a corrupt section is quarantined with an explicit statement of what was lost rather than a partial load being applied silently.
 

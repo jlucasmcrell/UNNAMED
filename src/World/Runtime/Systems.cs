@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 
@@ -45,11 +46,63 @@ internal sealed class SystemContext
     public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
+    /// <summary>Every closed door and standing barrier the region authored, then the leaves of the placed doors standing shut (M7).</summary>
+    public ImmutableArray<Blocker> ClosedDoors() => State.ClosedPieceLeaves.IsEmpty
+        ? Setup.Layout.ClosedDoors(IsOpen, IsLifted)
+        : Setup.Layout.ClosedDoors(IsOpen, IsLifted).AddRange(State.ClosedPieceLeaves);
 
-    /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
+    /// <summary>
+    /// Where bodies move (M7): the authored space with every placed piece's solid parts after the authored blockers, in
+    /// <see cref="StructureOrder"/>. It is the authored space itself while nothing is built.
+    /// </summary>
+    public WalkSpace Space => State.Space ?? Setup.Layout.Space;
+
+    /// <summary>Every placed part, solid or door, as navigation reads it (M7), in <see cref="StructureOrder"/>.</summary>
+    public ImmutableArray<NavFootprint> StructureFootprints => State.StructureFootprints;
+
+    /// <summary>What stops a line of sight, a blow or a shot: the walls and structures, placed pieces among them, and every closed door.</summary>
+    public IEnumerable<Blocker> SightWalls() => Space.Blockers.Concat(ClosedDoors());
+
+    /// <summary>An authored container, a corpse lying where its creature fell (M3d), a trader's wares, or a placed chest (M7).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key)
+        ?? (key.StartsWith(WorldDelta.PieceChestPrefix, StringComparison.Ordinal) ? PieceChestSites().FirstOrDefault(s => s.Key == key) : null);
+
+    /// <summary>
+    /// Every standing chest's container (M7 design §4.14), by piece ID: keyed by its piece, its site the world point of the definition's
+    /// <c>at_m</c>, no loot table, its identity derived from the piece and its owner the piece's.
+    /// </summary>
+    public IEnumerable<ContainerSite> PieceChestSites()
+    {
+        foreach (var row in State.World.Pieces.OrderBy(p => p.InstanceId.Value, StringComparer.Ordinal))
+        {
+            if (Setup.Building.Catalog.Find(row.DefId)?.Container is not { } container)
+                continue;
+            var (dx, dz) = QuarterTurn.Apply(container.XMm, container.ZMm, row.Rotation);
+            yield return new ContainerSite(WorldDelta.PieceChestKey(row.InstanceId), string.Empty, row.XMm + dx, row.ZMm + dz, container.StackSlots)
+            {
+                InstanceId = WorldDelta.PieceChestId(row.InstanceId),
+                Owner = row.Owner,
+            };
+        }
+    }
+
+    /// <summary>A placed bench's station key (M7): <c>station.pce_</c> and its piece's ULID in lower case.</summary>
+    internal static string PieceStationKey(EntityId pieceId) => "station." + pieceId.Value.ToLowerInvariant();
+
+    /// <summary>Every station (M7 design §4.14): the authored ones in content order, then each standing bench's.</summary>
+    public IEnumerable<StationSite> Stations() => Setup.Layout.Stations.Concat(PieceStationSites());
+
+    /// <summary>Each standing bench's station, in <see cref="StructureOrder"/>: keyed by its piece, of its definition's kind, at its part's centre.</summary>
+    public IEnumerable<StationSite> PieceStationSites()
+    {
+        foreach (var part in State.StructureFootprints)
+        {
+            if (part.Part != 0 || State.World.Piece(part.PieceId) is not { } row || Setup.Building.Catalog.Find(row.DefId)?.Station is not { } station)
+                continue;
+            yield return new StationSite(PieceStationKey(part.PieceId), station.Kind, (part.MinXMm + part.MaxXMm) / 2, (part.MinZMm + part.MaxZMm) / 2);
+        }
+    }
 
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;
@@ -71,7 +124,7 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.Layout.Space.Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        SightWalls().Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(Body npc) =>
@@ -92,6 +145,28 @@ internal sealed class SystemContext
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
             .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id))
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
+
+    /// <summary>What an NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people.</summary>
+    public List<Blocker> PersonObstacles(string npcId)
+    {
+        long radius = Setup.Movement.BodyRadiusMm;
+        var obstacles = new List<Blocker>(ClosedDoors());
+        obstacles.AddRange(State.Creatures.Values.Where(x => x.Alive)
+            .Select(x => (Blocker)new CircleBlocker(x.Key, x.Body.XMm, x.Body.ZMm, x.Definition.RadiusMm, 0)));
+        obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, radius, 0));
+        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != npcId)
+            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, radius, 0)));
+        return obstacles;
+    }
+
+    /// <summary>
+    /// Anyone standing in a footprint: the character, a living creature, or an NPC, companions included - who would be shut inside the
+    /// wall if a door closed on them (the Phase-1 technical audit, L-16).
+    /// </summary>
+    public bool BodyIn(Blocker blocker) =>
+        blocker.Separation(State.Body.XMm, State.Body.ZMm, Setup.Movement.BodyRadiusMm) is not null
+        || State.Creatures.Values.Any(c => c.Alive && blocker.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
+        || State.Npcs.Values.Any(n => blocker.Separation(n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm) is not null);
 }
 
 /// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>
@@ -145,7 +220,7 @@ internal sealed class MovementSystem
         var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
         if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
             return "busy";
-        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Space))
             return "no room to stand";
         _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
         _context.Events.Publish(new Jumped(_player, tick));
@@ -170,7 +245,7 @@ internal sealed class MovementSystem
             return "in the air";
         if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
             return "mid-dodge";
-        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Space))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
@@ -226,7 +301,7 @@ internal sealed class MovementSystem
         }
 
         var posture = _context.State.Posture;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)
             _context.State.SetPosture(_owner, next);
         if (to == from)
@@ -265,6 +340,11 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        // A placed door first (M7): its toggle is the building system's.
+        if (command.TargetKey.StartsWith("pce_", StringComparison.Ordinal))
+            return EntityId.TryParse(command.TargetKey, out var piece)
+                ? _context.Dispatch(new OperatePieceDoor(piece, _player, null, null))
+                : "there is no such door";
         if (_context.Setup.Layout.FindSwitch(command.TargetKey) is { } site)
             return Work(site, tick);
         var door = _context.Setup.Layout.FindDoor(command.TargetKey);
@@ -277,15 +357,40 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
-        // Nor on anyone else standing in it - a creature or an NPC - who would be shut inside the wall (the Phase-1 technical audit, L-16).
-        bool blocked = door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null
-                       || _context.State.Creatures.Values.Any(c => c.Alive && door.ClosedFootprint.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
-                       || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
-        if (open && blocked)
+        if (open && _context.BodyIn(door.ClosedFootprint))
             return $"{door.Key} cannot close: something is in the doorway";
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A companion opens a door in their way (M7 design §3.11): from within reach of their own body, and open only - NPCs never close a
+    /// door. One already open is left as it is. A placed door is the building system's, and asks whether they may.
+    /// </summary>
+    public string? Handle(OpenDoor command, long tick)
+    {
+        // Companions and NPCs on an errand (M7) open doors in their way; no one else does, and no NPC ever closes one.
+        if ((!_context.State.Companions.ContainsKey(command.NpcId) && _context.State.World.NpcErrand(command.NpcId) is null)
+            || !_context.State.Npcs.TryGetValue(command.NpcId, out var npc))
+            return $"{command.NpcId} opens no doors";
+        if (command.DoorKey.StartsWith("pce_", StringComparison.Ordinal))
+            return EntityId.TryParse(command.DoorKey, out var piece)
+                ? _context.Dispatch(new OperatePieceDoor(piece, NpcSystem.InstanceIdOf(command.NpcId), command.NpcId, true))
+                : $"there is no door called '{command.DoorKey}'";
+        var door = _context.Setup.Layout.FindDoor(command.DoorKey);
+        if (door is null)
+            return $"there is no door called '{command.DoorKey}'";
+        var rules = _context.Setup.Movement;
+        double distance = door.ClosedFootprint.DistanceTo(npc.Body.XMm, npc.Body.ZMm);
+        if (distance > rules.InteractReachMm)
+            return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
+        if (_context.IsOpen(door))
+            return null;
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, 1)) is { } refused)
+            return refused;
+        _context.Events.Publish(new DoorToggled(NpcSystem.InstanceIdOf(command.NpcId), door.Key, true, tick));
         return null;
     }
 
@@ -304,6 +409,7 @@ internal sealed class InteractionSystem
             return site.LockedText;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
             return refused;
+        _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.SwitchSet, site.FlagId, body.XMm, body.ZMm));
         _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }

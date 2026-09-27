@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -57,6 +58,8 @@ public sealed class PlayerController
         _open.Clear();
         foreach (var door in simulation.Doors)
             _open[door.Site.Key] = door.Open;
+        foreach (var piece in simulation.Pieces.Where(p => p.Family == PieceFamily.Door))
+            _open[piece.Id.Value] = piece.DoorOpen;
     }
 
     public void OnBodyMoved(BodyMoved moved) => _motion.OnBodyMoved(moved);
@@ -158,10 +161,18 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
+        // A placed door (M7) is worked the same way, from the body to its shut leaf.
+        foreach (var piece in simulation.Pieces.Where(p => p.Family == PieceFamily.Door))
+        {
+            var leaf = new BoxBlocker(piece.Id.Value, piece.MinXMm, piece.MinZMm, piece.MaxXMm, piece.MaxZMm, 0);
+            candidates.Add((new Focus(FocusKind.Door, piece.Id.Value, piece.DefId, leaf.CenterXMm, leaf.CenterZMm),
+                leaf.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
         foreach (var site in simulation.Containers.Select(c => c.Site))
         {
-            // A corpse is searched like a chest, and named for the creature it was.
-            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId ?? site.Key;
+            // A corpse is searched like a chest, and named for the creature it was; a placed chest (M7) for its piece.
+            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId
+                ?? simulation.Pieces.FirstOrDefault(p => p.ContainerKey == site.Key)?.DefId ?? site.Key;
             candidates.Add((new Focus(FocusKind.Container, site.Key, defId, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
         }
         foreach (var item in simulation.WorldItems)
@@ -169,7 +180,7 @@ public sealed class PlayerController
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
         foreach (var node in simulation.Nodes)
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
-        foreach (var station in _session.Setup.Layout.Stations)
+        foreach (var station in simulation.Stations)   // the authored ones, then each placed bench (M7)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
@@ -239,6 +250,21 @@ public sealed class PlayerController
 
     /// <summary>Work a recipe at the station in reach (M3f).</summary>
     public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));
+
+    /// <summary>Place a piece at a pose on the building lattice (M7): the authority judges it, whatever the ghost showed.</summary>
+    public void Place(string pieceDefId, long xMm, long zMm, int rotation) =>
+        _session.Submit(new PlacePieceCommand(_session.Simulation!.PlayerId, pieceDefId, xMm, zMm, rotation));
+
+    /// <summary>Take a piece down (M7).</summary>
+    public void Dismantle(Domain.EntityId pieceId) => _session.Submit(new DismantlePieceCommand(_session.Simulation!.PlayerId, pieceId));
+
+    public void Repair(Domain.EntityId pieceId) => _session.Submit(new RepairPieceCommand(_session.Simulation!.PlayerId, pieceId));
+
+    /// <summary>Ask an NPC to work at a station (E9); the authority checks everything.</summary>
+    public void Assign(string npcId, Domain.EntityId pieceId) => _session.Submit(new AssignWorkerCommand(_session.Simulation!.PlayerId, npcId, pieceId));
+
+    /// <summary>Let an NPC who works for the character go home (E9).</summary>
+    public void Release(string npcId) => _session.Submit(new ReleaseWorkerCommand(_session.Simulation!.PlayerId, npcId));
 
     /// <summary>The recipes the character knows that are worked at a station of this kind. None is named here.</summary>
     public IReadOnlyList<Domain.Crafting.RecipeDefinition> Recipes(string stationKind)

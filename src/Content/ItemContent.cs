@@ -188,13 +188,27 @@ public static class ItemContent
         return true;
     }
 
+    /// <summary>A gated stock row's <c>requires</c> (M7): exactly <c>faction_ref</c> and <c>min_tier</c>.</summary>
+    private static UNNAMED.Domain.Factions.StandingRequirement Requirement(Dictionary<object, object> map, string at)
+    {
+        if (map.Keys.OfType<string>().Any(k => k is not ("faction_ref" or "min_tier")))
+            throw new FormatException($"{at}: requires takes exactly faction_ref and min_tier");
+        return new UNNAMED.Domain.Factions.StandingRequirement(Text(map, "faction_ref"),
+            UNNAMED.Domain.Factions.StandingLadder.LevelOf(Text(map, "min_tier")));
+    }
+
     private static Merchant MerchantOf(ContentEnvelope definition)
     {
         var map = Read(definition.YamlSource);
         var stock = List(map, "stock").Select((row, i) =>
         {
             var line = row as Dictionary<object, object> ?? throw new FormatException($"{definition.Id} stock[{i}] must be a map");
-            var entry = new MerchantStock(Text(line, "item_ref"), Int(line, "count"), line.ContainsKey("price_bias") ? Number(line, "price_bias") : 1.0);
+            var entry = new MerchantStock(Text(line, "item_ref"), Int(line, "count"), line.ContainsKey("price_bias") ? Number(line, "price_bias") : 1.0)
+            {
+                Requires = line.ContainsKey("requires")
+                    ? Requirement(line["requires"] as Dictionary<object, object> ?? throw new FormatException($"{definition.Id} stock[{i}] requires must be a map"), $"{definition.Id} stock[{i}]")
+                    : null,
+            };
             if (entry.Count < 1 || entry.PriceBias <= 0)
                 throw new FormatException($"{definition.Id} stock[{i}] needs a positive count and price_bias");
             return entry;

@@ -92,7 +92,7 @@ Every count above 3 has a one-line justification. Volume is a *cost*, not a feat
 | Gathering resource types | **6** | Iron, ashbloom, wyrdwood, silver, resin, lake-crystal. Silver and lake-crystal exist only in Band C/dungeons, which is the mechanism that keeps crafting relevant past dungeon loot (charter §12). |
 | Material properties | **5 material families** | Iron, silver, star-metal, wyrdwood, ash-glass. Charter §12 names iron/silver/star-metal/wood/bone as needing to differ meaningfully. Each has a distinct property table row (weight, damage bias, enchant affinity). |
 | Factions | **2** | **The Vessmere Compact** (town authority, order, trade) and **the Ashlings** (outcast reclaimers of the old works). Two opposed factions is the minimum for reputation to be a *choice*. A third would need a third region to be meaningful. |
-| Reputation tiers | **5 per faction** | Hostile / Wary / Neutral / Trusted / Sworn. Gates dialogue, prices, and one slice objective. |
+| Reputation tiers | **5 per faction** | Hostile / Wary / Neutral / Trusted / Sworn. Gates dialogue, prices, and one slice objective. *(Flagged by M7, 2026-09-25: the as-built ladder has no hostility tier; M9 reconciles this as relation, war state and legal status.)* |
 | Companions | **2 recruitable** | `npc.warden_saelis` (story companion, personal quest in D2) and `npc.outcast_venn` (faction-locked; mutually exclusive in practice with Saelis's preferred outcome → real choice). STEP 16 says "a recruitable companion"; two is the minimum where the *choice* of companion means anything. |
 | Hirelings | **0** | Home defense, hireling housing, and steward roles need settlement systems the slice does not build. Deferred explicitly (§10). |
 | Building piece families | **4** | Foundation/floor, wall, roof, opening. 4 families × ~6 pieces = ~24 pieces: enough for a cottage with a door and a window (the charter's own ladder step 4). No towers, no gates, no farmland. |
@@ -166,7 +166,7 @@ Two recruitable companions, each with the state the charter's §15 demands but b
 
 ### 5.6 Factions and reputation
 
-**The Vessmere Compact** (town authority, order, trade) wants the iron seam reopened and the Ashlings expelled; backing it makes the Ashlings hostile, locks D3, and pleases Saelis. **The Ashlings** (outcast reclaimers of the old works) want the seam left shut and the works reclaimed; backing them raises Compact prices, puts town guards on you, and pleases Venn. Five tiers per faction gate **dialogue, prices, and exactly one slice objective each**. Reputation is never a single good/evil meter (charter §20) — the two factions have *incommensurable* goals, and the epic quest's final choice is where they collide.
+**The Vessmere Compact** (town authority, order, trade) wants the iron seam reopened and the Ashlings expelled; backing it makes the Ashlings hostile, locks D3, and pleases Saelis. **The Ashlings** (outcast reclaimers of the old works) want the seam left shut and the works reclaimed; backing them raises Compact prices, puts town guards on you, and pleases Venn. Five tiers per faction gate **dialogue, prices, and exactly one slice objective each**. Reputation is never a single good/evil meter (charter §20) — the two factions have *incommensurable* goals, and the epic quest's final choice is where they collide. *(Flagged by M7, 2026-09-25: conflicts with the as-built ladder, which has no hostility tier, and with standing as access only; M9 reconciles it as relation, war state and legal status.)*
 
 ### 5.7 World events and ecology
 

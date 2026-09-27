@@ -30,6 +30,15 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The quests (M5).</summary>
     public QuestSetup Quests { get; init; } = QuestSetup.Empty;
+
+    /// <summary>The navigation lattice and its limits (M7; D-13).</summary>
+    public NavConfig Navigation { get; init; } = NavConfig.Default;
+
+    /// <summary>Building (M7): the pieces and building's numbers.</summary>
+    public BuildingSetup Building { get; init; } = BuildingSetup.Empty;
+
+    /// <summary>The factions, the standing ladder and the act log's capacity (M7).</summary>
+    public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -86,8 +95,11 @@ public sealed class Simulation
     private readonly DeathSystem _death;
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
+    private readonly NavigationSystem _navigation;
+    private readonly BuildingSystem _building;
     private readonly NpcSystem _npcs;
     private readonly RelationshipSystem _relationships;
+    private readonly FactionSystem _factions;
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
@@ -96,6 +108,7 @@ public sealed class Simulation
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
+    private NavScratch? _previewScratch;
 
     private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
     {
@@ -128,17 +141,22 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id);
-        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
+        _navigation = new NavigationSystem(_context, _state.Claim(nameof(NavigationSystem), StateSlice.Navigation));
+        _building = new BuildingSystem(_context, _state.Claim(nameof(BuildingSystem), StateSlice.Structures), player.Id, _navigation);
+        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcErrands), _navigation);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
+        _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
-        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
+        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions, _navigation);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
-        _npcs.Populate();
+        _building.Populate();
+        _navigation.Build();
+        _npcs.Populate(player.Companions);
         _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
@@ -211,7 +229,11 @@ public sealed class Simulation
         Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor());
 
     /// <summary>Every authored container and what it holds now.</summary>
-    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
+    public ImmutableArray<ContainerView> Containers =>
+        Setup.Layout.Containers.Concat(_context.CorpseSites()).Concat(_context.PieceChestSites()).Select(_inventory.View).ToImmutableArray();
+
+    /// <summary>Every station (M7): the authored ones, then each standing bench's.</summary>
+    public ImmutableArray<StationSite> Stations => _context.Stations().ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
@@ -251,6 +273,45 @@ public sealed class Simulation
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
 
+    /// <summary>Navigation (M7): the grid, the gates and their state, the movers' routes and the work counts. Read-only.</summary>
+    public NavigationView Navigation => _navigation.View();
+
+    /// <summary>Every placed piece, by ID (M7).</summary>
+    public ImmutableArray<PieceView> Pieces => _building.Views();
+
+    /// <summary>Where bodies move (M7): the authored space and every placed piece's solid parts.</summary>
+    public WalkSpace Space => _context.Space;
+
+    /// <summary>The structure sequence (M7): one more on every place and take-down.</summary>
+    public long StructureRevision => _state.World.StructureSequence;
+
+    /// <summary>What the load found wrong with the saved pieces, kept and reported, then with the saved errands and repaired (M7).</summary>
+    public ImmutableArray<StructureConflict> StructureAudit => _state.StructureAudit.AddRange(_state.ErrandAudit);
+
+    /// <summary>Every errand (E9), by NPC ID: who works where, or is walking home.</summary>
+    public ImmutableArray<WorkAssignmentView> WorkAssignments => _npcs.WorkAssignments();
+
+    /// <summary>Every placed part as navigation reads it (M7).</summary>
+    public ImmutableArray<NavFootprint> StructureFootprints => _context.StructureFootprints;
+
+    /// <summary>
+    /// The placement ghost (M7 design §4.6): what placing this piece here would do, by the command's own rules on a scratch of its own.
+    /// Advisory and read-only - it dispatches, publishes, counts and writes nothing.
+    /// </summary>
+    public PlacementPreview PreviewPlacement(string pieceDefId, long xMm, long zMm, int rotation, bool checkNavigability)
+    {
+        _previewScratch ??= new NavScratch();
+        var check = BuildingRules.Validate(new PlacementContext(_context, _navigation, _identity.Id, _identity.Id, _previewScratch, null, checkNavigability),
+            pieceDefId, xMm, zMm, rotation);
+        return BuildingRules.Preview(_context, check, pieceDefId);
+    }
+
+    /// <summary>Every faction as the character stands with it, in ordinal ID order (M7).</summary>
+    public ImmutableArray<FactionView> Factions => _factions.Views();
+
+    /// <summary>The character's act log, with what each faction knows of each act (M7).</summary>
+    public ImmutableArray<ActView> Acts => _factions.Acts();
+
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
 
@@ -281,6 +342,11 @@ public sealed class Simulation
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
+                PlacePieceCommand place => _building.Handle(place, WorldTick),
+                DismantlePieceCommand dismantle => _building.Handle(dismantle, WorldTick),
+                RepairPieceCommand repair => _building.Handle(repair, WorldTick),
+                AssignWorkerCommand assign => _building.Handle(assign, WorldTick),
+                ReleaseWorkerCommand release => _building.Handle(release, WorldTick),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
@@ -350,7 +416,7 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture };
+            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture, Factions = _state.Factions, Vitals = _state.PlayerCombat.Vitals };
     }
 
     /// <summary>
@@ -360,7 +426,7 @@ public sealed class Simulation
     public string StateDigest()
     {
         using var h = new CanonicalHasher();
-        h.Add("unnamed.simulation/v2").Add(WorldTick).Add(CaptureRecord().Digest).Add(_cells.Length);
+        h.Add("unnamed.simulation/v3").Add(WorldTick).Add(CaptureRecord().Digest).Add(World.StructureSequence).Add(_cells.Length);
         foreach (var cell in _cells)
             h.Add(cell.ToString()).Add(World.EffectiveCellDigest(cell));
         h.Add(World.Noises.Length);
@@ -394,6 +460,7 @@ public sealed class Simulation
         ForgetPlayer forget => _creatures.Handle(forget),
         CorpseEmptied emptied => _creatures.Handle(emptied, Now),
         DiscardContainer discard => _inventory.Handle(discard),
+        SpillContainer spill => _inventory.Handle(spill),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
@@ -406,6 +473,14 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
+        BeginWork begin => _npcs.Handle(begin, Now),
+        EndWork end => _npcs.Handle(end, Now),
+        RecordAct act => _factions.Handle(act, Now),
+        ReportAct report => _factions.Handle(report, Now),
+        OpenDoor open => _interaction.Handle(open, Now),
+        OperatePieceDoor door => _building.Handle(door, Now),
+        DamagePiece damage => _building.Handle(damage, Now),
+        RebuildNavigation rebuild => _navigation.Handle(rebuild, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

@@ -284,6 +284,27 @@ public static class WorldContent
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Build areas (M7): where the player may build. Their placement against the lattice and what they must keep clear of is
+            // BLD007's; here, their shape.
+            var areas = ImmutableArray.CreateBuilder<BuildAreaSite>();
+            foreach (var (entry, i) in (map.ContainsKey("build_areas") ? List(map, "build_areas") : new List<object>()).Select((a, i) => (a, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"build_areas[{i}] must be a map");
+                string key = Text(site, "key");
+                var box = List(site, "box_m");
+                if (box.Count != 4)
+                    throw new FormatException($"{key}: box_m is [min_x, min_z, max_x, max_z]");
+                var area = new BuildAreaSite(key, ToMm(box[0], key), ToMm(box[1], key), ToMm(box[2], key), ToMm(box[3], key), Int(site, "max_pieces"));
+                Check(key.StartsWith("build_area.", StringComparison.Ordinal), "WLD015", $"build area key '{key}' must start with 'build_area.'");
+                Check(area.MinXMm < area.MaxXMm && area.MinZMm < area.MaxZMm, "WLD015", $"{key}: box_m min must be below max");
+                Check(area.MinXMm >= minX && area.MinZMm >= minZ && area.MaxXMm <= maxX && area.MaxZMm <= maxZ
+                      && Covered(cells, area.MinXMm, area.MinZMm, area.MaxXMm, area.MaxZMm), "WLD015",
+                    $"{key} must lie inside the walkable bounds and the region's cells");
+                Check(area.MaxPieces >= 1, "WLD015", $"{key} must allow at least one piece (max_pieces)");
+                areas.Add(area);
+            }
+            Check(areas.Select(a => a.Key).Distinct(StringComparer.Ordinal).Count() == areas.Count, "WLD015", "two build areas share a key");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -299,6 +320,7 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                BuildAreas = areas.ToImmutable(),
             };
 
             // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand

@@ -1,0 +1,21 @@
+id: config.factions
+kind: config
+schema: 1
+display_key: config.factions.name
+tags: [config]
+notes: Factions and reputation (M7; PROGRESSION.md §10). One ladder for every faction; a standing is whole points and its tier is derived at read time, never saved. In M7 a faction learns an act only when the player tells a member - no rumour, no telling between factions.
+ladder:                          # PROGRESSION.md §10's eleven tiers, top down; a tier holds points >= its min
+  - { tier: exalted,  level: 5,  min: 1000 }
+  - { tier: allied,   level: 4,  min: 700 }
+  - { tier: honoured, level: 3,  min: 450 }
+  - { tier: trusted,  level: 2,  min: 250 }
+  - { tier: accepted, level: 1,  min: 100 }
+  - { tier: neutral,  level: 0,  min: -99 }
+  - { tier: wary,     level: -1, min: -249 }
+  - { tier: disliked, level: -2, min: -449 }
+  - { tier: despised, level: -3, min: -699 }
+  - { tier: outcast,  level: -4, min: -999 }
+  - { tier: anathema, level: -5, min: -1000 }
+points: { min: -1000, max: 1000, ordinary_floor: -999 }   # Anathema needs explicit acts (PROGRESSION §10); none exist yet
+acts:
+  log_capacity: 256  # the oldest act goes first

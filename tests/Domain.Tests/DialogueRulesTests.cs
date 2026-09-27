@@ -31,6 +31,10 @@ public class DialogueRulesTests
             Quests.TryGetValue((questId, objectiveId), out var state) ? state : objectiveId is null ? "not_started" : "not_reached";
         public Dictionary<string, UNNAMED.Domain.Companions.CompanionOrder> Companions { get; } = new(StringComparer.Ordinal);
         public UNNAMED.Domain.Companions.CompanionOrder? CompanionOrderOf(string npcId) => Companions.TryGetValue(npcId, out var order) ? order : null;
+        public Dictionary<string, int> Standing { get; } = new(StringComparer.Ordinal);
+        public HashSet<(string, string)> Acts { get; } = new();
+        int IDialogueFacts.StandingLevel(string factionId) => Standing.GetValueOrDefault(factionId);
+        bool IDialogueFacts.ActDone(string kind, string subject) => Acts.Contains((kind, subject));
     }
 
     private static DialogueNode Node(string id, bool once = false, string? exhausted = null) =>

@@ -217,7 +217,11 @@ public static class LootRoller
 }
 
 /// <summary>A merchant's stock and pricing (DATA_MODEL.md §4.15), Phase 1's stub: fixed stock, no economy.</summary>
-public sealed record MerchantStock(string ItemId, int Count, double PriceBias);
+public sealed record MerchantStock(string ItemId, int Count, double PriceBias)
+{
+    /// <summary>A gated row (M7): the ware is listed and sold only while the character stands high enough with a faction.</summary>
+    public UNNAMED.Domain.Factions.StandingRequirement? Requires { get; init; }
+}
 
 public sealed record Merchant(string Id, ImmutableArray<MerchantStock> Stock, ImmutableArray<string> BuysCategories);
 

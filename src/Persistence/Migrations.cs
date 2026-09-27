@@ -20,6 +20,9 @@ using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
+using V14 = UNNAMED.Persistence.Sections.V14;
+using V15 = UNNAMED.Persistence.Sections.V15;
+using V16 = UNNAMED.Persistence.Sections.V16;
 
 namespace UNNAMED.Persistence;
 
@@ -80,7 +83,10 @@ public static class SchemaMigrations
         new SchemaV10ToV11(),
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
-        new SchemaV13ToV14());
+        new SchemaV13ToV14(),
+        new SchemaV14ToV15(),
+        new SchemaV15ToV16(),
+        new SchemaV16ToV17());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -700,7 +706,7 @@ public sealed class SchemaV11ToV12 : SchemaMigration
                 Relationships = old.Relationships,
                 Conversations = old.Conversations,
                 Quests = old.Quests,
-                Companions = Array.Empty<CompanionDto>(),
+                Companions = Array.Empty<V14.Companion>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -721,7 +727,7 @@ public sealed class SchemaV12ToV13 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V12.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V14.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -766,6 +772,190 @@ public sealed class SchemaV13ToV14 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V13.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V14.EntitiesSection
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures?.Select(c => new V16.Creature
+                {
+                    Key = c.Key,
+                    DefId = c.DefId,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Generation = c.Generation,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DiedTick = c.DiedTick,
+                    RespawnTick = c.RespawnTick,
+                    Mind = c.Mind,
+                    Awareness = c.Awareness,
+                    Knows = c.Knows,
+                    KnownXMm = c.KnownXMm,
+                    KnownZMm = c.KnownZMm,
+                    LastSeenTick = c.LastSeenTick,
+                    SearchUntil = c.SearchUntil,
+                    HasCalled = c.HasCalled,
+                    Continuation = new V16.CreatureContinuation(),
+                }).ToArray(),
+                Noises = Array.Empty<NoiseDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 14 to 15 (M7): the player gains a faction ledger and each companion a route; the world gains placed pieces, the structure
+/// sequence and NPC errands. No act was recorded before M7, nothing was built or sent to work, and no one walked a planned route.
+/// </summary>
+public sealed class SchemaV14ToV15 : SchemaMigration
+{
+    public override int From => 14;
+
+    public override string Summary =>
+        "schema 14 -> 15: the player gains a faction ledger (empty before M7) and each companion a route (none); " +
+        "the world gains placed pieces, the structure sequence and NPC errands (none before M7)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V15.Player
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions?.Select(c => new CompanionDto
+                {
+                    NpcId = c.NpcId,
+                    Order = c.Order,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DownedTick = c.DownedTick,
+                    StuckTicks = c.StuckTicks,
+                    LastCombatTick = c.LastCombatTick,
+                    TrailMm = c.TrailMm,
+                    Route = new NavRouteDto
+                    {
+                        Status = "none", GoalMm = new long[2], CornersMm = Array.Empty<long>(), PlannedTick = 0, Stamp = 0, WatchMm = new long[4],
+                        Partial = false,
+                    },
+                }).ToArray(),
+                Posture = old.Posture,
+                Factions = new FactionsDto
+                {
+                    NextActSeq = 1, Acts = Array.Empty<ActDto>(), Knowledge = Array.Empty<KnowledgeDto>(), Standing = Array.Empty<StandingDto>(),
+                },
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V14.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V16.EntitiesSection
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+                Pieces = Array.Empty<PieceDto>(),
+                StructureSeq = 0,
+                NpcErrands = Array.Empty<NpcErrandDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 15 to 16 (the owner's ruling on the M7 E8.5 STOP): the player gains what their pools do next - the pauses after a blow, an
+/// exertion and a working, and the part-points accrued. A save that predates them kept none of it: its character resumes at rest, with
+/// every pause over and nothing accrued, as it always loaded. The timing that was not kept cannot be reconstructed.
+/// </summary>
+public sealed class SchemaV15ToV16 : SchemaMigration
+{
+    public override int From => 15;
+
+    public override string Summary => "schema 15 -> 16: the player gains their vitals (at rest: every pause over, nothing accrued - as older saves always loaded)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Factions = old.Factions,
+                Vitals = VitalsDto.Rested,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 16 to 17 (the owner's ruling on the second M7 E8.5 STOP): each creature record's continuation gains the ordinary attack it is
+/// in - the tick it began and whom it has landed on. A save that predates it kept none: its creatures resume with no attack in progress,
+/// as they always loaded, and one caught mid-attack begins again. The attack that was not kept cannot be reconstructed.
+/// </summary>
+public sealed class SchemaV16ToV17 : SchemaMigration
+{
+    public override int From => 16;
+
+    public override string Summary => "schema 16 -> 17: creature records gain the attack in progress (none - as older saves always loaded)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V16.EntitiesSection>(entities, options);
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
             {
                 Records = old.Records,
@@ -794,9 +984,22 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                     LastSeenTick = c.LastSeenTick,
                     SearchUntil = c.SearchUntil,
                     HasCalled = c.HasCalled,
-                    Continuation = new CreatureContinuationDto(),
+                    // A schema-16 creature without its continuation stays without one: the decoder refuses it as corrupt, not defaulted.
+                    Continuation = c.Continuation is { } k
+                        ? new CreatureContinuationDto
+                        {
+                            NextChargeTick = k.NextChargeTick,
+                            StaggerImmuneUntil = k.StaggerImmuneUntil,
+                            StaggeredTick = k.StaggeredTick,
+                            StaggerLastsTicks = k.StaggerLastsTicks,
+                            Attack = null,
+                        }
+                        : null,
                 }).ToArray(),
-                Noises = Array.Empty<NoiseDto>(),
+                Noises = old.Noises,
+                Pieces = old.Pieces,
+                StructureSeq = old.StructureSeq,
+                NpcErrands = old.NpcErrands,
             }, options);
         }
         document.Manifest["schema_version"] = To;

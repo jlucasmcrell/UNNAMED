@@ -1077,7 +1077,7 @@ Before Phase 2:
 Do not expand Ashen Hollow to include:
 
 - mounts;
-- player settlement building;
+- player settlement building (M7 reconciliation (2026-09-24): superseded for M7 by one content-defined build area at the crossing, owner Q4 approved 2026-09-25; this remains a Phase-1 prototype boundary);
 - romance;
 - full faction warfare;
 - full crime/court simulation;

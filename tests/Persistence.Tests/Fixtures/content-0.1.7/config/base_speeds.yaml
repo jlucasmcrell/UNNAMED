@@ -1,0 +1,11 @@
+id: config.base_speeds
+kind: config
+schema: 1
+display_key: config.base_speeds.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+base_m_s: 3.2
+walk_percent: 50
+sprint_percent: 160
+body_radius_m: 0.35
+interact_reach_m: 1.6

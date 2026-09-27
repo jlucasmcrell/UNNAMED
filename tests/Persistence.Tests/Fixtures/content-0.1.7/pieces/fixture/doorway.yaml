@@ -1,0 +1,20 @@
+id: piece.fixture.doorway
+kind: piece
+schema: 1
+display_key: piece.fixture.doorway.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+family: doorway
+slot: edge
+rotations: [0, 1, 2, 3]
+bounds_m: [-1.7, -0.2, 1.7, 0.2]
+parts:
+  - { box_m: [-1.7, -0.2, -0.8, 0.2], height_m: 3.0, traversal: solid }
+  - { box_m: [0.8, -0.2, 1.7, 0.2], height_m: 3.0, traversal: solid }
+sockets:
+  - { type: edge_mount, at_m: [0, 0], axis: x }
+  - { type: door, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 200
+supports_roof: true

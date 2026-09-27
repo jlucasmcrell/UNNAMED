@@ -84,6 +84,7 @@ public sealed class PerfRun
                 new("loot", 60, 3.5f, Obstructed) { Goal = activities.SearchTheCorpse },
                 new("third_person", Math.Max(segmentSeconds, 150), 3.5f, AfterCharwood) { Direct = true },
                 new("first_person", Math.Max(segmentSeconds, 150), 0f, AfterCharwood),
+                new("building", 150, 3.5f, AfterCharwood) { Goal = activities.BuildAtTheCrossing },
             };
     }
 

@@ -1,0 +1,13 @@
+id: quest.fixture.errand
+kind: quest
+schema: 1
+display_key: quest.fixture.errand.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+title: The Warden's Errand
+summary: Find the wolves' den for the warden.
+giver_ref: npc.fixture.warden
+entry_objective: o_ask
+objectives:
+  - { id: o_ask, type: talk_to, description: Ask the warden., params: { npc_ref: npc.fixture.warden, nodes: [errand] }, next: [o_den] }
+  - { id: o_den, type: visit_location, description: Find the den., params: { location_ref: location.wolf_den } }

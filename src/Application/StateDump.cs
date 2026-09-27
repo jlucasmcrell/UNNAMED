@@ -81,6 +81,12 @@ public static partial class StateDump
             ["doors"] = View("doors", simulation.Doors),
             ["barriers"] = View("barriers", simulation.Barriers),
             ["quests"] = View("quests", simulation.Quests.OrderBy(q => q.Id, StringComparer.Ordinal)),
+            // M7's paths, empty in play until something is built, an errand run or an act known: the pieces, the benches' stations and the
+            // work assignments (E9) as the game shows them - the errand records are the world's - and the faction slice.
+            ["pieces"] = View("pieces", simulation.Pieces),
+            ["piece_stations"] = View("piece_stations", simulation.Stations.Where(s => s.Key.StartsWith("station.pce_", StringComparison.Ordinal))),
+            ["work_assignments"] = View("work_assignments", simulation.WorkAssignments),
+            ["factions"] = View("factions", simulation.CaptureRecord().Factions.Standing),
             ["combat"] = combat,
             ["left_out"] = leftOut,
         };
@@ -150,6 +156,10 @@ public static partial class StateDump
     [GeneratedRegex("^[a-z]{3}_[0-9A-Z]{26}$")]
     private static partial Regex InstanceId();
 
+    /// <summary>A placed chest's container key or a placed bench's station key (M7): the prefix, <c>pce_</c> and the piece's ULID in lower case.</summary>
+    [GeneratedRegex("^(container|station)\\.pce_([0-9a-z]{26})$")]
+    private static partial Regex PieceSiteKey();
+
     /// <summary>Every list of records in the order of what the records hold, their IDs masked.</summary>
     private static void Order(JsonNode? node)
     {
@@ -187,6 +197,8 @@ public static partial class StateDump
                 {
                     if (child is JsonValue v && v.TryGetValue(out string? text) && InstanceId().IsMatch(text))
                         o[key] = "#";
+                    else if (child is JsonValue c && c.TryGetValue(out string? site) && PieceSiteKey().Match(site) is { Success: true } m)
+                        o[key] = m.Groups[1].Value + ".#";
                     else if (child is not null)
                         MaskIds(child);
                 }
@@ -196,6 +208,8 @@ public static partial class StateDump
                 {
                     if (a[i] is JsonValue v && v.TryGetValue(out string? text) && InstanceId().IsMatch(text))
                         a[i] = "#";
+                    else if (a[i] is JsonValue c && c.TryGetValue(out string? site) && PieceSiteKey().Match(site) is { Success: true } m)
+                        a[i] = m.Groups[1].Value + ".#";
                     else if (a[i] is { } child)
                         MaskIds(child);
                 }
@@ -227,6 +241,12 @@ public static partial class StateDump
                         o[name] = Named(text);
                         continue;
                     }
+                    // A placed chest's or bench's key names it by its piece, so key and piece share one name (container.pce#3).
+                    if (child is JsonValue c && c.TryGetValue(out string? site) && PieceSiteKey().Match(site) is { Success: true } m)
+                    {
+                        o[name] = m.Groups[1].Value + "." + Named("pce_" + m.Groups[2].Value.ToUpperInvariant());
+                        continue;
+                    }
                     Name(child, names);
                     if (name != key)
                     {
@@ -240,6 +260,8 @@ public static partial class StateDump
                 {
                     if (a[i] is JsonValue v && v.TryGetValue(out string? text) && InstanceId().IsMatch(text))
                         a[i] = Named(text);
+                    else if (a[i] is JsonValue c && c.TryGetValue(out string? site) && PieceSiteKey().Match(site) is { Success: true } m)
+                        a[i] = m.Groups[1].Value + "." + Named("pce_" + m.Groups[2].Value.ToUpperInvariant());
                     else
                         Name(a[i], names);
                 }

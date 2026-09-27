@@ -257,6 +257,47 @@ public class WorldDeltaTests
         Assert.Equal(1, restored.GetFlag(TestWorlds.Home, Door));
     }
 
+    [Fact]
+    public void ACreaturesAttackInProgress_MovesItsCellDigest_AndAnImpossibleOneIsRejected()
+    {
+        // Schema 17 (the owner's ruling on the second M7 E8.5 STOP): when the attack began and whom it landed on are both in the cell's
+        // digest; an attack on a creature that is not alive, alongside a stagger, or landed on what cannot be struck, is refused.
+        var id = EntityId.Create(EntityKind.Creature, 1_700_000_000_100, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 });
+        var character = EntityId.Create(EntityKind.Character, 1_700_000_000_000, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+        var companion = EntityId.Create(EntityKind.Npc, 1_700_000_000_200, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 });
+        CreatureRecord Wolf(long? began, EntityId? struck) => new("spawn.test.den#0", "creature.beast.wolf_grey", id, TestWorlds.Home.ToString(), 0,
+            CreatureCondition.Alive, 1_000, 2_000, 0, 10, 0, 0) { Mind = CreatureMind.Engaged, AttackTick = began, AttackStruck = struck };
+        string Digest(CreatureRecord record)
+        {
+            var world = TestWorlds.NewWorld();
+            world.SetCreature(record);
+            return world.EffectiveCellDigest(TestWorlds.Home);
+        }
+
+        var digests = new[] { Wolf(null, null), Wolf(100, null), Wolf(101, null), Wolf(100, character), Wolf(100, companion) }.Select(Digest).ToList();
+        Assert.Equal(digests.Count, digests.Distinct().Count());
+
+        var world = TestWorlds.NewWorld();
+        var item = EntityId.Create(EntityKind.Item, 1_700_000_000_300, new byte[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 });
+        var impossible = new[]
+        {
+            Wolf(100, item) with { Key = "spawn.test.den#1", InstanceId = EntityId.NewId(EntityKind.Creature) },
+            Wolf(100, null) with { Key = "spawn.test.den#2", InstanceId = EntityId.NewId(EntityKind.Creature), Condition = CreatureCondition.Corpse },
+            Wolf(100, null) with { Key = "spawn.test.den#3", InstanceId = EntityId.NewId(EntityKind.Creature), StaggeredTick = 99 },
+            Wolf(-1, null) with { Key = "spawn.test.den#4", InstanceId = EntityId.NewId(EntityKind.Creature) },
+            Wolf(null, character) with { Key = "spawn.test.den#5", InstanceId = EntityId.NewId(EntityKind.Creature) },
+        };
+        world.SetCreature(Wolf(100, character));
+        foreach (var record in impossible)
+            world.SetCreature(record);
+
+        var restored = WorldDelta.FromSnapshot(TestWorlds.Generator(), TestWorlds.Seed, new Registry(), world.TakeSnapshot(), out var rejected);
+
+        Assert.Equal(impossible.Select(r => r.Key), rejected.Select(r => r.Key));
+        Assert.All(rejected, r => Assert.Equal("its attack in progress is impossible", r.Reason));
+        Assert.Equal(((long?)100, character), (restored.Creature("spawn.test.den#0")!.AttackTick, restored.Creature("spawn.test.den#0")!.AttackStruck));
+    }
+
     private static string FirstWolfSlot(WorldDelta world) =>
         world.Baseline(TestWorlds.Home).Populations.Single(p => p.FamilyDefId == "creature.beast.wolf_grey").Slots[0].SlotKey;
 }

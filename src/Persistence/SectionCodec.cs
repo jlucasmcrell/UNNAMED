@@ -8,6 +8,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -61,6 +62,95 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 13. The 12 -> 13 step gives older saves a body standing on the ground (the owner's M6 playtest).</summary>
     [Key("posture")] public PostureDto? Posture { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves an empty ledger: no act was recorded before M7.</summary>
+    [Key("factions")] public FactionsDto? Factions { get; set; }
+
+    /// <summary>
+    /// Required from schema 16. The 15 -> 16 step gives older saves a character at rest: nothing pending, nothing accrued - how every
+    /// older save has always loaded, since the timing was not kept and cannot be reconstructed.
+    /// </summary>
+    [Key("vitals")] public VitalsDto? Vitals { get; set; }
+}
+
+/// <summary>
+/// What the character's pools do next (schema 16): the absolute world tick of the last blow taken or dealt, exertion and working, or
+/// -1000000 for never; and the thousandths accrued towards the next point of health, stamina, Focus and Strain, and drained by a sprint.
+/// </summary>
+[MessagePackObject]
+public sealed class VitalsDto
+{
+    [Key("last_combat_tick")] public long LastCombatTick { get; set; }
+    [Key("last_exertion_tick")] public long LastExertionTick { get; set; }
+    [Key("last_cast_tick")] public long LastCastTick { get; set; }
+    [Key("health_milli")] public int HealthMilli { get; set; }
+    [Key("stamina_milli")] public int StaminaMilli { get; set; }
+    [Key("focus_milli")] public int FocusMilli { get; set; }
+    [Key("strain_milli")] public int StrainMilli { get; set; }
+    [Key("sprint_milli")] public int SprintMilli { get; set; }
+
+    /// <summary>A character at rest: what the 15 -> 16 step writes.</summary>
+    public static VitalsDto Rested => From(VitalsClock.Rested);
+
+    public static VitalsDto From(VitalsClock v) => new()
+    {
+        LastCombatTick = v.LastCombatTick, LastExertionTick = v.LastExertionTick, LastCastTick = v.LastCastTick, HealthMilli = v.HealthMilli,
+        StaminaMilli = v.StaminaMilli, FocusMilli = v.FocusMilli, StrainMilli = v.StrainMilli, SprintMilli = v.SprintMilli,
+    };
+}
+
+/// <summary>The player's faction ledger (schema 15): the acts recorded, what each faction knows of them, and standing.</summary>
+[MessagePackObject]
+public sealed class FactionsDto
+{
+    [Key("next_act_seq")] public long NextActSeq { get; set; }
+    [Key("acts")] public ActDto[] Acts { get; set; } = Array.Empty<ActDto>();
+    [Key("knowledge")] public KnowledgeDto[] Knowledge { get; set; } = Array.Empty<KnowledgeDto>();
+    [Key("standing")] public StandingDto[] Standing { get; set; } = Array.Empty<StandingDto>();
+}
+
+[MessagePackObject]
+public sealed class ActDto
+{
+    [Key("seq")] public long Seq { get; set; }
+    [Key("kind")] public string Kind { get; set; } = "";
+    [Key("subject")] public string Subject { get; set; } = "";
+    [Key("cell_key")] public string CellKey { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+}
+
+[MessagePackObject]
+public sealed class KnowledgeDto
+{
+    [Key("knower")] public string Knower { get; set; } = "";
+    [Key("act")] public long Act { get; set; }
+    [Key("identity")] public string Identity { get; set; } = "";
+    [Key("source")] public string Source { get; set; } = "";
+    [Key("via")] public string? Via { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+    [Key("delta")] public int Delta { get; set; }
+}
+
+[MessagePackObject]
+public sealed class StandingDto
+{
+    [Key("faction_id")] public string FactionId { get; set; } = "";
+    [Key("points")] public int Points { get; set; }
+}
+
+/// <summary>A mover's committed route (schema 15), one shape for both hosts: a companion in the player, an errand in the entities.</summary>
+[MessagePackObject]
+public sealed class NavRouteDto
+{
+    [Key("status")] public string Status { get; set; } = "";
+    [Key("goal_mm")] public long[] GoalMm { get; set; } = Array.Empty<long>();
+    [Key("corners_mm")] public long[] CornersMm { get; set; } = Array.Empty<long>();
+    [Key("planned_tick")] public long PlannedTick { get; set; }
+    [Key("stamp")] public ulong Stamp { get; set; }
+    [Key("watch_mm")] public long[] WatchMm { get; set; } = Array.Empty<long>();
+    [Key("partial")] public bool Partial { get; set; }
 }
 
 /// <summary>Standing or crouched, and how far into a jump (schema 13).</summary>
@@ -88,6 +178,9 @@ public sealed class CompanionDto
 
     /// <summary>The trail being walked, as x, z pairs in millimetres.</summary>
     [Key("trail_mm")] public long[] TrailMm { get; set; } = Array.Empty<long>();
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves route none: no one walked a planned route before M7.</summary>
+    [Key("route")] public NavRouteDto? Route { get; set; }
 }
 
 [MessagePackObject]
@@ -219,6 +312,46 @@ public sealed class EntitiesSectionDto
 
     /// <summary>The sounds made on the last tick that creatures hear on the next, in order. Required from schema 14.</summary>
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: nothing was built before M7.</summary>
+    [Key("pieces")] public PieceDto[]? Pieces { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves 0: nothing was built before M7.</summary>
+    [Key("structure_seq")] public long? StructureSeq { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: no one was sent to work before M7.</summary>
+    [Key("npc_errands")] public NpcErrandDto[]? NpcErrands { get; set; }
+}
+
+/// <summary>A player-placed piece (schema 15): its derived ID, definition, anchor cell and anchor (absolute mm), turn, owner, health, door.</summary>
+[MessagePackObject]
+public sealed class PieceDto
+{
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("rotation")] public int Rotation { get; set; }
+    [Key("owner")] public string Owner { get; set; } = "";
+    [Key("health")] public int Health { get; set; }
+    [Key("door_open")] public bool DoorOpen { get; set; }
+}
+
+/// <summary>A named NPC away from their place (schema 15): phase, work place and owner, pose, the route, and ticks without headway.</summary>
+[MessagePackObject]
+public sealed class NpcErrandDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("phase")] public string Phase { get; set; } = "";
+    [Key("piece_id")] public string? PieceId { get; set; }
+    [Key("work_owner")] public string? WorkOwner { get; set; }
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("route")] public NavRouteDto? Route { get; set; }
+    [Key("stuck_ticks")] public int StuckTicks { get; set; }
 }
 
 /// <summary>A sound waiting to be heard (schema 14): where, how far it carries, and - for a howl - whose kind answers it.</summary>
@@ -240,6 +373,17 @@ public sealed class CreatureContinuationDto
     [Key("stagger_immune_until")] public long StaggerImmuneUntil { get; set; }
     [Key("staggered_tick")] public long? StaggeredTick { get; set; }
     [Key("stagger_lasts_ticks")] public int StaggerLastsTicks { get; set; }
+
+    /// <summary>The ordinary attack it is in, or nil (schema 17). The 16 -> 17 step gives older saves none: the attack was not kept.</summary>
+    [Key("attack")] public CreatureAttackDto? Attack { get; set; }
+}
+
+/// <summary>A creature's ordinary attack in progress (schema 17): the tick it began, and whom it has landed on (nil while it has not).</summary>
+[MessagePackObject]
+public sealed class CreatureAttackDto
+{
+    [Key("start_tick")] public long StartTick { get; set; }
+    [Key("struck")] public string? Struck { get; set; }
 }
 
 [MessagePackObject]
@@ -408,10 +552,95 @@ public static class SectionCodec
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
+                Route = RouteDto(c.Route),
             })
             .ToArray(),
         Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
+        Vitals = VitalsDto.From(player.Vitals),
+        Factions = new FactionsDto
+        {
+            NextActSeq = player.Factions.NextActSeq,
+            Acts = player.Factions.Acts
+                .Select(a => new ActDto { Seq = a.Seq, Kind = a.Kind, Subject = a.Subject, CellKey = a.CellKey, XMm = a.XMm, ZMm = a.ZMm, Tick = a.Tick })
+                .ToArray(),
+            Knowledge = player.Factions.Knowledge
+                .Select(k => new KnowledgeDto { Knower = k.Knower, Act = k.Act, Identity = k.Identity, Source = k.Source, Via = k.Via, Tick = k.Tick, Delta = k.Delta })
+                .ToArray(),
+            Standing = player.Factions.Standing.Select(s => new StandingDto { FactionId = s.FactionId, Points = s.Points }).ToArray(),
+        },
     }, Options);
+
+    /// <summary>A route's saved shape (schema 15).</summary>
+    private static NavRouteDto RouteDto(NavRoute route) => new()
+    {
+        Status = NavRoute.StatusKey(route.Status),
+        GoalMm = new[] { route.GoalXMm, route.GoalZMm },
+        CornersMm = route.Corners.SelectMany(c => new[] { c.XMm, c.ZMm }).ToArray(),
+        PlannedTick = route.PlannedTick,
+        Stamp = route.Stamp,
+        WatchMm = new[] { route.Watch.MinXMm, route.Watch.MinZMm, route.Watch.MaxXMm, route.Watch.MaxZMm },
+        Partial = route.Partial,
+    };
+
+    /// <summary>
+    /// A saved route, only through <see cref="NavRoute"/>'s validating factories: the shape is checked here, and what the factory refuses is
+    /// a decode failure for either host.
+    /// </summary>
+    private static NavRoute Route(NavRouteDto? dto, string what)
+    {
+        if (dto is null)
+            throw new FormatException($"{what} has no route (required from schema 15)");
+        if (dto.GoalMm is not { Length: 2 } || dto.WatchMm is not { Length: 4 } || dto.CornersMm is null || dto.CornersMm.Length % 2 != 0
+            || dto.CornersMm.Length > 2 * NavRoute.MaxCorners)
+            throw new FormatException($"{what} has a route of the wrong shape (goal_mm 2, watch_mm 4, corners_mm up to {2 * NavRoute.MaxCorners} numbers in pairs)");
+        var goal = new NavPoint(dto.GoalMm[0], dto.GoalMm[1]);
+        var watch = new NavRect(dto.WatchMm[0], dto.WatchMm[1], dto.WatchMm[2], dto.WatchMm[3]);
+        var corners = Enumerable.Range(0, dto.CornersMm.Length / 2).Select(i => new NavPoint(dto.CornersMm[2 * i], dto.CornersMm[2 * i + 1])).ToImmutableArray();
+        try
+        {
+            switch (dto.Status)
+            {
+                case "none":
+                    if (NavRoute.ProblemOf(NavRouteStatus.None, goal.XMm, goal.ZMm, corners, dto.PlannedTick, dto.Stamp, watch, dto.Partial) is { } problem)
+                        throw new ArgumentException(problem);
+                    return NavRoute.None;
+                case "active":
+                    return NavRoute.Active(goal, corners, dto.PlannedTick, dto.Stamp, watch, dto.Partial);
+                case "unreachable":
+                    if (!corners.IsEmpty || dto.Partial)
+                        throw new ArgumentException("an unreachable route has no corners and is not partial");
+                    return NavRoute.Unreachable(goal, dto.PlannedTick, dto.Stamp, watch);
+                default:
+                    throw new FormatException($"{what} has route status '{dto.Status}'");
+            }
+        }
+        catch (ArgumentException e)
+        {
+            throw new FormatException($"{what} has an invalid route: {e.Message}", e);
+        }
+    }
+
+    /// <summary>The player's faction ledger (schema 15). Its keys are checked here; its order and ranges by <c>PlayerRecord</c>.</summary>
+    private static FactionLedger Ledger(FactionsDto? dto)
+    {
+        if (dto is null)
+            throw new FormatException("player.msgpack has no factions (required from schema 15)");
+        if (dto.Acts is null || dto.Knowledge is null || dto.Standing is null)
+            throw new FormatException("player.msgpack's factions lack acts, knowledge or standing");
+        foreach (var act in dto.Acts.Where(a => !ActKinds.Built.Contains(a.Kind)))
+            throw new FormatException($"player act {act.Seq} has kind '{act.Kind}'");
+        foreach (var row in dto.Knowledge)
+        {
+            if (!Identities.All.Contains(row.Identity))
+                throw new FormatException($"knowledge of act {row.Act} by {row.Knower} has identity '{row.Identity}'");
+            if (!KnowledgeSources.All.Contains(row.Source))
+                throw new FormatException($"knowledge of act {row.Act} by {row.Knower} has source '{row.Source}'");
+        }
+        return new FactionLedger(dto.NextActSeq,
+            dto.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.CellKey, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
+            dto.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),
+            dto.Standing.Select(s => new FactionStanding(s.FactionId, s.Points)).ToImmutableArray());
+    }
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
     private static int QualityOf(int? quality, string what) => quality switch
@@ -435,6 +664,12 @@ public static class SectionCodec
         var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
         var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
+        var factions = Ledger(dto.Factions);
+        var v = dto.Vitals ?? throw new FormatException("player.msgpack has no vitals (required from schema 16)");
+        var vitals = new VitalsClock(v.LastCombatTick, v.LastExertionTick, v.LastCastTick, v.HealthMilli, v.StaminaMilli, v.FocusMilli, v.StrainMilli,
+            v.SprintMilli);
+        if (vitals.Problem() is { } problem)
+            throw new FormatException($"player vitals: {problem}");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -456,7 +691,7 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs) };
+            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs), Factions = factions, Vitals = vitals };
     }
 
     private static CompanionRecord Companion(CompanionDto c)
@@ -472,6 +707,7 @@ public static class SectionCodec
             StuckTicks = c.StuckTicks,
             LastCombatTick = c.LastCombatTick,
             Trail = Enumerable.Range(0, c.TrailMm.Length / 2).Select(i => new TrailMark(c.TrailMm[2 * i], c.TrailMm[2 * i + 1])).ToImmutableArray(),
+            Route = Route(c.Route, $"companion {c.NpcId}"),
         };
     }
 
@@ -506,20 +742,24 @@ public static class SectionCodec
     public static byte[] EncodeEntities(DeltaSnapshot snapshot)
     {
         var baselines = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        void Prove(string cell, string? hash, EntityId instance)
+        void Prove(string cell, string? hash, string label)
         {
             if (hash is null || (baselines.TryGetValue(cell, out string? known) && known != hash))
-                throw new InvalidOperationException($"Entity record {instance} carries no single baseline hash for its host cell {cell}");
+                throw new InvalidOperationException($"Entity record {label} carries no single baseline hash for its host cell {cell}");
             baselines[cell] = hash;
         }
         foreach (var e in snapshot.Entities)
-            Prove(HostCell(e.SlotKey), e.BaselineHash, e.InstanceId);
+            Prove(HostCell(e.SlotKey), e.BaselineHash, e.InstanceId.Value);
         foreach (var c in snapshot.Created)
-            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId.Value);
         foreach (var c in snapshot.Containers)
-            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId.Value);
         foreach (var c in snapshot.Creatures)
-            Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+            Prove(c.HostCell, c.BaselineHash, c.InstanceId.Value);
+        foreach (var p in snapshot.Pieces)
+            Prove(p.HostCell, p.BaselineHash, p.InstanceId.Value);
+        foreach (var e in snapshot.NpcErrands)
+            Prove(e.HostCell, e.BaselineHash, $"npc errand {e.NpcId}");
 
         return MessagePackSerializer.Serialize(new EntitiesSectionDto
         {
@@ -578,19 +818,46 @@ public static class SectionCodec
                     StaggerImmuneUntil = c.StaggerImmuneUntil,
                     StaggeredTick = c.StaggeredTick,
                     StaggerLastsTicks = c.StaggerLastsTicks,
+                    Attack = c.AttackTick is { } began ? new CreatureAttackDto { StartTick = began, Struck = c.AttackStruck?.Value } : null,
                 },
             }).ToArray(),
             Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
                 .ToArray(),
+            Pieces = snapshot.Pieces.Select(p => new PieceDto
+            {
+                InstanceId = p.InstanceId.Value,
+                DefId = p.DefId,
+                HostCell = p.HostCell,
+                XMm = p.XMm,
+                ZMm = p.ZMm,
+                Rotation = p.Rotation,
+                Owner = p.Owner.Value,
+                Health = p.HealthCurrent,
+                DoorOpen = p.DoorOpen,
+            }).ToArray(),
+            StructureSeq = snapshot.StructureSequence,
+            NpcErrands = snapshot.NpcErrands.Select(e => new NpcErrandDto
+            {
+                NpcId = e.NpcId,
+                HostCell = e.HostCell,
+                Phase = NpcErrandPhases.Key(e.Phase),
+                PieceId = e.PieceId?.Value,
+                WorkOwner = e.WorkOwner?.Value,
+                XMm = e.XMm,
+                ZMm = e.ZMm,
+                FacingMdeg = e.FacingMdeg,
+                Route = RouteDto(e.Route),
+                StuckTicks = e.StuckTicks,
+            }).ToArray(),
         }, Options);
     }
 
     /// <summary>
-    /// The entities section: slot-keyed records, created instances, changed containers and creature records, each with its
-    /// host cell's baseline hash, and the sounds waiting to be heard.
+    /// The entities section, as the snapshot it saved (its cells are the cells section's): slot-keyed records, created instances, changed
+    /// containers, creature records, placed pieces and NPC errands, each with its host cell's baseline hash; the sounds waiting to be
+    /// heard; and the structure sequence.
     /// </summary>
-    public static (ImmutableArray<EntityDeltaRecord> Entities, ImmutableArray<CreatedEntityRecord> Created, ImmutableArray<ContainerRecord> Containers,
-        ImmutableArray<CreatureRecord> Creatures, ImmutableArray<Noise> Noises) DecodeEntitySection(byte[] bytes)
+    public static DeltaSnapshot DecodeEntitySection(byte[] bytes)
     {
         var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
         var baselines = section.Baselines.ToDictionary(b => b.CellKey, b => b.BaselineHash, StringComparer.Ordinal);
@@ -634,13 +901,34 @@ public static class SectionCodec
                     StaggerImmuneUntil = continuation.StaggerImmuneUntil,
                     StaggeredTick = continuation.StaggeredTick,
                     StaggerLastsTicks = continuation.StaggerLastsTicks,
+                    AttackTick = continuation.Attack?.StartTick,
+                    AttackStruck = continuation.Attack?.Struck is { } struck ? EntityId.Parse(struck) : null,
                 };
             })
             .ToImmutableArray();
         var noises = (section.Noises ?? throw new FormatException("entities.msgpack has no noises list (required from schema 14)"))
             .Select(n => new Noise(n.XMm, n.ZMm, n.RadiusMm, n.Call, n.CallerKind))
             .ToImmutableArray();
-        return (entities, created, containers, creatures, noises);
+        var pieces = (section.Pieces ?? throw new FormatException("entities.msgpack has no pieces (required from schema 15)"))
+            .Select(p => new PieceRecord(EntityId.Parse(p.InstanceId), p.DefId, p.HostCell, p.XMm, p.ZMm, p.Rotation, EntityId.Parse(p.Owner), p.Health,
+                baselines.GetValueOrDefault(p.HostCell)) { DoorOpen = p.DoorOpen })
+            .ToImmutableArray();
+        long sequence = section.StructureSeq ?? throw new FormatException("entities.msgpack has no structure_seq (required from schema 15)");
+        if (sequence < 0)
+            throw new FormatException($"entities.msgpack has structure_seq {sequence}, below 0");
+        var errands = (section.NpcErrands ?? throw new FormatException("entities.msgpack has no npc_errands (required from schema 15)"))
+            .Select(e => new NpcErrandRecord(e.NpcId, e.HostCell, NpcErrandPhases.Parse(e.Phase), e.PieceId is null ? null : EntityId.Parse(e.PieceId),
+                e.WorkOwner is null ? null : EntityId.Parse(e.WorkOwner), e.XMm, e.ZMm, e.FacingMdeg, baselines.GetValueOrDefault(e.HostCell))
+            {
+                Route = Route(e.Route, $"npc errand {e.NpcId}"),
+                StuckTicks = e.StuckTicks,
+            })
+            .ToImmutableArray();
+        return new DeltaSnapshot(ImmutableArray<CellDeltaRecord>.Empty, entities)
+        {
+            Created = created, Containers = containers, Creatures = creatures, Noises = noises,
+            Pieces = pieces, StructureSequence = sequence, NpcErrands = errands,
+        };
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;

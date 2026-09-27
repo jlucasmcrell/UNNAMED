@@ -42,7 +42,8 @@ internal static class Harness
     /// Walk the player towards a point the way presentation does: turn the wish into a world-space intent every
     /// frame and submit it as a command. Stops within <paramref name="toleranceMm"/> or after the tick budget.
     /// </summary>
-    public static bool WalkTo(GameSession session, long xMm, long zMm, Gait gait = Gait.Run, int maxTicks = 4000, long toleranceMm = 300)
+    public static bool WalkTo(GameSession session, long xMm, long zMm, Gait gait = Gait.Run, int maxTicks = 4000, long toleranceMm = 300,
+        Action? afterFrame = null)
     {
         var simulation = session.Simulation!;
         for (int i = 0; i < maxTicks; i++)
@@ -54,10 +55,12 @@ internal static class Harness
             {
                 session.Submit(new MoveCommand(simulation.PlayerId, MoveIntent.Idle(body.FacingMdeg)));
                 session.Frame(session.TickSeconds);
+                afterFrame?.Invoke();
                 return true;
             }
             session.Submit(new MoveCommand(simulation.PlayerId, Toward(dx, dz, gait)));
             session.Frame(session.TickSeconds);
+            afterFrame?.Invoke();
         }
         return false;
     }

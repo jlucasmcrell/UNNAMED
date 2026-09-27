@@ -1,0 +1,7 @@
+id: skill.athletics
+kind: skill
+schema: 1
+display_key: skill.athletics.name
+tags: [fixture]
+family: world
+notes: Historical-fixture content for the save migration tests. Not game content.

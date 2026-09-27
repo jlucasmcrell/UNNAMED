@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -72,6 +73,27 @@ public enum StateSlice
 
     /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
     Companions,
+
+    /// <summary>The player's faction ledger (M7): acts, what factions know of them, standing. Saved with the player (schema 15).</summary>
+    Factions,
+
+    /// <summary>
+    /// The navigation grid (M7; D-13). Transient: derived from the region layout and the placed pieces; rebuilt at start and on every
+    /// <c>RebuildNavigation</c>; never saved.
+    /// </summary>
+    Navigation,
+
+    /// <summary>
+    /// Player-placed pieces (M7): the rows and the structure sequence in the world delta, and what is derived from them. Not the region
+    /// YAML's <c>structures:</c>, which are authored blockers.
+    /// </summary>
+    Structures,
+
+    /// <summary>
+    /// Named NPCs away from their place (M7): walking to work, at work, walking home - the errand rows in the world delta, saved. The load
+    /// audit of the errands is derived.
+    /// </summary>
+    NpcErrands,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -101,6 +123,8 @@ internal sealed class RuntimeState
         WorldTick = worldTick;
         Body = body;
         Posture = player.Posture;
+        PlayerCombat = PlayerCombat.Resumed(player.Vitals);
+        Factions = player.Factions;
         Progression = player.Progression;
         Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
         Inventory = player.Inventory;
@@ -119,6 +143,7 @@ internal sealed class RuntimeState
     public long WorldTick { get; private set; }
     public Body Body { get; private set; }
     public Posture Posture { get; private set; }
+    public FactionLedger Factions { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =
@@ -139,6 +164,17 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
+    public NavGrid? Navigation { get; private set; }
+
+    // Derived from the piece rows (M7), never saved: rebuilt by BuildingSystem on every place and take-down and at world start.
+    public WalkSpace? Space { get; private set; }
+    public ImmutableArray<Blocker> ClosedPieceLeaves { get; private set; } = ImmutableArray<Blocker>.Empty;
+    public StructureIndex StructureIndex { get; private set; } = StructureIndex.Empty;
+    public ImmutableArray<NavFootprint> StructureFootprints { get; private set; } = ImmutableArray<NavFootprint>.Empty;
+    public ImmutableArray<StructureConflict> StructureAudit { get; private set; } = ImmutableArray<StructureConflict>.Empty;
+
+    // What the load found wrong with the saved errands and repaired, reported after the piece lines (M7); derived, never saved.
+    public ImmutableArray<StructureConflict> ErrandAudit { get; private set; } = ImmutableArray<StructureConflict>.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -285,6 +321,13 @@ internal sealed class RuntimeState
         World.RemoveContainer(key);
     }
 
+    /// <summary>A container's record goes while its items live on elsewhere (M7: a destroyed chest's spill): only its own identity retires.</summary>
+    public void ReleaseContainer(SliceOwner owner, string key)
+    {
+        Require(owner, StateSlice.WorldItems);
+        World.ReleaseContainer(key);
+    }
+
     public void SetEffects(SliceOwner owner, EntityId body, ImmutableArray<ActiveEffect> effects)
     {
         Require(owner, StateSlice.Effects);
@@ -332,6 +375,79 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    /// <summary>The character's points with a faction; 0 when nothing moved them.</summary>
+    public int StandingOf(string factionId) => FactionRules.PointsOf(Factions, factionId);
+
+    public void SetFactions(SliceOwner owner, FactionLedger ledger)
+    {
+        Require(owner, StateSlice.Factions);
+        Factions = ledger;
+    }
+
+    public void SetNavigation(SliceOwner owner, NavGrid grid)
+    {
+        Require(owner, StateSlice.Navigation);
+        Navigation = grid;
+    }
+
+    public void PlacePiece(SliceOwner owner, PieceRecord record, long sequence)
+    {
+        Require(owner, StateSlice.Structures);
+        World.PlacePiece(record, sequence);
+    }
+
+    public void SetPiece(SliceOwner owner, PieceRecord record)
+    {
+        Require(owner, StateSlice.Structures);
+        World.SetPiece(record);
+    }
+
+    public void RemovePiece(SliceOwner owner, EntityId id, long sequence)
+    {
+        Require(owner, StateSlice.Structures);
+        World.RemovePiece(id, sequence);
+    }
+
+    public void SetStructureDerived(SliceOwner owner, WalkSpace space, ImmutableArray<Blocker> closedLeaves, StructureIndex index,
+        ImmutableArray<NavFootprint> footprints)
+    {
+        Require(owner, StateSlice.Structures);
+        Space = space;
+        ClosedPieceLeaves = closedLeaves;
+        StructureIndex = index;
+        StructureFootprints = footprints;
+    }
+
+    public void SetClosedPieceLeaves(SliceOwner owner, ImmutableArray<Blocker> closedLeaves)
+    {
+        Require(owner, StateSlice.Structures);
+        ClosedPieceLeaves = closedLeaves;
+    }
+
+    public void SetStructureAudit(SliceOwner owner, ImmutableArray<StructureConflict> lines)
+    {
+        Require(owner, StateSlice.Structures);
+        StructureAudit = lines;
+    }
+
+    public void SetNpcErrand(SliceOwner owner, NpcErrandRecord record)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        World.SetNpcErrand(record);
+    }
+
+    public void RemoveNpcErrand(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        World.RemoveNpcErrand(npcId);
+    }
+
+    public void SetErrandAudit(SliceOwner owner, ImmutableArray<StructureConflict> lines)
+    {
+        Require(owner, StateSlice.NpcErrands);
+        ErrandAudit = lines;
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

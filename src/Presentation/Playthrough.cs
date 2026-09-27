@@ -95,9 +95,26 @@ public sealed class Playthrough
     private bool _respawned;
     private string? _broken;
 
+    // M7's faction beats (design §13.7): what they watch, and a step counter for beats made of several legs.
+    private readonly Action<bool>? _showFactions;
+    private readonly List<ActRecorded> _acts = new();
+    private readonly List<FactionLearned> _learned = new();
+    private readonly List<ReputationChanged> _standing = new();
+    private readonly List<PiecePlaced> _placed = new();
+    private readonly List<NavigationRebuilt> _rebuilt = new();
+    private string? _refused;
+    private int _stage;
+    private int _learnedAtStart;
+    private int _standingAtStart;
+    private long _coinAtStart;
+    private int _billetsAtStart;
+    private (int Respect, int Trust) _keraAtStart;
+    private int _selTrustAtStart;
+
     public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify,
-        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null)
+        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null, Action<bool>? showFactions = null)
     {
+        _showFactions = showFactions;
         _session = session;
         _controller = controller;
         _camera = camera;
@@ -175,6 +192,7 @@ public sealed class Playthrough
         _beatTick = simulation.WorldTick;
         _waypoint = 0;
         _phase = 0;
+        _stage = 0;
         _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
         WriteFiles();   // the transcript so far, beat by beat
         if (beat.Shot is { } name)
@@ -216,6 +234,28 @@ public sealed class Playthrough
             new Beat("heart", "The heart steadied: the fold lifts", 300, () => Turn("switch.foldscar_heart", Array.Empty<(double, double)>()) && Look(145_000, 42_000), "17_heart_steadied"),
             new Beat("tavar", "Tavar freed - Quest 2 complete - and recruited", 1_200, () => Converse(Tavar, "sent", "join", "ok"), "18_tavar_joins"),
             new Beat("follow", "Home with Tavar following", 8_000, () => Travel(HomeWithTavar) && LookAtTavar(), "19_home_with_tavar"),
+            // M7 (design §13.7): the factions - the armour killed, Kera and Sel told, both gates met in the world.
+            new Beat("m7_wait", "Tavar told to wait before the fight", 60, () => Steps(() => Order(CompanionOrder.Wait), TavarWaits)),
+            new Beat("m7_billet_refused", "Kera will not sell the waystation's billets to a stranger", 1_500, () => Steps(
+                () => Travel(new[] { (51.8, 139.0), (51.8, 142.0) }), () => Door("door.forge_shed"), () => Walk(new[] { (54.5, 142.0), (60.3, 140.3) }),
+                RawBilletBuyRefused)),
+            new Beat("m7_armour", "The Animated Armour at Blackvein Cut, cut down from behind", 6_000, () => Steps(
+                () => Walk(new[] { (54.5, 142.0), (51.8, 142.0) }), () => Travel(FromTheSmithyToTheCut), () => Travel(ToTheArmour),
+                () => Travel(new[] { BehindTheArmour(12) }), MendBeforeTheFight, () => WalkQuietly(BehindTheArmour(3.1)),
+                () => CreepInto(Armour), () => Engage(Armour), ArmourDown), "22_armour_down"),
+            new Beat("m7_tell_kera", "Kera told the armour is down: the Waystation accepts the character, and a billet is bought", 6_000, () => Steps(
+                () => Travel(FromTheCutToTheSmithy), () => Door("door.forge_shed"), () => Walk(IntoTheSmithy), StartOfKera,
+                () => Converse(Kera, "armour", "back"), BuyABillet, KeraTold), "23_billets"),
+            new Beat("m7_tell_sel_tavar", "Sel told Tavar is back: the Survey learns of the heart, and her notes open", 1_500, () => Steps(
+                () => Walk(OutToSel), StartOfSel, () => ConverseThen(Sel, NotesOffered, "tavar_back", "back"), SelToldOfTheHeart), "24_notes_offered"),
+            new Beat("m7_tell_sel_armour", "Sel told of the armour: the Survey drops back to neutral, and the notes close", 1_500, () => Steps(
+                StartOfSel, () => ConverseThen(Sel, NotesClosed, "armour", "back"), SelToldOfTheArmour, () => Still("25_factions_f6"),
+                () => Walk(new[] { (62.0, 130.0), (48.0, 137.0) }))),
+            // M7 E5 (design §13.7): a new game's first building, from the crossing's timber stack, clear of every later leg.
+            new Beat("m7_build", "A pad and a wall built by the crossing, from the timber stack", 1_500, () => Steps(
+                () => Walk(new[] { (62.0, 130.0), (80.0, 118.0), (84.0, 116.6) }), () => FaceBearing(0), TakeTimber,
+                () => Walk(new[] { (88.5, 116.0) }), () => FaceBearing(180), PlacePadAndWall, () => Still("26_first_build", factions: false),
+                FirstBuildStands, () => Walk(new[] { (80.0, 118.0), (62.0, 130.0), (48.0, 137.0) }))),
             new Beat("ward", "Brace Wards worked at home until Strain passed tolerance and cost health (§33: Health and Strain not at rest)", 1_200,
                 () => Strain(magic.Formulas.Keys.First(f => magic.Formulas[f].Targeting == Targeting.Self && f.Contains("ward", StringComparison.Ordinal))), "20_ward"),
             new Beat("save", "Saved - then the application quits (§30)", 60, SaveAndDump, "21_saved"),
@@ -607,6 +647,7 @@ public sealed class Playthrough
         _session.Subscribe<CompanionCaughtUp>(e => Note($"{Name(e.NpcId)} caught up ({e.Reason})"));
         _session.Subscribe<CompanionDowned>(e => Note($"{Name(e.NpcId)} downed by {Name(e.ByDefId)}"));
         _session.Subscribe<CompanionFell>(e => Note($"{Name(e.NpcId)} fell, back at the Waystone"));
+        _session.Subscribe<RoutePlanned>(e => Note($"{Name(e.MoverKey)} planned a route: {e.Outcome} ({e.Reason}), {e.Corners} corners, {e.Expansions} expansions"));
         _session.Subscribe<PlayerDied>(e =>
         {
             _deaths++;
@@ -618,6 +659,34 @@ public sealed class Playthrough
             _respawned = true;
             Note($"Returned at the Ashen Waystone: {Where(e.Body)}");
         });
+        // M7: the factions.
+        _session.Subscribe<ActRecorded>(e =>
+        {
+            _acts.Add(e);
+            Note($"Act {e.Seq}: {e.Kind} {e.Subject}");
+        });
+        _session.Subscribe<FactionLearned>(e =>
+        {
+            _learned.Add(e);
+            Note($"{Name(e.FactionId)} learned of act {e.ActSeq} ({e.Source}, via {(e.Via is { } via ? Name(via) : "nobody")})");
+        });
+        _session.Subscribe<ReputationChanged>(e =>
+        {
+            _standing.Add(e);
+            Note($"{Name(e.FactionId)}: {e.From} -> {e.To} ({e.TierFrom} -> {e.TierTo})");
+        });
+        _session.Subscribe<CommandRejected>(e => _refused = e.Reason);
+        // M7 E5: the building.
+        _session.Subscribe<PiecePlaced>(e =>
+        {
+            _placed.Add(e);
+            Note($"Placed: {Name(e.DefId)} at {Where(new Body(e.XMm, 0, e.ZMm, 0))}, sequence {e.Revision}");
+        });
+        _session.Subscribe<NavigationRebuilt>(e =>
+        {
+            _rebuilt.Add(e);
+            Note($"Navigation rebuilt: {e.NodesRestamped} nodes");
+        });
     }
 
     private void Note(string line)
@@ -625,6 +694,357 @@ public sealed class Playthrough
         long tick = _session.Simulation?.WorldTick ?? 0;
         double seconds = tick * _session.TickSeconds;
         _transcript.AppendLine(string.Create(CultureInfo.InvariantCulture, $"| {(int)(seconds / 60)}:{(int)(seconds % 60):00} | {tick} | {line.Replace("|", "/")} |"));
+    }
+
+    // ── M7: the faction beats ───────────────────────────────────────────────
+
+    private const string Armour = "creature.construct.animated_armour";
+    private const string Billet = "item.material.iron_ingot";
+    private const string KeraWares = "merchant.ashen_hollow.kera_voss";
+    private const string Waystation = "faction.ashen_hollow.waystation";
+    private const string Survey = "faction.ashen_hollow.survey";
+
+    // Out of the smithy by HomeToTheSmithy reversed to (54, 74), and down the cut to the armour's post (65, 34); checked against the layout.
+    private static readonly (double X, double Z)[] FromTheSmithyToTheCut = { (51.8, 136), (58, 134), (64, 112), (63, 98), (60, 90), (54, 74) };
+    private static readonly (double X, double Z)[] ToTheArmour = { (58, 55) };
+    private static readonly (double X, double Z)[] FromTheCutToTheSmithy =
+        { (58, 55), (54, 74), (60, 90), (63, 98), (64, 112), (58, 134), (51.8, 136), (51.8, 142) };
+
+    /// <summary>A beat's legs and checks in order; each is run until it is done, and the next starts afresh.</summary>
+    private bool Steps(params Func<bool>[] steps)
+    {
+        while (_stage < steps.Length)
+        {
+            if (!steps[_stage]())
+                return false;
+            _stage++;
+            _waypoint = 0;
+            _phase = 0;
+        }
+        return true;
+    }
+
+    private bool Fail(string why)
+    {
+        _broken ??= why;
+        return false;
+    }
+
+    /// <summary>A still in the middle of a beat, with F6 open for it: open, wait for the picture, close.</summary>
+    private bool Still(string name, bool factions = true)
+    {
+        if (_phase++ == 0)
+        {
+            if (factions)
+                _showFactions?.Invoke(true);
+            _pending = name;
+            _wait = 6;
+            return false;
+        }
+        _showFactions?.Invoke(false);
+        return true;
+    }
+
+    // ── M7: the first building (design §13.7) ───────────────────────────────
+
+    private const string Timber = "item.material.timber";
+    private const string TimberStack = "container.timber_stack";
+
+    /// <summary>One frame standing, facing a bearing (0 = +Z, clockwise).</summary>
+    private bool FaceBearing(int bearingDeg)
+    {
+        _camera.Yaw = Mathf.DegToRad(bearingDeg + 180);
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
+        return true;
+    }
+
+    /// <summary>Three timber from the untouched stack, by its first entry, as the inventory panel takes it.</summary>
+    private bool TakeTimber()
+    {
+        _placedAtStart = _placed.Count;
+        _rebuiltAtStart = _rebuilt.Count;
+        _session.Submit(new MoveItemCommand(_session.Simulation!.PlayerId, $"{TimberStack}#00", ItemPlace.In(TimberStack), ItemPlace.Carried, 3));
+        return true;
+    }
+
+    private int _placedAtStart;
+    private int _rebuiltAtStart;
+
+    /// <summary>A pad at (88.5, 112.5), then a wall on its west edge, a tick apart.</summary>
+    private bool PlacePadAndWall()
+    {
+        if (_phase++ == 0)
+        {
+            _controller.Place("piece.pad.timber", 88_500, 112_500, 0);
+            return false;
+        }
+        _controller.Place("piece.wall.timber", 87_000, 112_500, 1);
+        return true;
+    }
+
+    private bool FirstBuildStands()
+    {
+        var simulation = _session.Simulation!;
+        var stack = simulation.Containers.Single(c => c.Site.Key == TimberStack);
+        int left = stack.Items.Where(i => i.DefId == Timber).Sum(i => i.Count);
+        int carried = simulation.Player.Inventory.Where(e => e.DefId == Timber).Sum(e => e.Count);
+        if (_placed.Count - _placedAtStart != 2 || _rebuilt.Count - _rebuiltAtStart != 1)
+            return Fail($"{_placed.Count - _placedAtStart} pieces placed and {_rebuilt.Count - _rebuiltAtStart} rebuilds, not 2 and 1 ({_refused})");
+        if (simulation.World.StructureSequence != 2 || stack.Id is null || left != 77 || carried != 0)
+            return Fail($"sequence {simulation.World.StructureSequence}, the stack's record {(stack.Id is null ? "absent" : "present")} with {left} timber, " +
+                        $"{carried} carried; not 2, present, 77 and 0");
+        Note($"Built: {string.Join(" and ", _placed.Skip(_placedAtStart).Select(p => _session.DisplayName(p.DefId)))}; sequence " +
+             $"{simulation.World.StructureSequence}; {left} timber left in the stack");
+        return true;
+    }
+
+    private bool TavarWaits() => _session.Simulation!.Companions.All(c => c.Order == CompanionOrder.Wait);
+
+    /// <summary>The billets' ware: the stack in Kera's wares once they have a record, else the untouched ref from her stock rows (§5.7.2).</summary>
+    private string BilletRef()
+    {
+        if (_session.Simulation!.World.Container(KeraWares) is { } record)
+            return record.Items.First(i => i.DefId == Billet).ItemId.Value;
+        var merchant = _session.Setup.Items.Merchants[KeraWares];
+        int index = 0;
+        foreach (var row in merchant.Stock)
+        {
+            if (row.ItemId == Billet)
+                return $"{KeraWares}#{index:00}";
+            int stackMax = Math.Max(1, _session.Setup.Items.Catalog.Get(row.ItemId).StackMax);
+            index += (row.Count + stackMax - 1) / stackMax;
+        }
+        throw new InvalidOperationException("Kera stocks no billet");
+    }
+
+    private bool RawBilletBuyRefused()
+    {
+        var simulation = _session.Simulation!;
+        if (_phase++ == 0)
+        {
+            _refused = null;
+            _session.Submit(new BuyCommand(simulation.PlayerId, Kera, BilletRef(), 1));
+            return false;
+        }
+        if (_refused is null)
+            return _phase > 20 && Fail("the raw buy of a billet was not refused");
+        if (_refused != "Kera Voss will not sell you that")
+            return Fail($"the raw buy was refused with '{_refused}'");
+        if (simulation.Wares(Kera)!.Wares.Any(w => w.ItemId == Billet))
+            return Fail("the billets are listed before Kera is told");
+        return true;
+    }
+
+    /// <summary>
+    /// A point <paramref name="metres"/> behind the sentinel along its facing, read from the creature (§13.7). The owner's ruling on the
+    /// E3 STOP tunes the approach, not the encounter: the character runs round to 12 m behind, outside the 100-degree sight cone and more
+    /// than a run's 8 m of noise from it, mends there, and walks to 3.1 m behind - a walk carries 3 m - before the last step in.
+    /// </summary>
+    private (double X, double Z) BehindTheArmour(double metres)
+    {
+        var armour = _session.Simulation!.Creatures.First(c => c.DefId == Armour);
+        double facing = armour.Body.FacingMdeg / 1000.0 * Math.PI / 180;
+        return (armour.Body.XMm / 1000.0 - Math.Sin(facing) * metres, armour.Body.ZMm / 1000.0 - Math.Cos(facing) * metres);
+    }
+
+    /// <summary>A mending stop before a fight: work the mending formula (or a salve) until nine tenths of health, or until nothing more can be worked without strain costing health.</summary>
+    private bool MendBeforeTheFight()
+    {
+        var simulation = _session.Simulation!;
+        var combat = simulation.Combat;
+        var magic = _session.Setup.Magic;
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        if (combat.Health * 10 >= combat.MaxHealth * 9)
+            return true;
+        if (simulation.WorldTick - _mendTick < 40 || combat.Phase != CombatPhase.Idle)
+            return false;
+        string? mend = _controller.Formulas().LastOrDefault(f => magic.Formulas[f].Targeting == Targeting.Self);
+        bool castable = mend is not null && combat.Focus >= magic.Formulas[mend].FocusCost
+            && combat.Strain + magic.Formulas[mend].StrainCost <= combat.StrainTolerance;
+        if (castable)
+            _controller.Cast(mend!);
+        else if (!_controller.UseConsumable())
+            return true;   // nothing left to mend with: it goes as it stands
+        _mendTick = simulation.WorldTick;
+        return false;
+    }
+
+    /// <summary><see cref="Walk"/> at a walk: footfalls that carry 3 m rather than a run's 8.</summary>
+    private bool WalkQuietly(params (double X, double Z)[] route)
+    {
+        if (_waypoint >= route.Length)
+        {
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+            return true;
+        }
+        var body = _controller.Authoritative;
+        var (x, z) = route[_waypoint];
+        var to = new Vector3((float)(x - body.XMm / 1000.0), 0, (float)(z - body.ZMm / 1000.0));
+        if (to.Length() < Near)
+            _waypoint++;
+        else
+            _controller.SteerWorld(to.Normalized(), Gait.Walk, _camera);
+        _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
+        return false;
+    }
+
+    /// <summary>The last step in, at a walk, until a creature of the definition is within the weapon's reach.</summary>
+    private bool CreepInto(string defId)
+    {
+        var simulation = _session.Simulation!;
+        var body = _controller.Authoritative;
+        var target = simulation.Creatures.Where(c => c.Alive && c.DefId == defId).OrderBy(c => Distance(body, c.Body)).FirstOrDefault();
+        if (target is null)
+            return true;
+        var to = new Vector3((float)((target.Body.XMm - body.XMm) / 1000.0), 0, (float)((target.Body.ZMm - body.ZMm) / 1000.0));
+        _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
+        long radius = _session.Setup.Combat.Creatures[target.DefId].RadiusMm;
+        if (to.Length() <= (simulation.Combat.Weapon.ReachMm + radius - 150) / 1000f)
+        {
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera, faceCamera: true);
+            var combat = simulation.Combat;
+            Note(string.Create(CultureInfo.InvariantCulture,
+                $"In reach of the {_session.DisplayName(defId)}: it is {target.Mind.ToString().ToLowerInvariant()}, awareness {target.Awareness}, facing {target.Body.FacingMdeg / 1000.0:0} degrees, {to.Length():0.00} m; the character {combat.Health}/{combat.MaxHealth} health"));
+            return true;
+        }
+        _controller.SteerWorld(to.Normalized(), Gait.Walk, _camera, faceCamera: true);
+        return false;
+    }
+
+    /// <summary>
+    /// Fight one creature of a definition: <see cref="Defend"/>'s body with the target fixed and no role filter, because Defend leaves a
+    /// sentinel alone. True once none of that kind lives.
+    /// </summary>
+    private bool Engage(string defId)
+    {
+        var simulation = _session.Simulation!;
+        var body = _controller.Authoritative;
+        var target = simulation.Creatures.Where(c => c.Alive && c.DefId == defId).OrderBy(c => Distance(body, c.Body)).FirstOrDefault();
+        if (target is null)
+            return true;
+        if (_phase++ == 0)
+            _learnedAtStart = _learned.Count;
+        var to = new Vector3((float)((target.Body.XMm - body.XMm) / 1000.0), 0, (float)((target.Body.ZMm - body.ZMm) / 1000.0));
+        _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
+        var combat = simulation.Combat;
+        long radius = _session.Setup.Combat.Creatures[target.DefId].RadiusMm;
+        bool inReach = to.Length() <= (combat.Weapon.ReachMm + radius - 150) / 1000f;
+        _controller.SteerWorld(inReach ? Vector3.Zero : to.Normalized(), Gait.Run, _camera, faceCamera: true);
+        if (inReach && combat.Phase == CombatPhase.Idle)
+            _controller.Attack();
+        return false;
+    }
+
+    private bool ArmourDown()
+    {
+        var act = _acts.LastOrDefault();
+        if (act is null || act.Kind != "creature_killed" || act.Subject != Armour)
+            return Fail("the armour's kill recorded no act");
+        if (act.Seq != 2)
+            return Fail($"the armour's kill is act {act.Seq}, not act 2");
+        if (_learned.Count != _learnedAtStart)
+            return Fail("a faction learned of the kill before anyone was told");
+        var combat = _session.Simulation!.Combat;
+        Note($"The character after the fight: {combat.Health}/{combat.MaxHealth} health");
+        return true;
+    }
+
+    private (int Respect, int Trust) KeraRegard()
+    {
+        var record = _session.Simulation!.CaptureRecord();
+        int Of(string dimension) => record.Relationships.FirstOrDefault(r => r.NpcId == Kera && r.Dimension == dimension)?.Value ?? 0;
+        return (Of("respect"), Of("trust"));
+    }
+
+    private int SelTrust() =>
+        _session.Simulation!.CaptureRecord().Relationships.FirstOrDefault(r => r.NpcId == Sel && r.Dimension == "trust")?.Value ?? 0;
+
+    private bool StartOfKera()
+    {
+        _standingAtStart = _standing.Count;
+        _keraAtStart = KeraRegard();
+        return true;
+    }
+
+    private bool BuyABillet()
+    {
+        var simulation = _session.Simulation!;
+        int Billets() => simulation.Player.Inventory.Where(e => e.DefId == Billet).Sum(e => e.Count);
+        if (_phase++ == 0)
+        {
+            var ware = simulation.Wares(Kera)!.Wares.FirstOrDefault(w => w.ItemId == Billet);
+            if (ware is null)
+                return Fail("the billets are not listed after Kera was told");
+            _coinAtStart = simulation.Player.Currency;
+            _billetsAtStart = Billets();
+            _refused = null;
+            _session.Submit(new BuyCommand(simulation.PlayerId, Kera, ware.Ref, 1));
+            return false;
+        }
+        if (_refused is { } refused)
+            return Fail($"the billet was refused: {refused}");
+        if (Billets() == _billetsAtStart)
+            return _phase > 20 && Fail("the billet was not bought");
+        return _coinAtStart - simulation.Player.Currency == 20 || Fail($"the billet cost {_coinAtStart - simulation.Player.Currency} coin, not 20");
+    }
+
+    private bool KeraTold()
+    {
+        var told = _standing.Skip(_standingAtStart).ToList();
+        var expected = new ReputationChanged(Waystation, 0, 100, "neutral", "accepted", 2, "reported", Kera, told.FirstOrDefault()?.Tick ?? 0);
+        if (told.Count != 1 || told[0] != expected)
+            return Fail($"Kera's telling moved {string.Join("; ", told)}, not the Waystation 0 -> 100");
+        if (KeraRegard() != _keraAtStart)
+            return Fail($"Kera's respect and trust moved: {_keraAtStart} -> {KeraRegard()}");
+        return true;
+    }
+
+    private bool StartOfSel()
+    {
+        _standingAtStart = _standing.Count;
+        _selTrustAtStart = SelTrust();
+        return true;
+    }
+
+    /// <summary><see cref="Converse"/>, with a look at the replies offered before leaving.</summary>
+    private bool ConverseThen(string npcId, Func<ConversationView, string?> check, params string[] replies)
+    {
+        var simulation = _session.Simulation!;
+        int said = _phase >= 2 ? (_phase - 2) / 8 : 0;
+        if (_phase >= 2 && said >= replies.Length && (_phase - 2) % 8 == 0 && simulation.Conversation is { } open && check(open) is { } wrong)
+            return Fail(wrong);
+        return Converse(npcId, replies);
+    }
+
+    private static string? NotesOffered(ConversationView open) =>
+        open.Replies.Any(r => r.Id == "notes") ? null : $"'notes' is not offered at '{open.NodeId}' once the Survey is told of the heart";
+
+    private static string? NotesClosed(ConversationView open) =>
+        open.Replies.Any(r => r.Id == "notes") ? $"'notes' is still offered at '{open.NodeId}' after the Survey learned of the armour" : null;
+
+    private bool SelToldOfTheHeart()
+    {
+        var told = _standing.Skip(_standingAtStart).ToList();
+        var expected = new ReputationChanged(Survey, 0, 100, "neutral", "accepted", 1, "reported", Sel, told.FirstOrDefault()?.Tick ?? 0);
+        if (told.Count != 1 || told[0] != expected)
+            return Fail($"Sel's telling of Tavar moved {string.Join("; ", told)}, not the Survey 0 -> 100");
+        if (SelTrust() - _selTrustAtStart != 5)
+            return Fail($"Sel's trust moved {SelTrust() - _selTrustAtStart}, not the authored +5 of brought_tavar_back");
+        return true;
+    }
+
+    private bool SelToldOfTheArmour()
+    {
+        var told = _standing.Skip(_standingAtStart).ToList();
+        var expected = new ReputationChanged(Survey, 100, 0, "accepted", "neutral", 2, "reported", Sel, told.FirstOrDefault()?.Tick ?? 0);
+        if (told.Count != 1 || told[0] != expected)
+            return Fail($"Sel's telling of the armour moved {string.Join("; ", told)}, not the Survey 100 -> 0");
+        string line = FactionLines.Reported(told[0], _session.Simulation!.Factions.First(f => f.Id == Survey).Name, _session.DisplayName(Sel));
+        if (line != "The Survey: neutral (-100), told to Sel Arien")
+            return Fail($"the HUD line reads '{line}'");
+        if (SelTrust() != _selTrustAtStart)
+            return Fail($"Sel's trust moved {SelTrust() - _selTrustAtStart} when she was told of the armour");
+        return true;
     }
 
     // ── moving and looking ──────────────────────────────────────────────────

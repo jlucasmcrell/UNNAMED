@@ -35,6 +35,69 @@ public class DeterminismAndViewTests
         }
     }
 
+    /// <summary>
+    /// The start, carrying five timber from the crossing's stack (M7, E6; E8 one more, for a repair), saved: taking from an untouched
+    /// container mints the stack its IDs, so both sessions must load it already taken.
+    /// </summary>
+    private static void SaveBuilderStart(TempProfile profile)
+    {
+        var session = Harness.Boot(profile);
+        session.Load(SaveSlots.Manual("start"));
+        var simulation = session.Simulation!;
+        Assert.True(Harness.WalkPath(session, (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
+        Assert.True(Harness.WalkTo(session, 84_000, 116_600, Gait.Walk, toleranceMm: 50));
+        session.Submit(new MoveItemCommand(simulation.PlayerId, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 5));
+        session.Frame(session.TickSeconds);
+        Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
+        session.Save(SaveSlots.Manual("builder_start"));
+    }
+
+    /// <summary>
+    /// Before the script (M7, E6): from the longhouse door to the crossing, a pad and a doorway built at (88.5, 112.5) with a door hung in
+    /// it, the door opened and shut again - a placed door's toggles, which set no flag - and back. E8: two blows on the door, its mending,
+    /// and blows until it is destroyed.
+    /// </summary>
+    private static void HangAndWorkADoor(GameSession session)
+    {
+        var simulation = session.Simulation!;
+        var player = simulation.PlayerId;
+        Assert.True(Harness.WalkPath(session, (54.5, 134), (62, 130), (80, 118)), $"the walk out stopped at {simulation.Player.Body}");
+        Assert.True(Harness.WalkTo(session, 88_000, 112_500, Gait.Walk, toleranceMm: 50));
+        foreach (var command in new GameCommand[]
+                 {
+                     new PlacePieceCommand(player, "piece.pad.timber", 88_500, 112_500, 0),
+                     new PlacePieceCommand(player, "piece.doorway.timber", 87_000, 112_500, 1),
+                     new PlacePieceCommand(player, "piece.door.timber", 87_000, 112_500, 1),
+                 })
+        {
+            session.Submit(command);
+            session.Frame(session.TickSeconds);
+        }
+        string door = simulation.Pieces.Single(p => p.DefId == "piece.door.timber").Id.Value;
+        for (int i = 0; i < 2; i++)
+        {
+            session.Submit(new InteractCommand(player, door));
+            session.Frame(session.TickSeconds);
+        }
+        // Facing the shut door from the pad: two blows, the mending, then blows until it is gone.
+        session.Submit(new MoveCommand(player, MoveIntent.Idle(270_000)));
+        session.Frame(session.TickSeconds);
+        void Blow()
+        {
+            session.Submit(new AttackCommand(player));
+            for (int t = 0; t <= simulation.Combat.Weapon.TotalTicks; t++)
+                session.Frame(session.TickSeconds);
+        }
+        Blow();
+        Blow();
+        session.Submit(new RepairPieceCommand(player, UNNAMED.Domain.EntityId.Parse(door)));
+        session.Frame(session.TickSeconds);
+        for (int i = 0; i < 30 && simulation.Pieces.Any(p => p.Id.Value == door); i++)
+            Blow();
+        Assert.DoesNotContain(simulation.Pieces, p => p.Id.Value == door);
+        Assert.True(Harness.WalkPath(session, (80, 118), (62, 130), (54.5, 134), (53, 128)), $"the walk back stopped at {simulation.Player.Body}");
+    }
+
     /// <summary>A new world, walked to the longhouse door and saved, so two sessions can start from the identical state.</summary>
     private static void SaveStart(TempProfile profile)
     {
@@ -81,14 +144,16 @@ public class DeterminismAndViewTests
     {
         using var profile = new TempProfile();
         SaveStart(profile);
+        SaveBuilderStart(profile);
 
         // Control: the same session with nobody listening.
         var control = Harness.Boot(profile);
-        control.Load(SaveSlots.Manual("start"));
+        control.Load(SaveSlots.Manual("builder_start"));
+        HangAndWorkADoor(control);
         PlayScript(control, seed: 11);
 
         var session = Harness.Boot(profile);
-        session.Load(SaveSlots.Manual("start"));
+        session.Load(SaveSlots.Manual("builder_start"));
         var start = session.Simulation!.Player.Body;
         var knownAtStart = session.Simulation.Player.Discoveries.Select(d => d.LocationId).ToHashSet();
         long xpAtStart = session.Simulation.Player.Progression.LifetimeXp.Values.Sum();
@@ -98,8 +163,27 @@ public class DeterminismAndViewTests
         var flags = Harness.Record<WorldFlagChanged>(session);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
+        var acts = Harness.Record<ActRecorded>(session);                // M7 (G5): the faction events too
+        var learned = Harness.Record<FactionLearned>(session);
+        var standing = Harness.Record<ReputationChanged>(session);
+        var routes = Harness.Record<RoutePlanned>(session);              // E4
+        var placed = Harness.Record<PiecePlaced>(session);               // E5
+        var removed = Harness.Record<PieceRemoved>(session);
+        var structures = Harness.Record<StructuresChanged>(session);
+        var rebuilt = Harness.Record<NavigationRebuilt>(session);
+        var damaged = Harness.Record<PieceDamaged>(session);           // E8
+        var destroyed = Harness.Record<PieceDestroyed>(session);
+        var repaired = Harness.Record<PieceRepaired>(session);
+        var workerEvents = new List<object>();                            // E9
+        session.Subscribe<WorkerAssigned>(workerEvents.Add);
+        session.Subscribe<WorkerReleased>(workerEvents.Add);
+        session.Subscribe<NpcArrivedAtWork>(workerEvents.Add);
+        session.Subscribe<NpcReturnedHome>(workerEvents.Add);
         // A view that tries its hardest to write: everything it receives is an immutable copy.
+        session.Subscribe<ReputationChanged>(e => _ = e with { To = e.From });
         session.Subscribe<BodyMoved>(e => _ = e with { To = e.From });
+        session.Subscribe<RoutePlanned>(e => _ = e with { Corners = 0 });
+        HangAndWorkADoor(session);
         PlayScript(session, seed: 11);
         var simulation = session.Simulation!;
         var log = simulation.CommandLog;
@@ -109,11 +193,15 @@ public class DeterminismAndViewTests
         // Rejections: one event per refused command, in order, with the logged reason.
         Assert.Equal(log.Where(e => e.RejectedReason is not null).Select(e => (e.Command, e.RejectedReason)),
             rejected.Select(e => (e.Command, (string?)e.Reason)));
-        // Doors: one toggle per accepted interaction, each with its flag change.
+        // Doors: one toggle per accepted interaction; an authored door's with its flag change, a placed door's (E6) with none.
         Assert.Equal(log.Count(e => e.Command is InteractCommand && e.RejectedReason is null), toggled.Count);
-        Assert.Equal(toggled.Count, flags.Count);
+        var authored = toggled.Where(t => !t.DoorKey.StartsWith("pce_", StringComparison.Ordinal)).ToList();
+        Assert.Equal(authored.Count, flags.Count);
         Assert.Equal(simulation.Doors.Where(d => d.Open).Select(d => d.Site.Key).OrderBy(k => k),
-            toggled.GroupBy(t => t.DoorKey).Where(g => g.Last().Open).Select(g => g.Key).OrderBy(k => k));
+            authored.GroupBy(t => t.DoorKey).Where(g => g.Last().Open).Select(g => g.Key).OrderBy(k => k));
+        // The placed door (E6), opened and shut before its blows (E8) destroyed it.
+        string placedDoor = Assert.Single(destroyed).PieceId.Value;
+        Assert.Equal(new[] { (placedDoor, true), (placedDoor, false) }, toggled.Except(authored).Select(t => (t.DoorKey, t.Open)));
         // Movement: an unbroken chain from where the body started to where it is.
         Assert.NotEmpty(moved);
         Assert.Equal(start, moved[0].From);
@@ -123,6 +211,27 @@ public class DeterminismAndViewTests
         Assert.Equal(simulation.Player.Discoveries.Select(d => d.LocationId).Where(id => !knownAtStart.Contains(id)).Order(),
             discovered.Select(d => d.LocationId).Order());
         Assert.Equal(simulation.Player.Progression.LifetimeXp.Values.Sum() - xpAtStart, xp.Sum(e => e.Awarded));
+        // Acts, what was learned of them, and standing: one event per recorded act and per learning, and the points they add up to.
+        Assert.Equal(simulation.Acts.Select(a => a.Seq), acts.Select(e => e.Seq));
+        Assert.Equal(simulation.Acts.Sum(a => a.Known.Length), learned.Count);
+        Assert.All(simulation.Factions, f => Assert.Equal(f.Points, standing.Where(e => e.FactionId == f.Id).Sum(e => e.To - e.From)));
+        // Routes and errands: this script has no mover and asks no one to work, so nothing plans and no one sets off.
+        Assert.Empty(simulation.Navigation.Movers);
+        Assert.Empty(routes);
+        Assert.Empty(simulation.WorkAssignments);
+        Assert.Empty(workerEvents);
+        // Pieces: one placing, taking down or destroying per change of the structures (a door's toggles, blows it stands and mending are
+        // none), and the sequence is their count.
+        Assert.Equal(simulation.StructureRevision, placed.Count + removed.Count + destroyed.Count);
+        Assert.Equal(placed.Count + removed.Count + destroyed.Count, structures.Count);
+        Assert.Equal(simulation.Pieces.Select(p => p.Id).Order(),
+            placed.Select(p => p.PieceId).Except(removed.Select(r => r.PieceId)).Except(destroyed.Select(d => d.PieceId)).Order());
+        // Blows: 10 each, the health they leave counting down from the maximum and back up at the mending; the last one destroys.
+        var hung = Assert.Single(destroyed);
+        Assert.All(damaged, d => Assert.Equal((hung.PieceId, 10, "melee"), (d.PieceId, d.Amount, d.Source)));
+        Assert.Equal(new[] { 110, 100 }.Concat(Enumerable.Range(1, 11).Select(n => 120 - 10 * n)), damaged.Select(d => d.HealthNow));
+        Assert.Equal((hung.PieceId, 100, 120), (Assert.Single(repaired).PieceId, repaired[0].From, repaired[0].To));
+        Assert.True(rebuilt.Count <= structures.Count, "a rebuild without a change of the structures");
     }
 
     [Fact]
@@ -140,5 +249,66 @@ public class DeterminismAndViewTests
         session.Save(SaveSlots.Quick);
 
         Assert.Empty(anything);
+    }
+
+    /// <summary>
+    /// G27 (M7): a new game and a load publish no M7 event - here the faction events, from a save whose ledger holds acts, knowledge and
+    /// standing. A view must never mistake a rebuild for something that happened.
+    /// </summary>
+    [Fact]
+    public void ConstructionAndLoad_PublishNoM7Event()
+    {
+        using var profile = new TempProfile();
+        var writer = Harness.Boot(profile);
+        var anything = new List<object>();
+        writer.Subscribe<ActRecorded>(anything.Add);
+        writer.Subscribe<FactionLearned>(anything.Add);
+        writer.Subscribe<ReputationChanged>(anything.Add);
+        writer.Subscribe<RoutePlanned>(anything.Add);
+        writer.Subscribe<PiecePlaced>(anything.Add);
+        writer.Subscribe<PieceRemoved>(anything.Add);
+        writer.Subscribe<StructuresChanged>(anything.Add);
+        writer.Subscribe<NavigationRebuilt>(anything.Add);
+        writer.Subscribe<PieceDamaged>(anything.Add);
+        writer.Subscribe<PieceDestroyed>(anything.Add);
+        writer.Subscribe<PieceRepaired>(anything.Add);
+        writer.Subscribe<WorkerAssigned>(anything.Add);
+        writer.Subscribe<WorkerReleased>(anything.Add);
+        writer.Subscribe<NpcArrivedAtWork>(anything.Add);
+        writer.Subscribe<NpcReturnedHome>(anything.Add);
+        var simulation = writer.NewGame("Wanderer", seed: 42);
+        Assert.Empty(anything);
+
+        var act = new UNNAMED.Domain.Factions.ActRecord(1, UNNAMED.Domain.Factions.ActKinds.CreatureKilled, "creature.construct.animated_armour",
+            UNNAMED.World.CellKey.OfWorld(120, 63).ToString(), 120_000, 63_000, 10);
+        var ledger = new UNNAMED.Domain.Factions.FactionLedger(2, System.Collections.Immutable.ImmutableArray.Create(act),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionKnowledge("faction.ashen_hollow.waystation", 1,
+                UNNAMED.Domain.Factions.Identities.Identified, UNNAMED.Domain.Factions.KnowledgeSources.Reported, "npc.ashen_hollow.kera_voss", 12, 100)),
+            System.Collections.Immutable.ImmutableArray.Create(new UNNAMED.Domain.Factions.FactionStanding("faction.ashen_hollow.waystation", 100)));
+        new SaveStore(profile.Root).Save(SaveSlots.Manual("known"), SaveDocuments.Capture(simulation.World, simulation.CaptureRecord() with { Factions = ledger },
+            writer.Content, simulation.WorldTick, 0));
+
+        var reader = Harness.Boot(profile);
+        reader.Subscribe<ActRecorded>(anything.Add);
+        reader.Subscribe<FactionLearned>(anything.Add);
+        reader.Subscribe<ReputationChanged>(anything.Add);
+        reader.Subscribe<RoutePlanned>(anything.Add);
+        reader.Subscribe<PiecePlaced>(anything.Add);
+        reader.Subscribe<PieceRemoved>(anything.Add);
+        reader.Subscribe<StructuresChanged>(anything.Add);
+        reader.Subscribe<NavigationRebuilt>(anything.Add);
+        reader.Subscribe<PieceDamaged>(anything.Add);
+        reader.Subscribe<PieceDestroyed>(anything.Add);
+        reader.Subscribe<PieceRepaired>(anything.Add);
+        reader.Subscribe<WorkerAssigned>(anything.Add);
+        reader.Subscribe<WorkerReleased>(anything.Add);
+        reader.Subscribe<NpcArrivedAtWork>(anything.Add);
+        reader.Subscribe<NpcReturnedHome>(anything.Add);
+        reader.Load(SaveSlots.Manual("known"));
+        Harness.Ticks(reader, 20);
+
+        Assert.Empty(anything);
+        Assert.Equal(100, reader.Simulation!.Factions.Single(f => f.Id == "faction.ashen_hollow.waystation").Points);
+        Assert.Equal(0, writer.SubscriberFailures + reader.SubscriberFailures);
     }
 }

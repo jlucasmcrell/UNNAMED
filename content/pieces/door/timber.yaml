@@ -1,0 +1,18 @@
+id: piece.door.timber
+kind: piece
+schema: 1
+display_key: piece.door.timber.name
+tags: [piece]
+name: Timber Door                     # DRAFT display name
+notes: A 1.6 m timber leaf hung in a doorway (M7). It blocks while shut; its owner opens it with E, and so does the owner's companion.
+family: door
+slot: door
+rotations: [0, 1, 2, 3]
+bounds_m: [-0.8, -0.2, 0.8, 0.2]      # local [min_x, min_z, max_x, max_z] at r0: the doorway's opening
+parts:
+  - { box_m: [-0.8, -0.2, 0.8, 0.2], height_m: 2.4, traversal: door }
+sockets:
+  - { type: door_mount, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 1 }
+health_max: 120

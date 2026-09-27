@@ -34,7 +34,14 @@ public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryR
 /// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,
 /// rolled the same way every time; the key is its identity in saves.
 /// </summary>
-public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots);
+public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
+{
+    /// <summary>A placed chest's identity, derived from its piece (M7); null for an authored container, which is given one when first changed.</summary>
+    public EntityId? InstanceId { get; init; }
+
+    /// <summary>Who may use a placed chest (M7); null for an authored container, which anyone may.</summary>
+    public EntityId? Owner { get; init; }
+}
 
 /// <summary>
 /// An authored resource node (M3f): a node definition at a fixed place. Its identity and harvest state belong to the world
@@ -47,6 +54,12 @@ public sealed record StationSite(string Key, string Kind, long XMm, long ZMm);
 
 /// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
 public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
+
+/// <summary>
+/// Where the player may build (M7 design §4.16): a box on the building lattice, edges included, and how many pieces may stand in it.
+/// Build areas are layout, not baseline.
+/// </summary>
+public sealed record BuildAreaSite(string Key, long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, int MaxPieces);
 
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
@@ -83,6 +96,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's barriers (M6).</summary>
     public ImmutableArray<BarrierSite> Barriers { get; init; } = ImmutableArray<BarrierSite>.Empty;
+
+    /// <summary>Where the player may build (M7).</summary>
+    public ImmutableArray<BuildAreaSite> BuildAreas { get; init; } = ImmutableArray<BuildAreaSite>.Empty;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 

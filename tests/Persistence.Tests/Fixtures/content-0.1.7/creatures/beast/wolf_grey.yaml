@@ -1,0 +1,6 @@
+id: creature.beast.wolf_grey
+kind: creature
+schema: 1
+display_key: creature.beast.wolf_grey.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.

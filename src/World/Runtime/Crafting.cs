@@ -165,7 +165,7 @@ internal sealed class CraftingSystem
             return $"{recipe.Id} is not known";
         var body = State.Body;
         long reach = _context.Setup.Items.Inventory.ReachMm;
-        if (!_context.Setup.Layout.Stations.Any(s => s.Kind == recipe.StationKind
+        if (!_context.Stations().Any(s => s.Kind == recipe.StationKind
                 && Math.Sqrt(Math.Pow(s.XMm - body.XMm, 2) + Math.Pow(s.ZMm - body.ZMm, 2)) <= reach))
             return $"no {recipe.StationKind} in reach";
 

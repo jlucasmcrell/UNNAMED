@@ -407,4 +407,29 @@ public class ItemTests
             reloaded.Simulation.Containers.Single(c => c.Site.Key == Den).Items.AsEnumerable());
         Assert.Equal(simulation.Containers.Single(c => c.Site.Key == Den).Id, reloaded.Simulation.Containers.Single(c => c.Site.Key == Den).Id);
     }
+
+    /// <summary>
+    /// M7 (G20): an item put into the pack fills the fullest stack of its kind first, and only then the next - so the counts a take leaves
+    /// never depend on which stack has the lower ID. With one partial stack it merges as Phase 1 did.
+    /// </summary>
+    [Fact]
+    public void Put_MergesIntoTheFullestStackFirst_WhateverTheItemIds()
+    {
+        const string timber = "item.material.timber";
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var ids = new[] { EntityId.NewId(EntityKind.Item), EntityId.NewId(EntityKind.Item) }.OrderBy(i => i.Value, StringComparer.Ordinal).ToArray();
+        int[] TakeSeven(params (EntityId Id, int Count)[] carried)
+        {
+            // At the timber stack by the crossing: seven from its first stack of twenty.
+            var arena = Arena.OpenCreatures(session, session.Setup, (84.0, 116.6), 0, Array.Empty<(string, double, double, string)>(),
+                r => r.WithInventory(r.Inventory.Concat(carried.Select(c => new InventoryEntry(c.Id, timber, c.Count)))));
+            Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, "container.timber_stack#00", ItemPlace.In("container.timber_stack"), ItemPlace.Carried, 7)));
+            return arena.Simulation.Player.Inventory.Where(e => e.DefId == timber).Select(e => e.Count).Order().ToArray();
+        }
+
+        Assert.Equal(new[] { 12, 20 }, TakeSeven((ids[0], 15), (ids[1], 10)));
+        Assert.Equal(new[] { 12, 20 }, TakeSeven((ids[0], 10), (ids[1], 15)));
+        Assert.Equal(new[] { 2, 20 }, TakeSeven((ids[0], 15)));
+    }
 }

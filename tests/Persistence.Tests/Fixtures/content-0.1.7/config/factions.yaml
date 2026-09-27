@@ -1,0 +1,21 @@
+id: config.factions
+kind: config
+schema: 1
+display_key: config.factions.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+ladder:
+  - { tier: exalted,  level: 5,  min: 1000 }
+  - { tier: allied,   level: 4,  min: 700 }
+  - { tier: honoured, level: 3,  min: 450 }
+  - { tier: trusted,  level: 2,  min: 250 }
+  - { tier: accepted, level: 1,  min: 100 }
+  - { tier: neutral,  level: 0,  min: -99 }
+  - { tier: wary,     level: -1, min: -249 }
+  - { tier: disliked, level: -2, min: -449 }
+  - { tier: despised, level: -3, min: -699 }
+  - { tier: outcast,  level: -4, min: -999 }
+  - { tier: anathema, level: -5, min: -1000 }
+points: { min: -1000, max: 1000, ordinary_floor: -999 }
+acts:
+  log_capacity: 256

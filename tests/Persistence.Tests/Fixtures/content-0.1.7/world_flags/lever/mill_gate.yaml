@@ -1,0 +1,8 @@
+id: world.lever.mill_gate
+kind: world_flag
+schema: 1
+display_key: world.lever.mill_gate.name
+tags: [fixture]
+type: int
+default: 0
+notes: Historical-fixture content for the save migration tests. Not game content.

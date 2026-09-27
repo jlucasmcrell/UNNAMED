@@ -1,0 +1,20 @@
+id: config.building
+kind: config
+schema: 1
+display_key: config.building.name
+tags: [config]
+notes: Building v1 (M7). Socket/snap on a 3 m lattice, quarter turns, one storey (D-08; owner rulings 1-2).
+module_m: 3.0              # save-locked: anchors are absolute
+rotation_step_deg: 90      # quarter turns only (approved, Q1)
+place_reach_m: 6.0         # body centre to the nearest point of the piece's bounds
+pad_max_relief_m: 0.25     # highest minus lowest ground under a pad, sampled every 0.25 m
+refund_percent: 50         # of each cost line, rounded down, when taken down
+repair_cost_percent: 100   # of each cost line, scaled by the health missing, rounded up
+protection:
+  spawn_point_m: 3.0       # the region spawn
+  npc_site_m: 1.5          # each authored NPC site
+  site_m: 1.5              # authored containers, stations and nodes
+  structure_margin_m: 1.5  # round authored door boxes, switch structures and barriers
+  spawner_margin_m: 1.0    # beyond a spawner's disc (and each patrol leg) plus its largest member's radius
+damage:
+  melee: 10                # the only M7 damage source

@@ -203,13 +203,46 @@
           -40750,
           150250,
           -40125
-        ]
+        ],
+        "route": {
+          "status": "none",
+          "goal_mm": [
+            0,
+            0
+          ],
+          "corners_mm": [],
+          "planned_tick": 0,
+          "stamp": "0x0000000000000000",
+          "watch_mm": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "partial": false
+        }
       }
     ],
     "posture": {
       "stance": "crouched",
       "airborne": false,
       "air_ms": 0
+    },
+    "factions": {
+      "next_act_seq": 1,
+      "acts": [],
+      "knowledge": [],
+      "standing": []
+    },
+    "vitals": {
+      "last_combat_tick": -1000000,
+      "last_exertion_tick": -1000000,
+      "last_cast_tick": -1000000,
+      "health_milli": 0,
+      "stamina_milli": 0,
+      "focus_milli": 0,
+      "strain_milli": 0,
+      "sprint_milli": 0
     }
   },
   "cells": [
@@ -358,7 +391,8 @@
       "next_charge_tick": 5060,
       "stagger_immune_until": 5020,
       "staggered_tick": 4995,
-      "stagger_lasts_ticks": 40
+      "stagger_lasts_ticks": 40,
+      "attack": null
     },
     {
       "key": "spawn.fixture.den#1",
@@ -385,7 +419,8 @@
       "next_charge_tick": 0,
       "stagger_immune_until": 0,
       "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "stagger_lasts_ticks": 0,
+      "attack": null
     },
     {
       "key": "spawn.fixture.ridge#0",
@@ -412,7 +447,8 @@
       "next_charge_tick": 0,
       "stagger_immune_until": 0,
       "staggered_tick": null,
-      "stagger_lasts_ticks": 0
+      "stagger_lasts_ticks": 0,
+      "attack": null
     }
   ],
   "noises": [
@@ -430,5 +466,8 @@
       "call": false,
       "caller_kind": null
     }
-  ]
+  ],
+  "structure_seq": 0,
+  "pieces": [],
+  "npc_errands": []
 }

@@ -30,6 +30,8 @@ public sealed class LayoutCheck
     private readonly SavesPanel _saves;
     private readonly HelpPanel _help;
     private readonly CharacterPanel _character;
+    private readonly BuildMode _build;
+    private readonly Hud _hud;
     private readonly List<string> _passed = new();
     private int _step;
     private int _wait = 30;
@@ -37,7 +39,7 @@ public sealed class LayoutCheck
     private string? _failure;
 
     public LayoutCheck(GameSession session, PlayerController controller, CameraRig camera, Viewport viewport, InventoryPanel inventory,
-        DialoguePanel dialogue, SavesPanel saves, HelpPanel help, CharacterPanel character, string directory)
+        DialoguePanel dialogue, SavesPanel saves, HelpPanel help, CharacterPanel character, BuildMode build, Hud hud, string directory)
     {
         _session = session;
         _controller = controller;
@@ -48,6 +50,8 @@ public sealed class LayoutCheck
         _saves = saves;
         _help = help;
         _character = character;
+        _build = build;
+        _hud = hud;
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
     }
@@ -103,18 +107,33 @@ public sealed class LayoutCheck
             case 7:
                 return Check(_help, "the controls") ?? $"help_{Size}";
             case 8:
+                // Build mode's panel (M7), top right under the tracker: on the screen at this size.
                 _help.Toggle();
+                if (!_build.Enter(_camera))
+                    return Fail("build mode would not open: the pack has no pieces");
+                return Wait(10);
+            case 9:
+            {
+                var screen = _viewport.GetVisibleRect();
+                var rect = _hud.BuildPanel.GetGlobalRect();
+                if (!_hud.BuildPanel.IsVisibleInTree() || !screen.Grow(1).Encloses(rect))
+                    return Fail($"the build panel at {rect} is not on the screen {screen}");
+                _passed.Add("the build panel on screen");
+                return $"build_{Size}";
+            }
+            case 10:
+                _build.Exit(_camera);
                 _character.Visible = true;
                 _character.Refresh();
                 return Wait(10);
-            case 9:
+            case 11:
                 return Check(_character, "the character sheet") ?? $"character_{Size}";
-            case 10:
+            case 12:
                 _character.Visible = false;
                 if (!Approach())
                     _step--;   // walking to Sel: this step again next frame
                 return null;
-            case 11:
+            case 13:
                 if (!_dialogue.Visible)
                     return Fail("Sel's conversation did not open");
                 return Check(_dialogue, "a conversation") ?? $"dialogue_{Size}";

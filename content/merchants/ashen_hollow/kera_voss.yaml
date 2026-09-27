@@ -9,4 +9,5 @@ stock:
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
   - { item_ref: item.armor.hide_vest, count: 1, price_bias: 1.0 }
   - { item_ref: item.armor.hide_cap, count: 1, price_bias: 1.0 }   # PROTOTYPE.md C18: every item can be got; the cap was the unbuilt quest's reward
+  - { item_ref: item.material.iron_ingot, count: 3, price_bias: 1.0, requires: { faction_ref: faction.ashen_hollow.waystation, min_tier: accepted } }   # M7: the waystation's own come first
 buys_tags: [material, consumable, weapon, armor, misc]   # Phase 1 matches these against the item category

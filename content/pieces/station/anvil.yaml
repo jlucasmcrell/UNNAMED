@@ -1,0 +1,19 @@
+id: piece.station.anvil
+kind: piece
+schema: 1
+display_key: piece.station.anvil.name
+tags: [piece]
+name: Anvil Bench                     # DRAFT display name
+notes: A timber bench with an anvil block on a pad (M7) - an anvil, where the March Spear is made. It costs no iron, because Ashen Hollow's iron is finite.
+family: station
+slot: furniture
+rotations: [0, 1, 2, 3]
+bounds_m: [-0.5, 0.4, 0.5, 1.0]       # local [min_x, min_z, max_x, max_z] at r0, against the square's north side
+parts:
+  - { box_m: [-0.5, 0.4, 0.5, 1.0], height_m: 0.9, traversal: solid }
+sockets:
+  - { type: square_mount, at_m: [0, 0] }
+station: { kind: anvil, work_anchor_m: [0, -0.25], work_facing_deg: 0 }   # the worker stands 0.65 m before the bench, facing it
+cost:
+  - { item_ref: item.material.timber, count: 4 }
+health_max: 300

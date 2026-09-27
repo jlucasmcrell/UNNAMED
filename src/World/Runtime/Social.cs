@@ -96,23 +96,26 @@ internal sealed record ChangeRelationship(string NpcId, string Dimension, int De
 // ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24). Each named NPC stands where the region puts them, turned
-/// the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the vertical slice) and no
-/// simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID (D-10). A
-/// companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
-/// everyone else stands where the region puts them, so nothing about their bodies needs saving.
+/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24) - and <see cref="StateSlice.NpcErrands"/> (M7). Each named NPC stands
+/// where the region puts them, turned the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the
+/// vertical slice) and no simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID
+/// (D-10). A companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
+/// an NPC on an errand (M7) is walked by the errand mover (<c>Errands.cs</c>) and saved with the errand; everyone else stands where the
+/// region puts them, so nothing about their bodies needs saving.
 /// </summary>
-internal sealed class NpcSystem
+internal sealed partial class NpcSystem
 {
     private const int TurnMdegPerTick = 18_000;   // 360 degrees a second at 20 Hz
 
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
+    private readonly NavigationSystem _navigation;
 
-    public NpcSystem(SystemContext context, SliceOwner owner)
+    public NpcSystem(SystemContext context, SliceOwner owner, NavigationSystem navigation)
     {
         _context = context;
         _owner = owner;
+        _navigation = navigation;
     }
 
     private RuntimeState State => _context.State;
@@ -124,8 +127,14 @@ internal sealed class NpcSystem
         return EntityId.Create(EntityKind.Npc, 1, h.Add("unnamed.npc/v1").Add(npcId).FinishBytes().AsSpan(0, 10));
     }
 
-    public void Populate()
+    /// <summary>
+    /// World start: every named NPC at their place - or, on an errand (M7), at the errand's pose, once the saved errands are repaired
+    /// against the saved companions and the pieces (<c>Errands.cs</c>). Publishes nothing.
+    /// </summary>
+    public void Populate(ImmutableArray<CompanionRecord> companions)
     {
+        RepairErrands(companions);
+        var terrain = _context.Setup.Layout.Space.Terrain;
         foreach (var site in _context.Setup.Layout.Npcs)
         {
             if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition))
@@ -133,8 +142,8 @@ internal sealed class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.Layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm);
-            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
+            var (x, z, facing) = State.World.NpcErrand(site.NpcId) is { } errand ? (errand.XMm, errand.ZMm, errand.FacingMdeg) : (site.XMm, site.ZMm, site.FacingMdeg);
+            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(x, terrain.HeightAtMm(x, z), z, facing)));
         }
     }
 
@@ -148,9 +157,11 @@ internal sealed class NpcSystem
 
     public void Tick(long tick)
     {
+        // Errands first (M7): only the mover writes an errand NPC's body, facing included, so the facing loop below skips them.
+        TickErrands(tick);
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
-        foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))
+        foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && State.World.NpcErrand(n.Definition.Id) is null))
         {
             int wanted = npc.Definition.Id == talking
                 ? CombatRules.FacingTowards(npc.Body.XMm, npc.Body.ZMm, player.XMm, player.ZMm)
@@ -234,6 +245,11 @@ internal sealed class DialogueSystem : IDialogueFacts
             return $"{npc.Definition.Name} has nothing to say";
         if (State.Companions.TryGetValue(command.NpcId, out var companion) && companion.Condition == CompanionCondition.Downed)
             return $"{npc.Definition.Name} is down";
+        // Read from the saved errand's phase (G21): walking, they do not stop to talk; at work they talk and trade as ever.
+        if (State.World.NpcErrand(command.NpcId)?.Phase is NpcErrandPhase.ToWork or NpcErrandPhase.ToHome)
+            return State.World.NpcErrand(command.NpcId)!.Phase == NpcErrandPhase.ToWork
+                ? $"{npc.Definition.Name} is walking to work"
+                : $"{npc.Definition.Name} is walking home";
         if (!_context.InTalkReach(npc.Body))
             return $"{npc.Definition.Name} is out of reach";
         if (State.Conversation is { } open)
@@ -383,6 +399,9 @@ internal sealed class DialogueSystem : IDialogueFacts
             case OrderCompanionConsequence order:
                 _context.Dispatch(new OrderCompanion(open.NpcId, order.Order));
                 break;
+            case ReportActConsequence report:
+                _context.Dispatch(new ReportAct(report.Kind, report.Subject, open.NpcId));
+                break;
         }
     }
 
@@ -417,6 +436,10 @@ internal sealed class DialogueSystem : IDialogueFacts
     public int Level => State.Progression.Level;
 
     public CompanionOrder? CompanionOrderOf(string npcId) => State.Companions.TryGetValue(npcId, out var companion) ? companion.Order : null;
+
+    int IDialogueFacts.StandingLevel(string factionId) => _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(factionId)).Level;
+
+    bool IDialogueFacts.ActDone(string kind, string subject) => State.Factions.Acts.Any(a => a.Kind == kind && a.Subject == subject);
 
     public string QuestState(string questId, string? objectiveId)
     {
@@ -463,6 +486,10 @@ internal sealed class DialogueSystem : IDialogueFacts
         public string QuestState(string questId, string? objectiveId) => _system.QuestState(questId, objectiveId);
 
         public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
+
+        int IDialogueFacts.StandingLevel(string factionId) => ((IDialogueFacts)_system).StandingLevel(factionId);
+
+        bool IDialogueFacts.ActDone(string kind, string subject) => ((IDialogueFacts)_system).ActDone(kind, subject);
     }
 }
 
@@ -497,6 +524,8 @@ internal sealed class TradeSystem
             return $"{npc.Definition.Name} has no such ware";
         if (command.Count < 1 || command.Count > ware.Count)
             return $"{npc.Definition.Name} has {ware.Count} of it";
+        if (Withheld(npc, merchant, ware.DefId) is { } withheld)
+            return withheld;
         long price = AskFor(merchant, ware.DefId) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
@@ -531,9 +560,20 @@ internal sealed class TradeSystem
         if (!State.Npcs.TryGetValue(npcId, out var npc) || _context.WaresOf(npc) is not { } site || !Items.Merchants.TryGetValue(site.Key, out var merchant))
             return null;
         return new WaresView(npcId, merchant.Id, _contents(site).Items
+            .Where(i => Withheld(npc, merchant, i.DefId) is null)
             .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)))
             .ToImmutableArray());
     }
+
+    /// <summary>
+    /// The service gate (M7 design §5.7.2): a ware whose item has a gated stock row at this merchant is listed and sold only while the
+    /// character stands at the row's tier or above with its faction. Keyed by item, so an ingot sold to the trader is withheld too.
+    /// </summary>
+    private string? Withheld(NpcState npc, Merchant merchant, string itemId) =>
+        merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.Requires is { } gate
+        && _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(gate.FactionId)).Level < gate.MinLevel
+            ? $"{npc.Definition.Name} will not sell you that"
+            : null;
 
     /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock).</summary>
     private long AskFor(Merchant merchant, string itemId) =>

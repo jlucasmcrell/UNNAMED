@@ -153,7 +153,7 @@ These are approved direction, not permission to expand current scope. Items mark
 
 ## Phase-1 acceptance — after M6 (ruling)
 - Keep the `PROTOTYPE.md` §9 requirements: death/respawn, a recorded acceptance run, a field-by-field save/reload state comparison, and performance evidence.
-- 3–5 blind testers (ROADMAP M6 early feel test) before advancing to Phase 2.
+- 3–5 blind testers (ROADMAP M6 early feel test) before advancing to Phase 2. (M7 reconciliation (2026-09-24): the owner ruled on 2026-09-24 that the feel test is deferred until a nontechnical Windows playtest build exists and is **not an M7 entry blocker**, `ROADMAP.md` M6. That build now exists, so the test is schedulable independently of M7.)
 
 ---
 
@@ -318,6 +318,6 @@ Claude is authorized through M6 and must stop after:
 
 > **M6 — Phase-1 playable prototype**
 
-Then the owner plays/reviews the game before M7. The Phase-1 acceptance requirements (§4) remain in force, including the 3–5 blind-tester feel test before Phase 2.
+Then the owner plays/reviews the game before M7. The Phase-1 acceptance requirements (§4) remain in force, including the 3–5 blind-tester feel test before Phase 2 (M7 reconciliation (2026-09-24): not an M7 entry blocker, per the owner's 2026-09-24 ruling; the owner authorized M7 on 2026-09-25).
 
 Do not automatically continue into the Phase-2 vertical slice.

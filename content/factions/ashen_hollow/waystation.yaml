@@ -1,0 +1,12 @@
+id: faction.ashen_hollow.waystation
+kind: faction
+schema: 1
+display_key: faction.ashen_hollow.waystation.name
+tags: [faction]
+name: the Waystation            # working name, not canon (content bible §9)
+notes: The people who keep Ashen Hollow's road stop running - Renn Vale's stewardship and Kera Voss's forge. Wants the stop safe and supplied. Members are the NPCs whose faction_ref names it; this file lists none. An M7 working faction.
+seat_location_ref: location.outpost
+reactions:
+  - { act: creature_killed, creature_ref: creature.construct.animated_armour, delta: 100 }   # the seam can be worked, and the forge gets its iron
+relations:
+  - { faction_ref: faction.ashen_hollow.survey, attitude: cordial }                         # read by nothing but views in M7

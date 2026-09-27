@@ -1,0 +1,28 @@
+id: config.navigation
+kind: config
+schema: 1
+display_key: config.navigation.name
+tags: [fixture]
+notes: Domain navigation (M7; owner ruling 1). A 250 mm clearance-class lattice on global indices, tiled per 100 m cell, derived from exactly what Kinematics collides with; nothing here is saved.
+node_m: 0.25              # NAV001: divides 100 m (400) and the 5 m terrain spacing (20); even in mm
+margin_m: 0.05            # NAV003: (r + margin)^2 >= r^2 + node^2 / 2 for every class
+agent_height_m: 1.8       # NAV005: equals the built MovementRules stand height
+classes:                  # ascending radius; a body uses the smallest class at least its radius
+  - { id: person, radius_m: 0.35 }   # NAV004: equals the built MovementRules body radius
+window_margin_m: 20
+window_max_m: 128
+max_expansions: 65536     # covers Kera's workshop walk home (40,751 [model]) with 60% headroom
+probe_nodes: 2048
+max_corners: 32
+start_snap_m: 1.0
+goal_snap_m: 2.0
+corner_reach_m: 0.4
+arrive_m: 0.3
+off_line_tolerance_m: 0.05
+replan_min_gap_s: 0.5
+retry_s: 2
+stuck_replan_s: 1
+goal_moved_m: 2.0
+blocked_view_s: 10
+seal_limit_nodes: 16384   # 1,024 m2; BLD008 keeps every build area below it
+edit_window_margin_m: 32

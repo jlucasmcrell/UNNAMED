@@ -1,0 +1,19 @@
+id: piece.wall.timber
+kind: piece
+schema: 1
+display_key: piece.wall.timber.name
+tags: [piece]
+name: Timber Wall                     # DRAFT display name
+notes: A 3 m timber wall on a pad edge (M7, one storey).
+family: wall
+slot: edge
+rotations: [0, 1, 2, 3]
+bounds_m: [-1.7, -0.2, 1.7, 0.2]      # local [min_x, min_z, max_x, max_z] at r0
+parts:
+  - { box_m: [-1.7, -0.2, 1.7, 0.2], height_m: 3.0, traversal: solid }
+sockets:
+  - { type: edge_mount, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 2 }
+health_max: 200
+supports_roof: true
