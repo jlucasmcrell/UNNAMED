@@ -1,0 +1,10 @@
+id: npc.cairnwold.berrin_garth
+kind: npc
+schema: 1
+display_key: npc.cairnwold.berrin_garth.name
+tags: [npc]
+name: Berrin Garth
+notes: Keeps the long lodge, and is Cairnwold's memory - who built the drystone walls, why the granary stands on staddles, which of the basin's places are older than the village. The region's door.longhouse site is his door.
+role: steward
+dialogue_ref: dialogue.cairnwold.berrin_garth
+unique: true

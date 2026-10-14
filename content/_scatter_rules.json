@@ -1,0 +1,1274 @@
+{
+  "comment": [
+    "CAIRNWOLD's own ground scatter, in place of Ashen Hollow's. The rules are read from here rather than the shipped file",
+    "because the densities are keyed by the GROUND'S OWN MATERIAL - and a second region's ground is made of different stuff.",
+    "Without this file the region scatters nothing at all, however many models it has shipped, because not one of its ground",
+    "materials appears in the shipped rules' per_m2 tables.",
+    "Every kind names a real Cairnwold model rather than a procedural mesh: these were built from CC0 sources at 4K and are",
+    "the region's own. Densities are per square metre, blended across cell borders.",
+    "The ground materials are the ones the region's four cells wear (bindings.json terrain map): cw_moor_grass on the dry rise,",
+    "cw_forest_floor on the birch flank, cw_heather over the south cliff-foot, cw_mud_wet on the wet shelf that drains to the gorge.",
+    "NOTE: a tall_tussocks kind was written and placed ZERO instances with no problem reported and no explanation found in the time available. It was removed rather than left in the file looking like it works. The size spread and the third patch scale on moor_grass are the changes that landed."
+  ],
+  "chunk_m": 16,
+  "path": {
+    "width_m": 1.6
+  },
+  "never": {
+    "below_height_m": 0.2,
+    "slope_over": 0.9
+  },
+  "paths": {
+    "region.starting_frontier": [
+      {
+        "note": "the lodge's east door, round to the smithy's door",
+        "points": [
+          [
+            452.3,
+            728
+          ],
+          [
+            454.3,
+            728.3
+          ],
+          [
+            455.2,
+            730.6
+          ],
+          [
+            452.6,
+            734.2
+          ],
+          [
+            451.2,
+            738.2
+          ],
+          [
+            451.6,
+            742
+          ],
+          [
+            452.8,
+            742
+          ]
+        ]
+      },
+      {
+        "note": "from the smithy's door past the well to the waystone",
+        "points": [
+          [
+            451.6,
+            742
+          ],
+          [
+            449.6,
+            745.6
+          ],
+          [
+            446.4,
+            749.4
+          ],
+          [
+            441.5,
+            753.4
+          ],
+          [
+            435,
+            756.2
+          ],
+          [
+            429.2,
+            757.6
+          ]
+        ]
+      },
+      {
+        "note": "a fork east from the lodge door to Sel's table",
+        "points": [
+          [
+            454.3,
+            728.3
+          ],
+          [
+            459,
+            727.4
+          ],
+          [
+            464.5,
+            725.6
+          ],
+          [
+            470.6,
+            723.4
+          ]
+        ]
+      },
+      {
+        "note": "the village street: the west lane in past the smithy",
+        "points": [
+          [
+            940,
+            652
+          ],
+          [
+            950,
+            656
+          ],
+          [
+            961,
+            659
+          ],
+          [
+            972,
+            666
+          ],
+          [
+            980,
+            674
+          ]
+        ]
+      },
+      {
+        "note": "the lane north out of the village towards the birch flank",
+        "points": [
+          [
+            961,
+            659
+          ],
+          [
+            963,
+            670
+          ],
+          [
+            966,
+            682
+          ],
+          [
+            970,
+            694
+          ]
+        ]
+      },
+      {
+        "note": "the track east off the rise, down to the wet shelf",
+        "points": [
+          [
+            972,
+            666
+          ],
+          [
+            986,
+            670
+          ],
+          [
+            1000,
+            668
+          ],
+          [
+            1014,
+            664
+          ]
+        ]
+      },
+      {
+        "note": "continuous overland road between the towns",
+        "points": [
+          [
+            600,
+            656
+          ],
+          [
+            680,
+            657
+          ],
+          [
+            760,
+            658
+          ],
+          [
+            840,
+            659
+          ],
+          [
+            900,
+            660
+          ]
+        ]
+      }
+    ]
+  },
+  "kinds": {
+    "grass": {
+      "mesh": "grass_clumps",
+      "only_when": {
+        "plants": "classic"
+      },
+      "max_per_m2": 4.6,
+      "fade_m": 60,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.6,
+        "material_packed_dirt_ground": 4.0,
+        "material_churned_wet_mud": 2.4,
+        "material_marsh_grass_turf": 4.6
+      },
+      "lush": {
+        "material_marsh_grass_turf": 1.0,
+        "material_churned_wet_mud": 0.7
+      },
+      "tall": {
+        "material_marsh_grass_turf": 0.35,
+        "material_churned_wet_mud": 0.15
+      },
+      "patches": [
+        {
+          "scale_m": 17,
+          "from": 0.38,
+          "to": 0.58
+        },
+        {
+          "scale_m": 5,
+          "from": 0.25,
+          "to": 0.75
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 2,
+        "to_m": 8
+      },
+      "under_trees": {
+        "keep": 0.35,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Clumps of three crossed alpha cards; straw-coloured on worked dirt and gravel, green in the wood and the wet; a trodden bare yard round the buildings; thinner under the canopies."
+    },
+    "leaves": {
+      "mesh": "leaf_litter",
+      "only_when": {
+        "plants": "classic"
+      },
+      "max_per_m2": 0.5,
+      "fade_m": 40,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.005,
+        "material_packed_dirt_ground": 0.01,
+        "material_churned_wet_mud": 0.02,
+        "material_marsh_grass_turf": 0.12
+      },
+      "near_trees": {
+        "add": 0.35,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 0.5,
+      "off_path": true,
+      "note": "Flat cards of fallen leaves, densest within a few metres of a trunk."
+    },
+    "stones": {
+      "mesh": "stones",
+      "material": "material_limestone_ashlar",
+      "max_per_m2": 0.6,
+      "fade_m": 80,
+      "shadows": true,
+      "per_m2": {
+        "material_loose_gravel": 0.55,
+        "material_packed_dirt_ground": 0.12,
+        "material_churned_wet_mud": 0.1,
+        "material_marsh_grass_turf": 0.06
+      },
+      "path_shoulders": 0.25,
+      "clear_margin": 0.4,
+      "off_path": false,
+      "note": "Noise-displaced pebbles to head-sized stones in the limestone material, sunk a third; kicked to the paths' shoulders."
+    },
+    "tufts": {
+      "mesh": "model:veg_ph_grass_medium_01",
+      "max_per_m2": 1.5,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        7,
+        16,
+        30
+      ],
+      "size": [
+        1.6,
+        2.6
+      ],
+      "stiffness": 0.8,
+      "fade_m": 45,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.1,
+        "material_packed_dirt_ground": 0.6,
+        "material_churned_wet_mud": 0.8,
+        "material_marsh_grass_turf": 1.5
+      },
+      "lush": {
+        "material_marsh_grass_turf": 1.0,
+        "material_churned_wet_mud": 0.7
+      },
+      "tall": {
+        "material_marsh_grass_turf": 0.3,
+        "material_churned_wet_mud": 0.1
+      },
+      "patches": [
+        {
+          "scale_m": 17,
+          "from": 0.38,
+          "to": 0.58
+        },
+        {
+          "scale_m": 4,
+          "from": 0.3,
+          "to": 0.7
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 2,
+        "to_m": 8
+      },
+      "under_trees": {
+        "keep": 0.4,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B0.5, --visual plants=models): Poly Haven grass_medium_01 (CC0), four levels to an impostor card, bending in the wind."
+    },
+    "blades_a": {
+      "mesh": "model:veg_gen_grass_a",
+      "max_per_m2": 9.0,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14
+      ],
+      "size": [
+        0.85,
+        1.25
+      ],
+      "stiffness": 0.6,
+      "fade_m": 52,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 1.2,
+        "material_packed_dirt_ground": 7.5,
+        "material_churned_wet_mud": 4.5,
+        "material_marsh_grass_turf": 9.0
+      },
+      "lush": {
+        "material_marsh_grass_turf": 1.0,
+        "material_churned_wet_mud": 0.7,
+        "material_packed_dirt_ground": 0.45
+      },
+      "tall": {
+        "material_marsh_grass_turf": 0.35,
+        "material_churned_wet_mud": 0.15
+      },
+      "patches": [
+        {
+          "scale_m": 17,
+          "from": 0.3,
+          "to": 0.55
+        },
+        {
+          "scale_m": 3,
+          "from": 0.3,
+          "to": 0.7
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 2,
+        "to_m": 8
+      },
+      "under_trees": {
+        "keep": 0.45,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 0.6,
+      "off_path": true,
+      "note": "Phase B remediation: short turf as geometry blades (tools/asset_pipeline/_procgen_grass_blades.py, project-owned) in place of the crossed-card grass - the densest ground cover."
+    },
+    "blades_b": {
+      "mesh": "model:veg_gen_grass_b",
+      "max_per_m2": 5.0,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14
+      ],
+      "size": [
+        0.85,
+        1.3
+      ],
+      "stiffness": 0.55,
+      "fade_m": 52,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.45,
+        "material_packed_dirt_ground": 3.8,
+        "material_churned_wet_mud": 3.0,
+        "material_marsh_grass_turf": 5.0
+      },
+      "lush": {
+        "material_marsh_grass_turf": 1.0,
+        "material_churned_wet_mud": 0.7,
+        "material_packed_dirt_ground": 0.45
+      },
+      "tall": {
+        "material_marsh_grass_turf": 0.35,
+        "material_churned_wet_mud": 0.15
+      },
+      "patches": [
+        {
+          "scale_m": 17,
+          "from": 0.35,
+          "to": 0.6
+        },
+        {
+          "scale_m": 4,
+          "from": 0.3,
+          "to": 0.7
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 2,
+        "to_m": 8
+      },
+      "under_trees": {
+        "keep": 0.4,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 0.8,
+      "off_path": true,
+      "note": "Phase B remediation: meadow grass as geometry blades."
+    },
+    "blades_c": {
+      "mesh": "model:veg_gen_grass_c",
+      "max_per_m2": 1.2,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14
+      ],
+      "size": [
+        0.8,
+        1.25
+      ],
+      "stiffness": 0.45,
+      "fade_m": 52,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.05,
+        "material_packed_dirt_ground": 0.6,
+        "material_churned_wet_mud": 0.8,
+        "material_marsh_grass_turf": 1.2
+      },
+      "lush": {
+        "material_marsh_grass_turf": 1.0,
+        "material_churned_wet_mud": 0.7,
+        "material_packed_dirt_ground": 0.45
+      },
+      "patches": [
+        {
+          "scale_m": 13,
+          "from": 0.4,
+          "to": 0.65
+        },
+        {
+          "scale_m": 3,
+          "from": 0.35,
+          "to": 0.7
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 3,
+        "to_m": 10
+      },
+      "under_trees": {
+        "keep": 0.3,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B remediation: tall wispy grass as geometry blades, in drifts."
+    },
+    "blades_d": {
+      "mesh": "model:veg_gen_grass_d",
+      "max_per_m2": 1.5,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14
+      ],
+      "size": [
+        0.85,
+        1.2
+      ],
+      "stiffness": 0.7,
+      "fade_m": 52,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.6,
+        "material_packed_dirt_ground": 1.5,
+        "material_churned_wet_mud": 0.3,
+        "material_marsh_grass_turf": 0.4
+      },
+      "patches": [
+        {
+          "scale_m": 11,
+          "from": 0.4,
+          "to": 0.7
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 1.5,
+        "to_m": 6
+      },
+      "under_trees": {
+        "keep": 0.2,
+        "from_m": 1.2,
+        "to_m": 6
+      },
+      "clear_margin": 0.6,
+      "off_path": false,
+      "note": "Phase B remediation: dry straw-coloured grass as geometry blades, on worked ground, gravel and the paths' verges."
+    },
+    "ah_nettles": {
+      "mesh": "model:veg_ph_nettle_plant",
+      "max_per_m2": 1.2,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        2.8,
+        4.2
+      ],
+      "stiffness": 1.4,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": {
+        "material_packed_dirt_ground": 0.06,
+        "material_churned_wet_mud": 0.35,
+        "material_marsh_grass_turf": 0.12
+      },
+      "patches": [
+        {
+          "scale_m": 9,
+          "from": 0.55,
+          "to": 0.7
+        }
+      ],
+      "under_trees": {
+        "keep": 0.6,
+        "from_m": 1,
+        "to_m": 4
+      },
+      "clear_margin": 1.2,
+      "off_path": true,
+      "note": "Phase B (B0.5): Poly Haven nettle_plant (CC0) in colonies on the wet, disturbed ground; stiffer than the grass."
+    },
+    "ah_ferns": {
+      "mesh": "model:veg_ph_fern_02",
+      "max_per_m2": 0.8,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        1.1,
+        1.8
+      ],
+      "stiffness": 1.1,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.05,
+        "material_churned_wet_mud": 0.03
+      },
+      "near_trees": {
+        "add": 0.6,
+        "from_m": 1.5,
+        "to_m": 6
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B0.5): Poly Haven fern_02 (CC0) round the trees' feet."
+    },
+    "litter_a": {
+      "mesh": "model:veg_ph_dry_leaves_a",
+      "max_per_m2": 0.187,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14,
+        25
+      ],
+      "size": [
+        0.9,
+        1.4
+      ],
+      "stiffness": 1000,
+      "fade_m": 35,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.0017,
+        "material_packed_dirt_ground": 0.0034,
+        "material_churned_wet_mud": 0.0068,
+        "material_marsh_grass_turf": 0.0408
+      },
+      "near_trees": {
+        "add": 0.119,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 0.5,
+      "off_path": true,
+      "note": "Phase B (B3): fallen leaves - Poly Haven dry_quiver_leaf (CC0) built into three lying clumps - in place of the procedural leaf cards; still (no wind)."
+    },
+    "litter_b": {
+      "mesh": "model:veg_ph_dry_leaves_b",
+      "max_per_m2": 0.182,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14,
+        25
+      ],
+      "size": [
+        0.9,
+        1.4
+      ],
+      "stiffness": 1000,
+      "fade_m": 35,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.0017,
+        "material_packed_dirt_ground": 0.0033,
+        "material_churned_wet_mud": 0.0066,
+        "material_marsh_grass_turf": 0.0396
+      },
+      "near_trees": {
+        "add": 0.115,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 0.5,
+      "off_path": true,
+      "note": "Phase B (B3): fallen leaves - Poly Haven dry_quiver_leaf (CC0) built into three lying clumps - in place of the procedural leaf cards; still (no wind)."
+    },
+    "litter_c": {
+      "mesh": "model:veg_ph_dry_leaves_c",
+      "max_per_m2": 0.182,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14,
+        25
+      ],
+      "size": [
+        0.9,
+        1.4
+      ],
+      "stiffness": 1000,
+      "fade_m": 35,
+      "shadows": false,
+      "per_m2": {
+        "material_loose_gravel": 0.0017,
+        "material_packed_dirt_ground": 0.0033,
+        "material_churned_wet_mud": 0.0066,
+        "material_marsh_grass_turf": 0.0396
+      },
+      "near_trees": {
+        "add": 0.115,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 0.5,
+      "off_path": true,
+      "note": "Phase B (B3): fallen leaves - Poly Haven dry_quiver_leaf (CC0) built into three lying clumps - in place of the procedural leaf cards; still (no wind)."
+    },
+    "bark": {
+      "mesh": "model:env_ph_bark_debris_01",
+      "max_per_m2": 0.06,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        30
+      ],
+      "size": [
+        0.6,
+        1.0
+      ],
+      "stiffness": 1000,
+      "fade_m": 40,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.004
+      },
+      "near_trees": {
+        "add": 0.05,
+        "from_m": 1.2,
+        "to_m": 5
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B3): shed bark round the trees' feet - Poly Haven bark_debris_01 (CC0), flat enough to walk over."
+    },
+    "dandelions": {
+      "mesh": "model:veg_ph_dandelion_01",
+      "max_per_m2": 0.8,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        6,
+        14,
+        25
+      ],
+      "size": [
+        1.2,
+        1.8
+      ],
+      "stiffness": 0.9,
+      "fade_m": 30,
+      "shadows": false,
+      "per_m2": {
+        "material_packed_dirt_ground": 0.5,
+        "material_marsh_grass_turf": 0.25
+      },
+      "patches": [
+        {
+          "scale_m": 11,
+          "from": 0.5,
+          "to": 0.68
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "material_packed_dirt_ground"
+        ],
+        "from_m": 2,
+        "to_m": 8
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Phase B (B3): Poly Haven dandelion_01 (CC0) flowering in drifts over the meadow, on the wind."
+    },
+    "brambles": {
+      "mesh": "model:flora_bramble_bush",
+      "max_per_m2": 0.1,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        10,
+        24,
+        45
+      ],
+      "size": [
+        0.9,
+        1.5
+      ],
+      "stiffness": 1.6,
+      "fade_m": 70,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.012,
+        "material_packed_dirt_ground": 0.002
+      },
+      "patches": [
+        {
+          "scale_m": 14,
+          "from": 0.45,
+          "to": 0.7
+        }
+      ],
+      "near_trees": {
+        "add": 0.05,
+        "from_m": 2,
+        "to_m": 7
+      },
+      "clear_margin": 1.5,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: bramble thickets round the Charwood's trees and at its clearings' edges."
+    },
+    "mirrorferns": {
+      "mesh": "model:flora_mirrorfern",
+      "max_per_m2": 0.4,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        1.5,
+        2.4
+      ],
+      "stiffness": 1.2,
+      "fade_m": 50,
+      "shadows": true,
+      "per_m2": {
+        "material_marsh_grass_turf": 0.03
+      },
+      "near_trees": {
+        "add": 0.22,
+        "from_m": 1,
+        "to_m": 5
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: the ferns under the Charwood's crowns."
+    },
+    "ah_heather": {
+      "mesh": "model:flora_heather_patch",
+      "max_per_m2": 0.25,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        1.6,
+        2.6
+      ],
+      "stiffness": 1.3,
+      "fade_m": 50,
+      "shadows": false,
+      "per_m2": {
+        "material_packed_dirt_ground": 0.05,
+        "material_churned_wet_mud": 0.07,
+        "material_marsh_grass_turf": 0.02
+      },
+      "patches": [
+        {
+          "scale_m": 20,
+          "from": 0.5,
+          "to": 0.72
+        }
+      ],
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: heather in drifts on the open ground and the Foldscar's approach."
+    },
+    "boneleaf": {
+      "mesh": "model:flora_boneleaf_bush",
+      "max_per_m2": 0.05,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        10,
+        24,
+        45
+      ],
+      "size": [
+        0.8,
+        1.3
+      ],
+      "stiffness": 1.5,
+      "fade_m": 65,
+      "shadows": true,
+      "per_m2": {
+        "material_churned_wet_mud": 0.02
+      },
+      "patches": [
+        {
+          "scale_m": 11,
+          "from": 0.55,
+          "to": 0.75
+        }
+      ],
+      "clear_margin": 1.2,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: the pale boneleaf bushes that grow round the Foldscar (setting flora)."
+    },
+    "reeds": {
+      "mesh": "model:flora_cattail_clump",
+      "max_per_m2": 0.5,
+      "chunk_m": 8,
+      "lods_m": [
+        0,
+        8,
+        18,
+        35
+      ],
+      "size": [
+        0.7,
+        1.15
+      ],
+      "stiffness": 1.0,
+      "fade_m": 55,
+      "shadows": true,
+      "per_m2": {},
+      "near_water": {
+        "add": 0.35,
+        "from_m": 0.6,
+        "to_m": 3.0
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: reeds along the Charwood drainage (Terrain3DView.CharwoodStream)."
+    },
+    "rock_clusters": {
+      "mesh": "model:rock_field_cluster",
+      "max_per_m2": 0.05,
+      "chunk_m": 16,
+      "lods_m": [
+        0,
+        15,
+        35,
+        70
+      ],
+      "size": [
+        0.8,
+        2.6
+      ],
+      "stiffness": 1000,
+      "fade_m": 110,
+      "shadows": true,
+      "per_m2": {
+        "material_loose_gravel": 0.02,
+        "material_churned_wet_mud": 0.01,
+        "material_packed_dirt_ground": 0.003,
+        "material_marsh_grass_turf": 0.004
+      },
+      "patches": [
+        {
+          "scale_m": 16,
+          "from": 0.5,
+          "to": 0.72
+        }
+      ],
+      "clear_margin": 1.5,
+      "off_path": true,
+      "only_when": {
+        "plants": "models"
+      },
+      "note": "Phase B demo: scanned rock clusters settled into the quarry spoil, the Foldscar and the meadow.",
+      "wind": false
+    },
+    "moor_grass": {
+      "mesh": "model:veg_gen_grass_a",
+      "max_per_m2": 16.0,
+      "chunk_m": 6,
+      "size": [
+        0.7,
+        1.15
+      ],
+      "stiffness": 0.85,
+      "fade_m": 120.0,
+      "shadows": true,
+      "per_m2": {
+        "cw_moor_grass": 16.0,
+        "cw_mud_wet": 10.0,
+        "cw_forest_floor": 8.0,
+        "cw_heather": 6.0,
+        "cw_rock_ground": 4.0
+      },
+      "lush": {
+        "cw_moor_grass": 1.0,
+        "cw_mud_wet": 0.85,
+        "cw_forest_floor": 0.7
+      },
+      "tall": {
+        "cw_moor_grass": 0.32,
+        "cw_mud_wet": 0.4,
+        "cw_forest_floor": 0.28,
+        "cw_heather": 0.2
+      },
+      "patches": [
+        {
+          "scale_m": 41,
+          "from": 0.22,
+          "to": 0.72
+        },
+        {
+          "scale_m": 19,
+          "from": 0.28,
+          "to": 0.66
+        },
+        {
+          "scale_m": 6,
+          "from": 0.22,
+          "to": 0.78
+        }
+      ],
+      "bare_yard": {
+        "grounds": [
+          "cw_mud_wet"
+        ],
+        "from_m": 2,
+        "to_m": 9
+      },
+      "under_trees": {
+        "keep": 0.3,
+        "from_m": 1.5,
+        "to_m": 7
+      },
+      "clear_margin": 0.25,
+      "off_path": true,
+      "note": "Grass. SIX forms drawn one per instance from a pool, so a field is a mix of short turf, medium meadow, wide sprawling clumps and dry straw rather than one clump stamped 255,000 times. Wind on: grass sways. LOD bands pulled in from 0/12/28/55 with fade 65 to 0/7/16/30 with fade 34: measured 87.5 -> 40 fps when the count went to 481,879 and the count is the cost. A blade is under 3 px past about 20 m, so full detail out there bought nothing. CLEAR_MARGIN 1.0 -> 0.25. Two independent blind reviews said the same thing about every structure in the region - 'the stone wall appears directly pasted atop the terrain', 'add small rock/grass debris around its base' - and a metre-wide ring of bare ground round every wall and building is exactly what makes a wall look laid on top of the ground rather than standing in it. Heather 1.0 -> 0.40 for the same reason. Grass against a wall face reads as vegetation growing against it, which is the thing being asked for.",
+      "lods_m": [
+        0.0,
+        10.0,
+        24.0,
+        48.0
+      ],
+      "pool": [
+        "model:veg_gen_grass_a",
+        "model:veg_gen_grass_b",
+        "model:veg_gen_grass_e",
+        "model:veg_gen_grass_f",
+        "model:veg_gen_grass_g",
+        "model:veg_gen_grass_d",
+        "model:veg_gen_grass_h"
+      ]
+    },
+    "heather": {
+      "mesh": "model:veg_gen_heather_a",
+      "max_per_m2": 0.439,
+      "chunk_m": 12,
+      "size": [
+        0.7,
+        1.25
+      ],
+      "stiffness": 0.95,
+      "fade_m": 50,
+      "shadows": false,
+      "per_m2": {
+        "cw_moor_grass": 0.19,
+        "cw_heather": 0.418,
+        "cw_rock_ground": 0.19,
+        "cw_mud_wet": 0.057,
+        "cw_forest_floor": 0.114
+      },
+      "patches": [
+        {
+          "scale_m": 34,
+          "from": 0.12,
+          "to": 0.75
+        }
+      ],
+      "clear_margin": 0.4,
+      "off_path": true,
+      "note": "Heather. REBUILT FROM SCRATCH as a POOL of four generated forms - the previous asset was cw_heather_clump, 384 triangles of intersecting alpha planes 1.1 m across and 0.42 m tall, which renders alone as a squashed pancake of flatted cards with a hole through the middle. Several thousand of those on the moor is what made the meadow read as brown splats lying on the grass. They are now real geometry - fine woody stems that branch twice and carry a flower spike - at 2640-3395 triangles with three LOD levels each, from tools/asset_pipeline/_procgen_heather.py. Sized up from 0.5-0.8 to 0.7-1.25 because the generated clumps are 0.52-1.0 m across and Fitting will not rescale. WIND IS ON and always was: this entry never carried a wind key, so Wind defaulted true and the note claiming 'WIND OFF - woody, it does not sway' described something the data did not do. Heather does move in wind; stiffness 0.95 keeps it to the tips.",
+      "wind": true,
+      "pool": [
+        "veg_gen_heather_a",
+        "veg_gen_heather_b",
+        "veg_gen_heather_c",
+        "veg_gen_heather_d"
+      ],
+      "lods_m": [
+        0.0,
+        8.0,
+        20.0,
+        40.0
+      ]
+    },
+    "ferns": {
+      "mesh": "model:cw_fern_a",
+      "max_per_m2": 0.55,
+      "chunk_m": 12,
+      "size": [
+        0.5,
+        0.95
+      ],
+      "stiffness": 0.7,
+      "fade_m": 45,
+      "shadows": false,
+      "per_m2": {
+        "cw_forest_floor": 0.304,
+        "cw_moor_grass": 0.038,
+        "cw_heather": 0.038
+      },
+      "near_trees": {
+        "add": 0.12,
+        "from_m": 2,
+        "to_m": 8
+      },
+      "clear_margin": 0.8,
+      "off_path": true,
+      "note": "Rusted autumn ferns, in the birch litter and thickening towards the trunks. Second pass: cut back to litter under the birches.",
+      "wind": true
+    },
+    "nettles": {
+      "mesh": "model:cw_nettle_a",
+      "max_per_m2": 0.5,
+      "chunk_m": 12,
+      "size": [
+        0.6,
+        1.0
+      ],
+      "stiffness": 0.6,
+      "fade_m": 35,
+      "shadows": false,
+      "per_m2": {
+        "cw_mud_wet": 0.418,
+        "cw_moor_grass": 0.038
+      },
+      "clear_margin": 0.6,
+      "off_path": true,
+      "note": "Nettles on the disturbed wet ground - the village edge and the drainage, exactly where people have been.",
+      "wind": true
+    },
+    "gravel": {
+      "mesh": "model:cw_gravel_stone_a",
+      "max_per_m2": 0.9,
+      "chunk_m": 8,
+      "size": [
+        0.45,
+        1.0
+      ],
+      "fade_m": 70,
+      "shadows": true,
+      "per_m2": {
+        "cw_rock_ground": 0.45,
+        "cw_moor_grass": 0.05
+      },
+      "path_shoulders": 0.3,
+      "clear_margin": 0.4,
+      "off_path": false,
+      "note": "Loose stones. WIND OFF - every model kind goes through the foliage shader, which displaces vertices by wind, and there is no `wind: false` anywhere so the boulders were swaying. Size pulled in from 0.7-1.8 m: a 1.8 m 'stone' is a boulder the size of a person, scattered 0.9 to the square metre. Count halved.",
+      "wind": false
+    },
+    "wildflowers": {
+      "mesh": "model:cw_dandelion",
+      "pool": [
+        "model:cw_dandelion"
+      ],
+      "max_per_m2": 1.397,
+      "per_m2": {
+        "cw_moor_grass": 1.33,
+        "cw_mud_wet": 0.38,
+        "cw_forest_floor": 0.285,
+        "cw_heather": 0.665,
+        "cw_rock_ground": 0.152
+      },
+      "chunk_m": 8,
+      "size": [
+        0.75,
+        1.35
+      ],
+      "stiffness": 0.9,
+      "fade_m": 40,
+      "shadows": false,
+      "lods_m": [
+        0.0,
+        10.0,
+        24.0,
+        40.0
+      ],
+      "note": "Wildflowers, sparse: the owner asked for some here and there. Poly Haven dandelion_01 - a temperate species that belongs on rough grazing. The candidate list was filtered on PROVENANCE, not looks: most of Poly Haven's flowering models are Namaqualand desert species (Gazania, Ursinia, Heliophila, Stinkkruid, Empodium) and would be wrong on a British-feeling moor."
+    },
+    "sorrel": {
+      "mesh": "model:cw_sorrel",
+      "pool": [
+        "model:cw_sorrel"
+      ],
+      "max_per_m2": 2.0,
+      "per_m2": {
+        "cw_moor_grass": 0.95,
+        "cw_heather": 1.52,
+        "cw_rock_ground": 0.475,
+        "cw_mud_wet": 0.228,
+        "cw_forest_floor": 0.38
+      },
+      "chunk_m": 8,
+      "size": [
+        0.8,
+        1.4
+      ],
+      "stiffness": 0.95,
+      "fade_m": 40,
+      "shadows": false,
+      "lods_m": [
+        0.0,
+        10.0,
+        24.0,
+        40.0
+      ],
+      "note": "Sheep's sorrel - a classic moorland plant whose leaves redden in autumn, which is the season here. Denser on the heather ground than the open grass."
+    },
+    "saplings": {
+      "mesh": "model:flora_young_ash_stand_v5",
+      "max_per_m2": 0.02,
+      "chunk_m": 14,
+      "size": [
+        0.7,
+        1.4
+      ],
+      "shadows": true,
+      "fade_m": 65,
+      "near_trees": {
+        "add": 0.0105,
+        "from_m": 2,
+        "to_m": 12
+      },
+      "clear_margin": 1.0,
+      "off_path": true,
+      "note": "Private model-only ash comparison with material-preserving bark LODs. Density, size, placement, distances and wind=false unchanged. Visual/performance gate pending.",
+      "wind": false
+    }
+  }
+}

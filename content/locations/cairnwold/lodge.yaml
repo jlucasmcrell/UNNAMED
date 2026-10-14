@@ -1,0 +1,27 @@
+id: location.cairnwold.lodge
+kind: location
+schema: 1
+display_key: location.cairnwold.lodge.name
+tags:
+- location
+notes: The communal lodge on the village's east side - eighteen metres of hall under
+  one slate roof, with the hearth under its own chimney. Its door is the region's
+  door.longhouse site at (54.8, 42.5).
+name: The Long Lodge
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 954.8
+  - 0.0
+  - 642.5
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 18
+  xp: 5
+map:
+  reveals_radius_m: 60
+  marker: none
+fast_travel:
+  node: false

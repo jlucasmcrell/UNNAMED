@@ -1,0 +1,10 @@
+id: npc.cairnwold.tam_crowden
+kind: npc
+schema: 1
+display_key: npc.cairnwold.tam_crowden.name
+tags: [npc]
+name: Tam Crowden
+notes: Holds the staddle granary at the quiet west end of the village - the region's cw_granary at 38.9-43.1 x 75.1-78.9, its door at (41.0, 75.4). Counts what comes off the moor, and counts it again.
+role: villager
+dialogue_ref: dialogue.cairnwold.tam_crowden
+unique: true

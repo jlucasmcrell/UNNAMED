@@ -1,0 +1,26 @@
+id: location.cairnwold.the_bog
+kind: location
+schema: 1
+display_key: location.cairnwold.the_bog.name
+tags:
+- location
+notes: The low wet north-east corner of the basin, at (150, 170) - the ground the
+  shelf cannot drain. Sphagnum, cotton grass and whatever the moss has taken.
+name: The Sinking Moss
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 1050.0
+  - 0.0
+  - 770.0
+kind_of_place: wilderness
+discovery:
+  methods:
+  - visited
+  radius_m: 30
+  xp: 15
+map:
+  reveals_radius_m: 80
+  marker: none
+fast_travel:
+  node: false

@@ -1,0 +1,27 @@
+id: location.cairnwold.village
+kind: location
+schema: 1
+display_key: location.cairnwold.village.name
+tags:
+- location
+notes: 'Cairnwold''s village, on the dry south-west rise: the lodge, seven houses,
+  the smithy, the well, the staddle granary and the drystone walls. A new character
+  starts on this rise, so its discovery earns no XP - the same rule as the demo waystation''s.'
+name: Cairnwold
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 972.0
+  - 0.0
+  - 670.0
+kind_of_place: settlement
+discovery:
+  methods:
+  - visited
+  radius_m: 40
+  xp: 0
+map:
+  reveals_radius_m: 90
+  marker: none
+fast_travel:
+  node: false

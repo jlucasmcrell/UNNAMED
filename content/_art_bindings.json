@@ -1,0 +1,1854 @@
+{
+  "comment": "CAIRNWOLD's own art, layered over the shared bindings: the game merges this file onto art_bindings.json key by key, so the HUD, the icons, the effect sheets and the audio beds are the ones every region uses and only the world is this region's. A structure_prefixes key matches every placement whose id starts with it and picks one of its models per placement, which is how 90 birches share two trees. A building_walls key instead GATHERS every placement under it into one building, which is how Ashen Hollow builds a longhouse from four thin wall runs - so each cottage here has a key of its own.",
+  "structure_prefixes": {
+    "cw_birch_": {
+      "models": [
+        "cw_birch_a",
+        "cw_birch_b",
+        "cw_birch_c",
+        "cw_birch_d",
+        "cw_birch_e",
+        "cw_birch_f"
+      ],
+      "material": "wood",
+      "wind": 0.55,
+      "note": "SIX BIRCHES, NOT TWO - AND THE TWO WERE THE SAME TREE. cw_birch_a and cw_birch_b both measured 5.08 x 5.15 x 9.54 m, so the ArtBindings hash was choosing between twins and the region's 90 birch placements read as one tree repeated. That is the owner's complaint measured rather than asserted. Six variants now span 8.06 to 11.46 m: c 8.06, d 8.93, a 9.54, b 10.54, e 10.78, f 11.46. GROWN BY _procgen_tree.py WITH DIFFERENT PARAMETERS, NOT JUST DIFFERENT SEEDS, because seeds alone were measured and were not enough - six seeds spanned 0.56 m of height (six percent), which is invisible at the distance the complaint lives at. --height, --crown-margin, --trunk-radius and --crown-lump now override the species table per run, which took the same six to a 3.40 m spread."
+    },
+    "cw_pine_": {
+      "models": [
+        "cw_pine_a",
+        "cw_pine_b",
+        "cw_pine_c",
+        "cw_pine_d",
+        "cw_pine_e",
+        "cw_pine_f"
+      ],
+      "material": "wood",
+      "wind": 0.4,
+      "note": "SIX PINES, NOT TWO, and worse than the birch: cw_pine_a and _b both measured 7.61 x 7.38 x 13.37 m, and ALL SIX SEED-ONLY VARIANTS came out exactly 13.37 m tall - a spread of ZERO, because the species table pins the height and a seed only re-rolls the branches inside it. With --height overriding that table the six now span 11.82 to 15.54 m: c 11.82, d 12.80, a 13.37, b 14.03, e 14.50, f 15.54. 55 placements draw from them."
+    },
+    "cw_dead_": {
+      "models": [
+        "cw_dead_trunk_b"
+      ],
+      "material": "wood",
+      "wind": 0.2
+    },
+    "cw_wall_": {
+      "models": [
+        "cw_wall_drystane_b"
+      ],
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "fit": "tile",
+      "note": "ONLY THE 4.00 m PIECE, AND THAT IS A FIX. This declared both cw_wall_drystane_a (2.00 m) and _b (4.00 m), and ArtBindings picks a prefix's model with an FNV-1a hash of the PLACEMENT ID modulo the model count - so it was a coin flip per placement, and 22 of the region's 42 wall placements drew the 2.00 m piece. Every wall blocker is 2.6-2.8 m and consecutive blockers are spaced EXACTLY 4.00 m apart (2.8 + a 1.2 m gap = 4.00, and 2.6 + a 1.4 m gap = 4.00, checked on every pair). A 4.00 m piece centred on its blocker reaches 0.60 m past each end, so neighbouring pieces meet exactly and the wall is continuous. A 2.00 m piece reaches -0.40 m, SHORT of its own blocker, turning the 1.2 m gap into 2.00 m of daylight - isolated stubs with uniform gaps, which is what both blind reviews of this region described and what the drystone rebuild's own history records. _a is the pre-rebuild asset; _b was built at 4.00 m specifically to span this scheme. One model also makes the choice deterministic, so the wall can never disagree with itself again. ADDED fit 'tile': a drystone run is authored to butt end to end (a 4.00 m and a 2.00 m piece, 1.09 m high, both centred on X and Z, both ends flush). Without it the run draws ONE centred piece."
+    },
+    "cw_woodpile": {
+      "models": [
+        "cw_woodpile_a"
+      ],
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "yaw_spread": 180.0
+    },
+    "cw_trough": {
+      "models": [
+        "cw_trough_stone"
+      ],
+      "material": "stone",
+      "surface": "cw_wet_stone_wall"
+    },
+    "cw_hurdle": {
+      "models": [
+        "cw_hurdle_fence"
+      ],
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "fit": "tile",
+      "note": "ADDED fit 'tile': the panel is 1.40 m of a woven run, authored to tile end to end."
+    },
+    "cw_cart": {
+      "models": [
+        "cw_cart_two_wheel"
+      ],
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "3.50 m overall, length on X, shafts toward -X (the frame _procgen_cart.py's header states)."
+    },
+    "cw_gate": {
+      "models": [
+        "cw_gate_field"
+      ],
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "3.00 m five-bar gate, hinge end at the lowest x."
+    },
+    "cw_lantern": {
+      "models": [
+        "cw_lantern_post"
+      ],
+      "material": "iron",
+      "surface": "cw_timber_beam",
+      "emitters": [
+        {
+          "recipe": "torch_flame",
+          "at": [
+            0.58,
+            2.3,
+            0.0
+          ]
+        },
+        {
+          "recipe": "embers",
+          "at": [
+            0.58,
+            2.34,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.58,
+          2.32,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.3
+        ],
+        "energy": 2.0,
+        "range": 7.0,
+        "shadows": false,
+        "fog_energy": 0.5,
+        "attenuation": 1.2,
+        "daylight": 1.0,
+        "note": "The light inside the lantern, at the candle's own head. A lantern post is a PROP, not a building, so the building loops in HollowView.BuildLighting (which iterate _bindings.Buildings) can never place this: it is placed by HollowView.ArtStructure's prop path, the same one that hangs a switch's glow shell on a prop's model."
+      },
+      "note": "2.80 m. 'material' drives the arrow-impact sound only; the post itself is timber (cw_timber_beam) carrying an iron lantern (cw_iron_dark), so 'wood' would be the truer sound - left as found. ADDED emitters + light: the thirteen posts were placed and drawn but never lit. A FLAME IS A PROP'S EFFECT AND THE OFFSETS ARE THE ASSET'S OWN METRES, so this entry's numbers are read out of the lantern post's own generator (_build/build_cairnwold_village.py, lantern_post()) and its meta's 0.905 x 2.80 x 0.35 m: the post's foot is the origin, the cross-arm runs to +X 0.62 at 2.72 m, the iron frame spans x 0.43-0.73 and y 2.10-2.58, and the candle inside it is a 0.16 m stub topping out at 2.28. So the flame sits at (0.58, 2.30) - the candle's head, inside the glass - and NOT at (0, 2.5): the model's bounds centre is 0.3025 m from the post, and Fitting re-centres a structure's model on those bounds, so a root-relative offset would put the flame a whole lantern-width beside the lantern it belongs to. HollowView.PropEffects therefore hangs the effects on the MODEL. Shadows are off on purpose: thirteen shadow-casting omnis in one village is a real cost and the reference pattern (src/Presentation/Art/VfxSheet.cs, the torch) uses none."
+    },
+    "cw_boulder_a_": {
+      "models": [
+        "cw_boulder_a"
+      ],
+      "material": "stone",
+      "surface": "cw_rock_ground",
+      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_a still draws cw_boulder_a; only its blocker is now written from that model's measured 1.01 x 1.46 m footprint.",
+      "yaw_spread": 360.0
+    },
+    "cw_boulder_b_": {
+      "models": [
+        "cw_boulder_b"
+      ],
+      "material": "stone",
+      "surface": "cw_rock_ground",
+      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_b still draws cw_boulder_b; only its blocker is now written from that model's measured 2.85 x 1.39 m footprint.",
+      "yaw_spread": 360.0
+    },
+    "cw_boulder_c_": {
+      "models": [
+        "cw_boulder_c"
+      ],
+      "material": "stone",
+      "surface": "cw_rock_ground",
+      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_c still draws cw_boulder_c; only its blocker is now written from that model's measured 6.52 x 3.35 m footprint.",
+      "yaw_spread": 360.0
+    },
+    "cw_crag_a_": {
+      "models": [
+        "cw_rock_face_a"
+      ],
+      "material": "stone",
+      "surface": "cw_rock_ground",
+      "note": "SPLIT OUT OF cw_crag_ SO THE BLOCKER CAN MATCH THE MODEL. cw_crag_ held 2 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_rock_face_a still draws cw_rock_face_a; only its blocker is now written from that model's measured 6.42 x 5.03 m footprint.",
+      "yaw_spread": 24.0
+    },
+    "cw_crag_b_": {
+      "models": [
+        "cw_rock_face_b"
+      ],
+      "material": "stone",
+      "surface": "cw_rock_ground",
+      "note": "SPLIT OUT OF cw_crag_ SO THE BLOCKER CAN MATCH THE MODEL. cw_crag_ held 2 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_rock_face_b still draws cw_rock_face_b; only its blocker is now written from that model's measured 5.68 x 2.92 m footprint.",
+      "yaw_spread": 24.0
+    }
+  },
+  "building_walls": {
+    "cw_smithy": {
+      "model": "cw_smithy",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          -1.2,
+          1.5,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.55,
+          0.24
+        ],
+        "energy": 2.4,
+        "range": 10,
+        "shadows": true,
+        "size": 0.28,
+        "fog_energy": 0.6,
+        "attenuation": 1.2,
+        "note": "ADDED: the forge fire - hot, low and orange, over the hearth at local (-1.30, 0.9, -1.45), so the working bay is not lit by daylight alone."
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            -0.75,
+            6.35,
+            -1.51
+          ]
+        }
+      ],
+      "note": "Open-sided bay: the whole +Z face is the mouth, 4.20 m between the posts under a bressummer at 3.04 m. Hearth and quench trough are part of the model."
+    },
+    "cw_granary": {
+      "model": "cw_granary_staddled",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "Raised store on six stone staddles; the floor platform is 1.02 m up and the walls are boarded timber."
+    },
+    "cw_longhouse_": {
+      "model": "cw_longhouse",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          3.2,
+          1.7,
+          1.15
+        ],
+        "colour": [
+          1.0,
+          0.78,
+          0.52
+        ],
+        "energy": 2.6,
+        "range": 17,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.4,
+        "attenuation": 1.2,
+        "note": "The hearth under the lodge's own chimney, at the model's local x +3.2, z +1.15 - the chimney building_spec() put there. A range of 17 m because the hall is 18 m long and a lodge lit only at one end reads as a barn from outside; warm and low, the same family as the cottages' lamps."
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            3.2,
+            8.5,
+            1.15
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            2.84,
+            0.25,
+            0.79
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            2.84,
+            0.25,
+            1.15
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            2.84,
+            0.25,
+            1.51
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.2,
+            0.25,
+            0.79
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.2,
+            0.25,
+            1.15
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.2,
+            0.25,
+            1.51
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.56,
+            0.25,
+            0.79
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.56,
+            0.25,
+            1.15
+          ]
+        },
+        {
+          "recipe": "torch_flame",
+          "at": [
+            3.56,
+            0.25,
+            1.51
+          ]
+        },
+        {
+          "recipe": "embers",
+          "at": [
+            2.9,
+            0.24,
+            1.15
+          ]
+        },
+        {
+          "recipe": "embers",
+          "at": [
+            3.5,
+            0.24,
+            1.15
+          ]
+        }
+      ],
+      "note": "THE COMMUNAL LODGE, generated by tools/asset_pipeline/_procgen_building.py from the region's own cw_longhouse_* wall runs, so its walls coincide with the region's blockers (the build checks that on a 5 cm grid and the provenance records the agreement). It is built from CAIRNWOLD's materials - cw_wet_stone_wall for the plinth, the infill and the chimney, cw_timber_beam for every timber member and the floor, cw_slate_roof for the roof - and not from the shared procedural ashlar set, because every house in this village is photographic rubble stone and regular machine-perfect courses on the largest building in the region would read as a kit piece."
+    },
+    "cw_house_05_": {
+      "model": "cw_house_05",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          1.0,
+          2.4,
+          1.2
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.6,
+        "range": 11,
+        "shadows": true,
+        "size": 0.22,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            2.184,
+            6.656,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_05_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_01_": {
+      "model": "cw_house_01",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          1.0,
+          2.4,
+          1.2
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.6,
+        "range": 11,
+        "shadows": true,
+        "size": 0.22,
+        "fog_energy": 0.35,
+        "attenuation": 1.2,
+        "note": "ADDED: one warm lamp between the door and the hearth, under the ridge."
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            1.984,
+            6.491,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_01_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_02_": {
+      "model": "cw_house_02",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          1.0,
+          2.4,
+          1.2
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.6,
+        "range": 11,
+        "shadows": true,
+        "size": 0.22,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            -1.32,
+            6.91,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_02_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_04_": {
+      "model": "cw_house_04",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          1.0,
+          2.4,
+          1.2
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.6,
+        "range": 11,
+        "shadows": true,
+        "size": 0.22,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            2.568,
+            10.057,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_04_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_06_": {
+      "model": "cw_house_06",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          0.4,
+          1.9,
+          -0.6
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.3,
+        "range": 9,
+        "shadows": true,
+        "size": 0.2,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            1.565,
+            5.143,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_06_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_03_": {
+      "model": "cw_house_03",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          0.4,
+          1.9,
+          -0.6
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.3,
+        "range": 9,
+        "shadows": true,
+        "size": 0.2,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            -0.63,
+            5.332,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_03_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    },
+    "cw_house_07_": {
+      "model": "cw_house_07",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "interior_light": {
+        "at": [
+          0.4,
+          1.9,
+          -0.6
+        ],
+        "colour": [
+          1.0,
+          0.8,
+          0.58
+        ],
+        "energy": 1.3,
+        "range": 9,
+        "shadows": true,
+        "size": 0.2,
+        "fog_energy": 0.35,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            1.595,
+            7.094,
+            0.0
+          ]
+        }
+      ],
+      "note": "GENERATED by tools/asset_pipeline/_procgen_building.py from this site's own cw_house_07_* wall runs - the same dimension-driven generator that built cw_longhouse and the Ashen Hollow longhouse, and the method that replaced the kit assembly there. It replaces a build_cairnwold_village.py mesh that laid 'proud frame posts and recessed infill' within 3 cm of one plane and so rendered as a flat textured box."
+    }
+  },
+  "structures": {
+    "cw_well": {
+      "model": "cw_well_stone",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "note": "Stone ring, two posts, crossbeam at 2.60 m, windlass and a slated hood."
+    },
+    "cw_furn_house_01_bench": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.30 m bench against the cw_house_01 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_01_chest": {
+      "model": "container_chest_iron_banded",
+      "material": "wood",
+      "note": "a 0.81 x 0.52 m chest in the cw_house_01 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_01_table": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.80 m trestle table against the cw_house_01 room's -X wall, the long side on Z (Fitting turns it). Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_02_bench": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.30 m bench against the cw_house_02 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_02_chest": {
+      "model": "container_chest_iron_banded",
+      "material": "wood",
+      "note": "a 0.81 x 0.52 m chest in the cw_house_02 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_02_table": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.80 m trestle table against the cw_house_02 room's -X wall, the long side on Z (Fitting turns it). Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_03_bench": {
+      "model": "prop_arch_bench_b",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.00 m bench against the cw_house_03 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_03_chest": {
+      "model": "prop_arch_chest_a",
+      "material": "wood",
+      "note": "a 0.69 x 0.44 m chest in the cw_house_03 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_04_bench": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.30 m bench against the cw_house_04 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_04_chest": {
+      "model": "container_chest_iron_banded",
+      "material": "wood",
+      "note": "a 0.81 x 0.52 m chest in the cw_house_04 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_04_table": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.80 m trestle table against the cw_house_04 room's -X wall, the long side on Z (Fitting turns it). Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_05_bench": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.30 m bench against the cw_house_05 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_05_chest": {
+      "model": "container_chest_iron_banded",
+      "material": "wood",
+      "note": "a 0.81 x 0.52 m chest in the cw_house_05 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_05_table": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.80 m trestle table against the cw_house_05 room's -X wall, the long side on Z (Fitting turns it). Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_06_bench": {
+      "model": "prop_arch_bench_b",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.00 m bench against the cw_house_06 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_06_chest": {
+      "model": "prop_arch_chest_a",
+      "material": "wood",
+      "note": "a 0.69 x 0.44 m chest in the cw_house_06 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_07_bench": {
+      "model": "prop_arch_bench_b",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 1.00 m bench against the cw_house_07 room's -Z wall, clear of the doorway. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_07_chest": {
+      "model": "prop_arch_chest_a",
+      "material": "wood",
+      "note": "a 0.69 x 0.44 m chest in the cw_house_07 room's +X/-Z corner. Bound by the interiors pass, 2026-09-29; the model is one of the nine the interiors inventory verified from the files."
+    },
+    "cw_furn_house_01_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_01_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_02_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_02_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_03_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_03_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_04_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_04_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_05_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_05_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_06_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_06_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_07_bed": {
+      "model": "cw_bed_straw",
+      "material": "wood",
+      "note": "the 1.90 x 0.86 m bed, generated for this pass. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_07_stool": {
+      "model": "cw_stool_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a 0.34 m stool seat. Bound by the interiors bed-and-stool pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_household.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_01_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_01 room's -Z wall, 0.31 m of slack at the tight end; clears cw_furn_house_01_bench by 0.34 m and cw_furn_house_01_table by 1.44 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_02_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_02 room's -Z wall, 0.31 m of slack at the tight end; clears cw_furn_house_02_bench by 0.34 m and cw_furn_house_02_table by 1.44 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_03_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_03 room's -Z wall, 0.14 m of slack at the tight end; clears cw_furn_house_03_bench by 0.16 m and cw_furn_house_03_chest by 0.16 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_04_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_04 room's -Z wall, 0.31 m of slack at the tight end; clears cw_furn_house_04_bench by 0.34 m and cw_furn_house_04_table by 1.44 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_05_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_05 room's -Z wall, 0.31 m of slack at the tight end; clears cw_furn_house_05_bench by 0.34 m and cw_furn_house_05_table by 1.44 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_06_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_06 room's -Z wall, 0.14 m of slack at the tight end; clears cw_furn_house_06_bench by 0.16 m and cw_furn_house_06_chest by 0.16 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_07_shelf": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.24 m wall shelf on the cw_house_07 room's -Z wall, 0.14 m of slack at the tight end; clears cw_furn_house_07_bench by 0.16 m and cw_furn_house_07_chest by 0.16 m and the -Z wall by 0.02 m. Bound by the interiors shelf-and-rug pass, 2026-09-29; the model is generated by tools/asset_pipeline/_procgen_shelf.py and measured out of its own exported GLB."
+    },
+    "cw_furn_house_01_table_apothecary_jar_rack": {
+      "model": "prop_apothecary_jar_rack",
+      "material": "wood",
+      "note": "a rack of six glazed apothecary jars on the cw_house_01 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_01_table_oil_lamp_with_handle": {
+      "model": "prop_clay_oil_lamp_with_handle",
+      "material": "clay",
+      "note": "a lidded clay oil lamp with a looped handle on the cw_house_01 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_01_table_tinder_box": {
+      "model": "prop_brass_tinder_box",
+      "material": "brass",
+      "note": "a brass tinder box with a hinged lid on the cw_house_01 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_02_table_hand_bell": {
+      "model": "prop_brass_hand_bell",
+      "material": "brass",
+      "note": "a small brass hand bell on a turned handle on the cw_house_02 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_02_table_oil_lamp_with_handle": {
+      "model": "prop_clay_oil_lamp_with_handle",
+      "material": "clay",
+      "note": "a lidded clay oil lamp with a looped handle on the cw_house_02 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_04_table_tinder_box": {
+      "model": "prop_brass_tinder_box",
+      "material": "brass",
+      "note": "a brass tinder box with a hinged lid on the cw_house_04 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_04_table_oil_lamp_with_handle": {
+      "model": "prop_clay_oil_lamp_with_handle",
+      "material": "clay",
+      "note": "a lidded clay oil lamp with a looped handle on the cw_house_04 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_05_table_apothecary_jar_rack": {
+      "model": "prop_apothecary_jar_rack",
+      "material": "wood",
+      "note": "a rack of six glazed apothecary jars on the cw_house_05 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_05_table_hand_bell": {
+      "model": "prop_brass_hand_bell",
+      "material": "brass",
+      "note": "a small brass hand bell on a turned handle on the cw_house_05 table top; clearance_m 0.8825 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the interiors tabletop pass, 2026-09-29; measured out of the exported GLB, never a meta or the catalogue."
+    },
+    "cw_furn_house_03_table": {
+      "model": "cw_table_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.55 m small cottage table on the cw_house_03 room's -X wall, top at 0.88 m. Built by the existing archetype driver from assets/manifests/procgen/cw_table_timber.json - a parameter set and no code - because the depot's only table is 1.80 m and this room's longest free wall run is 1.41 m. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_house_03_table_oil_lamp_with_handle": {
+      "model": "prop_clay_oil_lamp_with_handle",
+      "material": "clay",
+      "note": "a lidded clay oil lamp with a looped handle on the cw_house_03 table top; clearance_m 0.8800 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_house_06_table": {
+      "model": "cw_table_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.55 m small cottage table on the cw_house_06 room's -X wall, top at 0.88 m. Built by the existing archetype driver from assets/manifests/procgen/cw_table_timber.json - a parameter set and no code - because the depot's only table is 1.80 m and this room's longest free wall run is 1.41 m. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_house_06_table_tinder_box": {
+      "model": "prop_brass_tinder_box",
+      "material": "brass",
+      "note": "a brass tinder box with a hinged lid on the cw_house_06 table top; clearance_m 0.8800 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_house_07_table": {
+      "model": "cw_table_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "the 1.20 x 0.55 m small cottage table on the cw_house_07 room's -X wall, top at 0.88 m. Built by the existing archetype driver from assets/manifests/procgen/cw_table_timber.json - a parameter set and no code - because the depot's only table is 1.80 m and this room's longest free wall run is 1.41 m. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_house_07_table_hand_bell": {
+      "model": "prop_brass_hand_bell",
+      "material": "brass",
+      "note": "a small brass hand bell on a turned handle on the cw_house_07 table top; clearance_m 0.8800 is the table model's own measured height, so the prop's base is the drawn tabletop. Bound by the small-cottage-tables pass, 2026-09-29."
+    },
+    "cw_furn_lodge_table_1": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a trestle table, 1.80 m, 1 of 5 set end to end with a 0.10 m gap. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_s1": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 1's south edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_n1": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 1's north edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_table_2": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a trestle table, 1.80 m, 2 of 5 set end to end with a 0.10 m gap. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_s2": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 2's south edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_n2": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 2's north edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_table_3": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a trestle table, 1.80 m, 3 of 5 set end to end with a 0.10 m gap. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_s3": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 3's south edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_n3": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 3's north edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_table_4": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a trestle table, 1.80 m, 4 of 5 set end to end with a 0.10 m gap. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_s4": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 4's south edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_n4": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 4's north edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_table_5": {
+      "model": "prop_long_trestle_table",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a trestle table, 1.80 m, 5 of 5 set end to end with a 0.10 m gap. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_s5": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 5's south edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_bench_n5": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, drawn back 0.30 m from table 5's north edge. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_hearth_bench_w": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, facing the hearth across its clear floor. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_hearth_bench_e": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, facing the hearth across its clear floor. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_crate_1": {
+      "model": "prop_arch_crate_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a nailed plank crate, against the west gable. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_crate_2": {
+      "model": "prop_arch_crate_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a nailed plank crate, the second of the pair. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_chest": {
+      "model": "container_chest_iron_banded",
+      "material": "wood",
+      "note": "an iron-banded chest, in the room's south-west corner. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_shelf_1": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a timber wall shelf, on the north wall at 1.30 m. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_shelf_2": {
+      "model": "cw_shelf_timber",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a timber wall shelf, on the north wall at 1.30 m. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_settle_1": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, a settle against the north wall of the hearth's end of the hall. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_settle_2": {
+      "model": "prop_arch_bench_a",
+      "material": "wood",
+      "surface": "cw_timber_beam",
+      "note": "a backless plank bench, 1.30 m, a settle against the north wall of the hearth's end of the hall. Bound by the lodge pass, 2026-09-29; every model here was already in the depot and already catalogued."
+    },
+    "cw_furn_lodge_hearth": {
+      "model": "cw_hearth_stone",
+      "material": "stone",
+      "surface": "cw_wet_stone_wall",
+      "note": "the lodge hearthstone. Bound by the lodge hearth pass, 2026-09-29."
+    },
+    "cw_pine_road_009": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_018": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_027": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_036": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_045": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_054": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_063": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "cw_pine_road_072": {
+      "model": "flora_ph_fir_tree_c_4k",
+      "material": "wood",
+      "wind": 0.4,
+      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    }
+  },
+  "doors": {
+    "door.longhouse": {
+      "model": "prop_iron_banded_oak_door"
+    },
+    "door.smithy": {
+      "model": "cw_door_timber",
+      "note": "The smithy's opening, per cw_smithy's meta: its +Z face is a 4.20 m open mouth, so this leaf hangs in the bay beside the hearth rather than closing a wall gap."
+    },
+    "door.granary": {
+      "model": "cw_door_timber",
+      "note": "The raised store's door. cw_granary_staddled carries no door_opening in its meta, so the leaf is centred in the site's box_m by HollowView rather than fitted to a cut opening."
+    },
+    "door.cw_house_05": {
+      "model": "cw_door_timber",
+      "note": "cw_house_05's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_01": {
+      "model": "cw_door_timber",
+      "note": "cw_house_01's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_02": {
+      "model": "cw_door_timber",
+      "note": "cw_house_02's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_04": {
+      "model": "cw_door_timber",
+      "note": "cw_house_04's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_06": {
+      "model": "cw_door_timber",
+      "note": "cw_house_06's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_03": {
+      "model": "cw_door_timber",
+      "note": "cw_house_03's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cw_house_07": {
+      "model": "cw_door_timber",
+      "note": "cw_house_07's door, added with the hollowing. The house is a single solid blocker no longer: it is five wall runs with a gap where cw_house_timber_a's own +Z opening already is, so this leaf hangs in a real opening in a real wall and there is a room behind it."
+    },
+    "door.cairnwold.longhouse": {
+      "model": "cw_door_timber",
+      "note": "FIXED: this region declares three door SITES in content/regions/cairnwold.yaml - door.longhouse, door.smithy and door.granary - while this block bound door.cairnwold.house_a, door.cairnwold.house_b and door.cairnwold.smithy, none of which any site names. So all three doors drew a plain panel. The keys are now the sites' own. door.longhouse also has to be bound HERE because the shared bindings name prop_iron_banded_oak_door for it, a Phase-B demo asset this region may not reuse."
+    }
+  },
+  "structures_by_visual_option": {
+    "cairnwold_roofs=slate": {
+      "cw_house_01": {
+        "model": "cw_roof_slate",
+        "surface": "cw_slate_roof"
+      },
+      "cw_house_02": {
+        "model": "cw_roof_slate"
+      },
+      "cw_house_04": {
+        "model": "cw_roof_slate"
+      },
+      "cw_house_05": {
+        "model": "cw_roof_slate"
+      }
+    },
+    "cairnwold_roofs=thatch": {
+      "cw_house_01": {
+        "model": "cw_roof_thatch",
+        "surface": "cw_thatch"
+      },
+      "cw_house_02": {
+        "model": "cw_roof_thatch"
+      },
+      "cw_house_04": {
+        "model": "cw_roof_thatch"
+      },
+      "cw_house_05": {
+        "model": "cw_roof_thatch"
+      }
+    },
+    "note": "ADDED, and INERT for two reasons, both outside this region's files. (1) ArtBindings skips an option key that VisualOptions.All does not contain, and there is no 'cairnwold_roofs' key in src/Presentation/VisualOptions.cs - registering one is a code change, not a content one. (2) cw_roof_slate and cw_roof_thatch are WHOLE roofs, not panels: cw_house_timber_a already carries a roof node of its own, so a slate village means hiding that node and standing cw_roof_slate in its place, which lands on the same wall plate because both are authored to the same 8.72 x 6.78 m eaves rectangle, ridge 6.50 m, origin at the footprint centre on the ground. Until both are settled these two files are bound to nothing and the game will never draw them - recorded here so that is a known state rather than a surprise."
+  },
+  "models": {
+    "note": "ADDED: the kit's own index, so the world side can size a blocker to a model without walking the metas. Every number is the measured GLB, not the generator's intent; the full per-file record is assets/ready/<id>/<id>_meta.json.",
+    "cw_house_timber_a": {
+      "category": "building",
+      "dims_m": [
+        8.72,
+        7.187,
+        6.76
+      ],
+      "footprint_m": [
+        8.0,
+        6.0
+      ],
+      "eaves_m": 4.0,
+      "ridge_m": 6.5,
+      "triangles": 2160,
+      "lods": {
+        "lod1": 1176,
+        "lod2": 420
+      },
+      "nodes": [
+        "structure",
+        "roof",
+        "chimney"
+      ],
+      "door_opening": {
+        "face": "+Z",
+        "at_x_m": -2.1,
+        "size_m": [
+          1.08,
+          2.18
+        ]
+      }
+    },
+    "cw_house_timber_b": {
+      "category": "building",
+      "dims_m": [
+        5.62,
+        5.349,
+        5.701
+      ],
+      "footprint_m": [
+        5.0,
+        4.0
+      ],
+      "eaves_m": 3.0,
+      "ridge_m": 4.42,
+      "triangles": 1596,
+      "lods": {
+        "lod1": 696,
+        "lod2": 432
+      },
+      "nodes": [
+        "structure",
+        "roof",
+        "chimney"
+      ],
+      "door_opening": {
+        "face": "+Z",
+        "at_x_m": 0.55,
+        "size_m": [
+          1.05,
+          2.05
+        ]
+      }
+    },
+    "cw_smithy": {
+      "category": "building",
+      "dims_m": [
+        6.62,
+        6.35,
+        5.84
+      ],
+      "footprint_m": [
+        6.0,
+        5.0
+      ],
+      "eaves_m": 3.2,
+      "ridge_m": 5.0,
+      "triangles": 2272,
+      "lods": {
+        "lod1": 892,
+        "lod2": 336
+      },
+      "nodes": [
+        "structure",
+        "roof",
+        "chimney"
+      ],
+      "mouth_m": {
+        "face": "+Z",
+        "width_m": 4.2
+      }
+    },
+    "cw_granary_staddled": {
+      "category": "building",
+      "dims_m": [
+        3.54,
+        3.732,
+        3.12
+      ],
+      "footprint_m": [
+        3.0,
+        2.5
+      ],
+      "floor_m": 1.02,
+      "eaves_m": 2.68,
+      "ridge_m": 3.62,
+      "triangles": 2280,
+      "lods": {
+        "lod1": 1704,
+        "lod2": 1296
+      },
+      "nodes": [
+        "structure",
+        "roof"
+      ]
+    },
+    "cw_roof_slate": {
+      "category": "building",
+      "dims_m": [
+        8.72,
+        2.79,
+        6.778
+      ],
+      "fits": "cw_house_timber_a",
+      "origin": "the house's footprint centre on the ground; occupies y 3.79-6.58",
+      "triangles": 468,
+      "lods": {
+        "lod1": 276,
+        "lod2": 60
+      },
+      "nodes": [
+        "roof"
+      ]
+    },
+    "cw_roof_thatch": {
+      "category": "building",
+      "dims_m": [
+        8.72,
+        2.926,
+        6.778
+      ],
+      "fits": "cw_house_timber_a",
+      "origin": "the house's footprint centre on the ground; occupies y 3.79-6.72",
+      "triangles": 468,
+      "lods": {
+        "lod1": 276,
+        "lod2": 60
+      },
+      "nodes": [
+        "roof"
+      ]
+    },
+    "cw_door_timber": {
+      "category": "prop",
+      "dims_m": [
+        1.03,
+        2.1,
+        0.165
+      ],
+      "hinge_edge": "local -X",
+      "triangles": 352,
+      "lods": {
+        "lod1": 264
+      }
+    },
+    "cw_wall_drystane_a": {
+      "category": "structure",
+      "dims_m": [
+        2.023,
+        1.108,
+        0.59
+      ],
+      "tile_length_m": 2.0,
+      "triangles": 8532,
+      "lods": {}
+    },
+    "cw_wall_drystane_b": {
+      "category": "structure",
+      "dims_m": [
+        4.015,
+        1.115,
+        0.627
+      ],
+      "tile_length_m": 4.0,
+      "triangles": 7152,
+      "lods": {}
+    },
+    "cw_well_stone": {
+      "category": "structure",
+      "dims_m": [
+        1.9,
+        3.419,
+        1.899
+      ],
+      "crossbeam_m": 2.6,
+      "triangles": 11800,
+      "lods": {
+        "lod1": 272,
+        "lod2": 180
+      }
+    },
+    "cw_woodpile_a": {
+      "category": "prop",
+      "dims_m": [
+        1.945,
+        1.204,
+        0.909
+      ],
+      "triangles": 7268,
+      "lods": {
+        "lod1": 6052,
+        "lod2": 3336
+      }
+    },
+    "cw_trough_stone": {
+      "category": "prop",
+      "dims_m": [
+        1.8,
+        0.56,
+        0.73
+      ],
+      "triangles": 1452,
+      "lods": {
+        "lod1": 812,
+        "lod2": 436
+      }
+    },
+    "cw_hurdle_fence": {
+      "category": "structure",
+      "dims_m": [
+        1.4,
+        1.2,
+        0.142
+      ],
+      "tile_length_m": 1.4,
+      "triangles": 15600,
+      "lods": {
+        "lod1": 5196,
+        "lod2": 2560
+      }
+    },
+    "cw_cart_two_wheel": {
+      "category": "prop",
+      "dims_m": [
+        3.503,
+        1.377,
+        1.447
+      ],
+      "triangles": 1572,
+      "lods": {
+        "lod1": 1332,
+        "lod2": 1076
+      }
+    },
+    "cw_gate_field": {
+      "category": "structure",
+      "dims_m": [
+        3.0,
+        1.2025,
+        0.0825
+      ],
+      "triangles": 432,
+      "lods": {
+        "lod1": 360,
+        "lod2": 288
+      }
+    },
+    "cw_lantern_post": {
+      "category": "structure",
+      "dims_m": [
+        0.905,
+        2.8,
+        0.35
+      ],
+      "triangles": 456,
+      "lods": {
+        "lod1": 360,
+        "lod2": 304
+      }
+    }
+  },
+  "materials": {
+    "note": "ADDED: the CAIRNWOLD world material a model wears, and where it came from. Each model embeds its own resampled copy of these maps; the ids here are what the game declares.",
+    "cw_wet_stone_wall": {
+      "class": "wall",
+      "tile_size_m": 2.5,
+      "source": "Poly Haven stone_wall_04",
+      "licence": "CC0 1.0"
+    },
+    "cw_slate_roof": {
+      "class": "roof",
+      "tile_size_m": 2.0,
+      "source": "Poly Haven roof_slates_03",
+      "licence": "CC0 1.0"
+    },
+    "cw_thatch": {
+      "class": "roof",
+      "tile_size_m": 2.0,
+      "source": "Poly Haven reed_roof_04",
+      "licence": "CC0 1.0"
+    },
+    "cw_timber_beam": {
+      "class": "timber",
+      "tile_size_m": 1.5,
+      "source": "Poly Haven rough_wood",
+      "licence": "CC0 1.0"
+    },
+    "cw_dark_rock": {
+      "class": "cliff",
+      "tile_size_m": 12.0,
+      "source": "Poly Haven dark_rock_02",
+      "licence": "CC0 1.0"
+    },
+    "cw_gravel_stones": {
+      "class": "ground",
+      "tile_size_m": 4.0,
+      "source": "Poly Haven gravel_stones",
+      "licence": "CC0 1.0"
+    },
+    "cw_iron_dark": {
+      "class": "metal",
+      "tile_size_m": 0.6,
+      "source": "Poly Haven rusty_metal_04",
+      "licence": "CC0 1.0",
+      "note": "ADDED by DS Phase B: the ten-surface Cairnwold set had no iron, and the village needs hinges, tyres, a lantern frame and chain."
+    }
+  },
+  "cliffs": "cw_dark_rock",
+  "terrain": {
+    "r_0_0:c_04_07": "material_packed_dirt_ground",
+    "r_0_0:c_05_07": "material_marsh_grass_turf",
+    "r_0_0:c_04_06": "material_loose_gravel",
+    "r_0_0:c_05_06": "material_churned_wet_mud",
+    "r_0_0:c_09_06": "cw_moor_grass",
+    "r_0_0:c_09_07": "cw_forest_floor",
+    "r_0_0:c_10_06": "cw_heather",
+    "r_0_0:c_10_07": "cw_mud_wet",
+    "r_0_0:c_06_06": "material_marsh_grass_turf",
+    "r_0_0:c_06_07": "material_marsh_grass_turf",
+    "r_0_0:c_07_06": "material_marsh_grass_turf",
+    "r_0_0:c_07_07": "material_marsh_grass_turf",
+    "r_0_0:c_08_06": "cw_moor_grass",
+    "r_0_0:c_08_07": "cw_moor_grass"
+  },
+  "people": {
+    "player": {
+      "model": "af_veth_wayfarer_male_v9",
+      "hand": "SOCK_hand.R",
+      "off_hand": "SOCK_hand.L",
+      "grip": {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "primary": [
+          0,
+          1,
+          0
+        ],
+        "secondary": [
+          0,
+          0,
+          1
+        ]
+      },
+      "note": "Private male Veth v9 comparison; authored hand sockets replace unrelated inherited grip coordinates. Visual, gear and gameplay gates pending.",
+      "off_grip": {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "primary": [
+          0,
+          1,
+          0
+        ],
+        "secondary": [
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "npc.ashen_hollow.kera_voss": {
+      "model": "cw_kera_voss",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+    },
+    "npc.ashen_hollow.renn_vale": {
+      "model": "af_renn_vale",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+    },
+    "npc.ashen_hollow.sel_arien": {
+      "model": "cw_sel_arien",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+    },
+    "npc.ashen_hollow.tavar_orr": {
+      "model": "cw_tavar_orr",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+    },
+    "npc.cairnwold.durn_skell": {
+      "model": "cw_durn_smith_combined_20261002",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+    },
+    "npc.cairnwold.mara_ling": {
+      "model": "cw_sel_arien",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+    },
+    "npc.cairnwold.berrin_garth": {
+      "model": "cw_renn_vale",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+    },
+    "npc.cairnwold.tam_crowden": {
+      "model": "cw_tavar_orr",
+      "hand": "hand.R",
+      "clips": {
+        "idle": "player.cw_player.idle",
+        "talk": "player.cw_player.idle"
+      },
+      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+    }
+  },
+  "people_by_visual_option": {
+    "people=production": {
+      "player": {
+        "model": "af_veth_wayfarer_male_v9",
+        "hand": "SOCK_hand.R",
+        "off_hand": "SOCK_hand.L",
+        "grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            0,
+            1,
+            0
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        },
+        "note": "Private male Veth v9 comparison; authored hand sockets replace unrelated inherited grip coordinates. Visual, gear and gameplay gates pending.",
+        "off_grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            0,
+            1,
+            0
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "npc.ashen_hollow.kera_voss": {
+        "model": "cw_kera_voss",
+        "hand": "hand.R",
+        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+      },
+      "npc.ashen_hollow.renn_vale": {
+        "model": "af_renn_vale",
+        "hand": "hand.R",
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "talk": "player.cw_player.idle"
+        },
+        "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+      },
+      "npc.ashen_hollow.sel_arien": {
+        "model": "cw_sel_arien",
+        "hand": "hand.R",
+        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+      },
+      "npc.ashen_hollow.tavar_orr": {
+        "model": "cw_tavar_orr",
+        "hand": "hand.R",
+        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+      },
+      "npc.cairnwold.durn_skell": {
+        "model": "cw_durn_smith_combined_20261002",
+        "hand": "hand.R",
+        "note": "CAIRNWOLDs own body for its own cast."
+      },
+      "npc.cairnwold.mara_ling": {
+        "model": "cw_sel_arien",
+        "hand": "hand.R",
+        "note": "CAIRNWOLDs own body for its own cast."
+      },
+      "npc.cairnwold.berrin_garth": {
+        "model": "cw_renn_vale",
+        "hand": "hand.R",
+        "note": "CAIRNWOLDs own body for its own cast."
+      },
+      "npc.cairnwold.tam_crowden": {
+        "model": "cw_tavar_orr",
+        "hand": "hand.R",
+        "note": "CAIRNWOLDs own body for its own cast."
+      }
+    }
+  },
+  "people_clips_by_visual_option": {
+    "clips=ext": {
+      "player": {
+        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records.",
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "sprint": "player.cw_player.sprint",
+          "turn": "player.cw_player.turn",
+          "stop": "player.cw_player.stop",
+          "crouch_idle": "player.cw_player.crouch_idle",
+          "crouch_walk": "player.cw_player.crouch_walk",
+          "jump_start": "player.cw_player.jump_start",
+          "fall": "player.cw_player.fall",
+          "land": "player.cw_player.land",
+          "sword_ready": "player.cw_player.sword_ready",
+          "sword_attack": "player.cw_player.sword_attack",
+          "sword_attack_1": "player.cw_player.sword_attack_1",
+          "sword_attack_2": "player.cw_player.sword_attack_2",
+          "sword_attack_3": "player.cw_player.sword_attack_3",
+          "sword_attack_4": "player.cw_player.sword_attack_4",
+          "sword_block": "player.cw_player.sword_block",
+          "bow_ready": "player.cw_player.bow_ready",
+          "bow_draw": "player.cw_player.bow_draw",
+          "spear_ready": "player.cw_player.spear_ready",
+          "spear_thrust": "player.cw_player.spear_thrust",
+          "cast": "player.cw_player.cast",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "interact": "player.cw_player.interact"
+        }
+      }
+    },
+    "people=production": {
+      "player": {
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "sprint": "player.cw_player.sprint",
+          "turn": "player.cw_player.turn",
+          "stop": "player.cw_player.stop",
+          "crouch_idle": "player.cw_player.crouch_idle",
+          "crouch_walk": "player.cw_player.crouch_walk",
+          "jump_start": "player.cw_player.jump_start",
+          "fall": "player.cw_player.fall",
+          "land": "player.cw_player.land",
+          "sword_ready": "player.cw_player.sword_ready",
+          "sword_attack": "player.cw_player.sword_attack",
+          "sword_attack_1": "player.cw_player.sword_attack_1",
+          "sword_attack_2": "player.cw_player.sword_attack_2",
+          "sword_attack_3": "player.cw_player.sword_attack_3",
+          "sword_attack_4": "player.cw_player.sword_attack_4",
+          "sword_block": "player.cw_player.sword_block",
+          "bow_ready": "player.cw_player.bow_ready",
+          "bow_draw": "player.cw_player.bow_draw",
+          "spear_ready": "player.cw_player.spear_ready",
+          "spear_thrust": "player.cw_player.spear_thrust",
+          "cast": "player.cw_player.cast",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "interact": "player.cw_player.interact"
+        },
+        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more."
+      },
+      "npc.ashen_hollow.kera_voss": {
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "talk": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "attack": "player.cw_player.sword_attack",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "stop": "player.cw_player.stop"
+        },
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+      },
+      "npc.ashen_hollow.renn_vale": {
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "talk": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "attack": "player.cw_player.sword_attack",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "stop": "player.cw_player.stop"
+        },
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+      },
+      "npc.ashen_hollow.sel_arien": {
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "talk": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "attack": "player.cw_player.sword_attack",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "stop": "player.cw_player.stop"
+        },
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+      },
+      "npc.ashen_hollow.tavar_orr": {
+        "clips": {
+          "idle": "player.cw_player.idle",
+          "talk": "player.cw_player.idle",
+          "walk": "player.cw_player.walk",
+          "run": "player.cw_player.run",
+          "attack": "player.cw_player.sword_attack",
+          "hit": "player.cw_player.hit",
+          "death": "player.cw_player.death",
+          "stop": "player.cw_player.stop"
+        },
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+      }
+    }
+  },
+  "weapons": {
+    "item.weapon.rusted_sword": {
+      "model": "cw_sword_arming",
+      "family": "sword",
+      "note": "CAIRNWOLD's own arming sword: 0.99 m, 2492 triangles, blade steel derived from the region's own 4K iron. This is the weapon the player carries in every frame, so a greybox here is a greybox in 100% of gameplay frames."
+    }
+  },
+  "containers": {
+    "container.cairnwold.waystation_chest": {
+      "model": "container_chest_iron_banded",
+      "sound": "chest"
+    },
+    "container.cairnwold.merchant_cart": {
+      "hidden": true
+    }
+  },
+  "nodes": {
+    "node.wood.ash_stand": {
+      "model": "flora_young_ash_stand_v5",
+      "spent": "flora_ash_stumps",
+      "note": "STAGED authored young ash coppice; original gather positions, charges, respawn and spent model retained"
+    }
+  }
+}

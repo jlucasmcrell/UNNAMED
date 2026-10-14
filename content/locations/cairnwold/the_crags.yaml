@@ -1,0 +1,26 @@
+id: location.cairnwold.the_crags
+kind: location
+schema: 1
+display_key: location.cairnwold.the_crags.name
+tags:
+- location
+notes: The crag line along the basin's south edge, z 3-5 across its whole width -
+  one row of outcrops, not a scatter, which is what makes the basin a basin.
+name: The South Crags
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 1000.0
+  - 0.0
+  - 604.0
+kind_of_place: wilderness
+discovery:
+  methods:
+  - visited
+  radius_m: 35
+  xp: 10
+map:
+  reveals_radius_m: 90
+  marker: none
+fast_travel:
+  node: false

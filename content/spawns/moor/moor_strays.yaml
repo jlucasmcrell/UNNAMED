@@ -1,0 +1,46 @@
+id: spawn.cairnwold.moor_strays
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.moor_strays.name
+tags:
+- spawn
+notes: 'Grey wolves on the open basin floor, away from the village and out where the
+  ground is bare of cover - the first thing a player meets if they walk east off the
+  drove road instead of into the village. CAIRNWOLD''s own spawn: the region shipped
+  with the eight Ashen Hollow spawn files copied into its content tree, every one
+  of them carrying `region_ref: region.ashen_hollow` and placing its creatures at
+  Ashen Hollow''s coordinates, so the region had NO enemies in it at all. A stray
+  and a pair of roamers with a route round the basin, at level 1 to 2 so they are
+  a first fight rather than a wall.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 1
+  - 1
+  role: stray
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m:
+  - 1018
+  - 748
+  radius_m: 22
+route_m:
+- - 1000
+  - 730
+- - 1040
+  - 732
+- - 1042
+  - 768
+- - 1002
+  - 766
+level_band:
+- 1
+- 2
+respawn:
+  kind: none
+tier_hint: A

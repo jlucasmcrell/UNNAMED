@@ -247,6 +247,112 @@ structures:
   - { id: tree_138, circle_m: [196.0, 61.4, 0.4], height_m: 7.0 }
   - { id: tree_139, circle_m: [197.7, 54.6, 0.4], height_m: 7.0 }
 # Doors block movement while closed; their open state is a world flag in their cell.
+  # ---- ASHEN HOLLOW INTERIORS, 2026-09-29 ---------------------------------------------------
+  # Priority 6 said "interiors - THERE ARE NONE ANYWHERE; houses are solid collision boxes so the
+  # doors open onto nothing." Cairnwold's seven cottages were furnished across several passes;
+  # ASHEN HOLLOW - the original demo, and half of what ships - still had nothing. Its longhouse is
+  # a 15.2 x 7.2 m hall carrying an `interior_light` and NOT ONE station, so the before frame is an
+  # empty room with Renn Vale standing in it. This is the standing instruction: TWO REGIONS, ONE
+  # WORLD, MERGED ON MERIT - consistency and quality.
+  #
+  # THE FORGE IS NOT THE GAP AND THE LONGHOUSE IS, MEASURED RATHER THAN ASSUMED. The shared
+  # art_bindings.json already binds stations.anvil -> prop_blacksmith_anvil_stump and stations.forge
+  # -> prop_forge_hearth with a glow light, and the before frame confirms both. The forge still gets
+  # four pieces of working clutter because the frame shows a lot of bare floor.
+  #
+  # HOW THESE MODELS BECAME VISIBLE, WHICH WAS THE BLOCKER. The furniture lived only in
+  # cairnwold/assets/ready, and Ashen Hollow's roots are `assets` twice, so it could not load one
+  # piece of it. The five GENERIC pieces - a bed, a table, a stool, a shelf and a rug - were MOVED
+  # to the shared depot, where Cairnwold finds them through the fallback it already had. Its smoke
+  # afterwards is byte-identical (251 drawn, 913/912/1/0, 0 withheld). Every GLB is self-contained
+  # (all images embedded, no external uri), so the materials folder is build input, not a
+  # dependency.
+  #
+  # NO RUGS, AND THE REASON IS A LOADER ASYMMETRY WORTH KNOWING. Bindings OVERLAY -
+  # ArtBindings.LoadWithOverlay merges "key by key, recursively", which is why the depot's new
+  # bindings.json can say only what it adds. Dressing does NOT: Dressing.cs:28 takes the region's
+  # file INSTEAD of the shared one, so a depot dressing.json would silently drop the 45 shared
+  # places for this region. A floor covering is not worth duplicating a 45-entry list that would
+  # then drift.
+  #
+  # THE SHELF HANGS, using the project's existing `clearance_m` overhang term (`height_m` 1.50,
+  # `clearance_m` 1.30), exactly as the Cairnwold cottages' shelves do.
+  #
+  # EVERY BOX IS CHECKED AGAINST THE BUILDINGS' OWN WALL BLOCKERS, THE STATIONS' DRAWN MODELS AND
+  # EACH OTHER before anything is written, and every model is measured from its own GLB at run time.
+  - { id: ah_furn_longhouse_bed_01, box_m: [36.42, 124.80, 37.28, 126.70], height_m: 0.6200 }    # a straw-tick bed on a boarded frame in the longhouse -> cw_bed_straw
+  - { id: ah_furn_longhouse_bed_02, box_m: [36.42, 126.90, 37.28, 128.80], height_m: 0.6200 }    # a straw-tick bed on a boarded frame in the longhouse -> cw_bed_straw
+  - { id: ah_furn_longhouse_bed_03, box_m: [36.42, 129.00, 37.28, 130.90], height_m: 0.6200 }    # a straw-tick bed on a boarded frame in the longhouse -> cw_bed_straw
+  - { id: ah_furn_longhouse_table_01, box_m: [42.00, 125.00, 43.20, 125.55], height_m: 0.8800 }    # a 1.20 m planked table in the longhouse -> cw_table_timber
+  - { id: ah_furn_longhouse_table_02, box_m: [43.40, 125.00, 44.60, 125.55], height_m: 0.8800 }    # a 1.20 m planked table in the longhouse -> cw_table_timber
+  - { id: ah_furn_longhouse_stool_01, box_m: [42.60, 126.10, 42.94, 126.44], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_02, box_m: [43.80, 126.10, 44.14, 126.44], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_03, box_m: [42.60, 124.50, 42.94, 124.84], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_04, box_m: [43.80, 124.50, 44.14, 124.84], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_shelf, box_m: [44.00, 131.34, 45.20, 131.58], height_m: 1.50, clearance_m: 1.30 }    # a timber wall shelf, hung on the longhouse's north wall -> cw_shelf_timber
+  - { id: ah_furn_longhouse_chest, box_m: [49.92, 124.79, 50.70, 125.51], height_m: 0.8000 }    # an iron-banded strongbox in the longhouse -> container_bank_strongbox
+  - { id: ah_furn_longhouse_barrel_01, box_m: [50.90, 124.60, 51.53, 125.32], height_m: 0.8500 }    # an oak barrel in the longhouse -> container_barrel_oak
+  - { id: ah_furn_longhouse_barrel_02, box_m: [50.90, 125.50, 51.53, 126.22], height_m: 0.8500 }    # an oak barrel in the longhouse -> container_barrel_oak
+  - { id: ah_furn_longhouse_trunk, box_m: [38.20, 130.40, 39.30, 131.50], height_m: 0.9180 }    # a leather travel trunk in the longhouse -> prop_leather_travel_trunk
+  - { id: ah_furn_forge_trough, box_m: [55.80, 139.20, 56.55, 140.05], height_m: 0.7020 }    # a carved stone quench trough in the forge -> prop_carved_stone_trough
+  - { id: ah_furn_forge_rack, box_m: [58.50, 138.42, 59.17, 139.02], height_m: 0.8000 }    # an armory rack in the forge -> container_armory_rack
+  - { id: ah_furn_forge_barrel, box_m: [54.00, 144.70, 54.82, 145.55], height_m: 0.7060 }    # a mead barrel on its cradle in the forge -> prop_mead_barrel_cradle
+  - { id: ah_furn_forge_coalskip, box_m: [61.73, 144.62, 62.07, 144.98], height_m: 0.4000 }    # an iron coal skip in the forge -> prop_iron_coal_skip_basket
+  # ---- ASHEN HOLLOW TABLETOP PROPS, 2026-09-29 ----------------------------------------------
+  # Round 537 furnished this longhouse and, in doing so, recreated the defect Cairnwold's tabletop pass
+  # had closed: it put two tables in the room and left them BARE. The owner's priority 6 named "nothing
+  # ON the table surfaces" as a gap, and Cairnwold's four tables carry nine props. Furnishing a room is
+  # not finished when the furniture is in it.
+  #
+  # THE CLEARANCE IS THE TABLE MODEL'S OWN MEASURED HEIGHT and it agrees with the declaration here to
+  # the millimetre: `cw_table_timber` measures 1.2000 x 0.8800 x 0.5500 m and its blockers declare
+  # `height_m 0.8800`. That is a property of THIS asset, not a rule - Cairnwold's 1.80 m trestle declares
+  # 0.88 and measures 0.8825, which is why that pass needed `clearance_m 0.8825`. The value is read from
+  # the GLB at run time either way.
+  #
+  # EVERY PROP BOX IS STRICTLY INSIDE ITS TABLE'S BOX, so the props add no collision the tables did not
+  # already have. Both gates round 537 added are carried here: no NPC's body circle (0.35 m) may touch a
+  # new blocker (WLD012), and no smoke walk leg may cross one (`Walk` steers in a straight line).
+  - { id: ah_furn_longhouse_table_lamp, box_m: [42.2598, 125.0837, 42.6402, 125.4763], height_m: 1.2800, clearance_m: 0.8800 }    # a lidded clay oil lamp with a looped handle on the ah_furn_longhouse_table_01 top, 0.380 x 0.393 m, base at 0.8800 m -> prop_clay_oil_lamp_with_handle
+  - { id: ah_furn_longhouse_table_jarrack, box_m: [42.7200, 125.1074, 43.1200, 125.4326], height_m: 1.1927, clearance_m: 0.8800 }    # a rack of six glazed apothecary jars on the ah_furn_longhouse_table_01 top, 0.400 x 0.325 m, base at 0.8800 m -> prop_apothecary_jar_rack
+  - { id: ah_furn_longhouse_table_tinder, box_m: [43.6708, 125.1371, 44.0292, 125.4229], height_m: 1.2800, clearance_m: 0.8800 }    # a brass tinder box with a hinged lid on the ah_furn_longhouse_table_02 top, 0.358 x 0.286 m, base at 0.8800 m -> prop_brass_tinder_box
+  - { id: ah_furn_longhouse_table_bell, box_m: [44.2239, 125.1841, 44.4161, 125.3759], height_m: 1.2800, clearance_m: 0.8800 }    # a small brass hand bell on a turned handle on the ah_furn_longhouse_table_02 top, 0.192 x 0.192 m, base at 0.8800 m -> prop_brass_hand_bell
+  # ---- ASHEN HOLLOW LANTERN POSTS, 2026-09-29 -------------------------------------------------
+  # THE ASYMMETRY THIS CLOSES, MEASURED. Cairnwold places thirteen `cw_lantern_*` posts, each bound
+  # through `structure_prefixes.cw_lantern` to `cw_lantern_post` with two particle emitters (torch
+  # flame, embers) and a light: energy 2.0, range 7.0, colour (1.0, 0.62, 0.3). ASHEN HOLLOW HAD NO
+  # EXTERIOR LIGHT FIXTURE AT ALL. It had exactly two `prop_iron_lantern` DRESSING places - hung by
+  # the longhouse and forge doors at y 1.95 - and `Dressing` is scenery by its own header: no collider,
+  # nothing the simulation sees. A dressing entry carries a model and a transform and NO LIGHT, so the
+  # two lanterns hung there unlit and the waystation went dark after dusk while the village did not.
+  #
+  # THE FIX USES ONLY THINGS THAT ALREADY EXIST: the `cw_lantern_post` model, moved to the shared
+  # depot the same way the interior furniture was (all nine images embedded, no external uri), and the
+  # `cw_lantern` binding COPIED VERBATIM from Cairnwold's region file into this region's bindings
+  # overlay. The binding's own note is why nothing is re-derived here: its offsets must be the ASSET'S
+  # own metres - "the flame sits at (0.58, 2.30) - the candle's head, inside the glass - and NOT at
+  # (0, 2.5)... so a root-relative offset would put the flame a whole lantern-width beside the lantern
+  # it belongs to."
+  #
+  # EACH POST IS A 0.10 m CIRCLE, 2.80 m tall, standing 1.5-3 m outside a door or beside the well,
+  # which is where Cairnwold puts its own. Every one is checked against every existing box AND circle
+  # blocker, against the other posts, against all four NPCs' body radius (WLD012) and against all
+  # seven smoke walk legs before anything is written.
+  - { id: cw_lantern_ah_00, circle_m: [54.20, 126.60, 0.10], height_m: 2.80 }    # a lantern post south side of the longhouse's east door; lit by the cw_lantern binding -> cw_lantern_post
+  - { id: cw_lantern_ah_01, circle_m: [54.20, 129.40, 0.10], height_m: 2.80 }    # a lantern post north side of the longhouse's east door; lit by the cw_lantern binding -> cw_lantern_post
+  - { id: cw_lantern_ah_02, circle_m: [51.00, 140.60, 0.10], height_m: 2.80 }    # a lantern post outside the forge's west door; lit by the cw_lantern binding -> cw_lantern_post
+  - { id: cw_lantern_ah_03, circle_m: [51.00, 143.60, 0.10], height_m: 2.80 }    # a lantern post the other side of the forge's west door; lit by the cw_lantern binding -> cw_lantern_post
+  - { id: cw_lantern_ah_04, circle_m: [50.60, 152.20, 0.10], height_m: 2.80 }    # a lantern post beside the well; lit by the cw_lantern binding -> cw_lantern_post
+  # ---- ASHEN HOLLOW LODGE HEARTH, 2026-09-29 ------------------------------------------------
+  # The same hearth Cairnwold's lodge got (§9.0h), for the same reason: this hall was built by the
+  # same generator, its `structure` mesh has the same +0.03 m board floor and its `chimney` mesh
+  # the same 0.92 m square at the same local (3.2, 1.15) - so it too had "the hearth under its own
+  # chimney" and no hearth. `cw_hearth_stone` is in the shared depot for exactly this.
+  #
+  # IT IS NOT CENTRED ON THE FLUE, and that is measured: the demo's own smoke walks into this hall
+  # to (44, 128.6) (Smoke.cs:90), so the stone is shifted north out of that line by 0.47 m. The
+  # shift is 0.409 m of body clearance at the tight end against the engine's own 0.35 m radius.
+  - { id: ah_furn_longhouse_hearth, box_m: [46.40, 128.82, 48.00, 130.42], height_m: 0.22 }    # a raised rubble-stone hearthstone, 1.60 x 1.60 m and 0.22 m high
 doors:
   - { key: door.longhouse, flag_ref: world.hollow.longhouse_door_open, box_m: [51.6, 127.2, 52, 128.8], height_m: 2.4 }
   - { key: door.forge_shed, flag_ref: world.hollow.forge_shed_door_open, box_m: [53, 141.2, 53.4, 142.8], height_m: 2.4 }

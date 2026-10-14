@@ -1,0 +1,36 @@
+id: dialogue.cairnwold.tam_crowden
+kind: dialogue
+schema: 1
+display_key: dialogue.cairnwold.tam_crowden.name
+tags: [dialogue]
+notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what he is counting. No quest; the trade-and-moor node.
+participants: [npc.cairnwold.tam_crowden]
+root_node: greet
+nodes:
+  greet:
+    text: "Hold there. Tam. Nothing wrong - I count everyone who comes up the west end, and you are the first today."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: moor
+        text: "What is out on the moor?"
+        next: moor
+      - id: leave
+        text: "Just passing."
+  again:
+    text: "Still counting."
+    choices:
+      - id: moor
+        text: "About the moor."
+        conditions: [{ kind: visited, node: moor, not: true }]
+        next: moor
+      - id: leave
+        text: "Just passing."
+  moor:
+    text: "Boar in the birch, mostly, and they are worse in the autumn when the mast is down. Strays along the old line by the crags - dogs gone wild, or something that was never a dog. And up in the moss there are lights some nights, which I do not count, because I cannot. Keep to the walls after dark and you will be fine. Mostly."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I will keep to the walls."
+        next: again

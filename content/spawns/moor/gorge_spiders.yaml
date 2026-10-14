@@ -1,0 +1,28 @@
+id: spawn.cairnwold.gorge_spiders
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.gorge_spiders.name
+tags:
+- spawn
+notes: Cave hunting spiders in the gorge the region's own design has the river cutting
+  through its eastern lip - the far side of the basin, well past the wolves, and the
+  only ambush predator in the region. Two of them, level 3. The placement is deliberately
+  at the end of a walk rather than on the way to anything.
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 2
+  - 2
+  role: ambusher
+at:
+  position_m:
+  - 1076
+  - 696
+  radius_m: 12
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

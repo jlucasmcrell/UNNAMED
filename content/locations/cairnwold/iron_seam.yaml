@@ -1,0 +1,27 @@
+id: location.cairnwold.iron_seam
+kind: location
+schema: 1
+display_key: location.cairnwold.iron_seam.name
+tags:
+- location
+notes: The iron seam in the south crags, where Cairnwold's own region places its node.ore.iron_seam
+  at (58.0, 3.0) - the village's iron, and the reason there is a smithy at all. Three
+  strikes and it is worked out; there is no second seam in the basin.
+name: The South Crag Seam
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 958.0
+  - 0.0
+  - 603.0
+kind_of_place: resource
+discovery:
+  methods:
+  - visited
+  radius_m: 20
+  xp: 10
+map:
+  reveals_radius_m: 70
+  marker: none
+fast_travel:
+  node: false

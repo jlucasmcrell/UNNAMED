@@ -1,0 +1,28 @@
+id: spawn.cairnwold.barrow_sentinel
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.barrow_sentinel.name
+tags:
+- spawn
+notes: 'An animated armour standing in the north-west corner of the basin, where the
+  dry rise runs out towards the west cliff and nothing else is placed. It does not
+  roam: a sentinel on a spot, level 3, which is what makes it a thing to find rather
+  than a thing that finds you. The one construct in the region.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.construct.animated_armour
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 928
+  - 772
+  radius_m: 8
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

@@ -1,0 +1,16 @@
+{
+  "seed": 20260929,
+  "new_trees": 78,
+  "birches": 52,
+  "pines": 26,
+  "minimum_trunk_spacing_m": 3.2,
+  "minimum_route_clearance_m": 15,
+  "patch_bounds_m": [
+    680,
+    680,
+    805,
+    775
+  ],
+  "source": "G:\\UNNAMED_DS_PHASEB\\_staging\\connected_20260929_c\\content",
+  "out": "G:\\UNNAMED_DS_PHASEB\\_staging\\connected_forest_probe_20260929\\content"
+}

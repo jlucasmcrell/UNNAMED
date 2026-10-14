@@ -1,0 +1,26 @@
+id: location.cairnwold.the_gorge
+kind: location
+schema: 1
+display_key: location.cairnwold.the_gorge.name
+tags:
+- location
+notes: The cut on the east edge, at z 100 on x 200 - where the basin's water leaves.
+  Standing on its lip is the highest ground a character can walk to in Cairnwold.
+name: The Outfall
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 1097.0
+  - 0.0
+  - 700.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 25
+  xp: 20
+map:
+  reveals_radius_m: 100
+  marker: none
+fast_travel:
+  node: false

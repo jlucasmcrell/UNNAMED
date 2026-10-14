@@ -1,0 +1,33 @@
+id: quest.cairnwold.what_the_bog_kept
+kind: quest
+schema: 1
+display_key: quest.cairnwold.what_the_bog_kept.name
+tags: [quest]
+notes: "Mara Ling's quest - the village's water, the low ground it comes from, and the herb that says whether the trouble is in the plant or under it. It sends the player to the region's own Sinking Moss at (150, 170) and closes on the item the region's own scatter already grows. Deliberately unresolved: she learns the water is coming from deeper than the plant reaches, and nothing more - the charter's \"uncertain knowledge rather than omniscient exposition\"."
+title: What The Bog Kept
+summary: Mara Ling's well is drawing thin and brown, and she does not think the well is the problem.
+giver_ref: npc.cairnwold.mara_ling
+entry_objective: o_speak
+objectives:
+  - id: o_speak
+    type: talk_to
+    description: Ask Mara about the water.
+    params: { npc_ref: npc.cairnwold.mara_ling, nodes: [errand] }
+    next: [o_moss]
+  - id: o_moss
+    type: visit_location
+    description: Walk the Sinking Moss, the low ground north-east of the village.
+    params: { location_ref: location.cairnwold.the_bog }
+    next: [o_bloom]
+  - id: o_bloom
+    type: acquire_item
+    description: Gather three ashbloom where the ground is wettest.
+    params: { item_ref: item.material.herb_ashbloom, count: 3 }
+    next: [o_return]
+  - id: o_return
+    type: talk_to
+    description: Bring the ashbloom back to Mara at the well.
+    params: { npc_ref: npc.cairnwold.mara_ling, nodes: [told] }
+rewards:
+  - { kind: xp, amount: 70 }
+  - { kind: relationship, npc_ref: npc.cairnwold.mara_ling, dimension: trust, amount: 5 }

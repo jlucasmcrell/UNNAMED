@@ -1,0 +1,11 @@
+{
+  "kind": "connected_content_probe",
+  "region_id": "region.starting_frontier",
+  "seed": 20260929,
+  "source_sha256": {
+    "G:\\UNNAMED_DS_PHASEB\\content\\regions\\ashen_hollow.yaml": "e671960231807f027cfef02e9ef036a55c534c982cd6778c6b16812465cf0e71",
+    "G:\\UNNAMED_DS_ASSETS\\cairnwold\\content\\regions\\cairnwold.yaml": "6b31c1e546056be9ac3c88cfb605cf70d21a8bfacfa9d537037c3bbfeb9b0790"
+  },
+  "cells": 14,
+  "structures": 866
+}

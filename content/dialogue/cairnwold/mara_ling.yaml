@@ -1,0 +1,65 @@
+id: dialogue.cairnwold.mara_ling
+kind: dialogue
+schema: 1
+display_key: dialogue.cairnwold.mara_ling.name
+tags: [dialogue]
+notes: Mara Ling at the well. She has one thing on her mind and it is not the well. Asking her what is wrong starts What The Bog Kept, which sends the player to the low north-east ground the region calls the Sinking Moss.
+participants: [npc.cairnwold.mara_ling]
+root_node: greet
+nodes:
+  greet:
+    text: "Mind the rope, it is wet through. Mara. You will be wanting water - everyone does, and I have less of it every week."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: ask
+        text: "Less of it?"
+        next: complaint
+      - id: leave
+        text: "Not today."
+  again:
+    text: "Still drawing, still thinner than it was."
+    choices:
+      - id: ask
+        text: "Tell me about the water."
+        conditions: [{ kind: visited, node: complaint, not: true }]
+        next: complaint
+      - id: ask_again
+        text: "About the moss, then."
+        conditions:
+          - { kind: visited, node: complaint }
+          - { kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: active, not: true }
+        consequences:
+          - { command: start_quest, quest_ref: quest.cairnwold.what_the_bog_kept }
+        next: errand
+      - id: leave
+        text: "Later."
+  complaint:
+    text: "The well is forty feet of good stone and it has never once run low, and this spring it comes up brown at the end of the rope. Everyone says the well. It is not the well. It is where the water comes FROM - north-east, the low ground, the moss that never drains. Something up there has changed, and I am not walking it alone."
+    # NOT `once`. The loader refused this file with QST001 and it was right: this node is where the errand is offered,
+    # so a character who heard her out and then walked away would have spent the line and lost the quest for good.
+    # She is a woman with one thing on her mind and she will say it again.
+    choices:
+      - id: offer
+        text: "I will walk it."
+        consequences:
+          - { command: start_quest, quest_ref: quest.cairnwold.what_the_bog_kept }
+        next: errand
+      - id: later
+        text: "Another day."
+  errand:
+    text: "Then go up into the moss and bring me back three ashbloom - the herb, the one with the grey leaf, it grows where the ground is wettest. If the bloom is wrong I will know it from the bloom, and then we will know how much trouble we are in. Take the long way round the walls. The near way is bog."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Three ashbloom."
+        next: again
+  told:
+    text: "Root, stem and leaf, all grey, all of it the same as it ever was. So the plant is well and the water is not, which means it is coming from deeper than the plant reaches. That is a thing I would rather not have learned. Thank you - genuinely. Come back when the rope comes up clean."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I will."
+        next: again

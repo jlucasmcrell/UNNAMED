@@ -1,0 +1,95 @@
+id: dialogue.cairnwold.durn_skell
+kind: dialogue
+schema: 1
+display_key: dialogue.cairnwold.durn_skell.name
+tags: [dialogue]
+notes: Durn Skell, Cairnwold's smith - teaches the forge, trades, and has an opinion of what you make. Asking him to teach starts Iron From The Moor. The seam he names is the region's OWN node at (58, 3); the ash he names is the region's own stand at (75, 114).
+participants: [npc.cairnwold.durn_skell]
+root_node: greet
+nodes:
+  greet:
+    text: "Stand clear of the anvil. Durn. You will have come up the rise with the rest of them."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me the forge."
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
+          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.cairnwold.iron_from_the_moor }
+        next: lesson
+      - id: trade
+        text: "What have you got?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Back. Fire is still in."
+    choices:
+      - id: teach
+        text: "Teach me the forge."
+        conditions: [{ kind: visited, node: lesson, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
+          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: trust, delta: 5, event: asked_to_learn }
+          - { command: start_quest, quest_ref: quest.cairnwold.iron_from_the_moor }
+        next: lesson
+      - id: where
+        text: "Where is this seam of yours?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, is: active }
+          - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, objective: o_ore, is: satisfied, not: true }
+        next: where
+      - id: show_fine
+        text: "I made a spear. Look at it."
+        conditions:
+          - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1 }
+          - { kind: visited, node: praised, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: respect, delta: 10, event: showed_fine_work }
+        next: praised
+      - id: show_spear
+        text: "I made a spear. Look at it."
+        conditions:
+          - { kind: has_item, item_ref: item.weapon.march_spear }
+          - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1, not: true }
+          - { kind: visited, node: judged, not: true }
+        next: judged
+      - id: trade
+        text: "What have you got?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Nothing today."
+  lesson:
+    text: "Then bring me iron, and bring it out of our own rock. South edge of the basin, the crags - there is a seam in the face at the far west of that line, and it is ours. Three good strikes and it is done, so do not waste them. Ore into the hearth makes a billet if you keep the fire honest. A billet wants a haft, and a haft wants ash, and the ash stands north of here where the ground rises. Make me a spear and bring it back. And do not blame the iron."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: thanks
+        text: "I will bring you a spear."
+        next: again
+  where:
+    text: "South. Down off the rise, past the last wall, and along the crags until the face shows black in it. West end, not east - the east is rotten and comes away in your hands. Something walks that line at night. I have never asked it what it wants."
+    choices:
+      - id: back
+        text: "I will find it."
+        next: again
+  praised:
+    text: "Hm. Straight, and the point holds its temper. Better than I had any reason to expect. You have done this before, or you listen."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Thank you."
+        next: again
+  judged:
+    text: "It will hold. Mostly. The next one will be better - they always are, and if they are not, you have stopped learning."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I will try again."
+        next: again

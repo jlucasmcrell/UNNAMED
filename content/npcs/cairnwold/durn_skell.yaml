@@ -1,0 +1,12 @@
+id: npc.cairnwold.durn_skell
+kind: npc
+schema: 1
+display_key: npc.cairnwold.durn_skell.name
+tags: [npc]
+name: Durn Skell
+notes: Cairnwold's smith. Keeps the forge at the village smithy - the region's station.forge_hearth at (84, 84) and station.forge_anvil at (80.5, 80.5) - and works the iron that comes out of the south crag seam. Teaches the two recipes and trades. Gives Iron From The Moor.
+role: craftsperson
+services: [trade]
+merchant_ref: merchant.cairnwold.durn_skell
+dialogue_ref: dialogue.cairnwold.durn_skell
+unique: true

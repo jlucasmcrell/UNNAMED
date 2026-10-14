@@ -1,0 +1,12 @@
+id: merchant.cairnwold.durn_skell
+kind: merchant
+schema: 1
+display_key: merchant.cairnwold.durn_skell.name
+tags: [merchant]
+notes: "Durn Skell's stock at the forge - a stub merchant, no economy: what a smith in a moorland village has, and nothing he would have to have bought in. Opened by Durn's own dialogue."
+stock_mode: fixed
+stock:
+  - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
+  - { item_ref: item.armor.hide_vest, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.hide_cap, count: 1, price_bias: 1.0 }
+buys_tags: [material, consumable, weapon, armor, misc]

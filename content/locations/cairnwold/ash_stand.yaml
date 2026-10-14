@@ -1,0 +1,27 @@
+id: location.cairnwold.ash_stand
+kind: location
+schema: 1
+display_key: location.cairnwold.ash_stand.name
+tags:
+- location
+notes: The ash stand in the north of the basin, where the region places its node.wood.ash_stand
+  at (75.0, 114.0). Ash is what a haft is made of, so every tool in the village comes
+  from here.
+name: The North Ash Stand
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 975.0
+  - 0.0
+  - 714.0
+kind_of_place: resource
+discovery:
+  methods:
+  - visited
+  radius_m: 20
+  xp: 10
+map:
+  reveals_radius_m: 70
+  marker: none
+fast_travel:
+  node: false

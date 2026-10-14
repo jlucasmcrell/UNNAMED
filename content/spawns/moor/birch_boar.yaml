@@ -1,0 +1,31 @@
+id: spawn.cairnwold.birch_boar
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.birch_boar.name
+tags:
+- spawn
+notes: 'A bristleback boar turning over the leaf litter on the birch flank, north-west
+  of the village and up where the ground breaks into wood. Territorial rather than
+  aggressive: it holds its wallow and does not come looking. A single boar, level
+  2 - worth the fight for a hide without being a reason to avoid the birch woods.
+  COUNT IS [1, 1] AND NOT A RANGE: Phase 1 places a fixed count, and the lint says
+  so (CMB001/QST001, "Phase 1 places a fixed count (count [n, n], n >= 1)"). A wallow
+  with a random number of boars in it is Phase 2 work.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.beast.bristleback_boar
+  count:
+  - 1
+  - 1
+  role: territorial
+at:
+  position_m:
+  - 946
+  - 748
+  radius_m: 14
+level_band:
+- 2
+- 2
+respawn:
+  kind: none
+tier_hint: A

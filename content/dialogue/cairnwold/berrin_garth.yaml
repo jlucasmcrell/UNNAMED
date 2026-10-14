@@ -1,0 +1,91 @@
+id: dialogue.cairnwold.berrin_garth
+kind: dialogue
+schema: 1
+display_key: dialogue.cairnwold.berrin_garth.name
+tags: [dialogue]
+notes: "Berrin Garth, who keeps the long lodge and remembers the village. The place-lore node - why the walls are drystone, why the granary stands on staddles, what in the basin is older than the village - and the one who hands over the Resonance Primer, because a hall with a fire in it is where a village keeps its books. Offering the primer is NOT a once-only line: hearing the offer is not getting the book, so `books` stays open until `primer_given` has been reached, which is the only thing that marks it given (the Phase-1 technical audit, H-01)."
+participants: [npc.cairnwold.berrin_garth]
+root_node: greet
+nodes:
+  greet:
+    text: "Come in out of the wind. Berrin. I keep the lodge - which is to say I sweep it and I remember what it is for."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: books
+        text: "Is there anything here I could learn from?"
+        next: primer
+      - id: walls
+        text: "Why drystone? There is no mortar in any of it."
+        next: walls
+      - id: granary
+        text: "The granary stands on stones."
+        next: granary
+      - id: leave
+        text: "Later."
+  again:
+    text: "Sit if you like. The fire is not for looking at."
+    choices:
+      - id: books
+        text: "Is there anything here I could learn from?"
+        conditions:
+          - { kind: visited, node: primer_given, not: true }
+        next: primer
+      - id: walls
+        text: "About the walls."
+        conditions: [{ kind: visited, node: walls, not: true }]
+        next: walls
+      - id: granary
+        text: "About the granary."
+        conditions: [{ kind: visited, node: granary, not: true }]
+        next: granary
+      - id: older
+        text: "What is older than the village?"
+        conditions: [{ kind: visited, node: older, not: true }]
+        next: older
+      - id: leave
+        text: "Later."
+  primer:
+    text: "There is a shelf behind you nobody has opened since the last man who could read it died. Take the primer - three small workings, one to strike, one to brace, one to mend. It is no good to me in a drawer, and I would sooner somebody used it than respected it."
+    choices:
+      - id: take
+        text: "Thank you. I will be careful."
+        consequences:
+          - { command: transfer_item, item_ref: item.tome.resonance_primer, count: 1, to: player }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.berrin_garth, dimension: trust, delta: 5, event: given_the_primer }
+        next: primer_given
+      - id: not_yet
+        text: "Not yet."
+        next: again
+  primer_given:
+    text: "He does not get up. \"Mind the third one. The first two are honest. The third asks something of you.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I will."
+        next: again
+  walls:
+    text: "Mortar wants lime and lime wants a kiln and a kiln wants a man who does nothing else. Drystone wants a winter and a pair of hands. Every wall you have walked past in this basin was a winter's work by somebody who also had sheep to see to. They are not old. They are just patient."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I had not thought of it that way."
+        next: again
+  granary:
+    text: "On staddles, aye, with a flat stone on every one, so the mice come up the post and reach the stone and have nowhere to go. It is not a pretty answer. It has held grain for two hundred years, so it is the right one."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Practical."
+        next: again
+  older:
+    text: "The crags, and the cut in the east where the water leaves. The crags are a line, not a scatter - somebody put them along that edge, or something did, and it was not us. The cut is only water and time. We built between the two, put a wall round it and called it a village. Everything else here is older and does not care."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Thank you."
+        next: again
