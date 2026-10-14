@@ -94,7 +94,7 @@ public sealed class UiShots
     private bool _bought;
 
     /// <summary>The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them.</summary>
-    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "" };
+    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "", "announce" };
 
     private readonly Action<string>? _screen;
     private int _screens;
@@ -151,7 +151,7 @@ public sealed class UiShots
             if (name.Length > 0)
             {
                 _pending = "screen_" + name;
-                _wait = 12;
+                _wait = name == "announce" ? 40 : 12;
             }
             return null;
         }
@@ -285,7 +285,7 @@ public sealed class UiShots
                 // Without the boar (content that spawns none at the wallow) the fight is skipped, and the run goes on to the seam.
                 if (Boarish() is not { } wallow)
                 {
-                    _step = 19;
+                    _step = 20;
                     _waypoint = 0;
                     break;
                 }
@@ -484,9 +484,19 @@ public sealed class UiShots
                 break;
             case 29:
                 _journal.Visible = false;
-                _questDebug.Visible = true;
-                _questDebug.Refresh(_session, 0, now: true);
-                Then("quest_debug");
+                // The quest debugger's picture only where the content lets it diagnose (the restored Oct 2 content does not).
+                try
+                {
+                    _questDebug.Visible = true;
+                    _questDebug.Refresh(_session, 0, now: true);
+                    Then("quest_debug");
+                }
+                catch (InvalidOperationException e)
+                {
+                    GD.PushWarning($"UNNAMED ui shots: the quest debugger could not diagnose ({e.Message}); no picture of it");
+                    _questDebug.Visible = false;
+                    Next();
+                }
                 break;
             case 30:
                 _questDebug.Visible = false;

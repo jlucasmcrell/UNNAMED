@@ -495,6 +495,10 @@ public partial class Main : Node3D
                     case "saves":
                         _saves.OpenInGame();
                         break;
+                    case "announce":
+                        // The announcement as a level-up shows it, pictured without waiting a level (a preview: nothing is awarded).
+                        _hud.Announce("Level up", "Level 2", HudStyle.Ember, ("A point to spend on the character sheet", HelpPanel.Key("character")));
+                        break;
                 }
             });
         }
