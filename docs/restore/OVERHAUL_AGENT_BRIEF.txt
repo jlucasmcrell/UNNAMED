@@ -1,0 +1,23 @@
+OTHERREACH ASSET OVERHAUL - SHARED BRIEF FOR CATEGORY AGENTS (2026-10-14)
+
+Goal: replace EVERY asset in the game with the best realistic, non-stylized source available, 4K for hero assets and 2K standard. The owner's rules (docs/restore/OWNER_BRIEF_SECOND_PLAY_2026-10-05.txt, OWNER_RULINGS_2026-10-05_to_14.txt) are binding. The most important:
+- No stylized or low-poly assets, textures or animation may ship. Excluded on sight: KayKit, Kenney models, Quaternius, Synty POLYGON, Poly Pizza, toon/cel/hand-painted/voxel/PSX looks, flat-colour or gradient-atlas textures, materials missing needed PBR maps.
+- Replace by default. "Good enough" is not a reason to keep anything. A before/after that looks the same has failed.
+- Each slot: shortlist 3-5 candidates, convert the strongest 1-2, compare, record the choice with runner-ups and the reason.
+- The start region must feel like "another world": huge trees (kapok/ceiba giants stay), birds, strangeness; each settlement, NPC and creature needs its own visual personality. Modern/industrial/sci-fi assets are not used in the start region (keep them catalogued for later areas).
+- Protected: Durn's outfit, the accepted walk animation, the south coast / far ravine area.
+- High/Ultra are never trimmed for performance; decimate only to reasonable game budgets.
+
+Inputs:
+- Current slots: docs/restore/ASSET_CENSUS_20261014.csv and ASSET_CENSUS_SUMMARY_20261014.txt (how bindings resolve, dimensions/pivot conventions, blocker fit rules: a model is rejected to a grey box if it leaves >0.5 m gap on a side or falls >0.6 m short of the blocker height, so match the slot's footprint/height from the census).
+- Earlier decisions: docs/restore/ASSET_DECISIONS_2026-10-05_to_06.txt.
+- Pipeline: tools/asset_pipeline/RUNBOOK.txt, convert_asset.py, convert_batch.py, validate_godot.py. Cosmos colour map is _B (not _C). Always pass --max-tris for dense Cosmos props.
+- Libraries (C:\Otherreach_External_Assets): Cosmos_Premium\{Assets,Materials,Sounds,VFX,Environments,Purchased}\*.zip (downloads still in progress; the list of finished files is Cosmos_Premium\_dl2\done.tsv, the full catalogue C:\Otherreach_Recovery\ASSET_REBUILD\cosmos_premium_items.csv); PolyHaven\{models,textures,hdris}; ambientCG; BlenderKit\models; MakeHuman\{asset_packs,community}; CMU_rancidmilk, Quaternius/KayKit (animation only, never their art); Kenney (particles/sounds only); UnityLabs_VFX_Flipbooks; Audio\Sonniss. Poly Haven and ambientCG have thousands more free CC0 assets online (api.polyhaven.com, ambientcg.com/get?file=<id>_4K-JPG.zip) - you may download additional ones into C:\Otherreach_External_Assets\PolyHaven or ambientCG. Fab packs are being installed into the Unreal project C:\Otherreach_External_Assets\Fab\FabAssets (UE content, not directly usable without UE export; ignore unless needed).
+
+Rules for agents:
+- Work ONLY in your own staging dir C:\Otherreach_Recovery\asset_work\<category>\. Do not edit the game repo, the playtest package, bindings, or other agents' dirs. Do not commit.
+- For each slot write a row to <staging>\PROPOSALS.csv: slot_id, current_asset, chosen_asset_id, source_path, source_platform, licence, tris_lod0, tex_res, footprint_m (x,z), height_m, why, runner_ups (with paths), status (converted/validated/needs_owner).
+- Converted outputs go to <staging>\ready\<asset_id>\ (glb + LODs + _meta.json), validated with validate_godot.py.
+- Render a preview for each chosen asset (convert_asset.py --preview) and build contact sheets <staging>\sheets\*.png showing current vs chosen vs runner-ups so the owner can judge.
+- Write <staging>\bindings_proposed.json: the exact binding entries to add/replace in content\_art_bindings.json (same schema as existing entries).
+- Final report under 400 words: slots covered, what was replaced with what, anything blocked.
