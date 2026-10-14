@@ -25,6 +25,11 @@ public static class HudStyle
     public static readonly Color Brass = new(0.83f, 0.69f, 0.45f);
     public static readonly Color Wound = new(0.94f, 0.55f, 0.48f);
 
+    // The management screens' two additions (the Field Instrument UI): a secondary surface for hover, insets and idle buttons, and the
+    // colour of what is positive or available (READY, a requirement met, a gain).
+    public static readonly Color Coal = new(0.085f, 0.083f, 0.078f);
+    public static readonly Color Lichen = new(0.56f, 0.74f, 0.47f);
+
     public static readonly Color HealthFill = new(0.71f, 0.2f, 0.16f);
     public static readonly Color StaminaFill = new(0.77f, 0.62f, 0.28f);
     public static readonly Color FocusFill = new(0.32f, 0.51f, 0.76f);
