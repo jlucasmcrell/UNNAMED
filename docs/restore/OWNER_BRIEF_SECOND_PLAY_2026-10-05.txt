@@ -1,0 +1,2551 @@
+OWNER BRIEF - SECOND-PLAY IMPLEMENTATION PASS (with GRAPHICS REPLACEMENT MANDATE) - VERBATIM
+==========================================================================================
+
+Restored 2026-10-14 from C:\Otherreach_Recovery\RESTORE_transcripts\RESTORE_transcript_OTHERREACH_implementation_pass_tMkF9py7.json
+This is the FIRST user message of the "OTHERREACH implementation pass" session, event sequence 1, timestamp 2026-10-05T09:55:15.021Z (UTC),
+70,668 characters, reproduced byte-for-byte below between the BEGIN/END markers (including the <pasted_content> wrapper).
+The owner pasted the file "G:\claude prompt - second play pass (edited).txt" - the owner's Codex-written prompt as edited with the
+owner in the claude_md session (2026-10-05 08:07-09:08 UTC, RESTORE_transcript_claude_md_location_AA2VSBkb.json).
+The owner's later rulings are in OWNER_RULINGS_2026-10-05_to_14.txt. Appendices after the END marker are the companion prompts the
+owner issued the same day (reconstructed from the claude_md session's file writes; final versions).
+
+----- BEGIN VERBATIM OWNER MESSAGE -----
+
+
+<pasted_content id="6088">
+You are taking over as the senior autonomous implementation engineer, technical art integrator, gameplay repair engineer, and owner-acceptance coordinator for OTHERREACH.
+
+This is a REAL implementation pass.
+
+You have local filesystem access, Git access, terminal/build/test access, Godot/native execution access, and access to the project’s external asset libraries.
+
+You are expected to investigate, modify, test, visually inspect, commit, and document the project autonomously.
+
+Do not merely produce a review report.
+
+Do not begin C5, C6, unrelated world expansion, or public-release work.
+
+Do not ask the owner to make dozens of micro-decisions that can be resolved from the project’s established direction, current implementation, source evidence, and the owner feedback below.
+
+The purpose of this pass is to repair the SECOND owner-playthrough findings and materially raise the EXPERIENCE QUALITY of the existing starting region.
+
+============================================================
+0. GRAPHICS REPLACEMENT MANDATE — READ FIRST
+============================================================
+
+The owner's recurring complaint about earlier passes, by several different LLMs: each pass was too cautious about replacing textures, models, materials, vegetation, animations and audio, so the next playtest looked almost the same as the last one.
+
+This pass must not repeat that.
+
+- No stylized or low-poly assets, textures or animation may ship. This is the owner's firmest art rule, not a preference. Section 9 defines what is excluded.
+- Default to REPLACE SOURCE for any visibly weak asset when the libraries hold a better one. Tuning, re-tinting or re-placing a weak asset is the exception, not the default.
+- Only the owner-accepted visuals listed in section 6 are protected. Everything else visual is replaceable, including work earlier agents labelled FIXED, IMPROVED, RETAINED or known-good.
+- Replacement cost (retargeting, re-binding, LODs, material conversion, import time) is not a reason to keep visibly poor art. Budget the work; do not avoid it.
+- The two-attempt rule limits how long you tweak one hypothesis. After two failed tweaks, replace the source. Do not stop and defer.
+- Success is measured in normal player view. Capture fixed camera positions along the section 30 route before your first visual change and again at the end. An area that looks substantially the same in both captures has failed this pass, whatever its ledger status says.
+- Where this section conflicts with any later caution about replacing art, this section wins. Gameplay authority, save/schema, validator and licence rules still apply in full.
+
+============================================================
+1. AUTHORITATIVE CURRENT BASE
+============================================================
+
+The authoritative current repair candidate is:
+
+Source worktree:
+
+    G:\UNNAMED_CODEX_OWNER_PLAYTEST_FIXES
+
+Branch:
+
+    codex/owner-playtest-fixes-20261004
+
+Authoritative HEAD:
+
+    d2b25a8794f7a24051c745115935078ec1bb1cfe
+
+Expected current status:
+
+    clean
+
+The prior repair sequence is:
+
+    3eb5b27148c10f355d151cd9c030558ba9fbb690
+        Repair owner-reviewed character presentation and missing display names
+
+    f5f72252850e5fb9656a26b069660adc1661eb89
+        Add personal dialogue and clarify local work deliveries
+
+    595b33db2de9004062798b3410140afa9801c499
+        Repair first-play interaction UX, doors, placement and footstep timing
+
+    16222127e609c0bf98bd838c6d1550d7bbe9a68c
+        Align tree roots and add reachable ash-base collision
+
+    c71ad7fe38600b44e60209a2d50dd332f8b1bcb5
+        Repair Tavar garment penetrations and retain reviewed player finger pose
+
+    096829c438368394813a38d8ce561dcc52672b95
+        Add sparse authored WildMesh deer and domestic chickens
+
+    b0ab0ab1ccca06c6cc729aba642eed2e30314058
+        Replace broken rocks and tilted smithy props; restore inhabited storage dressing
+
+    d2b25a8794f7a24051c745115935078ec1bb1cfe
+        Complete owner first-play combat presentation and final validation
+
+The successor worktree for this pass has already been created from exactly d2b25a8794f7a24051c745115935078ec1bb1cfe:
+
+    G:\UNNAMED_OPUS_SECOND_PLAY_FIXES
+
+Branch:
+
+    opus/second-owner-playtest-fixes-20261005
+
+Its git identity is set per worktree to Claude <noreply@anthropic.com>. The repository-level identity is "DeepSeek Asset Agent"; do not change it.
+
+Before changing anything:
+
+1. Verify the protected source worktree still exists, is on its branch at exactly the HEAD above, and is clean.
+2. Do not reset, clean, stash, checkout over, build in, run Godot in, or otherwise disturb that protected worktree. Read it only.
+3. Verify the successor worktree's branch, HEAD (exactly d2b25a8794f7a24051c745115935078ec1bb1cfe) and clean status.
+4. If the successor worktree is missing, create it from exactly that commit with the path and branch above. If that path or branch exists but does not match, create a unique non-destructive successor name rather than deleting or reusing anything.
+5. Do not use another dirty/shared worktree as your implementation workspace.
+
+The fresh worktree has no .godot/ import cache. The first native run imports every resource; let it finish before judging visuals or measuring performance.
+
+Before your first visual change, capture the section 0 "before" screenshots from the unmodified successor build.
+
+Record the actual successor worktree, branch, starting HEAD, and initial Git status in your durable notes.
+
+============================================================
+2. READ BEFORE MODIFYING
+============================================================
+
+Read the COMPLETE current repair handoff and the COMPLETE second owner-playthrough notes before making implementation decisions.
+
+Required source documents include at minimum:
+
+    G:\UNNAMED_HISTORY\OWNER_FIRST_PLAY_REPAIRS_2026-10-04\13_FINAL_HANDOFF.md
+
+    C:\Users\jluca\OneDrive\Desktop\Ash Haft pickup bug outside Cairnwo.txt
+        (the owner's verbatim second-playthrough notes, 28 lines)
+
+    G:\UNNAMED_HISTORY\OWNER_PLAYTEST_NOTES\FIRST_PLAYTEST_TRANSCRIPT.txt
+        (the owner's verbatim first-playtest notes; see section 7A)
+
+Also inspect all referenced first-repair evidence in G:\UNNAMED_HISTORY\OWNER_FIRST_PLAY_REPAIRS_2026-10-04\, including at minimum:
+
+    00_OWNER_NOTES_LEDGER.md
+    11_BUILD_TEST_RESULTS.md
+    12_NATIVE_ACCEPTANCE.md
+    FREE_BUILDING_DESIGN.md
+    proof/final_promoted_asset_revalidation.json
+
+and any directly referenced technical/art/source qualification documents necessary to understand prior choices.
+
+Do not rely only on summaries.
+
+Do not assume a previous FIXED, IMPROVED, OWNER REVIEW, screenshot, geometry check, test pass, or native route means the owner accepted the result.
+
+============================================================
+3. AUTHORITY ORDER
+============================================================
+
+When evidence conflicts, use this priority:
+
+1. Actual current repository/source/runtime state.
+2. SECOND owner-playthrough experience.
+3. Explicit current owner direction in this prompt.
+4. First-repair handoff as historical/current-implementation evidence.
+5. Earlier agent judgments.
+
+The first-repair handoff tells you what was attempted and what exists.
+
+The second playthrough tells you whether the owner found the actual experience acceptable.
+
+Therefore:
+
+    SECOND-PLAY OWNER EXPERIENCE > FIRST-PASS AGENT VERDICT.
+
+Do not defend a prior implementation simply because substantial work went into it.
+
+Do not, however, break unrelated known-good gameplay behavior merely because one aspect of a mixed repair needs reopening.
+
+Classify at sufficiently fine granularity.
+
+Example:
+
+P1 contained clothing, hair, armor visibility, spear grip, skin and animation work.
+
+The second playthrough reopens spear grip, head/body presentation, skin and some clothing clipping.
+
+Keep a prior visual subcomponent only if it still looks right in normal player view. Otherwise replace it (section 0). Prior effort is not a reason to keep it.
+
+============================================================
+4. CREATE A SECOND-PLAY OWNER LEDGER
+============================================================
+
+Before substantive repair, create a NEW ledger for this playthrough.
+
+Preferred location:
+
+    docs/owner_playthrough_2/00_SECOND_PLAY_LEDGER.md
+
+If this repository already has a clearly established owner-repair evidence directory, use that existing directory instead while retaining the filename:
+
+    00_SECOND_PLAY_LEDGER.md
+
+Every second-play owner observation must get a durable entry. So must every first-play note (section 7A), with IDs F1-001, F1-002, ...
+
+Use unique IDs:
+
+    S2-001
+    S2-002
+    ...
+
+For every entry record:
+
+- verbatim or faithfully normalized owner observation;
+- related prior P-number(s), if any;
+- prior agent disposition;
+- SECOND-play classification:
+    RETAINED
+    REOPENED
+    SUPERSEDED
+    NEW
+- defect type:
+    gameplay bug
+    asset/content defect
+    presentation defect
+    UX defect
+    audio defect
+    environment/world defect
+    design gap
+    new gameplay feature
+    potentially architectural feature
+- actual present source/runtime finding;
+- likely root cause;
+- chosen action:
+    REPAIR CURRENT
+    REPLACE SOURCE
+    REDRESS AREA
+    REDESIGN SMALL SEAM
+    IMPLEMENT FEATURE
+    DESIGN/BOUND ONLY
+- acceptance criteria;
+- tests/evidence required;
+- implementation commit;
+- final status.
+
+Important:
+
+A previously fixed item that simply is not mentioned in the second notes is NOT automatically “owner confirmed.”
+
+Label such unaffected earlier work RETAINED or NOT REOPENED where appropriate.
+
+Reserve language such as OWNER ACCEPTED for evidence that actually supports it.
+
+============================================================
+5. CURRENT KNOWN-GOOD TECHNICAL BASELINE
+============================================================
+
+The preceding candidate ended with:
+
+Build:
+
+    0 errors
+
+Tests:
+
+    1477 passed
+    0 failed
+    0 skipped
+
+Architecture:
+
+    35 / 35
+
+Content Release lint:
+
+    205 definitions
+    0 errors
+
+Special validators:
+
+    NAV006 = 0
+    FAC001 = 0
+    CMB001 = 0
+
+Persistence schema:
+
+    18
+
+GameSession.Boot:
+
+    PASS
+
+Headless smoke:
+
+    PASS
+    save/load round-trip digest identical
+
+Native Forward+ Quality validation:
+
+    PASS
+
+These are regression gates, not permission to ignore owner-visible failures.
+
+Preserve or improve them.
+
+Test counts may legitimately increase when new tests are added.
+
+Content-definition counts may legitimately change when real content is added.
+
+The invariants are that the relevant suites remain green and no failures are hidden.
+
+Preserve schema 18 if reasonably possible.
+
+Do not bump schema merely because it is convenient.
+
+Do not weaken validators.
+
+Do not add allowlists simply to conceal new failures.
+
+Do not delete tests to make the build pass.
+
+Do not change authoritative gameplay semantics just to make presentation easier.
+
+============================================================
+6. PROTECTED GAMEPLAY CONTRACTS AND OWNER-ACCEPTED VISUALS
+============================================================
+
+Gameplay and data contracts. Do not change these without a documented reason and revalidation of the affected contract:
+
+- authoritative combat damage semantics;
+- working merchant authority;
+- loot Take All close behavior;
+- attribute preview/cancel/confirm;
+- authoritative item/comparison tooltips;
+- existing quickbar behavior;
+- dialogue camera stabilization;
+- current save/load contracts;
+- the effective-content merge fix that restored canonical furnishings (do not reintroduce that merge regression; replacing the furniture art itself is allowed).
+
+Owner-accepted visuals. Keep these unless the owner reopens them:
+
+- Durn combined torso/boots/mask/binding (exact accepted source identity);
+- the original player walk, pace metadata approximately 1.002 with 1.6 m/s movement (CMU 16_22 remains rejected);
+- the accepted south-coast/far-ravine state.
+
+Everything else visual is replaceable under section 0. That includes the sky: it is a restoration after failed experiments, not an owner acceptance. Replace it only with something verifiably better in normal player view, and never regress to the failed variants.
+
+============================================================
+7. THE SECOND-PLAY PROBLEMS ARE EXPERIENCE PROBLEMS
+============================================================
+
+This phase is no longer primarily about proving that systems exist.
+
+The owner’s dominant feedback is:
+
+- the world still looks stitched together;
+- the world feels empty;
+- visual assets feel inconsistent;
+- several assets look low-poly/stylized instead of grounded/realistic;
+- settlements do not feel convincingly inhabited;
+- combat does not feel impactful;
+- character presentation still has visible problems;
+- spear stance/grip still looks wrong;
+- gathering directions/discoverability do not make environmental sense;
+- interaction/UI language remains inconsistent.
+
+Do not optimize for checklist completion at the expense of the actual player view.
+
+A technically present deer, tree, shrub, chair, hit sound or road blend does not satisfy this pass merely by existing.
+
+Ask:
+
+    Does the owner/player actually perceive the intended result during ordinary play?
+
+============================================================
+7A. FIRST-PLAYTEST NOTES — TREAT VISUAL ITEMS AS OPEN
+============================================================
+
+The owner's verbatim first-playtest notes are in:
+
+    G:\UNNAMED_HISTORY\OWNER_PLAYTEST_NOTES\FIRST_PLAYTEST_TRANSCRIPT.txt
+
+The owner reports that most of the first playtest's graphical notes were missed, ignored or not completed, and that the second build looked barely different from the first. Therefore:
+
+- Every first-play VISUAL or AUDIO note is REOPENED unless its fix is clearly visible or audible in normal player view in the unmodified d2b25a8 build (check against your section 0 "before" captures). A FIXED or IMPROVED status in the first-repair ledger does not count.
+- Reconcile every first-play note in the ledger too (section 4), cross-referenced to the first-repair P-numbers.
+
+Confirmed fixed by the owner after the second playtest. Keep these and do not churn them:
+- footstep pacing now matches the walk, visually and in audio;
+- the animated armor now fights back.
+
+The owner's summary of the second build: nothing has a visual personality. Settlements, building types, NPCs, creatures and the Foldscar should each have a recognisable identity (palette, materials, silhouette, signature details), not generic kit pieces. Apply this to every visual item below and in sections 14 to 20.
+
+First-play items the second-play notes do not repeat, plus the owner's later remarks. Do not lose them:
+
+World and environment:
+- grass draw distance is far too short: grass appears only close to the player while rocks and trees draw far out. Extend it much further and measure the cost;
+- flowers float above the ground in Cairnwold and along the road between the settlements;
+- Cairnwold still has rocks with torn edges, missing pieces and invisible spots; rocks and the large ore boulder stand on edges or corners;
+- Cairnwold's wall is very low poly;
+- buildings: Ashen Hollow's are low poly; Cairnwold's are sharp and square, with no colour or personality ("all very boring, brick, log");
+- ash stands look low poly and look like every other small stand;
+- lantern and candelabra flames clip into their holders (the flame effect itself is liked);
+- doors pop open and closed instead of swinging, do not reach the top of the frame and do not fit their doorways; the granary door is not attached to the raised granary and has no opening behind it; the smithy door reveals no opening;
+- Ren's waystation has random items on its tables; a waystation should have beds and probably an upper floor of rooms;
+- the longhouse and houses are nearly empty, and a village over 200 years old has three or four people;
+- the wolves' den is a nondescript grey low-poly blob; it should read as a rock cave;
+- the sky should not look like a standard sky. The owner wants moons, suns and planets: an interesting, distinctly Otherreach sky. Check docs/OTHERREACH_COSMOLOGY.md for established celestial bodies, and do not assign them new lore meaning;
+- the Foldscar stones and heart only glow faintly after activation; activation needs much better effects.
+
+Characters and animation:
+- the faces are liked, but faces and bodies have no skin texture; the owner believes the promoted characters and their textures never reached the build (see section 7B);
+- Cel Arian's hair is splotchy white and black;
+- Karavas is not wearing a smith's outfit;
+- the run looks like a long jump on every step: shorten the stride. The accepted WALK stays protected; the run is not accepted;
+- wolves need a whole new asset and animation set; emberhounds need better animation (stiff) and sound; spiders need better sound.
+
+Combat and audio:
+- the combat and creature sounds date from the first prototype; the owner wants them all redone, not supplemented;
+- attacks swing through enemies with no sense of landing a hit.
+
+Dialogue:
+- dialogue improved after the first pass, but every NPC has the same personality. Give each a distinct voice consistent with their role, history and relationships. Keep the personal-dialogue mechanism; rewrite the voices.
+
+Gameplay:
+- Halda's token has no discoverable purpose: give it one consistent with existing content and quests, or record why it exists;
+- gatherable trees (rough timber) and ash stands cannot be told apart from scenery. The owner asked for something subtle, such as an outline or soft glow when close;
+- an off-hand torch, craftable at the forge from gatherable materials, to light the way at night (bounded feature; Package 6).
+
+The red fox from the newer external assets is the quality bar the owner liked. Use more sources of that calibre.
+
+============================================================
+7B. UNMERGED VISUAL WORK — MANDATORY FORENSIC
+============================================================
+
+The owner believes promoted visual work from other sessions never reached the build ("something was not merged"). Git supports this. None of these branches is an ancestor of d2b25a8; all forked at a696931:
+
+    claude/phase-b-visual-overhaul        (worktree G:\UNNAMED_PHASEB)      64 commits not in the base
+    ds/phaseb-graphics-overhaul-20260927  (worktree G:\UNNAMED_DS_PHASEB)   97 commits not in the base; includes the branch above
+    claude/pb-hud                         (worktree G:\UNNAMED_PB_HUD)      32 commits not in the base
+    claude/pb-vfx                         (worktree G:\UNNAMED_PB_VFX)      33 commits not in the base
+
+Their commit history includes production characters (the player, Kera and Sel, Renn and Tavar remade, the standard cast with faces), Animated Armour v2, tree variants and LODs, geometry grass extended into the midground, 4K cloth and leather material libraries, a region-supplied sky with an 8K HDRI, a timber building kit, a fully dressed Cairnwold character, Foldscar heart binding and lighting work, and HUD and VFX passes.
+
+Before Package 2:
+
+1. Read docs/phase_b/ on those branches (PHASE_B_FINAL_REPORT.md, CHARACTER_FIDELITY.md, ASSET_UTILIZATION_REVIEW.md) and the DeepSeek branch's own reports, using read-only git (git log, git show, git diff). Do not check out, build in, run Godot in or modify those worktrees.
+2. For each promoted item, determine whether the base already has it or an equivalent, and compare the two in normal player view.
+3. Port what is better into the successor branch. Promoted art is bound by records in src/Presentation/Art, while the mesh and texture files live outside git under the asset root. A port therefore means bringing over the binding records and confirming that every file they reference exists on disk. Cherry-pick where a commit applies cleanly; otherwise re-apply by hand. Do not merge whole branches blindly: resolve against the base's newer gameplay, schema 18 and validators.
+4. Changes under tools/asset_pipeline/** on those branches are DeepSeek-owned paths. Do not port them into this branch.
+5. Uncommitted files in those worktrees (G:\UNNAMED_DS_PHASEB has over a thousand) belong to the agents working there. Do not copy them. List notable ones as owner decisions.
+6. Record every item in docs/owner_playthrough_2/01B_UNMERGED_VISUAL_WORK.md: source branch and commit, what it is, and whether it was PORTED, SUPERSEDED BY BETTER SOURCE or REJECTED, with the reason.
+
+============================================================
+8. EXTERNAL ASSET RESCAN — MANDATORY
+============================================================
+
+Do NOT assume the earlier asset inventory is current.
+
+Substantial new external assets have been acquired.
+
+Comprehensively rescan the CURRENT filesystem before committing to mediocre source material.
+
+Start from the existing inventories, then verify them against the disk:
+
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_INVENTORY_2026-10-05.csv
+        1,894 entries in three parts: "used" (70: what the game uses and where), "on_disk" (377) and "cosmos_premium" (1,447 Leartes Cosmos Premium items: 1,186 assets, 177 sounds, 41 materials, 30 VFX, 8 environments). At 05:05 on 2026-10-05, 263 Cosmos items were downloaded and 1,184 were still queued; check what has arrived since. Cosmos includes modern-world items (street lamps, bathroom sinks, wired fences): filter by setting as well as by style.
+
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.csv
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.md
+        207 sources with licences, quality estimates and classifications, as of 2026-09-25. They predate the newest downloads, and their "production candidate" label does not override section 9.
+
+Do not edit these files. Record your findings in 01_ASSET_RESCAN.md.
+
+Important roots include:
+
+    F:\Otherreach_External_3D
+
+    F:\Otherreach_External_Assets
+
+    F:\Otherreach_External_Audio
+
+    G:\UNNAMED_DS_ASSETS
+
+    G:\AssetForge
+
+Also inspect likely current sources including:
+
+- newly downloaded ZIP archives;
+- newly downloaded 7z archives;
+- newly downloaded RAR archives;
+- recent Humble Bundle purchases/downloads;
+- Fab downloads (F:\Otherreach_External_Assets\Fab);
+- Cosmos / Leartes Studios downloads (F:\Otherreach_External_Assets\Cosmos and Cosmos_Premium);
+- Gumroad downloads (F:\Otherreach_External_Assets\Gumroad);
+- Unreal Marketplace content;
+- UE VaultCache or installed UE projects containing legally usable purchased assets;
+- WildMesh Ultimate Animal Pack;
+- recently modified or created asset directories.
+
+Use timestamps and archive metadata to identify material that did not exist during earlier searches.
+
+A parallel session may still be downloading. Re-check the roots for new material before Packages 3 and 4.
+
+Create:
+
+    docs/owner_playthrough_2/01_ASSET_RESCAN.md
+
+or the equivalent established evidence-directory location.
+
+Record:
+
+- source root;
+- pack/product;
+- file/archive;
+- modified date where useful;
+- likely content category;
+- format;
+- quality assessment;
+- style verdict: realistic, or stylized/low-poly (excluded from shipping);
+- portability;
+- license/provenance information available;
+- whether source is usable;
+- whether conversion/export is required;
+- where it was used, if promoted.
+
+Prefer portable source forms such as:
+
+    FBX
+    BLEND
+    GLB/GLTF
+    high-quality textures
+    WAV/other appropriate source audio
+
+Unreal/Fab assets may be used only where entitlement/license and technical conversion permit it.
+
+It is acceptable to export specific appropriate meshes/materials/textures from an Unreal project when legally and technically valid.
+
+Do NOT blindly port:
+
+    Blueprints
+    Niagara systems
+    Unreal gameplay frameworks
+    enormous dependent project trees
+
+Do not bulk-copy entire commercial asset packs into Git.
+
+Promote only assets actually needed.
+
+Preserve provenance and license/entitlement notes.
+
+Record exact source files and hashes where practical.
+
+============================================================
+9. ART-DIRECTION SOURCE FILTER
+============================================================
+
+The target direction for OTHERREACH is now explicitly:
+
+    grounded
+    believable
+    realistic / photoreal-ish fantasy
+    science-fantasy
+    visually coherent
+
+It is NOT:
+
+    obvious low-poly asset-pack collage
+    stylized cartoon fantasy
+    random unrelated Marketplace pieces
+    square primitive-looking village kits
+    obviously procedural clutter
+
+Stylized and low-poly sources must not ship. This is the owner's firmest art rule. Excluded:
+
+- stylized, toon, cel-shaded, hand-painted, "Ghibli-inspired", voxel, PSX/retro or flat-colour looks;
+- low-poly kit packs used as a style: KayKit, Kenney, Quaternius, Synty-style POLYGON packs, Poly Pizza low-poly models and similar;
+- flat-colour or gradient-atlas textures, and surfaces missing the PBR maps they need;
+- hand-keyed stylized game animation where motion capture can do the job.
+
+These may serve as blockout or proportion reference only. A realistic source that sheds polygons at distance through LODs is fine; low-poly as a look is not.
+
+The catalog's labels do not override this. Three of its "production candidate" entries are stylized and excluded: Kenney Particle Pack, Kenney Foliage Sprites and KayKit Character Animations. WildMesh 100 Models mixes realistic and stylized animals: use only the realistic ones.
+
+Stylized sources already in the build are replacement targets. The 2026-10-05 inventory lists among the sources in use:
+
+- KayKit Character Animations, supplying the spear ready/thrust and bow clips (the spear the owner calls "poking");
+- Quaternius Universal Animation Library 1 and 2, supplying most other player motion. Replace those clips with motion capture where they read as stylized. The accepted walk stays;
+- Kenney Animated Characters 3: find what uses it and replace it;
+- Quaternius Ultimate Stylized Nature Pack and KayKit Forest Nature, staged in the private asset root but not bound. Never bind them.
+
+It must also have visual personality. The owner's summary of the second build was that nothing has any. Each settlement, building type, NPC, creature and focal site needs a recognisable identity: palette, materials, silhouette and signature details. Coherence means a shared world, not a uniform kit.
+
+Where the owner explicitly rejects source quality, do not spend endless cycles forcing bad source art to work.
+
+Default to REPLACE SOURCE (section 0). Use REPAIR CURRENT only when the current source already looks right and the defect is local. The options are:
+
+    REPLACE SOURCE
+    REDRESS AREA
+    REDESIGN SMALL SEAM
+    REPAIR CURRENT
+
+If a better licensed source exists, replace the visibly bad one. Do not polish it.
+
+============================================================
+10. DIRECT BUG / UX PACKAGE — HIGH PRIORITY
+============================================================
+
+Repair clear defects first where intended behavior is unambiguous.
+
+A. ASH HAFT PICKUP OUTSIDE CAIRNWOLD
+
+The owner encountered an Ash Haft pickup bug outside Cairnwold.
+
+Reproduce it in the actual current build.
+
+Determine whether this is:
+
+- interaction target;
+- collision;
+- pickup authority;
+- content definition;
+- spawn state;
+- persistence;
+- naming;
+- prompt;
+- ownership;
+- dropped-item logic;
+- duplicate/invalid node;
+- or another real cause.
+
+Repair the actual root cause.
+
+Add a regression test if this can be meaningfully covered.
+
+Native-test the exact scenario.
+
+B. RAW PLAYER-FACING IDS
+
+Second play still exposed examples including:
+
+    Cairnwold house 05
+    cw_house05_door
+
+The first pass therefore did NOT comprehensively eliminate raw/internal naming.
+
+Perform a broad player-facing string audit across:
+
+- door prompts;
+- house/location labels;
+- interactables;
+- discovery notices;
+- quest text;
+- dialogue;
+- inventory;
+- knowledge;
+- tooltips;
+- building surfaces;
+- debug-like labels accidentally routed to production UI.
+
+Look for:
+
+- raw content IDs;
+- underscores;
+- internal suffixes;
+- authoring numbers;
+- technical site/location names;
+- `_door`-style names;
+- numeric shell IDs.
+
+Fix this through display-name resolution or authored display names.
+
+Do NOT rename stable backend IDs merely to make them pretty.
+
+C. WOLF INDICATOR
+
+The owner reports the wolf exclamation indicator appearing in the middle of its body.
+
+Repair the anchoring/offset/billboarding/skeleton attachment or relevant presentation cause.
+
+Verify from normal gameplay camera at multiple distances and orientations.
+
+D. PROP / ROCK / DECORATION GROUNDING
+
+The owner still sees:
+
+- decoration not sitting flat;
+- rocks not sitting flat;
+- other assets floating, penetrating or tilting incorrectly;
+- random/unrelated decoration.
+
+Do not fix only one screenshot location.
+
+Audit the starting-region authored placements with emphasis on normal-player sightlines.
+
+Correct grounding and obvious compositional nonsense.
+
+Avoid random clutter as the solution.
+
+E. CAIRNWOLD SMITHY DOOR
+
+Despite prior door work, the owner still says the Cairnwold smithy door “doesn't make sense.”
+
+Treat that specific composition as REOPENED.
+
+Do not argue from the previous door-route pass.
+
+Inspect:
+
+- opening;
+- frame;
+- hinge side;
+- leaf size;
+- collision;
+- swing direction;
+- nearby geometry;
+- building shell;
+- approach;
+- player path;
+- visual plausibility.
+
+Repair the actual composition.
+
+F. DIALOGUE SELECTION STATE
+
+The owner cannot reliably tell which dialogue selection:
+
+- continues ordinary dialogue;
+- progresses a quest;
+- completes a quest;
+- turns something in.
+
+Improve the selection/focus/state language without turning dialogue into a noisy gamey HUD.
+
+Use coherent Field Instrument visual language.
+
+Quest completion/turn-in options should be distinguishable when meaningful.
+
+Keyboard/controller focus must remain readable.
+
+G. BUILD MENU + HOVER/STATS UI
+
+The Build menu did not receive the same visual language as the Field Instrument UI.
+
+The hover/stats surface also needs updating and should be opaque/readable.
+
+Audit whether these:
+
+- predate the Field Instrument pass;
+- use separate style controls;
+- regressed;
+- bypass HudStyle;
+- lack appropriate opacity/focus states.
+
+Bring them into visual coherence with the rest of the management UI.
+
+Do not blindly copy unrelated panel geometry.
+
+Maintain readability, hierarchy and input focus.
+
+============================================================
+11. CHARACTER PRESENTATION — REOPENED
+============================================================
+
+Second-play owner feedback explicitly reopens character visual quality.
+
+Reported problems include:
+
+    heads look detached from bodies
+    skin still lacks convincing texture
+    some clothing clipping remains
+    spear stance/grip remains bad
+
+Investigate actual current runtime, not only source meshes.
+
+HEAD/BODY:
+
+Inspect:
+
+- neck seam;
+- head transform;
+- skeleton binding;
+- body/head proportions;
+- skin tone/material continuity;
+- normal maps;
+- roughness;
+- subsurface/skin shading if relevant;
+- camera-distance artifacts;
+- animation-induced separation.
+
+If the actual current asset source cannot meet the target quality and a better licensed source exists, replace it rather than endlessly hiding obvious problems.
+
+SKIN:
+
+The prior handoff explicitly described fine skin detail as source-limited.
+
+That is no longer an excuse to stop searching.
+
+New asset sources exist.
+
+Look for substantially better materials/textures or character sources that fit existing technical constraints.
+
+Replacements must end on a working rig that meets the project's skeleton contract (docs/CANONICAL_BODY_AND_SKELETON.md). Retargeting, re-binding and re-weighting are expected work, not a reason to keep the current source.
+
+CLOTHING:
+
+Audit the owner-visible clipping cases.
+
+Fix masks/weights/garment geometry/binding/source as appropriate.
+
+Do not solve obvious penetration by making clothing absurdly bulky or deleting required anatomy indiscriminately.
+
+============================================================
+12. SPEAR STANCE / GRIP / WEAPON HANDLING — REOPENED
+============================================================
+
+The owner again rejected spear presentation.
+
+The previous handoff already admitted the off-hand spear remained misaligned after two attempts.
+
+Do not simply make a third microscopic transform tweak if the underlying source pose/animation is wrong.
+
+Evaluate:
+
+- idle stance;
+- locomotion with spear;
+- dominant hand;
+- off-hand;
+- palm orientation;
+- shaft intersection;
+- elbow/wrist posture;
+- attack windup;
+- thrust;
+- recovery;
+- transition in/out of combat.
+
+Protect the known acceptable player walking pace and movement authority unless intentionally necessary.
+
+The desired outcome is a believable two-handed spear user, not merely hands whose coordinates technically touch the shaft.
+
+Search current animation/character asset libraries for better compatible source motion if needed.
+
+The current spear ready/thrust clips come from KayKit Character Animations, a stylized source excluded by section 9. Replace them with motion capture.
+
+============================================================
+13. COMBAT FEEL — P11 REOPENED
+============================================================
+
+The owner still reports:
+
+    attacks feel weak
+    spear attacks feel pokey
+    animal sounds are weak
+    combat sounds are weak
+    combat visuals are weak
+    hitting something does not sound/look like hitting something
+
+The previous pass added real confirmed-damage audio cues.
+
+That was useful work, but owner perception shows it was insufficient.
+
+Improve combat FEEL while preserving authoritative combat semantics.
+
+Audit and improve the combination of:
+
+- anticipation;
+- attack animation;
+- swing/thrust velocity presentation;
+- hit timing;
+- contact sound;
+- target-specific impact sound;
+- hit reaction;
+- recoil/stagger where authoritative rules permit;
+- particles;
+- contact effects matched to the material hit;
+- camera feedback if appropriate;
+- animation pause/hit-stop only if compatible with simulation authority;
+- corpse transition;
+- animal pain/death audio;
+- armor/metal impact distinction;
+- flesh impact distinction;
+- timing between visual contact and audio.
+
+The combat and creature sound set dates from the first prototype. Replace it rather than adding to it: weapon swings, impacts by material, creature attack, pain and death sounds, using F:\Otherreach_External_Audio and the other libraries. Cover wolves, emberhounds, spiders and the animated armor.
+
+The inventory lists AI-generated Stable Audio sound sets among the sounds in use. Check which combat and creature sounds come from them, and prefer recorded sources such as the Sonniss #GameAudioGDC bundles and the Cosmos sound library.
+
+Do NOT fake damage that did not occur.
+
+Impact effects should trigger from confirmed authoritative hit/damage events.
+
+The target is grounded physical weight the player cannot miss. The owner has rejected under-powered combat feedback twice, so err toward too much impact rather than too little. Avoid arcade gimmicks such as constant screen shake or cartoon flashes.
+
+Specifically test:
+
+- spear vs animal/flesh;
+- spear vs armored target;
+- receiving a hit;
+- killing an animal;
+- sustained combat sequence.
+
+Capture real native evidence.
+
+A screenshot of one particle is not sufficient evidence.
+
+============================================================
+14. TERRAIN / MAP SEAMS / STARTING WORLD COHERENCE — REOPENED
+============================================================
+
+The owner again reports:
+
+    bad map seams
+    unnatural transition
+    visible seam between maps
+    empty boring field between settlements
+    sharp composition
+
+This means the prior P27 “improved” state is REOPENED.
+
+The starting world must feel like ONE continuous region:
+
+    region.starting_frontier
+
+not Ashen Hollow and Cairnwold visibly stitched together.
+
+Inspect the complete ordinary travel route.
+
+Pay attention to:
+
+- terrain height continuity;
+- road grades;
+- texture transitions;
+- vegetation density;
+- biome transition;
+- ground color;
+- rock placement;
+- tree lines;
+- sightline composition;
+- horizon;
+- abrupt authoring boundaries.
+
+Do not hide a seam with one row of bushes.
+
+Repair the landscape composition.
+
+Small local terrain redesign is authorized where needed.
+
+Do not disturb previously protected coast/far-ravine areas unless directly necessary.
+
+============================================================
+15. EMPTY FIELD / ENVIRONMENTAL LIFE — HIGH PRIORITY
+============================================================
+
+The owner describes the field between settlements as empty, boring, and lacking meaningful environmental life.
+
+This is NOT solved merely by increasing a fauna counter.
+
+Redress the transition as a believable traversable landscape.
+
+Consider coherent combinations of:
+
+- trees;
+- small tree clusters;
+- shrubs;
+- grasses;
+- deadfall;
+- rocks;
+- subtle terrain variation;
+- believable ecological pockets;
+- wildlife paths/presence;
+- environmental storytelling;
+- points of visual interest.
+
+Avoid filling it with random unrelated props.
+
+Maintain traversal clarity and performance.
+
+The player should feel they are traveling through a real place rather than crossing unused map space.
+
+============================================================
+16. BRAMBLES / SHRUBS / TREES — SOURCE QUALITY REOPENED
+============================================================
+
+The owner still explicitly dislikes:
+
+    brambles
+    shrubs
+    many stylized trees
+
+The earlier handoff described source limitations.
+
+Current owner direction plus newly acquired assets supersedes that stopping condition.
+
+Search the CURRENT libraries for higher-quality realistic sources.
+
+Trees are a particularly visible art-direction problem.
+
+Evaluate:
+
+- trunk realism;
+- branch silhouette;
+- foliage density;
+- alpha/material quality;
+- wind;
+- scale;
+- roots/ground contact;
+- LOD;
+- draw distance;
+- biome appropriateness;
+- performance.
+
+Do not replace a bad stylized tree with a different bad stylized tree merely to claim change.
+
+Likewise for brambles and shrubs.
+
+============================================================
+17. LARGE BOULDERS / UNDER-ROCK TERRAIN
+============================================================
+
+The owner reports areas underneath/around large rocks and boulders that are:
+
+    non-traversable
+    grassless
+    visually wrong
+
+Investigate whether this comes from:
+
+- oversized collision;
+- terrain holes;
+- slope;
+- nav blockers;
+- vegetation exclusion masks;
+- rock footprint mismatch;
+- authoring geometry.
+
+Do not automatically make every underside traversable if physically impossible.
+
+The objective is believable rock-to-ground composition and sensible player movement.
+
+Where the geometry visually suggests that the player should be able to step through or around it, collision/navigation should agree.
+
+Where terrain should meet rock, avoid conspicuous grassless voids.
+
+============================================================
+18. WILDLIFE / ECOLOGY — REOPENED
+============================================================
+
+The owner still perceives:
+
+    “no wildlife”
+    barren world
+    boring areas
+
+despite foxes, does, chickens, butterflies and other existing fauna.
+
+Therefore P31 did not solve perceived ecological life.
+
+WildMesh Ultimate Animal Pack is a HIGH-PRIORITY source.
+
+Do not add animals merely to increase species count.
+
+Evaluate:
+
+- actual number;
+- spawn/authored placement;
+- visibility from player routes;
+- time spent visible;
+- behavior;
+- animation;
+- biome fit;
+- distance from settlements;
+- encounter frequency;
+- whether animals immediately disappear;
+- whether terrain/vegetation conceals everything;
+- ecological plausibility.
+
+Increase perceived life until an ordinary traveller on the road reliably sees animals. Keep it believable for the biome, but err toward visible rather than sparse: the owner has called the world empty twice.
+
+The road/field between settlements is especially important.
+
+Possible wildlife should follow setting/biome logic.
+
+Do not turn the area into a zoo.
+
+Reuse existing AI/state contracts where appropriate.
+
+Do not invent unsupported flying-animal behavior merely because a bird mesh exists.
+
+Maintain save/load and performance contracts.
+
+============================================================
+19. VILLAGES / BUILDINGS / INTERIORS — MAJOR QUALITY PASS
+============================================================
+
+The owner explicitly wants:
+
+    better village assets
+    better buildings
+    better interiors
+    better decoration
+    more realistic assets
+    less random clutter
+    more inhabited settlements
+
+Cairnwold in particular still reads as:
+
+    empty
+    boring
+    too square/sharp
+    insufficiently lived in
+
+Earlier work restored furnishings and added some dressing.
+
+That is not enough if the basic visual composition still looks like placeholder architecture.
+
+Comprehensively inspect current external architecture assets.
+
+Expect to replace, not only redress. Where the libraries hold better architecture, replace Cairnwold's shells, facades and materials rather than dressing around them. The work includes:
+
+- replace shells;
+- improve facades;
+- add believable roof/eave/trim detail;
+- replace visibly poor materials;
+- improve openings;
+- redress interiors;
+- rearrange furnishings;
+- improve workspaces;
+- improve exterior utility areas;
+- add clear signs of occupation.
+
+The target is coherent habitation.
+
+Examples of good environmental logic:
+
+- smithy has believable smithing workflow;
+- storage is near where storage makes sense;
+- beds/personal items belong to inhabitants;
+- work tools relate to location;
+- containers are positioned plausibly;
+- entrances make sense;
+- navigation is unobstructed.
+
+Do not scatter props solely because empty floor exists.
+
+Prefer a smaller number of believable arrangements over random clutter.
+
+============================================================
+20. FOLDSCAR — REOPENED HIGH-VISIBILITY FOCAL ART
+============================================================
+
+The prior handoff explicitly deferred the Foldscar heart because source quality remained poor after earlier attempts.
+
+The second-play owner still strongly dislikes:
+
+- the Foldscar focal asset;
+- totems/stones;
+- heart;
+- broken-statue/random-artifact appearance;
+- overall visual quality.
+
+Reopen it.
+
+The previous “two attempts” stopping rule does NOT permanently protect a focal object the owner still rejects now that materially new external sources may exist.
+
+Search the CURRENT asset libraries, including new Fab/Unreal/Humble sources.
+
+Decide whether the right solution is:
+
+    REPLACE SOURCE
+    REDRESS COMPOSITION
+    REDESIGN FOCAL ARRANGEMENT
+
+Preserve the underlying quest/activation semantics unless a bug requires otherwise.
+
+The Foldscar should look intentionally authored and significant.
+
+It should not look like unrelated Marketplace leftovers placed in a circle.
+
+Revalidate activation after visual changes.
+
+============================================================
+21. GATHERING / RESOURCE DISCOVERABILITY — REOPENED
+============================================================
+
+The owner asks:
+
+    Ore nodes?
+
+and could not find Ashenbloom.
+
+The player was told Ashenbloom was northeast of the village:
+
+    “where the ground is wettest”
+
+but there is no convincing wet landmark.
+
+This is a failure of environmental communication.
+
+Do not solve every such problem by making text more explicit.
+
+Audit:
+
+- iron/ore placement;
+- ore visual readability;
+- approach visibility;
+- gatherable affordance;
+- Ashenbloom placement;
+- Ashenbloom silhouette/color;
+- terrain context;
+- NPC directions;
+- landmarks.
+
+If dialogue says the ground is wettest, create an actual believable environmental cue if that is the stronger solution:
+
+- creek;
+- pond;
+- marshy patch;
+- bog;
+- wet depression;
+- damp shoreline;
+- reeds/mud/wet material;
+- or another unmistakable authored wet-ground feature.
+
+It need not become a major new water simulation.
+
+The location and dialogue must agree.
+
+A player following the directions without debug tools should have a reasonable chance of finding the resource.
+
+Native acceptance should include actually navigating from the relevant settlement using ordinary player view and discovering/gathering the resource.
+
+Do the same kind of practical check for ore.
+
+============================================================
+22. NEW MOVEMENT REQUEST: BETTER OBSTACLE TRAVERSAL
+============================================================
+
+The owner wants better ability to:
+
+    jump over things
+    climb
+
+Do NOT interpret this as authorization for a giant parkour system.
+
+First inspect the existing character controller.
+
+Determine the smallest appropriate improvement.
+
+Potential causes may include:
+
+- inadequate jump height;
+- poor step handling;
+- collision shapes;
+- tiny ledges;
+- movement slope settings;
+- no mantle capability;
+- environmental blockers.
+
+Prefer a bounded improvement that materially reduces getting caught on obvious low obstacles.
+
+A small mantle/step-over mechanic is acceptable only if justified by the existing controller and can be implemented cleanly.
+
+Do not introduce sprawling traversal architecture unless genuinely required.
+
+Add tests for new authoritative movement behavior where practical.
+
+Native-test representative obstacles.
+
+============================================================
+23. NEW MOVEMENT REQUEST: AUTORUN / AUTOWALK
+============================================================
+
+The owner explicitly requests:
+
+    Auto-Run/Walk on tilde
+
+Audit current input mapping first.
+
+If no architectural blocker exists, this should likely be treated as a bounded medium/low-risk feature.
+
+Implement the smallest coherent version.
+
+Expected concept:
+
+- tilde toggles continuous forward locomotion;
+- normal movement authority remains authoritative;
+- user movement input can cancel/override in sensible ways;
+- menus/dialogue/death or other states where movement is inappropriate should not leave the character marching uncontrollably;
+- save persistence is probably unnecessary unless existing input preferences require it.
+
+Use the project’s actual input architecture rather than injecting ad-hoc polling.
+
+Document the final behavior.
+
+============================================================
+24. MAP / DISCOVERIES / CARTOGRAPHY — NEW OWNER DESIGN SIGNAL
+============================================================
+
+The owner now explicitly wants:
+
+    map
+    discoveries
+    cartography
+
+Do not dismiss this because earlier design had little/no map-marker support.
+
+Instead reconcile it with exploration-first OTHERREACH design.
+
+Preferred design direction:
+
+    discovery-driven cartography
+
+Potential principles:
+
+- world map begins incomplete;
+- geography reveals through exploration;
+- settlements appear after discovery;
+- major POIs appear after discovery;
+- discovered places can be named;
+- player position may be shown if consistent with fiction/design;
+- no omniscient field of Ubisoft-style undiscovered objective markers;
+- quest guidance should not trivialize exploration.
+
+Before implementation:
+
+1. inspect existing compass/navigation/discovery/location systems;
+2. inspect design docs;
+3. inspect persistence;
+4. inspect coordinate/world-region architecture;
+5. determine whether an existing map scaffold already exists.
+
+Classify this as:
+
+    LOW/MEDIUM if substantial usable infrastructure exists
+
+or:
+
+    POTENTIALLY ARCHITECTURAL if a real cartography subsystem must be created.
+
+If a clean bounded implementation can be achieved within this pass without destabilizing the repair mission, implement a useful first version.
+
+If not, produce a concrete implementation-ready design rather than a fake stub.
+
+Do not let an architectural map project prevent completion of the critical second-play repairs.
+
+============================================================
+25. POST-DISCOVERY TOWN TRAVEL — NEW FEATURE
+============================================================
+
+Owner proposal:
+
+    town travel portals after discovery
+
+This is separate from death respawn binding.
+
+Inspect current:
+
+- portals;
+- travel;
+- location discovery;
+- world-space transition;
+- save;
+- quest;
+- fiction/lore contracts.
+
+Preferred rule:
+
+A destination becomes fast-travel eligible only after legitimate discovery or another established unlock condition.
+
+Do not create arbitrary debug teleports.
+
+Integrate the travel mechanism into existing OTHERREACH fiction if there is a suitable established concept.
+
+Do not invent major lore in isolation just to justify a button.
+
+If architecture is sufficiently bounded, implement.
+
+Otherwise produce an implementation-ready design with exact integration points.
+
+============================================================
+26. DEATH BINDING — SEPARATE FEATURE
+============================================================
+
+Owner proposal:
+
+    town binding at death
+
+Treat this as distinct from fast travel.
+
+Investigate existing death/recovery/respawn authority and save contracts.
+
+Questions your design/implementation must resolve from current architecture:
+
+- current respawn selection;
+- whether locations already expose bindable identity;
+- whether discovery is required;
+- default fallback;
+- persistence;
+- invalid/deleted bind point behavior;
+- interior/exterior behavior.
+
+Do not silently merge death bind with fast travel.
+
+If bounded enough, implement with tests.
+
+If architectural, document a ready design without breaking current death/recovery behavior.
+
+============================================================
+27. FREE BUILDING DIRECTION — EXISTING DESIGN GAP
+============================================================
+
+The owner wants more places to build and preferably the ability to build freely in appropriate exterior terrain.
+
+Read:
+
+    FREE_BUILDING_DESIGN.md
+
+Do not bypass the current authority model.
+
+Preferred direction:
+
+Allow construction on sensible exterior terrain while excluding protected zones such as:
+
+- settlements;
+- doors/entrances;
+- roads where obstruction would be harmful;
+- quest sites;
+- POIs;
+- spawn points;
+- protected structures;
+- invalid slopes;
+- unreachable terrain;
+- unsafe terrain;
+- other explicitly reserved spaces.
+
+Investigate current:
+
+- build-area authority;
+- placement validation;
+- exclusion systems;
+- navigation interaction;
+- save/load;
+- lint/worker/audit requirements.
+
+Classify the change honestly.
+
+If the existing design document plus architecture makes a bounded expansion safe, implement an appropriate increment.
+
+If completing genuine world-wide free building would require a much larger architectural phase, do not bolt on an unsafe shortcut merely to say it exists.
+
+Update the design with an exact implementation path.
+
+============================================================
+28. LOW-RISK / MEDIUM / ARCHITECTURAL CLASSIFICATION
+============================================================
+
+Before implementation, classify all work into three buckets.
+
+LOW-RISK REPAIR examples:
+
+- Ash Haft pickup defect;
+- raw display IDs;
+- wolf indicator anchor;
+- obvious prop grounding;
+- dialogue option states;
+- Build/hover UI consistency;
+- specific smithy door composition.
+
+MEDIUM SCOPED WORK examples:
+
+- spear/animation source replacement;
+- combat feel;
+- environment redress;
+- wildlife density;
+- vegetation replacement;
+- building/interior redress;
+- Foldscar source replacement;
+- gathering landmark work;
+- autorun;
+- bounded jump/step/mantle improvement.
+
+POTENTIALLY ARCHITECTURAL:
+
+- full cartography/map system;
+- post-discovery fast travel if no scaffold exists;
+- death-binding persistence if no scaffold exists;
+- unrestricted sensible-world free building.
+
+This classification is not permission to avoid medium work.
+
+This pass MUST make substantial owner-visible improvements.
+
+The classification exists to prevent enormous new feature architecture from consuming the entire repair session.
+
+============================================================
+29. RECOMMENDED IMPLEMENTATION ORDER
+============================================================
+
+Use approximately this package order unless actual dependency analysis proves a better sequence:
+
+PACKAGE 0 — FORENSIC BASELINE
+
+- validate exact base;
+- create isolated successor worktree;
+- read handoffs;
+- build second-play ledger;
+- establish baseline gates;
+- rescan external assets;
+- unmerged visual work forensic (section 7B).
+
+PACKAGE 1 — DIRECT PLAYER-FACING BUGS / UI
+
+- Ash Haft pickup;
+- raw IDs;
+- wolf indicator;
+- dialogue choice semantics;
+- Build menu;
+- hover/stats UI;
+- obvious grounding;
+- smithy door;
+- door swing animation and fit, for all doors including the granary;
+- Halda's token purpose.
+
+PACKAGE 2 — CHARACTER / WEAPON / COMBAT
+
+- heads/body;
+- skin;
+- remaining clothing clipping;
+- spear stance/grip;
+- attack presentation;
+- hit impact;
+- combat/animal audio, replaced rather than supplemented;
+- reactions/effects;
+- ported Phase-B characters and materials (section 7B);
+- run stride;
+- wolves (new asset and animation) and emberhound animation.
+
+PACKAGE 3 — WORLD COHERENCE / ECOLOGY
+
+- map seams;
+- settlement transition;
+- empty field;
+- vegetation quality;
+- realistic trees;
+- brambles/shrubs;
+- boulder-ground composition;
+- wildlife density/visibility;
+- grass draw distance;
+- floating flowers and edge-standing or torn rocks;
+- wolves' den as a rock cave;
+- the sky (moons, suns, planets).
+
+PACKAGE 4 — SETTLEMENT / FOCAL ART
+
+- village shells;
+- interiors;
+- coherent dressing;
+- Cairnwold quality;
+- Ashen Hollow quality where needed;
+- Foldscar, including activation effects;
+- Ren's waystation (beds, upper-floor rooms, sensible tables);
+- village population and the longhouse;
+- distinct NPC personalities in dialogue;
+- Cairnwold wall;
+- lantern/candelabra flame placement.
+
+PACKAGE 5 — GATHERING COMMUNICATION
+
+- ore;
+- Ashenbloom;
+- wet-ground landmark;
+- directions;
+- affordance;
+- subtle proximity cue for gatherables, including timber trees and ash stands.
+
+PACKAGE 6 — BOUNDED MOVEMENT FEATURES
+
+- obstacle traversal;
+- autorun;
+- off-hand torch crafted at the forge.
+
+PACKAGE 7 — ARCHITECTURAL OWNER SIGNALS
+
+- cartography;
+- travel portals;
+- death binding;
+- free-building direction.
+
+Complete packages 0–5 before allowing a larger new feature to destabilize the pass.
+
+============================================================
+30. NATIVE / VISUAL ACCEPTANCE STANDARD
+============================================================
+
+For presentation repairs, source inspection and unit tests are insufficient.
+
+You must inspect actual native Forward+ Quality output.
+
+Do not accept a repair because:
+
+- a script passes;
+- a screenshot exists;
+- a bounding box is numerically correct;
+- a mesh imports;
+- collision exists;
+- an animal count increased.
+
+Use normal player-camera evidence.
+
+Evaluate whole routes.
+
+At minimum create a native acceptance route covering a meaningful sequence similar to:
+
+    Ashen Hollow
+        ->
+    settlement edge
+        ->
+    road / transition
+        ->
+    formerly empty field
+        ->
+    wildlife encounter
+        ->
+    Cairnwold
+        ->
+    representative house/door
+        ->
+    smithy
+        ->
+    ore/resource approach
+        ->
+    Ashenbloom route/landmark
+        ->
+    combat encounter
+        ->
+    Foldscar
+
+The precise order may adapt to current geography.
+
+Capture before/after evidence from the same camera positions (section 0) under ordinary gameplay conditions, not only isolated showcase framing.
+
+Evaluate at:
+
+- normal walking camera;
+- common combat distance;
+- normal daylight where useful;
+- night where lighting-specific changes require it.
+
+A close-up beauty shot can supplement evidence.
+
+It cannot replace normal gameplay evidence.
+
+============================================================
+31. COMBAT NATIVE RECEIPTS
+============================================================
+
+Native combat evidence should include actual authoritative hits.
+
+Verify:
+
+- attack start;
+- visual contact;
+- authoritative hit/damage;
+- impact sound timing;
+- target reaction;
+- appropriate effect;
+- death where applicable.
+
+Run at least representative flesh/animal and armored-target encounters.
+
+No debug damage bypass merely to manufacture a screenshot.
+
+============================================================
+32. WORLD / WILDLIFE NATIVE RECEIPTS
+============================================================
+
+For environmental changes, test perceived density over time and distance.
+
+The question is not:
+
+    “Does a deer exist?”
+
+The question is:
+
+    “Does an ordinary player traveling this area perceive a living world?”
+
+Inspect:
+
+- sightlines;
+- encounter interval;
+- route composition;
+- asset coherence;
+- vegetation/animal interaction;
+- performance.
+
+============================================================
+33. GATHERING NATIVE RECEIPTS
+============================================================
+
+Attempt to find Ashenbloom using the in-world direction from the settlement.
+
+Do not use debug coordinates during the acceptance run.
+
+Verify that “where the ground is wettest” now corresponds to a believable visible landmark if that language remains.
+
+Likewise approach representative ore as an ordinary player.
+
+The player should be able to distinguish likely resource areas without giant glowing markers. The owner did ask for a subtle cue when close, such as an outline or soft glow on gatherable nodes, including timber trees and ash stands. Implement that.
+
+============================================================
+34. PERFORMANCE
+============================================================
+
+Do not use performance as an excuse to keep obviously poor source art without measuring alternatives.
+
+High-poly sources are welcome when brought in with LODs, instancing and sensible texture sizes. Measure the result instead of avoiding the source.
+
+Use appropriate:
+
+- LODs;
+- instancing;
+- material reuse;
+- sensible shadow settings;
+- distance culling;
+- texture sizes;
+- animation budgets.
+
+The prior candidate had a matched stationary 1920x1080/60 target sample around 60 average FPS with 1% lows around 56 FPS, but this was NOT a sustained full-world 60 FPS certification.
+
+If your environment/art changes materially affect rendering load, run a matched meaningful comparison.
+
+Document actual results rather than saying “performance seems fine.”
+
+============================================================
+35. TESTING REQUIREMENTS
+============================================================
+
+After relevant packages and again at final candidate, run the project’s actual established gates.
+
+At minimum:
+
+- solution build;
+- full automated tests;
+- architecture checks;
+- Content Release lint;
+- NAV006;
+- FAC001;
+- CMB001;
+- GameSession.Boot;
+- headless smoke;
+- save/load round-trip verification;
+- native Forward+ Quality validation.
+
+Expected baseline:
+
+    build errors = 0
+    tests = all passing
+    Architecture = 35/35 unless suite intentionally and correctly grows
+    lint errors = 0
+    NAV006 = 0
+    FAC001 = 0
+    CMB001 = 0
+    schema = 18 if reasonably possible
+    GameSession.Boot = PASS
+    headless smoke = PASS
+
+Add regressions for real new behavior.
+
+Examples likely deserving tests if architecture permits:
+
+- Ash Haft pickup;
+- display-name fallback/resolution;
+- autorun state transitions;
+- traversal changes;
+- fast-travel eligibility if implemented;
+- death-binding selection/persistence if implemented;
+- free-building exclusion rules if implemented;
+- cartography discovery persistence if implemented.
+
+Do not overengineer unit tests for purely aesthetic placement.
+
+Use native visual evidence for visual facts.
+
+============================================================
+36. SAVE / SCHEMA RULES
+============================================================
+
+Preserve schema 18 if practical.
+
+New features that need persistence should first inspect whether existing schema-18 extensibility can represent them safely.
+
+Do not silently break older saves.
+
+Do not mutate committed fixtures unnecessarily.
+
+Round-trip identity should remain valid: saved state loaded and re-saved should represent the same authoritative state.
+
+If a schema change becomes genuinely unavoidable, stop and document the architectural reason before doing so; do not casually make it part of an art/repair pass.
+
+============================================================
+37. COMMIT STRATEGY
+============================================================
+
+Make coherent commits.
+
+Do not produce one enormous undifferentiated “fix stuff” commit.
+
+Do not make hundreds of meaningless microcommits.
+
+Reasonable groupings include:
+
+- owner second-play direct bug/UI repairs;
+- character and weapon presentation;
+- combat feel;
+- environment/seam/ecology;
+- settlement/Foldscar asset work;
+- gathering clarity;
+- bounded movement features;
+- architectural feature implementation if actually performed;
+- final validation/documentation.
+
+Each commit should leave the branch in a sensible state.
+
+Record commit hashes in the ledger/handoff.
+
+Do not rewrite or force-push shared history.
+
+============================================================
+38. DURABLE OUTPUTS
+============================================================
+
+Create durable documentation.
+
+Preferred paths:
+
+    docs/owner_playthrough_2/00_SECOND_PLAY_LEDGER.md
+
+    docs/owner_playthrough_2/01_ASSET_RESCAN.md
+
+    docs/owner_playthrough_2/02_IMPLEMENTATION_REPORT.md
+
+    docs/owner_playthrough_2/03_NATIVE_ACCEPTANCE.md
+
+    docs/owner_playthrough_2/04_BUILD_TEST_RESULTS.md
+
+    docs/owner_playthrough_2/05_DESIGN_DECISIONS.md
+
+    docs/owner_playthrough_2/06_FINAL_HANDOFF.md
+
+If the repository has a clearly established existing location for equivalent owner-repair documentation, use that established directory instead but retain a similarly explicit file separation.
+
+The final handoff must be durable enough that another agent can continue without relying on chat history.
+
+============================================================
+39. DESIGN-DECISION DOCUMENT CONTENT
+============================================================
+
+05_DESIGN_DECISIONS.md should specifically record conclusions for:
+
+- jump/climb/obstacle traversal;
+- autorun;
+- cartography;
+- settlement discovery;
+- post-discovery fast travel;
+- death binding;
+- exterior/free building.
+
+For each state:
+
+- current architecture;
+- desired behavior;
+- risk category;
+- decision;
+- implementation completed or deferred;
+- exact blockers if deferred;
+- recommended next implementation step.
+
+“Too big” is not an adequate blocker.
+
+Name the real architectural dependency.
+
+============================================================
+40. SECOND-PLAY LEDGER REOPENINGS YOU MUST NOT MISS
+============================================================
+
+At minimum reconcile these second-play findings:
+
+- Ash Haft pickup bug outside Cairnwold;
+- heads appearing detached;
+- insufficient skin detail;
+- large-boulder surrounding ground/collision/grass issue;
+- obstacle traversal;
+- map seams;
+- unnatural settlement transition;
+- spear stance/grip;
+- insufficient wildlife;
+- empty/boring areas;
+- weak animal sounds;
+- weak combat sound;
+- weak combat visual impact;
+- unclear ore-node discovery;
+- village asset quality;
+- exterior building quality;
+- interior quality;
+- remaining clothing clipping;
+- “Cairnwold house 05” player-facing numbering;
+- `cw_house05_door` or equivalent raw IDs;
+- transition-field emptiness;
+- ugly brambles/shrubs;
+- wolf indicator inside body;
+- random/unrelated decoration;
+- assets not grounded;
+- dialogue continue/progress/complete ambiguity;
+- Build menu styling;
+- hover/stats styling and opacity;
+- stylized/unrealistic trees and other assets;
+- Foldscar focal quality;
+- totems/stones;
+- heart;
+- random broken-statue/artifact appearance;
+- map/discovery/cartography request;
+- Cairnwold smithy door composition;
+- discovered-town travel proposal;
+- death-town binding proposal;
+- tilde autorun/autowalk;
+- inability to find Ashenbloom;
+- mismatch between “wettest ground” directions and actual world;
+- broader desire for additional/free building locations;
+- every first-play item in section 7A.
+
+Do not lose a note simply because it belongs to a larger theme.
+
+============================================================
+41. FIRST-PLAY ITEMS THAT SHOULD GENERALLY REMAIN RETAINED UNLESS EVIDENCE CONTRADICTS THEM
+============================================================
+
+The second-play notes do not explicitly reopen every first-pass repair.
+
+Do not unnecessarily churn things like:
+
+- footstep event synchronization;
+- merchant-cart multi-side access;
+- loot close behavior;
+- attribute preview/confirm/cancel;
+- inventory/equipment authoritative tooltip data;
+- quickbar mechanics;
+- dialogue camera sway suppression;
+- removal of explicit tutorial keystroke NPC speech;
+- personal dialogue branches (the mechanism; the writing is reopened in section 7A);
+- level-up notification mechanics;
+- delivery item/count clarity;
+- quest reward mechanics;
+- existing save/load integrity.
+
+These are RETAINED unless actual investigation discovers a regression.
+
+Again:
+
+RETAINED does NOT equal newly OWNER ACCEPTED.
+
+============================================================
+42. NO FAKE COMPLETION LANGUAGE
+============================================================
+
+Use precise final statuses.
+
+Good language:
+
+    FIXED AND VERIFIED
+    IMPLEMENTED / OWNER REVIEW REQUIRED
+    IMPROVED / OWNER REVIEW REQUIRED
+    REOPENED
+    RETAINED
+    SUPERSEDED
+    DESIGNED / NOT IMPLEMENTED
+    DEFERRED — SPECIFIC ARCHITECTURAL REASON
+
+Bad language:
+
+    solved
+    perfect
+    owner accepted
+    visually good
+
+unless actual evidence supports the statement.
+
+Agent confidence is not owner acceptance.
+
+============================================================
+43. FINAL CLEANLINESS
+============================================================
+
+At the end:
+
+- all intended work must be committed;
+- successor worktree must be clean;
+- no temporary exported garbage should remain in Git;
+- no giant source packs should be accidentally committed;
+- no paid-source archives should be committed unless explicitly appropriate and licensed;
+- no accidental engine cache/build garbage;
+- no dirty protected worktrees;
+- no unrelated C5/C6 work;
+- no public push/release.
+
+============================================================
+44. FINAL RESPONSE FORMAT
+============================================================
+
+When the implementation session is complete, give the owner ONE concise-but-complete final report with exactly these substantive sections:
+
+A. CANDIDATE IDENTITY
+
+- successor worktree;
+- branch;
+- starting HEAD;
+- final HEAD;
+- Git status.
+
+B. SECOND-PLAY DISPOSITION
+
+Cover both first-play (F1-) and second-play (S2-) entries. Give counts and important details for:
+
+- RETAINED;
+- REOPENED;
+- SUPERSEDED;
+- NEW;
+- FIXED AND VERIFIED;
+- IMPROVED / OWNER REVIEW;
+- DESIGNED / NOT IMPLEMENTED;
+- DEFERRED WITH SPECIFIC REASON.
+
+C. WHAT CHANGED
+
+Group by:
+
+- direct bugs/UX;
+- characters/spear;
+- combat;
+- terrain/world;
+- wildlife;
+- villages/interiors;
+- Foldscar;
+- gathering;
+- movement;
+- map/travel/death/building features.
+
+D. ASSET PROMOTIONS
+
+For every significant new external source promoted, give:
+
+- pack/source;
+- original filesystem source;
+- asset;
+- provenance/license state;
+- conversion;
+- destination;
+- why it was chosen.
+
+Include every item ported from the section 7B branches.
+
+E. COMMITS
+
+List every implementation commit hash and subject.
+
+F. AUTOMATED VERIFICATION
+
+Report exact:
+
+- build result;
+- test count;
+- architecture;
+- lint;
+- NAV006;
+- FAC001;
+- CMB001;
+- schema;
+- boot;
+- smoke;
+- save/load.
+
+G. NATIVE VISUAL ACCEPTANCE
+
+Summarize whole-route evidence and specific combat/resource/UI/art checks. Include the same-position before/after pairs, and name any area that still looks substantially the same.
+
+Do not imply screenshots equal owner approval.
+
+H. PERFORMANCE
+
+Give measured results where materially affected.
+
+I. REMAINING OWNER-REVIEW ITEMS
+
+Be candid.
+
+State anything still aesthetically uncertain.
+
+J. ARCHITECTURAL DESIGN ITEMS
+
+State final disposition of:
+
+- cartography;
+- fast travel;
+- death binding;
+- free building;
+- traversal if not completely implemented.
+
+K. DURABLE HANDOFF PATHS
+
+List all generated repair/evidence documents.
+
+============================================================
+45. STOP BOUNDARY
+============================================================
+
+Stop after:
+
+- second-play repairs;
+- approved bounded improvements;
+- appropriate scoped feature work;
+- full validation;
+- clean commits;
+- durable handoff.
+
+Do NOT proceed into:
+
+    C5
+    C6
+    unrelated region/world expansion
+    public release
+    release publishing
+
+============================================================
+46. CORE SUCCESS TEST
+============================================================
+
+Do not judge success by how many boxes changed status.
+
+The core success test is:
+
+If the owner walks from Ashen Hollow through the countryside into Cairnwold, fights something, enters buildings, talks to NPCs, searches for resources, visits the Foldscar, and uses the major UI surfaces, does the experience now feel materially more coherent, inhabited, readable, grounded and professionally authored than the second-play build?
+
+The player should no longer immediately notice:
+
+- obvious stitched-world seams;
+- barren transition space;
+- conspicuously stylized placeholder vegetation;
+- detached-looking characters;
+- terrible spear grip;
+- weightless combat;
+- incoherent doors;
+- raw authoring IDs;
+- floating/tilted props;
+- unexplained resource directions;
+- visibly outdated UI panels;
+- random asset-pack collage composition.
+
+Technical correctness remains mandatory.
+
+But this phase succeeds only if the PLAYER-VISIBLE EXPERIENCE improves.
+
+Begin from the exact authoritative HEAD in the successor worktree, read the full evidence from both playtests, build the ledger, run the section 7B forensic, rescan the current asset libraries, and execute the repair pass.
+</pasted_content id="6088">
+
+----- END VERBATIM OWNER MESSAGE -----
+
+====================================================================================================
+APPENDIX A - "G:\claude prompt - asset census addendum.txt" (owner told the implementation session to read and follow it at
+2026-10-05 11:11 UTC; it overrides the brief where they conflict). Final text as last written in the claude_md session (11:33 UTC edit
+applied: modern/industrial/sci-fi recorded as LATER AREAS). NOTE: the 10:50 copy written to G:\ is the shorter first draft; the
+scratchpad copy below (9.7k chars) is the final one the claude_md session asked the owner to paste/copy.
+
+====================================================================================================
+ADDENDUM TO THE SECOND-PLAY PASS — FULL ASSET CENSUS, BEST-FIT SELECTION
+
+This addendum adds to your current instructions and overrides them where they conflict. Finish the package you are in, then do this before Package 2.
+
+============================================================
+WHY
+============================================================
+
+Your prompt makes replacement the default only for "visibly weak" assets, and it is organised around the owner's complaints. "Weak" has no cutoff: a sword that looks like a sword passes. So anything an agent judges good enough, and anything the owner did not happen to mention, stays as it is. That is how two passes produced playtests that look alike.
+
+This addendum removes the threshold. Section 0's "visibly weak" wording is replaced by section 3 below.
+
+============================================================
+1. ASSET CENSUS — EVERYTHING THE GAME USES
+============================================================
+
+Build a complete list of every asset slot the game uses: every model, texture/material, animation clip, VFX, sky element, UI image and sound that a player can see or hear. Derive it from the actual bindings (the art records in src/Presentation/Art, the content definitions under content/, audio and VFX bindings, scenes), not from memory or summaries. Use subagents for the sweep if it helps.
+
+Use this category list, shared with the external ranked catalog:
+
+    C01 Player character: body, face, skin, hair, worn clothing and armor
+    C02 NPCs: body, face, skin, hair, clothing, per-character identity
+    C03 Animation: player locomotion, combat per weapon, interactions, NPC idles and work, creature motion
+    C04 Weapons: held models by type
+    C05 Armor and clothing items: worn and world/ground models
+    C06 Items: world/pickup models and inventory icons (tools, resources, consumables, quest items)
+    C07 Creatures and enemies: models, textures, animation, per species/type
+    C08 Ambient fauna: wildlife, birds, insects
+    C09 Flora: trees, shrubs and brambles, grass, flowers, ground cover, crops
+    C10 Rocks, boulders, cliffs, crystals, ore and other gatherable nodes
+    C11 Terrain materials and decals: ground, road, mud/wet ground, transitions
+    C12 Water
+    C13 Buildings: shells, facades, roofs, doors, windows, walls and fences, the player building kit
+    C14 Interiors: furniture, fixtures, workstations (forge, anvil, hearth), containers, beds
+    C15 Props and decoration: exterior dressing, clutter, signage, light sources (lanterns, candles, torches)
+    C16 Focal and landmark art: the Foldscar, totems, heart, dens and caves, ruins
+    C17 Sky: sky dome/HDRI, sun, moons, planets, stars, clouds, weather
+    C18 VFX: combat impacts, formulas/magic, fire, Foldscar activation, ambient effects
+    C19 UI art: icons, panel art, fonts, map/cartography art
+    C20 Audio: footsteps, combat, creatures, ambience, UI, music
+
+Write it to docs/owner_playthrough_2/01C_ASSET_CENSUS.md (with a CSV alongside if it helps). One row per slot:
+
+- slot ID and category;
+- what it is in game and where it appears;
+- how visible it is (constantly on screen / common / occasional / rare);
+- current source: pack and file;
+- style verdict: realistic, or stylized/low-poly (section 9: excluded, always replaced);
+- owner status: OWNER ACCEPTED (section 6 list only), COMPLAINED (cite the F1-/S2- ledger ID) or no comment;
+- the slot brief (section 3);
+- the shortlist, the choice and why the others lost (section 3);
+- verdict: REPLACE, KEEP or NO CANDIDATE YET;
+- priority: visibility multiplied by the size of the quality gap;
+- final state and commit.
+
+============================================================
+2. FUTURE NEEDS
+============================================================
+
+Add a second table to the census for asset slots the game WILL or MIGHT need, derived from the design documents (PROTOTYPE.md, ROADMAP.md, SYSTEMS.md, docs/INDEX.md and its design extensions, the content bible) and from the owner's notes: for example off-hand items (torch, shields), weapon types and armor sets the systems define, creatures in the bestiary that are not yet in game, building-kit pieces for free building, cartography art, travel-portal art. Cite the document for each; do not invent needs. Give each a slot brief and a shortlist, so the libraries are judged against the whole game, not only the current scene.
+
+============================================================
+3. BEST FIT FOR EVERY SLOT — NOT "WEAK", NOT "FIRST BETTER"
+============================================================
+
+There is no quality threshold. For every slot the question is never "is the current asset acceptable?" It is "what is the best-fitting asset available for this slot?" If the answer is not the current asset, replace it. "Looks like a sword" is not the bar; the bar is the best rusted sword the libraries can supply.
+
+For each slot:
+
+1. Write a slot brief from the game's own data and the setting:
+   - the content definition: name, notes, category, rarity (for example content/items/weapon/rusted_sword.yaml);
+   - who uses it and where: region, culture, wealth;
+   - how it is seen: held, worn, on the ground, in a building, as an icon; at what distance and in what light;
+   - scale, and the family it belongs to (see step 6);
+   - any owner notes about it.
+   Example: "Rusted Sword: common starting-region one-handed iron sword, visibly corroded and worn, plain wrapped grip, no ornament. Seen in the player's hand at combat distance and as an inventory icon. Family: starting weapons."
+   Where a definition lacks visual detail, write the brief from its name, notes and context, and record it.
+
+2. Shortlist: search the whole relevant subcategory of the ranked catalog (and your own rescan) using the brief's descriptors. Shortlist the best three to five candidates by fit and quality. Never stop at the first match. If fewer than three realistic candidates exist, say so.
+
+3. Compare: render the shortlist in-engine at the slot's real viewing distance and lighting, side by side. Judge blind (unlabelled, both orders) on fit to the brief first, then quality, then consistency with neighbouring assets. Independent subagent judges are fine; inspect the renders yourself as well.
+
+4. Choose and record: the choice, the runners-up, and why each lost, in the census row.
+
+5. Adapt rather than compromise: when the best model is clean but the brief says rusted, apply rust and wear to the best model instead of settling for a worse model that happens to be rusty. Fit the brief; do not just match keywords.
+
+6. Choose families together so the world looks consistent: the starting weapons share a material language; the hide cap and hide vest come from one family; each settlement's buildings, furniture and props share a style; each creature species comes from one source. Prefer a coherent set over a mix of singletons from many packs, unless a singleton is clearly better.
+
+7. KEEP is allowed only when the slot is owner-accepted (section 6), or the current asset wins this comparison. A KEEP names the candidates it beat. Stylized or low-poly current assets are always replaced; if no realistic candidate exists, mark NO CANDIDATE YET and list it as a sourcing gap.
+
+8. For hero and constantly-visible slots (the player, NPCs, main buildings, trees, rocks, the Foldscar, the starting weapons and armor), put thumbnails of the choice and the runners-up in the census so the owner can veto quickly. Do not wait for approval; proceed.
+
+Work in priority order, most visible first: terrain, flora, rocks, buildings, the player, NPCs and common creatures before rare props. The replacements run through Packages 2 to 4 alongside the complaint repairs; the census is the tracking list.
+
+============================================================
+4. THE RANKED CATALOG
+============================================================
+
+A separate session is building a ranked catalog of every external asset, by the same categories, with fine-grained types, descriptor tags (material, condition, culture, wealth, set) and thumbnails filed by type:
+
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.md
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.csv
+    F:\Otherreach_External_Assets\_catalog_thumbs\
+
+It also pre-shortlists candidates for each game slot it can see in content/ and in your census. Its header says which categories are complete. Use it as the starting point for step 2, not as the final answer: the choice is yours, made by steps 3 to 6.
+
+Its setting-fit field says where an asset can be used: CURRENT MAPS, LATER AREAS or BOTH. Otherreach is science-fantasy, so modern, industrial and sci-fi assets are not rejected; the current maps just don't call for them. In your rescan and census, record such assets as LATER AREAS, never as rejected. Until a category is complete, use your own rescan. Do not edit the catalog files; if you find a better candidate it missed, note it in 01_ASSET_RESCAN.md.
+
+============================================================
+5. REPORTING
+============================================================
+
+Add to the final report:
+
+- census totals per category: slots, REPLACED, KEPT (with the candidates each KEEP beat), NO CANDIDATE YET;
+- the share of constantly-visible and common slots that changed;
+- every remaining stylized or low-poly slot, with the reason it could not be replaced yet;
+- the sourcing gaps: slots and future needs with no realistic candidate in the libraries.
+
+
+====================================================================================================
+APPENDIX B - "G:\claude prompt - ranked asset catalog.txt" (prompt for the separate catalog session that produced
+EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05; final text with the 11:33 edits applied)
+
+====================================================================================================
+TASK: BUILD A RANKED, SEARCHABLE CATALOG OF EVERY EXTERNAL ASSET FOR OTHERREACH
+
+Otherreach is a single-player open-world RPG in Godot 4.7.2 (C#). Its art direction is grounded, realistic science-fantasy: a merge of fantasy and sci-fi. The owner's firmest art rule: no stylized or low-poly assets, textures or animation may ship.
+
+The current maps are the fantasy end of the setting, but later areas will bring in sci-fi, industrial and modern-looking material. Modern assets are never excluded for being modern. Setting fit records where an asset can be used, not whether it is catalogued.
+
+A separate implementation session (in G:\UNNAMED_OPUS_SECOND_PLAY_FIXES) is replacing the game's assets. For every slot (the rusted sword, the hide cap, the minor salve, a Cairnwold house, a boulder) it will write a short brief, then pick the best-fitting candidate from your catalog by comparing a shortlist side by side. Your catalog must make that search fast and complete: an agent asking for "a worn, plain, one-handed iron sword" must be able to see every realistic sword in the libraries, filtered and ranked, in one place.
+
+============================================================
+SCOPE
+============================================================
+
+Catalog every asset in:
+
+    F:\Otherreach_External_3D
+    F:\Otherreach_External_Assets (including Cosmos, Cosmos_Premium, Fab, Gumroad, Humble Bundle downloads, the WildMesh packs)
+    F:\Otherreach_External_Audio
+    G:\UNNAMED_DS_ASSETS
+    G:\AssetForge (its asset library)
+    UE VaultCache or installed UE projects holding purchased assets, if present
+
+Start from the existing inventories and verify them against the disk:
+
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_INVENTORY_2026-10-05.csv
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.csv
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.md
+
+The older catalog's labels are not trusted: three of its "production candidate" entries are stylized (Kenney Particle Pack, Kenney Foliage Sprites, KayKit Character Animations).
+
+Catalog individual assets, not packs. A pack of 40 swords is 40 rows. This matters most where a pack mixes quality or style: WildMesh 100 Models mixes realistic and stylized animals; Cosmos mixes items that suit the current maps with modern-world items that suit later areas.
+
+Downloads may still be finishing. Catalog what is on disk, then sweep again at the end for new arrivals and add them.
+
+============================================================
+HOW IT IS ORGANISED — THREE LAYERS
+============================================================
+
+1. Taxonomy: category / type / subtype. Categories are shared with the implementation session's census:
+
+    C01 Player character: body, face, skin, hair, worn clothing and armor
+    C02 NPCs: body, face, skin, hair, clothing
+    C03 Animation: locomotion, combat per weapon, interactions, NPC idles and work, creature motion
+    C04 Weapons
+    C05 Armor and clothing items
+    C06 Items: tools, resources, consumables, quest items, icons
+    C07 Creatures and enemies
+    C08 Ambient fauna
+    C09 Flora: trees, shrubs, grass, flowers, ground cover, crops
+    C10 Rocks, boulders, cliffs, crystals, ore and gatherable nodes
+    C11 Terrain materials and decals
+    C12 Water
+    C13 Buildings: shells, facades, roofs, doors, windows, walls, fences, modular kits
+    C14 Interiors: furniture, fixtures, workstations, containers, beds
+    C15 Props and decoration, including light sources
+    C16 Focal and landmark art: ruins, monuments, artifacts, caves
+    C17 Sky: HDRIs, celestial bodies, clouds, weather
+    C18 VFX
+    C19 UI art and fonts
+    C20 Audio: footsteps, combat, creatures, ambience, UI, music
+
+   Go as fine as the content supports, for example:
+   C04 / sword / one-handed; C04 / spear; C04 / bow / hunting;
+   C05 / helmet / leather cap; C05 / torso / hide vest; C05 / footwear / boots;
+   C06 / consumable / salve or ointment jar; C06 / tool / flask; C06 / resource / ingot;
+   C10 / crystal / cluster; C10 / boulder / large; C14 / bed; C15 / light / lantern.
+
+2. Descriptor tags on every row, so a brief becomes a filter:
+   - material: iron, steel, bronze, wood, leather, hide, fur, cloth, stone, crystal, glass, bone, ceramic ...
+   - condition: pristine, worn, rusty/corroded, damaged/broken, overgrown/mossy, burnt;
+   - culture and look: rustic medieval, nordic/viking, ornate fantasy, ancient or alien technology, industrial, modern, sci-fi/high-tech;
+   - wealth: crude, common, fine, ornate;
+   - size and scale;
+   - set/family: the pack or matching set it belongs to, so related slots can be chosen together (a weapon set, an armor set, a furniture family, a building kit).
+
+3. Thumbnails filed in folders by the same taxonomy, plus one contact sheet per subtype showing every candidate with its ID:
+
+    F:\Otherreach_External_Assets\_catalog_thumbs\C04_weapons\sword_one-handed\<id>.png
+    F:\Otherreach_External_Assets\_catalog_thumbs\C04_weapons\sword_one-handed\_contact_sheet.png
+
+   This gives the owner and the implementation session a "folder of rusty swords" to look at. Do not copy the asset files themselves into a new folder tree: that duplicates many gigabytes, Unreal assets need exporting before they are usable anyway, and it breaks the licence and provenance trail. The index plus the thumbnail folders give the same browsing.
+
+============================================================
+FIELDS (one row per asset)
+============================================================
+
+- id; category; type; subtype; name; pack/product; vendor;
+- descriptor tags: material, condition, culture/look, wealth, size, set/family;
+- path: the archive or folder, plus the inner path to the file;
+- format (FBX, BLEND, GLB/GLTF, Unreal uasset, WAV ...);
+- geometry: triangle count, LODs present;
+- textures: resolution and PBR maps present (albedo, normal, roughness/ORM, height);
+- rig, for characters and creatures: skeleton type, and compatibility with the project's character skeleton contract (docs/CANONICAL_BODY_AND_SKELETON.md in G:\UNNAMED_M7 or G:\UNNAMED_OPUS_SECOND_PLAY_FIXES);
+- style verdict: REALISTIC, or STYLIZED/LOW-POLY (excluded from shipping; reference only);
+- setting fit: CURRENT MAPS (suits the fantasy starting region), LATER AREAS (modern, industrial or sci-fi pieces for the science-fantasy side of the world), or BOTH. Use NONE only for things no part of the setting could use, such as real-world brands and logos;
+- licence and entitlement: licence name, commercial use, redistribution limits (no committing originals to public Git), attribution;
+- usability: READY (imports directly), NEEDS CONVERSION, NEEDS UNREAL EXPORT, or BLOCKED (state why);
+- quality tier: S, A, B, C, or EXCLUDED (stylized/low-poly or unlicensed only), with the evidence. Setting fit never lowers a tier or excludes an asset;
+- rank within its subtype (1 = best);
+- thumbnail path;
+- candidate slots: the game slots it could fill (see the wanted list).
+
+============================================================
+THE WANTED LIST — PRE-SHORTLISTS PER GAME SLOT
+============================================================
+
+Read the game's definitions, read-only, in G:\UNNAMED_OPUS_SECOND_PLAY_FIXES\content (items, creatures, npcs, nodes, resources, pieces, locations, spawns), and the implementation session's census when it appears (docs/owner_playthrough_2/01C_ASSET_CENSUS.md in the same worktree, including its future-needs table).
+
+Add a "Wanted" section to the .md: one entry per game slot (for example "Rusted Sword", "Hide Cap", "Minor Salve", "Iron Ore node", "Wolf", "Cairnwold house", "waystation bed"), each with the top three to five candidates from your catalog, their thumbnails, and a one-line reason each. These are pre-shortlists to speed the implementation session up; it makes the final choice.
+
+============================================================
+HOW TO JUDGE QUALITY
+============================================================
+
+1. Measure first: geometry, texture resolution, PBR completeness, scan/photogrammetry vs hand-modelled, rig compatibility.
+2. For every asset that reaches tier A or above on measurements, render a thumbnail in Blender under neutral lighting, at a consistent framing per subtype. Inspect them yourself.
+3. To rank within a subtype, compare blind and pairwise: unlabelled A/B images, both orders, a neutral rubric (realism, material quality, silhouette, detail at game distance). Never show judges labelled before/after sheets or the expected answer; that has misled judges on this project before.
+4. Record the evidence for each tier, not just the tier.
+
+============================================================
+OUTPUT
+============================================================
+
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.csv
+    F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.md
+    F:\Otherreach_External_Assets\_catalog_thumbs\
+
+The .md opens with a status header listing each category as COMPLETE or IN PROGRESS. Then, per category: the ranked candidates per subtype with thumbnails and contact sheets linked (setting fit shown on each), the excluded stylized/low-poly items, and the gaps (subtypes with no realistic candidate). Then the Wanted section.
+
+Publish category by category so the implementation session can start using finished ones. Do the most visible categories first: C09 flora, C10 rocks, C11 terrain, C13 buildings, C14 interiors, C15 props, C01-C02 characters, C04-C06 weapons, armor and items, C07-C08 creatures, C20 audio, then the rest.
+
+============================================================
+RULES
+============================================================
+
+- Read only. Do not move, rename, delete or modify asset files or archives. Extract to a scratch folder when you need to inspect, and delete the extractions when done.
+- Do not edit the existing inventory or catalog files; the new catalog supersedes them.
+- Do not touch any game worktree (G:\UNNAMED*) except to read content and docs.
+- Do not stop or interfere with other agents' processes or GPU work (ComfyUI, Godot captures, renders). Keep Blender thumbnail renders modest and sequential.
+- When finished, report: counts per category and tier, the top three per major subtype, the Wanted coverage, and the gaps.
+
+
+====================================================================================================
+APPENDIX C - "G:\codex prompt - continue second play pass.txt" (owner handed the pass to Codex 2026-10-05 ~13:40; final text)
+
+====================================================================================================
+CODEX: CONTINUE THE OTHERREACH SECOND-PLAY PASS — VISUAL REPLACEMENT IS THE MISSION
+
+You are continuing a repair pass that a Claude session started and could not finish because it hit a usage limit. Pick up where it stopped. Do not restart, and do not redo finished work.
+
+============================================================
+1. WHERE EVERYTHING IS
+============================================================
+
+Worktree and branch (continue here):
+
+    G:\UNNAMED_OPUS_SECOND_PLAY_FIXES
+    opus/second-owner-playtest-fixes-20261005   (base d2b25a8794f7a24051c745115935078ec1bb1cfe)
+
+Before you change anything:
+- The owner will confirm the Claude session has stopped. Do not work in this worktree while another agent is.
+- Record git status. At handover the worktree was clean at e373273 with 16 commits since the base. If anything is uncommitted when you start, inspect it, and finish and commit it or list it in the handoff. Never discard it.
+- Commit as yourself without changing the worktree's configured identity:
+      git -c user.name="Codex" -c user.email="codex-agent@localhost" commit ...
+
+Read these before acting:
+- The governing brief: G:\claude prompt - second play pass (edited).txt. Every section applies to you; "Claude" or "Opus" in it means the implementing agent.
+- The addendum: G:\claude prompt - asset census addendum.txt. It overrides the brief where they conflict.
+- Project rules: AGENTS.md in the worktree, and C:\Users\jluca\.claude\otherreach-profile.md (orientation for every agent; its editing-authority list names this worktree for this pass).
+- The owner's notes: C:\Users\jluca\OneDrive\Desktop\Ash Haft pickup bug outside Cairnwo.txt (second playtest) and G:\UNNAMED_HISTORY\OWNER_PLAYTEST_NOTES\FIRST_PLAYTEST_TRANSCRIPT.txt (first playtest).
+- The work so far: git log d2b25a8..HEAD, and docs/owner_playthrough_2/: 00_SECOND_PLAY_LEDGER.md, 01_ASSET_RESCAN.md, 01B_UNMERGED_VISUAL_WORK.md, 01C_ASSET_CENSUS.md and 01C_ASSET_CENSUS.csv.
+- The ranked external catalog, built by another session and possibly still growing: F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.md and .csv, with thumbnails in F:\Otherreach_External_Assets\_catalog_thumbs\. Its header says which categories are complete.
+
+============================================================
+2. STATE AT HANDOVER (2026-10-05, about 10:00)
+============================================================
+
+The authoritative state is the "current state" section at the top of docs/owner_playthrough_2/06_FINAL_HANDOFF.md. In short:
+
+Done (16 commits, d2b25a8..e373273; full test suite 1,488 passed, 0 failed): the direct bug and UI package; tilde autorun and a longer jump carry; a soft glow on gatherable nodes; hit-stop, camera jolt, blood and sparks on confirmed hits; a sky with a ringed planet, a second moon and a companion star; Ashen Hollow grass drawn as far as Cairnwold's; recorded combat and creature audio and nature ambience wired in; realistic building shells, doors, 4 m drystone walls and a den fix (5c956ff, checked in the running game); the asset rescan; the unmerged-visual-work forensic; a census of 548 asset slots.
+
+Not done: almost every model and texture replacement. The census lists 259 REPLACE verdicts and few are in the game. The owner watched the demo videos and saw the visuals barely change. Fixing that is why you are here.
+
+Open items left by the previous session:
+
+- Terrain seam: the fix is commit 38eb576 on branch worktree-agent-a93508d15d1f1af85 (worktree G:\UNNAMED\.claude\worktrees\agent-a93508d15d1f1af85). Bring 38eb576 into this branch; do not bring 25599ac, which is a throwaway measuring commit. Headless dumps show the seam lines gone, but nobody has seen it in the game: take the in-game after-shots.
+- An 8 m height step along x ≈ 900 can only be fixed in content/worldgen. Do not change it unless the owner has approved that in this prompt's addendum or in chat. If approved, follow AGENTS.md: keep the pinned probe tests green, or bump worldgen_version and register a transition.
+- Staged production, nothing bound into the game yet: 10 creatures and 25 motion-capture clips delivered to the asset library; about 266 vegetation files and about 103 props still in staging, in G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05\staging\ (subfolders arch, arch_build, audio, chars, nature, props_build; the props are in props_build\out, with no props_manifest.json yet). The chars folder holds work in progress, but no characters were delivered. Select from these through the section 4 rules and bind the winners; do not bind something just because it was staged.
+- Not yet seen or heard: the forge-hearth fire from 5c956ff has not been seen in the running game, and none of the new audio has been heard by a person. Check both.
+- Docs 02 to 05 are not written. Lint, headless smoke and the save/load digest have not been re-run since the baseline.
+- Graphics memory: the game used about 26 GB of VRAM in a native run on this machine, far above the 12 GB RTX 4070 Ti target. Measure and cut it (texture sizes, streaming, LODs) as part of the performance work.
+
+============================================================
+3. YOUR PRIORITY
+============================================================
+
+The point of this pass is a game that looks clearly different. Do the asset replacement work before any remaining systems or feature work. Cartography, travel portals, death binding and free building come last and may end as designs.
+
+Work in the census priority order (visibility multiplied by the quality gap), most visible first:
+
+1. terrain materials and flora (trees, shrubs and brambles, grass, flowers);
+2. rocks, boulders, cliffs and ore nodes;
+3. buildings and walls in Ashen Hollow and Cairnwold;
+4. the player and NPCs, including the Phase-B character port recorded in 01B_UNMERGED_VISUAL_WORK.md;
+5. common creatures (wolves, emberhounds) and their animation;
+6. interiors and props;
+7. weapons, armor and items;
+8. everything else.
+
+============================================================
+4. RULES FOR EVERY REPLACEMENT
+============================================================
+
+- There is no quality threshold. For every slot, ask what the best-fitting asset available is. If it is not the current one, replace it. "Looks like a sword" is not the bar.
+- Select as the addendum describes: a slot brief; a shortlist of three to five from the whole ranked-catalog subtype; a blind in-engine side-by-side at real viewing distance; the choice recorded with why each runner-up lost. Never take the first match.
+- Adapt the best model (rust, wear, materials) instead of settling for a worse one. Choose families together: a weapon set, an armor set, one consistent style per settlement.
+- No stylized or low-poly assets, textures or animation may ship. Modern, industrial and sci-fi assets are not rejected; record them for later areas.
+- Only three things are protected: Durn's outfit, the accepted player walk, and the south-coast/far-ravine area.
+
+============================================================
+5. RE-AUDIT THE KEEPS
+============================================================
+
+The census marks 203 slots KEEP, and 143 of them are not realistic sources: 60 AI-generated Stable Audio sounds that nobody has listened to, 54 procedural primitives, 13 greybox pieces, 8 stylized/low-poly assets and 7 with no file. That is the "good enough" loophole coming back.
+
+- A stylized, low-poly or greybox KEEP is not allowed. Replace it, or mark it NO CANDIDATE YET and list the candidates searched.
+- A procedural-primitive or AI-sound KEEP stands only if a blind in-engine comparison (a listening comparison for sounds) against the best catalog candidates actually favoured it. Record the candidates it beat. Otherwise replace it.
+- Legitimate KEEPs (owner-protected slots, or effects with no better source) stay, with their reasons.
+
+============================================================
+6. SHOW PROGRESS
+============================================================
+
+After each batch of replacements, capture the same fixed camera positions as the brief's section 0 "before" captures. Add the before/after pairs to docs/owner_playthrough_2/progress/ with a one-line index, so the owner can see the change without running the game.
+
+============================================================
+7. KEEP A RESUMABLE HANDOFF
+============================================================
+
+You may hit a usage limit too. After every commit, update a "Current state" section at the top of docs/owner_playthrough_2/06_FINAL_HANDOFF.md: what is done, what is in progress (including any uncommitted files), and the next three steps. Commit in small coherent steps so nothing is lost when a session stops.
+
+============================================================
+8. GPU SAFETY
+============================================================
+
+At 08:20 the machine blue-screened (VIDEO_MEMORY_MANAGEMENT_INTERNAL) when graphics memory ran out: an Ollama server held about 28 GB while the game was running. With the owner's agreement Ollama was stopped and its two watchdog scheduled tasks were disabled.
+
+- Before every native Godot run, Blender bake or conversion batch, check free VRAM with nvidia-smi. Run one GPU-heavy job at a time.
+- Do not start Ollama or re-enable its watchdog tasks during the pass. At the end, remind the owner that the commands to restore them are in G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05\RESTORE_AT_END.md; the owner runs them.
+- Do not stop other agents' processes.
+
+============================================================
+9. EVERYTHING ELSE IN THE BRIEF STILL APPLIES
+============================================================
+
+The validation gates (build, tests, architecture, lint, NAV006, FAC001, CMB001, schema 18, boot, headless smoke, save/load, native Forward+ Quality), no public push, merge or tag, protected worktrees untouched, and the final report format (the brief's section 44 plus the addendum's census totals).
+
+
+====================================================================================================
+APPENDIX D - The resume brief the owner pasted back to Claude after Codex (2026-10-05 23:43) is reproduced verbatim as
+impl owner message #10 in OWNER_RULINGS_2026-10-05_to_14.txt.

@@ -1,0 +1,569 @@
+OTHERREACH ASSET CENSUS SUMMARY - 2026-10-14 (restore build, Oct 2 code + Sep 30/Oct 2 assets)
+================================================================================================
+Companion to ASSET_CENSUS_20261014.csv (765 rows). Scope: what PLAY.bat / "PLAY Ultra 4K.bat" can put on screen or play:
+  --asset-root primary --asset-fallback fallback --bindings-overlay content\_art_bindings.json --scatter-rules content\_scatter_rules.json
+  --visual tier=high|ultra,terrain=terrain3d,sky=sky3d,people=production,foldscar=proof
+  tier=high/ultra also sets plants=models clips=ext vfx=recipes wind=on life=on hooks=on body=modifiers water=flow clouds=sunshine
+  hud=production textures=cache (VisualOptions.cs:117-118).
+Effective bindings = res://Art/art_bindings.json (compiled into Otherreach.exe; repo copy src/Presentation/Art/art_bindings.json)
+merged key-by-key with content\_art_bindings.json, then the people=production / clips=ext / foldscar=proof option blocks.
+primary\bindings.json and fallback\bindings.json are NOT read by the launchers (the explicit overlay wins, Main.cs:292).
+Method: bindings/scatter/dressing/terrain/sky/audio/icon manifests parsed; every referenced id resolved primary-then-fallback as
+ArtLibrary does; tri counts and max embedded texture size read from each GLB JSON chunk + image headers (no full loads);
+source from *_meta.json / *_provenance.json / clip records / manifests / THIRD_PARTY_NOTICES; GLB material names for the
+characters (no metas). "looks" is inferred from provenance, texture size and triangle count - not from screenshots.
+
+1. COUNTS PER CATEGORY (rows; P1/P2/P3)
+------------------------------------------------------------------------------------------------
+  audio sfx                               209   P1   0  P2  70  P3 139
+  interior furniture/props                104   P1  23  P2  57  P3  24
+  UI icons                                 45   P1   0  P2  45  P3   0
+  animations (NPC)                         40   P1  16  P2  24  P3   0
+  animations (creature)                    36   P1   0  P2  36  P3   0
+  VFX                                      30   P1   0  P2  19  P3  11
+  trees                                    27   P1  19  P2   8  P3   0
+  animations (player)                      26   P1   4  P2  22  P3   0
+  audio ambience                           26   P1   8  P2  18  P3   0
+  buildings/walls/structures               22   P1  17  P2   5  P3   0
+  buildings/doors/roofs                    20   P1  12  P2   0  P3   8
+  terrain cells                            18   P1   0  P2   0  P3  18
+  rocks/cliffs/landmarks                   17   P1  13  P2   4  P3   0
+  exterior props/structures                17   P1   0  P2   6  P3  11
+  unbound model on disk                    17   P1   0  P2   0  P3  17
+  materials (world surfaces)               16   P1   0  P2   0  P3  16
+  shrubs                                   11   P1   9  P2   2  P3   0
+  terrain layers                            9   P1   0  P2   9  P3   0
+  NPCs                                      8   P1   8  P2   0  P3   0
+  ground cover                              8   P1   1  P2   5  P3   2
+  grass                                     7   P1   6  P2   0  P3   1
+  rocks/cliffs/mountains                    6   P1   0  P2   6  P3   0
+  weapons/equipment/items                   6   P1   6  P2   0  P3   0
+  creatures/enemies                         6   P1   6  P2   0  P3   0
+  audio ui                                  6   P1   0  P2   0  P3   6
+  procedural/greybox                        6   P1   0  P2   6  P3   0
+  sky/HDRI                                  5   P1   0  P2   1  P3   4
+  resource nodes                            4   P1   0  P2   3  P3   1
+  flowers                                   3   P1   0  P2   1  P3   2
+  creatures/animals/birds (ambient)         3   P1   0  P2   3  P3   0
+  UI fonts                                  3   P1   0  P2   0  P3   3
+  audio music/voice                         2   P1   1  P2   1  P3   0
+  player character                          1   P1   1  P2   0  P3   0
+  UI panels                                 1   P1   0  P2   1  P3   0
+  TOTAL                                   765   P1 150  P2 352  P3 263
+  Distinct model files behind the model slots: 138. Distinct clip files: 62. Audio files: 230.
+
+2. P1 SLOTS (highly visible and weak), grouped by asset
+------------------------------------------------------------------------------------------------
+  [rocks/cliffs/landmarks]
+    - structures:rock_waystone
+        fallback\ready\landmark_ashen_waystone\landmark_ashen_waystone.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 25000 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - structures:rock_stone_north, structures:rock_stone_southwest, structures:rock_stone_southeast
+        fallback\ready\landmark_quiet_stone\landmark_quiet_stone.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24996 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - structures:rock_foldscar_heart
+        fallback\ready\landmark_foldscar_core_up\landmark_foldscar_core_up.glb
+        no meta/provenance on disk; tex 2048; 24833 tris; unknown (no provenance)
+    - structures:rock_iron_seam
+        fallback\ready\rock_iron_seam_scan\rock_iron_seam_scan.glb
+        unrecorded (meta has no source); tex 2048; 24813 tris; unknown (no provenance)
+    - structures:rock_blocked_shaft
+        fallback\ready\prop_blocked_shaft\prop_blocked_shaft.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 37288 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - structures:rock_beam_west, structures:rock_beam_east
+        fallback\ready\rock_outcrop_beam_support\rock_outcrop_beam_support.glb
+        first-party procedural/parametric (Blender script); tex 2048; 9340 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structures:rock_well
+        fallback\ready\building_well\building_well.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 1536; 1300 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - structures:den_rock_west
+        fallback\ready\rock_den_west\rock_den_west.glb
+        first-party procedural/parametric (Blender script); tex 2048; 28494 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structures:den_rock_east
+        fallback\ready\rock_den_east\rock_den_east.glb
+        first-party procedural/parametric (Blender script); tex 2048; 27966 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structures:den_rock_back
+        fallback\ready\rock_den_back\rock_den_back.glb
+        first-party procedural/parametric (Blender script); tex 2048; 18328 tris; procedural geometry with real-scale PBR textures (simple sil
+  [buildings/walls/structures]
+    - structures:fence_smithy
+        fallback\ready\building_fence_panel\building_fence_panel.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 1228; 126 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - structures:cw_well
+        primary\ready\cw_well_stone\cw_well_stone.glb
+        first-party procedural/parametric (Blender script); tex 2048; 11800 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_wall_ -> cw_wall_drystane_b
+        primary\ready\cw_wall_drystane_b\cw_wall_drystane_b.glb
+        first-party procedural/parametric (Blender script); tex 4096; 7152 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_hurdle -> cw_hurdle_fence
+        primary\ready\cw_hurdle_fence\cw_hurdle_fence.glb
+        first-party procedural/parametric (Blender script); tex 1024; 15600 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - structure_prefixes:cw_gate -> cw_gate_field
+        primary\ready\cw_gate_field\cw_gate_field.glb
+        first-party procedural/parametric (Blender script); tex 2048; 432 tris; procedural geometry with real-scale PBR textures (simple sil
+    - building_walls:longhouse_
+        fallback\ready\longhouse\longhouse.glb
+        first-party modular kit assembly; tex 1536; 2228 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:forge_
+        fallback\ready\forge_shed\forge_shed.glb
+        first-party modular kit assembly; tex 1536; 1640 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_smithy
+        primary\ready\cw_smithy\cw_smithy.glb
+        first-party procedural/parametric (Blender script); tex 1024; 2272 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_granary
+        primary\ready\cw_granary_staddled\cw_granary_staddled.glb
+        first-party procedural/parametric (Blender script); tex 1024; 2280 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_longhouse_
+        primary\ready\cw_longhouse\cw_longhouse.glb
+        first-party procedural/parametric (Blender script); tex 1280; 2456 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_05_
+        primary\ready\cw_house_05\cw_house_05.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4976 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_01_
+        primary\ready\cw_house_01\cw_house_01.glb
+        first-party procedural/parametric (Blender script); tex 1536; 5336 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_02_
+        primary\ready\cw_house_02\cw_house_02.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4976 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_04_
+        primary\ready\cw_house_04\cw_house_04.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4916 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_06_
+        primary\ready\cw_house_06\cw_house_06.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4040 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_03_
+        primary\ready\cw_house_03\cw_house_03.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4424 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - building_walls:cw_house_07_
+        primary\ready\cw_house_07\cw_house_07.glb
+        first-party procedural/parametric (Blender script); tex 1536; 4240 tris; procedural/parametric low-detail (simple shapes, procedural 
+  [trees]
+    - structures:fallen_timber
+        fallback\ready\flora_fallen_log\flora_fallen_log.glb
+        first-party procedural/parametric (Blender script) + Poly Haven CC0 te; tex 2048; 13218 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:tree_ -> flora_oak_real
+        fallback\ready\flora_oak_real\flora_oak_real.glb
+        no meta/provenance on disk; tex 256; 129226 tris; unknown (no provenance)
+    - structure_prefixes:tree_ -> flora_pine_tree
+        primary\ready\flora_pine_tree\flora_pine_tree.glb
+        first-party procedural/parametric (Blender script); tex 2048; 13676 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:tree_ -> flora_pine_tree_b
+        fallback\ready\flora_pine_tree_b\flora_pine_tree_b.glb
+        first-party procedural/parametric (Blender script); tex 2048; 14322 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:tree_ -> flora_pine_tree_c
+        fallback\ready\flora_pine_tree_c\flora_pine_tree_c.glb
+        first-party procedural/parametric (Blender script); tex 2048; 16272 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:tree_ -> flora_dead_tree_b
+        fallback\ready\flora_dead_tree_b\flora_dead_tree_b.glb
+        first-party procedural/parametric (Blender script); tex 2048; 10336 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_a
+        primary\ready\cw_birch_a\cw_birch_a.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 12668 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_b
+        primary\ready\cw_birch_b\cw_birch_b.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 17840 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_c
+        primary\ready\cw_birch_c\cw_birch_c.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 17752 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_d
+        primary\ready\cw_birch_d\cw_birch_d.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 9854 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_e
+        primary\ready\cw_birch_e\cw_birch_e.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 21362 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_birch_ -> cw_birch_f
+        primary\ready\cw_birch_f\cw_birch_f.glb
+        first-party procedural tree (_procgen_tree.py, per bindings note); tex 2048; 16732 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_a
+        primary\ready\cw_pine_a\cw_pine_a.glb
+        first-party procedural/parametric (Blender script) + Poly Haven CC0 te; tex 2048; 13676 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_b
+        primary\ready\cw_pine_b\cw_pine_b.glb
+        first-party procedural/parametric (Blender script); tex 2048; 13876 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_c
+        primary\ready\cw_pine_c\cw_pine_c.glb
+        first-party procedural conifer (_cw_build.py/_procgen_tree.py, per bin; tex 2048; 13706 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_d
+        primary\ready\cw_pine_d\cw_pine_d.glb
+        first-party procedural conifer (_cw_build.py/_procgen_tree.py, per bin; tex 2048; 11140 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_e
+        primary\ready\cw_pine_e\cw_pine_e.glb
+        first-party procedural conifer (_cw_build.py/_procgen_tree.py, per bin; tex 2048; 15916 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_pine_ -> cw_pine_f
+        primary\ready\cw_pine_f\cw_pine_f.glb
+        first-party procedural conifer (_cw_build.py/_procgen_tree.py, per bin; tex 2048; 15586 tris; procedural geometry with real-scale PBR textures (simple sil
+    - structure_prefixes:cw_dead_ -> cw_dead_trunk_b
+        primary\ready\cw_dead_trunk_b\cw_dead_trunk_b.glb
+        first-party procedural/parametric (Blender script) + Poly Haven CC0 te; tex 1024; 1984 tris; procedural/parametric low-detail (simple shapes, procedural 
+  [interior furniture/props]
+    - structures:ah_furn_longhouse_bed_01, structures:ah_furn_longhouse_bed_02, structures:ah_furn_longhouse_bed_03
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\cw_bed_straw\cw_bed_straw.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_table_01, structures:ah_furn_longhouse_table_02
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\cw_table_timber\cw_table_timber.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_stool_01, structures:ah_furn_longhouse_stool_02, structures:ah_furn_longhouse_stool_03, structures:ah_furn_longhouse_stool_04
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\cw_stool_timber\cw_stool_timber.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_shelf
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\cw_shelf_timber\cw_shelf_timber.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_chest
+        NO EFFECTIVE BINDING -> greybox box (intended: container_bank_strongbox)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_barrel_01, structures:ah_furn_longhouse_barrel_02
+        NO EFFECTIVE BINDING -> greybox box (intended: container_barrel_oak)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_trunk
+        NO EFFECTIVE BINDING -> greybox box (intended: prop_leather_travel_trunk)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_forge_trough
+        NO EFFECTIVE BINDING -> greybox box (intended: prop_carved_stone_trough)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_forge_rack
+        NO EFFECTIVE BINDING -> greybox box (intended: container_armory_rack)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_forge_barrel
+        NO EFFECTIVE BINDING -> greybox box (intended: prop_mead_barrel_cradle)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_forge_coalskip
+        NO EFFECTIVE BINDING -> greybox box (intended: prop_iron_coal_skip_basket)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_table_lamp
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\prop_clay_oil_lamp_with_handle\prop_clay_oil_lamp_with_handle.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_table_jarrack
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\prop_apothecary_jar_rack\prop_apothecary_jar_rack.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_table_tinder
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\prop_brass_tinder_box\prop_brass_tinder_box.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_table_bell
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\prop_brass_hand_bell\prop_brass_hand_bell.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+    - structures:ah_furn_longhouse_hearth
+        NO EFFECTIVE BINDING -> greybox box (intended: fallback\ready\cw_hearth_stone\cw_hearth_stone.glb)
+        greybox (binding only in fallback/bindings.json, which PLAY.bat bypass; placeholder (grey box)
+  [buildings/doors/roofs]
+    - doors:door.longhouse, doors:door.forge_shed
+        fallback\ready\prop_iron_banded_oak_door\prop_iron_banded_oak_door.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 39988 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - doors:door.smithy, doors:door.granary, doors:door.cw_house_05, doors:door.cw_house_01 (+6 more)
+        primary\ready\cw_door_timber\cw_door_timber.glb
+        first-party procedural/parametric (Blender script); tex 1024; 352 tris; procedural/parametric low-detail (simple shapes, procedural 
+  [weapons/equipment/items]
+    - ground_item
+        MISSING: ready/prop_canvas_haversack/prop_canvas_haversack.glb not in primary or fallback
+        greybox (missing asset); placeholder (greybox box drawn by code)
+    - projectiles:arrow
+        MISSING: ready/prop_arrow_rough/prop_arrow_rough.glb not in primary or fallback
+        greybox (missing asset); placeholder (greybox box drawn by code)
+    - weapons:item.weapon.rusted_sword
+        primary\ready\cw_sword_arming\cw_sword_arming.glb
+        derived meta only (no provenance); tex 1024; 2492 tris; unknown (no provenance)
+    - weapons:item.weapon.hunting_bow
+        MISSING: ready/weapon_yew_longbow_warbow/weapon_yew_longbow_warbow.glb not in primary or fallback
+        greybox (missing asset); placeholder (greybox box drawn by code)
+    - weapons:item.weapon.march_spear, companion_weapon
+        MISSING: ready/weapon_boar_spear_hunting/weapon_boar_spear_hunting.glb not in primary or fallback
+        greybox (missing asset); placeholder (greybox box drawn by code)
+  [creatures/enemies]
+    - creatures:creature.beast.ash_ember_hound
+        fallback\rigged\creature_ash_ember_hound\creature_ash_ember_hound_rigged.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24976 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - creatures:creature.beast.bristleback_boar
+        fallback\rigged\creature_bristleback_boar\creature_bristleback_boar_rigged.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24655 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - creatures:creature.beast.cave_hunting_spider
+        fallback\rigged\creature_cave_hunting_spider\creature_cave_hunting_spider_rigged.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24319 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - creatures:creature.undead.bone_walker_husk
+        fallback\rigged\creature_bone_walker_husk\creature_bone_walker_husk_rigged.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24802 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - creatures:creature.construct.animated_armour
+        fallback\rigged\creature_animated_armour_v2\creature_animated_armour_v2_rigged.glb
+        unrecorded (meta has no source); tex 2048; 41430 tris; unknown (no provenance)
+    - creatures:creature.beast.wolf_grey
+        fallback\rigged\creature_frost_wolf\creature_frost_wolf_rigged.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 24852 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+  [player character]
+    - people:player
+        primary\rigged\af_veth_wayfarer_male_v9\af_veth_wayfarer_male_v9_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (punkduck boots; tex 4096; 972136 tris; semi-realistic (MPFB human base)
+  [animations (player)]
+    - people:player clip bow_ready
+        primary\animation\ready\player\anim.player.cw_player.bow_ready.glb
+        first-party/unrecorded; keyframed/pack
+    - people:player clip bow_draw
+        primary\animation\ready\player\anim.player.cw_player.bow_draw.glb
+        first-party/unrecorded; keyframed/pack
+    - people:player clip spear_ready
+        primary\animation\ready\player\anim.player.cw_player.spear_ready.glb
+        first-party/unrecorded; keyframed/pack
+    - people:player clip spear_thrust
+        primary\animation\ready\player\anim.player.cw_player.spear_thrust.glb
+        first-party/unrecorded; keyframed/pack
+  [NPCs]
+    - people:npc.ashen_hollow.renn_vale
+        primary\rigged\af_renn_vale\af_renn_vale_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (culturalibre h; tex 2048; 43283 tris; semi-realistic (MPFB human base)
+    - people:npc.ashen_hollow.kera_voss
+        primary\rigged\cw_kera_voss\cw_kera_voss_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (cw skin-pore d; tex 4096; 40128 tris; semi-realistic (MPFB human base)
+    - people:npc.ashen_hollow.sel_arien, people:npc.cairnwold.mara_ling
+        primary\rigged\cw_sel_arien\cw_sel_arien_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (Elvs garments/; tex 4096; 48280 tris; semi-realistic (MPFB human base)
+    - people:npc.ashen_hollow.tavar_orr, people:npc.cairnwold.tam_crowden
+        primary\rigged\cw_tavar_orr\cw_tavar_orr_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (culturalibre h; tex 4096; 63617 tris; semi-realistic (MPFB human base)
+    - people:npc.cairnwold.durn_skell
+        primary\rigged\cw_durn_smith_combined_20261002\cw_durn_smith_combined_20261002_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (cw skin-pore d; tex 4096; 46096 tris; semi-realistic (MPFB human base)
+    - people:npc.cairnwold.berrin_garth
+        primary\rigged\cw_renn_vale\cw_renn_vale_rigged.glb
+        MPFB/MakeHuman base (CC0) + MakeHuman community assets (Elvs garments/; tex 4096; 52460 tris; semi-realistic (MPFB human base)
+  [animations (NPC)]
+    - people:npc.ashen_hollow.renn_vale clip idle, people:npc.ashen_hollow.renn_vale clip talk, people:npc.ashen_hollow.kera_voss clip idle, people:npc.ashen_hollow.kera_voss clip talk (+12 more)
+        primary\animation\ready\player\anim.player.cw_player.idle.glb
+        Universal Animation Library (Quaternius, CC0); keyframed/pack
+  [ground cover]
+    - scatter:stones
+        (code-generated mesh "stones" in ScatterView.cs)
+        procedural (code); tex 2048; placeholder/procedural
+  [grass]
+    - scatter:tufts
+        fallback\ready\veg_ph_grass_medium_01\veg_ph_grass_medium_01.glb
+        Poly Haven scan (CC0); tex 1024; 1500 tris; realistic (photogrammetry/scan source)
+    - scatter:blades_a, scatter:moor_grass
+        primary\ready\veg_gen_grass_a\veg_gen_grass_a.glb
+        first-party procedural/parametric (Blender script); tex 256; 770 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - scatter:blades_b
+        primary\ready\veg_gen_grass_b\veg_gen_grass_b.glb
+        first-party procedural/parametric (Blender script); tex 256; 560 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - scatter:blades_c
+        primary\ready\veg_gen_grass_c\veg_gen_grass_c.glb
+        first-party procedural/parametric (Blender script); tex 256; 308 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - scatter:blades_d
+        primary\ready\veg_gen_grass_d\veg_gen_grass_d.glb
+        first-party procedural/parametric (Blender script); tex 256; 490 tris; procedural/parametric low-detail (simple shapes, procedural 
+  [shrubs]
+    - scatter:ah_nettles
+        fallback\ready\veg_ph_nettle_plant\veg_ph_nettle_plant.glb
+        Poly Haven scan (CC0); tex 1024; 4000 tris; realistic (photogrammetry/scan source)
+    - scatter:ah_ferns
+        fallback\ready\veg_ph_fern_02\veg_ph_fern_02.glb
+        Poly Haven scan (CC0); tex 1024; 2248 tris; realistic (photogrammetry/scan source)
+    - scatter:brambles
+        primary\ready\flora_bramble_bush\flora_bramble_bush.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 39565 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - scatter:mirrorferns
+        primary\ready\flora_mirrorfern\flora_mirrorfern.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 39728 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - scatter:ah_heather
+        primary\ready\flora_heather_patch\flora_heather_patch.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 32850 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - scatter:boneleaf
+        primary\ready\flora_boneleaf_bush\flora_boneleaf_bush.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 39638 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - scatter:reeds
+        primary\ready\flora_cattail_clump\flora_cattail_clump.glb
+        AI image-to-3D (Trellis/Pixal3D); tex 2048; 39797 tris; stylized/AI-reconstructed (image-to-3D: soft blobby forms, b
+    - scatter:heather
+        primary\ready\veg_gen_heather_a\veg_gen_heather_a.glb
+        first-party procedural/parametric (Blender script); tex 256; 3185 tris; procedural/parametric low-detail (simple shapes, procedural 
+    - scatter:saplings
+        primary\ready\flora_young_ash_stand_v5\flora_young_ash_stand_v5.glb
+        unrecorded (meta has no source); tex 4096; 5744 tris; unknown (no provenance)
+  [audio ambience]
+    - audio_hook:wind
+        MISSING (silent): amb.weather.wind.01
+        none; missing
+    - audio_hook:rain
+        MISSING (silent): amb.weather.rain.01
+        none; missing
+    - audio_hook:thunder
+        MISSING (silent): sfx.weather.thunder.01
+        none; missing
+    - audio_hook:river
+        MISSING (silent): amb.water.river_gorge.01
+        none; missing
+    - audio_hook:insects_day
+        MISSING (silent): amb.insects.meadow_day.01
+        none; missing
+    - audio_hook:insects_night
+        MISSING (silent): amb.insects.night.01
+        none; missing
+    - audio_hook:anomaly_fold
+        MISSING (silent): amb.anomaly.fold_hum.01
+        none; missing
+    - audio_cells
+        bindings audio.cells -> amb.* beds in primary/audio/v3_delivered
+        AI-generated (Stable Audio 3); n/a (audio)
+  [audio music/voice]
+    - audio:music
+        NONE in manifest
+        none; missing
+
+3. GREYBOX / PROCEDURAL (drawn by code, or no asset at all)
+------------------------------------------------------------------------------------------------
+  A. Bound but the asset is MISSING from both roots -> grey box drawn (ArtLibrary Problems + Coverage fallback):
+    - roofs[cairnwold_roofs=slate]:cw_house_01     ready/cw_roof_slate/cw_roof_slate.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=slate]:cw_house_02     ready/cw_roof_slate/cw_roof_slate.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=slate]:cw_house_04     ready/cw_roof_slate/cw_roof_slate.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=slate]:cw_house_05     ready/cw_roof_slate/cw_roof_slate.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=thatch]:cw_house_01    ready/cw_roof_thatch/cw_roof_thatch.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=thatch]:cw_house_02    ready/cw_roof_thatch/cw_roof_thatch.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=thatch]:cw_house_04    ready/cw_roof_thatch/cw_roof_thatch.glb not in primary or fallback  [inactive option]
+    - roofs[cairnwold_roofs=thatch]:cw_house_05    ready/cw_roof_thatch/cw_roof_thatch.glb not in primary or fallback  [inactive option]
+    - pieces:piece.pad.timber                      ready/piece_timber_pad/piece_timber_pad.glb not in primary or fallback
+    - pieces:piece.wall.timber                     ready/piece_timber_wall/piece_timber_wall.glb not in primary or fallback
+    - pieces:piece.doorway.timber                  ready/piece_timber_doorway/piece_timber_doorway.glb not in primary or fallback
+    - pieces:piece.door.timber                     ready/piece_timber_door/piece_timber_door.glb not in primary or fallback
+    - pieces:piece.roof.timber                     ready/piece_timber_roof/piece_timber_roof.glb not in primary or fallback
+    - ground_item                                  ready/prop_canvas_haversack/prop_canvas_haversack.glb not in primary or fallback
+    - projectiles:arrow                            ready/prop_arrow_rough/prop_arrow_rough.glb not in primary or fallback
+    - weapons:item.weapon.hunting_bow              ready/weapon_yew_longbow_warbow/weapon_yew_longbow_warbow.glb not in primary or fallback
+    - weapons:item.weapon.march_spear              ready/weapon_boar_spear_hunting/weapon_boar_spear_hunting.glb not in primary or fallback
+    - companion_weapon                             ready/weapon_boar_spear_hunting/weapon_boar_spear_hunting.glb not in primary or fallback
+  B. Region blockers with NO effective binding -> grey box (23 Ashen Hollow interior props: their bindings live only in
+     fallback\bindings.json, which the launchers bypass). 15 intended models exist in fallback\ready; 8 do not:
+    - ah_furn_longhouse_bed_01                 fallback\ready\cw_bed_straw\cw_bed_straw.glb
+    - ah_furn_longhouse_bed_02                 fallback\ready\cw_bed_straw\cw_bed_straw.glb
+    - ah_furn_longhouse_bed_03                 fallback\ready\cw_bed_straw\cw_bed_straw.glb
+    - ah_furn_longhouse_table_01               fallback\ready\cw_table_timber\cw_table_timber.glb
+    - ah_furn_longhouse_table_02               fallback\ready\cw_table_timber\cw_table_timber.glb
+    - ah_furn_longhouse_stool_01               fallback\ready\cw_stool_timber\cw_stool_timber.glb
+    - ah_furn_longhouse_stool_02               fallback\ready\cw_stool_timber\cw_stool_timber.glb
+    - ah_furn_longhouse_stool_03               fallback\ready\cw_stool_timber\cw_stool_timber.glb
+    - ah_furn_longhouse_stool_04               fallback\ready\cw_stool_timber\cw_stool_timber.glb
+    - ah_furn_longhouse_shelf                  fallback\ready\cw_shelf_timber\cw_shelf_timber.glb
+    - ah_furn_longhouse_chest                  container_bank_strongbox   <- intended model NOT ON DISK either
+    - ah_furn_longhouse_barrel_01              container_barrel_oak   <- intended model NOT ON DISK either
+    - ah_furn_longhouse_barrel_02              container_barrel_oak   <- intended model NOT ON DISK either
+    - ah_furn_longhouse_trunk                  prop_leather_travel_trunk   <- intended model NOT ON DISK either
+    - ah_furn_forge_trough                     prop_carved_stone_trough   <- intended model NOT ON DISK either
+    - ah_furn_forge_rack                       container_armory_rack   <- intended model NOT ON DISK either
+    - ah_furn_forge_barrel                     prop_mead_barrel_cradle   <- intended model NOT ON DISK either
+    - ah_furn_forge_coalskip                   prop_iron_coal_skip_basket   <- intended model NOT ON DISK either
+    - ah_furn_longhouse_table_lamp             fallback\ready\prop_clay_oil_lamp_with_handle\prop_clay_oil_lamp_with_handle.glb
+    - ah_furn_longhouse_table_jarrack          fallback\ready\prop_apothecary_jar_rack\prop_apothecary_jar_rack.glb
+    - ah_furn_longhouse_table_tinder           fallback\ready\prop_brass_tinder_box\prop_brass_tinder_box.glb
+    - ah_furn_longhouse_table_bell             fallback\ready\prop_brass_hand_bell\prop_brass_hand_bell.glb
+    - ah_furn_longhouse_hearth                 fallback\ready\cw_hearth_stone\cw_hearth_stone.glb
+  C. Code-generated visuals (no asset file):
+    - scatter:grass                      scatter kind "grass" (inactive under plants=models) - (code-generated mesh "grass_clumps" in ScatterView.cs)
+    - scatter:leaves                     scatter kind "leaves" (inactive under plants=models) - (code-generated mesh "leaf_litter" in ScatterView.cs)
+    - scatter:stones                     scatter kind "stones" (ACTIVE) - (code-generated mesh "stones" in ScatterView.cs)
+    - sky:sky3d_dome                     sky dome, sun, moon, stars (PLAY.bat sky=sky3d) - res://addons/sky_3d (in exe): procedural dome + ESO eso0932a Milky Way
+    - sky:clouds                         volumetric clouds (tier high/ultra clouds=sunshine) - res://addons/SunshineClouds2 (in exe)
+    - ambient_life:birds                 ambient life (life=on): Crows circling high over the hollow and the ra - (shader-drawn MultiMesh "bird" in AmbientLife.cs)
+    - ambient_life:butterflies           ambient life (life=on): Sparse 4.2-6.7 cm butterflies wandering low ov - (shader-drawn MultiMesh "butterfly" in AmbientLife.cs)
+    - ambient_life:fireflies             ambient life (life=on): Fireflies drifting and blinking in the Charwoo - (shader-drawn MultiMesh "point" in AmbientLife.cs)
+    - ui_panels                          HUD, inventory, journal, dialogue, compass (hud=production) - Ui/*.cs (StyleBoxFlat drawn in code, HudStyle.cs)
+    - procedural:water                   river round the hollow (water=flow) - shader water - Greybox/WaterView.cs
+    - procedural:terrain_greybox_fallback ground if Terrain3D fails - Greybox/GroundField.cs
+    - procedural:foldscar                foldscar landmark (foldscar=proof) - shader/geometry + mat_acg_onyx015 - Greybox/FoldscarDressing.cs
+    - procedural:ravine                  ravine walls dressing - Greybox/RavineDressing.cs
+    - procedural:formula_forms           spell geometry: ward lattice, mending threads, cast glyph, bolt core - Art/FormulaForms.cs
+    - procedural:greybox_fallback_any    any bound id missing/withheld draws a grey box - Greybox/* + ArtLibrary Problems
+    - vfx_recipe:* (13)                GPUParticles3D built in ParticleRecipes.cs from res://Art/vfx_recipes.json over 7 small textures
+    - formula forms                    ward lattice / mending threads / cast glyph / bolt core drawn by shader (FormulaForms.cs)
+    - UI panels/frames                 StyleBoxFlat in Ui/*.cs - no panel art exists
+    - terrain Phase-A fallback          Palette.Terrain flat colour if a ground material will not load (HollowView.cs:277)
+  D. Not shown under the launchers although on disk: primary\sky\cw_sky_puresky.hdr (sky.json) is used only with --visual sky=hdri;
+     sky=sky3d draws the Sky3D dome (HollowView.cs:847-853). 17 models in ready/rigged are referenced by nothing (rows "unbound:*"),
+     including Poly Haven env_ph_coastal_cliff_01 / coast_rocks_01 / mountainside and the cw_shrub_03 (Poly Haven 4K) set.
+  E. Silent slots: audio_hooks.json names 7 ids absent from the V3 set (wind, rain, thunder, river, insects day/night, fold hum);
+     no music and no voice exist anywhere; audio.cells beds are keyed to c_00_00..c_01_01, not this region's cells (see audio_cells row).
+
+4. HOW A NEW ASSET GETS BOUND
+------------------------------------------------------------------------------------------------
+  4.1 Resolution (ArtLibrary.cs)
+    - Static model:   <root>\ready\<id>\<id>.glb            (ArtLibrary.Model / ModelWithLods)
+    - Lighter levels: <root>\ready\<id>\<id>_lod1.glb .. _lod3.glb (max 3). The chain stops at the first missing level or the
+                      first level whose surfaces lack the full model's textures (it would draw white).
+    - Skinned model:  <root>\rigged\<id>\<id>_rigged.glb      (people, creatures)
+    - Clip:           <root>\animation\ready\<family>\anim.<clip_id>.glb + record <root>\animation\clips\anim.<clip_id>.json
+                      (loop, duration_s, events; source block). Family folders: player, npc, humanoid, creatures.
+    - World material: <root>\materials\<id>\<id>_material.json + maps named in its "maps" (basecolor, normal, orm[, ao, roughness]).
+    - Every relative path is looked up in primary first, then fallback, PER FILE. Consequence: replacing only <id>.glb in primary while
+      fallback still holds <id>_lod1-3.glb mixes your new LOD0 with the old depot LODs ("partial override", printed at load). Ship all
+      levels in primary, or none, or delete/rename the depot levels.
+    - An id listed in art_bindings.json "withheld" is never drawn (grey box). A missing/broken file is reported, never repaired.
+    - textures=cache: texture_cache\manifest.json maps each source (size + hash of first/last 64 KB) to a BC7 .dds. A new or changed file
+      simply misses the cache and loads raw (uncompressed RGBA8 - watch VRAM for 4K sets). To compress, run an EDITOR build with
+      --texture-cache once; the exported game only reads the cache.
+
+  4.2 Which file to edit (no rebuild needed unless marked)
+    - Region bindings overlay: content\_art_bindings.json (also keep UNNAMED\content\_art_bindings.json in sync; identical today).
+        structures.<blocker_id>.model            one structure (exact blocker id from content\regions\starting_frontier.yaml)
+        structure_prefixes.<prefix>.models[]     every blocker whose id starts with prefix; variant picked by id hash; "wind" stiffness
+        building_walls.<prefix>.model            gathers the prefix's wall runs into ONE building model over their footprint;
+                                                 interior_light{at,colour,energy,range,shadows,size,fog_energy}, emitters[{recipe,at}]
+        doors.<door_id>.model, nodes.<id>.{model,spent}, containers.<id>.{model,sound|hidden}, weapons.<item>.{model,family,hand}
+        people.<id>.{model,hand,off_hand,grip,clips{state:clip_id}} and people_by_visual_option["people=production"] (this block wins
+          under the launchers), people_clips_by_visual_option["clips=ext"|"people=production"]
+        terrain.<cell> (ground identity for scatter/audio), cliffs, materials (record only), models (record only)
+        Optional per placement: material (sound/impact family), surface + surface_tint (wear a world material over the model's relief),
+          fit:"tile" (repeat a modular piece at its own length), yaw_spread.
+    - Shared bindings res://Art/art_bindings.json: creatures, icons, effects, audio, projectiles, ground_item, companion_weapon,
+      stations, pieces, withheld. Edit src\Presentation\Art\art_bindings.json and REBUILD/EXPORT the exe - or override the same key
+      in content\_art_bindings.json (the merge is recursive, overlay wins), which needs no rebuild.
+    - Scatter (grass/flowers/ground cover): content\_scatter_rules.json kinds.<kind>.mesh = "model:<id>" (or a built-in procedural
+      mesh name), per_m2 by ground material, fade_m, only_when{plants}. Each kind's LODs are drawn as MultiMesh by distance.
+    - Set dressing (scenery, no collider): primary\dressing.json places[{model, at[x,z], yaw}].
+    - Terrain textures (Terrain3D): primary\terrain_layers.json [{id, uv_scale, tint}] = material ids under materials\; slot order is
+      the layer index used by primary\terrain_cells.json (base, patch, mix_lo/mix_hi, canopy, canopy_scale per cell).
+    - Sky: Sky3D under sky=sky3d (addon assets inside the exe); primary\sky.json {"hdri": "sky/<file>.hdr"} only for sky=hdri.
+      Atmosphere/fog: primary\atmosphere.json.
+    - Audio: primary\manifests\playable_prototype_audio_v3.json sounds[{audio_id, delivered:"audio/v3_delivered/<id>.wav", channels,
+      loop, group}]; families are ids minus a trailing .NN (variants picked at random). Environmental hooks: res://Art/audio_hooks.json
+      (in exe). Per-cell beds: bindings audio.cells. --visual audio=proof plays <root>\audio_proof\<id>.wav over V3 where present.
+    - UI icons: primary\manifests\ui_icons.json icons.<ui.id>.{sprite (128 px shipped), master (256 px)} + ui\icons\ui_icon_atlas.png
+      (6x8 cells of 128 px). Fonts: src\Presentation\Ui\Fonts (in exe).
+    - VFX: primary\vfx\<name>.png (+ <name>.json provenance) referenced by res://Art/vfx_recipes.json (texture, grid, frames, fps)
+      and manifests\magic_vfx.json (atlas, cell_px, grid).
+
+  4.3 _meta.json (pipeline record, NOT read by the game at run time - ArtLibrary only opens the GLB; keep it for provenance tooling
+      such as tools/asset_pipeline/cairnwold/check_metas.py). Fields used across the library:
+      asset_id, name, category, brief, status ("export_ready"), region/built_for,
+      source / source_url / pack / source_depot_folder / author, licence|license, licence_evidence, modification,
+      generator{script, script_sha256} | method | generation_model (+ concept_path, raw_3d_path for AI assets),
+      convention{frame, units, source}, target_size_m,
+      transform{min[3], max[3], dimensions_m{x,y,z} | dimensions[3], origin_mode | glb_origin, glb_up_axis, glb_forward_axis, rescaled_by},
+      triangles, base{vertices, faces, triangles, uv_layers, materials[]}, lods{<id>_lodN:{triangles..}} | lods[], lod_status, lod_policy,
+      materials / material_slots / material_ids, textures (resolution note), sockets[], nodes[],
+      collision{mode:"box", box_dimensions_m[3]} | collision_status + collision_note, rigged, tile_length_m, door_openings,
+      gates{...}, verified_by, visual_review, note.
+      Minimal useful record for a new asset: asset_id, category, source, source_url, licence, licence_evidence, triangles,
+      transform{min,max,dimensions_m,origin_mode}, lods[{level,triangles}], textures, convention, collision{mode,box_dimensions_m}.
+      World materials: <id>_material.json {asset_id, material_class, tile_size_m, resolution, maps{basecolor,normal,orm},
+      pbr{roughness_base, metallic, normal_strength}, tileable} + <id>_provenance.json {source, source_asset, source_url, licence}.
+      Clip records: anim.<id>.json {schema_version, animation_id, skeleton_family, category, animation_family, clip_type, loop,
+      root_motion, duration_s, events[], hand_profile, tags[], source{kind, pack, author, license, url, file, sha256}}.
+
+  4.4 Scale, units, pivot
+    - glTF binary (.glb), metres, 1 unit = 1 m, transforms applied, no residual node scale/rotation, +Y up, forward -Z (props/rocks;
+      building records state +Z as their door face), origin = footprint centre on the ground plane (min Y = 0). Exceptions authored
+      on purpose (e.g. cw_lantern_post origin at the post foot) must be reflected in emitter/light offsets, which are in the model's
+      own metres.
+    - Models are drawn at AUTHORED size - nothing is rescaled (Fitting.cs). Fitting centres the model on its blocker, lays its long
+      side along the blocker's, stands it on the terrain, and REJECTS it (grey box + report) if it leaves more than 0.5 m of gap per
+      side (1.0 m total per axis) or stops more than 0.6 m below the blocker height. Overhangs: thickness within -0.15/+0.3 m.
+      So a replacement must match the blocker footprint (box_m / circle_m + height_m in starting_frontier.yaml) within those margins.
+    - Trees: LOD switch 0/35/80/150 m (IsTreeFamily by name); others 0 / max(8,4s) / max(20,10s) / max(45,22s) m (s = largest extent).
+      Hard switch (no dither). LOD3 of trees is a crossed-plane impostor (_procgen_tree_lods.py).
+    - Materials: alpha-scissor foliage works; baked AO is suppressed for ids in res://Art/ao_flagged.json (near-black AO islands).
+    - Weapons: held by their own SOCK_grip_primary empty (+X primary axis). People: hand bone hand.R / hand.L (MPFB) or SOCK_hand.R/.L,
+      optional grip{at,primary,secondary} in bindings. Clips are retargeted per skeleton family; the current humans are MPFB
+      57-58-joint skeletons and creature rigs are per-species (heat-envelope / rigid-segments).
+    - Skin: CharacterMaterials.cs + res://Art/character_materials.json apply per-zone specular/SSS/rim by material-name suffix or the
+      explicit material_kinds map; HumanSkin.cs swaps skin to the HumanShaders shader. New characters should keep MPFB-style
+      material names (Human_skin / *.body / *.head, hair, eye) or be added to material_kinds.
+
+  4.5 Collision expectations
+    - Collision is NOT taken from the asset. The body collides with the simulation's blockers (box/cylinder from the region YAML);
+      the drawn model gets the blocker's greybox StaticBody re-parented under it as the camera collider (HollowView.cs:401-409).
+      Ship no collision meshes (_collision_* files are never read). The terrain gets a trimesh collider from its own mesh.
+    - Scatter and dressing.json placements never collide. Buildings: walls stay as invisible colliders; door openings must line up
+      with the wall runs' door gaps in the region YAML (record door_opening in the meta).

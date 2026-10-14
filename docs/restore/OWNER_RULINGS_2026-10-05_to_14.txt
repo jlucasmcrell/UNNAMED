@@ -1,0 +1,1369 @@
+OWNER RULINGS 2026-10-05 to 2026-10-14 - RESTORED FROM SESSION TRANSCRIPTS
+===========================================================================
+
+Restored 2026-10-14 from:
+  C:\Otherreach_Recovery\RESTORE_transcripts\RESTORE_transcript_OTHERREACH_implementation_pass_tMkF9py7.json  ("impl")
+  C:\Otherreach_Recovery\RESTORE_transcripts\RESTORE_transcript_claude_md_location_AA2VSBkb.json  ("cmd")
+All timestamps are UTC as stored in the transcripts (owner local time was UTC-4).
+Part 2 of this file is every owner-typed message, verbatim, in order, per session.
+Part 3 is every owner answer given through a multiple-choice question box (AskUserQuestion), verbatim.
+Part 4 holds the owner's own playtest notes that the briefs were built from.
+The long first message of the impl session (the brief itself) is in OWNER_BRIEF_SECOND_PLAY_2026-10-05.txt, not repeated here
+(it appears here only as a pointer). The cmd session's 17k-char message #4 (owner's draft CLAUDE.md for Otherreach) is included verbatim.
+
+Note on "owner" vs "agent" text: only messages with origin kind "human" and answers in question boxes are the owner's words.
+Subagent reports, compaction summaries and assistant replies are NOT owner rulings and are excluded here (some appear in ASSET_DECISIONS).
+
+---------------------------------------------------------------------------
+PART 1 - INDEX OF ART / ASSET / UI / CHARACTER RULINGS (paraphrase index; the verbatim words are in Parts 2-4)
+---------------------------------------------------------------------------
+
+A. Standing art rules (highest weight)
+  1. [cmd 2026-10-05 09:06] "The biggest thing is I don't want stylized or low poly assets and textures being used." -> became the brief's
+     section 0/9 hard rule: NO stylized or low-poly assets, textures or animation may ship (KayKit, Kenney, Quaternius, Synty-style,
+     Poly Pizza, toon/cel/hand-painted/Ghibli/voxel/PSX, flat-colour/gradient-atlas textures, hand-keyed stylized animation where mocap
+     can do the job). Blockout/reference use only. Realistic sources with LODs are fine.
+  2. [cmd 2026-10-05 08:22] LLMs keep being "too cautious about replacing graphics ... textures, models, animations"; "anything warning
+     you away from updating graphics aggressively is *not* what I want." -> brief section 0 GRAPHICS REPLACEMENT MANDATE: default
+     REPLACE SOURCE; replacement cost is not a reason to keep poor art; two-attempt rule then swap source; same-position before/after
+     captures, an area that looks the same has FAILED.
+  3. [cmd 2026-10-05 10:57/11:01] No "good enough" cutoff: "If a sword looks like a sword, is that considered strong?" ... "is it just going
+     to grab the first 'better realistic candidate' or ... find the most appropriate option for a 'rusty sword'?" -> census addendum:
+     every slot gets a brief, a 3-5 candidate shortlist from the whole subtype, blind in-engine comparison, recorded choice + runner-ups,
+     adapt the best model rather than settle, families chosen together.
+  4. [impl 2026-10-05 11:37] "Modern, industrial and sci-fi assets aren't rejected. Record them as later areas, since Otherreach is
+     science-fantasy." (setting fit = CURRENT MAPS / LATER AREAS / BOTH; only stylized/low-poly or unlicensed are excluded)
+  5. [cmd 2026-10-05 08:51] Owner verdict on 2nd build: step pacing good, animated armour fights back, dialogue a little better
+     "but everyone has the same personality. There's also no 'visual personality' for anything".
+  6. [cmd 2026-10-05 13:33] The 143 non-realistic slots marked KEEP must be re-reviewed. (Resume brief: stylized, greybox and no-file
+     KEEPs are not allowed; procedural/AI-sound KEEP only if it beat the best catalog candidates blind.)
+  7. [impl 2026-10-06 06:05] "make you sure you didn't miss using better assets for everything else because you neglected to review
+     the catalog previously." (full catalog re-audit of every slot)
+  8. [impl 2026-10-06 06:09] "A birch doesn't have to be a birch ... unless a birch is necessary to a quest. I like the idea of huge
+     enormous trees ... make it look amazing ... a big unique world, not the woody plot behind my house."
+  9. [impl 2026-10-06 06:14] "don't necessarily stop with trees. Fauna, flora, rocks, ... even village assets ... no flying animals ...
+     We want to look like we stepped into another world when we first spawn. Not like we walked into the local dog park."
+ 10. [impl 2026-10-06 ~06:44, question box] Asked which of the scout's top-10 "another world" elements to build: "I mean... is there
+     an 'all' option?" (= build all of it).
+ 11. [impl 2026-10-06 14:38, question box] START-AREA CANON RULING ("Mix"): keep giant kapok/ceiba-type trees; add great grazers as
+     setting creatures with their own names (no Earth species names) - fold bleed near the Foldscar, present in the start area,
+     rare/absent elsewhere; REMOVE stone needles, column line and cairns (three Quiet Stones stay three); keep Foldscar reveal
+     restrained; keep rock arch, peaks and slab; record as owner ruling in canon notes; whether the player's arrival is connected to
+     the bleed stays open. [impl 2026-10-06 14:40] "Good names, use them" = approved working names (grazers: barrowback = tusked
+     giant, fellhorn = humped grazer; Veth player name list in proposals/new/playtest/VETH_NAMES_AND_GRAZERS.md).
+ 12. [impl 2026-10-06 06:46] Future map idea: a floating-island city, "Might be the next map." (idea only)
+
+B. Quality tiers / performance
+ 13. [resume brief 2026-10-05 23:43] High, Quality and Ultra target the fullest native source detail; the 4070 Ti/12 GB target no
+     longer applies to them; Performance tier serves lower hardware.
+ 14. [impl 2026-10-06 15:26] "Do not trim to fall in line with a 4070ti. Any trimming should only be done for Performance mode ...
+     don't nerf high/ultra ... Eventually we should have dials and sliders ... But High/Ultra stays Ultra (optimized)."
+ 15. [impl 2026-10-06 12:23] "make sure the game is actually optimized for playing" (AAA games "coded badly and not optimized").
+     [12:10/12:11] demos "extremely slow and choppy"; owner believed something else was using resources (root cause found: VRAM
+     overflow from uncompressed textures -> BC7 default).
+
+C. Licensing / sourcing rulings
+ 16. [cmd 2026-10-05 23:25, carried into resume brief] WildMesh: commercial use allowed under a revenue threshold; owner will buy
+     outright if revenue approaches it -> WildMesh CLEARED; keep licence text with provenance.
+ 17. [impl 2026-10-06 16:40] "If you cannot find something you think we need on disk (or you can't build), feel free to search the
+     web as well. I don't even mind paying reasonable money for something if it's excellent." + pasted note that Leartes Cosmos
+     assets may be exported to Godot under their EULA.
+ 18. [impl 2026-10-06 ~06:08, question box] Approved downloading the free BlenderKit trees (Petrukovich Scots pine / Silver Birch /
+     Pine Tree / Pine Double, the four REAL SCANS birches, Tomasz Czerniak birch).
+ 19. [impl 2026-10-06 16:39, question box] Skin: "Author it myself (Recommended)"; weapon animation: "Clear Hyper Combat" (owner
+     cleared Cosmos Hyper Combat Framework export); hair: see Part 3 verbatim.
+ 20. [impl 2026-10-06 07:48] 729 Unity assets added in F:\Otherreach_External_Assets\Assets - "not asking you to replace anything,
+     just to look." (Agent flagged them licence-blocked pending purchase list; "Fantasy Horde - Trolls (webrip)" flagged.)
+ 21. [impl 2026-10-06 06:17] May queue ComfyUI on BEAST to generate icons/UI art if the catalog lacks them; existing renders in
+     G:\UNNAMED\assets\concepts. (Agent ruled the icon_* set there cartoon-flat/unusable; item_/resource_/weapon_ renders usable.)
+
+D. Characters
+ 22. [impl 2026-10-06 06:28] Player's arms "clearer broken and bent backwards while running"; "normal stance immediately after being
+     done running is odd."
+ 23. [impl 2026-10-06 12:10] Player did "a whole Exorcist head rotating thing in the side view"; character work deferred until
+     everything else is done.
+ 24. [impl 2026-10-06 14:26] "complete realism overhaul, for both a male and female Veth. I'd like to ship the playtest with the option.
+     Naming your character might be nice as well, with a possible suggested Veth-adjacent name." Canon repo:
+     https://github.com/jlucasmcrell/otherreach-canon
+ 25. [impl 2026-10-06 16:30] "definite focus on the realism to match the new environment. Skin texture, clothing, etc. Likely for NPCs
+     as well." Other races later on a near-shared skeleton ("four limbs and a head (well, if you ignore the wings)"); "scour our asset
+     library, we may have usable models and animations already."
+ 26. [impl 2026-10-06 18:01, question box] MPFB bodies hit a realism ceiling -> owner chose "MetaHuman (Recommended)" for the Veth
+     (and later NPCs/other races).
+ 27. [impl 2026-10-06 19:06] On the MetaHuman Veth renders: "No, go ahead, that works for me. These look WAY better. Nice job."
+     (approved making the UE5 mannequin/MetaHuman skeleton the shared skeleton).
+ 28. [impl 2026-10-06 20:13] Male face: "B is good for the initial playtest package, but we will want to save any others, including
+     hair and facial hair and whatever other options for the eventual Character Creator." (B = Lorenzo face shape + younger texture
+     cell 36; archive every other face/groom, never delete.)
+ 29. [impl 2026-10-06 20:23] "So the male body looks a bit... oddly shaped."  -> agent offered male bodies A/B/C (C recommended) and a
+     female proportion fix. [impl 2026-10-14 08:42] the owner did NOT choose: answer was "Pause for a moment - ASTRAL is down ...".
+     Male body and female fix are UNDECIDED.
+
+E. Protected (unchanged unless owner reopens; from the brief section 6)
+ 30. Durn's combined torso/boots/mask/binding; the original player walk (pace ~1.002, 1.6 m/s; CMU 16_22 rejected); the accepted
+     south-coast/far-ravine state. Everything else visual is replaceable (the sky is a restoration, not an acceptance).
+ 31. [cmd 2026-10-05 08:51] Confirmed fixed by owner: footstep pacing; animated armour fighting back.
+
+F. Other owner items in these sessions (non-art)
+ - [impl 2026-10-05 13:14/13:15] Kill Ollama processes; "end whatever you need to end" (watchdogs disabled; restore at end).
+ - [impl 2026-10-05 13:34] Stop, commit, update 06_FINAL_HANDOFF.md; Codex took over. [23:43] resume brief; [23:44] "Codex has stopped".
+ - [impl 2026-10-06 00:03] The 3090 on BEAST is available; work autonomously ~6 h.
+ - [cmd 2026-10-06 09:33-14:36] canon repo (private, otherreach-canon), Wave 1 run, website lore pages merged/published
+   ("All of your suggestions are good, and cut nothing ... Publish/merge."), devlog/itch.io devlog update wanted, "new soul" idea.
+ - [impl 2026-10-14 08:42] ASTRAL (main PC) is down; owner asked to determine what can be recovered from Google Drive / GitHub;
+   "The last time we worked on the game was October 5th/6th."
+
+
+====================================================================================================
+PART 2A - IMPLEMENTATION PASS: EVERY OWNER-TYPED MESSAGE, VERBATIM (session tMkF9py7, 2026-10-05 09:55 .. 2026-10-06 20:23)
+(Pasted blocks keep their <pasted_content> wrappers. Images the owner attached are marked; their pixels are not restored.)
+====================================================================================================
+----- IMPL OWNER MESSAGE #1 | 2026-10-05T09:55:15.021Z | seq 1 | 70,668 chars -----
+[THE FULL BRIEF - see OWNER_BRIEF_SECOND_PLAY_2026-10-05.txt]
+
+----- IMPL OWNER MESSAGE #2 | 2026-10-05T11:11:02.669Z | seq 3062 | 184 chars -----
+Read G:\claude prompt - asset census addendum.txt and follow it. It's an addendum to your current pass from me: finish the package you're on, then do the asset census before Package 2.
+
+----- IMPL OWNER MESSAGE #3 | 2026-10-05T11:37:17.449Z | seq 4422 | 118 chars -----
+Modern, industrial and sci-fi assets aren't rejected. Record them as later areas, since Otherreach is science-fantasy.
+
+----- IMPL OWNER MESSAGE #4 | 2026-10-05T12:34:23.472Z | seq 5881 | 20 chars -----
+Had a computer crash
+
+----- IMPL OWNER MESSAGE #5 | 2026-10-05T12:51:44.696Z | seq 6363 | 77 chars -----
+@"F:\Otherreach_External_Assets\CATALOG_README.md"
+This may be useful to you.
+
+----- IMPL OWNER MESSAGE #6 | 2026-10-05T13:14:02.675Z | seq 7163 | 25 chars -----
+Kill any Ollama processes
+
+----- IMPL OWNER MESSAGE #7 | 2026-10-05T13:15:56.408Z | seq 7241 | 33 chars -----
+Yes, end whatever you need to end
+
+----- IMPL OWNER MESSAGE #8 | 2026-10-05T13:24:05.614Z | seq 7454 | 1,006 chars -----
+This is starting it - feel free to cancel it or kill the scheduled task -
+
+<pasted_content id="6088">
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+[shim] starting on port 11500 -> http://127.0.0.1:11434
+G:\ollama-shim\shim.py:425: DeprecationWarning:
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+  @app.on_event("startup")
+G:\ollama-shim\shim.py:431: DeprecationWarning:
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+  @app.on_event("shutdown")
+INFO:     Started server process [10476]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:11500 (Press CTRL+C to quit)
+</pasted_content id="6088">
+
+
+----- IMPL OWNER MESSAGE #9 | 2026-10-05T13:34:46.025Z | seq 7708 | 379 chars -----
+Stop after your current step; don't start anything new. Commit any coherent uncommitted work. Then update the top of docs/owner_playthrough_2/06_FINAL_HANDOFF.md with: what's done, what's in progress (including uncommitted files), and the next three steps. Finish with a short report to me listing your commits and anything left unfinished. Codex is taking over in this worktree.
+
+----- IMPL OWNER MESSAGE #10 | 2026-10-05T23:43:59.165Z | seq 7876 | 9,121 chars -----
+
+
+<pasted_content id="6088">
+CLAUDE: RESUME THE OTHERREACH SECOND-PLAY PASS AFTER CODEX — GET THE REPLACEMENTS INTO THE GAME
+
+You are taking the second-play repair pass back from Codex, which ran out of usage. Pick up where it stopped. Do not restart and do not redo finished work.
+
+============================================================
+1. WHERE EVERYTHING IS
+============================================================
+
+Worktree and branch (continue here; your Otherreach profile loads automatically in this folder):
+
+    G:\UNNAMED_OPUS_SECOND_PLAY_FIXES
+    opus/second-owner-playtest-fixes-20261005   (base d2b25a8)
+
+Before you change anything:
+- The owner will confirm Codex has stopped. Do not work in this worktree while another agent is, and do not stop other agents' processes.
+- Record git status. At handover HEAD was 2bbf062 (31 commits since the base: 16 by Claude, 15 by Codex). Uncommitted: doc updates, plus a licensed skin micro-detail map that is off by default and unverified (HumanSkin.cs, VisualOptions.cs, HumanShaders/ATTRIBUTION.txt, skin_micro_nrm_ao.png and its .import). Inspect, then verify and commit or list them. Never discard them.
+- The worktree's git identity is already Claude.
+
+Read before acting:
+- The governing brief: G:\claude prompt - second play pass (edited).txt
+- The addendum: G:\claude prompt - asset census addendum.txt (census and best-fit selection; overrides the brief where they conflict)
+- The owner's notes: C:\Users\jluca\OneDrive\Desktop\Ash Haft pickup bug outside Cairnwo.txt and G:\UNNAMED_HISTORY\OWNER_PLAYTEST_NOTES\FIRST_PLAYTEST_TRANSCRIPT.txt
+- docs/owner_playthrough_2/: the ledger, 01_ASSET_RESCAN.md, 01B_UNMERGED_VISUAL_WORK.md, 01C_ASSET_CENSUS.csv (the tracking list), 02-04, and the "Current state" section of 06_FINAL_HANDOFF.md. The handoff is dense; take facts from it, not its pace.
+- The ranked catalog: F:\Otherreach_External_Assets\EXTERNAL_ASSET_RANKED_CATALOG_2026-10-05.md and .csv, thumbnails in _catalog_thumbs\.
+- Staged production: G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05\staging\ (arch, arch_build, audio, chars, nature, props_build), and the private candidates under the worktree's proof/ and work/ folders.
+
+============================================================
+2. OWNER RULINGS SINCE THE BRIEF
+============================================================
+
+- High, Quality and Ultra target the fullest native source detail for every model and texture. The 4070 Ti / 12 GB target no longer applies to them; the Performance tier serves lower hardware. GPU safety still applies (section 7).
+- The x ≈ 900 height repair was approved and is done (2a6c29f).
+- WildMesh: the owner confirms the licence allows commercial use below a revenue threshold that the project is nowhere near, and will buy the assets outright if it ever approaches it. WildMesh assets are cleared for use; do not hold them back on entitlement grounds. Keep the licence text with the provenance records.
+- Three bundles were added on 2026-10-05 and may not be in the ranked catalog yet: F:\Otherreach_External_Assets\Zenva - Monster Collector In Godot Unit 1 - Overworld, F:\Otherreach_External_Assets\Zenva - Monster Collector In Godot Unit 2 - Battle System (course videos plus Course_Files) and F:\Otherreach_External_Assets\Assets (about 36 GB, laid out like a Unity Asset Store download folder). Use the catalog's rows for them once it has them; until then judge them with the same style and licence rules.
+
+============================================================
+3. STATE AT HANDOVER
+============================================================
+
+In the game: the direct bug and UI package; autorun and jump carry; gatherable glow; heavier hits; the sky with planet, moons and companion star; grass draw distance; realistic building shells, doors, drystone walls and the den (5c956ff); the frontier ground seams and Cairnwold descent; eight full-source terrain layers at 4K; 79 full-source oaks, selected Charwood trees and low flora; a rock map adapter; uncapped High/Quality textures.
+
+Census: 556 slots. 281 REPLACE verdicts, of which about 93 are bound into the game. Not yet bound, by category: animation 33, props 28, items 24, interiors 23, buildings 13, flora 11, rocks 11, focal art 10, NPCs 8, player 7, creatures 5, terrain 4.
+
+Prepared but not in the game: 18 building families (36 highest-geometry GLBs with restored maps), about 103 props and about 266 vegetation files in staging, private player and NPC candidates (all trials so far NOT ACCEPTED), nine creature conversions, 472 audio excerpts across 48 families with provisional automated leaders.
+
+Not started: the re-audit of the 143 KEEP verdicts on non-realistic slots (60 never-heard AI sounds, 54 procedural primitives, 13 greybox, 8 stylized, 7 with no file).
+
+============================================================
+4. THE PROBLEM TO FIX: PROOF OUTRAN PROMOTION
+============================================================
+
+The last session spent most of its time on verification (hash seals, bit-precision audits, surround-decode analysis, repeated sealed reviews) and promoted little. The owner judges this pass by what a new playtest looks and sounds like. Rebalance:
+
+- When the blind in-engine comparison picks a winner and the regression gates pass, bind it. Do not hold a promotion for bit-exact precision, PCM similarity statistics or multichannel decoding.
+- A human audition or owner acceptance is not a precondition for binding. The owner's playtest is the human audition; mark such items IMPROVED / OWNER REVIEW.
+- Keep the real gates: build, tests, architecture, lint, NAV006/FAC001/CMB001, schema 18, boot, smoke, save/load, native Forward+ Quality, and your own eyes on normal player view.
+- If two automated reviews disagree, look yourself and decide. Do not loop.
+
+============================================================
+5. ORDER OF WORK
+============================================================
+
+Most visible first:
+
+1. Buildings and interiors: bind the 18 prepared building families with native checks of doors, hinges, fire and placement; then interiors and props from staging (Ren's waystation beds and upper rooms, the smithy, Cairnwold houses, the longhouse).
+2. The player and NPCs: skin, heads, clothing clipping, the spear grip. Use the Phase-B port (01B) and the private candidates. If the current approach keeps failing, change approach rather than running another round of the same trial.
+3. Rocks and boulders, the remaining flora, the brambles and shrubs.
+4. Creatures (wolves, emberhounds, spiders) and their animation and sound; the 25 delivered motion-capture clips, including spear motion.
+5. Audio: bind the leaders where the comparison agrees, decide yourself where it does not.
+6. Weapons, armor and items; focal art (the Foldscar).
+7. The 143 KEEP re-audit, run alongside the categories above: stylized, greybox and no-file KEEPs are not allowed; a procedural or AI-sound KEEP stands only if it beat the best catalog candidates in a blind comparison.
+8. Then the design items (cartography, travel, death binding, free building) as designs, doc 05, the full final gates and the final report.
+
+The selection rules in the addendum still apply: slot brief, shortlist of three to five from the whole subtype, blind in-engine comparison, choice recorded, adapt the best model rather than settle, families chosen together, no stylized or low-poly, modern and sci-fi assets kept for later areas.
+
+============================================================
+6. SHOW PROGRESS IN PLAIN LANGUAGE
+============================================================
+
+- After each batch, add same-position before/after pairs to docs/owner_playthrough_2/progress/ with a one-line index.
+- Keep the "Current state" section at the top of 06_FINAL_HANDOFF.md under twenty lines of plain language: what is now in the game, what is in progress (with uncommitted files), and the next three steps. Move detailed evidence into the other docs.
+- Commit in small coherent steps so nothing is lost if you hit a usage limit.
+
+============================================================
+7. GPU SAFETY
+============================================================
+
+The machine blue-screened once today from graphics-memory exhaustion, and native runs peak around 27.6 GB. Check free VRAM with nvidia-smi before every native Godot run, Blender bake or conversion batch, and run one GPU-heavy job at a time. Ollama and its two watchdog tasks stay off during the pass; at the end, remind the owner that the restore commands are in G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05\RESTORE_AT_END.md.
+
+============================================================
+8. EVERYTHING ELSE IN THE BRIEF STILL APPLIES
+============================================================
+
+Protected items (Durn's outfit, the accepted walk, the south-coast/far-ravine area), no public push, merge or tag, protected worktrees untouched, and the final report format (the brief's section 44 plus the addendum's census totals).
+</pasted_content id="6088">
+
+
+----- IMPL OWNER MESSAGE #11 | 2026-10-05T23:44:29.801Z | seq 7894 | 17 chars -----
+Codex has stopped
+
+----- IMPL OWNER MESSAGE #12 | 2026-10-06T00:03:06.850Z | seq 8204 | 190 chars -----
+If you need to use the 3090 on BEAST to help move things along, it's available and accessible from here.  I am going to bed, please continue working autonomously for the next ~6 hours or so.
+
+----- IMPL OWNER MESSAGE #13 | 2026-10-06T06:01:11.959Z | seq 11516 | 297 chars -----
+We don't have birch and pine and effects assets in the entire catalog of external assets?  Where did we get the effects for the three spells we are using?  What about inside MakeHuman or BlendKit or any of the other many plugins and extensions?  Can you create the effects inside Blender or Godot?
+
+----- IMPL OWNER MESSAGE #14 | 2026-10-06T06:05:24.446Z | seq 11545 | 158 chars -----
+Yes, please.  And I also want to make you sure you didn't miss using better assets for everything else because you neglected to review the catalog previously.
+
+----- IMPL OWNER MESSAGE #15 | 2026-10-06T06:09:09.760Z | seq 11722 | 505 chars -----
+A birch doesn't have to be a birch, it can be something else, unless a birch is necessary to a quest.  I like the idea of huge enormous trees.  I would really, really like this starting area to look magnificent - not just like every other basic little area.  I keep trying to tell you and every other LLM working on this to make it look amazing, but we keep getting stuck in mediocre.  You are doing better than most so far though.  But it should be a big unique world, not the woody plot behind my house.
+
+----- IMPL OWNER MESSAGE #16 | 2026-10-06T06:14:38.154Z | seq 12013 | 358 chars -----
+And don't necessarily stop with trees.  Fauna, flora, rocks, whatever other environment and even village assets.  We also don't have any flying animals (that I am aware of yet) besides butterflies, but the audio certainly sounds like birds.  We want to look like we stepped into another world when we first spawn.  Not like we walked into the local dog park.
+
+----- IMPL OWNER MESSAGE #17 | 2026-10-06T06:17:04.997Z | seq 12204 | 257 chars -----
+Also - you can queue up ComfyUI on BEAST to generate any icons or UI art you need too.  I am not sure if there are those things in the catalog myself, but maybe look - if not, generate.  We do have some icons here that we rendered G:\UNNAMED\assets\concepts
+
+----- IMPL OWNER MESSAGE #18 | 2026-10-06T06:28:19.929Z | seq 12693 | 297 chars -----
+[IMAGE ATTACHED BY OWNER - image data not restored]
+[IMAGE ATTACHED BY OWNER - image data not restored]
+Quick visual notes.  Your first test demo is running.  The player's arms are clearer broken and bent backwards while running.  And her normal stance immediately after being done running is odd.
+
+----- IMPL OWNER MESSAGE #19 | 2026-10-06T06:46:17.869Z | seq 13289 | 127 chars -----
+I would be curious for a future map for a floating island type city. Back put that in a note somewhere.  Might be the next map.
+
+----- IMPL OWNER MESSAGE #20 | 2026-10-06T07:38:14.112Z | seq 14156 | 42 chars -----
+I restarted ComfyUI on BEAST, try it again
+
+----- IMPL OWNER MESSAGE #21 | 2026-10-06T07:48:55.763Z | seq 14281 | 144 chars -----
+Just added another 729 assets; "F:\Otherreach_External_Assets\Assets"
+
+Just so you are aware - not asking you to replace anything, just to look.
+
+----- IMPL OWNER MESSAGE #22 | 2026-10-06T12:10:45.612Z | seq 15386 | 402 chars -----
+I just want to mention the tests demos you are running are extremely slow and choppy most of the time.  Also, after everything else is done, we will have to look at the player character again.  She just did a whole Exorcist head rotating thing in the side view.  Don't worry about the character now, we will look at the when everything else is complete.  I think there will be more to talk about there.
+
+----- IMPL OWNER MESSAGE #23 | 2026-10-06T12:11:42.503Z | seq 15391 | 151 chars -----
+I do not think the choppiness has anything to do with the quality or the hardware.  I think something else is just using resources and slowing it down.
+
+----- IMPL OWNER MESSAGE #24 | 2026-10-06T12:23:06.714Z | seq 15482 | 232 chars -----
+Yes, let's make sure the game is actually optimized for playing.  A big complaint among a lot of AAA games aren't that shouldn't easily be able to play on certain hardware, it's that they were coded badly and not optimized properly.
+
+----- IMPL OWNER MESSAGE #25 | 2026-10-06T14:23:16.951Z | seq 15884 | 59 chars -----
+What is left in our list before we get to character issues?
+
+----- IMPL OWNER MESSAGE #26 | 2026-10-06T14:26:50.199Z | seq 15890 | 496 chars -----
+No, please continue in the order you think is most logical.
+
+When we do get to the player character, I think we are going to want a complete realism overhaul, for both a male and female Veth.  I'd like to ship the playtest with the option.  Naming your character might be nice as well, with a possible suggested Veth-adjacent name.
+
+We also have a whole new otherreach-canon repo you may want to check out while you move through the rest of this.
+
+https://github.com/jlucasmcrell/otherreach-canon
+
+----- IMPL OWNER MESSAGE #27 | 2026-10-06T14:40:28.097Z | seq 16018 | 20 chars -----
+Good names, use them
+
+----- IMPL OWNER MESSAGE #28 | 2026-10-06T15:26:49.950Z | seq 16370 | 408 chars -----
+Do not trim to fall in line with a 4070ti.  Any trimming should only be done for Performance mode, not for High/Quality mode.  Certainly, make both optimized and efficient, but don't nerf high/ultra to work for a card that should be on a performance.  Eventually we should have dials and sliders to move display settings around so people can tailor to their hardware.  But High/Ultra stays Ultra (optimized).
+
+----- IMPL OWNER MESSAGE #29 | 2026-10-06T16:30:38.090Z | seq 16584 | 677 chars -----
+That all sounds like what I want - with a definite focus on the realism to match the new environment. Skin texture, clothing, etc. Likely for NPCs as well.  Eventually we are going to have to create the other races as well.  But I am hoping once we get the Veth down probably and they look good, it will make the others much easier, even if they are visibly different on the outside, they all have four limbs and a head (well, if you ignore the wings) so skeletons can likely remain nearly the same other than different heights.  But yes, I figured the Veth was the easiest place to start.  And again - scour our asset library, we may have usable models and animations already.
+
+----- IMPL OWNER MESSAGE #30 | 2026-10-06T16:40:48.832Z | seq 16831 | 1,063 chars -----
+If you cannot find something you think we need on disk (or you can't build), feel free to search the web as well.  I don't even mind paying reasonable money for something if it's excellent.
+
+"
+
+<pasted_content id="6088">
+Yes, you can export and use assets from platforms like Leartes Studios' Cosmos store (including packages acquired through bundles or subscriptions) into game engines like Godot.
+When using assets purchased or unlocked via a tier/subscription in Cosmos:
+
+* Asset Formats: Many of their packages provide assets configured in engine-ready formats or standard interchange formats (such as FBX/glTF with PBR textures) that can be imported seamlessly into Godot projects.
+* Licensing: Standard commercial use of the assets within your own developed games is permitted under their standard end-user license agreements (EULAs), provided you are using them in accordance with your subscription or purchase terms (e.g., incorporating them into a compiled game build rather than redistributing the raw asset source files).
+</pasted_content id="6088">
+
+"
+
+----- IMPL OWNER MESSAGE #31 | 2026-10-06T19:06:25.143Z | seq 17623 | 67 chars -----
+No, go ahead, that works for me.  These look WAY better.  Nice job.
+
+----- IMPL OWNER MESSAGE #32 | 2026-10-06T20:13:01.426Z | seq 18586 | 174 chars -----
+B is good for the initial playtest package, but we will want to save any others, including hair and facial hair and whatever other options for the eventual Character Creator.
+
+----- IMPL OWNER MESSAGE #33 | 2026-10-06T20:23:19.850Z | seq 18768 | 45 chars -----
+So the male body looks a bit... oddly shaped.
+
+====================================================================================================
+PART 2B - CLAUDE_MD SESSION (where the briefs were drafted): EVERY OWNER-TYPED MESSAGE, VERBATIM (session AA2VSBkb, 2026-10-05 07:51 .. 2026-10-06 14:36)
+====================================================================================================
+----- CMD OWNER MESSAGE #1 | 2026-10-05T07:51:39.828Z | seq 1 | 32 chars -----
+Where is your claude.md located?
+
+----- CMD OWNER MESSAGE #2 | 2026-10-05T07:56:56.762Z | seq 13 | 44 chars -----
+I've just updated it, can you review it now?
+
+----- CMD OWNER MESSAGE #3 | 2026-10-05T08:07:02.200Z | seq 34 | 202 chars -----
+Alright, if you can revert the claude.md to the previous (or use Boris Cherny's), and I will give you a new one that only cover Otherreach and you can put that wherever it belongs, because I don't know.
+
+----- CMD OWNER MESSAGE #4 | 2026-10-05T08:09:23.929Z | seq 69 | 16,968 chars -----
+How about this:
+
+<pasted_content id="5706">
+# claude.md — Otherreach Developer Profile
+
+Intended agent: Claude Opus 5.5
+Prepared: 2026-10-05
+Project: Otherreach
+Internal codename: UNNAMED
+
+Preserve the distinction between IMPLEMENTED, VERIFIED, OWNER ACCEPTED, APPROVED DIRECTION, PROPOSED, DEFERRED and UNKNOWN.
+
+Provenance is not authority. Check current source, owner decisions and evidence rather than trusting prior assistant claims.
+
+This profile provides orientation. It does not independently authorize new milestones, canon changes, candidate integration, asset promotion or publication.
+
+## 1. PROJECT OVERVIEW & SCOPE
+
+### Core Vision
+
+Solo, single-player open-world RPG bridging original fantasy and high sci-fi lore through an ancient, partially understood science-fantasy setting.
+
+The world is the primary character. Preserve independent world activity, consequential exploration, dangerous regions, long-term development, meaningful crafting, companions, factions and persistent consequences.
+
+- Full-body third-person / over-the-shoulder view with seamless first-person zoom.
+- Perspective changes presentation, never gameplay authority.
+- Important content remains achievable by a solo player with appropriate preparation.
+- No mandatory multiplayer, human parties, raids or matchmaking.
+- No universal creature scaling to player level.
+- Preserve discovery and geography rather than replacing them with a quest-marker checklist.
+- Experiential references to older MMORPGs do not authorize copying their intellectual property.
+
+### Provenance and Stack
+
+Owner-provided provenance: initial code generated using Qwen3 Coder Next, with GPT managing early design ideation.
+
+Established technical rules:
+
+- Godot 4 Mono; inspected checkouts use `Godot.NET.Sdk/4.7.2`.
+- C# targeting .NET 8 / `net8.0`.
+- Nullable reference types and implicit usings enabled.
+- Engine-independent gameplay core; only `src/Presentation` may reference Godot.
+- Validated YAML content outside the engine project.
+- Windows development with PowerShell and the .NET CLI.
+- `tests/Domain.Tests` pins xUnit 2.5.3; the other inspected test projects pin 2.9.2. Read each project before changing dependencies.
+- Existing addon GDScript/native code does not authorize moving gameplay authority out of C#.
+- External Python/PowerShell tooling is allowed where appropriate.
+- Retain `UNNAMED` namespaces, assemblies and solution identity unless migration is explicitly authorized.
+
+### Editing Authority
+
+Claude edits gameplay only in `G:\UNNAMED_CLAUDE` on `claude/phase1`; for an explicitly assigned M7 task, use `G:\UNNAMED_M7` on `claude/m7-factions-building`. `G:\UNNAMED`, the Codex candidate and other worktrees are read-only unless the owner explicitly assigns them.
+
+These are existing assignments, not permission to resume a completed milestone.
+
+Before editing, verify the actual checkout, branch, HEAD, working-tree changes and applicable `AGENTS.md`. Do not reset, merge or transplant branches to make an older checkout resemble a newer candidate.
+
+The DeepSeek repair exception in section 2 permits necessary external fixes; it does not grant general edit access to every worktree.
+
+### Candidate Reference — Snapshot Only
+
+The completed Codex repair candidate is a read-only reference for Claude unless reassigned:
+
+- Worktree: `G:\UNNAMED_CODEX_OWNER_PLAYTEST_FIXES`
+- Branch: `codex/owner-playtest-fixes-20261004`
+- Commit: `d2b25a8794f7a24051c745115935078ec1bb1cfe`
+- Recorded save schema: 18
+- Handoff: `G:\UNNAMED_HISTORY\OWNER_FIRST_PLAY_REPAIRS_2026-10-04\13_FINAL_HANDOFF.md`
+
+Recorded closeout: 1,477 tests passed, 35 architecture checks passed and 205 content definitions linted without errors. These results belong to that candidate, not Claude's older checkout or future changes.
+
+The candidate is ready for owner review, not blanket owner acceptance. Recheck identity and status before relying on it.
+
+## 2. SPECIFIC SYSTEM ARCHITECTURE & INTEGRATIONS
+
+### Authoritative Runtime
+
+```text
+Input or deterministic system intent
+    → command
+    → validation
+    → owning simulation system
+    → authoritative state transition
+    → events/read-only snapshots
+    → Godot presentation
+```
+
+- `Application/GameSession.cs` manages session lifecycle and orchestration.
+- `World/Runtime/Simulation.cs` composes systems and applies queued commands.
+- Systems own declared state slices; cross-system changes use commands/events.
+- Simulation uses the established fixed tick, configured through content.
+- Presentation renders, predicts using shared calculations and submits commands.
+- Rendering, animation and UI never become alternative gameplay authorities.
+- The server-shaped core supports headless testing; it does not authorize networking.
+
+### Optional Local NPC LLM
+
+Read `docs/AI_NARRATIVE_SERVICE.md` only when working on narrative integration. It documents a future optional capability; no implemented NPC inference adapter was identified in the inspected candidate.
+
+Required boundary:
+
+```text
+Permitted NPC knowledge and simulation facts
+    → optional narrative provider
+    → prose/constrained proposal
+    → deterministic validation
+    → existing command path
+```
+
+The game must work with AI disabled. AI cannot decide rewards, persuasion success, inventory, reputation, quest truth or other authoritative state.
+
+For an authorized implementation, prepare context and warm/pre-generate asynchronously before likely interaction. Use bounded queues, validity-aware caches, cancellation and authored fallbacks. Never block rendering or the simulation tick. Budget model/KV memory alongside graphics streaming.
+
+Model, endpoint, quantization and preload thresholds remain unverified implementation choices.
+
+### Asset Pipelines — Read on Demand
+
+For asset work, read the relevant checkout's:
+
+- `docs/WAVE_0_UNIFIED_PIPELINE.md`
+- `docs/CANONICAL_BODY_AND_SKELETON.md`
+- `docs/AUDIO_PIPELINE.md`
+
+These documents can lag current source and accepted bindings. Verify actual tooling, source rights and runtime output before acting.
+
+External generation locations include:
+
+- H3: `G:\ComfyUI_H3\ComfyUI_windows_portable\ComfyUI`
+- H3-Multishot/LTX: `G:\ComfyUI_LTX25\ComfyUI`
+- H3-Multishot implementation: `G:\ComfyUI_LTX25\ComfyUI\custom_nodes\ComfyUI-H3-Multishot`
+- Example chain: `G:\ComfyUI_LTX25\H3_Seamless_Chain_v2.json`
+- Separate shared LTX installation: `F:\ComfyUI_windows_portable_nvidia\ComfyUI_windows_portable\ComfyUI`
+
+Inspect installed node signatures and workflow graphs before changing latents or samplers. Preserve model-specific conditioning, temporal alignment, continuation memory, overlap handling and audio/video duration.
+
+H3 and LTX latents are not interchangeable. Long-form output requires full sequence and seam review. Generation infrastructure is external authoring tooling, not a shipped gameplay dependency.
+
+### DeepSeek Ownership and Repair Exception
+
+DeepSeek owns asset generation, rigging, animation and pipeline tooling.
+
+The owner's 2026-09-28 standing permission supersedes the older `AGENTS.md` blanket prohibition **for necessary fixes to DeepSeek's implementations**:
+
+- Fix in place where required, preserving unrelated and uncommitted work.
+- Back up depot files before modification.
+- Verify using the relevant validator/render/runtime evidence.
+- Never commit in DeepSeek's worktree.
+- Leave a written report under `G:\AssetForge\docs\reports\` for the owner to pass to DeepSeek.
+- Do not send DeepSeek a message yourself without separate authorization.
+- Unrelated edits and issues DeepSeek may be actively regenerating remain outside this exception.
+
+Do not change this standing rule merely because an older guide still contains the blanket ban.
+
+### WildMesh Source Locations
+
+Owner-designated high-priority wildlife sources:
+
+- `F:\Otherreach_External_Assets\UNREAL - ULTIMATE ANIMAL MEGA BUNDLE.zip`
+- `F:\Otherreach_External_Assets\Update New animals added.zip`
+- `F:\Otherreach_External_Assets\Animated Animals Realistic Pack.unitypackage`
+- `F:\Otherreach_External_Assets\100 MODELS - WildMesh3D.zip`
+- License: `F:\Otherreach_External_Assets\LICENSE-STANDARD.txt`
+
+Inspect these before sourcing wildlife elsewhere. Do not automatically replace accepted animals. Keep restricted originals outside public Git.
+
+## 3. HARDWARE PROFILE & PERFORMANCE BOUNDS
+
+### ASTRAL — Development Workstation
+
+- CPU: AMD Ryzen 9 9950X3D
+- GPU: NVIDIA RTX 5090
+- RAM: 96 GB
+- Environment: Windows
+
+Use bounded CPU parallelism, batching, caching and supported GPU acceleration to improve tooling throughput. Measure memory, execution time and I/O before choosing concurrency.
+
+Do not maximize utilization at the expense of reproducibility, interactive responsiveness or another running task.
+
+### Player Performance Baseline
+
+ASTRAL is not the player minimum.
+
+The established Phase-1 gate uses RAZER's RTX 4070 Ti at 1920×1080, targeting sustained 60 FPS in a coordinated window without significant competing GPU workloads.
+
+Record CPU/GPU frame times, 1% lows, hitches and RAM/VRAM. Separate cold startup, warm traversal, streaming, combat and inference contention.
+
+Older greybox acceptance and stationary samples do not certify the fully dressed current world.
+
+Never terminate another agent's editor, renderer, inference service or capture. Do not preload models or start generation merely because a GPU appears idle.
+
+## 4. CODEBASE MAPPING & COGNITIVE RULES
+
+### Common Layout
+
+Relative to the specifically authorized checkout:
+
+```text
+src/UNNAMED.sln
+src/Domain/          Pure rules, contracts and calculations
+src/EntityRegistry/  Stable instance identity
+src/World/           Generation, deltas and simulation
+src/World/Runtime/   Commands, systems and state ownership
+src/World/Legacy/    Frozen historical generator
+src/Content/         YAML loading, typed catalogues and lint CLI
+src/Persistence/     Saves and ordered migrations
+src/Application/     Session lifecycle and orchestration
+src/SaveTool/        Save inspection/migration CLI
+src/Presentation/    Godot project
+content/             Authored YAML definitions/configuration
+tests/               Real test projects and frozen fixtures
+docs/                Contracts, decisions, status and evidence
+tools/               External tooling
+assets/              External/generated output
+```
+
+Checkout-specific differences matter:
+
+- `G:\UNNAMED_CLAUDE` uses `src/Presentation/Presentation.csproj`.
+- The Codex candidate uses `src/Presentation/UNNAMED.Presentation.csproj`.
+- `World/Runtime/Navigation.cs` exists in M7 and the candidate, not the inspected Claude Phase-1 checkout.
+- `Presentation/Environment` and `Presentation/addons` exist in the candidate, not the inspected Claude Phase-1 or M7 checkouts.
+
+Discover actual files before using a candidate-specific path. Absence in an older branch does not authorize copying implementation into it.
+
+### Golden Coding Rules
+
+1. Read files, neighboring code, callers and contracts before editing.
+2. Preserve nullable/type safety; validate external data at entry.
+3. Refactors preserve behavior, command/event ordering, timing, identity and save compatibility. Mechanical changes must be identified separately.
+4. Make the smallest correct diff. No speculative frameworks or unrelated cleanup.
+5. Preserve state-slice ownership and internal mutation boundaries.
+6. No shared mutable singleton state between world instances.
+7. Generation uses semantic `RngChannel` inputs, never traversal order, shared `System.Random` or content-hash reseeding.
+8. Use established definition IDs and `EntityId` creation/derivation APIs.
+9. All save I/O goes through `SaveStore`; preserve atomicity, baseline checks and ordered migrations.
+10. Never edit historical fixtures, committed game saves or `World/Legacy`.
+11. Keep headless simulation, Godot prediction, UI models, content validation and save tools synchronized through shared contracts. Do not duplicate `Kinematics.Step`.
+12. Where implemented, domain navigation is authoritative; Godot navigation is not.
+13. Reject asynchronous results after session/context changes or cancellation.
+14. Verify installed APIs; training-data recollection is a hypothesis.
+15. Never weaken tests or substitute fake integrations to manufacture a pass.
+
+Match existing namespaces (`UNNAMED.<Project>`), naming and record/enum conventions. Preserve required Godot `.uid` files; do not commit `.godot/`.
+
+### State Machines and Mechanical Design
+
+Commands express intent; owning systems validate transitions; events report outcomes.
+
+Preserve authored quest graphs, closed dialogue conditions/consequences and existing creature/companion/tier models. Do not create a second authoritative state machine in UI, animation or an LLM adapter.
+
+Keep derived caches separate from persisted state.
+
+Preserve ratified progression: techniques learned in-world, level advancement to attributes and skills/disciplines through their approved model. Keep reputation, relationships, legal status and tactical hostility separate.
+
+Future design documents do not silently expand the current milestone.
+
+### Verification
+
+From the authorized checkout:
+
+```powershell
+dotnet build src/UNNAMED.sln
+dotnet test src/UNNAMED.sln
+dotnet build src/Content/Content.csproj -c Release
+dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content --verbose
+```
+
+Use existing test projects for regressions. Add focused characterization tests where necessary before logical refactors.
+
+Verify relevant native import/startup, save/reload and player-visible behavior separately from unit tests. Use isolated test profiles.
+
+The candidate's recorded headless smoke retained a shutdown font RID leak error despite scenario exit code 0. Report diagnostics honestly; exit success does not mean a clean log.
+
+### Scope and Acceptance
+
+Preserve explicitly accepted visual work. In the candidate, this includes Durn's outfit and the original CW/UAL player walk at pace metadata `1.002 m/s`, with authoritative walk speed `1.6 m/s`.
+
+CMU 16_22 remains owner-rejected. Player-walk acceptance does not certify other gaits or NPCs.
+
+The two-attempt rule applies to visual repair hypotheses and requires normal-player-view evidence. It does not authorize abandoning a necessary logical refactor halfway through.
+
+Read current acceptance records before modifying protected work. Do not relabel candidate improvements or deferrals as owner accepted.
+
+Follow existing task-specific push/PR authorization. This profile grants no new publication rights. Never merge or tag without owner authorization.
+
+## 5. NARRATIVE & LORE CONTEXT BOUNDS
+
+### Authority
+
+All paths here are relative to the applicable checkout's `docs/` directory.
+
+Read `docs/IMPLEMENTATION_PRECEDENCE_AND_DESIGN_STATUS.md`.
+
+Authority order:
+
+1. `docs/PROJECT_CHARTER.md` — creative intent.
+2. `docs/DECISIONS.md` — settled technical decisions.
+3. Specialist architecture, data, persistence, world, systems and progression contracts.
+4. Prototype scope, roadmap sequencing and gameplay-loop documents.
+5. Risk register.
+
+Use `docs/PROJECT_CHARTER.md`; an untracked root copy is not the designated authority.
+
+Current explicit owner rulings supersede the conflicting text they address. Handoffs describe implementation state; they do not automatically override normative design.
+
+### Original Fantasy / Sci-Fi Boundaries
+
+Read `docs/OTHERREACH_COSMOLOGY.md` when designing lore-sensitive systems. It preserves working direction and unresolved proposals.
+
+- All setting content must be original.
+- Cultural beliefs, rumors, implementation facts and canonical truth are distinct.
+- The Other may be interpreted through religion, magic, nature or ancient technology.
+- Do not reduce every magical phenomenon to machinery or make one culture omniscient.
+- Do not settle the Other's origin, gate builders, chronology or protagonist's cosmic status without an authoritative decision.
+- Space-time travel must not casually erase geography, danger, death, quests or persistence consequences.
+- Do not rename implemented settlements from older candidate terminology.
+- Use the `Other-` vocabulary deliberately rather than for every unusual object.
+
+### Dialogue and Retrieval
+
+NPC dialogue is limited to permitted cultural knowledge, witnessed events, established memories, relationships and acquired information.
+
+Generated prose cannot establish canon, invent usable definition IDs, promise unsupported rewards or expose concealed plot facts.
+
+Major story scenes retain an authored spine.
+
+For canon retrieval, use `G:\OtherreachTools\canon-index` according to its current README and authority schema. Check source authority, approval and implementation status independently.
+
+A heading, filename, asset or search hit is not a canonical assertion. No result means UNKNOWN, not absence.
+
+When proposing mechanics with narrative consequences, separate established facts, assumptions and owner decisions.
+</pasted_content id="5706">
+
+
+----- CMD OWNER MESSAGE #5 | 2026-10-05T08:22:50.380Z | seq 150 | 834 chars -----
+Yes and yes.  I have another Claude session that has been actively working on downloading new 3D assets for the game.  I want Claude to do the next pass to go over playtest notes and graphical overhaul notes.  I am trying to decide if I should run that prompt that session for the context, or give it directly to you, or where.
+
+A *major* thing that seems to keep happening across LLMs is being too cautious about replacing graphics. textures, models, animations, etc.  So what ends up happening is I'll open a new playtest after a new pass is done by one of the LLMs, and that play through doesn't look much different than the last one.  I can give you the prompt (written by Codex) which is probably mostly what I'm asking for, with the caveat that anything warning you away from updating graphics aggressively is *not* what I want.
+
+----- CMD OWNER MESSAGE #6 | 2026-10-05T08:38:13.790Z | seq 174 | 85 chars -----
+@"G:\claude prompt (2).txt"
+Yes, add it.  Claude prompt attached.  Feel free to edit.
+
+----- CMD OWNER MESSAGE #7 | 2026-10-05T08:43:14.620Z | seq 195 | 75 chars -----
+@"C:\Users\jluca\OneDrive\Desktop\Ash Haft pickup bug outside Cairnwo.txt"
+
+
+----- CMD OWNER MESSAGE #8 | 2026-10-05T08:51:20.571Z | seq 273 | 229 chars -----
+I will say some things were fixed.  The step pacing is good, the animated armor fights back, dialog is a little better but everyone has the same personality. There's also no "visual personality" for anything, if that makes sense.
+
+----- CMD OWNER MESSAGE #9 | 2026-10-05T09:06:31.238Z | seq 305 | 362 chars -----
+@"F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.csv" @"F:\Otherreach_External_Assets\EXTERNAL_ASSET_CATALOG.md" @"F:\Otherreach_External_Assets\EXTERNAL_ASSET_INVENTORY_2026-10-05.csv"
+Catalogs for inventory.  Just in case anything needs to be updated for the prompt.  The biggest thing is I don't want stylized or low poly assets and textures being used.
+
+----- CMD OWNER MESSAGE #10 | 2026-10-05T10:57:32.336Z | seq 379 | 166 chars -----
+That's the problem.  What's the cut off for "weak"?  If a sword looks like a sword, is that considered strong?
+
+"replace whenever a better realistic candidate exists"
+
+----- CMD OWNER MESSAGE #11 | 2026-10-05T11:01:37.821Z | seq 384 | 712 chars -----
+That's the problem.  What's the cut off for "weak"?  If a sword looks like a sword, is that considered strong?
+
+"replace whenever a better realistic candidate exists"  - Sure - but is it just going to grab the first "better realistic candidate" or is it going to look through the catalog and find the most appropriate option for a "rusty sword"?
+
+For the asset catalog prompt, should is organize and sort assets by type so it's easy for Claude to find something specific?  Does it need to?  Should we have a folder full of different rusty swords?  Hide armor?  Healing salve?  Helms, spears, bows, shoes, crystals.. blah blah?  Is it going to choose replacement items intelligently and appropriately for the job?
+
+----- CMD OWNER MESSAGE #12 | 2026-10-05T11:08:02.594Z | seq 416 | 12 chars -----
+Yes, send it
+
+----- CMD OWNER MESSAGE #13 | 2026-10-05T11:10:17.153Z | seq 428 | 72 chars -----
+Approved... I don't see the message there to approve with a button click
+
+----- CMD OWNER MESSAGE #14 | 2026-10-05T13:28:19.565Z | seq 480 | 663 chars -----
+Are you able to see the other session?  Because we are running near our session limit (which is rather ridiculous after this short amount of work, by the way) - I am going to need a prompt for Codex to continue the work while you are out of commission.  Will the other session know when it's running low on limit and can we prompt it to generate a prompt for Codex to continue the work while also enforcing the entire point of the graphical updates and using the best in the catalog for replacement assets?  So far in the demo videos Claude is running while testing I am not seeing much done to the visuals at all, but it could be working on systems things first.
+
+----- CMD OWNER MESSAGE #15 | 2026-10-05T13:33:52.364Z | seq 513 | 147 chars -----
+Claude has 6% left.  Can we stop it with a report?  And are we making sure the 143 non-realistic slots that got marked "keep" are also re-reviewed?
+
+----- CMD OWNER MESSAGE #16 | 2026-10-05T13:34:16.327Z | seq 519 | 80 chars -----
+Claude has a new "wrap up" feature apparently, I just don't know how good it is.
+
+----- CMD OWNER MESSAGE #17 | 2026-10-05T13:39:46.057Z | seq 525 | 2,411 chars -----
+
+
+<pasted_content id="5706">
+I've stopped. All 16 commits are on `opus/second-owner-playtest-fixes-20261005`, nothing is pushed, and the worktree is clean. No agent, Blender, Godot or Unreal job is still running, and the GPU lock is free. The handoff is in docs/owner_playthrough_2/06_FINAL_HANDOFF.md.
+Commits since d2b25a8:
+
+* f441ec4: direct bugs (Ash Haft reach, door names, dialogue reply tags, build palette, tooltips, wolf mark, Halda's token)
+* 9b4d3cb: tilde autorun, longer jump carry
+* b6178b9: glow on gatherable nodes
+* fbf5ed7, f753d24: weightier hits; particle sprites resolve through the depot
+* df302aa: planet, second moon, companion star
+* 0ed2b80: Ashen Hollow grass draw distance
+* c3942e8, c266c34: asset rescan and blind comparison harness
+* 033edc9: asset census
+* 34c2406: recorded combat and creature audio; ambience bound to the real cells
+* 0ddb0b0: fixed a test my jump change had broken (full suite now 1,488 passed, 0 failed)
+* db6d34a: catalogue reconciliation; ledger statuses
+* f32084a: weather and nature ambience hooks
+* 5c956ff: realistic building shells, doors, 4 m drystone walls, den fix (checked in the running game)
+* e373273: handoff
+
+Left unfinished:
+
+* Not checked: the forge-hearth fire in 5c956ff hasn't been seen in the running game. None of the new audio has been heard by a person.
+* Terrain seam: the fix is in a separate worktree (`worktree-agent-a93508d15d1f1af85`, commits 38eb576 plus a throwaway measuring commit 25599ac). Its headless dumps show the seam lines gone, but the in-game after-shots haven't been taken, and it isn't merged.
+   * An 8 m height step along x ≈ 900 can only be fixed in content/worldgen, which is your call.
+* Production, stopped mid-run, nothing bound into the game:
+   * Delivered to the asset library: 10 creatures and 25 mocap clips.
+   * Vegetation (about 266 files) and props (about 103) are still in staging.
+   * No characters were delivered.
+* Packages 2-7 are mostly still to do. Docs 02-05 aren't written. Lint, smoke test and save/load digest haven't been re-run since the baseline.
+* Restore at the end of the pass: re-enable the two Ollama watchdog scheduled tasks. The commands are in `OWNER_SECOND_PLAY_REPAIRS_2026-10-05\RESTORE_AT_END.md`.
+* Performance: the game used about 26 GB of VRAM in a run on this machine, far above the 12 GB 4070 Ti target. It needs measuring and cutting.
+</pasted_content id="5706">
+
+
+----- CMD OWNER MESSAGE #18 | 2026-10-05T23:21:45.900Z | seq 557 | 160 chars -----
+Alright, so now I think I will need a prompt for Codex to give the remaining work back to Claude - as Codex is just about out of limit and Claude has refreshed.
+
+----- CMD OWNER MESSAGE #19 | 2026-10-05T23:25:19.998Z | seq 584 | 486 chars -----
+Wildmesh allows commercial as long as I'm not making so much money.  I'm not making any money, so we qualify. In there even I make $100,000 or $1,000,000, I'll be sure to buy the assets outright.
+
+Also, I've added three more bundles that need to be added to the catalog:
+
+"F:\Otherreach_External_Assets\Zenva - Monster Collector In Godot Unit 1 - Overworld"
+"F:\Otherreach_External_Assets\Assets"
+"F:\Otherreach_External_Assets\Zenva - Monster Collector In Godot Unit 2 - Battle System"
+
+----- CMD OWNER MESSAGE #20 | 2026-10-05T23:41:17.757Z | seq 604 | 65 chars -----
+Should I use Opus 5.5 medium or high for this?  Or another model?
+
+----- CMD OWNER MESSAGE #21 | 2026-10-06T09:33:43.688Z | seq 610 | 659 chars -----
+Now, I have about $180 in cloud credits available.   I'm wondering if we can put all of our lore, website, and any other canonical information in a Github repo (we already have one for the website) and have Claude in cloud flesh out the rest of the world.  Maps, towns, cities, lore, quests, NPCs, weapons, armor, crafting, spells, skills, building, everything.  A lot of it is likely done, but to have it all in one place and accessible and *complete* for an entire game outline from start to finish would be extremely useful.  The idea is a 150+ hour single player game built like an MMO, and then to introduce multiplayer self-hosted servers and MMO later.
+
+----- CMD OWNER MESSAGE #22 | 2026-10-06T09:35:19.179Z | seq 616 | 61 chars -----
+New private repo, definitely.  And yes, you can run step one.
+
+----- CMD OWNER MESSAGE #23 | 2026-10-06T09:47:48.650Z | seq 681 | 18 chars -----
+You can begin here
+
+----- CMD OWNER MESSAGE #24 | 2026-10-06T09:52:18.625Z | seq 928 | 623 chars -----
+Remember - sci-fi-fantasy - keep all of the races origins and lore in mind when building.  Grand scale amalgamation of fantastical amazing gorgeous maps.  Different races may influence different maps and towns, right down to the way they look and feel and what technology or magic or quests they may have.  Be very creative and very unique.  And throw some far off, harder to reach areas - floating cities, 4th dimension areas, dungeons, towers, and so on.  Feel free to search the web for inspiration for these things - from books to entire series and movies and television shows.  Don't steal whole ideas, but be ispired.
+
+----- CMD OWNER MESSAGE #25 | 2026-10-06T09:59:16.119Z | seq 978 | 11 chars -----
+Yes please.
+
+----- CMD OWNER MESSAGE #26 | 2026-10-06T10:01:57.489Z | seq 992 | 95 chars -----
+Can you determine which of my current chats was already a cloud instance?  Or can you open one?
+
+----- CMD OWNER MESSAGE #27 | 2026-10-06T10:02:31.421Z | seq 1001 | 4 chars -----
+Opus
+
+----- CMD OWNER MESSAGE #28 | 2026-10-06T10:03:15.377Z | seq 1018 | 10 chars -----
+Yes please
+
+----- CMD OWNER MESSAGE #29 | 2026-10-06T12:35:26.999Z | seq 1059 | 192 chars -----
+Interestingly, according to my usage limits, this hasn't not touched my cloud credits at all so far.  Now I'm not sure what to do with all these cloud credits that would be useful to the game.
+
+----- CMD OWNER MESSAGE #30 | 2026-10-06T12:36:35.418Z | seq 1065 | 51 chars -----
+[IMAGE ATTACHED BY OWNER - image data not restored]
+
+----- CMD OWNER MESSAGE #31 | 2026-10-06T12:40:12.014Z | seq 1072 | 578 chars -----
+
+
+<pasted_content id="5706">
+Claude Code usage report (2026-10-06T12:40:05.976Z)
+Client: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Claude/2.19675.0 Chrome/152.0.7977.130 Electron/44.4.3 Safari/537.36 MSIX
+
+Plan limits:
+- session-0: 13% (resets 2026-10-06T14:20:00.239850+00:00)
+- weekly_all-1: 66% (resets 2026-10-09T15:00:00.239870+00:00)
+- weekly_scoped-2: 0% (resets 2026-10-09T15:00:00+00:00)
+
+Session:
+- Opus 5.5: 252 in / 4.5k out / 48M cache read / 527.9k cache write
+- Cost: $21.28 | API 45m | Wall 40m
+</pasted_content id="5706">
+
+
+----- CMD OWNER MESSAGE #32 | 2026-10-06T12:40:29.956Z | seq 1077 | 23 chars -----
+That is the wave 1 chat
+
+----- CMD OWNER MESSAGE #33 | 2026-10-06T12:41:57.321Z | seq 1082 | 3,291 chars -----
+
+
+<pasted_content id="5706">
+The calendar fix is done and pushed, and PR [#1](https://github.com/jlucasmcrell/otherreach-canon/pull/1)'s description now matches the final Wave 1 report. Ages are no longer listed as open, nothing is merged, and Wave 2 is not started.
+
+1. Branch head: `79f8cfb` on `wave-1`, matching the pushed branch. The working tree is clean.
+2. Commit: `79f8cfb` "Finalize Wave 1 calendar and reconciliation".
+3. Files changed: five Wave 1 proposal files only. No canon, direction, website or audit file was touched, so `SOURCES.csv` needed no update.
+   * `01_HISTORY_AND_AGES.md` holds the calendar rules.
+   * `07_RELIGION_AND_BELIEF.md`: Hollow Day closes each Reckoning, and Candle now names "the Reckoning's dead" instead of "the year's dead".
+   * `00_DECISION_BRIEFS.md`, `INSPIRATIONS.md` and `WAVE_1_REPORT.md` have small wording updates to match.
+4. The calendar now reads:
+   * One Reckoning is 13 tallies × 14 days plus Hollow Day, or 183 days. Each tally has two seven-day spans. A Reckoning lasts about 146.4 real hours.
+   * One full year is two Reckonings, or 366 days, about 292.8 real hours.
+   * Every year, decade or century means a full 366-day year unless a source says otherwise. No number was doubled or halved:
+      * Siann maturity at about eighteen, and a Siann of four hundred;
+      * the Lantern's four centuries;
+      * the roughly 1,300-year scale since the last Pachakuti;
+      * the Vaskaal arrival "within living grandparents' memory";
+      * the Ondrek decline.
+   * Seasons, farming, weather and festivals all run on this one calendar, with no separate season clock. About one seasonal cycle passes per Reckoning. Wave 2 decides which tallies fall in which season.
+   * Festival recurrence is marked as proposed detail. Tally-dated festivals (Hollow Day, Roadmend, Candle) come round once per Reckoning, so twice a year. Witness Day, an anniversary counted in years, falls once a year.
+   * The date form is "9th of Roadmend, first Reckoning", then the year. This is proposed, as are the tally names.
+5. Report: the ages question is gone from the open items. The calendar ruling is in the owner-ruled rows, and the consistency check now includes the Reckoning maths, the full-year maths, the real-hour timings and the unchanged ages. I re-checked the report against files 01, 03, 04, 05, 07 and 08 and found no contradictions. The earlier fixes are all still in place: OD-05, the Vertical Slice seam intent, the endgame mystery wording and the website text.
+6. Still open, none caused by Wave 1:
+   * the Kal and Constructed concept images on the site, which still need replacing;
+   * publishing the corrected website text, which has not been done;
+   * the dated audit files, which still show OD-05 and CI-05 open until the next audit refresh;
+   * OD-08, OD-11, OD-13, OD-17 and OD-18;
+   * the cosmology and mythology mysteries, which are open on purpose;
+   * the endgame chain counts.
+7. Wave 2: not started.
+8. PR #1: still open and unmerged.
+
+The automated checks on PR [#1](https://github.com/jlucasmcrell/otherreach-canon/pull/1) finished on the final commit (`79f8cfb`) with nothing failing. The PR is still open and unmerged. It's waiting on your review, and I've made no further changes.
+</pasted_content id="5706">
+
+
+----- CMD OWNER MESSAGE #34 | 2026-10-06T12:47:23.433Z | seq 1091 | 456 chars -----
+Meter hasn't changed.  And honestly, the chat currently working on the game nonstop hasn't changed the regular meter much either, so I can't even guess whether it's using any credits or limits at all.  I guess we can go ahead and merge.  I do feel like we should update the devlog and add more lore/canon/information to the website.  And maybe update the itch.io devlog as well.  Maybe some of that I should give to the chat running the graphical overhaul?
+
+----- CMD OWNER MESSAGE #35 | 2026-10-06T12:52:57.646Z | seq 1105 | 186 chars -----
+I like that idea.  We want people to be excited, but not to give too much away.  We'll have some good gameplay screenshots and hopefully a video and good playtest in the next day or two.
+
+----- CMD OWNER MESSAGE #36 | 2026-10-06T13:00:14.884Z | seq 1124 | 30 chars -----
+Both things sound right to me.
+
+----- CMD OWNER MESSAGE #37 | 2026-10-06T13:22:04.083Z | seq 1142 | 1,593 chars -----
+
+
+<pasted_content id="5706">
+The Cloudflare preview build for PR #1 now passes, on commit `1bdba31`, which uses the separate preview database you created. Codex reviewed the PR and found nothing. I've updated the PR description with both build fixes and the green check.
+Two fixes got it there:
+
+* Lockfile: `package-lock.json` was out of sync, so the clean install failed. I regenerated it, and that also fixes the clean install on `main`.
+* Preview database: previews now use `otherreach-newsletter-preview`, so signups on a preview site never reach your real list. Production still uses `otherreach-newsletter`.
+
+What's left is yours: decide the six borderline spoiler items listed in the PR, review the PR, and merge and deploy when you're ready. Nothing is merged or deployed.
+When you deploy, you can do it the usual way with your manual `wrangler deploy`. Run it from the merged `main`, so your local `wrangler.jsonc` matches the PR.
+The preview built and deployed, so you can now look at the PR's pages live before merging:
+
+* Preview: https://website-lore-wave-1-otherreach-website.tenbulls.workers.dev
+* New pages: `/world/peoples/`, `/world/regions/` and `/world/cosmology/`, all reachable from the World & Lore page.
+* Updated overview: `/world/`, with the Wave 1 corrections applied.
+
+The devlog post won't appear on the preview because it is still marked as a draft.
+Nothing on the PR needs work from me. It's waiting on your review and the six borderline spoiler calls listed in the PR description. It isn't merged, and the live site hasn't changed.
+</pasted_content id="5706">
+
+
+----- CMD OWNER MESSAGE #38 | 2026-10-06T13:39:17.169Z | seq 1152 | 96 chars -----
+All of your suggestions are good, and cut nothing, I just read through them all.  Publish/merge.
+
+----- CMD OWNER MESSAGE #39 | 2026-10-06T14:36:43.145Z | seq 1193 | 1,285 chars -----
+This was an interesting discussion that I had with the other instance before we did the canon overhaul... I am trying to decide how to approach it.  As if we are a new soul stepping into the world for the first time so some thing from our original real-life world may be leaking into this new Other world when we first inhabit this new body... and maybe we never see some of these things again after the starting area... or re-skin for canon:
+
+<pasted_content id="5706">
+The new start-area landmarks conflict with the canon repo (temperate ash/oak, three Quiet Stones, restrained Foldscar reveal). How should I resolve it?
+Re-skin to canon (Recommended)
+Keep the scale and drama but make it canon-true: giant ancient ash/oak instead of kapok/ceiba, drop the column line, needles and cairns, keep the rock arch, peaks, slab; add the Plumb on the western skyline; no mammoths/bison.
+Keep as built
+Your 'another world' direction overrides the canon text for the start area; I record it as an owner ruling in the canon notes for the handoff. Mammoths/bison get placed too.
+Mix: trees stay, remains go
+Keep the kapok/ceiba giants (owner ruling) but remove the needles, column line and cairns to respect the Quiet Stones and restrained reveal; no mammoths/bison.
+</pasted_content id="5706">
+
+
+====================================================================================================
+PART 3 - OWNER ANSWERS GIVEN IN QUESTION BOXES (implementation pass), VERBATIM
+====================================================================================================
+----- QUESTION asked 2026-10-06T06:08:36.245Z | answered 2026-10-06T06:08:54.257Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "BlenderKit",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Fetch the listed free models via the add-on, record provenance and licence, convert and compare in-game against the current trees.",
+     "label": "Yes, download these (Recommended)"
+    },
+    {
+     "description": "Only CC0-licensed downloads; most of the trees above are royalty-free, not CC0, so this would skip them.",
+     "label": "Yes, but only CC0 items"
+    },
+    {
+     "description": "Stay with what's already on disk.",
+     "label": "No downloads"
+    }
+   ],
+   "question": "May I download free BlenderKit models through the BlenderKit add-on in your Blender 5.2 (your account if it's logged in)? They are free under BlenderKit's royalty-free licence, which allows use in a commercial game but not redistributing the raw files, so they'd stay outside Git like the other licensed assets. The models: Pine Tree Sylvestris, Silver Birch Tree, Pine Tree, Pine Tree Double (all Andrei Petrukovich), the four REAL SCANS birch trees, and Birch Tree (Tomasz Czerniak). They're roughly 50-400 MB each. They go to F:\\Otherreach_External_Assets\\vegetation\\blenderkit_* with provenance, and are only promoted if they win the in-game comparison."
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+Your questions have been answered: "May I download free BlenderKit models through the BlenderKit add-on in your Blender 5.2 (your account if it's logged in)? They are free under BlenderKit's royalty-free licence, which allows use in a commercial game but not redistributing the raw files, so they'd stay outside Git like the other licensed assets. The models: Pine Tree Sylvestris, Silver Birch Tree, Pine Tree, Pine Tree Double (all Andrei Petrukovich), the four REAL SCANS birch trees, and Birch Tree (Tomasz Czerniak). They're roughly 50-400 MB each. They go to F:\Otherreach_External_Assets\vegetation\blenderkit_* with provenance, and are only promoted if they win the in-game comparison."="Yes, download these (Recommended)". You can now continue with these answers in mind.
+
+----- QUESTION asked 2026-10-06T06:42:22.499Z | answered 2026-10-06T06:44:37.468Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "World plan",
+   "multiSelect": true,
+   "options": [
+    {
+     "description": "A size ladder of giant trees: a 60 m elder in the open field, a 54 m one toward Cairnwold, a 117 m-wide spirit tree on the south skyline, buttress-rooted 45 m trees at Ashen Hollow. Plus a horn peak behind Cairnwold, crags and a rock arch to the north, and a 400 m escarpment closing the south. Needs free BlenderKit downloads (two kapok/ceiba trees, the peak, the arch, the escarpment).",
+     "label": "Colossal trees + skyline"
+    },
+    {
+     "description": "Golden-hour or first-light spawn, volumetric valley mist, and the existing ringed planet moved into the spawn-east view. Cheapest, biggest mood change; touches the start time and sky settings.",
+     "label": "Light, mist, planet framing"
+    },
+    {
+     "description": "A 385 m half-buried ancient-tech slab on the southern skyline (Fab Red Echo), with tilted columns trailing toward the Foldscar. No glow, relief weathered into ambiguity. It hints at ancient builders, so it's yours to approve.",
+     "label": "Ancient remains (lore)"
+    },
+    {
+     "description": "Mammoths and a bison herd in the field, elk at the Charwood edge (WildMesh). A 78 m fallen trunk propped across the road that you walk under, a hollow giant stump you can enter, a root arch, 31-56 m stone needles and one 33 m erratic boulder. Also tall moving pampas-like grass, Cairnwold as a village of cairns with wards and laundry, and stalls/wagons at Ashen Hollow. Several need BlenderKit downloads.",
+     "label": "Fauna + walk-under giants"
+    }
+   ],
+   "question": "The scout's top-10 for the first impression. Which should I build? Each would land as placements with same-position before/after shots, nothing marked accepted. Lore-sensitive ones are noted."
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+The user answered: "The scout's top-10 for the first impression. Which should I build? Each would land as placements with same-position before/after shots, nothing marked accepted. Lore-sensitive ones are noted."="I mean... is there an "all" option?". Read the answers carefully — they may request clarification, changes, or that you not proceed — and follow what they actually say.
+
+----- QUESTION asked 2026-10-06T14:29:40.415Z | answered 2026-10-06T14:38:32.485Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "Canon fit",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Keep the scale and drama but make it canon-true: giant ancient ash/oak instead of kapok/ceiba, drop the column line, needles and cairns, keep the rock arch, peaks, slab; add the Plumb on the western skyline; no mammoths/bison.",
+     "label": "Re-skin to canon (Recommended)"
+    },
+    {
+     "description": "Your 'another world' direction overrides the canon text for the start area; I record it as an owner ruling in the canon notes for the handoff. Mammoths/bison get placed too.",
+     "label": "Keep as built"
+    },
+    {
+     "description": "Keep the kapok/ceiba giants (owner ruling) but remove the needles, column line and cairns to respect the Quiet Stones and restrained reveal; no mammoths/bison.",
+     "label": "Mix: trees stay, remains go"
+    }
+   ],
+   "question": "The new start-area landmarks conflict with the canon repo (temperate ash/oak, three Quiet Stones, restrained Foldscar reveal). How should I resolve it?"
+  },
+  {
+   "header": "Names",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "I draft 20+ Veth names per body type in the canon pattern (short given name + land-or-work surname, roots vess/tal/lind/ren/ost/pel) into the canon repo's proposals for your review, and the game uses them marked as working names.",
+     "label": "Draft list for review (Recommended)"
+    },
+    {
+     "description": "Suggest only from patterns already in the build (Renn Vale, Tam Crowden...) until you write the lists yourself.",
+     "label": "Only existing names"
+    }
+   ],
+   "question": "For the playtest character naming, which name source should the Suggest button use?"
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+The user answered: "The new start-area landmarks conflict with the canon repo (temperate ash/oak, three Quiet Stones, restrained Foldscar reveal). How should I resolve it?"="Mix, with an owner ruling: keep the giant kapok/ceiba-type trees, and add the great grazers as setting creatures with their own names (no Earth species names). In-world, they are fold bleed near the Foldscar: present in the start area, rare or absent elsewhere. Remove the needles, column line and cairns, so the three Quiet Stones stay three. Keep the Foldscar reveal restrained. Keep the rock arch, peaks and slab. Record this as an owner ruling in the canon notes. Whether the player's own arrival is connected to the bleed stays open for the main story design.", "For the playtest character naming, which name source should the Suggest button use?"="Draft list for review (Recommended)". Read the answers carefully — they may request clarification, changes, or that you not proceed — and follow what they actually say.
+
+----- QUESTION asked 2026-10-06T16:38:03.984Z | answered 2026-10-06T16:39:11.012Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "Skin source",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Build 4K multi-map skins (pores, roughness, SSS, wear) for the MPFB UV from CC0 sources (MPFB skins, Mindfront normals, HumanShaders micro-detail) plus procedural detail in Blender. No cost; I show you close-up pairs.",
+     "label": "Author it myself (Recommended)"
+    },
+    {
+     "description": "You purchase a commercial realistic skin set for the MakeHuman UV (I'd shortlist options with licences that allow games and no AI-use conflicts).",
+     "label": "Buy a skin pack"
+    },
+    {
+     "description": "You confirm whether Epic's current MetaHuman licence allows use outside Unreal; if yes I adapt the 'Victor' 4K skin and eyes on disk.",
+     "label": "Check MetaHuman licence"
+    }
+   ],
+   "question": "Skin is the weakest link (2K painted diffuse). Nothing on disk gives a clean 4K multi-map skin for the MakeHuman UV. How should I get realistic skin?"
+  },
+  {
+   "header": "Weapon anims",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Use only owned CMU mocap and the CC0 UAL clips now; I clean and retarget the best sword/spear/bow candidates and show you clips. Hyper Combat stays out until you clear its licence.",
+     "label": "CMU + fill gaps (Recommended)"
+    },
+    {
+     "description": "You confirm with Cosmos that exporting its animations to Godot is allowed; then I use it for the full sword/spear/bow sets.",
+     "label": "Clear Hyper Combat"
+    },
+    {
+     "description": "You buy medieval sword/spear/bow mocap (e.g. MoCap Online); I check the EULA for AI clauses first.",
+     "label": "Buy mocap packs"
+    }
+   ],
+   "question": "The weapon animation gap (spear, bow, sword sets) is best filled by the Hyper Combat Framework (Cosmos pack, UE5) - but it needs export through Unreal and its terms are unclear on extraction. What should I do?"
+  },
+  {
+   "header": "Hair/beards",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Use the CC0 MakeHuman Hair Editor to groom beards, stubble and hair as particles and bake them to game hair cards. Free; slower to get right.",
+     "label": "Groom with MakeHuman Hair Editor (Recommended)"
+    },
+    {
+     "description": "You buy a Human Generator licence (royalty-free assets); I use its beard/stubble and hair systems and bake to cards.",
+     "label": "Buy Human Generator"
+    }
+   ],
+   "question": "Beards, stubble and realistic hair: the only full system you own is Human Generator, and it's the watermarked trial. What should I do for facial hair and hair?"
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+Your questions have been answered: "Skin is the weakest link (2K painted diffuse). Nothing on disk gives a clean 4K multi-map skin for the MakeHuman UV. How should I get realistic skin?"="Author it myself (Recommended)", "The weapon animation gap (spear, bow, sword sets) is best filled by the Hyper Combat Framework (Cosmos pack, UE5) - but it needs export through Unreal and its terms are unclear on extraction. What should I do?"="Clear Hyper Combat", "Beards, stubble and realistic hair: the only full system you own is Human Generator, and it's the watermarked trial. What should I do for facial hair and hair?"="Groom with MakeHuman Hair Editor (Recommended)". You can now continue with these answers in mind.
+
+----- QUESTION asked 2026-10-06T17:09:00.507Z | answered 2026-10-06T18:01:39.100Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "Body route",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Build male and female Veth in MetaHuman Creator (UE 5.8, local), export body, face shapes, skin and baked hair cards to Godot on the shared skeleton; MPFB stays as fallback. I'll confirm Epic's licence text first and show you a side-by-side before switching anything in the game.",
+     "label": "MetaHuman (Recommended)"
+    },
+    {
+     "description": "Stay on MPFB: author 4K skins, groom hair cards, better eyes; cheaper to wire in but unlikely to reach photoreal.",
+     "label": "Push MPFB further"
+    },
+    {
+     "description": "Buy a licensed Reallusion Character Creator (with its realistic skin/hair systems and game export); replaces the cracked install. Roughly a few hundred dollars.",
+     "label": "Buy Character Creator"
+    }
+   ],
+   "question": "The MPFB bodies hit a realism ceiling (see the renders). MetaHuman is now licensed for Godot and free under $1M/yr revenue. Which route for the Veth (and later NPCs and other races)?"
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+Your questions have been answered: "The MPFB bodies hit a realism ceiling (see the renders). MetaHuman is now licensed for Godot and free under $1M/yr revenue. Which route for the Veth (and later NPCs and other races)?"="MetaHuman (Recommended)". You can now continue with these answers in mind.
+
+----- QUESTION asked 2026-10-06T20:10:49.263Z | answered 2026-10-06T20:12:49.002Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "Male face",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Lorenzo's face shape with a younger skin texture: keeps the current lean, weathered face but reads ~30, not ~40.",
+     "label": "B (Recommended)"
+    },
+    {
+     "description": "Mateo preset: the youngest and leanest; finer features.",
+     "label": "C"
+    },
+    {
+     "description": "The current Lorenzo build: most weathered, reads around 40.",
+     "label": "D (keep current)"
+    },
+    {
+     "description": "Mikel (A) or Jorge (E): softer, fuller faces - say which in the notes.",
+     "label": "A or E"
+    }
+   ],
+   "question": "Which face should the male Veth (the masculine player body) use? See the sheet: same hair, beard, eyes, body for all."
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+The user answered: "Which face should the male Veth (the masculine player body) use? See the sheet: same hair, beard, eyes, body for all."="[User dismissed — do not proceed, wait for next instruction]". Read the answers carefully — they may request clarification, changes, or that you not proceed — and follow what they actually say.
+
+----- QUESTION asked (asked 2026-10-06 ~20:40) | answered 2026-10-14T08:42:18.182955Z -----
+QUESTION (agent-written options):
+{
+ "questions": [
+  {
+   "header": "Male body",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Lean athletic with a subtle Veth touch (1 cm longer legs, slightly longer forearms than B); reads as a believable man.",
+     "label": "C (Recommended)"
+    },
+    {
+     "description": "Lean athletic, no Veth elongation in the body (the Veth traits would come only from bone offsets later).",
+     "label": "B"
+    },
+    {
+     "description": "Near-preset: ordinary build, thicker waist.",
+     "label": "A"
+    }
+   ],
+   "question": "Which male body? (The current one, D, has too long a neck and legs for its torso: that's the odd shape you saw.)"
+  },
+  {
+   "header": "Female body",
+   "multiSelect": false,
+   "options": [
+    {
+     "description": "Keep her chest/waist/hips, bring legs and neck back toward natural, like C for the male; I'll show you a before/after.",
+     "label": "Fix: inseam ~76, neck ~8.5 (Recommended)"
+    },
+    {
+     "description": "The preset proportions: longer torso, slightly fuller hips.",
+     "label": "Use E (near-preset)"
+    },
+    {
+     "description": "Leave her as she is.",
+     "label": "Keep F"
+    }
+   ],
+   "question": "The female has the same issue, milder (legs long for her torso, longer neck). Fix her too?"
+  }
+ ]
+}
+OWNER ANSWER (verbatim tool result):
+ANSWERS: {
+ "The female has the same issue, milder (legs long for her torso, longer neck). Fix her too?": "[No preference]",
+ "Which male body? (The current one, D, has too long a neck and legs for its torso: that's the odd shape you saw.)": "Pause for a moment - ASTRAL is down - hopefully data isn't lost and I can get it back, but I think we need to figure out how much of the game has been backed up and can be recovered, either from Google Drive or Github.  I am now talking to you from BEAST.  The last time we worked on the game was October 5th/6th."
+}
+
+====================================================================================================
+PART 3B - OWNER RULING DOCUMENT AND APPROVED NAME LIST written to the canon repo at the owner's request (2026-10-06 14:39; local branch claude/owner-ruling-start-area-20261006 of G:\otherreach-canon; owner approved names 14:40 'Good names, use them')
+====================================================================================================
+owner/OWNER_RULING_2026-10-06_START_AREA.md:
+
+# Owner ruling: the start area's landmarks and great grazers — 2026-10-06
+
+Status: OWNER RULING (recorded at the owner's request from the second-play repair conversation, 2026-10-06; the owner's words are quoted, nothing is added).
+
+Context: the second-play repair pass (game branch `opus/second-owner-playtest-fixes-20261005`) placed giant kapok/ceiba-type trees, stone needles, a carved column line toward the Foldscar, road cairns and planned mammoth- and bison-type herds in the start area. These conflicted with approved direction (temperate ash/oak flora in `direction/extensions/WORLD_MATERIALS.md`; three 5–7 m Quiet Stones and a restrained Foldscar reveal in `PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md` §§7, 25, 27).
+
+The owner's ruling, verbatim:
+
+> Keep the giant kapok/ceiba-type trees, and add the great grazers as setting creatures with their own names (no Earth species names). In-world, they are fold bleed near the Foldscar: present in the start area, rare or absent elsewhere. Remove the needles, column line and cairns, so the three Quiet Stones stay three. Keep the Foldscar reveal restrained. Keep the rock arch, peaks and slab. Record this as an owner ruling in the canon notes. Whether the player's own arrival is connected to the bleed stays open for the main story design.
+
+What this overrides: the temperate-only flora list, for the start area's giant trees; the absence of large grazers in the region.
+What it leaves open: whether the player's arrival is connected to the fold bleed; the grazers' names (working names are proposed in `proposals/new/playtest/VETH_NAMES_AND_GRAZERS.md`).
+
+proposals/new/playtest/VETH_NAMES_AND_GRAZERS.md:
+
+# Veth player names and the great grazers' names — working lists for the playtest
+
+Status: PROPOSED. Working names for the second-playtest build until the owner reviews them.
+
+Sources: `direction/extensions/RACES.md` ("Naming principle": roots veth / kal / mor meant "person"); `direction/player-journey/04_CHARACTER_CREATION.md` §3.4 (a Suggest button draws from per-people name lists the owner reviews); `proposals/new/wave-1/04_PEOPLES_IN_THE_WORLD.md` §1 (a short given name plus a land-or-work surname; sworn Veth may add "sworn of <place>"; old roots vess, tal, lind, ren, ost, pel; no apostrophes, no stacked English suffixes); implemented names Renn Vale, Berrin Garth, Durn Skell, Mara Ling, Tam Crowden (`implemented/content/npcs/`); owner ruling `owner/OWNER_RULING_2026-10-06_START_AREA.md`.
+
+Owner decisions needed: approve, cut or replace any name; whether name lists follow body type at all (`04_CHARACTER_CREATION.md` decouples body type from pronouns, so the build offers one combined list with optional leanings).
+
+## 1. Veth player names (given name + land-or-work surname)
+
+Assumption: given names are short (one or two syllables), surnames come from land features or trades, and the old roots appear inside words rather than as prefixes.
+
+Leaning one way: Oswin Tallow, Davan Pellcroft, Corran Ostley, Bram Hallow, Edric Fenlow, Halden Rook, Joss Marley, Tobin Ashcombe, Wyn Carrow, Garret Lindmoor, Aldo Renning, Kester Vale-of-Stones.
+Leaning the other: Wenna Lind, Isla Vessey, Tesk Marrow, Brenna Holt, Maren Tally, Elsa Pellow, Neve Ostrey, Rowan Kell, Hesta Crane, Liss Fallow, Odile Renfell, Sabra Coldwater.
+Either: Ash Tarrow, Fen Hollis, Wren Ostick, Rook Lindell, Corin Vessmoor, Teagan Peel.
+Sworn form (optional suffix the player may add later): "sworn of Cairnwold", "sworn of the Road".
+
+## 2. The great grazers (fold bleed near the Foldscar)
+
+Owner ruling: setting creatures with their own names, no Earth species names; present in the start area, rare or absent elsewhere. Two body plans are delivered (a tusked, shaggy giant ~3.6 m at the withers; a humped, horned grazer ~1.9 m).
+
+Proposed working names (owner chooses):
+- Tusked giant: **barrowback** (it reads as a walking barrow mound; ties to the Barrowworks), alternatives *holmtusk*, *greymantle*.
+- Humped grazer: **fellhorn** (moor and upland "fell" plus its horns), alternatives *heathback*, *tallowhorn*.
+
+Proposal for how the Veth talk about them: Ashen Hollow folk call them "the Scar's cattle" and do not hunt them near the Quiet Stones; whether that is fear, oath or habit is left open. Question for the owner: are they ever hostile, and do they leave the start area?
+
+====================================================================================================
+PART 4A - OWNER'S SECOND-PLAYTEST NOTES, verbatim (C:\Users\jluca\OneDrive\Desktop\Ash Haft pickup bug outside Cairnwo.txt, as read by the implementation session 2026-10-05 09:55)
+====================================================================================================
+Ash Haft pickup bug outside Cairnwold
+Heads not attached to bodies - still no skin texture
+Ground underneath large rocks and boulders non-traversable, no grass
+Need better ability to jump over things/climb
+Bad map seams, unnatural
+Spear stance/grip
+Still no wildlife.. one extra chicken?  Boring areas.
+Still not great animal or fighting sounds/visual - when I hit something, I want it to sound and look like I hit something
+Ore nodes?
+Better village assets, buildings, internal and external decoration
+Some clothing clipping still not great
+Cairnwold house 05 door - why are there numbers?
+Still seams between maps
+Empty field between villages - shrubs and grass... no trees, no wildlife.  Boring.  fygyu to do.  
+Still ugly brambles and shrubs between villages
+Wolf exclamation point in the middle of body
+Random unrelated decoration
+Decorations, rocks, other assets not sitting flat
+No indication which dialog selection is to continue or complete a quest
+Build menu has not been updated with the rest of them
+Hover stats menu also needs updating and should be opaque
+Many assets are stylized, not realistic (trees, for example)
+Need better assets for the Foldscar, totems and heart - random broken stature artifacts?
+Map, discoveries, cartography
+Smithy door in Cairnwold still doesn't make sense
+Town travel portals after discovery?  Town binding at death?		
+Need Auto-Run/Walk (tilde)
+Cannot find Ashenbloom ...northeast of the village, "where the ground is wettest"  - we have no body of water anywhere
+
+====================================================================================================
+PART 4B - OWNER'S FIRST-PLAYTEST SPOKEN NOTES (G:\UNNAMED_HISTORY\OWNER_PLAYTEST_NOTES\FIRST_PLAYTEST_TRANSCRIPT.txt, saved verbatim from the owner's transcript by the claude_md session 2026-10-05 ~08:48)
+====================================================================================================
+Owner's first playtest - transcript of spoken notes (silent pauses and background footsteps/noise omitted).
+Provided by the owner on 2026-10-05, with the remark: most of the graphical notes below were missed, ignored or not completed, and there was not much visual difference between the first and second playtests.
+
+**** "The steps... the visual steps and the audio steps do not match. I can still walk through rocks and some trees, especially the ash stands. The brambles are still pretty low quality. Yeah, the walking pace is bad as far as being compared to the sound. Um..."
+**** "Doors opening and closing are not really, um, animated. They just kind of pop open and closed. The... the doors also don't reach the top. The doors don't really seem to fit in the doorway."
+**** "There is a small bench or... or, um, trough inside the smithy that is just hanging on one corner on the floor. It's not flat. That is happening to some other assets as well, like the... the rocks outside. There's a bucket inside the smithy as well that is kind of inside the floor halfway."
+**** "Karavas still has, um, some clipping for her clothing... or his clothing. He's not really wear- wearing a... a smith's outfit either."
+**** "Whoops. I got a... cough..."
+**** "Definitely need better quality, um, player character and NPC faces. It looks like we're not using our original characters. There's no skin texture, um, or anything like that."
+**** "The flames in the lanterns look pretty cool. The effect is cool, but they're... they're kind of clipping inside the, um, the candelabra or the holder for the fire."
+**** "Renvale has the same, um, clipping for the clothes, uh, for her clothing. It... it doesn't look like we're using the textures or the fixed characters that we had, uh, promoted."
+**** "There's too much swaying while in a conversation with someone. When you're standing in front of someone and talking to someone and they've got their, um, their dialogue window up, there's just too much swaying going on. It's... it's, um... it's going to make people seasick."
+**** "I'm not sure if we want to put, um, di- put keystrokes in dialogues. Um, like Renvale says, 'Walk onto the crossing and press B to build.' I don't know if we want characters to say 'press B' or to press a key. We should just tell them to... or have their dialogue say to... to build something or to do whatever. That kind of kills the immer- the immersion, I think."
+**** "I do like that a lot of the dialogue is... is sh- short and to the point, um, and some of it has some dry humor in it, but it is a little too, um, not natural. Um, there's no option to ask what their story is or they don't tell them... tell you about themselves at all. There's no, um... there's no backstory. There's no, um... the characters just don't have a life. [laughs]"
+**** "In Ren's waystation, there's completely random items on the table. There's not... I mean, some of these buildings don't really have anything that makes sense in them. And a lot... again, a lot of the items are... a lot of the assets are just crooked. They're not, uh... they're not flat on the floor. They're not, um... they seem to be warped. They just don't look right. Uh, the items need to be fixed."
+**** "We do have a lot of new assets for these sorts of things—buildings, and assets, and interiors and exteriors—so we should look through all of our new external assets that we've gotten from other sites for this stuff, and fill in these buildings with, um, things that make sense. A waystation should have beds, and... and maybe a second floor for rooms and things like that. They... they... they all need to be filled out more and look better."
+**** "The buildings in Ashin Hollow in general are just kind of low poly. The ash stands kind of are, too. But, um, yeah, there's just not much to them. There's not much going on in this little area. It's just not attractive."
+**** "Cel Arian has the same weird, uh, clipping issues with her clothing. Um, and her hair is kind of splotchy white and black. It's a little strange. I don't know if that's on purpose or not. It... it could be natural, I suppose, if she has some sort of alopecia."
+**** "I feel like when this was put together, some of the assets were just not pulled over from one of the other, uh, conversations, one of the other chats. Some things seem to be missing. I thought we had already gotten rid of these... these brambles and replaced them with something else, and I thought we had fixed all of the... the NPC clothing and face, so something was not merged, something was missed."
+**** "We need better, um, animation for fighting. There's no good sound or visual when you actually land a hit. It just kind of swings through the enemy. Um, the sound from the enemies aren't really good either when you hit them. They don't... the fighting sounds just aren't great in general. They all need to be redone. These are... they're from the very first prototype, so I think we need better sound."
+**** "The large boulder for ore is also sitting up on edge and not flat on the ground."
+**** "We should add a torch or something, um, that could be held in the off hand. And any other off hand, shields and things like that, I'm sure are coming. Um, but a torch, some sort of way to light the way when it's nighttime. Maybe the torch could be, um, crafted at the forge with a, you know, ash stand or log or whatever, oil, whatever we can gather to create a torch."
+**** "Could use better, um, effects for the fold scar and the, um, the stones around it after they're activated. They just kind of turn... they start glowing a little bit, and these assets are... especially whatever the asset is, this gear... this made... the heart, it's... I don't think it's the right asset to use. It's very low... low quality. We need something better."
+**** "I do want to mention that the NPCs' faces are not bad, they are good faces and I like them, there's just no skin texture, uh, to the bodies or the faces."
+**** "I think we need some kind of indication that a, uh, gathering node, an ash stand or ore or something else is, um, gatherable. 'Cause I'm not sure how to do that, if we outline it, or we have it glow when you get close to it, or something. Something subtle, not too huge, but something, 'cause it looks... the ash stands look very much like every other set of small stands, and there really seems to be only the one node in Ashin Hollow that you can gather from. So, I think we need some... some other way to be able to tell when you can gather something."
+**** "The merchant cart only seems to activate its, um, 'open merchant cart' thing from one side of it."
+**** "Emberhounds look pretty cool, but again, they have, uh, pretty bad sound effects and their animation is very stiff as well. Same for the wolves. The wolves probably need a whole new wolf animation, a whole new wolf asset. Um, the emberhounds just need better sound and better animation."
+**** "The wolves' den is just a very nondescript gray blob. It doesn't... it's very low poly. Doesn't really look like rock. Um, it's not good. They need a... that needs to be better, more of a cave, I think."
+**** "After you take all from a enemy or mob or a, uh, chest, it seems to open up the entire inventory screen afterwards. I think we can just, after you take all and you exit the in- uh, the inventory of the item that you were looking in, um, it shouldn't go back to the main inventory screen, it should just, uh, disappear after you escape."
+**** "When you level up, there is no indication that you've leveled up other than the number changing in the, um, character window in the upper left. The- there should be some kind of something, an animation or... or a ding or... or something just to... or a note on the screen, something to notify you that you've leveled."
+**** "Might want to give a chance to back out of a point after you add it to an attribute, just initially when you're first adding them, so when you add a point, it will show you what changes, uh, under derived, under your other attributes, and if you back out, you can, you know, minus one point and plus one point into another attribute, uh, to see what is going to change."
+**** "The fitting wedge at the forge, um, is being noted or listed as item.tool.fitting_wedge rather th- rather than just, uh, fitting wedge."
+**** "Should have some sort of stats pop up, um, for items in your inventory. Right now, there... there is nothing at all. You don't know whether the rusted sword is more powerful than the march spear, whether what, um, armor the hide vest or the hide cap give you. Um, there are no stats for anything right now. You don't know how much the minor salve heals for. Um..."
+**** "We also need quick bars or taskbars or... or whatever you want to call them for things like the minor salve and... and the water flask and whatever else that you want to be able to access quickly while you're on the road instead of having to open your inventory to heal yourself with a salve."
+**** "Um, holding the spear does not look right. The spear is rather large as well. Um, but her right hand, the fingers are curled up backwards. The left hand, she's not holding the spear at all, it's just kind of held out. I think in general, the player character's animations need to be fixed, and her stances, holding weapons, everything needs to be looked at."
+**** "There seems to be some kind of spikes or something through the player character's chest when standing still. They're flesh-colored spikes right through the right chest, there's a couple of them. I also notice there's no way to name your character or do anything like that, but I assume that will come when, uh, when we implement the character creator."
+**** "Drawing distance, especially for grass, uh, needs to be expanded very much, much further out. Um, it seems like a lot of the other assets—rocks and trees and things like that—are drawn, but the grass does not draw until you're not very close, but close enough that you can see it on the screen."
+**** "Definitely need more wildlife, more nodes to gather from. It's a... it's a... you hear a bird every once in a while and see a butterfly, but there's no... there's no... there's no life out here."
+**** "Even getting into Cairnwald, I'm seeing the brambles, the old graphical assets for bushes and flowers, um, that I thought we had replaced. The rocks are up on their corners. Um, we definitely missed something in the merge."
+**** "There's a pretty clear seam in the... what's underneath the grass when you go from Ashin Hollow and get into Cairnwald. Ashin Hollow is very, very green underneath the grass, and Cairnwald has more texture, it seems. And there's a line that switches from the very green to the very textured. It's very noticeable at the, um... at the edge of the map where it goes up into the rocks, into the wall... rock wall."
+**** "In Cairnwald, we still have all of those floating flowers that are not on the ground, they're just, uh, defying gravity."
+**** "We need better skies, too. Otherreach should not look like a... your standard sky, it should be... I don't know, there should be moons and suns and planets, and it should look interesting in the sky."
+**** "Cairnwald is just as devoid of wildlife as Ashin Hollow was. There's a lot more flowers. Maybe... uh, the ground, the grass, the ground in general looks a little better."
+**** "Another seam on the ground, um, and a lot of floating flowers, mostly on the... the crevis road that goes from Ashin Hollow to Cairnwald. That all needs to be normalized, so they look like they were always one map, but it almost looks like it was, um... you can tell that they were two different maps spliced together."
+**** "In Cairnwald, we also still have the rocks with the torn edges and missing pieces and invisible spots that need to be replaced with other assets. Again, let's go through all of our external assets and see what we can do to fix these. Um, and there's still many, many in Cairnwald's town. The wall looks very, very low poly, low quality. It doesn't look... we need to look at all of the village assets. Um, the houses look a little better, a little more textured than they did in Ashin Hollow, but again, everything is sharp and... and square, and there's just no, um, personality to any of it. There's no color. Um, it's all very boring, brick, log... very sharp edges everywhere."
+**** "Some of the work quests where you're supposed to give them so many of whatever you're supposed to give them, it doesn't tell... it doesn't say what you're giving them on the screen. It doesn't say you're giving three iron ore or ash shafts or whatever these people want. Um, it just... you just kind of say, 'Here's what you wanted,' and you give it to them, and that's it. There's no indication that you gave them the right thing or anything like that. There's no real indication that you've completed a quest, either, no... no sound or no animation, nothing like that. It doesn't have to be extensive and loud and bright, but just something that, uh, says you got something for completing the quest, something small."
+**** "The granary door in Cairnwald, the door does... it's... the granary itself is up on pedestals and the door does not really attach to the granary, and when you open it, there is no opening for the door. The... the door doesn't really do anything. Um..."
+**** "Yeah, the houses in the... in Cairnwald, all very boring. Not a lot going on inside the houses. Um, the assets are on end, they don't really make sense. Um, need better assets for everything."
+**** "Same goes for the door for the smithy. It doesn't do anything. It doesn't... you can... once you open the door, you can walk through it, but there's no... it doesn't reveal an opening."
+**** "Uh, at the forge in Cairnwald, it says, 'Work at the cairnwald.forge_anvil.' It doesn't just say, 'Work at the... the forge' or 'Work at the anvil.' It's got a, um... an ID name rather than just the name. Same for the hearth."
+**** "Equipping armor does not show on the character."
+**** "I don't know what Halda's token does. I don't think there was ever a purpose for it. You can't equip it, it doesn't seem to start a quest, I'm not sure what to do with it."
+**** "I'll have to check other items in Cairnwald, too. It says one of the doors say, 'Close the cw_house05_door.'"
+**** "I think her animation running pace needs to be shortened a bit. It's not... it's not quite natural. It's always like she's doing a... a long jump for every step."
+**** "I like the idea of the longhouse. Again, it's very boring. Um, the village itself, for a village that's over 200 years old, there's not a lot going on here. There's, you know, three or four people. [laughs] Um, there's, you know, a few houses, they're all pretty much empty."
+**** "We definitely need more places to build, or we need to be able to build freely anywhere in the world. I think that would be the better option, to build wherever you wanted. Um, but I did find the one build shelf that I could so far. The only problem is, I don't know where to get rough timber, I don't know which trees, um, are... I can gather from, and there's no indication which they are. So, I... I understand there's some searching involved, but we do need to have some idea, some sort of indication of when something can be gathered from."
+**** "We need better, uh, spear animations for fighting. Right now, it's just kind of poking. Um, spiders need better sounds as well. We need better sounds for everything. I did just come across a red fox and that, um, was a great looking asset, so I think that came from one of our newer external assets, so we want to use more of those."
+**** "I am attacking an animated armor from a short distance and he is not fighting back. He's not coming towards me at all after being hit several times."

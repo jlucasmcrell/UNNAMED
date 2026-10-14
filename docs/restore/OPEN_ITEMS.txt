@@ -1,0 +1,93 @@
+OPEN ITEMS - owner requests not finished by the end of the transcripts (2026-10-02 .. 2026-10-14)
+==================================================================================================
+
+Restored 2026-10-14 from the implementation-pass (impl), claude_md (cmd) and UI/UX (ui) transcripts in
+C:\Otherreach_Recovery\RESTORE_transcripts\. Deduplicated. "src" = when the owner asked (UTC); "state" = last known state.
+Ledger IDs (S2-xxx = second playtest notes, F1-xxx = first playtest notes) are from docs/owner_playthrough_2/00_SECOND_PLAY_LEDGER.md.
+Last game commit seen: c927832 (2026-10-06 20:25) on opus/second-owner-playtest-fixes-20261005 - nothing pushed, merged or tagged.
+ASTRAL (main PC) went down; owner's last message 2026-10-14 08:42 asks to find what can be recovered from Google Drive / GitHub.
+
+[ ] 0. RECOVERY FIRST - src impl 2026-10-14 08:42. Establish what of the game, branch opus/second-owner-playtest-fixes-20261005,
+       HIST (G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05), the private asset roots (G:\UNNAMED_DS_ASSETS, HIST\selected_assets\
+       lowflora_r1\private_assets incl. BC7 texture caches, rebuilt tree LODs, icons, MetaHuman GLBs) and F:\Otherreach_External_* survives.
+       Note: texture caches, rebuilt tree files, icons and clips were OUTSIDE git and "have to ship with any playtest build".
+
+CHARACTER (owner deferred it to last, then started it 2026-10-06)
+[ ] 1. Choose the male Veth body (A near-preset / B lean athletic / C = B + subtle Veth length, recommended; current D has too long a
+       neck and legs) - src impl 2026-10-06 20:23 "the male body looks a bit... oddly shaped"; question unanswered (2026-10-14).
+[ ] 2. Female Veth proportions (legs long for torso, longer neck): fix to inseam ~76 / neck ~8.5, use E, or keep F - "[No preference]".
+[ ] 3. Make the MetaHuman Veth (male + female) the shipping playtest player (currently behind --visual player=metahuman), with the
+       Wayfarer outfit bound and checked in game (female outfit delivered at session end; male outfit not fitted). src impl 2026-10-06 14:26.
+[ ] 4. Character creation in the playtest build: body choice + name with Veth-adjacent Suggest (c927832 committed; panel never seen
+       natively; save migration status to confirm). src impl 2026-10-06 14:26 / 14:40 "Good names, use them".
+[ ] 5. Verify in real play: running arms (run_r2/sprint_r2), post-run stance, NPC "Exorcist" head turn fix (6892a7f). src impl 2026-10-06
+       06:28 and 12:10.
+[ ] 6. Bind/time the remaining 23 retargeted Hyper Combat clips (sword, spear, bow, hit reactions, get-ups) on the new character;
+       only the two ready stances are bound. Spear/bow/sword sets were the weakest animation.
+[ ] 7. Eyes: proper eye shader + tunable "reflective iris" (Veth canon); hair highlight/gloss checks; skin realism on NPCs.
+[ ] 8. Rebuild NPCs to the same realism (MetaHuman route), then other races on the shared UE5-mannequin skeleton (wings etc. as extra
+       bones). src impl 2026-10-06 16:30.
+[ ] 9. Keep every face/hair/beard option archived for the eventual full Character Creator (never delete). src impl 2026-10-06 20:13.
+[ ] 10. Tavar's companion spear is still the AI-made model (realistic spear ready, wanted a view before binding).
+[ ] 11. Armour sourcing gaps: clean gambeson, mail, cloak; player trousers + Sel braid hair had AGPL headers (licence-blocked).
+
+WORLD / ART ("another world" mandate, src impl 2026-10-06 06:09-06:14, cmd 2026-10-05 08:22)
+[ ] 12. Still-open ledger items (07_FINAL_REPORT): S2-004 ground under large rocks non-traversable/grassless; S2-009 boring areas;
+        S2-021 empty field between villages (giants/grazers since added - owner judgement pending); S2-024 random unrelated decoration;
+        S2-025 assets not sitting flat; F1-013 random items on Ren's waystation table; F1-024 cart one side; F1-034 chest spikes;
+        F1-037 wildlife/nodes; F1-040/F1-043 floating flowers; F1-042 Cairnwold wildlife; F1-017 "something was not merged".
+[ ] 13. PARTIAL: S2-005 jump over things / climb (climb + vault designed only); S2-008 wildlife (stag, rat need definitions);
+        S2-012 hits look/sound like hits (blood/rain never seen on screen; bolt wake/shock shell unverified); S2-029 stylized trees
+        (birch still unbound); F1-021 Foldscar heart glow unchanged; Foldscar heart "reads industrial" at distance.
+[ ] 14. Unbound deliveries to place or decide: silver birch (11M tris - needs LODs), road firs + spruces (Megascans licence), young ash
+        for the gathering node, bluebird, willow, lily pads (no water-surface scatter rule), pampas grass (status unclear), den roof
+        placement, Big Rock boulder re-size via scatter_rocks.py, build-kit pieces (no code reads them).
+[ ] 15. Fir trees (flora_ph_fir_tree_c_4k, 1.6-2.7M tris in view) need real LODs; scan every model for missing/fake LODs;
+        trace Cairnwold 25-28 ms frame spikes. (Lossless only on High/Ultra - see rule.)
+[ ] 16. Realistic butterflies (Butterfly Swarm FX textures), ambient dust, Foldscar glow and other VFX gaps (43 at last census);
+        17 UI-art gaps (panel art, map art).
+[ ] 17. Smaller art defects: thin wall-joint seams; one bog pool with a straight edge; 19 yard woodpiles still old model; inn sign;
+        log piles lower than old stacks; bow idle held level at hip.
+[ ] 18. "Visual personality" per settlement, building type, NPC, creature and focal site - src cmd 2026-10-05 08:51.
+[ ] 19. Owner questions left unanswered by the agent's asks: giant landmark tree - unnamed scenery or a named place with lore?
+        Quarry rails and mine cart in the quarry at all? Are the great grazers ever hostile, and do they leave the start area?
+
+SETTINGS / PERFORMANCE
+[ ] 20. Display dials and sliders so players tailor settings to hardware; any trimming only in Performance - src impl 2026-10-06 15:26.
+[ ] 21. Test the Performance tier on the RTX 4070 Ti (RAZER) at 1080p; profile Performance against the new assets.
+[ ] 22. Startup load (~142 s, all 546 models load at start): streaming-by-distance plan. src impl 2026-10-06 12:23 ("optimized for playing").
+
+GAMEPLAY / DESIGN (from playtest notes; designed in doc 05 but not built; owner decisions T1-T4, D1-D4, B1-B4 pending)
+[ ] 23. Town travel portals after discovery (S2-035); town binding at death (S2-036); free building / build anywhere (S2-040, F1-055);
+        off-hand torch (F1-020, model delivered); cartography beyond map v1 (fog-of-war, annotations).
+[ ] 24. Dialogue: everyone has the same personality; NPC backstories ("there's no backstory ... the characters just don't have a life")
+        (F1-012); conversation camera sway (F1-010); Take All (F1-027); keystrokes in dialogue ("press B") from first playtest.
+[ ] 25. F1-035 deferred.
+
+AUDIO
+[ ] 26. Owner audition of the whole recorded_s2 set (female voice, boar, Brace Ward, creature blow, ambience) - nobody has listened.
+[ ] 27. Music and NPC voices not started; owl in night bed; beds are mono; 278 Hz tone under the birds bed.
+
+LICENCE DECISIONS (owner)
+[ ] 28. Keep or drop the Gemini blind-review step on Sonniss-derived audio (Sonniss bans AI training; manifest says never in AI pipeline).
+[ ] 29. Confirm Cosmos Premium rights after the subscription ends 2027-01-06 (models, sounds incl. boar, Hyper Combat).
+[ ] 30. Purchase list for the 729 Unity assets (F:\Otherreach_External_Assets\Assets) incl. flagged "Fantasy Horde - Trolls (webrip)";
+        Megascans spruce; Fab UE-only lines; Stylescape items (skull ward, cattails); WildMesh RDR2-named textures.
+
+UI (Field Instrument)
+[ ] 31. Owner acceptance of the Field Instrument UI candidate (ui 2026-10-04 10:28 "OWNER REVIEW CANDIDATE READY" - no owner verdict
+        recorded). Open UX option: menu-launched screen -> Escape returns to System Menu vs current Escape -> gameplay (ui 2026-10-02 16:36).
+[ ] 32. Deferred polish: character/session status in System Menu; exact XP gauge; HUD coherence notes (instance ID leaking into the
+        interaction prompt; HUD labels 14-15 px below the menus' floor).
+
+CANON / WEBSITE / INFRA (cmd)
+[ ] 33. Update the devlog and the itch.io devlog with the new screenshots/video ("excited, but not to give too much away") -
+        src cmd 2026-10-06 12:47/12:52. Replace the Kal and Constructed concept images on the site.
+[ ] 34. Canon waves 2-4 (on hold pending credit usage); open decisions OD-08, OD-11, OD-13, OD-17, OD-18; protagonist "new soul /
+        leaking world" idea to be designed in Wave 3 (src cmd 2026-10-06 14:36); local branches not pushed:
+        canon claude/owner-ruling-start-area-20261006, game claude/wave-1-rulings-docs (045baaf).
+[ ] 35. Future map: floating-island city (idea only) - src impl 2026-10-06 06:46.
+[ ] 36. Re-enable Ollama and its two watchdog scheduled tasks: G:\UNNAMED_HISTORY\OWNER_SECOND_PLAY_REPAIRS_2026-10-05\RESTORE_AT_END.md.
+[ ] 37. Shared depot write permission was denied: socketed bow and later assets live only in HIST region root, not G:\UNNAMED_DS_ASSETS.
+[ ] 38. Final close-out never re-run after c927832: census/ledger/handoff/progress/07_FINAL_REPORT update and gates (build, all tests,
+        lint, boot/smoke, save/load) for the character commits.
