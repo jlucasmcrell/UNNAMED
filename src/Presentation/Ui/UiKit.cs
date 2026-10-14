@@ -683,10 +683,14 @@ public sealed class Sheet
                 var band = new Rect2(centre - width / 2, top, width, UiKit.BandHeight);
                 if (!rect.Intersects(band))
                     continue;
-                if (rect.Position.Y < UiKit.BandTop + 48)
-                    top = Math.Max(top, rect.End.Y + 12);
+                // Whichever costs the sheet less: start below a panel that only just hangs into the band (the companion strip),
+                // or narrow, centred, beside one that reaches down it (the tracked quest).
+                float below = rect.End.Y + 12 - top;
+                float narrowed = Math.Max(UiKit.Small, 2 * Math.Max(centre - rect.End.X, rect.Position.X - centre) - 24);
+                if (below <= 64)
+                    top += below;
                 else
-                    width = Math.Max(UiKit.Small, 2 * Math.Min(centre - rect.End.X, rect.Position.X - centre) - 24);
+                    width = Math.Min(width, narrowed);
             }
             width = Math.Min(width, _width);
         }

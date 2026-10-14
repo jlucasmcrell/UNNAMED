@@ -193,7 +193,7 @@ public partial class DialoguePanel : CanvasLayer
             GrowHorizontal = Control.GrowDirection.Begin, GrowVertical = Control.GrowDirection.Both, MouseFilter = Control.MouseFilterEnum.Ignore,
         };
         chips.AddThemeConstantOverride("separation", 6);
-        foreach (var (text, tone) in tags)
+        foreach (var (text, tone) in tags.Distinct())
             chips.AddChild(UiKit.Chip(text, tone));
         button.AddChild(chips);
         // The words stop short of the chips.

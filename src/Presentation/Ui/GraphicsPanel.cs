@@ -31,11 +31,10 @@ public partial class GraphicsPanel : CanvasLayer
     public override void _Ready()
     {
         Layer = 11;
-        var box = new VBoxContainer { Position = new Vector2(40, 0), AnchorTop = 1, AnchorBottom = 1, OffsetTop = -110 };
-        var label = new Label { Text = "Graphics quality (applies when the game is next started)" };
-        label.AddThemeFontSizeOverride("font_size", 16);
-        var choice = new OptionButton { CustomMinimumSize = new Vector2(220, 0) };
-        choice.AddThemeFontSizeOverride("font_size", 17);
+        var box = new VBoxContainer { Position = new Vector2(40, 0), AnchorTop = 1, AnchorBottom = 1, OffsetTop = -110, Theme = UiKit.Theme };
+        box.AddThemeConstantOverride("separation", 8);
+        var label = UiKit.Caption("Graphics quality - applies when the game is next started");
+        var choice = new OptionButton { CustomMinimumSize = new Vector2(240, 40) };
         foreach (string tier in Tiers)
             choice.AddItem(tier == "high" ? "High (recommended)" : char.ToUpperInvariant(tier[0]) + tier[1..]);
         choice.Selected = Array.IndexOf(Tiers, VisualOptions.Tier) is var now and >= 0 ? now : Array.IndexOf(Tiers, VisualOptions.DefaultTier);
