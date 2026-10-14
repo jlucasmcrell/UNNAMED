@@ -11,10 +11,8 @@ config_version=5
 [application]
 
 config/name="Otherreach"
-config/use_custom_user_dir=true
-config/custom_user_dir_name="Otherreach-NormalPlayer-SubViewport-20261002-r3f"
 config/description="Phase-1 playable prototype (codename UNNAMED): Ashen Hollow."
-run/main_scene="res://Proof.tscn"
+run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 
 [autoload]
