@@ -191,6 +191,19 @@ public sealed class GameSession : IDomainEvents, IDisposable
 
     public double TickSeconds => Setup.TickMilliseconds / 1000.0;
 
+    public ImmutableArray<BaselineTransition> Transitions => _transitions;
+
+    /// <summary>The terrain-only baseline fingerprint: the same region generation with no fixed nodes or populations.</summary>
+    public string FingerprintWithoutNodes
+    {
+        get
+        {
+            var generation = Setup.Layout.Generation;
+            var terrain = new TerrainRule(generation.TerrainBaseHeightMm, generation.TerrainAmplitudeMm, generation.TerrainSamplesPerAxis);
+            return new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrain)).Fingerprint;
+        }
+    }
+
     /// <summary>A new character in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2).</summary>
     public Simulation NewGame(string characterName, ulong seed = 0)
     {
@@ -217,6 +230,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
     }
+
+    /// <summary>Run the whole load pipeline against a save directory without writing anything.</summary>
+    public MigrationReport PlanLoadAt(string saveDirectory) =>
+        SaveStore.PlanMigrationAt(saveDirectory, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
+
+    public ImmutableArray<SaveSummary> SaveSlots() => _store.Summaries();
 
     /// <summary>What the start screen offers: the saves in the profile, newest first, and which one Continue loads (B-01).</summary>
     public StartChoice StartChoice()

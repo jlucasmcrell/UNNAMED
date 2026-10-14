@@ -1721,7 +1721,7 @@ public partial class Main : Node3D
         // SURVEY EVERY SAVE, WRITING NOTHING. PlanLoad runs the whole load pipeline (version gate, migration
         // chain, per-cell baseline proof, transition lookup) into a throwaway registry and reports instead of
         // throwing - and it does NOT record the load in the rotation metadata the way a real Load does (see
-        // SaveStore.PlanMigration). So this answers "does the owner have usable saves" without modifying the
+        // the store's PlanMigration). So this answers "does the owner have usable saves" without modifying the
         // saves it is asking about. A Load per save would have written to every one of them.
         if (System.Environment.GetEnvironmentVariable("UNNAMED_LOAD_CHECK") is { Length: > 0 } loadCheckDir)
         {
