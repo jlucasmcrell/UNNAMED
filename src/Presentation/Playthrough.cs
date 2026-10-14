@@ -85,6 +85,7 @@ public sealed class Playthrough
     private int _beat;
     private long _beatTick;
     private int _waypoint;
+    private int _turnSteps;
     private int _phase;
     private int _wait;
     private string? _pending;
@@ -193,6 +194,9 @@ public sealed class Playthrough
         _beats.AddRange(new[]
         {
             new Beat("spawn", "Beside the Ashen Waystone, sword in hand (§29 0:00)", 60, () => _frame > 30, "01_spawn"),
+            // The one condition the standing-turn state exists for, and the one the route otherwise never produces:
+            // the body is still, and the camera swings, so with faceCamera it steps around rather than sliding.
+            new Beat("turn", "Standing at the waystone: the body steps around to a new facing", 900, TurnOnTheSpot, "01b_turn"),
             new Beat("chest", "The waystation's storage chest opened and emptied (§29 0:30)", 1_500, OpenTheChest, "02_chest"),
             new Beat("smithy", "Into Kera's smithy", 1_500, () => Travel(ToTheSmithyDoor) && Door("door.forge_shed") && Walk(IntoTheSmithy)),
             new Beat("kera", "Kera teaches the forge: Iron Under Ash begins (§29 2:00)", 900, () => Converse(Kera, "teach", "thanks"), "03_kera"),
@@ -633,6 +637,23 @@ public sealed class Playthrough
 
     /// <summary>Walk a route - fighting whatever hunts the character first, and mending between fights. True at its end.</summary>
     private bool Travel((double X, double Z)[] route, float arrive = 0.5f) => !Defend() && !Mend() && Walk(route, arrive);
+
+    /// <summary>
+    /// Stand still and swing the camera. With faceCamera the body follows the camera while stationary, which is
+    /// the only way the simulation expresses a turn in place - PlayerController sends a facing with a direction
+    /// of travel and otherwise keeps the last one - and so the only way the standing-turn state is ever reached.
+    /// </summary>
+    private bool TurnOnTheSpot()
+    {
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
+        // The wish JUMPS a quarter turn; it does not creep. Creeping at 0.05 rad a frame let the body keep up,
+        // so it never fell more than 20 degrees behind and the standing-turn state - which needs the body to be
+        // behind by about that much - never fired. Snapping the wish and then holding is what a player does when
+        // they flick the stick round, and it is the condition the state was written for.
+        if (_turnSteps == 0)
+            _camera.Yaw += 1.4f;
+        return ++_turnSteps > 90;   // hold still while the body steps round to the new facing
+    }
 
     private bool Walk((double X, double Z)[] route, float arrive = 0.5f)
     {

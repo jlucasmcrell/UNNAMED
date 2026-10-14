@@ -1,0 +1,55 @@
+{
+  "note": "Phase B (character fidelity): what the production characters' zone materials add to their glTF (CharacterMaterials.cs). Roughness and metalness per zone are already in each character's ORM atlas (tools/asset_pipeline/charprod/orm_zones.py); these are the effects glTF has no field for. SSS STRENGTH 0.22 -> 0.75 (DS, 2026-09-28). It was already on at a strength that does nothing visible, while three reviews reported the skin as flat and plastic with no subsurface scattering. Blind A/B, same standpoint, identical but for this value: the higher one shows 'subtle softness and slightly warmer light penetration along the cheek and neck transitions ... terminator lines slightly softened by the subsurface scattering profile' and was ranked better; the lower one is 'flatter, more opaque diffuse shading'. THE REVIEW ALSO SAID 'marginally better' AND 'NEITHER ACHIEVES TRUE FLESHY TRANSLUCENCY ... BOTH LEANING TOWARD OPAQUE GAME-ENGINE PLASTIC', so this is a small real win and not a fix - closing the skin complaint needs a multi-layered skin shader, not a higher number here.",
+  "kinds": {
+    "skin": {
+      "specular": 0.35,
+      "sss": 0.75,
+      "sss_skin": true,
+      "backlight": [
+        0.1,
+        0.03,
+        0.02
+      ]
+    },
+    "hair": {
+      "specular": 0.3,
+      "backlight": [
+        0.08,
+        0.05,
+        0.03
+      ],
+      "rim": 0.15,
+      "rim_tint": 0.7
+    },
+    "cloth": {
+      "specular": 0.25,
+      "rim": 0.3,
+      "rim_tint": 0.6
+    },
+    "cloth_heavy": {
+      "specular": 0.35,
+      "rim": 0.15,
+      "rim_tint": 0.5
+    },
+    "leather": {
+      "specular": 0.4,
+      "clearcoat": 0.05,
+      "clearcoat_roughness": 0.7
+    },
+    "metal": {
+      "specular": 0.5
+    },
+    "eye": {
+      "specular": 0.6,
+      "roughness": 0.05,
+      "clearcoat": 1.0,
+      "clearcoat_roughness": 0.02
+    }
+  },
+  "lods": {
+    "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch cross-fades over margin.",
+    "lod0_end": 18.0,
+    "lod1_end": 45.0,
+    "margin": 2.0
+  }
+}

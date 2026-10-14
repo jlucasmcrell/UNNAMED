@@ -23,6 +23,10 @@ public sealed partial class FaceDriver : Node
     private double _spoken = -1;
     private double _blinkIn;
     private double _blinking = -1;
+    private string _seed = "";
+    private float _peak;
+    private double _peakAt = -1;
+    private double _since;
 
     private static readonly string[] Channels =
     {
@@ -35,10 +39,24 @@ public sealed partial class FaceDriver : Node
     public static FaceDriver? Attach(Node model, string seed)
     {
         var driver = new FaceDriver { Name = "Face" };
+        // What was SEEN, not just what matched. "0 meshes with channels" is the same line whether the meshes were never found or were
+        // found under names this list does not contain, and those are different bugs with different fixes.
+        int found = 0, shapes = 0;
+        var sample = new List<string>();
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
+            found++;
             if (mesh.Mesh is not ArrayMesh array || array.GetBlendShapeCount() == 0)
                 continue;
+            int count = array.GetBlendShapeCount();
+            shapes += count;
+            if (sample.Count < 8)
+            {
+                var names = new List<string>();
+                for (int k = 0; k < Mathf.Min(count, 3); k++)
+                    names.Add(array.GetBlendShapeName(k));
+                sample.Add($"{mesh.Name}:{count}[{string.Join(",", names)}]");
+            }
             var index = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (string channel in Channels)
             {
@@ -51,11 +69,19 @@ public sealed partial class FaceDriver : Node
         }
         if (!driver._meshes.Any(m => m.Index.ContainsKey("eyeBlinkLeft")))
         {
+            // Logged, not silent. This returned null quietly for a whole investigation while three separate frame measurements reported
+            // "the character never blinks" - and the asset does carry eyeBlinkLeft, so whether Attach ever found it is the first thing
+            // that has to be on the record rather than inferred.
+            GD.Print($"UNNAMED face: {seed} NOT ATTACHED - {found} MeshInstance3D found, {shapes} blend shapes total, " +
+                     $"{driver._meshes.Count} mesh(es) matched a channel; sample {string.Join(" | ", sample)}");
             driver.Free();
             return null;
         }
         driver._random.Seed = (ulong)seed.GetHashCode();
         driver._blinkIn = driver._random.RandfRange(0.5f, 3f);
+        driver._seed = seed;
+        GD.Print($"UNNAMED face: {seed} attached - {driver._meshes.Count} mesh(es), " +
+                 $"{driver._meshes.Sum(m => m.Index.Count)} channel bindings");
         return driver;
     }
 
@@ -86,6 +112,17 @@ public sealed partial class FaceDriver : Node
         {
             foreach (var (channel, i) in index)
                 mesh.SetBlendShapeValue(i, _weights.GetValueOrDefault(channel));
+        }
+        // The blink is the one face channel a blind review can score from three metres, and "the character never blinks" has been
+        // reported from frame measurements rather than from the driver. This prints what the driver actually set, so the next claim
+        // about it is read off the weight instead of inferred from pixels: every 5 s, the peak eyeBlink weight since the last line.
+        _peak = Mathf.Max(_peak, _weights.GetValueOrDefault("eyeBlinkLeft"));
+        _since += delta;
+        if (_since >= 5)
+        {
+            GD.Print($"UNNAMED face: {_seed} peak eyeBlink {_peak:0.000} over {_since:0.0}s ({_meshes.Count} mesh(es))");
+            _peak = 0;
+            _since = 0;
         }
     }
 

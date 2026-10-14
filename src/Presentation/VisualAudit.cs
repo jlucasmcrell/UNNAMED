@@ -82,6 +82,63 @@ public sealed class VisualAudit
     private int _wait;
     private readonly List<double> _gpu = new(), _cpu = new(), _wall = new();
     private ulong _last;
+    private readonly bool _scatterAb = System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_AB") == "1";
+    private int _scatterStep;
+    private static readonly string[] ScatterArms = { "A", "A2", "B", "A3", "B2" };
+
+    // ── THE HAIR A/B: one session, one runtime asset swap, and its own controls ──────────────────────────
+    //
+    // WHY THIS EXISTS. RUN_COMMANDS.md TRAP 12 measured that two captures of the SAME station with the SAME
+    // camera and the SAME sun hour differ by 49-56 % of ALL pixels, so an A/B whose two arms come from two
+    // runs carries an unmeasured confound. The fix it prescribes is to capture both arms in ONE session with
+    // a runtime asset swap - which is what this is. Nothing else about the run changes: the same figure, the
+    // same idle phase, the same lighting, the same camera; only the hair MESH resource on one
+    // MeshInstance3D is exchanged.
+    //
+    // The five arms are ordered so that the comparison carries its own controls:
+    //   A   the shipped groom                                     ┐ nothing is swapped between these two, so
+    //   A2  the shipped groom again, 135 frames later             ┘ A-vs-A2 is the IDENTICAL-IMAGE CONTROL
+    //   B   the staged groom
+    //   A3  the shipped groom again, reached by swapping BACK      the swap's own control: A-vs-A3 must be 0
+    //   B2  the staged groom again                                 the staged arm's own stability
+    //
+    // The swap is a Mesh resource assignment, not a file copy: the staged GLB is loaded once from disk with
+    // Godot's own glTF importer, gets the same `CharacterMaterials.Upgrade` pass the live figure got, and the
+    // mesh is handed to the MeshInstance3D that already carries the shipped groom. Its Skin and Skeleton are
+    // left exactly as they are, which is sound only because the splice kept the shipped skeleton and the
+    // groom's JOINTS_0 indices were verified to address the same bones in the same order.
+    private static readonly string[] HairArms = { "A", "A2", "B", "A3", "B2" };
+    private readonly string? _hairGlb;
+    private readonly string _hairFrom;
+    private readonly string _hairTo;
+    private readonly string _hairSubject;
+    private readonly bool _hairFreeze;
+    private bool _hairFrozen;
+
+    /// <summary>
+    /// Whether the world is frozen for the captures of an audit that is NOT the hair A/B.
+    ///
+    /// WHY THIS IS NOT THE HAIR'S PRIVATE TRICK ANY MORE. The hair round proved that `Engine.TimeScale = 0` makes an
+    /// identical-image control read zero, and measured a control of 0.49-0.61 with it. **But the freeze was gated on
+    /// `_hairGlb`, so every OTHER audit ran in a moving world** - and the controls say exactly what that costs:
+    /// * the hair A/B, FROZEN: control **0.49-0.61** on a head crop;
+    /// * a skin A/B at the established `face_sel` station, MOVING: median control **2.2411** over ten run pairs;
+    /// * the same A/B at a CLOSE station (0.25-0.40 m), MOVING: median control **11.1-13.0**, range 0.48-16.37.
+    /// **A comparison has to beat its control, and at close range the control was eleven.** *Nothing measured on those
+    /// stations could have been read, and two rounds concluded "indistinguishable" about a shader that a crop shows is
+    /// real.* **The freeze is the difference between an admissible A/B and an expensive coin toss.**
+    ///
+    /// A MOTION shot is the exception and restores the moving world for its own capture: `m_smoke` and `m_grass` exist
+    /// to show what moves on its own, and freezing them would make them two identical pictures. `--audit-no-freeze`
+    /// restores the old behaviour for the whole run; `--hair-no-freeze` still means what it meant.
+    /// </summary>
+    private readonly bool _auditFreeze;
+    private bool _auditFrozen;
+    private readonly List<Dictionary<string, object?>> _hairLog = new();
+    private MeshInstance3D? _hairInstance;
+    private Mesh? _hairOriginal;
+    private Mesh? _hairStaged;
+    private int _hairStep;
 
     /// <param name="shotsFile"><c>--audit-shots file.json</c>: these world pictures in place of the built-in ones, and no isolated samples
     /// (a checkpoint's screenshot list). Each entry: <c>name</c>, <c>says</c>, then either <c>eye</c> and <c>target</c> as [x, height, z],
@@ -97,10 +154,39 @@ public sealed class VisualAudit
         Directory = directory;
         _raw = Path.Combine(directory, "raw");
         System.IO.Directory.CreateDirectory(_raw);
-        DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
+        // Godot's launch options own the window size.
         // Measured, not paced (the per-shot GPU and frame times are Phase B's comparisons): no vsync, no cap.
         DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
         Engine.MaxFps = 0;
+
+        // The hair A/B's switches come from the command line directly, in the shape VisualAuditAB uses for its
+        // own tuning switches, so that `--visual-audit` needs no change to Main.cs's option table. With none of
+        // them given, every line below is dead and the run behaves exactly as it did before.
+        var userArgs = OS.GetCmdlineUserArgs();
+        string? UserArg(string name) => Array.IndexOf(userArgs, name) is var i and >= 0 && i + 1 < userArgs.Length
+            ? userArgs[i + 1] : null;
+        _hairGlb = UserArg("--hair-glb");
+        _hairFrom = UserArg("--hair-material-from") ?? "Human.elvs_hazel_hair";
+        _hairTo = UserArg("--hair-material-to") ?? "Human.o4saken_long01";
+        _hairSubject = UserArg("--hair-subject") ?? "Player";
+        // THE WORLD IS FROZEN FOR THE HAIR A/B, AND THE FIRST RUN SHOWED WHY IT HAS TO BE.
+        //
+        // With the world running, the identical-image control (arm A against arm A2, 135 frames later, with
+        // nothing swapped between them) read mean |d| 4.70 with 23.3 % of pixels past 8 - the SAME magnitude as
+        // the comparison it was there to police (A vs B: 6.12 / 26.1 %). Every pixel of the figure had moved, so
+        // no part of the frame difference could be attributed to the groom and the run was inadmissible by the
+        // standard the brief sets. The cause is that the player's idle clip, the region's ambient life and TAA
+        // history all advance with time, and TRAP 12 measured the same thing from outside.
+        //
+        // `Engine.TimeScale = 0` makes every `_Process(delta)` receive delta 0, so the simulation stops ticking
+        // and the figure holds one pose, while the harness's own frame counters (which count frames, not time)
+        // carry on. The scene tree is NOT paused: pausing would stop `Main._Process`, which is what drives this
+        // audit. `--hair-no-freeze` restores the moving world, and the control then reports what it reports.
+        _hairFreeze = UserArg("--hair-no-freeze") is null;
+
+        // AND THE SAME FREEZE NOW COVERS EVERY AUDIT, not only the hair A/B - see the field's own note for the three
+        // controls that measure what running unfrozen costs. Default on; `--audit-no-freeze` opts out.
+        _auditFreeze = UserArg("--audit-no-freeze") is null;
 
         if (shotsFile is not null)
         {
@@ -145,6 +231,17 @@ public sealed class VisualAudit
             Write("visual_audit_log.json", new Dictionary<string, object?>
             {
                 ["pictures"] = _log,
+                ["hair_ab"] = _hairGlb is null ? null : new Dictionary<string, object?>
+                {
+                    ["arms"] = HairArms,
+                    ["staged_glb"] = _hairGlb,
+                    ["material_from"] = _hairFrom,
+                    ["material_to"] = _hairTo,
+                    ["subject"] = _hairSubject,
+                    ["captures"] = _hairLog,
+                    ["note"] = "A and A2 are the identical-image control: nothing is swapped between them. "
+                             + "A3 is the shipped groom reached by swapping back, which is the swap's own control.",
+                },
                 ["art_problems"] = _art.Problems,
                 ["art_used"] = _art.Used.OrderBy(u => u, StringComparer.Ordinal).ToList(),
                 ["measurement_control"] = MeasurementControl(),
@@ -169,6 +266,7 @@ public sealed class VisualAudit
             _camera = new Camera3D { Name = "AuditCamera", Fov = _rig.Camera.Fov, Near = _rig.Camera.Near, Far = _rig.Camera.Far,
                 Attributes = _rig.Camera.Attributes, Environment = _rig.Camera.Environment };
             _root.AddChild(_camera);
+            Greybox.StartCamera.Track(_root, _camera);
         }
         foreach (var layer in _root.FindChildren("*", nameof(CanvasLayer), true, false).Cast<CanvasLayer>())
             layer.Visible = false;
@@ -185,8 +283,62 @@ public sealed class VisualAudit
             target = at + new Vector3(0, shot.Target.H, 0);
             shot = shot with { Targets = new[] { figure.Name.ToString() } };
         }
+        if (_hairGlb is not null)
+        {
+            // Hair A/B framing: the shot's eye and target are OFFSETS from the subject figure's own origin, so a
+            // shot file says "0.55 m out and 0.62 m up, looking at head height" and the figure's world position is
+            // read from the live scene. That matters here because the head must fill the frame: at the audit's
+            // vertical fov of 75 and a 1080-px frame the focal length is 704 px, so a 0.32 m head at 0.85 m is
+            // 0.32/0.85*704 = 265 px across - enough to judge the shape of a groom.
+            var subject = _root.GetNodeOrNull(_hairSubject) as Node3D
+                ?? throw new InvalidOperationException($"{shot.Name}: no Node3D called {_hairSubject} to frame");
+            var at = subject.GlobalPosition;
+            eye = at + new Vector3(shot.Eye.X, shot.Eye.H, shot.Eye.Z);
+            target = at + new Vector3(shot.Target.X, shot.Target.H, shot.Target.Z);
+            shot = shot with { Targets = new[] { _hairSubject } };
+        }
+        if (_hairGlb is not null && !_hairFrozen)
+        {
+            // Frozen once, before the first capture of the first station, so that every one of the five arms of
+            // every station is shot in a world that is not moving.
+            _hairFrozen = true;
+            if (_hairFreeze)
+            {
+                Engine.TimeScale = 0.0;
+                _auditFrozen = true;
+                GD.Print("UNNAMED hair A/B: Engine.TimeScale = 0 - the world is frozen for every capture, so the "
+                         + "identical-image control can read zero and the comparison is admissible");
+            }
+        }
+        // THE SAME FREEZE FOR EVERY OTHER AUDIT, and the motion shot is the one exception. A motion shot captures its
+        // own first frame and compares it with its last, so it exists to show what MOVES - frozen, those two frames
+        // are the same picture and the shot is worthless. So a motion shot restores the moving world for its own
+        // capture and the next ordinary shot freezes again.
+        if (_hairGlb is null && _auditFreeze)
+        {
+            bool wantFrozen = !shot.Motion;
+            if (wantFrozen && !_auditFrozen)
+            {
+                Engine.TimeScale = 0.0;
+                _auditFrozen = true;
+                GD.Print("UNNAMED audit: the world is frozen for the captures (Engine.TimeScale = 0) - the identical-image "
+                         + "control can now read zero and a comparison is admissible. --audit-no-freeze restores motion");
+            }
+            else if (!wantFrozen && _auditFrozen)
+            {
+                Engine.TimeScale = 1.0;
+                _auditFrozen = false;
+                GD.Print("UNNAMED audit: this shot is a MOTION shot, so the world is running for it and will be frozen again after");
+            }
+        }
         _camera.Current = true;
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
+        if (_wait == 0)
+        {
+            var scatter = _root.GetNodeOrNull<Greybox.ScatterView>("Scatter");
+            if (_scatterAb) scatter?.SetResidencyModeForCapture(ScatterArms[_scatterStep] is "B" or "B2");
+            scatter?.PrepareResidencyForCapture(eye);
+        }
         if (++_wait < SettleFrames)
             return;
         var viewportRid = _root.GetViewport().GetViewportRid();
@@ -194,8 +346,10 @@ public sealed class VisualAudit
         {
             RenderingServer.ViewportSetMeasureRenderTime(viewportRid, true);
             // A motion shot keeps the first frame too, so what moves on its own (the wind) shows against the last.
+            // A headless run has no rendering device and the viewport hands back no image at all: the picture is
+            // skipped and the dump is still written. Null only headless, so a windowed run is unchanged.
             if (shot.Motion)
-                _root.GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_raw, shot.Name + "_first.png"));
+                _root.GetViewport().GetTexture().GetImage()?.SavePng(Path.Combine(_raw, shot.Name + "_first.png"));
             _gpu.Clear();
             _cpu.Clear();
             _wall.Clear();
@@ -210,20 +364,61 @@ public sealed class VisualAudit
         if (_wait < SettleFrames + MeasureFrames)
             return;
         _wait = 0;
+        if (_hairGlb is not null)
+        {
+            // One shot, five captures, one session: A / A2 (nothing swapped between them - the identical-image
+            // control), B, then A3 (reached by swapping BACK - the swap's own control) and B2.
+            EnsureHair();
+            Capture(shot, eye, target, "__" + HairArms[_hairStep]);
+            _hairStep++;
+            if (_hairStep < HairArms.Length)
+            {
+                SetHair(HairArms[_hairStep] is "B" or "B2");
+                return;
+            }
+            _hairStep = 0;
+            SetHair(staged: false);
+            _index++;
+            return;
+        }
+        Capture(shot, eye, target, _scatterAb ? "__" + ScatterArms[_scatterStep] : "");
+        if (_scatterAb && ++_scatterStep < ScatterArms.Length) return;
+        _scatterStep = 0;
         _index++;
+    }
+
+    /// <summary>One frame's picture and its dump, named with <paramref name="suffix"/> when a shot has several.</summary>
+    private void Capture(Shot shot, Vector3 eye, Vector3 target, string suffix)
+    {
+        // Null under --headless (there is no rendering device): the picture is skipped and the numbers-only dump
+        // written, which is what a clock march wants - it reads the environment, not pixels. Never null in a window.
         var image = _root.GetViewport().GetTexture().GetImage();
-        image.SavePng(Path.Combine(_raw, shot.Name + ".png"));
+        var viewport = _root.GetViewport();
+        var window = _root.GetTree().Root;
+        var clientSize = DisplayServer.WindowGetSize();
+        var screen = DisplayServer.WindowGetCurrentScreen();
+        var screenSize = DisplayServer.ScreenGetSize(screen);
+        var viewportTexture = viewport.GetTexture();
+        image?.SavePng(Path.Combine(_raw, shot.Name + suffix + ".png"));
         var dump = new Dictionary<string, object?>
         {
             ["shot"] = shot.Name,
             ["sample"] = shot.Sample,
             ["says"] = shot.Says,
-            ["image_size"] = new[] { image.GetWidth(), image.GetHeight() },
+            ["image_size"] = new[] { image?.GetWidth() ?? 0, image?.GetHeight() ?? 0 },
+            ["display_sizes_px"] = new Dictionary<string, object?>
+            {
+                ["window_client"] = new[] { clientSize.X, clientSize.Y },
+                ["root_window"] = new[] { window.Size.X, window.Size.Y },
+                ["screen_id"] = screen,
+                ["screen"] = new[] { screenSize.X, screenSize.Y },
+                ["viewport_texture"] = new[] { viewportTexture.GetWidth(), viewportTexture.GetHeight() },
+            },
             ["camera"] = CameraDump(_camera),
             ["target_point"] = V(target),
             ["distance_to_target_point_m"] = Math.Round(eye.DistanceTo(target), 2),
             ["targets"] = shot.Targets.Select(t => TargetDump(t, _camera.GlobalPosition)).ToList(),
-            ["renderer"] = RendererDump(_root.GetViewport()),
+            ["renderer"] = RendererDump(_root.GetViewport(), image),
             ["measured"] = new Dictionary<string, object?>
             {
                 ["frames"] = _wall.Count,
@@ -232,27 +427,178 @@ public sealed class VisualAudit
                 ["frame_ms_median"] = Math.Round(Median(_wall), 3),
                 ["frame_ms_p95"] = Math.Round(Percentile(_wall, 0.95), 3),
                 ["vram_mb"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576.0, 1),
-                ["draw_calls"] = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
-                ["primitives"] = Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame),
+                ["draw_calls"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame), 0),
+                ["primitives"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame), 0),
             },
             ["visual_options"] = VisualOptions.All.ToDictionary(kv => kv.Key, kv => kv.Value),
         };
-        Write(shot.Name + ".json", dump);
-        _log.Add(new Dictionary<string, object?> { ["png"] = shot.Name + ".png", ["says"] = shot.Says, ["eye"] = V(eye), ["target"] = V(target),
+        if (_root.GetNodeOrNull<Greybox.ScatterView>("Scatter") is { ResidencyEnabled: true } scatter)
+            dump["scatter_residency"] = new
+            {
+                enabled = true, ready = scatter.ResidencyReady, nodes = scatter.GetChildCount(),
+                worst_chunk_ms = scatter.WorstChunkMs, resident_counts = scatter.Counts,
+            };
+        if (_scatterAb) dump["scatter_ab_arm"] = ScatterArms[_scatterStep];
+        if (_hairGlb is not null)
+        {
+            // WHICH ARM WAS ACTUALLY ON THE FIGURE, read off the live resource rather than assumed from the
+            // schedule. A sibling round's "counterbalanced" pair silently used the identical arrangement twice
+            // because the tool permuted labels independently of argument order; the only defence is to record
+            // the state that was true when the shutter opened.
+            string now = _hairInstance?.Mesh is { } m && ReferenceEquals(m, _hairStaged) ? _hairFrom
+                : _hairInstance?.Mesh is { } o && ReferenceEquals(o, _hairOriginal) ? _hairTo : "unknown";
+            dump["hair_arm"] = new Dictionary<string, object?>
+            {
+                ["suffix"] = suffix,
+                ["material_on_figure"] = now,
+                ["staged_glb"] = _hairGlb,
+                ["hair_triangles"] = _hairInstance?.Mesh is { } mesh ? Triangles(mesh) : 0,
+                ["hair_surfaces"] = _hairInstance?.Mesh?.GetSurfaceCount() ?? 0,
+                ["skin_resource_shared"] = true,
+            };
+            _hairLog.Add(new Dictionary<string, object?>
+            {
+                ["png"] = shot.Name + suffix + ".png", ["arm"] = suffix.TrimStart('_'), ["material_on_figure"] = now,
+                ["hair_triangles"] = _hairInstance?.Mesh is { } mm ? Triangles(mm) : 0,
+                ["frame_ms_median"] = Math.Round(Median(_wall), 3),
+            });
+            GD.Print($"UNNAMED hair A/B {shot.Name}{suffix}: figure is wearing {now}, "
+                     + $"{(_hairInstance?.Mesh is { } m2 ? Triangles(m2) : 0)} hair triangles, frame {Median(_wall):0.00} ms");
+        }
+        Write(shot.Name + suffix + ".json", dump);
+        _log.Add(new Dictionary<string, object?> { ["png"] = shot.Name + suffix + ".png", ["says"] = shot.Says, ["eye"] = V(eye), ["target"] = V(target),
             ["gpu_ms_median"] = Math.Round(Median(_gpu), 3), ["frame_ms_median"] = Math.Round(Median(_wall), 3) });
-        GD.Print($"UNNAMED visual audit {shot.Name}: gpu {Median(_gpu):0.00} ms, cpu {Median(_cpu):0.00} ms, frame {Median(_wall):0.00} ms");
+        GD.Print($"UNNAMED visual audit {shot.Name}{suffix}: gpu {Median(_gpu):0.00} ms, cpu {Median(_cpu):0.00} ms, frame {Median(_wall):0.00} ms");
     }
 
+    /// <summary>The live hair surface and the two meshes it is exchanged between, found once from the scene.</summary>
+    private void EnsureHair()
+    {
+        if (_hairInstance is not null)
+            return;
+        _hairInstance = FindByMaterial(_root, _hairTo)
+            ?? throw new InvalidOperationException($"no surface under the root carries the material {_hairTo}");
+        _hairOriginal = _hairInstance.Mesh;
+        _hairStaged = LoadStagedHair();
+        GD.Print($"UNNAMED hair A/B: arm A {_hairTo} {Triangles(_hairOriginal!)} triangles -> "
+                 + $"arm B {_hairFrom} {Triangles(_hairStaged!)} triangles, on {_hairInstance.GetPath()}");
+    }
+
+    /// <summary>Put one of the two meshes on the live surface. The Skin and the Skeleton are never touched.</summary>
+    private void SetHair(bool staged)
+    {
+        if (_hairInstance is null)
+            throw new InvalidOperationException("SetHair before EnsureHair");
+        var want = staged ? _hairStaged! : _hairOriginal!;
+        if (!ReferenceEquals(_hairInstance.Mesh, want))
+            _hairInstance.Mesh = want;
+    }
+
+    /// <summary>The staged GLB's groom mesh, put through the same material pass the live figure got.</summary>
+    private Mesh LoadStagedHair()
+    {
+        var document = new GltfDocument();
+        var state = new GltfState();
+        Error error = document.AppendFromFile(_hairGlb!, state);
+        if (error != Error.Ok)
+            throw new InvalidOperationException($"the staged hair GLB would not load: {error}");
+        Node? scene = document.GenerateScene(state);
+        if (scene is null)
+            throw new InvalidOperationException("the staged hair GLB generated no scene");
+        // The live figure's materials went through CharacterMaterials.Upgrade when the figure was created; the
+        // staged mesh must get the same pass or arm B would be judged with the importer's defaults instead of
+        // the `hair` kind. The material is named `Human.elvs_hazel_hair`, so the `_hair` suffix reaches it.
+        int upgraded = Art.CharacterMaterials.Upgrade(scene);
+        var mesh = FindByMaterial(scene, _hairFrom)?.Mesh;
+        GD.Print($"UNNAMED hair A/B: staged scene gave {upgraded} upgraded surface(s); groom surface {_hairFrom} "
+                 + (mesh is null ? "NOT FOUND" : $"found, {Triangles(mesh)} triangles"));
+        scene.Free();
+        return mesh ?? throw new InvalidOperationException($"the staged GLB has no surface with material {_hairFrom}");
+    }
+
+    private static MeshInstance3D? FindByMaterial(Node node, string materialName)
+    {
+        if (node is MeshInstance3D instance && instance.Mesh is not null)
+            for (int s = 0; s < instance.Mesh.GetSurfaceCount(); s++)
+            {
+                var material = instance.Mesh.SurfaceGetMaterial(s);
+                if (material is not null && material.ResourceName == materialName)
+                    return instance;
+            }
+        foreach (var child in node.GetChildren())
+            if (FindByMaterial(child, materialName) is { } hit)
+                return hit;
+        return null;
+    }
+
+    /// <summary>
+    /// The shots in a <c>--audit-shots</c> file: <b>either a list of shots, or a single shot written as a bare
+    /// object</b> - and every failure names the file and the shot it is about.
+    ///
+    /// WHY BOTH SHAPES ARE TAKEN. This read <c>document.RootElement.EnumerateArray()</c> unconditionally, so a
+    /// one-shot file written as a bare <c>{ … }</c> threw
+    /// <c>InvalidOperationException: The requested operation requires an element of type 'Array', but the target
+    /// element has type 'Object'</c> - <b>a message that names neither the file nor the fault</b>, shown to whoever
+    /// launched the run as *"Otherreach cannot start"*. Measured: of the eight per-station files a sibling round
+    /// had staged, <c>ab_03</c>, <c>ab_04</c>, <c>ab_06</c>, <c>ab_07</c> and <c>ab_08</c> were bare objects while
+    /// <c>ab_02</c>, <c>ab_09</c> and <c>ab_10</c> were lists - so <b>every other capture in its loop died before
+    /// the first frame and the loop looked like it was failing at random</b>. *A one-shot file is the natural thing
+    /// for a person or a script to write, so the reader takes it.*
+    /// </summary>
     private static IEnumerable<Shot> LoadShots(string file)
     {
-        using var document = JsonDocument.Parse(File.ReadAllText(file));
-        static (float, float, float) Triple(JsonElement e) => (e[0].GetSingle(), e[1].GetSingle(), e[2].GetSingle());
-        foreach (var entry in document.RootElement.EnumerateArray())
+        JsonDocument document;
+        try
         {
-            (string, float, float)? near = entry.TryGetProperty("near", out var n) ? (n[0].GetString()!, n[1].GetSingle(), n[2].GetSingle()) : null;
-            var targets = entry.TryGetProperty("targets", out var t) ? t.EnumerateArray().Select(x => x.GetString()!).ToArray() : Array.Empty<string>();
-            yield return new Shot(entry.GetProperty("name").GetString()!, "checkpoint", Triple(entry.GetProperty("eye")), Triple(entry.GetProperty("target")),
-                targets, entry.GetProperty("says").GetString()!, near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True);
+            document = JsonDocument.Parse(File.ReadAllText(file));
+        }
+        catch (Exception e) when (e is JsonException or IOException)
+        {
+            throw new InvalidOperationException($"the shots file {file} could not be read: {e.Message}");
+        }
+
+        using (document)
+        {
+            var entries = document.RootElement.ValueKind switch
+            {
+                JsonValueKind.Array => document.RootElement.EnumerateArray().ToList(),
+                JsonValueKind.Object => new List<JsonElement> { document.RootElement },
+                _ => throw new InvalidOperationException(
+                    $"the shots file {file} must hold a list of shots, or one shot as an object; its root is {document.RootElement.ValueKind}"),
+            };
+            if (entries.Count == 0)
+                throw new InvalidOperationException($"the shots file {file} holds no shots");
+
+            var shots = new List<Shot>(entries.Count);
+            foreach (var entry in entries)
+            {
+                if (entry.ValueKind != JsonValueKind.Object)
+                    throw new InvalidOperationException($"the shots file {file} holds a {entry.ValueKind} where a shot object was expected");
+                string name = entry.TryGetProperty("name", out var nm) && nm.ValueKind == JsonValueKind.String
+                    ? nm.GetString()!
+                    : $"<shot {shots.Count + 1} of {entries.Count}>";
+
+                static (float, float, float) Triple(JsonElement parent, string key, string shot, string source)
+                {
+                    if (!parent.TryGetProperty(key, out var e))
+                        throw new InvalidOperationException($"shot '{shot}' in {source} has no \"{key}\"");
+                    if (e.ValueKind != JsonValueKind.Array || e.GetArrayLength() < 3)
+                        throw new InvalidOperationException($"shot '{shot}' in {source} needs \"{key}\" to be three numbers [x, y, z]");
+                    return (e[0].GetSingle(), e[1].GetSingle(), e[2].GetSingle());
+                }
+
+                (string, float, float)? near = null;
+                if (entry.TryGetProperty("near", out var n))
+                    near = (n[0].GetString()!, n[1].GetSingle(), n[2].GetSingle());
+                var targets = entry.TryGetProperty("targets", out var t) && t.ValueKind == JsonValueKind.Array
+                    ? t.EnumerateArray().Select(x => x.GetString()!).ToArray()
+                    : Array.Empty<string>();
+                shots.Add(new Shot(name, "checkpoint", Triple(entry, "eye", name, file), Triple(entry, "target", name, file),
+                    targets,
+                    entry.TryGetProperty("says", out var says) ? says.GetString()! : string.Empty,
+                    near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True));
+            }
+            return shots;
         }
     }
 
@@ -405,9 +751,27 @@ public sealed class VisualAudit
             entry["normal_texture"] = TextureDump(b.NormalTexture);
             entry["roughness"] = b.Roughness;
             entry["roughness_texture"] = TextureDump(b.RoughnessTexture);
+            // WHICH CHANNEL THE ROUGHNESS COMES FROM, because this stretch shipped a fix for it and then could not
+            // prove it at runtime. `ArtLibrary` sets RoughnessTextureChannel = Green on every imported material -
+            // Godot defaults it to RED while glTF packs roughness in GREEN, and 1,916 of 1,980 shipped materials are
+            // true ORM with the SAME image in the occlusion and metallicRoughness slots, so the default made every
+            // imported asset read its occlusion map as roughness. The fix was verified COMPILED by the assembly's
+            // timestamp and its code path verified RUNNING by the occlusion counter beside it, but nothing printed
+            // the channel itself. One line closes that, and a value in a log is evidence where an inference is not.
+            entry["roughness_texture_channel"] = b.RoughnessTextureChannel.ToString();
             entry["metallic"] = b.Metallic;
             entry["metallic_specular"] = b.MetallicSpecular;
             entry["metallic_texture"] = TextureDump(b.MetallicTexture);
+            // EMISSION, FOR THE SAME REASON THE CHANNEL ABOVE IS PRINTED. The creature round measured
+            // `emissiveFactor: absent` and `emissiveTexture: absent` on all six bodies and then added a map to the
+            // hound, but nothing could say whether the ENGINE had it: a glTF emissive that the importer drops, or
+            // that a later pass clears, looks identical in the file and in the frame. `emission_enabled` plus a
+            // non-null `emission_texture` is the runtime answer, and it is the difference between "we set it in the
+            // GLB" and "the game is drawing it".
+            entry["emission_enabled"] = b.EmissionEnabled;
+            entry["emission"] = b.Emission.ToHtml();
+            entry["emission_energy_multiplier"] = b.EmissionEnergyMultiplier;
+            entry["emission_texture"] = TextureDump(b.EmissionTexture);
             entry["ao_enabled"] = b.Get("ao_enabled").AsBool();
             entry["ao_texture"] = TextureDump(b.Get("ao_texture").As<Texture2D>());
             if (material is OrmMaterial3D orm)
@@ -478,7 +842,7 @@ public sealed class VisualAudit
     };
 
     /// <summary>The renderer in effect: the project's rendering settings, the viewport's, the world environment and the sun.</summary>
-    private Dictionary<string, object?> RendererDump(Viewport viewport)
+    private Dictionary<string, object?> RendererDump(Viewport viewport, Image? capturedImage)
     {
         var settings = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (var property in ProjectSettings.Singleton.GetPropertyList())
@@ -500,6 +864,10 @@ public sealed class VisualAudit
             ["viewport"] = new Dictionary<string, object?>
             {
                 ["size"] = V2(viewport.GetVisibleRect().Size),
+                ["size_space"] = "logical visible rect; canvas_items may use a larger native render target",
+                ["render_target_size"] = new[] { capturedImage?.GetWidth() ?? 0, capturedImage?.GetHeight() ?? 0 },
+                ["render_target_size_source"] = "unresized renderer texture readback, also saved as PNG; zero in headless mode",
+                ["viewport_texture_reported_size"] = new[] { viewport.GetTexture().GetWidth(), viewport.GetTexture().GetHeight() },
                 ["msaa_3d"] = viewport.Msaa3D.ToString(),
                 ["screen_space_aa"] = viewport.ScreenSpaceAA.ToString(),
                 ["use_taa"] = viewport.UseTaa,

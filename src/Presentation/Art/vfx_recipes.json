@@ -97,7 +97,7 @@
       "note": "Embers over a fire or the forge: the spark texture, rising and drifting, long-lived. The VFX Library's fireball_trail recipe, lengthened.",
       "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png",
       "amount": 18, "lifetime": 2.6, "size": [0.015, 0.03], "size_curve": [1.0, 0.3], "velocity": [0.3, 0.8], "spread": 25,
-      "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 3.0,
+      "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 1.1,
       "color": ["#fff2c0ff", "#ff9a30ff", "#ff300000"]
     },
     "mending_threads": {

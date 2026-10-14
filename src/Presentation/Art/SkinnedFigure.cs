@@ -299,6 +299,9 @@ public sealed partial class SkinnedFigure : Figure
     private bool _wasAirborne;
     private double _landing;
     private double _airTime;
+    // Coming to rest: a gait that has just ended settles through the "stop" clip once (-1 = not stopping).
+    private double _stopping = -1;
+    private bool _wasGaiting;
     private bool _turning;
 
     /// <summary>How long the take-off clip plays before the airborne loop: the simulation's rise is 0.42 s (config.base_speeds).</summary>
@@ -308,6 +311,21 @@ public sealed partial class SkinnedFigure : Figure
     /// The playback-rate range for a gait clip: wide enough that a clip reaches the body's speed (the simulation's speeds are
     /// authoritative; a walk clip measured at 0.79 m/s plays at 2x for the 1.6 m/s walk) - past it the feet would slide.
     /// </summary>
+    /// <remarks>
+    /// READ THIS BEFORE TOUCHING THE CEILING. A clip's <c>pace</c> (art_bindings.json, measured by
+    /// tools/asset_pipeline/charprod2/clip_pace.py as the planted foot's own speed) IS the ground speed at which the boot
+    /// would sit still, so the rate that locks the foot is exactly <c>speed / pace</c>, and any clamp below it leaves the
+    /// boot travelling at <c>speed - rate * pace</c> in the world. Measured 2026-09-29 (docs/phase_b/RUN_CYCLE_ROUND.md):
+    /// the production player's run clip has a pace of 2.37 m/s while the run is 3.17 m/s, so at the 2.2 ceiling the boot
+    /// could not be slower than 3.17 - 2.2 * 2.37 = -2.04 m/s; at the 8 m/s the sprint reaches, foot_slide.py reads a
+    /// 3.57 m/s median at the stillest moment - 45 % of the body's own speed, and the worst figure the project's own
+    /// instrument has ever recorded. Raising this ceiling was TRIED and measured this round (to 4f, with the paces
+    /// re-derived from content/config/base_speeds.yaml): the foot's own speed at the 5th percentile went from 0.237 to
+    /// 0.291 of the body's, and the share of the cycle spent near-planted from 17.4 % to 10.0 % - the right direction, but
+    /// the clip's cadence is then over-driven instead, so it is a trade and not a fix. The real levers, in order, are the
+    /// clip's own pace (re-derive it, as the <c>standard</c> cast already was: run 2.975 against a 3.2 m/s run) and the
+    /// sprint speed itself, which at 8 m/s no 3.47 m/s clip can follow at any plausible cadence.
+    /// </remarks>
     private const float MinRate = 0.35f, MaxRate = 2.2f;
 
     /// <summary>The attack clip for a weapon's action: its numbered variants in turn (<c>sword_attack_1</c>, <c>_2</c>...), else the one clip.</summary>
@@ -453,9 +471,37 @@ public sealed partial class SkinnedFigure : Figure
                 _gait = "walk";
             float pace = Pace(_gait, _gait switch { "sprint" => 5f, "run" => 3.2f, _ => 1.4f });
             m.Play(_gait, 0.2f, Mathf.Clamp(speed / pace, MinRate, MaxRate));
+            _wasGaiting = true;      // so that when this gait ends the body settles instead of snapping
+            _stopping = -1;
             return;
         }
         _gait = "walk";
+        // Coming to rest from a gait: settle through the "stop" clip once, then stand. Without it a walk
+        // at about 1.4 m/s cut straight into the idle stance over 0.3 s - the legs went from a stride to
+        // standing with nothing in between, which is the snap a stop clip exists to remove. The clip is
+        // authored short (charstd/clip_stop.py: a gait eased into the standing pose over about half a
+        // second) and played once at the rig's own rate.
+        if (_wasGaiting && m.Has("stop"))
+            _stopping = 0;
+        _wasGaiting = false;
+        if (_stopping >= 0)
+        {
+            _stopping += delta;
+            if (_stopping < m.Length("stop"))
+            {
+                m.Play("stop", 0.08f, 1f, _stopping - delta <= 0.001);
+                return;
+            }
+            _stopping = -1;
+        }
+        // Turning in place: a step, not a slide. Pose() owns the body's rotation, so the clip carries only
+        // the footwork - which is how this is a turn state at all, without the double-turn that a clip
+        // yawing its own root would produce on top of the paced follow above.
+        if (_turning && m.Has("turn"))
+        {
+            m.Play("turn", 0.15f);
+            return;
+        }
         // Standing with a weapon drawn: its ready stance, not the empty-handed idle.
         string ready = s.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "" };
         if (ready.Length > 0 && m.Has(ready))

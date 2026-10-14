@@ -29,6 +29,35 @@ public sealed record ScatterKind(
     public float NearWaterFromM { get; init; }
     public float NearWaterToM { get; init; }
 
+    /// <summary>Whether this kind bends in the wind. Off for stones and anything else that is not a plant: every
+    /// model kind goes through the foliage shader, which displaces vertices by wind, and a swaying boulder is what
+    /// that costs when nothing says otherwise. Default on, so existing kinds are unchanged.</summary>
+    public bool Wind { get; init; } = true;
+
+    /// <summary>Several prepared forms for one kind, one drawn per instance. One clump stamped a quarter of a
+    /// million times is a plantation however good the clump is; a pool is how a field gets variety without a new
+    /// kind per form. Empty means the kind draws its single <see cref="Mesh"/>.</summary>
+    public IReadOnlyList<string> Pool { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// How far a prepared plant leans from its ground's colour toward dry straw, as a multiplier on a uniform
+    /// 0..1 draw (<c>tint_lean</c> in the rules). The lean is a warm/cool axis, not a brightness factor, so a
+    /// stand of plants is not one hue at many brightnesses.
+    ///
+    /// <b>0 means "not configured", and reproduces the historical formula exactly</b>
+    /// (<c>own*own*0.45</c>, mean lean <c>0.45/3 = 0.15</c>, skewed hard toward zero so most instances took
+    /// almost no lean). That default is deliberate: every kind that does not name <c>tint_lean</c> - which is
+    /// every kind in the shared depot's rules, and so every kind of every other region - renders byte-for-byte
+    /// as it did before this field existed. Only a kind that opts in changes, which is what makes the change
+    /// auditable one kind at a time.
+    ///
+    /// A value above 0 switches to a LINEAR lean, which is the shape the card-clump branch below records as
+    /// the fix for exactly this defect - "own*own was tried first and was too timid ... Linear own against a
+    /// browner target gives a mean lean near 0.38 and a visible mix, which is what the references show" - a
+    /// fix that was applied only to the crossed-card path, which is now dead. Cairnwold sets 0.55 (mean 0.275).
+    /// </summary>
+    public float TintLean { get; init; }
+
     /// <summary>The prepared model this kind scatters (<c>mesh: "model:&lt;id&gt;"</c>), or null for a procedural mesh.</summary>
     public string? ModelId => Mesh.StartsWith("model:", StringComparison.Ordinal) ? Mesh["model:".Length..] : null;
 }
@@ -148,6 +177,13 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
                 : null)
         {
             NearWaterAdd = Number(water, "add", 0), NearWaterFromM = Number(water, "from_m", 0), NearWaterToM = Number(water, "to_m", 0),
+            Wind = !(e.TryGetProperty("wind", out var wind) && wind.ValueKind == JsonValueKind.False),
+            TintLean = Math.Clamp(Number(e, "tint_lean", 0f), 0f, 1f),
+            Pool = e.TryGetProperty("pool", out var poolList) && poolList.ValueKind == JsonValueKind.Array
+                ? poolList.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String)
+                    .Select(v => v.GetString()!.StartsWith("model:", StringComparison.Ordinal) ? v.GetString()!["model:".Length..] : v.GetString()!)
+                    .ToList()
+                : Array.Empty<string>(),
         };
     }
 

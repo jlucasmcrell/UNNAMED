@@ -21,7 +21,7 @@ public partial class ScatterView : Node3D
     private const float FieldStep = 0.5f;
 
     /// <summary>A kind and its meshes: variants (one is picked a placement) or, for a prepared model, its levels (every placement in each, by distance).</summary>
-    private sealed record Kind(ScatterKind Rules, Mesh[] Meshes, bool Levels = false);
+    private sealed record Kind(ScatterKind Rules, Mesh[] Meshes, bool Levels = false, Mesh[][]? Pool = null);
 
     private readonly List<Kind> _kinds = new();
     private GroundField _ground = null!;
@@ -33,22 +33,43 @@ public partial class ScatterView : Node3D
         _tree = Array.Empty<float>();
     private ulong? _builtFor;
     private WindField? _wind;
+    private readonly Dictionary<string, Texture2D> _modelAlbedos = new(StringComparer.Ordinal);
 
     /// <summary>Instances placed by kind, and how long placing them took, for the reports.</summary>
     public IReadOnlyDictionary<string, int> Counts => _counts;
+
+    /// <summary>Leave the card grass out entirely (the owner's ruling: it is thrown away).</summary>
+    public bool CardsOff { get; private set; }
+
+    /// <summary>Draw nothing but the grass blades - no stones, heather, nettles or litter in the way.</summary>
+    public bool BladesOnly { get; private set; }
 
     public double BuildMs { get; private set; }
 
     private readonly SortedDictionary<string, int> _counts = new(StringComparer.Ordinal);
 
     /// <summary>The ground, the rules and the layout: the distance fields and the kinds' meshes are made once here; the placing waits for a world.</summary>
-    public void Bind(ArtLibrary art, GroundField ground, ScatterRules rules, RegionLayout layout, IEnumerable<string> buildingPrefixes)
+    public void Bind(ArtLibrary art, GroundField ground, ScatterRules rules, RegionLayout layout, IEnumerable<string> buildingPrefixes,
+        bool cardsOff = false, bool bladesOnly = false)
     {
+        _modelAlbedos.Clear();
+        CardsOff = cardsOff;
+        BladesOnly = bladesOnly;
         _ground = ground;
         _rules = rules;
         BuildFields(layout, buildingPrefixes);
         foreach (var kind in rules.Kinds)
         {
+            // The card grass is GONE by owner ruling: "Whatever grass is in the game right now - throw it away and
+            // never use it again." ScatterView.GrassClump is three quads with the plant's silhouette painted into a
+            // gradient drawn in C#, and no amount of lit, shaded or textured quad is a plant. The kind is refused
+            // here rather than left in the rules file looking like it works - the same reason the dead
+            // tall_tussocks kind was removed rather than left in place.
+            // --grass=cards puts it back for one comparison run only; it is not a supported configuration.
+            if (kind.ModelId is null && kind.Name == "moor_grass" && CardsOff)
+                continue;
+            if (BladesOnly && kind.Name != "moor_grass")
+                continue;
             // A kind drawn only under some presentation options (Phase B: the procedural leaf cards give way to the leaf-litter models).
             if (kind.OnlyWhen is { } when && when.Any(w => VisualOptions.All.GetValueOrDefault(w.Key) != w.Value))
                 continue;
@@ -68,6 +89,18 @@ public partial class ScatterView : Node3D
                 _kinds.Add(new Kind(kind, levels, true));
                 continue;
             }
+            // A POOL OF FORMS IS TESTED AFTER THE SINGLE MESH, AND THIS ORDER IS THE BUG - KEPT AS IT WAS, ON
+            // PURPOSE, BECAUSE THE FIX WAS MEASURED AND REVERTED. `ModelId` is non-null for any kind whose `mesh`
+            // starts with "model:" (ScatterRules.cs:43), and a pooled kind sets BOTH keys, so this order makes the
+            // pool branch unreachable and draws the single `mesh` at every instance. Moving the pool branch ABOVE
+            // was tried on 2026-09-29 and reverted the same day: it makes the variety live (the coverage report goes
+            // from "veg_gen_grass_a (4 levels)" to "3 forms of 3 asked for") and hue IQR rises 6.9 -> 12.0 deg,
+            // reaching the reference floor - but per-frame primitives rise 79.0 M -> 173.8 M (+120%) and draw calls
+            // +18%, against a budget that required Cairnwold to spend LESS, and it loses the Vulkan device
+            // (VkResult error -4). The measurement and the census that explains it are in
+            // docs/phase_b/REGION_VEGETATION_ROUND.md section 3.
+            if (kind.Pool is { Count: > 0 } pool2 && Pool(art, kind, pool2))
+                continue;
             var meshes = Meshes(art, kind);
             if (meshes.Length == 0)
             {
@@ -76,8 +109,41 @@ public partial class ScatterView : Node3D
             }
             _kinds.Add(new Kind(kind, meshes));
         }
+        _residencySpawn = new Vector2(layout.Spawn.XMm / 1000f, layout.Spawn.ZMm / 1000f);
         foreach (string problem in rules.Problems)
             GD.PushWarning($"UNNAMED scatter: {problem}; left out");
+    }
+
+    /// <summary>
+    /// A POOL OF FORMS for one kind: load every form's LOD chain and register the kind once, so the placement roll
+    /// picks one form per instance. Returns true when the kind is consumed (either registered, or deliberately left
+    /// out because this run does not draw prepared plants).
+    /// </summary>
+    private bool Pool(ArtLibrary art, ScatterKind kind, IReadOnlyList<string> pool)
+    {
+        // One clump stamped a quarter of a million times is a plantation, however good the clump is - the owner's
+        // note was "if it could be slightly randomized a bit like grass is in real life". The build is unchanged:
+        // what differs is which of several prepared forms draws at each instance, picked by the placement roll and
+        // carried in the MultiMesh's per-instance custom data.
+        if (VisualOptions.Plants != "models")
+            return true;
+        _wind ??= WindField.Ensure(this);
+        var loaded = new List<Mesh[]>();
+        foreach (string formId in pool)
+        {
+            var row = ModelMeshes(art, kind, formId);
+            if (row.Length == 0)
+            {
+                art.Coverage.Fallback("scatter", kind.Name, art.Why(formId) ?? "the model would not load", formId);
+                continue;
+            }
+            loaded.Add(row);
+        }
+        if (loaded.Count == 0)
+            return true;
+        art.Coverage.Resolved("scatter", kind.Name, $"{loaded.Count} forms of {pool.Count} asked for");
+        _kinds.Add(new Kind(kind, loaded[0], true, loaded.ToArray()));
+        return true;
     }
 
     /// <summary>Place the scatter for a world (its seed); the same seed again keeps what is placed.</summary>
@@ -95,81 +161,168 @@ public partial class ScatterView : Node3D
         }
         _counts.Clear();
         ulong started = Time.GetTicksUsec();
+        if (_residentMode)
+        {
+            BuildResidents(worldSeed);
+            BuildMs = Math.Round((Time.GetTicksUsec() - started) / 1000.0, 1);
+            GD.Print($"UNNAMED scatter residency: {_residents.Count} chunks, {_counts.Values.Sum()} resident placements in {BuildMs} ms; original density/ranges retained");
+            return;
+        }
         var region = _ground.Region;
         foreach (var kind in _kinds)
         {
             float chunk = kind.Rules.ChunkM ?? _rules.ChunkM;
             int total = 0;
-            float step = 1f / MathF.Sqrt(kind.Rules.MaxPerM2);
             int cz = 0;
             for (float z0 = region.Position.Y; z0 < region.End.Y; z0 += chunk, cz++)
             {
                 int cx = 0;
                 for (float x0 = region.Position.X; x0 < region.End.X; x0 += chunk, cx++)
                 {
-                    var rng = new Random(ChunkSeed(worldSeed, kind.Rules.Name, cx, cz));
-                    var per = kind.Meshes.Select(_ => new List<(Transform3D, Color)>()).ToArray();
-                    for (float z = z0; z < z0 + chunk; z += step)
-                    for (float x = x0; x < x0 + chunk; x += step)
-                    {
-                        float px = x + (float)rng.NextDouble() * step, pz = z + (float)rng.NextDouble() * step;
-                        double roll = rng.NextDouble();
-                        if (px >= region.End.X || pz >= region.End.Y || px >= x0 + chunk || pz >= z0 + chunk)
-                            continue;
-                        var w = _ground.CellWeights(px, pz);
-                        // The tier thins the plant models (B1); the procedural kinds keep Phase A's density.
-                        float share = kind.Levels ? VisualOptions.PlantDensity : 1f;
-                        if (roll >= share * Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
-                            continue;
-                        var (basis, sink, tint) = Place(kind.Rules, rng, w);
-                        int m = kind.Levels ? 0 : rng.Next(kind.Meshes.Length);
-                        per[m].Add((new Transform3D(basis, new Vector3(px, _ground.Height(px, pz) - sink, pz)), tint));
-                    }
-                    if (kind.Levels)
-                    {
-                        if (per[0].Count > 0)
-                            AddLevels(kind, per[0], cx, cz);
-                        total += per[0].Count;
-                        continue;
-                    }
-                    for (int m = 0; m < kind.Meshes.Length; m++)
-                    {
-                        if (per[m].Count == 0)
-                            continue;
-                        var multi = new MultiMesh
-                        {
-                            TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseColors = true, Mesh = kind.Meshes[m], InstanceCount = per[m].Count,
-                        };
-                        for (int i = 0; i < per[m].Count; i++)
-                        {
-                            multi.SetInstanceTransform(i, per[m][i].Item1);
-                            multi.SetInstanceColor(i, per[m][i].Item2);
-                        }
-                        AddChild(new MultiMeshInstance3D
-                        {
-                            Name = $"{kind.Rules.Name}_{cx}_{cz}_{m}", Multimesh = multi,
-                            CastShadow = kind.Rules.Shadows ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
-                            GIMode = GeometryInstance3D.GIModeEnum.Disabled, VisibilityRangeEnd = kind.Rules.FadeM, VisibilityRangeEndMargin = 10f,
-                            VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self,
-                        });
-                        total += per[m].Count;
-                    }
+                    total += BuildChunk(worldSeed, kind, cx, cz, x0, z0);
                 }
             }
             _counts[kind.Rules.Name] = total;
         }
         BuildMs = Math.Round((Time.GetTicksUsec() - started) / 1000.0, 1);
         GD.Print($"UNNAMED scatter: {string.Join(", ", _counts.Select(c => $"{c.Value} {c.Key}"))} placed for world seed {worldSeed:x16} in {BuildMs} ms");
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_CENSUS") is { Length: > 0 })
+            Census(total: 0);
     }
+
+
+    // One seeded chunk, shared by the whole-region baseline and the optional camera-local experiment.
+    private int BuildChunk(ulong worldSeed, Kind kind, int cx, int cz, float x0, float z0)
+    {
+        var region = _ground.Region;
+        float chunk = kind.Rules.ChunkM ?? _rules.ChunkM;
+        float step = 1f / MathF.Sqrt(kind.Rules.MaxPerM2);
+        int total = 0;
+        var rng = new Random(ChunkSeed(worldSeed, kind.Rules.Name, cx, cz));
+        var per = kind.Meshes.Select(_ => new List<(Transform3D T, Color C, int Form)>()).ToArray();
+        for (float z = z0; z < z0 + chunk; z += step)
+        for (float x = x0; x < x0 + chunk; x += step)
+        {
+            float px = x + (float)rng.NextDouble() * step, pz = z + (float)rng.NextDouble() * step;
+            double roll = rng.NextDouble();
+            if (px >= region.End.X || pz >= region.End.Y || px >= x0 + chunk || pz >= z0 + chunk)
+                continue;
+            var w = _ground.CellWeights(px, pz);
+            // The tier thins the plant models (B1); the procedural kinds keep Phase A's density.
+            float share = kind.Levels ? VisualOptions.PlantDensity : 1f;
+            if (roll >= share * Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
+                continue;
+            var (basis, sink, tint) = Place(kind.Rules, rng, w);
+            int m = kind.Levels ? 0 : rng.Next(kind.Meshes.Length);
+            // The form: a pooled kind picks one of its prepared models per instance, so a field of a
+            // quarter of a million clumps is a mix of forms rather than one clump stamped repeatedly.
+            var put = new Transform3D(basis, new Vector3(px, _ground.Height(px, pz) - sink, pz));
+            if (kind.Pool is { Length: > 0 } forms)
+                per[m].Add((put, tint, rng.Next(forms.Length)));
+            else
+                per[m].Add((put, tint, 0));
+        }
+        if (kind.Levels)
+        {
+            if (kind.Pool is { Length: > 0 } forms)
+            {
+                // One level band per form, each drawn over the same distance rule.
+                for (int f = 0; f < forms.Length; f++)
+                {
+                    var mine = per[0].Where(x => x.Form == f).ToList();
+                    if (mine.Count > 0)
+                        AddLevels(kind, mine, cx, cz, forms[f]);
+                }
+            }
+            else if (per[0].Count > 0)
+            {
+                AddLevels(kind, per[0], cx, cz);
+            }
+            return per[0].Count;
+        }
+        for (int m = 0; m < kind.Meshes.Length; m++)
+        {
+            if (per[m].Count == 0)
+                continue;
+            var multi = new MultiMesh
+            {
+                TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseColors = true, Mesh = kind.Meshes[m], InstanceCount = per[m].Count,
+            };
+            for (int i = 0; i < per[m].Count; i++)
+            {
+                multi.SetInstanceTransform(i, per[m][i].Item1);
+                multi.SetInstanceColor(i, per[m][i].Item2);
+            }
+            AddChild(new MultiMeshInstance3D
+            {
+                Name = $"{kind.Rules.Name}_{cx}_{cz}_{m}", Multimesh = multi,
+                CastShadow = kind.Rules.Shadows ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
+                GIMode = GeometryInstance3D.GIModeEnum.Disabled, VisibilityRangeEnd = kind.Rules.FadeM,
+                // No fade mode and no end margin: a stipple on an alpha-scissor material toggles the
+                // instance on and off rather than fading it, which is the blink the owner reported.
+                VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
+            });
+            total += per[m].Count;
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// WHAT ACTUALLY DRAWS, node by node - the instrument the scatter never had. Placements are cheap to count and
+    /// were counted all along; the cost is in the MultiMeshInstance3D nodes the placements become, and nothing ever
+    /// printed those. Each node is one MultiMesh for one (chunk, kind, form, LOD band); its instance count is EVERY
+    /// placement in that chunk for that form, in every band, culled at draw time by its visibility range. So the
+    /// submission is `bands x placements` while the draw is about `placements`, and the gap between those two is
+    /// where a geometry regression hides.
+    ///
+    /// Printed only when `UNNAMED_SCATTER_CENSUS` is set. Reads the scene it is standing in; writes nothing.
+    /// </summary>
+    public void Census(int total = 0)
+    {
+        var rows = new Dictionary<string, (int Nodes, long Slots, long Bands, long Tris, int MinBand, int MaxBand)>(StringComparer.Ordinal);
+        long allSlots = 0;
+        int allNodes = 0;
+        foreach (var child in GetChildren())
+        {
+            if (child is not MultiMeshInstance3D node || node.Multimesh is not { } mm || mm.Mesh is not { } mesh)
+                continue;
+            string kind = node.Name.ToString().Split('_')[0];
+            // Names are "{kind}_{cx}_{cz}_lod{n}"; recover the kind even when its own name contains underscores.
+            foreach (string known in _kinds.Select(k => k.Rules.Name))
+                if (node.Name.ToString().StartsWith(known + "_", StringComparison.Ordinal))
+                {
+                    kind = known;
+                    break;
+                }
+            long tris = mesh.GetFaces().Length / 3;
+            long slots = (long)mm.InstanceCount * tris;
+            allSlots += slots;
+            allNodes++;
+            var cur = rows.TryGetValue(kind, out var r) ? r : (0, 0L, 0L, 0L, int.MaxValue, 0);
+            int lo = (int)node.VisibilityRangeBegin, hi = (int)node.VisibilityRangeEnd;
+            rows[kind] = (cur.Item1 + 1, cur.Item2 + slots, cur.Item3 + 1, tris,
+                          Math.Min(cur.Item5, lo), Math.Max(cur.Item6, hi));
+        }
+        GD.Print($"UNNAMED scatter census: {allNodes} MultiMeshInstance3D nodes, {allSlots:N0} instance-x-triangle slots (the submission if every band drew)");
+        foreach (var (kind, r) in rows.OrderByDescending(r => r.Value.Slots))
+            GD.Print($"UNNAMED scatter census:   {kind,-14} nodes {r.Nodes,6}  bands {r.MinBand}-{r.MaxBand} m  mesh tris {r.Tris,6}  slots {r.Slots,14:N0}");
+    }
+
+    /// <summary>The player controller, kept for future probes. The hand-written ProveGrass/ProbeNow
+    /// draw paths that used it are DELETED: they duplicated placement, never rendered, and cost a day.
+    /// Grass goes through the ordinary scatter path like every other kind.</summary>
+    public Player.PlayerController? Controller { get; set; }
 
     /// <summary>
     /// A chunk of a prepared model: the same placements in one MultiMesh a level, each level drawn over its band of distance (the rules'
     /// <c>lods_m</c>, the last to the kind's fade), the tint in the instances' custom data (the plant's vertex colours carry its wind).
+    /// <paramref name="levelsOwner"/> names which prepared form to draw - the pool's pick for these instances.
     /// </summary>
-    private void AddLevels(Kind kind, List<(Transform3D, Color)> placed, int cx, int cz)
+    private void AddLevels(Kind kind, List<(Transform3D T, Color C, int Form)> placed, int cx, int cz, Mesh[]? levelsOwner = null)
     {
         var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
-        int levels = Math.Min(kind.Meshes.Length, from.Count);
+        var chain = levelsOwner ?? kind.Meshes;
+        int levels = Math.Min(chain.Length, from.Count);
         for (int level = 0; level < levels; level++)
         {
             float begin = from[level], end = level + 1 < levels ? from[level + 1] : kind.Rules.FadeM;
@@ -177,7 +330,7 @@ public partial class ScatterView : Node3D
                 continue;
             var multi = new MultiMesh
             {
-                TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true, Mesh = kind.Meshes[level], InstanceCount = placed.Count,
+                TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true, Mesh = chain[level], InstanceCount = placed.Count,
             };
             for (int i = 0; i < placed.Count; i++)
             {
@@ -187,12 +340,29 @@ public partial class ScatterView : Node3D
             AddChild(new MultiMeshInstance3D
             {
                 Name = $"{kind.Rules.Name}_{cx}_{cz}_lod{level}", Multimesh = multi,
-                // Only the near, full levels throw shadows; the far cards would cast flat slabs.
-                CastShadow = kind.Rules.Shadows && level < 2 ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
+                // THE BAND. Without these two the band is computed above and then thrown away, and EVERY level is
+                // drawn at EVERY distance - four copies of the same field stacked on each other. That is not a
+                // subtle waste: it is the whole frame. Measured on the pinned world, a full --perf capture, average
+                // fps by segment - grass at 16/m2 with all four levels drawn everywhere: 8.5 / 14.7 / 12.9 / 18.2;
+                // with the grass layer removed altogether: 42.8 / 57.3 / 62.5 / 79.9. Setting the band is what makes
+                // lods_m mean anything, and it is why changing fade_m from 34 to 12 moved nothing (17.6 vs 18.2):
+                // a number nothing reads cannot have an effect.
+                // Metres, not squared: the card path below sets VisibilityRangeEnd = FadeM the same way.
+                VisibilityRangeBegin = begin, VisibilityRangeEnd = level + 1 < levels ? MathF.BitDecrement(end) : end,
+                // Far foliage cards must not cast slabs. This rock's four levels are solid opaque meshes, so its
+                // shadow must survive the 35 m switch to LOD2 while the rock remains visible to 110 m.
+                CastShadow = kind.Rules.Shadows && (level < 2 || !kind.Rules.Wind && kind.Rules.ModelId == "rock_field_cluster")
+                    ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode = GeometryInstance3D.GIModeEnum.Disabled,
-                VisibilityRangeBegin = begin, VisibilityRangeBeginMargin = begin > 0 ? 1.5f : 0,
-                VisibilityRangeEnd = end, VisibilityRangeEndMargin = level + 1 < levels ? 1.5f : 10f,
-                VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self,
+                // NO FADE MODE. VisibilityRangeFadeMode.Self fades by stippling the surface - and on an
+                // ALPHA-SCISSOR material a stipple that falls below the scissor threshold does not fade, it
+                // TOGGLES: the instance is drawn, then not, then drawn, frame to frame. That is the owner's
+                // report - "a lot of assets seem to blink, even close up - blades of grass, tree leaves and
+                // limbs, rocks, especially while you are walking around; they go black and come back, draw and
+                // undraw" - and walking is worst because that is when instances cross the band and the stipple
+                // changes. Keep the existing hard switch; distinct LOD geometry can still pop, which this
+                // culling/shadow repair does not address.
+                VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
             });
         }
     }
@@ -305,7 +475,16 @@ public partial class ScatterView : Node3D
             float size = Mathf.Lerp(kind.SizeMin, kind.SizeMax, (float)rng.NextDouble()) * (1f + Tall());
             var basis = Basis.FromEuler(new Vector3(((float)rng.NextDouble() - 0.5f) * 0.14f, yaw, ((float)rng.NextDouble() - 0.5f) * 0.14f)) * Basis.FromScale(Vector3.One * size);
             var tint = new Color(0.98f, 0.90f, 0.70f).Lerp(Colors.White, Math.Clamp(Lush(), 0, 1));
-            float drift = 0.86f + (float)rng.NextDouble() * 0.24f;
+            // As with the grass clumps: a per-plant lean along a warm/cool axis, not one brightness factor,
+            // so a stand of plants is not one hue at many brightnesses. `tint_lean` in the kind's rules sets
+            // how far; 0 (the default, and every kind that does not name it) keeps the historical own*own*0.45
+            // EXACTLY, so a region that does not opt in renders as it always did. See ScatterKind.TintLean for
+            // why the linear shape is the fix and why the default is not simply made linear.
+            float own = (float)rng.NextDouble();
+            tint = kind.TintLean > 0
+                ? tint.Lerp(new Color(0.90f, 0.80f, 0.56f), own * kind.TintLean)
+                : tint.Lerp(new Color(0.90f, 0.80f, 0.56f), own * own * 0.45f);
+            float drift = 0.88f + (float)rng.NextDouble() * 0.24f;
             return (basis, 0.02f * size, new Color(tint.R * drift, tint.G * drift, tint.B * drift));
         }
         switch (kind.Mesh)
@@ -317,9 +496,19 @@ public partial class ScatterView : Node3D
                 float size = 0.75f + (float)rng.NextDouble() * 0.55f;
                 float tall = size * (0.8f + (float)rng.NextDouble() * 0.5f) * (0.75f + Tall());
                 var basis = Basis.FromEuler(new Vector3(lean, yaw, ((float)rng.NextDouble() - 0.5f) * 0.25f)) * Basis.FromScale(new Vector3(size, tall, size));
-                // Greener in the wood and the wet, straw-coloured on the worked dirt and the quarry, with a little drift a clump.
-                var tint = new Color(0.92f, 0.86f, 0.62f).Lerp(new Color(0.78f, 0.88f, 0.70f), Math.Clamp(Lush(), 0, 1));
-                float drift = 0.88f + (float)rng.NextDouble() * 0.24f;
+                // Greener in the wood and the wet, straw-coloured on the worked dirt and the quarry.
+                var tint = new Color(0.92f, 0.86f, 0.62f).Lerp(new Color(0.74f, 0.86f, 0.64f), Math.Clamp(Lush(), 0, 1));
+                // A clump's OWN dryness on top of the ground's. The old drift multiplied R, G and B by one
+                // factor, so it varied brightness only and a whole meadow came out one hue - the defect the
+                // owner's own note named ("grass is all the exact same hue"). This leans each clump along a
+                // warm/cool axis instead, so a field holds greener and drier clumps side by side.
+                //
+                // own*own was tried first and was too timid: its mean lean is only about 0.2, and the field
+                // still read as one green. Linear own against a browner target gives a mean lean near 0.38
+                // and a visible mix, which is what the references show.
+                float own = (float)rng.NextDouble();
+                tint = tint.Lerp(new Color(0.82f, 0.68f, 0.38f), own * 0.75f);
+                float drift = 0.90f + (float)rng.NextDouble() * 0.20f;
                 return (basis, 0.03f, new Color(tint.R * drift, tint.G * drift, tint.B * drift));
             }
             case "leaf_litter":
@@ -443,11 +632,10 @@ public partial class ScatterView : Node3D
     /// the wind foliage shader from the level's own maps. The albedo is re-mipped keeping its alpha-tested coverage (plain mipmaps thin
     /// cut-out leaves to nothing at a distance), once per distinct image; the normal and roughness maps are the library's own.
     /// </summary>
-    private static Mesh[] ModelMeshes(ArtLibrary art, ScatterKind kind, string id)
+    private Mesh[] ModelMeshes(ArtLibrary art, ScatterKind kind, string id)
     {
         var levels = art.ModelLevels(id);
         var meshes = new List<Mesh>();
-        var albedos = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
         float height = 0;
         foreach (var level in levels)
         {
@@ -482,15 +670,27 @@ public partial class ScatterView : Node3D
                     merged.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
                     if (height <= 0)
                         height = Math.Max(0.01f, merged.GetAabb().End.Y);
-                    merged.SurfaceSetMaterial(merged.GetSurfaceCount() - 1, Foliage(instance.GetActiveMaterial(s) as BaseMaterial3D, kind, height, albedos));
+                    merged.SurfaceSetMaterial(merged.GetSurfaceCount() - 1, Foliage(instance.GetActiveMaterial(s) as BaseMaterial3D, kind, height, _modelAlbedos));
                 }
             }
             level.Free();
             if (merged.GetSurfaceCount() == 0)
                 break;
+            // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
+            // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.
+            if (kind.Wind)
+                merged.CustomAabb = merged.GetAabb().Grow(WindCullMargin(height, kind.Stiffness));
             meshes.Add(merged);
         }
         return meshes.ToArray();
+    }
+
+    private static float WindCullMargin(float height, float stiffness)
+    {
+        // FoliageShader: strength/gust/height fraction <= 1, gust multiplier <= 1.65, sway factor <= 1.
+        // Sum the maximum bend, two-axis flutter (default 0.35), and vertical shortening lengths.
+        float amount = 1.65f / Math.Max(stiffness, 0.05f);
+        return height * (0.5f * amount + MathF.Sqrt(2f) * 0.35f * 0.05f + 0.08f * amount * amount);
     }
 
     private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, Dictionary<string, Texture2D> albedos)
@@ -498,7 +698,31 @@ public partial class ScatterView : Node3D
         var material = new ShaderMaterial { Shader = _foliageShader ??= new Shader { Code = WindField.FoliageShader } };
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
-        material.SetShaderParameter("upright_normals", kind.ModelId?.StartsWith("veg_gen_grass", StringComparison.Ordinal) == true);
+        // STONES DO NOT SWAY. Every model kind goes through this foliage shader, which bends its vertices by wind -
+        // correct for grass, ferns and flowers, and absurd for a boulder, which is what "even the rocks" was. A
+        // kind says `wind: false` in the rules and the bend and the flutter both go to zero.
+        if (!kind.Wind)
+        {
+            // `bend` scales with `tall` = plant_height * scale, and the flutter term with wind.w, so zeroing
+            // plant_height and flutter freezes the mesh. There is no wind_scale uniform; these two are the levers.
+            material.SetShaderParameter("plant_height", 0f);
+            material.SetShaderParameter("flutter", 0f);
+            // Preserve the imported solid-surface intent even if the loader later marks plant materials as cutouts.
+            if (source is not null && source.GetMeta("otherreach_source_transparency", (int)source.Transparency).AsInt32()
+                == (int)BaseMaterial3D.TransparencyEnum.Disabled)
+            {
+                material.SetShaderParameter("backlight_colour", Vector3.Zero);
+                material.SetShaderParameter("roughness_value", source.Roughness);
+            }
+        }
+        // Grass blades carry normals bent to the sky and are seen from both sides, so the shader must not flip the
+        // normal on the back face - a flipped sky-normal points at the ground and the blade shades black. This
+        // matched only "veg_gen_grass" and the region's grass is "veg_gen_tussock_*", so half of every clump was
+        // drawn with dark undersides. Any generated blade model needs this.
+        material.SetShaderParameter("upright_normals",
+            kind.ModelId?.StartsWith("veg_gen_grass", StringComparison.Ordinal) == true
+            || kind.ModelId?.StartsWith("veg_gen_tussock", StringComparison.Ordinal) == true
+            || kind.ModelId?.StartsWith("veg_gen_blade", StringComparison.Ordinal) == true);
         if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
         {
             if (image.IsCompressed())

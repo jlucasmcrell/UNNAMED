@@ -159,7 +159,7 @@ public static class AmbientLife
         return share >= 0.6f;
     }
 
-    /// <summary>The animals' shapes: a bird's body and two wings (0.9 m across), a butterfly's four wing panels (8 cm), a firefly's glow card.</summary>
+    /// <summary>The animals' shapes: a bird's body and two wings (0.9 m across), a butterfly's four rounded wings (5.6 cm), a firefly's glow card.</summary>
     private static Mesh Shape(string kind)
     {
         var tool = new SurfaceTool();
@@ -180,11 +180,53 @@ public static class AmbientLife
                 break;
             case "butterfly":
             {
-                // The bird's body and swept wings at an eighth of its size: a 12 cm span that beats as a moth or a butterfly does.
-                const float k = 0.13f;
-                Tri(new Vector3(0, 0, 0.22f) * k, new Vector3(-0.06f, 0, -0.18f) * k, new Vector3(0.06f, 0, -0.18f) * k);
-                Tri(new Vector3(-0.05f, 0, 0.12f) * k, new Vector3(-0.45f, 0, 0.1f) * k, new Vector3(-0.05f, 0, -0.14f) * k);
-                Tri(new Vector3(0.05f, 0, 0.12f) * k, new Vector3(0.05f, 0, -0.14f) * k, new Vector3(0.45f, 0, 0.1f) * k);
+                // Separate fore/hind wings, with a narrow raised body: no scaled bird silhouette.
+                void Vertex(Vector3 point, Vector2 uv, Color part)
+                {
+                    tool.SetUV(uv);
+                    tool.SetColor(part); // Red marks wings; green distinguishes fore/hind wings.
+                    tool.AddVertex(point);
+                }
+                void Wing(float side, Vector2 centre, Vector2[] edge, bool fore)
+                {
+                    var part = new Color(1, fore ? 1 : 0, 0);
+                    for (int i = 0; i < edge.Length; i++)
+                    {
+                        int j = (i + 1) % edge.Length;
+                        int a = side > 0 ? j : i, b = side > 0 ? i : j; // Godot's clockwise faces point both wings upward.
+                        Vertex(new Vector3(side * centre.X, 0, centre.Y), new Vector2(0.5f, 0.5f), part);
+                        Vertex(new Vector3(side * edge[a].X, 0, edge[a].Y),
+                            new Vector2(0.5f + 0.5f * Mathf.Cos(a * Mathf.Tau / edge.Length), 0.5f + 0.5f * Mathf.Sin(a * Mathf.Tau / edge.Length)), part);
+                        Vertex(new Vector3(side * edge[b].X, 0, edge[b].Y),
+                            new Vector2(0.5f + 0.5f * Mathf.Cos(b * Mathf.Tau / edge.Length), 0.5f + 0.5f * Mathf.Sin(b * Mathf.Tau / edge.Length)), part);
+                    }
+                }
+                Vector2[] forewing = { new(0.0012f, 0.005f), new(0.009f, 0.028f), new(0.019f, 0.029f), new(0.026f, 0.022f),
+                    new(0.028f, 0.012f), new(0.022f, 0.001f), new(0.012f, -0.003f), new(0.002f, -0.002f) };
+                Vector2[] hindwing = { new(0.0012f, -0.002f), new(0.012f, -0.001f), new(0.020f, -0.006f), new(0.021f, -0.015f),
+                    new(0.015f, -0.023f), new(0.007f, -0.024f), new(0.002f, -0.017f) };
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Wing(side, new Vector2(0.012f, 0.011f), forewing, true);
+                    Wing(side, new Vector2(0.009f, -0.011f), hindwing, false);
+                    // Two fine, diverging antennae above the head.
+                    Vertex(new Vector3(side * 0.0005f, 0.0015f, 0.014f), Vector2.Zero, Colors.Black);
+                    Vertex(new Vector3(side * 0.0035f, 0.0015f, 0.023f), Vector2.Zero, Colors.Black);
+                    Vertex(new Vector3(side * 0.0010f, 0.0015f, 0.014f), Vector2.Zero, Colors.Black);
+                }
+                // A six-sided thorax/abdomen, tapering at both ends; it stays still as the wings beat.
+                for (int i = 0; i < 6; i++)
+                {
+                    float a = i * Mathf.Tau / 6, b = (i + 1) * Mathf.Tau / 6;
+                    var p = new Vector3(0.0015f * Mathf.Cos(a), 0.0015f + 0.0015f * Mathf.Sin(a), 0.004f);
+                    var q = new Vector3(0.0015f * Mathf.Cos(b), 0.0015f + 0.0015f * Mathf.Sin(b), 0.004f);
+                    Vertex(new Vector3(0, 0.0015f, 0.016f), Vector2.Zero, Colors.Black);
+                    Vertex(q, Vector2.Zero, Colors.Black);
+                    Vertex(p, Vector2.Zero, Colors.Black);
+                    Vertex(new Vector3(0, 0.0015f, -0.018f), Vector2.Zero, Colors.Black);
+                    Vertex(p, Vector2.Zero, Colors.Black);
+                    Vertex(q, Vector2.Zero, Colors.Black);
+                }
                 break;
             }
             default:
@@ -220,10 +262,16 @@ uniform sampler2D mask_tex : filter_linear, repeat_disable;
 varying vec4 seed;
 varying float kept;
 varying vec2 card;
+varying vec2 wing_uv;
+varying vec2 wing_point;
+varying vec2 butterfly_part;
 
 void vertex() {
     seed = INSTANCE_CUSTOM;
     card = VERTEX.xy / 0.03 + vec2(0.0, 0.33);
+    wing_uv = UV;
+    wing_point = vec2(abs(VERTEX.x), VERTEX.z);
+    butterfly_part = COLOR.rg;
     float t = TIME * seed.z * 6.2832 + seed.x * 6.2832;
     vec3 offset;
     vec3 fwd;
@@ -239,14 +287,21 @@ void vertex() {
     vec3 v = VERTEX;
     if (kind < 2) {
         // Wingbeat: each wing turns about the body by an angle growing to its tip; a bird glides between bursts, a butterfly never stops.
-        float rate = kind == 0 ? 9.0 : 22.0;
+        float rate = kind == 0 ? 9.0 : 44.0 + seed.w * 16.0;
         float beat = sin(TIME * rate + seed.x * 40.0);
         float glide = kind == 0 ? smoothstep(-0.2, 0.6, sin(TIME * 0.7 + seed.w * 9.0)) : 1.0;
-        float angle = beat * (kind == 0 ? 0.55 : 1.1) * glide;
-        v = vec3(v.x * cos(angle), abs(v.x) * sin(angle), v.z);
+        float angle = kind == 0 ? beat * 0.55 * glide : 0.35 + beat * 0.85;
+        if (kind == 0) {
+            v = vec3(v.x * cos(angle), abs(v.x) * sin(angle), v.z);
+        } else if (COLOR.r > 0.5) {
+            float turn = sign(v.x) * angle;
+            v = vec3(v.x * cos(turn) - v.y * sin(turn), v.x * sin(turn) + v.y * cos(turn), v.z);
+            NORMAL = vec3(NORMAL.x * cos(turn) - NORMAL.y * sin(turn), NORMAL.x * sin(turn) + NORMAL.y * cos(turn), NORMAL.z);
+        }
     }
     vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), fwd));
     vec3 up = cross(fwd, right);
+    if (kind == 1) NORMAL = right * NORMAL.x + up * NORMAL.y + fwd * NORMAL.z;
     if (kind == 2) {
         // A firefly's card faces the camera.
         right = normalize(INV_VIEW_MATRIX[0].xyz);
@@ -260,10 +315,14 @@ void vertex() {
         // The anchor wrapped into the square round the camera, stood on the ground there, and kept only over its grounds (and the region).
         vec3 cam = INV_VIEW_MATRIX[3].xyz;
         vec2 p = cam.xz + mod(anchor.xz - cam.xz + wrap_r, 2.0 * wrap_r) - wrap_r;
-        vec2 uv = (p - region.xy) / region.zw;
+        vec2 uv = (p + (kind == 1 ? offset.xz : vec2(0.0)) - region.xy) / region.zw;
         float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
         kept = inside * step(0.5, texture(mask_tex, uv).r);
         vec3 world = vec3(p.x, texture(height_tex, uv).r + anchor.y, p.y);
+        if (kind == 1) {
+            world.y = texture(height_tex, uv).r + max(anchor.y + offset.y, 0.12);
+            offset.y = 0.0;
+        }
         // Fade in and out at the edge of the square, where it wraps.
         float edge = max(abs(p.x - cam.x), abs(p.y - cam.z)) / wrap_r;
         kept *= 1.0 - smoothstep(0.8, 1.0, edge);
@@ -278,11 +337,17 @@ void fragment() {
         ALBEDO = vec3(0.05, 0.05, 0.055);
         ROUGHNESS = 0.9;
     } else if (kind == 1) {
-        // Whites, yellows and browns, as the meadow's own would be.
-        vec3 a = vec3(0.92, 0.9, 0.82), b = vec3(0.95, 0.78, 0.25), c = vec3(0.55, 0.32, 0.12);
-        ALBEDO = seed.w < 0.4 ? a : (seed.w < 0.75 ? b : c);
-        ROUGHNESS = 0.8;
-        BACKLIGHT = ALBEDO * 0.5;
+        // Matte cream, ochre and copper wings with darker margins, fine veins and restrained spots.
+        vec3 a = vec3(0.80, 0.77, 0.65), b = vec3(0.74, 0.55, 0.20), c = vec3(0.54, 0.28, 0.12);
+        vec3 base = seed.w < 0.4 ? a : (seed.w < 0.75 ? b : c);
+        float margin = smoothstep(0.76, 0.98, length((wing_uv - vec2(0.5)) * 2.0));
+        float veins = 1.0 - smoothstep(0.015, 0.08, abs(sin(atan(wing_point.y - 0.002, wing_point.x) * 9.0)));
+        float spot = 1.0 - smoothstep(0.035, 0.075, distance(wing_uv, vec2(0.69, 0.69)));
+        vec3 wing = mix(base, base * 0.25, max(margin * 0.75, spot * butterfly_part.y));
+        wing *= 1.0 - veins * 0.16;
+        ALBEDO = mix(vec3(0.07, 0.055, 0.035), wing, butterfly_part.x);
+        ROUGHNESS = 0.9;
+        BACKLIGHT = ALBEDO * 0.15 * butterfly_part.x;
     } else {
         // A firefly: a soft glow that blinks on and off in its own time.
         vec2 p = card;

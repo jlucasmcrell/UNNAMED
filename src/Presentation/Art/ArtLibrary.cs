@@ -53,6 +53,15 @@ public sealed class ArtLibrary
     private readonly Dictionary<string, WorldMaps?> _maps = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, string> _problems = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, int> _uses = new(StringComparer.Ordinal);
+    /// <summary>A model's own vertices, read once and kept: <see cref="TurnedFootprint"/> asks for them per placement.</summary>
+    private readonly Dictionary<string, Vector3[]> _vertices = new(StringComparer.Ordinal);
+    private const string AoFlaggedPath = "res://Art/ao_flagged.json";
+    private static HashSet<string>? _aoFlagged;
+    private static bool _aoNothing;
+    public static int OcclusionDrawn => _aoDrawn;
+    public static int OcclusionSuppressed => _aoSuppressed;
+    private static int _aoDrawn;
+    private static int _aoSuppressed;
     private int _sceneCount, _textureCount, _mapCount;
     private double _sceneMs, _textureMs, _mapMs;
     private long _vramAsLoaded, _vramWithMips;
@@ -67,6 +76,61 @@ public sealed class ArtLibrary
 
     /// <summary>Set by <c>--texture-cache</c> (editor binary): every texture this run loads is compressed into the cache (Phase B, B1).</summary>
     public static bool BuildTextureCache { get; set; }
+
+    /// <summary>
+    /// Set by <c>--asset-fallback</c>: a second workspace searched for any file the primary does not hold. A region's own root carries the
+    /// region's art and is small; the shared depot holds every generated body the pipeline has made. Without this a region can only draw the
+    /// files it copied, so an ID the depot has but the region does not falls back to greybox for no reason but the root it was looked up in.
+    /// </summary>
+    public static string? FallbackRoot { get; set; }
+
+    /// <summary>Every workspace a relative path is looked up under, the primary first.</summary>
+    private IEnumerable<string> Workspaces
+    {
+        get
+        {
+            if (Root is not null)
+                yield return Root;
+            if (FallbackRoot is not null && !string.Equals(FallbackRoot, Root, StringComparison.OrdinalIgnoreCase))
+                yield return FallbackRoot;
+        }
+    }
+
+    /// <summary>Where <paramref name="relative"/> actually lies, or null when no workspace holds it.</summary>
+    private string? At(string relative)
+    {
+        foreach (string workspace in Workspaces)
+        {
+            string path = Path.Combine(workspace, relative);
+            if (File.Exists(path))
+                return path;
+        }
+        return null;
+    }
+
+    /// <summary>The workspace <paramref name="path"/> lies under: what names it in a report or keys it in the texture cache.</summary>
+    /// <remarks>
+    /// The LONGEST matching workspace, not the first one that matches. The convention on disk nests the region inside the depot
+    /// (<c>&lt;depot&gt;\&lt;region&gt;\assets</c> against <c>&lt;depot&gt;\assets</c> - see <c>Main.SiblingDepot</c>), so a depot path
+    /// STARTS WITH the region's path and the first-match form answered "the region" for every depot file. It was latent until a report
+    /// needed the answer: anything keyed on it - <see cref="TextureCache"/>'s keys for the compressed copies - had the two workspaces
+    /// collapsed onto one name for every file the region happens not to hold. Cairnwold's own root is
+    /// <c>G:\UNNAMED_DS_ASSETS\cairnwold\assets</c> and its depot is <c>G:\UNNAMED_DS_ASSETS\assets</c>.
+    /// </remarks>
+    private string WorkspaceOf(string path)
+    {
+        string best = Root ?? string.Empty;
+        int longest = 0;
+        foreach (string workspace in Workspaces)
+        {
+            if (workspace.Length > longest && path.StartsWith(workspace, StringComparison.OrdinalIgnoreCase))
+            {
+                best = workspace;
+                longest = workspace.Length;
+            }
+        }
+        return best;
+    }
 
     /// <summary>The compressed, shared copies of the textures (Phase B, B1), used when the run asks for them (<c>--visual textures=cache</c>).</summary>
     public TextureCache Cache { get; }
@@ -88,8 +152,80 @@ public sealed class ArtLibrary
     /// <summary>IDs that exist but are not fit to draw (the bindings' "withheld"): asked for, they are reported and the greybox stands in.</summary>
     public void Withhold(IReadOnlyDictionary<string, string> withheld) => _withheld = withheld;
 
-    private bool IsWithheld(string id)
+    /// <summary>
+    /// The models whose occlusion channel is near-black over whole islands, so Godot would draw black patches where
+    /// Blender draws none. Read once from <c>res://Art/ao_flagged.json</c>, which
+    /// <c>tools/asset_pipeline/cairnwold/ao_flag_report.py</c> writes from <c>tools/visual_review/ao_check.py</c>'s
+    /// own per-model measurement - Cairnwold 0 of 70, the shared depot 479 of 572.
+    /// </summary>
+    private static bool FlaggedForOcclusion(string id)
     {
+        // THE STRONGEST FORM OF THE FLAG, KEPT AS A ONE-FLAG EXPERIMENT (handoff section 9.0ac). Setting
+        // UNNAMED_AO_ALL_OFF=1 suppresses baked occlusion on EVERY material, which is the most this axis can
+        // ever do. Measured with it, Ashen Hollow's sixteen view frames against an identical-run control:
+        // the largest whole-frame change is mean |dL| 1.31 over 3.57 % of pixels - so baked occlusion, on or
+        // off for all 347 materials, is a marginal term here. The reason is already in the code beside it:
+        // the renderer's own SSAO does the contact shading (`HollowView.BuildLighting`, radius 1.4 intensity
+        // 2.2), the foliage shader forces `AO = 1.0` by design, and `Palette.Wear` folds the map in as
+        // `AO = ao * orm.r`. Kept rather than deleted, on the same rule as the `skin` bisect arms: one build
+        // photographs both ends, and no shipping run ever sets it. Never set it without a control run.
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_AO_ALL_OFF") == "1")
+            return true;
+        if (_aoFlagged is null)
+        {
+            _aoFlagged = new HashSet<string>(StringComparer.Ordinal);
+            try
+            {
+                if (Godot.FileAccess.FileExists(AoFlaggedPath))
+                {
+                    using var document = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(AoFlaggedPath));
+                    foreach (var group in document.RootElement.EnumerateObject())
+                    {
+                        if (group.Value.ValueKind != JsonValueKind.Array)
+                            continue;
+                        foreach (var entry in group.Value.EnumerateArray())
+                        {
+                            if (entry.GetString() is not { } name)
+                                continue;
+                            // THE LIST STORES PATHS; THE LOOKUP IS A BARE ASSET ID, SO IT NEVER MATCHED.
+                            // `Filter` builds the id it tests with as
+                            // `Path.GetFileName(Path.GetDirectoryName(path))` - "creature_frost_wolf" - while
+                            // every one of the 479 entries is a full path ending in "ready\<id>\<id>.glb", and
+                            // `HashSet.Contains` is an ordinal exact match, so the two could never meet.
+                            // `OcclusionSuppressed` has therefore been 0 in every run while the mechanism read
+                            // as present in the code, and the suppression this file was built to apply has
+                            // never once fired. Measured 2026-09-29: 479 of 479 entries are paths; 37 of the
+                            // 206 assets Ashen Hollow resolves are flagged by bare name; 0 matched exactly.
+                            // Checked against the measurement that made the list rather than trusting it:
+                            // `tools/visual_review/ao_check.py` still flags all six sampled entries
+                            // (landmark_ashen_waystone 49.2 % of its sampled surface near-black, frost wolf
+                            // 45.3 %, ash hound 41.7 %, barrel 34.4 %, husk 18.3 %, anvil stump 18.2 %) and 0
+                            // of 3 Cairnwold controls, so the list is current and it is the lookup that was
+                            // wrong. BOTH FORMS ARE ADDED, so the file may be written either way from now on.
+                            _aoFlagged.Add(name);
+                            if (name.EndsWith(".glb", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string? folder = Path.GetDirectoryName(name);
+                                if (!string.IsNullOrEmpty(folder))
+                                    _aoFlagged.Add(Path.GetFileName(folder));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (JsonException e)
+            {
+                GD.PushWarning($"UNNAMED art: {AoFlaggedPath} could not be read ({e.Message}); occlusion stays off");
+                _aoFlagged.Clear();
+                _aoNothing = true;
+            }
+        }
+        // A list that would not parse means "no occlusion anywhere", which is the behaviour this replaced - the safe
+        // answer, and the one that cannot paint black patches on a model nobody has measured.
+        return _aoNothing || _aoFlagged.Contains(id);
+    }
+
+    private bool IsWithheld(string id)    {
         if (!_withheld.TryGetValue(id, out string? why))
             return false;
         Problem(id, "withheld: " + why);
@@ -108,6 +244,54 @@ public sealed class ArtLibrary
     public IReadOnlyCollection<string> Used => _uses.Where(u => u.Value > 0).Select(u => u.Key).ToList();
 
     private void Use(string id) => _uses[id] = _uses.GetValueOrDefault(id) + 1;
+
+    /// <summary>
+    /// How wide and deep a model's own vertices reach when it is turned about the centre of its bounds - the footprint
+    /// the MESH occupies at a yaw, which is what a turned structure's blocker has to match.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="ArtGallery.Bounds"/> cannot answer this. Merging mesh AABBs gives the model's box in ITS OWN frame,
+    /// and turning a box gives the box of the turned box - the worst case of the corners. On these rocks that is not a
+    /// small difference: cw_boulder_a measures 1.01 x 1.46 m and its swept-corner box is 1.78 m, for a 1.49 m rock. A
+    /// blocker built from the swept box stops the player half a metre short of open air on 240 placements, which is
+    /// the owner's "I walk through the boulder" bug with the sign changed. So the vertices themselves are turned.
+    /// </remarks>
+    public Vector2 TurnedFootprint(string modelId, Node3D model, float yawRadians)
+    {
+        if (!_vertices.TryGetValue(modelId, out var points))
+        {
+            var gathered = new List<Vector3>();
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            {
+                if (mesh.Mesh is not ArrayMesh array)
+                    continue;
+                var toRoot = Relative(model, mesh);
+                for (int surface = 0; surface < array.GetSurfaceCount(); surface++)
+                {
+                    var arrays = array.SurfaceGetArrays(surface);
+                    if (arrays.Count <= (int)Mesh.ArrayType.Vertex)
+                        continue;
+                    foreach (var v in arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array())
+                        gathered.Add(toRoot * v);
+                }
+            }
+            _vertices[modelId] = points = gathered.ToArray();
+        }
+        var bounds = ArtGallery.Bounds(model);
+        if (points.Length == 0)
+            return new Vector2(Math.Max(0.01f, bounds.Size.X), Math.Max(0.01f, bounds.Size.Z));
+        var centre = bounds.GetCenter();
+        float cos = Mathf.Cos(yawRadians), sin = Mathf.Sin(yawRadians);
+        float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
+        foreach (var p in points)
+        {
+            float dx = p.X - centre.X, dz = p.Z - centre.Z;
+            float x = dx * cos + dz * sin, z = -dx * sin + dz * cos;
+            minX = Math.Min(minX, x); maxX = Math.Max(maxX, x);
+            minZ = Math.Min(minZ, z); maxZ = Math.Max(maxZ, z);
+        }
+        return new Vector2(maxX - minX, maxZ - minZ);
+    }
 
     /// <summary>
     /// A static model at its authored size (<c>ready/&lt;id&gt;/&lt;id&gt;.glb</c>), or null. Always the full model: every <c>_lod</c> file in
@@ -133,9 +317,21 @@ public sealed class ArtLibrary
         float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
         // A tree's levels come sooner than its size alone would bring them (docs/phase_b/demo/trees/TREES.md): its needles and twigs thin
         // to sky on the lighter meshes past about 130 m, where the crossed-plane impostor holds a solid crown.
-        float[] from = id.StartsWith("flora_", StringComparison.Ordinal) && id.Contains("_tree", StringComparison.Ordinal)
+        bool tree = IsTreeFamily(id);
+        float[] from = tree
             ? new[] { 0f, 35f, 80f, 150f }
             : new[] { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
+        // UNNAMED_LOD_REPORT=1 prints which ladder a model took and where its levels switch, so a claim about switch distances is
+        // measured off a run rather than argued from the source. A name rule is only as good as the names it knows (IsFoliage makes
+        // the same point), and this is what makes a name the rule gets WRONG visible: flora_slowtree took the generic ladder, 14 m of
+        // tree holding LOD0 to 56 m where the same 14 m as flora_willow_tree dropped it at 35 m, and nothing in any report said so.
+        if (OS.GetEnvironment("UNNAMED_LOD_REPORT") == "1")
+            GD.Print($"UNNAMED lod: {id} size={size:0.00} m levels={all.Count} ladder={(tree ? "tree" : "generic")} "
+                + $"switch=[{string.Join(", ", from.Take(all.Count).Select(f => f.ToString("0.#")))}] m");
+        // UNNAMED_LOD_STIPPLE=1 restores the old dithered cross-fade, so the change can be measured against itself
+        // on one build rather than argued about. The project already gates diagnostics this way
+        // (UNNAMED_TERRAIN_AUTOSHADER, UNNAMED_TERRAIN_MARKOUTSIDE, UNNAMED_DUMP_TERRAIN). Default is the hard switch.
+        bool stipple = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1";
         for (int i = 0; i < all.Count; i++)
         {
             root.AddChild(all[i]);
@@ -143,10 +339,30 @@ public sealed class ArtLibrary
             foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
             {
                 mesh.VisibilityRangeBegin = begin;
-                mesh.VisibilityRangeBeginMargin = begin > 0 ? 0.1f * begin : 0;
-                mesh.VisibilityRangeEnd = end;
-                mesh.VisibilityRangeEndMargin = end > 0 ? 0.1f * end : 0;
-                mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+                mesh.VisibilityRangeEnd = !stipple && end > 0 ? MathF.BitDecrement(end) : end;
+                // NO STIPPLE FADE, AND NO MARGINS - the same change ScatterView already carries, applied to every other
+                // model in the library. VisibilityRangeFadeMode.Self fades by DITHERING the surface, and on an
+                // ALPHA-SCISSOR material a stipple that falls below the scissor threshold does not fade, it TOGGLES:
+                // the instance is drawn, then not, then drawn, frame to frame. That is the owner's report verbatim -
+                // "blades of grass, tree leaves and limbs, rocks ... they go black and come back, draw and undraw,
+                // especially while you are walking around" - and this path covers the trees, leaves, limbs and rocks,
+                // which the scatter path never did. Walking is worst because that is when instances cross a band and
+                // the stipple changes.
+                //
+                // THE MARGINS WERE THE SECOND HALF OF IT. BeginMargin and EndMargin at 10 percent of the switch
+                // distance mean BOTH adjacent levels are drawn across the whole overlap band - two copies of the same
+                // tree at once - and the dither pattern that separates them is in SCREEN space, so it crawls as the
+                // camera moves. That is a flicker generator even on opaque materials. With no fade mode the margins
+                // mean nothing, so they are gone rather than left to imply a cross-fade that no longer happens.
+                //
+                // A hard switch costs nothing here: the levels are the same asset at the same distance, so the swap is
+                // invisible, while a dither can never be. Proven on the scatter layer first, where setting the band
+                // took the pinned world from 8.5/14.7/12.9/18.2 fps to 52.6/57.0/58.3/71.0.
+                mesh.VisibilityRangeBeginMargin = stipple && begin > 0 ? 0.1f * begin : 0;
+                mesh.VisibilityRangeEndMargin = stipple && end > 0 ? 0.1f * end : 0;
+                mesh.VisibilityRangeFadeMode = stipple
+                    ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
+                    : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
             }
         }
         return root;
@@ -161,11 +377,14 @@ public sealed class ArtLibrary
         if (Model(id) is not { } full)
             return Array.Empty<Node3D>();
         var levels = new List<Node3D>();
+        // Where each level was found, so a PARTIAL override is visible. The chain has always fallen through per FILE (At searches every
+        // workspace), which is right; what was missing is that it did so silently. See ReportProvenance.
+        var from = new List<string> { WorkspaceOfPath(id) };
         bool textured = Textured(full);
         for (int n = 1; n <= 3; n++)
         {
             string relative = Path.Combine("ready", id, $"{id}_lod{n}.glb");
-            if (Root is null || !File.Exists(Path.Combine(Root, relative)))
+            if (Root is null || At(relative) is not { } found)
                 break;
             if (Instance($"{id}_lod{n}", relative) is not { } level)
                 break;
@@ -177,11 +396,59 @@ public sealed class ArtLibrary
                 break;
             }
             levels.Add(level);
+            from.Add(WorkspaceOf(found));
         }
+        ReportProvenance(id, from);
         var all = new List<Node3D> { full };
         all.AddRange(levels);
         return all;
     }
+
+    /// <summary>Where <paramref name="id"/>'s own model (<c>ready/&lt;id&gt;/&lt;id&gt;.glb</c>) lies, by workspace.</summary>
+    private string WorkspaceOfPath(string id) =>
+        At(Path.Combine("ready", id, id + ".glb")) is { } path ? WorkspaceOf(path) : Root ?? string.Empty;
+
+    private readonly HashSet<string> _provenanceReported = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Prints, once per asset per run, which workspace each level of a model's chain came from: the case is a region that overrides an
+    /// asset with LOD0 alone, so its LOD0 is the region's mesh while every lighter level is the depot's.
+    /// </summary>
+    /// <remarks>
+    /// THIS IS A PROVENANCE NOTE, NOT AN ALARM, AND THE FIRST VERSION OF IT SAID OTHERWISE. It claimed the fall-through levels were
+    /// "decimations of THAT workspace's LOD0 rather than of the mesh being drawn", and quoted 60 mm / 204 mm of shape error on
+    /// Cairnwold's two boulders. **Both claims were wrong, and they were wrong in the same way: the measurement did not align the two
+    /// meshes.** A depot asset is RE-ORIGINED - <c>env_ph_boulder_01_meta.json</c> says "base centre: LOD0 bounding-box centre at X=0,
+    /// Z=0, min Y=0" - and the region's override is not, so the boulders' two bounding-box centres differ by ~0.11 m. Measuring a
+    /// distance across that offset reports the re-origin as shape error and overstates it **46x**: 47.94 mm before alignment,
+    /// **1.15 mm after** (mean, onto the region's LOD0), which is **0.10 px** on a 1920x1080 frame at the 8 m band. The depot's own
+    /// chain is decimated from the SAME source mesh the region re-origined (same <c>source_faces</c>, bounds agreeing to 4 decimals,
+    /// 0.02 % of the largest side by a scale-invariant shape test), so the hand-over is geometrically seamless and there is no pop.
+    /// See docs/phase_b/LOD_OVERRIDE_ROUND.md. **Align before measuring: a re-origin is not a defect.**
+    /// </remarks>
+    private void ReportProvenance(string id, List<string> from)
+    {
+        if (!_provenanceReported.Add(id))
+            return;
+        if (from.Count < 2)
+            return;
+        // The full path, not its leaf: the convention on disk puts the region at <depot>\<region>\assets, so BOTH roots are named
+        // "assets" and a leaf comparison answers "not mixed" for every partial override there is.
+        var names = from.Select(WorkspaceLabel).ToArray();
+        bool mixed = from.Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1;
+        if (!mixed)
+            return;
+        GD.Print($"UNNAMED art: {id}: partial override - LOD0 from {names[0]}, "
+            + $"lod{string.Join("/lod", Enumerable.Range(1, names.Length - 1))} from {string.Join(", ", names.Skip(1).Distinct(StringComparer.Ordinal))}. "
+            + "All levels draw; this is a note on where they come from, not a fault. Check the fall-through chain is decimated from the "
+            + "same mesh as the LOD0 being drawn (align them first - a re-origin is not a defect) before treating it as a pop.");
+    }
+
+    /// <summary>A workspace named in a report: <c>depot</c> for the fallback, <c>region</c> for the primary, with the path for the log.</summary>
+    private string WorkspaceLabel(string workspace) =>
+        string.Equals(workspace, FallbackRoot, StringComparison.OrdinalIgnoreCase) ? $"the depot ({workspace})"
+        : string.Equals(workspace, Root, StringComparison.OrdinalIgnoreCase) ? $"the region ({workspace})"
+        : workspace;
 
     private static bool Textured(Node3D model)
     {
@@ -189,6 +456,52 @@ public sealed class ArtLibrary
         return meshes.Count > 0 && meshes.All(m => m.Mesh is not null && Enumerable.Range(0, m.Mesh.GetSurfaceCount())
             .All(i => m.GetActiveMaterial(i) is BaseMaterial3D { AlbedoTexture: not null }));
     }
+
+    /// <summary>
+    /// Whether an id names a tree, so its levels switch on the tree ladder rather than on its extent. The test is the id's HEAD NOUN:
+    /// drop an optional variant suffix (<c>flora_oak_tree_b</c> is an oak tree), then ask whether what is left names a tree - its last
+    /// word is <c>tree</c>, or it is one of the species that is only ever a tree.
+    /// </summary>
+    /// <remarks>
+    /// IT WAS <c>StartsWith("flora_") &amp;&amp; Contains("_tree")</c>, AND BOTH HALVES WERE WRONG.
+    ///
+    /// The <c>_tree</c> substring has an underscore in it that the family does not: <c>flora_slowtree</c> is a 14 m tree with a
+    /// four-level chain and it matched neither half of a rule every one of its siblings matches, so it took the generic ladder - LOD0
+    /// held to 56 m where <c>flora_willow_tree</c>, the same 14 m with the same chains, drops it at 35 m.
+    ///
+    /// The <c>flora_</c> prefix is the larger half, and it is measured rather than argued. A region names its own art by its own
+    /// convention: Cairnwold's trees are <c>cw_birch_a..f</c> and <c>cw_pine_a..f</c>, so the rule never fired for a single tree the
+    /// region actually draws. Twelve LIVE models - 55 pine placements and 90 birch placements - took the generic ladder. A run's own
+    /// numbers (<c>UNNAMED_LOD_REPORT=1</c>): <c>cw_pine_f</c> at 15.54 m held LOD0 to <b>62.2 m</b> where an identical 15.5 m tree drops
+    /// it at 35 m, and <c>cw_birch_a</c> at 9.54 m held it to 38.2 m against 35 m. Their LOD3s are 16 triangles - the crossed-plane
+    /// impostor <c>tools/asset_pipeline/_procgen_tree_lods.py</c> builds, which docs/phase_b/demo/trees/TREES.md judges at 25/50/80 m
+    /// and says is worth reaching sooner because "the alpha-cut pine needles and dead twigs of LOD1/LOD2 break up into sky, where the
+    /// impostor stays solid". So these twelve were built as tree-ladder assets and handed a ladder that keeps the expensive levels
+    /// 1.4-1.8x too long. It costs performance and it holds twig-thin LOD1 meshes past the range the sheet says they read at.
+    ///
+    /// The species list is applied to the HEAD NOUN only, so a part of a tree or a different plant keeps the generic ladder: measured
+    /// over every tree-ish id in both workspaces (docs/phase_b/lod_override/flora_classification.md), 62 ids evaluated, 10 matched the
+    /// old rule, 22 match this one, and the 12 that move are the region's own pines and birches. <c>flora_ash_stumps</c> (a stump),
+    /// <c>flora_fallen_log</c> (a log), <c>flora_young_ash_stand</c> (a stand of trees, not a tree), <c>flora_bramble_bush</c> (a
+    /// shrub) and <c>env_ph_dead_tree_trunk</c> (a trunk) all keep the generic ladder, which is correct for every one of them.
+    /// </remarks>
+    private static bool IsTreeFamily(string id)
+    {
+        ReadOnlySpan<char> head = id;
+        if (head.Length > 2 && head[^2] == '_' && char.IsAsciiLetterLower(head[^1]))
+            head = head[..^2];
+        if (head.EndsWith("tree", StringComparison.Ordinal))
+            return true;
+        string name = head.ToString();
+        return TreeSpecies.Any(species => name.EndsWith(species, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Species whose every asset is a tree, whatever a region prefixes it with: Cairnwold's <c>cw_pine_*</c> and <c>cw_birch_*</c> are
+    /// whole trees, while <c>cw_bed_straw</c>, <c>env_ph_tree_stump_01</c> and every <c>*_bush</c>, <c>*_fern</c> and <c>*_log</c> end in
+    /// something else and are left on the generic ladder. Add a name here when a region ships a tree under a new species word.
+    /// </summary>
+    private static readonly string[] TreeSpecies = { "birch", "pine" };
 
     /// <summary>A skinned model (<c>rigged/&lt;id&gt;/&lt;id&gt;_rigged.glb</c>), or null.</summary>
     public Node3D? Rigged(string id) => Instance(id, Path.Combine("rigged", id, id + "_rigged.glb"));
@@ -199,7 +512,7 @@ public sealed class ArtLibrary
             return null;
         if (!_scenes.TryGetValue(relative, out var scene))
         {
-            scene = LoadScene(id, Path.Combine(Root, relative));
+            scene = At(relative) is { } path ? LoadScene(id, path) : Miss(id, relative);
             _scenes[relative] = scene;
         }
         if (scene?.Instantiate() is not Node3D node)
@@ -208,11 +521,18 @@ public sealed class ArtLibrary
         return node;
     }
 
+    /// <summary>Records that no workspace holds <paramref name="relative"/> (what the greybox stands in for), and returns nothing.</summary>
+    private PackedScene? Miss(string id, string relative)
+    {
+        Problem(id, $"no file at {relative}");
+        return null;
+    }
+
     private PackedScene? LoadScene(string id, string path)
     {
         if (!File.Exists(path))
         {
-            Problem(id, $"no file at {Path.GetRelativePath(Root!, path)}");
+            Problem(id, $"no file at {Path.GetRelativePath(WorkspaceOf(path), path)}");
             return null;
         }
         ulong started = Time.GetTicksUsec();
@@ -258,12 +578,54 @@ public sealed class ArtLibrary
     /// anisotropic filtering (Phase A: the visual audit's V1). The textures stay uncompressed RGBA8 (VRAM compression is a Phase-B import step).
     /// A surface whose mesh carries vertex colours (glTF COLOR_0) has them multiply its colour, as glTF says.
     /// </summary>
+    /// <summary>
+    /// Whether an asset is a plant, and so whose materials are leaves rather than surfaces. Named rather
+    /// than guessed from the textures, and a stump is wood: it keeps ordinary shading.
+    /// </summary>
+    /// <summary>
+    /// Whether an asset is a plant, and so gets leaf shading rather than wood shading. This is keyed on the
+    /// asset's NAME because the pipeline carries no other signal, and a name rule is only as good as the names
+    /// it knows: a region whose trees are not called <c>flora_*</c> silently gets no foliage treatment at all -
+    /// no alpha scissor, no backlight, no two-sided cards, no roughness floor. Cairnwold's birches and pines
+    /// were drawn entirely the wrong way round for exactly that reason, which is why their crowns read as
+    /// stacks of flat paper. Any future region must add its own plant names here.
+    /// </summary>
+    private static readonly string[] PlantWords =
+        { "birch", "pine", "heather", "grass", "fern", "nettle", "leaf", "needle", "clump", "tuft", "tussock", "moss" };
+
+    private static bool IsFoliage(string assetId)
+    {
+        bool planted = assetId.StartsWith("flora_", StringComparison.Ordinal)
+                       || assetId.StartsWith("veg_", StringComparison.Ordinal)
+                       || assetId.StartsWith("env_ph_tree", StringComparison.Ordinal)
+                       || (assetId.StartsWith("cw_", StringComparison.Ordinal)
+                           && PlantWords.Any(plant => assetId.Contains(plant, StringComparison.Ordinal)));
+        bool woody = assetId.Contains("stump", StringComparison.Ordinal)
+                     || assetId.Contains("bark", StringComparison.Ordinal)
+                     || assetId.Contains("log", StringComparison.Ordinal)
+                     || assetId.Contains("dead", StringComparison.Ordinal);
+        return planted && !woody;
+    }
+
+    private static bool IsExplicitOpaqueWood(BaseMaterial3D material)
+    {
+        if (material.Transparency != BaseMaterial3D.TransparencyEnum.Disabled)
+            return false;
+        string name = material.ResourceName;
+        return name.Contains("bark", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("wood", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("trunk", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("branch", StringComparison.OrdinalIgnoreCase);
+    }
+
     private void Filter(Node3D root, string path, IReadOnlyDictionary<ulong, int> images)
     {
         ulong started = Time.GetTicksUsec();
+        // The asset's own id (its folder under the workspace), which is what says whether this is a plant.
+        string assetId = Path.GetFileName(Path.GetDirectoryName(path)) ?? string.Empty;
         var seen = new HashSet<ulong>();
         var swapped = new Dictionary<ulong, Texture2D>();
-        string relative = Path.GetRelativePath(Root!, path);
+        string relative = Path.GetRelativePath(WorkspaceOf(path), path);
         foreach (var mesh in root.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
             if (mesh.Mesh is null)
@@ -279,10 +641,83 @@ public sealed class ArtLibrary
                     if (candidate is not BaseMaterial3D material || !seen.Add(material.GetInstanceId()))
                         continue;
                     material.TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
-                    // A file's baked occlusion is not drawn: the generated and scanned models' occlusion channels are black over whole
-                    // islands (the rim boulder over 57 % of its surface, a third of the models likewise: tools/visual_review/ao_check.py),
-                    // which Godot applies as black patches where Blender shows none. Contact shading is the renderer's own occlusion.
-                    material.AOEnabled = false;
+                    // Keep imported opacity before whole-plant foliage treatment changes it.
+                    if (!material.HasMeta("otherreach_source_transparency"))
+                        material.SetMeta("otherreach_source_transparency", (int)material.Transparency);
+                    // A file's baked occlusion is drawn UNLESS THIS MODEL IS ON THE FLAGGED LIST. The reason it used
+                    // to be off for everything: "the generated and scanned models' occlusion channels are black over
+                    // whole islands (the rim boulder over 57 % of its surface, a third of the models likewise:
+                    // tools/visual_review/ao_check.py), which Godot applies as black patches where Blender shows
+                    // none". That measurement is real and the list is it, made once by
+                    // tools/asset_pipeline/cairnwold/ao_flag_report.py and shipped beside this file.
+                    //
+                    // THE BLANKET REMEDY COST MORE THAN THE FAULT. Run over Cairnwold's 70 ready models, ao_check
+                    // flags ZERO; over the shared depot it flags 479 of 572. So switching AO off everywhere threw
+                    // away the occlusion on every model that does not have the defect - including all of Cairnwold's,
+                    // whose materials carry authored occlusion (`cw_wet_stone_wall` R = 0.445, `cw_thatch` 0.479,
+                    // `cw_slate_roof` 0.822, `cw_timber_beam` 0.781, per check_orm.py) that the game has never drawn.
+                    //
+                    // And three separate blind passes asked for exactly this: "flat lighting lacking ambient
+                    // occlusion" (round 146), "lack of subtle micro-geometry and natural shading" (148), "without
+                    // ambient occlusion ... integrate contact shadows around building foundations" (155).
+                    bool aoDrawn = material.AOTexture is not null && !FlaggedForOcclusion(assetId);
+                    material.AOEnabled = aoDrawn;
+                    if (aoDrawn) _aoDrawn++; else if (material.AOTexture is not null) _aoSuppressed++;
+                    // ROUGHNESS WAS BEING READ FROM THE WRONG CHANNEL - on every imported asset, in both regions.
+                    //
+                    // Godot's BaseMaterial3D description: "OrmTexture ... a more efficient replacement of
+                    // AOTexture, RoughnessTexture and MetallicTexture ... Ambient occlusion is stored in the red
+                    // channel. Roughness map is stored in the green channel. Metallic map is stored in the blue
+                    // channel." The glTF importer does NOT build an ORM material, it binds the maps separately -
+                    // and `roughness_texture_channel` DEFAULTS TO RED, while glTF packs roughness in GREEN.
+                    //
+                    // That default is only harmless when the two slots hold different images. They do not:
+                    // tools/asset_pipeline/cairnwold/asset root audit measured 1,916 of 1,980 shipped materials as
+                    // TRUE ORM, meaning occlusionTexture and metallicRoughnessTexture resolve to the SAME image
+                    // index. So AOTexture read R correctly and MetallicTexture read B correctly, while
+                    // RoughnessTexture read R - ambient occlusion - as the roughness value. Authored roughness
+                    // detail in G has never been drawn, and because AO sits around 0.5-1.0 the whole world has
+                    // been rendering uniformly too rough and too matte. "Flat and plasticky" is this line.
+                    //
+                    // Green is correct for both cases: a glTF metallicRoughness map and a packed ORM map both put
+                    // roughness in G.
+                    if (material.RoughnessTexture is not null)
+                        material.RoughnessTextureChannel = BaseMaterial3D.TextureChannel.Green;
+                    // Foliage: a leaf transmits light. Without that, an alpha-cutout canopy is lit from one
+                    // side only and goes dead on the shadow side, which is what makes a tree read as
+                    // construction paper rather than as leaves - the owner's own words for it. Applied here,
+                    // to every plant model, because it is a property of leaves rather than of one tree, and
+                    // it is what turns the same geometry from card into canopy.
+                    if (IsFoliage(assetId) && candidate is BaseMaterial3D leaf && !IsExplicitOpaqueWood(leaf))
+                    {
+                        leaf.CullMode = BaseMaterial3D.CullModeEnum.Disabled;   // a leaf plane is seen from both sides
+                        leaf.BacklightEnabled = true;
+                        leaf.Backlight = new Color(0.26f, 0.34f, 0.11f);        // sunlight coming through, not off, the leaf
+                        leaf.MetallicSpecular = 0.12f;                          // leaves are not metal and barely gloss
+                        if (leaf.Roughness < 0.72f)
+                            leaf.Roughness = 0.72f;
+                        if (leaf.Transparency is BaseMaterial3D.TransparencyEnum.Disabled or BaseMaterial3D.TransparencyEnum.Alpha or BaseMaterial3D.TransparencyEnum.AlphaDepthPrePass)
+                        {
+                            // ALPHA BLEND IS THE WRONG MODE FOR FOLIAGE CARDS and it is what the tree models ship
+                            // with (alphaMode BLEND in the glTF). Blend writes no depth, so a crown of fifty
+                            // overlapping cards composites in whatever order it is drawn and reads as a stack of
+                            // flat translucent quads - "torn paper", reported from ordinary gameplay and visible
+                            // as plane edges through the crown. Scissor writes depth, so the cards occlude each
+                            // other and the crown reads as a mass with holes in it, which is what a canopy is.
+                            leaf.Transparency = BaseMaterial3D.TransparencyEnum.AlphaScissor;
+                            leaf.AlphaScissorThreshold = 0.42f;   // low enough not to eat thin leaf edges
+                            // ALPHA-TO-COVERAGE, WHICH THE SCATTER'S GRASS AND LEAVES ALREADY SET AND THIS PATH DID NOT.
+                            // A hard scissor cutoff and a sub-pixel leaf are a flicker generator: as the camera moves,
+                            // a thin leaf's coverage crosses 0.42 between one frame and the next, so the leaf is drawn,
+                            // then not, then drawn again - the owner's "tree leaves and limbs ... go black and come back,
+                            // draw and undraw, especially while you are walking around". Alpha-to-coverage hands the
+                            // cutoff to the MSAA sample mask instead of a per-pixel yes/no, so a leaf that covers part
+                            // of a pixel keeps that part and the edge resolves smoothly instead of toggling. It is the
+                            // same setting ScatterView.cs gives grass (threshold 0.4) and its leaf atlas (0.5); the
+                            // asymmetry is why the scatter stopped flickering and the trees did not.
+                            leaf.AlphaAntialiasingMode = BaseMaterial3D.AlphaAntiAliasing.AlphaToCoverage;
+                        }
+                    }
                     for (int p = 0; p < (int)BaseMaterial3D.TextureParam.Max; p++)
                     {
                         var param = (BaseMaterial3D.TextureParam)p;
@@ -349,7 +784,7 @@ public sealed class ArtLibrary
         string relative = Path.Combine("animation", "ready", family, $"anim.{id}.glb");
         Animation? clip = null;
         SkeletonRest? rest = null;
-        if (LoadScene(id, Path.Combine(Root, relative))?.Instantiate() is { } scene)
+        if (At(relative) is { } clipPath && LoadScene(id, clipPath)?.Instantiate() is { } scene)
         {
             var player = Find<AnimationPlayer>(scene);
             if (player?.GetAnimationList() is { Length: > 0 } names)
@@ -525,6 +960,8 @@ public sealed class ArtLibrary
         try
         {
             string folder = Path.Combine(Root, "materials", id);
+            if (!Directory.Exists(folder) && FallbackRoot is not null && Directory.Exists(Path.Combine(FallbackRoot, "materials", id)))
+                folder = Path.Combine(FallbackRoot, "materials", id);
             string record = Path.Combine(folder, id + "_material.json");
             if (!File.Exists(record))
             {
@@ -564,7 +1001,7 @@ public sealed class ArtLibrary
             return cached;
         Texture2D? texture = null;
         ulong started = Time.GetTicksUsec();
-        if (Cache.For(TextureCache.Key(Path.GetRelativePath(Root!, path)), path, () => Image.LoadFromFile(path), role) is { } compressed)
+        if (Cache.For(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, () => Image.LoadFromFile(path), role) is { } compressed)
         {
             texture = compressed;
             _mapCount++;

@@ -50,9 +50,32 @@ public static class Fitting
         // An overhang (a beam a crouched body passes under) stands from its clearance up, as its greybox does, and is measured by its thickness.
         float clearance = blocker is BoxBlocker { ClearanceMm: > 0 } overhang ? overhang.ClearanceMm / 1000f : 0;
         var bounds = ArtGallery.Bounds(model);
-        // Lay the model's longer side along the structure's (a round structure has no long side).
-        bool turn = !round && (bounds.Size.X >= bounds.Size.Z) != (width >= depth);
+        // A scattered structure (a boulder, a crag) is turned by its OWN ID when its binding asks for a spread.
+        // Without this every copy of a model faced the same way: the region places 240 boulders from three models and
+        // 40 crags from two, and NOT ONE of the 280 carried a turn - `facing_deg` is read for NPCs and spawns only,
+        // and this method took no yaw at all - so a field of them read as one prop stamped out 80 times. That is the
+        // geometry half of the owner's "samey duplicates" complaint; the colour half was already answered in
+        // HollowView (a deterministic value shift per blocker id, whose own comment says it is there "so a field of
+        // boulders reads as rock rather than as copies of one prop"). Deterministic on purpose: the same world must
+        // look the same on every run and in every capture, so it is the placement's own id and never a frame counter
+        // or a shared RNG. tools/asset_pipeline/cairnwold/scatter_rocks.py reproduces this exactly.
+        var (scatterYaw, scatterLean) = look.YawSpread > 0
+            ? Scatter(blocker.Id, look.YawSpread)
+            : (0f, 0f);
+        // Lay the model's longer side along the structure's (a round structure has no long side). A scattered
+        // structure is exempt: its turn already covers every orientation, and swapping the axes as well would make
+        // the blocker the tool sizes for it depend on the blocker itself, which has no fixed point.
+        bool turn = look.YawSpread <= 0 && !round && (bounds.Size.X >= bounds.Size.Z) != (width >= depth);
         var size = turn ? new Vector3(bounds.Size.Z, bounds.Size.Y, bounds.Size.X) : bounds.Size;
+        // AND THE FIT IS MEASURED AT THE TURN IT WILL BE DRAWN AT. Comparing the model's unturned box to a blocker
+        // sized for its turned one is comparing two different orientations, and it rejected 89 of the 280 rocks -
+        // cw_boulder_b_001 is 2.85 x 1.39 m unturned and 2.50 x 2.42 m at its own yaw, so the 2.42 m depth read as
+        // 1.03 m of daylight past a 0.5 m margin and the game drew greybox over a rock that fits perfectly.
+        if (look.YawSpread > 0)
+        {
+            var turned = art.TurnedFootprint(look.Model!, model, scatterYaw);
+            size = new Vector3(turned.X, bounds.Size.Y, turned.Y);
+        }
         var root = new Node3D { Name = blocker.Id };
         if (look.Fit == "tile")
         {
@@ -93,7 +116,12 @@ public static class Fitting
             }
             // Centred over the footprint, its lowest point on the ground.
             model.Position = new Vector3(-bounds.GetCenter().X, -bounds.Position.Y, -bounds.GetCenter().Z);
-            var holder = new Node3D { Rotation = new Vector3(0, turn ? Mathf.Pi / 2 : 0, 0) };
+            // The turn goes on the holder INSIDE the root, so the root - and the collision body HollowView hangs off
+            // it - keeps the blocker's own axis-aligned frame and what the player walks into is untouched.
+            var holder = new Node3D
+            {
+                Rotation = new Vector3(scatterLean, (turn ? Mathf.Pi / 2 : 0) + scatterYaw, scatterLean * 0.6f),
+            };
             holder.AddChild(model);
             root.AddChild(holder);
         }
@@ -140,6 +168,33 @@ public static class Fitting
         var root = new Node3D { Position = feet + look.Offset, Rotation = new Vector3(0, yawRadians, 0) };
         root.AddChild(model);
         return root;
+    }
+
+    /// <summary>
+    /// The turn and lean a scattered structure gets from its own ID, as radians: a yaw anywhere in
+    /// <paramref name="spreadDegrees"/> CENTRED ON ZERO (so a spread is a band of freedom around the orientation the
+    /// region authored, and 360 is every way round) and a lean of up to 3 degrees either way. Deterministic on the ID
+    /// alone, so the world looks the same on every run, in every capture and after every reload - never read off a
+    /// frame counter, a shared random source or the order things happen to be drawn in.
+    /// <c>tools/asset_pipeline/cairnwold/scatter_rocks.py</c> reproduces this exactly to size each blocker to the
+    /// model it will actually draw at that turn.
+    /// </summary>
+    public static (float Yaw, float Lean) Scatter(string id, float spreadDegrees)
+    {
+        uint hash = 2166136261u;
+        foreach (char c in id)
+            hash = (hash ^ c) * 16777619u;
+        // A finaliser, so the turn is not read off FNV-1a's weaker low bits.
+        hash ^= hash >> 15;
+        hash *= 2246822519u;
+        hash ^= hash >> 13;
+        hash *= 3266489917u;
+        hash ^= hash >> 16;
+        float yaw = Mathf.DegToRad(spreadDegrees) * ((hash % 4096u) / 4096f - 0.5f);
+        // The lean stays small: the model is turned about the centre of its own base, so a big rock laid over would
+        // bury one edge in the ground. Three degrees settles a boulder onto a slope; six would sink a 6.5 m one.
+        float lean = Mathf.DegToRad(Mathf.Min(3f, spreadDegrees / 24f)) * (((hash >> 12) % 2048u) / 1024f - 1f);
+        return (yaw, lean);
     }
 
     private static float LowestUnder(TerrainGrid terrain, Blocker blocker)

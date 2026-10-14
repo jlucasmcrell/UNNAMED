@@ -1,371 +1,1031 @@
 {
-  "comment": [
-    "What the game draws and plays for each thing the simulation has: game IDs on the left, the asset pipeline's stable semantic IDs on the right.",
-    "Presentation data, not game content: nothing here changes a rule, a save or the content hash. An asset that is missing or will not load",
-    "falls back to its greybox. Every model is drawn at its authored size (the asset's semantic size is authoritative; nothing rescales",
-    "one to a collision shape): centred on its structure, its long side along the structure's, stood on the ground. Where the authored",
-    "size and the world's structure disagree by more than half a metre a side (or 0.6 m of height) the greybox stands and the mismatch",
-    "is reported. 'tile' repeats a modular piece (a fence panel) at its own length. Static models are the full files: every _lod1-3 file",
-    "in the library (1,455) carries no material. Weapons are held by their own SOCK_grip_primary. Sources: assets/manifests/",
-    "playable_prototype_assets.json (the player, the weapons, the den chest), phase1_environment.json, ashen_hollow_landmarks.json,",
-    "playable_prototype_audio_v3.json and docs/PHASE1_AUDIO_EVENT_CONTRACT.md.",
-    "Phase A: an overhang structure (a clearance) stands its model from the clearance up and measures it against its thickness; a node",
-    "may give a 'spent' model beside its ready one ('hide_ready' still draws nothing while ready); a station may give its own 'model', a",
-    "'beside' model at 'beside_offset', and a 'light'; a building may give its 'interior_light' (one or a list). A light is data: 'at'",
-    "[x, y, z] metres from what it lights (a station's feet, a building's footprint centre on the ground), 'colour' [r, g, b], 'energy',",
-    "'range', 'shadows', 'size'. A person with no 'grip' holds by its rig's own SOCK_<hand> socket. Coverage: art_coverage_allowlist.json."
-  ],
-
-  "withheld": {
-    "material_cast_iron_surface": "the colour map is a cast-iron tray on a grey backdrop, not a seamless surface",
-    "building_wall_timber": "textured with the plaster and plank swatches above: its faces show their grey backdrop as white triangles",
-    "building_wall_stone": "textured with the rubble swatch above: its faces show the swatch's grey backdrop in triangles",
-    "building_roof_panel": "textured with the slate swatch above: the backdrop shows through as white stripes",
-    "building_floor_planks": "textured with the plank swatch above: the backdrop shows through as white shards",
-    "landmark_foldscar_core": "modelled standing on its edge: a ring of stones round a crater, stood up like a wheel (4.39 m tall, the crater facing sideways)",
-    "flora_birch_tree": "the trunk is a single spike of a few huge triangles, reading as a shard rather than a trunk",
-    "race2_veth_bindpose": "promoted 2026-09-25 and withheld again after the in-game rig check (--anim-sheet): the humanoid clips hold the fitted rig's 45-degree A-pose - through idle the upper arms stay within 1.9 degrees of it (hands 0.52 m out from the body), walking within 18.6 - so the body stands and walks with its arms held out; the sword attack and block, the bow draw and the spear thrust raise the weapon arm 54-77 degrees off that rest, so the sword is raised above and behind the head, the spear is held out to the side at arm's length with its head down, the bow lies level behind the shoulders, and in first person only a sliver of the weapon enters the view; and the body is an unclothed grey base mesh with a dark smear across the mouth. No longer the player (2026-09-25): people.player is player_veth_wanderer.",
-    "race2_veth_representative": "the rig does not fit its mesh: an arms-down mesh 0.62 m wide on an A-pose skeleton with its hands at x = +/-0.56 m; no vertex is weighted to either hand bone and 22 to lowerarm_r, so each arm rides its upper-arm bone whole",
-    "prop_forge_double_bellows": "reads as a pair of anatomical lungs on a Y-pipe, not a forge bellows (visual review 2026-09-25); to be replaced procedurally"
+ "comment": [
+  "What the game draws and plays for each thing the simulation has: game IDs on the left, the asset pipeline's stable semantic IDs on the right.",
+  "Presentation data, not game content: nothing here changes a rule, a save or the content hash. An asset that is missing or will not load",
+  "falls back to its greybox. Every model is drawn at its authored size (the asset's semantic size is authoritative; nothing rescales",
+  "one to a collision shape): centred on its structure, its long side along the structure's, stood on the ground. Where the authored",
+  "size and the world's structure disagree by more than half a metre a side (or 0.6 m of height) the greybox stands and the mismatch",
+  "is reported. 'tile' repeats a modular piece (a fence panel) at its own length. Static models are the full files: every _lod1-3 file",
+  "in the library (1,455) carries no material. Weapons are held by their own SOCK_grip_primary. Sources: assets/manifests/",
+  "playable_prototype_assets.json (the player, the weapons, the den chest), phase1_environment.json, ashen_hollow_landmarks.json,",
+  "playable_prototype_audio_v3.json and docs/PHASE1_AUDIO_EVENT_CONTRACT.md.",
+  "Phase A: an overhang structure (a clearance) stands its model from the clearance up and measures it against its thickness; a node",
+  "may give a 'spent' model beside its ready one ('hide_ready' still draws nothing while ready); a station may give its own 'model', a",
+  "'beside' model at 'beside_offset', and a 'light'; a building may give its 'interior_light' (one or a list). A light is data: 'at'",
+  "[x, y, z] metres from what it lights (a station's feet, a building's footprint centre on the ground), 'colour' [r, g, b], 'energy',",
+  "'range', 'shadows', 'size'. A person with no 'grip' holds by its rig's own SOCK_<hand> socket. Coverage: art_coverage_allowlist.json."
+ ],
+ "withheld": {
+  "material_cast_iron_surface": "the colour map is a cast-iron tray on a grey backdrop, not a seamless surface",
+  "building_wall_timber": "textured with the plaster and plank swatches above: its faces show their grey backdrop as white triangles",
+  "building_wall_stone": "textured with the rubble swatch above: its faces show the swatch's grey backdrop in triangles",
+  "building_roof_panel": "textured with the slate swatch above: the backdrop shows through as white stripes",
+  "building_floor_planks": "textured with the plank swatch above: the backdrop shows through as white shards",
+  "landmark_foldscar_core": "modelled standing on its edge: a ring of stones round a crater, stood up like a wheel (4.39 m tall, the crater facing sideways)",
+  "flora_birch_tree": "the trunk is a single spike of a few huge triangles, reading as a shard rather than a trunk",
+  "race2_veth_bindpose": "promoted 2026-09-25 and withheld again after the in-game rig check (--anim-sheet): the humanoid clips hold the fitted rig's 45-degree A-pose - through idle the upper arms stay within 1.9 degrees of it (hands 0.52 m out from the body), walking within 18.6 - so the body stands and walks with its arms held out; the sword attack and block, the bow draw and the spear thrust raise the weapon arm 54-77 degrees off that rest, so the sword is raised above and behind the head, the spear is held out to the side at arm's length with its head down, the bow lies level behind the shoulders, and in first person only a sliver of the weapon enters the view; and the body is an unclothed grey base mesh with a dark smear across the mouth. No longer the player (2026-09-25): people.player is player_veth_wanderer.",
+  "race2_veth_representative": "the rig does not fit its mesh: an arms-down mesh 0.62 m wide on an A-pose skeleton with its hands at x = +/-0.56 m; no vertex is weighted to either hand bone and 22 to lowerarm_r, so each arm rides its upper-arm bone whole",
+  "prop_forge_double_bellows": "reads as a pair of anatomical lungs on a Y-pipe, not a forge bellows (visual review 2026-09-25); to be replaced procedurally"
+ },
+ "terrain": {
+  "r_0_0:c_00_01": "material_packed_dirt_ground",
+  "r_0_0:c_01_01": "material_marsh_grass_turf",
+  "r_0_0:c_00_00": "material_loose_gravel",
+  "r_0_0:c_01_00": "material_churned_wet_mud"
+ },
+ "cliffs": "material_rubble_stone_wall",
+ "pieces": {
+  "piece.pad.timber": {
+   "model": "piece_timber_pad",
+   "material": "wood",
+   "note": "Phase B (B7): the timber kit for M7's building pieces, keyed by definition ID in the shape M7's design (section 9.4) records for its future art bindings. Nothing reads this section yet: it waits for M7's StructuresView to wrap BuildPiece (reconciliation at merge). Each model fits its piece's blocking boxes exactly (the kit sheet: --kit-sheet)."
   },
-
-  "terrain": {
-    "r_0_0:c_00_01": "material_packed_dirt_ground",
-    "r_0_0:c_01_01": "material_marsh_grass_turf",
-    "r_0_0:c_00_00": "material_loose_gravel",
-    "r_0_0:c_01_00": "material_churned_wet_mud"
+  "piece.wall.timber": {
+   "model": "piece_timber_wall",
+   "material": "wood"
   },
-  "cliffs": "material_rubble_stone_wall",
-
-  "pieces": {
-    "piece.pad.timber": { "model": "piece_timber_pad", "material": "wood", "note": "Phase B (B7): the timber kit for M7's building pieces, keyed by definition ID in the shape M7's design (section 9.4) records for its future art bindings. Nothing reads this section yet: it waits for M7's StructuresView to wrap BuildPiece (reconciliation at merge). Each model fits its piece's blocking boxes exactly (the kit sheet: --kit-sheet)." },
-    "piece.wall.timber": { "model": "piece_timber_wall", "material": "wood" },
-    "piece.doorway.timber": { "model": "piece_timber_doorway", "material": "wood" },
-    "piece.door.timber": { "model": "piece_timber_door", "material": "wood", "note": "The leaf's origin is its hinge edge (local x = -0.8 of the part box)." },
-    "piece.roof.timber": { "model": "piece_timber_roof", "material": "wood", "note": "Its ridge runs along local x: modules stitch along x only (no hips or valleys yet)." }
+  "piece.doorway.timber": {
+   "model": "piece_timber_doorway",
+   "material": "wood"
   },
-  "people_by_visual_option": {
-    "people=production": {
-      "player": {
-        "model": "player_veth_wanderer_prod",
-        "note": "Phase B (character fidelity): the player's production mesh - the reconstruction's enclosed inner shell removed, a face-priority atlas at 4096 with the concept's own pixels projected on (tools/asset_pipeline/charprod)."
-      },
-      "npc.ashen_hollow.kera_voss": {
-        "model": "npc_kal_smith_prod",
-        "note": "Phase B (character fidelity): Kera's production mesh (tools/asset_pipeline/charprod, specs/kera.json)."
-      },
-      "npc.ashen_hollow.sel_arien": {
-        "model": "npc_siann_archivist_prod",
-        "note": "Phase B (character fidelity): Sel's production mesh (tools/asset_pipeline/charprod, specs/sel.json)."
-      },
-      "npc.ashen_hollow.renn_vale": {
-        "model": "npc_veth_magistrate_prod",
-        "note": "Phase B (character fidelity): Renn's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves into the robe), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/renn.json)."
-      },
-      "npc.ashen_hollow.tavar_orr": {
-        "model": "npc_orenth_guide_prod",
-        "note": "Phase B (character fidelity): Tavar's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves and coat into one mass), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/tavar.json)."
-      }
-    },
-    "people=standard": {
-      "player": {"model": "player_veth_wanderer_std", "hand": "SOCK_hand.R", "off_hand": "SOCK_hand.L", "grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "off_grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "note": "Phase B demo: the player on the character standard (tools/asset_pipeline/charstd/characters/player_veth_wanderer.json), outfit variants base / hide_vest; held items on the rig's SOCK_hand grip frames (Y along the knuckles pinky to index, Z into the palm)."},
-      "npc.ashen_hollow.renn_vale": {"model": "renn_vale_std", "hand": "SOCK_hand.R", "off_hand": "SOCK_hand.L", "grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "note": "Phase B demo: Renn Vale (Veth magistrate) on the character standard (tools/asset_pipeline/charstd/characters/)."},
-      "npc.ashen_hollow.kera_voss": {"model": "kera_voss_std", "hand": "SOCK_hand.R", "off_hand": "SOCK_hand.L", "grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "note": "Phase B demo: Kera Voss (Kal smith) on the character standard (tools/asset_pipeline/charstd/characters/)."},
-      "npc.ashen_hollow.sel_arien": {"model": "sel_arien_std", "hand": "SOCK_hand.R", "off_hand": "SOCK_hand.L", "grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "note": "Phase B demo: Sel Arien (Siann archivist) on the character standard (tools/asset_pipeline/charstd/characters/)."},
-      "npc.ashen_hollow.tavar_orr": {"model": "tavar_orr_std", "hand": "SOCK_hand.R", "off_hand": "SOCK_hand.L", "grip": {"at": [0, 0, 0], "primary": [0, 1, 0], "secondary": [0, 0, 1]}, "note": "Phase B demo: Tavar Orr (Orenth guide, companion) on the character standard (tools/asset_pipeline/charstd/characters/)."}
-    }
+  "piece.door.timber": {
+   "model": "piece_timber_door",
+   "material": "wood",
+   "note": "The leaf's origin is its hinge edge (local x = -0.8 of the part box)."
   },
-  "people_clips_by_visual_option": {
-    "clips=ext": {
-      "player": {
-        "note": "Phase B (B12): the player's locomotion from the retargeted Quaternius UAL clips (CC0, realistic proportions; the KayKit clips flared the arms), with KayKit's hit, death and reach; run and every weapon state stay procedural (the weapon grips are calibrated to them). Each gait plays at its measured pace. review/retarget/B12_CATALOGUE.md.",
-        "clips": {
-          "idle": "player.veth_wanderer.ext_idle_ual",
-          "walk": "player.veth_wanderer.ext_walk_ual",
-          "sprint": "player.veth_wanderer.ext_sprint_ual",
-          "crouch_idle": "player.veth_wanderer.ext_crouch_idle_ual",
-          "crouch_walk": "player.veth_wanderer.ext_crouch_walk_ual",
-          "hit": "player.veth_wanderer.ext_hit",
-          "death": "player.veth_wanderer.ext_death",
-          "interact": "player.veth_wanderer.ext_interact"
-        },
-        "paces": {
-          "walk": 0.96,
-          "sprint": 2.92,
-          "crouch_walk": 0.75
-        }
-      }
-    },
-    "people=production": {
-      "player": {
-        "note": "Phase B (character fidelity): the player's locomotion retargeted onto the production rig (tools/asset_pipeline/retarget_maps/quaternius_ual_prod.json) - the Quaternius UAL clips (CC0) one-to-one, fingers, three spine bones and toes included; the rest as under clips=ext (by bone name).",
-        "clips": {
-          "idle": "player.veth_wanderer_prod.idle",
-          "walk": "player.veth_wanderer_prod.walk",
-          "run": "player.veth_wanderer_prod.run_cmu3517",
-          "sprint": "player.veth_wanderer_prod.sprint_cmu12707",
-          "crouch_idle": "player.veth_wanderer_prod.crouch_idle",
-          "crouch_walk": "player.veth_wanderer_prod.crouch_walk",
-          "jump_start": "player.veth_wanderer_prod.jump_start",
-          "fall": "player.veth_wanderer_prod.fall",
-          "land": "player.veth_wanderer_prod.land",
-          "sword_ready": "player.veth_wanderer_prod.sword_ready",
-          "sword_attack_1": "player.veth_wanderer_prod.sword_attack_1",
-          "sword_attack_2": "player.veth_wanderer_prod.sword_attack_2",
-          "sword_attack_3": "player.veth_wanderer_prod.sword_attack_3",
-          "sword_attack_4": "player.veth_wanderer_prod.sword_attack_4",
-          "sword_block": "player.veth_wanderer_prod.sword_block"
-        },
-        "remediation_note": "Phase B remediation (H03/H05): run and sprint are CMU mocap cycles (rancidmilk FBX, commercial use allowed) cut and retargeted by charprod2/cmu_cycle.py; the four sword attacks, ready stance and block are UAL1/UAL2 (CC0). Paces are each clip's measured foot-contact speed on this rig (charprod2/clip_pace.py, 2026-09-26); phases are each attack's measured swing window (charprod2/clip_marks.py).",
-        "paces": {
-          "walk": 0.79,
-          "run": 2.37,
-          "sprint": 3.47,
-          "crouch_walk": 0.59
-        },
-        "phases": {
-          "sword_attack_1": [0.22, 0.31, 0.8],
-          "sword_attack_2": [0.4, 0.7, 1.0],
-          "sword_attack_3": [0.42, 0.58, 1.0],
-          "sword_attack_4": [0.29, 0.34, 0.7],
-          "sword_block": [0.1, 0.5, 1.0]
-        }
-      },
-      "npc.ashen_hollow.renn_vale": {
-        "note": "Phase B (character fidelity): the UAL idle and talking idle (CC0) retargeted onto his production rig - the Phase-A clips were baked on the old 20-bone rig and hold the new body in its bind A-pose.",
-        "clips": { "idle": "npc.veth_magistrate_prod.idle", "talk": "npc.veth_magistrate_prod.talk" }
-      },
-      "npc.ashen_hollow.kera_voss": {
-        "clips": { "idle": "npc.kal_smith_prod.idle", "talk": "npc.kal_smith_prod.talk" }
-      },
-      "npc.ashen_hollow.sel_arien": {
-        "clips": { "idle": "npc.siann_archivist_prod.idle", "talk": "npc.siann_archivist_prod.talk" }
-      },
-      "npc.ashen_hollow.tavar_orr": {
-        "note": "His UAL locomotion, sword attack (a spear thrust has no CC0 source here), hit and death on his production rig; paces are the player's measured strides scaled by leg length (retarget scale 1.0324 vs 0.8377).",
-        "clips": {
-          "idle": "npc.orenth_guide_prod.idle",
-          "talk": "npc.orenth_guide_prod.talk",
-          "walk": "npc.orenth_guide_prod.walk",
-          "run": "npc.orenth_guide_prod.run",
-          "attack": "npc.orenth_guide_prod.attack",
-          "hit": "npc.orenth_guide_prod.hit",
-          "death": "npc.orenth_guide_prod.death"
-        },
-        "paces": {
-          "walk": 1.18,
-          "run": 2.8
-        }
-      }
-    },
-    "people=standard": {
-      "player": {"clips": {"idle": "player.veth_wanderer_std.idle", "walk": "player.veth_wanderer_std.walk_cmu1622", "run": "player.veth_wanderer_std.run_cmu3517", "sprint": "player.veth_wanderer_std.sprint_cmu12707", "crouch_idle": "player.veth_wanderer_std.crouch_idle", "crouch_walk": "player.veth_wanderer_std.crouch_sneak_arms", "jump_start": "player.veth_wanderer_std.jump_start", "fall": "player.veth_wanderer_std.fall", "land": "player.veth_wanderer_std.land", "sword_ready": "player.veth_wanderer_std.sword_ual2_guard", "sword_attack_1": "player.veth_wanderer_std.sword_cut_1", "sword_attack_2": "player.veth_wanderer_std.sword_cut_2", "sword_attack_3": "player.veth_wanderer_std.sword_cut_3", "sword_attack_4": "player.veth_wanderer_std.sword_cut_4", "sword_block": "player.veth_wanderer_std.sword_guard_block", "bow_ready": "player.veth_wanderer_std.bow_ready", "bow_draw": "player.veth_wanderer_std.bow_draw", "spear_ready": "player.veth_wanderer_std.spear_ready", "spear_thrust_1": "player.veth_wanderer_std.spear_thrust", "spear_thrust_2": "player.veth_wanderer_std.spear_slice", "cast": "player.veth_wanderer_std.cast", "hit": "player.veth_wanderer_std.hit", "death": "player.veth_wanderer_std.death", "interact": "player.veth_wanderer_std.interact", "talk": "player.veth_wanderer_std.talk"}, "paces": {"walk": 1.616, "run": 2.975, "sprint": 4.207, "crouch_walk": 1.463}, "phases": {"sword_attack_1": [0.22, 0.31, 0.8], "sword_attack_2": [0.4, 0.7, 1.0], "sword_attack_3": [0.42, 0.58, 1.0], "sword_attack_4": [0.29, 0.34, 0.7], "sword_block": [0.1, 0.5, 1.0]}, "note": "charstd/retarget_set.py, clip_plans/player.json: CMU gaits (walk 16_22, run 35_17, sprint 127_07), KayKit sneak as the crouched walk (1.61 m/s), sword set: UAL2 upright guard, UAL1/UAL2 cuts and block eased halfway toward it (clip_blend.py), jump, hit, death, interact, talk, one-hand cast; KayKit bow and two-hand stab/slice. Paces measured on the rig (clip_pace_stance.py)."},
-      "npc.ashen_hollow.renn_vale": {"clips": {"idle": "npc.renn_vale_std.idle_folded", "talk": "npc.renn_vale_std.talk", "walk": "npc.renn_vale_std.walk", "hit": "npc.renn_vale_std.hit", "death": "npc.renn_vale_std.death", "interact": "npc.renn_vale_std.interact"}, "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)", "paces": {"walk": 1.611}},
-      "npc.ashen_hollow.kera_voss": {"clips": {"idle": "npc.kera_voss_std.idle_folded", "talk": "npc.kera_voss_std.talk", "walk": "npc.kera_voss_std.walk", "hit": "npc.kera_voss_std.hit", "death": "npc.kera_voss_std.death", "interact": "npc.kera_voss_std.interact"}, "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)", "paces": {"walk": 1.54}},
-      "npc.ashen_hollow.sel_arien": {"clips": {"idle": "npc.sel_arien_std.idle", "talk": "npc.sel_arien_std.talk", "walk": "npc.sel_arien_std.walk", "hit": "npc.sel_arien_std.hit", "death": "npc.sel_arien_std.death", "interact": "npc.sel_arien_std.interact"}, "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)", "paces": {"walk": 1.675}},
-      "npc.ashen_hollow.tavar_orr": {"clips": {"idle": "npc.tavar_orr_std.idle", "talk": "npc.tavar_orr_std.talk", "walk": "npc.tavar_orr_std.walk", "run": "npc.tavar_orr_std.run_cmu3517", "sprint": "npc.tavar_orr_std.sprint_cmu12707", "spear_ready": "npc.tavar_orr_std.spear_ready", "attack": "npc.tavar_orr_std.attack", "attack_2": "npc.tavar_orr_std.attack_2", "hit": "npc.tavar_orr_std.hit", "death": "npc.tavar_orr_std.death", "interact": "npc.tavar_orr_std.interact", "crouch_idle": "npc.tavar_orr_std.crouch_idle", "jump_start": "npc.tavar_orr_std.jump_start", "fall": "npc.tavar_orr_std.fall", "land": "npc.tavar_orr_std.land"}, "note": "charstd/retarget_set.py (clip_plans/npc_companion.json)", "paces": {"walk": 1.623, "run": 2.985, "sprint": 4.226}}
-    }
-  },
-  "structures_by_visual_option": {
-    "foldscar=proof": {
-      "rock_foldscar_heart": { "model": "scifi_artifact_a", "surface": "mat_acg_onyx015", "surface_tint": [0.2, 0.21, 0.26], "material": "stone", "note": "Phase B (B0.6): the heart as a staged alien artifact - Alien Artifacts sculpture 1 (CC0, zonked, OpenGameArt) fitted to the heart's circle, wearing ambientCG Onyx015 (CC0) over its own carving." }
-    }
-  },
-  "structures": {
-    "rock_waystone": { "model": "landmark_ashen_waystone", "material": "stone" },
-    "rock_stone_north": { "model": "landmark_quiet_stone", "material": "stone" },
-    "rock_stone_southwest": { "model": "landmark_quiet_stone", "material": "stone" },
-    "rock_stone_southeast": { "model": "landmark_quiet_stone", "material": "stone" },
-    "rock_foldscar_heart": { "model": "landmark_foldscar_heart", "material": "stone", "note": "Phase A: built to the heart's circle (landmark_foldscar_core, modelled on its edge, stays withheld)." },
-    "cart_wreck": { "model": "prop_cart_damaged_merchant", "material": "wood" },
-    "rock_iron_seam": { "model": "rock_iron_seam_scan", "material": "stone", "note": "Phase B demo: the seam as a broken rock with a rust-red vein through it (prop_iron_vein_outcrop at the seam's size, prepare_scaled_variant.py), in place of the smooth Phase-A outcrop; the node's own ready and spent looks stand at its south face." },
-    "rock_blocked_shaft": { "model": "prop_blocked_shaft", "material": "stone" },
-    "rock_rim_01": { "model": "rock_rim_scan_b", "material": "stone", "note": "Phase B demo: scanned boulders (prepare_scaled_variant.py) in place of the smooth rim outcrops." },
-    "rock_rim_02": { "model": "rock_rim_scan_b", "material": "stone" },
-    "rock_rim_03": { "model": "rock_rim_scan_b", "material": "stone" },
-    "rock_rim_04": { "model": "rock_rim_scan_b", "material": "stone" },
-    "rock_beam_west": { "model": "rock_outcrop_beam_support", "material": "stone" },
-    "rock_beam_east": { "model": "rock_outcrop_beam_support", "material": "stone" },
-    "survey_table": { "model": "prop_long_trestle_table", "material": "wood" },
-    "rock_well": { "model": "building_well", "material": "stone" },
-    "fence_smithy": { "model": "building_fence_panel", "material": "wood" },
-    "fallen_timber": { "model": "flora_fallen_log", "material": "wood" },
-    "beam_woundmoss": { "model": "prop_woundmoss_beam", "material": "wood", "note": "An overhang (clearance 1.3 m): the model stands from its clearance up and is measured against its 0.4 m thickness." },
-    "den_rock_west": { "model": "rock_den_west", "material": "stone", "note": "Phase A: the den's three rock masses, each built to its box." },
-    "den_rock_east": { "model": "rock_den_east", "material": "stone" },
-    "den_rock_back": { "model": "rock_den_back", "material": "stone" }
-  },
-  "structure_prefixes": {
-    "tree_": { "models": ["flora_oak_tree_b", "flora_oak_tree_c", "flora_oak_tree_b", "flora_oak_tree_c", "flora_oak_tree", "flora_pine_tree", "flora_pine_tree_b", "flora_pine_tree_c", "flora_dead_tree_b"], "material": "wood", "wind": 1.0, "note": "The procedural species (oak, pine, dead: _procgen_tree.py) and their seeded variants (_b, _c: lobed oak crowns, a tall and a fuller pine, a second dead tree; docs/phase_b/demo/trees/TREES.md) at their authored 11.8-15.3 m, trunk vertical from the ground; weighted by repetition (Phase B demo): the Charwood mostly oak with pine, dead trees rare; the original ball-crowned oak once in nine (the birch model is left out: its far LOD is a smooth green blob)." }
-  },
-  "building_walls": {
-    "longhouse_": {
-      "model": "longhouse", "material": "wood",
-      "interior_light": { "at": [3.4, 2.6, -0.8], "colour": [1.0, 0.80, 0.60], "energy": 1.8, "range": 12, "shadows": true, "size": 0.25, "fog_energy": 0.4,
-        "note": "One warm lamp under the ridge, as a lived-in hall has (the visual audit's V1); at from the footprint's centre on the ground." },
-      "note": "Drawn whole over its walls' footprint (the procedural lodge, built to these walls); the walls and roof stay the camera's colliders. Arrows striking it read as wood."
-    },
-    "forge_": {
-      "model": "forge_shed", "material": "stone",
-      "interior_light": { "at": [-1.2, 2.5, -0.8], "colour": [1.0, 0.82, 0.62], "energy": 1.5, "range": 9, "shadows": true, "size": 0.2, "fog_energy": 0.4,
-        "note": "A lamp over the anvil and the door, so the smithy is not lit by the hearth alone (Phase A: its interior read black in the delta shots)." },
-      "emitters": [ { "recipe": "chimney_smoke", "at": [2.5, 7.4, 1.5], "note": "Phase B (B11): smoke from the chimney top, measured on forge_shed's model" } ],
-      "note": "Drawn whole the same way (the procedural smithy, chimney over the hearth)."
-    }
-  },
-
-  "doors": {
-    "door.longhouse": { "model": "prop_iron_banded_oak_door" },
-    "door.forge_shed": { "model": "prop_iron_banded_oak_door" }
-  },
-
-  "containers": {
-    "container.waystation_chest": { "model": "container_chest_iron_banded", "sound": "chest" },
-    "container.den_cache": { "model": "container_chest_iron_banded", "sound": "chest", "note": "The playable prototype manifest's den cache chest." },
-    "container.merchant_cart": { "hidden": true }
-  },
-  "ground_item": { "model": "prop_canvas_haversack" },
-  "nodes": {
-    "node.wood.ash_stand": { "model": "flora_young_ash_stand", "spent": "flora_ash_stumps" },
-    "node.ore.iron_seam": { "model": "node_iron_seam_ore", "spent": "node_iron_seam_worked", "sound": "mining" }
-  },
-  "stations": {
-    "anvil": { "model": "prop_blacksmith_anvil_stump", "sound": "anvil" },
-    "forge": {
-      "model": "prop_forge_hearth", "sound": "anvil",
-      "note_bellows": "No separate bellows: the hearth model carries its bellows pipe; prop_forge_double_bellows stays withheld (it reads as lungs).",
-      "light": { "at": [0, 1.1, 0], "colour": [1.0, 0.55, 0.25], "energy": 1.6, "range": 5, "shadows": true, "size": 0.2, "fog_energy": 0.5,
-        "note": "The hearth's glow, whatever draws the hearth (the greybox hearth's own light, kept as data)." }
-    }
-  },
-
-  "creatures": {
-    "creature.beast.ash_ember_hound": { "model": "creature_ash_ember_hound", "clips": "creature.ash_ember_hound", "voice": "ash_ember_hound", "flesh": "flesh", "steps": { "walk": "walk", "run": "run" } },
-    "creature.beast.bristleback_boar": { "model": "creature_bristleback_boar", "clips": "creature.bristleback_boar", "voice": "bristleback_boar", "flesh": "flesh", "steps": { "walk": "walk", "run": "charge" } },
-    "creature.beast.cave_hunting_spider": { "model": "creature_cave_hunting_spider", "clips": "creature.cave_hunting_spider", "voice": "cave_hunting_spider", "flesh": "flesh", "steps": { "walk": "scuttle", "run": "scuttle_fast" }, "steps_per_sound": 2 },
-    "creature.undead.bone_walker_husk": { "model": "creature_bone_walker_husk", "clips": "creature.bone_walker_husk", "voice": "bone_walker_husk", "flesh": "flesh", "steps": { "walk": "walk", "run": "move_fast" } },
-    "creature.construct.animated_armour": { "model": "creature_animated_armour_v2", "clips": "creature.animated_armour", "voice": "animated_armour", "flesh": "plate", "steps": { "walk": "walk", "run": "move_heavy" } },
-    "creature.beast.wolf_grey": { "model": "creature_frost_wolf", "clips": "creature.frost_wolf", "voice": "ash_ember_hound", "flesh": "flesh", "steps": { "walk": "walk", "run": "run" }, "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists." }
-  },
-
-  "people": {
-    "player": {
-      "model": "player_veth_wanderer",
-      "note": "The Wanderer (Phase A): a clothed Veth reconstructed from its bind-pose concept, the 20-bone humanoid rig fitted to it and the person plan's clips baked on that rig (_make_creature_motion.py --plan person: arms measured from hanging, blows and guards on SkinnedFigure's phase map). The rig has no hand sockets, so the grips are the fists: 'grip' holds a sword or spear across the right fist 20 deg from the thumb toward the fingers, a blade's flat to the palm; 'off_grip' stands the bow along the left thumb, its back along the fingers.",
-      "hand": "hand.R",
-      "off_hand": "hand.L",
-      "grip": { "at": [0.0096, 0.0714, -0.0097], "primary": [-0.3129, 0.2586, -0.9139], "secondary": [0.9488, 0.0407, -0.3133] },
-      "off_grip": { "at": [-0.0094, 0.072, -0.0104], "primary": [0.3212, -0.0942, -0.9423], "secondary": [0.0664, 0.9948, -0.0768] },
-      "clips": {
-        "idle": "player.veth_wanderer.idle",
-        "walk": "player.veth_wanderer.walk",
-        "run": "player.veth_wanderer.run",
-        "sprint": "player.veth_wanderer.sprint",
-        "sword_ready": "player.veth_wanderer.sword_ready",
-        "sword_attack": "player.veth_wanderer.sword_attack",
-        "sword_block": "player.veth_wanderer.sword_block",
-        "bow_ready": "player.veth_wanderer.bow_ready",
-        "bow_draw": "player.veth_wanderer.bow_draw",
-        "spear_ready": "player.veth_wanderer.spear_ready",
-        "spear_thrust": "player.veth_wanderer.spear_thrust",
-        "cast": "player.veth_wanderer.cast",
-        "hit": "player.veth_wanderer.hit",
-        "death": "player.veth_wanderer.death",
-        "interact": "player.veth_wanderer.interact",
-        "crouch_idle": "player.veth_wanderer.crouch_idle",
-        "crouch_walk": "player.veth_wanderer.crouch_walk"
-      }
-    },
-    "npc.ashen_hollow.renn_vale": { "model": "npc_veth_magistrate", "hand": "hand.R", "clips": { "idle": "npc.veth_magistrate.idle", "talk": "npc.veth_magistrate.talk_low" }, "note": "His own clips from the person plan: upright, arms from hanging. He talks with his hands low (talk_low): his template rig hands the robe to the arms, and a lifted hand tears it until his body is remade." },
-    "npc.ashen_hollow.kera_voss": { "model": "npc_kal_smith", "hand": "hand.R", "clips": { "idle": "npc.kal_smith.idle", "talk": "npc.kal_smith.talk_02" }, "note": "Her own clips from the person plan: upright, arms from hanging. A standing idle (hands on the hips): the anvil stands 4.2 m from her place, so npc.kal_smith.work_forge_02 is baked but not bound." },
-    "npc.ashen_hollow.sel_arien": { "model": "npc_siann_archivist", "hand": "hand.R", "clips": { "idle": "npc.siann_archivist.idle", "talk": "npc.siann_archivist.talk_02" }, "note": "Her own clips from the person plan: her bind's 11 deg stoop taken out. A standing idle (reading a book held before her chest; no book is drawn): the survey table's near edge is 1.4 m off, so npc.siann_archivist.work_table_02 is baked but not bound." },
-    "npc.ashen_hollow.tavar_orr": {
-      "model": "npc_orenth_guide",
-      "hand": "hand.R",
-      "grip": { "at": [0.03, 0.08, 0.0], "primary": [-0.08, -1.0, 0.0], "secondary": [1.0, -0.08, -0.08], "note": "The NPC rig has no hand sockets: the fist's centre, 8 cm down the hand bone on the palm side, a spear held upright at rest." },
-      "clips": {
-        "idle": "npc.orenth_guide.idle",
-        "walk": "npc.orenth_guide.walk",
-        "run": "npc.orenth_guide.run",
-        "attack": "npc.orenth_guide.attack_02",
-        "hit": "npc.orenth_guide.hit",
-        "death": "npc.orenth_guide.death",
-        "talk": "npc.orenth_guide.talk_low"
-      },
-      "note": "Tavar walks and fights: the NPC rig has no locomotion clips, so he borrows the humanoid husk's (the same 20-bone rig)."
-    }
-  },
-
-  "weapons": {
-    "item.weapon.rusted_sword": { "model": "weapon_arming_sword", "family": "sword", "note": "The playable prototype manifest's rusted_sword slot." },
-    "item.weapon.hunting_bow": { "model": "weapon_yew_longbow_warbow", "family": "bow", "hand": "off_hand", "note": "The manifest's hunting_bow slot." },
-    "item.weapon.march_spear": { "model": "weapon_boar_spear_hunting", "family": "polearm", "note": "The manifest's polearm family (weapon_march_spear has no grip socket)." }
-  },
-  "companion_weapon": { "model": "weapon_boar_spear_hunting", "family": "polearm" },
-
-  "projectiles": { "arrow": { "model": "prop_arrow_rough" } },
-
-  "icons": {
-    "item.consumable.salve_minor": "ui.item.restorative",
-    "item.weapon.hunting_bow": "ui.weapon.bow",
-    "item.weapon.march_spear": "ui.weapon.march_spear",
-    "item.weapon.rusted_sword": "ui.weapon.one_handed",
-    "item.ammo.arrow_rough": "ui.item.arrow_rough",
-    "item.armor.hide_cap": "ui.item.hide_cap",
-    "item.armor.hide_vest": "ui.item.hide_vest",
-    "item.material.ash_haft": "ui.item.ash_haft",
-    "item.material.herb_ashbloom": "ui.item.ashbloom",
-    "item.material.iron_ingot": "ui.item.iron_ingot",
-    "item.material.iron_ore": "ui.item.iron_ore",
-    "item.material.raw_meat": "ui.item.raw_meat",
-    "item.material.wolf_hide": "ui.item.wolf_hide",
-    "item.quest.halda_token": "ui.item.halda_token",
-    "item.tome.resonance_primer": "ui.item.resonance_primer",
-    "item.tool.water_flask": "ui.item.water_flask",
-    "item.trinket.wolf_fang": "ui.item.wolf_fang",
-    "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
-    "spell.warding.brace_ward": "ui.formula.brace_ward",
-    "spell.vital.mending_thread": "ui.formula.mending_thread",
-    "effect.bleeding": "ui.status.bleeding",
-    "effect.braced": "ui.formula.brace_ward",
-    "effect.mending": "ui.formula.mending_thread",
-    "effect.weakened": "ui.status.weakened",
-    "strained": "ui.status.strained",
-    "health": "ui.resource.health",
-    "stamina": "ui.resource.stamina",
-    "focus": "ui.resource.focus",
-    "resonance": "ui.resource.resonance",
-    "follow": "ui.companion.follow",
-    "wait": "ui.companion.wait",
-    "downed": "ui.status.downed"
-  },
-
-  "effects": {
-    "cast_charge": "vfx.magic.cast_charge",
-    "effect.braced": "vfx.warding.brace_ward_shell",
-    "effect.mending": "vfx.vital.mending_thread_restore",
-    "strain": "vfx.resonance.strain_overlay"
-  },
-
-  "audio": {
-    "cells": {
-      "r_0_0:c_00_01": { "bed": "amb.ashen_hollow.waystation.01", "details": ["sfx.amb.ashen_hollow.forge_distant.01", "sfx.amb.ashen_hollow.timber_creak.01", "sfx.amb.ashen_hollow.settlement_activity.01"], "surface": "dirt" },
-      "r_0_0:c_01_01": { "bed": "amb.charwood_verge.01", "details": ["sfx.amb.charwood.branch_movement.01", "sfx.amb.charwood.raven_call.01", "sfx.amb.charwood.stream_detail.01"], "surface": "dirt" },
-      "r_0_0:c_00_00": { "bed": "amb.blackvein_cut.01", "details": ["sfx.amb.blackvein.pebble_fall.01", "sfx.amb.blackvein.rock_shift.01", "sfx.amb.blackvein.winch_creak.01"], "surface": "stone" },
-      "r_0_0:c_01_00": { "bed": "amb.foldscar_ruin.01", "details": ["sfx.amb.foldscar.stone_resonance.01", "sfx.amb.foldscar.tone_displacement.01"], "surface": "dirt" }
-    },
-    "interior_surface": "wood",
-    "formulas": {
-      "spell.force.impulse_bolt": "impulse_bolt",
-      "spell.warding.brace_ward": "brace_ward",
-      "spell.vital.mending_thread": "mending_thread"
-    },
-    "switches": {
-      "switch.stone_north": "sfx.amb.foldscar.stone_resonance.01",
-      "switch.stone_southwest": "sfx.amb.foldscar.stone_resonance.01",
-      "switch.stone_southeast": "sfx.amb.foldscar.stone_resonance.01",
-      "switch.foldscar_heart": "sfx.amb.foldscar.stone_resonance.01"
-    },
-    "forge_station": "forge"
+  "piece.roof.timber": {
+   "model": "piece_timber_roof",
+   "material": "wood",
+   "note": "Its ridge runs along local x: modules stitch along x only (no hips or valleys yet)."
   }
+ },
+ "people_by_visual_option": {
+  "people=production": {
+   "player": {
+    "model": "player_veth_wanderer_prod",
+    "note": "Phase B (character fidelity): the player's production mesh - the reconstruction's enclosed inner shell removed, a face-priority atlas at 4096 with the concept's own pixels projected on (tools/asset_pipeline/charprod)."
+   },
+   "npc.ashen_hollow.kera_voss": {
+    "model": "npc_kal_smith_prod",
+    "note": "Phase B (character fidelity): Kera's production mesh (tools/asset_pipeline/charprod, specs/kera.json)."
+   },
+   "npc.ashen_hollow.sel_arien": {
+    "model": "npc_siann_archivist_prod",
+    "note": "Phase B (character fidelity): Sel's production mesh (tools/asset_pipeline/charprod, specs/sel.json)."
+   },
+   "npc.ashen_hollow.renn_vale": {
+    "model": "npc_veth_magistrate_prod",
+    "note": "Phase B (character fidelity): Renn's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves into the robe), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/renn.json)."
+   },
+   "npc.ashen_hollow.tavar_orr": {
+    "model": "npc_orenth_guide_prod",
+    "note": "Phase B (character fidelity): Tavar's production character - a new arms-clear bind concept (the Phase-A mesh fused his sleeves and coat into one mass), reconstructed, fitted and run through tools/asset_pipeline/charprod (specs/tavar.json)."
+   }
+  },
+  "people=standard": {
+   "player": {
+    "model": "player_veth_wanderer_std",
+    "hand": "SOCK_hand.R",
+    "off_hand": "SOCK_hand.L",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "off_grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Phase B demo: the player on the character standard (tools/asset_pipeline/charstd/characters/player_veth_wanderer.json), outfit variants base / hide_vest; held items on the rig's SOCK_hand grip frames (Y along the knuckles pinky to index, Z into the palm)."
+   },
+   "npc.ashen_hollow.renn_vale": {
+    "model": "renn_vale_std",
+    "hand": "SOCK_hand.R",
+    "off_hand": "SOCK_hand.L",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Phase B demo: Renn Vale (Veth magistrate) on the character standard (tools/asset_pipeline/charstd/characters/)."
+   },
+   "npc.ashen_hollow.kera_voss": {
+    "model": "kera_voss_std",
+    "hand": "SOCK_hand.R",
+    "off_hand": "SOCK_hand.L",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Phase B demo: Kera Voss (Kal smith) on the character standard (tools/asset_pipeline/charstd/characters/)."
+   },
+   "npc.ashen_hollow.sel_arien": {
+    "model": "sel_arien_std",
+    "hand": "SOCK_hand.R",
+    "off_hand": "SOCK_hand.L",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Phase B demo: Sel Arien (Siann archivist) on the character standard (tools/asset_pipeline/charstd/characters/)."
+   },
+   "npc.ashen_hollow.tavar_orr": {
+    "model": "tavar_orr_std",
+    "hand": "SOCK_hand.R",
+    "off_hand": "SOCK_hand.L",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Phase B demo: Tavar Orr (Orenth guide, companion) on the character standard (tools/asset_pipeline/charstd/characters/)."
+   }
+  }
+ },
+ "people_clips_by_visual_option": {
+  "clips=ext": {
+   "player": {
+    "note": "Phase B (B12): the player's locomotion from the retargeted Quaternius UAL clips (CC0, realistic proportions; the KayKit clips flared the arms), with KayKit's hit, death and reach; run and every weapon state stay procedural (the weapon grips are calibrated to them). Each gait plays at its measured pace. review/retarget/B12_CATALOGUE.md.",
+    "clips": {
+     "idle": "player.veth_wanderer.ext_idle_ual",
+     "walk": "player.veth_wanderer.ext_walk_ual",
+     "sprint": "player.veth_wanderer.ext_sprint_ual",
+     "crouch_idle": "player.veth_wanderer.ext_crouch_idle_ual",
+     "crouch_walk": "player.veth_wanderer.ext_crouch_walk_ual",
+     "hit": "player.veth_wanderer.ext_hit",
+     "death": "player.veth_wanderer.ext_death",
+     "interact": "player.veth_wanderer.ext_interact"
+    },
+    "paces": {
+     "walk": 0.96,
+     "sprint": 2.92,
+     "crouch_walk": 0.75
+    }
+   }
+  },
+  "people=production": {
+   "player": {
+    "note": "Phase B (character fidelity): the player's locomotion retargeted onto the production rig (tools/asset_pipeline/retarget_maps/quaternius_ual_prod.json) - the Quaternius UAL clips (CC0) one-to-one, fingers, three spine bones and toes included; the rest as under clips=ext (by bone name).",
+    "clips": {
+     "idle": "player.veth_wanderer_prod.idle",
+     "walk": "player.veth_wanderer_prod.walk",
+     "run": "player.veth_wanderer_prod.run_cmu3517",
+     "sprint": "player.veth_wanderer_prod.sprint_cmu12707",
+     "crouch_idle": "player.veth_wanderer_prod.crouch_idle",
+     "crouch_walk": "player.veth_wanderer_prod.crouch_walk",
+     "jump_start": "player.veth_wanderer_prod.jump_start",
+     "fall": "player.veth_wanderer_prod.fall",
+     "land": "player.veth_wanderer_prod.land",
+     "sword_ready": "player.veth_wanderer_prod.sword_ready",
+     "sword_attack_1": "player.veth_wanderer_prod.sword_attack_1",
+     "sword_attack_2": "player.veth_wanderer_prod.sword_attack_2",
+     "sword_attack_3": "player.veth_wanderer_prod.sword_attack_3",
+     "sword_attack_4": "player.veth_wanderer_prod.sword_attack_4",
+     "sword_block": "player.veth_wanderer_prod.sword_block",
+     "stop": "player.veth_wanderer_prod.stop",
+     "turn": "player.veth_wanderer_prod.turn"
+    },
+    "remediation_note": "Phase B remediation (H03/H05): run and sprint are CMU mocap cycles (rancidmilk FBX, commercial use allowed) cut and retargeted by charprod2/cmu_cycle.py; the four sword attacks, ready stance and block are UAL1/UAL2 (CC0). Paces are each clip's measured foot-contact speed on this rig (charprod2/clip_pace.py); phases are each attack's measured swing window (charprod2/clip_marks.py). MEASURED 2026-09-29 (docs/phase_b/RUN_CYCLE_FOLLOWUP.md): run is 2.35 on the installed 0.6333 s GLB and 2.373 on the PRE-TRIM 0.9667 s GLB (recovered from the packaged build Otherreach_PhaseB_GraphicsOverhaul_2026-09-27_56948b1 under UNNAMED_HISTORY, sha256 3a7fbca255f678a0). The trim did NOT change this clip's pace - 2.373 to 2.350 is 1.0%, inside one keyframe of measurement error - so the 'stale pace' the previous round diagnosed was never stale. The 3.34 that stood here was DERIVED from a cadence a reviewer preferred, not measured, and is wrong as a pace by 42%; it would have played the clip at 0.95x against a clip whose own lock rate is 1.35x, i.e. it would have replaced one slide with a larger one in the other direction. It is replaced by the measurement. The run's 3.00 -> 4.29 footfalls/s change across the trim is a SHORTER CLIP (0.9667 -> 0.6333 s), not a stale pace. sprint stays 3.47: clip_pace.py reads 9.311 on the trimmed sprint GLB, but that is a tool artefact - a sprinting foot passes through its own lowest point mid-swing at ~17 m/s, so the 2 cm contact band catches swing frames and the median lands between clusters (stance ~3.45, transition ~8.8, swing ~17.0 at 120 fps). On the pre-trim sprint the same tool reads 3.473, and the trimmed clip's own stance plateau is 3.42-3.49, so 3.47 is right.",
+    "paces": {
+     "walk": 0.79,
+     "run": 2.35,
+     "sprint": 3.47,
+     "crouch_walk": 0.59
+    },
+    "phases": {
+     "sword_attack_1": [
+      0.22,
+      0.31,
+      0.8
+     ],
+     "sword_attack_2": [
+      0.4,
+      0.7,
+      1.0
+     ],
+     "sword_attack_3": [
+      0.42,
+      0.58,
+      1.0
+     ],
+     "sword_attack_4": [
+      0.29,
+      0.34,
+      0.7
+     ],
+     "sword_block": [
+      0.1,
+      0.5,
+      1.0
+     ]
+    }
+   },
+   "npc.ashen_hollow.renn_vale": {
+    "note": "Phase B (character fidelity): the UAL idle and talking idle (CC0) retargeted onto his production rig - the Phase-A clips were baked on the old 20-bone rig and hold the new body in its bind A-pose.",
+    "clips": {
+     "idle": "npc.veth_magistrate_prod.idle",
+     "talk": "npc.veth_magistrate_prod.talk"
+    }
+   },
+   "npc.ashen_hollow.kera_voss": {
+    "clips": {
+     "idle": "npc.kal_smith_prod.idle",
+     "talk": "npc.kal_smith_prod.talk"
+    }
+   },
+   "npc.ashen_hollow.sel_arien": {
+    "clips": {
+     "idle": "npc.siann_archivist_prod.idle",
+     "talk": "npc.siann_archivist_prod.talk"
+    }
+   },
+   "npc.ashen_hollow.tavar_orr": {
+    "note": "His UAL locomotion, sword attack (a spear thrust has no CC0 source here), hit and death on his production rig; paces are the player's measured strides scaled by leg length (retarget scale 1.0324 vs 0.8377).",
+    "clips": {
+     "idle": "npc.orenth_guide_prod.idle",
+     "talk": "npc.orenth_guide_prod.talk",
+     "walk": "npc.orenth_guide_prod.walk",
+     "run": "npc.orenth_guide_prod.run",
+     "attack": "npc.orenth_guide_prod.attack",
+     "hit": "npc.orenth_guide_prod.hit",
+     "death": "npc.orenth_guide_prod.death"
+    },
+    "paces": {
+     "walk": 1.18,
+     "run": 2.8
+    }
+   }
+  },
+  "people=standard": {
+   "player": {
+    "clips": {
+     "idle": "player.veth_wanderer_std.idle",
+     "walk": "player.veth_wanderer_std.walk_cmu1622",
+     "run": "player.veth_wanderer_std.run_cmu3517",
+     "sprint": "player.veth_wanderer_std.sprint_cmu12707",
+     "crouch_idle": "player.veth_wanderer_std.crouch_idle",
+     "crouch_walk": "player.veth_wanderer_std.crouch_sneak_arms",
+     "jump_start": "player.veth_wanderer_std.jump_start",
+     "fall": "player.veth_wanderer_std.fall",
+     "land": "player.veth_wanderer_std.land",
+     "sword_ready": "player.veth_wanderer_std.sword_ual2_guard",
+     "sword_attack_1": "player.veth_wanderer_std.sword_cut_1",
+     "sword_attack_2": "player.veth_wanderer_std.sword_cut_2",
+     "sword_attack_3": "player.veth_wanderer_std.sword_cut_3",
+     "sword_attack_4": "player.veth_wanderer_std.sword_cut_4",
+     "sword_block": "player.veth_wanderer_std.sword_guard_block",
+     "bow_ready": "player.veth_wanderer_std.bow_ready",
+     "bow_draw": "player.veth_wanderer_std.bow_draw",
+     "spear_ready": "player.veth_wanderer_std.spear_ready",
+     "spear_thrust_1": "player.veth_wanderer_std.spear_thrust",
+     "spear_thrust_2": "player.veth_wanderer_std.spear_slice",
+     "cast": "player.veth_wanderer_std.cast",
+     "hit": "player.veth_wanderer_std.hit",
+     "death": "player.veth_wanderer_std.death",
+     "interact": "player.veth_wanderer_std.interact",
+     "talk": "player.veth_wanderer_std.talk"
+    },
+    "paces": {
+     "walk": 1.616,
+     "run": 2.975,
+     "sprint": 4.207,
+     "crouch_walk": 1.463
+    },
+    "phases": {
+     "sword_attack_1": [
+      0.22,
+      0.31,
+      0.8
+     ],
+     "sword_attack_2": [
+      0.4,
+      0.7,
+      1.0
+     ],
+     "sword_attack_3": [
+      0.42,
+      0.58,
+      1.0
+     ],
+     "sword_attack_4": [
+      0.29,
+      0.34,
+      0.7
+     ],
+     "sword_block": [
+      0.1,
+      0.5,
+      1.0
+     ]
+    },
+    "note": "charstd/retarget_set.py, clip_plans/player.json: CMU gaits (walk 16_22, run 35_17, sprint 127_07), KayKit sneak as the crouched walk (1.61 m/s), sword set: UAL2 upright guard, UAL1/UAL2 cuts and block eased halfway toward it (clip_blend.py), jump, hit, death, interact, talk, one-hand cast; KayKit bow and two-hand stab/slice. Paces measured on the rig (clip_pace_stance.py)."
+   },
+   "npc.ashen_hollow.renn_vale": {
+    "clips": {
+     "idle": "npc.renn_vale_std.idle_folded",
+     "talk": "npc.renn_vale_std.talk",
+     "walk": "npc.renn_vale_std.walk",
+     "hit": "npc.renn_vale_std.hit",
+     "death": "npc.renn_vale_std.death",
+     "interact": "npc.renn_vale_std.interact"
+    },
+    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
+    "paces": {
+     "walk": 1.611
+    }
+   },
+   "npc.ashen_hollow.kera_voss": {
+    "clips": {
+     "idle": "npc.kera_voss_std.idle_folded",
+     "talk": "npc.kera_voss_std.talk",
+     "walk": "npc.kera_voss_std.walk",
+     "hit": "npc.kera_voss_std.hit",
+     "death": "npc.kera_voss_std.death",
+     "interact": "npc.kera_voss_std.interact"
+    },
+    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
+    "paces": {
+     "walk": 1.54
+    }
+   },
+   "npc.ashen_hollow.sel_arien": {
+    "clips": {
+     "idle": "npc.sel_arien_std.idle",
+     "talk": "npc.sel_arien_std.talk",
+     "walk": "npc.sel_arien_std.walk",
+     "hit": "npc.sel_arien_std.hit",
+     "death": "npc.sel_arien_std.death",
+     "interact": "npc.sel_arien_std.interact"
+    },
+    "note": "charstd/retarget_set.py (clip_plans/npc_talker.json)",
+    "paces": {
+     "walk": 1.675
+    }
+   },
+   "npc.ashen_hollow.tavar_orr": {
+    "clips": {
+     "idle": "npc.tavar_orr_std.idle",
+     "talk": "npc.tavar_orr_std.talk",
+     "walk": "npc.tavar_orr_std.walk",
+     "run": "npc.tavar_orr_std.run_cmu3517",
+     "sprint": "npc.tavar_orr_std.sprint_cmu12707",
+     "spear_ready": "npc.tavar_orr_std.spear_ready",
+     "attack": "npc.tavar_orr_std.attack",
+     "attack_2": "npc.tavar_orr_std.attack_2",
+     "hit": "npc.tavar_orr_std.hit",
+     "death": "npc.tavar_orr_std.death",
+     "interact": "npc.tavar_orr_std.interact",
+     "crouch_idle": "npc.tavar_orr_std.crouch_idle",
+     "jump_start": "npc.tavar_orr_std.jump_start",
+     "fall": "npc.tavar_orr_std.fall",
+     "land": "npc.tavar_orr_std.land"
+    },
+    "note": "charstd/retarget_set.py (clip_plans/npc_companion.json)",
+    "paces": {
+     "walk": 1.623,
+     "run": 2.985,
+     "sprint": 4.226
+    }
+   }
+  }
+ },
+ "structures_by_visual_option": {
+  "foldscar=proof": {
+   "rock_foldscar_heart": {
+    "model": "landmark_foldscar_core_up",
+    "material": "stone",
+    "note": "DS Phase B (2026-09-27): the alien-artifact stand-in is retired. This override names the same monument as the default binding so that no tier - including the High tier the game ships - draws the borrowed sculpture."
+   }
+  }
+ },
+ "structures": {
+  "rock_waystone": {
+   "model": "landmark_ashen_waystone",
+   "material": "stone"
+  },
+  "rock_stone_north": {
+   "model": "landmark_quiet_stone",
+   "material": "stone"
+  },
+  "rock_stone_southwest": {
+   "model": "landmark_quiet_stone",
+   "material": "stone"
+  },
+  "rock_stone_southeast": {
+   "model": "landmark_quiet_stone",
+   "material": "stone"
+  },
+  "rock_foldscar_heart": {
+   "model": "landmark_foldscar_core_up",
+   "material": "stone",
+   "note": "DS Phase B (2026-09-27): the Foldscar's own monument instead of a stand-in. landmark_foldscar_core is 'a ring of stones round a crater' but was authored with the ring standing on edge, so its crater faced sideways; landmark_foldscar_core_up is that same asset rotated -90 deg about X with its base dropped to the ground (G:/UNNAMED_DS_ASSETS/scripts/orient_foldscar_core.py), which is the brief's reading of the place. It replaces scifi_artifact_a, a borrowed OpenGameArt alien sculpture that every tier drew here under foldscar=proof."
+  },
+  "cart_wreck": {
+   "model": "prop_cart_damaged_merchant",
+   "material": "wood"
+  },
+  "rock_iron_seam": {
+   "model": "rock_iron_seam_scan",
+   "material": "stone",
+   "note": "Phase B demo: the seam as a broken rock with a rust-red vein through it (prop_iron_vein_outcrop at the seam's size, prepare_scaled_variant.py), in place of the smooth Phase-A outcrop; the node's own ready and spent looks stand at its south face."
+  },
+  "rock_blocked_shaft": {
+   "model": "prop_blocked_shaft",
+   "material": "stone"
+  },
+  "rock_rim_01": {
+   "model": "rock_rim_scan_a",
+   "surface": "material_rubble_stone_wall",
+   "material": "stone",
+   "note": "Phase B demo: scanned boulders (prepare_scaled_variant.py) in place of the smooth rim outcrops."
+  },
+  "rock_rim_02": {
+   "model": "rock_rim_scan_a",
+   "surface": "material_rubble_stone_wall",
+   "material": "stone"
+  },
+  "rock_rim_03": {
+   "model": "rock_rim_scan_a",
+   "surface": "material_rubble_stone_wall",
+   "material": "stone"
+  },
+  "rock_rim_04": {
+   "model": "rock_rim_scan_a",
+   "surface": "material_rubble_stone_wall",
+   "material": "stone"
+  },
+  "rock_beam_west": {
+   "model": "rock_outcrop_beam_support",
+   "material": "stone"
+  },
+  "rock_beam_east": {
+   "model": "rock_outcrop_beam_support",
+   "material": "stone"
+  },
+  "survey_table": {
+   "model": "prop_long_trestle_table",
+   "material": "wood"
+  },
+  "rock_well": {
+   "model": "building_well",
+   "material": "stone"
+  },
+  "fence_smithy": {
+   "model": "building_fence_panel",
+   "material": "wood"
+  },
+  "fallen_timber": {
+   "model": "flora_fallen_log",
+   "material": "wood"
+  },
+  "beam_woundmoss": {
+   "model": "prop_woundmoss_beam",
+   "material": "wood",
+   "note": "An overhang (clearance 1.3 m): the model stands from its clearance up and is measured against its 0.4 m thickness."
+  },
+  "den_rock_west": {
+   "model": "rock_den_west",
+   "material": "stone",
+   "note": "Phase A: the den's three rock masses, each built to its box."
+  },
+  "den_rock_east": {
+   "model": "rock_den_east",
+   "material": "stone"
+  },
+  "den_rock_back": {
+   "model": "rock_den_back",
+   "material": "stone"
+  }
+ },
+ "structure_prefixes": {
+  "tree_": {
+   "models": [
+    "flora_oak_real",
+    "flora_oak_real",
+    "flora_oak_real",
+    "flora_oak_real",
+    "flora_oak_real",
+    "flora_oak_real",
+    "flora_pine_tree",
+    "flora_pine_tree_b",
+    "flora_pine_tree_c",
+    "flora_dead_tree_b"
+   ],
+   "material": "wood",
+   "wind": 1.0,
+   "note": "The procedural species (oak, pine, dead: _procgen_tree.py) and their seeded variants (_b, _c: lobed oak crowns, a tall and a fuller pine, a second dead tree; docs/phase_b/demo/trees/TREES.md) at their authored 11.8-15.3 m, trunk vertical from the ground; weighted by repetition (Phase B demo): the Charwood mostly oak with pine, dead trees rare; the original ball-crowned oak once in nine (the birch model is left out: its far LOD is a smooth green blob)."
+  }
+ },
+ "building_walls": {
+  "longhouse_": {
+   "model": "longhouse",
+   "material": "wood",
+   "interior_light": {
+    "at": [
+     3.4,
+     2.6,
+     -0.8
+    ],
+    "colour": [
+     1.0,
+     0.8,
+     0.6
+    ],
+    "energy": 1.8,
+    "range": 12,
+    "shadows": true,
+    "size": 0.25,
+    "fog_energy": 0.4,
+    "note": "One warm lamp under the ridge, as a lived-in hall has (the visual audit's V1); at from the footprint's centre on the ground."
+   },
+   "emitters": [
+    {
+     "recipe": "chimney_smoke",
+     "at": [
+      3.2,
+      6.78,
+      1.15
+     ]
+    }
+   ],
+   "note": "Drawn whole over its walls' footprint (the procedural lodge, built to these walls); the walls and roof stay the camera's colliders. Arrows striking it read as wood."
+  },
+  "forge_": {
+   "model": "forge_shed",
+   "material": "stone",
+   "interior_light": {
+    "at": [
+     -1.2,
+     2.5,
+     -0.8
+    ],
+    "colour": [
+     1.0,
+     0.82,
+     0.62
+    ],
+    "energy": 1.5,
+    "range": 9,
+    "shadows": true,
+    "size": 0.2,
+    "fog_energy": 0.4,
+    "note": "A lamp over the anvil and the door, so the smithy is not lit by the hearth alone (Phase A: its interior read black in the delta shots)."
+   },
+   "emitters": [
+    {
+     "recipe": "chimney_smoke",
+     "at": [
+      2.5,
+      7.4,
+      1.5
+     ],
+     "note": "Phase B (B11): smoke from the chimney top, measured on forge_shed's model"
+    }
+   ],
+   "note": "Drawn whole the same way (the procedural smithy, chimney over the hearth)."
+  }
+ },
+ "doors": {
+  "door.longhouse": {
+   "model": "prop_iron_banded_oak_door"
+  },
+  "door.forge_shed": {
+   "model": "prop_iron_banded_oak_door"
+  }
+ },
+ "containers": {
+  "container.waystation_chest": {
+   "model": "container_chest_iron_banded",
+   "sound": "chest"
+  },
+  "container.den_cache": {
+   "model": "container_chest_iron_banded",
+   "sound": "chest",
+   "note": "The playable prototype manifest's den cache chest."
+  },
+  "container.merchant_cart": {
+   "hidden": true
+  }
+ },
+ "ground_item": {
+  "model": "prop_canvas_haversack"
+ },
+ "nodes": {
+  "node.wood.ash_stand": {
+   "model": "flora_young_ash_stand",
+   "spent": "flora_ash_stumps"
+  },
+  "node.ore.iron_seam": {
+   "model": "node_iron_seam_ore",
+   "spent": "node_iron_seam_worked",
+   "sound": "mining"
+  }
+ },
+ "stations": {
+  "anvil": {
+   "model": "prop_blacksmith_anvil_stump",
+   "sound": "anvil"
+  },
+  "forge": {
+   "model": "prop_forge_hearth",
+   "sound": "anvil",
+   "note_bellows": "No separate bellows: the hearth model carries its bellows pipe; prop_forge_double_bellows stays withheld (it reads as lungs).",
+   "light": {
+    "at": [
+     0,
+     1.1,
+     0
+    ],
+    "colour": [
+     1.0,
+     0.55,
+     0.25
+    ],
+    "energy": 1.6,
+    "range": 5,
+    "shadows": true,
+    "size": 0.2,
+    "fog_energy": 0.5,
+    "note": "The hearth's glow, whatever draws the hearth (the greybox hearth's own light, kept as data)."
+   }
+  }
+ },
+ "creatures": {
+  "creature.beast.ash_ember_hound": {
+   "model": "creature_ash_ember_hound",
+   "clips": "creature.ash_ember_hound",
+   "voice": "ash_ember_hound",
+   "flesh": "flesh",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   }
+  },
+  "creature.beast.bristleback_boar": {
+   "model": "creature_bristleback_boar",
+   "clips": "creature.bristleback_boar",
+   "voice": "bristleback_boar",
+   "flesh": "flesh",
+   "steps": {
+    "walk": "walk",
+    "run": "charge"
+   }
+  },
+  "creature.beast.cave_hunting_spider": {
+   "model": "creature_cave_hunting_spider",
+   "clips": "creature.cave_hunting_spider",
+   "voice": "cave_hunting_spider",
+   "flesh": "flesh",
+   "steps": {
+    "walk": "scuttle",
+    "run": "scuttle_fast"
+   },
+   "steps_per_sound": 2
+  },
+  "creature.undead.bone_walker_husk": {
+   "model": "creature_bone_walker_husk",
+   "clips": "creature.bone_walker_husk",
+   "voice": "bone_walker_husk",
+   "flesh": "flesh",
+   "steps": {
+    "walk": "walk",
+    "run": "move_fast"
+   }
+  },
+  "creature.construct.animated_armour": {
+   "model": "creature_animated_armour_v2",
+   "clips": "creature.animated_armour",
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.beast.wolf_grey": {
+   "model": "creature_frost_wolf",
+   "clips": "creature.frost_wolf",
+   "voice": "ash_ember_hound",
+   "flesh": "flesh",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists."
+  }
+ },
+ "people": {
+  "player": {
+   "model": "player_veth_wanderer",
+   "note": "The Wanderer (Phase A): a clothed Veth reconstructed from its bind-pose concept, the 20-bone humanoid rig fitted to it and the person plan's clips baked on that rig (_make_creature_motion.py --plan person: arms measured from hanging, blows and guards on SkinnedFigure's phase map). The rig has no hand sockets, so the grips are the fists: 'grip' holds a sword or spear across the right fist 20 deg from the thumb toward the fingers, a blade's flat to the palm; 'off_grip' stands the bow along the left thumb, its back along the fingers.",
+   "hand": "hand.R",
+   "off_hand": "hand.L",
+   "grip": {
+    "at": [
+     0.0096,
+     0.0714,
+     -0.0097
+    ],
+    "primary": [
+     -0.3129,
+     0.2586,
+     -0.9139
+    ],
+    "secondary": [
+     0.9488,
+     0.0407,
+     -0.3133
+    ]
+   },
+   "off_grip": {
+    "at": [
+     -0.0094,
+     0.072,
+     -0.0104
+    ],
+    "primary": [
+     0.3212,
+     -0.0942,
+     -0.9423
+    ],
+    "secondary": [
+     0.0664,
+     0.9948,
+     -0.0768
+    ]
+   },
+   "clips": {
+    "idle": "player.veth_wanderer.idle",
+    "walk": "player.veth_wanderer.walk",
+    "run": "player.veth_wanderer.run",
+    "sprint": "player.veth_wanderer.sprint",
+    "sword_ready": "player.veth_wanderer.sword_ready",
+    "sword_attack": "player.veth_wanderer.sword_attack",
+    "sword_block": "player.veth_wanderer.sword_block",
+    "bow_ready": "player.veth_wanderer.bow_ready",
+    "bow_draw": "player.veth_wanderer.bow_draw",
+    "spear_ready": "player.veth_wanderer.spear_ready",
+    "spear_thrust": "player.veth_wanderer.spear_thrust",
+    "cast": "player.veth_wanderer.cast",
+    "hit": "player.veth_wanderer.hit",
+    "death": "player.veth_wanderer.death",
+    "interact": "player.veth_wanderer.interact",
+    "crouch_idle": "player.veth_wanderer.crouch_idle",
+    "crouch_walk": "player.veth_wanderer.crouch_walk"
+   }
+  },
+  "npc.ashen_hollow.renn_vale": {
+   "model": "npc_veth_magistrate",
+   "hand": "hand.R",
+   "clips": {
+    "idle": "npc.veth_magistrate.idle",
+    "talk": "npc.veth_magistrate.talk_low"
+   },
+   "note": "His own clips from the person plan: upright, arms from hanging. He talks with his hands low (talk_low): his template rig hands the robe to the arms, and a lifted hand tears it until his body is remade."
+  },
+  "npc.ashen_hollow.kera_voss": {
+   "model": "npc_kal_smith",
+   "hand": "hand.R",
+   "clips": {
+    "idle": "npc.kal_smith.idle",
+    "talk": "npc.kal_smith.talk_02"
+   },
+   "note": "Her own clips from the person plan: upright, arms from hanging. A standing idle (hands on the hips): the anvil stands 4.2 m from her place, so npc.kal_smith.work_forge_02 is baked but not bound."
+  },
+  "npc.ashen_hollow.sel_arien": {
+   "model": "npc_siann_archivist",
+   "hand": "hand.R",
+   "clips": {
+    "idle": "npc.siann_archivist.idle",
+    "talk": "npc.siann_archivist.talk_02"
+   },
+   "note": "Her own clips from the person plan: her bind's 11 deg stoop taken out. A standing idle (reading a book held before her chest; no book is drawn): the survey table's near edge is 1.4 m off, so npc.siann_archivist.work_table_02 is baked but not bound."
+  },
+  "npc.ashen_hollow.tavar_orr": {
+   "model": "npc_orenth_guide",
+   "hand": "hand.R",
+   "grip": {
+    "at": [
+     0.03,
+     0.08,
+     0.0
+    ],
+    "primary": [
+     -0.08,
+     -1.0,
+     0.0
+    ],
+    "secondary": [
+     1.0,
+     -0.08,
+     -0.08
+    ],
+    "note": "The NPC rig has no hand sockets: the fist's centre, 8 cm down the hand bone on the palm side, a spear held upright at rest."
+   },
+   "clips": {
+    "idle": "npc.orenth_guide.idle",
+    "walk": "npc.orenth_guide.walk",
+    "run": "npc.orenth_guide.run",
+    "attack": "npc.orenth_guide.attack_02",
+    "hit": "npc.orenth_guide.hit",
+    "death": "npc.orenth_guide.death",
+    "talk": "npc.orenth_guide.talk_low"
+   },
+   "note": "Tavar walks and fights: the NPC rig has no locomotion clips, so he borrows the humanoid husk's (the same 20-bone rig)."
+  }
+ },
+ "weapons": {
+  "item.weapon.rusted_sword": {
+   "model": "weapon_arming_sword",
+   "family": "sword",
+   "note": "The playable prototype manifest's rusted_sword slot."
+  },
+  "item.weapon.hunting_bow": {
+   "model": "weapon_yew_longbow_warbow",
+   "family": "bow",
+   "hand": "off_hand",
+   "note": "The manifest's hunting_bow slot."
+  },
+  "item.weapon.march_spear": {
+   "model": "weapon_boar_spear_hunting",
+   "family": "polearm",
+   "note": "The manifest's polearm family (weapon_march_spear has no grip socket)."
+  }
+ },
+ "companion_weapon": {
+  "model": "weapon_boar_spear_hunting",
+  "family": "polearm"
+ },
+ "projectiles": {
+  "arrow": {
+   "model": "prop_arrow_rough"
+  }
+ },
+ "icons": {
+  "item.consumable.salve_minor": "ui.item.restorative",
+  "item.weapon.hunting_bow": "ui.weapon.bow",
+  "item.weapon.march_spear": "ui.weapon.march_spear",
+  "item.weapon.rusted_sword": "ui.weapon.one_handed",
+  "item.ammo.arrow_rough": "ui.item.arrow_rough",
+  "item.armor.hide_cap": "ui.item.hide_cap",
+  "item.armor.hide_vest": "ui.item.hide_vest",
+  "item.material.ash_haft": "ui.item.ash_haft",
+  "item.material.herb_ashbloom": "ui.item.ashbloom",
+  "item.material.iron_ingot": "ui.item.iron_ingot",
+  "item.material.iron_ore": "ui.item.iron_ore",
+  "item.material.raw_meat": "ui.item.raw_meat",
+  "item.material.wolf_hide": "ui.item.wolf_hide",
+  "item.quest.halda_token": "ui.item.halda_token",
+  "item.tome.resonance_primer": "ui.item.resonance_primer",
+  "item.tool.water_flask": "ui.item.water_flask",
+  "item.trinket.wolf_fang": "ui.item.wolf_fang",
+  "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
+  "spell.warding.brace_ward": "ui.formula.brace_ward",
+  "spell.vital.mending_thread": "ui.formula.mending_thread",
+  "effect.bleeding": "ui.status.bleeding",
+  "effect.braced": "ui.formula.brace_ward",
+  "effect.mending": "ui.formula.mending_thread",
+  "effect.weakened": "ui.status.weakened",
+  "strained": "ui.status.strained",
+  "health": "ui.resource.health",
+  "stamina": "ui.resource.stamina",
+  "focus": "ui.resource.focus",
+  "resonance": "ui.resource.resonance",
+  "follow": "ui.companion.follow",
+  "wait": "ui.companion.wait",
+  "downed": "ui.status.downed"
+ },
+ "effects": {
+  "cast_charge": "vfx.magic.cast_charge",
+  "effect.braced": "vfx.warding.brace_ward_shell",
+  "effect.mending": "vfx.vital.mending_thread_restore",
+  "strain": "vfx.resonance.strain_overlay"
+ },
+ "audio": {
+  "cells": {
+   "r_0_0:c_00_01": {
+    "bed": "amb.ashen_hollow.waystation.01",
+    "details": [
+     "sfx.amb.ashen_hollow.forge_distant.01",
+     "sfx.amb.ashen_hollow.timber_creak.01",
+     "sfx.amb.ashen_hollow.settlement_activity.01"
+    ],
+    "surface": "dirt"
+   },
+   "r_0_0:c_01_01": {
+    "bed": "amb.charwood_verge.01",
+    "details": [
+     "sfx.amb.charwood.branch_movement.01",
+     "sfx.amb.charwood.raven_call.01",
+     "sfx.amb.charwood.stream_detail.01"
+    ],
+    "surface": "dirt"
+   },
+   "r_0_0:c_00_00": {
+    "bed": "amb.blackvein_cut.01",
+    "details": [
+     "sfx.amb.blackvein.pebble_fall.01",
+     "sfx.amb.blackvein.rock_shift.01",
+     "sfx.amb.blackvein.winch_creak.01"
+    ],
+    "surface": "stone"
+   },
+   "r_0_0:c_01_00": {
+    "bed": "amb.foldscar_ruin.01",
+    "details": [
+     "sfx.amb.foldscar.stone_resonance.01",
+     "sfx.amb.foldscar.tone_displacement.01"
+    ],
+    "surface": "dirt"
+   }
+  },
+  "interior_surface": "wood",
+  "formulas": {
+   "spell.force.impulse_bolt": "impulse_bolt",
+   "spell.warding.brace_ward": "brace_ward",
+   "spell.vital.mending_thread": "mending_thread"
+  },
+  "switches": {
+   "switch.stone_north": "sfx.amb.foldscar.stone_resonance.01",
+   "switch.stone_southwest": "sfx.amb.foldscar.stone_resonance.01",
+   "switch.stone_southeast": "sfx.amb.foldscar.stone_resonance.01",
+   "switch.foldscar_heart": "sfx.amb.foldscar.stone_resonance.01"
+  },
+  "forge_station": "forge"
+ }
 }

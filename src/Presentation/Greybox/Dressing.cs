@@ -17,13 +17,21 @@ public static class Dressing
 {
     public const string ResourcePath = "res://Art/dressing.json";
 
-    /// <summary>Every placement that loads, under <paramref name="parent"/>; returns how many were placed and how many were skipped.</summary>
-    public static (int Placed, int Skipped) Place(Node3D parent, ArtLibrary art, Func<float, float, float> ground)
+    /// <summary>
+    /// Every placement that loads, under <paramref name="parent"/>; returns how many were placed and how many were skipped.
+    /// <paramref name="regionPath"/> is the region's own dressing file, when its asset workspace carries one: the props that make
+    /// a place lived in belong to the place, and a second region's village wants its own barrels at its own doors rather than
+    /// the first region's list, whose every entry would fail to load and leave the ground bare.
+    /// </summary>
+    public static (int Placed, int Skipped) Place(Node3D parent, ArtLibrary art, Func<float, float, float> ground, string? regionPath = null)
     {
-        if (!Godot.FileAccess.FileExists(ResourcePath))
+        string path = regionPath is not null && Godot.FileAccess.FileExists(regionPath) ? regionPath : ResourcePath;
+        if (Godot.FileAccess.FileExists(regionPath ?? string.Empty))
+            GD.Print($"UNNAMED dressing: the region's own from {regionPath}");
+        if (!Godot.FileAccess.FileExists(path))
             return (0, 0);
         int placed = 0, skipped = 0;
-        using var document = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
+        using var document = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(path));
         var root = new Node3D { Name = "Dressing" };
         parent.AddChild(root);
         foreach (var entry in document.RootElement.GetProperty("places").EnumerateArray())

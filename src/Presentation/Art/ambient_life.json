@@ -40,7 +40,7 @@
     },
     "butterflies": {
       "mesh": "butterfly",
-      "count": 220,
+      "count": 24,
       "grounds": [
         "material_packed_dirt_ground",
         "material_marsh_grass_turf"
@@ -58,15 +58,15 @@
         0.1
       ],
       "size": [
-        1.3,
-        1.8
+        0.75,
+        1.2
       ],
       "day_only": true,
       "weather": [
         "fair",
         "clear"
       ],
-      "note": "Butterflies wandering low over the meadow and the Charwood's glades.",
+      "note": "Sparse 4.2-6.7 cm butterflies wandering low over the meadow and the Charwood's glades; four rounded wings, bodies and restrained markings.",
       "around_camera": 20
     },
     "fireflies": {

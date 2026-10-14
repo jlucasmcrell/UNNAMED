@@ -7,6 +7,16 @@ using Godot;
 namespace UNNAMED.Presentation.Art;
 
 /// <summary>
+/// A default a record's own parameter list cannot name (a record's body is not in scope there), so the value lives in its own type.
+/// See <see cref="LightSpec.DefaultAttenuation"/> for the measurement behind the number.
+/// </summary>
+public static class LightDefaults
+{
+    /// <summary>Godot's own default decay for <c>omni_attenuation</c>.</summary>
+    public const float Attenuation = 1.2f;
+}
+
+/// <summary>
 /// How a model is placed for the thing it stands for, always at its authored size (see <c>art_bindings.json</c>'s comment): a node's
 /// <see cref="Spent"/> look beside its ready one, a station's <see cref="Beside"/> model at <see cref="BesideOffset"/> and its
 /// <see cref="Light"/>, a building's lights inside it (<see cref="Lights"/>).
@@ -15,19 +25,63 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
     Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null,
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
-    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null);
+    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0);
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
 /// footprint centre on the ground), its colour, energy, range, and whether it casts shadows.
 /// </summary>
-public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Range, bool Shadows, float Size, float FogEnergy, string? Note = null)
+/// <remarks>
+/// UNBLOCK FIX (not mine, declared): <c>Attenuation = DefaultAttenuation</c> in the parameter list below cannot resolve, because a record's
+/// own members are not in scope in its parameter list. The constant moved to <see cref="LightDefaults"/> and every reference with it.
+/// </remarks>
+public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Range, bool Shadows, float Size, float FogEnergy,
+    float Attenuation = LightDefaults.Attenuation, float Daylight = 0, string? Note = null)
 {
+    /// <summary>
+    /// The decay a light gets when it does not state one: Godot's own default for <c>omni_attenuation</c>, and the
+    /// curve every energy, range and offset in the shipped bindings was authored against.
+    ///
+    /// MEASURED, not assumed. `CraftingView.cs:170` builds a station's light with a bare <c>new OmniLight3D</c> and
+    /// never touches the property; the forge light that code path produced reports <c>omni_attenuation 1.2</c> out
+    /// of a real frame's own scene dump. So this is the engine's default, which means the 1.2 that
+    /// <see cref="Build"/> used before this round was not a tuned choice - it was the default written down - and
+    /// every hand-built light in the codebase (<c>VfxSheet</c>, <c>CraftingView</c>, <c>ProjectilesView</c>) is
+    /// still on it today. The forced 2.0 applied to binding-driven lights only, which left the game running two
+    /// curves at once. See docs/phase_b/INTERIORS_FOLLOWUP.md section 2 for what the interiors measured under each.
+    /// </summary>
+    public const float DefaultAttenuation = LightDefaults.Attenuation;
+
     /// <summary>The light itself, placed relative to its parent.</summary>
+    /// <remarks>
+    /// ATTENUATION IS DATA NOW, AND IT WAS NOT BEFORE. It was a literal in this method, and on the morning of
+    /// 2026-09-29 an uncommitted edit changed that literal from 1.2 to 2.0 - correctly observing in its own comment
+    /// that "the energies in bindings.json were authored against the flatter curve, so they want raising to match",
+    /// and then not raising them. Every light in the game changed shape and not one authored number moved with it.
+    ///
+    /// WHY THE CURVE WAS THE THING TO PUT BACK, MEASURED RATHER THAN ARGUED. Godot's omni falloff is
+    /// <c>(1 - (d/range)^4)^2 * d^-decay</c>, so the two curves cross at almost exactly 1 m and the ratio grows
+    /// with distance: 1.00 at 1 m, 1.74 at 2 m, 2.41 at 3 m, 3.03 at 4 m, 3.62 at 5 m. Decay 2.0 is therefore
+    /// BRIGHTER than 1.2 inside a metre and darker beyond it, which is the shape the judged frames actually have:
+    /// the wall within a metre of the lamp sits at 0.350 frame luminance while the floor three metres away sits at
+    /// 0.056, and the frame's 99th percentile is 0.335 - nothing in the room reaches a third of full scale. Raising
+    /// the energy multiplies both ends, so it would blow the pool that is already correctly exposed to lift a floor
+    /// that is dark because the curve does not reach it. Only the curve moves one end without the other, and only
+    /// the curve restores the three values per light (energy, range, and the lamp's own height) that the 2.0 edit
+    /// invalidated at once. See docs/phase_b/INTERIORS_FOLLOWUP.md section 2.
+    ///
+    /// <see cref="Energy"/> IS AUTHORED AGAINST <see cref="Attenuation"/>, which is why both are here: the pair is
+    /// one decision, and a binding that changes one is authoring a different light.
+    ///
+    /// <see cref="Daylight"/> is how much of the light the sun takes away: 0 for a hearth or a lamp that burns all
+    /// day, 1 for a street lantern that is lit at dusk. It is the same axis the fog's light colour and the night
+    /// fill already run on (<see cref="Greybox.SkyView"/>), applied to the one kind of light that was still pinned
+    /// to the moment the process booted.
+    /// </remarks>
     public OmniLight3D Build(string name) => new()
     {
-        Name = name, Position = At, LightColor = Colour, LightEnergy = Energy, OmniRange = Range, OmniAttenuation = 1.2f, ShadowEnabled = Shadows,
-        LightSize = Size, LightVolumetricFogEnergy = FogEnergy,
+        Name = name, Position = At, LightColor = Colour, LightEnergy = Energy, OmniRange = Range, OmniAttenuation = Attenuation,
+        ShadowEnabled = Shadows, LightSize = Size, LightVolumetricFogEnergy = FogEnergy,
     };
 }
 
@@ -166,12 +220,96 @@ public sealed class ArtBindings
     }
 
     public static ArtBindings Load(string resourcePath)
+        => LoadWithOverlay(resourcePath, null);
+
+    /// <summary>
+    /// The bindings for a run, with a second file layered over the first. A region brings its own art
+    /// without restating what it shares: the HUD, the icons, the effect sheets and the audio beds are
+    /// the same everywhere, and only the models, materials and looks are the region's own. Objects merge
+    /// key by key, recursively; anything else - a string, a number, an array - replaces what it lands on.
+    /// A region's file therefore says only what it changes.
+    /// </summary>
+    public static ArtBindings LoadWithOverlay(string resourcePath, string? overlayPath)
+    {
+        if (overlayPath is null || !Godot.FileAccess.FileExists(overlayPath))
+            return LoadOnly(resourcePath);
+        if (!Godot.FileAccess.FileExists(resourcePath))
+            return LoadOnly(overlayPath);
+        try
+        {
+            using var baseJson = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(resourcePath));
+            using var overlayJson = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(overlayPath));
+            return FromJson(Merge(baseJson.RootElement, overlayJson.RootElement));
+        }
+        catch (JsonException e)
+        {
+            GD.PushError($"art bindings: overlay {overlayPath} over {resourcePath} does not parse ({e.Message}); using the base file alone");
+            return LoadOnly(resourcePath);
+        }
+    }
+
+    /// <summary>Deep-merges an overlay onto a base object, returning the merged document as text.</summary>
+    private static string Merge(JsonElement baseElement, JsonElement overlayElement)
+    {
+        using var buffer = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(buffer))
+            MergeInto(writer, baseElement, overlayElement);
+        return System.Text.Encoding.UTF8.GetString(buffer.ToArray());
+    }
+
+    private static void MergeInto(Utf8JsonWriter writer, JsonElement baseElement, JsonElement overlayElement)
+    {
+        if (baseElement.ValueKind != JsonValueKind.Object || overlayElement.ValueKind != JsonValueKind.Object)
+        {
+            overlayElement.WriteTo(writer);
+            return;
+        }
+        writer.WriteStartObject();
+        var written = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var property in baseElement.EnumerateObject())
+        {
+            written.Add(property.Name);
+            writer.WritePropertyName(property.Name);
+            if (overlayElement.TryGetProperty(property.Name, out var over))
+                MergeInto(writer, property.Value, over);
+            else
+                property.Value.WriteTo(writer);
+        }
+        foreach (var property in overlayElement.EnumerateObject())
+        {
+            if (written.Contains(property.Name))
+                continue;
+            writer.WritePropertyName(property.Name);
+            property.Value.WriteTo(writer);
+        }
+        writer.WriteEndObject();
+    }
+
+    private static ArtBindings LoadOnly(string resourcePath)
     {
         if (!Godot.FileAccess.FileExists(resourcePath))
             return Empty;
         try
         {
-            using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(resourcePath));
+            return FromJson(Godot.FileAccess.GetFileAsString(resourcePath));
+        }
+        catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or IndexOutOfRangeException
+                                      or FormatException)
+        {
+            GD.PushWarning($"UNNAMED art: the bindings at {resourcePath} could not be read ({e.Message}); drawing greybox");
+            return Empty;
+        }
+    }
+
+    /// <summary>
+    /// The bindings a document states. Reading and parsing are separate so a region's file can be merged
+    /// into the shared one as text, before either is interpreted.
+    /// </summary>
+    private static ArtBindings FromJson(string text)
+    {
+        try
+        {
+            using var json = JsonDocument.Parse(text);
             var root = json.RootElement;
             var audio = root.TryGetProperty("audio", out var a) ? a : default;
             var bindings = new ArtBindings
@@ -247,7 +385,7 @@ public sealed class ArtBindings
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or IndexOutOfRangeException
                                       or FormatException)
         {
-            GD.PushWarning($"UNNAMED art: the bindings at {resourcePath} could not be read ({e.Message}); drawing greybox");
+            GD.PushWarning($"UNNAMED art: the bindings document could not be read ({e.Message}); drawing greybox");
             return Empty;
         }
     }
@@ -319,12 +457,18 @@ public sealed class ArtBindings
         e.TryGetProperty("emitters", out var emitters) && emitters.ValueKind == JsonValueKind.Array
             ? emitters.EnumerateArray().Where(x => Text(x, "recipe") is not null && x.TryGetProperty("at", out _))
                 .Select(x => (Text(x, "recipe")!, Vector(x.GetProperty("at")))).ToList()
-            : null);
+            : null,
+        Number(e, "yaw_spread", 0));
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
 
-    /// <summary>A light: "at" [x, y, z] metres from what it lights, "colour" [r, g, b], "energy", "range" metres, "shadows", "size"; null when malformed.</summary>
+    /// <summary>
+    /// A light: "at" [x, y, z] metres from what it lights, "colour" [r, g, b], "energy", "range" metres, "shadows",
+    /// "size", and optionally "attenuation" (Godot's decay; defaults to <see cref="LightSpec.DefaultAttenuation"/>)
+    /// and "daylight" (how much of it the sun takes away; defaults to 0, a light the sun does not touch); null when
+    /// malformed.
+    /// </summary>
     private static LightSpec? Light(JsonElement e)
     {
         if (e.ValueKind != JsonValueKind.Object || !e.TryGetProperty("at", out var at) || !IsVector(at))
@@ -333,8 +477,17 @@ public sealed class ArtBindings
             return null;
         }
         var colour = e.TryGetProperty("colour", out var c) && IsVector(c) ? Vector(c) : Vector3.One;
-        return new LightSpec(Vector(at), new Color(colour.X, colour.Y, colour.Z), Number(e, "energy", 1f), Number(e, "range", 5f), Flag(e, "shadows"),
-            Number(e, "size", 0f), Number(e, "fog_energy", 1f), Text(e, "note"));
+        float attenuation = Number(e, "attenuation", LightSpec.DefaultAttenuation);
+        if (attenuation <= 0f || !float.IsFinite(attenuation))
+        {
+            // Decay 0 is a light that does not fall off with distance at all, which is never what a binding means;
+            // it is a typo, and a silent one would light the whole cell. A refused value is reported, not obeyed.
+            GD.PushWarning($"UNNAMED art: a light binding asks for attenuation {attenuation}, which is not a decay; using {LightSpec.DefaultAttenuation}");
+            attenuation = LightSpec.DefaultAttenuation;
+        }
+        float daylight = Mathf.Clamp(Number(e, "daylight", 0f), 0f, 1f);
+        return new LightSpec(Vector(at), new Color(colour.X, colour.Y, colour.Z), Number(e, "energy", 1f), Number(e, "range", 5f),
+            Flag(e, "shadows"), Number(e, "size", 0f), Number(e, "fog_energy", 1f), attenuation, daylight, Text(e, "note"));
     }
 
     private static float Number(JsonElement e, string name, float fallback) =>

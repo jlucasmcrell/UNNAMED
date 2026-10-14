@@ -1,40 +1,68 @@
 ; Engine configuration file.
-; The Otherreach presentation shell (ARCHITECTURE.md §3): Godot renders the domain's state and turns input into
-; commands. Content is read from the repository's content/ directory; nothing here is game data.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
 [application]
 
 config/name="Otherreach"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Otherreach-NormalPlayer-SubViewport-20261002-r3f"
 config/description="Phase-1 playable prototype (codename UNNAMED): Ashen Hollow."
-run/main_scene="res://Main.tscn"
+run/main_scene="res://Proof.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+
+[autoload]
+
+InputHelper="*res://addons/input_helper/input_helper.gd"
+Audio="*res://addons/quick_audio/Audio.gd"
+CogitoGlobals="*res://addons/cogito/cogito_globals.gd"
+CogitoSceneManager="*res://addons/cogito/SceneManagement/cogito_scene_manager.gd"
+CogitoQuestManager="*res://addons/cogito/QuestSystem/cogito_quest_manager.gd"
+MenuTemplateManager="*res://addons/cogito/EasyMenus/Nodes/menu_template_manager.tscn"
+GameplayCueManager="*res://addons/GodotGAS/managers/gameplay_cue_manager.gd"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-; The UI is laid out for 1920 x 1080 and scaled to the window, keeping its proportions (the Phase-1 technical audit, M-06):
-; at 1366 x 768 or 1280 x 720 everything shows, smaller; a wider or taller window gets more room, not a stretched picture.
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [dotnet]
 
-project/assembly_name="UNNAMED.Presentation"
+project/assembly_name="OutfitProof"
 
 [rendering]
+scaling_3d/scale=1.0
 
-; Phase A (the visual audit's V1, measured before adoption; the lighting and environment are HollowView's): MSAA 4x with TAA for the
-; alpha-tested foliage and the thin geometry, 16x anisotropic filtering for the ground at grazing angles, debanding under the overcast sky,
-; soft high-quality shadow filtering and a 4096 16-bit directional shadow atlas. Chosen for RAZER's RTX 4070 Ti at 1920 x 1080 and 60 FPS.
-anti_aliasing/quality/msaa_3d=2
-anti_aliasing/quality/screen_space_aa=0
-anti_aliasing/quality/use_taa=true
-anti_aliasing/quality/use_debanding=true
-textures/default_filters/anisotropic_filtering_level=4
-lights_and_shadows/directional_shadow/size=4096
-lights_and_shadows/directional_shadow/16_bits=true
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=4
 lights_and_shadows/positional_shadow/soft_shadow_filter_quality=4
+; Phase B, 4K pass: the shadow atlases are the resolution the sun and the village lamps are sampled at, and
+; at 4096 across a 120 m cascade the far splits were the blurriest thing on screen. 8192 costs 134 MiB each.
+lights_and_shadows/directional_shadow/size=8192
+lights_and_shadows/positional_shadow/atlas_size=8192
+; The froxel grid is sized in cells, NOT in pixels: turning the output resolution up adds no fog detail at all,
+; so a 4K frame with the default 64 resolves half the fog a 1080p frame did. 128 x 256 is 144 MiB and is the
+; documented ceiling worth paying for; 256 x 512 is 1.13 GiB.
+environment/volumetric_fog/volume_size=128
+environment/volumetric_fog/volume_depth=256
+environment/ssao/quality=3
+environment/ssil/quality=3
+textures/default_filters/anisotropic_filtering_level=4
+; The desktop texture-compression switch. The ETC2/ASTC setting next to it is a mobile-only path and does
+; nothing here. Without this, a 4096 albedo is 85 MiB uncompressed where BC1 is 10.67 MiB.
+textures/vram_compression/import_s3tc_bptc=true
+anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/use_debanding=true
+anti_aliasing/quality/use_taa=true
+
+[sprouty_dialogs]
+
+text/default_typing_speed=0.05
+text/display/max_characters=0

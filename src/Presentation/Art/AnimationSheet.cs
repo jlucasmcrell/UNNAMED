@@ -27,7 +27,7 @@ public partial class AnimationSheet : Node3D
     private readonly string _directory;
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
-    private readonly List<(string Creature, SkinnedModel Model, string State)> _creatures = new();
+    private readonly List<(string Creature, SkinnedModel Model, string State, bool Control)> _creatures = new();
     private readonly List<(SkinnedModel Model, string State, float Fraction)> _held = new();
     // Phase B (B0.4): bodies driven here each frame - figures at a pace, and bodies swung side to side (the spring's test).
     private readonly List<(SkinnedFigure Figure, float Speed)> _walkers = new();
@@ -36,6 +36,11 @@ public partial class AnimationSheet : Node3D
     private readonly List<(string Name, SkinnedFigure Figure, Node3D Marker, LookAtModifier3D? Look)> _lookChecks = new();
     private readonly List<(string Name, SkinnedModel Body)> _tailChecks = new();
     private readonly List<string> _measured = new();
+    // A bound clip can be dead: the state resolves, the player has an animation, and the skeleton does not move - the retarget
+    // found no bone it recognised, or the clip's tracks are constant. Photographs three fractions apart cannot tell that from a
+    // clip that works except by eye, so the bones are copied at each fraction and the movement between them is reported.
+    // Keyed (creature, state, fraction) -> the body's bone global poses; the no-clip control is sampled the same way and must read 0.
+    private readonly Dictionary<(string Creature, string State, float Fraction), Transform3D[]> _motion = new();
     // A modifier's result exists only while the skeleton updates (Godot discards it after skinning): the bones read are copied here then.
     private readonly Dictionary<(Skeleton3D, string), Transform3D> _watched = new();
 
@@ -110,7 +115,7 @@ public partial class AnimationSheet : Node3D
                 model.Rotation = new Vector3(0, Mathf.DegToRad(60), 0);
                 AddChild(model);
                 Label($"{CreatureStates[i]}{(model.Has(CreatureStates[i]) ? "" : " (NO CLIP)")}", new Vector3(i * spacing, size.Y + 0.35f, z));
-                _creatures.Add((defId, model, CreatureStates[i]));
+                _creatures.Add((defId, model, CreatureStates[i], false));
             }
             float middle = (CreatureStates.Length - 1) * spacing / 2, row = z, height = size.Y;
             float distance = Math.Max(5f, CreatureStates.Length * spacing * 0.8f);
@@ -121,6 +126,31 @@ public partial class AnimationSheet : Node3D
                 {
                     _fraction = fraction;
                     Aim(new Vector3(middle, height * 0.9f + distance * 0.18f, row + distance), new Vector3(middle, height * 0.45f, row));
+                }));
+            }
+            // THE CONTROL, AND WHY IT IS HERE (the creature animation round, 2026-09-29). A rigged body with no clip bound
+            // draws the bind pose for ever - which is exactly what the depot's clipless rigs would draw if anything ever
+            // bound them, and exactly what a clip that is bound but dead looks like. The same six states of the same body
+            // are therefore stood again with an EMPTY clip table, at the same stations, so the pair is a true before/after
+            // of one creature in one frame rather than two creatures that merely look alike.
+            float bind = z - 12f;
+            for (int i = 0; i < CreatureStates.Length; i++)
+            {
+                if (SkinnedModel.Create(_art, creature.Model, new Dictionary<string, string>()) is not { } still)
+                    break;
+                still.Position = new Vector3(i * spacing, 0, bind);
+                still.Rotation = new Vector3(0, Mathf.DegToRad(60), 0);
+                AddChild(still);
+                Label($"{CreatureStates[i]} (NO CLIP BOUND)", new Vector3(i * spacing, size.Y + 0.35f, bind));
+                _creatures.Add((defId, still, CreatureStates[i], true));
+            }
+            float control = bind;
+            foreach (float fraction in Fractions)
+            {
+                _shots.Add(($"creature_{name}_noclip_{(int)(fraction * 100):00}", () =>
+                {
+                    _fraction = fraction;
+                    Aim(new Vector3(middle, height * 0.9f + distance * 0.18f, control + distance), new Vector3(middle, height * 0.45f, control));
                 }));
             }
             // Far enough apart that the row before stands behind the camera.
@@ -353,10 +383,28 @@ public partial class AnimationSheet : Node3D
 
     private void Aim(Vector3 eye, Vector3 target) => _camera.LookAtFromPosition(eye, target, Vector3.Up);
 
+    /// <summary>
+    /// Every creature body's bone global poses at the fraction now showing, so two fractions of one clip can be compared
+    /// (see <see cref="_motion"/>). Called as each creature picture is taken, when the poses have been held for frames.
+    /// </summary>
+    private void SampleMotion()
+    {
+        foreach (var (creature, model, state, control) in _creatures)
+        {
+            if (!control && !model.Has(state))
+                continue;
+            var skeleton = model.Skeleton;
+            var poses = new Transform3D[skeleton.GetBoneCount()];
+            for (int bone = 0; bone < poses.Length; bone++)
+                poses[bone] = skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(bone);
+            _motion[(creature + (control ? " (no clip)" : ""), state, _fraction)] = poses;
+        }
+    }
+
     public override void _Process(double delta)
     {
         _clock += delta;
-        foreach (var (_, model, state) in _creatures)
+        foreach (var (_, model, state, _) in _creatures)
             model.Hold(state, _fraction, 0);
         foreach (var (model, state, fraction) in _held)
             model.Hold(state, fraction, 0);
@@ -396,6 +444,10 @@ public partial class AnimationSheet : Node3D
         if (++_wait < 8 || _shots[_shot].Name == "player_close_interact" && _clockAtShot + ReachSeconds > _clock)
             return;
         Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
+        // The creature pictures are the only place two fractions of one clip are held for long enough to compare, so the
+        // movement between them is measured here rather than guessed from the frames afterwards.
+        if (_shots[_shot].Name.StartsWith("creature_", StringComparison.Ordinal) && !_shots[_shot].Name.Contains("_noclip_", StringComparison.Ordinal))
+            SampleMotion();
         _shot++;
         _wait = -1;
     }
@@ -466,6 +518,34 @@ public partial class AnimationSheet : Node3D
             lines.AddRange(new[] { "", "## Skeleton modifiers, measured (Phase B, B0.4)", "" });
             lines.AddRange(_measured.Select(m => $"- {m}"));
             lines.AddRange(_tailSwing.Select(t => $"- {t.Key}: the tail swings {t.Value.Max - t.Value.Min:0.0} deg in the body's frame ({t.Value.Min:0.0} to {t.Value.Max:0.0})"));
+        }
+        if (_motion.Count > 0)
+        {
+            lines.AddRange(new[] { "", "## Creature clips, measured (the creature animation round, 2026-09-29)", "",
+                "Each bound creature's six states are held at three fractions of their clip and photographed; the bones are copied at",
+                "the same moments, so this is the movement the body actually makes between 20 % and 85 % of each clip - the answer to",
+                "whether a state that RESOLVES is a state that MOVES. The (no clip) control rows are the same bodies with an empty",
+                "clip table: they must read 0.00 m, and they are what a rigged body with no clips draws in play.", "" });
+            var byState = _motion.Keys.GroupBy(k => (k.Creature, k.State)).OrderBy(g => g.Key.Item1, StringComparer.Ordinal).ThenBy(g => g.Key.Item2, StringComparer.Ordinal);
+            foreach (var group in byState)
+            {
+                var fractions = group.Select(k => k.Fraction).OrderBy(f => f).ToList();
+                if (fractions.Count < 2)
+                    continue;
+                var first = _motion[(group.Key.Creature, group.Key.State, fractions[0])];
+                var last = _motion[(group.Key.Creature, group.Key.State, fractions[^1])];
+                float most = 0;
+                int moved = 0;
+                for (int bone = 0; bone < Math.Min(first.Length, last.Length); bone++)
+                {
+                    float distance = first[bone].Origin.DistanceTo(last[bone].Origin);
+                    most = Math.Max(most, distance);
+                    if (distance > 0.001f)
+                        moved++;
+                }
+                lines.Add($"- {group.Key.Creature} / {group.Key.State}: {moved} of {first.Length} bones move more than 1 mm between "
+                          + $"{fractions[0] * 100:0} % and {fractions[^1] * 100:0} % of the clip; the most-moving bone travels {most:0.000} m");
+            }
         }
         lines.AddRange(new[] { "", "## Pictures", "" });
         lines.AddRange(_shots.Select(s => $"![{s.Name}]({s.Name}.png)"));

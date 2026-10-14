@@ -20,10 +20,28 @@ public static class CharacterMaterials
     private static Dictionary<string, JsonElement>? _kinds;
 
     /// <summary>Upgrade every zone material under <paramref name="model"/>; returns how many surfaces were upgraded.</summary>
-    public static int Upgrade(Node model)
+    public static int Upgrade(Node model) => Upgrade(model, out _);
+
+    /// <summary>
+    /// As <see cref="Upgrade(Node)"/>, and also reports HOW MANY surfaces carried a name in the zone vocabulary at
+    /// all (<paramref name="zoneNamed"/>).
+    ///
+    /// WHY THAT SECOND NUMBER IS WORTH RETURNING: the caller used to print "the zone names did not match" for any
+    /// model that upgraded nothing, which asserts a cause it had not measured. There are three different reasons
+    /// for zero, and only one of them is a fault:
+    ///
+    ///   * the model has NO zone names - every single-atlas creature, `MAT_creature_bristleback_boar_rigged`. This
+    ///     is normal, nothing is wrong, and the pass has nothing to say about such a model;
+    ///   * the model HAS zone names and none matched a kind in character_materials.json - that IS a mismatch;
+    ///   * the kinds file would not load, which `Kinds()` already warns about separately.
+    ///
+    /// The first case was being reported as the second for as long as this has existed, and a creature reading as
+    /// broken every run is how a real gap becomes background noise.
+    /// </summary>
+    public static int Upgrade(Node model, out int zoneNamed)
     {
         var kinds = Kinds();
-        int upgraded = 0;
+        int upgraded = 0, named = 0;
         foreach (var node in model.FindChildren("*", nameof(MeshInstance3D), true, false))
         {
             if (node is not MeshInstance3D instance || instance.Mesh is null)
@@ -33,13 +51,27 @@ public static class CharacterMaterials
                 if (instance.Mesh.SurfaceGetMaterial(s) is not BaseMaterial3D material)
                     continue;
                 string name = material.ResourceName ?? string.Empty;
-                string kind = name == "eye" ? "eye" : kinds.Keys.Where(k => name.EndsWith("_" + k, StringComparison.Ordinal)).OrderByDescending(k => k.Length).FirstOrDefault() ?? string.Empty;
+                string kind = KindOf(name, kinds);
                 if (kind.Length == 0 || !kinds.TryGetValue(kind, out var spec))
                     continue;
+                named++;
+                // THE SKIN GOES THROUGH HumanShaders, NOT THROUGH THE ENGINE'S OWN SSS.
+                // Raising SubsurfScatterStrength from 0.22 to 0.75 measured only "marginally better" and the reviewer added
+                // that neither frame escaped "opaque game-engine plastic" - because a scalar cannot do what a layered skin
+                // shader does. HumanShaders (MIT + CC BY 4.0, res://Art/HumanShaders/) implements the three-lobe wrapped
+                // diffuse and dual-lobe specular the same review asked for, and was already used on a character at an owner
+                // checkpoint. It returns false if the shader will not load, and the material then falls through to the
+                // engine's response rather than drawing nothing.
+                if (kind == "skin" && HumanSkin.Apply(instance, s, material))
+                {
+                    upgraded++;
+                    continue;
+                }
                 Apply(material, spec);
                 upgraded++;
             }
         }
+        zoneNamed = named;
         return upgraded;
     }
 
@@ -70,6 +102,35 @@ public static class CharacterMaterials
     }
 
     private static readonly Dictionary<string, float> _lods = new(StringComparer.Ordinal);
+
+    /// <summary>Explicit material-name-to-kind entries from <c>material_kinds</c> in character_materials.json.</summary>
+    private static readonly Dictionary<string, string> _materialKinds = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Which kind a surface's material is, or empty when it is not in the vocabulary.
+    ///
+    /// TWO RULES, AND THE SECOND WAS THE ONLY ONE FOR TOO LONG. An explicit <c>material_kinds</c> entry wins,
+    /// because a name is an identity and a suffix is a convention that happened to hold. The suffix rule
+    /// (<c>&lt;prefix&gt;_&lt;kind&gt;</c>, the charprod zone vocabulary) is kept for the zone-segmented models it
+    /// was written for.
+    ///
+    /// WHY THE EXPLICIT MAP EXISTS. Cairnwold's characters come from charstd, not charprod, and their hair material
+    /// is MPFB's own <c>Human.&lt;hairstyle&gt;</c>. Of the four grooms in the cast, exactly one - 
+    /// <c>Human.elvs_grump_hair</c> - ends in <c>_hair</c> and therefore matched. The other three did not, so the
+    /// <c>hair</c> kind (its specular, its rim, and the anisotropy added this round) was applied to one character
+    /// out of four, and the character it was NOT applied to is the player. Nothing reported it: the pass counted
+    /// surfaces and printed a total, and a material that does not match a kind is indistinguishable in that total
+    /// from a model that has no such material at all.
+    /// </summary>
+    private static string KindOf(string name, Dictionary<string, JsonElement> kinds)
+    {
+        if (_materialKinds.TryGetValue(name, out var explicitKind))
+            return kinds.ContainsKey(explicitKind) ? explicitKind : string.Empty;
+        if (name == "eye")
+            return "eye";
+        return kinds.Keys.Where(k => name.EndsWith("_" + k, StringComparison.Ordinal))
+                         .OrderByDescending(k => k.Length).FirstOrDefault() ?? string.Empty;
+    }
 
     private static void Apply(BaseMaterial3D m, JsonElement spec)
     {
@@ -107,6 +168,25 @@ public static class CharacterMaterials
             m.RoughnessTexture = null;
             m.Roughness = Num("roughness", m.Roughness);
         }
+        // THE HAIR'S ANISOTROPY, WHICH NOTHING COULD USE UNTIL THE TANGENTS EXISTED.
+        //
+        // Godot documents `anisotropy_enabled` as the lever for "brushed aluminum and hair reflections", and adds
+        // that it is inert without mesh tangents: "Mesh tangents are needed for anisotropy to work. If the mesh does
+        // not contain tangents, the anisotropy effect will appear broken." Measured on the Cairnwold cast: NOT ONE
+        // mesh of not one character carried TANGENT, so hair has never had the one specular response that says
+        // "hair" rather than "felt" - and no value of roughness, rim or backlight could produce it, because the
+        // term was not being evaluated at all. `tools/asset_pipeline/_hair_tangents.py` now writes a tangent into
+        // the hair primitive of each groom, oriented along that groom's OWN measured strand direction (a tangent
+        // from UV derivatives follows +U; the player's strands run along V, Tavar's along U, and the two are not the
+        // same answer). This is the first setting that can use it.
+        //
+        // IT APPLIES ONLY WHERE A TANGENT EXISTS. A material without one renders exactly as before rather than
+        // breaking, because Godot ignores the term rather than reading a zero tangent.
+        if (spec.TryGetProperty("anisotropy", out _))
+        {
+            m.AnisotropyEnabled = true;
+            m.Anisotropy = Num("anisotropy", 0.5f);
+        }
     }
 
     private static Dictionary<string, JsonElement> Kinds()
@@ -121,6 +201,10 @@ public static class CharacterMaterials
             using var document = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
             foreach (var kind in document.RootElement.GetProperty("kinds").EnumerateObject())
                 _kinds[kind.Name] = kind.Value.Clone();
+            if (document.RootElement.TryGetProperty("material_kinds", out var named))
+                foreach (var entry in named.EnumerateObject()
+                             .Where(e => e.Value.ValueKind == JsonValueKind.String && e.Name != "note"))
+                    _materialKinds[entry.Name] = entry.Value.GetString() ?? string.Empty;
             if (document.RootElement.TryGetProperty("lods", out var lods))
             {
                 foreach (var entry in lods.EnumerateObject().Where(e => e.Value.ValueKind == JsonValueKind.Number))

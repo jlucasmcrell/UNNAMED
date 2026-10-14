@@ -120,7 +120,7 @@ void fragment() {
 
 /// <summary>
 /// The Brace Ward: a faceted lattice shell round the body - an icosahedron split to 80 facets, stretched to the body's height - drawn as
-/// fine edges with bright nodes and the faintest facet fill, strongest at its silhouette so the body stays readable inside it; a circle
+/// faint edges and nodes, strongest at its silhouette so the body stays readable inside it; a circle
 /// inscribed on the ground at its foot. It assembles from the feet up as the ward takes hold, turns slowly while it holds, a light
 /// climbing its edges; a blow on it spreads a ring across the facets from where it landed; in its last 1.5 s it wavers; when the ward
 /// ends its facets break apart outward and fade.
@@ -181,7 +181,7 @@ public sealed partial class WardLattice : FormulaForm
         _material.SetShaderParameter("waver", waver);
         _material.SetShaderParameter("hit_age", (float)(Age - _struckAt));
         _circle.SetShaderParameter("drawn", Smooth(Age / 0.35));
-        _circle.SetShaderParameter("energy", 0.5f * energy * (1 - shatter));
+        _circle.SetShaderParameter("energy", 0.22f * energy * (1 - shatter));
         _foot.Scale = Vector3.One * (1 - 0.35f * shatter);
     }
 
@@ -267,7 +267,7 @@ void fragment() {
     float facing = abs(dot(NORMAL, VIEW));
     float rim = pow(1.0 - facing, 2.5);
     // The far side of the shell, seen through it, is fainter: glass, not a cage.
-    float near_side = mix(0.45, 1.0, smoothstep(-0.1, 0.1, outward.z));
+    float near_side = mix(0.12, 1.0, smoothstep(-0.1, 0.1, outward.z));
     // A light climbing the edges while the ward holds.
     float band = exp(-pow((unit.y - (fract(TIME * 0.3) * 2.8 - 1.4)) * 3.0, 2.0));
     float blow = 0.0;
@@ -276,7 +276,7 @@ void fragment() {
         blow = exp(-pow((angle - hit_age * 4.5) * 4.0, 2.0)) * exp(-hit_age * 2.2) + exp(-angle * 3.0) * exp(-hit_age * 7.0) * 1.6;
     }
     float flicker = 1.0 - waver * step(0.55, fract(TIME * 4.0 + face_rand * 0.7)) * 0.75;
-    float glow = line * (0.2 + 1.0 * rim + 0.45 * band) + node * 0.75 + rim * 0.07 + 0.01 + blow * (0.6 + line * 3.0);
+    float glow = line * (0.025 + 0.22 * rim + 0.08 * band) + node * 0.08 + rim * 0.12 + blow * (0.6 + line * 2.0);
     // Seen from inside (first person, or a camera pulled in against a wall) the facets nearest the eye fade out.
     float near = smoothstep(0.25, 0.8, -VERTEX.z);
     ALBEDO = ink * glow * energy * flicker * near_side * near * step(0.02, grown);

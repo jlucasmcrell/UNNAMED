@@ -80,3 +80,6 @@ TestResults/
 # Local project archives: kept on disk, not in the repository
 /UNNAMED.rar
 /_UNNAMED.rar
+
+# Third-party Godot plugins (606 MB) live on disk only; restore from the Godot asset library or a worker snapshot
+src/Presentation/addons/

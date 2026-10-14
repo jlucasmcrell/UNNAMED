@@ -1,0 +1,41 @@
+# Art coverage (smoke)
+
+UNNAMED art coverage: 365 requested, 364 resolved, 1 fallbacks, 0 unexpected
+
+A visual is a thing the game draws, by what it stands for; resolved is drawn with an asset from the library, a fallback is drawn in greybox. Allowed fallbacks are named in `src/Presentation/Art/art_coverage_allowlist.json`, each with its reason.
+
+| Kind | Requested | Resolved | Fallbacks | Unexpected |
+|---|---|---|---|---|
+| barrier | 1 | 1 | 0 | 0 |
+| building | 2 | 2 | 0 | 0 |
+| cliffs | 1 | 1 | 0 | 0 |
+| clip | 75 | 75 | 0 | 0 |
+| container | 2 | 2 | 0 | 0 |
+| creature | 6 | 6 | 0 | 0 |
+| debug | 1 | 0 | 1 | 0 |
+| door | 2 | 2 | 0 | 0 |
+| dressing | 45 | 45 | 0 | 0 |
+| effect | 2 | 2 | 0 | 0 |
+| effect_recipe | 2 | 2 | 0 | 0 |
+| emitter | 2 | 2 | 0 | 0 |
+| icon | 11 | 11 | 0 | 0 |
+| node | 4 | 4 | 0 | 0 |
+| person | 5 | 5 | 0 | 0 |
+| scatter | 19 | 19 | 0 | 0 |
+| scenery | 5 | 5 | 0 | 0 |
+| sky | 1 | 1 | 0 | 0 |
+| station | 2 | 2 | 0 | 0 |
+| structure | 161 | 161 | 0 | 0 |
+| structure_surface | 4 | 4 | 0 | 0 |
+| switch_mark | 4 | 4 | 0 | 0 |
+| terrain | 5 | 5 | 0 | 0 |
+| water | 2 | 2 | 0 | 0 |
+| weapon | 1 | 1 | 0 | 0 |
+
+## Unexpected fallbacks
+
+None.
+
+## Allowed fallbacks
+
+- `debug:discovery_rings`: the F3 overlay's discovery rings, flat translucent discs - allowed: the F3 debug overlay's markers, drawn only while a developer has the overlay on; never shown in normal play (charter §3: no markers)

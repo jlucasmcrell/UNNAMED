@@ -36,7 +36,22 @@ public sealed partial class SkinnedModel : Node3D
         }
         var figure = new SkinnedModel { Name = assetId, Skeleton = skeleton };
         figure.AddChild(model);
-        CharacterMaterials.Upgrade(model);
+        // THE RETURN VALUE IS THE ONLY EVIDENCE THIS FIRES, AND IT WAS BEING THROWN AWAY. CharacterMaterials matches a
+        // surface material to a zone by the END of its name - _skin, _cloth, _leather, _eye and so on - and applies
+        // what glTF cannot say, which for skin is subsurface scattering at 0.22 with the skin mode on and for the eye
+        // is a wet cornea at roughness 0.05 with a full clearcoat. Two blind reviews of this region scored the skin
+        // 3 and the eyes 2 and named exactly those two absences. A count of zero means the names do not match and the
+        // spec is being read for nothing, which is not something anyone can tell by looking at the frame.
+        int upgraded = CharacterMaterials.Upgrade(model, out int zoneNamed);
+        // SAY WHICH OF THE THREE REASONS IT IS, not the one this used to assume. See CharacterMaterials.Upgrade's
+        // second parameter: a single-atlas model with no zone names at all is NORMAL and was being reported as a
+        // name mismatch every run, which is how the creatures came to read as broken rather than as out of scope.
+        GD.Print($"UNNAMED character materials: {upgraded} surfaces upgraded on {assetId}" +
+                 (upgraded > 0 ? ""
+                  : zoneNamed == 0
+                      ? " - this model carries no zone names at all (one atlas), so there is nothing for the zone pass to do; not a mismatch"
+                      : $" - {zoneNamed} surface(s) carry zone names but none matched a kind in character_materials.json,"
+                        + " so skin SSS and the eye cornea are NOT applied"));
         CharacterMaterials.ApplyLods(model);
         // Imported players (none in these files today) would fight ours over the same bones.
         foreach (var imported in model.FindChildren("*", nameof(AnimationPlayer), true, false))

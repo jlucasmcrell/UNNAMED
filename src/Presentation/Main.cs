@@ -65,6 +65,7 @@ public partial class Main : Node3D
     private FrameStats? _stats;
     private PerfRun? _perf;
     private Smoke? _smoke;
+    private ConnectedCheck? _connectedCheck;
     private InputCheck? _inputCheck;
     private UiShots? _shots;
     private Showcase? _showcase;
@@ -75,6 +76,28 @@ public partial class Main : Node3D
 
     private int _ticksLastFrame = 1;
     private DeltaShots? _delta;
+    private SurveyShots? _survey;
+    /// <summary>Where periodic watch shots go, and how many frames have been counted. A run that is wedged stops
+    /// writing them, which is the signal a window grab cannot give for a Vulkan surface.</summary>
+    private string? _watchShots => _options.GetValueOrDefault("--watch-shots");
+
+    /// <summary>One game day in world ticks, from content/config/time.yaml: 1440 game minutes at 2 real seconds each,
+    /// at 20 ticks a second. The sky's clock is driven from it so a day and night take 48 real minutes.</summary>
+    public const double TicksPerDay = 1440.0 * 2.0 * 20.0;
+
+    /// <summary>
+    /// How many frames between watch shots, from <c>--watch-every</c>, default 40.
+    ///
+    /// Read here rather than assigned in the harness setup chain, because the first attempt assigned it inside the
+    /// <c>--shot</c> branch - where it compiled, read correctly, and silently did nothing for every other run mode.
+    /// The default of 40 is a "is it stuck" instrument: one frame every two thirds of a second. Motion cannot be
+    /// judged from that, and the owner's own instruction is to record video and have a model that can watch it
+    /// review the result - a blink, a pop at an LOD band, a foot slide and a stutter are all things a still cannot
+    /// show and a 0.67 s strobe cannot either. <c>--watch-every 4</c> turns the same instrument into a clip.
+    /// </summary>
+    private int WatchEvery =>
+        int.TryParse(_options.GetValueOrDefault("--watch-every"), out int every) && every > 0 ? every : 40;
+    private int _watchTick;
     private LayoutCheck? _layout;
     private VisualAudit? _audit;
     private VisualAuditAB? _auditAb;
@@ -89,6 +112,38 @@ public partial class Main : Node3D
     private Vector3 _lastFeet;
     private double _lastAlpha;
     private float _drawnSpeed;
+
+    /// <summary>
+    /// The ceiling on the speed the STRIDE is fed, in metres per second.
+    ///
+    /// **IT IS A FILTER, NOT A LIMIT, AND THE MEASUREMENT THAT SHOWS IT IS WHY IT IS STILL 8.** It looks too low -
+    /// only 1.56x the fastest gait this game configures (`base_m_s` 3.2 at `sprint_percent` 160 is 5.12) - and the
+    /// windowed smoke does sit at exactly 8.00 on 106 of 1033 frames, so raising it looks like an obvious fix. **It was
+    /// raised to 20 and measured:**
+    ///     ceiling  8 : stride median **5.81**, body median **5.80**, ratio **1.002**
+    ///     ceiling 20 : stride median **6.84**, body median **5.95**, ratio **1.150**
+    /// **Raising it made the stride 15 per cent faster than the body.** The eased per-frame travel is contaminated by
+    /// tick boundaries - a tick snaps the prediction back to zero progress and the next frame reads a whole tick's
+    /// travel as one frame's, which is why the unclamped figure's p99 is **13.1 m/s** on a body moving at 5.8 - and
+    /// **this ceiling is what suppresses those spikes.** *The eased value then converges on the true speed, which is
+    /// what the 1.002 ratio means.* **A teleport, a respawn or a cell transition is still caught by it.**
+    /// </summary>
+    private const float SpeedCeiling = 8f;
+
+    /// <summary>
+    /// The same eased frame speed as <see cref="_drawnSpeed"/> with NO ceiling, written to the state log only.
+    /// *A diagnostic that saturates cannot diagnose.* See the note where it is computed.
+    /// </summary>
+    private float _rawSpeed;
+
+    /// <summary>
+    /// The predicted body's world position in millimetres, carried from <c>Draw</c> to the state log, which runs in a
+    /// different method and cannot see the prediction. Two columns rather than a speed: a position needs no easing to
+    /// interpret, so whatever the log's other columns do, consecutive positions divided by the wall clock give the
+    /// body's real travel directly.
+    /// </summary>
+    private long _playerXmm;
+    private long _playerZmm;
     private double _drawnAlpha;
     private StreamWriter? _stateLog;
     private double _stateClock;
@@ -123,7 +178,7 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
-        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--content-root" or "--profile" or "--visual"));
+        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules"));
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
         VisualOptions.Apply(GetViewport());
@@ -161,8 +216,9 @@ public partial class Main : Node3D
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
-              || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+            : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+              || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
+              || _options.ContainsKey("--shot")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
@@ -170,13 +226,17 @@ public partial class Main : Node3D
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
         if (_options.GetValueOrDefault("--playthrough") is { } run)
             Playthrough.Clear(Path.GetFullPath(run));
+        // --region: which region the run plays. Content is chosen by id, so a new region needs no code
+        // change - its region file, its cells and its bindings are the whole of it.
+        string region = _options.GetValueOrDefault("--region") ?? "region.ashen_hollow";
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
-        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true });
+        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true, RegionId = region });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
-        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
-                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check")
+                        || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
+                        || _options.ContainsKey("--shot")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
@@ -184,8 +244,26 @@ public partial class Main : Node3D
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
         bool showcaseContinues = _options.ContainsKey("--showcase") && _options.ContainsKey("--profile");
+        // Every harness run takes the SAME world, which is what the line above intends. The audit and
+        // audition runs were left out of this and so fell to seed 0 - a fresh random world each time -
+        // which made their stills incomparable: a before/after pair was the same camera over the same
+        // ground with different scatter in it (evidence/FINDING_audit_seed_not_pinned.md). Pinned here
+        // so a fixed-camera pair differs only in the thing under test. --perf was left out too, and it
+        // matters more there than anywhere: a performance capture is a number, and two captures of two
+        // different worlds are not a before and an after, they are two unrelated measurements. Every
+        // frame-rate figure this region has ever quoted was taken on a world nobody can return to.
+        // (--perf is a FLAG, not an option: `_options.ContainsKey` on it is silently false, which is how
+        // the first attempt at this fix did nothing at all.)
+        bool fixedWorld = _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots")
+                          || _options.ContainsKey("--showcase") || _options.ContainsKey("--visual-audit")
+                          || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
+                          || _options.ContainsKey("--survey")
+                          || _options.ContainsKey("--connected-check")
+                          || _options.ContainsKey("--shot")
+                          || _flags.Contains("--perf")
+                          || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
-            _session.NewGame("Wanderer", _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--showcase") ? Playthrough.Seed : 0);
+            _session.NewGame("Wanderer", fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -194,11 +272,31 @@ public partial class Main : Node3D
         if (_assets.Problems.Count > 0)
             GD.PushWarning($"UNNAMED assets: {_assets.Problems.Count} manifest entries withheld, greybox stands in: {string.Join("; ", _assets.Problems)}");
         // The asset library's models, clips and materials, by the presentation's bindings (the Phase-1 asset integration).
+        // --asset-fallback names a second workspace (the shared depot) searched for whatever the region's own root does not hold: a
+        // region root carries the region's art and is small, the depot holds every body the pipeline has generated. The owner's
+        // ruling is to use what already exists, and a generated rig that is on disk but not copied into a region is exactly that.
+        Art.ArtLibrary.FallbackRoot = _options.GetValueOrDefault("--asset-fallback")
+            ?? System.Environment.GetEnvironmentVariable("UNNAMED_ASSET_FALLBACK")
+            ?? SiblingDepot(_assets.Root);
+        if (Art.ArtLibrary.FallbackRoot is { } fallback && !Directory.Exists(fallback))
+        {
+            GD.PushWarning($"UNNAMED assets: --asset-fallback {fallback} does not exist; ignored");
+            Art.ArtLibrary.FallbackRoot = null;
+        }
         _art = new Art.ArtLibrary(_assets.Root);
-        _bindings = Art.ArtBindings.Load(Art.ArtBindings.ResourcePath);
+        if (Art.ArtLibrary.FallbackRoot is { } second)
+            GD.Print($"UNNAMED assets: falling back to {second} for anything {_assets.Root ?? "the region"} does not hold");
+        // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
+        // sheets, the audio beds). The asset workspace carries it, so a region is chosen by --asset-root and
+        // --region together and neither half reaches into the other's files.
+        string? regionBindings = _options.GetValueOrDefault("--bindings-overlay")
+            ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
+        if (regionBindings is not null && System.IO.File.Exists(regionBindings))
+            GD.Print($"UNNAMED art: regional bindings layered over the shared ones from {regionBindings}");
+        _bindings = Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, regionBindings);
         _art.Withhold(_bindings.Withheld);
         _art.Coverage.Allow(CoverageAllowlist());
-        _scatterRules = ScatterRules();
+        _scatterRules = ScatterRules(_assets.Root, _options.GetValueOrDefault("--scatter-rules"));
         GD.Print($"UNNAMED renderer: {RenderingServer.GetVideoAdapterName()} ({RenderingServer.GetCurrentRenderingMethod()}); MSAA 3D "
                  + $"{ProjectSettings.GetSetting("rendering/anti_aliasing/quality/msaa_3d")}, TAA {ProjectSettings.GetSetting("rendering/anti_aliasing/quality/use_taa")}, "
                  + $"anisotropy {ProjectSettings.GetSetting("rendering/textures/default_filters/anisotropic_filtering_level")}, directional shadow atlas "
@@ -311,7 +409,8 @@ public partial class Main : Node3D
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
-                _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height };
+                _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
+                    Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
                 _graphics = new Ui.GraphicsPanel { Name = "Graphics" };
                 AddChild(_graphics);
                 AddChild(_startCamera);
@@ -327,7 +426,11 @@ public partial class Main : Node3D
 
         if (_flags.Contains("--smoke"))
         {
-            _smoke = new Smoke(_session, _controller, _camera, profile);
+            _smoke = new Smoke(_session, _controller, _camera, profile, region);
+        }
+        else if (_options.TryGetValue("--connected-check", out string? connectedRoute))
+        {
+            _connectedCheck = new ConnectedCheck(_session, _controller, _camera, profile, Path.GetFullPath(connectedRoute));
         }
         else if (_options.TryGetValue("--layout-check", out string? layout))
         {
@@ -341,8 +444,7 @@ public partial class Main : Node3D
         else if (_options.TryGetValue("--showcase", out string? showcase))
         {
             _showcase = new Showcase(_session, _controller, _camera, _dialogue, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
-        }
-        else if (_options.TryGetValue("--ui-shots", out string? shots))
+        }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
             _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
         }
@@ -360,6 +462,23 @@ public partial class Main : Node3D
             // One tick a frame at the tick rate, like the playthrough: each picture is taken at the same moment every run.
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
+        }
+        else if (_options.TryGetValue("--shot", out string? shotSpec))
+        {
+            // --shot "<x,z,yaw_deg[,pitch][,seconds]>" is WHERE TO STAND AND LOOK; the frames go to --shot-out.
+            // (First cut passed the directory positionally, so the spec was taken as the output path and the
+            // capture wrote its report into a folder named after the coordinates. Two different things: a place
+            // and a destination.)
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            string shotDir = _options.GetValueOrDefault("--shot-out") ?? Path.Combine(OS.GetUserDataDir(), "scratch", "shot");
+            _survey = SurveyShots.One(_session, _controller, _camera, Path.GetFullPath(shotDir), shotSpec);
+        }
+        else if (_options.TryGetValue("--survey", out string? survey))
+        {
+            // A survey is judged on gameplay's own light, so it does NOT take the audit's detour through a built
+            // Environment: it runs the real world at the tick rate and drives the ordinary stick and camera.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _survey = new SurveyShots(_session, _controller, _camera, Path.GetFullPath(survey));
         }
         else if (_options.TryGetValue("--visual-audit", out string? audit))
         {
@@ -416,7 +535,12 @@ public partial class Main : Node3D
         _hollow.Build(layout);
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
         _scatter = new ScatterView { Name = "Scatter" };
-        _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes);
+        // The card grass is thrown away; --grass=cards restores it for a single comparison run and nothing else.
+        // --grass=blades draws ONLY the blade field: no stones, no heather, no nettles, no leaf litter. Judging a
+        // sward is impossible with rock scatter standing in front of it, which is what every previous frame had.
+        string grassMode = _options.GetValueOrDefault("--grass") ?? "models";
+        _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes,
+            cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
         AddChild(_scatter);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
@@ -457,6 +581,7 @@ public partial class Main : Node3D
         _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
+            GD.Print($"UNNAMED art: baked occlusion drawn on {Art.ArtLibrary.OcclusionDrawn} material(s), suppressed on {Art.ArtLibrary.OcclusionSuppressed}");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
         AddChild(_projectiles);
         _projectiles.Bind(_assets, _art, _bindings, _art.Coverage);
@@ -488,6 +613,14 @@ public partial class Main : Node3D
             {
                 // The smoke's profile is removed as it ends: its reports go beside the log (or to --coverage-out).
                 WriteReports(Path.GetDirectoryName(LogPath) ?? OS.GetUserDataDir(), "smoke");
+                GetTree().Quit(code);
+                return;
+            }
+        }
+        else if (_connectedCheck is not null)
+        {
+            if (_connectedCheck.Update() is { } code)
+            {
                 GetTree().Quit(code);
                 return;
             }
@@ -607,15 +740,43 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_survey is not null)
+        {
+            switch (_survey.Update())
+            {
+                case "done":
+                    GetTree().Quit(0);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_survey.Directory, shot);
+                    break;
+            }
+        }
         else
         {
             ReadInput();
         }
+        // WATCH SHOTS. A window grab of a Vulkan surface comes back blank, so the only way to see what a run is
+        // doing WHILE it runs is to have the run itself write frames. The owner's instruction: "take real
+        // screenshots when you are waiting for something in an open Godot window to happen so you know whether
+        // you've gotten stuck or not - that's happened more than once." This does it from inside.
+        if (_watchShots is { } watch && ++_watchTick % WatchEvery == 0)
+        {
+            Directory.CreateDirectory(watch);
+            SaveScreenshot(watch, $"watch_{_watchTick / WatchEvery:0000}");
+            GD.Print($"UNNAMED watch shot {_watchTick / WatchEvery:0000} at frame {_watchTick} written");
+        }
         KeepContainerInReach();
+        // THE SKY RUNS ON THE WORLD CLOCK. content/config/time.yaml: 20 ticks a second, 1 game minute = 2 real
+        // seconds, 1440 game minutes a day - so 57,600 ticks is one full day and night, 48 real minutes. Before
+        // this the sun was set once at build time and never moved, which is the owner's "lighting in general is
+        // pretty static". Only Sky3D has a clock to move; an HDRI run ignores it.
+        if (_session.Simulation is { } clock)
+            SkyView.Advance(clock.WorldTick, TicksPerDay);
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || (_play is not null && !_realtime) || _delta is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _ticksLastFrame = frame.TicksRun;
         if (_stats is not null)
@@ -720,6 +881,8 @@ public partial class Main : Node3D
     {
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
+        bool looting = _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
+                       _inventory.OpenTrader is null && !_dialogue.Visible && !_character.Visible && !_saves.Visible;
 
         // A panel's own keys: the saves list's, a conversation's (the number keys answer, Escape walks away - M4), the inventory's and
         // the sheet's; and the overlays, open over anything.
@@ -744,6 +907,8 @@ public partial class Main : Node3D
         }
         if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
             _inventory.TakeAll();
+        if (looting && Input.IsActionJustPressed("interact"))
+            CloseInventory();
         if (Input.IsActionJustPressed("character") && !_dialogue.Visible && !_saves.Visible)
         {
             _character.Visible = !_character.Visible;
@@ -762,8 +927,12 @@ public partial class Main : Node3D
         }
         if (modal)
         {
-            // Nothing reaches the world: the character stands, and lowers a raised guard.
-            _controller.Steer(_camera, Vector2.Zero, Gait.Run);
+            // Loot stays within reach: walking is allowed, while other panels and gameplay actions remain blocked.
+            var lootStick = looting && _inventory.Visible ? new Vector2(
+                Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
+                Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back")) : Vector2.Zero;
+            var lootGait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+            _controller.Steer(_camera, lootStick, lootGait);
             if (combat.Blocking)
                 _controller.Guard(false);
             return;
@@ -925,7 +1094,7 @@ public partial class Main : Node3D
         if (_stateLog is null)
         {
             _stateLog = new StreamWriter(Path.GetFullPath(path), append: false) { AutoFlush = true };
-            _stateLog.WriteLine("t_s,frame_s,alpha,player_speed,player_state,player_phase,cam_dist,cam_pitch,fov,effects,npcs,foot_l,foot_r");
+            _stateLog.WriteLine("t_s,frame_s,alpha,player_speed,player_state,player_phase,cam_dist,cam_pitch,fov,effects,npcs,foot_l,foot_r,player_x,player_z,player_raw_speed");
         }
         _stateClock += delta;
         var inv = System.Globalization.CultureInfo.InvariantCulture;
@@ -933,7 +1102,9 @@ public partial class Main : Node3D
         _stateLog.WriteLine(string.Join(",", _stateClock.ToString("0.000", inv), delta.ToString("0.0000", inv), _drawnAlpha.ToString("0.00", inv),
             speed.ToString("0.00", inv), _avatar.ClipState ?? "-", simulation.Combat.Phase, _camera.EffectiveDistance.ToString("0.00", inv),
             _camera.Pitch.ToString("0.00", inv), _camera.Camera.Fov.ToString("0", inv), string.Join("|", simulation.Combat.Effects.Select(e => e.EffectId)), npcs,
-            Point(_avatar.Foot("L")), Point(_avatar.Foot("R"))));
+            Point(_avatar.Foot("L")), Point(_avatar.Foot("R")),
+            (_playerXmm / 1000.0).ToString("0.000", inv), (_playerZmm / 1000.0).ToString("0.000", inv),
+            _rawSpeed.ToString("0.00", inv)));
         string Point(Vector3? p) => p is { } v ? $"{v.X.ToString("0.000", inv)} {v.Y.ToString("0.000", inv)} {v.Z.ToString("0.000", inv)}" : "-";
     }
 
@@ -947,9 +1118,32 @@ public partial class Main : Node3D
         if (delta > 0 && alpha >= _lastAlpha)
         {
             float moved = new Vector2(feet.X - _lastFeet.X, feet.Z - _lastFeet.Z).Length() / (float)delta;
-            _drawnSpeed = Mathf.Lerp(_drawnSpeed, Math.Min(moved, 8f), 1f - Mathf.Exp(-(float)delta / 0.08f));
+            // THE CEILING LOOKED TOO LOW AND IT IS NOT - I RAISED IT TO 20, MEASURED, AND PUT IT BACK. At 8 m/s it is
+            // only 1.56x the fastest gait this game configures (3.2 at sprint_percent 160 = 5.12), so it looked as
+            // though an ordinary sprint must cross it and feed the stride a speed slower than the body was travelling.
+            // **Measured, windowed, before and after:**
+            //     ceiling  8 : stride median 5.81, body median 5.80, RATIO 1.002
+            //     ceiling 20 : stride median 6.84, body median 5.95, RATIO 1.150
+            // **Raising it made the stride 15 per cent FASTER than the body - the opposite of the intent.** The reason
+            // is that the eased per-frame `moved` is contaminated by tick boundaries: a tick snaps the prediction back
+            // to zero progress and the next frame reads a whole tick's travel as one frame's, which is why the
+            // unclamped figure's p99 is 13.1 m/s on a body moving at 5.8. **The ceiling at 8 is what suppresses those
+            // spikes**, and the eased value then converges on the true speed. *It is a filter, not a limit.*
+            // So it stays, and the "sprint speed cap" is NOT a defect: the stride is fed the body's own speed to
+            // within 0.2 per cent. `SpeedCeilingNote` below records the measurement; the constant is unchanged.
+            _drawnSpeed = Mathf.Lerp(_drawnSpeed, Math.Min(moved, SpeedCeiling), 1f - Mathf.Exp(-(float)delta / 0.08f));
+            // THE SAME NUMBER WITHOUT THE CLAMP, for the state log only. `_drawnSpeed` is what the animation is fed and
+            // the clamp at 8 m/s is deliberate - it is a backstop against a teleport or a cell transition being read as
+            // a speed. But it also means the log CANNOT REPORT the thing it is used to investigate: in the sprint logs
+            // the `player_speed` column sits at exactly 8.00 for 460-609 frames, and the avatar's real travel has been
+            // recorded at 14.9-16.1 m/s against a configured 5.12. A diagnostic that saturates is not a diagnostic, so
+            // this column records the same eased figure with no ceiling, beside `player_x`/`player_z` which give the
+            // position directly and need no easing to interpret.
+            _rawSpeed = Mathf.Lerp(_rawSpeed, moved, 1f - Mathf.Exp(-(float)delta / 0.08f));
         }
         float speed = _drawnSpeed;
+        _playerXmm = predicted.XMm;
+        _playerZmm = predicted.ZMm;
         _lastFeet = feet;
         _lastAlpha = alpha;
         _drawnAlpha = alpha;
@@ -1370,11 +1564,46 @@ public partial class Main : Node3D
         return allowed;
     }
 
-    /// <summary>The ground scatter's rules (<c>res://Art/scatter_rules.json</c>); none, and nothing scattered, without them.</summary>
-    private static Art.ScatterRules ScatterRules()
+    /// <summary>
+    /// The ground scatter's rules (<c>res://Art/scatter_rules.json</c>, or the region's own at
+    /// <c>&lt;asset-root&gt;/scatter_rules.json</c>); none, and nothing scattered, without them. What grows on
+    /// the ground is keyed by the ground's own material, so a second region's rules name its own materials and
+    /// its own models - without which nothing is placed at all, however many models it has shipped.
+    /// </summary>
+    private static Art.ScatterRules ScatterRules(string? assetRoot, string? overridePath)
     {
+        if (overridePath is not null)
+        {
+            if (!System.IO.File.Exists(overridePath))
+                throw new FileNotFoundException("Requested scatter rules do not exist", overridePath);
+            GD.Print($"UNNAMED scatter rules: explicit {overridePath}");
+            return Art.ScatterRules.Parse(System.IO.File.ReadAllText(overridePath));
+        }
+        string? region = assetRoot is null ? null : Path.Combine(assetRoot, "scatter_rules.json");
+        if (region is not null && Godot.FileAccess.FileExists(region))
+        {
+            GD.Print($"UNNAMED scatter rules: the region's own from {region}");
+            return Art.ScatterRules.Parse(Godot.FileAccess.GetFileAsString(region));
+        }
         const string path = "res://Art/scatter_rules.json";
         return Godot.FileAccess.FileExists(path) ? Art.ScatterRules.Parse(Godot.FileAccess.GetFileAsString(path)) : Art.ScatterRules.None;
+    }
+
+    /// <summary>
+    /// The shared depot a region's own asset root sits inside, when there is one: a region's art lives at
+    /// <c>&lt;depot&gt;\&lt;region&gt;\assets</c> and the depot every region draws from is <c>&lt;depot&gt;\assets</c>. That layout is the
+    /// convention on disk, so a region run gets the depot's bodies without having to remember <c>--asset-fallback</c> - which, forgotten,
+    /// silently draws eleven generated models as greybox. Null unless the sibling really is a workspace, so no other layout is affected.
+    /// </summary>
+    private static string? SiblingDepot(string? root)
+    {
+        if (root is null || !string.Equals(Path.GetFileName(root), "assets", StringComparison.OrdinalIgnoreCase))
+            return null;
+        if (Path.GetDirectoryName(root) is not { } region || Path.GetDirectoryName(region) is not { } depot)
+            return null;
+        string sibling = Path.Combine(depot, "assets");
+        bool workspace = Directory.Exists(Path.Combine(sibling, "ready")) || Directory.Exists(Path.Combine(sibling, "manifests"));
+        return workspace && !string.Equals(sibling, root, StringComparison.OrdinalIgnoreCase) ? sibling : null;
     }
 
     /// <summary>
@@ -1468,6 +1697,67 @@ public partial class Main : Node3D
         _mouseFreed = false;
         Resync();
         GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
+        // THE BASELINE TUPLE, PRINTED - so a change can be PROVED baseline-neutral by two boots instead of
+        // argued to be from the code. `worldgen_fingerprint` plus every cell's `baseline_hash` is what
+        // PERSISTENCE.md 6.1/6.4 decides save compatibility on; if a change moves neither, no transition is
+        // required and no existing save can refuse. One line per cell, so the diff is the evidence.
+        // (The smoke DIGEST is not this: it compares a run's save against its own load.)
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_WORLDGEN_REPORT") is { Length: > 0 })
+        {
+            // The EXACT tuple PERSISTENCE.md 6.1/6.4 decides save compatibility on: the fingerprint
+            // (generator identity + version + rng contract + profile digest + canonical probes) and every
+            // cell's own baseline_hash. Two boots are the measurement; this is the instrument.
+            var generator = _session.Generator;
+            ulong seed = _session.Simulation!.World.WorldSeed;
+            GD.Print($"UNNAMED worldgen: version {generator.WorldgenVersion}, rng contract {generator.RngContractVersion}, fingerprint {generator.Fingerprint}");
+            foreach (var cell in _session.Setup.Layout.CellKeys)
+                GD.Print($"UNNAMED worldgen:   baseline_hash {cell} = {generator.Generate(seed, UNNAMED.World.CellKey.Parse(cell)).Digest}");
+            // WHICH ANCHORS THIS BUILD ACCEPTS A SAVE THROUGH. A refusal names a FromFingerprint that is in
+            // neither list, so printing the lists is what turns "refused" into "refused because nothing covers it".
+            GD.Print($"UNNAMED worldgen:   terrain-only fingerprint (no fixed nodes, the M3f FromFingerprint) = {_session.FingerprintWithoutNodes}");
+            foreach (var t in _session.Transitions)
+                GD.Print($"UNNAMED worldgen:   transition '{t.Name}': {t.FromFingerprint} -> {t.ToFingerprint}");
+        }
+        // SURVEY EVERY SAVE, WRITING NOTHING. PlanLoad runs the whole load pipeline (version gate, migration
+        // chain, per-cell baseline proof, transition lookup) into a throwaway registry and reports instead of
+        // throwing - and it does NOT record the load in the rotation metadata the way a real Load does (see
+        // SaveStore.PlanMigration). So this answers "does the owner have usable saves" without modifying the
+        // saves it is asking about. A Load per save would have written to every one of them.
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_LOAD_CHECK") is { Length: > 0 } loadCheckDir)
+        {
+            // SURVEY A SAVE DIRECTORY, WRITING NOTHING. PlanLoadAt runs the whole load pipeline (version gate,
+            // migration chain, per-cell baseline proof, transition lookup) into a throwaway registry and reports
+            // instead of throwing - and it does NOT record the load in the rotation metadata the way a real Load
+            // does. It also reaches saves/default, which no scripted mode can: every one of them routes its
+            // profile to scratch/run-<pid> (Main.cs:185-191), so no harness has ever read the owner's saves.
+            foreach (string dir in Directory.EnumerateDirectories(loadCheckDir).OrderBy(d => d, StringComparer.Ordinal))
+            {
+                string name = Path.GetFileName(dir);
+                try
+                {
+                    var plan = _session.PlanLoadAt(dir);
+                    GD.Print($"UNNAMED loadcheck: {name}|{plan.Result}|schema {plan.SourceSchema}->{plan.CurrentSchema}|" +
+                             $"worldgen {plan.SourceWorldgenVersion}->{plan.CurrentWorldgenVersion}|rng {plan.SourceRngContract}->{plan.CurrentRngContract}|" +
+                             $"fingerprint {(plan.FingerprintChanged ? "CHANGED" : "same")}|content {(plan.ContentChanged ? "changed" : "same")}|" +
+                             $"loss {plan.Loss.Count}|blockers {plan.Blockers.Count}|warnings {plan.Warnings.Count}");
+                    foreach (string b in plan.Blockers)
+                        GD.Print($"UNNAMED loadcheck:   BLOCKER {name}: {b}");
+                    foreach (string w in plan.Warnings)
+                        GD.Print($"UNNAMED loadcheck:   warning {name}: {w}");
+                    // THE REPORT'S OWN TEXT BODY, which is where the cells are actually NAMED.
+                    // MigrationReport.CellsMismatched holds "{cell}: {detail}" per cell and ToText() prints each
+                    // one (MigrationReport.cs:118-119); the blocker line carries only a COUNT. Capturing the
+                    // console summary alone loses the list - the information was there, the capture missed it.
+                    GD.Print($"UNNAMED loadcheck: --- report text for {name} ---");
+                    foreach (string line in plan.ToText().Split('\n'))
+                        GD.Print($"UNNAMED loadcheck: | {line.TrimEnd('\r')}");
+                }
+                catch (Exception e)
+                {
+                    GD.Print($"UNNAMED loadcheck: {name}|THREW|{e.GetType().Name}: {e.Message}");
+                }
+            }
+        }
     }
 
     /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
@@ -1581,7 +1871,8 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

@@ -66,7 +66,9 @@ public sealed class VisualAuditAB
         var only = Arg("--ab-shots")?.Split(',');
         _shots = VisualAudit.WorldShots.Where(s => only is null || only.Any(o => s.Name.Contains(o, StringComparison.Ordinal))).ToList();
         _aa = Arg("--ab-aa") ?? "taa";
-        DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
+        // Honour an explicit native capture resolution; Ultra's default reference is 4K.
+        if (!OS.GetCmdlineArgs().Contains("--resolution"))
+            DisplayServer.WindowSetSize(VisualOptions.Tier == "ultra" ? new Vector2I(3840, 2160) : new Vector2I(1920, 1080));
         // Measured, not paced: no vsync, no cap.
         DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
         Engine.MaxFps = 0;
@@ -119,6 +121,7 @@ public sealed class VisualAuditAB
             _camera = new Camera3D { Name = "AuditCamera", Fov = _rig.Camera.Fov, Near = _rig.Camera.Near, Far = _rig.Camera.Far,
                 Attributes = _rig.Camera.Attributes, Environment = _rig.Camera.Environment };
             _root.AddChild(_camera);
+            Greybox.StartCamera.Track(_root, _camera);
         }
         foreach (var layer in _root.FindChildren("*", nameof(CanvasLayer), true, false).Cast<CanvasLayer>())
             layer.Visible = false;

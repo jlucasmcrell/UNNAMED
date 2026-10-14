@@ -53,22 +53,60 @@ public sealed class Showcase
         _dialogue = dialogue;
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
+        // WHERE THE CHARACTER STARTS IS THE REGION'S OWN SPAWN, NOT A CAIRNWOLD COORDINATE.
+        //
+        // Every scene below used to begin at `Route[0]` - (64.5, 28.9) - which is Cairnwold's. The demo spawns the
+        // player at (30.0, 158.0), so every demo run of every scene started the character 150 m from where that region
+        // puts them, and any step that walks a hardcoded route then walked a Cairnwold route in demo terrain. The
+        // layout carries `Spawn` and the showcase already reads `Layout.Id`, so this is the one place both regions can
+        // be got right at once.
+        var start = (X: session.Setup.Layout.Spawn.XMm / 1000.0, Z: session.Setup.Layout.Spawn.ZMm / 1000.0);
         (_steps, _firstLook) = scene switch
         {
-            "locomotion" => (Locomotion(), Route[0]),
-            "sword" => (Sword(), Route[0]),
-            "spells" => (Spells(), Route[0]),
-            "formulas" => (Formulas(), Route[0]),
-            "bolts" => (Bolts(), Route[0]),
-            "mending" => (Mending(), Route[0]),
+            "locomotion" => (Locomotion(), start),
+            "sword" => (Sword(), start),
+            "spells" => (Spells(), start),
+            "formulas" => (Formulas(), start),
+            "bolts" => (Bolts(), start),
+            "mending" => (Mending(), start),
             "rescue" => (Rescue(), ToSel[0]),
-            "dialogue" => (Dialogue(), Route[0]),
-            "equipment" => (Equipment(), Route[0]),
-            "companion" => (Companion(), Route[0]),
-            "closeup" => (Closeup(), Route[0]),
+            "dialogue" => (Dialogue(), start),
+            "equipment" => (Equipment(), start),
+            "companion" => (Companion(), start),
+            "closeup" => (Closeup(), start),
             "armour" => (Armour(), ToTheArmour[0]),
-            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas, bolts, mending, rescue, dialogue, equipment, companion, closeup or armour"),
+            "hound" => (Hound(), ToTheHound[0]),
+            "tavar" => (Guide(), ToTavar[0]),
+            _ => throw new ArgumentException($"--showcase-scene: '{scene}' is not locomotion, sword, spells, formulas, bolts, mending, rescue, dialogue, equipment, companion, closeup, armour or hound"),
         };
+        // A SCENE THAT NAMES A PLACE THIS REGION DOES NOT HAVE MUST SAY SO, NOT WALK INTO A FIELD.
+        //
+        // Eleven of this file's arrays are still the M6 demo's landmarks - the Foldscar, the three Quiet Stones, the
+        // Heart, the wallow, the quarry, the charwood - and Cairnwold has none of those places, so a scene built on
+        // them sends the character to empty ground and leaves it standing there. That is what the owner watched and
+        // reported, and a refusal is strictly better than silence: it names the problem in one line, where a field
+        // costs a whole capture and a review to notice. The two scenes whose routes are ENTIRELY demo landmarks
+        // refuse here. Neither can be fixed by routing - `ToTheArmour` and `ToTheHound` are derived from nothing,
+        // because there is nothing in Cairnwold to derive them from - so they are refused until the region has a
+        // quarry and a charwood of its own and the routes can be derived the way ToSel and ToTheSmithy now are.
+        bool demoRegion = session.Setup.Layout.Id.Contains("ashen_hollow", StringComparison.OrdinalIgnoreCase);
+        if (!demoRegion && scene is "armour" or "hound")
+            throw new ArgumentException(
+                $"--showcase-scene {scene} walks to a place only the demo region has - the quarry for 'armour', the " +
+                $"charwood for 'hound' - and this run is {session.Setup.Layout.Id}. Its route would cross empty ground " +
+                $"and leave the character standing in it, which reads as the character running into nothing. Run it " +
+                $"against --region region.ashen_hollow, or give Cairnwold its own quarry and charwood and derive the " +
+                $"route from them.");
+        // THE MIRROR OF THAT, FOR THE ROUTES THAT ARE CAIRNWOLD'S. `ToSel` is derived from Cairnwold's region file,
+        // so in the DEMO these scenes now start in the right place - the start is the region's own spawn - and then
+        // walk a Cairnwold route through demo terrain. That is worse than refusing: it looks like it works for the
+        // first few seconds. `rescue` uses the same array, so it is refused with `dialogue`.
+        if (demoRegion && scene is "dialogue" or "rescue")
+            throw new ArgumentException(
+                $"--showcase-scene {scene} walks a route derived from CAIRNWOLD's region, and this run is " +
+                $"{session.Setup.Layout.Id}. It would start at this region's spawn and then walk a Cairnwold path. " +
+                $"The waypoint deriver now reads either region (smoke_waypoints.load(region=...)), so the fix is to " +
+                $"derive the demo's own route and give the showcase one array per region rather than sharing ToSel.");
         // What the world did, with the clip's time, for cutting the recording and for the evidence (what was hit, set, joined).
         string Name(string id) => session.DisplayName(id);
         session.Subscribe<ShotLoosed>(e => Log($"shot {e.Source} {(e.Target is null ? "struck nothing" : "struck a creature")}"));
@@ -94,16 +132,33 @@ public sealed class Showcase
 
     private void Log(string what) => GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"UNNAMED showcase event: {_clock:0.00} s {what}"));
 
-    // Open ground at the fixed seed: the acceptance playthrough's own way out to the boar's wallow (UiShots.ToTheWallow), then on
-    // down Blackvein's rim - no wall, stone or building in the way, with a right-angle turn at the first waypoint.
-    private static readonly (double X, double Z)[] Route = { (60, 118), (40, 104), (36, 92), (25, 78), (22, 62) };
+    // CAIRNWOLD'S OWN GROUND, DERIVED FROM THE REGION - NOT THE M6 DEMO'S.
+    //
+    // These were { (60,118), (40,104), (36,92), (25,78), (22,62) } and OutWithTavar was
+    // { (62,130), (80,118), (100,100), (135,70), (150,45) }: the DEMO's geography, where the waystation stood around
+    // (38,138). The generated region puts its village at (60,60) and spawns the player at (64.7, 24.3), so every
+    // scene travelled to a standpoint that means nothing here and then walked 90 metres in a straight line at
+    // whatever happened to be in between. THAT IS THE OWNER'S "STUCK AT THE SAME WALL", reported twice: the closeup
+    // scene is what gets captured, so it is what the owner judges the game by, and it was driving the character
+    // across the map at demo coordinates. The smoke test was fixed this way first; this is the same fix.
+    //
+    // The path below is the smoke's own, derived by tools/asset_pipeline/cairnwold/smoke_waypoints.py from the
+    // region file the game loads: spawn -> the village gateway -> the longhouse door. Every leg is proved to clear
+    // the geometry before it is written down, and it crosses the wall at the gateway rather than through it. It is
+    // open ground with a natural turn, which is what a locomotion scene wants.
+    private static readonly (double X, double Z)[] Route = { (64.5, 28.9), (64.2, 33.4), (64.0, 38.0), (58.9, 41.3), (52.9, 42.8), (48.8, 47.8) };
 
     // The formulas scene: from home out towards the Bristleback Boar's wallow (18, 72), stopping within the Impulse Bolt's reach.
     private static readonly (double X, double Z)[] ToTheWallow = { (60, 118), (40, 104), (28, 84) };
     private const double WallowX = 18, WallowZ = 72;
 
     // The rescue: from the spawn to Sel, then the acceptance playthrough's own ways round the Foldscar (Playthrough.cs, content bible §8).
-    private static readonly (double X, double Z)[] ToSel = { (34, 150), (40, 140), (51.8, 136), (62, 127) };
+    // DERIVED FROM THE REGION, NOT TYPED - tools/asset_pipeline/cairnwold/smoke_waypoints.py prints this array and
+    // proves every leg. It replaces `(34, 150) (40, 140) (51.8, 136) (62, 127)`, which was the M6 DEMO's village:
+    // sel_arien stands at (75.0, 65.0) in Cairnwold, so the old route sent the character 60 m past her, away from
+    // the village, and then called Talk on nothing. That is the run the owner watched and reported as "the character
+    // runs directly into a wall every time". The stand is 1.20 m from her, inside the talk reach.
+    private static readonly (double X, double Z)[] ToSel = { (48.5, 46.7), (61.0, 38.0), (73.0, 50.0), (78.0, 51.0), (77.0, 60.0), (75.0, 64.0), (75.0, 63.8) };
     private static readonly (double X, double Z)[] ToTheFoldscar = { (90, 112), (105, 108), (120, 93), (140, 80) };
     private static readonly (double X, double Z)[] ToTheNorthStone = { (148.5, 78) };
     private static readonly (double X, double Z)[] ToTheSouthWestStone = { (135, 60), (123.5, 38) };
@@ -183,7 +238,13 @@ public sealed class Showcase
     private static List<Step> Dialogue() => new()
     {
         new("settle", 1.5, (s, _) => s.Hold()),
-        new("to_sel", 24.0, (s, _) => s.Approach(Sel, Gait.Run)),
+        // THE WALK TO SEL IS A ROUTE, NOT A STRAIGHT LINE. This was `Approach(Sel, Gait.Run)` for 24 seconds, and
+        // Approach steers straight at the NPC with no obstacle avoidance at all - Sel stands 36 m away on the far
+        // side of the village wall and several houses, so the character ran into the first building between them and
+        // pressed against it until the step ended. That is the run the owner watched and reported, and it is why
+        // these stills show a character alone against a house with no NPC in shot and no dialogue panel. ToSel is
+        // derived from the region and proved leg by leg by tools/asset_pipeline/cairnwold/smoke_waypoints.py.
+        new("to_sel", 34.0, (s, _) => s.Travel(ToSel)),
         new("greeting", 8.0, (s, t) => { s.Approach(Sel, Gait.Walk); if (s.Once(t, 0.2)) s._controller.Talk(Sel); }),
         new("reply_1", 8.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s.Choose(0); }),
         new("reply_2", 8.0, (s, t) => { s.Hold(); if (s.Once(t, 0.2)) s.Choose(0); }),
@@ -228,14 +289,33 @@ public sealed class Showcase
     private static List<Step> Armour() => new()
     {
         new("settle", 1.5, (s, _) => s.Hold()),
-        new("to_the_quarry", 36.0, (s, _) => s.Walk(ToTheArmour, Gait.Run)),
-        new("ward", 2.5, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Cast("spell.warding.brace_ward"); }, CameraTurn: 30),
+        new("to_the_quarry", 65.0, (s, _) => s.Walk(ToTheArmour), Until: s => s.Arrived || s.NearArmour()),
+        new("ward", 2.5, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) { s.Cast("spell.warding.brace_ward"); s.LogCreatures(); } }, CameraTurn: 30),
         new("fight", 20.0, (s, _) => s.Fight(), CameraTurn: 20, Pitch: -0.22f, Distance: 4.2f),
         new("fight_side", 14.0, (s, _) => s.Fight(), CameraTurn: 90, Pitch: -0.15f, Distance: 4.5f),
         new("end", 3.0, (s, _) => s.Hold(), CameraTurn: 120, Pitch: -0.15f, Distance: 4.5f),
     };
 
-    private static readonly (double X, double Z)[] ToTheArmour = { (60, 128), (63, 98), (60, 90), (62, 70), (63, 52) };
+    private static readonly (double X, double Z)[] ToTheArmour =
+        { (60, 128), (63, 98), (60, 90), (54, 74), (48, 62), (40, 54), (34, 48), (27.2, 44.2), (34, 38), (48, 34), (62, 34) };
+
+    private static List<Step> Hound() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold()),
+        new("to_charwood", 65.0, (s, _) => s.Walk(ToTheHound, Gait.Run), Until: s => s.NearHound()),
+        new("fight", 18.0, (s, _) => s.Fight(), CameraTurn: 90, Pitch: -0.15f, Distance: 4.5f),
+        new("fight_side", 12.0, (s, _) => s.Fight(), CameraTurn: 120, Pitch: -0.15f, Distance: 4.5f),
+        new("end", 3.0, (s, _) => s.Hold(), CameraTurn: 120, Pitch: -0.15f, Distance: 4.5f),
+    };
+
+    private static readonly (double X, double Z)[] ToTheHound =
+        { (44, 138), (54.5, 134), (62, 128), (68, 128), (65, 136), (88, 145), (108, 148), (128, 150) };
+
+    private bool NearHound() => _session.Simulation!.Creatures.Any(c => c.Alive && c.DefId == "creature.beast.ash_ember_hound" &&
+        Metres(_controller.Authoritative, c.Body) < 5.0);
+
+    private bool NearArmour() => _session.Simulation!.Creatures.Any(c => c.Alive && c.DefId == "creature.construct.animated_armour" &&
+        Metres(_controller.Authoritative, c.Body) < 4.0);
 
     /// <summary>The nearest living hostile (a sentinel too), closed on and struck whenever the weapon is ready; the camera frames it.</summary>
     private void Fight()
@@ -261,10 +341,46 @@ public sealed class Showcase
             _controller.Attack();
     }
 
-    private static readonly (double X, double Z)[] OutWithTavar = { (62, 130), (80, 118), (100, 100), (135, 70), (150, 45) };
-    private static readonly (double X, double Z)[] ToTheSmithy = { (51.8, 136), (51.8, 142) };
-    private static readonly (double X, double Z)[] OutOfTheSmithy = { (54.4, 142), (51.8, 142), (49.5, 145.5), (46.5, 149.2) };
-    private static readonly (double X, double Z)[] AwayFromTheSmithy = { (41.5, 153.4), (35, 156.2) };
+    // The same derived path: the closeup's walk, run, sprint and side steps all run this line, in Cairnwold's own
+    // geography rather than the demo's. See the note on Route above. It still ended on (48.8, 47.8), which was the
+    // stand of the longhouse door this stretch removed, so it described a landmark that no longer exists.
+    private static readonly (double X, double Z)[] OutWithTavar = { (64.5, 28.9), (64.2, 33.4), (64.0, 38.0), (58.8, 40.9), (52.9, 43.1), (48.5, 46.7) };
+    // DERIVED, and it is the smoke's own forge route - the one array in this file whose every leg is proved by
+    // tools/asset_pipeline/cairnwold/smoke_waypoints.py and walked for real by the smoke every run. It replaces
+    // `(51.8, 136) (51.8, 142)`, the M6 demo's forge shed, which in Cairnwold is a field 90 m north of the village.
+    private static readonly (double X, double Z)[] ToTheSmithy = { (48.5, 46.7), (61.0, 38.0), (73.0, 50.0), (78.0, 51.0), (77.0, 60.0), (75.0, 64.0), (82.0, 76.0), (81.8, 78.5) };
+    // THE RETURN IS THE SAME PROVED PATH READ BACKWARDS, not a new guess: every leg here is a leg of ToTheSmithy in
+    // reverse, so each one is already proved. What it replaces - `(54.4, 142) (51.8, 142) (49.5, 145.5) (46.5, 149.2)`
+    // and `(41.5, 153.4) (35, 156.2)` - is the demo's forge shed and the ground north of it.
+    private static readonly (double X, double Z)[] OutOfTheSmithy = { (81.8, 78.5), (82.0, 76.0), (75.0, 64.0) };
+    private static readonly (double X, double Z)[] AwayFromTheSmithy = { (75.0, 64.0), (73.0, 50.0), (61.0, 38.0) };
+
+    // DERIVED FROM THE REGION, like ToSel and ToTheSmithy - tools/asset_pipeline/cairnwold/smoke_waypoints.py prints
+    // it and proves every leg. Tavar Orr stands at (41.0, 81.5); the stand is 1.20 m from him, inside talk reach.
+    private static readonly (double X, double Z)[] ToTavar = { (48.5, 46.7), (41.0, 48.0), (39.0, 50.0), (42.0, 72.0), (44.0, 75.0), (44.0, 79.0), (43.0, 80.0), (41.0, 83.0), (41.0, 82.7) };
+
+    // A LOOK AT TAVAR ORR, because nothing else can give one.
+    //
+    // His hair albedo is a flat black fill - measured: 1,926 bytes for a 1024x1024 image, mean luminance 0.000,
+    // standard deviation 0.000 across every texel - and its source texture exists nowhere in the depot, so it cannot
+    // be re-dyed. That is the "flat dark mass" the reviews describe, on the one character it is literally true of.
+    //
+    // It has not been touched, because **an unverifiable change to a shipping asset is worse than a known defect**,
+    // and there was no way to look at him: the dialogue capture frames Sel, `--shot` loses the GPU device about one
+    // run in three, `cast_sheet.py` renders in Blender rather than in the game, and the art gallery's people row
+    // comes back empty in this region. A conversation is the one instrument that has worked every time, because
+    // TalkCamera frames whoever is being spoken to - which is how Sel's face was lit and her hair checked.
+    private static List<Step> Guide() => new()
+    {
+        new("settle", 1.5, (s, _) => s.Hold()),
+        new("to_tavar", 40.0, (s, _) => s.Travel(ToTavar)),
+        // `Talk` and then `Choose`, which is exactly how the dialogue scene opens Sel's - `Converse` was tried first
+        // and left the character standing at Tavar with the "Talk to Tavar Orr" prompt up and no conversation, because
+        // the replies it was given belong to the rescue quest's fold dialogue and Tavar is not in the fold here.
+        new("greeting", 12.0, (s, t) => { s.Approach(Tavar, Gait.Walk); if (s.Once(t, 0.3)) s._controller.Talk(Tavar); }),
+        new("reply", 10.0, (s, t) => { s.Hold(); if (s.Once(t, 0.3)) s.Choose(0); }),
+        new("held", 6.0, (s, _) => s.Hold()),
+    };
 
     private bool _askedDoor;
     private (double X, double Z)[]? _walking;

@@ -1,9 +1,9 @@
 {
-  "note": "Phase B (character fidelity): what the production characters' zone materials add to their glTF (CharacterMaterials.cs). Roughness and metalness per zone are already in each character's ORM atlas (tools/asset_pipeline/charprod/orm_zones.py); these are the effects glTF has no field for.",
+  "note": "Phase B (character fidelity): what the production characters' zone materials add to their glTF (CharacterMaterials.cs). Roughness and metalness per zone are already in each character's ORM atlas (tools/asset_pipeline/charprod/orm_zones.py); these are the effects glTF has no field for. SSS STRENGTH 0.22 -> 0.75 (DS, 2026-09-28). It was already on at a strength that does nothing visible, while three reviews reported the skin as flat and plastic with no subsurface scattering. Blind A/B, same standpoint, identical but for this value: the higher one shows 'subtle softness and slightly warmer light penetration along the cheek and neck transitions ... terminator lines slightly softened by the subsurface scattering profile' and was ranked better; the lower one is 'flatter, more opaque diffuse shading'. THE REVIEW ALSO SAID 'marginally better' AND 'NEITHER ACHIEVES TRUE FLESHY TRANSLUCENCY ... BOTH LEANING TOWARD OPAQUE GAME-ENGINE PLASTIC', so this is a small real win and not a fix - closing the skin complaint needs a multi-layered skin shader, not a higher number here.",
   "kinds": {
     "skin": {
       "specular": 0.35,
-      "sss": 0.22,
+      "sss": 0.75,
       "sss_skin": true,
       "backlight": [
         0.1,
@@ -19,7 +19,8 @@
         0.03
       ],
       "rim": 0.15,
-      "rim_tint": 0.7
+      "rim_tint": 0.7,
+      "anisotropy": 0.75
     },
     "cloth": {
       "specular": 0.25,
@@ -45,6 +46,13 @@
       "clearcoat": 1.0,
       "clearcoat_roughness": 0.02
     }
+  },
+  "material_kinds": {
+    "note": "EXPLICIT material name -> kind, for the materials the suffix rule cannot see. MEASURED 2026-09-29: the hair kind above had NEVER APPLIED TO A SINGLE SHIPPING SURFACE except by accident. The rule in CharacterMaterials.cs is `name.EndsWith(\"_\" + kind)`, and the charprod zone vocabulary names hair `<prefix>_hair` - but Cairnwold's characters are built by charstd, whose hair material is MPFB's own `Human.<hairstyle>`. Of the four grooms in the cast only ONE happens to end in `_hair` (`Human.elvs_grump_hair`), so exactly one character was getting the hair spec and the other three were not - which is why the smoke prints `6 surfaces upgraded on cw_renn_vale` against `5` for cw_player, cw_sel_arien and cw_tavar_orr. The hair kind was dead config for the character the owner looks at. These four entries are the cast's own material names, read from the shipped GLBs (docs/phase_b/hair/forensics/*.json), and a new groom must be added here or it will silently get no hair response at all.",
+    "Human.o4saken_long01": "hair",
+    "Human.elvs_grump_hair": "hair",
+    "Human.elvs_french_braid_variation": "hair",
+    "Human.culturalibre_hair_14": "hair"
   },
   "lods": {
     "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch cross-fades over margin.",

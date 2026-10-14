@@ -19,6 +19,7 @@ public partial class StartCamera : Camera3D
 
     /// <summary>The ground's height at (x, z): the shot is placed over it.</summary>
     public Func<float, float, float> Ground { get; init; } = (_, _) => 0;
+    public Vector2 Offset { get; init; } = Vector2.Zero;
 
     public override void _Ready()
     {
@@ -46,8 +47,9 @@ public partial class StartCamera : Camera3D
     {
         // Out and back along the rise, eased at each end, so the shot never jumps.
         float t = (float)(0.5 - 0.5 * Math.Cos(_clock / Seconds * Math.Tau));
-        var eye = From.Lerp(To, t);
-        var at = Look + new Vector3(0, 0, -10f * t);
+        var shift = new Vector3(Offset.X, 0, Offset.Y);
+        var eye = From.Lerp(To, t) + shift;
+        var at = Look + new Vector3(0, 0, -10f * t) + shift;
         LookAtFromPosition(eye + new Vector3(0, Ground(eye.X, eye.Z), 0), at + new Vector3(0, Ground(at.X, at.Z), 0), Vector3.Up);
     }
 }

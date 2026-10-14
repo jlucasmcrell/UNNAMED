@@ -94,10 +94,30 @@ public sealed partial class SkinnedCreature : CreatureBody
         }
         if (creature.Asleep)
             _model.Play("idle", 0.3f, 0.35f);
+        // THE PACES THE CLIPS ARE ACTUALLY AUTHORED AT, MEASURED - NOT ASSUMED (creature fidelity round, 2026-09-29).
+        // These two divisors are what a gait clip's implied ground speed is divided by to get its playback scale, so a
+        // wrong divisor skates the feet by exactly the ratio it is wrong by. The clips carry `root_motion: false`, which
+        // makes that speed decidable: while a foot is planted it is fixed to the ground, so its backward travel relative
+        // to the root over its contact time IS the speed the clip is drawn for. Measured over the bound species by
+        // tools/asset_pipeline/_creature_motion_measure.py - walk 1.86-2.00 m/s across the wolf, husk and armour; run
+        // 6.05-6.27 across the wolf, hound and boar. The old 1.6 and 5.0 were guesses, and against them five of the six
+        // species skated 12-25% at their own declared move_speed. A blind VIDEO review of the wolf walk - the same
+        // animal, the same camera, the same floor, differing only in playback scale - scored the authored pace 9/10 on
+        // foot sliding ("paws plant firmly") and the old assumed pace 2/10 ("each paw contacts the ground and
+        // immediately glides forward instead of planting in world space", at 0:04-0:05), and asked for exactly this fix.
+        // THE SPIDER IS DELIBERATELY LEFT ALONE: eight legs whose stance phases this measurement could not separate
+        // (0.17-6.94 m/s spread), so it has no verified pace and an unverified constant is worse than a known gap.
+        // THE CLAMP FLOOR IS 0.6, NOT 0.7, AND THAT IS A MEASURED CONSEQUENCE OF THE PACE ABOVE, NOT A PREFERENCE.
+        // The floor exists to stop a near-stationary creature cycling its legs absurdly slowly, and at 0.7 it bound on
+        // exactly one species: the boar's declared 4.0 m/s over a 6.054 m/s run clip is 0.656, below the floor, so the
+        // clamp held a 5.9% residual skate while the wolf, hound, husk and armour all came in within 3%. The floor's job
+        // is to bound degenerate speeds, not to decide a real one, so 0.6 clears the boar without loosening anything
+        // that matters: run only plays above 2.6 m/s, where 2.6/6.1 = 0.426 is still floored. Nothing else moves -
+        // measured, every other in-play species computes above 0.73, so only the boar is affected.
         else if (speed > 2.6f)
-            _model.Play("run", 0.2f, Mathf.Clamp(speed / 5f, 0.7f, 1.5f));
+            _model.Play("run", 0.2f, Mathf.Clamp(speed / 6.1f, 0.6f, 1.5f));
         else if (speed > 0.3f)
-            _model.Play("walk", 0.2f, Mathf.Clamp(speed / 1.6f, 0.6f, 1.6f));
+            _model.Play("walk", 0.2f, Mathf.Clamp(speed / 1.88f, 0.6f, 1.6f));
         else
             _model.Play("idle", 0.3f);
     }

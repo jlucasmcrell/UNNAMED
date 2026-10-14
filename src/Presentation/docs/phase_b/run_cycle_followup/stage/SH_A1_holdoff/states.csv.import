@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dshb8n3bn7ows"
+
+[deps]
+
+files=["res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.frame.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.alpha.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.cam.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.cam.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.fov.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.npcs.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.foot.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.foot.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.body.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.body.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.reach.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.reach.translation"]
+
+source_file="res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.csv"
+dest_files=["res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.frame.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.alpha.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.player.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.cam.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.cam.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.fov.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.npcs.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.foot.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.foot.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.body.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.body.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.hold.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.reach.translation", "res://docs/phase_b/run_cycle_followup/stage/SH_A1_holdoff/states.reach.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

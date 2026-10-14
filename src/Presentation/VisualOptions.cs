@@ -21,7 +21,7 @@ public static class VisualOptions
         ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
         ["foldscar"] = new[] { "classic", "proof" },
         ["aa"] = new[] { "msaa_taa", "taa", "msaa", "smaa" },
-        ["tier"] = new[] { "phase_a", "low", "medium", "high", "ultra" },
+        ["tier"] = new[] { "phase_a", "low", "medium", "high", "ultra", "quality", "performance" },
         ["wind"] = new[] { "none", "on" },
         ["vfx"] = new[] { "flipbooks", "recipes" },
         ["life"] = new[] { "none", "on" },
@@ -34,6 +34,41 @@ public static class VisualOptions
         ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
         ["weather"] = Array.Empty<string>(),     // a weather state name, validated by the weather system
+        // human: HumanShaders draws the skin (Art/HumanSkin.cs); engine: the same characters with the engine's own
+        // subsurface scattering instead. There is no tier that changes this - it exists so ONE BUILD can photograph
+        // both arms of the skin comparison in the same frame, which is what a blind A/B of it needs and what moving
+        // the shader file aside could never give. Never set in a shipping run.
+        // THE BISECT ARMS (2026-09-29). `human` and `engine` were the whole set, which could only ever answer
+        // "is the shader's OUTPUT different from the engine's" - one bit, and the bit came back 0. To find WHICH
+        // TERM moves the frame, one term is switched off at a time with everything else identical. Each value is
+        // read at HumanSkin.cs and changes exactly one SetShaderParameter.
+        //   no-sss         use_subsurface_scattering = false   (the term the shader is named for)
+        //   no-ao          use_ambient_occlusion = false       (gates the AO, the specular AO and the light warp)
+        //   no-microdetail use_micro_detail = false            <- ALREADY THE SHIPPED VALUE. This arm is
+        //                  identical to `human` BY CONSTRUCTION and exists to say so out loud rather than to
+        //                  leave a hole in the ladder. Measured: it renders the same frame, because it IS the
+        //                  same frame. See docs/phase_b/SKIN_SHADER_BISECT.md.
+        //   lightwarp      old_lightwarp_fallof = true         (swaps the three-lobe wrapped diffuse for the
+        //                  lightwarp ramp - the largest single change available inside light())
+        //   red            albedo forced to pure red           <- THE MUST-CHANGE POSITIVE CONTROL. If the skin
+        //                  does not turn red, the ShaderMaterial is not reaching the rasteriser at all and no
+        //                  other arm can mean anything. TRAP 10's identical-image control, inverted.
+        // Same rule as `human`/`engine`: one build photographs every arm, and none of these is ever set in a
+        // shipping run.
+        ["skin"] = new[] { "human", "engine", "no-sss", "no-ao", "no-microdetail", "lightwarp", "red" },
+        // flat: the air's light and ambient are the authored base scaled by a CLAMPED daylight, which reaches
+        // 1.00 by 08:00 - so both read byte-identical from 08:00 to 16:00. Measured, fifteen hourly samples:
+        // docs/phase_b/air_day, and the plateau is roughly 07:30-17:00.
+        // sun: the same two endpoints, reached through the SUN'S ALTITUDE instead, which keeps moving all day.
+        // MEASURED AND NOT ADOPTED - it buys a 1.6 % wider tonal range with THREE TIMES the crushed shadow
+        // (2.05 % -> 6.09 % of the frame under 0.05), a trade this project has refused three times. Kept as the
+        // arm it was built to be.
+        // hue: the fix the measurement asks for - the SHIPPED scaling untouched, so the ambient inject stays
+        // where passes 8 and 9 tuned it and the shadow floor cannot move, with only the fog's HUE following the
+        // sun. No tint above 45 degrees of altitude, a warm cast as it drops, at very nearly equal luminance.
+        // All three exist for the same reason as `skin`: ONE BUILD photographs every arm in the same session,
+        // which is what a blind A/B of a lighting change needs (TRAP 12). Never set in a shipping run.
+        ["air"] = new[] { "flat", "sun", "hue" },
     };
 
     private static readonly Dictionary<string, string> Defaults = new()
@@ -56,29 +91,52 @@ public static class VisualOptions
         ["clips"] = "procedural",
         ["people"] = "phase_a",
         ["hud"] = "classic",
+        // THE AIR'S HUE FOLLOWS THE SUN, ITS INTENSITY DOES NOT. Adopted as the default 2026-09-29, on the
+        // owner's deferral, after the alternative was measured and refused: the `sun` arm widened the tonal
+        // range by 1.6 per cent and TRIPLED the crushed shadow (2.05 -> 6.09 per cent), so it was not taken.
+        // This arm holds the intensity exactly where passes 8 and 9 tuned it - the ambient inject is
+        // identical to four decimals - and moves ONLY the colour: fog (0.610, 0.628, 0.647) -> (0.697, 0.601,
+        // 0.518) at 07:00, red-minus-blue +22.6 per cent at 07:00 and +12.9 at 08:00, mean luminance moving
+        // 0.0002, deep shade 2.71 -> 2.74 per cent.
+        //
+        // WHY IT IS WORTH A DEFAULT CHANGE: the owner's priority 2 asked "is it still too static" and the
+        // answer was yes - the air has exactly three states a day and one of them covers 07:30-17:00. This is
+        // that finding's fix, and the only thing it can regress is colour, which was the thing being fixed.
+        //
+        // THE `sun` AND `flat` ARMS ARE KEPT, so a blind A/B of this default is one flag away:
+        //     --visual air=flat   (what shipped before)   --visual air=sun   (the refused arm)
+        // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
+        ["air"] = "hue",
     };
 
-    /// <summary>
-    /// The quality tiers (B1) as presets of the other options, applied under whatever the spec names itself. Every tier draws the Phase-B
-    /// world (Terrain3D, Sky3D, the fold, the texture cache); they differ in the costly systems: the volumetric clouds (Ultra), the plant
-    /// models and their density, the anti-aliasing. High is the RTX 4070 Ti 1080p/60 target.
-    /// </summary>
+    /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>
     private static readonly Dictionary<string, Dictionary<string, string>> Tiers = new()
     {
-        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "classic", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "standard", ["hud"] = "production", ["aa"] = "smaa" },
-        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "standard", ["hud"] = "production", ["aa"] = "taa" },
-        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "standard", ["hud"] = "production", ["aa"] = "taa" },
-        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "standard", ["hud"] = "production", ["aa"] = "msaa_taa" },
+        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "smaa" },
+        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
+        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "msaa_taa" },
     };
 
-    public static string Tier => Values["tier"];
+    public static string Tier => Values["tier"] switch
+    {
+        "quality" => "high",
+        "performance" => "medium",
+        var tier => tier,
+    };
     public static bool Wind => Values["wind"] == "on";
     public static bool Recipes => Values["vfx"] == "recipes";
     public static bool BodyModifiers => Values["body"] == "modifiers";
     public static bool ProductionHud => Values["hud"] == "production";
 
-    /// <summary>The share of the plant models' density this tier draws.</summary>
-    public static float PlantDensity => Tier switch { "medium" => 0.55f, "high" => 0.8f, _ => 1f };
+    /// <summary>The share of the prepared plant models' density this profile draws.</summary>
+    public static float PlantDensity => Tier switch
+    {
+        "low" => 0.45f,
+        "medium" => 0.70f,
+        "high" => 1.00f,
+        _ => 1.00f,
+    };
 
     private static readonly Dictionary<string, string> Values = new(Defaults);
 
@@ -89,6 +147,12 @@ public static class VisualOptions
     public static string Plants => Values["plants"];
     public static string Foldscar => Values["foldscar"];
     public static string AntiAliasing => Values["aa"];
+
+    /// <summary>Whether the air's light follows the SUN'S ALTITUDE (<c>sun</c>) or a clamped daylight (<c>flat</c>).</summary>
+    public static bool AirFollowsSun => Values["air"] == "sun";
+
+    /// <summary>Whether the air's HUE follows the sun while its intensity stays exactly as shipped (<c>hue</c>).</summary>
+    public static bool AirFollowsSunHue => Values["air"] == "hue";
 
     /// <summary>The options that are the viewport's own settings (the anti-aliasing), applied to the game's viewport.</summary>
     public static void Apply(Viewport viewport)
@@ -107,7 +171,7 @@ public static class VisualOptions
     /// <summary>Everything in effect, for reports and screenshots' records.</summary>
     public static IReadOnlyDictionary<string, string> All => Values;
 
-    /// <summary>The tier a run draws with when nothing chooses one: Phase B's High (the 4070 Ti 1080p/60 target).</summary>
+    /// <summary>The default visual-reference profile; Quality is its player-facing alias.</summary>
     public const string DefaultTier = "high";
 
     /// <summary>
@@ -118,7 +182,14 @@ public static class VisualOptions
     {
         Values["tier"] = savedTier is not null && Allowed["tier"].Contains(savedTier) ? savedTier : DefaultTier;
         var named = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string part in (spec ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        string[] parts = (spec ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        // `phase_a` is a whole-run preset, not an option, so where it sits in the list decides whether the
+        // options written beside it survive it: `phase_a,air=flat` honours air=flat, while `air=flat,phase_a`
+        // silently reverts to hue. Measured, not reasoned. That is a trap and not a feature, and this file's
+        // contract is to refuse to start naming the fault rather than draw something other than what was asked.
+        if (Array.IndexOf(parts, "phase_a") > 0)
+            throw new ArgumentException("--visual: 'phase_a' is a whole-run preset and must come first in the list");
+        foreach (string part in parts)
         {
             if (part == "phase_a")
             {
@@ -127,6 +198,15 @@ public static class VisualOptions
                     Values[key] = value;
                     named.Add(key);
                 }
+                // `Defaults` carries two roles at once - the out-of-the-box value AND the Phase-A value - and
+                // `air` is the one key where the two have parted company. Every other row is still both, but
+                // `air`'s shipping default is the 2026-09-29 remedy (`hue`), whose own note above names `flat`
+                // as "what shipped before". Copying Defaults alone therefore left a Phase-B change INSIDE the
+                // control that exists to exclude Phase-B: measured, `--visual phase_a` gave air=hue, so a
+                // phase_a A/B would have carried the air change in BOTH arms and could not have seen it.
+                // Corrected here and deliberately NOT in `Defaults`: Defaults["air"] is the genuine default
+                // for a player run, and moving it would undo the remedy rather than fix the control.
+                Values["air"] = "flat";
                 continue;
             }
             string[] kv = part.Split('=', 2);

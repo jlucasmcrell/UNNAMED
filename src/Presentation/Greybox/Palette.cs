@@ -106,8 +106,8 @@ void fragment() {
     /// <summary>
     /// The fold as B0.6 draws it (<c>--visual foldscar=proof</c>): the bible's restrained weirdness and nothing else - the world behind
     /// seen a little wrong (a slow warp, and the same view doubled a hair to one side), strongest where the fold faces the eye and thinning
-    /// to nothing at its silhouette, so it has no edge to read as a volume; a ragged, drifting top and a foot that fades into the ground;
-    /// the faintest cool cast and a few slow motes. No violet rim: the Foldscar is wrong, not magical.
+    /// toward its silhouette; a ragged, drifting top, a thin ground-contact shimmer, and a restrained cool boundary make the standing
+    /// fold readable at player distance. Refraction uses the opaque screen copy; its boundary and slow motes remain visible over sky.
     /// </summary>
     public static ShaderMaterial FoldscarFold { get; } = new()
     {
@@ -163,8 +163,12 @@ void fragment() {
     float motes = pow(clamp(vnoise(vec2(around * 9.0, h * 14.0 - TIME * 0.12)) - 0.62, 0.0, 1.0) * 2.6, 3.0);
     colour += vec3(0.55, 0.50, 0.80) * motes * 0.35;
 
+    // Keep refraction on the opaque screen copy, but let the boundary read over sky and transparent foliage too.
+    float edge = pow(1.0 - facing, 2.2);
+    float contact = 1.0 - smoothstep(0.01, 0.035, h);
+    colour = mix(colour, vec3(0.50, 0.57, 0.80), clamp(edge * 0.65 + contact * 0.55, 0.0, 0.7));
     ALBEDO = colour;
-    ALPHA = clamp(body * top * foot + motes * 0.25 * top * foot, 0.0, 1.0) * held * presence;
+    ALPHA = clamp(body * top * foot * held + (edge * 0.35 * foot + contact * 0.20 + motes * 0.35 * foot) * top, 0.0, 1.0) * presence;
 }
 ",
         },
@@ -203,12 +207,16 @@ void fragment() {
 
     private static Shader? _wornShader;
     private static Shader? _treeShader;
+    private static Shader? _leafShader;
 
     /// <summary>
     /// A tree on the wind (Phase B, B4): each surface's own material rebuilt as <see cref="WindField.TreeShader"/> - its colour, normal and
     /// roughness maps, its leaves still alpha-tested - swaying by the model's height and <paramref name="stiffness"/>.
+    /// <paramref name="tint"/> multiplies the base colour, which is how a PLACED TREE gets the per-instance variation
+    /// it never had: see <see cref="Shifted"/>. The tint's alpha must stay 1 - the shader multiplies ALPHA by it too,
+    /// and a leaf whose alpha drops crosses the alpha-scissor threshold and disappears.
     /// </summary>
-    public static void Windblown(Node3D model, float stiffness)
+    public static void Windblown(Node3D model, float stiffness, Color tint)
     {
         float height = Math.Max(1f, Art.ArtGallery.Bounds(model).Size.Y / Math.Max(0.01f, model.Scale.Y));
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
@@ -219,20 +227,78 @@ void fragment() {
             {
                 if (mesh.GetActiveMaterial(s) is not BaseMaterial3D own)
                     continue;
-                var tree = new ShaderMaterial { Shader = _treeShader ??= new Shader { Code = WindField.TreeShader } };
+                bool foliage = own.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash;
+                var shader = foliage
+                    ? _leafShader ??= new Shader { Code = WindField.TreeShader.Replace("cull_back", "cull_disabled") }
+                    : _treeShader ??= new Shader { Code = WindField.TreeShader };
+                var tree = new ShaderMaterial { Shader = shader };
                 tree.SetShaderParameter("albedo_tex", own.AlbedoTexture);
                 tree.SetShaderParameter("has_albedo", own.AlbedoTexture is not null);
-                tree.SetShaderParameter("albedo_colour", own.AlbedoColor);
+                tree.SetShaderParameter("albedo_colour", own.AlbedoColor * tint);
                 tree.SetShaderParameter("normal_tex", own.NormalTexture);
                 tree.SetShaderParameter("has_normal", own is { NormalEnabled: true, NormalTexture: not null });
                 tree.SetShaderParameter("roughness_tex", own.RoughnessTexture);
                 tree.SetShaderParameter("has_roughness", own.RoughnessTexture is not null);
                 tree.SetShaderParameter("roughness_value", own.Roughness);
-                tree.SetShaderParameter("foliage", own.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash);
+                tree.SetShaderParameter("foliage", foliage);
                 tree.SetShaderParameter("alpha_cut", own.AlphaScissorThreshold);
                 tree.SetShaderParameter("tree_height", height);
                 tree.SetShaderParameter("stiffness", stiffness);
                 mesh.SetSurfaceOverrideMaterial(s, tree);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The per-instance value and warmth shift a placement gets from its OWN ID - the colour half of the owner's
+    /// "samey duplicates" complaint, in one place so every path that varies a placement varies it the same way.
+    ///
+    /// Deterministic on purpose: the same world must look the same on every run and in every capture, so it is the
+    /// placement's own id and never a frame counter or a shared RNG. The numbers are the ones the surface path has
+    /// used since 2026-09-27 (a value shift of +-18 %, a warm/cool lean of +-6 %). <see cref="Wear"/> applies it to a
+    /// structure wearing a world material; <see cref="Windblown"/> applies it to a tree, WHICH HAD NO PER-INSTANCE
+    /// COLOUR AT ALL until this was extracted - 145 placed trees drawn from twelve models, every birch canopy exactly
+    /// the same yellow, while the 240 boulders beside them varied.
+    /// </summary>
+    public static Color Shifted(string id, Color tint)
+    {
+        uint hash = 2166136261u;
+        foreach (char ch in id)
+            hash = (hash ^ ch) * 16777619u;
+        var variation = new RandomNumberGenerator { Seed = hash };
+        float value = 1f + variation.RandfRange(-0.18f, 0.18f);
+        float warm = variation.RandfRange(-0.06f, 0.06f);
+        return new Color(
+            Mathf.Clamp(tint.R * value * (1f + warm), 0f, 8f),
+            Mathf.Clamp(tint.G * value, 0f, 8f),
+            Mathf.Clamp(tint.B * value * (1f - warm), 0f, 8f));
+    }
+
+    /// <summary>
+    /// The per-instance shift applied to a model's OWN materials, without replacing them - for scenery that is placed
+    /// directly rather than bound in the region's `structures`, so it can never carry a `surface` and never reached
+    /// <see cref="Wear"/> or <see cref="Windblown"/>.
+    ///
+    /// WHY IT DUPLICATES. A `MeshInstance3D` has no per-instance colour; `use_instance_color` is a MultiMesh feature,
+    /// and these are individually placed `Node3D`s. So each surface's material is duplicated and its AlbedoColor
+    /// multiplied - the scan's own base colour, normal and roughness maps are kept, which is the whole reason these
+    /// Poly Haven pieces were chosen, and only the value and warm/cool lean change. `RavineDressing` rings the region
+    /// with 304 rock pieces - 99 east, 100 north, 89 west and 16 on the south cliff - from ONE cliff model and TWO
+    /// boulder models, and before this every one of them was the same colour as every other.
+    /// </summary>
+    public static void Tinted(Node3D model, Color tint)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+            {
+                if (mesh.GetActiveMaterial(s) is not BaseMaterial3D own)
+                    continue;
+                var copy = (BaseMaterial3D)own.Duplicate();
+                copy.AlbedoColor = own.AlbedoColor * tint;
+                mesh.SetSurfaceOverrideMaterial(s, copy);
             }
         }
     }

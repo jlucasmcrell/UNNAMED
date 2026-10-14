@@ -116,7 +116,15 @@ void fragment() {
     if (foliage) {
         ALPHA = a.a * albedo_colour.a;
         ALPHA_SCISSOR_THRESHOLD = alpha_cut;
-        BACKLIGHT = vec3(0.12, 0.14, 0.06);
+        // A LEAF TRANSMITS LIGHT, AND THE LEAVES THAT MOST NEED IT ARE THE ONES FACING AWAY. Measured: a birch crown
+    // rendered at mean luma 92 against 145 as authored, while albedo, texture and per-instance tint all arrived
+    // INTACT (the well-lit band sat at 0.94 of albedo). So the loss was never a gain error - it was POPULATION:
+    // the away-facing half of every leaf card receives no sun, and BACKLIGHT is the term that exists to fill it.
+    // At olive (0.12, 0.14, 0.06) it filled that half with 12% of a dark green, which is also why the shadowed
+    // leaves measured G-dominant. A warm fill on the leaf's own hue instead: per pixel this predicts the crown
+    // mean rising from 92 to ~118-135, and the green cast going with it.
+    BACKLIGHT = vec3(0.88, 0.81, 0.63);
+        if (!FRONT_FACING) NORMAL = -NORMAL;
     }
     ROUGHNESS = has_roughness ? texture(roughness_tex, UV).g : roughness_value;
     if (has_normal) {
@@ -141,11 +149,11 @@ uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic;
 uniform sampler2D arm_tex : hint_default_white, filter_linear_mipmap;
 uniform bool has_normal = false;
 uniform bool has_arm = false;
-uniform float alpha_cut = 0.4;
+uniform float alpha_cut = 0.18;
 uniform float plant_height = 1.0;
 uniform float stiffness = 1.0;
 uniform float flutter = 0.35;
-uniform vec3 backlight_colour : source_color = vec3(0.10, 0.12, 0.04);
+uniform vec3 backlight_colour : source_color = vec3(0.88, 0.81, 0.63);
 uniform float roughness_value = 0.85;
 // Grass blades carry normals bent to the sky: both sides shade alike (no dark undersides), unlike a leaf lit through from behind.
 uniform bool upright_normals = false;
@@ -177,8 +185,13 @@ void fragment() {
     ALPHA_SCISSOR_THRESHOLD = alpha_cut;
     if (has_arm) {
         vec3 arm = texture(arm_tex, UV).rgb;
-        AO = arm.r;
-        AO_LIGHT_AFFECT = 0.25;
+        // NO AO FROM THE FILE. ArtLibrary refuses to draw a model's baked occlusion - the generated and scanned
+        // models' occlusion channels are black over whole islands, which Godot applies as black patches where
+        // Blender shows none. This shader was putting it straight back: AO with AO_LIGHT_AFFECT 0.25 multiplies
+        // 75% of the red channel into the light, and a PHOTOGRAMMETRY surface carries far more baked occlusion
+        // than a hand-painted card does. Measured cost on scanned grass: the mid-ground went from luma 64.1 to
+        // 54.3 when these clumps replaced cards. The renderer's own occlusion does contact shading instead.
+        AO = 1.0;
         ROUGHNESS = arm.g;
     } else {
         ROUGHNESS = roughness_value;

@@ -110,7 +110,11 @@ public static class RavineDressing
                 if (VisualOptions.Wind)
                 {
                     WindField.Ensure(root);
-                    Palette.Windblown(tree, 1.3f);
+                    // The same per-instance colour shift the region's own trees get, keyed on THIS tree's position so
+                    // it consumes no draw from `woods`. Pulling a value out of the RNG instead would advance the
+                    // stream and move every tree placed after it - a change to the ravine's layout dressed up as a
+                    // change to its colour.
+                    Palette.Windblown(tree, 1.3f, Palette.Shifted($"{at.X:F1},{at.Z:F1}", Colors.White));
                 }
                 placed++;
             }
@@ -147,10 +151,31 @@ public static class RavineDressing
         for (float a = edge.From + random.RandfRange(0, 8); a < edge.To; a += random.RandfRange(6, 13))
         {
             float s = random.RandfRange(0.7f, 1.8f);
-            var at = Ground(a, random.RandfRange(1.4f, 3.8f));
+            float o = random.RandfRange(1.4f, 3.8f);
+            var at = Ground(a, o);
+            // A boulder centred on the steep face hangs in air from the quarry camera.
+            if (MathF.Abs(Ground(a, o + 0.8f).Y - Ground(a, o - 0.8f).Y) > 0.7f)
+                continue;
             if (Place(root, art, Boulders[random.RandiRange(0, Boulders.Length - 1)], at - new Vector3(0, 0.3f * s, 0),
                     new Vector3(random.RandfRange(-10, 10), random.RandfRange(0, 360), random.RandfRange(-10, 10)), s))
                 placed++;
+        }
+        var woods = new RandomNumberGenerator { Seed = edge.Seed ^ 0xF1F1 };
+        for (float a = edge.From + 8f; a < edge.To - 8f; a += woods.RandfRange(11f, 18f))
+        {
+            if (woods.Randf() < 0.4f || art.ModelWithLods(FarTrees[woods.RandiRange(0, FarTrees.Length - 1)]) is not { } tree)
+                continue;
+            var at = Ground(a + woods.RandfRange(-3f, 3f), woods.RandfRange(22f, 33f));
+            tree.Position = at - new Vector3(0, 0.3f, 0);
+            tree.RotationDegrees = new Vector3(0, woods.RandfRange(0, 360), 0);
+            tree.Scale = Vector3.One * woods.RandfRange(0.85f, 1.2f);
+            root.AddChild(tree);
+            if (VisualOptions.Wind)
+            {
+                WindField.Ensure(root);
+                Palette.Windblown(tree, 1.3f, Palette.Shifted($"{at.X:F1},{at.Z:F1}", Colors.White));
+            }
+            placed++;
         }
         return placed;
     }
@@ -162,6 +187,10 @@ public static class RavineDressing
         model.Position = position;
         model.RotationDegrees = rotationDegrees;
         model.Scale = Vector3.One * scale;
+        // The per-instance colour the 304 pieces placed here never had, keyed on the piece's own position so it is
+        // deterministic and consumes no draw from the caller's RNG - the same rule the trees in this file follow, and
+        // for the same reason: pulling a value out of `random` would move every piece placed after it.
+        Palette.Tinted(model, Palette.Shifted($"{position.X:F1},{position.Z:F1}", Colors.White));
         root.AddChild(model);
         return true;
     }

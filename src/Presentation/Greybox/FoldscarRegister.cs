@@ -168,7 +168,7 @@ public sealed partial class FoldscarRegister : Node3D
         stone.Double.Visible = !stone.Set;
         if (stone.Shell is not null)
             stone.Shell.Visible = stone.Set;
-        stone.Glow?.SetShaderParameter("strength", stone.Set ? GlowStrength : 0f);
+        stone.Glow?.SetShaderParameter("strength", stone.Set ? GlowStrength * (stone.Turns ? 1f : 0.35f) : 0f);
     }
 
     private void Animate(Stone stone)
@@ -190,7 +190,7 @@ public sealed partial class FoldscarRegister : Node3D
                 stone.Shell.Visible = true;
                 float light = Mathf.Clamp((float)((t - 0.4) / 0.6), 0, 1);
                 float settle = Mathf.Exp(-(float)Math.Pow((t - 1.0) / 0.3, 2));
-                stone.Glow?.SetShaderParameter("strength", GlowStrength * light * light * (3 - 2 * light) + 1.2f * settle);
+                stone.Glow?.SetShaderParameter("strength", GlowStrength * (stone.Turns ? 1f : 0.35f) * light * light * (3 - 2 * light) + 1.2f * settle);
             }
             if (t > Math.Max(TurnSeconds, 1.9))
             {
@@ -348,8 +348,8 @@ void fragment() {
     float contact = 1.0 - smoothstep(0.0, 0.55, gap);
     vec2 shift = vec2(0.004, 0.0) * wall * fade;
     vec3 behind = textureLod(screen_tex, SCREEN_UV + shift, 0.0).rgb;
-    ALBEDO = behind + vec3(0.82, 0.87, 1.0) * (wall * 0.14 + contact * 1.3) * fade;
-    ALPHA = clamp(wall * 0.5 + contact, 0.0, 1.0) * fade;
+    ALBEDO = behind + vec3(0.82, 0.87, 1.0) * (wall * 0.26 + contact * 1.6) * fade;
+    ALPHA = clamp(wall * 0.65 + contact, 0.0, 1.0) * fade;
 }
 ";
 }

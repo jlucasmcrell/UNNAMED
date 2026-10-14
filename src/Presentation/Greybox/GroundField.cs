@@ -266,10 +266,16 @@ void fragment() {
     vec3 m2 = texture(macro_noise, p / 9.0).rgb;
     vec3 m3 = texture(macro_noise, p / 41.0 + vec2(0.3, 0.6)).rgb;
     vec3 m4 = texture(macro_noise, p / 11.0 + vec2(0.5, 0.0)).rgb;
-    float ex = (m1.r - 0.5) * 14.0 + (m2.g - 0.5) * 4.0;
-    float ez = (m3.r - 0.5) * 14.0 + (m4.g - 0.5) * 4.0;
-    float wx = smoothstep(-6.0, 6.0, p.x - split.x + ex);
-    float wz = smoothstep(-6.0, 6.0, p.y - split.y + ez);
+    // THE CELL BLEND WAS DRAWING CIRCLES. A smoothstep over 12 m between 100 m cells, wobbled by a 9 m noise
+    // channel, produces a field of round patches about 20 m across - and a video review of a walk named them
+    // without being told to look: strange, repetitive circular bare dirt patches scattered across the grassy
+    // field. Widening the transition to 32 m turns the same boundary into a gradual change of ground over a third
+    // of a cell, and the short-wavelength wobble comes down so the edge stops scalloping into circles. The long
+    // 37/41 m channel is raised to compensate, so the boundary still meanders rather than running straight.
+    float ex = (m1.r - 0.5) * 20.0 + (m2.g - 0.5) * 1.5;
+    float ez = (m3.r - 0.5) * 20.0 + (m4.g - 0.5) * 1.5;
+    float wx = smoothstep(-16.0, 16.0, p.x - split.x + ex);
+    float wz = smoothstep(-16.0, 16.0, p.y - split.y + ez);
     vec4 w = vec4((1.0 - wx) * (1.0 - wz), (1.0 - wx) * wz, wx * (1.0 - wz), wx * wz);
 
     float mixb = smoothstep(0.42, 0.58, texture(macro_noise, p / 23.0).b);
@@ -296,7 +302,33 @@ void fragment() {
     nt = mix(nt, mix(n1, vec3(0.0, 0.0, 1.0), 0.6), pm);
     orm = mix(orm, vec3(o1.r, o1.g * 0.75, 0.0), pm);
 
-    alb *= mix(0.88, 1.12, texture(macro_noise, p / 53.0 + vec2(0.13, 0.29)).g);
+    // MACRO VARIATION AT TWO SCALES, AND IT MOVES COLOUR AS WELL AS BRIGHTNESS.
+    //
+    // READ THIS BEFORE MEASURING IT: THIS SHADER IS NOT WHAT DRAWS CAIRNWOLD'S GROUND. Every tier runs
+    // `terrain=terrain3d`, and Terrain3D draws the ground from its own clipmap and its own autoshader, fed by the
+    // control and colour images baked in Terrain3DView.Images. This fragment shader is the other path. The change
+    // below was made, rebuilt and captured, and the mid-ground band measured a luminance standard deviation of
+    // 0.1619 before and 0.1621 after - no effect, because nothing in that frame runs this code. It is kept because
+    // it is a real improvement to the shader it IS in, and the note is here so nobody repeats the measurement
+    // expecting a different answer. The ground's colour, near and far, is baked - so a change to how distance reads
+    // belongs in Terrain3DView's composited tint, not here.
+    //
+    // What was wrong: the tiled detail mips to its average and a slope seen edge-on becomes a flat wash of one green.
+    // No amount of grass fixes it - a blade is 7-13 mm, so at 80 m it is 0.29 of a pixel, and the far LODs were
+    // widened six times over with no effect on the frame at all. Only what is low-frequency enough to be there at
+    // any mip survives that minification. The single term this replaces was +-12% at 53 m and is not enough to break
+    // a flat wash; this is +-18% at 53 m with a second drift at 137 m pulling toward dry straw.
+    // THE TWO LOCALS BELOW WERE CALLED m1 AND m2 UNTIL THIS PASS, AND THAT IS WHY THIS SHADER NEVER COMPILED:
+    // fragment() already declares `vec3 m1` and `vec3 m2` at its top, so these two `float m1` / `float m2` in the
+    // same scope are a REDEFINITION and the whole shader fails to build - `SHADER ERROR: Redefinition of 'm1'`,
+    // `ERROR: Shader compilation failed`, visible on every headless run. Renamed, so the macro term now compiles.
+    // This also means the earlier note that this shader measured inert was right for a stronger reason than the
+    // one recorded: it was not merely off the frame's code path, it could not build at all.
+    float drift1 = texture(macro_noise, p / 53.0 + vec2(0.13, 0.29)).g;
+    float drift2 = texture(macro_noise, p / 137.0 + vec2(0.71, 0.43)).r;
+    alb *= mix(0.82, 1.18, drift1);
+    float lum = dot(alb, vec3(0.333));
+    alb = mix(alb, vec3(lum * 1.16, lum * 1.04, lum * 0.72), clamp((drift2 - 0.42) * 1.6, 0.0, 0.5));
 
     vec3 N = normalize(wnrm);
     vec3 T = normalize(vec3(1.0, 0.0, 0.0) - N * N.x);

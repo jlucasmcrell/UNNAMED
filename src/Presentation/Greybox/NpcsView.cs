@@ -60,6 +60,13 @@ public partial class NpcsView : Node3D
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;
+                // WHERE THE BODY ACTUALLY IS. Coverage.Resolved above fires when the FIGURE IS CREATED, not when it
+                // is on screen, so "person 5 requested 5 resolved" was never evidence that anybody was visible - and
+                // two village frames with all four NPCs in front of the camera showed none of them. If their Y is
+                // zero they are standing at sea level under a village whose ground is at six metres, which looks
+                // exactly like not being drawn at all. One line, once per NPC, and the question stops being a guess.
+                GD.Print($"UNNAMED npc: {npc.Id} drawn from ({npc.Body.XMm / 1000f:0.0}, {npc.Body.YMm / 1000f:0.00}, " +
+                         $"{npc.Body.ZMm / 1000f:0.0}) with model {model ?? "(none: greybox)"}");
                 // Phase B: feet planted on the ground, and the head turning to the player when near (its influence set each frame).
                 if (VisualOptions.BodyModifiers && body is not null && Ground is { } ground)
                 {

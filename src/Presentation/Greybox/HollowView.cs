@@ -38,11 +38,18 @@ public partial class HollowView : Node3D
     private GroundField? _ground;
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
 
+    /// <summary>The run's particle recipes (B0.7), read once for the whole region: a building's chimney smoke and a lit prop's own flame
+    /// come out of this one instance, so the JSON and the effect textures are read once per region and not once per placement.</summary>
+    private Art.ParticleRecipes? _recipes;
+
     private Art.ArtCoverage Coverage => _art.Coverage;
 
     public void Build(RegionLayout layout)
     {
         var terrain = layout.Space.Terrain;
+        // The particle recipes, read once here (B0.7): a structure's own emitters (a lantern's flame, in ArtStructure) and a
+        // building's (the smithy's chimney smoke, in BuildLighting) both build from this one instance.
+        _recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
         var ground = BuildTerrain(terrain);
         AddChild(ground);
         foreach (var building in ArtBuildings(layout, terrain))
@@ -98,7 +105,8 @@ public partial class HollowView : Node3D
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
-            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
+            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f,
+                _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
         var ravine = BuildRavine(layout.Space, terrain);
@@ -353,10 +361,25 @@ public partial class HollowView : Node3D
             return null;
         }
         Coverage.Resolved("structure", blocker.Id, look.Model!);
+        if (blocker.Id.StartsWith("rock_rim_", StringComparison.Ordinal))
+        {
+            model.RotationDegrees = new Vector3(0, (blocker.Id[^1] - '0') * 73f, 0);
+            model.Position += Vector3.Down * 0.32f; // Set the irregular scan into the uneven quarry floor.
+        }
         // A model bound with a surface wears it over its own relief (Phase B, B0.6: an artifact in a world material).
         if (look.Surface is { } worn && _art.WorldMaps(worn) is { } maps)
         {
             var tint = look.SurfaceTint is { } t ? new Color(t.X, t.Y, t.Z) : Colors.White;
+            // DS Phase B (2026-09-27): per-instance variation. Every structure wearing the same world material came
+            // out the same value as every other one, which is half of the "all wood looks the same brown, all stone
+            // the same light grey" read (the other half is a single flat light). A deterministic shift from the
+            // blocker's own id gives each placement its own value and a slight warm/cool lean, so a field of
+            // boulders reads as rock rather than as copies of one prop. Deterministic on purpose: the same world
+            // must look the same on every run and in every capture.
+            //
+            // THE FORMULA MOVED TO `Palette.Shifted` ON 2026-09-29 so the tree path could use the same one - a place
+            // that varies a placement must not vary it differently from another. The numbers are unchanged.
+            tint = Palette.Shifted(blocker.Id, tint);
             var glow = look.Glow is { } g ? new Color(g.X, g.Y, g.Z) : Colors.Black;
             Palette.Wear(model, maps, tint, glow, look.GlowEnergy);
             Coverage.Resolved("structure_surface", blocker.Id, worn);
@@ -365,8 +388,16 @@ public partial class HollowView : Node3D
         if (look.Wind > 0 && VisualOptions.Wind)
         {
             WindField.Ensure(this);
-            Palette.Windblown(model, look.Wind);
+            // A PLACED TREE HAD NO PER-INSTANCE COLOUR AT ALL UNTIL 2026-09-29. `Windblown` took only a stiffness, so
+            // the region's 145 placed birches and pines shared one canopy colour per model - every birch exactly the
+            // same yellow - while the 240 boulders beside them varied, because the shift above lives in the SURFACE
+            // path and a tree can never take a surface: the broadleaves are multi-material, and a surface silently
+            // takes a structure's wind away (Palette.Windblown skips any surface whose material is no longer a
+            // BaseMaterial3D, which is what Wear leaves behind). Same id, same formula, same determinism.
+            Palette.Windblown(model, look.Wind, Palette.Shifted(blocker.Id, Colors.White));
         }
+        // A prop's own flame and light, where its binding gives it any (Phase B: Cairnwold's lantern posts).
+        PropEffects(model, look, blocker.Id);
         // The camera's collider stays the structure's own shape: what the body collides with is the truth.
         var greyboxShape = BuildStructure(blocker, terrain);
         if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)
@@ -377,6 +408,57 @@ public partial class HollowView : Node3D
         }
         greyboxShape.Free();
         return model;
+    }
+
+    /// <summary>
+    /// A PROP's own emitters and light, from its binding (<c>emitters</c>, <c>light</c>): a lit lantern post's flame and the light it
+    /// throws. The building loops in <see cref="BuildLighting"/> cannot reach a prop - they iterate <c>_bindings.Buildings</c>, and the
+    /// footprint grouping already states the rule, "a building is a group of walls; a lone box is a prop". A lantern post is one blocker,
+    /// so its effects are placed here, where a drawn prop's own node is in hand (the same place <see cref="BuildSetMark"/> hangs a
+    /// switch's glow shell).
+    ///
+    /// THE OFFSET GOES ON THE MODEL, NOT ON THE ROOT, and that is not a detail. <see cref="Art.Fitting.Structure"/> stands the model
+    /// inside a holder and re-centres it on its own bounds, while <c>cw_lantern_post</c> is authored off-centre on purpose - its origin is
+    /// the post's foot and the lantern hangs 0.58 m out along the cross-arm, so its bounds centre is 0.30 m from the post. An offset
+    /// measured from the root would stand the flame a whole lantern-width beside the lantern; measured from the model it is the asset's
+    /// own metre, which is exactly what <c>bindings.json</c>'s numbers are.
+    /// </summary>
+    private void PropEffects(Node3D placed, Art.Placement look, string id)
+    {
+        if (look.Light is null && look.Emitters is not { Count: > 0 })
+            return;
+        // Fitting's own frame: the root (the footprint on the ground), then the holder, then the model as the asset was authored.
+        var authored = placed.GetChildren().OfType<Node3D>().FirstOrDefault()?.GetChildren().OfType<Node3D>().FirstOrDefault() ?? placed;
+        if (_recipes is not null && look.Emitters is { Count: > 0 } emitters)
+        {
+            foreach (var (recipe, at) in emitters)
+            {
+                if (_recipes.Build(recipe) is not { } particles)
+                    continue;
+                particles.Position = at;
+                authored.AddChild(particles);
+                Coverage.Resolved("emitter", $"{id}:{recipe}", recipe);
+            }
+        }
+        if (look.Light is { } spec)
+        {
+            var light = spec.Build($"Light_{id}");
+            authored.AddChild(light);
+            // A prop that carries a FLAME carries a light lit by that flame, and a flame's light is never
+            // steady. Measured 2026-09-29: the torch_flame sprite above a Cairnwold lantern moved and the
+            // OmniLight3D inside it did not, so the pool it threw on the ground was perfectly constant over
+            // 60 frames (mean |dluma| 0.472 whole-frame, 0.060 % of pixels beyond 32 code values). The
+            // lantern is the key light of the village at night, which made that the single most visible
+            // static thing in the scene. Only emitters that are actually a flame get the waver - a prop lit
+            // beside a chimney's smoke is not lit by a fire.
+            //
+            // AND THE SUN TAKES ITS SHARE. A light authored "daylight" also gets the node, because the node is
+            // what owns a light's energy and one owner is the point: measured 2026-09-29 at 13.00 h with
+            // daylight 1.00, thirteen lantern posts were burning at 1.78 to 2.35 from a scene built once at
+            // boot. A prop with neither a flame nor a daylight term is left a plain constant light, untouched.
+            if (Art.FlameFlicker.Lit(look.Emitters) || spec.Daylight > 0f)
+                Art.FlameFlicker.Attach(light, Art.FlameFlicker.DefaultAmount, spec.Daylight);
+        }
     }
 
     private static Node3D BuildStructure(Blocker blocker, TerrainGrid terrain)
@@ -463,7 +545,26 @@ public partial class HollowView : Node3D
         // at the frame's jamb. The collider stays the opening's panel.
         Node3D? leafHinge = null;
         string? leafId = _bindings.Doors.GetValueOrDefault(door.Key)?.Model;
-        bool framed = _artBuildings.Contains(group + "_");
+        // The door's own key is short ("door.smithy") and names its building by the bare word, while a building's prefix is the layout's
+        // full one ("cw_smithy", no trailing separator). The two never compared equal, so every door in a library building was drawn as
+        // a plain panel with its leaf art sitting unused in the library. Matched here on the last word of the prefix.
+        //
+        // AND A THIRD CLAUSE, BECAUSE THE FIRST TWO ONLY WORK FOR A ONE-WORD BUILDING NAME. `group` is the door key's text before its
+        // FIRST underscore, so `door.smithy` gives "smithy" and matches `cw_smithy` - but a house is `cw_house_05`, whose door key has
+        // to carry the number to be unique, and `Split('_')[0]` on "door.cw_house_05" gives "cw", which matches nothing. Measured:
+        // hollowing `cw_house_05` drew the building (`building:cw_house_05 resolved`) and counted the door unexpected - "its building
+        // is drawn in greybox, so its door is a panel" - with the building drawn and standing right there.
+        //
+        // So a door may also name its building EXACTLY: `door.cw_house_05` finds `cw_house_05`. Strictly additive, so the two doors
+        // that already work - `door.smithy` and `door.longhouse` - keep matching through the clauses they always used.
+        string named = door.Key["door.".Length..];
+        bool framed = _artBuildings.Any(built =>
+        {
+            string bare = built.TrimEnd('_');
+            return bare.Equals(group, StringComparison.Ordinal)
+                || bare.EndsWith("_" + group, StringComparison.Ordinal)
+                || bare.Equals(named, StringComparison.Ordinal);
+        });
         var leaf = framed && leafId is not null ? _art.Model(leafId) : null;
         if (!framed)
             Coverage.Fallback("door", door.Key, "its building is drawn in greybox, so its door is a panel", leafId);
@@ -650,35 +751,88 @@ public partial class HollowView : Node3D
             Name = "Sun",
             RotationDegrees = new Vector3(-48, 35, 0),
             ShadowEnabled = true,
-            LightEnergy = 1.35f,
+            LightEnergy = 1.85f,
             LightColor = new Color(1.0f, 0.95f, 0.86f),
             LightAngularDistance = 1.0f,
             ShadowBlur = 1.0f,
-            ShadowBias = 0.03f,
-            ShadowNormalBias = 1.0f,
-            DirectionalShadowMaxDistance = 90f,
+            // SHADOW BIAS WAS 0.03 - BELOW GODOT'S OWN DEFAULT OF 0.1 - AND THAT IS THE BEST EXPLANATION FOUND
+            // FOR THE OWNER'S FLICKER. A bias that low leaves the shadow map comparing a surface against its own
+            // depth, so surfaces at a grazing angle to the sun self-shadow in a pattern that changes with every
+            // sub-pixel camera move. It shows up exactly where it was measured: a full-frame-rate capture of
+            // ordinary play (Movie Maker, no screenshot stall) put the pixels that go bright->black->bright on the
+            // roof underside, the posts and the anvil platform of the smithy - grazing, shadowed surfaces - and
+            // nowhere else in the frame. 0.15 sits above the default with margin, and the normal bias stays at 1.0
+            // so the shadow does not detach from its caster.
+            // SHADOWS. Bias was 0.15 with normal bias 1.0, which is the recipe for peter-panning - the shadow
+            // detaching from the caster's base, so a fence post or a wall loses the contact shadow that grounds
+            // it. The documented remedy is to RAISE the normal bias and LOWER the bias, not the reverse.
+            ShadowBias = 0.02f,
+            ShadowNormalBias = 2.0f,
+            // 90 m left everything past 90 m in a 2 km world completely unshadowed and lit only by ambient sky
+            // plus SDFGI - the far village, the hillside and the tree line were flat by construction.
+            DirectionalShadowMaxDistance = 350f,
             DirectionalShadowBlendSplits = true,
         };
         var environment = new Godot.Environment
         {
             BackgroundMode = Godot.Environment.BGMode.Sky,
-            Sky = new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size256,
+            // Size512, not 256: at 256 the sky IBL is a blurry average, which is precisely the uniform ambient
+            // fill that flattens a scene - every surface receives nearly the same sky term whatever way it faces.
+            // At 512 the gradient reaches the shading and a north wall genuinely differs from a south one.
+            Sky = new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
                 ProcessMode = Sky.ProcessModeEnum.Automatic },
             AmbientLightSource = Godot.Environment.AmbientSource.Sky,
-            AmbientLightSkyContribution = 1f,
-            AmbientLightEnergy = 1f,
+            // DS Phase B (2026-09-27): directionality. Full-strength sky ambient (energy 1, sky contribution 1) lights
+            // every surface from every direction at once, which is why the 27-view survey read flat and
+            // directionless with no contact shadows - the same failure Digital Foundry describes on Crimson Desert
+            // with a lean denoiser, and the same one a reader there describes as "grass all the exact same hue...
+            // all wood the same brown... all stone the same light grey". The features were already on (AgX, SSAO,
+            // SSIL, SDFGI, volumetric fog); what was missing was the balance. Ambient is dropped to 0.55 with the
+            // sky still contributing, the sun is raised to 1.85 so it dominates, and exposure comes down to hold
+            // the overall level.
+            AmbientLightSkyContribution = 0.9f,
+            // DS overnight 2026-09-27: FILL DOWN, SHADOW DEPTH UP. The owner's standing brief is "hard directional
+            // sun with crisp, dark cast shadows that give every object form and ground contact", and "softness is
+            // not the goal; shadow depth and contrast are". A video review of a walk said the sun and its shadows
+            // are present - so the geometry of the light is right - but the frames show the distant hillside as a
+            // flat, uniform wash and the ground as one flat field, which is a FILL problem, not a sun problem.
+            // SDFGI with read_sky_light is the dominant fill in this scene: the previous session measured that
+            // halving sdfgi_energy moved mean luma 22 points while a 66% ambient cut moved it 4. So the fill comes
+            // down here, the exposure comes back up to hold the overall level, and the separation is left to the
+            // sun. Ambient 0.55 -> 0.30 and sdfgi 1.0 -> 0.55; exposure 0.82 -> 1.02 to keep the frame at the
+            // luminance it had, so what changes is CONTRAST rather than brightness.
+            AmbientLightEnergy = 0.30f,
             ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             TonemapMode = Godot.Environment.ToneMapper.Agx,
-            TonemapExposure = 1.15f,
-            TonemapAgxContrast = 1.15f,
+            // DS overnight 2026-09-27: EXPOSURE DOWN, CONTRAST UP. A video review of a walk reported the
+            // character's white top "noticeably overexposed/blown out under the direct sunlight, appearing close
+            // to pure clipped white" and the sky "bright with washed-out, high-exposure clouds". With the sun at
+            // 1.85 and exposure at 1.05, lit whites were landing above the point where AgX can hold detail. AgX is
+            // chosen precisely because it shoulders off instead of clipping, so the fix is to stop pushing the
+            // signal into the shoulder and to let the contrast carry the separation instead.
+            TonemapExposure = 1.02f,
+            TonemapAgxContrast = 1.34f,
             SsaoEnabled = true, SsaoRadius = 1.4f, SsaoIntensity = 2.2f, SsaoPower = 1.6f, SsaoDetail = 0.6f, SsaoHorizon = 0.06f, SsaoSharpness = 0.98f,
-            SsaoLightAffect = 0.15f, SsaoAOChannelAffect = 0.5f,
+            // BOTH TO 0.0, on the lighting research. These were 0.45 and 0.5, and both are documented as
+            // unphysical. `ssao_light_affect` makes SSAO darken DIRECTLY LIT surfaces - impossible, and because
+            // SSAO is screen-space it darkens relative to the CAMERA, not the light, so it slides along a wall
+            // base as you pan. `ssao_ao_channel_affect` double-applies occlusion on materials that already carry
+            // an AO map, which is now 306 of them, so leaving it at 0.5 would have driven the crevices of every
+            // AO-mapped surface toward black.
+            SsaoLightAffect = 0.0f, SsaoAOChannelAffect = 0.0f,
             SsilEnabled = true, SsilRadius = 4f, SsilIntensity = 0.9f, SsilSharpness = 0.98f, SsilNormalRejection = 1f,
-            SdfgiEnabled = true, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = true, SdfgiReadSkyLight = true, SdfgiBounceFeedback = 0.5f,
-            SdfgiEnergy = 1.0f, SdfgiNormalBias = 1.1f, SdfgiProbeBias = 1.1f, SdfgiYScale = Godot.Environment.SdfgiyScale.Scale75Percent,
-            GlowEnabled = true, GlowIntensity = 0.35f, GlowStrength = 1f, GlowBloom = 0.02f, GlowHdrThreshold = 1.1f,
+            SdfgiEnabled = true, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = false, SdfgiReadSkyLight = true, SdfgiBounceFeedback = 0.5f,
+            // 50 percent, not 75: the docs say 50 "is usually the best choice for scenes that don't feature much
+            // verticality", and a village on a moor is exactly that. Free quality.
+            SdfgiEnergy = 0.55f, SdfgiNormalBias = 1.1f, SdfgiProbeBias = 1.1f, SdfgiYScale = Godot.Environment.SdfgiyScale.Scale50Percent,
+            // GLOW WAS NEVER FIRING. The HDR threshold is relative to the tonemapper's white value, and under AgX
+            // that is `agx_white = 16.29` - so the old 1.1 meant 17.9, which nothing in this scene can reach. The
+            // bright sky, the cloud breaks and any wet-stone specular have been silently not blooming.
+            GlowEnabled = true, GlowIntensity = 0.35f, GlowStrength = 1f, GlowBloom = 0.02f, GlowHdrThreshold = 1.0f,
             GlowBlendMode = Godot.Environment.GlowBlendModeEnum.Softlight,
-            FogEnabled = true, FogMode = Godot.Environment.FogModeEnum.Exponential, FogDensity = 0.0016f, FogAerialPerspective = 0.75f, FogSkyAffect = 0f,
+            // FogSkyAffect was 0, so the sky was never fogged and the horizon read as a hard cut-out against the
+            // hills. 0.70 puts the sky into the same air as everything else.
+            FogEnabled = true, FogMode = Godot.Environment.FogModeEnum.Exponential, FogDensity = 0.0016f, FogAerialPerspective = 0.75f, FogSkyAffect = 0.70f,
             FogLightColor = new Color(0.66f, 0.68f, 0.70f), FogSunScatter = 0.05f,
             VolumetricFogEnabled = true, VolumetricFogDensity = 0.0025f, VolumetricFogAlbedo = new Color(0.86f, 0.87f, 0.9f), VolumetricFogAnisotropy = 0.35f,
             VolumetricFogLength = 96f, VolumetricFogDetailSpread = 2f, VolumetricFogGIInject = 0.6f, VolumetricFogAmbientInject = 0.35f,
@@ -687,6 +841,9 @@ public partial class HollowView : Node3D
         // Phase B (B0.3): Sky3D draws the sky and drives the sun and moon over this environment; or the HDRI; or the Phase-A sky and sun.
         string? skyWhy = null;
         RenderTiers.Apply(environment, sun);
+        // The region's air last, so it wins over the built-in numbers and over the tier's own overrides.
+        if (SkyView.ApplyAtmosphere(environment, _art.Root) is { } atmosphere)
+            GD.Print($"UNNAMED {atmosphere}");
         if (VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
             Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
         else
@@ -699,7 +856,7 @@ public partial class HollowView : Node3D
             root.AddChild(new WorldEnvironment { Environment = environment });
         }
         // Each building's particle emitters (B11: the smithy's chimney smoke), relative to its footprint's centre on the ground.
-        var recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
+        var recipes = _recipes;
         foreach (var (prefix, look) in _bindings.Buildings)
         {
             if (recipes is null || look.Emitters is not { Count: > 0 } emitters || Footprint(layout, prefix) is not { } footprint)
@@ -725,6 +882,27 @@ public partial class HollowView : Node3D
                 var light = lights[i].Build($"InteriorLight_{footprint.Id}_{i}");
                 light.Position += origin;
                 root.AddChild(light);
+                // The same single owner of a light's energy as a prop's light gets. An interior lamp is authored
+                // "daylight": 0 (a hearth burns all day) and so is untouched, but a binding that asks for a
+                // daylight term here must not be silently ignored: this is the path the seven cottages' lamps
+                // and the lodge hearth are built on, and a term that only worked on the prop path would be a
+                // second defect of exactly the shape this round is fixing.
+                //
+                // AND THE FLAME'S WAVER, WHICH THIS PATH DID NOT HAVE AT ALL UNTIL 2026-09-29. This block
+                // attached the node only when a binding asked for a daylight term, and always with
+                // `amount: 0f` - so a light standing over a burning fire was a CONSTANT. Measured out of this
+                // very dump, which prints every light's live energy: the thirteen Cairnwold lanterns, which go
+                // through the prop path and do carry a flame, read 0.101732 to 0.132700 - thirteen different
+                // values spread either side of their 0.12 base, which IS the waver, frozen at its own phase by
+                // the capture's time freeze. In the same dump `InteriorLight_cw_longhouse_0`, 1.7 m above a
+                // 3 x 3 bed of torch_flame, reads exactly 2.600000. The lodge's hearth is that room's key
+                // light; a fire throwing a perfectly steady pool is the defect the lantern had, one path over.
+                // `Lit` is the prop path's own test, so this cannot spread: a building whose only emitter is a
+                // chimney's smoke - every cottage, and the smithy - keeps its steady lamp, and the seven
+                // cottage lamps stay at exactly 1.6 and 1.3.
+                bool lit = Art.FlameFlicker.Lit(look.Emitters);
+                if (lit || lights[i].Daylight > 0f)
+                    Art.FlameFlicker.Attach(light, lit ? Art.FlameFlicker.DefaultAmount : 0f, lights[i].Daylight);
             }
         }
         return root;
