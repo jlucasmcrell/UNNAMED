@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Social;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
@@ -68,7 +69,7 @@ public partial class DialoguePanel : CanvasLayer
             return;
         }
         Visible = true;
-        _speaker.Text = _session.DisplayName(view.NpcId);
+        _speaker.Text = Names.Of(_session, view.NpcId);
         _line.Text = view.Text;
         foreach (var child in _replies.GetChildren())
         {
@@ -82,7 +83,10 @@ public partial class DialoguePanel : CanvasLayer
             var button = new Button { Text = _styled ? reply.Text : $"{i + 1}. {reply.Text}", Alignment = HorizontalAlignment.Left, FocusMode = Control.FocusModeEnum.None };
             button.AddThemeFontSizeOverride("font_size", 17);
             if (_styled)
+            {
                 StyleReply(button, i + 1);
+                Tag(button, Choice(view, reply.Id));
+            }
             string id = reply.Id;
             button.Pressed += () => Answer(id);
             _replies.AddChild(button);
@@ -137,6 +141,64 @@ public partial class DialoguePanel : CanvasLayer
             GrowVertical = Control.GrowDirection.Both,
         };
         button.AddChild(key);
+    }
+
+    /// <summary>The content behind a reply on screen: what it asks and what it does.</summary>
+    private DialogueChoice? Choice(ConversationView view, string replyId) =>
+        _session.Setup.Social.Dialogues.TryGetValue(view.DialogueId, out var dialogue) && dialogue.Nodes.TryGetValue(view.NodeId, out var node)
+            ? node.Choices.FirstOrDefault(c => c.Id == replyId)
+            : null;
+
+    /// <summary>
+    /// What a reply will do, as chips at its right, read off its own consequences and conditions (the owner's second playtest: "no
+    /// indication which dialog selection is to continue or complete a quest"): it starts a quest, it belongs to one under way, it hands
+    /// something over or receives it, it opens trade, the speaker joins you.
+    /// </summary>
+    private void Tag(Button button, DialogueChoice? choice)
+    {
+        if (choice is null)
+            return;
+        var tags = new List<(string Text, Color Tone)>();
+        foreach (var consequence in choice.Consequences)
+        {
+            switch (consequence)
+            {
+                case StartQuestConsequence:
+                    tags.Add(("New quest", HudStyle.Ember));
+                    break;
+                case TransferItemConsequence { ToPlayer: false } give:
+                    tags.Add(($"Give {give.Count} {Names.Of(_session, give.ItemId)}", HudStyle.Brass));
+                    break;
+                case TransferItemConsequence take:
+                    tags.Add(($"Receive {Names.Of(_session, take.ItemId)}", HudStyle.Lichen));
+                    break;
+                case OpenServiceConsequence:
+                    tags.Add(("Trade", HudStyle.IronBright));
+                    break;
+                case RecruitCompanionConsequence:
+                    tags.Add(("Joins you", HudStyle.Lichen));
+                    break;
+                case GiveRecipeConsequence:
+                    tags.Add(("Learn", HudStyle.Lichen));
+                    break;
+            }
+        }
+        if (!tags.Any(t => t.Text == "New quest") && choice.Conditions.Any(c => c is QuestStateCondition { Negated: false, State: "active" or "satisfied" }))
+            tags.Insert(0, ("Quest", HudStyle.Brass));
+        if (tags.Count == 0)
+            return;
+        var chips = new HBoxContainer
+        {
+            AnchorLeft = 1, AnchorRight = 1, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -12, OffsetRight = -12,
+            GrowHorizontal = Control.GrowDirection.Begin, GrowVertical = Control.GrowDirection.Both, MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        chips.AddThemeConstantOverride("separation", 6);
+        foreach (var (text, tone) in tags)
+            chips.AddChild(UiKit.Chip(text, tone));
+        button.AddChild(chips);
+        // The words stop short of the chips.
+        foreach (string state in new[] { "normal", "hover", "pressed", "hover_pressed" })
+            ((StyleBoxFlat)button.GetThemeStylebox(state)).ContentMarginRight = 24 + chips.GetCombinedMinimumSize().X;
     }
 
     /// <summary>Give a reply by its number on screen (keys 1 to 9).</summary>

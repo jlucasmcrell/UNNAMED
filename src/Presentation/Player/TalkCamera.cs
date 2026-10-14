@@ -42,7 +42,28 @@ public sealed partial class TalkCamera : Camera3D
             var right = toward.Cross(Vector3.Up).Normalized();
             // Behind and beside the character's head, a little above: the speaker's face at about a third of the frame's width.
             var eye = character - toward * 1.25f + right * 0.62f + Vector3.Up * 0.16f;
-            _framing = new Transform3D(Basis.Identity, eye).LookingAt(speaker + Vector3.Down * 0.04f, Vector3.Up);
+            var look = speaker + Vector3.Down * 0.04f;
+            // Held still (the owner's first playtest: "too much swaying ... it's going to make people seasick"): both heads breathe and
+            // shift as they idle, and the framing ignores that - it moves only once a head has really gone somewhere, and then slowly.
+            if (!_held || eye.DistanceTo(_eyeAim) > Settle || look.DistanceTo(_lookAim) > Settle)
+            {
+                _eyeAim = eye;
+                _lookAim = look;
+            }
+            if (!_held)
+            {
+                _eye = _eyeAim;
+                _look = _lookAim;
+                _held = true;
+            }
+            float follow = 1f - Mathf.Exp(-(float)delta / 0.9f);
+            _eye = _eye.Lerp(_eyeAim, follow);
+            _look = _look.Lerp(_lookAim, follow);
+            _framing = new Transform3D(Basis.Identity, _eye).LookingAt(_look, Vector3.Up);
+        }
+        else
+        {
+            _held = false;
         }
         GlobalTransform = gameplay.GlobalTransform.InterpolateWith(_framing, s);
         Fov = Mathf.Lerp(gameplay.Fov, 38f, s);
@@ -96,4 +117,10 @@ public sealed partial class TalkCamera : Camera3D
 
     private SpotLight3D? _key;
     private Transform3D _framing = Transform3D.Identity;
+
+    /// <summary>How far a head must move before the framing follows it: more than an idle's sway, less than a step.</summary>
+    private const float Settle = 0.12f;
+
+    private bool _held;
+    private Vector3 _eye, _look, _eyeAim, _lookAim;
 }

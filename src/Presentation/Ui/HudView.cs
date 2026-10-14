@@ -14,10 +14,13 @@ public sealed record HudSheet(
     string Name, int Level, bool LevelCapped, long Xp, long XpToNext, long XpDebt, string? PointKey, bool Crouched,
     long Focus, long FocusMax, long Strain, long StrainTolerance, long Resonance,
     string Wielded, string? WieldedId, bool Guarding, long Coin, int Armor, double CarriedKg, double CarryLimitKg, string InventoryKey,
-    string? Casting, IReadOnlyList<HudFormula> Formulas, bool Strained);
+    string? Casting, IReadOnlyList<HudFormula> Formulas, bool Strained, IReadOnlyList<HudQuick> Quick);
 
 /// <summary>A formula on its key: its ID (for its icon), its name and its Focus cost.</summary>
 public readonly record struct HudFormula(string Id, string Name, int FocusCost);
+
+/// <summary>A quick slot (the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is in it, how many.</summary>
+public readonly record struct HudQuick(string Key, string Id, string Name, int Count);
 
 /// <summary>
 /// The production HUD (visual option <c>hud=production</c>, which every quality tier selects). It shows what the classic HUD shows, at
@@ -70,8 +73,10 @@ public partial class HudView : Control
     private string _companionText = string.Empty;
     private string? _companionIcon;
 
-    // Bottom left: the effects, the formulas and the pools.
+    // Bottom left: the effects, the quick slots, the formulas and the pools.
     private readonly HFlowContainer _effects = new();
+    private readonly HBoxContainer _quick = new();
+    private string _quickKeys = string.Empty;
     private string _effectText = string.Empty;
     private string _effectKeys = string.Empty;
     private readonly VBoxContainer _spells = new();
@@ -115,6 +120,14 @@ public partial class HudView : Control
     private readonly Label[] _logLines = new Label[7];
     private readonly Queue<string> _logQueue = new();
 
+    // Top centre, under the target: what just happened that the player should not miss - a level gained, a quest finished.
+    private readonly PanelContainer _banner = new();
+    private readonly Label _bannerKind = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Brass, caps: true);
+    private readonly Label _bannerTitle = HudStyle.Text(HudStyle.Caps, 34, HudStyle.Bone, caps: true);
+    private readonly VBoxContainer _bannerLines = new();
+    private readonly List<Announcement> _announcements = new();
+    private double _bannerSince;
+
     // The middle: the crosshair and the death recap.
     private readonly Crosshair _crosshair = new();
     private readonly PanelContainer _death = new();
@@ -134,6 +147,7 @@ public partial class HudView : Control
         BuildTopLeft();
         BuildBottomLeft();
         BuildTopCentre();
+        BuildBanner();
         BuildTracker();
         BuildPromptAndLog();
         BuildMiddle();
@@ -251,6 +265,10 @@ public partial class HudView : Control
         _effects.Visible = false;
         rows.AddChild(_effects);
 
+        _quick.AddThemeConstantOverride("separation", 14);
+        _quick.Visible = false;
+        rows.AddChild(_quick);
+
         _spells.AddThemeConstantOverride("separation", 5);
         _casting.AddThemeConstantOverride("separation", 8);
         _casting.AddChild(HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ember, caps: true).Say("Casting"));
@@ -309,6 +327,137 @@ public partial class HudView : Control
         _targetBox.AddChild(rows);
         _targetBox.Visible = false;
         AddChild(_targetBox);
+    }
+
+    /// <summary>
+    /// The announcement: a soot panel at the top centre, under the target's bar - what kind of moment it is in brass capitals, the
+    /// moment itself large, and a line or two of what it brings. It rises and fades in, holds, and fades out; a second waits its turn.
+    /// </summary>
+    private void BuildBanner()
+    {
+        _banner.AnchorLeft = _banner.AnchorRight = 0.5f;
+        _banner.OffsetTop = _banner.OffsetBottom = BannerTop;
+        _banner.GrowHorizontal = GrowDirection.Both;
+        _banner.CustomMinimumSize = new Vector2(420, 0);
+        _banner.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(28, 12));
+        var rows = new VBoxContainer();
+        rows.AddThemeConstantOverride("separation", 4);
+        _bannerKind.HorizontalAlignment = HorizontalAlignment.Center;
+        rows.AddChild(_bannerKind);
+        _bannerTitle.HorizontalAlignment = HorizontalAlignment.Center;
+        rows.AddChild(_bannerTitle);
+        rows.AddChild(HudStyle.Rule(6));
+        _bannerLines.AddThemeConstantOverride("separation", 3);
+        rows.AddChild(_bannerLines);
+        _banner.AddChild(rows);
+        _banner.Visible = false;
+        AddChild(_banner);
+    }
+
+    /// <summary>
+    /// Announce a moment (the owner's first playtest: a level gained or a quest completed showed nothing but a number changing). The
+    /// same moment again while it shows or waits only adds its lines.
+    /// </summary>
+    public void Announce(string kind, string title, Color tone, params (string Text, string? Key)[] lines)
+    {
+        var same = _announcements.FirstOrDefault(a => a.Kind == kind && a.Title == title);
+        if (same is null)
+        {
+            same = new Announcement(kind, title, tone);
+            _announcements.Add(same);
+            if (_announcements.Count == 1)
+                ShowBanner();
+        }
+        foreach (var (text, key) in lines)
+            AddLine(same, text, key);
+    }
+
+    /// <summary>Add what a moment brought ("+40 XP", "Iron Billet") to its announcement while it shows or waits; false when it is gone.</summary>
+    public bool AnnounceMore(string kind, string title, string text)
+    {
+        if (_announcements.FirstOrDefault(a => a.Kind == kind && a.Title == title) is not { } announcement)
+            return false;
+        AddLine(announcement, text, null);
+        return true;
+    }
+
+    private void AddLine(Announcement announcement, string text, string? key)
+    {
+        if (announcement.Lines.Any(l => l.Text == text))
+            return;
+        announcement.Lines.Add((text, key));
+        if (_announcements[0] != announcement)
+            return;
+        _bannerLines.AddChild(BannerLine(text, key));
+        _bannerSince = Math.Min(_bannerSince, BannerHold - 1.5);
+    }
+
+    private void ShowBanner()
+    {
+        var announcement = _announcements[0];
+        _bannerKind.Text = announcement.Kind;
+        _bannerKind.AddThemeColorOverride("font_color", announcement.Tone);
+        _bannerTitle.Text = announcement.Title;
+        foreach (var child in _bannerLines.GetChildren())
+        {
+            _bannerLines.RemoveChild(child);
+            child.QueueFree();
+        }
+        foreach (var (text, key) in announcement.Lines)
+            _bannerLines.AddChild(BannerLine(text, key));
+        _bannerSince = 0;
+        _banner.Modulate = new Color(1, 1, 1, 0);
+        _banner.Visible = true;
+    }
+
+    private static Control BannerLine(string text, string? key)
+    {
+        var row = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = MouseFilterEnum.Ignore };
+        row.AddThemeConstantOverride("separation", 8);
+        if (key is not null)
+            row.AddChild(new KeyCap(key, 15));
+        var words = HudStyle.Text(HudStyle.Body, 17, text.StartsWith('+') ? HudStyle.Brass : HudStyle.Ash).Say(text);
+        words.VerticalAlignment = VerticalAlignment.Center;
+        row.AddChild(words);
+        return row;
+    }
+
+    private const float BannerTop = 92;
+    private const double BannerHold = 4.5, BannerIn = 0.3, BannerOut = 0.8;
+
+    private void AnimateBanner(double delta)
+    {
+        if (_announcements.Count == 0)
+            return;
+        _bannerSince += delta;
+        double t = _bannerSince;
+        double alpha = t < BannerIn ? t / BannerIn : t > BannerHold ? 1 - (t - BannerHold) / BannerOut : 1;
+        _banner.Modulate = new Color(1, 1, 1, (float)Math.Clamp(alpha, 0, 1));
+        _banner.OffsetTop = _banner.OffsetBottom = BannerTop + (t < BannerIn ? (float)(1 - t / BannerIn) * 10 : 0);
+        if (t < BannerHold + BannerOut)
+            return;
+        _announcements.RemoveAt(0);
+        _banner.Visible = false;
+        if (_announcements.Count > 0)
+            ShowBanner();
+    }
+
+    /// <summary>A moment to announce, and the lines it has gathered.</summary>
+    private sealed record Announcement(string Kind, string Title, Color Tone)
+    {
+        public List<(string Text, string? Key)> Lines { get; } = new();
+    }
+
+    /// <summary>
+    /// Where the HUD reaches into the middle of the screen (the companions under the plate, the tracked quest at the right): the
+    /// management sheets keep clear of these, so a screen never hides them.
+    /// </summary>
+    public IEnumerable<Rect2> Intrusions()
+    {
+        if (_companions.IsVisibleInTree())
+            yield return _companions.GetGlobalRect();
+        if (_tracker.IsVisibleInTree())
+            yield return _tracker.GetGlobalRect();
     }
 
     /// <summary>
@@ -470,6 +619,35 @@ public partial class HudView : Control
         }
 
         SetFormulas(sheet.Formulas, sheet.Casting);
+        SetQuick(sheet.Quick);
+    }
+
+    /// <summary>The quick slots on their keys: the framed icon with its key on the corner, the name and how many are left.</summary>
+    private void SetQuick(IReadOnlyList<HudQuick> quick)
+    {
+        string keys = string.Join("|", quick.Select(q => $"{q.Key}:{q.Id}:{q.Count}"));
+        if (keys == _quickKeys)
+            return;
+        _quickKeys = keys;
+        foreach (var child in _quick.GetChildren())
+            child.QueueFree();
+        foreach (var slot in quick)
+        {
+            var unit = new HBoxContainer();
+            unit.AddThemeConstantOverride("separation", 8);
+            var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
+            holder.AddChild(HudStyle.IconSlot(_icons.For(slot.Id), 34));
+            holder.AddChild(new KeyCap(slot.Key, 14) { Position = new Vector2(-6, 20) });
+            unit.AddChild(holder);
+            var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
+            words.AddThemeConstantOverride("separation", -1);
+            words.AddChild(HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(slot.Name));
+            words.AddChild(HudStyle.Text(HudStyle.Caps, 14, HudStyle.Muted, caps: true).Say($"×{slot.Count}"));
+            unit.AddChild(words);
+            _quick.AddChild(unit);
+            Quiet(unit);
+        }
+        _quick.Visible = quick.Count > 0;
     }
 
     private void SetFormulas(IReadOnlyList<HudFormula> formulas, string? casting)
@@ -755,6 +933,7 @@ public partial class HudView : Control
     public override void _Process(double delta)
     {
         _clock += delta;
+        AnimateBanner(delta);
         if (_death.Visible && _clock >= _deathUntil)
             _death.Visible = false;
         for (int i = _live.Count - 1; i >= 0; i--)

@@ -283,6 +283,13 @@ public partial class SoundEvents : Node
         s.Subscribe<PlayerDied>(_ => _bank.Play("sfx.player.death", _feet));
         s.Subscribe<CommandRejected>(_ => _bank.Play("sfx.ui.error"));
         s.Subscribe<ReplyChosen>(_ => _bank.Play("sfx.ui.select"));
+        // A level gained and a quest finished are heard as well as announced (the owner's first playtest), until they have their own sound.
+        s.Subscribe<ExperienceGained>(e =>
+        {
+            if (e.LevelsGained > 0)
+                _bank.Play("sfx.ui.select");
+        });
+        s.Subscribe<QuestCompleted>(_ => _bank.Play("sfx.ui.select"));
         s.Subscribe<ItemBought>(_ => _bank.Play("sfx.ui.select"));
         s.Subscribe<ItemSold>(_ => _bank.Play("sfx.ui.select"));
         s.Subscribe<ConversationEnded>(_ => _bank.Play("sfx.ui.back"));

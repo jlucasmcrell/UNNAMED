@@ -364,6 +364,18 @@ public partial class Hud : CanvasLayer
         _tracker.Visible = !_debug.Visible;
     }
 
+    /// <summary>A moment the player should not miss - a level gained, a quest finished - announced at the top centre; classic toasts it.</summary>
+    public void Announce(string kind, string title, Color tone, params (string Text, string? Key)[] lines)
+    {
+        if (_view is not null)
+            _view.Announce(kind, title, tone, lines);
+        else
+            Toast($"{kind}: {title}", 6);
+    }
+
+    /// <summary>Add what the moment brought to its announcement while it still shows.</summary>
+    public void AnnounceMore(string kind, string title, string text) => _view?.AnnounceMore(kind, title, text);
+
     public void Toast(string text, double seconds = 4)
     {
         if (_view is not null)

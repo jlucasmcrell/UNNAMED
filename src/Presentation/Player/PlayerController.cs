@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -134,6 +135,32 @@ public sealed class PlayerController
     }
 
     /// <summary>Use the first carried item that has a use (the salve). False when there is none.</summary>
+    /// <summary>
+    /// The quick slots, 1 to 3 (the owner's first playtest): one for each kind of usable thing carried - a salve, a draught - in a fixed
+    /// order, so a kind keeps its key while any of it is left.
+    /// </summary>
+    public IReadOnlyList<(string DefId, int Count, EntityId First)> QuickItems()
+    {
+        var simulation = _session.Simulation!;
+        var uses = _session.Setup.Combat.UseEffects;
+        return simulation.Player.Inventory.Where(e => uses.ContainsKey(e.DefId))
+            .GroupBy(e => e.DefId, StringComparer.Ordinal)
+            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .Take(3)
+            .Select(g => (g.Key, g.Sum(e => e.Count), g.First().ItemId))
+            .ToList();
+    }
+
+    /// <summary>Use what is in a quick slot (0 to 2); false when it is empty.</summary>
+    public bool UseQuick(int slot)
+    {
+        var quick = QuickItems();
+        if (slot >= quick.Count)
+            return false;
+        _session.Submit(new UseItemCommand(_session.Simulation!.PlayerId, quick[slot].First));
+        return true;
+    }
+
     public bool UseConsumable()
     {
         var simulation = _session.Simulation!;
