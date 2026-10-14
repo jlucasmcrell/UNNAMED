@@ -1,0 +1,213 @@
+OTHERREACH - THIRD-PARTY SOURCE ASSET -> GAME-READY ASSET RUNBOOK
+===================================================================
+Machine: BEAST (RTX 3090).  Blender 5.2.2.  Godot 4.7.2 mono.  Written and tested 2026-10-14.
+
+Tools in this folder (tools\asset_pipeline\):
+  convert_asset.py      Blender script: import -> normalise -> maps (resize or bake) -> LOD0/1/2 -> GLBs + meta
+  convert_batch.py      runs convert_asset.py over a JSON job list, then validate_godot.py
+  validate_godot.py     loads ready\<id>\ folders in headless Godot exactly as ArtLibrary does; PASS/FAIL per asset
+  validate_runtime.gd   the GDScript that validate_godot.py runs (copied into a throwaway probe project)
+
+Every command below was run on these sources and passed (outputs in C:\Otherreach_Recovery\asset_work\test\):
+  rock_cos_bigrock_01        Cosmos zip  Big Rock (MVV_LargeRocksSet_BigRock01)   4K   13416 / 6708 / 2682 tris
+  prop_cos_wooden_bucket_01  Cosmos zip  Wooden Bucket (MET_Bucket01)            2K   20000 / 10000 / 3999 (cap 20000 from 104654)
+  env_ph_tree_stump_01       Poly Haven  tree_stump_01_4k.gltf                   2K   41046 / 20523 / 8209
+  env_bk_birch_trunk_01      BlenderKit  birch-tree_2K ... .blend (bake path)    2K    9366 / 4683 / 1872
+Each takes 5-15 s of CPU. No GPU needed.
+
+
+1. CONVENTIONS (what the game actually reads - ArtLibrary.cs, finalize.py, shipped metas)
+-----------------------------------------------------------------------------------------
+Units / axes   metres, 1 unit = 1 m, no node scale. glTF +Y up. Blender -Y front becomes glTF +Z.
+               One node named <id>, one mesh named <id>_mesh, all transforms applied.
+               Cosmos FBX are Unreal centimetres; Blender's FBX importer applies the 0.01 unit scale itself
+               (Big Rock imports at 5.52 x 5.23 x 3.30 m). Check source_dimensions_m in the meta every time.
+Pivot          footprint centre (bbox centre in X/Z) with the lowest vertex on Y = 0. LODs keep LOD0's frame
+               (they are not re-origined, so the swap cannot pop); they drift a few mm, which is allowed.
+Materials      per material slot, three maps embedded in the GLB:
+                 basecolor   sRGB. RGBA + alpha clip (alphaMode MASK 0.5) only if the source is cut out.
+                 normal      OpenGL (+Y) tangent space.
+                 orm         ONE image: R = ambient occlusion, G = roughness, B = metallic, bound to BOTH
+                             occlusionTexture and metallicRoughnessTexture. ArtLibrary.Filter reads AO from R and
+                             fixes roughness to G; 1,916 of 1,980 shipped materials are this "true ORM" form.
+               Materials are named MAT_<id>_<n> (LODs MAT_<id>_<n>_lod<k>); single-sided except category
+               foliage/tree.
+Textures       Embedded JPEG (q92) by default; PNG for a cut-out base colour or with --image-format PNG.
+               No KTX2: the game loads GLBs at runtime with GltfDocument and its TextureCache builds the
+               compressed DDS copies itself (texture_cache\ under the workspace; regenerate with the game's
+               --texture-cache run after adding assets). Resolution policy:
+                 --res 4096  hero (landmarks, large rocks/cliffs, anything filling the screen)
+                 --res 2048  standard (props, furniture, stumps, mid rocks)    <- default
+                 --res 1024  small clutter (cups, coins, bottles)
+               Never upscaled: the meta records native_texture_resolution. Source 8K (e.g. MVV_Axe) is cut to --res.
+LODs           lod1 = 0.5, lod2 = 0.2 of LOD0 triangles (the ratios cw_boulder_a and the Cairnwold metas record);
+               --lods 0.5,0.2,0.07 adds a lod3 (ArtLibrary uses up to lod3). Collapse decimate after welding at
+               2e-5 x size (an unwelded scan stalls the decimator - cw_boulder_a's note). LOD textures halve per
+               level (4K -> 2K -> 1K), never below 256.
+               EVERY LEVEL KEEPS ITS TEXTURES: ArtLibrary.ModelLevels stops the chain at the first level whose
+               surfaces lack an albedo texture ("an untextured level would draw white").
+               Triangle budget for LOD0: use --max-tris on dense props (Cosmos props are 50k-300k):
+                 small prop 5k-10k, prop/furniture 15k-25k, rock/boulder 15k-40k, hero/landmark up to 80k.
+               Switch distances are the game's (generic ladder 4x/10x/22x size; tree ladder 35/80/150 m).
+Collision      none by default. ArtLibrary never reads _collision_* files; the game sizes blockers from the
+               mesh footprint (ArtLibrary.TurnedFootprint). --collision box|hull writes
+               <id>_collision_box.glb / _hull.glb (untextured) for tools that want one.
+Naming         lower-case [a-z0-9_]. <family>_<source tag>_<name>[_NN]:
+                 rock_cos_bigrock_01, prop_cos_wooden_bucket_01, env_ph_tree_stump_01, flora_bk_birch_tree_a
+               The NAME DRIVES SHADING in ArtLibrary: ids starting flora_ / veg_ / env_ph_tree (and cw_ + a plant
+               word) get foliage treatment unless they contain stump/bark/log/dead; an id whose last word is
+               "tree" (or birch/pine) takes the tree LOD ladder. Name plants flora_* and trees *_tree[_x].
+               Do not reuse an id that exists in primary\ready or fallback\ready (check both).
+
+Files per asset (ready\<id>\):
+  <id>.glb  <id>_lod1.glb  <id>_lod2.glb  [<id>_lod3.glb]  [<id>_collision_box.glb]  <id>_meta.json
+  [<id>_preview.png  4-view textured Workbench sheet when --preview is given; delete before shipping]
+
+
+2. CONVERTING
+-------------
+Blender command form (always pass --python-exit-code 1 so a Python error fails the process):
+
+  set B="C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
+  set T=C:\Otherreach_Recovery\UNNAMED\tools\asset_pipeline
+
+(a) Cosmos FBX + PNG zip (Cosmos_Premium\Assets\*.zip)
+  %B% --background --factory-startup --python-exit-code 1 --python %T%\convert_asset.py -- ^
+    --source "C:\Otherreach_External_Assets\Cosmos_Premium\Assets\Big Rock (MVV_LargeRocksSet_BigRock01).zip" ^
+    --mesh BigRock_01 --asset-id rock_cos_bigrock_01 --res 4096 --category rock ^
+    --out C:\Otherreach_Recovery\asset_work\test --preview
+
+  * Zip layout: <pack>\Meshes\SM_*_LOD0.fbx + <pack>\Textures\T_<set>_<px>_<suffix>.png. Only the FBX and the
+    maps used are extracted (to --work, default C:\Otherreach_Recovery\asset_work\_work\<id>\src).
+  * Suffixes, measured on MET_Bucket01 (do not trust the letter): _B = base colour (the only coloured map),
+    _C = curvature (grey - NOT colour), _ORM = AO/rough/metal (R equals _AO, G equals _R), _OpenGL_N = normal,
+    _N = DirectX twin, _G gloss, _S specular, _H height, _AO/_R/_M singles, _MSA/_SMR/_MM/_Mask/_SS other packs.
+    The script uses B + OpenGL_N + ORM (falls back to N with green flipped, and AO/R/M composed into ORM).
+  * Several FBX in one zip (Big Rock has BigRock_01 and BigRock_02): --mesh picks one; run once per mesh with
+    its own id. With no match the script lists the FBX names and stops.
+  * Several texture sets in one zip: matched by material name; if ambiguous it stops and names the sets.
+  * Licence: the zip carries no licence text. The meta says "UNVERIFIED" and status "licence_unverified" until
+    you pass --licence "..." --licence-evidence "..." from the Cosmos terms. Do not promote before that.
+  * Check downloads finished: a .zip.part beside it means in progress; _dl\status.txt shows the downloader.
+
+(b) Poly Haven glTF (PolyHaven\models\<name>\<name>_4k.gltf)
+  %B% --background --factory-startup --python-exit-code 1 --python %T%\convert_asset.py -- ^
+    --source C:\Otherreach_External_Assets\PolyHaven\models\tree_stump_01\tree_stump_01_4k.gltf ^
+    --asset-id env_ph_tree_stump_01 --res 2048 --category environment ^
+    --source-url https://polyhaven.com/a/tree_stump_01 --out C:\Otherreach_Recovery\asset_work\test --preview
+
+  * The local copies keep textures flat beside the .gltf while the .gltf points at textures\ - Blender prints
+    "Missing image file" ERROR lines on import; they are expected. The script re-finds each image by file
+    name; check the meta's material_records.channels say "image", never "const", for base/rough/normal.
+  * _arm is already ORM; the importer only wires G/B, so the script takes R as occlusion when the image
+    name contains arm/orm.
+  * Licence is filled automatically (CC0 1.0, polyhaven.com/license); status export_ready.
+  * Multi-object glTFs (fir_tree_01 has a/b/c LOD variants): --mesh <substring> keeps only matching objects.
+
+(c) BlenderKit .blend (BlenderKit\models\<slug>_<uuid>\*.blend)
+  %B% --background --factory-startup --python-exit-code 1 --python %T%\convert_asset.py -- ^
+    --source "C:\Otherreach_External_Assets\BlenderKit\models\birch-tree_84d2ebfa-3c9b-46e5-8a12-4ddba8d2c3fa\birch-tree_2K_b2faee4f-74ab-4a31-b7b3-2c681336d2f9.blend" ^
+    --asset-id env_bk_birch_trunk_01 --res 2048 --category environment ^
+    --out C:\Otherreach_Recovery\asset_work\test --preview
+
+  * Visible, renderable objects only. Collection instances / particle systems are made real and modifiers and
+    geometry nodes applied, then everything is joined.
+  * Each Principled input is traced: a plain image on the UVs is copied; anything else (RGB Curves on
+    roughness, normal-strength groups, non-identity Mapping, procedurals, colour mixes) is BAKED with Cycles
+    (CPU, EMIT for colour/roughness/metallic/alpha, NORMAL tangent for normals) onto the render UV map at --res.
+    The birch test baked roughness and normal (meta: channels rough "baked", normal "baked").
+    A mesh with no UVs gets a Smart UV Project first.
+  * The BlenderKit record (name, id, asset_base_id, is_free) is copied into the meta. Licence is per asset
+    (free = Royalty Free or CC0): look it up at blenderkit.com by the id and pass --licence/--licence-evidence.
+  * Note the BlenderKit "birch-tree" downloads are trunk scans (no crown), 2.8 m tall.
+
+Useful options: --target-height M (uniform scale to a height), --scale K, --yaw DEG, --max-tris N, --lods,
+--collision box|hull, --image-format PNG, --region CAIRNWOLD, --note "...", --save-blend (keeps the normalised
+scene in _work\<id>\ for inspection).
+
+Batch: write a JSON list (keys are the options with underscores; see the docstring of convert_batch.py and
+C:\Otherreach_Recovery\asset_work\test\jobs_test.json) and run
+  python %T%\convert_batch.py C:\Otherreach_Recovery\asset_work\test\jobs_test.json --out C:\Otherreach_Recovery\asset_work\test
+One Blender process per job; then all results are validated in Godot. Report: <out>\_batch_report.json.
+--skip-existing resumes a list. Exit 0 only if every job converted and passed.
+
+
+3. THE META (<id>_meta.json)
+----------------------------
+Counts and bounds are READ BACK FROM THE EXPORTED GLBs (index accessors, POSITION min/max, embedded image
+headers), never from intent - the failure check_metas.py exists for. Fields:
+  asset_id, name, category, region
+  source (full path), source_file (inner FBX/gltf/blend), source_sha256 + source_bytes (the zip/gltf/blend),
+  source_files [{path, sha256, bytes}] (every extracted map and mesh actually used), source_url, pack,
+  blenderkit {...}
+  licence, licence_url, licence_evidence, modification
+  built_by ("tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)"), built, command (exact arguments)
+  triangles (LOD0, scalar - the form check_metas.py compares), source_triangles
+  transform {dimensions_m{x,y,z}, min, max, source_dimensions_m, scale_factor, rescaled_by, yaw_deg, units,
+             glb_up_axis, glb_forward_axis, glb_axes, glb_origin}
+  materials, material_records [{source_material, native_px, lod0_px, cutout, channels{base,alpha,rough,
+             metal,ao,normal: image|baked|const}}], texture_sets (Cosmos), textures [{name, px, format, bytes}],
+  texture_resolution, native_texture_resolution, orm, orm_shared
+  lod_method, lod_status, lods {<id>_lodN: {ratio, path, triangles, texture_px, orm_shared, materials}}
+  collision_status, collision, collision_note, rigged false, sockets []
+  outputs [{file, bytes, sha256}]
+  status (export_ready | licence_unverified), game_integration "NOT PROMOTED", visual_acceptance "UNREVIEWED"
+Cross-check with:  python C:\af\otherreach_tools\cairnwold\check_metas.py --root <ready folder>
+
+
+4. VERIFYING
+------------
+  python %T%\validate_godot.py C:\Otherreach_Recovery\asset_work\test\rock_cos_bigrock_01
+  python %T%\validate_godot.py --all C:\Otherreach_Recovery\asset_work\test --json <report.json>
+
+Runs Godot_v4.7.2-stable_mono_win64_console.exe --headless on a probe project in
+C:\Otherreach_Recovery\asset_work\_godot_probe (override exe with UNNAMED_GODOT; DOTNET_ROOT defaults to
+C:\Program Files\dotnet). For <id>.glb and each _lodN it uses GLTFDocument.append_from_file on the file in place
+- the same call as ArtLibrary.LoadScene - and fails on: no load, no MeshInstance3D, any surface without an albedo
+texture, AO/roughness/metallic not one shared texture, LOD0 not on Y=0 or not centred (+-2 mm; LODs +-1 % of
+size), mesh resource name without the id, a LOD not lighter than the level before. It prints triangles, AABB,
+texture sizes and load time per level.
+(The repo's tools\godot_validate\validate_glb.gd uses load(), which needs the file imported into res:// first;
+it is for the in-project path, not for workspace files.)
+
+Visual check: --preview writes <id>_preview.png (4 views, textured). Look at it - a grey-only base colour means
+the wrong map was bound (that is how _C = curvature was caught).
+
+
+5. PROMOTING INTO THE GAME (by hand, after licence + visual review)
+-------------------------------------------------------------------
+Workspaces (PLAY.bat): --asset-root primary\  (region)   --asset-fallback fallback\  (shared depot)
+                       --bindings-overlay content\_art_bindings.json
+  1. Copy ready\<id>\ (without _preview.png) to
+       C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261014\primary\ready\<id>\
+     (or fallback\ready\ for depot-wide art). A file present in primary wins; missing levels fall through to
+     the depot per file (ArtLibrary prints "partial override" when that happens).
+  2. Bind it in the bindings JSON. The repo copy is C:\Otherreach_Recovery\UNNAMED\content\_art_bindings.json;
+     the playtest reads <playtest>\content\_art_bindings.json (PLAY.bat) and a workspace's bindings.json is the
+     overlay when no --bindings-overlay is given. Keys the game reads (ArtBindings.FromJson):
+       "structures":         {"<placement id>": {"model": "<id>", "material": "stone"}}
+       "structure_prefixes": {"<prefix>": {"models": ["<id_a>", "<id_b>"], "material": "stone"}}
+                             (one model per placement by FNV-1a hash of the placement id)
+       "doors" / "containers" / "nodes" / "stations" / "weapons" / "building_walls" likewise take "model".
+     Do NOT add "surface" for these assets: "surface" makes the model WEAR a world material over its own
+     relief (HollowView, Palette.Wear) and replaces the 4K textures you just made. "material" is the sound/
+     physics class (wood, stone, metal...).
+     Optionally add "models": {"<id>": {"category", "dims_m", "triangles", "lods": {"lod1": n, "lod2": n}}}
+     from the meta (the kit index; numbers must be the GLB's).
+  3. Rebuild the texture cache and look: run the playtest with UNNAMED_LOD_REPORT=1 to see the LOD ladder and
+     switch distances per model; ArtLibrary.Problems / the coverage report name anything that fell back to
+     greybox ("no file at ready/<id>/<id>.glb", "a surface without the full model's textures").
+  4. Set visual_acceptance / game_integration in the meta when accepted.
+
+
+6. KNOWN LIMITS
+---------------
+  * Cosmos licence text is not in the packs - every Cosmos meta is licence_unverified until filled.
+  * Cosmos props are dense (bucket 104,654 tris at LOD0): always pass --max-tris for props.
+  * Foliage with alpha cards (Cosmos bushes/flowers, BlenderKit trees with crowns) is supported by the
+    cut-out path but was NOT exercised here; collapse-decimating leaf cards ruins them - for trees use
+    _procgen_tree_lods.py style island removal / impostors instead of --lods ratios.
+  * Bake path uses CPU Cycles at 1 sample (exact for emission bakes); large atlases at 4K take minutes.
+  * 4K LOD0 GLBs are 15-25 MB (three 4K JPEGs). Keep 4K for heroes.
+  * Blender prints a harmless "More than one shader node tex image used for a texture" export warning and,
+    for Poly Haven, the "Missing image file" import errors described above.
