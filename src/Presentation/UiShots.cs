@@ -93,9 +93,16 @@ public sealed class UiShots
     private bool _sold;
     private bool _bought;
 
+    /// <summary>The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them.</summary>
+    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "" };
+
+    private readonly Action<string>? _screen;
+    private int _screens;
+
     public UiShots(GameSession session, PlayerController controller, CameraRig camera, InventoryPanel inventory, DialoguePanel dialogue,
-        JournalPanel journal, QuestDebugPanel questDebug, string outDirectory)
+        JournalPanel journal, QuestDebugPanel questDebug, string outDirectory, Action<string>? screen = null)
     {
+        _screen = screen;
         _session = session;
         _controller = controller;
         _camera = camera;
@@ -134,6 +141,17 @@ public sealed class UiShots
             {
                 _pending = null;
                 return shot;
+            }
+            return null;
+        }
+        if (_screen is not null && _frame > 30 && _screens < Screens.Length)
+        {
+            string name = Screens[_screens++];
+            _screen(name);
+            if (name.Length > 0)
+            {
+                _pending = "screen_" + name;
+                _wait = 12;
             }
             return null;
         }
@@ -250,7 +268,9 @@ public sealed class UiShots
                     break;
                 }
                 var (spawner, name) = Gallery[_look++];
-                var subject = simulation.Creatures.First(c => c.Key.StartsWith(spawner + "#", StringComparison.Ordinal));
+                // A creature the content no longer spawns where the gallery expects it is left out of the gallery, not the run.
+                if (simulation.Creatures.FirstOrDefault(c => c.Key.StartsWith(spawner + "#", StringComparison.Ordinal)) is not { } subject)
+                    break;
                 double facing = subject.Body.FacingMdeg / 1000.0 * Math.PI / 180;
                 var at = new Vector3((float)(subject.Body.XMm / 1000.0 + Math.Sin(facing) * 2.5), subject.Body.YMm / 1000f,
                     (float)(subject.Body.ZMm / 1000.0 + Math.Cos(facing) * 2.5));
@@ -262,7 +282,13 @@ public sealed class UiShots
             case 12:
                 // Down the road and west along Blackvein's rim to the boar's wallow, then straight at the boar, until it notices: a wandering
                 // boar facing away may not see the character arrive, but it hears a run inside 8 m.
-                var wallow = Boarish()!;
+                // Without the boar (content that spawns none at the wallow) the fight is skipped, and the run goes on to the seam.
+                if (Boarish() is not { } wallow)
+                {
+                    _step = 19;
+                    _waypoint = 0;
+                    break;
+                }
                 if (wallow.Mind != CreatureMind.Unaware)
                 {
                     _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);

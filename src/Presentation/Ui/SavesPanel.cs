@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the start screen and the saves list (the Phase-1 technical audit, B-01)
+// UNNAMED Presentation - the start screen and the saves list (the Phase-1 technical audit, B-01; the Field Instrument UI)
 // Godot presentation only: it reads save summaries and asks Main to start or load; nothing here holds game state (D-11)
 
 using System.Globalization;
@@ -12,13 +12,11 @@ namespace UNNAMED.Presentation.Ui;
 /// At launch: Continue - the newest save that loads, autosaves included - New Game, confirmed when saves exist, and every save with its
 /// backups and the save it displaced, each loadable by choice. In the game (L, or a failed quickload) the same list, and a way back.
 /// A save that cannot be loaded says why, and the copies of it that can be loaded are listed beneath it: nothing falls back silently.
+/// A STANDARD sheet: problems first, then a row a slot with its copies indented under it, and how saving happens in the hint.
 /// </summary>
 public partial class SavesPanel : CanvasLayer
 {
-    private readonly Label _title = new();
-    private readonly Label _message = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-    private readonly VBoxContainer _actions = new();
-    private readonly VBoxContainer _list = new();
+    private Sheet _sheet = null!;
     private GameSession _session = null!;
     private bool _atStart;
     private bool _confirming;
@@ -39,36 +37,7 @@ public partial class SavesPanel : CanvasLayer
     public override void _Ready()
     {
         Visible = false;
-        var screen = new Control();
-        screen.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        screen.MouseFilter = Control.MouseFilterEnum.Stop;   // the world behind takes no clicks
-        var shade = new ColorRect { Color = new Color(0, 0, 0, 0.55f) };
-        shade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        screen.AddChild(shade);
-        var center = new CenterContainer();
-        center.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        var panel = new PanelContainer { CustomMinimumSize = new Vector2(820, 0) };
-        var margin = new MarginContainer();
-        foreach (string side in new[] { "left", "right", "top", "bottom" })
-            margin.AddThemeConstantOverride("margin_" + side, 18);
-        var column = new VBoxContainer();
-        column.AddThemeConstantOverride("separation", 12);
-        _title.AddThemeFontSizeOverride("font_size", 30);
-        _message.AddThemeFontSizeOverride("font_size", 17);
-        _message.AddThemeColorOverride("font_color", new Color(1f, 0.78f, 0.55f));
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 420), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        _list.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        _list.AddThemeConstantOverride("separation", 6);
-        scroll.AddChild(_list);
-        column.AddChild(_title);
-        column.AddChild(_message);
-        column.AddChild(_actions);
-        column.AddChild(scroll);
-        margin.AddChild(column);
-        panel.AddChild(margin);
-        center.AddChild(panel);
-        screen.AddChild(center);
-        AddChild(screen);
+        _sheet = UiKit.Sheet(this, "Saves", "saves", UiKit.Standard);
     }
 
     /// <summary>The start screen: nothing runs until the player chooses.</summary>
@@ -117,39 +86,47 @@ public partial class SavesPanel : CanvasLayer
     private void Render()
     {
         var choice = _session.StartChoice();
-        _title.Text = _atStart ? "Otherreach" : $"Load a save   [{HelpPanel.Key("saves")}] or Escape: back to the game";
-        var notes = new List<string>();
-        if (_failure is not null)
-            notes.Add(_failure);
-        foreach (var passed in choice.PassedOver)
-            notes.Add($"{Describe(passed.Slot, passed.Copy)} ({When(passed)}) is not offered to Continue: {passed.Problem}. Its other copies are listed below.");
-        _message.Text = string.Join("\n", notes);
-        _message.Visible = notes.Count > 0;
+        _sheet.Head(_atStart ? "Otherreach" : "Saves", _atStart ? null : "saves", closable: !_atStart);
+        _sheet.SetHint(_atStart ? "" : $"{HelpPanel.Key("quicksave")} quicksaves · {HelpPanel.Key("quickload")} quickloads · autosaves are kept as you play");
+        UiKit.Clear(_sheet.Body);
+        Control? focus = null;
 
-        Clear(_actions);
+        if (_failure is not null)
+            _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound, _failure));
+        foreach (var passed in choice.PassedOver)
+            _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound,
+                $"{Describe(passed.Slot, passed.Copy)} ({When(passed)}) is not offered to Continue: {passed.Problem}. Its other copies are listed below."));
+
         if (_atStart)
         {
+            var actions = new VBoxContainer();
+            actions.AddThemeConstantOverride("separation", 8);
             if (choice.Continue is { } next)
-                Action(_actions, $"Continue   {Describe(next.Slot, next.Copy)}, {When(next)}, {Played(next)}", () => Load?.Invoke(next.Slot, next.Copy), focus: true);
+            {
+                var resume = Action($"Continue   {Describe(next.Slot, next.Copy)}, {When(next)}, {Played(next)}", () => Load?.Invoke(next.Slot, next.Copy), UiKit.Kind.Primary);
+                resume.Alignment = HorizontalAlignment.Left;
+                actions.AddChild(resume);
+                focus = resume;
+            }
             if (_confirming)
             {
-                var warning = new Label
-                {
-                    Text = "A new game uses the same save slots. Its autosaves and quicksaves will replace these over time. Start a new game?",
-                    AutowrapMode = TextServer.AutowrapMode.WordSmart,
-                };
-                warning.AddThemeFontSizeOverride("font_size", 17);
-                _actions.AddChild(warning);
-                Action(_actions, "Yes, start a new game", () => NewGame?.Invoke(), focus: true);
-                Action(_actions, "No", () =>
+                actions.AddChild(UiKit.Callout(HudStyle.Ember,
+                    "A new game uses the same save slots. Its autosaves and quicksaves will replace these over time. Start a new game?"));
+                var answers = new HBoxContainer();
+                answers.AddThemeConstantOverride("separation", 8);
+                answers.AddChild(Action("Yes, start a new game", () => NewGame?.Invoke(), UiKit.Kind.Destructive));
+                var no = Action("No", () =>
                 {
                     _confirming = false;
                     Render();
                 });
+                answers.AddChild(no);
+                actions.AddChild(answers);
+                focus = no;
             }
             else
             {
-                Action(_actions, "New game", () =>
+                var fresh = Action("New game", () =>
                 {
                     if (choice.NewGameAsksFirst)
                     {
@@ -160,43 +137,75 @@ public partial class SavesPanel : CanvasLayer
                     {
                         NewGame?.Invoke();
                     }
-                }, focus: choice.Continue is null);
+                }, choice.Continue is null ? UiKit.Kind.Primary : UiKit.Kind.Normal);
+                fresh.Alignment = HorizontalAlignment.Left;
+                actions.AddChild(fresh);
+                focus ??= fresh;
             }
-            Action(_actions, "Quit", () => Quit?.Invoke());
+            var quit = Action("Quit", () => Quit?.Invoke(), UiKit.Kind.Destructive);
+            quit.Alignment = HorizontalAlignment.Left;
+            actions.AddChild(quit);
+            _sheet.Body.AddChild(actions);
+        }
+
+        var list = UiKit.Section("Saves", choice.Saves.IsEmpty ? "" : $"{choice.Saves.Length}, newest first");
+        list.AddThemeConstantOverride("separation", 4);
+        if (choice.Saves.IsEmpty)
+            list.AddChild(UiKit.EmptyState("No saves yet", "No saves yet.", "Quicksave", "quicksave"));
+        bool newest = true;
+        foreach (var save in choice.Saves)
+        {
+            var load = Row(list, save, newest && save.Problem is null);
+            if (newest && !_atStart)
+                focus ??= load;
+            newest = false;
+            foreach (var copy in _session.OtherCopies(save.Slot))
+                Row(list, copy, false);
+        }
+        _sheet.Body.AddChild(list);
+        if (!_atStart)
+        {
+            var back = Action("Back to the game", () => Closed?.Invoke());
+            back.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+            _sheet.Body.AddChild(back);
+            focus ??= back;
+        }
+        if (focus is not null)
+            focus.CallDeferred(Control.MethodName.GrabFocus);
+    }
+
+    /// <summary>A save's row: its name, when it was written and how long was played; Load at the right (primary on the newest).</summary>
+    private Button? Row(VBoxContainer list, SaveSummary save, bool primary)
+    {
+        bool copy = save.Copy != SaveCopy.Current;
+        var row = UiKit.Row(null, Describe(save.Slot, save.Copy), $"{When(save)} · {Played(save)}", copy ? HudStyle.Ash : HudStyle.Bone, copy ? 32 : 40);
+        if (copy)
+            row.Root.AddThemeConstantOverride("separation", 12);
+        Button? load = null;
+        // A damaged save may still give up what survives (§7.2: partial recovery beats none); one this build cannot read, nothing.
+        if (save.Problem is null || save.Problem.StartsWith("it is damaged", StringComparison.Ordinal))
+        {
+            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save.Slot, save.Copy),
+                primary ? UiKit.Kind.Primary : UiKit.Kind.Normal, compact: copy);
+            row.Root.AddChild(load);
+        }
+        if (save.Problem is { } problem)
+        {
+            row.Secondary.Text += $"\n{problem}";
+            row.Secondary.AddThemeColorOverride("font_color", HudStyle.Wound);
+        }
+        if (copy)
+        {
+            var indent = new MarginContainer();
+            indent.AddThemeConstantOverride("margin_left", 32);
+            indent.AddChild(row.Root);
+            list.AddChild(indent);
         }
         else
         {
-            Action(_actions, "Back to the game", () => Closed?.Invoke(), focus: true);
+            list.AddChild(row.Root);
         }
-
-        Clear(_list);
-        if (choice.Saves.IsEmpty)
-            Line(_list, "No saves yet.", 17);
-        foreach (var save in choice.Saves)
-        {
-            Row(save);
-            foreach (var copy in _session.OtherCopies(save.Slot))
-                Row(copy);
-        }
-    }
-
-    private void Row(SaveSummary save)
-    {
-        var row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 14);
-        bool copy = save.Copy != SaveCopy.Current;
-        var label = new Label
-        {
-            Text = (copy ? "      " : "") + $"{Describe(save.Slot, save.Copy)}   {When(save)}   {Played(save)}" + (save.Problem is { } problem ? $"\n      {problem}" : ""),
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-        };
-        label.AddThemeFontSizeOverride("font_size", copy ? 16 : 17);
-        row.AddChild(label);
-        // A damaged save may still give up what survives (§7.2: partial recovery beats none); one this build cannot read, nothing.
-        if (save.Problem is null || save.Problem.StartsWith("it is damaged", StringComparison.Ordinal))
-            Action(row, save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save.Slot, save.Copy));
-        _list.AddChild(row);
+        return load;
     }
 
     /// <summary>A slot as a player reads it: "Quick save", "Autosave 3", a manual save by its name; and which copy.</summary>
@@ -224,30 +233,7 @@ public partial class SavesPanel : CanvasLayer
         return minutes >= 60 ? $"{minutes / 60} h {minutes % 60:00} min played" : $"{minutes} min played";
     }
 
-    private static void Action(Container parent, string text, Action pressed, bool focus = false)
-    {
-        var button = new Button { Text = text, Alignment = HorizontalAlignment.Left };
-        button.AddThemeFontSizeOverride("font_size", 18);
-        // After the press has been handled: what it does may rebuild the list that holds the button.
-        button.Pressed += () => Callable.From(pressed).CallDeferred();
-        parent.AddChild(button);
-        if (focus)
-            button.CallDeferred(Control.MethodName.GrabFocus);
-    }
-
-    private static void Line(Container parent, string text, int size)
-    {
-        var label = new Label { Text = text };
-        label.AddThemeFontSizeOverride("font_size", size);
-        parent.AddChild(label);
-    }
-
-    private static void Clear(Node parent)
-    {
-        foreach (var child in parent.GetChildren())
-        {
-            parent.RemoveChild(child);
-            child.QueueFree();
-        }
-    }
+    /// <summary>A button whose press runs after the press is handled: what it does may rebuild the list that holds it.</summary>
+    private static Button Action(string text, Action pressed, UiKit.Kind kind = UiKit.Kind.Normal, bool compact = false) =>
+        UiKit.Action(text, () => Callable.From(pressed).CallDeferred(), kind, compact, id: text);
 }

@@ -34,6 +34,7 @@ public partial class Main : Node3D
 {
     /// <summary>Input actions for the formula keys, 4 to 6.</summary>
     private static readonly string[] CastKeys = { "cast_1", "cast_2", "cast_3" };
+    private static readonly string[] QuickKeys = { "quick_1", "quick_2", "quick_3" };
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
@@ -57,6 +58,9 @@ public partial class Main : Node3D
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
+    private SystemMenuPanel _menu = null!;
+    private EffectsPanel _effectsPanel = null!;
+    private CompanionsPanel _companionsPanel = null!;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Audio.SoundBank _sounds = null!;
@@ -366,6 +370,25 @@ public partial class Main : Node3D
         _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
+        _effectsPanel = new EffectsPanel { Name = "Effects" };
+        _effectsPanel.Bind(_session);
+        AddChild(_effectsPanel);
+        _companionsPanel = new CompanionsPanel { Name = "Companions" };
+        _companionsPanel.Bind(_session, _controller);
+        AddChild(_companionsPanel);
+        _menu = new SystemMenuPanel
+        {
+            Name = "SystemMenu",
+            Entries = new SystemMenuPanel.Entry[]
+            {
+                new("You", "Character", "character", () => Show(_character)), new("You", "Inventory", "inventory", () => OpenInventory(null)),
+                new("You", "Effects", null, () => Show(_effectsPanel)),
+                new("The world", "Journal", "journal", () => Show(_journal)), new("The world", "Companions", null, () => Show(_companionsPanel)),
+                new("System", "Save and load", "saves", () => _saves.OpenInGame()), new("System", "Controls and help", "help", _help.Toggle),
+            },
+            Quit = () => GetTree().Quit(0),
+        };
+        AddChild(_menu);
         var dial = _assets.Icon("ui.hud.compass");
         if (dial is null)
             _art.Coverage.Fallback("icon", "compass", "no compass dial in the icon manifest: a plain strip", "ui.hud.compass");
@@ -446,7 +469,34 @@ public partial class Main : Node3D
             _showcase = new Showcase(_session, _controller, _camera, _dialogue, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
         }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
-            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots);
+            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, name =>
+            {
+                CloseScreens();
+                switch (name)
+                {
+                    case "menu":
+                        _menu.Visible = true;
+                        break;
+                    case "character":
+                        Show(_character);
+                        break;
+                    case "journal":
+                        Show(_journal);
+                        break;
+                    case "effects":
+                        Show(_effectsPanel);
+                        break;
+                    case "companions":
+                        Show(_companionsPanel);
+                        break;
+                    case "help":
+                        _help.Toggle();
+                        break;
+                    case "saves":
+                        _saves.OpenInGame();
+                        break;
+                }
+            });
         }
         else if (playthrough is not null)
         {
@@ -833,15 +883,47 @@ public partial class Main : Node3D
     }
 
     /// <summary>
-    /// A panel that takes the keys and the mouse is open: a conversation, the inventory (on the character, a container, a trader or a
-    /// station), the character sheet or the saves list (the Phase-1 technical audit, L-27). While one is, no gameplay key reaches the world,
-    /// and the world runs on (the owner's ruling: nothing pauses for a panel). The journal, the help and the quest debugger are overlays:
-    /// they take no keys, and play goes on under them.
+    /// A panel that takes the keys and the mouse is open: a conversation, or a management screen - the System Menu, the inventory (on the
+    /// character, a container, a trader or a station), the character sheet, the journal, effects, companions, the controls or the saves
+    /// list (the Phase-1 technical audit, L-27; the Field Instrument UI). While one is, no gameplay key reaches the world, and the world
+    /// runs on (the owner's ruling: nothing pauses for a panel). The quest debugger is an overlay: it takes no keys.
     /// </summary>
-    public bool Modal => _inventory.Visible || _dialogue.Visible || _character.Visible || _saves.Visible;
+    public bool Modal => _dialogue.Visible || Screen is not null;
 
-    /// <summary>Escape, outside any panel: the player wants the pointer until they click back into the world.</summary>
-    private bool _mouseFreed;
+    /// <summary>The management screen open, if any: one at a time.</summary>
+    private CanvasLayer? Screen =>
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
+
+    /// <summary>Close whatever management screen is open, back to play.</summary>
+    private void CloseScreens()
+    {
+        CloseInventory();
+        _saves.Close();
+        if (_help.Visible)
+            _help.Toggle();
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel })
+            screen.Visible = false;
+    }
+
+    /// <summary>Open a screen in place of whatever was open: a destination replaces the menu, and a screen's own key replaces another.</summary>
+    private void Show(CanvasLayer screen)
+    {
+        CloseScreens();
+        screen.Visible = true;
+        if (screen == _character)
+            _character.Refresh();
+        if (screen == _journal)
+            _journal.Refresh(_session);
+    }
+
+    /// <summary>A screen's own key: closes it when it is the one open, otherwise opens it in place of any other.</summary>
+    private void Toggle(CanvasLayer screen, Action open)
+    {
+        bool was = screen.Visible;
+        CloseScreens();
+        if (!was)
+            open();
+    }
 
     public override void _UnhandledInput(InputEvent @event)
     {
@@ -858,21 +940,18 @@ public partial class Main : Node3D
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal:
                 _camera.Zoom(0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } when _mouseFreed && !Modal:
-                _mouseFreed = false;   // the mouse is taken back at the end of the frame, so this click is not also a swing
-                break;
         }
     }
 
     /// <summary>
-    /// Who has the mouse, decided once a frame from what is open - never set here and there (L-27): the game's while nothing modal is open
-    /// and the player has not freed it, the pointer's otherwise. A harness run and a headless one leave it alone.
+    /// Who has the mouse, decided once a frame from what is open - never set here and there (L-27): the game's while nothing modal is open,
+    /// the pointer's otherwise. A harness run and a headless one leave it alone.
     /// </summary>
     private void UpdateMouse()
     {
         if (_scripted || DisplayServer.GetName() == "headless")
             return;
-        var wanted = Modal || _mouseFreed ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        var wanted = Modal ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
         if (Input.MouseMode != wanted)
             Input.MouseMode = wanted;
     }
@@ -882,12 +961,11 @@ public partial class Main : Node3D
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
         bool looting = _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
-                       _inventory.OpenTrader is null && !_dialogue.Visible && !_character.Visible && !_saves.Visible;
+                       _inventory.OpenTrader is null && !_dialogue.Visible;
 
-        // A panel's own keys: the saves list's, a conversation's (the number keys answer, Escape walks away - M4), the inventory's and
-        // the sheet's; and the overlays, open over anything.
-        if (_saves.Visible && (Input.IsActionJustPressed("saves") || Input.IsActionJustPressed("release_mouse")))
-            _saves.Close();
+        // A conversation's keys (the number keys answer, Escape walks away - M4); then Escape and the screens' own keys (the Field
+        // Instrument UI): Escape closes the screen open back to play, and with nothing open it opens the System Menu. A screen's key
+        // opens it in place of any other, and closes it again.
         if (_dialogue.Visible)
         {
             for (int n = 1; n <= 9; n++)
@@ -898,28 +976,32 @@ public partial class Main : Node3D
             if (Input.IsActionJustPressed("release_mouse"))
                 _dialogue.Leave();
         }
-        if (Input.IsActionJustPressed("inventory") && !_dialogue.Visible && !_saves.Visible)
+        else if (Input.IsActionJustPressed("release_mouse"))
         {
-            if (_inventory.Visible)
-                CloseInventory();
+            if (Screen is not null)
+                CloseScreens();
             else
-                OpenInventory(null);
+                _menu.Visible = true;
+        }
+        else
+        {
+            if (Input.IsActionJustPressed("inventory"))
+                Toggle(_inventory, () => OpenInventory(null));
+            if (Input.IsActionJustPressed("character"))
+                Toggle(_character, () => Show(_character));
+            if (Input.IsActionJustPressed("journal"))
+                Toggle(_journal, () => Show(_journal));
+            if (Input.IsActionJustPressed("help"))
+                Toggle(_help, _help.Toggle);
+            if (Input.IsActionJustPressed("saves"))
+                Toggle(_saves, () => _saves.OpenInGame());
         }
         if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
             _inventory.TakeAll();
         if (looting && Input.IsActionJustPressed("interact"))
             CloseInventory();
-        if (Input.IsActionJustPressed("character") && !_dialogue.Visible && !_saves.Visible)
-        {
-            _character.Visible = !_character.Visible;
-            _character.Refresh();
-        }
-        if (Input.IsActionJustPressed("help"))
-            _help.Toggle();
         if (Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
-        if (Input.IsActionJustPressed("journal"))
-            _journal.Visible = !_journal.Visible;
         if (Input.IsActionJustPressed("quest_debug"))
         {
             _questDebug.Visible = !_questDebug.Visible;
@@ -938,11 +1020,6 @@ public partial class Main : Node3D
             return;
         }
 
-        if (Input.IsActionJustPressed("saves"))
-        {
-            _saves.OpenInGame();
-            return;
-        }
         var stick = new Vector2(
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
@@ -976,6 +1053,11 @@ public partial class Main : Node3D
         }
         if (Input.IsActionJustPressed("use") && !_controller.UseConsumable())
             _hud.Toast("Nothing to use", 2);
+        for (int q = 0; q < QuickKeys.Length; q++)
+        {
+            if (Input.IsActionJustPressed(QuickKeys[q]) && !_controller.UseQuick(q))
+                _hud.Toast($"Quick slot {q + 1} is empty - it fills with what you carry to use", 2);
+        }
 
         if (Input.IsActionJustPressed("interact") && _controller.FocusOn(_camera) is { } focus)
         {
@@ -1028,21 +1110,23 @@ public partial class Main : Node3D
             QuickSave();
         if (Input.IsActionJustPressed("quickload"))
             QuickLoad();
-        if (Input.IsActionJustPressed("release_mouse"))
-            _mouseFreed = true;
     }
 
     /// <summary>
     /// Whatever the panel was opened from - a container, a corpse, a station, a trader - it stays open only while the body is in reach
-    /// of where that was (the owner's M6 playtest: the same rule for all of them). A corpse searched bare closes its column, and the
-    /// panel still closes once the body walks away. The inventory opened with its own key has nowhere to be near, and stays.
+    /// of where that was (the owner's M6 playtest: the same rule for all of them), and a corpse searched bare closes it. The inventory
+    /// opened with its own key has nowhere to be near, and stays.
     /// </summary>
     private void KeepContainerInReach()
     {
         if (!_inventory.Visible || _inventory.Anchor is not { } anchor)
             return;
+        // A corpse searched bare is gone with what it held: the panel opened for it goes too, not back to the pack (the owner's first playtest).
         if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
-            _inventory.ContainerGone();
+        {
+            CloseInventory();
+            return;
+        }
         long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
         if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
@@ -1164,7 +1248,7 @@ public partial class Main : Node3D
             combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
-            _inventory.OpenContainer, _inventory.Visible || _journal.Visible || _character.Visible || _help.Visible, delta);
+            _inventory.OpenContainer, Screen is not null, delta);
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         LogStates(simulation, delta, speed);
@@ -1180,17 +1264,17 @@ public partial class Main : Node3D
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Describe(door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
-                ? $"[{HelpPanel.Key("interact")}] Open the {Describe(container.Key)}"
-                : $"[{HelpPanel.Key("interact")}] Search the {_session.DisplayName(container.DefId)}",
+                ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key)}"
+                : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
-            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Describe(station.Key)}",
-            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {_session.DisplayName(npc.Key)} up",
-            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {_session.DisplayName(npc.Key)}",
+            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key)}",
+            { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {Names.Of(_session, npc.Key)} up",
+            { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {Names.Of(_session, npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
-            { } item => $"[{HelpPanel.Key("interact")}] Pick up {ItemName(_session, item.DefId, item.Quality)}",
+            { } item => $"[{HelpPanel.Key("interact")}] Pick up {Names.Item(_session, item.DefId, item.Quality)}",
         });
 
         var view = simulation.Player;
@@ -1205,28 +1289,29 @@ public partial class Main : Node3D
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
-            $"\n{ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
+            $"\n{Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +
             $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [{HelpPanel.Key("inventory")}] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
         _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
         var formulas = _controller.Formulas();
-        _hud.SetMagic((combat.Casting is { } casting ? $"Casting {_session.DisplayName(casting)}\n" : "") +
-            string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {_session.DisplayName(f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
+        _hud.SetMagic((combat.Casting is { } casting ? $"Casting {Names.Of(_session, casting)}\n" : "") +
+            string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {Names.Of(_session, f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
             (combat.Strained ? "   Strained" : ""), formulas);
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
-            $"{_session.DisplayName(e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
+            $"{Names.Of(_session, e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
             combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
         bool capped = view.Progression.Level >= _session.Setup.Progression.LevelCap;
         _hud.SetSheet(new HudSheet(view.Name, view.Progression.Level, capped, view.Progression.LevelProgressXp,
             capped ? 0 : _session.Setup.Progression.Curve.ToReach(view.Progression.Level + 1), view.Progression.XpDebt,
             view.Progression.UnspentAttributePoints > 0 ? HelpPanel.Key("character") : null, posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched,
             pools.Focus ?? stats.FocusMax, stats.FocusMax, pools.Strain, stats.StrainTolerance, stats.Resonance,
-            ItemName(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0), combat.Weapon.Source, combat.Blocking, view.Currency, view.Armor,
+            Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0), combat.Weapon.Source, combat.Blocking, view.Currency, view.Armor,
             view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
-            combat.Casting is { } worked ? _session.DisplayName(worked) : null,
-            formulas.Select(f => new HudFormula(f, _session.DisplayName(f), _session.Setup.Magic.Formulas[f].FocusCost)).ToList(), combat.Strained));
+            combat.Casting is { } worked ? Names.Of(_session, worked) : null,
+            formulas.Select(f => new HudFormula(f, Names.Of(_session, f), _session.Setup.Magic.Formulas[f].FocusCost)).ToList(), combat.Strained,
+            _controller.QuickItems().Select((q, i) => new HudQuick(HelpPanel.Key(QuickKeys[i]), q.DefId, Names.Of(_session, q.DefId), q.Count)).ToList()));
         if (Target(simulation) is { } target)
-            _hud.SetTarget(_session.DisplayName(target.DefId), target.Health, target.MaxHealth);
+            _hud.SetTarget(Names.Of(_session, target.DefId), target.Health, target.MaxHealth);
         else
             _hud.SetTarget(null, 0, 0);
         var quests = simulation.Quests;
@@ -1250,9 +1335,12 @@ public partial class Main : Node3D
                 $"cell {CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0)}\n" +
                 $"camera {(_camera.IsFirstPerson ? "first person" : "third person")} {_camera.EffectiveDistance:0.00}/{_camera.TargetDistance:0.00} m, {_camera.Side}\n" +
                 "tiers:\n" + string.Join("\n", simulation.CellTiers.Select(kv => $"  {kv.Key}  {kv.Value}")) +
-                "\ndiscovered:\n" + string.Join("\n", view.Discoveries.Select(d => $"  {_session.DisplayName(d.LocationId)} (tick {d.Tick})")));
+                "\ndiscovered:\n" + string.Join("\n", view.Discoveries.Select(d => $"  {Names.Of(_session, d.LocationId)} (tick {d.Tick})")));
         }
     }
+
+    /// <summary>The last reply given, and when: what a hand-over in the same tick was for.</summary>
+    private (string NpcId, long Tick)? _reply;
 
     private void Subscribe()
     {
@@ -1270,19 +1358,21 @@ public partial class Main : Node3D
                 _hud.Toast(site.DoneText, 6);
         });
         _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true));
-        _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {_session.DisplayName(e.LocationId)}"));
+        _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {Names.Of(_session, e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
-        _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} joins you"));
-        _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
-        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
-        _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} is back on their feet"));
-        _session.Subscribe<CompanionFell>(e => _hud.Toast($"{_session.DisplayName(e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
+        _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} joins you"));
+        _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
+        _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
+        _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} is back on their feet"));
+        _session.Subscribe<CompanionFell>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
         // What the award did: what is left once the XP debt took its share, and that share (the Phase-1 technical audit, L-12).
         _session.Subscribe<ExperienceGained>(e =>
         {
             long kept = e.Awarded - e.Repaid;
             string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
-            _hud.Toast(e.LevelsGained > 0 ? $"{xp} - level {e.Level}!" : xp, 3);
+            _hud.Toast(xp, 3);
+            if (e.LevelsGained > 0)
+                _hud.Announce("Level up", $"Level {e.Level}", HudStyle.Ember, ("A point to spend on the character sheet", HelpPanel.Key("character")));
         });
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -1294,7 +1384,13 @@ public partial class Main : Node3D
                 _hud.Toast("No room to stand", 2);
         });
         // The owner's M6 playtest: a take-all's tally, a point spent, and every shot drawn along the path it took.
-        _session.Subscribe<TookAll>(e => _hud.Toast(e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3));
+        _session.Subscribe<TookAll>(e =>
+        {
+            _hud.Toast(e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
+            // Emptied, the loot is done: the panel closes rather than leaving the pack open behind it (the owner's first playtest).
+            if (e.Left == 0 && _inventory.OpenContainer == e.ContainerKey)
+                CloseInventory();
+        });
         _session.Subscribe<AttributeSpent>(e => _hud.Toast($"{char.ToUpperInvariant(UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[0])}" +
             $"{UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[1..]} {e.Value}", 3));
         _session.Subscribe<ShotLoosed>(Shot);
@@ -1310,14 +1406,14 @@ public partial class Main : Node3D
         {
             _inventory.Refresh();
             string spent = !e.Spent ? ""
-                : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {_session.DisplayName(e.NodeDefId)} is worked out"
-                : $" - nothing more until the {_session.DisplayName(e.NodeDefId)} grows back";
-            _hud.Toast($"+{e.Count} {_session.DisplayName(e.ItemId)}{spent}", 3);
+                : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {Names.Of(_session, e.NodeDefId)} is worked out"
+                : $" - nothing more until the {Names.Of(_session, e.NodeDefId)} grows back";
+            _hud.Toast($"+{e.Count} {Names.Of(_session, e.ItemId)}{spent}", 3);
         });
         _session.Subscribe<ItemCrafted>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Made {ItemName(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+            _hud.Toast($"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         SubscribeSocial();
         SubscribeQuests();
@@ -1358,15 +1454,24 @@ public partial class Main : Node3D
             if (_session.Simulation!.Quests.FirstOrDefault(q => q.Id == e.QuestId)?.Status == Domain.Quests.QuestStatus.Active)
                 _hud.Toast($"Done: {Step(e.QuestId, e.ObjectiveId)}", 3);
         });
-        _session.Subscribe<QuestCompleted>(e => _hud.Toast($"Quest complete: {Title(e.QuestId)}", 6));
+        _session.Subscribe<QuestCompleted>(e => _hud.Announce("Quest complete", Title(e.QuestId), HudStyle.Brass));
         _session.Subscribe<QuestFailed>(e => _hud.Toast($"Quest failed: {Title(e.QuestId)}", 6));
         // XP, a technique and a relationship already speak for themselves (their own toast or log line); coin and goods do not.
         _session.Subscribe<RewardGranted>(e =>
         {
-            if (e.Kind == "currency")
-                _hud.Log($"{Title(e.QuestId)}: +{e.Amount} coin");
-            else if (e.Kind == "item" && e.Ref is { } item)
-                _hud.Log($"{Title(e.QuestId)}: {_session.DisplayName(item)}{(e.Amount > 1 ? $" x{e.Amount}" : "")}");
+            string? paid = e.Kind switch
+            {
+                "xp" => $"+{e.Amount} XP",
+                "currency" => $"+{e.Amount} coin",
+                "item" when e.Ref is { } item => $"+ {Names.Of(_session, item)}{(e.Amount > 1 ? $" ×{e.Amount}" : "")}",
+                "recipe" or "spell" when e.Ref is { } known => $"Learned {Names.Of(_session, known)}",
+                _ => null,
+            };
+            if (paid is null)
+                return;
+            _hud.AnnounceMore("Quest complete", Title(e.QuestId), paid);
+            if (e.Kind is "currency" or "item")
+                _hud.Log($"{Title(e.QuestId)}: {paid}");
         });
     }
 
@@ -1374,6 +1479,13 @@ public partial class Main : Node3D
     private void SubscribeSocial()
     {
         _session.Subscribe<ConversationLine>(_ => _dialogue.Refresh());
+        // What a reply hands over is said, by name and count (the owner's first playtest: "it doesn't say what you're giving them").
+        _session.Subscribe<ReplyChosen>(e => _reply = (e.NpcId, e.Tick));
+        _session.Subscribe<ItemConsumed>(e =>
+        {
+            if (_reply is { } reply && reply.Tick == e.Tick)
+                _hud.Toast($"Handed to {Names.Of(_session, reply.NpcId)}: {e.Count} × {Names.Of(_session, e.DefId)}", 4);
+        });
         _session.Subscribe<ConversationEnded>(_ => _dialogue.Refresh());
         _session.Subscribe<ServiceOpened>(e =>
         {
@@ -1383,15 +1495,15 @@ public partial class Main : Node3D
         _session.Subscribe<ItemBought>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Bought {_session.DisplayName(e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+            _hud.Toast($"Bought {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
         _session.Subscribe<ItemSold>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Sold {_session.DisplayName(e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+            _hud.Toast($"Sold {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
         _session.Subscribe<RelationshipChanged>(e =>
-            _hud.Log($"{_session.DisplayName(e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
+            _hud.Log($"{Names.Of(_session, e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
@@ -1402,7 +1514,7 @@ public partial class Main : Node3D
     /// <summary>A node's prompt: what it gives now, or why it gives nothing.</summary>
     private string NodePrompt(Simulation simulation, Focus focus)
     {
-        string name = _session.DisplayName(focus.DefId);
+        string name = Names.Of(_session, focus.DefId);
         if (simulation.Nodes.FirstOrDefault(n => n.Key == focus.Key) is { Ready: true })
             return $"[{HelpPanel.Key("interact")}] Gather from the {name}";
         return _session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
@@ -1417,7 +1529,7 @@ public partial class Main : Node3D
     /// <summary>Combat reads in words as well as poses: every blow, effect, kill and death goes to the log (ROADMAP.md M3c).</summary>
     private void SubscribeCombat()
     {
-        string Name(string id) => _session.DisplayName(id);
+        string Name(string id) => Names.Of(_session, id);
         // A companion's blow lands as it strikes: their figure plays its attack (the Phase-1 asset integration).
         _session.Subscribe<HitResolved>(e =>
         {
@@ -1444,7 +1556,7 @@ public partial class Main : Node3D
             if (e.Attacker != _session.Simulation!.PlayerId)
                 return;
             if (_session.Setup.Magic.Formulas.ContainsKey(e.Source))
-                _hud.Log($"Your {_session.DisplayName(e.Source)} finds nothing");
+                _hud.Log($"Your {Names.Of(_session, e.Source)} finds nothing");
             else
                 _hud.Log(_session.Setup.Items.Catalog.Find(e.Source)?.Weapon?.Ranged == true ? "Your arrow finds nothing" : "Your swing finds nothing");
         });
@@ -1543,8 +1655,7 @@ public partial class Main : Node3D
         // Panels open on the world before are closed on this one: a conversation it does not have, a container, a trader or a station
         // that was the other world's (the Phase-1 technical audit, M-03).
         _dialogue.Refresh();
-        _inventory.Close();
-        _character.Visible = false;
+        CloseScreens();
         var body = _controller.Authoritative;
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
@@ -1694,7 +1805,6 @@ public partial class Main : Node3D
         }
         _saves.Close();
         _hud.Visible = true;
-        _mouseFreed = false;
         Resync();
         GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
         // THE BASELINE TUPLE, PRINTED - so a change can be PROVED baseline-neutral by two boots instead of
@@ -1843,27 +1953,6 @@ public partial class Main : Node3D
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
 
-    /// <summary>A container read as words; a corpse is named for the creature it was.</summary>
-    internal static string Describe(GameSession session, string key) =>
-        session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{session.DisplayName(dead.DefId)} remains" : Describe(key);
-
-    /// <summary>A door, container or station key read as words: <c>door.forge_shed</c> is the forge shed door.</summary>
-    internal static string Describe(string key) => key switch
-    {
-        _ when key.StartsWith("door.", StringComparison.Ordinal) => key["door.".Length..].Replace('_', ' ') + " door",
-        _ when key.StartsWith("container.", StringComparison.Ordinal) => key["container.".Length..].Replace('_', ' '),
-        _ when key.StartsWith("station.", StringComparison.Ordinal) => key["station.".Length..].Replace('_', ' '),
-        _ => key,
-    };
-
-    /// <summary>An item's name with its quality (M3f): a fine or crude one says so; a standard one is just itself.</summary>
-    internal static string ItemName(GameSession session, string defId, int quality) => quality switch
-    {
-        Quality.Fine => "Fine " + session.DisplayName(defId),
-        Quality.Crude => "Crude " + session.DisplayName(defId),
-        _ => session.DisplayName(defId),
-    };
-
     private void ParseArguments(string[] arguments)
     {
         for (int i = 0; i < arguments.Length; i++)
@@ -1925,6 +2014,8 @@ public partial class Main : Node3D
             Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
+        for (int i = 0; i < QuickKeys.Length; i++)
+            Bind(QuickKeys[i], Key.Key1 + i);   // outside one, 1 to 3 are the quick slots (the owner's first playtest)
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))

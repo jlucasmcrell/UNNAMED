@@ -176,23 +176,27 @@ public sealed class InputCheck
                 _passed.Add("a load with a conversation open left no panel open (M-03)");
                 return Captured("after the load") ?? Next(0);
             case 24:
-                // Escape frees the mouse; the click that takes it back must not also swing.
+                // Escape with nothing open opens the System Menu (the Field Instrument UI): the pointer is the player's while it is open.
                 Press("release_mouse");
                 return Next(3);
             case 25:
                 Release("release_mouse");
+                if (!_modal())
+                    return Fail("Escape did not open the System Menu");
                 if (Windowed && Input.MouseMode != Input.MouseModeEnum.Visible)
-                    return Fail("Escape did not free the mouse");
+                    return Fail("the System Menu did not free the mouse");
                 _logMark = simulation.CommandLog.Count;
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = new Vector2(1500, 600) });
+                Press("release_mouse");
                 return Next(3);
             case 26:
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = new Vector2(1500, 600) });
+                Release("release_mouse");
+                if (_modal())
+                    return Fail("Escape did not close the System Menu");
                 if (simulation.CommandLog.Skip(_logMark).Any(c => c.Command is AttackCommand))
-                    return Fail("the click that took the mouse back also swung");
+                    return Fail("closing the System Menu also swung");
                 if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
-                    return Fail("the click did not take the mouse back");
-                _passed.Add("the click that took the mouse back did not swing");
+                    return Fail("closing the System Menu did not take the mouse back");
+                _passed.Add("Escape opened the System Menu and closed it back to play");
                 GD.Print($"UNNAMED input check: PASS - {string.Join("; ", _passed)}" + (Windowed ? "" : " (headless: the mouse was not checked)"));
                 return 0;
         }
