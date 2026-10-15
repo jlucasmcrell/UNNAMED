@@ -3,12 +3,12 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.renn_vale.name
 tags: [dialogue]
-notes: Renn Vale, the waystation's steward (content bible §9) - orientation, and acknowledging what the character has done. PROTOTYPE.md's branching conversation (its keeper's seven nodes and two branch points).
+notes: Renn Vale, the waystation's steward (content bible §9) - orientation, and acknowledging what the character has done. PROTOTYPE.md's branching conversation (its keeper's seven nodes and two branch points). Voice (NPC_PERSONALITY_BIBLE.md) - a Veth host who has met every kind of stranger and still makes up the bed; the cast's one true deadpan; keeps the waystation's book of travellers.
 participants: [npc.ashen_hollow.renn_vale]
 root_node: greet
 nodes:
   greet:
-    text: "Off the road in one piece. I'm Renn Vale; I keep this waystation, such as it is."
+    text: "Off the road in one piece. Good - I've only the one spare bed, and it's for people in one piece. I'm Renn Vale. I keep this waystation, such as it is, and such as Kera's left of the roof."
     once: true
     next_if_exhausted: again
     choices:
@@ -21,7 +21,7 @@ nodes:
       - id: leave
         text: "I'll look around."
   again:
-    text: "What do you need?"
+    text: "Traveller. What'll it be - a bed, directions, or someone to tell you you're doing fine?"
     choices:
       - id: place
         text: "Tell me about the waystation."
@@ -41,22 +41,28 @@ nodes:
         text: "What do you make of this?"
         conditions: [{ kind: has_item, item_ref: item.weapon.march_spear }]
         next: spear
+      - id: personal
+        text: "How did you end up keeping this place?"
+        conditions:
+          - { kind: visited, node: work }
+          - { kind: visited, node: personal, not: true }
+        next: personal
       - id: leave
         text: "Nothing for now."
   place:
-    text: "Ashen Hollow: a stop on the old road, between the quarry and the woods. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar."
+    text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
     choices:
       - id: back
         text: "Thanks."
         next: again
   work:
-    text: "Kera needs iron and a steady pair of hands. Sel needs someone who reads more than they swing. Either would do you more good than wandering."
+    text: "Kera needs iron and a steady pair of hands. Sel needs someone who reads more than they swing. Between them they'll have you working before you've found the privy. It's behind the lodge."
     choices:
       - id: back
         text: "I'll ask them."
         next: again
   shelf_news:
-    text: "And came back carrying ore. Then you've met what walks down there, and you're still breathing. Kera will want that iron."
+    text: "And came back carrying ore. Then you've met what walks down there and you're still breathing, which puts you ahead of a fair few of my guests. Kera will want that iron. She'll also want to tell you what's wrong with it."
     once: true
     next_if_exhausted: again
     choices:
@@ -64,8 +70,14 @@ nodes:
         text: "It was close."
         next: again
   spear:
-    text: "One of Kera's? No - yours. It has the look of a first try. It'll keep a wolf honest."
+    text: "One of Kera's? No - yours. It has the look of a first try. It'll keep a wolf honest, and that's all a first try has to do."
     choices:
       - id: back
         text: "It will."
+        next: again
+  personal:
+    text: "\"I started with a bed, a meal and a roof to keep sound. Apparently that makes me a steward.\" He wipes his hands on the cloth at his belt, though they are clean. \"Everyone who comes through goes in the book - name, road, where they're bound. Most are bound somewhere. The ones who aren't, I find something for. We Veth keep things. Roads. Promises. People who turn up.\""
+    choices:
+      - id: back
+        text: "I'll try to be bound somewhere."
         next: again

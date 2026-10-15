@@ -3,18 +3,18 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.sel_arien.name
 tags: [dialogue]
-notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She hands over the Resonance Primer that lay on the longhouse shelf through M3e, and gives Quest 2, The Three Quiet Stones (M6) - her guide Tavar is caught in the Foldscar. Offering the primer is not a once-only line - hearing the offer is not getting the book - and "primer_given", reached only when the book has changed hands, is what marks it given (the Phase-1 technical audit, H-01).
+notes: Sel Arien, archivist and surveyor (content bible §9) - Foldscar framing and access to magic, uncertain rather than all-knowing. She gives her Field Notes (Brace Ward) - the Resonance Primer is Berrin's alone (owner, 2026-10-15, O-8) - and gives Quest 2, The Three Quiet Stones (M6) - her guide Tavar is caught in the Foldscar. Offering the notes is not a once-only line - hearing the offer is not getting them - and "notes_given", reached only when they have changed hands, is what marks them given (the Phase-1 technical audit, H-01). Voice (NPC_PERSONALITY_BIBLE.md) - a Siann, earnest and exact, who grades her own guesses, treats the newcomer as a witness, and keeps the Record.
 participants: [npc.ashen_hollow.sel_arien]
 root_node: greet
 nodes:
   greet:
-    text: "Careful with the table - half of what's on it is older than the waystation. I'm Sel Arien. I survey the ruin south-east of here, when the spider lets me."
+    text: "\"Careful with the table - half of what's on it is older than the waystation, and the other half is my handwriting, which is worse. Sel Arien. I survey the ruin south-east of here, when the spider lets me.\" She looks at you a moment longer than people usually do. \"You came over the ridge. One day you'll tell me what you saw. Exactly. Don't improve it.\""
     once: true
     next_if_exhausted: again
     choices:
       - id: books
         text: "Is there anything here I could learn from?"
-        next: primer
+        next: notes
       - id: ruin
         text: "What ruin?"
         next: foldscar
@@ -28,22 +28,22 @@ nodes:
       - id: leave
         text: "I'll leave you to it."
   again:
-    text: "You again. Good - I was starting to talk to the stones."
+    text: "You again. Good. I've been talking to the stones, and they make poor witnesses."
     choices:
-      # Offered until the book has changed hands: leaving her at the offer, a full pack or a load in between loses nothing. A save from before
-      # the marker line that already carries the primer is not offered a second.
+      # Offered until the notes have changed hands: leaving her at the offer, a full pack or a load in between loses nothing. A save that
+      # already carries them is not offered a second copy.
       - id: books
         text: "Is there anything here I could learn from?"
         conditions:
-          - { kind: visited, node: primer_given, not: true }
-          - { kind: has_item, item_ref: item.tome.resonance_primer, not: true }
-        next: primer
+          - { kind: visited, node: notes_given, not: true }
+          - { kind: has_item, item_ref: item.tome.field_notes, not: true }
+        next: notes
       - id: ruin
         text: "Tell me about the ruin."
         next: foldscar
       - id: strain
-        text: "The primer said to mind the strain. How far can I push?"
-        conditions: [{ kind: visited, node: primer_given }]
+        text: "Your notes say to mind the strain. How far can I push?"
+        conditions: [{ kind: visited, node: notes_given }]
         next: strain
       - id: tavar
         text: "Something out there is wrong. What is it?"
@@ -70,23 +70,23 @@ nodes:
         next: tavar_back
       - id: leave
         text: "Another time."
-  primer:
-    text: "One. The Resonance Primer - three small workings, one to strike, one to brace, one to mend. It's no use to me in a drawer. Read it, and don't push past what your body can hold."
+  notes:
+    text: "\"Not the Primer - Berrin keeps that, in Cairnwold, if he can find the shelf. This is mine.\" She takes a gathering of pages from the back of her ledger and tears it free along a line she has clearly folded many times. \"A fair copy of the one working I trust in the field. Brace Ward. It holds the body for a few breaths while the ground decides what it's doing. Read it once and it stays with you. And don't push past what your body can hold. I've seen what that costs; I'll swear to it.\""
     choices:
       - id: take
         text: "Thank you. I'll be careful."
         consequences:
-          - { command: transfer_item, item_ref: item.tome.resonance_primer, count: 1, to: player }
-          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: given_the_primer }
-        next: primer_given
-  primer_given:
-    text: "She pushes the book across the table. \"If it ever starts making sense, tell me how.\""
+          - { command: transfer_item, item_ref: item.tome.field_notes, count: 1, to: player }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: given_the_notes }
+        next: notes_given
+  notes_given:
+    text: "She watches you put the pages away. \"If it ever starts making sense, tell me how. In detail. I'll write it down.\""
     choices:
       - id: back
         text: "I will."
         next: again
   foldscar:
-    text: "Foldscar. Three standing stones around something that isn't there any more - or isn't here. I have guesses about what they were for. I've learned not to trust them."
+    text: "Foldscar. Three standing stones around something that isn't there any more - or isn't here. I have guesses about what they were for. I've graded them, and none is better than one chance in three, so I don't say them aloud."
     choices:
       - id: tavar
         text: "Something out there is wrong. What is it?"
@@ -96,11 +96,21 @@ nodes:
           - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar, min: 0, max: 0 }   # not once the fold is quiet (L-17)
         consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }]
         next: tavar
+      - id: why
+        text: "Why survey it at all?"
+        conditions: [{ kind: visited, node: personal, not: true }]
+        next: personal
       - id: back
         text: "I see."
         next: again
+  personal:
+    text: "\"Because nobody has. Not properly. The Record has eleven lines on the Foldscar, and four of them contradict the other seven.\" She straightens a pen that was already straight. \"I came for a season. That was thirty-one years ago. Tavar says that's a long season. It felt recent.\""
+    choices:
+      - id: back
+        text: "It's a long season."
+        next: again
   tavar:
-    text: "Tavar Orr. He guides my surveys. Three days ago he walked in among the Quiet Stones for a chain I'd dropped, and he's still standing there. I can see him from the rise. I can't reach him - my hand stops a hand's width short, and his voice comes from the wrong side. The stones were turned out of line when we found them. I think they matter. I don't know how."
+    text: "Tavar Orr. He guides my surveys. Three days ago he walked in among the Quiet Stones for a chain I'd dropped - my chain; that goes in the record - and he's still standing there. I can see him from the rise. I can't reach him. My hand stops a hand's width short, and his voice comes from the wrong side. The stones were turned out of line when we found them. They matter: two chances in three. I don't know how."
     choices:
       - id: stones
         text: "What would you do with the stones?"
@@ -109,19 +119,19 @@ nodes:
         text: "I'll go and look."
         next: again
   stones:
-    text: "If I knew, I'd have done it. Turn them square to the ring - the north stone, the south-west, the south-east - and the heart itself last. That's my guess. And the spider on the east side hunts by the ground, not by sight: walk past it, don't run."
+    text: "If I knew, I'd have done it. My best guess: turn them square to the ring - the north stone, the south-west, the south-east - and the heart itself last. And the spider on the east side hunts by the ground, not by sight. Walk past it. Don't run. That part isn't a guess. I watched it take a deer."
     choices:
       - id: back
         text: "Walk, don't run."
         next: again
   tavar_back:
-    text: "I know. I saw the ring go quiet from the rise, and then I saw him walk. I'd no idea how to get him out - only that the stones were wrong. Thank you."
+    text: "\"I know. I saw the ring go quiet from the rise, and then I saw him walk.\" She writes something, crosses it out, and writes it again more carefully. \"I'd no idea how to get him out - only that the stones were wrong. Thank you. That's going in the Record, under your name, exactly as it happened.\""
     choices:
       - id: back
         text: "He's asking after you."
         next: again
   strain:
-    text: "Past your tolerance a working takes it out of your body instead. It won't refuse you. That's the danger."
+    text: "Past your tolerance a working takes it out of your body instead. It won't refuse you. That's the danger. I've seen it, so I'll swear to that much."
     choices:
       - id: back
         text: "I'll remember."

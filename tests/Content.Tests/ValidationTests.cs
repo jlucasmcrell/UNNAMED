@@ -526,7 +526,7 @@ public class ContentLoaderTests
                 "effect.bleeding", "effect.braced", "effect.mending", "effect.venom", "effect.weakened",
                 "item.ammo.arrow_rough", "item.armor.hide_cap", "item.armor.hide_vest", "item.consumable.salve_minor",
                 "item.material.ash_haft", "item.material.herb_ashbloom", "item.material.iron_ingot", "item.material.iron_ore", "item.material.raw_meat",
-                "item.material.wolf_hide", "item.quest.halda_token", "item.tome.resonance_primer", "item.tool.water_flask",
+                "item.material.wolf_hide", "item.quest.halda_token", "item.tome.field_notes", "item.tome.resonance_primer", "item.tool.water_flask",
                 "item.trinket.wolf_fang", "item.weapon.hunting_bow", "item.weapon.march_spear", "item.weapon.rusted_sword",
                 "location.blackvein_cut", "location.den_mouth", "location.foldscar", "location.herb_patch", "location.outpost", "location.ruined_cart",
                 "loot.animated_armour", "loot.bristleback_boar", "loot.den_cache", "loot.merchant_cart", "loot.waystation_chest", "loot.wolf_grey",

@@ -57,12 +57,12 @@ public class SocialContentTests
         Assert.False(npcs["npc.ashen_hollow.renn_vale"].Offers(NpcServices.Trade));
         Assert.All(npcs.Values, n => Assert.Contains(n.Id, dialogues[n.DialogueId!].Participants));
 
-        // Kera teaches the two recipes (the starting package no longer does); Sel hands over the primer.
+        // Kera teaches the two recipes (the starting package no longer does); Sel hands over her field notes (Berrin keeps the primer).
         var teach = dialogues["dialogue.ashen_hollow.kera_voss"].Nodes["greet"].Choices.Single(c => c.Id == "teach");
         Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear" },
             teach.Consequences.OfType<GiveRecipeConsequence>().Select(g => g.RecipeId));
-        var take = dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["primer"].Choices.Single();
-        Assert.Equal(new TransferItemConsequence("item.tome.resonance_primer", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());
+        var take = dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["notes"].Choices.Single();
+        Assert.Equal(new TransferItemConsequence("item.tome.field_notes", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());
     }
 
     /// <summary>M6: Tavar can join the character - his spear, his health, his jerkin - and config.companion says how companions behave.</summary>
@@ -132,9 +132,9 @@ public class SocialContentTests
     [Fact]
     public void AGiftOnALineSpentOnceHeard_IsRefused_UnlessItsFallbackOffersItAgain()
     {
-        // Sel's primer as M4 wrote it: a once line whose only reply hands over the book.
-        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "    text: \"One. The Resonance Primer",
-            "    once: true\n    next_if_exhausted: again\n    text: \"One. The Resonance Primer", "node primer is spent once heard, and its reply take carries consequences");
+        // Sel's gift as M4 wrote it: a once line whose only reply hands over the book.
+        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "  notes:\n    text: ",
+            "  notes:\n    once: true\n    next_if_exhausted: again\n    text: ", "node notes is spent once heard, and its reply take carries consequences");
         // Tavar's thanks offered on his first line only, as M6 wrote it.
         AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "      - id: sent\n        text: \"Sel sent me.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }",
             "      - id: sent_again\n        text: \"Sel sent me.\"\n        conditions:\n          - { kind: visited, node: caught, not: true }",
@@ -175,6 +175,6 @@ public class SocialContentTests
 
     [Fact]
     public void ARelationshipOnADimensionThereIsNot_IsRefused() =>
-        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "dimension: trust, delta: 5, event: given_the_primer",
-            "dimension: love, delta: 5, event: given_the_primer", "'love' is not a relationship dimension");
+        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "dimension: trust, delta: 5, event: given_the_notes",
+            "dimension: love, delta: 5, event: given_the_notes", "'love' is not a relationship dimension");
 }

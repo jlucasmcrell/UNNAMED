@@ -21,7 +21,7 @@ public class NpcTests
     private const string Kera = "npc.ashen_hollow.kera_voss";
     private const string Sel = "npc.ashen_hollow.sel_arien";
     private const string Wares = "merchant.ashen_hollow.kera_voss";
-    private const string Primer = "item.tome.resonance_primer";
+    private const string Notes = "item.tome.field_notes";   // Sel's gift; the primer is Berrin's (O-8)
     private const string BilletRecipe = "recipe.smithing.iron_billet";
     private const string SpearRecipe = "recipe.smithing.march_spear";
     private const string Spear = "item.weapon.march_spear";
@@ -199,35 +199,35 @@ public class NpcTests
     }
 
     [Fact]
-    public void Sel_LendsThePrimer_AndAReplyThatCannotGiveIt_IsRefusedWhole()
+    public void Sel_GivesHerFieldNotes_AndAReplyThatCannotGiveThem_IsRefusedWhole()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
-        // A pack with no free stack: the primer cannot be taken, so the reply is refused and nothing else happens either.
+        // A pack with no free stack: the notes cannot be taken, so the reply is refused and nothing else happens either.
         var full = At(session, AtSel, r => With(r, 0, Enumerable.Range(0, session.Setup.Items.Inventory.StackSlots - r.Inventory.Length)
             .Select(_ => Stack("item.trinket.wolf_fang", 1)).ToArray()));
         Assert.Null(full.Submit(new TalkCommand(full.Player, Sel)));
         Assert.Null(Say(full, "books"));
         Assert.StartsWith("no room", Say(full, "take"));
-        Assert.Equal(("primer", 0, 0), (Now(full).NodeId, Regard(full, Sel, "trust"), Carried(full, Primer)));
+        Assert.Equal(("notes", 0, 0), (Now(full).NodeId, Regard(full, Sel, "trust"), Carried(full, Notes)));
 
         var arena = At(session, AtSel);
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
         Assert.Null(Say(arena, "books"));
         Assert.Null(Say(arena, "take"));
-        Assert.Equal((1, 5), (Carried(arena, Primer), Regard(arena, Sel, "trust")));
-        Assert.Equal("primer_given", Now(arena).NodeId);
+        Assert.Equal((1, 5), (Carried(arena, Notes), Regard(arena, Sel, "trust")));
+        Assert.Equal("notes_given", Now(arena).NodeId);
         Assert.Null(Say(arena, "back"));
-        Assert.Equal(new[] { "ruin", "strain", "tavar", "leave" }, Replies(arena));   // the primer is given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "leave" }, Replies(arena));   // the notes are given once; now she will talk of strain
     }
 
     /// <summary>
-    /// The Phase-1 technical audit, H-01: hearing Sel offer the primer is not getting it. Walking away from the offer, being refused it for a
-    /// full pack and coming back, or a load while the offer is open, all leave it to be taken - once.
+    /// The Phase-1 technical audit, H-01: hearing Sel offer her notes is not getting them. Walking away from the offer, being refused it for a
+    /// full pack and coming back, or a load while the offer is open, all leave them to be taken - once.
     /// </summary>
     [Fact]
-    public void ThePrimer_OfferedAndLeft_IsStillThere_AndIsGivenOnce()
+    public void SelsNotes_OfferedAndLeft_AreStillThere_AndAreGivenOnce()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -241,11 +241,11 @@ public class NpcTests
         Assert.Null(left.Submit(new TalkCommand(left.Player, Sel)));
         Assert.Equal("again", Now(left).NodeId);
         Assert.Contains("books", Replies(left));
-        Assert.DoesNotContain("strain", Replies(left));   // she speaks of what the primer says once it has been given
+        Assert.DoesNotContain("strain", Replies(left));   // she speaks of what the notes say once they have been given
         Assert.Null(Say(left, "books"));
         Assert.Null(Say(left, "take"));
         Assert.Null(Say(left, "back"));
-        Assert.Equal((1, 5), (Carried(left, Primer), Regard(left, Sel, "trust")));
+        Assert.Equal((1, 5), (Carried(left, Notes), Regard(left, Sel, "trust")));
         Assert.DoesNotContain("books", Replies(left));   // given once
 
         // Refused for a full pack, left to make room, then taken.
@@ -260,7 +260,7 @@ public class NpcTests
         Assert.Null(full.Submit(new TalkCommand(full.Player, Sel)));
         Assert.Null(Say(full, "books"));
         Assert.Null(Say(full, "take"));
-        Assert.Equal((1, 5), (Carried(full, Primer), Regard(full, Sel, "trust")));
+        Assert.Equal((1, 5), (Carried(full, Notes), Regard(full, Sel, "trust")));
 
         // Saved while the offer is on screen, and loaded: the open conversation is not saved, and the offer is still to be had.
         var open = At(session, AtSel);
@@ -274,17 +274,17 @@ public class NpcTests
         Assert.Null(loaded.Submit(new TalkCommand(loaded.Player, Sel)));
         Assert.Null(Say(loaded, "books"));
         Assert.Null(Say(loaded, "take"));
-        Assert.Equal((1, 5), (Carried(loaded, Primer), Regard(loaded, Sel, "trust")));
+        Assert.Equal((1, 5), (Carried(loaded, Notes), Regard(loaded, Sel, "trust")));
     }
 
-    /// <summary>A save from before the fix that already carries the primer is not offered a second one.</summary>
+    /// <summary>A save that already carries her notes is not offered a second copy.</summary>
     [Fact]
-    public void APrimerAlreadyCarried_IsNotOfferedAgain()
+    public void NotesAlreadyCarried_AreNotOfferedAgain()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = At(session, AtSel, r => With(r, 0, Stack(Primer, 1)).WithSocial(Array.Empty<RelationshipValue>(),
-            new[] { new ConversationMemory("dialogue.ashen_hollow.sel_arien", ImmutableArray.Create("again", "greet", "primer")) }));
+        var arena = At(session, AtSel, r => With(r, 0, Stack(Notes, 1)).WithSocial(Array.Empty<RelationshipValue>(),
+            new[] { new ConversationMemory("dialogue.ashen_hollow.sel_arien", ImmutableArray.Create("again", "greet", "notes")) }));
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
         Assert.Equal("again", Now(arena).NodeId);
         Assert.DoesNotContain("books", Replies(arena));
@@ -311,7 +311,7 @@ public class NpcTests
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         var memory = Assert.Single(again.Simulation.CaptureRecord().Conversations);
         Assert.Equal("dialogue.ashen_hollow.sel_arien", memory.DialogueId);
-        Assert.Equal(new[] { "again", "greet", "primer", "primer_given" }, memory.Heard.ToArray());
+        Assert.Equal(new[] { "again", "greet", "notes", "notes_given" }, memory.Heard.ToArray());
         Assert.Equal(5, Regard(again, Sel, "trust"));
         // Her greeting and her gift stay spent.
         Assert.Null(again.Submit(new TalkCommand(again.Player, Sel)));

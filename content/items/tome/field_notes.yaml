@@ -1,0 +1,16 @@
+id: item.tome.field_notes
+kind: item
+schema: 1
+display_key: item.tome.field_notes.name
+tags: [item]
+name: Sel's Field Notes
+notes: A fair copy, torn from the back of Sel Arien's survey ledger, of the one working she trusts in the field (content bible §13 - Warding). Sel's own gift once the Resonance Primer became Berrin's alone (owner, 2026-10-15, NPC_PERSONALITY_BIBLE.md O-8); canon's Sel is the slice's "basic magic access" (bible §9), so it still teaches. Read once, it teaches Brace Ward.
+category: book
+stack_max: 1
+weight: 0.2
+value_base: 40
+rarity: uncommon
+use:
+  consume: true
+  grants:
+    - { kind: spell, ref: spell.warding.brace_ward }

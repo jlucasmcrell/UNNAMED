@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.tavar_orr.name
 tags: [dialogue]
-notes: Tavar Orr (content bible §9, §17). He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2. Asked, he joins the character (M6), and is told to wait or follow here or with the companion key.
+notes: Tavar Orr (content bible §9, §17). Voice (NPC_PERSONALITY_BIBLE.md) - an Orenth guide, easy and unhurried, who makes his losses small with gallows humour and keeps the Orenth ledger of what each crossing cost. He can be spoken to only once the Foldscar is steadied - the fold around him lifts with it - so every line here is spoken by a man already free. Hearing his first line ends Quest 2. Asked, he joins the character (M6), and is told to wait or follow here or with the companion key.
 participants: [npc.ashen_hollow.tavar_orr]
 root_node: greet
 nodes:
@@ -36,11 +36,14 @@ nodes:
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
         consequences: [{ command: recruit_companion }]
         next: joined
+      - id: ledger
+        text: "Did it cost you anything?"
+        next: ledger
       - id: home
         text: "Sel's been watching for you."
         next: again
   stones:
-    text: "\"Holding something shut, or holding it still - I couldn't tell you which. Somebody turned them out of line before we ever came out here. Not me.\""
+    text: "\"Holding something shut, or holding it still - I couldn't tell you which. Somebody turned them out of line before we ever came out here. Not me.\" A beat. \"I'd remember. Probably.\""
     choices:
       - id: back
         text: "Then somebody else has been out here."
@@ -91,6 +94,12 @@ nodes:
       - id: done
         text: "Nothing. Let's go on."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  ledger:
+    text: "\"Three days, give or take. Cheap, for a crossing I never meant to make.\" He pats a coat pocket; something in it is the shape of a small book. \"We keep a ledger - what each crossing took. I'll put it under 'things I've lost', between my mother's name and a very good knife.\" He smiles as if that were the joke, and not the list."
+    choices:
+      - id: back
+        text: "Then let's not lose anything else."
+        next: again
   joined:
     text: "\"Back to the waystation? I'll walk behind you. I've had enough of being in front of things.\""
     choices:
@@ -102,7 +111,7 @@ nodes:
       - id: ok
         text: "I won't."
   following:
-    text: "\"Lead on.\""
+    text: "\"Lead on. I'll be right behind you. Give or take.\""
     choices:
       - id: ok
         text: "This way."
