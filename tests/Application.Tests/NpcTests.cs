@@ -140,6 +140,25 @@ public class NpcTests
         Assert.DoesNotContain("iron", Replies(bearer));   // said once
     }
 
+    /// <summary>Barks: what Kera could say in passing follows from the world as a reply's conditions do - her quest's line only while it asks for ore.</summary>
+    [Fact]
+    public void KerasBarks_AreTheOnesWhoseConditionsHoldNow()
+    {
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile), AtKera);
+        const string Ore = "Blackvein's south, new iron. The ore won't walk up here on its own.";
+
+        var before = arena.Simulation.Barks(Kera);
+        Assert.Contains("Mind the anvil. It bites.", before);
+        Assert.DoesNotContain(Ore, before);
+        Assert.DoesNotContain("There's my spear-maker! Walk tall, new iron.", before);
+
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
+        Assert.Null(Say(arena, "teach"));
+        Assert.Contains(Ore, arena.Simulation.Barks(Kera));
+        Assert.Empty(arena.Simulation.Barks("npc.nobody"));
+    }
+
     [Fact]
     public void Kera_TeachesTheForge_AsATeacher_AndOpensHerWares()
     {

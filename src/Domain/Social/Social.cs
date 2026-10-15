@@ -42,7 +42,14 @@ public static class Relationships
 // ── dialogue ─────────────────────────────────────────────────────────────────
 
 /// <summary>A conversation graph (DATA_MODEL.md §4.12): the node it opens at and its nodes by ID.</summary>
-public sealed record DialogueDefinition(string Id, ImmutableArray<string> Participants, string Root, ImmutableSortedDictionary<string, DialogueNode> Nodes);
+public sealed record DialogueDefinition(string Id, ImmutableArray<string> Participants, string Root, ImmutableSortedDictionary<string, DialogueNode> Nodes)
+{
+    /// <summary>Lines said aloud, unprompted, to a character passing by: each one sayable while its conditions hold.</summary>
+    public ImmutableArray<DialogueBark> Barks { get; init; } = ImmutableArray<DialogueBark>.Empty;
+}
+
+/// <summary>A bark: a line with no replies, said in passing while its conditions hold (the same conditions a reply takes).</summary>
+public sealed record DialogueBark(string Text, ImmutableArray<DialogueCondition> Conditions);
 
 /// <summary>
 /// One line of a conversation and the replies to it. A <see cref="Once"/> node is spent once visited: arriving at it again goes

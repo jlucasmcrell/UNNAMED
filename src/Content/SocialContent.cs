@@ -126,7 +126,11 @@ public static class SocialContent
                 kv => kv.Key as string ?? "",
                 kv => Node(id, kv.Key as string ?? "", kv.Value as Dictionary<object, object> ?? throw new FormatException($"{id}: node {kv.Key} must be a map"), loader),
                 StringComparer.Ordinal);
-            var dialogue = new DialogueDefinition(id, participants, Text(map, "root_node"), nodes);
+            var dialogue = new DialogueDefinition(id, participants, Text(map, "root_node"), nodes)
+            {
+                Barks = Rows(map, "barks", id).Select((row, i) => new DialogueBark(Text(row, "text"),
+                    Rows(row, "conditions", $"{id} bark {i}").Select(c => Condition($"{id} bark {i}", c, loader)).ToImmutableArray())).ToImmutableArray(),
+            };
             CheckGraph(dialogue);
             return dialogue;
         }).ToImmutableSortedDictionary(d => d.Id, d => d, StringComparer.Ordinal);
@@ -260,6 +264,8 @@ public static class SocialContent
                     throw new FormatException($"{id}: spent lines loop through node {at.Id}");
             }
         }
+        foreach (var visited in dialogue.Barks.SelectMany(b => b.Conditions).OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
+            Exists(visited.NodeId, "a bark's visited condition");
         foreach (var node in dialogue.Nodes.Values.Where(n => n.Once))
             OnceLineKeepsItsConsequences(dialogue, node);
     }
@@ -310,7 +316,8 @@ public static class SocialContent
             if (companionship && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Companion is not null))
                 throw new FormatException($"{dialogue.Id}: recruits or orders a companion, but none of its participants can join the character");
             // A visited condition about another conversation names a line that conversation has.
-            foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions).OfType<VisitedCondition>()
+            foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions)
+                         .Concat(dialogue.Barks.SelectMany(b => b.Conditions)).OfType<VisitedCondition>()
                          .Where(v => v.DialogueId is { } other && other != dialogue.Id))
             {
                 if (!dialogues.TryGetValue(visited.DialogueId!, out var other) || !other.Nodes.ContainsKey(visited.NodeId))

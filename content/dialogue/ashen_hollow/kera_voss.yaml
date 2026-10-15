@@ -166,3 +166,18 @@ nodes:
       - id: back
         text: "Sounds like a friendship."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Ha! Look at that weld. I'm talking to the hinge, not you." }
+  - { text: "Hand me the - no. Never mind. Wings are quicker." }
+  - { text: "Mind the anvil. It bites." }
+  - text: "Blackvein's south, new iron. The ore won't walk up here on its own."
+    conditions:
+      - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, is: active }
+      - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, objective: o_ore, is: satisfied, not: true }
+  - text: "There's my spear-maker! Walk tall, new iron."
+    conditions: [{ kind: visited, node: praised }]
+  - text: "Walker! Keep up - oh. You are."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  - text: "Quiet out east today. Ha. I'll take it."
+    conditions: [{ kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet }]

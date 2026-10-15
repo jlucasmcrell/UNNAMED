@@ -93,6 +93,16 @@ public class SocialContentTests
         AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "weapon_item_ref: item.weapon.march_spear", "weapon_item_ref: item.weapon.hunting_bow",
             "is a ranged weapon");
 
+    /// <summary>A bark is said under the same conditions a reply takes, so the same conditions are refused there, and the same lines must exist.</summary>
+    [Fact]
+    public void ABarksConditions_AreCheckedLikeAReplys()
+    {
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "conditions: [{ kind: visited, node: praised }]",
+            "conditions: [{ kind: time_of_day, is: night }]", "condition 'time_of_day' is not built");
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "conditions: [{ kind: visited, node: praised }]",
+            "conditions: [{ kind: visited, node: crowned }]", "a bark's visited condition names node 'crowned'");
+    }
+
     [Fact]
     public void CompanionRulesThatDoNotNest_AreRefused() =>
         AssertRefused("config/companion.yaml", "run_beyond_m: 4 ", "run_beyond_m: 2 ", "the follow distances nest");

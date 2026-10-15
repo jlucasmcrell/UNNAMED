@@ -88,7 +88,7 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetTalking(npc.Talking);
-            figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : null);
+            figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
             if (npc.Id == FoldEcho.Held && figure is Art.SkinnedFigure && VisualOptions.BodyModifiers)
             {
@@ -124,6 +124,61 @@ public partial class NpcsView : Node3D
             if (!figure.SetDowned(npc.Downed) && npc.Downed)
                 figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);
         }
+    }
+
+    private sealed class Barking
+    {
+        public required Label3D Label { get; init; }
+        public double Left;
+        public double Quiet;
+        public string? Last;
+    }
+
+    private const float BarkReach = 5f;
+    private readonly Dictionary<string, Barking> _barks = new(StringComparer.Ordinal);
+    private readonly RandomNumberGenerator _random = new();
+
+    /// <summary>
+    /// A line said in passing (the NPC's barks, from their conversation's content): when the character comes within reach of someone
+    /// not talking to anyone, and that someone has been quiet long enough, they say one of the barks that hold now - over their head,
+    /// with the face speaking it - then keep quiet for half a minute or so. Decoration: which line and when are presentation's.
+    /// </summary>
+    private string? Bark(Simulation simulation, NpcView npc, Figure figure, Vector3 feet, double delta)
+    {
+        if (!_barks.TryGetValue(npc.Id, out var bark))
+        {
+            var label = new Label3D
+            {
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 40, OutlineSize = 10, PixelSize = 0.0035f, Width = 520,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false,
+            };
+            AddChild(label);
+            _barks[npc.Id] = bark = new Barking { Label = label, Quiet = _random.RandfRange(1f, 4f) };
+        }
+        bark.Left -= delta;
+        bark.Quiet -= delta;
+        bool near = feet.DistanceTo(PlayerHead.GlobalPosition) < BarkReach && simulation.Conversation is null && !npc.Downed;
+        var lines = near && bark.Quiet <= 0 ? simulation.Barks(npc.Id) : default;
+        if (!lines.IsDefault && lines.IsEmpty)
+            bark.Quiet = 5;
+        else if (!lines.IsDefault)
+        {
+            var fresh = lines.Where(l => l != bark.Last).ToArray();
+            string line = fresh.Length > 0 ? fresh[_random.RandiRange(0, fresh.Length - 1)] : lines[0];
+            bark.Last = line;
+            bark.Left = 1.5 + line.Length / 15.0;
+            bark.Quiet = bark.Left + _random.RandfRange(25f, 45f);
+            bark.Label.Text = line;
+        }
+        if (bark.Left <= 0 || simulation.Conversation is not null)
+        {
+            bark.Left = 0;
+            bark.Label.Visible = false;
+            return null;
+        }
+        bark.Label.Visible = true;
+        bark.Label.GlobalPosition = (figure.Head ?? feet + Vector3.Up * 1.6f) + Vector3.Up * 0.45f;
+        return bark.Label.Text;
     }
 
     /// <summary>A companion's blow landed (the simulation reports it as it lands): their figure strikes.</summary>

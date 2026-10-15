@@ -333,11 +333,12 @@ public static class QuestContent
             }
         }
 
-        foreach (var (dialogue, node, choice) in replies)
+        var asking = replies.Select(r => (At: $"{r.Dialogue.Id} node {r.Node.Id} reply {r.Choice.Id}", r.Choice.Conditions))
+            .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))));
+        foreach (var (at, conditions) in asking)
         {
-            foreach (var condition in choice.Conditions.OfType<QuestStateCondition>())
+            foreach (var condition in conditions.OfType<QuestStateCondition>())
             {
-                string at = $"{dialogue.Id} node {node.Id} reply {choice.Id}";
                 if (!quests.TryGetValue(condition.QuestId, out var quest))
                     throw new FormatException($"{at}: quest_state names {condition.QuestId}, which is not a quest");
                 if (condition.ObjectiveId is { } objective && !quest.Objectives.ContainsKey(objective))

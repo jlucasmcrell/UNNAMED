@@ -90,3 +90,14 @@ nodes:
       - id: back
         text: "I'll keep at it."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Fourteen, fifteen... sixteen? Sixteen. Hm." }
+  - { text: "In, and out, and in. Good. Good." }
+  - { text: "Sixty-two sacks. Sixty-two. Don't let me say sixty-three." }
+  - text: "Keep to the walls after dark. Mostly."
+    conditions: [{ kind: visited, node: moor }]
+  - text: "Thirty-one. Still thirty-one."
+    conditions: [{ kind: visited, node: halda }]
+  - text: "Wolf hide. From the north slope? ...One fewer, then."
+    conditions: [{ kind: has_item, item_ref: item.material.wolf_hide }]

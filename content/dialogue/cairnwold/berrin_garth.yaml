@@ -123,3 +123,12 @@ nodes:
       - id: back
         text: "Your secret's safe."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Now then. Mind the step - it's older than it looks, and so am I." }
+  - { text: "Where was I... the long wall. No. The ewe. It'll come back to me." }
+  - { text: "Wipe your feet. No - the other foot. There. Welcome." }
+  - text: "Reading it? Good. Read it aloud some evening - the fire likes a story."
+    conditions: [{ kind: visited, node: primer_given }]
+  - text: "You're in the book now. Try not to make me write anything sad next to you."
+    conditions: [{ kind: visited, node: lodge_book }]

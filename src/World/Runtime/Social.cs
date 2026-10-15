@@ -434,6 +434,16 @@ internal sealed class DialogueSystem : IDialogueFacts
         return choice.Conditions.Select(c => (c, DialogueRules.Holds(c, dialogueId, facts))).ToImmutableArray();
     }
 
+    /// <summary>The barks <paramref name="npcId"/> could say now: their conversation's barks whose conditions hold.</summary>
+    public ImmutableArray<string> Barks(string npcId)
+    {
+        if (!State.Npcs.TryGetValue(npcId, out var npc) || npc.Definition.DialogueId is not { } dialogueId
+            || !Setup.Dialogues.TryGetValue(dialogueId, out var dialogue))
+            return ImmutableArray<string>.Empty;
+        var facts = new SpeakerFacts(this, npcId);
+        return dialogue.Barks.Where(b => b.Conditions.All(c => DialogueRules.Holds(c, dialogueId, facts))).Select(b => b.Text).ToImmutableArray();
+    }
+
     /// <summary>What a conversation with one NPC would see, without one open: flags in that NPC's cell.</summary>
     private sealed class SpeakerFacts : IDialogueFacts
     {
