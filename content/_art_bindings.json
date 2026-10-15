@@ -130,48 +130,43 @@
     },
     "cw_boulder_a_": {
       "models": [
-        "cw_boulder_a"
+        "rock_ph_moss_boulder_s"
       ],
       "material": "stone",
-      "surface": "cw_rock_ground",
-      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_a still draws cw_boulder_a; only its blocker is now written from that model's measured 1.01 x 1.46 m footprint.",
-      "yaw_spread": 360.0
+      "yaw_spread": 360.0,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): closed Poly Haven moss boulder (rock_moss_set_02 rock07) in its own scan textures, no surface override. Fits all 78 blockers (fitcheck: worst gap 0.44 m, overhang 0.46 m)."
     },
     "cw_boulder_b_": {
       "models": [
-        "cw_boulder_b"
+        "rock_ph_moss_boulder_m"
       ],
       "material": "stone",
-      "surface": "cw_rock_ground",
-      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_b still draws cw_boulder_b; only its blocker is now written from that model's measured 2.85 x 1.39 m footprint.",
-      "yaw_spread": 360.0
+      "yaw_spread": 360.0,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): rock_moss_set_02 rock13 x1.3; fits all 81 blockers (gap <= 0.43, overhang <= 0.08)."
     },
     "cw_boulder_c_": {
       "models": [
-        "cw_boulder_c"
+        "rock_ph_moss_boulder_l"
       ],
       "material": "stone",
-      "surface": "cw_rock_ground",
-      "note": "SPLIT OUT OF cw_boulder_ SO THE BLOCKER CAN MATCH THE MODEL. cw_boulder_ held 3 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_boulder_c still draws cw_boulder_c; only its blocker is now written from that model's measured 6.52 x 3.35 m footprint.",
-      "yaw_spread": 360.0
+      "yaw_spread": 360.0,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): rock_moss_set_01 rock01 (closed) replacing the open mountainside shell; fits all 72 blockers (gap <= 0.92, overhang <= 0.28)."
     },
     "cw_crag_a_": {
       "models": [
-        "cw_rock_face_a"
+        "rock_cos_crag_a"
       ],
       "material": "stone",
-      "surface": "cw_rock_ground",
-      "note": "SPLIT OUT OF cw_crag_ SO THE BLOCKER CAN MATCH THE MODEL. cw_crag_ held 2 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_rock_face_a still draws cw_rock_face_a; only its blocker is now written from that model's measured 6.42 x 5.03 m footprint.",
-      "yaw_spread": 24.0
+      "yaw_spread": 24.0,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): closed Cosmos Big Rock 01 sized to the blockers, replacing the solidified rock_face_01 sheet (torn edges, see-through backs); fits all 20."
     },
     "cw_crag_b_": {
       "models": [
-        "cw_rock_face_b"
+        "rock_cos_crag_b"
       ],
       "material": "stone",
-      "surface": "cw_rock_ground",
-      "note": "SPLIT OUT OF cw_crag_ SO THE BLOCKER CAN MATCH THE MODEL. cw_crag_ held 2 models of very different sizes behind one blocker per placement, and only the hash decided which rock a placement got - so a 6.52 m boulder could be drawn on a 2.2 m circle. The model is unchanged and every placement that drew cw_rock_face_b still draws cw_rock_face_b; only its blocker is now written from that model's measured 5.68 x 2.92 m footprint.",
-      "yaw_spread": 24.0
+      "yaw_spread": 24.0,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): closed Cosmos Big Rock 02 on end, replacing the squashed mountainside shell; fits all 20 (gap <= 0.74)."
     }
   },
   "building_walls": {
@@ -1080,6 +1075,77 @@
       "material": "wood",
       "wind": 0.4,
       "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+    },
+    "rock_waystone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): a scanned mossy stone stood on end (Poly Haven rock_moss_set_01 rock05) replaces the AI image-to-3D waystone."
+    },
+    "rock_stone_north": {
+      "model": "landmark_ph_quiet_stone_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): the three Quiet Stones are three different scanned stones stood on end (rock_moss_set_01 rock01/02/06), so each has its own outline."
+    },
+    "rock_stone_southwest": {
+      "model": "landmark_ph_quiet_stone_b",
+      "material": "stone"
+    },
+    "rock_stone_southeast": {
+      "model": "landmark_ph_quiet_stone_c",
+      "material": "stone"
+    },
+    "rock_foldscar_heart": {
+      "model": "landmark_cos_foldscar_monolith_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): NEEDS OWNER - a split monolith (Cosmos Big Rock 02 on end) standing in for the caged heart; canon wants a carved/caged heart, which no library asset provides."
+    },
+    "rock_iron_seam": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): iron-stained granite boulder (Poly Haven namaqualand_boulder_04); the rust staining reads as the seam at 15 m without glow."
+    },
+    "rock_rim_01": {
+      "model": "rock_cos_rim_boulder_a",
+      "material": "stone",
+      "surface": null,
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): surface cleared (the base binding wore first-party material_rubble_stone_wall over the scan). The old rock_rim_scan_a (1.27 x 1.83 m) is too small for these 3.6-4.4 m blockers and drew greybox."
+    },
+    "rock_rim_02": {
+      "model": "rock_cos_rim_boulder_b",
+      "material": "stone",
+      "surface": null
+    },
+    "rock_rim_03": {
+      "model": "rock_cos_rim_boulder_a",
+      "material": "stone",
+      "surface": null
+    },
+    "rock_rim_04": {
+      "model": "rock_cos_rim_boulder_b",
+      "material": "stone",
+      "surface": null
+    },
+    "rock_beam_west": {
+      "model": "rock_ph_beam_pillar_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): a scanned rock on end (rock_moss_set_02 rock13) as the beam support; the id carries 'beam' so Fitting does not sink it."
+    },
+    "rock_beam_east": {
+      "model": "rock_ph_beam_pillar_a",
+      "material": "stone"
+    },
+    "den_rock_west": {
+      "model": "rock_cos_den_west_a",
+      "material": "stone",
+      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): the wolves' den from closed scanned rock (Cosmos Big Rock 01/02 + Poly Haven moss rock kitbash) replacing the procedural grey blocks; the roof slab rock_cos_den_roof_a is set dressing (dressing_proposed.json)."
+    },
+    "den_rock_east": {
+      "model": "rock_cos_den_east_a",
+      "material": "stone"
+    },
+    "den_rock_back": {
+      "model": "rock_cos_den_back_a",
+      "material": "stone"
     }
   },
   "doors": {
@@ -1441,6 +1507,318 @@
         "lod1": 360,
         "lod2": 304
       }
+    },
+    "landmark_cos_foldscar_monolith_a": {
+      "category": "landmark",
+      "dims_m": [
+        3.3266,
+        3.7059,
+        2.3202
+      ],
+      "triangles": 13994,
+      "lods": {
+        "lod1": 6996,
+        "lod2": 2798,
+        "lod3": 978
+      },
+      "texture_px": 4096
+    },
+    "landmark_ph_quiet_stone_a": {
+      "category": "landmark",
+      "dims_m": [
+        1.902,
+        2.8635,
+        1.2518
+      ],
+      "triangles": 11000,
+      "lods": {
+        "lod1": 5500,
+        "lod2": 2200,
+        "lod3": 770
+      },
+      "texture_px": 4096
+    },
+    "landmark_ph_quiet_stone_b": {
+      "category": "landmark",
+      "dims_m": [
+        2.0712,
+        2.5457,
+        0.9844
+      ],
+      "triangles": 10996,
+      "lods": {
+        "lod1": 5498,
+        "lod2": 2198,
+        "lod3": 768
+      },
+      "texture_px": 4096
+    },
+    "landmark_ph_quiet_stone_c": {
+      "category": "landmark",
+      "dims_m": [
+        1.8708,
+        2.4264,
+        1.1104
+      ],
+      "triangles": 8994,
+      "lods": {
+        "lod1": 4496,
+        "lod2": 1798,
+        "lod3": 628
+      },
+      "texture_px": 4096
+    },
+    "landmark_ph_waystone_a": {
+      "category": "landmark",
+      "dims_m": [
+        1.581,
+        2.6088,
+        1.0488
+      ],
+      "triangles": 16548,
+      "lods": {
+        "lod1": 8274,
+        "lod2": 3308,
+        "lod3": 1158
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_crag_a": {
+      "category": "rock",
+      "dims_m": [
+        6.401,
+        5.1075,
+        5.0248
+      ],
+      "triangles": 13416,
+      "lods": {
+        "lod1": 6708,
+        "lod2": 2682,
+        "lod3": 938
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_crag_b": {
+      "category": "rock",
+      "dims_m": [
+        4.9344,
+        7.4737,
+        4.5244
+      ],
+      "triangles": 13994,
+      "lods": {
+        "lod1": 6996,
+        "lod2": 2798
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_den_back_a": {
+      "category": "rock",
+      "dims_m": [
+        6.3458,
+        6.1766,
+        7.6282
+      ],
+      "triangles": 27410,
+      "lods": {
+        "lod1": 13704,
+        "lod2": 5482,
+        "lod3": 1918
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_den_east_a": {
+      "category": "rock",
+      "dims_m": [
+        15.956,
+        6.9606,
+        16.649
+      ],
+      "triangles": 38406,
+      "lods": {
+        "lod1": 19202,
+        "lod2": 7680,
+        "lod3": 2688
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_den_roof_a": {
+      "category": "rock",
+      "dims_m": [
+        8.829,
+        1.6476,
+        7.066
+      ],
+      "triangles": 13416,
+      "lods": {
+        "lod1": 6708,
+        "lod2": 2682,
+        "lod3": 938
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_den_west_a": {
+      "category": "rock",
+      "dims_m": [
+        16.3858,
+        7.3473,
+        17.9452
+      ],
+      "triangles": 38410,
+      "lods": {
+        "lod1": 19204,
+        "lod2": 7682,
+        "lod3": 2688
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_rim_boulder_a": {
+      "category": "rock",
+      "dims_m": [
+        4.3042,
+        2.5702,
+        4.0826
+      ],
+      "triangles": 13416,
+      "lods": {
+        "lod1": 6708,
+        "lod2": 2682,
+        "lod3": 938
+      },
+      "texture_px": 4096
+    },
+    "rock_cos_rim_boulder_b": {
+      "category": "rock",
+      "dims_m": [
+        3.881,
+        2.7069,
+        4.3236
+      ],
+      "triangles": 13994,
+      "lods": {
+        "lod1": 6996,
+        "lod2": 2798,
+        "lod3": 978
+      },
+      "texture_px": 4096
+    },
+    "rock_ph_beam_pillar_a": {
+      "category": "rock",
+      "dims_m": [
+        1.1056,
+        1.8405,
+        1.0016
+      ],
+      "triangles": 7928,
+      "lods": {
+        "lod1": 3964,
+        "lod2": 1584,
+        "lod3": 554
+      },
+      "texture_px": 2048
+    },
+    "rock_ph_ironstone_boulder_a": {
+      "category": "rock",
+      "dims_m": [
+        2.2683,
+        1.7104,
+        2.2454
+      ],
+      "triangles": 30000,
+      "lods": {
+        "lod1": 15000,
+        "lod2": 6000,
+        "lod3": 2100
+      },
+      "texture_px": 4096
+    },
+    "rock_ph_moss_boulder_l": {
+      "category": "rock",
+      "dims_m": [
+        6.5018,
+        2.7981,
+        3.3564
+      ],
+      "triangles": 11000,
+      "lods": {
+        "lod1": 5500,
+        "lod2": 2200,
+        "lod3": 770
+      },
+      "texture_px": 4096
+    },
+    "rock_ph_moss_boulder_m": {
+      "category": "rock",
+      "dims_m": [
+        2.7188,
+        1.6334,
+        1.4798
+      ],
+      "triangles": 7928,
+      "lods": {
+        "lod1": 3964,
+        "lod2": 1584,
+        "lod3": 554
+      },
+      "texture_px": 2048
+    },
+    "rock_ph_moss_boulder_s": {
+      "category": "rock",
+      "dims_m": [
+        1.439,
+        0.6331,
+        1.0328
+      ],
+      "triangles": 9826,
+      "lods": {
+        "lod1": 4912,
+        "lod2": 1964,
+        "lod3": 686
+      },
+      "texture_px": 2048
+    },
+    "rock_ph_moss_pebble_a": {
+      "category": "rock",
+      "dims_m": [
+        0.4474,
+        0.1927,
+        0.364
+      ],
+      "triangles": 900,
+      "lods": {
+        "lod1": 450,
+        "lod2": 180
+      },
+      "texture_px": 1024
+    },
+    "rock_ph_moss_rock_small_a": {
+      "category": "rock",
+      "dims_m": [
+        0.6058,
+        0.4044,
+        0.4734
+      ],
+      "triangles": 3000,
+      "lods": {
+        "lod1": 1500,
+        "lod2": 600,
+        "lod3": 210
+      },
+      "texture_px": 2048
+    },
+    "rock_ph_moss_stone_a": {
+      "category": "rock",
+      "dims_m": [
+        0.2986,
+        0.1383,
+        0.2739
+      ],
+      "triangles": 599,
+      "lods": {
+        "lod1": 299,
+        "lod2": 119
+      },
+      "texture_px": 1024
     }
   },
   "materials": {
@@ -1487,9 +1865,87 @@
       "source": "Poly Haven rusty_metal_04",
       "licence": "CC0 1.0",
       "note": "ADDED by DS Phase B: the ten-surface Cairnwold set had no iron, and the village needs hinges, tyres, a lantern frame and chain."
+    },
+    "material_churned_wet_mud": {
+      "class": "ground",
+      "tile_size_m": 2.35,
+      "source": "Poly Haven ter_ph_mud_forest",
+      "licence": "CC0 1.0"
+    },
+    "material_loose_gravel": {
+      "class": "ground",
+      "tile_size_m": 2.9,
+      "source": "Poly Haven ter_ph_river_small_rocks",
+      "licence": "CC0 1.0"
+    },
+    "material_marsh_grass_turf": {
+      "class": "ground",
+      "tile_size_m": 2.51,
+      "source": "Poly Haven ter_ph_grass_ground",
+      "licence": "CC0 1.0"
+    },
+    "material_packed_dirt_ground": {
+      "class": "ground",
+      "tile_size_m": 3.15,
+      "source": "Poly Haven ter_ph_forest_ground_04",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_brown_mud_03": {
+      "class": "ground",
+      "tile_size_m": 1.3,
+      "source": "Poly Haven brown_mud_03",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_coast_sand_rocks_02": {
+      "class": "ground",
+      "tile_size_m": 15.0,
+      "source": "Poly Haven coast_sand_rocks_02",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_dry_decay_leaves": {
+      "class": "ground",
+      "tile_size_m": 2.0,
+      "source": "Poly Haven dry_decay_leaves",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_forest_ground_04": {
+      "class": "ground",
+      "tile_size_m": 3.15,
+      "source": "Poly Haven forest_ground_04",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_forest_leaves_02": {
+      "class": "ground",
+      "tile_size_m": 3.0,
+      "source": "Poly Haven forest_leaves_02",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_grass_ground": {
+      "class": "ground",
+      "tile_size_m": 2.51,
+      "source": "Poly Haven grass_ground",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_lichen_rock": {
+      "class": "ground",
+      "tile_size_m": 2.0,
+      "source": "Poly Haven lichen_rock",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_mud_forest": {
+      "class": "ground",
+      "tile_size_m": 2.35,
+      "source": "Poly Haven mud_forest",
+      "licence": "CC0 1.0"
+    },
+    "ter_ph_river_small_rocks": {
+      "class": "ground",
+      "tile_size_m": 2.9,
+      "source": "Poly Haven river_small_rocks",
+      "licence": "CC0 1.0"
     }
   },
-  "cliffs": "cw_dark_rock",
+  "cliffs": "ter_ph_lichen_rock",
   "terrain": {
     "r_0_0:c_04_07": "material_packed_dirt_ground",
     "r_0_0:c_05_07": "material_marsh_grass_turf",

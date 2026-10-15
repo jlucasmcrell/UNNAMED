@@ -272,8 +272,7 @@
       "note": "Flat cards of fallen leaves, densest within a few metres of a trunk."
     },
     "stones": {
-      "mesh": "stones",
-      "material": "material_limestone_ashlar",
+      "mesh": "model:rock_ph_moss_stone_a",
       "max_per_m2": 0.6,
       "fade_m": 80,
       "shadows": true,
@@ -286,7 +285,13 @@
       "path_shoulders": 0.25,
       "clear_margin": 0.4,
       "off_path": false,
-      "note": "Noise-displaced pebbles to head-sized stones in the limestone material, sunk a third; kicked to the paths' shoulders."
+      "note": "Scanned moss stones (Poly Haven rock_moss_set_02 rock12, 0.30 m, 599 tris, 1K) in place of the code-generated noise pebbles in the first-party limestone material; size 0.25-1.2 keeps the old 7-37 cm range.",
+      "size": [
+        0.25,
+        1.2
+      ],
+      "chunk_m": 8,
+      "wind": false
     },
     "tufts": {
       "mesh": "model:veg_ph_grass_medium_01",
@@ -970,7 +975,7 @@
       "note": "Phase B demo: reeds along the Charwood drainage (Terrain3DView.CharwoodStream)."
     },
     "rock_clusters": {
-      "mesh": "model:rock_field_cluster",
+      "mesh": "model:rock_ph_moss_rock_small_a",
       "max_per_m2": 0.05,
       "chunk_m": 16,
       "lods_m": [
@@ -1004,7 +1009,7 @@
       "only_when": {
         "plants": "models"
       },
-      "note": "Phase B demo: scanned rock clusters settled into the quarry spoil, the Foldscar and the meadow.",
+      "note": "Poly Haven rock_moss_set_02 rock11 at 0.6 m (3000 tris, 2K) replacing the AI image-to-3D rock_field_cluster; size [0.8, 2.6] unchanged.",
       "wind": false
     },
     "moor_grass": {
@@ -1173,7 +1178,7 @@
       "wind": true
     },
     "gravel": {
-      "mesh": "model:cw_gravel_stone_a",
+      "mesh": "model:rock_ph_moss_pebble_a",
       "max_per_m2": 0.9,
       "chunk_m": 8,
       "size": [
@@ -1189,7 +1194,7 @@
       "path_shoulders": 0.3,
       "clear_margin": 0.4,
       "off_path": false,
-      "note": "Loose stones. WIND OFF - every model kind goes through the foliage shader, which displaces vertices by wind, and there is no `wind: false` anywhere so the boulders were swaying. Size pulled in from 0.7-1.8 m: a 1.8 m 'stone' is a boulder the size of a person, scattered 0.9 to the square metre. Count halved.",
+      "note": "Poly Haven rock_moss_set_02 rock08 at 0.45 m (899 tris, 1K, closed) replacing cw_gravel_stone_a (220 tris, 512 px). Size range [0.45, 1.0] and wind off unchanged.",
       "wind": false
     },
     "wildflowers": {
