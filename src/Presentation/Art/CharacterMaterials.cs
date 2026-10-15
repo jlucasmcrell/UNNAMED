@@ -38,7 +38,13 @@ public static class CharacterMaterials
     /// The first case was being reported as the second for as long as this has existed, and a creature reading as
     /// broken every run is how a real gap becomes background noise.
     /// </summary>
-    public static int Upgrade(Node model, out int zoneNamed)
+    public static int Upgrade(Node model, out int zoneNamed) => Upgrade(model, out zoneNamed, new Dictionary<string, HumanEye.Maps>());
+
+    /// <summary>
+    /// As above, with the HumanShaders eye inputs the model ships (<see cref="HumanEye.Load"/>): an eye surface named there is drawn by the
+    /// eye shader, any other eye by the eye kind's settings.
+    /// </summary>
+    public static int Upgrade(Node model, out int zoneNamed, IReadOnlyDictionary<string, HumanEye.Maps> eyes)
     {
         var kinds = Kinds();
         int upgraded = 0, named = 0;
@@ -63,6 +69,11 @@ public static class CharacterMaterials
                 // checkpoint. It returns false if the shader will not load, and the material then falls through to the
                 // engine's response rather than drawing nothing.
                 if (kind == "skin" && HumanSkin.Apply(instance, s, material))
+                {
+                    upgraded++;
+                    continue;
+                }
+                if (kind == "eye" && eyes.TryGetValue(name, out var eye) && HumanEye.Apply(instance, s, name, eye))
                 {
                     upgraded++;
                     continue;

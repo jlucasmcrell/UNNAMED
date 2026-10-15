@@ -506,6 +506,9 @@ public sealed class ArtLibrary
     /// <summary>A skinned model (<c>rigged/&lt;id&gt;/&lt;id&gt;_rigged.glb</c>), or null.</summary>
     public Node3D? Rigged(string id) => Instance(id, Path.Combine("rigged", id, id + "_rigged.glb"));
 
+    /// <summary>A file the pipeline ships beside a rigged model (<c>rigged/&lt;id&gt;/&lt;relative&gt;</c>), or null when no workspace has it.</summary>
+    public string? RiggedFile(string id, string relative) => At(Path.Combine("rigged", id, relative));
+
     private Node3D? Instance(string id, string relative)
     {
         if (Root is null || IsWithheld(id))
@@ -995,7 +998,8 @@ public sealed class ArtLibrary
         return maps;
     }
 
-    private Texture2D? Texture(string path, string role)
+    /// <summary>A map file as a texture, through the texture cache (<paramref name="role"/> as TextureCache takes it); null when it will not load.</summary>
+    public Texture2D? Texture(string path, string role)
     {
         if (_textures.TryGetValue(path, out var cached))
             return cached;

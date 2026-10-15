@@ -2,8 +2,10 @@ HumanShaders by MatMADNESS
 Source: https://github.com/matmadness/HumanShaders
 Pinned commit: 95a54cff4a9165993914143ca9047a5f5d029bce
 
-skin_shader.gdshader and lightwarp_skin1.tres copied unchanged from the
-upstream HumanShaders folder. Upstream README states MIT and CC BY 4.0
+skin_shader.gdshader, eye_shader.gdshader and lightwarp_skin1.tres copied
+unchanged from the upstream HumanShaders folder (eye_shader added 2026-10-15
+for the MetaHuman eyes, from the same pinned commit as vendored in AssetForge's
+testbed/addons/humanshaders). Upstream README states MIT and CC BY 4.0
 licensing for that folder; full MIT license is preserved as LICENSE.
 CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 No Digital Emily or Infinite example head/model assets are included.
