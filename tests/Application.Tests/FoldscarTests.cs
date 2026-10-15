@@ -152,7 +152,7 @@ public class FoldscarTests
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "ruin")));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "tavar")));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "stones")));
-        Assert.Contains("walk past it, don't run", arena.Simulation.Conversation!.Text);
+        Assert.Contains("Walk past it. Don't run.", arena.Simulation.Conversation!.Text);
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
         arena.Tick();
         Assert.Equal(("The Three Quiet Stones", QuestStatus.Active), (Journal(arena).Title, Journal(arena).Status));
