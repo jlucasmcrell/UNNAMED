@@ -147136,7 +147136,7 @@ doors:
   - 453.4
   - 742.8
   height_m: 2.4
-- key: door.cairnwold.longhouse
+- key: door.cw_longhouse
   flag_ref: world.cairnwold.longhouse_door_open
   box_m:
   - 954.6
