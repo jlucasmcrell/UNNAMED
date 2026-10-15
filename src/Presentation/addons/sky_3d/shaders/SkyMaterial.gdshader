@@ -114,6 +114,7 @@ group_uniforms transform_matrices;
 uniform mat3 moon_matrix; // Calculated externally via GDScript.
 
 #include "Common.gdshaderinc"
+#include "res://Environment/otherreach_sky.gdshaderinc"  // Otherreach: its own bodies and night (Greybox/CelestialView.cs)
 
 // Provides a transformation matrix when passed a vec3.
 mat3 create_rotation_matrix(vec3 r) {
@@ -327,7 +328,7 @@ vec4 render_cumulus_clouds(vec3 ro, vec3 rd, float am, vec3 sun_pos, vec3 moon_p
 // Main
 //------------------------------------------------------------------------------
 
-vec3 render_sky(vec3 world_pos, vec3 clouds_pos, vec3 sun_pos, vec3 moon_pos, float p_time) {
+vec3 render_sky(vec3 world_pos, vec3 clouds_pos, vec3 sun_pos, vec3 moon_pos, float p_time, bool p_cubemap) {
 	vec3 col = vec3(0.0);
 
 	vec4 angle_mult;
@@ -374,7 +375,7 @@ vec3 render_sky(vec3 world_pos, vec3 clouds_pos, vec3 sun_pos, vec3 moon_pos, fl
 	mat3 alignment_xyz = create_rotation_matrix(starmap_alignment);
 
 	// Combine everything together to get the desired alignment.
-	vec3 final_alignment = normalize(alignment_xyz * rotation * tilt * world_pos);
+	vec3 final_alignment = normalize(alignment_xyz * rotation * tilt * (or_star_frame * world_pos));
 
 	// Now generate UV coordinates for the texture.
 	vec2 deep_space_uv = calc_equirect_uv(normalize(final_alignment));
@@ -396,6 +397,7 @@ vec3 render_sky(vec3 world_pos, vec3 clouds_pos, vec3 sun_pos, vec3 moon_pos, fl
 	deep_space.rgb += star_field.rgb * moonMask;
 	deep_space.rgb *= angle_mult.z;
 	col.rgb += sun_disk.rgb + deep_space.rgb * horizonBlend;
+	col.rgb = otherreach_sky(col.rgb, world_pos, deep_space.rgb * horizonBlend, moon_mask, horizonBlend, p_cubemap, p_time);
 
 	// Clouds
 	if (cirrus_visible) {
@@ -495,7 +497,7 @@ void sky() {
 	vec3 moon_pos = LIGHT1_DIRECTION; // Redefined from now-deprecated _moon_direction.
 
 	if (sky_visible) {
-		col = render_sky(world_pos, clouds_pos, sun_pos, moon_pos, current_time);
+		col = render_sky(world_pos, clouds_pos, sun_pos, moon_pos, current_time, AT_CUBEMAP_PASS);
 	}
 
 	// Draw overlay grids

@@ -240,6 +240,8 @@ public static class SkyView
             _airHour = _clockHour;
             ApplyAir(sky, SunAltitude(sky));
         }
+        if (sky.Environment is { } air)
+            CelestialView.Advance(_clockHour, _daylightLevel, air);
         // Logged a quarter of a game hour apart, which is every 30 real seconds at time.yaml's rate: the only way
         // to tell a running clock from a stopped one from outside the process, and the thing that was wrong.
         if (Math.Abs(_clockHour - _loggedHour) >= 0.25f || float.IsNaN(_loggedHour))
@@ -303,6 +305,9 @@ public static class SkyView
         float altitude = SunAltitude(sky);
         ApplyAir(sky, altitude);
         float daylight = Daylight(altitude);
+        CelestialView.Attach(sky);
+        if (sky.Environment is { } air)
+            CelestialView.Advance(Hour, daylight, air);
         if (VisualOptions.Clouds == "sunshine" && sky.Get("sun").AsGodotObject() is DirectionalLight3D cloudSun)
         {
             if (CloudsView.Attach(sky, cloudSun, out string? cloudsWhy))

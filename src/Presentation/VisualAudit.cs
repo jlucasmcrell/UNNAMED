@@ -19,6 +19,8 @@ public sealed class VisualAudit
 {
     private const int WarmupFrames = 150;
     private const int SettleFrames = 75;
+    /// <summary>A shots file's per-shot sky: "hour" (0-24) and "celestial" (a look), pinned as the shot starts.</summary>
+    private static readonly Dictionary<string, (string? Hour, string? Look)> SkyFor = new();
     private const int MeasureFrames = 60;   // after settling: the median GPU, CPU and frame time of these (Phase B's comparisons)
     private const float IsoFov = 35f;
     private const float IsoAzimuth = 45f;
@@ -356,6 +358,13 @@ public sealed class VisualAudit
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (_wait == 0)
         {
+            if (SkyFor.TryGetValue(shot.Name, out var sky))
+            {
+                if (sky.Hour is { } hour)
+                    VisualOptions.Pin("hour", hour);
+                if (sky.Look is { } look)
+                    VisualOptions.Pin("celestial", look);
+            }
             var scatter = _root.GetNodeOrNull<Greybox.ScatterView>("Scatter");
             if (_scatterAb) scatter?.SetResidencyModeForCapture(ScatterArms[_scatterStep] is "B" or "B2");
             scatter?.PrepareResidencyForCapture(eye);
@@ -644,6 +653,9 @@ public sealed class VisualAudit
                 var targets = entry.TryGetProperty("targets", out var t) && t.ValueKind == JsonValueKind.Array
                     ? t.EnumerateArray().Select(x => x.GetString()!).ToArray()
                     : Array.Empty<string>();
+                // A shot may set the sky's hour and look for itself (SkyFor), so one run photographs a place at every hour and sky.
+                SkyFor[name] = (entry.TryGetProperty("hour", out var hr) ? hr.ToString() : null,
+                    entry.TryGetProperty("celestial", out var cl) ? cl.GetString() : null);
                 shots.Add(new Shot(name, "checkpoint", Triple(entry, "eye", name, file), Triple(entry, "target", name, file),
                     targets,
                     entry.TryGetProperty("says", out var says) ? says.GetString()! : string.Empty,

@@ -72,6 +72,8 @@ public static class VisualOptions
         // All three exist for the same reason as `skin`: ONE BUILD photographs every arm in the same session,
         // which is what a blind A/B of a lighting change needs (TRAP 12). Never set in a shipping run.
         ["air"] = new[] { "flat", "sun", "hue" },
+        // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): three looks for the owner to choose between, or none.
+        ["celestial"] = new[] { "none", "giant", "arc", "binary" },
     };
 
     private static readonly Dictionary<string, string> Defaults = new()
@@ -111,6 +113,7 @@ public static class VisualOptions
         //     --visual air=flat   (what shipped before)   --visual air=sun   (the refused arm)
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
+        ["celestial"] = "arc",
     };
 
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>
@@ -151,6 +154,15 @@ public static class VisualOptions
     public static string Plants => Values["plants"];
     public static string Foldscar => Values["foldscar"];
     public static string AntiAliasing => Values["aa"];
+    public static string Celestial => Values["celestial"];
+
+    /// <summary>One option changed mid-run by a harness (the visual audit's per-shot hour and sky); refused as --visual refuses it.</summary>
+    internal static void Pin(string key, string value)
+    {
+        if (!Allowed.TryGetValue(key, out var values) || (values.Length > 0 && !values.Contains(value)))
+            throw new ArgumentException($"--visual: no option {key}={value}");
+        Values[key] = value;
+    }
 
     /// <summary>Whether the air's light follows the SUN'S ALTITUDE (<c>sun</c>) or a clamped daylight (<c>flat</c>).</summary>
     public static bool AirFollowsSun => Values["air"] == "sun";
