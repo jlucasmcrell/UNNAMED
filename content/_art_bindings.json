@@ -2660,5 +2660,127 @@
       },
       "note": "WildMesh SK_WildBoar."
     }
+  },
+  "audio": {
+    "cells": {
+      "r_0_0:c_04_06": {
+        "bed": "amb.blackvein_cut.01",
+        "details": [
+          "sfx.amb.blackvein.pebble_fall.01",
+          "sfx.amb.blackvein.rock_shift.01",
+          "sfx.amb.blackvein.winch_creak.01"
+        ],
+        "surface": "stone"
+      },
+      "r_0_0:c_04_07": {
+        "bed": "amb.ashen_hollow.waystation.01",
+        "details": [
+          "sfx.amb.ashen_hollow.forge_distant.01",
+          "sfx.amb.ashen_hollow.timber_creak.01",
+          "sfx.amb.ashen_hollow.settlement_activity.01"
+        ],
+        "surface": "dirt"
+      },
+      "r_0_0:c_05_06": {
+        "bed": "amb.foldscar_ruin.01",
+        "details": [
+          "sfx.amb.foldscar.stone_resonance.01",
+          "sfx.amb.foldscar.tone_displacement.01",
+          "sfx.amb.charwood.branch_movement.01"
+        ],
+        "surface": "puddle"
+      },
+      "r_0_0:c_05_07": {
+        "bed": "amb.charwood_verge.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01",
+          "sfx.amb.charwood.stream_detail.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_06_06": {
+        "bed": "amb.road.marsh_open.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_06_07": {
+        "bed": "amb.road.marsh_open.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_07_06": {
+        "bed": "amb.road.marsh_open.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_07_07": {
+        "bed": "amb.road.marsh_open.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_08_06": {
+        "bed": "amb.cairnwold.moor.01",
+        "details": [
+          "sfx.amb.charwood.raven_call.01",
+          "sfx.amb.blackvein.pebble_fall.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_08_07": {
+        "bed": "amb.cairnwold.moor.01",
+        "details": [
+          "sfx.amb.charwood.raven_call.01",
+          "sfx.amb.blackvein.pebble_fall.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_09_06": {
+        "bed": "amb.cairnwold.village.01",
+        "details": [
+          "sfx.amb.ashen_hollow.forge_distant.01",
+          "sfx.amb.ashen_hollow.settlement_activity.01",
+          "sfx.amb.ashen_hollow.timber_creak.01"
+        ],
+        "surface": "dirt"
+      },
+      "r_0_0:c_09_07": {
+        "bed": "amb.cairnwold.pine_forest.01",
+        "details": [
+          "sfx.amb.charwood.branch_movement.01",
+          "sfx.amb.charwood.raven_call.01",
+          "sfx.amb.ashen_hollow.timber_creak.01"
+        ],
+        "surface": "dirt"
+      },
+      "r_0_0:c_10_06": {
+        "bed": "amb.cairnwold.moor.01",
+        "details": [
+          "sfx.amb.charwood.raven_call.01",
+          "sfx.amb.blackvein.pebble_fall.01"
+        ],
+        "surface": "grass"
+      },
+      "r_0_0:c_10_07": {
+        "bed": "amb.cairnwold.bog.01",
+        "details": [
+          "sfx.amb.charwood.stream_detail.01",
+          "sfx.amb.charwood.branch_movement.01"
+        ],
+        "surface": "puddle"
+      }
+    }
   }
 }
