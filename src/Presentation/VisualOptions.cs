@@ -29,6 +29,9 @@ public static class VisualOptions
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)
         ["people"] = new[] { "phase_a", "production", "standard" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
+        // metahuman_f / metahuman_m: the player drawn as a MetaHuman on the shared UE5-mannequin skeleton (CHARACTER_ANIMATION_STRATEGY.md,
+        // Phase 1.5 smoke test: unclothed Veth, the owner's blend bodies mh_veth_f / mh_veth_m); production keeps the MPFB player.
+        ["player"] = new[] { "production", "metahuman_f", "metahuman_m" },
         ["hud"] = new[] { "classic", "production" },  // production: the remediation's HUD direction (Ui/Hud.cs, M04)
         ["audio"] = new[] { "v3", "proof", "proof_open" },  // proof_open: only proofs whose sources set no AI/ML restriction (reviewable by an AI)
         ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
@@ -90,6 +93,7 @@ public static class VisualOptions
         ["body"] = "none",
         ["clips"] = "procedural",
         ["people"] = "phase_a",
+        ["player"] = "production",
         ["hud"] = "classic",
         // THE AIR'S HUE FOLLOWS THE SUN, ITS INTENSITY DOES NOT. Adopted as the default 2026-09-29, on the
         // owner's deferral, after the alternative was measured and refused: the `sun` arm widened the tonal

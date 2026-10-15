@@ -215,6 +215,90 @@
     },
     "note": "Phase B demo: Tavar Orr (Orenth guide, companion) on the character standard (tools/asset_pipeline/charstd/characters/)."
    }
+  },
+  "player=metahuman_m": {
+   "player": {
+    "model": "mh_veth_m",
+    "hand": "SOCK_hand_r",
+    "off_hand": "SOCK_hand_l",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "off_grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+   }
+  },
+  "player=metahuman_f": {
+   "player": {
+    "model": "mh_veth_f",
+    "hand": "SOCK_hand_r",
+    "off_hand": "SOCK_hand_l",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "off_grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+   }
   }
  },
  "people_clips_by_visual_option": {
@@ -461,6 +545,58 @@
      "run": 2.985,
      "sprint": 4.226
     }
+   }
+  },
+  "player=metahuman_m": {
+   "player": {
+    "clips": {
+     "idle": "player.mh.idle",
+     "walk": "player.mh.walk",
+     "run": "player.mh.run",
+     "sprint": "player.mh.sprint",
+     "crouch_idle": "player.mh.crouch_idle",
+     "crouch_walk": "player.mh.crouch_walk",
+     "jump_start": "player.mh.jump_start",
+     "fall": "player.mh.fall",
+     "land": "player.mh.land",
+     "interact": "player.mh.interact",
+     "stop": "player.mh.idle",
+     "turn": "player.mh.idle",
+     "talk": "player.mh.idle"
+    },
+    "paces": {
+     "walk": 1.037,
+     "run": 3.1926,
+     "sprint": 4.7336,
+     "crouch_walk": 1.0662
+    },
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+   }
+  },
+  "player=metahuman_f": {
+   "player": {
+    "clips": {
+     "idle": "player.mh.idle",
+     "walk": "player.mh.walk",
+     "run": "player.mh.run",
+     "sprint": "player.mh.sprint",
+     "crouch_idle": "player.mh.crouch_idle",
+     "crouch_walk": "player.mh.crouch_walk",
+     "jump_start": "player.mh.jump_start",
+     "fall": "player.mh.fall",
+     "land": "player.mh.land",
+     "interact": "player.mh.interact",
+     "stop": "player.mh.idle",
+     "turn": "player.mh.idle",
+     "talk": "player.mh.idle"
+    },
+    "paces": {
+     "walk": 0.9684,
+     "run": 2.9811,
+     "sprint": 4.42,
+     "crouch_walk": 0.9956
+    },
+    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
    }
   }
  },
