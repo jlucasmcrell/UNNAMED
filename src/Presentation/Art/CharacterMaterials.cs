@@ -90,7 +90,8 @@ public static class CharacterMaterials
     /// The authored LOD chain (meshes named <c>..._LOD1</c>, <c>..._LOD2</c> ... on the same skeleton: charprod's lods.py, or a
     /// MetaHuman's own LOD0-3 from the Blender assembly) switched by distance with a dithered cross-fade; returns the number of levels
     /// found (0: a model without a chain is left alone). Where each level ends comes from <c>lods</c>: <c>chain_&lt;n&gt;</c> for a chain of
-    /// n levels when it is given, else <c>lod0_end</c> and <c>lod1_end</c>.
+    /// n levels when it is given, else <c>lod0_end</c> and <c>lod1_end</c>. <c>chain_&lt;n&gt;_shadow_levels</c> limits shadow casting to that many
+    /// nearest levels: a distant figure's shadow costs a draw per surface per cascade and nobody can read it.
     /// </summary>
     public static int ApplyLods(Node model)
     {
@@ -109,6 +110,7 @@ public static class CharacterMaterials
             ? chain
             : new[] { _lods.GetValueOrDefault("lod0_end", 18f), _lods.GetValueOrDefault("lod1_end", 45f) };
         float margin = _lods.GetValueOrDefault("margin", 2f);
+        int shadowLevels = (int)_lods.GetValueOrDefault($"chain_{levels + 1}_shadow_levels", levels + 1);
         foreach (var m in meshes)
         {
             int level = Math.Min(Level(m), ends.Length);
@@ -117,6 +119,8 @@ public static class CharacterMaterials
             m.VisibilityRangeEnd = level == levels ? 0 : ends[level];
             m.VisibilityRangeBeginMargin = level == 0 ? 0 : margin;
             m.VisibilityRangeEndMargin = level == levels ? 0 : margin;
+            if (level >= shadowLevels)
+                m.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         }
         return levels + 1;
     }
