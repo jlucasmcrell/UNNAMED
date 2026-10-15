@@ -1,0 +1,12 @@
+id: item.material.fellhorn_hide
+kind: item
+schema: 1
+display_key: item.material.fellhorn_hide.name
+tags: [item]
+name: Fellhorn Hide
+notes: A fellhorn's hide, the hump's thick hair still on it.
+category: material
+stack_max: 5
+weight: 2.5
+value_base: 22
+rarity: common

@@ -1,0 +1,16 @@
+id: ability.creature.tusk_sweep
+kind: ability
+schema: 1
+display_key: ability.creature.tusk_sweep.name
+tags: [ability]
+name: Tusk Sweep
+notes: The barrowback swings its head through a wide arc - a long tell (the head drops and swings back first), then a blow that knocks a body off its feet. Step inside it or out of it.
+class: creature
+range_m: 2.6
+windup_s: 1.0
+active_s: 0.25
+recovery_s: 1.4
+forces_stagger: true
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [14, 20] }

@@ -1,0 +1,21 @@
+id: creature.grazer.barrowback
+kind: creature
+schema: 1
+display_key: creature.grazer.barrowback.name
+tags: [creature, grazer]
+name: Barrowback
+notes: The tusked, shaggy giant of the great grazers, about 3.6 m at the withers - fold bleed, met near the Foldscar and nowhere else (owner ruling 2026-10-06; names approved). Passive, but the herd defends as one (DIRECTION_AND_CONTENT_PLAN E4); a barrowback brought down is a real fight and a month of meat.
+family: grazer
+archetype: prey
+level_band: [5, 5]
+pools: { health: 220 }
+attack_set: [ability.creature.tusk_sweep, ability.creature.grazer_charge]
+armor: { head: 6, torso: 8, limbs: 4 }   # matted fleece over a hide like bark
+move_speed_m_s: 3.7
+turn_deg_s: 90             # it does not turn quickly; get round it
+body_radius_m: 1.4
+xp_value: 90
+loot_table: loot.barrowback
+perception: { sight_m: 24, hearing_m: 30, fov_deg: 220 }
+tier_hint: A
+tameable: false

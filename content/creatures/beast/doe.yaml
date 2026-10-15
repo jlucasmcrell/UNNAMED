@@ -1,0 +1,21 @@
+id: creature.beast.doe
+kind: creature
+schema: 1
+display_key: creature.beast.doe.name
+tags: [creature, beast]
+name: Doe
+notes: Red deer of the Charwood and the road's birch (canon firstplay doe). Grazes in the open, watches everything, and is gone at twenty metres; a hunter needs a bow and a crouch.
+family: beast
+archetype: prey
+level_band: [1, 1]
+pools: { health: 24 }
+attack_set: [ability.creature.hoof_kick]
+armor: { head: 0, torso: 1, limbs: 0 }
+move_speed_m_s: 5.0
+turn_deg_s: 360
+body_radius_m: 0.4
+xp_value: 0
+loot_table: loot.deer
+perception: { sight_m: 30, hearing_m: 28, fov_deg: 300 }
+tier_hint: A
+tameable: false

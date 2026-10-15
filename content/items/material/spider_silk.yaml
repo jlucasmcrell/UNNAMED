@@ -1,0 +1,12 @@
+id: item.material.spider_silk
+kind: item
+schema: 1
+display_key: item.material.spider_silk.name
+tags: [item]
+name: Spider Silk
+notes: A hunting spider's dragline (canon WORLD_MATERIALS, a fibre and a bowstring) - tough enough that Kera keeps some for lashings.
+category: material
+stack_max: 20
+weight: 0.05
+value_base: 8
+rarity: common

@@ -83,20 +83,29 @@ public class CombatContentTests
         Assert.Equal(60, constants.RegionWeights[BodyRegion.Torso]);
 
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
-        Assert.Equal(12, spawns.Count);   // the hollow's eight and Cairnwold's four
+        Assert.Equal(29, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's three camps; one night walker; 13 of wildlife
         var strays = spawns["spawn.hollow.valley_strays"];
-        Assert.Equal((2, 518_000L, 728_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
+        Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
         Assert.Equal(new[] { "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
         Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes
-        Assert.Equal(new[] { "ambusher", "den_guardian", "hunter", "pack_hunter", "roamer", "sentinel", "sleeper", "stray", "territorial" }, setup.Roles.Keys);
+        Assert.Equal(new[]
+        {
+            "ambusher", "den_guardian", "herd", "herd_shy", "hunter", "night_walker", "pack_hunter", "prowler", "roamer", "sentinel", "skittish", "sleeper",
+            "stray", "territorial", "wildlife", "yard_fowl",
+        }, setup.Roles.Keys);
 
-        // The content bible's five archetypes, each a creature of its own with its own body and blow (§10).
+        // The content bible's five archetypes, each a creature of its own with its own body and blow (§10) - and the start area's wildlife
+        // and its two great grazers.
         Assert.Equal(new[]
             {
-                "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.cave_hunting_spider", "creature.beast.wolf_grey",
-                "creature.construct.animated_armour", "creature.undead.bone_walker_husk",
+                "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
+                "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
+                "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.grazer.barrowback", "creature.grazer.fellhorn",
+                "creature.undead.bone_walker_husk",
             }, setup.Creatures.Keys);
+        var barrowback = setup.Creatures["creature.grazer.barrowback"];
+        Assert.Equal((5, 220, 1_400L, 16_000L), (barrowback.Level, barrowback.MaxHealth, barrowback.RadiusMm, barrowback.Charge!.ReachMm));
         var hound = setup.Creatures["creature.beast.ash_ember_hound"];
         Assert.Equal(("fire", 2_200L, 6_000L), (hound.Attack.DamageType, hound.Attack.LungeMm, hound.MoveSpeedMmPerSecond));
         var boar = setup.Creatures["creature.beast.bristleback_boar"].Charge!;

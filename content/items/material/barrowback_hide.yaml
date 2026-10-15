@@ -1,0 +1,12 @@
+id: item.material.barrowback_hide
+kind: item
+schema: 1
+display_key: item.material.barrowback_hide.name
+tags: [item]
+name: Barrowback Fleece
+notes: A slab of a barrowback's matted fleece and the hide under it. Nobody in either settlement has worked one; Durn pays for it anyway.
+category: material
+stack_max: 5
+weight: 4.0
+value_base: 40
+rarity: common

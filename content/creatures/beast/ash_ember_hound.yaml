@@ -14,6 +14,7 @@ armor: { head: 1, torso: 1, limbs: 1 }
 move_speed_m_s: 6.0         # faster than a sprint: it cannot be outrun
 body_radius_m: 0.4
 xp_value: 35
+loot_table: loot.ash_ember_hound   # its cinder sac; its corpse holds this until searched
 perception: { sight_m: 30, hearing_m: 35, fov_deg: 160 }
 tier_hint: A
 tameable: false

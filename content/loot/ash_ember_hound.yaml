@@ -1,0 +1,10 @@
+id: loot.ash_ember_hound
+kind: loot
+schema: 1
+display_key: loot.ash_ember_hound.name
+tags: [loot]
+notes: An ember hound - the cinder sac, if it did not burst, and what meat is not charred.
+rolls: 0
+entries:
+  - { item_ref: item.material.cinder_sac, chance: 0.60, count_range: [1, 1] }
+  - { item_ref: item.material.raw_meat, chance: 0.40, count_range: [1, 1] }

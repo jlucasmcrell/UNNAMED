@@ -1,0 +1,10 @@
+id: loot.deer
+kind: loot
+schema: 1
+display_key: loot.deer.name
+tags: [loot]
+notes: A red deer - meat and the hide a vest is cut from.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [2, 2] }
+  - { item_ref: item.material.deer_hide, count_range: [1, 1] }

@@ -1,0 +1,10 @@
+id: loot.bone_walker_husk
+kind: loot
+schema: 1
+display_key: loot.bone_walker_husk.name
+tags: [loot]
+notes: What a husk still carries from whoever it was - arrows, now and then a salve.
+rolls: 0
+entries:
+  - { item_ref: item.ammo.arrow_rough, chance: 0.50, count_range: [3, 6] }
+  - { item_ref: item.consumable.salve_minor, chance: 0.20, count_range: [1, 1] }

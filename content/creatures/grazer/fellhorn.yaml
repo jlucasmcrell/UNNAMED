@@ -1,0 +1,21 @@
+id: creature.grazer.fellhorn
+kind: creature
+schema: 1
+display_key: creature.grazer.fellhorn.name
+tags: [creature, grazer]
+name: Fellhorn
+notes: The humped, horned grazer of the pair, about 1.9 m - fold bleed like the barrowback, in a herd of its own on the high ground north of the Foldscar. Passive; it stands with the herd when one is struck, and breaks when badly hurt.
+family: grazer
+archetype: prey
+level_band: [3, 3]
+pools: { health: 90 }
+attack_set: [ability.creature.horn_butt, ability.creature.grazer_charge]
+armor: { head: 5, torso: 4, limbs: 2 }
+move_speed_m_s: 4.0
+turn_deg_s: 160
+body_radius_m: 0.8
+xp_value: 40
+loot_table: loot.fellhorn
+perception: { sight_m: 26, hearing_m: 30, fov_deg: 240 }
+tier_hint: A
+tameable: false

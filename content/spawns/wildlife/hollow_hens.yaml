@@ -1,0 +1,16 @@
+id: spawn.hollow.hens
+kind: spawn
+schema: 1
+display_key: spawn.hollow.hens.name
+tags: [spawn]
+notes: The waystation's hens in the yard between the longhouse and the forge shed - the first animals a new arrival sees.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.chicken, count: [3, 3], role: yard_fowl }
+  - { creature_ref: creature.beast.rooster, count: [1, 1], role: yard_fowl }
+at:
+  position_m: [443, 740]
+  radius_m: 3
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

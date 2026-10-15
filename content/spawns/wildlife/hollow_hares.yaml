@@ -1,0 +1,15 @@
+id: spawn.hollow.hares
+kind: spawn
+schema: 1
+display_key: spawn.hollow.hares.name
+tags: [spawn]
+notes: Hares on the open ground south-east of the waystation, between the yard and the den - easy to see, hard to catch.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [482, 768]
+  radius_m: 8
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

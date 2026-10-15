@@ -1,0 +1,15 @@
+id: spawn.hollow.foldscar_fellhorns
+kind: spawn
+schema: 1
+display_key: spawn.hollow.foldscar_fellhorns.name
+tags: [spawn]
+notes: A herd of four fellhorns on the rise north-east of the Foldscar - the smaller of the great grazers, as fold-bled as the barrowbacks and as tied to this ground.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.grazer.fellhorn, count: [4, 4], role: herd_shy }
+at:
+  position_m: [645, 625]
+  radius_m: 10
+level_band: [3, 3]
+respawn: { kind: timer, window_ticks: 72000 }   # 60 minutes after a death, once nobody is standing over the place
+tier_hint: A

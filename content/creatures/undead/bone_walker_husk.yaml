@@ -16,6 +16,7 @@ move_speed_m_s: 2.2         # a walk the player can outpace
 turn_deg_s: 180   # a stiff, dead turn
 body_radius_m: 0.35
 xp_value: 35
+loot_table: loot.bone_walker_husk   # what it still carries; its corpse holds this until searched
 perception: { sight_m: 18, hearing_m: 20, fov_deg: 120 }
 tier_hint: A
 tameable: false

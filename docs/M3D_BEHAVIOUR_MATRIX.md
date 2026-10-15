@@ -40,27 +40,51 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 |---|---|---|---|---|---|---|---|
 | ambusher | hold | 14 | no | no | - | - | goes for a footfall in its territory |
 | den_guardian | hold | 16 | yes | yes | - | - | - |
+| herd | wander | - | yes | yes | - | - | wanders 18 m |
+| herd_shy | wander | - | yes | yes | - | 40% | wanders 14 m |
 | hunter | wander | - | no | no | - | - | wanders 10 m |
+| night_walker | patrol | - | no | no | - | - | - |
 | pack_hunter | hold | - | no | yes | - | - | flanks 3 m wide |
+| prowler | wander | - | no | no | - | - | wanders 14 m |
 | roamer | patrol | - | no | yes | - | - | - |
 | sentinel | hold | 10 | no | no | - | - | - |
+| skittish | wander | - | no | no | - | 99% | wanders 10 m |
 | sleeper | sleep | - | no | yes | - | - | hears at 40% asleep |
 | stray | wander | - | no | no | 7 | 30% | wanders 8 m; strikes inside 3 m |
 | territorial | wander | 15 | no | no | - | - | wanders 5 m |
+| wildlife | wander | - | no | no | - | 99% | wanders 6 m |
+| yard_fowl | wander | - | no | no | - | 99% | wanders 4 m |
 
 ## Ashen Hollow's spawners (content)
 
 | Spawner | At (x, z) m | Creatures, each in its role | Returns |
 |---|---|---|---|
-| spawn.cairnwold.barrow_sentinel | (928, 772) | Animated Armour as sentinel | no |
-| spawn.cairnwold.birch_boar | (946, 748) | Bristleback Boar as territorial | no |
-| spawn.cairnwold.gorge_spiders | (1076, 696) | Cave Hunting Spider as ambusher x2 | no |
-| spawn.cairnwold.moor_strays | (1018, 748) | Grey Wolf as stray, Grey Wolf as roamer x2 | no |
-| spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | no |
-| spawn.hollow.charwood_hound | (528, 750) | Ash Ember Hound as hunter | no |
+| spawn.cairnwold.barrow_sentinel | (928, 772) | Animated Armour as sentinel | after 60.0 min |
+| spawn.cairnwold.birch_boar | (946, 748) | Bristleback Boar as territorial | after 30.0 min |
+| spawn.cairnwold.birch_deer | (1082, 730) | Doe as skittish x2, Stag as skittish | after 30.0 min |
+| spawn.cairnwold.crag_walker | (1000, 620) | Bone Walker Husk as night_walker | after 30.0 min |
+| spawn.cairnwold.fox | (1070, 650) | Red Fox as wildlife | after 30.0 min |
+| spawn.cairnwold.gorge_spiders | (1076, 696) | Cave Hunting Spider as ambusher x2 | after 30.0 min |
+| spawn.cairnwold.hens | (980, 694) | Hen as yard_fowl x4, Cockerel as yard_fowl | after 30.0 min |
+| spawn.cairnwold.moor_hares | (1000, 700) | Hare as wildlife x3 | after 30.0 min |
+| spawn.cairnwold.moor_strays | (1018, 748) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
+| spawn.cairnwold.outfall_hares | (1060, 640) | Hare as wildlife x2 | after 30.0 min |
+| spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | after 30.0 min |
+| spawn.hollow.charwood_deer | (612, 718) | Doe as skittish x2, Stag as skittish | after 30.0 min |
+| spawn.hollow.charwood_fox | (590, 700) | Red Fox as wildlife | after 30.0 min |
+| spawn.hollow.charwood_hound | (528, 750) | Ash Ember Hound as hunter | after 30.0 min |
 | spawn.hollow.den_pack | (512, 784) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
 | spawn.hollow.east_pack | (588, 780) | Grey Wolf as roamer x2 | after 20.0 min |
-| spawn.hollow.iron_shelf_armour | (465, 634) | Animated Armour as sentinel | no |
-| spawn.hollow.iron_shelf_husk | (448, 658) | Bone Walker Husk as roamer | no |
-| spawn.hollow.spider_lair | (572, 648) | Cave Hunting Spider as ambusher | no |
-| spawn.hollow.valley_strays | (518, 728) | Grey Wolf as stray x2 | no |
+| spawn.hollow.foldscar_barrowbacks | (588, 618) | Barrowback as herd x3 | after 60.0 min |
+| spawn.hollow.foldscar_fellhorns | (645, 625) | Fellhorn as herd_shy x4 | after 60.0 min |
+| spawn.hollow.hares | (482, 768) | Hare as wildlife x3 | after 30.0 min |
+| spawn.hollow.hens | (443, 740) | Hen as yard_fowl x3, Cockerel as yard_fowl | after 30.0 min |
+| spawn.hollow.iron_shelf_armour | (465, 634) | Animated Armour as sentinel | after 60.0 min |
+| spawn.hollow.iron_shelf_husk | (448, 658) | Bone Walker Husk as roamer | after 30.0 min |
+| spawn.hollow.spider_lair | (572, 648) | Cave Hunting Spider as ambusher | after 30.0 min |
+| spawn.hollow.valley_strays | (518, 728) | Grey Wolf as stray x2 | after 20.0 min |
+| spawn.road.barrow_husks | (846, 630) | Bone Walker Husk as sentinel, Bone Walker Husk as roamer | after 60.0 min |
+| spawn.road.charred_pair | (690, 784) | Ash Ember Hound as prowler x2 | after 30.0 min |
+| spawn.road.deer | (790, 715) | Doe as skittish x2 | after 30.0 min |
+| spawn.road.hares | (720, 765) | Hare as wildlife x2 | after 30.0 min |
+| spawn.road.wayside_pack | (770, 692) | Grey Wolf as roamer x2, Grey Wolf as stray | after 30.0 min |

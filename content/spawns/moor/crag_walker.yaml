@@ -1,0 +1,19 @@
+id: spawn.cairnwold.crag_walker
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.crag_walker.name
+tags: [spawn]
+notes: 'What walks the south crags at night (Durn - "Something walks that line at night. I have never asked it what it wants."): a husk that lies among the boulders by day and walks the foot of the crags east of the seam after dark. Level 3; the one thing on the moor that is only there at night.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.undead.bone_walker_husk, count: [1, 1], role: night_walker }
+at:
+  position_m: [1000, 620]
+  radius_m: 3
+route_m:
+  - [968, 618]
+  - [1000, 620]
+  - [1032, 621]
+level_band: [3, 3]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

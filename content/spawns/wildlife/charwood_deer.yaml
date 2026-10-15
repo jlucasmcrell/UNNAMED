@@ -1,0 +1,16 @@
+id: spawn.hollow.charwood_deer
+kind: spawn
+schema: 1
+display_key: spawn.hollow.charwood_deer.name
+tags: [spawn]
+notes: 'Red deer on the Charwood''s eastern edge (canon firstplay charwood_doe at 610, 718): two hinds and their stag.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.doe, count: [2, 2], role: skittish }
+  - { creature_ref: creature.beast.buck, count: [1, 1], role: skittish }
+at:
+  position_m: [612, 718]
+  radius_m: 6
+level_band: [1, 2]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

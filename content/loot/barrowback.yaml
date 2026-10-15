@@ -1,0 +1,10 @@
+id: loot.barrowback
+kind: loot
+schema: 1
+display_key: loot.barrowback.name
+tags: [loot]
+notes: A barrowback - more meat than one person can carry, and the fleece.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [4, 4] }
+  - { item_ref: item.material.barrowback_hide, count_range: [1, 1] }

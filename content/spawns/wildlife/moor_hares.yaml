@@ -1,0 +1,15 @@
+id: spawn.cairnwold.moor_hares
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.moor_hares.name
+tags: [spawn]
+notes: Hares on the open moor below the village, in sight of the moor strays.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [1000, 700]
+  radius_m: 8
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

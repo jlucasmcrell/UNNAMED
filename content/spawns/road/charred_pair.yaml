@@ -1,0 +1,15 @@
+id: spawn.road.charred_pair
+kind: spawn
+schema: 1
+display_key: spawn.road.charred_pair.name
+tags: [spawn]
+notes: Two ember hounds that lie up by day in the hollow far south of the road and range it by night - the Charwood hound's kind, further out and in company.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.ash_ember_hound, count: [2, 2], role: prowler }
+at:
+  position_m: [690, 784]
+  radius_m: 6
+level_band: [3, 3]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

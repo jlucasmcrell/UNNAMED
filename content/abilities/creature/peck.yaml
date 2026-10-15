@@ -1,0 +1,15 @@
+id: ability.creature.peck
+kind: ability
+schema: 1
+display_key: ability.creature.peck.name
+tags: [ability]
+name: Nip
+notes: What a small animal has if cornered. Peaceful roles run instead, so it is the attack a creature definition must name rather than one anything uses.
+class: creature
+range_m: 0.5
+windup_s: 0.3
+active_s: 0.1
+recovery_s: 0.6
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_pierce, amount: [1, 2] }

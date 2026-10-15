@@ -1,0 +1,9 @@
+id: loot.fox
+kind: loot
+schema: 1
+display_key: loot.fox.name
+tags: [loot]
+notes: A small useful pelt; no combat XP for peaceful wildlife (canon loot.fox).
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.small_hide, count_range: [1, 1] }

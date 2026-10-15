@@ -1,0 +1,21 @@
+id: creature.beast.chicken
+kind: creature
+schema: 1
+display_key: creature.beast.chicken.name
+tags: [creature, beast]
+name: Hen
+notes: Cairnwold's and the waystation's hens - peaceful domestic fowl (canon firstplay chicken). They scratch about the yard, scatter from anyone who comes close and roost at dark. No combat XP, no ownership.
+family: beast
+archetype: prey
+level_band: [1, 1]
+pools: { health: 8 }
+attack_set: [ability.creature.peck]
+armor: { head: 0, torso: 0, limbs: 0 }
+move_speed_m_s: 0.9        # a walk of 0.45 m/s and a scuttle of 0.9 - the hen clips' own paces (0.29 and 1.4 m/s)
+turn_deg_s: 360
+body_radius_m: 0.15
+xp_value: 0
+loot_table: loot.chicken
+perception: { sight_m: 12, hearing_m: 16, fov_deg: 300 }
+tier_hint: A
+tameable: false

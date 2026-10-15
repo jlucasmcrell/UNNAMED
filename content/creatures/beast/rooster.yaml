@@ -1,0 +1,21 @@
+id: creature.beast.rooster
+kind: creature
+schema: 1
+display_key: creature.beast.rooster.name
+tags: [creature, beast]
+name: Cockerel
+notes: The yard's cockerel, one to a flock. As peaceful as the hens and as quick to scatter.
+family: beast
+archetype: prey
+level_band: [1, 1]
+pools: { health: 10 }
+attack_set: [ability.creature.peck]
+armor: { head: 0, torso: 0, limbs: 0 }
+move_speed_m_s: 1.2
+turn_deg_s: 360
+body_radius_m: 0.16
+xp_value: 0
+loot_table: loot.chicken
+perception: { sight_m: 14, hearing_m: 16, fov_deg: 300 }
+tier_hint: A
+tameable: false

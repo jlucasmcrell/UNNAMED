@@ -1,0 +1,11 @@
+id: loot.rabbit
+kind: loot
+schema: 1
+display_key: loot.rabbit.name
+tags: [loot]
+notes: A hare - a little meat and, usually, the pelt.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [1, 1] }
+entries:
+  - { item_ref: item.material.small_hide, chance: 0.70, count_range: [1, 1] }

@@ -1,0 +1,12 @@
+id: item.material.feathers
+kind: item
+schema: 1
+display_key: item.material.feathers.name
+tags: [item]
+name: Feathers
+notes: Hen and cockerel feathers - fletching for arrows.
+category: material
+stack_max: 20
+weight: 0.02
+value_base: 1
+rarity: common

@@ -376,7 +376,8 @@ public partial class SoundEvents : Node
     {
         foreach (var c in _session.Simulation!.Creatures)
         {
-            if (!c.Alive || _bindings.Creatures.GetValueOrDefault(c.DefId) is not { } art)
+            // A creature bound without a voice (the wildlife, until it has recordings) is silent rather than asked for sounds it has not got.
+            if (!c.Alive || _bindings.Creatures.GetValueOrDefault(c.DefId) is not { Voice.Length: > 0 } art)
                 continue;
             var at = new Vector3(c.Body.XMm / 1000f, c.Body.YMm / 1000f, c.Body.ZMm / 1000f);
             if (!_creatures.TryGetValue(c.Id, out var heard))

@@ -1,0 +1,9 @@
+id: loot.cave_hunting_spider
+kind: loot
+schema: 1
+display_key: loot.cave_hunting_spider.name
+tags: [loot]
+notes: A hunting spider's silk (canon WORLD_MATERIALS) - the gorge and the lair pay for the risk.
+rolls: 0
+entries:
+  - { item_ref: item.material.spider_silk, chance: 0.80, count_range: [1, 2] }

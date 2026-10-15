@@ -1,0 +1,11 @@
+id: loot.chicken
+kind: loot
+schema: 1
+display_key: loot.chicken.name
+tags: [loot]
+notes: A hen or cockerel - meat, and feathers for fletching (canon loot.chicken, with the feathers).
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [1, 1] }
+entries:
+  - { item_ref: item.material.feathers, chance: 0.75, count_range: [2, 4] }

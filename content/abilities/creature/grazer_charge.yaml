@@ -1,0 +1,16 @@
+id: ability.creature.grazer_charge
+kind: ability
+schema: 1
+display_key: ability.creature.grazer_charge.name
+tags: [ability]
+name: Stampede
+notes: A grazer's charge from range - the head goes down for a full second, then a straight run that flattens what it meets. Like the boar's, it cannot turn, and a rock or a tree in its line stops it dazed.
+class: creature
+windup_s: 1.0
+recovery_s: 1.6
+cooldown_s: 9
+forces_stagger: true
+charge: { speed_m_s: 8, min_range_m: 6, max_distance_m: 16, stun_s: 2.5 }
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [16, 24] }

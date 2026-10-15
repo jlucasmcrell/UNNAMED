@@ -1,0 +1,16 @@
+id: ability.creature.horn_butt
+kind: ability
+schema: 1
+display_key: ability.creature.horn_butt.name
+tags: [ability]
+name: Horn Butt
+notes: The fellhorn drops its horns and drives forward a step.
+class: creature
+range_m: 1.8
+windup_s: 0.6
+active_s: 0.15
+recovery_s: 1.0
+lunge_m: 0.8
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [8, 12] }

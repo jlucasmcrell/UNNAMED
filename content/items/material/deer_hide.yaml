@@ -1,0 +1,12 @@
+id: item.material.deer_hide
+kind: item
+schema: 1
+display_key: item.material.deer_hide.name
+tags: [item]
+name: Deer Hide
+notes: A red deer's hide - the broad piece a hide vest is cut round.
+category: material
+stack_max: 10
+weight: 1.0
+value_base: 12
+rarity: common

@@ -1,0 +1,12 @@
+id: item.material.cinder_sac
+kind: item
+schema: 1
+display_key: item.material.cinder_sac.name
+tags: [item]
+name: Cinder Sac
+notes: An ember hound's fire gland (canon WORLD_MATERIALS). Still warm. Sel will buy it, and will not say what for.
+category: material
+stack_max: 10
+weight: 0.2
+value_base: 14
+rarity: common

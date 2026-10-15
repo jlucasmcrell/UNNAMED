@@ -1,0 +1,11 @@
+id: loot.fellhorn
+kind: loot
+schema: 1
+display_key: loot.fellhorn.name
+tags: [loot]
+notes: A fellhorn - meat and its hide.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [3, 3] }
+entries:
+  - { item_ref: item.material.fellhorn_hide, chance: 0.85, count_range: [1, 1] }

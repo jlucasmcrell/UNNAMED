@@ -14,6 +14,7 @@ armor: { head: 2, torso: 3, limbs: 2 }
 move_speed_m_s: 5.5
 body_radius_m: 0.5
 xp_value: 40
+loot_table: loot.cave_hunting_spider   # its silk; its corpse holds this until searched
 perception: { sight_m: 6, hearing_m: 14, fov_deg: 360 }   # it feels, rather than sees
 tier_hint: A
 tameable: false

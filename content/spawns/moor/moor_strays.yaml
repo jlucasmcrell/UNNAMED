@@ -42,5 +42,6 @@ level_band:
 - 1
 - 2
 respawn:
-  kind: none
+  kind: timer
+  window_ticks: 24000   # 20 minutes: the world refills, away from the player (AG-3 doubles it while farmed)
 tier_hint: A

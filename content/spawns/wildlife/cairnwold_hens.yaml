@@ -1,0 +1,16 @@
+id: spawn.cairnwold.hens
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.hens.name
+tags: [spawn]
+notes: Cairnwold's hens in their wattle pen behind the smithy, outside the south wall - the village's livestock you can see from the lane.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.chicken, count: [4, 4], role: yard_fowl }
+  - { creature_ref: creature.beast.rooster, count: [1, 1], role: yard_fowl }
+at:
+  position_m: [980, 694]
+  radius_m: 1.5
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
+tier_hint: A

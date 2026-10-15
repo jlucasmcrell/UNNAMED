@@ -1,0 +1,21 @@
+id: creature.beast.buck
+kind: creature
+schema: 1
+display_key: creature.beast.buck.name
+tags: [creature, beast]
+name: Stag
+notes: The stag that keeps a few hinds. Warier than they are, and the first to go.
+family: beast
+archetype: prey
+level_band: [2, 2]
+pools: { health: 32 }
+attack_set: [ability.creature.hoof_kick]
+armor: { head: 2, torso: 1, limbs: 0 }
+move_speed_m_s: 5.0
+turn_deg_s: 300
+body_radius_m: 0.45
+xp_value: 0
+loot_table: loot.deer
+perception: { sight_m: 32, hearing_m: 30, fov_deg: 300 }
+tier_hint: A
+tameable: false

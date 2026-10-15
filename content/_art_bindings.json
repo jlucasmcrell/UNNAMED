@@ -3270,6 +3270,94 @@
         "run": "charge"
       },
       "note": "WildMesh SK_WildBoar."
+    },
+    "creature.beast.chicken": {
+      "model": "creature_wm_chicken",
+      "clips": "creature.creature_wm_chicken",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Chicken (staged 2026-10-14). Its gait clips keep their authored paces (walk 0.29, run 1.40 m/s), read from the clip records. No recorded voice yet: silent."
+    },
+    "creature.beast.rooster": {
+      "model": "creature_wm_rooster",
+      "clips": "creature.creature_wm_rooster",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Rooster (staged 2026-10-14), clip paces from the records. Silent."
+    },
+    "creature.beast.rabbit": {
+      "model": "creature_wm_rabbit",
+      "clips": "creature.creature_wm_rabbit",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Rabbit (staged 2026-10-14): walk is the slow grazing hop (0.76 m/s), run 3.26 m/s. Silent."
+    },
+    "creature.beast.doe": {
+      "model": "creature_wm_doe",
+      "clips": "creature.creature_wm_doe",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_FemaleDeer (replaces the blocked 100 MODELS Doe). Silent: no deer recording on disk."
+    },
+    "creature.beast.buck": {
+      "model": "creature_wm_buck",
+      "clips": "creature.creature_wm_buck",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Deer stag (staged 2026-10-14). Silent."
+    },
+    "creature.beast.red_fox": {
+      "model": "creature_wm_red_fox",
+      "clips": "creature.creature_wm_red_fox",
+      "voice": "",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Fox, the realistic A_ fox (staged 2026-10-14). Silent: no fox recording on disk."
+    },
+    "creature.grazer.barrowback": {
+      "model": "creature_wm_barrowback",
+      "clips": "creature.creature_wm_barrowback",
+      "voice": "barrowback",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh Mammoth scaled to 4.1 m overall (~3.6 m withers); recorded voice set barrowback (Sonniss GDC 2026, staged 2026-10-14)."
+    },
+    "creature.grazer.fellhorn": {
+      "model": "creature_wm_fellhorn",
+      "clips": "creature.creature_wm_fellhorn",
+      "voice": "fellhorn",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh Buffalo (bison), 1.9 m hump; recorded voice set fellhorn (Sonniss GDC 2026, staged 2026-10-14)."
     }
   },
   "audio": {

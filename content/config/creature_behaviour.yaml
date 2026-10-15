@@ -20,6 +20,7 @@ noise_m:                      # STEALTH §7: how far each sound carries
   blow: 20
   call: 45                    # a howl
 corpse: { decay_s: 600, stack_slots: 8 }
+hours: { clock_at_world_start_h: 10.5, night_from_h: 20.5, day_from_h: 5.5 }   # when roles that keep hours rest; the clock is the sky's (SkyView.DefaultHour at world tick 0)
 roles:
   den_guardian: { unaware: hold, territory_m: 16, calls_for_help: true, answers_calls: true }   # holds the den mouth and howls
   pack_hunter: { unaware: hold, answers_calls: true, flank_m: 3 }                                 # comes to a howl, closes from the side
@@ -30,3 +31,10 @@ roles:
   sentinel: { unaware: hold, territory_m: 10 }                                                    # guards its post and no further
   territorial: { unaware: wander, wander_m: 5, territory_m: 15 }                                  # roots about its wallow, defends it
   ambusher: { unaware: hold, territory_m: 14, pounce_on_noise: true }                             # waits in its lair; goes for what it feels
+  wildlife: { unaware: wander, wander_m: 6, peaceful: true, flee_within_m: 12, flee_below_percent: 99, rests: night }   # canon's peaceful wildlife: drifts about, bolts from people and wounds, beds down at night
+  skittish: { unaware: wander, wander_m: 10, peaceful: true, flee_within_m: 20, flee_below_percent: 99, rests: night }  # deer: a wide drift, gone at twenty metres - a hunter crouches
+  yard_fowl: { unaware: wander, wander_m: 4, peaceful: true, flee_within_m: 3, flee_below_percent: 99, rests: night }   # hens: scratch about the yard, scatter underfoot, roost at dark
+  herd: { unaware: wander, wander_m: 18, peaceful: true, calls_for_help: true, answers_calls: true, rests: night }        # the great grazers (E4): ignore you, and all turn on whoever strikes one
+  herd_shy: { unaware: wander, wander_m: 14, peaceful: true, calls_for_help: true, answers_calls: true, flee_below_percent: 40, rests: night }   # fellhorns: stand with the herd, break when badly hurt
+  night_walker: { unaware: patrol, rests: day }                                                   # lies still by day and walks its line at night (Durn's crags)
+  prowler: { unaware: wander, wander_m: 14, rests: day }                                          # lies up by day, ranges its ground by night
