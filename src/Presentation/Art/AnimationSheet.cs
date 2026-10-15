@@ -50,7 +50,7 @@ public partial class AnimationSheet : Node3D
         {
             foreach (string bone in bones)
             {
-                int index = skeleton.FindBone(bone);
+                int index = BoneNames.Find(skeleton, bone);
                 if (index >= 0)
                     _watched[(skeleton, bone)] = skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(index);
             }

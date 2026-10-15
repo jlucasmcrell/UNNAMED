@@ -9,7 +9,8 @@ namespace UNNAMED.Presentation.Art;
 /// The engine's own modifiers set up on a skinned body: <see cref="TwoBoneIK3D"/> for the legs (fed by <see cref="FootPlanting"/>, which
 /// finds the ground under each animated foot and lowers the hips for the lower one), <see cref="LookAtModifier3D"/> for the head, and
 /// <see cref="SpringBoneSimulator3D"/> for a trailing bone. Modifiers run in the skeleton's child order after the clip is applied, so the
-/// planting is added before the IK that reads its targets. Bone names are the 20-bone humanoid and 18-bone quadruped rigs' own.
+/// planting is added before the IK that reads its targets. Bone names are the 20-bone humanoid and 18-bone quadruped rigs' own, and a
+/// MetaHuman body's through <see cref="BoneNames"/>.
 /// </summary>
 public static class BodyModifiers
 {
@@ -17,7 +18,7 @@ public static class BodyModifiers
     public static FootPlanting? PlantFeet(Skeleton3D skeleton, Node3D body, Func<float, float, float> ground)
     {
         string[] bones = { "hips", "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R" };
-        if (bones.Any(b => skeleton.FindBone(b) < 0))
+        if (bones.Any(b => BoneNames.Find(skeleton, b) < 0))
             return null;
         var planting = new FootPlanting { Name = "FootPlanting", Body = body, Ground = ground };
         skeleton.AddChild(planting);
@@ -31,9 +32,9 @@ public static class BodyModifiers
             var pole = new Node3D { Name = "KneePole." + s };
             skeleton.AddChild(target);
             skeleton.AddChild(pole);
-            ik.SetRootBoneName(side, "thigh." + s);
-            ik.SetMiddleBoneName(side, "shin." + s);
-            ik.SetEndBoneName(side, "foot." + s);
+            ik.SetRootBoneName(side, BoneNames.Resolve(skeleton, "thigh." + s)!);
+            ik.SetMiddleBoneName(side, BoneNames.Resolve(skeleton, "shin." + s)!);
+            ik.SetEndBoneName(side, BoneNames.Resolve(skeleton, "foot." + s)!);
             ik.SetTargetNode(side, ik.GetPathTo(target));
             ik.SetPoleNode(side, ik.GetPathTo(pole));
             planting.Targets[side] = target;
@@ -47,6 +48,7 @@ public static class BodyModifiers
     /// <summary>Turn the head toward <paramref name="target"/> within a comfortable range (the face's axis found from the rest pose); null without a head bone.</summary>
     public static LookAtModifier3D? LookAt(Skeleton3D skeleton, Node3D body, Node3D target, string bone = "head")
     {
+        bone = BoneNames.Resolve(skeleton, bone) ?? bone;
         int head = skeleton.FindBone(bone);
         if (head < 0)
             return null;
@@ -61,20 +63,21 @@ public static class BodyModifiers
     }
 
     /// <summary>
-    /// The eyes (the production rig's <c>eye.L</c> / <c>eye.R</c>) turned toward <paramref name="target"/> within an eye's range, on top of the
+    /// The eyes (the production rig's <c>eye.L</c> / <c>eye.R</c>, a MetaHuman's <c>FACIAL_L_Eye</c> / <c>FACIAL_R_Eye</c>) turned toward <paramref name="target"/> within an eye's range, on top of the
     /// head's own look; empty on a rig without eye bones.
     /// </summary>
     public static IReadOnlyList<LookAtModifier3D> EyesLook(Skeleton3D skeleton, Node3D body, Node3D target)
     {
         var looks = new List<LookAtModifier3D>();
-        foreach (string bone in new[] { "eye.L", "eye.R" })
+        foreach (string role in new[] { "eye.L", "eye.R" })
         {
+            string bone = BoneNames.Resolve(skeleton, role) ?? role;
             int eye = skeleton.FindBone(bone);
             if (eye < 0)
                 continue;
             var look = new LookAtModifier3D
             {
-                Name = "EyeLook." + bone[^1], BoneName = bone, ForwardAxis = FaceAxis(skeleton, body, eye), UseAngleLimitation = true,
+                Name = "EyeLook." + role[^1], BoneName = bone, ForwardAxis = FaceAxis(skeleton, body, eye), UseAngleLimitation = true,
                 SymmetryLimitation = true, PrimaryLimitAngle = Mathf.DegToRad(60), SecondaryLimitAngle = Mathf.DegToRad(40), Duration = 0.08f,
             };
             skeleton.AddChild(look);
@@ -158,12 +161,12 @@ public partial class FootPlanting : SkeletonModifier3D
 
     public void Bind(Skeleton3D skeleton)
     {
-        _hips = skeleton.FindBone("hips");
+        _hips = BoneNames.Find(skeleton, "hips");
         _hipsParent = skeleton.GetBoneParent(_hips);
-        _feet[0] = skeleton.FindBone("foot.L");
-        _feet[1] = skeleton.FindBone("foot.R");
-        _shins[0] = skeleton.FindBone("shin.L");
-        _shins[1] = skeleton.FindBone("shin.R");
+        _feet[0] = BoneNames.Find(skeleton, "foot.L");
+        _feet[1] = BoneNames.Find(skeleton, "foot.R");
+        _shins[0] = BoneNames.Find(skeleton, "shin.L");
+        _shins[1] = BoneNames.Find(skeleton, "shin.R");
     }
 
     public override void _ProcessModificationWithDelta(double delta)
@@ -205,7 +208,8 @@ public partial class FootPlanting : SkeletonModifier3D
 /// <summary>
 /// A hand's finger bones curled about their bend axis on top of the clip: <see cref="Closed"/> 1 is a grip around a haft, 0 the clip's
 /// own fingers. The production rig (tools/asset_pipeline/charprod/rig_production.py) rolls every finger bone so its local X is the bend
-/// axis and a grip is a negative turn about it.
+/// axis and a grip is a negative turn about it. A MetaHuman hand's finger bones keep their own roll, so there the bend axis is found from
+/// the rest pose: across the finger, turning it toward the palm.
 /// </summary>
 public partial class HandGrip : SkeletonModifier3D
 {
@@ -213,7 +217,7 @@ public partial class HandGrip : SkeletonModifier3D
     public float Closed { get; set; }
 
     private float _now;
-    private readonly List<(int Bone, float Angle)> _bones = new();
+    private readonly List<(int Bone, Vector3 Axis, float Angle)> _bones = new();
 
     // A grip's curl per segment, in degrees: the fingers' knuckle, middle and end joints; the thumb curls less.
     private static readonly float[] Finger = { 62f, 78f, 48f };
@@ -221,17 +225,50 @@ public partial class HandGrip : SkeletonModifier3D
 
     public bool Bind(Skeleton3D skeleton, string handBone)
     {
-        string side = handBone.Length > 2 && handBone[^2] == '.' ? handBone[^1..] : handBone.EndsWith("_r", StringComparison.Ordinal) ? "R" : "L";
+        string side = BoneNames.Side(handBone);
+        var palm = PalmSide(skeleton, side);
         foreach (string name in new[] { "thumb", "index", "middle", "ring", "pinky" })
         {
             for (int k = 0; k < 3; k++)
             {
-                int bone = skeleton.FindBone($"{name}_0{k + 1}.{side}");
-                if (bone >= 0)
-                    _bones.Add((bone, Mathf.DegToRad(name == "thumb" ? Thumb[k] : Finger[k])));
+                string canonical = $"{name}_0{k + 1}.{side}";
+                if (BoneNames.Resolve(skeleton, canonical) is not { } found)
+                    continue;
+                int bone = skeleton.FindBone(found);
+                float angle = Mathf.DegToRad(name == "thumb" ? Thumb[k] : Finger[k]);
+                if (found == canonical)
+                    _bones.Add((bone, Vector3.Left, angle));
+                else if (palm is { } toPalm)
+                    _bones.Add((bone, BendAxis(skeleton, bone, toPalm), angle));
             }
         }
         return _bones.Count > 0;
+    }
+
+    /// <summary>
+    /// Where the palm faces in the rest pose (the way a grip closes): the fingers' direction crossed with the knuckle line toward the thumb,
+    /// mirrored for the right hand. Null when the hand lacks the bones to tell.
+    /// </summary>
+    private static Vector3? PalmSide(Skeleton3D skeleton, string side)
+    {
+        int hand = BoneNames.Find(skeleton, "hand." + side), middle = BoneNames.Find(skeleton, "middle_01." + side);
+        int index = BoneNames.Find(skeleton, "index_01." + side), pinky = BoneNames.Find(skeleton, "pinky_01." + side);
+        if (hand < 0 || middle < 0 || index < 0 || pinky < 0)
+            return null;
+        Vector3 At(int bone) => skeleton.GetBoneGlobalRest(bone).Origin;
+        var across = (At(middle) - At(hand)).Cross(At(index) - At(pinky));
+        return (side == "L" ? across : -across).Normalized();
+    }
+
+    /// <summary>The axis, in the bone's own space, that turns it toward the palm: its rest direction (to its first child, else from its parent) crossed with the palm side.</summary>
+    private static Vector3 BendAxis(Skeleton3D skeleton, int bone, Vector3 palm)
+    {
+        var rest = skeleton.GetBoneGlobalRest(bone);
+        int[] children = skeleton.GetBoneChildren(bone);
+        var along = children.Length > 0
+            ? skeleton.GetBoneGlobalRest(children[0]).Origin - rest.Origin
+            : rest.Origin - skeleton.GetBoneGlobalRest(skeleton.GetBoneParent(bone)).Origin;
+        return (rest.Basis.Inverse() * along.Cross(palm)).Normalized();
     }
 
     public override void _ProcessModificationWithDelta(double delta)
@@ -241,7 +278,7 @@ public partial class HandGrip : SkeletonModifier3D
         _now = delta <= 0 ? Closed : Mathf.MoveToward(_now, Closed, (float)delta * 6f);
         if (_now <= 0.001f)
             return;
-        foreach (var (bone, angle) in _bones)
-            skeleton.SetBonePoseRotation(bone, skeleton.GetBonePoseRotation(bone) * new Quaternion(Vector3.Right, -angle * _now));
+        foreach (var (bone, axis, angle) in _bones)
+            skeleton.SetBonePoseRotation(bone, skeleton.GetBonePoseRotation(bone) * new Quaternion(axis, angle * _now));
     }
 }

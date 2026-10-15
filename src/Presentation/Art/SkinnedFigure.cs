@@ -72,7 +72,7 @@ public sealed partial class SkinnedFigure : Figure
         // (A hand bound at its socket - the character standard's SOCK_hand.R - closes the fingers of the hand bone it sits on.)
         static string Bone(string hand) => hand.StartsWith("SOCK_", StringComparison.Ordinal) ? hand[5..] : hand;
         figure._fingers = BodyModifiers.Grip(model.Skeleton, Bone(person.Hand));
-        string otherHand = Bone(person.OffHand ?? (person.Hand.EndsWith(".R", StringComparison.Ordinal) ? person.Hand[..^1] + "L" : person.Hand[..^1] + "R"));
+        string otherHand = Bone(person.OffHand ?? BoneNames.Opposite(person.Hand));
         figure._offFingers = BodyModifiers.Grip(model.Skeleton, otherHand);
         figure.Relax();
         // A character-standard face: blinks, and the line on screen spoken (FaceDriver).
@@ -146,11 +146,11 @@ public sealed partial class SkinnedFigure : Figure
 
     public override void Say(string? line) => _face?.Say(line);
 
-    public override Vector3? Head => _model.Skeleton.FindBone("head") is int head and >= 0
+    public override Vector3? Head => BoneNames.Find(_model.Skeleton, "head") is int head and >= 0
         ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(head).Origin + Vector3.Up * 0.06f
         : null;
 
-    public override Vector3? Foot(string side) => _model.Skeleton.FindBone("foot." + side) is int foot and >= 0
+    public override Vector3? Foot(string side) => BoneNames.Find(_model.Skeleton, "foot." + side) is int foot and >= 0
         ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(foot).Origin
         : null;
 
@@ -221,9 +221,10 @@ public sealed partial class SkinnedFigure : Figure
         if (_haftIk is not null)
             return _haftIk;
         string main = _hand?.BoneName.StartsWith("SOCK_", StringComparison.Ordinal) == true ? _hand.BoneName[5..] : _hand?.BoneName ?? "";
-        string side = main.EndsWith(".R", StringComparison.Ordinal) ? "L" : "R";
+        string side = BoneNames.Side(main) == "R" ? "L" : "R";
         var skeleton = _model.Skeleton;
-        if (skeleton.FindBone("upper_arm." + side) < 0 || skeleton.FindBone("forearm." + side) < 0 || skeleton.FindBone("hand." + side) < 0)
+        if (BoneNames.Resolve(skeleton, "upper_arm." + side) is not { } upper || BoneNames.Resolve(skeleton, "forearm." + side) is not { } fore
+            || BoneNames.Resolve(skeleton, "hand." + side) is not { } offHand)
             return null;
         _offSide = side == "L" ? 1f : -1f;   // the body faces +Z: its left is +X
         _haftTarget = new Node3D { Name = "HaftTarget" };
@@ -233,9 +234,9 @@ public sealed partial class SkinnedFigure : Figure
         skeleton.AddChild(_haftTarget);
         skeleton.AddChild(_haftPole);
         ik.SetSettingCount(1);
-        ik.SetRootBoneName(0, "upper_arm." + side);
-        ik.SetMiddleBoneName(0, "forearm." + side);
-        ik.SetEndBoneName(0, "hand." + side);
+        ik.SetRootBoneName(0, upper);
+        ik.SetMiddleBoneName(0, fore);
+        ik.SetEndBoneName(0, offHand);
         ik.SetTargetNode(0, ik.GetPathTo(_haftTarget));
         ik.SetPoleNode(0, ik.GetPathTo(_haftPole));
         return _haftIk = ik;
@@ -256,7 +257,7 @@ public sealed partial class SkinnedFigure : Figure
         _haftTarget!.GlobalPosition = held.GlobalTransform * haft;
         // The elbow down and out to the other side, from the chest.
         var skeleton = _model.Skeleton;
-        int chest = skeleton.FindBone("chest");
+        int chest = BoneNames.Find(skeleton, "chest");
         var at = chest >= 0 ? skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(chest).Origin : GlobalPosition + Vector3.Up * 1.3f;
         _haftPole!.GlobalPosition = at + GlobalTransform.Basis.X * (0.5f * _offSide) + Vector3.Down * 0.6f;
     }
