@@ -147119,6 +147119,101 @@ structures:
   - 691.07
   - 0.45
   height_m: 13.0
+- id: road_barrow_pillar_a
+  box_m:
+  - 842.0
+  - 625.6
+  - 842.9
+  - 626.5
+  height_m: 1.8
+- id: road_barrow_pillar_b
+  box_m:
+  - 849.5
+  - 625.0
+  - 850.4
+  - 625.9
+  height_m: 1.8
+- id: road_barrow_pillar_c
+  box_m:
+  - 851.0
+  - 634.2
+  - 851.9
+  - 635.1
+  height_m: 1.8
+- id: road_barrow_stone_a
+  box_m:
+  - 840.0
+  - 632.0
+  - 842.4
+  - 633.3
+  height_m: 1.5
+- id: road_barrow_stone_b
+  box_m:
+  - 847.0
+  - 636.5
+  - 849.4
+  - 637.8
+  height_m: 1.5
+- id: road_wain_wreck
+  box_m:
+  - 741.4
+  - 661.8
+  - 744.6
+  - 663.8
+  height_m: 1.4
+- id: road_shrine_stone
+  box_m:
+  - 688.7
+  - 662.0
+  - 691.3
+  - 663.4
+  height_m: 1.5
+- id: cw_lantern_shrine
+  circle_m:
+  - 692.5
+  - 662.6
+  - 0.1
+  height_m: 2.8
+- id: cw_hurdle_pen_n
+  box_m:
+  - 977.0
+  - 691.3
+  - 983.0
+  - 691.6
+  height_m: 1.2
+- id: cw_hurdle_pen_s
+  box_m:
+  - 977.0
+  - 696.4
+  - 983.0
+  - 696.7
+  height_m: 1.2
+- id: cw_hurdle_pen_w
+  box_m:
+  - 976.7
+  - 691.3
+  - 977.0
+  - 696.7
+  height_m: 1.2
+- id: cw_hurdle_pen_e
+  box_m:
+  - 983.0
+  - 691.3
+  - 983.3
+  - 696.7
+  height_m: 1.2
+- id: cw_woodpile_rim
+  circle_m:
+  - 888.0
+  - 701.6
+  - 0.62
+  height_m: 1.2
+- id: cw_lantern_rim
+  circle_m:
+  - 884.0
+  - 698.4
+  - 0.1
+  height_m: 2.8
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -147247,6 +147342,30 @@ containers:
   - 975.0
   - 678.0
   stack_slots: 8
+- key: container.road.barrow_cache
+  loot_ref: loot.barrow_cache
+  position_m:
+  - 846.5
+  - 631.0
+  stack_slots: 8
+- key: container.road.wain_load
+  loot_ref: loot.wain_load
+  position_m:
+  - 746.2
+  - 664.2
+  stack_slots: 8
+- key: container.road.shrine_offerings
+  loot_ref: loot.shrine_offerings
+  position_m:
+  - 689.5
+  - 664.6
+  stack_slots: 4
+- key: container.road.rim_camp
+  loot_ref: loot.rim_camp
+  position_m:
+  - 884.8
+  - 701.4
+  stack_slots: 6
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:

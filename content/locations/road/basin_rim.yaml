@@ -1,0 +1,25 @@
+id: location.road.basin_rim
+kind: location
+schema: 1
+display_key: location.road.basin_rim.name
+tags:
+- location
+notes: 'The cliff top where the road meets the drop into Cairnwold''s basin: the whole village, the moss and the crags laid out below, and a watch-fire someone keeps (station.road.rim_cookfire, container.road.rim_camp).'
+name: The Rim
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 886.0
+  - 0.0
+  - 700.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 12
+  xp: 25
+map:
+  reveals_radius_m: 120
+  marker: none
+fast_travel:
+  node: false

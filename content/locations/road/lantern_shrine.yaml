@@ -1,0 +1,25 @@
+id: location.road.lantern_shrine
+kind: location
+schema: 1
+display_key: location.road.lantern_shrine.name
+tags:
+- location
+notes: A stone and a lit post at the roadside where travellers leave what they can spare for whoever comes after (container.road.shrine_offerings). The Wayhold keeps the lantern filled.
+name: The Lantern Shrine
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 690.0
+  - 0.0
+  - 663.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 10
+  xp: 15
+map:
+  reveals_radius_m: 30
+  marker: none
+fast_travel:
+  node: false

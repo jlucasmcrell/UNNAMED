@@ -1,0 +1,25 @@
+id: location.road.sunk_barrow
+kind: location
+schema: 1
+display_key: location.road.sunk_barrow.name
+tags:
+- location
+notes: A broken ring of standing beams and two boulders round a stone cist on the high ground north of the road, kept by two husks (spawn.road.barrow_husks). The cist still holds grave goods (container.road.barrow_cache). Region 1's barrow-wights, made small.
+name: The Sunk Barrow
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 846.0
+  - 0.0
+  - 630.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 14
+  xp: 20
+map:
+  reveals_radius_m: 40
+  marker: none
+fast_travel:
+  node: false

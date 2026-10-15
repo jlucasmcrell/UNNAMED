@@ -1,0 +1,10 @@
+id: loot.shrine_offerings
+kind: loot
+schema: 1
+display_key: loot.shrine_offerings.name
+tags: [loot]
+notes: What travellers leave at the lantern shrine for whoever comes after - take what you need, the Wayhold says.
+rolls: 0
+guaranteed:
+  - { item_ref: item.consumable.salve_minor, count_range: [1, 1] }
+  - { item_ref: item.material.herb_woundmoss, count_range: [3, 3] }

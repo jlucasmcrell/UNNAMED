@@ -1,0 +1,12 @@
+id: loot.barrow_cache
+kind: loot
+schema: 1
+display_key: loot.barrow_cache.name
+tags: [loot]
+notes: What is left in the Sunk Barrow's cist - grave goods nobody has dared lift, and what the last person to try dropped.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.iron_ingot, count_range: [2, 2] }
+  - { item_ref: item.consumable.salve_minor, count_range: [2, 2] }
+  - { item_ref: item.ammo.arrow_rough, count_range: [10, 10] }
+  - { item_ref: item.material.boneleaf, count_range: [2, 2] }

@@ -1,0 +1,11 @@
+id: loot.wain_load
+kind: loot
+schema: 1
+display_key: loot.wain_load.name
+tags: [loot]
+notes: The overturned wain's load, mostly spoiled - what the rain did not get.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.timber, count_range: [6, 6] }
+  - { item_ref: item.material.small_hide, count_range: [2, 2] }
+  - { item_ref: item.consumable.roast_meat, count_range: [1, 1] }

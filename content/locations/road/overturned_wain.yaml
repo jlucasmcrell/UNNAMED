@@ -1,0 +1,25 @@
+id: location.road.overturned_wain
+kind: location
+schema: 1
+display_key: location.road.overturned_wain.name
+tags:
+- location
+notes: A wain on its side at the edge of the road, its load half spoiled (container.road.wain_load) - whoever drove it did not come back for it.
+name: The Overturned Wain
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 743.0
+  - 0.0
+  - 663.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 10
+  xp: 15
+map:
+  reveals_radius_m: 30
+  marker: none
+fast_travel:
+  node: false

@@ -51,7 +51,7 @@ public class WorldContentTests
         Assert.Equal(14, layout.CellKeys.Length);
         Assert.Equal((701, 201, 1_000L), (layout.Space.Terrain.Columns, layout.Space.Terrain.Rows, layout.Space.Terrain.SpacingMm));
         Assert.Equal(12, layout.Doors.Length);   // the hollow's longhouse and forge shed, and Cairnwold's ten
-        Assert.Equal(13, layout.Locations.Length);   // the hollow's six and Cairnwold's seven
+        Assert.Equal(17, layout.Locations.Length);   // the hollow's six, Cairnwold's seven and the road's four
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
         Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600), WorldContent.BuildMovement(loader));
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));

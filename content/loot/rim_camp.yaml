@@ -1,0 +1,11 @@
+id: loot.rim_camp
+kind: loot
+schema: 1
+display_key: loot.rim_camp.name
+tags: [loot]
+notes: A watcher's pack, left by the fire on the basin rim.
+rolls: 0
+guaranteed:
+  - { item_ref: item.ammo.arrow_rough, count_range: [8, 8] }
+  - { item_ref: item.consumable.roast_meat, count_range: [2, 2] }
+  - { item_ref: item.material.bog_cotton, count_range: [3, 3] }
