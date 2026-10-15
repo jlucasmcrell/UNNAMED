@@ -12,7 +12,7 @@ namespace UNNAMED.Presentation.Ui;
 /// reaches the player"). Content's own name when it has one; otherwise the ID read as words - <c>item.tool.fitting_wedge</c> is
 /// "Fitting wedge", <c>cairnwold.forge_anvil</c> the "forge anvil", <c>cw_house05_door</c> the "house door" - never the ID itself.
 /// </summary>
-public static class Names
+public static partial class Names
 {
     /// <summary>A definition's name: content's, or its ID read as words in sentence case.</summary>
     public static string Of(GameSession session, string id)
@@ -32,32 +32,16 @@ public static class Names
         _ => Of(session, defId),
     };
 
-    /// <summary>A door, container or station key as it reads after "the": a corpse is named for the creature it was.</summary>
-    public static string Place(GameSession session, string key) =>
+    /// <summary>
+    /// A door, container or station key as it reads after "the": a corpse is named for the creature it was, and a key that is an instance
+    /// ID (a placed piece's <c>pce_…</c>) for its definition, <paramref name="defId"/> - never the ID read as words.
+    /// </summary>
+    public static string Place(GameSession session, string key, string? defId = null) =>
         session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{Of(session, dead.DefId)} remains"
         : session.DisplayName(key) is var named && named != key ? named
+        : IsInstanceId(key) && defId is not null && defId != key ? Of(session, defId).ToLowerInvariant()
         : Place(key);
-
-    /// <summary>A place key read as words: <c>door.forge_shed</c> is the "forge shed door", <c>cw_house05_door</c> the "house door".</summary>
-    public static string Place(string key) =>
-        key.StartsWith("door.", StringComparison.Ordinal) ? Words(key["door.".Length..]) + " door" : Words(key);
 
     /// <summary>An equipment slot as a player says it: "main hand", never <c>main_hand</c>.</summary>
     public static string Slot(EquipSlot slot) => EquipSlots.Key(slot).Replace('_', ' ');
-
-    /// <summary>
-    /// An ID as lower-case words: its last dotted part, without a short leading area code (<c>cw_</c>) or the numbers that tell copies
-    /// apart, its underscores spaces.
-    /// </summary>
-    public static string Words(string id)
-    {
-        string last = id[(id.LastIndexOf('.') + 1)..];
-        var parts = last.Split('_', StringSplitOptions.RemoveEmptyEntries)
-            .Select(p => new string(p.Where(c => !char.IsDigit(c)).ToArray()).ToLowerInvariant())
-            .Where(p => p.Length > 0)
-            .ToList();
-        if (parts.Count > 1 && parts[0].Length <= 2)
-            parts.RemoveAt(0);
-        return parts.Count == 0 ? "thing" : string.Join(' ', parts);
-    }
 }

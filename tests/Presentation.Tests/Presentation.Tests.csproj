@@ -19,12 +19,13 @@
   </ItemGroup>
 
   <!-- The presentation's Godot-free parts (the Godot project itself cannot load outside the engine): the asset records, the coverage
-       reports and the scatter rules, compiled here as they are compiled into the game. -->
+       reports, the scatter rules and the ID-to-words half of the display-name path, compiled here as they are compiled into the game. -->
   <ItemGroup>
     <Compile Include="..\..\src\Presentation\Art\ArtRecords.cs" Link="Linked\ArtRecords.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />
     <Compile Include="..\..\src\Presentation\Audio\AudioCoverage.cs" Link="Linked\AudioCoverage.cs" />
+    <Compile Include="..\..\src\Presentation\Ui\NameWords.cs" Link="Linked\NameWords.cs" />
   </ItemGroup>
 
   <ItemGroup>
