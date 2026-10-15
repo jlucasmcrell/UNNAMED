@@ -2046,15 +2046,13 @@ public partial class Main : Node3D
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
     /// <summary>
-    /// A capture larger than the display (the UI's 2560 x 1440 acceptance size on a 1080p screen): the system fits the window to the
-    /// screen once it is shown, so a second after the start it is sized again to the <c>--resolution</c> asked for, and the screenshots
-    /// read the whole viewport.
+    /// <c>--capture-size WxH</c>: a capture larger than the display (the UI's 2560 x 1440 acceptance size on a 1080p screen). The system
+    /// fits the window to the screen once it is shown (and the engine keeps <c>--resolution</c> to itself), so a second after the start
+    /// the window is sized to it, and the screenshots read the whole viewport.
     /// </summary>
     private void SizeForCapture()
     {
-        string[] args = OS.GetCmdlineArgs();
-        int at = Array.IndexOf(args, "--resolution");
-        if (at < 0 || at + 1 >= args.Length || args[at + 1].Split('x') is not [var w, var h] || !int.TryParse(w, out int width) || !int.TryParse(h, out int height))
+        if (_options.GetValueOrDefault("--capture-size")?.Split('x') is not [var w, var h] || !int.TryParse(w, out int width) || !int.TryParse(h, out int height))
             return;
         var wanted = new Vector2I(width, height);
         GetTree().CreateTimer(1.0).Timeout += () =>
@@ -2100,7 +2098,7 @@ public partial class Main : Node3D
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
-                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape"
+                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

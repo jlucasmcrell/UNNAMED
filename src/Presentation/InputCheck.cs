@@ -46,7 +46,6 @@ public sealed class InputCheck
     private int _wait;
     private int _logMark;
     private Simulation? _world;
-    private string? _failed;
 
     public InputCheck(GameSession session, PlayerController controller, CameraRig camera, Func<bool> modal, Func<string, LoadResult?> load,
         DialoguePanel dialogue, InventoryPanel inventory, CharacterPanel character, SavesPanel saves)
@@ -160,32 +159,13 @@ public sealed class InputCheck
                 if (_session.StartChoice().Saves.All(s => s.Slot != SaveSlots.Quick))
                     return Fail("F5 with nothing open wrote no quick save");
                 _passed.Add("F5 with nothing open saved");
-                // M-03: a load with a conversation open.
-                Reading = false;
-                _controller.Talk(Sel);
-                return Next(10);
+                return Next(0);
             case 22:
-                if (!_panels.Dialogue.Visible)
-                {
-                    // Recorded, and the System Menu is still checked: the run fails at its end all the same.
-                    _failed = "Sel's conversation did not open again, so the load with a conversation open (M-03) was not checked";
-                    _step = 23;
-                    return Next(0);
-                }
-                if (_load(SaveSlots.Quick) is null)
-                    return Fail("the quick save did not load");
-                Reading = true;
-                return Next(4);
-            case 23:
-                if (_panels.Dialogue.Visible || _panels.Inventory.Visible || _panels.Character.Visible || _modal())
-                    return Fail("a panel stayed open after the load");
-                _passed.Add("a load with a conversation open left no panel open (M-03)");
-                return Captured("after the load") ?? Next(0);
-            case 24:
                 // Escape with nothing open opens the System Menu (the Field Instrument UI): the pointer is the player's while it is open.
+                // Checked before the load with a conversation open, which the restored content cannot always reach.
                 Press("release_mouse");
                 return Next(3);
-            case 25:
+            case 23:
                 Release("release_mouse");
                 if (!_modal())
                     return Fail("Escape did not open the System Menu");
@@ -194,7 +174,7 @@ public sealed class InputCheck
                 _logMark = simulation.CommandLog.Count;
                 Press("release_mouse");
                 return Next(3);
-            case 26:
+            case 24:
                 Release("release_mouse");
                 if (_modal())
                     return Fail("Escape did not close the System Menu");
@@ -203,8 +183,23 @@ public sealed class InputCheck
                 if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
                     return Fail("closing the System Menu did not take the mouse back");
                 _passed.Add("Escape opened the System Menu and closed it back to play");
-                if (_failed is not null)
-                    return Fail(_failed);
+                // M-03: a load with a conversation open.
+                Reading = false;
+                _controller.Talk(Sel);
+                return Next(10);
+            case 25:
+                if (!_panels.Dialogue.Visible)
+                    return Fail("Sel's conversation did not open again");
+                if (_load(SaveSlots.Quick) is null)
+                    return Fail("the quick save did not load");
+                Reading = true;
+                return Next(4);
+            case 26:
+                if (_panels.Dialogue.Visible || _panels.Inventory.Visible || _panels.Character.Visible || _modal())
+                    return Fail("a panel stayed open after the load");
+                _passed.Add("a load with a conversation open left no panel open (M-03)");
+                if (Captured("after the load") is { } failed)
+                    return failed;
                 GD.Print($"UNNAMED input check: PASS - {string.Join("; ", _passed)}" + (Windowed ? "" : " (headless: the mouse was not checked)"));
                 return 0;
         }
