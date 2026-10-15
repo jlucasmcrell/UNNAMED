@@ -24,8 +24,9 @@ public static class AmbientLife
             return 0;
         using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
         string weather = VisualOptions.Weather ?? "fair";
-        bool day = SkyView.DaylightNow > 0.5f;
         var region = ground.Region;
+        var hours = new AmbientHours { Name = "AmbientHours" };
+        parent.AddChild(hours);
         int drawn = 0;
         foreach (var kind in json.RootElement.GetProperty("kinds").EnumerateObject())
         {
@@ -33,7 +34,7 @@ public static class AmbientLife
             bool dayOnly = k.TryGetProperty("day_only", out var d) && d.ValueKind == JsonValueKind.True;
             bool nightOnly = k.TryGetProperty("night_only", out var n) && n.ValueKind == JsonValueKind.True;
             var weathers = k.TryGetProperty("weather", out var w) ? w.EnumerateArray().Select(x => x.GetString()!).ToHashSet() : null;
-            if (dayOnly && !day || nightOnly && day || (weathers is null ? weather == "storm" : !weathers.Contains(weather)))
+            if (weathers is null ? weather == "storm" : !weathers.Contains(weather))
                 continue;
             var grounds = k.TryGetProperty("grounds", out var g) ? g.EnumerateArray().Select(x => x.GetString()!).ToHashSet() : null;
             string mesh = k.GetProperty("mesh").GetString()!;
@@ -103,14 +104,18 @@ public static class AmbientLife
                 multi.SetInstanceTransform(i, new Transform3D(Basis.FromScale(Vector3.One * placed[i].Size), placed[i].At));
                 multi.SetInstanceCustomData(i, placed[i].Custom);
             }
-            parent.AddChild(new MultiMeshInstance3D
+            var animals = new MultiMeshInstance3D
             {
                 Name = "Ambient_" + kind.Name, Multimesh = multi, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
                 MaterialOverride = around > 0 ? AroundCamera(Material(motion), ground, grounds, around) : Material(motion),
-            });
+            };
+            parent.AddChild(animals);
+            if (dayOnly || nightOnly)
+                hours.Kinds.Add((animals, dayOnly));
             drawn += placed.Count;
         }
-        GD.Print($"UNNAMED ambient life: {drawn} animals ({(day ? "day" : "night")}, {weather})");
+        hours.Show();
+        GD.Print($"UNNAMED ambient life: {drawn} animals ({(SkyView.DaylightNow > 0.5f ? "day" : "night")}, {weather})");
         return drawn;
     }
 
@@ -358,4 +363,23 @@ void fragment() {
         ALPHA = d * blink;
     }
 }";
+}
+
+/// <summary>Shows each kind in its hours as the clock runs: the birds by day, the fireflies and bats by night.</summary>
+internal sealed partial class AmbientHours : Node
+{
+    public readonly List<(MultiMeshInstance3D Animals, bool ByDay)> Kinds = new();
+    private bool? _day;
+
+    public override void _Process(double delta) => Show();
+
+    public void Show()
+    {
+        bool day = SkyView.DaylightNow > 0.5f;
+        if (day == _day)
+            return;
+        _day = day;
+        foreach (var (animals, byDay) in Kinds)
+            animals.Visible = byDay == day;
+    }
 }

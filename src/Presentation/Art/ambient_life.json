@@ -7,13 +7,15 @@
     "'around_camera': its animals wrap round the camera within that many metres, stood on the ground where they come to be and kept to",
     "their 'grounds' (world material IDs) - dense near the player at no cost. 'altitude' metres over the ground, 'radius' of the path,",
     "'speed' in turns a second, 'size' a scale on the mesh. day_only / night_only by the run's hour; 'weather' lists the states it appears",
-    "in (omitted: all but storm)."
+    "in (omitted: all but storm).",
+    "'perched' (PerchedRavens): the rigged raven standing at each of its spots ([x, z, height above the ground]) by day, its clips by state (takeoff,",
+    "flap, soar, idle); it takes off when the camera comes within flee_m and is back return_s after the camera has gone well away."
   ],
   "kinds": {
     "birds": {
       "mesh": "bird",
-      "count": 16,
-      "flocks": 3,
+      "count": 30,
+      "flocks": 6,
       "altitude": [
         24,
         48
@@ -36,7 +38,7 @@
         "clear",
         "overcast"
       ],
-      "note": "Crows circling high over the hollow and the ravine."
+      "note": "Crows circling high over the hollow, the road and the moor - six flocks of five (world life 2026-10-15; was three of five over the hollow)."
     },
     "butterflies": {
       "mesh": "butterfly",
@@ -99,6 +101,116 @@
       ],
       "note": "Fireflies drifting and blinking in the Charwood at night.",
       "around_camera": 22
+    },
+    "larks": {
+      "mesh": "bird",
+      "count": 18,
+      "flocks": 6,
+      "altitude": [
+        7,
+        15
+      ],
+      "radius": [
+        5,
+        12
+      ],
+      "speed": [
+        0.07,
+        0.11
+      ],
+      "size": [
+        0.38,
+        0.5
+      ],
+      "day_only": true,
+      "weather": [
+        "fair",
+        "clear"
+      ],
+      "note": "Small birds wheeling low over the open ground by day, quicker and tighter than the crows (world life 2026-10-15)."
+    },
+    "bats": {
+      "mesh": "bird",
+      "count": 20,
+      "flocks": 5,
+      "altitude": [
+        4,
+        11
+      ],
+      "radius": [
+        4,
+        9
+      ],
+      "speed": [
+        0.12,
+        0.19
+      ],
+      "size": [
+        0.32,
+        0.42
+      ],
+      "night_only": true,
+      "weather": [
+        "fair",
+        "clear",
+        "overcast"
+      ],
+      "note": "Bats hunting low and fast at night, where the crows were by day (world life 2026-10-15)."
     }
+  },
+  "perched": {
+    "model": "creature_wm_raven",
+    "clips": "creature.creature_wm_raven",
+    "states": {
+      "idle": "idle",
+      "takeoff": "hit",
+      "flap": "walk",
+      "soar": "run"
+    },
+    "flee_m": 8,
+    "return_s": 120,
+    "spots": [
+      [
+        447.0,
+        746.2,
+        1.2
+      ],
+      [
+        557.0,
+        762.2,
+        1.3
+      ],
+      [
+        743.0,
+        662.8,
+        1.3
+      ],
+      [
+        690.0,
+        662.7,
+        1.45
+      ],
+      [
+        842.45,
+        626.05,
+        1.8
+      ],
+      [
+        969.0,
+        690.0,
+        1.05
+      ],
+      [
+        961.0,
+        690.0,
+        1.05
+      ],
+      [
+        980.0,
+        691.45,
+        1.15
+      ]
+    ],
+    "note": "WildMesh 100 MODELS premium Raven (staged 2026-10-14; clip idle = Stand_01, hit = Trans_Stand_to_Flying, walk = Loco_Flying_Flapping, run = Loco_Flying_Glide, all in place). Each spot is [x, z, height above the ground]: perched on the waystation fence, the ruined cart, the overturned wain, the lantern shrine's stone, a Sunk Barrow beam, Cairnwold's south wall and the hen pen - the moor grass hides a raven on the ground."
   }
 }

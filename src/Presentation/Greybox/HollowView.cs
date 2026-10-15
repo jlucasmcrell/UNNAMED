@@ -138,6 +138,7 @@ public partial class HollowView : Node3D
             var indoors = _bindings.Buildings.Keys.Select(prefix => Footprint(layout, prefix)).OfType<BoxBlocker>()
                 .Select(b => new Rect2(b.MinXMm / 1000f, b.MinZMm / 1000f, (b.MaxXMm - b.MinXMm) / 1000f, (b.MaxZMm - b.MinZMm) / 1000f)).ToList();
             AmbientLife.Build(life, lifeGround, 0xA3B1E7, indoors);
+            PerchedRavens.Build(life, _art, lifeGround);
         }
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain));
