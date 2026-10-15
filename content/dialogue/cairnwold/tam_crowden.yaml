@@ -3,34 +3,90 @@ kind: dialogue
 schema: 1
 display_key: dialogue.cairnwold.tam_crowden.name
 tags: [dialogue]
-notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest; the trade-and-moor node.
+notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest; the trade-and-moor node. Voice (NPC_PERSONALITY_BIBLE.md) - quick, anxious, kind, correcting her own numbers out loud; she counts everyone up the west end because her sister Halda went up the north slope after the wolves and did not come down (DIRECTION_AND_CONTENT_PLAN.md C.2d). Bringing her Halda's token from the den is the small version of C.2d; the bow and the keep-it choice wait for that quest.
 participants: [npc.cairnwold.tam_crowden]
 root_node: greet
 nodes:
   greet:
-    text: "Hold there. Tam. Nothing wrong - I count everyone who comes up the west end, and you are the first today."
+    text: "\"Hold there - sorry - hold there a moment. Fifteen. Sixteen.\" She cuts a notch in a stick, frowns, and runs her thumb back along it. \"No. Fifteen. Tam. Nothing's wrong, I count everyone who comes up the west end, and you're the first today. The first person. There was a goat.\""
     once: true
     next_if_exhausted: again
     choices:
       - id: moor
         text: "What is out on the moor?"
         next: moor
+      - id: count
+        text: "Why count everyone?"
+        next: count
+      - id: halda_token
+        text: "I found this in the wolves' den."
+        conditions: [{ kind: has_item, item_ref: item.quest.halda_token }]
+        consequences:
+          - { command: transfer_item, item_ref: item.quest.halda_token, count: 1, to: npc }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 10, event: brought_halda_home }
+        next: halda
       - id: leave
         text: "Just passing."
   again:
-    text: "Still counting."
+    text: "Oh - you again. Good. That's you in, and out, and in. I like a number that comes back."
     choices:
       - id: moor
         text: "About the moor."
         conditions: [{ kind: visited, node: moor, not: true }]
         next: moor
+      - id: count
+        text: "What are you counting?"
+        conditions: [{ kind: visited, node: count, not: true }]
+        next: count
+      - id: halda_token
+        text: "I found this in the wolves' den."
+        conditions: [{ kind: has_item, item_ref: item.quest.halda_token }]
+        consequences:
+          - { command: transfer_item, item_ref: item.quest.halda_token, count: 1, to: npc }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 10, event: brought_halda_home }
+        next: halda
+      - id: wolves
+        text: "I've been hunting wolves."
+        conditions:
+          - { kind: has_item, item_ref: item.material.wolf_hide }
+          - { kind: visited, node: wolves, not: true }
+        next: wolves
       - id: leave
         text: "Just passing."
   moor:
-    text: "Boar in the birch, mostly, and they are worse in the autumn when the mast is down. Strays along the old line by the crags - dogs gone wild, or something that was never a dog. And up in the moss there are lights some nights, which I do not count, because I cannot. Keep to the walls after dark and you will be fine. Mostly."
+    text: "\"Boar in the birch, mostly - eleven this year, and worse in the autumn when the mast is down. Strays along the old line by the crags. Dogs gone wild, Durn says. Something that was never a dog, I say, because I've watched them run and they don't run like dogs. And up in the moss there are lights some nights. I don't count those. I tried. They won't keep still to be counted, and they don't add up when they do. Keep to the walls after dark and you'll be fine.\" A pause. \"Mostly.\""
     once: true
     next_if_exhausted: again
     choices:
       - id: back
         text: "I will keep to the walls."
+        next: again
+  count:
+    text: "\"Sacks, mostly. Sixty-two in, as of this morning. Mice, none, thank the staddles. People up the west road and people down it.\" The knife stops on the stick. \"My sister went up the north slope the winter before last, after the wolves. Halda. She trapped up there. I counted her out.\" She turns the stick over in her hands. \"So I count. That's all it is. It's a granary thing.\""
+    choices:
+      - id: sorry
+        text: "I'm sorry."
+        next: again
+      - id: look
+        text: "If I go up there, I'll look for her."
+        next: dont_look
+  dont_look:
+    text: "\"Don't. Please.\" It comes out too fast, and she laughs at herself, badly. \"Sorry. Only - don't go looking. If you go up, come back down. I can't count two.\""
+    choices:
+      - id: back
+        text: "I'll come back down."
+        next: again
+  halda:
+    text: "She has it out of your hand before you've finished holding it out - a hand's length of horn, notched along one edge. \"That's hers. That's Halda's tally. She notched every hide so nobody could argue her count.\" Her thumb walks the notches. \"Thirty-one. She always said she'd stop at thirty.\" She doesn't cry. She counts them again. \"Thank you. I'll keep it with the sacks. Somewhere it gets counted.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'm glad it's home."
+        next: again
+  wolves:
+    text: "\"Wolves.\" She looks at the hide a long moment. \"Up the north slope?\" Then she cuts a notch - a new stick, one she keeps in her apron, not the granary one. \"That's one fewer. I count those too.\""
+    choices:
+      - id: back
+        text: "I'll keep at it."
         next: again

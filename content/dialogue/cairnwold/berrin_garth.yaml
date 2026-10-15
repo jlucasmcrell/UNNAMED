@@ -3,12 +3,12 @@ kind: dialogue
 schema: 1
 display_key: dialogue.cairnwold.berrin_garth.name
 tags: [dialogue]
-notes: "Berrin Garth, who keeps the long lodge and remembers the village. The place-lore node - why the walls are drystone, why the granary stands on staddles, what in the basin is older than the village - and the one who hands over the Resonance Primer, because a hall with a fire in it is where a village keeps its books. Offering the primer is NOT a once-only line: hearing the offer is not getting the book, so `books` stays open until `primer_given` has been reached, which is the only thing that marks it given (the Phase-1 technical audit, H-01)."
+notes: "Berrin Garth, who keeps the long lodge and remembers the village. The place-lore node - why the walls are drystone, why the granary stands on staddles, what in the basin is older than the village - and the one who hands over the Resonance Primer, because a hall with a fire in it is where a village keeps its books. Offering the primer is NOT a once-only line: hearing the offer is not getting the book, so `books` stays open until `primer_given` has been reached, which is the only thing that marks it given (the Phase-1 technical audit, H-01). Voice (NPC_PERSONALITY_BIBLE.md): warm, rambling, fond of his village and his own stories, losing the thread and finding it again; Veth, and afraid of forgetting, so everything goes in the lodge book - strangers included."
 participants: [npc.cairnwold.berrin_garth]
 root_node: greet
 nodes:
   greet:
-    text: "Come in out of the wind. Berrin. I keep the lodge - which is to say I sweep it and I remember what it is for."
+    text: "Come in, come in, out of that wind - it's been at the door all morning like a dog that wants feeding. Berrin. I keep the lodge. Sweep it, mostly. And remember what it's for, which is the harder half."
     once: true
     next_if_exhausted: again
     choices:
@@ -21,10 +21,13 @@ nodes:
       - id: granary
         text: "The granary stands on stones."
         next: granary
+      - id: book
+        text: "What's the big book by the fire?"
+        next: lodge_book
       - id: leave
         text: "Later."
   again:
-    text: "Sit if you like. The fire is not for looking at."
+    text: "Sit, sit. The fire doesn't mind company, and at my age neither do I."
     choices:
       - id: books
         text: "Is there anything here I could learn from?"
@@ -43,10 +46,18 @@ nodes:
         text: "What is older than the village?"
         conditions: [{ kind: visited, node: older, not: true }]
         next: older
+      - id: book
+        text: "About the lodge book."
+        conditions: [{ kind: visited, node: lodge_book, not: true }]
+        next: lodge_book
+      - id: personal
+        text: "What keeps you here?"
+        conditions: [{ kind: visited, node: personal, not: true }]
+        next: personal
       - id: leave
         text: "Later."
   primer:
-    text: "There is a shelf behind you nobody has opened since the last man who could read it died. Take the primer - three small workings, one to strike, one to brace, one to mend. It is no good to me in a drawer, and I would sooner somebody used it than respected it."
+    text: "Ah - now. Behind you, top shelf, the cupboard with the warped door. Nobody's opened it since we buried Wenna, and Wenna was the last of us who could make sense of what's in it. There's a primer - three small workings, one to strike, one to brace, one to mend. Take it. A book on a shelf is a promise nobody's keeping."
     choices:
       - id: take
         text: "Thank you. I will be careful."
@@ -58,7 +69,7 @@ nodes:
         text: "Not yet."
         next: again
   primer_given:
-    text: "He does not get up. \"Mind the third one. The first two are honest. The third asks something of you.\""
+    text: "He watches you put it away and nods, as if something has been put back where it belongs. \"Mind the third working. The first two are honest. The third asks something of you. Wenna used to say it asks first and tells you the price after - and she was usually right, which was very tiresome of her.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -66,7 +77,7 @@ nodes:
         text: "I will."
         next: again
   walls:
-    text: "Mortar wants lime and lime wants a kiln and a kiln wants a man who does nothing else. Drystone wants a winter and a pair of hands. Every wall you have walked past in this basin was a winter's work by somebody who also had sheep to see to. They are not old. They are just patient."
+    text: "Mortar wants lime, and lime wants a kiln, and a kiln wants a man who does nothing else all summer - and nobody here has ever had a summer like that. Drystone wants a winter and two good hands. My grandfather built the long wall by the beck and swore at every stone of it; I can show you the ones he swore at hardest. They're not old, these walls. They're patient. There's a difference, and it's most of what this village is."
     once: true
     next_if_exhausted: again
     choices:
@@ -74,7 +85,7 @@ nodes:
         text: "I had not thought of it that way."
         next: again
   granary:
-    text: "On staddles, aye, with a flat stone on every one, so the mice come up the post and reach the stone and have nowhere to go. It is not a pretty answer. It has held grain for two hundred years, so it is the right one."
+    text: "On staddles, aye - stone legs, with a flat cap-stone on every one. A mouse runs up the leg, meets the cap, hangs there upside down thinking about its choices, and drops off. Not a pretty answer. It's kept grain dry for two hundred years, so it's the right one. Tam will tell you exactly how many years. Tam will tell you exactly how many of anything."
     once: true
     next_if_exhausted: again
     choices:
@@ -82,10 +93,33 @@ nodes:
         text: "Practical."
         next: again
   older:
-    text: "The crags, and the cut in the east where the water leaves. The crags are a line, not a scatter - somebody put them along that edge, or something did, and it was not us. The cut is only water and time. We built between the two, put a wall round it and called it a village. Everything else here is older and does not care."
+    text: "Oh, now that's a question. The crags, and the cut in the east where the beck leaves. The crags are a line, not a scatter - stand on the lodge step at sundown and look south, you'll see it. Somebody put them along that edge, or something did, and it wasn't us. The cut's only water and time. We built between the two, walled it, and called it home. Everything else in this basin is older than us and doesn't much care. I find that a comfort, most days."
     once: true
     next_if_exhausted: again
     choices:
       - id: back
         text: "Thank you."
+        next: again
+  lodge_book:
+    text: "\"The lodge book. Everyone who's sat by this fire, near enough - births, burials, who owes who a ewe. Strangers too.\" He wets the pen. \"Name?\" You give it. He writes it slowly, then reads it back aloud, the way people here say names - as if it might need to last. \"There. Now you've been here. You'd be surprised how few can say that and prove it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: strangers
+        text: "Do many strangers come over the ridge?"
+        next: strangers
+      - id: back
+        text: "Thank you."
+        next: again
+  strangers:
+    text: "\"Now and then. Some come with a pack and a plan. Some come with nothing and no notion how they got here - you've a bit of that look, if you'll forgive me saying. The book has a few of those. Not many. Enough that I don't drop my cup.\" He drinks from it, to show you."
+    choices:
+      - id: back
+        text: "That's oddly reassuring."
+        next: again
+  personal:
+    text: "Keeps me? Ha. Nothing keeps me - I keep it. That's a Veth joke; it's funnier if you're Veth. Someone has to remember why the doors are where they are, and Tam counts what comes in, and I remember who brought it. Only... I've started writing things down twice. Don't tell Tam. She'll want to count them."
+    choices:
+      - id: back
+        text: "Your secret's safe."
         next: again

@@ -3,12 +3,12 @@ kind: dialogue
 schema: 1
 display_key: dialogue.ashen_hollow.kera_voss.name
 tags: [dialogue]
-notes: Kera Voss, the smith (content bible §9) - teaches the forge, trades, and has an opinion of what you make. Asking her to teach starts Quest 1, Iron Under Ash (M5).
+notes: Kera Voss, the smith (content bible §9) - teaches the forge, trades, and has an opinion of what you make. Asking her to teach starts Quest 1, Iron Under Ash (M5). Voice (NPC_PERSONALITY_BIBLE.md) - a Kal, loud and warm and blunt, who judges everything by how well it is made, people included, and calls the newcomer "new iron". Her one fear is the Foldscar - a Kal caught when a world turns does not die, it sets to stone (RACES.md, Kal).
 participants: [npc.ashen_hollow.kera_voss]
 root_node: greet
 nodes:
   greet:
-    text: "Mind the anvil. I'm Kera. Hands like those have never held a hammer."
+    text: "\"Ha - mind the anvil, it bites. Kera. Come here, let me look at you.\" She takes your hand and turns it over like a horseshoe she's thinking of buying. \"Good long bones. Not one callus. New iron, you are - never been near a fire.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -20,13 +20,16 @@ nodes:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
+      - id: wings
+        text: "Are those wings?"
+        next: wings
       - id: trade
         text: "What do you have for sale?"
         consequences: [{ command: open_service, service: trade }]
       - id: leave
         text: "Another time."
   again:
-    text: "Back. The fire's still going."
+    text: "Back, and all your fingers still on. That's a good start."
     choices:
       - id: teach
         text: "Teach me the forge."
@@ -58,13 +61,47 @@ nodes:
           - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1, not: true }
           - { kind: visited, node: judged, not: true }
         next: judged
+      - id: sword
+        text: "What do you make of this sword?"
+        conditions:
+          - { kind: has_item, item_ref: item.weapon.rusted_sword }
+          - { kind: visited, node: sword, not: true }
+        next: sword
+      - id: tavar
+        text: "You know Tavar?"
+        conditions:
+          - { kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }
+          - { kind: visited, node: tavar, not: true }
+        next: tavar
+      - id: steadied
+        text: "The Foldscar's gone quiet."
+        conditions:
+          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar }
+          - { kind: visited, node: steadied, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: quieted_the_fold }
+        next: steadied
+      - id: foldscar
+        text: "Have you been out to the Foldscar?"
+        conditions:
+          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar, min: 0, max: 0 }
+          - { kind: visited, node: foldscar, not: true }
+        next: foldscar
+      - id: wings
+        text: "About the wings."
+        conditions: [{ kind: visited, node: wings, not: true }]
+        next: wings
+      - id: personal
+        text: "What keeps a smith out here?"
+        conditions: [{ kind: visited, node: personal, not: true }]
+        next: personal
       - id: trade
         text: "What do you have for sale?"
         consequences: [{ command: open_service, service: trade }]
       - id: leave
         text: "Nothing today."
   lesson:
-    text: "Then bring me iron. There's a seam in Blackvein Cut, the old quarry south of the road - break some ore out of it and bring it back here. Ore goes in the hearth, and a billet comes out if you keep the fire honest. A billet and a straight ash haft - Charwood's full of ash - make a spear at the anvil. Make one and show me. And don't blame the iron."
+    text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it; break me some ore out. Ore goes in the hearth and comes out a billet, if you keep the fire honest. A billet and a straight ash haft - Charwood's thick with ash - and the anvil makes you a spear. Make it yourself, bring it here, and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
     once: true
     next_if_exhausted: again
     choices:
@@ -72,13 +109,13 @@ nodes:
         text: "I'll bring you a spear."
         next: again
   where:
-    text: "South, down the road to the quarry mouth, then down past the overlook to the floor. The seam's on the west side. Mind what walks down there - or don't, if you're quick. Iron doesn't care how you got to it."
+    text: "South down the road to the quarry mouth, then past the overlook to the floor. Seam's on the west face - black, like somebody spilled the night on it. Things walk down there. Bone things. Badly made, and they don't know it. Hit them at the joints - that's where anything made badly gives first."
     choices:
       - id: back
-        text: "I'll find it."
+        text: "The joints. Right."
         next: again
   praised:
-    text: "Hm. Straight, and the point holds. Better than I'd have guessed from those hands."
+    text: "She sights down the shaft, flexes it against the anvil horn, raps the socket with a knuckle. \"Ha! Straight. Point holds. Socket's snug. That's made well, new iron - and I don't say made well about my own cousins.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -86,10 +123,46 @@ nodes:
         text: "Thank you."
         next: again
   judged:
-    text: "It'll hold, mostly. The next one will be better. They always are."
+    text: "Hm. It'll hold. Mostly. See here - the socket's loose, you hurried the quench. Don't be sorry, be slower. The next one'll be better. They always are, if you're paying attention."
     once: true
     next_if_exhausted: again
     choices:
       - id: back
         text: "I'll try again."
+        next: again
+  wings:
+    text: "Something behind her shoulders shifts under the harness, like a sail deciding against it. \"They fold. They're not for flying - not in this air, and not with my supper in me. Good for coming down off a roof slow. Good for keeping the forge draught off in winter. Don't touch them. I'd take your arm off, and then I'd feel bad, and then where would we be.\""
+    choices:
+      - id: back
+        text: "Hands to myself."
+        next: again
+  sword:
+    text: "\"That? That's not a sword, that's a warning. Somebody let it sleep wet for a year.\" She runs a thumb down the flat anyway, and her face softens. \"...Edge is still in there, if you go looking. Old iron's like that. Keep it oiled until you've something better - and you will, if you listen to me.\""
+    choices:
+      - id: back
+        text: "I'll oil it."
+        next: again
+  tavar:
+    text: "\"The walker! Sel's been sick with it - come here.\" She claps Tavar on the shoulder, and her hand lands a finger's width from where his shoulder is. She looks at her hand. \"...Ha. Still a bit late, are you?\" \"Only on the left,\" says Tavar. \"Well, stand on my right, then. I'm not chasing you round my own forge.\""
+    choices:
+      - id: back
+        text: "He's with me now."
+        next: again
+  foldscar:
+    text: "The noise goes out of her all at once. \"No. And I won't.\" She sets the hammer down, which she has not done since you arrived. \"You know what happens to a Kal caught when a world turns? We don't die. We set. Stone, all the way through, standing where we stood. That ring out there is a world half-turning all day long. I'll make you anything you like to carry out there. I'm not carrying me.\""
+    choices:
+      - id: back
+        text: "I understand."
+        next: again
+  steadied:
+    text: "\"Quiet.\" She says it like she's testing the word for cracks. \"Quiet's not gone. Quiet's not gone.\" Then she laughs, too loud, and claps you on the arm hard enough to hurt. \"Ha! All right. All right. Thank you, new iron. I might walk out to the edge of it one day. In a month. With a rope.\""
+    choices:
+      - id: back
+        text: "I'll hold the rope."
+        next: again
+  personal:
+    text: "The road! Everything that breaks between the ridge and Vessmere comes past this anvil sooner or later - hinges, cart-tyres, Renn's terrible roof. I like a place where things need mending. And Durn's up the other end of it, in Cairnwold. Says four words a day, and three of them are 'no'. We disagree about everything but iron."
+    choices:
+      - id: back
+        text: "Sounds like a friendship."
         next: again
