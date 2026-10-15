@@ -81,20 +81,21 @@ public sealed class Smoke
     // These three are the demo's own, which the harness carried and passed with before Cairnwold was generated:
     // the M6 layout's waystone-to-lodge walk, its in-and-out leg (the demo's longhouse really is built from thin
     // wall runs, so it HAS an inside, unlike Cairnwold's solid houses) and its way to the forge shed. They are kept
-    // rather than re-derived because they are correct for the region they were written for.
+    // rather than re-derived because they are correct for the region they were written for - now the hollow inside
+    // region.starting_frontier, so they are placed where that region has it (Playthrough.Hollow).
     //
     // THE PROPER FIX IS TO DERIVE BOTH AT RUNTIME - `_session.Setup.Layout.Doors` already exposes each door's
     // footprint in whatever region is loaded, and tools/asset_pipeline/cairnwold/smoke_waypoints.py already proves
     // the derivation works. Until then, this keeps both regions green, which is what the shared harness is for.
-    private static readonly (double X, double Z)[] DemoRoute = { (44, 138), (54.5, 134), (53, 128) };
-    private static readonly (double X, double Z)[] DemoInside = { (50.5, 128), (44, 128.6), (50.5, 128), (53, 128) };
+    private static readonly (double X, double Z)[] DemoRoute = Playthrough.Hollow((44, 138), (54.5, 134), (53, 128));
+    private static readonly (double X, double Z)[] DemoInside = Playthrough.Hollow((50.5, 128), (44, 128.6), (50.5, 128), (53, 128));
     // THE ARRAY ENDS BESIDE THE SHED, NOT BEHIND IT. Its last point was (54.5, 142), which is on the FAR SIDE of
     // the forge shed - the shed is a solid box at x 53-53.4, z 141.2-142.8, so reaching that point from (51.8, 142)
     // means walking round it, and Walk steers in a straight line. Nothing caught this before because the door step
     // used to fire one waypoint early and the last point was never walked at all; correcting that step to open the
     // door ON ARRIVAL made the walk real and the character pressed against the shed at (52.7, 142) for 3000 ticks.
     // (51.8, 142) is 1.2 m from the shed's west face - inside the 1.6 m interaction reach - so the door still opens.
-    private static readonly (double X, double Z)[] DemoToTheForge = { (60, 134), (51.8, 136), (51.8, 142) };
+    private static readonly (double X, double Z)[] DemoToTheForge = Playthrough.Hollow((60, 134), (51.8, 136), (51.8, 142));
 
     /// <summary>Whether the run's region is the generated Cairnwold, whose geography these legs were derived for.</summary>
     private static bool IsCairnwold(string regionId) => regionId.Contains("cairnwold", StringComparison.OrdinalIgnoreCase);

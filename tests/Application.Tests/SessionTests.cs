@@ -8,19 +8,29 @@ namespace UNNAMED.Application.Tests;
 public class SessionTests
 {
     [Fact]
-    public void Boot_BuildsTheHollow_FromContent()
+    public void Boot_BuildsTheStartingFrontier_FromContent()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var layout = session.Setup.Layout;
 
-        Assert.Equal(new[] { "r_0_0:c_00_00", "r_0_0:c_00_01", "r_0_0:c_01_00", "r_0_0:c_01_01" }, layout.CellKeys);
-        Assert.Equal(new[] { "door.forge_shed", "door.longhouse" }, layout.Doors.Select(d => d.Key).OrderBy(k => k, StringComparer.Ordinal));
-        Assert.Equal(new[] { "location.blackvein_cut", "location.den_mouth", "location.foldscar", "location.herb_patch", "location.outpost", "location.ruined_cart" },
-            layout.Locations.Select(l => l.Id));
-        Assert.Equal((0L, 0L, 200_000L, 200_000L), (layout.Space.MinXMm, layout.Space.MinZMm, layout.Space.MaxXMm, layout.Space.MaxZMm));
+        Assert.Equal("region.starting_frontier", layout.Id);
+        // The hollow's four cells are c_04..05_06..07; the road and Cairnwold run east of them.
+        Assert.Equal(Enumerable.Range(4, 7).SelectMany(x => new[] { $"r_0_0:c_{x:00}_06", $"r_0_0:c_{x:00}_07" }), layout.CellKeys);
+        Assert.Equal(new[]
+            {
+                "door.cw_house_01", "door.cw_house_02", "door.cw_house_03", "door.cw_house_04", "door.cw_house_05", "door.cw_house_06", "door.cw_house_07",
+                "door.cw_longhouse", "door.forge_shed", "door.granary", "door.longhouse", "door.smithy",
+            }, layout.Doors.Select(d => d.Key).OrderBy(k => k, StringComparer.Ordinal));
+        Assert.Equal(new[]
+            {
+                "location.blackvein_cut", "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge", "location.cairnwold.the_bog",
+                "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village", "location.den_mouth", "location.foldscar",
+                "location.herb_patch", "location.outpost", "location.ruined_cart",
+            }, layout.Locations.Select(l => l.Id));
+        Assert.Equal((400_000L, 600_000L, 1_100_000L, 800_000L), (layout.Space.MinXMm, layout.Space.MinZMm, layout.Space.MaxXMm, layout.Space.MaxZMm));
         Assert.Equal(50, session.Setup.TickMilliseconds);
-        Assert.Equal(new Body(30_000, 7_396, 158_000, 90_000), layout.Spawn);   // beside the Ashen Waystone, facing east into the waystation
+        Assert.Equal(new Body(430_000, 7_396, 758_000, 90_000), layout.Spawn);   // beside the Ashen Waystone, facing east into the waystation
     }
 
     [Fact]
@@ -109,7 +119,7 @@ public class SessionTests
         session.Submit(new MoveCommand(simulation.PlayerId, new MoveIntent(0, -1000, Gait.Sprint, 180_000)));
         Harness.Ticks(session, 600);
 
-        Assert.Equal(session.Setup.Movement.BodyRadiusMm, simulation.Player.Body.ZMm);
+        Assert.Equal(session.Setup.Layout.Space.MinZMm + session.Setup.Movement.BodyRadiusMm, simulation.Player.Body.ZMm);
     }
 
     [Fact]

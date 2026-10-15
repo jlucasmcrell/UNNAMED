@@ -34,7 +34,7 @@ public class JumpAndCrouchTests
                 arena.Simulation.Enqueue(new JumpCommand(arena.Player));
             arena.Tick();
         }
-        return arena.Simulation.Player.Body.ZMm / 1000.0;
+        return arena.At.Z;
     }
 
     /// <summary>The take-off ticks, of a run towards a structure, that carry the body past its far face.</summary>
@@ -119,7 +119,7 @@ public class JumpAndCrouchTests
                 door.Simulation.Enqueue(new JumpCommand(door.Player));
             door.Tick();
         }
-        Assert.True(door.Simulation.Player.Body.XMm < 53_000);
+        Assert.True(door.At.X < 53);
         // The fold round Tavar: 2.6 m, a circle of 3 m at (145, 42) - at a sprint, from the south.
         Never("the fold", Clearing(session, (145, 35), 0, Gait.Sprint, 45));
     }
@@ -233,12 +233,12 @@ public class JumpAndCrouchTests
             standing.Simulation.Enqueue(new MoveCommand(standing.Player, new MoveIntent(0, 1000, Gait.Run, 0)));
             standing.Tick();
         }
-        Assert.True(standing.Simulation.Player.Body.ZMm < 131_600 - 340);
+        Assert.True(standing.At.Z < 131.6 - 0.34);
 
         // Crouched, it goes under - and halfway through, it cannot stand or jump.
         var crouched = Open(session, (149, 129.5), 0);
         Assert.Null(crouched.Submit(new CrouchCommand(crouched.Player, true)));
-        while (crouched.Simulation.Player.Body.ZMm < 132_000)
+        while (crouched.At.Z < 132)
         {
             crouched.Simulation.Enqueue(new MoveCommand(crouched.Player, new MoveIntent(0, 1000, Gait.Run, 0)));
             crouched.Tick();
@@ -253,7 +253,7 @@ public class JumpAndCrouchTests
             crouched.Simulation.Enqueue(new MoveCommand(crouched.Player, new MoveIntent(0, 1000, Gait.Run, 0)));
             crouched.Tick();
         }
-        Assert.True(crouched.Simulation.Player.Body.ZMm > 132_400 + 350);
+        Assert.True(crouched.At.Z > 132.4 + 0.35);
         Assert.Null(crouched.Submit(new CrouchCommand(crouched.Player, false)));
     }
 

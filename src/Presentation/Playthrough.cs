@@ -21,7 +21,8 @@ namespace UNNAMED.Presentation;
 /// (§31) through the same commands the keys send - the waystation chest, Kera's lesson and Iron Under Ash, Charwood and the hound, the
 /// bow at the cart, a haft from the ash stand, Blackvein Cut and its walker, ore from the seam, the billet and the spear, Kera shown
 /// the spear, Sel's primer and Tavar's story, the Foldscar - its three Quiet Stones in turn, the south-east one by the way round the
-/// spider, the heart steadied - Tavar freed and recruited, and home with him following. Then a ward (Strain), a save, and quit
+/// spider, the heart steadied - Tavar freed and recruited, and home with him following; then east to Cairnwold for Durn's spear from
+/// the moor's own iron and ash and Mara's three ashbloom from the Sinking Moss, and home again. Then a ward (Strain), a save, and quit
 /// (§30: save, quit completely). One tick a frame, from a fixed seed: the run is the same every time, so a third party replays it
 /// by running it (PROTOTYPE.md §9 item 6) and gets the same <c>state_replay.json</c>. Writes <c>transcript.md</c> (every beat and event
 /// with its game time), <c>commands.tsv</c> (every command with its tick), a screenshot per beat, the save in <c>profile/</c>,
@@ -45,30 +46,61 @@ public sealed class Playthrough
     private const string Kera = "npc.ashen_hollow.kera_voss";
     private const string Sel = "npc.ashen_hollow.sel_arien";
     private const string Tavar = "npc.ashen_hollow.tavar_orr";
+    private const string Durn = "npc.cairnwold.durn_skell";
+    private const string Mara = "npc.cairnwold.mara_ling";
+    private const string Ore = "item.material.iron_ore";
+    private const string Haft = "item.material.ash_haft";
+    private const string Ashbloom = "item.material.herb_ashbloom";
 
-    // The content bible's acceptance path (§31), point by point, in the four cells' layout.
-    private static readonly (double X, double Z)[] ToTheChest = { (34, 150), (38, 138.4) };
-    private static readonly (double X, double Z)[] ToTheSmithyDoor = { (40, 140), (47, 139), (51.8, 139), (51.8, 142) };
-    private static readonly (double X, double Z)[] IntoTheSmithy = { (54.5, 142) };
-    private static readonly (double X, double Z)[] ToTheEastExit = { (51.8, 142), (51.8, 136), (65, 136), (88, 145) };
-    private static readonly (double X, double Z)[] ToTheHound = { (108, 148), (128, 150) };
-    private static readonly (double X, double Z)[] ToTheCart = { (145, 156), (157, 158.8) };
-    private static readonly (double X, double Z)[] ToTheStand = { (165, 150), (175, 142), (179, 138.3) };
+    // The content bible's acceptance path (§31), point by point, in the four cells' layout - authored in the hollow's own 200 m square,
+    // which region.starting_frontier places at its south-west corner (Hollow).
+    private static readonly (double X, double Z)[] ToTheChest = Hollow((34, 150), (38, 138.4));
+    private static readonly (double X, double Z)[] ToTheSmithyDoor = Hollow((40, 140), (47, 139), (51.8, 139), (51.8, 142));
+    private static readonly (double X, double Z)[] IntoTheSmithy = Hollow((54.5, 142));
+    private static readonly (double X, double Z)[] ToTheEastExit = Hollow((51.8, 142), (51.8, 136), (65, 136), (88, 145));
+    private static readonly (double X, double Z)[] ToTheHound = Hollow((108, 148), (128, 150));
+    private static readonly (double X, double Z)[] ToTheCart = Hollow((145, 156), (157, 158.8));
+    private static readonly (double X, double Z)[] ToTheStand = Hollow((165, 150), (175, 142), (179, 138.3));
     // South-west from the stand, keeping clear of the strays' patch round (118, 128) - the wolves are the prototype's, not the bible's.
-    private static readonly (double X, double Z)[] ToTheQuarry = { (170, 118), (150, 106), (125, 102), (100, 110), (80, 106), (63, 98) };
-    private static readonly (double X, double Z)[] ToTheSeam = { (60, 90), (54, 74), (48, 62), (40, 54), (34, 48), (27.2, 44.2) };
+    private static readonly (double X, double Z)[] ToTheQuarry = Hollow((170, 118), (150, 106), (125, 102), (100, 110), (80, 106), (63, 98));
+    private static readonly (double X, double Z)[] ToTheSeam = Hollow((60, 90), (54, 74), (48, 62), (40, 54), (34, 48), (27.2, 44.2));
     private static readonly (double X, double Z)[] HomeToTheSmithy =
-        { (34, 48), (40, 54), (48, 62), (54, 74), (60, 90), (63, 98), (64, 112), (58, 134), (51.8, 136), (51.8, 142) };
-    private static readonly (double X, double Z)[] ToTheHearth = { (59.5, 143.2) };
-    private static readonly (double X, double Z)[] ToTheAnvil = { (58.2, 141.4) };
-    private static readonly (double X, double Z)[] OutToSel = { (54.5, 142), (51.8, 142), (51.8, 136), (60, 128) };
-    private static readonly (double X, double Z)[] ToTheFoldscar = { (90, 112), (105, 108), (120, 93), (140, 80) };
-    private static readonly (double X, double Z)[] ToTheNorthStone = { (148.5, 78) };
-    private static readonly (double X, double Z)[] ToTheSouthWestStone = { (135, 60), (123.5, 38) };
-    private static readonly (double X, double Z)[] ToTheSouthEastStone = { (140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31) };
-    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 50.2) };
-    private static readonly (double X, double Z)[] HomeWithTavar = { (150, 45), (135, 70), (100, 100), (80, 118), (62, 130), (48, 137) };
-    private static readonly (double X, double Z)[] ToTheDen = { (55, 136), (66, 140), (66, 150), (90, 162), (104, 168), (112, 172) };
+        Hollow((34, 48), (40, 54), (48, 62), (54, 74), (60, 90), (63, 98), (64, 112), (58, 134), (51.8, 136), (51.8, 142));
+    private static readonly (double X, double Z)[] ToTheHearth = Hollow((59.5, 143.2));
+    private static readonly (double X, double Z)[] ToTheAnvil = Hollow((58.2, 141.4));
+    private static readonly (double X, double Z)[] OutToSel = Hollow((54.5, 142), (51.8, 142), (51.8, 136), (60, 128));
+    private static readonly (double X, double Z)[] ToTheFoldscar = Hollow((90, 112), (105, 108), (120, 93), (140, 80));
+    private static readonly (double X, double Z)[] ToTheNorthStone = Hollow((148.5, 78));
+    private static readonly (double X, double Z)[] ToTheSouthWestStone = Hollow((135, 60), (123.5, 38));
+    private static readonly (double X, double Z)[] ToTheSouthEastStone = Hollow((140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31));
+    private static readonly (double X, double Z)[] ToTheHeart = Hollow((194, 45), (187, 65), (160, 65), (153, 50.2));
+    private static readonly (double X, double Z)[] HomeWithTavar = Hollow((150, 45), (135, 70), (100, 100), (80, 118), (62, 130), (48, 137));
+    private static readonly (double X, double Z)[] ToTheDen = Hollow((55, 136), (66, 140), (66, 150), (90, 162), (104, 168), (112, 172));
+    // Cairnwold, east along the road and back (region coordinates, planned round the region's blockers with the smithy door open).
+    private static readonly (double X, double Z)[] ToCairnwold =
+        { (744.8, 732.5), (745.5, 731.8), (908.8, 705.5), (911.8, 702.8), (937, 683), (964.5, 679.8), (970.2, 678), (976.5, 674.2) };
+    private static readonly (double X, double Z)[] ToTheCairnwoldSeam =
+        { (980.8, 657), (979, 655.2), (977.2, 648.2), (972.2, 640.2), (971, 639), (970.5, 633.2), (956.8, 609.2), (957.8, 605.5) };
+    private static readonly (double X, double Z)[] ToDurnsDoor = { (956.8, 609.5), (971, 637), (971.8, 644.2), (978.2, 651.5), (980.2, 661), (980.8, 661.5), (982, 677.5) };
+    private static readonly (double X, double Z)[] ToDurnsHearth = { (982.2, 679.8), (983.5, 683.5) };
+    private static readonly (double X, double Z)[] ToTheCairnwoldStand = { (982, 680.5), (982, 677.5), (987.2, 678.2), (988, 679), (984.5, 692.5), (975, 713.2) };
+    private static readonly (double X, double Z)[] BackToDurnsDoor = { (986.5, 685.2), (988, 679), (987.2, 678.2), (982, 677.5) };
+    private static readonly (double X, double Z)[] ToDurnsAnvil = { (982, 679), (981.2, 681.2) };
+    private static readonly (double X, double Z)[] OutOfDurnsSmithy = { (982, 679), (982, 677.5) };
+    private static readonly (double X, double Z)[] ToTheMoss =
+        { (985, 677.2), (987.5, 678.5), (1004.2, 703.5), (1004.5, 706.2), (1036.8, 748.5), (1037, 750.5), (1042.8, 751.8), (1044, 755.5) };
+    private static readonly (double X, double Z)[] ToTheMossNorth = { (1048, 780.2) };
+    private static readonly (double X, double Z)[] ToTheMossEast = { (1059.5, 775.5) };
+    private static readonly (double X, double Z)[] BackToMara =
+        { (1042.5, 751.5), (1037, 750.5), (1032.8, 743.2), (988, 684.2), (987.8, 678.8), (985.2, 677), (984.5, 676.8), (976.2, 666.2) };
+    private static readonly (double X, double Z)[] HomeFromCairnwold = { (970.2, 664.8), (965.2, 667.8), (950.8, 669.8), (524.8, 708.8), (448, 737) };
+
+    /// <summary>The Ashen Hollow's south-west corner in region.starting_frontier: recovery 04f079a moved every place in it by this.</summary>
+    private const double HollowX = 400, HollowZ = 600;
+
+    /// <summary>Points authored in the hollow's own square, in the region's coordinates.</summary>
+    internal static (double X, double Z)[] Hollow(params (double X, double Z)[] points) =>
+        points.Select(p => (p.X + HollowX, p.Z + HollowZ)).ToArray();
 
     private sealed record Beat(string Name, string Says, int Budget, Func<bool> Run, string? Shot = null);
 
@@ -87,6 +119,7 @@ public sealed class Playthrough
     private int _waypoint;
     private int _turnSteps;
     private int _phase;
+    private int _before;
     private int _wait;
     private string? _pending;
     private int _frame;
@@ -203,23 +236,41 @@ public sealed class Playthrough
             new Beat("east", "Out of the waystation by the east road (88, 145)", 2_000, () => Travel(ToTheEastExit)),
             new Beat("hound", "Charwood: the hound's ground (128, 150) - fought if it hunts (§29 4:00)", 3_000, () => Travel(ToTheHound), "04_charwood"),
             new Beat("cart", "The ruined merchant cart: the hunting bow and arrows (§29 5:00)", 2_500, TakeFromTheCart, "05_cart"),
-            new Beat("stand", "An ash haft cut at the stand", 2_500, CutAHaft, "06_haft"),
+            new Beat("stand", "An ash haft cut at the stand", 2_500, () => Gather("ash_stand", ToTheStand, Haft), "06_haft"),
             new Beat("quarry", "Back south-west and down to Blackvein Cut's mouth (63, 98) (§29 6:00)", 5_000, () => Travel(ToTheQuarry), "07_quarry"),
-            new Beat("seam", "Past the Bone Walker's ground to the seam: raw iron ore (§29 7:00-8:00)", 5_000, StrikeTheSeam, "08_ore"),
+            new Beat("seam", "Past the Bone Walker's ground to the seam: raw iron ore (§29 7:00-8:00)", 5_000, () => Gather("iron_seam", ToTheSeam, Ore), "08_ore"),
             new Beat("home", "Home north to the smithy (§29 9:00)", 7_000, () => Travel(HomeToTheSmithy) && Door("door.forge_shed") && Walk(IntoTheSmithy)),
             new Beat("billet", "A billet smelted at the hearth", 1_500, () => Make("forge", ToTheHearth), "09_billet"),
             new Beat("spear", "The March Spear forged at the anvil, and taken in hand", 1_500, () => Make("anvil", ToTheAnvil) && WieldTheSpear(), "10_spear"),
-            new Beat("quest1", "Kera shown the spear: Iron Under Ash complete", 1_200, ShowKera, "11_iron_under_ash"),
+            new Beat("quest1", "Kera shown the spear: Iron Under Ash complete", 1_200, () => Show(Kera, "quest.ashen_hollow.iron_under_ash"), "11_iron_under_ash"),
             new Beat("sel", "Sel: the Resonance Primer, and Tavar's story - The Three Quiet Stones begins", 2_000, TalkToSel, "12_sel"),
             new Beat("primer", "The primer read: three formulas known", 300, ReadThePrimer),
             new Beat("foldscar", "The Foldscar path (105, 108) and in", 4_000, () => Travel(ToTheFoldscar)),
             new Beat("north", "The north Quiet Stone turned into line", 1_500, () => Turn("switch.stone_north", ToTheNorthStone), "13_north_stone"),
             new Beat("southwest", "The south-west Quiet Stone turned into line", 2_500, () => Turn("switch.stone_southwest", ToTheSouthWestStone), "14_southwest_stone"),
             new Beat("southeast", "The south-east Quiet Stone turned, by the way round the spider (§8)", 4_000, () => Turn("switch.stone_southeast", ToTheSouthEastStone), "15_southeast_stone"),
-            new Beat("fold", "At the heart: Tavar in the fold, out of reach", 3_000, () => Travel(ToTheHeart) && Look(145_000, 42_000), "16_the_fold"),
-            new Beat("heart", "The heart steadied: the fold lifts", 300, () => Turn("switch.foldscar_heart", Array.Empty<(double, double)>()) && Look(145_000, 42_000), "17_heart_steadied"),
+            new Beat("fold", "At the heart: Tavar in the fold, out of reach", 3_000, () => Travel(ToTheHeart) && LookAt(Tavar), "16_the_fold"),
+            new Beat("heart", "The heart steadied: the fold lifts", 300, () => Turn("switch.foldscar_heart", Array.Empty<(double, double)>()) && LookAt(Tavar), "17_heart_steadied"),
             new Beat("tavar", "Tavar freed - Quest 2 complete - and recruited", 1_200, () => Converse(Tavar, "sent", "join", "ok"), "18_tavar_joins"),
             new Beat("follow", "Home with Tavar following", 8_000, () => Travel(HomeWithTavar) && LookAtTavar(), "19_home_with_tavar"),
+            // Cairnwold's two quests: Durn's spear from the moor's own iron and ash, and Mara's three ashbloom from the Sinking Moss.
+            new Beat("cairnwold", "East along the road to Cairnwold", 9_000, () => Travel(ToCairnwold), "c01_cairnwold"),
+            new Beat("durn", "Durn teaches the forge: Iron From The Moor begins", 900, () => Converse(Durn, "teach", "thanks"), "c02_durn"),
+            new Beat("moor_seam", "Down to the crags: ore from Cairnwold's own seam", 3_000, () => Gather("cairnwold_iron_seam", ToTheCairnwoldSeam, Ore), "c03_moor_ore"),
+            new Beat("moor_home", "Back up into the village, to Durn's smithy door", 3_000, () => Travel(ToDurnsDoor) && Door("door.smithy")),
+            new Beat("moor_billet", "A billet smelted at Durn's hearth", 1_500, () => Make("forge", ToDurnsHearth), "c04_moor_billet"),
+            new Beat("moor_stand", "An ash haft cut at the stand north of the basin", 2_500, () => Gather("cairnwold_ash_stand", ToTheCairnwoldStand, Haft), "c05_moor_haft"),
+            new Beat("moor_back", "Back to the smithy", 2_500, () => Travel(BackToDurnsDoor)),
+            new Beat("moor_spear", "A March Spear forged at Durn's anvil", 1_500, () => Make("anvil", ToDurnsAnvil), "c06_moor_spear"),
+            new Beat("moor_out", "Out of the smithy", 600, () => Walk(OutOfDurnsSmithy)),
+            new Beat("quest3", "Durn shown the spear: Iron From The Moor complete", 1_200, () => Show(Durn, "quest.cairnwold.iron_from_the_moor"), "c07_iron_from_the_moor"),
+            new Beat("mara", "Mara at the well: What The Bog Kept begins", 1_200, () => Converse(Mara, "ask", "offer", "back"), "c08_mara"),
+            new Beat("moss", "North-east into the Sinking Moss: an ashbloom", 5_000, () => Gather("bog_ashbloom_1", ToTheMoss, Ashbloom), "c09_moss"),
+            new Beat("moss_north", "A second ashbloom, further in", 1_200, () => Gather("bog_ashbloom_3", ToTheMossNorth, Ashbloom)),
+            new Beat("moss_east", "A third, where the ground is wettest", 1_200, () => Gather("bog_ashbloom_2", ToTheMossEast, Ashbloom), "c10_ashbloom"),
+            new Beat("moss_back", "Back to the well", 5_000, () => Travel(BackToMara)),
+            new Beat("quest4", "Mara given three ashbloom: What The Bog Kept complete", 1_200, () => Converse(Mara, "bog_return", "back") && Completed("quest.cairnwold.what_the_bog_kept"), "c11_what_the_bog_kept"),
+            new Beat("homeward", "West along the road, home to the waystation", 9_000, () => Travel(HomeFromCairnwold), "c12_home"),
             new Beat("ward", "Brace Wards worked at home until Strain passed tolerance and cost health (§33: Health and Strain not at rest)", 1_200,
                 () => Strain(magic.Formulas.Keys.First(f => magic.Formulas[f].Targeting == Targeting.Self && f.Contains("ward", StringComparison.Ordinal))), "20_ward"),
             new Beat("save", "Saved - then the application quits (§30)", 60, SaveAndDump, "21_saved"),
@@ -238,19 +289,13 @@ public sealed class Playthrough
         });
     }
 
-    private bool OpenTheChest()
-    {
-        const string chest = "container.waystation_chest";
-        if (!Walk(ToTheChest, Near))
-            return false;
-        Look(38_000, 137_000);
-        return Empty(chest);
-    }
+    private bool OpenTheChest() => Walk(ToTheChest, Near) && Empty("container.waystation_chest");
 
-    /// <summary>Take everything a container holds, as the inventory's Take buttons do; true once it is empty.</summary>
+    /// <summary>Take everything a container holds, as the inventory's Take buttons do, facing it; true once it is empty.</summary>
     private bool Empty(string key)
     {
         var box = _session.Simulation!.Containers.Single(c => c.Site.Key == key);
+        Look(box.Site.XMm, box.Site.ZMm);
         if (box.Items.IsEmpty)
             return _phase > 0 || (_broken = $"{key} was empty before anything was taken") is null;
         if (_phase++ > 3)
@@ -262,53 +307,38 @@ public sealed class Playthrough
         return false;
     }
 
-    private bool TakeFromTheCart()
-    {
-        const string cart = "container.merchant_cart";
-        if (!Travel(ToTheCart, Near))
-            return false;
-        Look(157_000, 160_200);
-        return Empty(cart);
-    }
+    private bool TakeFromTheCart() => Travel(ToTheCart, Near) && Empty("container.merchant_cart");
 
-    private bool CutAHaft()
+    /// <summary>Walk to a node and work it, facing it: true once it has given at least one more of its item than was carried.</summary>
+    private bool Gather(string name, (double X, double Z)[] route, string itemId)
     {
-        if (!Travel(ToTheStand, Near))
+        if (!Travel(route, Near))
             return false;
-        var stand = _session.Simulation!.Nodes.Single(n => n.Name == "ash_stand");
-        Look(stand.XMm, stand.ZMm);
-        if (Carried("item.material.ash_haft") > 0)
+        var node = _session.Simulation!.Nodes.Single(n => n.Name == name);
+        Look(node.XMm, node.ZMm);
+        if (_phase == 0)
+            _before = Carried(itemId);
+        else if (Carried(itemId) > _before)
             return true;
         if (_phase++ % 10 == 0)
-            _controller.Gather(stand.Key);
+            _controller.Gather(node.Key);
         return false;
     }
 
-    private bool StrikeTheSeam()
-    {
-        if (!Travel(ToTheSeam, Near))
-            return false;
-        var seam = _session.Simulation!.Nodes.Single(n => n.Name == "iron_seam");
-        Look(seam.XMm, seam.ZMm);
-        if (Carried("item.material.iron_ore") > 0)
-            return true;
-        if (_phase++ % 10 == 0)
-            _controller.Gather(seam.Key);
-        return false;
-    }
-
-    /// <summary>At a station of this kind, make the first recipe the character knows for it, once.</summary>
+    /// <summary>At the nearest station of this kind, make the first recipe the character knows for it, once.</summary>
     private bool Make(string kind, (double X, double Z)[] spot)
     {
         if (!Walk(spot, Near))
             return false;
-        var station = _session.Setup.Layout.Stations.First(s => s.Kind == kind);
+        var body = _controller.Authoritative;
+        var station = _session.Setup.Layout.Stations.Where(s => s.Kind == kind)
+            .OrderBy(s => Math.Pow(s.XMm - body.XMm, 2) + Math.Pow(s.ZMm - body.ZMm, 2)).First();
         Look(station.XMm, station.ZMm);
         var recipe = _controller.Recipes(kind).First();
-        if (Carried(recipe.OutputItemId) > 0 && _phase > 0)
-            return true;
-        if (_phase++ == 0)
-            _controller.Craft(recipe.Id);
+        if (_phase++ > 0)
+            return Carried(recipe.OutputItemId) > _before;
+        _before = Carried(recipe.OutputItemId);
+        _controller.Craft(recipe.Id);
         return false;
     }
 
@@ -324,15 +354,16 @@ public sealed class Playthrough
         return false;
     }
 
-    private bool ShowKera()
+    /// <summary>Show a smith the spear: the first "show" reply they offer, then leave; true once their quest is complete.</summary>
+    private bool Show(string npcId, string questId)
     {
         var simulation = _session.Simulation!;
         switch (_phase)
         {
             case 0:
-                if (Approach(Kera))
+                if (Approach(npcId))
                 {
-                    _controller.Talk(Kera);
+                    _controller.Talk(npcId);
                     _phase++;
                 }
                 return false;
@@ -343,9 +374,12 @@ public sealed class Playthrough
                 return false;
             default:
                 _dialogue.Leave();
-                return simulation.Quests.Any(q => q.Id == "quest.ashen_hollow.iron_under_ash" && q.Status == Domain.Quests.QuestStatus.Completed);
+                return Completed(questId);
         }
     }
+
+    private bool Completed(string questId) =>
+        _session.Simulation!.Quests.Any(q => q.Id == questId && q.Status == Domain.Quests.QuestStatus.Completed);
 
     private bool TalkToSel()
     {
@@ -756,6 +790,13 @@ public sealed class Playthrough
         var body = _controller.Authoritative;
         _camera.Yaw = Mathf.Atan2(-(xMm - body.XMm) / 1000f, -(zMm - body.ZMm) / 1000f);
         return true;
+    }
+
+    /// <summary>Turn the camera to an NPC: true, so it can end a beat.</summary>
+    private bool LookAt(string npcId)
+    {
+        var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
+        return Look(npc.Body.XMm, npc.Body.ZMm);
     }
 
     /// <summary>Look back at the companion: true, so it can end a beat - or the beat breaks, if there is none.</summary>

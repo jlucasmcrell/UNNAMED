@@ -264,7 +264,8 @@ public class QuestTests
         {
             Layout = layout with
             {
-                Locations = layout.Locations.Select(l => l.Id == "location.blackvein_cut" ? l with { XMm = 54_000, ZMm = 74_000, DiscoveryRadiusMm = 20_000 } : l)
+                Locations = layout.Locations.Select(l => l.Id == "location.blackvein_cut"
+                        ? l with { XMm = Harness.InRegion(54, 74).XMm, ZMm = Harness.InRegion(54, 74).ZMm, DiscoveryRadiusMm = 20_000 } : l)
                     .ToImmutableArray(),
             },
         };
@@ -343,7 +344,7 @@ public class QuestTests
         Assert.Equal("active", now.Status);
         Assert.Equal("Waiting on o_shelf (Reach Blackvein Cut, the old quarry south of the waystation.): location.blackvein_cut discovered = no, wanted yes.", now.Answer);
         var waiting = Assert.Single(now.Waiting);
-        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 38.0 m of location.blackvein_cut (38.0, 48.0); now ", StringComparison.Ordinal));
+        Assert.Contains(waiting.SatisfiedBy, w => w.StartsWith("walk within 38.0 m of location.blackvein_cut (438.0, 648.0); now ", StringComparison.Ordinal));
         Assert.Empty(now.Problems);
         // The trace: the start, the evaluation that moved it, and the evaluations since, collapsed because nothing changed.
         Assert.Contains(now.Trace, t => t.Lines.Contains("-> o_speak satisfied"));
@@ -351,14 +352,19 @@ public class QuestTests
         Assert.True(now.Trace[^1].Evaluations >= 2);
     }
 
-    /// <summary>Deliberately broken 1: a quest wants more ore than the world holds. The seam is finite, and nothing else gives ore.</summary>
+    /// <summary>
+    /// Deliberately broken 1: a quest wants more ore than the world holds. The seam is finite, and nothing else gives ore - in a world
+    /// with the hollow's seam alone, without Cairnwold's.
+    /// </summary>
     [Fact]
     public void TheDebugger_ExplainsAQuestTheWorldCanNoLongerSatisfy()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var greedy = Broken("quest.test.greedy", "The Greedy Smith", Objective("o_ore", "Bring nine lumps of ore.", new AcquireItem(Ore, 9, Quality.Crude)));
-        var arena = At(session, AtSeam, r => r.WithQuests(new[] { QuestRules.Start(greedy, 0) }), WithQuests(session, greedy));
+        var rules = WithQuests(session, greedy);
+        rules = rules with { Layout = rules.Layout with { Nodes = rules.Layout.Nodes.Where(n => n.Name != "cairnwold_iron_seam").ToImmutableArray() } };
+        var arena = At(session, AtSeam, r => r.WithQuests(new[] { QuestRules.Start(greedy, 0) }), rules);
 
         var seam = () => arena.Simulation.Nodes.Single(n => n.Name == "iron_seam");
         while (seam().Ready)

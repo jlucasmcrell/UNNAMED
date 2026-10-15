@@ -27,12 +27,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Creature | Opens with | Tell at m | Lands from m | Arrow to blow s | Runs down a sprinter | Sword kill s (fighter died) | Death standing s | Walker seen at m | Sprinter heard at m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | Ember Lunge | 2.4 | 0.8 | 2.1 | yes, 3.1 s (Ember Lunge) | 3.4 (0/8) | 26.0 | 28.8 | 15.7 |
-| Bone Walker Husk | Rusted Cleave | 2.6 | 2.6 | 5.8 | no | 5.6 (0/8) | 29.3 | 16.8 | 15.8 |
-| Animated Armour | Gauntlet Slam | 2.0 | 2.0 | 6.8 | no | 20.6 (1/8) | 22.1 | 13.9 | 15.9 |
-| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 7.9 (0/8) | 22.5 | 18.8 | 15.8 |
-| Cave Hunting Spider | Venom Bite | 1.4 | 1.4 | 2.8 | no | 4.1 (0/8) | 19.2 | 5.1 | 13.7 |
-| Grey Wolf | Bite | 1.5 | 1.5 | 3.0 | no | 5.6 (0/8) | 21.8 | 23.9 | 15.7 |
+| Ash Ember Hound | Ember Lunge | 2.3 | 0.8 | 2.1 | yes, 3.1 s (Ember Lunge) | 3.4 (0/8) | 24.7 | 28.8 | 15.7 |
+| Bone Walker Husk | Rusted Cleave | 2.6 | 2.6 | 5.8 | no | 5.6 (0/8) | 29.3 | 16.9 | 15.8 |
+| Animated Armour | Gauntlet Slam | 2.0 | 2.0 | 6.9 | no | 19.2 (0/8) | 22.1 | 13.9 | 15.8 |
+| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 7.9 (0/8) | 22.5 | 18.9 | 15.8 |
+| Cave Hunting Spider | Venom Bite | 1.2 | 1.2 | 2.9 | no | 4.1 (0/8) | 18.4 | 5.1 | 13.7 |
+| Grey Wolf | Bite | 1.5 | 1.5 | 3.0 | no | 5.6 (0/8) | 23.2 | 23.8 | 15.8 |
 
 ## Roles (content)
 
@@ -52,11 +52,15 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Spawner | At (x, z) m | Creatures, each in its role | Returns |
 |---|---|---|---|
-| spawn.hollow.boar_wallow | (18, 72) | Bristleback Boar as territorial | no |
-| spawn.hollow.charwood_hound | (128, 150) | Ash Ember Hound as hunter | no |
-| spawn.hollow.den_pack | (112, 184) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
-| spawn.hollow.east_pack | (188, 180) | Grey Wolf as roamer x2 | after 20.0 min |
-| spawn.hollow.iron_shelf_armour | (65, 34) | Animated Armour as sentinel | no |
-| spawn.hollow.iron_shelf_husk | (48, 58) | Bone Walker Husk as roamer | no |
-| spawn.hollow.spider_lair | (172, 48) | Cave Hunting Spider as ambusher | no |
-| spawn.hollow.valley_strays | (118, 128) | Grey Wolf as stray x2 | no |
+| spawn.cairnwold.barrow_sentinel | (928, 772) | Animated Armour as sentinel | no |
+| spawn.cairnwold.birch_boar | (946, 748) | Bristleback Boar as territorial | no |
+| spawn.cairnwold.gorge_spiders | (1076, 696) | Cave Hunting Spider as ambusher x2 | no |
+| spawn.cairnwold.moor_strays | (1018, 748) | Grey Wolf as stray, Grey Wolf as roamer x2 | no |
+| spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | no |
+| spawn.hollow.charwood_hound | (528, 750) | Ash Ember Hound as hunter | no |
+| spawn.hollow.den_pack | (512, 784) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
+| spawn.hollow.east_pack | (588, 780) | Grey Wolf as roamer x2 | after 20.0 min |
+| spawn.hollow.iron_shelf_armour | (465, 634) | Animated Armour as sentinel | no |
+| spawn.hollow.iron_shelf_husk | (448, 658) | Bone Walker Husk as roamer | no |
+| spawn.hollow.spider_lair | (572, 648) | Cave Hunting Spider as ambusher | no |
+| spawn.hollow.valley_strays | (518, 728) | Grey Wolf as stray x2 | no |

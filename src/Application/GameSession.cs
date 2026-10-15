@@ -15,7 +15,7 @@ namespace UNNAMED.Application;
 /// <summary>Where a session finds its content and saves, and which region it plays.</summary>
 public sealed record GameOptions(string ContentRoot, string ProfileRoot)
 {
-    public string RegionId { get; init; } = "region.ashen_hollow";
+    public string RegionId { get; init; } = "region.starting_frontier";
 
     /// <summary>The content pack's human label, written to <c>content_version</c>. Diagnostic only (PERSISTENCE.md §4.2).</summary>
     public string ContentVersion { get; init; } = "0.3.0";

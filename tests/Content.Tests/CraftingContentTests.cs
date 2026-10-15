@@ -48,12 +48,14 @@ public class CraftingContentTests
     {
         var crafting = CraftingContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
 
-        Assert.Equal(new[] { "node.ore.iron_seam", "node.wood.ash_stand" }, crafting.Nodes.Keys);
+        Assert.Equal(new[] { "node.firstplay.ashbloom", "node.ore.iron_seam", "node.wood.ash_stand" }, crafting.Nodes.Keys);
         var seam = crafting.Nodes["node.ore.iron_seam"];
         Assert.Equal(("item.material.iron_ore", 1, 2, 3, Respawn.None, "skill.survival", 5),
             (seam.ItemId, seam.YieldMin, seam.YieldMax, seam.Charges, seam.Respawn, seam.SkillId, seam.Difficulty));
         var stand = crafting.Nodes["node.wood.ash_stand"];
         Assert.Equal(("item.material.ash_haft", 1, 1, 1, Respawn.Daily), (stand.ItemId, stand.YieldMin, stand.YieldMax, stand.Charges, stand.Respawn));
+        var bloom = crafting.Nodes["node.firstplay.ashbloom"];
+        Assert.Equal(("item.material.herb_ashbloom", 1, 1, 1, Respawn.Daily), (bloom.ItemId, bloom.YieldMin, bloom.YieldMax, bloom.Charges, bloom.Respawn));
 
         Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear" }, crafting.Recipes.Keys);
         var billet = crafting.Recipes["recipe.smithing.iron_billet"];

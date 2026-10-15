@@ -17,6 +17,21 @@ internal sealed class TempProfile : IDisposable
 
 internal static class Harness
 {
+    /// <summary>
+    /// The Ashen Hollow's south-west corner in region.starting_frontier, the game's region: the tests' places are authored in the hollow's
+    /// own 200 m square (its M6 layout, which recovery 04f079a moved into the region by this) and measured from here.
+    /// </summary>
+    public static readonly (double X, double Z) Hollow = (400, 600);
+
+    /// <summary>Where the hollow lies in a region: its south-west corner, in starting_frontier and in the retired region.ashen_hollow alike.</summary>
+    public static (double X, double Z) HollowOf(SimulationSetup setup) => (setup.Layout.Space.MinXMm / 1000.0, setup.Layout.Space.MinZMm / 1000.0);
+
+    /// <summary>The region's own origin, for an arena whose places are given in region metres.</summary>
+    public static readonly (double X, double Z) Region = (0, 0);
+
+    /// <summary>A place in the hollow's metres, in the region's millimetres.</summary>
+    public static (long XMm, long ZMm) InRegion(double x, double z) => ((long)((x + Hollow.X) * 1000), (long)((z + Hollow.Z) * 1000));
+
     public static string RepoRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
@@ -27,9 +42,12 @@ internal static class Harness
         throw new DirectoryNotFoundException("Repository root (src/UNNAMED.sln) not found above " + AppContext.BaseDirectory);
     }
 
-    /// <summary>The game's own content, booted exactly as the game boots it.</summary>
-    public static GameSession Boot(TempProfile profile) =>
-        GameSession.Boot(new GameOptions(Path.Combine(RepoRoot(), "content"), profile.Root));
+    /// <summary>The game's own content, booted exactly as the game boots it - or in another of its regions.</summary>
+    public static GameSession Boot(TempProfile profile, string? regionId = null)
+    {
+        var options = new GameOptions(Path.Combine(RepoRoot(), "content"), profile.Root);
+        return GameSession.Boot(regionId is null ? options : options with { RegionId = regionId });
+    }
 
     /// <summary>Run whole ticks, one per frame, the way a 20 Hz frame loop would.</summary>
     public static void Ticks(GameSession session, int ticks)
@@ -62,9 +80,9 @@ internal static class Harness
         return false;
     }
 
-    /// <summary>Walk a list of waypoints in metres.</summary>
+    /// <summary>Walk a list of waypoints in the hollow's metres.</summary>
     public static bool WalkPath(GameSession session, params (double X, double Z)[] waypoints) =>
-        waypoints.All(w => WalkTo(session, (long)(w.X * 1000), (long)(w.Z * 1000)));
+        waypoints.All(w => WalkTo(session, (long)((w.X + HollowOf(session.Setup).X) * 1000), (long)((w.Z + HollowOf(session.Setup).Z) * 1000)));
 
     /// <summary>A full-deflection intent along a world-space direction, facing where it goes.</summary>
     public static MoveIntent Toward(double dx, double dz, Gait gait = Gait.Run)

@@ -82,11 +82,12 @@ public class CraftingTests
         using var profile = new TempProfile();
         var simulation = Harness.Boot(profile).NewGame("Tester", seed: 42);
 
-        var nodes = simulation.Nodes.OrderBy(n => n.Name, StringComparer.Ordinal).ToList();
-        Assert.Equal(new[] { "ash_stand", "iron_seam" }, nodes.Select(n => n.Name));
+        Assert.Equal(new[] { "ash_stand", "bog_ashbloom_1", "bog_ashbloom_2", "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_iron_seam", "iron_seam" },
+            simulation.Nodes.Select(n => n.Name).OrderBy(n => n, StringComparer.Ordinal));
+        var nodes = simulation.Nodes.Where(n => n.Name is "ash_stand" or "iron_seam").OrderBy(n => n.Name, StringComparer.Ordinal).ToList();
         Assert.All(nodes, n => Assert.True(n.Ready));
-        Assert.Equal(("node.wood.ash_stand", Haft, 180_000L, 138_000L), (nodes[0].NodeDefId, nodes[0].ItemId, nodes[0].XMm, nodes[0].ZMm));
-        Assert.Equal(("node.ore.iron_seam", Ore, 28_000L, 45_100L), (nodes[1].NodeDefId, nodes[1].ItemId, nodes[1].XMm, nodes[1].ZMm));
+        Assert.Equal(("node.wood.ash_stand", Haft, 580_000L, 738_000L), (nodes[0].NodeDefId, nodes[0].ItemId, nodes[0].XMm, nodes[0].ZMm));
+        Assert.Equal(("node.ore.iron_seam", Ore, 428_000L, 645_100L), (nodes[1].NodeDefId, nodes[1].ItemId, nodes[1].XMm, nodes[1].ZMm));
         foreach (var node in nodes)
         {
             // The generator's, so a save proves the node's cell against it like any other baseline.
@@ -441,7 +442,8 @@ public class CraftingTests
         var flask = old.Simulation.Player.Inventory.Single(e => e.DefId == "item.tool.water_flask").ItemId;
         Assert.Null(old.Submit(new MoveItemCommand(old.Player, flask.Value, ItemPlace.Carried, ItemPlace.Ground, 1)));
         Save(session, profile, old, "before");
-        string seamCell = CellKey.OfWorld(AtSeam.X, AtSeam.Z + 1).ToString();
+        var hollow = Harness.HollowOf(session.Setup);
+        string seamCell = CellKey.OfWorld(AtSeam.X + hollow.X, AtSeam.Z + 1 + hollow.Z).ToString();
 
         // Today's baseline of that cell holds the seam, so the save cannot be proven against it without the transition...
         var refused = Assert.Throws<SaveCompatibilityException>(() =>
@@ -465,7 +467,8 @@ public class CraftingTests
     public void ASaveFromTheM3Layout_LoadsOntoTheFourCells_LosingOnlyTheOldSeamsStrike()
     {
         using var profile = new TempProfile();
-        var session = Harness.Boot(profile);
+        // M3 and M6 played the hollow as a region of its own; the transition between their layouts is that region's.
+        var session = Harness.Boot(profile, "region.ashen_hollow");
         var g = session.Setup.Layout.Generation;
         FixedNode Fixed(string name, string def, double x, double z) => new(name, def, CellKey.OfWorld(x, z),
             (int)WorldMath.FloorMod((long)(x * 1000) / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod((long)(z * 1000) / 10, WorldMath.CellSizeCm));

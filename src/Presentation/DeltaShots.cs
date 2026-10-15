@@ -29,16 +29,16 @@ public sealed class DeltaShots
     private const string Cart = "container.merchant_cart";
     private const string Sel = "npc.ashen_hollow.sel_arien";
 
-    private static readonly (double X, double Z)[] ToTheChest = { (34, 150), (38, 138.4) };
-    private static readonly (double X, double Z)[] AwayFromTheChest = { (38, 142.5) };
+    private static readonly (double X, double Z)[] ToTheChest = Playthrough.Hollow((34, 150), (38, 138.4));
+    private static readonly (double X, double Z)[] AwayFromTheChest = Playthrough.Hollow((38, 142.5));
     // Up to the timber's west end (it runs x 163-171), so the camera, off to the west, sees its end and the body over it.
-    private static readonly (double X, double Z)[] ToTheTimber = { (40, 142), (47, 139), (51.8, 139), (51.8, 136), (65, 136), (88, 145), (108, 140), (140, 140), (163.6, 141.5) };
-    private static readonly (double X, double Z)[] ToTheBeam = { (172.5, 149), (172.5, 140), (155, 128.5), (149, 129.2) };
-    private static readonly (double X, double Z)[] UnderTheBeam = { (149, 132.1) };
-    private static readonly (double X, double Z)[] PastTheBeam = { (149, 134.4) };
-    private static readonly (double X, double Z)[] ToTheCart = { (149, 140), (157, 158.8) };
-    private static readonly (double X, double Z)[] ToSel = { (150, 145), (120, 141), (95, 130), (80, 124) };
-    private static readonly (double X, double Z)[] ToTheLodgeWall = { (60, 126) };
+    private static readonly (double X, double Z)[] ToTheTimber = Playthrough.Hollow((40, 142), (47, 139), (51.8, 139), (51.8, 136), (65, 136), (88, 145), (108, 140), (140, 140), (163.6, 141.5));
+    private static readonly (double X, double Z)[] ToTheBeam = Playthrough.Hollow((172.5, 149), (172.5, 140), (155, 128.5), (149, 129.2));
+    private static readonly (double X, double Z)[] UnderTheBeam = Playthrough.Hollow((149, 132.1));
+    private static readonly (double X, double Z)[] PastTheBeam = Playthrough.Hollow((149, 134.4));
+    private static readonly (double X, double Z)[] ToTheCart = Playthrough.Hollow((149, 140), (157, 158.8));
+    private static readonly (double X, double Z)[] ToSel = Playthrough.Hollow((150, 145), (120, 141), (95, 130), (80, 124));
+    private static readonly (double X, double Z)[] ToTheLodgeWall = Playthrough.Hollow((60, 126));
 
     private sealed record Beat(string Name, string Says, int Budget, Func<bool> Run);
 
@@ -94,7 +94,7 @@ public sealed class DeltaShots
             new Beat("d08_crouched_under_the_beam", "Crouched under the Woundmoss beam (1.3 m clear)", 3_000, CrouchUnderTheBeam),
             new Beat("d09_no_room_to_stand", "Standing up under the beam is refused: \"No room to stand\"", 200, StandUnderTheBeam),
             new Beat("d10_bow_taken", "Out the far side, stood, on to the cart: Take all gives the bow and its arrows; the bow in hand", 2_500, TakeTheBow),
-            new Beat("d11_bow_drawn", "The bow drawn at a tree 16 m off: the reticle sits where the arrow will go", 200, () => Draw(172_000, 152_000)),
+            new Beat("d11_bow_drawn", "The bow drawn at a tree 16 m off: the reticle sits where the arrow will go", 200, () => Draw(572_000, 752_000)),
             new Beat("d12_arrow_in_flight", "The arrow in flight, its streak behind it, along the path the shot resolved", 200, () => InFlight(workingOnly: false, metres: 2.5f)),
             new Beat("d13_arrow_stuck", "The arrow stuck in the tree it hit, where it stays a while", 200, ArrowStuck),
             new Beat("d14_primer_read", "Back to Sel: the primer given and read - three formulas known", 4_000, LearnFromSel),
@@ -191,7 +191,7 @@ public sealed class DeltaShots
         Close();
         if (!Walk(ToTheChest, Near))
             return false;
-        Look(38_000, 137_000);
+        Look(438_000, 737_000);
         if (_phase++ == 0)
             _inventory.Open(Chest);
         return _phase > 20 && _inventory.OpenContainer == Chest;
@@ -251,7 +251,7 @@ public sealed class DeltaShots
         }
         if (_wasAirborne && !posture.Airborne && body.ZMm > 148_200 && _phase == 2)
             _broken = "the arc landed past the timber before a frame caught it over it";
-        if (_phase == 2 && _wasAirborne && !posture.Airborne && body.ZMm < 147_000)
+        if (_phase == 2 && _wasAirborne && !posture.Airborne && body.ZMm < 747_000)
             _broken = "the jump did not carry the body over the timber";
         return false;
     }
@@ -317,7 +317,7 @@ public sealed class DeltaShots
         {
             if (!Travel(ToTheCart, Near))
                 return false;
-            Look(157_000, 160_200);
+            Look(557_000, 760_200);
             _inventory.Open(Cart);
             _inventory.TakeAll();
             _phase = 2;
@@ -434,7 +434,7 @@ public sealed class DeltaShots
                 return false;
             _phase = 1;
         }
-        Look(40_000, 126_000);
+        Look(440_000, 726_000);
         _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
         var combat = _session.Simulation!.Combat;
         if (_phase == 1 && combat.Phase == CombatPhase.Idle && ++_wait > 15)

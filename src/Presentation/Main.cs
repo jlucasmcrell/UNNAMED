@@ -239,7 +239,7 @@ public partial class Main : Node3D
             Playthrough.Clear(Path.GetFullPath(run));
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
-        string region = _options.GetValueOrDefault("--region") ?? "region.ashen_hollow";
+        string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true, RegionId = region });
         _session.SubscriberFailed += SubscriberFailed;

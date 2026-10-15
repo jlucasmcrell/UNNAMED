@@ -37,7 +37,9 @@ public class GameSaveTests
         using var profile = new TempProfile();
         string slot = SaveSlots.Manual("acceptance");
         Copy(Path.Combine(Fixture("m6_acceptance"), "save"), Path.Combine(profile.Root, slot));
-        var session = Harness.Boot(profile);
+        // The M6 build played the hollow as a region of its own, before recovery 04f079a moved it into region.starting_frontier: its save
+        // is of that region, and loads only there.
+        var session = Harness.Boot(profile, "region.ashen_hollow");
         var loaded = session.Load(slot);
 
         Assert.True(loaded.IsComplete, $"quarantined [{string.Join(", ", loaded.QuarantinedSections)}], rejected " +

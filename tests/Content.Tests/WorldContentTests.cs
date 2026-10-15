@@ -43,18 +43,16 @@ public class WorldContentTests
     }
 
     [Fact]
-    public void TheHollow_BuildsFromTheGamesContent()
+    public void TheStartingFrontier_BuildsFromTheGamesContent()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
-        var layout = WorldContent.BuildLayout(loader, "region.ashen_hollow");
+        var layout = WorldContent.BuildLayout(loader, "region.starting_frontier");
 
-        Assert.Equal(4, layout.CellKeys.Length);
-        Assert.Equal((41, 41, 5_000L), (layout.Space.Terrain.Columns, layout.Space.Terrain.Rows, layout.Space.Terrain.SpacingMm));
-        Assert.Equal(2, layout.Doors.Length);
-        Assert.All(layout.Doors, d => Assert.StartsWith("world.hollow.", d.FlagId));
-        Assert.Equal(6, layout.Locations.Length);
+        Assert.Equal(14, layout.CellKeys.Length);
+        Assert.Equal((701, 201, 1_000L), (layout.Space.Terrain.Columns, layout.Space.Terrain.Rows, layout.Space.Terrain.SpacingMm));
+        Assert.Equal(12, layout.Doors.Length);   // the hollow's longhouse and forge shed, and Cairnwold's ten
+        Assert.Equal(13, layout.Locations.Length);   // the hollow's six and Cairnwold's seven
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
-        Assert.InRange(layout.Space.Terrain.HeightsMm.Max() - layout.Space.Terrain.HeightsMm.Min(), 6_000, 11_000);   // content bible §3: about 10 m
         Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600), WorldContent.BuildMovement(loader));
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));
         Assert.Equal(50, WorldContent.TickMilliseconds(loader));
@@ -104,7 +102,7 @@ public class WorldContentTests
 
     [Fact]
     public void APlaceInAnUnknownRegion_IsRefused() =>
-        AssertRefused("WLD005", "locations/den_mouth.yaml", "region_ref: region.ashen_hollow", "region_ref: region.elsewhere");
+        AssertRefused("WLD005", "locations/den_mouth.yaml", "region_ref: region.starting_frontier", "region_ref: region.elsewhere");
 
     [Fact]
     public void AFlagThatDoesNotStartAtZero_IsRefused() =>

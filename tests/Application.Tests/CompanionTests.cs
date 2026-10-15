@@ -27,7 +27,7 @@ public class CompanionTests
     private static readonly (double X, double Z) Open = (70, 152);
 
     private static CompanionRecord Joined(double x, double z, CompanionOrder order = CompanionOrder.Follow, int health = 100) =>
-        new(Tavar, order, CompanionCondition.Up, (long)(x * 1000), (long)(z * 1000), 90_000, health);
+        new(Tavar, order, CompanionCondition.Up, Harness.InRegion(x, z).XMm, Harness.InRegion(x, z).ZMm, 90_000, health);
 
     private static Arena With(GameSession session, (double X, double Z) player, CompanionRecord tavar,
         IEnumerable<(string, double, double, string)>? creatures = null, Func<PlayerRecord, PlayerRecord>? change = null) =>
@@ -138,7 +138,8 @@ public class CompanionTests
                 Watch();
         }
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
-        foreach (var (x, z) in new[] { (50.5, 128.0), (44.0, 128.6), (38.5, 130.5), (44.0, 128.6), (50.5, 128.0), (53.5, 128.0), (54.5, 134.0),
+        // (39.5, 127) is the far end of the lodge: its north-west corner (38.5, 130.5) holds the restored furniture (ah_furn_longhouse_*).
+        foreach (var (x, z) in new[] { (50.5, 128.0), (44.0, 128.6), (39.5, 127.0), (44.0, 128.6), (50.5, 128.0), (53.5, 128.0), (54.5, 134.0),
                      (55.0, 121.0), (35.0, 121.0), (34.0, 134.0), (44.0, 138.0) })
         {
             int budget = 0;
@@ -163,7 +164,7 @@ public class CompanionTests
     private static bool ArriveOnce(Arena arena, double x, double z)
     {
         var body = arena.Simulation.Player.Body;
-        double dx = x * 1000 - body.XMm, dz = z * 1000 - body.ZMm;
+        double dx = (x + arena.Origin.X) * 1000 - body.XMm, dz = (z + arena.Origin.Z) * 1000 - body.ZMm;
         if (Math.Sqrt(dx * dx + dz * dz) <= 300)
         {
             arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(body.FacingMdeg)));
@@ -321,7 +322,7 @@ public class CompanionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var down = new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Downed, 70_000, 150_000, 0, 0) { DownedTick = 0 };
+        var down = new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Downed, Harness.InRegion(70, 150).XMm, Harness.InRegion(70, 150).ZMm, 0, 0) { DownedTick = 0 };
         var arena = Arena.OpenCreatures(session, session.Setup, Open, 90, Array.Empty<(string, double, double, string)>(), r => r.WithCompanions(new[] { down }));
         var fell = arena.Record<CompanionFell>();
         int window = session.Setup.Social.Companions!.ReviveWindowTicks;

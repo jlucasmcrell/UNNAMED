@@ -1,6 +1,7 @@
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
 
@@ -8,7 +9,8 @@ namespace UNNAMED.Application.Tests;
 /// PROTOTYPE.md C18: "see every enemy, node, and item definition reachable in the world without a debug command" - read off the
 /// game's own content as a fresh session builds it: every creature stands in the region, every node is placed, and every item comes
 /// from somewhere a fresh character can get to - the starting kit, a container or a corpse's loot, a trader's wares, a node, a recipe
-/// whose inputs are themselves reachable, a conversation, or a quest's reward.
+/// whose inputs are themselves reachable, a conversation, or a quest's reward. And every quest step points at something the region
+/// has: a place in it, a person standing in it and a line of theirs a reply leads to, a creature that spawns there, an item that can be got.
 /// </summary>
 public class ReachabilityTests
 {
@@ -29,8 +31,70 @@ public class ReachabilityTests
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
-        var items = setup.Items;
 
+        var reachable = Reachable(setup);
+        Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id)));
+    }
+
+    /// <summary>
+    /// A quest whose step names a place another region holds, or a line no reply leads to, can never finish (the Oct 15 playthrough:
+    /// Iron Under Ash stalled at Blackvein Cut in a region with no places in it, and Mara's <c>told</c> had no way in).
+    /// </summary>
+    [Fact]
+    public void EveryQuestStep_PointsAtSomethingInTheRegion()
+    {
+        using var profile = new TempProfile();
+        var setup = Harness.Boot(profile).Setup;
+        var places = setup.Layout.Locations.Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
+        var people = setup.Layout.Npcs.Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
+        var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        var reachable = Reachable(setup);
+
+        var missing = new List<string>();
+        foreach (var quest in setup.Quests.Quests.Values)
+        {
+            foreach (var step in quest.Order)
+            {
+                string at = $"{quest.Id} {step.Id}";
+                switch (step.Condition)
+                {
+                    case TalkTo talk:
+                        if (!people.Contains(talk.NpcId))
+                            missing.Add($"{at}: {talk.NpcId} does not stand in the region");
+                        var dialogue = setup.Social.Dialogues[talk.DialogueId];
+                        var ledTo = dialogue.Nodes.Values.SelectMany(n => n.Choices.Select(c => c.Next).Append(n.Next).Append(n.NextIfExhausted))
+                            .Append(dialogue.Root).OfType<string>().ToHashSet(StringComparer.Ordinal);
+                        missing.AddRange(talk.Nodes.Where(n => !ledTo.Contains(n)).Select(n => $"{at}: no reply leads to {talk.DialogueId} {n}"));
+                        break;
+                    case VisitLocation visit when !places.Contains(visit.LocationId):
+                        missing.Add($"{at}: {visit.LocationId} is not a place in the region");
+                        break;
+                    case ExploreLocation explore when !places.Contains(explore.LocationId):
+                        missing.Add($"{at}: {explore.LocationId} is not a place in the region");
+                        break;
+                    case WorldStateObjective flag when flag.LocationId is { } place && !places.Contains(place):
+                        missing.Add($"{at}: {place} is not a place in the region");
+                        break;
+                    case KillCreature kill when !spawned.Contains(kill.CreatureId):
+                        missing.Add($"{at}: {kill.CreatureId} does not spawn in the region");
+                        break;
+                    case DeliverItem deliver when !people.Contains(deliver.NpcId) || !reachable.Contains(deliver.ItemId):
+                        missing.Add($"{at}: {deliver.ItemId} to {deliver.NpcId} cannot be delivered here");
+                        break;
+                    case AcquireItem acquire when !reachable.Contains(acquire.ItemId):
+                        missing.Add($"{at}: {acquire.ItemId} cannot be got");
+                        break;
+                }
+            }
+        }
+
+        Assert.Empty(missing);
+    }
+
+    /// <summary>Every item a fresh character can get, by the routes the class summary lists.</summary>
+    private static HashSet<string> Reachable(SimulationSetup setup)
+    {
+        var items = setup.Items;
         // Loot a fresh character can reach: the region's containers, and the corpses of the creatures that spawn.
         var tables = new Queue<string>(setup.Layout.Containers.Select(c => c.LootTableId)
             .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
@@ -63,7 +127,6 @@ public class ReachabilityTests
             foreach (var recipe in setup.Crafting.Recipes.Values.Where(r => r.Inputs.All(i => reachable.Contains(i.ItemId))))
                 grew |= reachable.Add(recipe.OutputItemId);
         }
-
-        Assert.Empty(items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id)));
+        return reachable;
     }
 }

@@ -40,7 +40,8 @@ public class ItemTests
             for (int i = 0; i < 3000; i++)
             {
                 var body = simulation.Player.Body;
-                double dx = x * 1000 - body.XMm, dz = z * 1000 - body.ZMm;
+                var hollow = Harness.HollowOf(simulation.Setup);
+                double dx = (x + hollow.X) * 1000 - body.XMm, dz = (z + hollow.Z) * 1000 - body.ZMm;
                 if (Math.Sqrt(dx * dx + dz * dz) < 300)
                     break;
                 simulation.Enqueue(new MoveCommand(simulation.PlayerId, Harness.Toward(dx, dz)));

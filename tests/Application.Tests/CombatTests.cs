@@ -14,22 +14,30 @@ namespace UNNAMED.Application.Tests;
 /// <summary>
 /// A stretch of the hollow with the game's own content and rules, the player placed where a test wants them and wolves
 /// placed exactly (spawn radius 0), each in a role, instead of the region's spawners - or the region's own spawners when
-/// a test keeps them. Stepped directly, one tick per call.
+/// a test keeps them. Stepped directly, one tick per call. Places are given in the hollow's own metres, from the region's south-west
+/// corner where the hollow lies (<see cref="Harness.HollowOf"/>), or in the region's when the arena is opened at <see cref="Harness.Region"/>.
 /// </summary>
 internal sealed class Arena
 {
     public const string Wolf = "creature.beast.wolf_grey";
     public const string Bite = "ability.creature.wolf_bite";
 
-    private Arena(Simulation simulation, EventBus bus)
+    private Arena(Simulation simulation, EventBus bus, (double X, double Z) origin)
     {
         Simulation = simulation;
         Bus = bus;
+        Origin = origin;
     }
 
     public Simulation Simulation { get; }
     public EventBus Bus { get; }
     public EntityId Player => Simulation.PlayerId;
+
+    /// <summary>Where the metres a test gives this arena are measured from, in the region.</summary>
+    public (double X, double Z) Origin { get; }
+
+    /// <summary>Where the character stands, in this arena's metres.</summary>
+    public (double X, double Z) At => (Simulation.Player.Body.XMm / 1000.0 - Origin.X, Simulation.Player.Body.ZMm / 1000.0 - Origin.Z);
 
     public static Arena Open(GameSession session, (double X, double Z) player, int facingDeg, IEnumerable<(double X, double Z)> wolves,
         Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42, long startTick = 0, string role = "pack_hunter", bool keepSpawns = false) =>
@@ -53,25 +61,26 @@ internal sealed class Arena
     /// </summary>
     public static Arena OpenCreatures(GameSession session, SimulationSetup rules, (double X, double Z) player, int facingDeg,
         IEnumerable<(string DefId, double X, double Z, string Role)> creatures, Func<PlayerRecord, PlayerRecord>? change = null, ulong seed = 42,
-        long startTick = 0, bool keepSpawns = false, long respawnTicks = 0, ICellBaselineGenerator? generator = null)
+        long startTick = 0, bool keepSpawns = false, long respawnTicks = 0, ICellBaselineGenerator? generator = null, (double X, double Z)? origin = null)
     {
-        var spawns = creatures.Select((w, i) => new SpawnSite($"spawn.test.{(w.DefId == Wolf ? "wolf" : "creature")}_{i}", (long)(w.X * 1000),
-            (long)(w.Z * 1000), 0, ImmutableArray.Create(new SpawnMember(w.DefId, w.Role))) { RespawnTicks = respawnTicks }).ToImmutableArray();
+        var (ox, oz) = origin ?? Harness.HollowOf(rules);
+        var spawns = creatures.Select((w, i) => new SpawnSite($"spawn.test.{(w.DefId == Wolf ? "wolf" : "creature")}_{i}", (long)((w.X + ox) * 1000),
+            (long)((w.Z + oz) * 1000), 0, ImmutableArray.Create(new SpawnMember(w.DefId, w.Role))) { RespawnTicks = respawnTicks }).ToImmutableArray();
         var setup = keepSpawns ? rules : rules with { Combat = rules.Combat with { Spawns = spawns } };
         var fresh = Simulation.NewCharacter(setup, EntityId.NewId(EntityKind.Character), "Wanderer", 7);
-        long x = (long)(player.X * 1000), z = (long)(player.Z * 1000);
+        long x = (long)((player.X + ox) * 1000), z = (long)((player.Z + oz) * 1000);
         var record = new PlayerRecord(fresh.Id, fresh.Name, x, setup.Layout.Space.Terrain.HeightAtMm(x, z), z, fresh.AppearanceSeed, fresh.Inventory,
             fresh.Progression, facingDeg * 1000 % 360_000, equipment: fresh.Equipment);
         record = change?.Invoke(record) ?? record;
         var bus = new EventBus();
-        return new Arena(Simulation.Start(setup, record, new WorldDelta(generator ?? session.Generator, seed, new Registry()), startTick, bus), bus);
+        return new Arena(Simulation.Start(setup, record, new WorldDelta(generator ?? session.Generator, seed, new Registry()), startTick, bus), bus, (ox, oz));
     }
 
     /// <summary>A loaded save, stepped the same way.</summary>
     public static Arena Resume(SimulationSetup setup, LoadResult loaded)
     {
         var bus = new EventBus();
-        return new Arena(Simulation.Start(setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, bus), bus);
+        return new Arena(Simulation.Start(setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, bus), bus, Harness.HollowOf(setup));
     }
 
     public List<T> Record<T>()
@@ -118,7 +127,7 @@ internal sealed class Arena
         for (int i = 0; i < maxTicks; i++)
         {
             var body = Simulation.Player.Body;
-            double dx = x * 1000 - body.XMm, dz = z * 1000 - body.ZMm;
+            double dx = (x + Origin.X) * 1000 - body.XMm, dz = (z + Origin.Z) * 1000 - body.ZMm;
             if (Math.Sqrt(dx * dx + dz * dz) <= 300)
             {
                 Simulation.Enqueue(new MoveCommand(Player, MoveIntent.Idle(body.FacingMdeg)));
@@ -219,15 +228,17 @@ public class CombatTests
         var walled = Arena.OpenCreatures(session, session.Setup, (44, 137), 180, none, Archer);
         var atWall = Loose(walled);
         Assert.Null(atWall.Target);
-        Assert.InRange(atWall.ToXMm, 43_999, 44_001);
-        Assert.InRange(atWall.ToZMm, 132_000, 132_010);
+        var (wallX, wallZ) = Harness.InRegion(44, 132);
+        Assert.InRange(atWall.ToXMm, wallX - 1, wallX + 1);
+        Assert.InRange(atWall.ToZMm, wallZ, wallZ + 10);
         Assert.Equal((atWall.ToXMm, atWall.ToZMm, false), walled.Simulation.Aim(180_000, walled.Simulation.Combat.Weapon.ReachMm));
 
         // East across the open field: the whole range.
         var open = Arena.OpenCreatures(session, session.Setup, Open, 90, none, Archer);
         var far = Loose(open);
         Assert.Null(far.Target);
-        Assert.Equal((Open.X * 1000 + open.Simulation.Combat.Weapon.ReachMm, Open.Z * 1000), (far.ToXMm, (double)far.ToZMm));
+        var (openX, openZ) = Harness.InRegion(Open.X, Open.Z);
+        Assert.Equal((openX + open.Simulation.Combat.Weapon.ReachMm, openZ), (far.ToXMm, far.ToZMm));
     }
 
     [Fact]
@@ -241,7 +252,7 @@ public class CombatTests
         {
             Assert.Equal(Arena.Wolf, s.DefId);
             Assert.Equal((50, 50, true, false, "stray"), (s.Health, s.MaxHealth, s.Alive, s.Hostile, s.RoleId));
-            Assert.InRange(Math.Sqrt(Math.Pow(s.Body.XMm - 118_000, 2) + Math.Pow(s.Body.ZMm - 128_000, 2)), 0, 6_000);
+            Assert.InRange(Math.Sqrt(Math.Pow(s.Body.XMm - 518_000, 2) + Math.Pow(s.Body.ZMm - 728_000, 2)), 0, 6_000);
         });
         Assert.Equal(50, simulation.Setup.Combat.Creatures[Arena.Wolf].MaxHealth);
     }
@@ -402,10 +413,15 @@ public class CombatTests
             arena.Tick();
         var bite = started.Single(s => s.Attacker != arena.Player);
         Assert.Equal(Arena.Bite, bite.Source);
+        // The bite can begin while the swing is still under way (it does, on tick 7), and a body cannot dodge mid-blow: wait that out.
+        while (arena.Simulation.Combat.Phase != CombatPhase.Idle)
+            arena.Tick();
+        long landsAt = bite.Tick + bite.WindupTicks;
+        Assert.True(arena.Simulation.WorldTick < landsAt, "the swing outlasted the bite's tell");
         int health = arena.Simulation.Combat.Health;
         // Straight back, out of the lunge, inside its 0.45 s tell.
         Assert.Null(arena.Submit(new DodgeCommand(arena.Player, 0, -1000)));
-        arena.Tick(bite.WindupTicks + bite.ActiveTicks);
+        arena.Tick((int)(landsAt - arena.Simulation.WorldTick) + bite.ActiveTicks);
 
         Assert.DoesNotContain(hits, h => h.Target == arena.Player && h.Damage > 0);
         Assert.Equal(health, arena.Simulation.Combat.Health);
@@ -513,8 +529,9 @@ public class CombatTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var bleeding = new[] { new ActiveEffect("effect.bleeding", 2, 120, 20) };
-        // The game's own spawners on both sides of the save: the loaded session places the same wolves, doing the same things.
-        var continuous = Arena.Open(session, (60, 50), 0, Array.Empty<(double, double)>(), r => r.WithEffects(bleeding), keepSpawns: true);
+        // The game's own spawners on both sides of the save: the loaded session places the same wolves, doing the same things. In the
+        // waystation's yard, out of their way: Blackvein Cut, where this stood, has its husk and armour since the restore (04f079a).
+        var continuous = Arena.Open(session, (34, 150), 0, Array.Empty<(double, double)>(), r => r.WithEffects(bleeding), keepSpawns: true);
         continuous.Tick(50);
 
         new SaveStore(profile.Root).Save(SaveSlots.Manual("bleeding"), SaveDocuments.Capture(continuous.Simulation.World,
@@ -641,7 +658,7 @@ public class CombatTests
         arena.Tick(200);
         var wolf = arena.Creature();
         Assert.False(wolf.Hostile);
-        Assert.InRange(Math.Abs(wolf.Body.ZMm - 89_500), 0, 1_000);
+        Assert.InRange(Math.Abs(wolf.Body.ZMm - Harness.InRegion(120, 89.5).ZMm), 0, 1_000);
         Assert.True(wolf.Health < wolf.MaxHealth);   // giving up does not heal it
     }
 }

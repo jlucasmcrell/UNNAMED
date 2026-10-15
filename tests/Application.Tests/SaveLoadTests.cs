@@ -60,9 +60,9 @@ public class SaveLoadTests
 
         var cells = SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(profile.Root, SaveSlots.Quick, SaveFormat.Cells)));
         var outpost = Assert.Single(cells);
-        Assert.Equal("r_0_0:c_00_01", outpost.CellKey);
+        Assert.Equal("r_0_0:c_04_07", outpost.CellKey);
         Assert.Equal(new[] { KeyValuePair.Create(LonghouseFlag, 1L) }, outpost.Flags);
-        Assert.Equal(simulation.World.Baseline(CellKey.Parse("r_0_0:c_00_01")).Digest, outpost.BaselineHash);
+        Assert.Equal(simulation.World.Baseline(CellKey.Parse("r_0_0:c_04_07")).Digest, outpost.BaselineHash);
     }
 
     [Fact]

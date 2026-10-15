@@ -20,7 +20,7 @@ public class FoldscarTests
     private const string Spider = "creature.beast.cave_hunting_spider";
     private const string North = "world.foldscar.stone_north_aligned";
     private const string Steadied = "world.foldscar.steadied";
-    private static readonly CellKey Foldscar = CellKey.Parse("r_0_0:c_01_00");
+    private static readonly CellKey Foldscar = CellKey.Parse("r_0_0:c_05_06");
     private static readonly (string, double, double, string)[] NoCreatures = Array.Empty<(string, double, double, string)>();
 
     // Where the character stands to work each thing (content/regions/ashen_hollow.yaml), and the ways between them: down the road from
@@ -102,7 +102,7 @@ public class FoldscarTests
         Walk(arena, (150, 45));
         Assert.False(arena.WalkTo(145, 42, maxTicks: 200));
         var body = arena.Simulation.Player.Body;
-        Assert.True(Math.Sqrt(Math.Pow(body.XMm - 145_000, 2) + Math.Pow(body.ZMm - 42_000, 2)) >= 3_000 + session.Setup.Movement.BodyRadiusMm - 1,
+        Assert.True(Math.Sqrt(Math.Pow(body.XMm - 545_000, 2) + Math.Pow(body.ZMm - 642_000, 2)) >= 3_000 + session.Setup.Movement.BodyRadiusMm - 1,
             "the fold let the body through");
         Assert.True(3_000 + session.Setup.Movement.BodyRadiusMm > talkReach, "the fold is narrower than a hand's reach");
         Assert.Equal("Tavar Orr is out of reach", arena.Submit(new TalkCommand(arena.Player, Tavar)));
@@ -179,7 +179,7 @@ public class FoldscarTests
         Assert.Equal(new[] { ("xp", "150 XP"), ("relationship", $"{Sel} trust +10") }, rewards.Select(r => (r.Kind, r.What)));
         Assert.Equal(xp + 150, arena.Simulation.Player.Progression.LifetimeXp[UNNAMED.Domain.Progression.XpSource.QuestObjective]);
         Assert.Empty(hits);
-        Assert.True(arena.Simulation.Creatures.Single(c => c.DefId == Spider).Alive);
+        Assert.True(arena.Simulation.Creatures.Single(c => c.DefId == Spider && c.Key.StartsWith("spawn.hollow.", StringComparison.Ordinal)).Alive);
 
         arena.Tick(100);
         Assert.Single(completed);
@@ -314,8 +314,8 @@ public class FoldscarTests
 
         var diagnosis = arena.Simulation.Diagnose(Quest);
         Assert.Equal(new[] { "o_southwest", "o_southeast" }, diagnosis.Waiting.Select(w => w.Id));
-        Assert.Contains("turn the south-west Quiet Stone at (122.0, 38.0): switch.stone_southwest, in cell r_0_0:c_01_00", diagnosis.Waiting[0].SatisfiedBy);
-        Assert.Contains("world.foldscar.stone_southwest_aligned is read in cell r_0_0:c_01_00 (the cell of location.foldscar)", diagnosis.Waiting[0].SatisfiedBy);
+        Assert.Contains("turn the south-west Quiet Stone at (522.0, 638.0): switch.stone_southwest, in cell r_0_0:c_05_06", diagnosis.Waiting[0].SatisfiedBy);
+        Assert.Contains("world.foldscar.stone_southwest_aligned is read in cell r_0_0:c_05_06 (the cell of location.foldscar)", diagnosis.Waiting[0].SatisfiedBy);
         Assert.Empty(diagnosis.Problems);
     }
 }

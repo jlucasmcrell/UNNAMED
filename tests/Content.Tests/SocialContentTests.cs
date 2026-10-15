@@ -43,14 +43,18 @@ public class SocialContentTests
     }
 
     [Fact]
-    public void TheHollow_IsFourNamedNpcs_EachWithAConversation()
+    public void TheHollowAndCairnwold_AreEightNamedNpcs_EachWithAConversation()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         Assert.Empty(loader.Errors);
         var npcs = SocialContent.BuildNpcs(loader);
         var dialogues = SocialContent.BuildDialogues(loader);
 
-        Assert.Equal(new[] { "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr" }, npcs.Keys);
+        Assert.Equal(new[]
+        {
+            "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
+            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.mara_ling", "npc.cairnwold.tam_crowden",
+        }, npcs.Keys);
         var kera = npcs["npc.ashen_hollow.kera_voss"];
         Assert.Equal(("Kera Voss", "craftsperson", "merchant.ashen_hollow.kera_voss"), (kera.Name, kera.Role, kera.MerchantId));
         Assert.True(kera.Offers(NpcServices.Trade));

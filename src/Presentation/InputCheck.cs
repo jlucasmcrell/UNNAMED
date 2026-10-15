@@ -31,7 +31,7 @@ public sealed class InputCheck
     };
 
     // From the Ashen Waystone to Sel's table, by the lodge's south side.
-    private static readonly (double X, double Z)[] ToSel = { (44, 138), (54.5, 134), (62, 128), (69.8, 123.6) };
+    private static readonly (double X, double Z)[] ToSel = Playthrough.Hollow((44, 138), (54.5, 134), (62, 128), (69.8, 123.6));
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;

@@ -364,7 +364,11 @@ public class MagicTests
         var session = Harness.Boot(profile);
         var fighting = Caster(session, creatures: (Arena.Wolf, 120, 62, "sentinel"));
         var practised = fighting.Record<SkillPracticed>();
+        var bitten = fighting.Record<HitResolved>();
         Provoke(fighting);
+        // The wolf answers the blow with a bite, and a wound breaks a cast: let it land, then ward in the bite's long recovery.
+        for (int i = 0; i < 60 && !bitten.Any(h => h.Target == fighting.Player); i++)
+            fighting.Tick();
         Cast(fighting, Ward);
         Assert.Contains(practised, p => p.SkillId == "skill.warding" && p.Xp > 0);
 

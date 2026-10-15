@@ -43,24 +43,24 @@ public sealed class UiShots
 
     // M6's layout (the content bible's four cells): the lodge by the waystone, Sel's table outside it, the boar's wallow on
     // Blackvein's north-west rim.
-    private static readonly (double X, double Z)[] ToTheDoor = { (44, 138), (54.5, 134), (53.5, 128) };
-    private static readonly (double X, double Z)[] OutOfTheLonghouse = { (50.5, 128), (53.5, 128), (60, 126) };
-    private static readonly (double X, double Z)[] ToTheWallow = { (60, 118), (40, 104), (36, 92), (25, 78) };
+    private static readonly (double X, double Z)[] ToTheDoor = Playthrough.Hollow((44, 138), (54.5, 134), (53.5, 128));
+    private static readonly (double X, double Z)[] OutOfTheLonghouse = Playthrough.Hollow((50.5, 128), (53.5, 128), (60, 126));
+    private static readonly (double X, double Z)[] ToTheWallow = Playthrough.Hollow((60, 118), (40, 104), (36, 92), (25, 78));
     private const string Boar = "spawn.hollow.boar_wallow#0";
 
     // M3f's loop, in M6's layout: down from the wallow into Blackvein Cut to the seam on its floor, struck from its south-west
     // face; up the quarry ramp and east through Charwood to the ash stand; home to the smithy's door. Each place to work is
     // walked to closely (Near): the reach is 1.6 m from the body.
     private const float Near = 0.2f;
-    private static readonly (double X, double Z)[] ToTheSeam = { (20, 62), (22, 50), (27.2, 44.2) };
-    private static readonly (double X, double Z)[] ToTheStand = { (27, 50), (46, 60), (54, 74), (60, 90), (64, 104), (80, 118), (100, 125), (120, 135),
-        (150, 140), (179, 138.3) };
-    private static readonly (double X, double Z)[] ToTheForgeDoor = { (150, 140), (120, 140), (100, 142), (88, 145), (70, 135), (51.8, 136), (51.8, 142) };
-    private static readonly (double X, double Z)[] ToTheHearth = { (54.5, 142), (59.5, 143.2) };
-    private static readonly (double X, double Z)[] ToTheAnvil = { (58.2, 141.4) };
-    private static readonly (double X, double Z)[] OutOfTheForge = { (54.5, 142), (51.8, 142), (47, 138) };
-    private static readonly (double X, double Z)[] ToTheStrays = { (60, 128), (90, 124), (106, 126) };
-    private static readonly (double X, double Z)[] ToTheDen = { (110, 140), (100, 158), (104, 166), (112, 170) };
+    private static readonly (double X, double Z)[] ToTheSeam = Playthrough.Hollow((20, 62), (22, 50), (27.2, 44.2));
+    private static readonly (double X, double Z)[] ToTheStand = Playthrough.Hollow((27, 50), (46, 60), (54, 74), (60, 90), (64, 104), (80, 118), (100, 125), (120, 135),
+        (150, 140), (179, 138.3));
+    private static readonly (double X, double Z)[] ToTheForgeDoor = Playthrough.Hollow((150, 140), (120, 140), (100, 142), (88, 145), (70, 135), (51.8, 136), (51.8, 142));
+    private static readonly (double X, double Z)[] ToTheHearth = Playthrough.Hollow((54.5, 142), (59.5, 143.2));
+    private static readonly (double X, double Z)[] ToTheAnvil = Playthrough.Hollow((58.2, 141.4));
+    private static readonly (double X, double Z)[] OutOfTheForge = Playthrough.Hollow((54.5, 142), (51.8, 142), (47, 138));
+    private static readonly (double X, double Z)[] ToTheStrays = Playthrough.Hollow((60, 128), (90, 124), (106, 126));
+    private static readonly (double X, double Z)[] ToTheDen = Playthrough.Hollow((110, 140), (100, 158), (104, 166), (112, 170));
 
     private readonly GameSession _session;
     private readonly PlayerController _controller;
@@ -482,7 +482,7 @@ public sealed class UiShots
                         Next();
                         break;
                     }
-                    Face(53_200, 142_000);
+                    Face(453_200, 742_000);
                     if (!_asked && _controller.FocusOn(_camera) is { Kind: FocusKind.Door, Key: "door.forge_shed" } door)
                     {
                         _controller.Interact(door.Key);

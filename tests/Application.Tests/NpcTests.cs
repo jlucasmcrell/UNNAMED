@@ -47,7 +47,7 @@ public class NpcTests
 
         Assert.Equal("Kera Voss is out of reach", arena.Submit(new TalkCommand(arena.Player, Kera)));
         Assert.Equal("Kera Voss is out of reach", arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, 1)));
-        Assert.True(arena.Simulation.Walled(63_400, 139_600, 61_600, 139_600));   // what the prompt asks too
+        Assert.True(arena.Simulation.Walled(463_400, 739_600, 461_600, 739_600));   // what the prompt asks too
     }
 
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null) =>
@@ -80,15 +80,16 @@ public class NpcTests
         var session = Harness.Boot(profile);
         var simulation = session.NewGame("Tester", seed: 42);
 
-        var npcs = simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).ToList();
-        // The waystation's three, and Tavar, caught in the Foldscar (M6).
+        var npcs = simulation.Npcs.Where(n => n.Id.StartsWith("npc.ashen_hollow.", StringComparison.Ordinal)).OrderBy(n => n.Id, StringComparer.Ordinal).ToList();
+        // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village.
         Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
+        Assert.Equal(8, simulation.Npcs.Length);
         Assert.All(npcs, n => Assert.False(n.Talking));
-        Assert.Equal((61_600L, 139_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
+        Assert.Equal((461_600L, 739_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
         // A named NPC is the same instance in every world: identity is derived, never rolled (D-10).
         var again = session.NewGame("Tester", seed: 7);
-        Assert.Equal(npcs.Select(n => n.InstanceId), again.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId));
+        Assert.Equal(simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId), again.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId));
         Assert.All(npcs, n => Assert.Equal(EntityKind.Npc, n.InstanceId.Kind));
         // They are solid: bodies walk round them.
         Assert.Contains(simulation.DynamicBlockers, b => b.Id == Kera);

@@ -56,7 +56,7 @@ public class CreatureTests
         for (int i = 0; i < maxTicks; i++)
         {
             var body = arena.Simulation.Player.Body;
-            double dx = to.X * 1000 - body.XMm, dz = to.Z * 1000 - body.ZMm;
+            double dx = (to.X + arena.Origin.X) * 1000 - body.XMm, dz = (to.Z + arena.Origin.Z) * 1000 - body.ZMm;
             if (Math.Sqrt(dx * dx + dz * dz) <= 300)
                 break;
             arena.Simulation.Enqueue(new MoveCommand(arena.Player, Harness.Toward(dx, dz, gait)));
@@ -70,12 +70,15 @@ public class CreatureTests
 
     private static CreatureView Of(Arena arena, string defId) => arena.Simulation.Creatures.Single(c => c.DefId == defId);
 
+    /// <summary>Where a body stands, in the arena's metres.</summary>
+    private static (double X, double Z) Local(Arena arena, Body body) => (body.XMm / 1000.0 - arena.Origin.X, body.ZMm / 1000.0 - arena.Origin.Z);
+
     private static double Distance(Body a, Body b) => Math.Sqrt(Math.Pow(a.XMm - b.XMm, 2) + Math.Pow(a.ZMm - b.ZMm, 2)) / 1000;
 
     private static void Shoot(Arena arena, (double X, double Z) at)
     {
         var body = arena.Simulation.Player.Body;
-        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, (long)(at.X * 1000), (long)(at.Z * 1000)))));
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, (long)((at.X + arena.Origin.X) * 1000), (long)((at.Z + arena.Origin.Z) * 1000)))));
         arena.Tick();
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
         arena.Tick(arena.Simulation.Combat.Weapon.TotalTicks + 1);
@@ -180,7 +183,7 @@ public class CreatureTests
         // doorway (a door is not closed on anyone standing in it: the Phase-1 technical audit, L-16).
         var loosed = arena.Record<ShotLoosed>();
         var body = arena.Simulation.Player.Body;
-        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 62_000, 128_000))));
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, Harness.InRegion(62, 128).XMm, Harness.InRegion(62, 128).ZMm))));
         arena.Tick();
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
         for (int i = 0; i < 100 && loosed.Count == 0; i++)
@@ -193,7 +196,7 @@ public class CreatureTests
         Assert.True(searched >= 0 && minds.Skip(searched).Contains(CreatureMind.Returning), string.Join(" > ", minds));
         var wolf = Only(arena);
         Assert.Equal(CreatureMind.Unaware, wolf.Mind);
-        Assert.InRange(Math.Sqrt(Math.Pow(wolf.Body.XMm - 62_000, 2) + Math.Pow(wolf.Body.ZMm - 128_000, 2)), 0, 800);
+        Assert.InRange(Math.Sqrt(Math.Pow(wolf.Body.XMm - Harness.InRegion(62, 128).XMm, 2) + Math.Pow(wolf.Body.ZMm - Harness.InRegion(62, 128).ZMm, 2)), 0, 800);
     }
 
     // ── roles ───────────────────────────────────────────────────────────────
@@ -204,7 +207,10 @@ public class CreatureTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var stray = (120.0, 72.0);
-        double facing = FacingOf(session, Arena.Wolf, stray, "stray");
+        // Where it heads once it moves off (a stray wanders from its first tick, and the way is keyed, so it goes that way again).
+        var probe = Place(session, (stray.Item1, stray.Item2 - 60), 0, (Arena.Wolf, stray.Item1, stray.Item2, "stray"));
+        probe.Tick(5);
+        double facing = Only(probe).Body.FacingMdeg / 1000.0 * Math.PI / 180;
         var arena = Place(session, Along(stray, facing, 10), 0, (Arena.Wolf, stray.Item1, stray.Item2, "stray"));
         var started = arena.Record<AttackStarted>();
         var noticed = arena.Record<CreatureNoticed>();
@@ -258,7 +264,7 @@ public class CreatureTests
         using var profile = new TempProfile();
         var arena = Armed(Harness.Boot(profile), (120, 72), 0, "item.weapon.hunting_bow", (Hound, 120, 80, "hunter"));
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, (Only(arena).Body.XMm / 1000.0, Only(arena).Body.ZMm / 1000.0));
+        Shoot(arena, Local(arena, Only(arena).Body));
         // Run for it: south at a sprint.
         long fastest = 0;
         var last = Only(arena).Body;
@@ -318,7 +324,7 @@ public class CreatureTests
         var archer = Armed(session, (120, 60), 0, "item.weapon.hunting_bow", (Husk, 120, 78, "roamer"));
         var arrows = archer.Record<HitResolved>();
         for (int shot = 0; shot < 4; shot++)
-            Shoot(archer, (Only(archer).Body.XMm / 1000.0, Only(archer).Body.ZMm / 1000.0));
+            Shoot(archer, Local(archer, Only(archer).Body));
         var landed = arrows.Where(h => h.Attacker == archer.Player && h.Damage > 0).ToList();
         Assert.NotEmpty(landed);
         Assert.True(landed.Average(h => h.Damage) <= 5, $"arrows averaged {landed.Average(h => h.Damage):0.0} on bone");
@@ -493,7 +499,7 @@ public class CreatureTests
             runner.Simulation.Enqueue(new MoveCommand(runner.Player, new MoveIntent(0, 1000, Gait.Sprint, 0)));
             runner.Tick();
             var spider = Only(runner).Body;
-            furthest = Math.Max(furthest, Math.Sqrt(Math.Pow(spider.XMm - 150_000, 2) + Math.Pow(spider.ZMm - 60_000, 2)) / 1000);
+            furthest = Math.Max(furthest, Math.Sqrt(Math.Pow(spider.XMm - Harness.InRegion(150, 60).XMm, 2) + Math.Pow(spider.ZMm - Harness.InRegion(150, 60).ZMm, 2)) / 1000);
         }
         Assert.InRange(furthest, 0, 15);   // it never leaves its lair's 14 m
     }
@@ -528,7 +534,7 @@ public class CreatureTests
             if (corpse.Items.IsEmpty)
                 continue;
 
-            Walk(arena, (wolf.Body.XMm / 1000.0, wolf.Body.ZMm / 1000.0 - 1), Gait.Walk);
+            Walk(arena, (Local(arena, wolf.Body).X, Local(arena, wolf.Body).Z - 1), Gait.Walk);
             foreach (var item in corpse.Items)
                 Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, item.Ref, ItemPlace.In(wolf.CorpseKey), ItemPlace.Carried, item.Count)));
             Assert.Equal(CreatureCondition.Gone, Only(arena).Condition);
@@ -559,7 +565,7 @@ public class CreatureTests
         arena.Fight(Only(arena), 600);
         var wolf = Only(arena);
         Assert.Equal(CreatureCondition.Corpse, wolf.Condition);
-        Walk(arena, (wolf.Body.XMm / 1000.0, wolf.Body.ZMm / 1000.0 - 1), Gait.Walk);
+        Walk(arena, (Local(arena, wolf.Body).X, Local(arena, wolf.Body).Z - 1), Gait.Walk);
         int Carried(string defId) => arena.Simulation.Player.Inventory.Where(e => e.DefId == defId).Sum(e => e.Count);
 
         foreach (var item in new[] { ore, token })
@@ -640,7 +646,7 @@ public class CreatureTests
         var session = Harness.Boot(profile);
         // AG-3 with a threshold of two kills, so the second kill at one spawner saturates it.
         var progression = session.Setup.Progression with { Guards = session.Setup.Progression.Guards with { ClusterThreshold = 2 } };
-        var site = new SpawnSite("spawn.test.pair", 120_000, 63_000, 1_500,
+        var site = new SpawnSite("spawn.test.pair", Harness.InRegion(120, 63).XMm, Harness.InRegion(120, 63).ZMm, 1_500,
             ImmutableArray.Create(new SpawnMember(Arena.Wolf, "pack_hunter"), new SpawnMember(Arena.Wolf, "pack_hunter"))) { RespawnTicks = 1_000 };
         var rules = session.Setup with { Progression = progression };
         var setup = rules with { Combat = rules.Combat with { Spawns = ImmutableArray.Create(site) } };
@@ -745,7 +751,7 @@ public class CreatureTests
             (Arena.Wolf, 120, 70, "den_guardian"), (Arena.Wolf, 120, 95, "pack_hunter"), (Boar, 94, 74, "territorial"));
         var called = arena.Record<CreatureCalled>();
         var body = arena.Simulation.Player.Body;
-        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, 120_000, 70_000))));
+        arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(body.XMm, body.ZMm, Harness.InRegion(120, 70).XMm, Harness.InRegion(120, 70).ZMm))));
         arena.Tick();
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
         // The save is made at the end of the tick the guardian howls: its call has not yet been heard.

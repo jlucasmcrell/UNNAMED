@@ -24,8 +24,11 @@ public class BehaviourMatrixTests
     private const double TickSeconds = 0.05;
     private const int MaxTicks = 2_400;
 
-    /// <summary>Open ground: nothing solid within 32 m of it.</summary>
-    private static readonly (double X, double Z) Home = (125, 70);
+    /// <summary>
+    /// Open ground: nothing solid within 32 m of it - the plain east of the hollow, along the road to Cairnwold. The hollow's own (125, 70),
+    /// by the Foldscar, left the boar no sight of a sprinter to charge in region.starting_frontier.
+    /// </summary>
+    private static readonly (double X, double Z) Home = (250, 100);
 
     /// <summary>A role that holds its place and colours nothing: the archetype alone is measured.</summary>
     private const string Neutral = "roamer";

@@ -25,7 +25,7 @@ public class CombatContentTests
                 File.Copy(file, target);
             }
             string path = Path.Combine(Root, relativePath);
-            string text = File.ReadAllText(path);
+            string text = File.ReadAllText(path).Replace("\r\n", "\n");
             Assert.Contains(find, text);
             File.WriteAllText(path, text.Replace(find, replace));
         }
@@ -49,7 +49,7 @@ public class CombatContentTests
     [Fact]
     public void EverySpawnersPatrol_StaysOnItsLeash()
     {
-        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.ashen_hollow");
+        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
 
         var beyond = setup.Spawns.SelectMany(s => s.Route
             .Where(p => Math.Sqrt(Math.Pow(p.XMm - s.XMm, 2) + Math.Pow(p.ZMm - s.ZMm, 2)) > setup.Constants.LeashMm)
@@ -61,7 +61,7 @@ public class CombatContentTests
     [Fact]
     public void TheGamesCombat_BuildsInWholeTicks()
     {
-        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.ashen_hollow");
+        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
 
         var wolf = setup.Creatures["creature.beast.wolf_grey"];
         Assert.Equal((2, 50, 4_500L, 450L, 30L), (wolf.Level, wolf.MaxHealth, wolf.MoveSpeedMmPerSecond, wolf.RadiusMm, wolf.XpValue));
@@ -83,9 +83,9 @@ public class CombatContentTests
         Assert.Equal(60, constants.RegionWeights[BodyRegion.Torso]);
 
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
-        Assert.Equal(8, spawns.Count);
+        Assert.Equal(12, spawns.Count);   // the hollow's eight and Cairnwold's four
         var strays = spawns["spawn.hollow.valley_strays"];
-        Assert.Equal((2, 118_000L, 128_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
+        Assert.Equal((2, 518_000L, 728_000L, 0L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
         Assert.Equal(new[] { "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
         Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes
@@ -139,7 +139,7 @@ public class CombatContentTests
 
     [Fact]
     public void ASpawnWithARolledCount_IsRefusedInPhase1() =>
-        AssertRefused("spawns/hollow/valley_strays.yaml", "count: [2, 2]", "count: [1, 3]", "fixed count");
+        AssertRefused("spawns/hollow/valley_strays.yaml", "count:\n  - 2\n  - 2", "count:\n  - 1\n  - 3", "fixed count");
 
     [Fact]
     public void DamageConstantsOutOfRange_AreRefused() =>

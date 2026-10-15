@@ -8,7 +8,7 @@ namespace UNNAMED.Application.Tests;
 /// <summary>Doors (interaction against the body, world flags in the cell delta) and discovery credit.</summary>
 public class InteractionAndDiscoveryTests
 {
-    private static readonly CellKey Outpost = CellKey.Parse("r_0_0:c_00_01");
+    private static readonly CellKey Outpost = CellKey.Parse("r_0_0:c_04_07");
     private const string LonghouseFlag = "world.hollow.longhouse_door_open";
 
     /// <summary>Stand just outside the longhouse door, on its east side.</summary>
@@ -32,7 +32,7 @@ public class InteractionAndDiscoveryTests
         Harness.Ticks(session, 1);
 
         Assert.True(Assert.Single(toggled).Open);
-        Assert.Equal(("r_0_0:c_00_01", LonghouseFlag, 0L, 1L), (flags[0].CellKey, flags[0].FlagId, flags[0].From, flags[0].To));
+        Assert.Equal((Outpost.ToString(), LonghouseFlag, 0L, 1L), (flags[0].CellKey, flags[0].FlagId, flags[0].From, flags[0].To));
         Assert.Equal(1, simulation.World.GetFlag(Outpost, LonghouseFlag));
         Assert.True(simulation.Doors.Single(d => d.Site.Key == "door.longhouse").Open);
     }
@@ -59,12 +59,13 @@ public class InteractionAndDiscoveryTests
         var session = Harness.Boot(profile);
         var simulation = AtTheLonghouseDoor(session);
 
-        Assert.False(Harness.WalkTo(session, 44_000, 128_000, maxTicks: 200));
-        Assert.True(simulation.Player.Body.XMm >= 52_000 + session.Setup.Movement.BodyRadiusMm, "the closed door let the body through");
+        var (insideX, insideZ) = Harness.InRegion(44, 128);
+        Assert.False(Harness.WalkTo(session, insideX, insideZ, maxTicks: 200));
+        Assert.True(simulation.Player.Body.XMm >= Harness.InRegion(52, 0).XMm + session.Setup.Movement.BodyRadiusMm, "the closed door let the body through");
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
-        Assert.True(Harness.WalkTo(session, 44_000, 128_000));
-        Assert.True(simulation.Player.Body.XMm < 51_600, "the body is inside the longhouse");
+        Assert.True(Harness.WalkTo(session, insideX, insideZ));
+        Assert.True(simulation.Player.Body.XMm < Harness.InRegion(51.6, 0).XMm, "the body is inside the longhouse");
     }
 
     [Fact]
@@ -74,7 +75,8 @@ public class InteractionAndDiscoveryTests
         var session = Harness.Boot(profile);
         var simulation = AtTheLonghouseDoor(session);
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
-        Assert.True(Harness.WalkTo(session, 51_800, 128_000, toleranceMm: 50));
+        var (doorwayX, doorwayZ) = Harness.InRegion(51.8, 128);
+        Assert.True(Harness.WalkTo(session, doorwayX, doorwayZ, toleranceMm: 50));
         var rejected = Harness.Record<CommandRejected>(session);
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
@@ -148,7 +150,7 @@ public class InteractionAndDiscoveryTests
         var setup = session.Setup with { Tiers = new TierRules(20_000, 60_000, 150_000, 2_000) };
         var player = Simulation.NewCharacter(setup, UNNAMED.Domain.EntityId.NewId(UNNAMED.Domain.EntityKind.Character), "Wanderer", 7);
         var simulation = Simulation.Start(setup, player, new WorldDelta(session.Generator, 42, new UNNAMED.EntityRegistry.EntityRegistry()), 0, bus);
-        const string denCell = "r_0_0:c_01_01";
+        const string denCell = "r_0_0:c_05_07";
         Assert.NotEqual(SimulationTier.A, simulation.CellTiers[denCell]);
 
         foreach (var (x, z) in new[] { (60.0, 156.0), (90.0, 165.0), (104.0, 170.0), (112.0, 170.0) })
@@ -156,7 +158,8 @@ public class InteractionAndDiscoveryTests
             for (int i = 0; i < 2000; i++)
             {
                 var body = simulation.Player.Body;
-                double dx = x * 1000 - body.XMm, dz = z * 1000 - body.ZMm;
+                var (toX, toZ) = Harness.InRegion(x, z);
+                double dx = toX - body.XMm, dz = toZ - body.ZMm;
                 if (Math.Sqrt(dx * dx + dz * dz) < 300)
                     break;
                 simulation.Enqueue(new MoveCommand(simulation.PlayerId, Harness.Toward(dx, dz)));
