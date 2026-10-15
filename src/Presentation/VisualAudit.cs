@@ -29,9 +29,11 @@ public sealed class VisualAudit
     /// wanders): the eye is then an offset from the figure, its height above the ground, and the target the figure's own height.
     /// <see cref="Frames"/> keeps that many consecutive frames of the measured window (raw/&lt;name&gt;_seq/), with the world running, for
     /// a temporal (flicker) measure; <see cref="Move"/> walks the eye and the target by that offset across those frames. Run it with
-    /// Godot's <c>--fixed-fps 60</c> so the wind steps the same amount every frame however long a frame's readback takes.</summary>
+    /// Godot's <c>--fixed-fps 60</c> so the wind steps the same amount every frame however long a frame's readback takes.
+    /// <see cref="Hide"/> names nodes kept invisible for the shot, so one run can measure a view with and without them.</summary>
     internal sealed record Shot(string Name, string Sample, (float X, float H, float Z) Eye, (float X, float H, float Z) Target, string[] Targets, string Says,
-        (string Under, float X, float Z)? Near = null, bool Motion = false, int Frames = 0, (float X, float H, float Z)? Move = null);
+        (string Under, float X, float Z)? Near = null, bool Motion = false, int Frames = 0, (float X, float H, float Z)? Move = null,
+        string[]? Hide = null);
 
     // Gameplay shots at a player's distance: the third-person camera stands 3.5 m behind a body, about 2.65 m up (eye 1.62 m, pitch -0.3).
     /// <summary>The in-world shots (the A/B harness, <see cref="VisualAuditAB"/>, takes the same ones).</summary>
@@ -270,6 +272,8 @@ public sealed class VisualAudit
 
     private void WorldShot(Shot shot)
     {
+        if (_hiddenFor != shot.Name)
+            HideFor(shot);
         if (_camera is null)
         {
             // A camera like the player's: its field of view, near and far planes, in the same viewport and world.
@@ -409,6 +413,25 @@ public sealed class VisualAudit
         if (_scatterAb && ++_scatterStep < ScatterArms.Length) return;
         _scatterStep = 0;
         _index++;
+    }
+
+    private readonly List<Node3D> _hidden = new();
+    private string? _hiddenFor;
+
+    /// <summary>Show what the last shot hid, and hide this shot's <see cref="Shot.Hide"/> nodes.</summary>
+    private void HideFor(Shot shot)
+    {
+        foreach (var node in _hidden)
+            node.Visible = true;
+        _hidden.Clear();
+        foreach (string name in shot.Hide ?? Array.Empty<string>())
+        {
+            var node = _root.FindChild(name, true, false) as Node3D
+                ?? throw new InvalidOperationException($"{shot.Name}: no Node3D called {name} to hide");
+            node.Visible = false;
+            _hidden.Add(node);
+        }
+        _hiddenFor = shot.Name;
     }
 
     /// <summary>One frame's picture and its dump, named with <paramref name="suffix"/> when a shot has several.</summary>
@@ -626,7 +649,8 @@ public sealed class VisualAudit
                     entry.TryGetProperty("says", out var says) ? says.GetString()! : string.Empty,
                     near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True,
                     entry.TryGetProperty("frames", out var f) ? f.GetInt32() : 0,
-                    entry.TryGetProperty("move", out _) ? Triple(entry, "move", name, file) : null));
+                    entry.TryGetProperty("move", out _) ? Triple(entry, "move", name, file) : null,
+                    entry.TryGetProperty("hide", out var hide) ? hide.EnumerateArray().Select(x => x.GetString()!).ToArray() : null));
             }
             return shots;
         }
