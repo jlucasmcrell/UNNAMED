@@ -87,32 +87,55 @@
       "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
     },
     "lantern_flame": {
-      "note": "The flame inside a lantern's glass (owner: liked, but it clipped its holder). The same Flame02 at candle scale: 8.5 cm at most, standing on the wick and barely rising, so it stays inside a 0.24 m glass. Emitter = the wick top.",
+      "note": "The flame inside a lantern's glass (owner: liked, but it clipped its holder). The same Flame02 at candle scale: 8.5 cm at most, standing on the wick and barely rising, so it stays inside a 0.24 m glass. Emitter = the wick top. Fab overhaul: energy 1.15 -> 1.8, with lantern_glow, to read in daylight.",
       "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.015,
       "amount": 4, "lifetime": 0.55, "size": [0.06, 0.085], "size_curve": [1.0, 0.75], "velocity": [0.0, 0.03], "spread": 4, "angle": [-3, 3],
-      "direction": [0, 1, 0], "gravity": [0, 0.04, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.15,
+      "direction": [0, 1, 0], "gravity": [0, 0.04, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.8,
       "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
+    },
+    "lantern_glow": {
+      "note": "The light a lantern's flame fills its glass with (Fab overhaul, daylight readability): the Fab FireFX glow (T_BrightCenterEnergy) round the wick, warm, slowly breathing, soft so glass and frame cut it cleanly.",
+      "mode": "stream", "texture": "vfx/fab_ffx_glow_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "soft": 0.03,
+      "amount": 2, "lifetime": 1.4, "size": [0.12, 0.15], "velocity": [0, 0], "spread": 0, "angle": [-180, 180],
+      "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add", "energy": 1.5,
+      "color": ["#ff8c3c00", "#ff8c3cff", "#ff7a30ff", "#ff7a3000"]
     },
     "candle_flame": {
-      "note": "A bare candle's flame on a table: Flame02 at 5 cm, on the wick.",
+      "note": "A bare candle's flame on a table: Flame02 at 5 cm, on the wick. Fab overhaul: energy 1.2 -> 1.7, with candle_glow.",
       "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.01,
       "amount": 3, "lifetime": 0.5, "size": [0.035, 0.05], "size_curve": [1.0, 0.8], "velocity": [0.0, 0.02], "spread": 3, "angle": [-3, 3],
-      "direction": [0, 1, 0], "gravity": [0, 0.03, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.2,
+      "direction": [0, 1, 0], "gravity": [0, 0.03, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.7,
       "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
     },
-    "hearth_fire": {
-      "note": "A hearth or a campfire: Flame02 tongues standing across the bed of the fire (a box, not a 3 x 3 grid of torches), taller and quicker than a torch.",
-      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.08,
-      "box": [0.45, 0.04, 0.45], "amount": 18, "lifetime": 0.85, "size": [0.45, 0.8], "size_curve": [0.9, 0.45], "velocity": [0.15, 0.4], "spread": 8, "angle": [-10, 10],
-      "direction": [0, 1, 0], "gravity": [0, 0.5, 0], "damping": [0.2, 0.4], "blend": "add", "energy": 1.05,
-      "color": ["#ffffffff", "#ffe2b8ff", "#ff9a5000"]
+    "candle_glow": {
+      "note": "A bare candle's glow (Fab overhaul): the lantern glow at candle size.",
+      "mode": "stream", "texture": "vfx/fab_ffx_glow_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "soft": 0.03,
+      "amount": 2, "lifetime": 1.4, "size": [0.07, 0.09], "velocity": [0, 0], "spread": 0, "angle": [-180, 180],
+      "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add", "energy": 1.1,
+      "color": ["#ff8c3c00", "#ff8c3cff", "#ff7a30ff", "#ff7a3000"]
     },
-    "hearth_fire_core": {
-      "note": "The hot heart of a hearth or campfire: Cosmos NS1 fire (dense licking flame) low among the logs, under hearth_fire's tongues.",
-      "mode": "stream", "texture": "vfx/cos_ns1_fire_8x8.png", "grid": [8, 8], "frames": 64, "fps": 24, "soft": 0.1,
-      "box": [0.35, 0.02, 0.35], "amount": 8, "lifetime": 1.2, "size": [0.6, 0.9], "size_curve": [0.8, 1.0], "velocity": [0.02, 0.08], "spread": 10, "angle": [-6, 6],
-      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 0.7,
-      "color": ["#ffffff00", "#ffffffff", "#ffd8b0ff", "#ff905000"]
+    "hearth_fire": {
+      "note": "A hearth or campfire (Fab overhaul): Fab FireFX_VDB FirePlace_2, a simulated volume fire rendered in UE to a seamless 64-frame loop (asset_work/vfx_fab bake_vdb.py, compose_flipbook.py). Replaces the Flame02 tongues + NS1 core pair.",
+      "mode": "stream", "texture": "vfx/fab_ffx_hearthfire_8x8.png", "grid": [8, 8], "frames": 64, "fps": 30.0,
+      "pivot": "base", "soft": 0.12, "amount": 1, "lifetime": 34.133, "size": [0.85, 0.85], "quad": [1, 1.0],
+      "velocity": [0, 0], "spread": 0, "angle": [0, 0], "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add",
+      "energy": 2.0,
+      "color": ["#ffffffff", "#ffffffff"]
+    },
+    "forge_fire": {
+      "note": "A forge bed (Fab overhaul): Fab FireFX_VDB GroundDebrisFire_Small, low flames across the coals, baked the same way.",
+      "mode": "stream", "texture": "vfx/fab_ffx_forgefire_8x8.png", "grid": [8, 8], "frames": 64, "fps": 30.0,
+      "pivot": "base", "soft": 0.06, "amount": 1, "lifetime": 34.133, "size": [0.5, 0.5], "quad": [1, 0.8906],
+      "velocity": [0, 0], "spread": 0, "angle": [0, 0], "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add",
+      "energy": 1.8,
+      "color": ["#ffffffff", "#ffffffff"]
+    },
+    "coal_bed": {
+      "note": "The heat under a fire (Fab overhaul): the Fab FireFX glow (T_BrightCenterEnergy) as a wide low orange smear lying in a hearth's or forge's bed, soft so it fades into the coals and stones.",
+      "mode": "stream", "texture": "vfx/fab_ffx_glow_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "soft": 0.08,
+      "amount": 2, "lifetime": 3.0, "size": [0.55, 0.65], "quad": [1.0, 0.45], "velocity": [0, 0], "spread": 0,
+      "angle": [0, 0], "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add", "energy": 2.0,
+      "color": ["#ff5a1400", "#ff6a1cff", "#ff5a14ff", "#ff5a1400"]
     },
     "campfire_smoke": {
       "note": "Smoke off an open fire: Cosmos NS1 smoke, lit, darker and lower than a chimney's, leaning downwind.",
