@@ -69,6 +69,9 @@ public partial class HelpPanel : CanvasLayer
         _sheet = UiKit.Sheet(this, "Controls", "help", UiKit.Wide);
     }
 
+    /// <summary>The screen's own tile, as its System Menu row shows it.</summary>
+    public void UseIcons(HudIcons icons) => _sheet.SetIcon(icons.Binds("panel.help") ? icons.For("panel.help") : null);
+
     /// <summary>Open or close; the lines are read from the input map each time it opens.</summary>
     public void Toggle()
     {

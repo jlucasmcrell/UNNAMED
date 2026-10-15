@@ -20,6 +20,9 @@ public partial class JournalPanel : CanvasLayer
     private string? _chosen;
     private string _drawn = string.Empty;
 
+    /// <summary>The screen's own tile, as its System Menu row shows it.</summary>
+    public void UseIcons(HudIcons icons) => _sheet.SetIcon(icons.Binds("panel.journal") ? icons.For("panel.journal") : null);
+
     public override void _Ready()
     {
         Visible = false;

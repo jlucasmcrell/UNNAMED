@@ -19,7 +19,10 @@ public sealed record HudSheet(
 /// <summary>A formula on its key: its ID (for its icon), its name and its Focus cost.</summary>
 public readonly record struct HudFormula(string Id, string Name, int FocusCost);
 
-/// <summary>A quick slot (the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is in it, how many.</summary>
+/// <summary>
+/// A quick slot (the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is in it, how many; an
+/// empty ID is an empty slot, drawn as its key and an empty pouch while any slot holds something.
+/// </summary>
 public readonly record struct HudQuick(string Key, string Id, string Name, int Count);
 
 /// <summary>
@@ -51,10 +54,10 @@ public partial class HudView : Control
     private readonly Label _level = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Ember, caps: true);
     private readonly HBoxContainer _xpRow = new();
     private readonly Gauge _xp = new(HudStyle.XpFill, new Vector2(0, 5), quarters: false);
-    private readonly Label _xpValue = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Bone);
+    private readonly Label _xpValue = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Bone);
     private readonly HBoxContainer _tags = new();
     private readonly PanelContainer _debt = new();
-    private readonly Label _debtText = HudStyle.Text(HudStyle.Body, 15, HudStyle.Wound);
+    private readonly Label _debtText = HudStyle.Text(HudStyle.Body, 16, HudStyle.Wound);
     private readonly HBoxContainer _point = new();
     private readonly KeyCap _pointKey = new();
     private readonly PanelContainer _crouched = new();
@@ -74,6 +77,7 @@ public partial class HudView : Control
     private string? _companionIcon;
 
     // Bottom left: the effects, the quick slots, the formulas and the pools.
+    private readonly PanelContainer _lowerLeft = new();
     private readonly HFlowContainer _effects = new();
     private readonly HBoxContainer _quick = new();
     private string _quickKeys = string.Empty;
@@ -122,6 +126,7 @@ public partial class HudView : Control
 
     // Top centre, under the target: what just happened that the player should not miss - a level gained, a quest finished.
     private readonly PanelContainer _banner = new();
+    private readonly PanelContainer _bannerIcon = HudStyle.IconSlot(null, 48);
     private readonly Label _bannerKind = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Brass, caps: true);
     private readonly Label _bannerTitle = HudStyle.Text(HudStyle.Caps, 34, HudStyle.Bone, caps: true);
     private readonly VBoxContainer _bannerLines = new();
@@ -182,19 +187,19 @@ public partial class HudView : Control
         _tags.AddChild(_debt);
         _point.AddThemeConstantOverride("separation", 6);
         _point.AddChild(_pointKey);
-        var point = HudStyle.Text(HudStyle.Body, 15, HudStyle.Ember).Say("A point to spend");
+        var point = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ember).Say("A point to spend");
         point.VerticalAlignment = VerticalAlignment.Center;
         point.SizeFlagsVertical = SizeFlags.Fill;
         _point.AddChild(point);
         _tags.AddChild(_point);
         _crouched.AddThemeStyleboxOverride("panel", HudStyle.ChipBox(HudStyle.Iron));
-        _crouched.AddChild(HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ash, caps: true).Say("Crouched"));
+        _crouched.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Ash, caps: true).Say("Crouched"));
         _tags.AddChild(_crouched);
         title.AddChild(_tags);
         var inventory = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, Alignment = BoxContainer.AlignmentMode.End };
         inventory.AddThemeConstantOverride("separation", 6);
         inventory.AddChild(_inventoryKey);
-        var inventoryWord = HudStyle.Text(HudStyle.Body, 15, HudStyle.Ash).Say("Inventory");
+        var inventoryWord = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash).Say("Inventory");
         inventoryWord.VerticalAlignment = VerticalAlignment.Center;
         inventoryWord.SizeFlagsVertical = SizeFlags.Fill;
         inventory.AddChild(inventoryWord);
@@ -206,7 +211,7 @@ public partial class HudView : Control
         _xp.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _xp.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         _xpRow.AddChild(_xp);
-        var xp = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Muted, caps: true).Say("XP");
+        var xp = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say("XP");
         xp.VerticalAlignment = VerticalAlignment.Center;
         xp.SizeFlagsVertical = SizeFlags.Fill;
         _xpRow.AddChild(xp);
@@ -224,7 +229,7 @@ public partial class HudView : Control
         gear.AddChild(_weapon);
         _guarding.AddThemeStyleboxOverride("panel", HudStyle.ChipBox(HudStyle.Ember));
         _guarding.SizeFlagsVertical = SizeFlags.ShrinkCenter;
-        _guarding.AddChild(HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ember, caps: true).Say("Guarding"));
+        _guarding.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Ember, caps: true).Say("Guarding"));
         gear.AddChild(_guarding);
         gear.AddChild(new Control { CustomMinimumSize = new Vector2(6, 0) });
         gear.AddChild(Pair("Coin", _coin));
@@ -255,7 +260,7 @@ public partial class HudView : Control
         };
         AddChild(column);
 
-        var panel = new PanelContainer();
+        var panel = _lowerLeft;
         panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6));
         var rows = new VBoxContainer();
         rows.AddThemeConstantOverride("separation", 4);
@@ -271,7 +276,7 @@ public partial class HudView : Control
 
         _spells.AddThemeConstantOverride("separation", 5);
         _casting.AddThemeConstantOverride("separation", 8);
-        _casting.AddChild(HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ember, caps: true).Say("Casting"));
+        _casting.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Ember, caps: true).Say("Casting"));
         _casting.AddChild(_castingName);
         _casting.Visible = false;
         _spells.AddChild(_casting);
@@ -301,6 +306,7 @@ public partial class HudView : Control
         {
             CustomMinimumSize = new Vector2(18, 18), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, Material = HudStyle.IconMaterial, Visible = false,
+            TextureFilter = TextureFilterEnum.LinearWithMipmaps,
             SizeFlagsVertical = SizeFlags.ShrinkCenter,
         };
         _poolIcons[key] = icon;
@@ -342,10 +348,20 @@ public partial class HudView : Control
         _banner.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(28, 12));
         var rows = new VBoxContainer();
         rows.AddThemeConstantOverride("separation", 4);
+        // The moment's icon beside its words, the pair centred: a level gained, a quest finished.
+        var head = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        head.AddThemeConstantOverride("separation", 16);
+        _bannerIcon.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+        _bannerIcon.Visible = false;
+        head.AddChild(_bannerIcon);
+        var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        words.AddThemeConstantOverride("separation", 0);
         _bannerKind.HorizontalAlignment = HorizontalAlignment.Center;
-        rows.AddChild(_bannerKind);
+        words.AddChild(_bannerKind);
         _bannerTitle.HorizontalAlignment = HorizontalAlignment.Center;
-        rows.AddChild(_bannerTitle);
+        words.AddChild(_bannerTitle);
+        head.AddChild(words);
+        rows.AddChild(head);
         rows.AddChild(HudStyle.Rule(6));
         _bannerLines.AddThemeConstantOverride("separation", 3);
         rows.AddChild(_bannerLines);
@@ -398,6 +414,9 @@ public partial class HudView : Control
         _bannerKind.Text = announcement.Kind;
         _bannerKind.AddThemeColorOverride("font_color", announcement.Tone);
         _bannerTitle.Text = announcement.Title;
+        var icon = MomentIcon(announcement.Kind);
+        ((TextureRect)_bannerIcon.GetChild(0)).Texture = icon;
+        _bannerIcon.Visible = icon is not null;
         foreach (var child in _bannerLines.GetChildren())
         {
             _bannerLines.RemoveChild(child);
@@ -415,11 +434,25 @@ public partial class HudView : Control
         var row = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = MouseFilterEnum.Ignore };
         row.AddThemeConstantOverride("separation", 8);
         if (key is not null)
-            row.AddChild(new KeyCap(key, 15));
+            row.AddChild(new KeyCap(key, 16));
         var words = HudStyle.Text(HudStyle.Body, 17, text.StartsWith('+') ? HudStyle.Brass : HudStyle.Ash).Say(text);
         words.VerticalAlignment = VerticalAlignment.Center;
         row.AddChild(words);
         return row;
+    }
+
+    /// <summary>A moment's icon (the 2026-10-15 set): a level gained, a quest begun or finished, something handed over; null for the rest.</summary>
+    private Texture2D? MomentIcon(string? kind)
+    {
+        string? key = kind switch
+        {
+            "Level up" => "moment.level_up",
+            "Quest complete" => "moment.quest_complete",
+            "New quest" => "moment.quest_new",
+            "Handed to" => "moment.handed_over",
+            _ => null,
+        };
+        return _icons.Binds(key) ? _icons.For(key) : null;
     }
 
     private const float BannerTop = 92;
@@ -449,8 +482,9 @@ public partial class HudView : Control
     }
 
     /// <summary>
-    /// Where the HUD reaches into the middle of the screen (the companions under the plate, the tracked quest at the right): the
-    /// management sheets keep clear of these, so a screen never hides them.
+    /// Where the HUD reaches into the middle of the screen (the companions under the plate, the tracked quest at the right, and from
+    /// below the formulas, quick slots and pools at the left and the combat log at the right): the management sheets keep clear of
+    /// these, so a screen never hides what tells the player they are being hurt.
     /// </summary>
     public IEnumerable<Rect2> Intrusions()
     {
@@ -458,6 +492,10 @@ public partial class HudView : Control
             yield return _companions.GetGlobalRect();
         if (_tracker.IsVisibleInTree())
             yield return _tracker.GetGlobalRect();
+        if (_lowerLeft.IsVisibleInTree())
+            yield return _lowerLeft.GetGlobalRect();
+        if (_log.IsVisibleInTree())
+            yield return _log.GetGlobalRect();
     }
 
     /// <summary>
@@ -549,7 +587,7 @@ public partial class HudView : Control
         rows.AddChild(_deathCause);
         _deathBlows.AddThemeConstantOverride("separation", 4);
         _deathBlows.AddChild(HudStyle.Rule(14));
-        var blowsTitle = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Muted, caps: true).Say("The last blows");
+        var blowsTitle = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say("The last blows");
         blowsTitle.HorizontalAlignment = HorizontalAlignment.Center;
         _deathBlows.AddChild(blowsTitle);
         _deathBlows.AddChild(_deathBlowsText);
@@ -636,18 +674,29 @@ public partial class HudView : Control
             var unit = new HBoxContainer();
             unit.AddThemeConstantOverride("separation", 8);
             var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
+            if (slot.Id.Length == 0)
+            {
+                var empty = HudStyle.IconSlot(_icons.Binds("quick.empty") ? _icons.For("quick.empty") : null, 34);
+                empty.Modulate = new Color(1, 1, 1, 0.6f);
+                holder.AddChild(empty);
+                holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-6, 20) });
+                unit.AddChild(holder);
+                _quick.AddChild(unit);
+                Quiet(unit);
+                continue;
+            }
             holder.AddChild(HudStyle.IconSlot(_icons.For(slot.Id), 34));
-            holder.AddChild(new KeyCap(slot.Key, 14) { Position = new Vector2(-6, 20) });
+            holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-6, 20) });
             unit.AddChild(holder);
             var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
             words.AddThemeConstantOverride("separation", -1);
-            words.AddChild(HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(slot.Name));
-            words.AddChild(HudStyle.Text(HudStyle.Caps, 14, HudStyle.Muted, caps: true).Say($"×{slot.Count}"));
+            words.AddChild(HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(slot.Name));
+            words.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say($"×{slot.Count}"));
             unit.AddChild(words);
             _quick.AddChild(unit);
             Quiet(unit);
         }
-        _quick.Visible = quick.Count > 0;
+        _quick.Visible = quick.Any(q => q.Id.Length > 0);
     }
 
     private void SetFormulas(IReadOnlyList<HudFormula> formulas, string? casting)
@@ -672,13 +721,13 @@ public partial class HudView : Control
                 var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
                 var frame = HudStyle.IconSlot(_icons.For(formula.Id), 34);
                 holder.AddChild(frame);
-                var key = new KeyCap($"{i + 4}", 14) { Position = new Vector2(-6, 20) };
+                var key = new KeyCap($"{i + 4}", 16) { Position = new Vector2(-6, 20) };
                 holder.AddChild(key);
                 unit.AddChild(holder);
                 var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
                 words.AddThemeConstantOverride("separation", -1);
-                words.AddChild(HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(formula.Name));
-                words.AddChild(HudStyle.Text(HudStyle.Caps, 14, HudStyle.Muted, caps: true).Say($"{formula.FocusCost} Focus"));
+                words.AddChild(HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(formula.Name));
+                words.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say($"{formula.FocusCost} Focus"));
                 unit.AddChild(words);
                 _slots.AddChild(unit);
                 _slotFrames.Add((frame, formula.Name));
@@ -732,12 +781,12 @@ public partial class HudView : Control
             if (icon is not null)
                 row.AddChild(HudStyle.IconSlot(icon, 16));
             var match = Seconds.Match(parts[i]);
-            var name = HudStyle.Text(HudStyle.Body, 15, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : parts[i]);
+            var name = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : parts[i]);
             name.VerticalAlignment = VerticalAlignment.Center;
             row.AddChild(name);
             if (match.Success)
             {
-                var time = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Brass).Say(match.Groups[2].Value);
+                var time = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Brass).Say(match.Groups[2].Value);
                 time.VerticalAlignment = VerticalAlignment.Center;
                 row.AddChild(time);
             }
@@ -845,7 +894,7 @@ public partial class HudView : Control
             if (match.Success)
             {
                 row.AddChild(new KeyCap(match.Groups[2].Value));
-                var order = HudStyle.Text(HudStyle.Body, 15, HudStyle.Ash).Say(match.Groups[3].Value);
+                var order = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash).Say(match.Groups[3].Value);
                 order.VerticalAlignment = VerticalAlignment.Center;
                 row.AddChild(order);
             }
@@ -900,16 +949,22 @@ public partial class HudView : Control
     /// A notice in its panel. Its words are the classic HUD's; a leading kind ("Quest complete:", "Learned", "Discovered:", "Done:")
     /// is set as a small capital label before the rest, and experience in brass.
     /// </summary>
-    private static PanelContainer ToastBox(string text)
+    private PanelContainer ToastBox(string text)
     {
         var box = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkEnd };
         box.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 4));
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 10);
         var (kind, rest) = Headline(text);
+        if (MomentIcon(kind ?? (text.StartsWith("Handed to ", StringComparison.Ordinal) ? "Handed to" : null)) is { } moment)
+        {
+            var slot = HudStyle.IconSlot(moment, 22);
+            slot.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+            row.AddChild(slot);
+        }
         if (kind is not null)
         {
-            var label = HudStyle.Text(HudStyle.Caps, 15, kind == "Done" ? HudStyle.Muted : HudStyle.Ember, caps: true).Say(kind);
+            var label = HudStyle.Text(HudStyle.Caps, 16, kind == "Done" ? HudStyle.Muted : HudStyle.Ember, caps: true).Say(kind);
             label.VerticalAlignment = VerticalAlignment.Center;
             label.SizeFlagsVertical = SizeFlags.Fill;
             row.AddChild(label);
@@ -951,7 +1006,7 @@ public partial class HudView : Control
 
     private static Label PoolName(string name)
     {
-        var label = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Muted, caps: true).Say(name);
+        var label = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say(name);
         label.CustomMinimumSize = new Vector2(76, 0);
         label.VerticalAlignment = VerticalAlignment.Center;
         return label;
@@ -959,7 +1014,7 @@ public partial class HudView : Control
 
     private static Label PoolValue()
     {
-        var label = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Bone);
+        var label = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Bone);
         label.CustomMinimumSize = new Vector2(78, 0);
         label.HorizontalAlignment = HorizontalAlignment.Right;
         label.VerticalAlignment = VerticalAlignment.Center;
@@ -971,7 +1026,7 @@ public partial class HudView : Control
     {
         var pair = new HBoxContainer();
         pair.AddThemeConstantOverride("separation", 6);
-        var label = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Muted, caps: true).Say(name);
+        var label = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say(name);
         label.VerticalAlignment = VerticalAlignment.Center;
         label.SizeFlagsVertical = SizeFlags.Fill;
         pair.AddChild(label);
@@ -992,14 +1047,14 @@ public partial class HudView : Control
     /// <summary>A key cap: the key's name, in ember, on a raised dark key.</summary>
     public sealed partial class KeyCap : PanelContainer
     {
-        private readonly Label _label = HudStyle.Text(HudStyle.Caps, 15, HudStyle.Ember, caps: true);
+        private readonly Label _label = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Ember, caps: true);
 
         public KeyCap()
             : this(string.Empty)
         {
         }
 
-        public KeyCap(string key, int size = 15)
+        public KeyCap(string key, int size = 16)
         {
             AddThemeStyleboxOverride("panel", HudStyle.KeyBox());
             MouseFilter = MouseFilterEnum.Ignore;
@@ -1021,11 +1076,11 @@ public partial class HudView : Control
 
     /// <summary>
     /// A pool's gauge: a soot track in a hairline iron frame; the fill in its colour with a lighter upper edge and a bright leading
-    /// edge; faint quarter marks; and a diagonal hatch over the fill when marked (Strained).
+    /// edge; faint quarter marks (tenths for a value read exactly); and a diagonal hatch over the fill when marked (Strained).
     /// </summary>
     public sealed partial class Gauge : Control
     {
-        private readonly bool _quarters;
+        private readonly int _marks;
         private double _value;
         private double _max = 1;
         private Color _fill;
@@ -1036,10 +1091,11 @@ public partial class HudView : Control
         {
         }
 
-        public Gauge(Color fill, Vector2 size, bool quarters = true)
+        /// <summary>A gauge of a fill and size; <paramref name="marks"/> parts it (quarters by default, tenths where a value is read exactly).</summary>
+        public Gauge(Color fill, Vector2 size, bool quarters = true, int marks = 4)
         {
             _fill = fill;
-            _quarters = quarters;
+            _marks = quarters ? marks : 0;
             CustomMinimumSize = size;
             MouseFilter = MouseFilterEnum.Ignore;
             TextureRepeat = TextureRepeatEnum.Enabled;
@@ -1080,11 +1136,8 @@ public partial class HudView : Control
                     DrawTextureRect(HudStyle.Hatch, fill, true);
                 DrawRect(new Rect2(fill.End.X - 1, fill.Position.Y, 1, fill.Size.Y), new Color(1, 1, 1, 0.4f));
             }
-            if (_quarters)
-            {
-                for (int q = 1; q < 4; q++)
-                    DrawRect(new Rect2(Mathf.Round(inner.Position.X + inner.Size.X * q / 4f), inner.Position.Y, 1, inner.Size.Y), new Color(0, 0, 0, 0.3f));
-            }
+            for (int q = 1; q < _marks; q++)
+                DrawRect(new Rect2(Mathf.Round(inner.Position.X + inner.Size.X * q / _marks), inner.Position.Y, 1, inner.Size.Y), new Color(0, 0, 0, 0.3f));
             DrawRect(whole.Grow(-0.5f), HudStyle.Iron, false, 1);
         }
     }

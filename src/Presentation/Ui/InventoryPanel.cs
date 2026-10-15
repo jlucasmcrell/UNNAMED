@@ -61,8 +61,15 @@ public partial class InventoryPanel : CanvasLayer
         _controller = controller;
     }
 
-    /// <summary>Item icons from the icon manifest (the Phase-1 asset integration); an item without one keeps an empty slot.</summary>
-    public void UseIcons(HudIcons icons) => _icons = icons;
+    /// <summary>
+    /// Item icons from the icon manifest (the Phase-1 asset integration); an item without one keeps an empty slot. The same set gives the
+    /// item card its stat icons, a fine or crude make's note its mark, and the screen its title tile.
+    /// </summary>
+    public void UseIcons(HudIcons icons)
+    {
+        _icons = icons;
+        _sheet.SetIcon(icons.Binds("panel.inventory") ? icons.For("panel.inventory") : null);
+    }
 
     public override void _Ready()
     {
@@ -200,9 +207,11 @@ public partial class InventoryPanel : CanvasLayer
             var slot = player.Equipment.FirstOrDefault(kv => kv.Value == entry.ItemId);
             bool equipped = player.Equipment.ContainsValue(entry.ItemId);
             string id = entry.ItemId.Value;
-            var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, equipped ? $"worn · {Names.Slot(slot.Key)}" : "");
+            var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, "");
+            if (equipped)
+                row.Root.AddChild(UiKit.Chip(Names.Slot(slot.Key), HudStyle.Iron, HudStyle.Bone));
             if (quick.IndexOf(entry.DefId) is var q and >= 0)
-                row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 15));
+                row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));
             if (definition?.Slot is not null)
             {
                 row.Root.AddChild(Button(id, equipped ? "Unequip" : "Equip", () => Submit(equipped
@@ -360,57 +369,60 @@ public partial class InventoryPanel : CanvasLayer
         var grid = new GridContainer { Columns = 2 };
         grid.AddThemeConstantOverride("h_separation", 24);
         grid.AddThemeConstantOverride("v_separation", 2);
-        void Fact(string label, string value, Color? tone = null)
+        void Fact(string label, string value, Color? tone = null, string? icon = null)
         {
             var stat = UiKit.Stat(label, value, tone, 18);
             stat.CustomMinimumSize = new Vector2(250, 0);
+            Control lead = icon is not null && _icons.Binds(icon) ? UiKit.Icon(_icons, icon, 24) : new Control { CustomMinimumSize = new Vector2(30, 0) };
+            stat.AddChild(lead);
+            stat.MoveChild(lead, 0);
             grid.AddChild(stat);
         }
         var player = simulation.Player;
         ItemDefinition? Worn(EquipSlot slot) => player.Equipment.TryGetValue(slot, out var worn)
             && player.Inventory.FirstOrDefault(e => e.ItemId == worn) is { } entry && entry.DefId != defId ? setup.Items.Catalog.Find(entry.DefId) : null;
-        var notes = new List<(string Text, Color Tone)>();
+        var notes = new List<(string Text, Color Tone, string? Icon)>();
         if (item?.Weapon is { } weapon)
         {
-            Fact("Damage", weapon.DamageMin == weapon.DamageMax ? $"{weapon.DamageMin}" : $"{weapon.DamageMin}–{weapon.DamageMax}");
+            Fact("Damage", weapon.DamageMin == weapon.DamageMax ? $"{weapon.DamageMin}" : $"{weapon.DamageMin}–{weapon.DamageMax}", icon: "stat.damage");
             Fact("Kind", Names.Words(weapon.DamageType));
-            Fact("Reach", $"{weapon.ReachMm / 1000.0:0.0#} m");
+            Fact("Reach", $"{weapon.ReachMm / 1000.0:0.0#} m", icon: "stat.reach");
             if (weapon.Ranged)
-                Fact("Draw", $"{weapon.DrawMs / 1000.0:0.0#} s");
+                Fact("Draw", $"{weapon.DrawMs / 1000.0:0.0#} s", icon: "stat.draw");
             else if (weapon.AttackMs > 0)
-                Fact("Swing", $"{weapon.AttackMs / 1000.0:0.0#} s");
+                Fact("Swing", $"{weapon.AttackMs / 1000.0:0.0#} s", icon: "stat.speed");
             if (weapon.SkillId is { } skill)
-                Fact("Skill", Names.Of(_session, skill));
+                Fact("Skill", Names.Of(_session, skill), icon: skill);
             if (weapon.TwoHanded)
-                notes.Add(("Two-handed: the off hand stays empty.", HudStyle.Ash));
+                notes.Add(("Two-handed: the off hand stays empty.", HudStyle.Ash, null));
             if (Worn(EquipSlot.MainHand)?.Weapon is { } held)
             {
                 double delta = (weapon.DamageMin + weapon.DamageMax - held.DamageMin - held.DamageMax) / 2.0;
                 string than = Names.Of(_session, Worn(EquipSlot.MainHand)!.Id);
                 notes.Add((delta == 0 ? $"Hits as hard as your {than}." : $"{Math.Abs(delta):0.#} {(delta > 0 ? "more" : "less")} damage a blow than your {than}.",
-                    delta > 0 ? HudStyle.Lichen : delta < 0 ? HudStyle.Wound : HudStyle.Ash));
+                    delta > 0 ? HudStyle.Lichen : delta < 0 ? HudStyle.Wound : HudStyle.Ash, null));
             }
         }
         if (item is { ArmorValue: > 0 } || item?.Slot is not null && item.Weapon is null)
         {
-            Fact("Armour", $"+{item!.ArmorValue}");
+            Fact("Armour", $"+{item!.ArmorValue}", icon: "stat.armour");
             Fact("Worn on", Names.Slot(item.Slot!.Value));
             if (Worn(item.Slot!.Value) is { } other)
             {
                 int delta = item.ArmorValue - other.ArmorValue;
                 notes.Add((delta == 0 ? $"As much armour as your {Names.Of(_session, other.Id)}."
                     : $"{Math.Abs(delta)} {(delta > 0 ? "more" : "less")} armour than your {Names.Of(_session, other.Id)}.",
-                    delta > 0 ? HudStyle.Lichen : delta < 0 ? HudStyle.Wound : HudStyle.Ash));
+                    delta > 0 ? HudStyle.Lichen : delta < 0 ? HudStyle.Wound : HudStyle.Ash, null));
             }
         }
         if (setup.Combat.UseEffects.TryGetValue(defId, out string? effectId) && setup.Combat.Effects.TryGetValue(effectId, out var effect))
-            notes.Add((Uses(effect), HudStyle.Lichen));
+            notes.Add((Uses(effect), HudStyle.Lichen, effect.HealPerTick > 0 ? "stat.heal" : null));
         if (setup.Magic.Teaches.TryGetValue(defId, out var teaches) && teaches.Length > 0)
-            notes.Add(($"Reading it teaches {string.Join(", ", teaches.Select(t => Names.Of(_session, t)))}.", HudStyle.Lichen));
+            notes.Add(($"Reading it teaches {string.Join(", ", teaches.Select(t => Names.Of(_session, t)))}.", HudStyle.Lichen, null));
         if (item is not null)
         {
-            Fact("Weight", $"{item.WeightGrams / 1000.0:0.0#} kg");
-            Fact("Worth", $"{item.ValueBase} coin", HudStyle.Brass);
+            Fact("Weight", $"{item.WeightGrams / 1000.0:0.0#} kg", icon: "stat.weight");
+            Fact("Worth", $"{item.ValueBase} coin", HudStyle.Brass, "stat.worth");
             foreach (var (attribute, minimum) in item.Requirements.Attributes)
             {
                 int value = ProgressionEngine.AttributeValue(player.Progression, attribute, setup.Progression);
@@ -423,10 +435,22 @@ public partial class InventoryPanel : CanvasLayer
             }
         }
         if (quality != Quality.Standard)
-            notes.Add((quality > 0 ? "Fine work: better than the common make." : "Crude work: worse than the common make.", quality > 0 ? HudStyle.Lichen : HudStyle.Wound));
+            notes.Add((quality > 0 ? "Fine work: better than the common make." : "Crude work: worse than the common make.", quality > 0 ? HudStyle.Lichen : HudStyle.Wound,
+                quality > 0 ? "quality.fine" : "quality.crude"));
         _details.AddChild(grid);
-        foreach (var (text, tone) in notes)
-            _details.AddChild(UiKit.Words(text, 17, tone));
+        foreach (var (text, tone, icon) in notes)
+        {
+            if (icon is null || !_icons.Binds(icon))
+            {
+                _details.AddChild(UiKit.Words(text, 17, tone));
+                continue;
+            }
+            var line = new HBoxContainer();
+            line.AddThemeConstantOverride("separation", 10);
+            line.AddChild(UiKit.Icon(_icons, icon, 24));
+            line.AddChild(UiKit.Words(text, 17, tone));
+            _details.AddChild(line);
+        }
     }
 
     /// <summary>What using a consumable does, from its effect: "Heals 24 over 8 s".</summary>

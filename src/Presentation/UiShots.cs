@@ -93,10 +93,25 @@ public sealed class UiShots
     private bool _sold;
     private bool _bought;
 
-    /// <summary>The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them.</summary>
-    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "", "announce" };
+    /// <summary>
+    /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
+    /// chosen on the System Menu, and Escape pressed on it: back to play, or back to the menu with <c>--menu-escape back</c>.
+    /// </summary>
+    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "", "announce", "menu_character", "escape", "" };
+
+    /// <summary>
+    /// The screens pictured again once the route has filled them ("late_&lt;after&gt;_&lt;screen&gt;"): after the ward (an effect on, what is
+    /// known) and after the trade (a quest, the spear and coin, and often a point to spend).
+    /// </summary>
+    private static readonly Dictionary<string, string[]> LatePasses = new(StringComparer.Ordinal)
+    {
+        ["warded"] = new[] { "effects", "character", "" },
+        ["traded"] = new[] { "menu", "character", "inventory", "journal", "effects", "companions", "" },
+    };
 
     private readonly Action<string>? _screen;
+    private readonly Queue<string> _late = new();
+    private string _latePrefix = string.Empty;
     private int _screens;
 
     public UiShots(GameSession session, PlayerController controller, CameraRig camera, InventoryPanel inventory, DialoguePanel dialogue,
@@ -140,7 +155,24 @@ public sealed class UiShots
             if (--_wait == 0 && _pending is { } shot)
             {
                 _pending = null;
+                if (_screen is not null && LatePasses.TryGetValue(shot, out var pass))
+                {
+                    foreach (string late in pass)
+                        _late.Enqueue(late);
+                    _latePrefix = $"late_{shot}_";
+                }
                 return shot;
+            }
+            return null;
+        }
+        if (_screen is not null && _late.Count > 0)
+        {
+            string name = _late.Dequeue();
+            _screen(name);
+            if (name.Length > 0)
+            {
+                _pending = _latePrefix + name;
+                _wait = 12;
             }
             return null;
         }

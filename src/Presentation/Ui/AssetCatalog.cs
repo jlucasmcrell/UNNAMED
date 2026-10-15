@@ -99,7 +99,8 @@ public sealed class AssetCatalog
     }
 
     /// <summary>An icon's sprite by its ID (<c>ui.hud.compass</c>), or null.</summary>
-    public Texture2D? Icon(string id) => _icons.TryGetValue(id, out string? path) ? Texture(path) : null;
+    /// <summary>An icon's sprite, with mipmaps: the 128 px tiles are drawn at 16-48 px, and without them a 32 px slot skips texels and shimmers.</summary>
+    public Texture2D? Icon(string id) => _icons.TryGetValue(id, out string? path) ? Texture(path, mipmaps: true) : null;
 
     /// <summary>An effect's flipbook by its ID (<c>vfx.force.impulse_bolt_travel</c>), or null. Its entry was checked at load.</summary>
     public Flipbook? Effect(string id) =>
@@ -177,13 +178,15 @@ public sealed class AssetCatalog
         return read.OrderBy(p => p.Item1).ToList();
     }
 
-    private Texture2D? Texture(string relative)
+    private Texture2D? Texture(string relative, bool mipmaps = false)
     {
         if (Root is null)
             return null;
         if (_textures.TryGetValue(relative, out var cached))
             return cached;
         var image = Image.LoadFromFile(Path.Combine(Root, relative));
+        if (mipmaps && image is not null && !image.IsEmpty())
+            image.GenerateMipmaps();
         var texture = image is null || image.IsEmpty() ? null : ImageTexture.CreateFromImage(image);
         _textures[relative] = texture;
         return texture;

@@ -200,9 +200,26 @@ public static partial class UiKit
         return row;
     }
 
-    /// <summary>The HUD's own gauge, at a size.</summary>
-    public static HudView.Gauge Gauge(Color fill, float width, float height = 8, bool quarters = true) =>
-        new(fill, new Vector2(width, height), quarters) { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+    /// <summary>The HUD's own gauge, at a size; <paramref name="marks"/> parts it (4, or 10 where a value is read exactly).</summary>
+    public static HudView.Gauge Gauge(Color fill, float width, float height = 8, bool quarters = true, int marks = 4) =>
+        new(fill, new Vector2(width, height), quarters, marks) { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+
+    /// <summary>
+    /// A key's icon in the HUD's slot frame at a size; an empty frame when the key has no icon bound, so rows keep their shape. A
+    /// <paramref name="ghost"/> is an empty equipment slot: its tile is already dark, and it sits a little back from what is worn.
+    /// </summary>
+    public static PanelContainer Icon(HudIcons icons, string? key, float size, bool ghost = false)
+    {
+        var slot = HudStyle.IconSlot(icons.Binds(key) ? icons.For(key) : null, size);
+        slot.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        if (ghost)
+        {
+            var box = HudStyle.SlotBox();
+            box.BorderColor = HudStyle.Iron;
+            slot.AddThemeStyleboxOverride("panel", box);
+        }
+        return slot;
+    }
 
     /// <summary>A state tag: condensed capitals in a hairline frame, the word always there so colour never carries it alone.</summary>
     public static PanelContainer Chip(string text, Color border, Color? color = null)
@@ -471,6 +488,10 @@ public static partial class UiKit
         }
     }
 
+    /// <summary>The sheet a screen's layer holds, or null: for what Main changes on a screen from outside (Escape's word).</summary>
+    public static Sheet? SheetOf(CanvasLayer layer) =>
+        layer.GetChildren().OfType<SheetRoot>().FirstOrDefault()?.Frame;
+
     /// <summary>
     /// The sheet's root: the full-screen scrim the menu theme hangs from. While its screen is open it keeps the sheet clear of the HUD
     /// where the HUD reaches into the band (the companion strip under the plate, the tracked quest at the right), twice a second.
@@ -480,6 +501,9 @@ public static partial class UiKit
         private double _since = 1;
 
         public Action? Watch { get; set; }
+
+        /// <summary>The sheet this root belongs to.</summary>
+        public Sheet? Frame { get; set; }
 
         public override void _Process(double delta)
         {
@@ -513,6 +537,7 @@ public sealed class Sheet
 {
     private readonly VBoxContainer _head = new();
     private readonly HBoxContainer _keys = new();
+    private readonly PanelContainer _icon = HudStyle.IconSlot(null, 32);
     private readonly CanvasLayer _layer;
     private string? _ownKey;
     private bool _closable = true;
@@ -520,6 +545,7 @@ public sealed class Sheet
     private bool _dense;
     private float _width;
     private float _top = UiKit.BandTop;
+    private float _bottom = UiKit.BandTop + UiKit.BandHeight;
     private Tween? _opening;
 
     /// <summary>Full screen: the scrim, and the control the menu theme hangs from.</summary>
@@ -538,14 +564,14 @@ public sealed class Sheet
     /// <summary>The body's scroll region, or null when the screen's panes scroll themselves.</summary>
     public ScrollContainer? Scroll { get; }
 
-    /// <summary>The room the sheet has once it keeps clear of the HUD (the band's height, less what hangs into it from above).</summary>
-    public float Room => UiKit.BandHeight - (_top - UiKit.BandTop);
+    /// <summary>The room the sheet has once it keeps clear of the HUD (the band's height, less what hangs into it from above or rises from below).</summary>
+    public float Room => _bottom - _top;
 
     internal Sheet(CanvasLayer layer, string title, string? ownKey, float width, bool scrolls)
     {
         _layer = layer;
         _ownKey = ownKey;
-        var root = new UiKit.SheetRoot { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Stop, Watch = Place };
+        var root = new UiKit.SheetRoot { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Stop, Watch = Place, Frame = this };
         Root = root;
         Root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         var scrim = new ColorRect { Color = new Color(0, 0, 0, 0.35f), MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -561,6 +587,10 @@ public sealed class Sheet
         _head.AddThemeConstantOverride("separation", 8);
         var bar = new HBoxContainer { CustomMinimumSize = new Vector2(0, 56) };
         bar.AddThemeConstantOverride("separation", 12);
+        // The screen's icon before its title, the same tile as its System Menu row: the hand-over from menu to screen reads as one.
+        _icon.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        _icon.Visible = false;
+        bar.AddChild(_icon);
         Title = HudStyle.Text(HudStyle.Caps, 30, HudStyle.Bone, caps: true);
         Title.Text = title;
         Title.VerticalAlignment = VerticalAlignment.Center;
@@ -627,6 +657,22 @@ public sealed class Sheet
         Keys();
     }
 
+    /// <summary>The screen's icon in the title bar; null hides it.</summary>
+    public void SetIcon(Texture2D? icon)
+    {
+        ((TextureRect)_icon.GetChild(0)).Texture = icon;
+        _icon.Visible = icon is not null;
+    }
+
+    /// <summary>What Escape is called in the title bar: CLOSE, or BACK when Escape returns to the System Menu that opened the screen.</summary>
+    public void CloseWord(string word)
+    {
+        if (word == _closeWord)
+            return;
+        _closeWord = word;
+        Keys();
+    }
+
     /// <summary>The optional hint under the rule; empty hides it.</summary>
     public void SetHint(string text)
     {
@@ -668,27 +714,32 @@ public sealed class Sheet
 
     /// <summary>
     /// The sheet in the band (x 384-1536, y 128-848 on the reference canvas, centred), kept clear of any HUD panel that reaches into it:
-    /// it starts below what hangs in from above and narrows, centred, around what stands beside it. With nothing in the way it is the band.
+    /// it starts below what hangs in from above, ends above what rises from below, and narrows, centred, around what stands beside it.
+    /// With nothing in the way it is the band.
     /// </summary>
     private void Place()
     {
         if (!GodotObject.IsInstanceValid(Panel))
             return;
-        float width = _width, top = UiKit.BandTop;
+        float width = _width, top = UiKit.BandTop, bottom = UiKit.BandTop + UiKit.BandHeight;
         if (Root.IsInsideTree() && Root.GetTree().Root.FindChild("HudView", true, false) is HudView { Visible: true } hud && hud.IsVisibleInTree())
         {
             float centre = Root.Size.X / 2;
             foreach (var rect in hud.Intrusions())
             {
-                var band = new Rect2(centre - width / 2, top, width, UiKit.BandHeight);
+                var band = new Rect2(centre - width / 2, top, width, bottom - top);
                 if (!rect.Intersects(band))
                     continue;
-                // Whichever costs the sheet less: start below a panel that only just hangs into the band (the companion strip),
-                // or narrow, centred, beside one that reaches down it (the tracked quest).
+                // Whichever costs the sheet less: start below a panel that only just hangs into the band (the companion strip), end
+                // above one that rises into its foot (the formulas and pools, the combat log), or narrow, centred, beside one that
+                // reaches down it (the tracked quest).
                 float below = rect.End.Y + 12 - top;
+                float above = bottom - (rect.Position.Y - 12);
                 float narrowed = Math.Max(UiKit.Small, 2 * Math.Max(centre - rect.End.X, rect.Position.X - centre) - 24);
                 if (below <= 64)
                     top += below;
+                else if (rect.Position.Y > top + UiKit.MinHeight)
+                    bottom -= above;
                 else
                     width = Math.Min(width, narrowed);
             }
@@ -699,8 +750,9 @@ public sealed class Sheet
         if (_opening is null || !_opening.IsRunning())
             Panel.OffsetTop = top;
         Panel.OffsetBottom = top;
-        bool moved = Math.Abs(top - _top) > 0.5f;
+        bool moved = Math.Abs(top - _top) > 0.5f || Math.Abs(bottom - _bottom) > 0.5f;
         _top = top;
+        _bottom = bottom;
         Panel.CustomMinimumSize = new Vector2(width, _dense ? Room : UiKit.MinHeight);
         if (moved || Scroll is not null)
             Refit();

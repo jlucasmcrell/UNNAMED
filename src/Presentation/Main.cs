@@ -26,6 +26,7 @@ namespace UNNAMED.Presentation;
 /// <c>--perf [--perf-out dir] [--perf-seconds n]</c> (the performance capture), <c>--spike</c> (the 2x2 km greybox),
 /// <c>--ui-shots dir</c>, and <c>--playthrough dir</c> then <c>--playthrough-verify dir</c> (M6: the acceptance run, and its relaunch);
 /// <c>--realtime</c> plays the acceptance run on the frame's own clock, its script stepped once per tick, for real-time recording.
+/// <c>--menu-escape back</c> makes Escape from a screen the System Menu opened return to the menu (the owner's open UX option).
 /// <c>--asset-root dir</c> names the asset pipeline's workspace, for its HUD and effect art (the owner's M6 playtest). The smoke, the
 /// playthrough, its relaunch and the delta shots end by writing the art and audio coverage reports (Phase A) into their directory - the
 /// smoke's beside the log - or into <c>--coverage-out dir</c>.
@@ -59,6 +60,10 @@ public partial class Main : Node3D
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
     private SystemMenuPanel _menu = null!;
+    private CanvasLayer? _openedFromMenu;
+    private bool _escapeToMenu;
+    private SaveOutcome? _lastSave;
+    private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
     private CompanionsPanel _companionsPanel = null!;
     private ProjectilesView _projectiles = null!;
@@ -183,7 +188,8 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
-        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules"));
+        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
+        _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
         VisualOptions.Apply(GetViewport());
@@ -382,12 +388,16 @@ public partial class Main : Node3D
             Name = "SystemMenu",
             Entries = new SystemMenuPanel.Entry[]
             {
-                new("You", "Character", "character", () => Show(_character)), new("You", "Inventory", "inventory", () => OpenInventory(null)),
-                new("You", "Effects", null, () => Show(_effectsPanel)),
-                new("The world", "Journal", "journal", () => Show(_journal)), new("The world", "Companions", null, () => Show(_companionsPanel)),
-                new("System", "Save and load", "saves", () => _saves.OpenInGame()), new("System", "Controls and help", "help", _help.Toggle),
+                new("You", "Character", "character", "panel.character", FromMenu(() => Show(_character))),
+                new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
+                new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
+                new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
+                new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
+                new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
+                new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
             },
             Quit = () => GetTree().Quit(0),
+            Status = MenuStatus,
         };
         AddChild(_menu);
         var dial = _assets.Icon("ui.hud.compass");
@@ -396,8 +406,15 @@ public partial class Main : Node3D
         else
             _art.Coverage.Resolved("icon", "compass", "ui.hud.compass");
         _hud.UseCompassDial(dial);
-        _hud.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
-        _inventory.UseIcons(new HudIcons(_assets, _bindings.Icons, _art.Coverage));
+        var icons = new HudIcons(_assets, _bindings.Icons, _art.Coverage);
+        _hud.UseIcons(icons);
+        _inventory.UseIcons(icons);
+        _character.UseIcons(icons);
+        _effectsPanel.UseIcons(icons);
+        _companionsPanel.UseIcons(icons);
+        _menu.UseIcons(icons);
+        _journal.UseIcons(icons);
+        _help.UseIcons(icons);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
         _saves.NewGame = () =>
@@ -409,6 +426,7 @@ public partial class Main : Node3D
         _saves.Quit = () => GetTree().Quit(0);
         _saves.Closed = _saves.Close;
         AddChild(_saves);
+        _saves.UseIcons(icons);
         Subscribe();
         DefineInput();
 
@@ -470,16 +488,30 @@ public partial class Main : Node3D
             _showcase = new Showcase(_session, _controller, _camera, _dialogue, Path.GetFullPath(showcase), _options.GetValueOrDefault("--showcase-scene", "locomotion"));
         }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
+            SizeForCapture();
             _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, name =>
             {
-                CloseScreens();
+                // Escape is pressed on whatever is open; every other name opens its screen in place of the last.
+                if (name != "escape")
+                    CloseScreens();
                 switch (name)
                 {
+                    case "menu_character":
+                        // A destination chosen on the System Menu, as its row's press chooses it.
+                        _menu.Visible = true;
+                        _menu.Choose("Character");
+                        break;
+                    case "escape":
+                        Escape();
+                        break;
                     case "menu":
                         _menu.Visible = true;
                         break;
                     case "character":
                         Show(_character);
+                        break;
+                    case "inventory":
+                        OpenInventory(null);
                         break;
                     case "journal":
                         Show(_journal);
@@ -848,6 +880,7 @@ public partial class Main : Node3D
         {
             if (save.Failure is not { } failed)
             {
+                _lastSave = save;
                 _hud.Toast(save.Auto ? $"Autosaved ({save.Slot})" : "Saved", 2);
                 continue;
             }
@@ -905,6 +938,9 @@ public partial class Main : Node3D
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
     {
+        if (_openedFromMenu is { } opened)
+            UiKit.SheetOf(opened)?.CloseWord("Close");
+        _openedFromMenu = null;
         CloseInventory();
         _saves.Close();
         if (_help.Visible)
@@ -922,6 +958,57 @@ public partial class Main : Node3D
             _character.Refresh();
         if (screen == _journal)
             _journal.Refresh(_session);
+    }
+
+    /// <summary>
+    /// A System Menu destination: opens its screen and remembers that the menu opened it. With <c>--menu-escape back</c> (the owner's open
+    /// UX option, 08 §11.3) Escape then returns to the menu, and the screen's title bar says BACK; by default Escape closes it to play.
+    /// </summary>
+    private Action FromMenu(Action open) => () =>
+    {
+        open();
+        _openedFromMenu = Screen;
+        if (_escapeToMenu && _openedFromMenu is { } screen)
+            UiKit.SheetOf(screen)?.CloseWord("Back");
+    };
+
+    /// <summary>The System Menu's strip: who the character is and how far along, the time played and the last save this session.</summary>
+    private SystemMenuPanel.StatusLine? MenuStatus()
+    {
+        if (_session?.Simulation is not { } simulation)
+            return null;
+        var progression = simulation.Player.Progression;
+        var rules = _session.Setup.Progression;
+        bool capped = progression.Level >= rules.LevelCap;
+        string saved = _lastSave is { } last
+            ? $"{(last.Auto ? "Autosaved" : "Saved")} {Ago(_session.PlaytimeSeconds - last.CapturedAtPlaytime)}"
+            : _loadedFrom is { } loaded ? $"Loaded {loaded}, not saved since" : "Not saved yet";
+        return new SystemMenuPanel.StatusLine(simulation.Player.Name, progression.Level, capped, progression.LevelProgressXp,
+            capped ? 0 : rules.Curve.ToReach(progression.Level + 1), progression.XpDebt, progression.UnspentAttributePoints,
+            $"Played {Span(_session.PlaytimeSeconds)}", saved);
+    }
+
+    /// <summary>A stretch of play in words: "12 min", "1 h 04 min".</summary>
+    private static string Span(double seconds)
+    {
+        long minutes = (long)Math.Max(0, seconds) / 60;
+        return minutes < 60 ? $"{minutes} min" : $"{minutes / 60} h {minutes % 60:00} min";
+    }
+
+    private static string Ago(double seconds) => seconds < 60 ? "just now" : $"{Span(seconds)} ago";
+
+    /// <summary>
+    /// Escape outside a conversation: closes the screen open back to play (the accepted C4 semantics), and with nothing open opens the
+    /// System Menu. With <c>--menu-escape back</c>, a screen the menu opened closes back to the menu instead.
+    /// </summary>
+    private void Escape()
+    {
+        var open = Screen;
+        bool back = _escapeToMenu && open is not null && open != _menu && open == _openedFromMenu;
+        if (open is not null)
+            CloseScreens();
+        if (open is null || back)
+            _menu.Visible = true;
     }
 
     /// <summary>A screen's own key: closes it when it is the one open, otherwise opens it in place of any other.</summary>
@@ -986,10 +1073,7 @@ public partial class Main : Node3D
         }
         else if (Input.IsActionJustPressed("release_mouse"))
         {
-            if (Screen is not null)
-                CloseScreens();
-            else
-                _menu.Visible = true;
+            Escape();
         }
         else
         {
@@ -1272,12 +1356,12 @@ public partial class Main : Node3D
         _hud.SetPrompt(_controller.FocusOn(_camera) switch
         {
             null => null,
-            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key)}",
+            { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
-                ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key)}"
+                ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
-            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key)}",
+            { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {Names.Of(_session, npc.Key)} up",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {Names.Of(_session, npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
@@ -1317,7 +1401,7 @@ public partial class Main : Node3D
             view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
             combat.Casting is { } worked ? Names.Of(_session, worked) : null,
             formulas.Select(f => new HudFormula(f, Names.Of(_session, f), _session.Setup.Magic.Formulas[f].FocusCost)).ToList(), combat.Strained,
-            _controller.QuickItems().Select((q, i) => new HudQuick(HelpPanel.Key(QuickKeys[i]), q.DefId, Names.Of(_session, q.DefId), q.Count)).ToList()));
+            QuickSlots()));
         if (Target(simulation) is { } target)
             _hud.SetTarget(Names.Of(_session, target.DefId), target.Health, target.MaxHealth);
         else
@@ -1776,6 +1860,15 @@ public partial class Main : Node3D
     /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
     private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
 
+    /// <summary>The three quick slots on their keys: what is in each, or an empty ID for an empty one.</summary>
+    private List<HudQuick> QuickSlots()
+    {
+        var quick = _controller.QuickItems();
+        return QuickKeys.Select((key, i) => i < quick.Count
+            ? new HudQuick(HelpPanel.Key(key), quick[i].DefId, Names.Of(_session, quick[i].DefId), quick[i].Count)
+            : new HudQuick(HelpPanel.Key(key), string.Empty, string.Empty, 0)).ToList();
+    }
+
     private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
 
     /// <summary>
@@ -1824,6 +1917,8 @@ public partial class Main : Node3D
             _graphics = null;
         }
         _saves.Close();
+        _lastSave = null;
+        _loadedFrom = null;
         _hud.Visible = true;
         Resync();
         GD.Print($"UNNAMED world: seed {WorldSeed.Format(_session.Simulation!.World.WorldSeed)}, tick {_session.Simulation.WorldTick}");
@@ -1905,6 +2000,7 @@ public partial class Main : Node3D
         {
             var result = _session.Load(slot, copy);
             Started();
+            _loadedFrom = what;
             _hud.Toast(result.IsComplete ? $"Loaded: {what}" : $"Loaded {what}, with losses - see the log");
             foreach (string problem in result.Report.Loss.Concat(result.Report.Warnings))
                 GD.PushWarning(problem);
@@ -1949,6 +2045,22 @@ public partial class Main : Node3D
 
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
+    /// <summary>
+    /// A capture larger than the display (the UI's 2560 x 1440 acceptance size on a 1080p screen): the engine fits the window to the screen,
+    /// so it is sized again to the <c>--resolution</c> asked for, and the screenshot reads the whole viewport.
+    /// </summary>
+    private static void SizeForCapture()
+    {
+        string[] args = OS.GetCmdlineArgs();
+        int at = Array.IndexOf(args, "--resolution");
+        if (at < 0 || at + 1 >= args.Length || args[at + 1].Split('x') is not [var w, var h]
+            || !int.TryParse(w, out int width) || !int.TryParse(h, out int height) || DisplayServer.WindowGetSize() == new Vector2I(width, height))
+            return;
+        DisplayServer.WindowSetPosition(Vector2I.Zero);
+        DisplayServer.WindowSetSize(new Vector2I(width, height));
+        GD.Print($"UNNAMED ui shots: the window sized to {width} x {height} for the capture (it is {DisplayServer.WindowGetSize().X} x {DisplayServer.WindowGetSize().Y})");
+    }
+
     private void OpenInventory(string? container)
     {
         _inventory.Open(container);
@@ -1981,7 +2093,7 @@ public partial class Main : Node3D
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
-                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check"
+                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

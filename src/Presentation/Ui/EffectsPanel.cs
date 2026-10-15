@@ -17,9 +17,18 @@ public partial class EffectsPanel : CanvasLayer
     private readonly List<(string EffectId, HudView.Gauge Gauge, Label Left)> _timers = new();
     private Sheet _sheet = null!;
     private GameSession _session = null!;
+    private HudIcons _icons = HudIcons.None;
     private string? _drawn;
 
     public void Bind(GameSession session) => _session = session;
+
+    /// <summary>The icon set: each effect's tile (the HUD's), and the screen's own.</summary>
+    public void UseIcons(HudIcons icons)
+    {
+        _icons = icons;
+        _sheet.SetIcon(icons.Binds("panel.effects") ? icons.For("panel.effects") : null);
+        _drawn = null;
+    }
 
     public override void _Ready()
     {
@@ -73,9 +82,11 @@ public partial class EffectsPanel : CanvasLayer
             var chip = UiKit.Chip(harm ? "Harm" : "Aid", harm ? HudStyle.Wound : HudStyle.Lichen);
             chip.CustomMinimumSize = new Vector2(64, 0);
             string stacks = effect.Stacks > 1 || definition is { MaxStacks: > 1 } ? $"  ×{effect.Stacks} of {definition?.MaxStacks ?? effect.Stacks}" : "";
-            var row = UiKit.Row(chip, Names.Of(_session, effect.EffectId) + stacks, Does(definition));
+            // The effect's tile at the left (02 §7: an empty frame when none is bound), the harm or aid chip with its time at the right.
+            var row = UiKit.Row(UiKit.Icon(_icons, effect.EffectId, 36), Names.Of(_session, effect.EffectId) + stacks, Does(definition));
             if (definition is not null)
                 row.Secondary.AddThemeColorOverride("font_color", harm ? HudStyle.Wound : HudStyle.Ash);
+            row.Root.AddChild(chip);
             var gauge = UiKit.Gauge(HudStyle.Brass, 140, 6);
             row.Root.AddChild(gauge);
             var left = HudStyle.Text(HudStyle.Strong, 20, HudStyle.Brass);

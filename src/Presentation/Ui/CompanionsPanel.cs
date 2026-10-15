@@ -20,7 +20,16 @@ public partial class CompanionsPanel : CanvasLayer
     private Sheet _sheet = null!;
     private GameSession _session = null!;
     private PlayerController _controller = null!;
+    private HudIcons _icons = HudIcons.None;
     private string? _drawn;
+
+    /// <summary>The icon set: each companion's order (or downed) tile, as the HUD's companion strip shows it, and the screen's own.</summary>
+    public void UseIcons(HudIcons icons)
+    {
+        _icons = icons;
+        _sheet.SetIcon(icons.Binds("panel.companions") ? icons.For("panel.companions") : null);
+        _drawn = null;
+    }
 
     public void Bind(GameSession session, PlayerController controller)
     {
@@ -82,7 +91,9 @@ public partial class CompanionsPanel : CanvasLayer
             var state = downed ? UiKit.Chip("Downed", HudStyle.Wound)
                 : UiKit.Chip(companion.Order == CompanionOrder.Follow ? "Following" : "Waiting", HudStyle.Iron, HudStyle.Bone);
             state.CustomMinimumSize = new Vector2(96, 0);
-            var head = UiKit.Row(state, companion.Name, $"{companion.Doing} · {companion.Standing}");
+            string tile = downed ? "downed" : companion.Order == CompanionOrder.Follow ? "follow" : "wait";
+            var head = UiKit.Row(UiKit.Icon(_icons, tile, 36), companion.Name, $"{companion.Doing} · {companion.Standing}");
+            head.Root.AddChild(state);
             card.AddChild(head.Root);
 
             var health = new HBoxContainer();

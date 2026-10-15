@@ -40,7 +40,8 @@ public static class HudStyle
     private static Font? _body, _strong, _caps;
     private static Theme? _theme;
     private static ImageTexture? _hatch;
-    private static ShaderMaterial? _iconMaterial;
+    private static ShaderMaterial? _iconMaterial, _smallIconMaterial;
+    private static Shader? _iconShader;
 
     /// <summary>Barlow Medium: everything read as a sentence or a value.</summary>
     public static Font Body => _body ??= Load("Barlow-Medium.ttf");
@@ -153,22 +154,38 @@ public static class HudStyle
     /// The icon tiles are opaque paintings on backgrounds of every shade (the manifest's <c>alpha: none</c>): this darkens each tile's
     /// border into the slot and takes a little colour and glare out, so the set reads as one family inside the iron frames.
     /// </summary>
-    public static ShaderMaterial IconMaterial => _iconMaterial ??= new ShaderMaterial
+    public static ShaderMaterial IconMaterial => _iconMaterial ??= IconTreatment(0.92f, 0.62f, 0.8f);
+
+    /// <summary>
+    /// The same treatment for a tile under 26 px (an item card's stat, an effect chip, a notice): there the full edge darkening eats a
+    /// fifth of the tile on each side and leaves mud, so it only softens the outermost edge and keeps the tile's own brightness.
+    /// </summary>
+    public static ShaderMaterial SmallIconMaterial => _smallIconMaterial ??= IconTreatment(1.0f, 0.75f, 0.35f);
+
+    private static ShaderMaterial IconTreatment(float gain, float edgeFrom, float edgeDark)
     {
-        Shader = new Shader
+        _iconShader ??= new Shader
         {
             Code = "shader_type canvas_item;\n" +
+                   "uniform float gain = 0.92;\n" +
+                   "uniform float edge_from = 0.62;\n" +
+                   "uniform float edge_dark = 0.8;\n" +
                    "void fragment() {\n" +
                    "  vec4 c = texture(TEXTURE, UV);\n" +
                    "  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));\n" +
-                   "  c.rgb = mix(c.rgb, vec3(l), 0.15) * 0.92;\n" +
+                   "  c.rgb = mix(c.rgb, vec3(l), 0.15) * gain;\n" +
                    "  vec2 d = abs(UV - 0.5) * 2.0;\n" +
-                   "  float edge = smoothstep(0.62, 1.0, max(d.x, d.y));\n" +
-                   "  c.rgb = mix(c.rgb, vec3(0.03), edge * 0.8);\n" +
+                   "  float edge = smoothstep(edge_from, 1.0, max(d.x, d.y));\n" +
+                   "  c.rgb = mix(c.rgb, vec3(0.03), edge * edge_dark);\n" +
                    "  COLOR = c;\n" +
                    "}\n",
-        },
-    };
+        };
+        var material = new ShaderMaterial { Shader = _iconShader };
+        material.SetShaderParameter("gain", gain);
+        material.SetShaderParameter("edge_from", edgeFrom);
+        material.SetShaderParameter("edge_dark", edgeDark);
+        return material;
+    }
 
     /// <summary>An icon in its frame at a size; an empty frame when there is no icon, so rows keep their shape.</summary>
     public static PanelContainer IconSlot(Texture2D? texture, float size, bool active = false)
@@ -178,7 +195,8 @@ public static class HudStyle
         slot.AddChild(new TextureRect
         {
             Texture = texture,
-            Material = IconMaterial,
+            Material = size < 26 ? SmallIconMaterial : IconMaterial,
+            TextureFilter = CanvasItem.TextureFilterEnum.LinearWithMipmaps,
             CustomMinimumSize = new Vector2(size, size),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,

@@ -22,7 +22,12 @@ public partial class SavesPanel : CanvasLayer
     private bool _confirming;
     private string? _failure;
 
+    private Texture2D? _icon;
+
     public void Bind(GameSession session) => _session = session;
+
+    /// <summary>The screen's own tile in the game, as its System Menu row shows it; the start screen has none.</summary>
+    public void UseIcons(HudIcons icons) => _icon = icons.Binds("panel.saves") ? icons.For("panel.saves") : null;
 
     /// <summary>What the player chose: Main starts or loads, and closes the panel once a world runs.</summary>
     public Action? NewGame { get; set; }
@@ -87,6 +92,7 @@ public partial class SavesPanel : CanvasLayer
     {
         var choice = _session.StartChoice();
         _sheet.Head(_atStart ? "Otherreach" : "Saves", _atStart ? null : "saves", closable: !_atStart);
+        _sheet.SetIcon(_atStart ? null : _icon);
         _sheet.SetHint(_atStart ? "" : $"{HelpPanel.Key("quicksave")} quicksaves · {HelpPanel.Key("quickload")} quickloads · autosaves are kept as you play");
         UiKit.Clear(_sheet.Body);
         Control? focus = null;

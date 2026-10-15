@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.World.Runtime;
 
@@ -23,9 +24,18 @@ public partial class CharacterPanel : CanvasLayer
     private readonly Dictionary<CharacterAttribute, int> _weighing = new();
     private Sheet _sheet = null!;
     private GameSession? _session;
+    private HudIcons _icons = HudIcons.None;
     private string _drawn = string.Empty;
 
     public void Bind(GameSession session) => _session = session;
+
+    /// <summary>The icon set: the attributes', the skills', what is worn and the empty slots' ghosts, and the screen's own tile.</summary>
+    public void UseIcons(HudIcons icons)
+    {
+        _icons = icons;
+        _sheet.SetIcon(icons.Binds("panel.character") ? icons.For("panel.character") : null);
+        _drawn = string.Empty;
+    }
 
     public override void _Ready()
     {
@@ -100,8 +110,10 @@ public partial class CharacterPanel : CanvasLayer
         else
         {
             long toNext = rules.Curve.ToReach(progression.Level + 1);
-            var gauge = UiKit.Gauge(HudStyle.XpFill, 320);
+            var gauge = UiKit.Gauge(HudStyle.XpFill, 360, 8, marks: 10);
             gauge.Set(progression.LevelProgressXp, toNext);
+            gauge.TooltipText = $"{toNext - progression.LevelProgressXp} XP to level {progression.Level + 1}";
+            gauge.MouseFilter = Control.MouseFilterEnum.Pass;
             top.AddChild(gauge);
             top.AddChild(UiKit.Caption("XP"));
             var xp = HudStyle.Text(HudStyle.Strong, 18, HudStyle.Brass);
@@ -140,6 +152,7 @@ public partial class CharacterPanel : CanvasLayer
             int more = _weighing.GetValueOrDefault(attribute);
             var row = new HBoxContainer { CustomMinimumSize = new Vector2(0, 36) };
             row.AddThemeConstantOverride("separation", 8);
+            row.AddChild(UiKit.Icon(_icons, ProgressionKeys.Key(attribute), 32));
             var label = UiKit.Caption(Label(attribute));
             label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             row.AddChild(label);
@@ -248,6 +261,7 @@ public partial class CharacterPanel : CanvasLayer
         column.AddThemeConstantOverride("separation", 16);
 
         var worn = UiKit.Section("Equipped");
+        worn.AddChild(Slots(view));
         foreach (var (slot, item) in view.Equipment)
         {
             if (view.Inventory.FirstOrDefault(e => e.ItemId == item) is not { } entry)
@@ -269,6 +283,7 @@ public partial class CharacterPanel : CanvasLayer
         {
             var row = new HBoxContainer();
             row.AddThemeConstantOverride("separation", 10);
+            row.AddChild(UiKit.Icon(_icons, id, 24));
             row.AddChild(UiKit.Words(Names.Of(session, id), 18));
             var gauge = UiKit.Gauge(HudStyle.Brass, 72, 6);
             gauge.Set(skill.ProgressXp, rules.Skills.ToNext(skill.Level));
@@ -298,6 +313,27 @@ public partial class CharacterPanel : CanvasLayer
             known.AddChild(UiKit.Quiet("Nothing yet - taught, read, found or worked out, never bought with points."));
         column.AddChild(known);
         return column;
+    }
+
+    /// <summary>
+    /// Every equipment slot as a tile, two rows of five in the slots' own order: what is worn in its own icon and bright frame, an empty
+    /// slot as its dark ghost in a dimmer frame. The words for each are in the tooltip and, for what is worn, in the list under it.
+    /// </summary>
+    private Control Slots(PlayerView view)
+    {
+        var grid = new GridContainer { Columns = 5 };
+        grid.AddThemeConstantOverride("h_separation", 8);
+        grid.AddThemeConstantOverride("v_separation", 8);
+        foreach (var slot in Enum.GetValues<EquipSlot>())
+        {
+            var entry = view.Equipment.TryGetValue(slot, out var item) ? view.Inventory.FirstOrDefault(e => e.ItemId == item) : null;
+            string words = char.ToUpperInvariant(Names.Slot(slot)[0]) + Names.Slot(slot)[1..];
+            var tile = entry is not null ? UiKit.Icon(_icons, entry.DefId, 40) : UiKit.Icon(_icons, "slot." + EquipSlots.Key(slot), 40, ghost: true);
+            tile.MouseFilter = Control.MouseFilterEnum.Pass;
+            tile.TooltipText = entry is not null ? $"{words}: {Names.Item(_session!, entry.DefId, entry.Quality)}" : $"{words}: empty";
+            grid.AddChild(tile);
+        }
+        return grid;
     }
 
     /// <summary>Weigh a point onto an attribute, or take one back: nothing reaches the authority until Spend.</summary>
