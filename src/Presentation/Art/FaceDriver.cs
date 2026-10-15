@@ -58,6 +58,21 @@ public sealed partial class FaceDriver : Node
         ["viseme_U"] = new[] { ("mouthPucker", 0.7f), ("mouthFunnel", 0.2f) },
     };
 
+    /// <summary>
+    /// The combination correctives a MetaHuman face is baked with (asset_work/metahuman/tools/bl_assemble.py): each shape is what RigLogic
+    /// does to the mouth for its parts together beyond their linear sum, so it plays at the product of its parts' weights (a left/right
+    /// pair counts as their mean).
+    /// </summary>
+    private static readonly Dictionary<string, string[][]> Combinations = new(StringComparer.Ordinal)
+    {
+        ["jawOpen_mouthFunnel"] = new[] { new[] { "jawOpen" }, new[] { "mouthFunnel" } },
+        ["jawOpen_mouthPucker"] = new[] { new[] { "jawOpen" }, new[] { "mouthPucker" } },
+        ["jawOpen_mouthStretch"] = new[] { new[] { "jawOpen" }, new[] { "mouthStretchLeft", "mouthStretchRight" } },
+        ["jawOpen_mouthSmile"] = new[] { new[] { "jawOpen" }, new[] { "mouthSmileLeft", "mouthSmileRight" } },
+        ["jawOpen_mouthLowerDown"] = new[] { new[] { "jawOpen" }, new[] { "mouthLowerDownLeft", "mouthLowerDownRight" } },
+        ["mouthFunnel_mouthPucker"] = new[] { new[] { "mouthFunnel" }, new[] { "mouthPucker" } },
+    };
+
     /// <summary>A driver for <paramref name="model"/>'s face, or null when no mesh carries the blink channel.</summary>
     public static FaceDriver? Attach(Node model, string seed)
     {
@@ -95,6 +110,12 @@ public sealed partial class FaceDriver : Node
                     int i = mesh.FindBlendShapeByName(shape);
                     if (i >= 0 && !index.ContainsKey(shape))
                         index["arkit:" + shape] = i;
+                }
+                foreach (string combination in Combinations.Keys)
+                {
+                    int i = mesh.FindBlendShapeByName(combination);
+                    if (i >= 0)
+                        index["combo:" + combination] = i;
                 }
             }
             if (index.Count > 0)
@@ -155,11 +176,22 @@ public sealed partial class FaceDriver : Node
         {
             foreach (var (channel, i) in index)
             {
+                if (channel.StartsWith("combo:", StringComparison.Ordinal))
+                    continue;
                 float value = channel.StartsWith("arkit:", StringComparison.Ordinal) ? _arkit.GetValueOrDefault(channel[6..]) : _weights.GetValueOrDefault(channel);
                 // mouthClose is both a channel and part of the PP blend on such a face.
                 if (channel == "mouthClose" && !index.ContainsKey("viseme_PP"))
                     value += _arkit.GetValueOrDefault("mouthClose");
                 mesh.SetBlendShapeValue(i, Mathf.Clamp(value, 0f, 1f));
+            }
+            foreach (var (channel, i) in index)
+            {
+                if (!channel.StartsWith("combo:", StringComparison.Ordinal))
+                    continue;
+                float weight = 1f;
+                foreach (string[] part in Combinations[channel[6..]])
+                    weight *= part.Average(shape => Mathf.Clamp(shape == "jawOpen" ? _weights.GetValueOrDefault(shape) : _arkit.GetValueOrDefault(shape), 0f, 1f));
+                mesh.SetBlendShapeValue(i, weight);
             }
         }
         // The blink is the one face channel a blind review can score from three metres, and "the character never blinks" has been
