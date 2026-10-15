@@ -1,6 +1,7 @@
 // UNNAMED Presentation - the scripted acceptance playthrough and its verification (content bible §29-§31, §33; PROTOTYPE.md §9; M6)
 // Godot presentation only
 
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using Godot;
@@ -20,7 +21,7 @@ namespace UNNAMED.Presentation;
 /// <c>godot --path src/Presentation -- --playthrough &lt;dir&gt;</c>: a fresh session plays the content bible's exact acceptance path
 /// (§31) through the same commands the keys send - the waystation chest, Kera's lesson and Iron Under Ash, Charwood and the hound, the
 /// bow at the cart, a haft from the ash stand, Blackvein Cut and its walker, ore from the seam, the billet and the spear, Kera shown
-/// the spear, Sel's primer and Tavar's story, the Foldscar - its three Quiet Stones in turn, the south-east one by the way round the
+/// the spear, Sel's field notes and Tavar's story, the Foldscar - its three Quiet Stones in turn, the south-east one by the way round the
 /// spider, the heart steadied - Tavar freed and recruited, and home with him following; then east to Cairnwold for Durn's spear from
 /// the moor's own iron and ash and Mara's three ashbloom from the Sinking Moss, and home again. Then a ward (Strain), a save, and quit
 /// (§30: save, quit completely). One tick a frame, from a fixed seed: the run is the same every time, so a third party replays it
@@ -243,8 +244,8 @@ public sealed class Playthrough
             new Beat("billet", "A billet smelted at the hearth", 1_500, () => Make("forge", ToTheHearth), "09_billet"),
             new Beat("spear", "The March Spear forged at the anvil, and taken in hand", 1_500, () => Make("anvil", ToTheAnvil) && WieldTheSpear(), "10_spear"),
             new Beat("quest1", "Kera shown the spear: Iron Under Ash complete", 1_200, () => Show(Kera, "quest.ashen_hollow.iron_under_ash"), "11_iron_under_ash"),
-            new Beat("sel", "Sel: the Resonance Primer, and Tavar's story - The Three Quiet Stones begins", 2_000, TalkToSel, "12_sel"),
-            new Beat("primer", "The primer read: three formulas known", 300, ReadThePrimer),
+            new Beat("sel", "Sel: her field notes, and Tavar's story - The Three Quiet Stones begins", 2_000, TalkToSel, "12_sel"),
+            new Beat("primer", "The field notes read: what they teach is known", 300, ReadSelsBook),
             new Beat("foldscar", "The Foldscar path (105, 108) and in", 4_000, () => Travel(ToTheFoldscar)),
             new Beat("north", "The north Quiet Stone turned into line", 1_500, () => Turn("switch.stone_north", ToTheNorthStone), "13_north_stone"),
             new Beat("southwest", "The south-west Quiet Stone turned into line", 2_500, () => Turn("switch.stone_southwest", ToTheSouthWestStone), "14_southwest_stone"),
@@ -392,17 +393,21 @@ public sealed class Playthrough
         return Converse(Sel, "books", "take", "back", "ruin", "tavar", "stones", "back");
     }
 
-    private bool ReadThePrimer()
+    /// <summary>Read the book Sel gave (her field notes since 6c012d2, the primer before): true once every formula it teaches is known.</summary>
+    private bool ReadSelsBook()
     {
         var simulation = _session.Simulation!;
         var magic = _session.Setup.Magic;
         if (simulation.Player.Inventory.FirstOrDefault(e => magic.Teaches.ContainsKey(e.DefId)) is { } book)
         {
+            _taught = magic.Teaches[book.DefId];
             _session.Submit(new UseItemCommand(simulation.PlayerId, book.ItemId));
             return false;
         }
-        return _controller.Formulas().Length == 3;
+        return !_taught.IsDefaultOrEmpty && _taught.All(f => _controller.Formulas().Contains(f));
     }
+
+    private ImmutableArray<string> _taught;
 
     /// <summary>Walk to a switch and work it, facing it: true once its flag is set.</summary>
     private bool Turn(string key, (double X, double Z)[] spot)
