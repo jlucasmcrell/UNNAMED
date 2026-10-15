@@ -1,0 +1,19 @@
+id: quest.bounty.road_wolves
+kind: quest
+schema: 1
+display_key: quest.bounty.road_wolves.name
+tags: [quest, bounty]
+notes: Renn's standing Wayhold bounty - a repeatable cull, paid the moment the third wolf falls (a kill count is a hard count, AG-5; the wolves around both settlements now return).
+title: Wolves on the Road
+summary: The Wayhold pays for every three wolves taken off the road. Renn keeps the tally.
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_cull
+objectives:
+  - id: o_cull
+    type: kill_creature
+    description: Kill three grey wolves anywhere along the road.
+    params: { creature_ref: creature.beast.wolf_grey, count: 3 }
+rewards:
+  - { kind: xp, amount: 60 }
+  - { kind: currency, amount: 15 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

@@ -1,0 +1,19 @@
+id: quest.bounty.crag_walker
+kind: quest
+schema: 1
+display_key: quest.bounty.crag_walker.name
+tags: [quest, bounty]
+notes: Durn's night bounty on the crag walker (spawn.cairnwold.crag_walker), which only walks after dark; any bone-walker husk counts.
+title: What Walks the Crags
+summary: Durn will pay for whatever walks the foot of the south crags at night - or for any husk put down.
+giver_ref: npc.cairnwold.durn_skell
+entry_objective: o_put_down
+objectives:
+  - id: o_put_down
+    type: kill_creature
+    description: Put down a bone-walker husk - the crag walker comes out after dark.
+    params: { creature_ref: creature.undead.bone_walker_husk, count: 1 }
+rewards:
+  - { kind: xp, amount: 80 }
+  - { kind: currency, amount: 20 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

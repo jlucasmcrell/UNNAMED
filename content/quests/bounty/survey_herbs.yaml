@@ -1,0 +1,19 @@
+id: quest.bounty.survey_herbs
+kind: quest
+schema: 1
+display_key: quest.bounty.survey_herbs.name
+tags: [quest, bounty]
+notes: Canon firstplay survey_herbs, ported with woundmoss (the Charwood herb patch, now gatherable) in place of ashbloom, which belongs to Mara's bog quest.
+title: Leaves for the Survey
+summary: Two handfuls of woundmoss for Sel to compare with the moss she pressed last season.
+giver_ref: npc.ashen_hollow.sel_arien
+entry_objective: o_deliver
+objectives:
+  - id: o_deliver
+    type: deliver_item
+    description: Bring 2 woundmoss to Sel Arien.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, item_ref: item.material.herb_woundmoss, count: 2 }
+rewards:
+  - { kind: xp, amount: 20 }
+  - { kind: currency, amount: 6 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

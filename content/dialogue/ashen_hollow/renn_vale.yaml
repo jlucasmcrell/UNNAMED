@@ -47,6 +47,9 @@ nodes:
           - { kind: visited, node: work }
           - { kind: visited, node: personal, not: true }
         next: personal
+      - id: notices
+        text: "Anything posted for the road?"
+        next: notices
       - id: leave
         text: "Nothing for now."
   place:
@@ -82,6 +85,47 @@ nodes:
         text: "I'll try to be bound somewhere."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  notices:
+    text: "The Wayhold posts what the road needs and I read it out, since half the road can't. Wolves, timber, the roof. Three wolves off the road and the Wayhold pays. Six lengths of timber and so do I, out of the same purse. It all goes back up in the morning whether anyone's done it or not. Pick one, traveller."
+    choices:
+      - id: take_wolves
+        text: "I'll take the wolf bounty."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.road_wolves, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.road_wolves }]
+        next: wolves_taken
+      - id: take_timber
+        text: "I'll bring timber."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.crossing_timber, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.crossing_timber }]
+        next: timber_taken
+      - id: give_timber
+        text: "Six lengths of timber. Sound."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.crossing_timber, is: active }
+          - { kind: has_item, item_ref: item.material.timber, count: 6 }
+        consequences: [{ command: transfer_item, item_ref: item.material.timber, count: 6, to: npc }]
+        next: timber_paid
+      - id: back
+        text: "Not today."
+        next: again
+  wolves_taken:
+    text: "Three. Anywhere between here and Cairnwold. I don't need ears, tails or a story - I'll hear. The purse opens when the third one's down, not before. Mind your own hide while you're at it."
+    choices:
+      - id: back
+        text: "Three, then."
+        next: again
+  timber_taken:
+    text: "Deadfall, not green wood. There's a sound trunk down east of the yard and more along the road. Green wood warps, the roof leaks, and I'm reading this notice out again. Six lengths. Bring them here."
+    choices:
+      - id: back
+        text: "Six lengths."
+        next: again
+  timber_paid:
+    text: "Sound. That's the north roof, a bed that stays dry and one fewer notice. From the Wayhold, not me - I only hold the purse. Write yourself in the book on the way out."
+    choices:
+      - id: back
+        text: "I will."
+        next: again
 barks:
   - { text: "Bed, meal, roof. Two out of three today. I won't say which." }
   - { text: "Mind the step. Kera fixed it. Kera says." }
@@ -90,3 +134,5 @@ barks:
     conditions: [{ kind: has_item, item_ref: item.material.iron_ore }]
   - text: "Tavar. Good to see you on time."
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  - text: "Three wolves, traveller. The Wayhold counts. So do I."
+    conditions: [{ kind: quest_state, quest_ref: quest.bounty.road_wolves, is: active }]

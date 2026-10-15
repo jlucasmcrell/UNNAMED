@@ -68,6 +68,9 @@ nodes:
           - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
         next: tavar_back
+      - id: survey
+        text: "Does the Survey need anything collected?"
+        next: survey
       - id: leave
         text: "Another time."
   notes:
@@ -137,6 +140,74 @@ nodes:
         text: "I'll remember."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  survey:
+    text: "Yes. Two things, in order of how much I want them. Woundmoss from the Charwood patch - two handfuls; I'm comparing it with last season's and the difference worries me, about two chances in three. And boneleaf from the Foldscar's edge, if you'll go nearer the ring than I will. Note which way the veins run. Exactly. They shouldn't run the way they do."
+    choices:
+      - id: take_moss
+        text: "I'll bring you woundmoss."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.survey_herbs, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.survey_herbs }]
+        next: moss_taken
+      - id: take_boneleaf
+        text: "I'll bring boneleaf."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.wrong_leaves, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.wrong_leaves }]
+        next: boneleaf_taken
+      - id: give_moss
+        text: "Two handfuls of woundmoss."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.survey_herbs, is: active }
+          - { kind: has_item, item_ref: item.material.herb_woundmoss, count: 2 }
+        consequences: [{ command: transfer_item, item_ref: item.material.herb_woundmoss, count: 2, to: npc }]
+        next: moss_paid
+      - id: give_boneleaf
+        text: "Two boneleaf, from the Foldscar."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.wrong_leaves, is: active }
+          - { kind: has_item, item_ref: item.material.boneleaf, count: 2 }
+        consequences: [{ command: transfer_item, item_ref: item.material.boneleaf, count: 2, to: npc }]
+        next: boneleaf_paid
+      - id: salve
+        text: "Can you teach me to make a salve?"
+        conditions: [{ kind: visited, node: salve_lesson, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.herbal.salve_minor }
+        next: salve_lesson
+      - id: back
+        text: "Not today."
+        next: again
+  moss_taken:
+    text: "North side of the trunks, in the patch past the standing beams. Two handfuls. Don't wash it - washing it changes it, and then I'm measuring you, not the moss."
+    choices:
+      - id: back
+        text: "Unwashed."
+        next: again
+  boneleaf_taken:
+    text: "The pale bushes round the Foldscar's rim. There's a spider that considers the east side hers. I'd put her claim at three in three. Go round."
+    choices:
+      - id: back
+        text: "I'll go round."
+        next: again
+  moss_paid:
+    text: "Thank you. Thinner than last season's - recently, I mean; thirty years or so. That's the worrying part. Here. The Survey pays eventually. I pay now."
+    choices:
+      - id: back
+        text: "Thank you."
+        next: again
+  boneleaf_paid:
+    text: "The veins run outward from the tip. Of course they do. I'll write it down, and nobody will read it, and it will still be true. Take this."
+    choices:
+      - id: back
+        text: "It's true, then."
+        next: again
+  salve_lesson:
+    text: "Two handfuls of woundmoss worked into fat over a fire - any fire; the yard's will do - and a pinch of cotton-grass lint to bind it. It won't mend a bone. It will stop the bleeding while you walk back here to have the bone set. That's three things, in order. Don't improve them."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Moss, fat, lint."
+        next: again
 barks:
   - { text: "Two chances in three. No - three in five. Hm." }
   - { text: "Don't mind me. I'm measuring the stones' shadows. They're late." }
@@ -145,3 +216,5 @@ barks:
     conditions: [{ kind: visited, node: notes_given }]
   - text: "Tavar. Mind the ground for them the way you minded it for me."
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+  - text: "Woundmoss, two handfuls. Unwashed. Exactly that."
+    conditions: [{ kind: quest_state, quest_ref: quest.bounty.survey_herbs, is: active }]

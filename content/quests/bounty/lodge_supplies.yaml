@@ -1,0 +1,19 @@
+id: quest.bounty.lodge_supplies
+kind: quest
+schema: 1
+display_key: quest.bounty.lodge_supplies.name
+tags: [quest, bounty]
+notes: 'Canon firstplay lodge_supplies, ported: meat from hares, hens, deer, grazers or wolves.'
+title: For the Pot
+summary: Two portions of meat for the lodge pot. Tam counts them in.
+giver_ref: npc.cairnwold.tam_crowden
+entry_objective: o_deliver
+objectives:
+  - id: o_deliver
+    type: deliver_item
+    description: Bring 2 portions of raw meat to Tam Crowden.
+    params: { npc_ref: npc.cairnwold.tam_crowden, item_ref: item.material.raw_meat, count: 2 }
+rewards:
+  - { kind: xp, amount: 15 }
+  - { kind: currency, amount: 5 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

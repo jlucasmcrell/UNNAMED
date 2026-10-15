@@ -1,0 +1,19 @@
+id: quest.bounty.crossing_timber
+kind: quest
+schema: 1
+display_key: quest.bounty.crossing_timber.name
+tags: [quest, bounty]
+notes: 'Canon firstplay crossing_timber, ported: the deadfall east of the waystation and along the road is renewable (node.wood.deadfall).'
+title: A Dry Roof
+summary: Sound timber for the waystation roofs - six lengths of deadfall to Renn.
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_deliver
+objectives:
+  - id: o_deliver
+    type: deliver_item
+    description: Bring 6 rough timber to Renn Vale.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, item_ref: item.material.timber, count: 6 }
+rewards:
+  - { kind: xp, amount: 25 }
+  - { kind: currency, amount: 8 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

@@ -98,6 +98,9 @@ nodes:
       - id: trade
         text: "What do you have for sale?"
         consequences: [{ command: open_service, service: trade }]
+      - id: work
+        text: "Need anything brought in?"
+        next: work
       - id: leave
         text: "Nothing today."
   lesson:
@@ -167,6 +170,51 @@ nodes:
         text: "Sounds like a friendship."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  work:
+    text: "Ha! Need anything. Ore, new iron - always ore. The seam's finite and I'm not. Two lumps from wherever you find them: the shelf, the old spoil heaps, those rotten crags past Cairnwold. And stop wasting arrows - I'll show you how to make your own."
+    choices:
+      - id: take_ore
+        text: "Two lumps of ore. I'll bring them."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.shelf_iron, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.shelf_iron }]
+        next: ore_taken
+      - id: give_ore
+        text: "Here's your ore."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.shelf_iron, is: active }
+          - { kind: has_item, item_ref: item.material.iron_ore, count: 2 }
+        consequences: [{ command: transfer_item, item_ref: item.material.iron_ore, count: 2, to: npc }]
+        next: ore_paid
+      - id: fletch
+        text: "Show me how to make arrows."
+        conditions: [{ kind: visited, node: fletching, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.fletching.arrows }
+          - { command: give_recipe, recipe_ref: recipe.fletching.hunting_bow }
+        next: fletching
+      - id: back
+        text: "Later."
+        next: again
+  ore_taken:
+    text: "The spoil at the old cut gives a lump or two a day if you turn it over. Don't you strike the seam for it - that's for real work. Go on. Shoo."
+    choices:
+      - id: back
+        text: "Two lumps."
+        next: again
+  ore_paid:
+    text: "Ha! Rusty, lumpy, perfect. Coin's on the bench - and don't count it in front of me, it's rude."
+    choices:
+      - id: back
+        text: "Thanks, Kera."
+        next: again
+  fletching:
+    text: "Arrows! A smith's afterthought - so think about them after. Split an ash haft into shafts, feather them - hen feathers do, the hens won't miss them - and that's a dozen. A bow's two hafts, a small hide for the grip and a string. Spin the string from the cotton grass in Cairnwold's moss. Or don't, and find out why you should. Bench, not my anvil."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "The bench, then."
+        next: again
 barks:
   - { text: "Ha! Look at that weld. I'm talking to the hinge, not you." }
   - { text: "Hand me the - no. Never mind. Wings are quicker." }
@@ -181,3 +229,5 @@ barks:
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
   - text: "Quiet out east today. Ha. I'll take it."
     conditions: [{ kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet }]
+  - text: "Ore, new iron? Two lumps. I'm not fussy. I'm a bit fussy."
+    conditions: [{ kind: quest_state, quest_ref: quest.bounty.shelf_iron, is: active }]

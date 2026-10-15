@@ -1,0 +1,19 @@
+id: quest.bounty.winter_hides
+kind: quest
+schema: 1
+display_key: quest.bounty.winter_hides.name
+tags: [quest, bounty]
+notes: 'Tam''s hunting bounty: hare and fox pelts (item.material.small_hide).'
+title: Hides for the Winter
+summary: Two small hides for the granary loft before the cold. Tam will not say what for; she will pay.
+giver_ref: npc.cairnwold.tam_crowden
+entry_objective: o_deliver
+objectives:
+  - id: o_deliver
+    type: deliver_item
+    description: Bring 2 small hides to Tam Crowden.
+    params: { npc_ref: npc.cairnwold.tam_crowden, item_ref: item.material.small_hide, count: 2 }
+rewards:
+  - { kind: xp, amount: 30 }
+  - { kind: currency, amount: 12 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

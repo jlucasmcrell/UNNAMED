@@ -71,6 +71,9 @@ nodes:
       - id: trade
         text: "What have you got?"
         consequences: [{ command: open_service, service: trade }]
+      - id: work
+        text: "Any work going?"
+        next: work
       - id: leave
         text: "Nothing today."
   lesson:
@@ -116,6 +119,62 @@ nodes:
         text: "I'll tell her you said so."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  work:
+    text: "He doesn't stop hammering. \"Billets.\" A while later: \"Fresh. Not from your pack.\" He points the hammer south, at the crags, and holds it there. \"After dark. Put it down.\" Then at the bench by the south wall. \"Hides. If you want.\""
+    choices:
+      - id: take_billet
+        text: "I'll smelt you a billet."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.moor_billets, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.moor_billets }]
+        next: billet_taken
+      - id: give_billet
+        text: "One billet. Fresh."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.moor_billets, is: active }
+          - { kind: has_item, item_ref: item.material.iron_ingot, count: 1 }
+        consequences: [{ command: transfer_item, item_ref: item.material.iron_ingot, count: 1, to: npc }]
+        next: billet_paid
+      - id: take_walker
+        text: "I'll go and look at your crags after dark."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.crag_walker, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.crag_walker }]
+        next: walker_taken
+      - id: hides
+        text: "Show me how to work hides."
+        conditions: [{ kind: visited, node: hide_lesson, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_cap }
+          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_vest }
+        next: hide_lesson
+      - id: back
+        text: "Not now."
+        next: again
+  billet_taken:
+    text: "\"Smelt it. Then bring it.\" He looks at you once. \"I will know.\""
+    choices:
+      - id: back
+        text: "You will."
+        next: again
+  billet_paid:
+    text: "He turns the billet over once. \"Hinge.\" Coin on the anvil's edge."
+    choices:
+      - id: back
+        text: "A hinge, then."
+        next: again
+  walker_taken:
+    text: "\"East of the seam. Foot of the crags.\" The hammer stops. \"It does not hurry.\" It starts again. \"Neither do you.\""
+    choices:
+      - id: back
+        text: "I'll take a light."
+        next: again
+  hide_lesson:
+    text: "He hands you a hide without looking. \"Wolf and a small pelt. Cap.\" Another. \"Two wolves, one deer. Vest.\" He points at the bench. \"There. Not my anvil.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Not your anvil."
+        next: again
 barks:
   - { text: "Mind the sparks." }
   - { text: "Hm." }
@@ -126,3 +185,5 @@ barks:
     conditions:
       - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, is: active }
       - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, objective: o_ore, is: satisfied, not: true }
+  - text: "East. After dark."
+    conditions: [{ kind: quest_state, quest_ref: quest.bounty.crag_walker, is: active }]

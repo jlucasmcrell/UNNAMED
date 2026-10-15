@@ -51,6 +51,9 @@ nodes:
           - { kind: has_item, item_ref: item.material.wolf_hide }
           - { kind: visited, node: wolves, not: true }
         next: wolves
+      - id: work
+        text: "Is there anything you're short of?"
+        next: work
       - id: leave
         text: "Just passing."
   moor:
@@ -91,6 +94,68 @@ nodes:
         text: "I'll keep at it."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  work:
+    text: "Short of - sorry, yes, I know exactly. Meat for the lodge pot, two portions, from anything with legs, though not - well. Small hides for the loft, two, before the cold, and I'd like them before, not after, after's no good. And you can cook what you catch, you know. There's a fire by the south wall. It isn't cooking. It'll do."
+    choices:
+      - id: take_pot
+        text: "I'll bring meat for the pot."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.lodge_supplies, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.lodge_supplies }]
+        next: pot_taken
+      - id: take_hides
+        text: "I'll bring you two hides."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.winter_hides, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.winter_hides }]
+        next: hides_taken
+      - id: give_meat
+        text: "Two portions of meat."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.lodge_supplies, is: active }
+          - { kind: has_item, item_ref: item.material.raw_meat, count: 2 }
+        consequences: [{ command: transfer_item, item_ref: item.material.raw_meat, count: 2, to: npc }]
+        next: counted
+      - id: give_hides
+        text: "Two small hides."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.bounty.winter_hides, is: active }
+          - { kind: has_item, item_ref: item.material.small_hide, count: 2 }
+        consequences: [{ command: transfer_item, item_ref: item.material.small_hide, count: 2, to: npc }]
+        next: counted
+      - id: cook
+        text: "Show me the fire, then."
+        conditions: [{ kind: visited, node: cooking, not: true }]
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.cooking.roast_meat }
+        next: cooking
+      - id: back
+        text: "Nothing today."
+        next: again
+  pot_taken:
+    text: "Two portions. Hares on the moor, if you're quick. Hens, if you're not, and then we'll talk about the hens. There are five. There were six. I've counted."
+    choices:
+      - id: back
+        text: "Not the hens."
+        next: again
+  hides_taken:
+    text: "Hare or fox. Not wolf - it stinks the loft out, and anyway the wolf ones I keep on the other stick. Two. Two is the number."
+    choices:
+      - id: back
+        text: "Hare or fox."
+        next: again
+  counted:
+    text: "One, two. Counted. And again - one, two. Counted twice. Here, that's yours, I counted that too."
+    choices:
+      - id: back
+        text: "Thanks, Tam."
+        next: again
+  cooking:
+    text: "Meat on a stick, over the fire by the south wall. Turn it. Don't burn it. That's - that's three things. Turn it, don't burn it, and eat it. That's the whole of it, and you'd be surprised how many don't."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Turn it."
+        next: again
 barks:
   - { text: "Fourteen, fifteen... sixteen? Sixteen. Hm." }
   - { text: "In, and out, and in. Good. Good." }
@@ -101,3 +166,5 @@ barks:
     conditions: [{ kind: visited, node: halda }]
   - text: "Wolf hide. From the north slope? ...One fewer, then."
     conditions: [{ kind: has_item, item_ref: item.material.wolf_hide }]
+  - text: "Two hides. Hare or fox. Two. Two is the number."
+    conditions: [{ kind: quest_state, quest_ref: quest.bounty.winter_hides, is: active }]
