@@ -23,7 +23,11 @@ public sealed record SkeletonRest(IReadOnlyDictionary<string, Transform3D> Bones
 }
 
 
-public sealed record ClipInfo(string Id, bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events);
+public sealed record ClipInfo(string Id, bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events)
+{
+    /// <summary>The ground speed a gait clip is drawn for, or null when its record does not say.</summary>
+    public double? AuthoredSpeed { get; init; }
+}
 
 /// <summary>A world material's maps as loaded (mipmapped), its tile size in metres and its normal strength, for a surface that lays them itself.</summary>
 public sealed record WorldMaps(string Id, Texture2D Albedo, Texture2D? Normal, Texture2D? Orm, float TileSizeM, float NormalStrength);
@@ -834,7 +838,7 @@ public sealed class ArtLibrary
             {
                 // Each field is checked for its kind (the Phase-1 technical audit, H-02): a bad one refuses the record, never throws.
                 if (ArtRecords.Clip(File.ReadAllText(path), out string? why) is { } record)
-                    info = new ClipInfo(id, record.Loop, record.Seconds, record.Events);
+                    info = new ClipInfo(id, record.Loop, record.Seconds, record.Events) { AuthoredSpeed = record.AuthoredSpeed };
                 else
                     Problem(id, $"its clip record cannot be used: {why}");
             }

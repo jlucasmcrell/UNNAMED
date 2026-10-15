@@ -35,6 +35,7 @@ public partial class CreaturesView : Node3D
         bool advanced = simulation.WorldTick != _tick;
         _tick = simulation.WorldTick;
         var views = simulation.Creatures;
+        var eye = GetViewport()?.GetCamera3D()?.GlobalPosition;
         foreach (var creature in views)
         {
             if (!_figures.TryGetValue(creature.Id, out var figure))
@@ -54,6 +55,18 @@ public partial class CreaturesView : Node3D
             }
             if (advanced)
                 figure.Advance(creature.Body);
+            // Far off, a body is neither drawn nor animated; a bigger animal carries further (a hen 90 m, a barrowback 240 m).
+            float reach = CullBaseM + simulation.Setup.Combat.Creatures[creature.DefId].RadiusMm / 1000f * CullPerRadiusM;
+            var feet = HollowView.ToGodot(creature.Body.XMm, creature.Body.YMm, creature.Body.ZMm);
+            if (eye is { } at && feet.DistanceSquaredTo(at) >= reach * reach)
+            {
+                // Still where it stands, for anything that asks where a creature is drawn.
+                figure.Position = feet;
+                figure.Visible = false;
+                figure.ProcessMode = ProcessModeEnum.Disabled;
+                continue;
+            }
+            figure.ProcessMode = ProcessModeEnum.Inherit;
             figure.Pose(creature, (float)alpha, delta);
         }
         // A creature that came back is a new body; the old one's figure goes.
@@ -67,6 +80,8 @@ public partial class CreaturesView : Node3D
             }
         }
     }
+
+    private const float CullBaseM = 72f, CullPerRadiusM = 120f;
 
     private static CreatureFigure Greybox(CreatureDefinition definition)
     {
@@ -380,6 +395,8 @@ internal sealed partial class CreatureFigure : CreatureBody
     {
         (string text, Color colour) = creature switch
         {
+            // Wildlife and the grazers carry no marks unless they turn and fight.
+            { Peaceful: true, Mind: not CreatureMind.Engaged } => ("", Colors.White),
             { Asleep: true } => ("z", new Color(0.75f, 0.8f, 0.9f)),
             { Mind: CreatureMind.Engaged } => ("!", new Color(1f, 0.25f, 0.15f)),
             { Mind: CreatureMind.Suspicious or CreatureMind.Searching } => ("?", new Color(1f, 0.85f, 0.25f)),

@@ -9,7 +9,11 @@ namespace UNNAMED.Presentation.Art;
 public sealed record MaterialRecord(string Basecolor, string? Normal, string? Orm, float TileSizeM, float NormalStrength);
 
 /// <summary>An animation clip's record (<c>animation/clips/anim.&lt;id&gt;.json</c>): whether it loops, how long it runs, and its timed events.</summary>
-public sealed record ClipRecord(bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events);
+public sealed record ClipRecord(bool Loop, double Seconds, IReadOnlyList<(string Id, double Time)> Events)
+{
+    /// <summary>The ground speed a gait clip is drawn for (<c>authored_speed_m_s</c>), or null when the record does not say.</summary>
+    public double? AuthoredSpeed { get; init; }
+}
 
 /// <summary>
 /// The records the asset pipeline writes beside its files, read without trusting them (the Phase-1 technical audit, H-02): every field is
@@ -105,8 +109,15 @@ public static class ArtRecords
                     n++;
                 }
             }
+            double? speed = null;
+            if (root.TryGetProperty("authored_speed_m_s", out var s))
+            {
+                if (s.ValueKind != JsonValueKind.Number || !s.TryGetDouble(out double pace) || !double.IsFinite(pace) || pace <= 0)
+                    return Refuse<ClipRecord>($"authored_speed_m_s is {Describe(s)}, not a speed in metres a second", out problem);
+                speed = pace;
+            }
             problem = null;
-            return new ClipRecord(loop, seconds, events);
+            return new ClipRecord(loop, seconds, events) { AuthoredSpeed = speed };
         }
         catch (JsonException e)
         {

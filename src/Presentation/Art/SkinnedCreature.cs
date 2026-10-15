@@ -33,7 +33,9 @@ public sealed partial class SkinnedCreature : CreatureBody
     {
         if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
             return null;
-        var creature = new SkinnedCreature { _model = model };
+        // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
+        float Pace(string state, float measured) => (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
+        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace), _runPace = Pace("run", RunPace) };
         creature.AddChild(model);
         creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y + 0.4f, 0);
         creature.AddChild(creature._mark);
@@ -114,18 +116,27 @@ public sealed partial class SkinnedCreature : CreatureBody
         // is to bound degenerate speeds, not to decide a real one, so 0.6 clears the boar without loosening anything
         // that matters: run only plays above 2.6 m/s, where 2.6/6.1 = 0.426 is still floored. Nothing else moves -
         // measured, every other in-play species computes above 0.73, so only the boar is affected.
-        else if (speed > 2.6f)
-            _model.Play("run", 0.2f, Mathf.Clamp(speed / 6.1f, 0.6f, 1.5f));
-        else if (speed > 0.3f)
-            _model.Play("walk", 0.2f, Mathf.Clamp(speed / 1.88f, 0.6f, 1.6f));
+        // Small animals keep their own clips' paces (a hen walks at 0.29 m/s): their run starts halfway between the two.
+        else if (speed > Math.Min(2.6f, (_walkPace + _runPace) / 2))
+            _model.Play("run", 0.2f, Mathf.Clamp(speed / _runPace, 0.6f, 1.5f));
+        else if (speed > Math.Min(0.3f, _walkPace / 2))
+            _model.Play("walk", 0.2f, Mathf.Clamp(speed / _walkPace, 0.6f, 1.6f));
         else
             _model.Play("idle", 0.3f);
     }
+
+    /// <summary>The measured paces of the retimed gait clips (see <see cref="Pose"/>).</summary>
+    private const float WalkPace = 1.88f, RunPace = 6.1f;
+
+    private float _walkPace = WalkPace;
+    private float _runPace = RunPace;
 
     private void Mark(CreatureView creature)
     {
         (string text, Color colour) = creature switch
         {
+            // Wildlife and the grazers carry no marks unless they turn and fight.
+            { Peaceful: true, Mind: not CreatureMind.Engaged } => ("", Colors.White),
             { Asleep: true } => ("z", new Color(0.75f, 0.8f, 0.9f)),
             { Mind: CreatureMind.Engaged } => ("!", new Color(1f, 0.25f, 0.15f)),
             { Mind: CreatureMind.Suspicious or CreatureMind.Searching } => ("?", new Color(1f, 0.85f, 0.25f)),
