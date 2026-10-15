@@ -324,8 +324,9 @@ def main():
     staged = lambda name: os.path.join(a.staging, name)
     print(("DRY RUN - nothing is written\n" if a.dry_run else "") + f"{category} -> {root}")
 
-    print("models:")
-    copy_folders("ready", staged("ready"), root, fallback, a, w)
+    if os.path.isdir(staged("ready")):
+        print("models:")
+        copy_folders("ready", staged("ready"), root, fallback, a, w)
     for materials in (staged("materials"), os.path.join(staged("ready"), "materials")):
         if os.path.isdir(materials):
             print(f"materials ({materials}):")

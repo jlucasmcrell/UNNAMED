@@ -2625,5 +2625,40 @@
   },
   "ground_item": {
     "model": "prop_bp_haversack"
+  },
+  "creatures": {
+    "creature.beast.wolf_grey": {
+      "model": "creature_wm_grey_wolf_b",
+      "clips": "creature.creature_wm_grey_wolf_b",
+      "voice": "grey_wolf",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Wolf 1 (fur cards, native bite). Own recorded voice set grey_wolf (was the hound's AI set)."
+    },
+    "creature.beast.ash_ember_hound": {
+      "model": "creature_wm_ember_hound",
+      "clips": "creature.creature_wm_ember_hound",
+      "voice": "ash_ember_hound",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh Hyena, charred coat + emissive ember cracks; bite carried over from SK_Wolf 1."
+    },
+    "creature.beast.bristleback_boar": {
+      "model": "creature_wm_bristleback_boar",
+      "clips": "creature.creature_wm_bristleback_boar",
+      "voice": "bristleback_boar",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "charge"
+      },
+      "note": "WildMesh SK_WildBoar."
+    }
   }
 }
