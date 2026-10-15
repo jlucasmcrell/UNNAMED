@@ -26,9 +26,12 @@ public sealed class VisualAudit
 
     /// <summary>A picture: the camera at an eye (x, height above the ground, z) looking at a target (the same), and the nodes it is of.
     /// With <see cref="Near"/>, the picture is of whichever figure under that group stands nearest the point when it is taken (a creature
-    /// wanders): the eye is then an offset from the figure, its height above the ground, and the target the figure's own height.</summary>
+    /// wanders): the eye is then an offset from the figure, its height above the ground, and the target the figure's own height.
+    /// <see cref="Frames"/> keeps that many consecutive frames of the measured window (raw/&lt;name&gt;_seq/), with the world running, for
+    /// a temporal (flicker) measure; <see cref="Move"/> walks the eye and the target by that offset across those frames. Run it with
+    /// Godot's <c>--fixed-fps 60</c> so the wind steps the same amount every frame however long a frame's readback takes.</summary>
     internal sealed record Shot(string Name, string Sample, (float X, float H, float Z) Eye, (float X, float H, float Z) Target, string[] Targets, string Says,
-        (string Under, float X, float Z)? Near = null, bool Motion = false);
+        (string Under, float X, float Z)? Near = null, bool Motion = false, int Frames = 0, (float X, float H, float Z)? Move = null);
 
     // Gameplay shots at a player's distance: the third-person camera stands 3.5 m behind a body, about 2.65 m up (eye 1.62 m, pitch -0.3).
     /// <summary>The in-world shots (the A/B harness, <see cref="VisualAuditAB"/>, takes the same ones).</summary>
@@ -216,6 +219,13 @@ public sealed class VisualAudit
         _frame++;
         try
         {
+            // A minimised window draws nothing, so every capture after it would be the last frame drawn again. Restore it and
+            // wait rather than photograph a stale frame (a whole flicker sequence came back as one picture repeated).
+            if (DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Minimized)
+            {
+                DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+                return null;
+            }
             if (_frame < WarmupFrames)
                 return null;
             if (_index < _shots.Count)
@@ -272,6 +282,13 @@ public sealed class VisualAudit
             layer.Visible = false;
         var eye = Ground(shot.Eye);
         var target = Ground(shot.Target);
+        if (shot.Move is { } move)
+        {
+            // Still through the settle, then a straight walk across the kept frames.
+            float t = Math.Clamp((_wait - SettleFrames) / (float)Math.Max(shot.Frames, 1), 0f, 1f);
+            eye = Ground((shot.Eye.X + move.X * t, shot.Eye.H + move.H * t, shot.Eye.Z + move.Z * t));
+            target = Ground((shot.Target.X + move.X * t, shot.Target.H + move.H * t, shot.Target.Z + move.Z * t));
+        }
         if (shot.Near is { } near)
         {
             var figure = _root.GetNodeOrNull(near.Under)?.GetChildren().OfType<Node3D>()
@@ -316,7 +333,7 @@ public sealed class VisualAudit
         // capture and the next ordinary shot freezes again.
         if (_hairGlb is null && _auditFreeze)
         {
-            bool wantFrozen = !shot.Motion;
+            bool wantFrozen = !shot.Motion && shot.Frames == 0;
             if (wantFrozen && !_auditFrozen)
             {
                 Engine.TimeScale = 0.0;
@@ -361,7 +378,14 @@ public sealed class VisualAudit
         _last = now;
         _gpu.Add(RenderingServer.ViewportGetMeasuredRenderTimeGpu(viewportRid));
         _cpu.Add(RenderingServer.ViewportGetMeasuredRenderTimeCpu(viewportRid));
-        if (_wait < SettleFrames + MeasureFrames)
+        if (shot.Frames > 0 && _wait - SettleFrames <= shot.Frames)
+        {
+            string sequence = Path.Combine(_raw, shot.Name + "_seq");
+            System.IO.Directory.CreateDirectory(sequence);
+            // DDS, not PNG: uncompressed, so a frame is written in milliseconds rather than half a second, and lossless.
+            _root.GetViewport().GetTexture().GetImage()?.SaveDds(Path.Combine(sequence, $"f{_wait - SettleFrames - 1:000}.dds"));
+        }
+        if (_wait < SettleFrames + Math.Max(MeasureFrames, shot.Frames))
             return;
         _wait = 0;
         if (_hairGlb is not null)
@@ -429,6 +453,10 @@ public sealed class VisualAudit
                 ["vram_mb"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576.0, 1),
                 ["draw_calls"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame), 0),
                 ["primitives"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame), 0),
+                // The main thread's own share of a frame (scripts and the simulation), beside the renderer's cpu/gpu above.
+                ["process_ms"] = Math.Round(Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000, 3),
+                ["physics_process_ms"] = Math.Round(Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000, 3),
+                ["objects"] = Math.Round(Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame), 0),
             },
             ["visual_options"] = VisualOptions.All.ToDictionary(kv => kv.Key, kv => kv.Value),
         };
@@ -596,7 +624,9 @@ public sealed class VisualAudit
                 shots.Add(new Shot(name, "checkpoint", Triple(entry, "eye", name, file), Triple(entry, "target", name, file),
                     targets,
                     entry.TryGetProperty("says", out var says) ? says.GetString()! : string.Empty,
-                    near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True));
+                    near, entry.TryGetProperty("motion", out var m) && m.ValueKind == JsonValueKind.True,
+                    entry.TryGetProperty("frames", out var f) ? f.GetInt32() : 0,
+                    entry.TryGetProperty("move", out _) ? Triple(entry, "move", name, file) : null));
             }
             return shots;
         }
