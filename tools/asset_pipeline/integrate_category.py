@@ -3,12 +3,13 @@
     python integrate_category.py C:\\Otherreach_Recovery\\asset_work\\rocks_terrain [--dry-run] [--replace]
 
 The staging dir is the overhaul layout (docs/restore/OVERHAUL_AGENT_BRIEF.txt):
-  ready\\<id>\\                      converted models (copied without _preview.png); one holding animation\\ is a rigged
-                                   creature, installed as rigged\\<id>\\<id>_rigged.glb plus its clips under animation\\;
+  ready\\<id>\\                      converted models (copied without _preview.png); one holding animation\\ or <id>_rigged.glb
+                                   is a rigged figure, installed as rigged\\<id>\\<id>_rigged.glb plus any clips under animation\\;
                                    ready\\vfx\\* are effect textures, copied into <asset-root>\\vfx\\
   ready\\materials\\<id>\\ or materials\\<id>\\   world/terrain materials
-  bindings_proposed.json           entries for content\\_art_bindings.json (each entry replaced whole, keys of the compiled
-                                   entry it drops written as null; "comment" and "_*" keys skipped)
+  bindings_proposed.json           entries for content\\_art_bindings.json (each entry replaced whole, the compiled entry's
+                                   model dressing it drops - surface, emitters, lights - written as null; "comment" and
+                                   "_*" keys skipped; a block of entries such as people=production merged entry by entry)
   scatter_rules_proposed.json      {"kinds": {kind: {field: value}}} set on content\\_scatter_rules.json (null deletes the field)
   terrain_layers_proposed.json     the nine Terrain3D slots, replacing <asset-root>\\terrain_layers.json
   dressing_proposed.json           {"places_to_add": [...], "replace_model": {old: new}} on <asset-root>\\dressing.json
@@ -36,6 +37,8 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 PACKAGE = r"C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261014"
 BACKUPS = r"C:\Otherreach_Recovery\asset_work\integration\backups"
 REGION = os.path.join("content", "regions", "starting_frontier.yaml")
+# Binding keys that dress a particular model; a replacement entry clears the compiled ones it does not restate.
+MODEL_DRESSING = ("surface", "surface_tint", "emitters", "light", "interior_light", "glow", "glow_energy", "beside", "beside_offset", "offset")
 
 
 class Writer:
@@ -99,7 +102,7 @@ def copy_folders(kind, staged, root, fallback, args, w):
         if excluded(aid, args.exclude):
             print(f"  {kind}/{aid}: excluded")
             continue
-        if kind == "ready" and os.path.isdir(os.path.join(src, "animation")):
+        if kind == "ready" and (os.path.isdir(os.path.join(src, "animation")) or os.path.exists(os.path.join(src, f"{aid}_rigged.glb"))):
             install_rigged(aid, src, root, args, w)
             copied.append(aid)
             continue
@@ -155,7 +158,8 @@ def install_flat(src, dst, args, w):
 
 def install_rigged(aid, src, root, args, w):
     """A skinned model with its clips: <id>.glb -> rigged\\<id>\\<id>_rigged.glb, animation\\** -> <root>\\animation\\** (review PNGs stay)."""
-    pairs = [(os.path.join(src, f"{aid}.glb"), os.path.join(root, "rigged", aid, f"{aid}_rigged.glb")),
+    glb = os.path.join(src, f"{aid}_rigged.glb")
+    pairs = [(glb if os.path.exists(glb) else os.path.join(src, f"{aid}.glb"), os.path.join(root, "rigged", aid, f"{aid}_rigged.glb")),
              (os.path.join(src, f"{aid}_meta.json"), os.path.join(root, "rigged", aid, f"{aid}_meta.json"))]
     for folder, _, files in os.walk(os.path.join(src, "animation")):
         for n in files:
@@ -166,6 +170,37 @@ def install_rigged(aid, src, root, args, w):
     print(f"  rigged/{aid}: {'REPLACED' if clash else 'new'} ({len(pairs) - 2} clip files)")
     for s, d in pairs:
         w.copy(s, d)
+
+
+def merge_section(section, proposed, compiled_section, label, exclude, fields):
+    """Each proposed entry of one bindings section into <section>; a block of entries (people=production) is merged entry by entry."""
+    changes = 0
+    compiled_section = compiled_section if isinstance(compiled_section, dict) else {}
+    for sub, entry in proposed.items():
+        if sub in ("note", "comment") and isinstance(entry, str) and sub in section:
+            continue
+        if any(excluded(m, exclude) for m in models_of(entry)):
+            print(f"  {label}.{sub}: excluded")
+            continue
+        old = section.get(sub)
+        compiled = compiled_section.get(sub)
+        if isinstance(entry, dict) and isinstance(old, dict) and not models_of(entry) and all(isinstance(v, dict) for v in entry.values()):
+            changes += merge_section(old, entry, compiled, f"{label}.{sub}", exclude, fields)
+            continue
+        if fields and isinstance(entry, dict) and isinstance(old, dict):
+            entry = {**old, **entry}
+        elif models_of(entry) and isinstance(compiled, dict):
+            # The overlay merges INTO the compiled entry, so a replaced entry must null the old model's dressing it drops (an
+            # old "surface" would repaint the new model, old emitters float where the old hearth was). Clips and grips stay.
+            entry = {**{k: None for k in compiled if k not in entry and k in MODEL_DRESSING}, **entry}
+        if old == entry:
+            continue
+        what = lambda e: e.get("model") or e.get("models") or e.get("class") or e.get("category") if isinstance(e, dict) else e
+        shadow = " (overrides the compiled binding)" if compiled is not None and old is None else ""
+        print(f"  {label}.{sub}: {'added' if old is None else what(old)} -> {what(entry)}{shadow}")
+        section[sub] = entry
+        changes += 1
+    return changes
 
 
 def merge_bindings(proposal, path, base_path, exclude, fields, w):
@@ -182,28 +217,7 @@ def merge_bindings(proposal, path, base_path, exclude, fields, w):
                 data[key] = value
                 changes += 1
             continue
-        section = data.setdefault(key, {})
-        for sub, entry in value.items():
-            if sub in ("note", "comment") and isinstance(entry, str) and sub in section:
-                continue
-            if any(excluded(m, exclude) for m in models_of(entry)):
-                print(f"  {key}.{sub}: excluded")
-                continue
-            old = section.get(sub)
-            compiled = base.get(key, {}).get(sub) if isinstance(base.get(key), dict) else None
-            if fields and isinstance(entry, dict) and isinstance(old, dict):
-                entry = {**old, **entry}
-            elif models_of(entry) and isinstance(compiled, dict):
-                # The overlay merges INTO the compiled entry, so a replaced entry must null what it drops (an old "surface"
-                # would otherwise repaint the new model).
-                entry = {**{k: None for k in compiled if k not in entry and k != "note"}, **entry}
-            if old == entry:
-                continue
-            what = lambda e: e.get("model") or e.get("models") or e.get("class") or e.get("category") if isinstance(e, dict) else e
-            shadow = " (overrides the compiled binding)" if isinstance(base.get(key), dict) and sub in base[key] and old is None else ""
-            print(f"  {key}.{sub}: {'added' if old is None else what(old)} -> {what(entry)}{shadow}")
-            section[sub] = entry
-            changes += 1
+        changes += merge_section(data.setdefault(key, {}), value, base.get(key), key, exclude, fields)
     if changes:
         w.json(path, data, indent, newline)
     print(f"  {changes} binding entries changed in {path}")

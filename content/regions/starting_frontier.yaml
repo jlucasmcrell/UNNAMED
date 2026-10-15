@@ -147148,9 +147148,9 @@ doors:
   flag_ref: world.cairnwold.forge_shed_door_open
   box_m:
   - 981.3
-  - 678.8
+  - 678.7
   - 982.7
-  - 679.4
+  - 679.1
   height_m: 2.4
 - key: door.granary
   flag_ref: world.cairnwold.granary_door_open
