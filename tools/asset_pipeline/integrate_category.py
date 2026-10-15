@@ -3,13 +3,16 @@
     python integrate_category.py C:\\Otherreach_Recovery\\asset_work\\rocks_terrain [--dry-run] [--replace]
 
 The staging dir is the overhaul layout (docs/restore/OVERHAUL_AGENT_BRIEF.txt):
-  ready\\<id>\\                      converted models (copied without _preview.png)
+  ready\\<id>\\                      converted models (copied without _preview.png); one holding animation\\ is a rigged
+                                   creature, installed as rigged\\<id>\\<id>_rigged.glb plus its clips under animation\\
   ready\\materials\\<id>\\ or materials\\<id>\\   world/terrain materials
   bindings_proposed.json           entries for content\\_art_bindings.json (each entry replaced whole, keys of the compiled
-                                   entry it drops written as null; "comment" skipped)
+                                   entry it drops written as null; "comment" and "_*" keys skipped)
   scatter_rules_proposed.json      {"kinds": {kind: {field: value}}} set on content\\_scatter_rules.json (null deletes the field)
   terrain_layers_proposed.json     the nine Terrain3D slots, replacing <asset-root>\\terrain_layers.json
   dressing_proposed.json           {"places_to_add": [...], "replace_model": {old: new}} on <asset-root>\\dressing.json
+  audio_proposed.json              {"sounds": [V3 rows + action, file_in_staging]} into <asset-root>\\manifests\\playable_prototype_audio_v3.json,
+                                   each file copied to <asset-root>\\<delivered> (--exclude also matches audio ids)
 
 Where each lands is where PLAY.bat reads it: --bindings-overlay and --scatter-rules are content\\ files (edited in the repo,
 then the repo's content\\ is synced into the package's), terrain_layers.json and dressing.json are read from --asset-root only.
@@ -92,6 +95,10 @@ def copy_folders(kind, staged, root, fallback, args, w):
         if excluded(aid, args.exclude):
             print(f"  {kind}/{aid}: excluded")
             continue
+        if kind == "ready" and os.path.isdir(os.path.join(src, "animation")):
+            install_rigged(aid, src, root, args, w)
+            copied.append(aid)
+            continue
         dst = os.path.join(root, kind, aid)
         if os.path.isdir(dst):
             if same_folder(src, dst):
@@ -128,12 +135,28 @@ def models_of(entry):
     return [entry[k] for k in ("model", "spent") if isinstance(entry.get(k), str)] + [m for m in entry.get("models", []) if isinstance(m, str)]
 
 
+def install_rigged(aid, src, root, args, w):
+    """A skinned model with its clips: <id>.glb -> rigged\\<id>\\<id>_rigged.glb, animation\\** -> <root>\\animation\\** (review PNGs stay)."""
+    pairs = [(os.path.join(src, f"{aid}.glb"), os.path.join(root, "rigged", aid, f"{aid}_rigged.glb")),
+             (os.path.join(src, f"{aid}_meta.json"), os.path.join(root, "rigged", aid, f"{aid}_meta.json"))]
+    for folder, _, files in os.walk(os.path.join(src, "animation")):
+        for n in files:
+            pairs.append((os.path.join(folder, n), os.path.join(root, os.path.relpath(os.path.join(folder, n), src))))
+    clash = [d for s, d in pairs if os.path.exists(d) and not filecmp.cmp(s, d, shallow=False)]
+    if clash and not args.replace:
+        sys.exit(f"{clash[0]} exists with different contents; pass --replace to back it up and overwrite it")
+    print(f"  rigged/{aid}: {'REPLACED' if clash else 'new'} ({len(pairs) - 2} clip files)")
+    for s, d in pairs:
+        w.copy(s, d)
+
+
 def merge_bindings(proposal, path, base_path, exclude, w):
     data, indent, newline = load(path)
     base = json.load(open(base_path, encoding="utf-8"))
     changes = 0
     for key, value in proposal.items():
-        if key == "comment" or any(excluded(m, exclude) for m in models_of(value)):
+        # "_pending_owner" and the like are held back by the category agent, not bindings.
+        if key == "comment" or key.startswith("_") or any(excluded(m, exclude) for m in models_of(value)):
             continue
         if not isinstance(value, dict):
             if data.get(key) != value:
@@ -150,7 +173,7 @@ def merge_bindings(proposal, path, base_path, exclude, w):
                 continue
             old = section.get(sub)
             compiled = base.get(key, {}).get(sub) if isinstance(base.get(key), dict) else None
-            if isinstance(entry, dict) and isinstance(compiled, dict):
+            if models_of(entry) and isinstance(compiled, dict):
                 # The overlay merges INTO the compiled entry, so a replaced entry must null what it drops (an old "surface"
                 # would otherwise repaint the new model).
                 entry = {**{k: None for k in compiled if k not in entry and k != "note"}, **entry}
@@ -240,6 +263,33 @@ def merge_dressing(proposal, root, w):
         w.json(path, data, indent, newline)
 
 
+def merge_audio(proposal, staging, root, exclude, w):
+    """audio_proposed.json rows into <root>\\manifests\\playable_prototype_audio_v3.json, each file copied to <root>\\<delivered>."""
+    path = os.path.join(root, "manifests", "playable_prototype_audio_v3.json")
+    data, indent, newline = load(path)
+    rows = {r["audio_id"]: r for r in data["sounds"]}
+    counts = {"replace": 0, "add": 0, "excluded": 0}
+    for sound in proposal["sounds"]:
+        aid = sound["audio_id"]
+        if excluded(aid, exclude):
+            counts["excluded"] += 1
+            continue
+        w.copy(os.path.join(staging, sound["file_in_staging"]), os.path.join(root, sound["delivered"]))
+        row = {k: v for k, v in sound.items() if k not in ("action", "file_in_staging")}
+        if aid in rows:
+            # The generation record (prompts, version) described the replaced file, not this one.
+            old = {k: v for k, v in rows[aid].items() if not k.startswith("prompt") and k not in ("generation_version", "selection_basis")}
+            rows[aid].clear()
+            rows[aid].update({**old, **row})
+            counts["replace"] += 1
+        else:
+            data["sounds"].append(row)
+            rows[aid] = row
+            counts["add"] += 1
+    print(f"  {counts['replace']} replaced, {counts['add']} added, {counts['excluded']} excluded in {path}")
+    w.json(path, data, indent, newline)
+
+
 def sync_content(src, dst, w):
     """The repo's content\\ into the package's: files that differ or are missing (nothing is deleted)."""
     count = 0
@@ -295,6 +345,9 @@ def main():
     if os.path.exists(staged("dressing_proposed.json")):
         print("dressing:")
         merge_dressing(json.load(open(staged("dressing_proposed.json"), encoding="utf-8")), root, w)
+    if os.path.exists(staged("audio_proposed.json")):
+        print("audio manifest:")
+        merge_audio(json.load(open(staged("audio_proposed.json"), encoding="utf-8")), a.staging, root, a.exclude, w)
     if not a.no_sync:
         print("content sync:")
         sync_content(content, os.path.join(a.package, "content"), w)

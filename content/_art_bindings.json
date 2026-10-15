@@ -3,36 +3,34 @@
   "structure_prefixes": {
     "cw_birch_": {
       "models": [
-        "cw_birch_a",
-        "cw_birch_b",
-        "cw_birch_c",
-        "cw_birch_d",
-        "cw_birch_e",
-        "cw_birch_f"
+        "flora_bk_birch_tree",
+        "flora_bk_birch_tree",
+        "flora_cos_sourwood_tree_a",
+        "flora_cos_sourwood_tree_c",
+        "flora_cos_green_ash_tree_b"
       ],
       "material": "wood",
       "wind": 0.55,
-      "note": "SIX BIRCHES, NOT TWO - AND THE TWO WERE THE SAME TREE. cw_birch_a and cw_birch_b both measured 5.08 x 5.15 x 9.54 m, so the ArtBindings hash was choosing between twins and the region's 90 birch placements read as one tree repeated. That is the owner's complaint measured rather than asserted. Six variants now span 8.06 to 11.46 m: c 8.06, d 8.93, a 9.54, b 10.54, e 10.78, f 11.46. GROWN BY _procgen_tree.py WITH DIFFERENT PARAMETERS, NOT JUST DIFFERENT SEEDS, because seeds alone were measured and were not enough - six seeds spanned 0.56 m of height (six percent), which is invisible at the distance the complaint lives at. --height, --crown-margin, --trunk-radius and --crown-lump now override the species table per run, which took the same six to a 3.40 m spread."
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Real birch scaled 1.1x to 9.24 m (road blockers 9.5 m) + autumn sourwood/ash."
     },
     "cw_pine_": {
       "models": [
-        "cw_pine_a",
-        "cw_pine_b",
-        "cw_pine_c",
-        "cw_pine_d",
-        "cw_pine_e",
-        "cw_pine_f"
+        "flora_ph_fir_tree",
+        "flora_ph_pine_tree",
+        "flora_ph_pine_tree_b"
       ],
       "material": "wood",
       "wind": 0.4,
-      "note": "SIX PINES, NOT TWO, and worse than the birch: cw_pine_a and _b both measured 7.61 x 7.38 x 13.37 m, and ALL SIX SEED-ONLY VARIANTS came out exactly 13.37 m tall - a spread of ZERO, because the species table pins the height and a seed only re-rolls the branches inside it. With --height overriding that table the six now span 11.82 to 15.54 m: c 11.82, d 12.80, a 13.37, b 14.03, e 14.50, f 15.54. 55 placements draw from them."
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Poly Haven conifers, 14.9-20.4 m (blockers 13.0 m)."
     },
     "cw_dead_": {
       "models": [
-        "cw_dead_trunk_b"
+        "flora_cos_dead_ash_tree",
+        "flora_cos_sourwood_tree_e"
       ],
       "material": "wood",
-      "wind": 0.2
+      "wind": 0.2,
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Both >= 8.4 m wide so the three 3.1 m blockers fit."
     },
     "cw_wall_": {
       "models": [
@@ -171,6 +169,23 @@
       "material": "stone",
       "yaw_spread": 24.0,
       "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): closed Cosmos Big Rock 02 on end, replacing the squashed mountainside shell; fits all 20 (gap <= 0.74)."
+    },
+    "tree_": {
+      "models": [
+        "flora_cos_green_ash_tree_a",
+        "flora_cos_green_ash_tree_a",
+        "flora_cos_green_ash_tree_b",
+        "flora_cos_green_ash_tree_b",
+        "flora_cos_pine_a",
+        "flora_cos_pine_b",
+        "flora_cos_sourwood_tree_a",
+        "flora_cos_sourwood_tree_d",
+        "flora_cos_dead_ash_tree",
+        "flora_ph_fir_tree"
+      ],
+      "material": "wood",
+      "wind": 1.0,
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Replaces the procedural oak/pine/dead set; all >= 11.9 m, trunk within 0.53 m of box centre."
     }
   },
   "building_walls": {
@@ -900,52 +915,52 @@
       "material": "stone"
     },
     "cw_pine_road_009": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_fir_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_018": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_pine_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_027": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_fir_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_036": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_pine_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_045": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_fir_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_054": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_pine_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_063": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_fir_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "cw_pine_road_072": {
-      "model": "flora_ph_fir_tree_c_4k",
+      "model": "flora_ph_pine_tree",
       "material": "wood",
       "wind": 0.4,
-      "note": "STAGED native 4K CC0 fir variety test; original live binding unchanged"
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
     "rock_waystone": {
       "model": "landmark_ph_waystone_a",
@@ -1133,6 +1148,11 @@
     "rock_blocked_shaft": {
       "model": "prop_bp_blocked_shaft",
       "material": "stone"
+    },
+    "fallen_timber": {
+      "model": "flora_ph_fallen_log",
+      "material": "wood",
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. 7.32 x 0.67 x 0.70 m scanned log."
     }
   },
   "doors": {
@@ -1811,6 +1831,230 @@
         "lod2": 119
       },
       "texture_px": 1024
+    },
+    "flora_bk_birch_tree": {
+      "category": "tree",
+      "dims_m": [
+        6.7988,
+        9.2437,
+        5.8768
+      ],
+      "triangles": 162890,
+      "lods": {
+        "lod1": 88258,
+        "lod2": 39591,
+        "lod3": 16
+      }
+    },
+    "flora_cos_dead_ash_tree": {
+      "category": "tree",
+      "dims_m": [
+        9.7564,
+        12.9591,
+        9.8284
+      ],
+      "triangles": 119999,
+      "lods": {
+        "lod1": 59999,
+        "lod2": 23999,
+        "lod3": 16
+      }
+    },
+    "flora_cos_green_ash_tree_a": {
+      "category": "tree",
+      "dims_m": [
+        12.3522,
+        13.6946,
+        11.5538
+      ],
+      "triangles": 149999,
+      "lods": {
+        "lod1": 76315,
+        "lod2": 31541,
+        "lod3": 16
+      }
+    },
+    "flora_cos_green_ash_tree_b": {
+      "category": "tree",
+      "dims_m": [
+        10.7312,
+        16.1283,
+        10.6814
+      ],
+      "triangles": 150000,
+      "lods": {
+        "lod1": 75796,
+        "lod2": 31038,
+        "lod3": 16
+      }
+    },
+    "flora_cos_pine_a": {
+      "category": "tree",
+      "dims_m": [
+        8.5988,
+        13.3257,
+        12.1774
+      ],
+      "triangles": 150627,
+      "lods": {
+        "lod1": 79964,
+        "lod2": 50514,
+        "lod3": 16
+      }
+    },
+    "flora_cos_pine_b": {
+      "category": "tree",
+      "dims_m": [
+        9.3358,
+        11.8821,
+        10.69
+      ],
+      "triangles": 150177,
+      "lods": {
+        "lod1": 79578,
+        "lod2": 38198,
+        "lod3": 16
+      }
+    },
+    "flora_cos_sourwood_tree_a": {
+      "category": "tree",
+      "dims_m": [
+        13.5964,
+        14.9941,
+        13.1954
+      ],
+      "triangles": 150000,
+      "lods": {
+        "lod1": 76535,
+        "lod2": 31454,
+        "lod3": 16
+      }
+    },
+    "flora_cos_sourwood_tree_c": {
+      "category": "tree",
+      "dims_m": [
+        7.9706,
+        14.6209,
+        8.0102
+      ],
+      "triangles": 150000,
+      "lods": {
+        "lod1": 75969,
+        "lod2": 30699,
+        "lod3": 16
+      }
+    },
+    "flora_cos_sourwood_tree_d": {
+      "category": "tree",
+      "dims_m": [
+        12.396,
+        13.4871,
+        12.2016
+      ],
+      "triangles": 149999,
+      "lods": {
+        "lod1": 74998,
+        "lod2": 29999,
+        "lod3": 16
+      }
+    },
+    "flora_cos_sourwood_tree_e": {
+      "category": "tree",
+      "dims_m": [
+        8.3922,
+        13.5189,
+        8.7732
+      ],
+      "triangles": 150000,
+      "lods": {
+        "lod1": 75000,
+        "lod2": 29999,
+        "lod3": 16
+      }
+    },
+    "flora_ph_fallen_log": {
+      "category": "environment",
+      "dims_m": [
+        7.3215,
+        0.6964,
+        0.6655
+      ],
+      "triangles": 30000,
+      "lods": {
+        "lod1": 15000,
+        "lod2": 6000,
+        "lod3": 2100
+      }
+    },
+    "flora_ph_fir_tree": {
+      "category": "tree",
+      "dims_m": [
+        6.5378,
+        18.9282,
+        6.4328
+      ],
+      "triangles": 450000,
+      "lods": {
+        "lod1": 293337,
+        "lod2": 133083,
+        "lod3": 16
+      }
+    },
+    "flora_ph_pine_tree": {
+      "category": "tree",
+      "dims_m": [
+        7.601,
+        20.3749,
+        8.3144
+      ],
+      "triangles": 450000,
+      "lods": {
+        "lod1": 241863,
+        "lod2": 106863,
+        "lod3": 16
+      }
+    },
+    "flora_ph_pine_tree_b": {
+      "category": "tree",
+      "dims_m": [
+        7.224,
+        14.8813,
+        7.597
+      ],
+      "triangles": 449999,
+      "lods": {
+        "lod1": 242623,
+        "lod2": 107625,
+        "lod3": 16
+      }
+    },
+    "flora_ph_sapling_stand": {
+      "category": "foliage",
+      "dims_m": [
+        2.919,
+        4.561,
+        4.2944
+      ],
+      "triangles": 29999,
+      "lods": {
+        "lod1": 19126,
+        "lod2": 12994,
+        "lod3": 16
+      }
+    },
+    "flora_ph_tree_stump_a": {
+      "category": "environment",
+      "dims_m": [
+        1.4256,
+        0.5723,
+        1.5902
+      ],
+      "triangles": 20000,
+      "lods": {
+        "lod1": 9999,
+        "lod2": 3999,
+        "lod3": 1400
+      }
     }
   },
   "materials": {
@@ -2310,9 +2554,9 @@
   },
   "nodes": {
     "node.wood.ash_stand": {
-      "model": "flora_young_ash_stand_v5",
-      "spent": "flora_ash_stumps",
-      "note": "STAGED authored young ash coppice; original gather positions, charges, respawn and spent model retained"
+      "model": "flora_ph_sapling_stand",
+      "spent": "flora_ph_tree_stump_a",
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. "
     },
     "node.ore.iron_seam": {
       "model": "node_bp_iron_ore",
