@@ -294,7 +294,7 @@
       "wind": false
     },
     "tufts": {
-      "mesh": "model:flora_ph_grass_medium_c",
+      "mesh": "model:flora_ph_grass_medium_g",
       "max_per_m2": 1.5,
       "chunk_m": 8,
       "lods_m": [
@@ -304,8 +304,8 @@
         30
       ],
       "size": [
-        2.4,
-        3.9
+        3.2,
+        5.0
       ],
       "stiffness": 0.8,
       "fade_m": 45,
@@ -350,10 +350,10 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_ph_grass_medium_01 -> flora_ph_grass_medium_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5, --visual plants=models): Poly Haven grass_medium_01 (CC0), four levels to an impostor card, bending in the wind."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_grass_medium_c -> flora_ph_grass_medium_g (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_ph_grass_medium_01 -> flora_ph_grass_medium_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5, --visual plants=models): Poly Haven grass_medium_01 (CC0), four levels to an impostor card, bending in the wind."
     },
     "blades_a": {
-      "mesh": "model:flora_cos_grass_a",
+      "mesh": "model:flora_ph_grass_medium_e",
       "max_per_m2": 9.0,
       "chunk_m": 8,
       "lods_m": [
@@ -363,8 +363,8 @@
         30
       ],
       "size": [
-        0.85,
-        1.2
+        1.3,
+        1.9
       ],
       "stiffness": 0.6,
       "fade_m": 52,
@@ -410,10 +410,10 @@
       },
       "clear_margin": 0.6,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_gen_grass_a -> flora_cos_grass_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: short turf as geometry blades (tools/asset_pipeline/_procgen_grass_blades.py, project-owned) in place of the crossed-card grass - the densest ground cover."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_grass_a -> flora_ph_grass_medium_e (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_gen_grass_a -> flora_cos_grass_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: short turf as geometry blades (tools/asset_pipeline/_procgen_grass_blades.py, project-owned) in place of the crossed-card grass - "
     },
     "blades_b": {
-      "mesh": "model:flora_cos_grass_d",
+      "mesh": "model:flora_ph_grass_medium_d",
       "max_per_m2": 5.0,
       "chunk_m": 8,
       "lods_m": [
@@ -423,8 +423,8 @@
         30
       ],
       "size": [
-        1.6,
-        2.5
+        2.6,
+        3.8
       ],
       "stiffness": 0.55,
       "fade_m": 52,
@@ -470,10 +470,10 @@
       },
       "clear_margin": 0.8,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_gen_grass_b -> flora_cos_grass_d (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: meadow grass as geometry blades."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_grass_d -> flora_ph_grass_medium_d (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_gen_grass_b -> flora_cos_grass_d (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: meadow grass as geometry blades."
     },
     "blades_c": {
-      "mesh": "model:flora_cos_moor_grass_b",
+      "mesh": "model:flora_ph_grass_medium_h",
       "max_per_m2": 1.2,
       "chunk_m": 8,
       "lods_m": [
@@ -483,8 +483,8 @@
         30
       ],
       "size": [
-        0.7,
-        1.05
+        1.6,
+        2.5
       ],
       "stiffness": 0.45,
       "fade_m": 52,
@@ -526,7 +526,7 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_gen_grass_c -> flora_cos_moor_grass_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: tall wispy grass as geometry blades, in drifts."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_moor_grass_b -> flora_ph_grass_medium_h (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_gen_grass_c -> flora_cos_moor_grass_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: tall wispy grass as geometry blades, in drifts."
     },
     "blades_d": {
       "mesh": "model:flora_cos_grass_c",
@@ -572,7 +572,7 @@
       },
       "clear_margin": 0.6,
       "off_path": false,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_gen_grass_d -> flora_cos_grass_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: dry straw-coloured grass as geometry blades, on worked ground, gravel and the paths' verges."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_grass_c -> flora_cos_grass_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_gen_grass_d -> flora_cos_grass_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B remediation: dry straw-coloured grass as geometry blades, on worked ground, gravel and the paths' verges."
     },
     "ah_nettles": {
       "mesh": "model:flora_ph_nettle",
@@ -610,7 +610,7 @@
       },
       "clear_margin": 1.2,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_ph_nettle_plant -> flora_ph_nettle (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5): Poly Haven nettle_plant (CC0) in colonies on the wet, disturbed ground; stiffer than the grass."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_nettle -> flora_ph_nettle (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_ph_nettle_plant -> flora_ph_nettle (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5): Poly Haven nettle_plant (CC0) in colonies on the wet, disturbed ground; stiffer than the grass."
     },
     "ah_ferns": {
       "mesh": "model:flora_cos_lady_fern_a",
@@ -640,7 +640,7 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_ph_fern_02 -> flora_cos_lady_fern_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5): Poly Haven fern_02 (CC0) round the trees' feet."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_lady_fern_a -> flora_cos_lady_fern_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_ph_fern_02 -> flora_cos_lady_fern_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B0.5): Poly Haven fern_02 (CC0) round the trees' feet."
     },
     "litter_a": {
       "mesh": "model:veg_ph_dry_leaves_a",
@@ -765,7 +765,7 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:env_ph_bark_debris_01 -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): shed bark round the trees' feet - Poly Haven bark_debris_01 (CC0), flat enough to walk over."
+      "note": "Vegetation overhaul 2026-10-14: model:env_ph_dry_branch_debris -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:env_ph_bark_debris_01 -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): shed bark round the trees' feet - Poly Haven bark_debris_01 (CC0), flat enough to walk over."
     },
     "dandelions": {
       "mesh": "model:flora_ph_dandelion",
@@ -804,7 +804,7 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_ph_dandelion_01 -> flora_ph_dandelion (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): Poly Haven dandelion_01 (CC0) flowering in drifts over the meadow, on the wind."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_dandelion -> flora_ph_dandelion (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_ph_dandelion_01 -> flora_ph_dandelion (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): Poly Haven dandelion_01 (CC0) flowering in drifts over the meadow, on the wind."
     },
     "brambles": {
       "mesh": "model:flora_cos_bush_b",
@@ -844,7 +844,7 @@
       "only_when": {
         "plants": "models"
       },
-      "note": "Vegetation overhaul 2026-10-14: model:flora_bramble_bush -> flora_cos_bush_b, flora_cos_bush_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: bramble thickets round the Charwood's trees and at its clearings' edges.",
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_bush_b -> flora_cos_bush_b, flora_cos_bush_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_bramble_bush -> flora_cos_bush_b, flora_cos_bush_a (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: bramble thickets round the Charwood's trees and at its clearings' edges.",
       "pool": [
         "model:flora_cos_bush_b",
         "model:flora_cos_bush_a"
@@ -880,7 +880,7 @@
       "only_when": {
         "plants": "models"
       },
-      "note": "Vegetation overhaul 2026-10-14: model:flora_mirrorfern -> flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: the ferns under the Charwood's crowns."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_lady_fern_b -> flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_mirrorfern -> flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: the ferns under the Charwood's crowns."
     },
     "ah_heather": {
       "mesh": "model:flora_heather_patch",
@@ -950,7 +950,7 @@
       "only_when": {
         "plants": "models"
       },
-      "note": "Vegetation overhaul 2026-10-14: model:flora_boneleaf_bush -> flora_ph_shrub_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: the pale boneleaf bushes that grow round the Foldscar (setting flora)."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_shrub_b -> flora_ph_shrub_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_boneleaf_bush -> flora_ph_shrub_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: the pale boneleaf bushes that grow round the Foldscar (setting flora)."
     },
     "reeds": {
       "mesh": "model:flora_cos_moor_grass_b",
@@ -980,7 +980,7 @@
       "only_when": {
         "plants": "models"
       },
-      "note": "Vegetation overhaul 2026-10-14: model:flora_cattail_clump -> flora_cos_moor_grass_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: reeds along the Charwood drainage (Terrain3DView.CharwoodStream)."
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_moor_grass_b -> flora_cos_moor_grass_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_cattail_clump -> flora_cos_moor_grass_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B demo: reeds along the Charwood drainage (Terrain3DView.CharwoodStream)."
     },
     "rock_clusters": {
       "mesh": "model:rock_ph_moss_rock_small_a",
@@ -1021,12 +1021,12 @@
       "wind": false
     },
     "moor_grass": {
-      "mesh": "model:flora_cos_grass_a",
+      "mesh": "model:flora_ph_grass_medium_c",
       "max_per_m2": 16.0,
       "chunk_m": 6,
       "size": [
-        0.8,
-        1.2
+        1.5,
+        2.3
       ],
       "stiffness": 0.85,
       "fade_m": 120.0,
@@ -1080,7 +1080,7 @@
       },
       "clear_margin": 0.25,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:veg_gen_grass_a -> flora_cos_grass_a, flora_cos_grass_b, flora_cos_grass_c, flora_cos_grass_d, flora_cos_moor_grass_b, flora_ph_grass_medium_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Grass. SIX forms drawn one per instance from a pool, so a field is a mix of short turf, medium meadow, wide sprawling clumps and dry straw rather than one clump stamped 255,000 times. Wind on: grass sways. LOD bands pulled in from 0/12/28/55 with fade 65 to 0/7/16/30 with fade 34: measured 87.5 -> 4",
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_grass_a -> flora_ph_grass_medium_c, flora_ph_grass_medium_d, flora_ph_grass_medium_e, flora_ph_grass_medium_f, flora_ph_grass_medium_g, flora_ph_grass_medium_h, flora_cos_grass_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:veg_gen_grass_a -> flora_cos_grass_a, flora_cos_grass_b, flora_cos_grass_c, flora_cos_grass_d, flora_cos_moor_grass_b, flora_ph_grass_medium_c (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Grass. SIX forms drawn one per instance from ",
       "lods_m": [
         0.0,
         10.0,
@@ -1088,12 +1088,13 @@
         48.0
       ],
       "pool": [
-        "model:flora_cos_grass_a",
-        "model:flora_cos_grass_b",
-        "model:flora_cos_grass_c",
-        "model:flora_cos_grass_d",
-        "model:flora_cos_moor_grass_b",
-        "model:flora_ph_grass_medium_c"
+        "model:flora_ph_grass_medium_c",
+        "model:flora_ph_grass_medium_d",
+        "model:flora_ph_grass_medium_e",
+        "model:flora_ph_grass_medium_f",
+        "model:flora_ph_grass_medium_g",
+        "model:flora_ph_grass_medium_h",
+        "model:flora_cos_grass_c"
       ]
     },
     "heather": {
@@ -1161,7 +1162,7 @@
       },
       "clear_margin": 0.8,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:cw_fern_a -> flora_cos_lady_fern_a, flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Rusted autumn ferns, in the birch litter and thickening towards the trunks. Second pass: cut back to litter under the birches.",
+      "note": "Vegetation overhaul 2026-10-14: model:flora_cos_lady_fern_a -> flora_cos_lady_fern_a, flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:cw_fern_a -> flora_cos_lady_fern_a, flora_cos_lady_fern_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Rusted autumn ferns, in the birch litter and thickening towards the trunks. Second pass: cut back to litter under the birches.",
       "wind": true,
       "pool": [
         "model:flora_cos_lady_fern_a",
@@ -1185,7 +1186,7 @@
       },
       "clear_margin": 0.6,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:cw_nettle_a -> flora_ph_nettle, flora_ph_nettle_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Nettles on the disturbed wet ground - the village edge and the drainage, exactly where people have been.",
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_nettle -> flora_ph_nettle, flora_ph_nettle_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:cw_nettle_a -> flora_ph_nettle, flora_ph_nettle_b (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Nettles on the disturbed wet ground - the village edge and the drainage, exactly where people have been.",
       "wind": true,
       "pool": [
         "model:flora_ph_nettle",
@@ -1240,7 +1241,7 @@
         24.0,
         40.0
       ],
-      "note": "Vegetation overhaul 2026-10-14: model:cw_dandelion -> flora_ph_dandelion, flora_ph_celandine (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Wildflowers, sparse: the owner asked for some here and there. Poly Haven dandelion_01 - a temperate species that belongs on rough grazing. The candidate list was filtered on PROVENANCE, not looks: most of Poly Haven's flowering models are Namaqualand desert species (Gazania, Ursinia, Heliophila, Sti"
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_dandelion -> flora_ph_dandelion, flora_ph_celandine (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:cw_dandelion -> flora_ph_dandelion, flora_ph_celandine (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Wildflowers, sparse: the owner asked for some here and there. Poly Haven dandelion_01 - a temperate species that belongs on rough gra"
     },
     "sorrel": {
       "mesh": "model:cw_sorrel",
@@ -1288,7 +1289,7 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:flora_young_ash_stand_v5 -> flora_ph_sapling_stand (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Private model-only ash comparison with material-preserving bark LODs. Density, size, placement, distances and wind=false unchanged. Visual/performance gate pending.",
+      "note": "Vegetation overhaul 2026-10-14: model:flora_ph_sapling_stand -> flora_ph_sapling_stand (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_young_ash_stand_v5 -> flora_ph_sapling_stand (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Private model-only ash comparison with material-preserving bark LODs. Density, size, placement, distances and wind=false unchanged. Visua",
       "wind": false
     }
   }
