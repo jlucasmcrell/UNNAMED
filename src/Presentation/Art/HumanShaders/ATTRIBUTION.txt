@@ -17,3 +17,6 @@ noise, AO, and translucency are disabled unless supplied by a future test.
 The original shader's wrapped diffuse, double specularity, and close-range
 subsurface response remain enabled. Its original SSS depth gate drops to
 zero beyond one meter; this test does not silently change that behavior.
+
+Local change (2026-10-15): skin_shader.gdshader includes res://Art/region_mask.gdshaderinc and calls
+region_mask(VERTEX, UV2) first in vertex(), for the MetaHuman body/garment region masks (Outfit.cs).

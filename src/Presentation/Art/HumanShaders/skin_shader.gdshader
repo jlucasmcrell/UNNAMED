@@ -12,6 +12,8 @@ and is built upon https://github.com/RustyRoboticsBV/GodotStandardLightShader
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx, sss_mode_skin;
 
+#include "res://Art/region_mask.gdshaderinc"
+
 group_uniforms albedo;
 uniform vec4 albedo : source_color = vec4(1.);
 uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;
@@ -80,6 +82,7 @@ varying float smooth_depth;
 varying float sss_tex;
 
 void vertex() {
+	region_mask(VERTEX, UV2);  // before UV2 becomes the detail layer's coordinates
 	UV = UV * uv1_scale.xy + uv1_offset.xy;
 	// Detail UV Layer: UV2
 	UV2 = UV2 * uv2_scale.xy + uv2_offset.xy;

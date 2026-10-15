@@ -103,6 +103,9 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
     /// of the recovery - the simulation's phases are mapped onto these (Phase B remediation); a clip without them uses 0.45 / 0.7 / 1.
     /// </summary>
     public IReadOnlyDictionary<string, float[]> Phases { get; init; } = new Dictionary<string, float[]>();
+
+    /// <summary>The garments worn over the body (rigged asset IDs, each with its <c>_garment.json</c>; <see cref="Outfit"/>), or none.</summary>
+    public IReadOnlyList<string> Outfit { get; init; } = Array.Empty<string>();
 }
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
@@ -330,7 +333,8 @@ public sealed class ArtBindings
                     : new Dictionary<string, CreatureArt>(),
                 People = root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
-                        Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))),
+                        Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
+                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>() }),
                         StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
                 Weapons = root.TryGetProperty("weapons", out var weapons)
@@ -439,6 +443,7 @@ public sealed class ArtBindings
                 OffHand = Text(over, "off_hand") ?? look.OffHand,
                 Grip = Grip(over, "grip") ?? look.Grip,
                 OffGrip = Grip(over, "off_grip") ?? look.OffGrip,
+                Outfit = List(over, "outfit") ?? look.Outfit,
             };
         }
         return look;
@@ -505,6 +510,9 @@ public sealed class ArtBindings
 
     private static Vector3 Vector(JsonElement e) =>
         IsVector(e) ? new((float)e[0].GetDouble(), (float)e[1].GetDouble(), (float)e[2].GetDouble()) : throw new FormatException($"not [x, y, z]: {e.GetRawText()}");
+
+    private static string[]? List(JsonElement e, string name) =>
+        e.TryGetProperty(name, out var list) ? list.EnumerateArray().Select(x => x.GetString()!).ToArray() : null;
 
     private static string? Text(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
