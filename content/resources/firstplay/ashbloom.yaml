@@ -1,0 +1,9 @@
+id: resource.firstplay.ashbloom
+kind: resource
+schema: 1
+display_key: resource.firstplay.ashbloom.name
+tags: [resource]
+name: Ashbloom
+notes: Renewable starting-region gathering; replenishes at the world-day boundary.
+yields:
+  - { item_ref: item.material.herb_ashbloom, count_range: [1, 1] }

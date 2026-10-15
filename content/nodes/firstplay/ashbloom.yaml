@@ -1,0 +1,12 @@
+id: node.firstplay.ashbloom
+kind: node
+schema: 1
+display_key: node.firstplay.ashbloom.name
+tags: [node]
+name: Ashbloom
+notes: A patch of grey-leaf ashbloom in the Sinking Moss, where Mara sends the player for What The Bog Kept - one bloom a day; it grows back at the world-day boundary.
+resource_ref: resource.firstplay.ashbloom
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 1

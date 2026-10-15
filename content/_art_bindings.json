@@ -3169,6 +3169,10 @@
       "model": "node_bp_iron_ore",
       "spent": "node_bp_iron_ore_spent",
       "sound": "mining"
+    },
+    "node.firstplay.ashbloom": {
+      "model": "cw_fern_a",
+      "note": "The Sinking Moss's ashbloom patches (What The Bog Kept): Cairnwold's own fern stands in until an ashbloom model exists."
     }
   },
   "pieces": {

@@ -147303,12 +147303,32 @@ nodes:
   node_ref: node.ore.iron_seam
   position_m:
   - 958.0
-  - 603.0
+  - 604.5
 - name: cairnwold_ash_stand
   node_ref: node.wood.ash_stand
   position_m:
   - 975.0
   - 714.0
+- name: bog_ashbloom_1
+  node_ref: node.firstplay.ashbloom
+  position_m:
+  - 1044
+  - 756
+- name: bog_ashbloom_2
+  node_ref: node.firstplay.ashbloom
+  position_m:
+  - 1060
+  - 775
+- name: bog_ashbloom_3
+  node_ref: node.firstplay.ashbloom
+  position_m:
+  - 1048
+  - 781
+- name: bog_ashbloom_4
+  node_ref: node.firstplay.ashbloom
+  position_m:
+  - 1062
+  - 755
 stations:
 - key: station.forge_hearth
   kind: forge
