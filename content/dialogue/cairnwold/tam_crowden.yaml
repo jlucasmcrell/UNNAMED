@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.cairnwold.tam_crowden.name
 tags: [dialogue]
-notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what he is counting. No quest; the trade-and-moor node.
+notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest; the trade-and-moor node.
 participants: [npc.cairnwold.tam_crowden]
 root_node: greet
 nodes:
