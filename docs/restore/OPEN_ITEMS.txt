@@ -73,6 +73,8 @@ LICENCE DECISIONS (owner)
 [ ] 29. Confirm Cosmos Premium rights after the subscription ends 2027-01-06 (models, sounds incl. boar, Hyper Combat).
 [ ] 30. Purchase list for the 729 Unity assets (F:\Otherreach_External_Assets\Assets) incl. flagged "Fantasy Horde - Trolls (webrip)";
         Megascans spruce; Fab UE-only lines; Stylescape items (skull ward, cattails); WildMesh RDR2-named textures.
+[x] 30a. Fab packs in use are all Standard License (none UE-only); owner 2026-10-15: Personal tier fine ($0 revenue), viewing
+        rendered previews is OK; NoAI flag -> never into ComfyUI. See ASSET_REBUILD\FAB_LICENCES.md.
 
 UI (Field Instrument)
 [ ] 31. Owner acceptance of the Field Instrument UI candidate (ui 2026-10-04 10:28 "OWNER REVIEW CANDIDATE READY" - no owner verdict
