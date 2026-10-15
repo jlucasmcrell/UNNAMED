@@ -76,7 +76,7 @@ nodes:
       - id: steadied
         text: "The Foldscar's gone quiet."
         conditions:
-          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar }
+          - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet }   # Tavar is free only once the fold is quiet
           - { kind: visited, node: steadied, not: true }
         consequences:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: quieted_the_fold }
@@ -84,7 +84,7 @@ nodes:
       - id: foldscar
         text: "Have you been out to the Foldscar?"
         conditions:
-          - { kind: world_state, flag_ref: world.foldscar.steadied, location_ref: location.foldscar, min: 0, max: 0 }
+          - { kind: visited, dialogue_ref: dialogue.ashen_hollow.tavar_orr, node: greet, not: true }
           - { kind: visited, node: foldscar, not: true }
         next: foldscar
       - id: wings
