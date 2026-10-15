@@ -115,3 +115,14 @@ nodes:
       - id: back
         text: "I'll tell her you said so."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Mind the sparks." }
+  - { text: "Hm." }
+  - { text: "Anvil is mine." }
+  - text: "Spear holding?"
+    conditions: [{ kind: visited, node: praised }]
+  - text: "West end. Not east."
+    conditions:
+      - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, is: active }
+      - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, objective: o_ore, is: satisfied, not: true }

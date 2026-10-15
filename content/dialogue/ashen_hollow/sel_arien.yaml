@@ -136,3 +136,12 @@ nodes:
       - id: back
         text: "I'll remember."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Two chances in three. No - three in five. Hm." }
+  - { text: "Don't mind me. I'm measuring the stones' shadows. They're late." }
+  - { text: "If you saw something odd on the road, I want it exactly. Don't improve it." }
+  - text: "Read them yet? Tell me exactly what it felt like."
+    conditions: [{ kind: visited, node: notes_given }]
+  - text: "Tavar. Mind the ground for them the way you minded it for me."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]

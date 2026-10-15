@@ -81,3 +81,12 @@ nodes:
       - id: back
         text: "I'll try to be bound somewhere."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Bed, meal, roof. Two out of three today. I won't say which." }
+  - { text: "Mind the step. Kera fixed it. Kera says." }
+  - { text: "Traveller. Still in one piece? Good. Keep it that way." }
+  - text: "Ore? Kera's at the anvil. She'll be unbearable about it."
+    conditions: [{ kind: has_item, item_ref: item.material.iron_ore }]
+  - text: "Tavar. Good to see you on time."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]

@@ -89,3 +89,12 @@ nodes:
       - id: back
         text: "Sensible."
         next: again
+# Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+barks:
+  - { text: "Brown again. Of course it is." }
+  - { text: "Everyone says the well. Everyone's wrong." }
+  - { text: "Mind the rope. No - the other rope." }
+  - text: "Three ashbloom. Grey leaf. Wettest ground. Off you go."
+    conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, objective: o_return, is: active }]
+  - text: "Still brown. Still right. Still hate it."
+    conditions: [{ kind: visited, node: told }]

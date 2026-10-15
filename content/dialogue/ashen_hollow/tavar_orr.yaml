@@ -115,3 +115,16 @@ nodes:
     choices:
       - id: ok
         text: "This way."
+# Said in passing, unprompted, when the character comes near (the bark patch). Every line waits until he is free: before then he stands
+# in the fold and says nothing to anyone.
+barks:
+  - text: "Still here. Still on time."
+    conditions: [{ kind: visited, node: greet }]
+  - text: "That sounded like it came from the left. Was it the left?"
+    conditions: [{ kind: visited, node: greet }]
+  - text: "Mud. Honest stuff, mud."
+    conditions: [{ kind: visited, node: greet }]
+  - text: "Behind you. Give or take."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: follow }]
+  - text: "Waiting. I'm good at it now. Had practice."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
