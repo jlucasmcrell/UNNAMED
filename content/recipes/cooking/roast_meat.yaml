@@ -1,0 +1,15 @@
+id: recipe.cooking.roast_meat
+kind: recipe
+schema: 1
+display_key: recipe.cooking.roast_meat.name
+tags: [recipe]
+name: Roast Meat
+notes: Raw meat over the fire. Tam will tell you it is not cooking; it will still feed you.
+station: cookfire
+skill_ref: skill.survival
+complexity: 0
+inputs:
+  - { item_ref: item.material.raw_meat, count: 1 }
+outputs:
+  - { item_ref: item.consumable.roast_meat, count: 1, quality_roll: false }
+xp_award: { xp: 10 }       # level XP for the first only (AG-7)

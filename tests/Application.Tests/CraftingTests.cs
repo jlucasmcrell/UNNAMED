@@ -82,8 +82,14 @@ public class CraftingTests
         using var profile = new TempProfile();
         var simulation = Harness.Boot(profile).NewGame("Tester", seed: 42);
 
-        Assert.Equal(new[] { "ash_stand", "bog_ashbloom_1", "bog_ashbloom_2", "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_iron_seam", "iron_seam" },
-            simulation.Nodes.Select(n => n.Name).OrderBy(n => n, StringComparer.Ordinal));
+        Assert.Equal(new[]
+            {
+                "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
+                "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
+                "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2", "foldscar_boneleaf_1", "foldscar_boneleaf_2", "foldscar_boneleaf_3",
+                "hollow_ash_stand_2", "hollow_woundmoss_1", "hollow_woundmoss_2", "hollow_woundmoss_3", "iron_seam", "moor_deadfall_1", "moor_deadfall_2",
+                "moss_cotton_1", "moss_cotton_2", "moss_cotton_3", "road_deadfall", "road_woundmoss",
+            }, simulation.Nodes.Select(n => n.Name).OrderBy(n => n, StringComparer.Ordinal));
         var nodes = simulation.Nodes.Where(n => n.Name is "ash_stand" or "iron_seam").OrderBy(n => n.Name, StringComparer.Ordinal).ToList();
         Assert.All(nodes, n => Assert.True(n.Ready));
         Assert.Equal(("node.wood.ash_stand", Haft, 580_000L, 738_000L), (nodes[0].NodeDefId, nodes[0].ItemId, nodes[0].XMm, nodes[0].ZMm));
@@ -92,7 +98,7 @@ public class CraftingTests
         {
             // The generator's, so a save proves the node's cell against it like any other baseline.
             var cell = CellKey.OfWorld(node.XMm / 1000.0, node.ZMm / 1000.0);
-            Assert.Equal(node.Key, Assert.Single(simulation.World.Baseline(cell).Nodes).NodeKey);
+            Assert.Contains(node.Key, simulation.World.Baseline(cell).Nodes.Select(n => n.NodeKey));
         }
     }
 

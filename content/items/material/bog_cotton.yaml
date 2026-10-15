@@ -1,0 +1,12 @@
+id: item.material.bog_cotton
+kind: item
+schema: 1
+display_key: item.material.bog_cotton.name
+tags: [item]
+name: Bog Cotton
+notes: The white heads of the cotton grass in the Sinking Moss (canon the_bog) - spun for a bowstring, or lint for a dressing.
+category: material
+stack_max: 20
+weight: 0.02
+value_base: 2
+rarity: common

@@ -1,0 +1,9 @@
+id: resource.wood.deadfall
+kind: resource
+schema: 1
+display_key: resource.wood.deadfall.name
+tags: [resource]
+name: Sound Deadfall
+notes: Renews at the world-day boundary (canon firstplay deadfall).
+yields:
+  - { item_ref: item.material.timber, count_range: [6, 6] }

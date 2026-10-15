@@ -1,0 +1,12 @@
+id: item.material.herb_woundmoss
+kind: item
+schema: 1
+display_key: item.material.herb_woundmoss.name
+tags: [item]
+name: Woundmoss
+notes: Old-forest moss off the north side of trees (canon WORLD_MATERIALS) - packed into a cut, it stops the bleeding; with lint, a salve.
+category: material
+stack_max: 20
+weight: 0.05
+value_base: 3
+rarity: common

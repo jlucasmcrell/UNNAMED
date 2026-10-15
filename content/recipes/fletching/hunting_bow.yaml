@@ -1,0 +1,17 @@
+id: recipe.fletching.hunting_bow
+kind: recipe
+schema: 1
+display_key: recipe.fletching.hunting_bow.name
+tags: [recipe]
+name: Hunting Bow
+notes: Canon's field bow (two ash hafts and a small hide for the grip) strung with spun bog cotton. A fine one hits harder.
+station: workbench
+skill_ref: skill.survival
+complexity: 6
+inputs:
+  - { item_ref: item.material.ash_haft, count: 2 }
+  - { item_ref: item.material.small_hide, count: 1 }
+  - { item_ref: item.material.bog_cotton, count: 2 }
+outputs:
+  - { item_ref: item.weapon.hunting_bow, count: 1, quality_roll: true }
+xp_award: { xp: 30 }       # level XP for the first only (AG-7)

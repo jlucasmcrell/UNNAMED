@@ -1,0 +1,13 @@
+id: item.consumable.roast_meat
+kind: item
+schema: 1
+display_key: item.consumable.roast_meat.name
+tags: [item]
+name: Roast Meat
+notes: Meat cooked over a fire - heals 12 over 12 s through effect.fed. The hunt's other half.
+category: consumable
+stack_max: 10
+weight: 0.4
+value_base: 5
+rarity: common
+use: { effect_ref: effect.fed, consume: true }

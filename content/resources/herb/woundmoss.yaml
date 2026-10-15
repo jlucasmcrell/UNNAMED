@@ -1,0 +1,9 @@
+id: resource.herb.woundmoss
+kind: resource
+schema: 1
+display_key: resource.herb.woundmoss.name
+tags: [resource]
+name: Woundmoss
+notes: Renews at the world-day boundary.
+yields:
+  - { item_ref: item.material.herb_woundmoss, count_range: [1, 2] }

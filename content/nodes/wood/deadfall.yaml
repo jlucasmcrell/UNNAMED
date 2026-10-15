@@ -1,0 +1,12 @@
+id: node.wood.deadfall
+kind: node
+schema: 1
+display_key: node.wood.deadfall.name
+tags: [node]
+name: Sound Deadfall
+notes: A fallen trunk still sound enough to cut (canon firstplay deadfall) - six lengths of timber a day.
+resource_ref: resource.wood.deadfall
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 1

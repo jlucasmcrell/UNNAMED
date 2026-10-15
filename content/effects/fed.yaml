@@ -1,0 +1,15 @@
+id: effect.fed
+kind: effect
+schema: 1
+display_key: effect.fed.name
+tags: [effect]
+name: Fed
+notes: A hot meal (roast meat) - 12 health over 12 s, slower and smaller than the salve's mending.
+category: hot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 6.0          # game minutes (config.time): 12 s
+tick_interval_min: 1.0     # 2 s: six ticks of 2
+on_tick:
+  - { type: heal, amount: 2 }
+dispel_category: none

@@ -1,0 +1,16 @@
+id: recipe.fletching.arrows
+kind: recipe
+schema: 1
+display_key: recipe.fletching.arrows.name
+tags: [recipe]
+name: Rough Arrows
+notes: An ash haft split into shafts and fletched with feathers - Kera's Kal way of doing it, a dozen at a time.
+station: workbench
+skill_ref: skill.survival
+complexity: 2
+inputs:
+  - { item_ref: item.material.ash_haft, count: 1 }
+  - { item_ref: item.material.feathers, count: 2 }
+outputs:
+  - { item_ref: item.ammo.arrow_rough, count: 12, quality_roll: false }
+xp_award: { xp: 15 }       # level XP for the first only (AG-7)

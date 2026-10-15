@@ -3173,6 +3173,32 @@
     "node.firstplay.ashbloom": {
       "model": "cw_fern_a",
       "note": "The Sinking Moss's ashbloom patches (What The Bog Kept): Cairnwold's own fern stands in until an ashbloom model exists."
+    },
+    "node.herb.woundmoss": {
+      "model": "cw_fern_a",
+      "spent": "flora_ph_weed_plant",
+      "note": "World life 2026-10-15: a fern clump stands for the moss cushion; picked, a few weeds."
+    },
+    "node.herb.boneleaf": {
+      "model": "flora_boneleaf_bush",
+      "spent": "flora_ph_weed_plant",
+      "note": "World life 2026-10-15: the boneleaf bush (canon wrong flora)."
+    },
+    "node.fibre.bog_cotton": {
+      "model": "flora_cattail_clump",
+      "spent": "flora_ph_weed_plant",
+      "note": "World life 2026-10-15: a reed clump stands in for the cotton grass until a cotton-grass model exists."
+    },
+    "node.wood.deadfall": {
+      "model": "flora_ph_fallen_log",
+      "spent": "flora_ph_tree_stump_b",
+      "note": "World life 2026-10-15: a sound fallen trunk; cut, a stump is left."
+    },
+    "node.ore.loose_iron": {
+      "model": "node_bp_iron_ore",
+      "spent": "node_bp_iron_ore_spent",
+      "sound": "mining",
+      "note": "World life 2026-10-15: loose ore in spoil, the seam's own look."
     }
   },
   "pieces": {
@@ -3223,6 +3249,30 @@
         "size": 0.2,
         "fog_energy": 0.5
       }
+    },
+    "workbench": {
+      "model": "prop_cos_table_tavern_01",
+      "note": "World life 2026-10-15: the bench hides, arrows and bows are made at."
+    },
+    "cookfire": {
+      "model": "prop_ph_stone_fire_pit",
+      "light": {
+        "at": [
+          0.0,
+          0.5,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.5,
+          0.22
+        ],
+        "energy": 1.4,
+        "range": 5.0,
+        "shadows": false,
+        "fog_energy": 0.4
+      },
+      "note": "World life 2026-10-15: a banked fire in a stone ring - roast meat and salves."
     }
   },
   "companion_weapon": {

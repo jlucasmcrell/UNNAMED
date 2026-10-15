@@ -1,0 +1,9 @@
+id: resource.herb.boneleaf
+kind: resource
+schema: 1
+display_key: resource.herb.boneleaf.name
+tags: [resource]
+name: Boneleaf
+notes: Renews at the world-day boundary.
+yields:
+  - { item_ref: item.material.boneleaf, count_range: [1, 1] }

@@ -363,7 +363,8 @@ public class QuestTests
         var session = Harness.Boot(profile);
         var greedy = Broken("quest.test.greedy", "The Greedy Smith", Objective("o_ore", "Bring nine lumps of ore.", new AcquireItem(Ore, 9, Quality.Crude)));
         var rules = WithQuests(session, greedy);
-        rules = rules with { Layout = rules.Layout with { Nodes = rules.Layout.Nodes.Where(n => n.Name != "cairnwold_iron_seam").ToImmutableArray() } };
+        // The only ore is the hollow's seam: Cairnwold's seam and the daily ore spoil are taken out of this world.
+        rules = rules with { Layout = rules.Layout with { Nodes = rules.Layout.Nodes.Where(n => n.Name != "cairnwold_iron_seam" && n.NodeDefId != "node.ore.loose_iron").ToImmutableArray() } };
         var arena = At(session, AtSeam, r => r.WithQuests(new[] { QuestRules.Start(greedy, 0) }), rules);
 
         var seam = () => arena.Simulation.Nodes.Single(n => n.Name == "iron_seam");

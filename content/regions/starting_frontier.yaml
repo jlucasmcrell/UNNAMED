@@ -147289,6 +147289,121 @@ npcs:
   - 681.5
   facing_deg: 180
 nodes:
+- name: hollow_woundmoss_1
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 556
+  - 722
+- name: hollow_woundmoss_2
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 564
+  - 724
+- name: hollow_woundmoss_3
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 550
+  - 718
+- name: foldscar_boneleaf_1
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 562
+  - 660
+- name: foldscar_boneleaf_2
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 538
+  - 662
+- name: foldscar_boneleaf_3
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 566
+  - 636
+- name: charwood_deadfall_1
+  node_ref: node.wood.deadfall
+  position_m:
+  - 585
+  - 738
+- name: charwood_deadfall_2
+  node_ref: node.wood.deadfall
+  position_m:
+  - 522
+  - 702
+- name: blackvein_spoil_1
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 440
+  - 662
+- name: blackvein_spoil_2
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 436
+  - 665
+- name: hollow_ash_stand_2
+  node_ref: node.wood.ash_stand
+  position_m:
+  - 600
+  - 748
+- name: road_deadfall
+  node_ref: node.wood.deadfall
+  position_m:
+  - 700
+  - 724
+- name: road_woundmoss
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 792
+  - 726
+- name: moss_cotton_1
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 1030
+  - 772
+- name: moss_cotton_2
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 1072
+  - 768
+- name: moss_cotton_3
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 1040
+  - 784
+- name: crag_spoil_1
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 1052
+  - 617
+- name: crag_spoil_2
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 1070
+  - 614
+- name: birch_woundmoss_1
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 932
+  - 722
+- name: birch_woundmoss_2
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 936
+  - 738
+- name: moor_deadfall_1
+  node_ref: node.wood.deadfall
+  position_m:
+  - 1087
+  - 733
+- name: moor_deadfall_2
+  node_ref: node.wood.deadfall
+  position_m:
+  - 926
+  - 705
+- name: cairnwold_ash_stand_2
+  node_ref: node.wood.ash_stand
+  position_m:
+  - 1045
+  - 705
 - name: iron_seam
   node_ref: node.ore.iron_seam
   position_m:
@@ -147350,6 +147465,31 @@ stations:
   position_m:
   - 980.5
   - 680.5
+- key: station.hollow.workbench
+  kind: workbench
+  position_m:
+  - 438.5
+  - 744.0
+- key: station.hollow.cookfire
+  kind: cookfire
+  position_m:
+  - 447.0
+  - 736.5
+- key: station.cairnwold.workbench
+  kind: workbench
+  position_m:
+  - 962.0
+  - 692.0
+- key: station.cairnwold.cookfire
+  kind: cookfire
+  position_m:
+  - 956.0
+  - 688.0
+- key: station.road.rim_cookfire
+  kind: cookfire
+  position_m:
+  - 886.0
+  - 700.0
 switches:
 - key: switch.stone_north
   structure: rock_stone_north

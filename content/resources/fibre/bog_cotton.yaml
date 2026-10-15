@@ -1,0 +1,9 @@
+id: resource.fibre.bog_cotton
+kind: resource
+schema: 1
+display_key: resource.fibre.bog_cotton.name
+tags: [resource]
+name: Bog Cotton
+notes: Renews at the world-day boundary.
+yields:
+  - { item_ref: item.material.bog_cotton, count_range: [2, 3] }

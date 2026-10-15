@@ -1,0 +1,12 @@
+id: item.material.boneleaf
+kind: item
+schema: 1
+display_key: item.material.boneleaf.name
+tags: [item]
+name: Boneleaf
+notes: A pale, stiff leaf that grows only round the Foldscar - one of the 'wrong' plants Sel collects (canon WORLD_MATERIALS). Its veins run the wrong way.
+category: material
+stack_max: 20
+weight: 0.05
+value_base: 6
+rarity: common

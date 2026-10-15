@@ -1,0 +1,16 @@
+id: recipe.leatherwork.hide_cap
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_cap.name
+tags: [recipe]
+name: Hide Cap
+notes: A wolf's hide and a small pelt shaped and stitched at the bench - Durn's moor gear, so the cap is made rather than only bought.
+station: workbench
+skill_ref: skill.survival
+complexity: 4
+inputs:
+  - { item_ref: item.material.wolf_hide, count: 1 }
+  - { item_ref: item.material.small_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_cap, count: 1, quality_roll: true }
+xp_award: { xp: 20 }       # level XP for the first only (AG-7)

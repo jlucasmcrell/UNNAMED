@@ -21,7 +21,7 @@ public class QuestContentTests
     /// <summary>A copy of the game's content with one file edited, in a directory removed afterwards.</summary>
     private sealed class EditedContent : IDisposable
     {
-        public EditedContent(string relativePath, string find, string replace)
+        public EditedContent(string relativePath, string find, string replace, params (string Path, string Find, string Replace)[] more)
         {
             string source = Path.Combine(RepoPaths.Root(), "content");
             foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
@@ -30,10 +30,13 @@ public class QuestContentTests
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                 File.Copy(file, target);
             }
-            string path = Path.Combine(Root, relativePath);
-            string text = File.ReadAllText(path).Replace("\r\n", "\n");
-            Assert.Contains(find, text);
-            File.WriteAllText(path, text.Replace(find, replace));
+            foreach (var (relative, from, to) in more.Prepend((relativePath, find, replace)))
+            {
+                string path = Path.Combine(Root, relative);
+                string text = File.ReadAllText(path).Replace("\r\n", "\n");
+                Assert.Contains(from, text);
+                File.WriteAllText(path, text.Replace(from, to));
+            }
         }
 
         public string Root { get; } = Path.Combine(Path.GetTempPath(), "unnamed-qst-" + Guid.NewGuid().ToString("N"));
@@ -41,15 +44,22 @@ public class QuestContentTests
         public void Dispose() => Directory.Delete(Root, recursive: true);
     }
 
-    private static IReadOnlyList<ValidationError> ErrorsWith(string relativePath, string find, string replace)
+    private static IReadOnlyList<ValidationError> ErrorsWith(string relativePath, string find, string replace,
+        params (string Path, string Find, string Replace)[] more)
     {
-        using var content = new EditedContent(relativePath, find, replace);
+        using var content = new EditedContent(relativePath, find, replace, more);
         var loader = new ContentLoader();
         loader.LoadAll(content.Root);
         return loader.Errors;
     }
 
     private const string Quest1 = "quests/ashen_hollow/iron_under_ash.yaml";
+
+    /// <summary>
+    /// The ore spoil made a one-off, so that nothing renews iron ore: in the game it renews daily (node.ore.loose_iron). (Billets also come
+    /// back with the animated armours that drop them, so the test for billets keeps those dead as well.)
+    /// </summary>
+    private static readonly (string, string, string) FiniteSpoil = ("nodes/ore/loose_iron.yaml", "respawn: daily", "respawn: none");
 
     /// <summary>A quest parsed against the game's content, from YAML objectives (the quest-level fields filled in).</summary>
     private static QuestDefinition Parse(string objectives, string extra = "", string entry = "o_a") =>
@@ -150,13 +160,14 @@ public class QuestContentTests
     [Fact]
     public void AFiniteItemARecipeConsumes_MustAlsoCountWhatItIsMadeInto() =>
         Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear], count: 1 }",
-                "params: { item_ref: item.material.iron_ore, count: 1 }"),
+                "params: { item_ref: item.material.iron_ore, count: 1 }", FiniteSpoil),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ore, and recipe.smithing.iron_billet makes it into item.material.iron_ingot",
                 StringComparison.Ordinal));
 
     [Fact]
     public void WhatTheItemIsMadeInto_MustBeCountedAllTheWayDown() =>
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]", "or_item_refs: [item.material.iron_ingot]"),
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]", "or_item_refs: [item.material.iron_ingot]", FiniteSpoil,
+                ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none")),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ingot, and recipe.smithing.march_spear makes it into item.weapon.march_spear",
                 StringComparison.Ordinal));
 

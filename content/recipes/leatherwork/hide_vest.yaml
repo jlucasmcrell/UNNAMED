@@ -1,0 +1,16 @@
+id: recipe.leatherwork.hide_vest
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_vest.name
+tags: [recipe]
+name: Hide Vest
+notes: Two wolf hides over a deer hide, laced at the bench. Harder than the cap; a novice's vest is often crude.
+station: workbench
+skill_ref: skill.survival
+complexity: 8
+inputs:
+  - { item_ref: item.material.wolf_hide, count: 2 }
+  - { item_ref: item.material.deer_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_vest, count: 1, quality_roll: true }
+xp_award: { xp: 30 }       # level XP for the first only (AG-7)

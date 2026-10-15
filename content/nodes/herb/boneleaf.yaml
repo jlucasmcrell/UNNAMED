@@ -1,0 +1,12 @@
+id: node.herb.boneleaf
+kind: node
+schema: 1
+display_key: node.herb.boneleaf.name
+tags: [node]
+name: Boneleaf
+notes: A boneleaf bush on the Foldscar's edge, the spider's ground among them - a leaf a day, and not without looking over your shoulder.
+resource_ref: resource.herb.boneleaf
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 4

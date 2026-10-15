@@ -1,0 +1,12 @@
+id: node.ore.loose_iron
+kind: node
+schema: 1
+display_key: node.ore.loose_iron.name
+tags: [node]
+name: Ore-bearing Spoil
+notes: Loose ore in old spoil and rotten crag face (canon loose_iron) - a lump or two a day. The deep seams stay finite.
+resource_ref: resource.ore.iron
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 5

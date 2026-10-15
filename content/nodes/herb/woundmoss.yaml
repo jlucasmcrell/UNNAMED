@@ -1,0 +1,12 @@
+id: node.herb.woundmoss
+kind: node
+schema: 1
+display_key: node.herb.woundmoss.name
+tags: [node]
+name: Woundmoss
+notes: A cushion of woundmoss on the shaded side of the Charwood's trunks and the birch flanks - a handful a day.
+resource_ref: resource.herb.woundmoss
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 1
