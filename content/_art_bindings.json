@@ -2811,7 +2811,7 @@
   },
   "people": {
     "player": {
-      "model": "af_veth_wayfarer_male_v9",
+      "model": "pc_veth_m_body_c",
       "hand": "SOCK_hand.R",
       "off_hand": "SOCK_hand.L",
       "grip": {
@@ -2831,7 +2831,6 @@
           1
         ]
       },
-      "note": "Private male Veth v9 comparison; authored hand sockets replace unrelated inherited grip coordinates. Visual, gear and gameplay gates pending.",
       "off_grip": {
         "at": [
           0,
@@ -2848,85 +2847,86 @@
           0,
           1
         ]
-      }
+      },
+      "note": "Characters overhaul 2026-10-14: male Veth body C - OWNER CHOSE C (2026-10-15). Outfit variants base / hide_vest / hide_cap / hide_vest_cap. Same production skeleton and sockets as v9, so the player.cw_player clips play unchanged."
     },
     "npc.ashen_hollow.kera_voss": {
-      "model": "cw_kera_voss",
+      "model": "npc_kera_voss",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.ashen_hollow.renn_vale": {
-      "model": "af_renn_vale",
+      "model": "npc_renn_vale",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.ashen_hollow.sel_arien": {
-      "model": "cw_sel_arien",
+      "model": "npc_sel_arien",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.ashen_hollow.tavar_orr": {
-      "model": "cw_tavar_orr",
+      "model": "npc_tavar_orr",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.cairnwold.durn_skell": {
-      "model": "cw_durn_smith_combined_20261002",
+      "model": "npc_durn_skell",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.cairnwold.mara_ling": {
-      "model": "cw_sel_arien",
+      "model": "npc_mara_ling",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.cairnwold.berrin_garth": {
-      "model": "cw_renn_vale",
+      "model": "npc_berrin_garth",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     },
     "npc.cairnwold.tam_crowden": {
-      "model": "cw_tavar_orr",
+      "model": "npc_tam_crowden_f",
       "hand": "hand.R",
       "clips": {
         "idle": "player.cw_player.idle",
         "talk": "player.cw_player.idle"
       },
-      "note": "CAIRNWOLDs own body for {new}. The body is the one the region built for this role - it was bound to a borrowed Ashen Hollow id while Cairnwold placed the demos people, and the owner has since ruled that both maps stay and each keeps its own cast. The model FILE still carries the old name; renaming the rigged models to their roles is the next piece."
+      "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
     }
   },
   "people_by_visual_option": {
     "people=production": {
       "player": {
-        "model": "af_veth_wayfarer_male_v9",
+        "model": "pc_veth_m_body_c",
         "hand": "SOCK_hand.R",
         "off_hand": "SOCK_hand.L",
         "grip": {
@@ -2946,7 +2946,6 @@
             1
           ]
         },
-        "note": "Private male Veth v9 comparison; authored hand sockets replace unrelated inherited grip coordinates. Visual, gear and gameplay gates pending.",
         "off_grip": {
           "at": [
             0,
@@ -2963,51 +2962,48 @@
             0,
             1
           ]
-        }
+        },
+        "note": "Characters overhaul 2026-10-14: male Veth body C - OWNER CHOSE C (2026-10-15). Outfit variants base / hide_vest / hide_cap / hide_vest_cap. Same production skeleton and sockets as v9, so the player.cw_player clips play unchanged."
       },
       "npc.ashen_hollow.kera_voss": {
-        "model": "cw_kera_voss",
+        "model": "npc_kera_voss",
         "hand": "hand.R",
-        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.ashen_hollow.renn_vale": {
-        "model": "af_renn_vale",
+        "model": "npc_renn_vale",
         "hand": "hand.R",
-        "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle"
-        },
-        "note": "CAIRNWOLD's own body for this person. The shared bindings name a DEMO model (npc_siann_archivist and its three siblings) and the demo's thirteen garments, none of which this region may reuse, so each of the four was rebuilt through the chain the player already went through: the region's own feminine archetype, one of the four identity presets charstd carries as bounded MPFB weight data, and the three linen, wool and leather garments the player wears. Clips point at the player's own idle, which is on the same production skeleton, until an NPC clip set is retargeted from charstd's npc_talker and npc_companion plans."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.ashen_hollow.sel_arien": {
-        "model": "cw_sel_arien",
+        "model": "npc_sel_arien",
         "hand": "hand.R",
-        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.ashen_hollow.tavar_orr": {
-        "model": "cw_tavar_orr",
+        "model": "npc_tavar_orr",
         "hand": "hand.R",
-        "note": "CAIRNWOLD's own body. The shared bindings decide an NPC's model in people_by_visual_option, not in people, and every tier runs people=production - so overriding people alone changes nothing and the four NPCs kept falling back to the demo's npc_kal_smith_prod, npc_siann_archivist_prod, npc_veth_magistrate_prod and npc_orenth_guide_prod. This is the SAME three-places trap the player hit (model, then clips, then clips-by-option) and the same reason: a region binding has to be made where the decision is actually taken. Each of the four is built through the chain the player went through - the region's feminine archetype, one of charstd's four identity presets, the three cw_ linen/wool/leather garments - because the demo's NPC bodies and their thirteen garments may not be reused."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.cairnwold.durn_skell": {
-        "model": "cw_durn_smith_combined_20261002",
+        "model": "npc_durn_skell",
         "hand": "hand.R",
-        "note": "CAIRNWOLDs own body for its own cast."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.cairnwold.mara_ling": {
-        "model": "cw_sel_arien",
+        "model": "npc_mara_ling",
         "hand": "hand.R",
-        "note": "CAIRNWOLDs own body for its own cast."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.cairnwold.berrin_garth": {
-        "model": "cw_renn_vale",
+        "model": "npc_berrin_garth",
         "hand": "hand.R",
-        "note": "CAIRNWOLDs own body for its own cast."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       },
       "npc.cairnwold.tam_crowden": {
-        "model": "cw_tavar_orr",
+        "model": "npc_tam_crowden_f",
         "hand": "hand.R",
-        "note": "CAIRNWOLDs own body for its own cast."
+        "note": "Characters overhaul 2026-10-14: own body/face/skin/outfit; NPCs play the player's idle as talk (same skeleton)."
       }
     }
   },
