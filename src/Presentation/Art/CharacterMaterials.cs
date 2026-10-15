@@ -87,25 +87,34 @@ public static class CharacterMaterials
     }
 
     /// <summary>
-    /// The authored LOD chain (tools/asset_pipeline/charprod/lods.py: meshes named <c>..._LOD1</c>, <c>..._LOD2</c> on the same skeleton)
-    /// switched by distance with a dithered cross-fade; returns the number of levels found (0: a model without a chain is left alone).
+    /// The authored LOD chain (meshes named <c>..._LOD1</c>, <c>..._LOD2</c> ... on the same skeleton: charprod's lods.py, or a
+    /// MetaHuman's own LOD0-3 from the Blender assembly) switched by distance with a dithered cross-fade; returns the number of levels
+    /// found (0: a model without a chain is left alone). Where each level ends comes from <c>lods</c>: <c>chain_&lt;n&gt;</c> for a chain of
+    /// n levels when it is given, else <c>lod0_end</c> and <c>lod1_end</c>.
     /// </summary>
     public static int ApplyLods(Node model)
     {
         var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList();
-        int Level(MeshInstance3D m) => m.Name.ToString().EndsWith("_LOD2", StringComparison.Ordinal) ? 2
-            : m.Name.ToString().EndsWith("_LOD1", StringComparison.Ordinal) ? 1 : 0;
+        static int Level(MeshInstance3D m)
+        {
+            string name = m.Name.ToString();
+            int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
+            return at >= 0 && int.TryParse(name.AsSpan(at + 4), out int level) ? level : 0;
+        }
         int levels = meshes.Count == 0 ? 0 : meshes.Max(Level);
         if (levels == 0)
             return 0;
         Kinds();
-        float lod0 = _lods.GetValueOrDefault("lod0_end", 18f), lod1 = _lods.GetValueOrDefault("lod1_end", 45f), margin = _lods.GetValueOrDefault("margin", 2f);
+        float[] ends = _chains.TryGetValue(levels + 1, out var chain) && chain.Length == levels
+            ? chain
+            : new[] { _lods.GetValueOrDefault("lod0_end", 18f), _lods.GetValueOrDefault("lod1_end", 45f) };
+        float margin = _lods.GetValueOrDefault("margin", 2f);
         foreach (var m in meshes)
         {
-            int level = Level(m);
+            int level = Math.Min(Level(m), ends.Length);
             m.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
-            m.VisibilityRangeBegin = level == 0 ? 0 : level == 1 ? lod0 : lod1;
-            m.VisibilityRangeEnd = level == levels ? 0 : level == 0 ? lod0 : lod1;
+            m.VisibilityRangeBegin = level == 0 ? 0 : ends[level - 1];
+            m.VisibilityRangeEnd = level == levels ? 0 : ends[level];
             m.VisibilityRangeBeginMargin = level == 0 ? 0 : margin;
             m.VisibilityRangeEndMargin = level == levels ? 0 : margin;
         }
@@ -113,6 +122,9 @@ public static class CharacterMaterials
     }
 
     private static readonly Dictionary<string, float> _lods = new(StringComparer.Ordinal);
+
+    /// <summary>Where each level of an n-level chain ends (<c>lods.chain_&lt;n&gt;</c>), by n.</summary>
+    private static readonly Dictionary<int, float[]> _chains = new();
 
     /// <summary>Explicit material-name-to-kind entries from <c>material_kinds</c> in character_materials.json.</summary>
     private static readonly Dictionary<string, string> _materialKinds = new(StringComparer.Ordinal);
@@ -220,6 +232,8 @@ public static class CharacterMaterials
             {
                 foreach (var entry in lods.EnumerateObject().Where(e => e.Value.ValueKind == JsonValueKind.Number))
                     _lods[entry.Name] = (float)entry.Value.GetDouble();
+                foreach (var entry in lods.EnumerateObject().Where(e => e.Name.StartsWith("chain_", StringComparison.Ordinal) && e.Value.ValueKind == JsonValueKind.Array))
+                    _chains[int.Parse(entry.Name.AsSpan(6))] = entry.Value.EnumerateArray().Select(v => (float)v.GetDouble()).ToArray();
             }
         }
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)

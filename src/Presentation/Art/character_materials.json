@@ -55,9 +55,10 @@
     "Human.culturalibre_hair_14": "hair"
   },
   "lods": {
-    "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch cross-fades over margin.",
+    "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch cross-fades over margin. chain_4 is a MetaHuman's LOD0-3 (CHARACTER_ANIMATION_STRATEGY.md 2.6: under 6 m, to 15 m, to 40 m, beyond).",
     "lod0_end": 18.0,
     "lod1_end": 45.0,
+    "chain_4": [6.0, 15.0, 40.0],
     "margin": 2.0
   }
 }
