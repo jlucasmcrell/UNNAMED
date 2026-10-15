@@ -97,6 +97,22 @@ public class NpcTests
 
     // ── conversations ───────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Sel's lines read a flag in the Foldscar's cell (L-17). In a region without the Foldscar - the retired region.ashen_hollow, whose
+    /// places moved to region.starting_frontier - the flag reads unset; the second conversation with her threw instead.
+    /// </summary>
+    [Fact]
+    public void AFlagReadInAPlaceTheRegionDoesNotHold_ReadsUnset()
+    {
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile, "region.ashen_hollow"), AtSel);
+
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
+        Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
+        Assert.Equal("again", Now(arena).NodeId);
+    }
+
     [Fact]
     public void AConversation_OpensWithinReach_AndItsRepliesFollowFromWorldState()
     {

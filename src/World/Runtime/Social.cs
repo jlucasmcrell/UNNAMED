@@ -397,15 +397,18 @@ internal sealed class DialogueSystem : IDialogueFacts
     public bool Visited(string dialogueId, string nodeId) =>
         State.Conversations.TryGetValue(dialogueId, out var heard) && heard.Contains(nodeId);
 
-    /// <summary>Dialogue reads and writes world flags in the speaker's cell - or reads them in a named place's (L-17).</summary>
+    /// <summary>
+    /// Dialogue reads and writes world flags in the speaker's cell - or reads them in a named place's (L-17). A place this region does not
+    /// hold has nothing set there: the flag reads unset rather than ending the conversation.
+    /// </summary>
     public long WorldFlag(string flagId, string? locationId) =>
-        locationId is not null ? State.World.GetFlag(CellOf(locationId), flagId)
+        locationId is not null ? PlaceFlag(locationId, flagId)
         : State.Conversation is { } open ? State.World.GetFlag(SpeakerCell(open.NpcId), flagId) : 0;
 
-    private CellKey CellOf(string locationId) =>
+    private long PlaceFlag(string locationId, string flagId) =>
         _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
-            ? CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0)
-            : throw new InvalidOperationException($"{locationId} is not a place in this region");
+            ? State.World.GetFlag(CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0), flagId)
+            : 0;
 
     public int Carried(string itemId, int qualityMin) =>
         State.Inventory.Where(e => e.DefId == itemId && e.Quality >= qualityMin).Sum(e => e.Count);
@@ -459,7 +462,7 @@ internal sealed class DialogueSystem : IDialogueFacts
         public bool Visited(string dialogueId, string nodeId) => _system.Visited(dialogueId, nodeId);
 
         public long WorldFlag(string flagId, string? locationId) =>
-            locationId is not null ? _system.State.World.GetFlag(_system.CellOf(locationId), flagId)
+            locationId is not null ? _system.PlaceFlag(locationId, flagId)
             : _system.State.Npcs.ContainsKey(_npcId) ? _system.State.World.GetFlag(_system.SpeakerCell(_npcId), flagId) : 0;
 
         public int Carried(string itemId, int qualityMin) => _system.Carried(itemId, qualityMin);
