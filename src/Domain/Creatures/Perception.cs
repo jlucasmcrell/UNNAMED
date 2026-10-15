@@ -74,6 +74,38 @@ public sealed record CreatureRole(string Id, UnawareBehaviour Unaware)
 
     /// <summary>An ambusher goes straight for a sound it feels inside its territory, rather than stopping to look.</summary>
     public bool PounceOnNoise { get; init; }
+
+    /// <summary>
+    /// It never starts a fight (wildlife, the great grazers): what it sees and hears leaves it be. A wound turns it on its attacker, or
+    /// sends it running; one that answers calls joins a fight its own kind calls for, so a herd defends together.
+    /// </summary>
+    public bool Peaceful { get; init; }
+
+    /// <summary>It bolts from anyone it has noticed this near (deer, hares, hens); 0 lets them come.</summary>
+    public long FleeWithinMm { get; init; }
+
+    /// <summary>When it rests at home asleep, unless something has its attention: by night, by day, or never.</summary>
+    public RestTime Rests { get; init; }
+}
+
+public enum RestTime
+{
+    Never,
+    Night,
+    Day,
+}
+
+/// <summary>
+/// The hours creatures keep: night runs from <see cref="NightFromTick"/> to <see cref="DayFromTick"/> ticks into each world day of
+/// <see cref="TicksPerDay"/> ticks, wrapping past the day's end.
+/// </summary>
+public sealed record CreatureHours(long TicksPerDay, long NightFromTick, long DayFromTick)
+{
+    public bool IsNight(long tick)
+    {
+        long t = tick % TicksPerDay;
+        return NightFromTick < DayFromTick ? t >= NightFromTick && t < DayFromTick : t >= NightFromTick || t < DayFromTick;
+    }
 }
 
 public static class Perception

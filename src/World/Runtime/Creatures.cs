@@ -39,6 +39,9 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
 
     public int Generation { get; init; }
+
+    /// <summary>Its role never starts a fight (wildlife, the grazers).</summary>
+    public bool Peaceful { get; init; }
 }
 
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
@@ -85,7 +88,6 @@ internal sealed record CreatureState(
     public long RespawnTick { get; init; }
 
     public bool Alive => Condition == CreatureCondition.Alive;
-    public bool Asleep => Role.Unaware == UnawareBehaviour.Sleep && Mind == CreatureMind.Unaware;
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
 }
 
@@ -302,13 +304,14 @@ internal sealed class CreatureSystem
         var senses = c.Definition.Senses;
         var player = State.Body;
         bool target = !State.PlayerCombat.Defeated;
-        double? seen = !c.Asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls()) : null;
+        bool asleep = Asleep(c, tick);
+        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls()) : null;
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
         var next = c with { Awareness = awareness };
         if (seen is not null)
             next = next with { Knows = true, KnownXMm = player.XMm, KnownZMm = player.ZMm, LastSeenTick = tick };
 
-        long hearing = c.Asleep ? senses.HearingMm * c.Role.SleepHearingPercent / 100 : senses.HearingMm;
+        long hearing = asleep ? senses.HearingMm * c.Role.SleepHearingPercent / 100 : senses.HearingMm;
         bool pounce = false;
         foreach (var noise in noises)
         {
@@ -324,6 +327,8 @@ internal sealed class CreatureSystem
             // An ambusher feels a footfall in its territory and goes for it at once.
             pounce |= !noise.Call && c.Role.PounceOnNoise
                       && (c.Role.TerritoryMm <= 0 || Distance(noise.XMm, noise.ZMm, c.HomeXMm, c.HomeZMm) <= c.Role.TerritoryMm);
+            // A herd defends its own: a peaceful creature that answers its kind's call goes straight to the fight.
+            pounce |= noise.Call && c.Role.Peaceful;
         }
         if (pounce && target)
             next = next with { Mind = CreatureMind.Engaged, LastSeenTick = tick };
@@ -338,18 +343,24 @@ internal sealed class CreatureSystem
         var mind = c.Mind;
         // At rest or on its way home, it only takes notice of what is inside the ground it keeps.
         bool noticing = mind is not (CreatureMind.Unaware or CreatureMind.Returning) || Keeps(c, c.KnownXMm, c.KnownZMm);
+        // A peaceful creature turns on someone only once roused - wounded, or called to its herd's fight - and goes on until it gives up.
+        bool roused = !c.Role.Peaceful || mind is CreatureMind.Engaged or CreatureMind.Searching;
+        double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         if (State.PlayerCombat.Defeated)
             mind = mind is CreatureMind.Unaware ? mind : CreatureMind.Returning;
         else if (mind == CreatureMind.Fleeing)
         {
-            if (seen is null && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) > C.LeashMm / 2)
+            // A bolting animal runs well clear of the distance that set it off before it drifts back.
+            if (seen is null && toPlayer > Math.Max(C.LeashMm / 2, 2 * c.Role.FleeWithinMm))
                 mind = CreatureMind.Returning;
         }
-        else if (seen is not null && c.Awareness >= Perception.Full && noticing)
+        else if (!roused && c.Role.FleeWithinMm > 0 && c.Awareness >= rules.Suspicious && c.Knows && toPlayer <= c.Role.FleeWithinMm)
+            mind = CreatureMind.Fleeing;
+        else if (seen is not null && c.Awareness >= Perception.Full && noticing && roused)
             mind = CreatureMind.Engaged;
         else if (mind == CreatureMind.Engaged && seen is null && tick - c.LastSeenTick > 20)
             mind = CreatureMind.Searching;
-        else if (mind is CreatureMind.Unaware or CreatureMind.Returning && c.Awareness >= rules.Suspicious && noticing)
+        else if (mind is CreatureMind.Unaware or CreatureMind.Returning && c.Awareness >= rules.Suspicious && noticing && !c.Role.Peaceful)
             mind = CreatureMind.Suspicious;
         else if (mind is CreatureMind.Suspicious && c.Awareness < rules.Suspicious / 2)
             mind = CreatureMind.Returning;
@@ -424,10 +435,17 @@ internal sealed class CreatureSystem
         }
     }
 
-    /// <summary>Unaware: the role decides - hold the place, drift around it, walk the route, or sleep.</summary>
+    /// <summary>Asleep: a sleeper at rest, or a creature that keeps hours lying up in its resting time - blind, and hearing less.</summary>
+    private bool Asleep(CreatureState c, long tick) =>
+        c.Mind == CreatureMind.Unaware && (c.Role.Unaware == UnawareBehaviour.Sleep || Resting(c.Role, tick));
+
+    private bool Resting(CreatureRole role, long tick) => role.Rests != RestTime.Never && Setup.Hours is { } hours
+        && hours.IsNight(tick) == (role.Rests == RestTime.Night);
+
+    /// <summary>Unaware: the role decides - hold the place, drift around it, walk the route, or sleep; in its resting hours it lies up at home.</summary>
     private CreatureState Idle(CreatureState c, long tick)
     {
-        switch (c.Role.Unaware)
+        switch (Resting(c.Role, tick) ? UnawareBehaviour.Sleep : c.Role.Unaware)
         {
             case UnawareBehaviour.Wander:
                 return Wander(c, c.HomeXMm, c.HomeZMm, c.Role.WanderMm, tick);
@@ -592,11 +610,10 @@ internal sealed class CreatureSystem
         var rules = new MovementRules(charge.ChargeSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var intent = new MoveIntent(action.DirXPermille, action.DirZPermille, Gait.Run, c.Body.FacingMdeg);
         var others = new List<Blocker>(_context.ClosedDoors());
-        others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
-            .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
+        others.AddRange(Herd(c));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
         others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
-        var moved = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
             // It ran into something solid: rock, wall or tree takes the charge, and the charger reels.
@@ -634,7 +651,7 @@ internal sealed class CreatureSystem
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
             obstacles.AddRange(Companions());
-            c = c with { Body = Kinematics.Step(c.Body, intent, rules, _context.Setup.Layout.Space, obstacles, TickMs) };
+            c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
@@ -863,9 +880,44 @@ internal sealed class CreatureSystem
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
         others.AddRange(Companions());
-        others.AddRange(State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key)
-            .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0)));
-        return Kinematics.Step(from, intent, rules, _context.Setup.Layout.Space, others, TickMs);
+        others.AddRange(Herd(c));
+        return Kinematics.Step(from, intent, rules, SpaceNear(from), others, TickMs);
+    }
+
+    /// <summary>The other living creatures near enough to be in this one's way this tick, as bodies it does not walk through.</summary>
+    private IEnumerable<Blocker> Herd(CreatureState c) =>
+        State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key
+                && Math.Abs(o.Body.XMm - c.Body.XMm) < NearMm && Math.Abs(o.Body.ZMm - c.Body.ZMm) < NearMm)
+            .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0));
+
+    /// <summary>Further than this from a body, nothing touches it in one tick: the fastest run (a charge) covers half a metre.</summary>
+    private const long NearMm = 8_000;
+
+    private const long GridMm = 16_000;
+
+    private Dictionary<(long, long), WalkSpace>? _near;
+
+    /// <summary>
+    /// The walk space round a body, holding only the region's structures within a grid square of it (16 m): what a body that moves at
+    /// most half a metre a tick can touch. Gathered once per square - the structures never move - so a step weighs a few dozen
+    /// structures rather than the whole region's (the world-life pass more than tripled the creatures that walk).
+    /// </summary>
+    private WalkSpace SpaceNear(Body body)
+    {
+        var space = _context.Setup.Layout.Space;
+        var square = (Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
+        _near ??= new Dictionary<(long, long), WalkSpace>();
+        if (_near.TryGetValue(square, out var near))
+            return near;
+        long x0 = (square.Item1 - 1) * GridMm, z0 = (square.Item2 - 1) * GridMm, x1 = (square.Item1 + 2) * GridMm, z1 = (square.Item2 + 2) * GridMm;
+        var blockers = space.Blockers.Where(b => b switch
+        {
+            BoxBlocker box => box.MaxXMm >= x0 && box.MinXMm <= x1 && box.MaxZMm >= z0 && box.MinZMm <= z1,
+            CircleBlocker round => round.CenterXMm + round.RadiusMm >= x0 && round.CenterXMm - round.RadiusMm <= x1
+                && round.CenterZMm + round.RadiusMm >= z0 && round.CenterZMm - round.RadiusMm <= z1,
+            _ => true,
+        }).ToImmutableArray();
+        return _near[square] = space with { Blockers = blockers };
     }
 
     /// <summary>
@@ -939,6 +991,6 @@ internal sealed class CreatureSystem
         {
             var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,
-                c.Mind, c.Awareness, c.Asleep) { Generation = c.Generation };
+                c.Mind, c.Awareness, Asleep(c, State.WorldTick)) { Generation = c.Generation, Peaceful = c.Role.Peaceful };
         }).ToImmutableArray();
 }

@@ -35,6 +35,9 @@ public sealed record CombatSetup(
 
     public NoiseRules Noise { get; init; } = new(3_000, 8_000, 16_000, 10_000, 20_000, 45_000);
 
+    /// <summary>When it is night for the creatures that rest by night or by day; null when no role keeps hours.</summary>
+    public CreatureHours? Hours { get; init; }
+
     /// <summary>How long a corpse lies before it is gone, looted or not.</summary>
     public long CorpseDecayTicks { get; init; } = 12_000;
 

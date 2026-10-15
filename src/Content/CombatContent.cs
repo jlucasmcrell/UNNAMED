@@ -85,7 +85,31 @@ public static class CombatContent
         int slots = Int(corpse, "stack_slots");
         if (decay < 1 || slots < 1)
             throw new FormatException("corpse needs decay_s above 0 and at least one stack slot");
-        return setup => setup with { Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots };
+        var hours = map.ContainsKey("hours") ? Hours(loader, Map(map, "hours"), tickMs) : null;
+        if (hours is null && roles.Values.FirstOrDefault(r => r.Rests != RestTime.Never) is { } keeper)
+            throw new FormatException($"roles.{keeper.Id} rests by {keeper.Rests.ToString().ToLowerInvariant()}, so the config gives hours");
+        return setup => setup with { Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots, Hours = hours };
+    }
+
+    /// <summary>
+    /// <c>hours</c>: when night falls and day breaks, by the clock - which reads <c>clock_at_world_start_h</c> at world tick 0 and runs
+    /// through config.time's day (the sky's own clock, SkyView.DefaultHour, is the same reading).
+    /// </summary>
+    private static CreatureHours Hours(ContentLoader loader, Dictionary<object, object> map, int tickMs)
+    {
+        var time = Config(loader, "config.time");
+        double hoursPerDay = Number(time, "game_hours_per_day");
+        long ticksPerDay = (long)Math.Round(hoursPerDay * Number(time, "game_minutes_per_hour") * Number(time, "seconds_per_game_minute") * 1000 / tickMs);
+        double start = Number(map, "clock_at_world_start_h");
+        long Into(string key)
+        {
+            double hour = Number(map, key);
+            if (hour < 0 || hour >= hoursPerDay)
+                throw new FormatException($"hours.{key} is an hour of the day, from 0 to {hoursPerDay}");
+            return (long)Math.Round((hour - start + hoursPerDay) % hoursPerDay / hoursPerDay * ticksPerDay);
+        }
+        var hours = new CreatureHours(ticksPerDay, Into("night_from_h"), Into("day_from_h"));
+        return ticksPerDay > 0 && hours.NightFromTick != hours.DayFromTick ? hours : throw new FormatException("hours needs a day with a night in it");
     }
 
     private static CreatureRole Role(string id, object value)
@@ -112,7 +136,18 @@ public static class CombatContent
             SleepHearingPercent = map.ContainsKey("sleep_hearing_percent") ? Int(map, "sleep_hearing_percent") : 100,
             FlankMm = Metres("flank_m"),
             PounceOnNoise = map.GetValueOrDefault("pounce_on_noise") as string == "true",
+            Peaceful = map.GetValueOrDefault("peaceful") as string == "true",
+            FleeWithinMm = Metres("flee_within_m"),
+            Rests = (map.GetValueOrDefault("rests") as string ?? "never") switch
+            {
+                "never" => RestTime.Never,
+                "night" => RestTime.Night,
+                "day" => RestTime.Day,
+                var other => throw new FormatException($"roles.{id}: rests '{other}' is not never, night or day"),
+            },
         };
+        if (role.FleeWithinMm > 0 && !role.Peaceful)
+            throw new FormatException($"roles.{id}: a role that bolts from people is peaceful");
         if (role.Unaware == UnawareBehaviour.Wander && role.WanderMm <= 0)
             throw new FormatException($"roles.{id}: a wandering role gives wander_m");
         if (role.KeepDistanceMm > 0 && role.StrikeWithinMm >= role.KeepDistanceMm)
