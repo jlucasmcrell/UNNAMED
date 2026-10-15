@@ -369,10 +369,16 @@ shader_type spatial;
 render_mode unshaded, blend_add, cull_back, depth_draw_never, shadows_disabled;
 uniform vec3 glow : source_color = vec3(0.70, 0.80, 1.0);
 uniform float strength = 0.8;
-void vertex() { VERTEX += NORMAL * 0.012; }
+varying vec3 world;
+void vertex() {
+    VERTEX += NORMAL * 0.012;
+    world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+}
 void fragment() {
     float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.5);
-    ALBEDO = glow * rim * strength;
+    // A set stone is lit through, not only edged: a faint fill with bands of light climbing it (asset overhaul 2026-10-14).
+    float band = smoothstep(0.7, 1.0, 0.5 + 0.5 * sin(world.y * 5.0 - TIME * 2.4 + sin(world.x * 2.3 + world.z * 1.7) * 2.0));
+    ALBEDO = glow * strength * (rim + 0.18 + 0.45 * band);
 }
 ",
         },

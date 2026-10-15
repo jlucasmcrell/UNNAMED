@@ -27,7 +27,12 @@ public sealed partial class FoldscarRegister : Node3D
     private const double RegisterSeconds = 0.9;
     private const float PulseSpeed = 7.5f;
     private const float PulseReach = 17f;
-    private const float GlowStrength = 0.8f;
+    private const float GlowStrength = 1.6f;
+    // The moment itself (asset overhaul 2026-10-14, owner: "only glow faintly after activation"): a Godot scene per stone and for the
+    // heart - flash of light, a ring running out over the ground (a decal, so it follows the terrain), a shell of bent air, a column of
+    // light, dust thrown out in a ring, motes - played once ("activate"), or put straight into its resting state ("lit") on a load.
+    private const string StoneScene = "res://Art/vfx/foldscar/foldscar_stone_set.tscn";
+    private const string HeartScene = "res://Art/vfx/foldscar/foldscar_heart_release.tscn";
 
     private sealed class Stone
     {
@@ -42,6 +47,7 @@ public sealed partial class FoldscarRegister : Node3D
         public ShaderMaterial? Glow { get; init; }
         public bool Set { get; set; }
         public bool Placed { get; set; }
+        public Node3D? Effect { get; set; }
         public double? SetAt { get; set; }
     }
 
@@ -60,6 +66,7 @@ public sealed partial class FoldscarRegister : Node3D
     private Vector3? _heart;
     private double? _releasedAt;
     private MeshInstance3D? _pulse;
+    private Node3D? _heartEffect;
     private ShaderMaterial? _pulseMaterial;
     private double _clock;
 
@@ -127,6 +134,8 @@ public sealed partial class FoldscarRegister : Node3D
             stone.SetAt = turning ? _clock : null;
             if (!turning)
                 Rest(stone);
+            if (view.Set && stone.Turns)
+                stone.Effect ??= Play(StoneScene, stone.Model.GlobalPosition, turning ? "activate" : "lit");
         }
         foreach (var view in barriers)
         {
@@ -146,6 +155,8 @@ public sealed partial class FoldscarRegister : Node3D
             _releasedAt = null;
             foreach (var (pebble, hover, rest, _) in _pebbles)
                 pebble.Position = pebble.Position with { Y = settled ? rest : hover };
+            if (settled && _heart is { } at)
+                _heartEffect ??= Play(HeartScene, at, "lit");
         }
     }
 
@@ -246,6 +257,18 @@ public sealed partial class FoldscarRegister : Node3D
         return (root, materials);
     }
 
+    /// <summary>An activation scene at a stone's or the heart's foot, playing <paramref name="animation"/>; null without the scene.</summary>
+    private Node3D? Play(string scene, Vector3 at, string animation)
+    {
+        if (ResourceLoader.Load<PackedScene>(scene) is not { } packed)
+            return null;
+        var effect = packed.Instantiate<Node3D>();
+        AddChild(effect);
+        effect.GlobalPosition = at;
+        effect.GetNode<AnimationPlayer>("Anim").Play(animation);
+        return effect;
+    }
+
     // ── the heart's release ─────────────────────────────────────────────────
 
     /// <summary>The heart steadied and the fold fallen, in play: one pulse out across the ground from the heart.</summary>
@@ -254,6 +277,7 @@ public sealed partial class FoldscarRegister : Node3D
         _releasedAt = _clock;
         if (_heart is not { } heart)
             return;
+        _heartEffect ??= Play(HeartScene, heart, "activate");
         for (int i = 0; i < _pebbles.Count; i++)
         {
             var (pebble, hover, rest, _) = _pebbles[i];

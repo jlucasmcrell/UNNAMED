@@ -4,7 +4,8 @@
 
 The staging dir is the overhaul layout (docs/restore/OVERHAUL_AGENT_BRIEF.txt):
   ready\\<id>\\                      converted models (copied without _preview.png); one holding animation\\ is a rigged
-                                   creature, installed as rigged\\<id>\\<id>_rigged.glb plus its clips under animation\\
+                                   creature, installed as rigged\\<id>\\<id>_rigged.glb plus its clips under animation\\;
+                                   ready\\vfx\\* are effect textures, copied into <asset-root>\\vfx\\
   ready\\materials\\<id>\\ or materials\\<id>\\   world/terrain materials
   bindings_proposed.json           entries for content\\_art_bindings.json (each entry replaced whole, keys of the compiled
                                    entry it drops written as null; "comment" and "_*" keys skipped)
@@ -92,6 +93,9 @@ def copy_folders(kind, staged, root, fallback, args, w):
         src = os.path.join(staged, aid)
         if not os.path.isdir(src) or (kind == "ready" and aid == "materials"):
             continue
+        if kind == "ready" and aid == "vfx":
+            install_flat(src, os.path.join(root, "vfx"), args, w)
+            continue
         if excluded(aid, args.exclude):
             print(f"  {kind}/{aid}: excluded")
             continue
@@ -109,7 +113,9 @@ def copy_folders(kind, staged, root, fallback, args, w):
             print(f"  {kind}/{aid}: REPLACED (old folder backed up)")
             w.backup(dst)
             if not w.dry:
-                shutil.rmtree(dst)
+                # Files only: removing the folder itself fails while anything (an indexer, a sync client) holds it open.
+                for n in os.listdir(dst):
+                    os.remove(os.path.join(dst, n))
         else:
             print(f"  {kind}/{aid}: new")
         files = [n for n in os.listdir(src) if not n.endswith("_preview.png")]
@@ -135,6 +141,18 @@ def models_of(entry):
     return [entry[k] for k in ("model", "spent") if isinstance(entry.get(k), str)] + [m for m in entry.get("models", []) if isinstance(m, str)]
 
 
+def install_flat(src, dst, args, w):
+    """ready\\vfx\\* (effect textures and their provenance) into <root>\\vfx\\, file by file."""
+    for n in sorted(os.listdir(src)):
+        target = os.path.join(dst, n)
+        same = os.path.exists(target) and filecmp.cmp(os.path.join(src, n), target, shallow=False)
+        if os.path.exists(target) and not same and not args.replace:
+            sys.exit(f"{target} exists with different contents; pass --replace to back it up and overwrite it")
+        if not same:
+            print(f"  vfx/{n}: {'REPLACED' if os.path.exists(target) else 'new'}")
+            w.copy(os.path.join(src, n), target)
+
+
 def install_rigged(aid, src, root, args, w):
     """A skinned model with its clips: <id>.glb -> rigged\\<id>\\<id>_rigged.glb, animation\\** -> <root>\\animation\\** (review PNGs stay)."""
     pairs = [(os.path.join(src, f"{aid}.glb"), os.path.join(root, "rigged", aid, f"{aid}_rigged.glb")),
@@ -150,7 +168,7 @@ def install_rigged(aid, src, root, args, w):
         w.copy(s, d)
 
 
-def merge_bindings(proposal, path, base_path, exclude, w):
+def merge_bindings(proposal, path, base_path, exclude, fields, w):
     data, indent, newline = load(path)
     base = json.load(open(base_path, encoding="utf-8"))
     changes = 0
@@ -173,7 +191,9 @@ def merge_bindings(proposal, path, base_path, exclude, w):
                 continue
             old = section.get(sub)
             compiled = base.get(key, {}).get(sub) if isinstance(base.get(key), dict) else None
-            if models_of(entry) and isinstance(compiled, dict):
+            if fields and isinstance(entry, dict) and isinstance(old, dict):
+                entry = {**old, **entry}
+            elif models_of(entry) and isinstance(compiled, dict):
                 # The overlay merges INTO the compiled entry, so a replaced entry must null what it drops (an old "surface"
                 # would otherwise repaint the new model).
                 entry = {**{k: None for k in compiled if k not in entry and k != "note"}, **entry}
@@ -315,6 +335,8 @@ def main():
     ap.add_argument("--exclude", action="append", default=[], metavar="PATTERN",
                     help="asset ids to leave out (fnmatch, repeatable); binding entries naming one are left out too")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--fields", action="store_true",
+                    help="set only the keys a proposed binding entry names (e.g. emitters/light), keeping the rest of the existing entry")
     ap.add_argument("--no-sync", action="store_true", help="leave the package's content\\ as it is")
     a = ap.parse_args()
     root = a.asset_root or os.path.join(a.package, "primary")
@@ -336,7 +358,7 @@ def main():
     if os.path.exists(staged("bindings_proposed.json")):
         print("bindings:")
         merge_bindings(json.load(open(staged("bindings_proposed.json"), encoding="utf-8")),
-                       os.path.join(content, "_art_bindings.json"), os.path.join(REPO, "src", "Presentation", "Art", "art_bindings.json"), a.exclude, w)
+                       os.path.join(content, "_art_bindings.json"), os.path.join(REPO, "src", "Presentation", "Art", "art_bindings.json"), a.exclude, a.fields, w)
     if os.path.exists(staged("scatter_rules_proposed.json")):
         print("scatter rules:")
         merge_scatter(json.load(open(staged("scatter_rules_proposed.json"), encoding="utf-8")), os.path.join(content, "_scatter_rules.json"), w)

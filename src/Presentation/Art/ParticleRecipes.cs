@@ -78,6 +78,15 @@ public sealed class ParticleRecipes
             ScaleMin = size.Item1 / size.Item2, ScaleMax = 1f, AngleMin = angle.Item1, AngleMax = angle.Item2,
             ColorRamp = Ramp(r), ScaleCurve = Curve(Numbers(r, "size_curve") ?? new[] { 1f, 1f }),
         };
+        // Tumbling as it goes (a leaf, a flake), degrees a second.
+        if (Numbers(r, "spin") is { Length: 2 } spin)
+        {
+            process.AngularVelocityMin = spin[0];
+            process.AngularVelocityMax = spin[1];
+        }
+        // "velocity": a streak drawn along the particle's flight (a spark, a raindrop) - its Y follows its velocity.
+        bool streak = Text(r, "billboard") == "velocity";
+        process.ParticleFlagAlignY = streak;
         // Emitted through a box (motes and rain round the camera, mist along a river) rather than from a point.
         if (Numbers(r, "box") is { Length: 3 } box)
         {
@@ -108,7 +117,7 @@ public sealed class ParticleRecipes
             process.AnimOffsetMin = 0;
             process.AnimOffsetMax = 1;
         }
-        var material = new StandardMaterial3D
+        Material material = streak ? Streak(texture, r) : new StandardMaterial3D
         {
             // Light-emitting effects are unshaded; smoke, mist, ash and rain take the scene's light (they must not glow at night).
             ShadingMode = Flag(r, "lit") ? BaseMaterial3D.ShadingModeEnum.PerPixel : BaseMaterial3D.ShadingModeEnum.Unshaded,
@@ -119,15 +128,20 @@ public sealed class ParticleRecipes
             AlbedoTexture = texture, VertexColorUseAsAlbedo = true, AlbedoColor = Colors.White * Number(r, "energy", 1f),
             ParticlesAnimHFrames = grid.Item1, ParticlesAnimVFrames = grid.Item2, ParticlesAnimLoop = true,
             CullMode = BaseMaterial3D.CullModeEnum.Disabled, TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmaps,
+            // "soft": fades out within that many metres of whatever is behind it, so a flame or a puff never shows a hard line where it
+            // meets the wick, the bowl or the ground.
+            ProximityFadeEnabled = Number(r, "soft", 0) > 0, ProximityFadeDistance = Number(r, "soft", 0),
         };
+        var quad = Numbers(r, "quad") is { Length: 2 } q ? new Vector2(q[0], q[1]) * size.Item2 : new Vector2(size.Item2, size.Item2);
         return new GpuParticles3D
         {
             Name = name, Amount = (int)Number(r, "amount", 16), Lifetime = lifetime, OneShot = burst, Explosiveness = burst ? 1f : 0f,
             Emitting = !burst, ProcessMaterial = process,
             // A quad of the recipe's own proportions (a rain streak is thin and tall), at its largest size.
+            // "pivot": "base" stands the quad on its emitter (a flame's foot on the wick, growing up from it) instead of centring it there.
             DrawPass1 = new QuadMesh
             {
-                Size = Numbers(r, "quad") is { Length: 2 } q ? new Vector2(q[0], q[1]) * size.Item2 : new Vector2(size.Item2, size.Item2), Material = material,
+                Size = quad, Material = material, CenterOffset = Text(r, "pivot") == "base" ? new Vector3(0, quad.Y / 2, 0) : Vector3.Zero,
             },
             // "local": the particles move with their emitter (an effect on a body that walks on); otherwise they stay where emitted.
             LocalCoords = Flag(r, "local"), CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
@@ -138,6 +152,40 @@ public sealed class ParticleRecipes
                 : new Aabb(new Vector3(-8, -8, -8), new Vector3(16, 24, 16)),
         };
     }
+
+    /// <summary>
+    /// A quad turned about the particle's own Y (its flight, with align_y) to face the camera, so a spark or a raindrop is a streak along
+    /// where it is going. The ramp's colour comes through as the vertex colour, as it does for <see cref="StandardMaterial3D"/>.
+    /// </summary>
+    private static ShaderMaterial Streak(Texture2D texture, JsonElement r)
+    {
+        bool add = Text(r, "blend") == "add";
+        var material = new ShaderMaterial { Shader = add ? StreakAdd : StreakMix };
+        material.SetShaderParameter("tex", texture);
+        material.SetShaderParameter("energy", Number(r, "energy", 1f));
+        return material;
+    }
+
+    private static readonly Shader StreakAdd = new() { Code = StreakCode.Replace("BLEND", "blend_add") };
+    private static readonly Shader StreakMix = new() { Code = StreakCode.Replace("BLEND", "blend_mix") };
+
+    private const string StreakCode = @"
+shader_type spatial;
+render_mode unshaded, BLEND, cull_disabled, depth_draw_never, shadows_disabled;
+uniform sampler2D tex : source_color, filter_linear_mipmap;
+uniform float energy = 1.0;
+void vertex() {
+    vec3 along = MODEL_MATRIX[1].xyz;
+    vec3 centre = MODEL_MATRIX[3].xyz;
+    vec3 side = normalize(cross(normalize(along), normalize(CAMERA_POSITION_WORLD - centre))) * length(MODEL_MATRIX[0].xyz);
+    POSITION = PROJECTION_MATRIX * VIEW_MATRIX * vec4(centre + side * VERTEX.x + along * VERTEX.y, 1.0);
+}
+void fragment() {
+    vec4 t = texture(tex, UV);
+    ALBEDO = t.rgb * COLOR.rgb * energy;
+    ALPHA = t.a * COLOR.a;
+}
+";
 
     /// <summary>Fire a burst (again).</summary>
     public static void Fire(GpuParticles3D particles)

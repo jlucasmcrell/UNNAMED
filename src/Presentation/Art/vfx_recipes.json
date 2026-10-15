@@ -5,16 +5,30 @@
     "coloured along a ramp over each particle's life and scaled along size_curve. Distances in metres, speeds in metres a second.",
     "Textures are asset-workspace paths; every one carries its provenance record beside it (vfx/<id>.json).",
     "An effect may also name a formula form, form:<name> (Art/FormulaForms.cs): geometry drawn by its own shader - the ward's lattice, the",
-    "mending's threads, the cast glyph, the bolt's core and its pressure front. formulas: each formula's ink and its glyph's polygon."
+    "mending's threads, the cast glyph, the bolt's core and its pressure front. formulas: each formula's ink and its glyph's polygon.",
+    "Asset overhaul 2026-10-14 (asset_work/vfx): pivot base (a flame stands on its wick), soft (proximity fade), spin (deg/s) and",
+    "billboard velocity (a streak along the flight) need the ParticleRecipes.cs patch beside this file; fps 0 on a grid = one random frame."
   ],
   "effects": {
-    "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it.",
-    "vfx.force.impulse_bolt_travel": ["form:bolt_core"],
-    "vfx.force.impulse_bolt_impact": ["form:bolt_shock", "force_bolt_shards"],
+    "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it. hit.<material>: HitImpacts (authoritative HitResolved only).",
+    "vfx.force.impulse_bolt_travel": ["form:bolt_core", "force_bolt_wake"],
+    "vfx.force.impulse_bolt_impact": ["form:bolt_shock", "force_bolt_shards", "force_bolt_dust"],
     "arrow_strike": ["impact_sparks"],
     "vfx.vital.mending_thread_restore": ["form:mending_weave", "mending_motes"],
     "vfx.warding.brace_ward_shell": ["form:ward_lattice"],
-    "vfx.magic.cast_charge": ["form:cast_glyph"]
+    "vfx.magic.cast_charge": ["form:cast_glyph"],
+    "hit.flesh": ["hit_blood_splash", "hit_blood_drops", "hit_blood_mist"],
+    "hit.metal": ["hit_metal_sparks", "hit_metal_flash"],
+    "hit.bone": ["hit_bone_dust", "hit_bone_chips"],
+    "hit.ember": ["hit_blood_splash", "hit_ember_burst"],
+    "hit.blocked": ["hit_metal_sparks"],
+    "dust.kick": ["dust_kick"]
+  },
+  "hit_materials": {
+    "comment": "What a struck body is made of, by creature definition (HitImpacts.cs); anything not listed, and the player, bleeds.",
+    "creature.construct.animated_armour": "metal",
+    "creature.undead.bone_walker_husk": "bone",
+    "creature.beast.ash_ember_hound": "ember"
   },
   "formulas": {
     "comment": "The cast glyph per formula (Phase B VFX lane): its ink, and the polygon turning inside it - Force three sides, Warding four, Vital six.",
@@ -24,11 +38,18 @@
   },
   "recipes": {
     "force_bolt_trail": {
-      "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp.",
+      "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp. Unchanged; no longer bound (force_bolt_wake replaces it).",
       "mode": "stream", "texture": "vfx/ext_unity_fireball01_energy.png", "grid": [8, 8], "frames": 64, "fps": 30,
       "amount": 36, "lifetime": 0.36, "size": [0.2, 0.38], "size_curve": [1.0, 0.25], "velocity": [0.1, 0.45], "spread": 180,
       "gravity": [0, 0.2, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 2.2,
       "color": ["#ffffffff", "#bfe4ffe6", "#6f9cff80", "#2a3cff00"]
+    },
+    "force_bolt_wake": {
+      "note": "Impulse Bolt in flight (overhaul): the air it shoves aside - pale, cold vapour (Cosmos NS1 smoke) curling off the bolt's core and thinning fast. Lit, so it is air, not light.",
+      "mode": "stream", "texture": "vfx/cos_ns1_smoke_8x8.png", "grid": [8, 8], "frames": 64, "fps": 40, "lit": true,
+      "amount": 40, "lifetime": 0.55, "size": [0.18, 0.45], "size_curve": [0.5, 1.6], "velocity": [0.2, 0.6], "spread": 180,
+      "gravity": [0, 0.15, 0], "damping": [1.5, 3.0], "blend": "mix", "energy": 1.0, "soft": 0.2,
+      "color": ["#e8f2ff00", "#e2eeff70", "#d8e6ff30", "#d0e0ff00"]
     },
     "force_bolt_burst": {
       "note": "Impulse Bolt where it stops: a pressure puff, the same cold flipbook thrown outward once.",
@@ -38,66 +59,219 @@
       "color": ["#ffffffff", "#a8d2ffcc", "#4a6aff00"]
     },
     "force_bolt_shards": {
-      "note": "Impulse Bolt where it strikes (VFX lane): a dozen hard cold points thrown outward and stopped short by the air - the blow's crack, not a fire.",
-      "mode": "burst", "texture": "vfx/ext_vfxlib_spark_particle2.png",
-      "amount": 12, "lifetime": 0.32, "size": [0.03, 0.06], "size_curve": [1.0, 0.2], "velocity": [5.0, 8.0], "spread": 180,
-      "gravity": [0, 0, 0], "damping": [14, 20], "blend": "add", "energy": 3.5,
+      "note": "Impulse Bolt where it strikes: hard cold streaks thrown outward and stopped short by the air - the blow's crack, not a fire (overhaul: Kenney trace streak along the flight).",
+      "mode": "burst", "texture": "vfx/kenney_trace_spark.png", "billboard": "velocity", "quad": [0.15, 1.0],
+      "amount": 16, "lifetime": 0.3, "size": [0.12, 0.3], "size_curve": [1.0, 0.2], "velocity": [6.0, 10.0], "spread": 180,
+      "gravity": [0, 0, 0], "damping": [16, 24], "blend": "add", "energy": 3.0,
       "color": ["#ffffffff", "#d6e6ffff", "#8fb4ff00"]
     },
+    "force_bolt_dust": {
+      "note": "Impulse Bolt where it strikes (overhaul): the ground's dust thrown out in a low ring by the pressure front (Unity Labs DiscSmoke01, CC0).",
+      "mode": "burst", "texture": "vfx/unity_discsmoke01_16x4.png", "grid": [16, 4], "frames": 64, "fps": 60, "lit": true,
+      "amount": 10, "lifetime": 1.1, "size": [0.8, 1.6], "size_curve": [0.5, 1.6], "velocity": [2.5, 4.0], "spread": 90,
+      "direction": [0, 0.15, 0], "gravity": [0, 0.1, 0], "damping": [3, 5], "angle": [-10, 10], "blend": "mix", "energy": 1.0, "soft": 0.3,
+      "color": ["#9b928400", "#9b9284a0", "#9b928460", "#9b928400"]
+    },
     "impact_sparks": {
-      "note": "Steel on stone or bone. Ported from the Godot VFX Library's sparks (MIT): 30 at once, half a second, all directions, gravity, white to orange.",
-      "mode": "burst", "texture": "vfx/ext_vfxlib_spark_particle2.png",
-      "amount": 30, "lifetime": 0.5, "size": [0.025, 0.05], "size_curve": [1.0, 0.4], "velocity": [2.5, 5.0], "spread": 180,
+      "note": "Steel on stone or bone (an arrow's strike). Overhaul: the same 30-spark throw drawn as streaks along each spark's flight (Kenney trace, CC0), white-hot to orange, falling.",
+      "mode": "burst", "texture": "vfx/kenney_trace_spark.png", "billboard": "velocity", "quad": [0.12, 1.0],
+      "amount": 30, "lifetime": 0.5, "size": [0.1, 0.2], "size_curve": [1.0, 0.4], "velocity": [2.5, 5.0], "spread": 180,
       "direction": [0, 1, 0], "gravity": [0, -9.8, 0], "damping": [1.0, 2.0], "blend": "add", "energy": 4.0,
       "color": ["#ffffffff", "#ffff80ff", "#ffff80ff", "#f4b33eff", "#ff4d0000"]
     },
     "torch_flame": {
-      "note": "A torch or a brazier. Unity Labs Flame02 (CC0), rising slowly, a few at a time.",
-      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30,
+      "note": "A torch or a brazier. Unity Labs Flame02 (CC0) - the look the owner likes, unchanged; overhaul: the flame now STANDS ON its emitter (pivot base) and fades where it meets the bowl (soft). Emitters are the flame's foot, not its middle.",
+      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.05,
       "amount": 6, "lifetime": 0.9, "size": [0.32, 0.46], "size_curve": [0.8, 0.5], "velocity": [0.15, 0.35], "spread": 6, "angle": [-8, 8],
       "direction": [0, 1, 0], "gravity": [0, 0.35, 0], "damping": [0.2, 0.4], "blend": "add", "energy": 0.9,
       "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
     },
+    "lantern_flame": {
+      "note": "The flame inside a lantern's glass (owner: liked, but it clipped its holder). The same Flame02 at candle scale: 8.5 cm at most, standing on the wick and barely rising, so it stays inside a 0.24 m glass. Emitter = the wick top.",
+      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.015,
+      "amount": 4, "lifetime": 0.55, "size": [0.06, 0.085], "size_curve": [1.0, 0.75], "velocity": [0.0, 0.03], "spread": 4, "angle": [-3, 3],
+      "direction": [0, 1, 0], "gravity": [0, 0.04, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.15,
+      "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
+    },
+    "candle_flame": {
+      "note": "A bare candle's flame on a table: Flame02 at 5 cm, on the wick.",
+      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.01,
+      "amount": 3, "lifetime": 0.5, "size": [0.035, 0.05], "size_curve": [1.0, 0.8], "velocity": [0.0, 0.02], "spread": 3, "angle": [-3, 3],
+      "direction": [0, 1, 0], "gravity": [0, 0.03, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 1.2,
+      "color": ["#ffffffff", "#ffe8c8ff", "#ffb07000"]
+    },
+    "hearth_fire": {
+      "note": "A hearth or a campfire: Flame02 tongues standing across the bed of the fire (a box, not a 3 x 3 grid of torches), taller and quicker than a torch.",
+      "mode": "stream", "texture": "vfx/ext_unity_flame02.png", "grid": [8, 8], "frames": 64, "fps": 30, "pivot": "base", "soft": 0.08,
+      "box": [0.45, 0.04, 0.45], "amount": 18, "lifetime": 0.85, "size": [0.45, 0.8], "size_curve": [0.9, 0.45], "velocity": [0.15, 0.4], "spread": 8, "angle": [-10, 10],
+      "direction": [0, 1, 0], "gravity": [0, 0.5, 0], "damping": [0.2, 0.4], "blend": "add", "energy": 1.05,
+      "color": ["#ffffffff", "#ffe2b8ff", "#ff9a5000"]
+    },
+    "hearth_fire_core": {
+      "note": "The hot heart of a hearth or campfire: Cosmos NS1 fire (dense licking flame) low among the logs, under hearth_fire's tongues.",
+      "mode": "stream", "texture": "vfx/cos_ns1_fire_8x8.png", "grid": [8, 8], "frames": 64, "fps": 24, "soft": 0.1,
+      "box": [0.35, 0.02, 0.35], "amount": 8, "lifetime": 1.2, "size": [0.6, 0.9], "size_curve": [0.8, 1.0], "velocity": [0.02, 0.08], "spread": 10, "angle": [-6, 6],
+      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.5, 1.0], "blend": "add", "energy": 0.7,
+      "color": ["#ffffff00", "#ffffffff", "#ffd8b0ff", "#ff905000"]
+    },
+    "campfire_smoke": {
+      "note": "Smoke off an open fire: Cosmos NS1 smoke, lit, darker and lower than a chimney's, leaning downwind.",
+      "mode": "stream", "texture": "vfx/cos_ns1_smoke_8x8.png", "grid": [8, 8], "frames": 64, "fps": 12, "lit": true, "soft": 0.3,
+      "amount": 10, "lifetime": 5.0, "size": [0.5, 1.8], "size_curve": [0.3, 1.5], "velocity": [0.45, 0.75], "spread": 10,
+      "direction": [0, 1, 0], "gravity": [0.2, 0.06, 0.12], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.0,
+      "color": ["#6d675f00", "#6d675fb0", "#7a756e60", "#80808000"]
+    },
     "chimney_smoke": {
-      "note": "Smoke from a chimney or a hearth: Unity Labs WispySmoke01 (CC0), lit, rising and leaning downwind, swelling as it thins.",
-      "mode": "stream", "texture": "vfx/ext_unity_wispysmoke01.png", "grid": [8, 8], "frames": 64, "fps": 16, "lit": true,
-      "amount": 22, "lifetime": 6.5, "size": [1.2, 2.8], "size_curve": [0.35, 1.6], "velocity": [0.5, 0.8], "spread": 8,
-      "direction": [0, 1, 0], "gravity": [0.22, 0.05, 0.14], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.1,
-      "color": ["#9a9a9a00", "#949494e0", "#8a8a8a90", "#80808000"]
+      "note": "Smoke from a chimney or a hearth (overhaul): Cosmos NS1 smoke (8K source, 512 px cells) replacing WispySmoke01's 128 px cells - lit, rising and leaning downwind, swelling as it thins.",
+      "mode": "stream", "texture": "vfx/cos_ns1_smoke_8x8.png", "grid": [8, 8], "frames": 64, "fps": 10, "lit": true, "soft": 0.5,
+      "amount": 20, "lifetime": 7.0, "size": [1.3, 3.2], "size_curve": [0.3, 1.7], "velocity": [0.5, 0.8], "spread": 8,
+      "direction": [0, 1, 0], "gravity": [0.22, 0.05, 0.14], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.0,
+      "color": ["#9a9a9a00", "#909090d0", "#8a8a8a80", "#80808000"]
+    },
+    "embers": {
+      "note": "Embers over a fire or the forge: a soft hot point (Cosmos NS1, 128 px, replacing the 16 px spark), rising and drifting, long-lived.",
+      "mode": "stream", "texture": "vfx/cos_ns1_point.png",
+      "amount": 18, "lifetime": 2.6, "size": [0.012, 0.026], "size_curve": [1.0, 0.3], "velocity": [0.3, 0.8], "spread": 25,
+      "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 1.4,
+      "color": ["#fff2c0ff", "#ff9a30ff", "#ff300000"]
     },
     "ash_motes": {
-      "note": "Ash hanging in the Charwood's air: grey flakes drifting down and across round the camera, lit.",
-      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "lit": true, "box": [26, 9, 26],
-      "amount": 110, "lifetime": 9, "size": [0.018, 0.04], "velocity": [0.05, 0.18], "spread": 70,
+      "note": "Ash hanging in the Charwood's air (overhaul): irregular soft flakes (Cosmos NS1) through a grey ramp, tumbling, drifting down and across round the camera, lit.",
+      "mode": "stream", "texture": "vfx/cos_ns1_flake_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "lit": true, "box": [26, 9, 26],
+      "amount": 180, "lifetime": 9, "size": [0.02, 0.04], "velocity": [0.05, 0.18], "spread": 70, "spin": [-60, 60],
       "direction": [0, -1, 0], "gravity": [0.05, -0.05, 0.03], "damping": [0.05, 0.1], "blend": "mix", "energy": 1.0,
-      "color": ["#55555500", "#5f5f5fcc", "#5a5a5acc", "#55555500"]
+      "color": ["#4a4a4a00", "#555555dd", "#505050dd", "#4a4a4a00"]
     },
     "pollen": {
-      "note": "Pollen and dust in the meadow's sunlight: tiny warm specks drifting round the camera.",
-      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "box": [22, 6, 22],
+      "note": "Pollen and dust in the meadow's sunlight: tiny warm specks drifting round the camera (overhaul: soft point texture).",
+      "mode": "stream", "texture": "vfx/cos_ns1_point.png", "box": [22, 6, 22],
       "amount": 45, "lifetime": 8, "size": [0.006, 0.012], "velocity": [0.03, 0.12], "spread": 180,
-      "direction": [0, 1, 0], "gravity": [0.04, 0.01, 0.02], "damping": [0.05, 0.1], "blend": "add", "energy": 1.2,
+      "direction": [0, 1, 0], "gravity": [0.04, 0.01, 0.02], "damping": [0.05, 0.1], "blend": "add", "energy": 1.0,
       "color": ["#fff0c000", "#fff0c099", "#fff0c099", "#fff0c000"]
     },
     "rain": {
-      "note": "Rain in a storm: thin streaks in a box over the camera, falling fast and a little downwind, standing upright.",
-      "mode": "stream", "texture": "vfx/gen_rain_streak.png", "box": [22, 2, 22], "quad": [0.06, 1.0], "billboard": "fixed_y",
-      "amount": 3200, "lifetime": 0.9, "size": [0.5, 0.65], "velocity": [15, 18], "spread": 4, "angle": [0, 0],
+      "note": "Heavy rain in a storm (overhaul): Kenney soft streak drawn ALONG each drop's fall (billboard velocity) instead of a 128 px generated bar standing upright.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [24, 2, 24], "quad": [0.03, 1.0], "billboard": "velocity",
+      "amount": 4200, "lifetime": 0.9, "size": [0.55, 0.8], "velocity": [15, 18], "spread": 4,
       "direction": [0.08, -1, 0.05], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#b4bcc45a", "#b4bcc45a"]
+      "color": ["#c4ccd460", "#c4ccd460"]
+    },
+    "rain_light": {
+      "note": "Light rain: fewer, shorter, slower streaks.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [22, 2, 22], "quad": [0.025, 1.0], "billboard": "velocity",
+      "amount": 1300, "lifetime": 1.3, "size": [0.3, 0.45], "velocity": [9, 11], "spread": 3,
+      "direction": [0.04, -1, 0.02], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#c4ccd448", "#c4ccd448"]
+    },
+    "snow": {
+      "note": "Snow: soft irregular flakes (Cosmos NS1), tumbling and drifting down round the camera, lit.",
+      "mode": "stream", "texture": "vfx/cos_ns1_flake_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "lit": true, "box": [26, 2, 26],
+      "amount": 2400, "lifetime": 10, "size": [0.03, 0.06], "velocity": [0.7, 1.1], "spread": 15, "spin": [-90, 90],
+      "direction": [0, -1, 0], "gravity": [0.15, -0.15, 0.08], "damping": [0.2, 0.4], "blend": "mix", "energy": 1.0,
+      "color": ["#ffffff00", "#ffffffee", "#ffffffee", "#ffffff00"]
+    },
+    "leaves_falling": {
+      "note": "Leaves coming down under the canopy: photographed leaves (Cosmos NS1 4x2), one random leaf each, tumbling and swaying downwind, lit.",
+      "mode": "stream", "texture": "vfx/cos_ns1_leaves_4x2.png", "grid": [4, 2], "frames": 8, "fps": 0, "lit": true, "box": [28, 4, 28], "quad": [0.5, 1.0],
+      "amount": 90, "lifetime": 12, "size": [0.1, 0.15], "velocity": [0.3, 0.6], "spread": 40, "spin": [-160, 160],
+      "direction": [0, -1, 0], "gravity": [0.25, -0.3, 0.12], "damping": [0.4, 0.7], "blend": "mix", "energy": 1.0,
+      "color": ["#ffffff00", "#ffffffff", "#ffffffff", "#ffffff00"]
+    },
+    "fog_bank": {
+      "note": "Low fog in fog weather: broad, slow, faint sheets of Unity Labs Cloud01 round the camera, soft against the ground.",
+      "mode": "stream", "texture": "vfx/ext_unity_cloud01.png", "grid": [8, 8], "frames": 64, "fps": 2, "lit": true, "box": [44, 2.5, 44], "soft": 2.0,
+      "amount": 26, "lifetime": 18, "size": [8, 14], "size_curve": [0.8, 1.2], "velocity": [0.05, 0.2], "spread": 180,
+      "direction": [0, 1, 0], "gravity": [0.08, 0.0, 0.05], "blend": "mix", "energy": 1.0,
+      "color": ["#d5dadd00", "#d5dadd34", "#d5dadd34", "#d5dadd00"]
     },
     "river_mist": {
-      "note": "Mist over the ravine river: Unity Labs Cloud01 (CC0) as broad, slow, faint sheets along the water.",
-      "mode": "stream", "texture": "vfx/ext_unity_cloud01.png", "grid": [8, 8], "frames": 64, "fps": 4, "lit": true, "box": [12, 1.2, 60],
+      "note": "Mist over the ravine river: Unity Labs Cloud01 (CC0) as broad, slow, faint sheets along the water (overhaul: soft against water and banks).",
+      "mode": "stream", "texture": "vfx/ext_unity_cloud01.png", "grid": [8, 8], "frames": 64, "fps": 4, "lit": true, "box": [12, 1.2, 60], "soft": 1.5,
       "amount": 16, "lifetime": 14, "size": [5, 9], "size_curve": [0.7, 1.2], "velocity": [0.05, 0.2], "spread": 180,
       "direction": [0, 1, 0], "gravity": [0.06, 0.005, 0.04], "blend": "mix", "energy": 1.0,
       "color": ["#dde2e500", "#dde2e53a", "#dde2e53a", "#dde2e500"]
     },
-    "embers": {
-      "note": "Embers over a fire or the forge: the spark texture, rising and drifting, long-lived. The VFX Library's fireball_trail recipe, lengthened.",
-      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png",
-      "amount": 18, "lifetime": 2.6, "size": [0.015, 0.03], "size_curve": [1.0, 0.3], "velocity": [0.3, 0.8], "spread": 25,
-      "direction": [0, 1, 0], "gravity": [0.15, 0.25, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 1.1,
+    "waterfall_spray": {
+      "note": "Spray at a waterfall's foot (no waterfall in the region yet): NS1 smoke as white mist billowing off the plunge.",
+      "mode": "stream", "texture": "vfx/cos_ns1_smoke_8x8.png", "grid": [8, 8], "frames": 64, "fps": 20, "lit": true, "box": [4, 0.4, 1.5], "soft": 0.6,
+      "amount": 30, "lifetime": 3.0, "size": [1.0, 3.0], "size_curve": [0.4, 1.4], "velocity": [0.8, 1.6], "spread": 60,
+      "direction": [0, 1, 0.3], "gravity": [0, -0.2, 0], "damping": [0.5, 1.0], "blend": "mix", "energy": 1.0,
+      "color": ["#f2f6f800", "#f2f6f890", "#f2f6f840", "#f2f6f800"]
+    },
+    "water_splash": {
+      "note": "Water thrown up where a stream drops or a body enters water: NS1 photographed splash crowns.",
+      "mode": "stream", "texture": "vfx/cos_ns1_water_splash.png", "lit": true, "box": [2, 0.1, 0.6],
+      "amount": 12, "lifetime": 0.6, "size": [0.3, 0.7], "size_curve": [0.5, 1.2], "velocity": [0.5, 1.5], "spread": 30,
+      "direction": [0, 1, 0], "gravity": [0, -6, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#ffffffd0", "#ffffff80", "#ffffff00"]
+    },
+    "water_drips": {
+      "note": "Drips off an eave, a cave lip or a wet rock: a few short streaks falling.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "billboard": "velocity", "quad": [0.3, 1.0], "box": [0.6, 0.02, 0.1],
+      "amount": 4, "lifetime": 0.7, "size": [0.04, 0.07], "velocity": [0.0, 0.2], "spread": 5,
+      "direction": [0, -1, 0], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#dfe8f0b0", "#dfe8f0b0"]
+    },
+    "dust_kick": {
+      "note": "Dust kicked up by a landing, a dodge or a heavy footfall on dry ground (Unity Labs dust burst, lit, earth-coloured).",
+      "mode": "burst", "texture": "vfx/unity_dustburst01_5x5.png", "grid": [5, 5], "frames": 25, "fps": 25, "lit": true, "soft": 0.2,
+      "amount": 5, "lifetime": 1.1, "size": [0.25, 0.6], "size_curve": [0.5, 1.4], "velocity": [0.3, 0.9], "spread": 70,
+      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [2, 3], "blend": "mix", "energy": 1.0,
+      "color": ["#8a7a6600", "#8a7a6690", "#8a7a6640", "#8a7a6600"]
+    },
+    "hit_blood_splash": {
+      "note": "A blow landing in flesh: a photographed liquid splash (Cosmos NS1) in dark arterial red, thrown along the blow (local +Z) and falling.",
+      "mode": "burst", "texture": "vfx/cos_ns1_blood_splash.png", "lit": true,
+      "amount": 4, "lifetime": 0.45, "size": [0.35, 0.6], "size_curve": [0.45, 1.25], "velocity": [0.6, 1.5], "spread": 35, "angle": [-40, 40],
+      "direction": [0, 0.3, 1], "gravity": [0, -4, 0], "damping": [3, 5], "blend": "mix", "energy": 1.0,
+      "color": ["#ffffffff", "#ffffffd8", "#ffffff00"]
+    },
+    "hit_blood_drops": {
+      "note": "Droplets flung from the wound, streaked along their flight and dropping under gravity.",
+      "mode": "burst", "texture": "vfx/cos_ns1_blood_drop.png", "billboard": "velocity", "quad": [0.45, 1.0], "lit": true,
+      "amount": 20, "lifetime": 0.6, "size": [0.04, 0.08], "size_curve": [1.0, 0.6], "velocity": [2.0, 4.0], "spread": 40,
+      "direction": [0, 0.4, 1], "gravity": [0, -9.8, 0], "damping": [0.5, 1.0], "blend": "mix", "energy": 1.0,
+      "color": ["#ffffffff", "#ffffffff", "#ffffff00"]
+    },
+    "hit_blood_mist": {
+      "note": "A faint red mist hanging a moment where the blow landed (NS1 smoke, dark red).",
+      "mode": "burst", "texture": "vfx/cos_ns1_smoke_8x8.png", "grid": [8, 8], "frames": 64, "fps": 60, "lit": true,
+      "amount": 3, "lifetime": 0.6, "size": [0.2, 0.45], "size_curve": [0.5, 1.4], "velocity": [0.2, 0.6], "spread": 50,
+      "direction": [0, 0.2, 1], "gravity": [0, -0.3, 0], "damping": [3, 4], "blend": "mix", "energy": 1.0,
+      "color": ["#5a0c0c00", "#5a0c0c90", "#5a0c0c00"]
+    },
+    "hit_metal_sparks": {
+      "note": "Steel on steel (the animated armour, a blocked blow): hot streaks along their flight, white to orange, falling.",
+      "mode": "burst", "texture": "vfx/kenney_trace_spark.png", "billboard": "velocity", "quad": [0.12, 1.0],
+      "amount": 26, "lifetime": 0.45, "size": [0.1, 0.22], "size_curve": [1.0, 0.35], "velocity": [3.0, 7.0], "spread": 70,
+      "direction": [0, 0.4, 1], "gravity": [0, -9.8, 0], "damping": [1.0, 2.0], "blend": "add", "energy": 4.0,
+      "color": ["#ffffffff", "#ffff9cff", "#f4b33eff", "#ff4d0000"]
+    },
+    "hit_metal_flash": {
+      "note": "The instant of contact: one hot point, a few frames.",
+      "mode": "burst", "texture": "vfx/cos_ns1_point.png",
+      "amount": 1, "lifetime": 0.08, "size": [0.14, 0.2], "size_curve": [1.0, 0.3], "velocity": [0, 0], "blend": "add", "energy": 3.0,
+      "color": ["#fff6e0ff", "#ffc06000"]
+    },
+    "hit_bone_dust": {
+      "note": "A blow on old bone: pale dust puffing off the strike (NS1 dust, lit).",
+      "mode": "burst", "texture": "vfx/cos_ns1_dust_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "lit": true,
+      "amount": 5, "lifetime": 0.9, "size": [0.2, 0.45], "size_curve": [0.5, 1.4], "velocity": [0.6, 1.4], "spread": 50,
+      "direction": [0, 0.3, 1], "gravity": [0, -0.2, 0], "damping": [3, 4], "blend": "mix", "energy": 1.0,
+      "color": ["#c8bea800", "#c8bea8b0", "#c8bea800"]
+    },
+    "hit_bone_chips": {
+      "note": "Chips of bone thrown off the blow (pale flakes, falling, tumbling).",
+      "mode": "burst", "texture": "vfx/cos_ns1_flake_2x2.png", "grid": [2, 2], "frames": 4, "fps": 0, "lit": true,
+      "amount": 8, "lifetime": 0.7, "size": [0.015, 0.03], "velocity": [1.5, 3.5], "spread": 50, "spin": [-400, 400],
+      "direction": [0, 0.5, 1], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#ddd4bfff", "#ddd4bfff", "#ddd4bf00"]
+    },
+    "hit_ember_burst": {
+      "note": "A blow on an ember hound: embers knocked out of its coat.",
+      "mode": "burst", "texture": "vfx/cos_ns1_point.png",
+      "amount": 24, "lifetime": 1.0, "size": [0.012, 0.03], "size_curve": [1.0, 0.3], "velocity": [1.0, 3.0], "spread": 60,
+      "direction": [0, 0.6, 1], "gravity": [0, 0.4, 0], "damping": [1.0, 2.0], "blend": "add", "energy": 1.8,
       "color": ["#fff2c0ff", "#ff9a30ff", "#ff300000"]
     },
     "mending_threads": {
@@ -109,10 +283,10 @@
       "color": ["#9ee0c400", "#c8fbe6cc", "#9ee0c4aa", "#9ee0c400"]
     },
     "mending_motes": {
-      "note": "Mending Thread's motes: small warm points rising and circling round the chest where the threads stitch (VFX lane: warmer, fewer).",
-      "mode": "stream", "texture": "vfx/ext_vfxlib_spark_particle2.png", "local": true, "ring": [0.3, 0.7], "orbit": [0.18, 0.35],
+      "note": "Mending Thread's motes: small warm points rising and circling round the chest where the threads stitch (overhaul: soft point texture).",
+      "mode": "stream", "texture": "vfx/cos_ns1_point.png", "local": true, "ring": [0.3, 0.7], "orbit": [0.18, 0.35],
       "amount": 20, "lifetime": 1.9, "size": [0.02, 0.045], "size_curve": [1.0, 0.2], "velocity": [0.2, 0.5], "spread": 12,
-      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 2.2,
+      "direction": [0, 1, 0], "gravity": [0, 0.05, 0], "damping": [0.1, 0.3], "blend": "add", "energy": 2.0,
       "color": ["#fff4dc00", "#fff0d0ee", "#c4efd2aa", "#9ee0c400"]
     }
   }

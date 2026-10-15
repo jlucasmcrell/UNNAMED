@@ -1,0 +1,454 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://Art/vfx/foldscar/gen_foldscar_ring.png" id="1_ecbrh"]
+[ext_resource type="Shader" path="res://Art/vfx/foldscar/foldscar_shock.gdshader" id="2_oeatu"]
+[ext_resource type="Shader" path="res://Art/vfx/foldscar/foldscar_column.gdshader" id="3_rtaj0"]
+[ext_resource type="Texture2D" path="res://Art/vfx/foldscar/unity_discsmoke01_16x4.png" id="4_64v0r"]
+[ext_resource type="Texture2D" path="res://Art/vfx/foldscar/cos_ns1_point.png" id="5_akn01"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ppog4"]
+render_priority = 0
+shader = ExtResource("2_oeatu")
+shader_parameter/fade = 0.0
+shader_parameter/bend = null
+shader_parameter/edge_tint = null
+
+[sub_resource type="SphereMesh" id="SphereMesh_51fnm"]
+radius = 1.0
+height = 2.0
+radial_segments = 48
+rings = 24
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sta8y"]
+render_priority = 0
+shader = ExtResource("3_rtaj0")
+shader_parameter/intensity = 0.0
+shader_parameter/tint = null
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3is82"]
+top_radius = 0.55
+bottom_radius = 0.45
+height = 11.0
+radial_segments = 32
+cap_top = false
+cap_bottom = false
+
+[sub_resource type="Gradient" id="Gradient_1vjhm"]
+offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
+colors = PackedColorArray(0.62, 0.6, 0.58, 0, 0.62, 0.6, 0.58, 0.75, 0.62, 0.6, 0.58, 0.35, 0.62, 0.6, 0.58, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_2lff2"]
+gradient = SubResource("Gradient_1vjhm")
+
+[sub_resource type="Curve" id="Curve_7ghei"]
+_data = [Vector2(0, 0.45), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_08s48"]
+curve = SubResource("Curve_7ghei")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_38nnj"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.1
+emission_ring_radius = 0.7
+emission_ring_inner_radius = 0.5
+emission_ring_cone_angle = 90.0
+angle_min = -10.0
+angle_max = 10.0
+direction = Vector3(0, 1, 0)
+initial_velocity_min = 0.2
+initial_velocity_max = 0.6
+radial_velocity_min = 3.5
+radial_velocity_max = 6.0
+gravity = Vector3(0, 0.15, 0)
+damping_min = 3.0
+damping_max = 4.5
+scale_min = 0.6
+scale_curve = SubResource("CurveTexture_08s48")
+color_ramp = SubResource("GradientTexture1D_2lff2")
+anim_speed_min = 1.0
+anim_speed_max = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vu11q"]
+transparency = 1
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("4_64v0r")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 16
+particles_anim_v_frames = 4
+particles_anim_loop = false
+proximity_fade_enabled = true
+proximity_fade_distance = 0.4
+
+[sub_resource type="QuadMesh" id="QuadMesh_f8sqt"]
+material = SubResource("StandardMaterial3D_vu11q")
+size = Vector2(1.6, 1.6)
+
+[sub_resource type="Gradient" id="Gradient_aor6l"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(0.85, 0.88, 1, 0, 0.9, 0.92, 1, 1, 0.72, 0.78, 1, 0.8, 0.6, 0.66, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_sofa6"]
+gradient = SubResource("Gradient_aor6l")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_603t2"]
+emission_shape = 3
+emission_box_extents = Vector3(0.45, 1.2, 0.45)
+direction = Vector3(0, 1, 0)
+spread = 25.0
+initial_velocity_min = 1.5
+initial_velocity_max = 4.0
+radial_velocity_min = 1.0
+radial_velocity_max = 3.0
+gravity = Vector3(0, 0.12, 0)
+damping_min = 0.8
+damping_max = 1.6
+scale_min = 0.4
+color_ramp = SubResource("GradientTexture1D_sofa6")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ofhii"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(2.2, 2.2, 2.2, 1)
+albedo_texture = ExtResource("5_akn01")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_5lgg6"]
+material = SubResource("StandardMaterial3D_ofhii")
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="Gradient" id="Gradient_0k2mf"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(0.85, 0.88, 1, 0, 0.9, 0.92, 1, 1, 0.72, 0.78, 1, 0.8, 0.6, 0.66, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_vlmfd"]
+gradient = SubResource("Gradient_0k2mf")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_aw0xv"]
+emission_shape = 3
+emission_box_extents = Vector3(0.45, 1.2, 0.45)
+direction = Vector3(0, 1, 0)
+spread = 10.0
+initial_velocity_min = 0.25
+initial_velocity_max = 0.6
+gravity = Vector3(0, 0.12, 0)
+damping_min = 0.05
+damping_max = 0.1
+scale_min = 0.4
+color_ramp = SubResource("GradientTexture1D_vlmfd")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w36a7"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(2.2, 2.2, 2.2, 1)
+albedo_texture = ExtResource("5_akn01")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_snbxn"]
+material = SubResource("StandardMaterial3D_w36a7")
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="Animation" id="Animation_ibc0a"]
+length = 4.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Flash:light_energy")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.95, 1.55, 4.15),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.6, 9.0, 2.6999999999999997, 1.4]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Shockring:size")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.85),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1, 4, 1), Vector3(1.2, 4, 1.2), Vector3(16, 4, 16)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Shockring:modulate")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.94, 1, 1.85),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Shockring:emission_energy")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.85),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 8.0, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sigil:modulate")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.95, 4.15),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 0.8), Color(1, 1, 1, 0.55)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sigil:emission_energy")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.35, 4.15),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 6.0, 1.6]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Shock:visible")
+tracks/6/interp = 0
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Shock:scale")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0.95, 1.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.6, 0.35, 0.6), Vector3(9, 3.5, 9)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Shock:material_override:shader_parameter/fade")
+tracks/8/interp = 2
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0.95, 1.05, 1.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.0]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Column:material_override:shader_parameter/intensity")
+tracks/9/interp = 2
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.75, 1, 2.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.4, 3.0, 0.0]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("DustRing:emitting")
+tracks/10/interp = 0
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 0.95),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Burst:emitting")
+tracks/11/interp = 0
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.95),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Motes:emitting")
+tracks/12/interp = 0
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 0.65),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+
+[sub_resource type="Animation" id="Animation_yhr3g"]
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Flash:light_energy")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.4]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sigil:modulate")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.55)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sigil:emission_energy")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.6]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Motes:emitting")
+tracks/3/interp = 0
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0x0x3"]
+_data = {
+&"activate": SubResource("Animation_ibc0a"),
+&"lit": SubResource("Animation_yhr3g")
+}
+
+[node name="FoldscarStoneSet" type="Node3D" unique_id=1945825342]
+
+[node name="Flash" type="OmniLight3D" parent="." unique_id=729892140]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(0.78, 0.82, 1, 1)
+light_energy = 0.0
+omni_range = 9.0
+omni_attenuation = 1.3
+
+[node name="Shockring" type="Decal" parent="." unique_id=734662541]
+size = Vector3(1, 4, 1)
+texture_albedo = ExtResource("1_ecbrh")
+texture_emission = ExtResource("1_ecbrh")
+emission_energy = 0.0
+modulate = Color(1, 1, 1, 0)
+normal_fade = 0.5
+upper_fade = 0.15
+lower_fade = 0.15
+
+[node name="Sigil" type="Decal" parent="." unique_id=309004543]
+size = Vector3(2.4, 4, 2.4)
+texture_albedo = ExtResource("1_ecbrh")
+texture_emission = ExtResource("1_ecbrh")
+emission_energy = 0.0
+modulate = Color(1, 1, 1, 0)
+normal_fade = 0.5
+
+[node name="Shock" type="MeshInstance3D" parent="." unique_id=1343902459]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+visible = false
+material_override = SubResource("ShaderMaterial_ppog4")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_51fnm")
+
+[node name="Column" type="MeshInstance3D" parent="." unique_id=975846910]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.5, 0)
+material_override = SubResource("ShaderMaterial_sta8y")
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_3is82")
+
+[node name="DustRing" type="GPUParticles3D" parent="." unique_id=1278329671]
+cast_shadow = 0
+emitting = false
+amount = 26
+lifetime = 1.6
+one_shot = true
+explosiveness = 1.0
+visibility_aabb = AABB(-12, -2, -12, 24, 8, 24)
+process_material = SubResource("ParticleProcessMaterial_38nnj")
+draw_pass_1 = SubResource("QuadMesh_f8sqt")
+
+[node name="Burst" type="GPUParticles3D" parent="." unique_id=2082563500]
+cast_shadow = 0
+emitting = false
+amount = 70
+lifetime = 1.6
+one_shot = true
+explosiveness = 0.9
+visibility_aabb = AABB(-8, -2, -8, 16, 14, 16)
+process_material = SubResource("ParticleProcessMaterial_603t2")
+draw_pass_1 = SubResource("QuadMesh_5lgg6")
+
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=576240786]
+cast_shadow = 0
+emitting = false
+amount = 16
+lifetime = 3.5
+visibility_aabb = AABB(-8, -2, -8, 16, 14, 16)
+process_material = SubResource("ParticleProcessMaterial_aw0xv")
+draw_pass_1 = SubResource("QuadMesh_snbxn")
+
+[node name="Anim" type="AnimationPlayer" parent="." unique_id=1888907661]
+libraries/ = SubResource("AnimationLibrary_0x0x3")

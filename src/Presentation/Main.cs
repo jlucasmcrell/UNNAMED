@@ -63,6 +63,7 @@ public partial class Main : Node3D
     private CompanionsPanel _companionsPanel = null!;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
+    private Art.HitImpacts _hits = null!;
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
@@ -642,6 +643,9 @@ public partial class Main : Node3D
         _magicEffects = new Art.MagicEffects { Name = "MagicEffects" };
         _magicEffects.Bind(_assets, _bindings, _art.Coverage);
         AddChild(_magicEffects);
+        _hits = new Art.HitImpacts { Name = "HitImpacts" };
+        AddChild(_hits);
+        _hits.Bind(_assets.Root);
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
     }
@@ -1543,6 +1547,18 @@ public partial class Main : Node3D
             if (e.Target == _session.Simulation!.PlayerId && !e.Dodged
                 && _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == e.Attacker) is { } attacker)
                 _magicEffects.Struck(HollowView.ToGodot(attacker.Body.XMm, attacker.Body.YMm, attacker.Body.ZMm) + new Vector3(0, 0.9f, 0));
+        });
+        // What the blow throws off the body it landed on (blood, sparks, bone dust): only for a blow the simulation resolved.
+        _session.Subscribe<HitResolved>(e =>
+        {
+            var simulation = _session.Simulation!;
+            var target = e.Target == simulation.PlayerId ? simulation.Player.Body : simulation.Creatures.FirstOrDefault(c => c.Id == e.Target)?.Body;
+            if (e.Dodged || target is null)
+                return;
+            var attacker = e.Attacker == simulation.PlayerId ? simulation.Player.Body : simulation.Creatures.FirstOrDefault(c => c.Id == e.Attacker)?.Body;
+            var at = HollowView.ToGodot(target.XMm, target.YMm, target.ZMm) + new Vector3(0, 1.0f, 0);
+            var from = attacker is null ? at + Vector3.Forward : HollowView.ToGodot(attacker.XMm, attacker.YMm, attacker.ZMm) + new Vector3(0, 1.0f, 0);
+            _hits.Hit(e.Target == simulation.PlayerId ? null : CreatureDef(e.Target), at, from, e.Blocked);
         });
         _session.Subscribe<HitResolved>(e =>
         {
