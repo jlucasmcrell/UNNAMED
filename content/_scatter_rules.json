@@ -8,7 +8,8 @@
     "the region's own. Densities are per square metre, blended across cell borders.",
     "The ground materials are the ones the region's four cells wear (bindings.json terrain map): cw_moor_grass on the dry rise,",
     "cw_forest_floor on the birch flank, cw_heather over the south cliff-foot, cw_mud_wet on the wet shelf that drains to the gorge.",
-    "NOTE: a tall_tussocks kind was written and placed ZERO instances with no problem reported and no explanation found in the time available. It was removed rather than left in the file looking like it works. The size spread and the third patch scale on moor_grass are the changes that landed."
+    "NOTE: a tall_tussocks kind was written and placed ZERO instances with no problem reported and no explanation found in the time available. It was removed rather than left in the file looking like it works. The size spread and the third patch scale on moor_grass are the changes that landed.",
+    "SHADOWS (2026-10-15, the owner's grass-shadow blink): grass and every wind-driven plant receive shadows but cast none - a swaying blade or frond in the sun's shadow map blinks as it crosses the map's texels. Casting them was also most of the frame: at High the sun's cascades took 24 of the Cairnwold village's 49 ms of GPU (470 M primitives a frame); without them, 3 of 26 ms (82 M). What casts is still (stones, gravel, bark, rocks, the sapling stand) and says far_shadows, so its shadow holds on every level instead of switching off at the third. fade_m is multiplied by the tier's reach (RenderTiers.GroundReach) and the outer 40 % of it thins plant by plant."
   ],
   "chunk_m": 16,
   "path": {
@@ -291,7 +292,8 @@
         1.2
       ],
       "chunk_m": 8,
-      "wind": false
+      "wind": false,
+      "far_shadows": true
     },
     "tufts": {
       "mesh": "model:flora_ph_grass_medium_g",
@@ -590,7 +592,7 @@
       ],
       "stiffness": 1.4,
       "fade_m": 55,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "material_packed_dirt_ground": 0.06,
         "material_churned_wet_mud": 0.35,
@@ -628,7 +630,7 @@
       ],
       "stiffness": 1.1,
       "fade_m": 55,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "material_marsh_grass_turf": 0.05,
         "material_churned_wet_mud": 0.03
@@ -765,7 +767,9 @@
       },
       "clear_margin": 1.0,
       "off_path": true,
-      "note": "Vegetation overhaul 2026-10-14: model:env_ph_dry_branch_debris -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:env_ph_bark_debris_01 -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): shed bark round the trees' feet - Poly Haven bark_debris_01 (CC0), flat enough to walk over."
+      "note": "Vegetation overhaul 2026-10-14: model:env_ph_dry_branch_debris -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:env_ph_bark_debris_01 -> env_ph_dry_branch_debris (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Phase B (B3): shed bark round the trees' feet - Poly Haven bark_debris_01 (CC0), flat enough to walk over.",
+      "far_shadows": true,
+      "wind": false
     },
     "dandelions": {
       "mesh": "model:flora_ph_dandelion",
@@ -822,7 +826,7 @@
       ],
       "stiffness": 1.6,
       "fade_m": 70,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "material_marsh_grass_turf": 0.012,
         "material_packed_dirt_ground": 0.002
@@ -866,7 +870,7 @@
       ],
       "stiffness": 1.2,
       "fade_m": 50,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "material_marsh_grass_turf": 0.03
       },
@@ -934,7 +938,7 @@
       ],
       "stiffness": 1.5,
       "fade_m": 65,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "material_churned_wet_mud": 0.02
       },
@@ -968,7 +972,7 @@
       ],
       "stiffness": 1.0,
       "fade_m": 55,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {},
       "near_water": {
         "add": 0.35,
@@ -1018,7 +1022,8 @@
         "plants": "models"
       },
       "note": "Poly Haven rock_moss_set_02 rock11 at 0.6 m (3000 tris, 2K) replacing the AI image-to-3D rock_field_cluster; size [0.8, 2.6] unchanged.",
-      "wind": false
+      "wind": false,
+      "far_shadows": true
     },
     "moor_grass": {
       "mesh": "model:flora_ph_grass_medium_c",
@@ -1030,7 +1035,7 @@
       ],
       "stiffness": 0.85,
       "fade_m": 120.0,
-      "shadows": true,
+      "shadows": false,
       "per_m2": {
         "cw_moor_grass": 16.0,
         "cw_mud_wet": 10.0,
@@ -1211,7 +1216,8 @@
       "clear_margin": 0.4,
       "off_path": false,
       "note": "Poly Haven rock_moss_set_02 rock08 at 0.45 m (899 tris, 1K, closed) replacing cw_gravel_stone_a (220 tris, 512 px). Size range [0.45, 1.0] and wind off unchanged.",
-      "wind": false
+      "wind": false,
+      "far_shadows": true
     },
     "wildflowers": {
       "mesh": "model:flora_ph_dandelion",
@@ -1290,7 +1296,8 @@
       "clear_margin": 1.0,
       "off_path": true,
       "note": "Vegetation overhaul 2026-10-14: model:flora_ph_sapling_stand -> flora_ph_sapling_stand (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Vegetation overhaul 2026-10-14: model:flora_young_ash_stand_v5 -> flora_ph_sapling_stand (real scans/PBR, card-aware LODs, lod3 impostor, COLOR_0 wind). Previous: Private model-only ash comparison with material-preserving bark LODs. Density, size, placement, distances and wind=false unchanged. Visua",
-      "wind": false
+      "wind": false,
+      "far_shadows": true
     }
   }
 }

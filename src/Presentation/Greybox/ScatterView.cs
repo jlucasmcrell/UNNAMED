@@ -323,9 +323,10 @@ public partial class ScatterView : Node3D
         var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
         var chain = levelsOwner ?? kind.Meshes;
         int levels = Math.Min(chain.Length, from.Count);
+        var bands = new List<MultiMeshInstance3D>(levels);
         for (int level = 0; level < levels; level++)
         {
-            float begin = from[level], end = level + 1 < levels ? from[level + 1] : kind.Rules.FadeM;
+            float begin = from[level], end = level + 1 < levels ? from[level + 1] : Reach(kind.Rules);
             if (end <= begin)
                 continue;
             var multi = new MultiMesh
@@ -337,7 +338,7 @@ public partial class ScatterView : Node3D
                 multi.SetInstanceTransform(i, placed[i].Item1);
                 multi.SetInstanceCustomData(i, placed[i].Item2);
             }
-            AddChild(new MultiMeshInstance3D
+            var band = new MultiMeshInstance3D
             {
                 Name = $"{kind.Rules.Name}_{cx}_{cz}_lod{level}", Multimesh = multi,
                 // THE BAND. Without these two the band is computed above and then thrown away, and EVERY level is
@@ -349,9 +350,10 @@ public partial class ScatterView : Node3D
                 // a number nothing reads cannot have an effect.
                 // Metres, not squared: the card path below sets VisibilityRangeEnd = FadeM the same way.
                 VisibilityRangeBegin = begin, VisibilityRangeEnd = level + 1 < levels ? MathF.BitDecrement(end) : end,
-                // Far foliage cards must not cast slabs. This rock's four levels are solid opaque meshes, so its
-                // shadow must survive the 35 m switch to LOD2 while the rock remains visible to 110 m.
-                CastShadow = kind.Rules.Shadows && (level < 2 || !kind.Rules.Wind && kind.Rules.ModelId == "rock_field_cluster")
+                // Far foliage cards must not cast slabs, so a casting kind casts from its two near levels only - unless the
+                // rules say `far_shadows` (a rock, a sapling stand: solid and still), whose shadow must not switch off at
+                // the third level's edge while the thing itself stays drawn (the ash stand's shadow popping onto a wall).
+                CastShadow = kind.Rules.Shadows && (level < 2 || kind.Rules.FarShadows)
                     ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode = GeometryInstance3D.GIModeEnum.Disabled,
                 // NO FADE MODE. VisibilityRangeFadeMode.Self fades by stippling the surface - and on an
@@ -363,9 +365,24 @@ public partial class ScatterView : Node3D
                 // changes. Keep the existing hard switch; distinct LOD geometry can still pop, which this
                 // culling/shadow repair does not address.
                 VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
-            });
+            };
+            AddChild(band);
+            bands.Add(band);
+        }
+        // ONE BOX FOR EVERY BAND. Godot measures a node's visibility range to the centre of that node's own bounds, and
+        // the levels' meshes differ in size (the impostor is narrower than the clump), so the bands did not meet: at a
+        // band's edge a whole chunk drew in two levels, or in none for one to three frames - grass and its shadow
+        // blinking out while walking. Measured on 2026-10-03: 15 gaps and 8 doubled frames on one walk, none with this.
+        if (bands.Count > 1)
+        {
+            var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
+            foreach (var band in bands)
+                band.CustomAabb = box;
         }
     }
+
+    /// <summary>Where a prepared kind's last level ends: its <c>fade_m</c> times the tier's reach (<see cref="RenderTiers.GroundReach"/>).</summary>
+    private static float Reach(ScatterKind rules) => rules.FadeM * RenderTiers.GroundReach;
 
     /// <summary>A chunk's own random stream: the world seed, the kind and the chunk, so every chunk is the same in every run of that world.</summary>
     private static int ChunkSeed(ulong worldSeed, string kind, int cx, int cz)
@@ -639,6 +656,9 @@ public partial class ScatterView : Node3D
         float height = 0;
         foreach (var level in levels)
         {
+            // The outer part of the reach thins plant by plant (FoliageShader's thin_from/thin_to) on the levels that cast no
+            // shadow: the shadow pass sees the light's camera, so a thinned caster would lose its shadow at the wrong distance.
+            bool thins = !kind.Shadows || meshes.Count >= 2 && !kind.FarShadows;
             var merged = new ArrayMesh();
             foreach (var instance in level.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
             {
@@ -670,7 +690,7 @@ public partial class ScatterView : Node3D
                     merged.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
                     if (height <= 0)
                         height = Math.Max(0.01f, merged.GetAabb().End.Y);
-                    merged.SurfaceSetMaterial(merged.GetSurfaceCount() - 1, Foliage(instance.GetActiveMaterial(s) as BaseMaterial3D, kind, height, _modelAlbedos));
+                    merged.SurfaceSetMaterial(merged.GetSurfaceCount() - 1, Foliage(instance.GetActiveMaterial(s) as BaseMaterial3D, kind, height, thins, _modelAlbedos));
                 }
             }
             level.Free();
@@ -693,11 +713,19 @@ public partial class ScatterView : Node3D
         return height * (0.5f * amount + MathF.Sqrt(2f) * 0.35f * 0.05f + 0.08f * amount * amount);
     }
 
-    private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, Dictionary<string, Texture2D> albedos)
+    private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
     {
         var material = new ShaderMaterial { Shader = _foliageShader ??= new Shader { Code = WindField.FoliageShader } };
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
+        // THE GROUND COVER'S EDGE IS A DENSITY, NOT A RING. A chunk's band ends all at once, so a kind used to stop in a hard
+        // circle at its fade_m. Over the outer 40 % of the reach each plant now drops out at its own distance (a hash of where
+        // it stands), so the cover thins to nothing at the band's end and the far band costs a fraction of its full density.
+        if (thins)
+        {
+            material.SetShaderParameter("thin_from", 0.6f * Reach(kind));
+            material.SetShaderParameter("thin_to", Reach(kind));
+        }
         // STONES DO NOT SWAY. Every model kind goes through this foliage shader, which bends its vertices by wind -
         // correct for grass, ferns and flowers, and absurd for a boulder, which is what "even the rocks" was. A
         // kind says `wind: false` in the rules and the bend and the flutter both go to zero.

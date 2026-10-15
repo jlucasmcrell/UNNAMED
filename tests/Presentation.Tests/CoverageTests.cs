@@ -140,6 +140,32 @@ public class ScatterRulesTests
     }
 
     [Fact]
+    public void TheRegionRules_CastShadowsOnlyFromStillKinds()
+    {
+        // The grass-shadow blink (owner, 2026-10-02 and again 2026-10-15): a swaying plant in the sun's shadow map blinks as it crosses
+        // the map's texels, and an asset swap put real-scan grass with shadows on back into the playtest. Plants that sway receive
+        // shadows only; what casts is still and keeps its shadow on every level, so it never switches off at a band's edge either.
+        var rules = ScatterRules.Parse(File.ReadAllText(Repository.File("content", "_scatter_rules.json")));
+        Assert.Empty(rules.Problems);
+        Assert.All(rules.Kinds.Where(k => k.Shadows), k =>
+        {
+            Assert.False(k.Wind, $"{k.Name} sways and casts a shadow");
+            Assert.True(k.FarShadows, $"{k.Name} casts from its near levels only");
+        });
+    }
+
+    [Fact]
+    public void FarShadows_IsReadAndOffByDefault()
+    {
+        var rules = ScatterRules.Parse("""
+            { "kinds": { "rock": { "mesh": "model:rock_a", "max_per_m2": 1, "shadows": true, "wind": false, "far_shadows": true },
+                         "fern": { "mesh": "model:fern_a", "max_per_m2": 1, "shadows": true } } }
+            """);
+        Assert.True(rules.Kinds.Single(k => k.Name == "rock").FarShadows);
+        Assert.False(rules.Kinds.Single(k => k.Name == "fern").FarShadows);
+    }
+
+    [Fact]
     public void RulesThatAreNotJson_ScatterNothing()
     {
         var rules = ScatterRules.Parse("{ kinds");

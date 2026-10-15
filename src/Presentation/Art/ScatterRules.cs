@@ -34,6 +34,11 @@ public sealed record ScatterKind(
     /// that costs when nothing says otherwise. Default on, so existing kinds are unchanged.</summary>
     public bool Wind { get; init; } = true;
 
+    /// <summary>Whether a casting kind keeps its shadow on every level (<c>far_shadows</c>), not only the two nearest. For big still
+    /// casters - a rock, a sapling stand - whose shadow would otherwise switch off where the third level begins, a pop the owner saw
+    /// on a house wall at 20 m. Wind-driven foliage keeps the near-only default, so its far cards never cast slabs.</summary>
+    public bool FarShadows { get; init; }
+
     /// <summary>Several prepared forms for one kind, one drawn per instance. One clump stamped a quarter of a
     /// million times is a plantation however good the clump is; a pool is how a field gets variety without a new
     /// kind per form. Empty means the kind draws its single <see cref="Mesh"/>.</summary>
@@ -178,6 +183,7 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
         {
             NearWaterAdd = Number(water, "add", 0), NearWaterFromM = Number(water, "from_m", 0), NearWaterToM = Number(water, "to_m", 0),
             Wind = !(e.TryGetProperty("wind", out var wind) && wind.ValueKind == JsonValueKind.False),
+            FarShadows = e.TryGetProperty("far_shadows", out var far) && far.ValueKind == JsonValueKind.True,
             TintLean = Math.Clamp(Number(e, "tint_lean", 0f), 0f, 1f),
             Pool = e.TryGetProperty("pool", out var poolList) && poolList.ValueKind == JsonValueKind.Array
                 ? poolList.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String)

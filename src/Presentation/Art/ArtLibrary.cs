@@ -313,14 +313,16 @@ public sealed class ArtLibrary
             return all[0];
         var full = all[0];
         var root = new Node3D { Name = id };
-        var extent = ArtGallery.Bounds(full).Size;
+        var shared = ArtGallery.Bounds(full);
+        var extent = shared.Size;
         float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
         // A tree's levels come sooner than its size alone would bring them (docs/phase_b/demo/trees/TREES.md): its needles and twigs thin
         // to sky on the lighter meshes past about 130 m, where the crossed-plane impostor holds a solid crown.
         bool tree = IsTreeFamily(id);
+        float reach = Greybox.RenderTiers.LodReach;
         float[] from = tree
-            ? new[] { 0f, 35f, 80f, 150f }
-            : new[] { 0, Math.Max(8f, 4f * size), Math.Max(20f, 10f * size), Math.Max(45f, 22f * size) };
+            ? new[] { 0f, 35f * reach, 80f * reach, 150f * reach }
+            : new[] { 0, Math.Max(8f, 4f * size) * reach, Math.Max(20f, 10f * size) * reach, Math.Max(45f, 22f * size) * reach };
         // UNNAMED_LOD_REPORT=1 prints which ladder a model took and where its levels switch, so a claim about switch distances is
         // measured off a run rather than argued from the source. A name rule is only as good as the names it knows (IsFoliage makes
         // the same point), and this is what makes a name the rule gets WRONG visible: flora_slowtree took the generic ladder, 14 m of
@@ -332,12 +334,17 @@ public sealed class ArtLibrary
         // on one build rather than argued about. The project already gates diagnostics this way
         // (UNNAMED_TERRAIN_AUTOSHADER, UNNAMED_TERRAIN_MARKOUTSIDE, UNNAMED_DUMP_TERRAIN). Default is the hard switch.
         bool stipple = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1";
+        // ONE BOX FOR EVERY SURFACE OF EVERY LEVEL. Godot measures each mesh's visibility range to the centre of that mesh's own
+        // bounds, and a tree's trunk, crown and impostor centre metres apart, so at a switch distance one surface had changed level
+        // and another had not: a crown drawn twice or not at all, its shadow with it, for as long as the camera stood in that gap.
+        // The scatter's bands share a box for the same reason (ScatterView.AddLevels).
         for (int i = 0; i < all.Count; i++)
         {
             root.AddChild(all[i]);
             float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
             foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
             {
+                mesh.CustomAabb = Relative(all[i], mesh).AffineInverse() * shared;
                 mesh.VisibilityRangeBegin = begin;
                 mesh.VisibilityRangeEnd = !stipple && end > 0 ? MathF.BitDecrement(end) : end;
                 // NO STIPPLE FADE, AND NO MARGINS - the same change ScatterView already carries, applied to every other

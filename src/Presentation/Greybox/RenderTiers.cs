@@ -14,6 +14,20 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public static class RenderTiers
 {
+    /// <summary>How far the prepared ground cover reaches, as a multiple of each kind's <c>fade_m</c>. The plants thin out one by one
+    /// over the outer part of it (ScatterView), so a longer reach costs a thinned far band, not a full one; it is paid for by the
+    /// grass no longer casting into the sun's cascades (2026-10-15).</summary>
+    public static float GroundReach => VisualOptions.Tier switch
+    {
+        "high" => 1.5f,
+        "ultra" => 1.8f,
+        _ => 1.0f,
+    };
+
+    /// <summary>How far the library models (trees, rocks, buildings) hold each level before the next lighter one, as a multiple of
+    /// ArtLibrary's ladder: Ultra keeps a tree's crown off its crossed-plane impostor until 225 m rather than 150.</summary>
+    public static float LodReach => VisualOptions.Tier == "ultra" ? 1.5f : 1.0f;
+
     /// <summary>The server-wide settings (shadow atlas and filter, SSAO/SSIL quality) for the run's tier.</summary>
     public static void ApplyGlobal()
     {
@@ -52,15 +66,10 @@ public static class RenderTiers
                 sun.DirectionalShadowMaxDistance = 75f;
                 break;
             case "ultra":
-                // The sun's angular size, in degrees, is the switch that turns on percentage-closer soft shadows:
-                // with it at its default of zero the renderer blurs every shadow by a constant radius however far
-                // away its caster is. The sun really does subtend about half a degree, and with it set, a fencepost's
-                // shadow goes soft as it stretches away - the largest single shadow-quality gain available.
-                //
-                // It is Ultra-only on purpose. It is NOT free: the class reference is explicit that any value above
-                // zero costs noticeably, "especially for directional lights", and the PCSS guidance is to keep it to
-                // a handful of lights and to give players a way to turn it off. Below Ultra the constant blur stands.
-                sun.LightAngularDistance = 0.5f;
+                // No percentage-closer soft shadows here either (the sun's angular size stays 0, as HollowView builds it).
+                // PCSS softened a fencepost's shadow as it stretched away, but its per-frame sample pattern is the shadow
+                // sparkle on swaying grass, and the 2026-10-02 walk measured 0.5 degrees no better than 1.0 for it. The
+                // cost it carried goes to the reach instead (GroundReach and LodReach above).
                 environment.SsrEnabled = true;
                 environment.SsrMaxSteps = 64;
                 // Six cascades, not eight. SDFGI's reach is cell size x 64 x 2^cascades, so at the 0.2 m cell the
@@ -74,9 +83,8 @@ public static class RenderTiers
                 // splits at this distance put split 0's boundary around 17 m, which is the subject and the wall
                 // beside him, and the last boundary near 150 m, so the near hills are still shadowed.
                 sun.DirectionalShadowMaxDistance = 350f;
-                // With PCSS doing the softening, the engine's own blow-up of the blur at Soft Ultra reads as washed
-                // out. Halve it back. (Those multipliers do not apply while PCSS is on, so this is belt and braces.)
-                sun.ShadowBlur = 0.5f;
+                // Soft Ultra widens the filter to 4/3 of Soft High's, so 1.5 here is High's softness (2.0) from more samples.
+                sun.ShadowBlur = 1.5f;
                 break;
         }
     }

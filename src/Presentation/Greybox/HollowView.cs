@@ -759,8 +759,12 @@ public partial class HollowView : Node3D
             ShadowEnabled = true,
             LightEnergy = 1.85f,
             LightColor = new Color(1.0f, 0.95f, 0.86f),
-            LightAngularDistance = 1.0f,
-            ShadowBlur = 1.0f,
+            // NO SUN DISC: a hard sun under a wider fixed blur. An angular size above zero turns on percentage-closer soft
+            // shadows, whose sample pattern rotates every frame; TAA cannot settle that on swaying grass, and it read as shadow
+            // sparkle while walking. The 2026-10-02 walk measured the strong sparkles at 0.00155 with 1.0, 0.00046 with 0,
+            // and 0.00023 with 0 and a blur of 2 - the October fix this restores (it was lost with the Oct 3-14 work).
+            LightAngularDistance = 0f,
+            ShadowBlur = 2.0f,
             // SHADOW BIAS WAS 0.03 - BELOW GODOT'S OWN DEFAULT OF 0.1 - AND THAT IS THE BEST EXPLANATION FOUND
             // FOR THE OWNER'S FLICKER. A bias that low leaves the shadow map comparing a surface against its own
             // depth, so surfaces at a grazing angle to the sun self-shadow in a pattern that changes with every
