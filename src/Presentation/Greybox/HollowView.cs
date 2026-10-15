@@ -544,7 +544,8 @@ public partial class HollowView : Node3D
         // opening round the leaf): at its authored size, never stretched to the opening, centred in it and swung from a hinge of its own
         // at the frame's jamb. The collider stays the opening's panel.
         Node3D? leafHinge = null;
-        string? leafId = _bindings.Doors.GetValueOrDefault(door.Key)?.Model;
+        var binding = _bindings.Doors.GetValueOrDefault(door.Key);
+        string? leafId = binding?.Model;
         // The door's own key is short ("door.smithy") and names its building by the bare word, while a building's prefix is the layout's
         // full one ("cw_smithy", no trailing separator). The two never compared equal, so every door in a library building was drawn as
         // a plain panel with its leaf art sitting unused in the library. Matched here on the last word of the prefix.
@@ -590,7 +591,12 @@ public partial class HollowView : Node3D
                 leaf.Position = new Vector3(-bounds.Position.X, -bounds.Position.Y, -bounds.GetCenter().Z);
                 var turned = new Node3D { Rotation = new Vector3(0, alongZ ? -Mathf.Pi / 2 : 0, 0) };
                 turned.AddChild(leaf);
-                leafHinge = new Node3D { Name = "leaf", Position = hinge.Position + (alongZ ? new Vector3(0, 0, jamb) : new Vector3(jamb, 0, 0)) };
+                // The binding's offset lifts a leaf onto a raised sill (the staddle granary's floor); the collider panel stays put.
+                leafHinge = new Node3D
+                {
+                    Name = "leaf",
+                    Position = hinge.Position + (alongZ ? new Vector3(0, 0, jamb) : new Vector3(jamb, 0, 0)) + binding!.Offset,
+                };
                 leafHinge.AddChild(turned);
                 root.AddChild(leafHinge);
                 panel.Mesh = null;

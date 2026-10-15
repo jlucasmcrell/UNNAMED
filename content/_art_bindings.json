@@ -1530,8 +1530,13 @@
       "note": "fitted leaf: {\"opening_run_m\": 1.4, \"opening_h_m\": 2.4, \"leaf_w_m\": 1.37, \"leaf_h_m\": 2.375}"
     },
     "door.granary": {
-      "model": "door_cw_granary",
-      "note": "fitted leaf: {\"opening_run_m\": 1.4, \"opening_h_m\": 2.4, \"leaf_w_m\": 1.37, \"leaf_h_m\": 2.375}"
+      "model": "door_fab_cw_granary",
+      "offset": [
+        0.0,
+        0.925,
+        0.0
+      ],
+      "note": "Lake Village SM_M_Door02 right leaf, shortened; 1.267 x 1.900 m in the raised 1.28 x 1.95 m doorway of bld_fab_cw_granary, sill 0.925 m. 'offset' lifts it onto the sill only once HollowView.BuildDoor applies the door binding's offset (CONTENT_CHANGES 9); replaces door_cw_granary (2.38 m, fits no raised door)."
     },
     "door.cw_house_05": {
       "model": "door_cw_house_05",

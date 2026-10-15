@@ -79,8 +79,10 @@ LICENCE DECISIONS (owner)
 UI (Field Instrument)
 [ ] 31. Owner acceptance of the Field Instrument UI candidate (ui 2026-10-04 10:28 "OWNER REVIEW CANDIDATE READY" - no owner verdict
         recorded). Open UX option: menu-launched screen -> Escape returns to System Menu vs current Escape -> gameplay (ui 2026-10-02 16:36).
-[ ] 32. Deferred polish: character/session status in System Menu; exact XP gauge; HUD coherence notes (instance ID leaking into the
-        interaction prompt; HUD labels 14-15 px below the menus' floor).
+        2026-10-15: candidate refreshed with the polish and icons; the Escape option is built behind --menu-escape back (default unchanged).
+        Decisions D1-D3 in docs/restore/UI_PASS_2026-10-15.md.
+[x] 32. Deferred polish: character/session status in System Menu; exact XP gauge; HUD coherence notes (instance ID leaking into the
+        interaction prompt; HUD labels 14-15 px below the menus' floor). Done 2026-10-15 with the 45 new UI icons (UI_PASS_2026-10-15.md).
 
 CANON / WEBSITE / INFRA (cmd)
 [ ] 33. Update the devlog and the itch.io devlog with the new screenshots/video ("excited, but not to give too much away") -
