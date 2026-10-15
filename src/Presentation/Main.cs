@@ -667,6 +667,9 @@ public partial class Main : Node3D
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
         AddChild(_npcs);
+        // The character budget's harness (MetaHuman pipeline, Phase 1.4): bound people stood along the camera's view.
+        if (OS.GetEnvironment("UNNAMED_PERF_CROWD") is { Length: > 0 } crowd)
+            AddChild(new CrowdLoad(crowd, _art, _bindings, _ground.Height) { Name = "PerfCrowd" });
         GD.Print($"UNNAMED art: {_art.Used.Count} assets drawn from the library at boot; {_art.Problems.Count} withheld or unavailable (greybox stands in)");
             GD.Print($"UNNAMED art: baked occlusion drawn on {Art.ArtLibrary.OcclusionDrawn} material(s), suppressed on {Art.ArtLibrary.OcclusionSuppressed}");
         _projectiles = new ProjectilesView { Name = "Projectiles" };
