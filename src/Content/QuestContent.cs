@@ -23,11 +23,11 @@ public static class QuestContent
 {
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
-    private static readonly string[] Fields = { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards" };
+    private static readonly string[] Fields = { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
-        { "title_key", "summary_key", "journal_entries", "level_band", "faction_ref", "parent_quest_ref", "chain_index", "abandon_policy", "repeat_policy" };
+        { "title_key", "summary_key", "journal_entries", "level_band", "faction_ref", "parent_quest_ref", "chain_index", "abandon_policy" };
 
     private static readonly string[] ObjectiveFields = { "id", "type", "description", "params", "next", "all_of", "branch", "visibility", "time_limit_min", "on_fail" };
 
@@ -77,9 +77,25 @@ public static class QuestContent
         if (giver is not null)
             Defined(loader, giver, "npc", id);
         var quest = new QuestDefinition(id, Text(map, "title"), Text(map, "summary"), giver, Text(map, "entry_objective"), objectives, failIf,
-            Rows(map, "rewards", id).Select((row, i) => Reward($"{id} rewards[{i}]", row, loader)).ToImmutableArray());
+            Rows(map, "rewards", id).Select((row, i) => Reward($"{id} rewards[{i}]", row, loader)).ToImmutableArray())
+        {
+            RepeatAfterTicks = map.ContainsKey("repeat_policy") ? Repeat(id, Map(map, "repeat_policy"), ticksPerMinute) : null,
+        };
         CheckGraph(quest);
         return quest;
+    }
+
+    /// <summary>
+    /// <c>repeat_policy: { repeatable, cooldown_min }</c>: a repeatable quest is offered again <c>cooldown_min</c> game minutes after it
+    /// ends. Its counted objectives count afresh each time, so each is a hard count (PROGRESSION.md AG-5).
+    /// </summary>
+    private static long? Repeat(string id, Dictionary<object, object> policy, Lazy<double> ticksPerMinute)
+    {
+        if (policy.Keys.Select(k => k as string ?? "").FirstOrDefault(k => k is not ("repeatable" or "cooldown_min")) is { } stray)
+            throw new FormatException($"{id}: '{stray}' is not part of repeat_policy (repeatable, cooldown_min)");
+        if (policy.GetValueOrDefault("repeatable") as string != "true")
+            return policy.ContainsKey("cooldown_min") ? throw new FormatException($"{id}: only a repeatable quest has a cooldown_min") : null;
+        return Ticks(Positive(policy, "cooldown_min", $"{id} repeat_policy"), ticksPerMinute);
     }
 
     private static ObjectiveDefinition Objective(string questId, Dictionary<object, object> map, ContentLoader loader, Lazy<double> ticksPerMinute)

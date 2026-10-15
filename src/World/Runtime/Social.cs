@@ -430,6 +430,9 @@ internal sealed class DialogueSystem : IDialogueFacts
         return quest.Objective(objectiveId) is { } objective ? QuestKeys.Key(objective.Status) : QuestKeys.NotReached;
     }
 
+    public bool QuestAvailable(string questId) =>
+        _context.Setup.Quests.Quests.TryGetValue(questId, out var quest) && QuestRules.CanStart(quest, State.Quests.GetValueOrDefault(questId), State.WorldTick);
+
     /// <summary>Whether each condition of a reply holds now, as it would in a conversation with <paramref name="npcId"/> (the quest debugger).</summary>
     public ImmutableArray<(DialogueCondition Condition, bool Holds)> Check(string npcId, string dialogueId, DialogueChoice choice)
     {
@@ -474,6 +477,8 @@ internal sealed class DialogueSystem : IDialogueFacts
         public int Level => _system.Level;
 
         public string QuestState(string questId, string? objectiveId) => _system.QuestState(questId, objectiveId);
+
+        public bool QuestAvailable(string questId) => _system.QuestAvailable(questId);
 
         public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
     }

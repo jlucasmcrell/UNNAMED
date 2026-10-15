@@ -23,6 +23,9 @@ public sealed record QuestDefinition(
 {
     public ImmutableSortedDictionary<string, ObjectiveDefinition> Objectives { get; } =
         Order.ToImmutableSortedDictionary(o => o.Id, o => o, StringComparer.Ordinal);
+
+    /// <summary>A repeatable quest (<c>repeat_policy</c>) may be taken again this long after it last ended; null when it is taken once.</summary>
+    public long? RepeatAfterTicks { get; init; }
 }
 
 /// <summary>
@@ -275,7 +278,10 @@ public static class QuestKeys
     /// <summary>What an objective is to a condition that asks before the quest reaches it.</summary>
     public const string NotReached = "not_reached";
 
-    public static readonly ImmutableArray<string> QuestStates = ImmutableArray.Create(NotStarted, "active", "completed", "failed");
+    /// <summary>A condition's word for a quest that would start now: never started, or a repeatable one ended long enough ago.</summary>
+    public const string Available = "available";
+
+    public static readonly ImmutableArray<string> QuestStates = ImmutableArray.Create(NotStarted, "active", "completed", "failed", Available);
 
     public static readonly ImmutableArray<string> ObjectiveStates = ImmutableArray.Create(NotReached, "active", "satisfied", "failed", "closed");
 }
@@ -326,6 +332,10 @@ public static class QuestRules
 {
     /// <summary><c>on_fail: fail_quest</c>.</summary>
     public const string FailQuest = "fail_quest";
+
+    /// <summary>Whether the quest would start now: never started, or repeatable and ended at least its repeat time ago.</summary>
+    public static bool CanStart(QuestDefinition quest, QuestState? state, long tick) =>
+        state is null || state.Status != QuestStatus.Active && quest.RepeatAfterTicks is { } after && state.EndedTick is { } ended && tick >= ended + after;
 
     /// <summary>A quest starts with its entry objective active.</summary>
     public static QuestState Start(QuestDefinition quest, long tick) =>

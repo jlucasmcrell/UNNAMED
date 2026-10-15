@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Quests;
 
 namespace UNNAMED.Domain.Social;
 
@@ -152,6 +153,9 @@ public interface IDialogueFacts
     /// <summary>A quest's state as a key (<c>not_started</c> before it starts), or, naming an objective, the objective's (<c>not_reached</c>).</summary>
     string QuestState(string questId, string? objectiveId);
 
+    /// <summary>Whether a <c>start_quest</c> would start the quest now (<c>available</c>): never started, or repeatable and due again.</summary>
+    bool QuestAvailable(string questId) => QuestState(questId, null) == QuestKeys.NotStarted;
+
     /// <summary>The order an NPC who is the character's companion is under; null when they are not a companion (M6).</summary>
     CompanionOrder? CompanionOrderOf(string npcId);
 }
@@ -166,6 +170,7 @@ public static class DialogueRules
         RelationshipCondition r => facts.Relationship(r.NpcId, r.Dimension) is var value && value >= r.Min && value <= r.Max,
         SkillCondition s => facts.SkillLevel(s.SkillId) >= s.Min,
         LevelCondition l => facts.Level >= l.Min,
+        QuestStateCondition { ObjectiveId: null, State: QuestKeys.Available } q => facts.QuestAvailable(q.QuestId) != q.Negated,
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),

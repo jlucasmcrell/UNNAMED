@@ -239,4 +239,19 @@ public class QuestRulesTests
             Only(new RelationshipValueObjective("npc.test.smith", "respect", 10, int.MaxValue)).Holds));
         Assert.Equal(("30", ">= 40", false), (Only(new WaitUntil(40)).Value, Only(new WaitUntil(40)).Wanted, Only(new WaitUntil(40)).Holds));
     }
+
+    [Fact]
+    public void ARepeatableQuest_StartsAgainOnlyOnceItsRepeatTimeHasPassed()
+    {
+        var once = Quest(O("o_shelf", Visit));
+        var daily = once with { RepeatAfterTicks = 57_600 };
+        var done = QuestRules.Advance(daily, QuestRules.Start(daily, 0), new Facts { Places = { "location.shelf" } }, 10).State;
+
+        Assert.True(QuestRules.CanStart(daily, null, 0));
+        Assert.Equal(QuestStatus.Completed, done.Status);
+        Assert.False(QuestRules.CanStart(daily, done, 57_609));
+        Assert.True(QuestRules.CanStart(daily, done, 57_610));
+        Assert.False(QuestRules.CanStart(once, done, 1_000_000));
+        Assert.False(QuestRules.CanStart(daily, QuestRules.Start(daily, 0), 1_000_000));
+    }
 }

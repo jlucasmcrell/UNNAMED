@@ -55,7 +55,10 @@ public sealed record ObjectiveView(string Id, string Description, ObjectiveStatu
 
 // ── internal commands ──────────────────────────────────────────────────────────
 
-/// <summary>To <see cref="QuestSystem"/>: start a quest (a conversation's <c>start_quest</c>). A quest already started is refused.</summary>
+/// <summary>
+/// To <see cref="QuestSystem"/>: start a quest (a conversation's <c>start_quest</c>). A quest already started is refused, unless it is
+/// repeatable and due again.
+/// </summary>
 internal sealed record StartQuest(string QuestId, string? GiverId) : InternalCommand;
 
 /// <summary>To <see cref="QuestSystem"/>: the character did something a counting objective may be waiting for.</summary>
@@ -89,8 +92,9 @@ internal sealed class QuestSystem : IQuestFacts
     {
         if (!Setup.Quests.TryGetValue(command.QuestId, out var quest))
             return $"there is no quest {command.QuestId}";
-        if (State.Quests.ContainsKey(quest.Id))
-            return $"{quest.Title} is already {QuestKeys.Key(State.Quests[quest.Id].Status)}";
+        // A repeatable quest, once its repeat time has passed since it ended, starts afresh over its last record.
+        if (State.Quests.TryGetValue(quest.Id, out var last) && !QuestRules.CanStart(quest, last, tick))
+            return $"{quest.Title} is already {QuestKeys.Key(last.Status)}";
         State.SetQuest(_owner, QuestRules.Start(quest, tick));
         _context.Events.Publish(new QuestStarted(quest.Id, command.GiverId, tick));
         _context.Events.Publish(new ObjectiveActivated(quest.Id, quest.Entry, tick));
