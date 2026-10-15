@@ -26,6 +26,7 @@ public sealed partial class FaceDriver : Node
     private string _seed = "";
     private float _peak;
     private double _peakAt = -1;
+    private readonly Dictionary<string, float> _arkit = new(StringComparer.Ordinal);
     private double _since;
 
     private static readonly string[] Channels =
@@ -33,6 +34,28 @@ public sealed partial class FaceDriver : Node
         "eyeBlinkLeft", "eyeBlinkRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
         "viseme_DD", "viseme_kk", "viseme_CH", "viseme_SS", "viseme_nn", "viseme_RR", "viseme_aa", "viseme_E", "viseme_I", "viseme_O",
         "viseme_U",
+    };
+
+    /// <summary>
+    /// A face with ARKit shapes but no visemes (a MetaHuman, baked from its RigLogic poses) speaks through these: each viseme as a blend
+    /// of ARKit mouth shapes, the jaw still driven by jawOpen. Rough phonetics, not a performance - the line on screen moving the mouth.
+    /// </summary>
+    private static readonly Dictionary<string, (string Shape, float Weight)[]> VisemeAsArkit = new(StringComparer.Ordinal)
+    {
+        ["viseme_PP"] = new[] { ("mouthPressLeft", 0.55f), ("mouthPressRight", 0.55f), ("mouthClose", 0.35f) },
+        ["viseme_FF"] = new[] { ("mouthRollLower", 0.55f), ("mouthUpperUpLeft", 0.2f), ("mouthUpperUpRight", 0.2f) },
+        ["viseme_TH"] = new[] { ("tongueOut", 0.25f), ("mouthStretchLeft", 0.1f), ("mouthStretchRight", 0.1f) },
+        ["viseme_DD"] = new[] { ("mouthStretchLeft", 0.15f), ("mouthStretchRight", 0.15f), ("mouthShrugUpper", 0.15f) },
+        ["viseme_kk"] = new[] { ("mouthStretchLeft", 0.2f), ("mouthStretchRight", 0.2f) },
+        ["viseme_CH"] = new[] { ("mouthFunnel", 0.4f), ("mouthPucker", 0.2f), ("mouthShrugUpper", 0.15f) },
+        ["viseme_SS"] = new[] { ("mouthStretchLeft", 0.35f), ("mouthStretchRight", 0.35f), ("mouthSmileLeft", 0.1f), ("mouthSmileRight", 0.1f) },
+        ["viseme_nn"] = new[] { ("mouthClose", 0.1f), ("mouthStretchLeft", 0.1f), ("mouthStretchRight", 0.1f) },
+        ["viseme_RR"] = new[] { ("mouthPucker", 0.35f), ("mouthFunnel", 0.2f) },
+        ["viseme_aa"] = new[] { ("mouthStretchLeft", 0.1f), ("mouthStretchRight", 0.1f), ("mouthLowerDownLeft", 0.2f), ("mouthLowerDownRight", 0.2f) },
+        ["viseme_E"] = new[] { ("mouthStretchLeft", 0.35f), ("mouthStretchRight", 0.35f), ("mouthSmileLeft", 0.2f), ("mouthSmileRight", 0.2f) },
+        ["viseme_I"] = new[] { ("mouthSmileLeft", 0.35f), ("mouthSmileRight", 0.35f), ("mouthStretchLeft", 0.2f), ("mouthStretchRight", 0.2f) },
+        ["viseme_O"] = new[] { ("mouthFunnel", 0.6f), ("mouthPucker", 0.2f) },
+        ["viseme_U"] = new[] { ("mouthPucker", 0.7f), ("mouthFunnel", 0.2f) },
     };
 
     /// <summary>A driver for <paramref name="model"/>'s face, or null when no mesh carries the blink channel.</summary>
@@ -63,6 +86,16 @@ public sealed partial class FaceDriver : Node
                 int i = mesh.FindBlendShapeByName(channel);
                 if (i >= 0)
                     index[channel] = i;
+            }
+            // No visemes of its own but the ARKit mouth: bind those shapes, keyed "arkit:<name>", for the viseme blends above.
+            if (!index.ContainsKey("viseme_aa") && mesh.FindBlendShapeByName("mouthPucker") >= 0)
+            {
+                foreach (string shape in VisemeAsArkit.Values.SelectMany(v => v).Select(v => v.Shape).Distinct())
+                {
+                    int i = mesh.FindBlendShapeByName(shape);
+                    if (i >= 0 && !index.ContainsKey(shape))
+                        index["arkit:" + shape] = i;
+                }
             }
             if (index.Count > 0)
                 driver._meshes.Add((mesh, index));
@@ -108,10 +141,26 @@ public sealed partial class FaceDriver : Node
             float now = _weights.GetValueOrDefault(channel);
             _weights[channel] = Mathf.Lerp(now, target, channel.StartsWith("eyeBlink", StringComparison.Ordinal) ? blinkRate : rate);
         }
+        // The ARKit mouth a viseme stands for, where a face has no visemes of its own (summed over the visemes easing in and out).
+        _arkit.Clear();
+        foreach (var (viseme, blend) in VisemeAsArkit)
+        {
+            float w = _weights.GetValueOrDefault(viseme);
+            if (w <= 0.001f)
+                continue;
+            foreach (var (shape, weight) in blend)
+                _arkit[shape] = _arkit.GetValueOrDefault(shape) + w * weight;
+        }
         foreach (var (mesh, index) in _meshes)
         {
             foreach (var (channel, i) in index)
-                mesh.SetBlendShapeValue(i, _weights.GetValueOrDefault(channel));
+            {
+                float value = channel.StartsWith("arkit:", StringComparison.Ordinal) ? _arkit.GetValueOrDefault(channel[6..]) : _weights.GetValueOrDefault(channel);
+                // mouthClose is both a channel and part of the PP blend on such a face.
+                if (channel == "mouthClose" && !index.ContainsKey("viseme_PP"))
+                    value += _arkit.GetValueOrDefault("mouthClose");
+                mesh.SetBlendShapeValue(i, Mathf.Clamp(value, 0f, 1f));
+            }
         }
         // The blink is the one face channel a blind review can score from three metres, and "the character never blinks" has been
         // reported from frame measurements rather than from the driver. This prints what the driver actually set, so the next claim
