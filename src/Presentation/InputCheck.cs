@@ -46,6 +46,7 @@ public sealed class InputCheck
     private int _wait;
     private int _logMark;
     private Simulation? _world;
+    private string? _failed;
 
     public InputCheck(GameSession session, PlayerController controller, CameraRig camera, Func<bool> modal, Func<string, LoadResult?> load,
         DialoguePanel dialogue, InventoryPanel inventory, CharacterPanel character, SavesPanel saves)
@@ -165,7 +166,12 @@ public sealed class InputCheck
                 return Next(10);
             case 22:
                 if (!_panels.Dialogue.Visible)
-                    return Fail("Sel's conversation did not open again");
+                {
+                    // Recorded, and the System Menu is still checked: the run fails at its end all the same.
+                    _failed = "Sel's conversation did not open again, so the load with a conversation open (M-03) was not checked";
+                    _step = 23;
+                    return Next(0);
+                }
                 if (_load(SaveSlots.Quick) is null)
                     return Fail("the quick save did not load");
                 Reading = true;
@@ -197,6 +203,8 @@ public sealed class InputCheck
                 if (Windowed && Input.MouseMode != Input.MouseModeEnum.Captured)
                     return Fail("closing the System Menu did not take the mouse back");
                 _passed.Add("Escape opened the System Menu and closed it back to play");
+                if (_failed is not null)
+                    return Fail(_failed);
                 GD.Print($"UNNAMED input check: PASS - {string.Join("; ", _passed)}" + (Windowed ? "" : " (headless: the mouse was not checked)"));
                 return 0;
         }

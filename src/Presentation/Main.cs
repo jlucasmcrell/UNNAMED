@@ -2046,19 +2046,26 @@ public partial class Main : Node3D
     private void SaveScreenshot(string directory, string name) => SaveScreenshot(GetViewport(), directory, name);
 
     /// <summary>
-    /// A capture larger than the display (the UI's 2560 x 1440 acceptance size on a 1080p screen): the engine fits the window to the screen,
-    /// so it is sized again to the <c>--resolution</c> asked for, and the screenshot reads the whole viewport.
+    /// A capture larger than the display (the UI's 2560 x 1440 acceptance size on a 1080p screen): the system fits the window to the
+    /// screen once it is shown, so a second after the start it is sized again to the <c>--resolution</c> asked for, and the screenshots
+    /// read the whole viewport.
     /// </summary>
-    private static void SizeForCapture()
+    private void SizeForCapture()
     {
         string[] args = OS.GetCmdlineArgs();
         int at = Array.IndexOf(args, "--resolution");
-        if (at < 0 || at + 1 >= args.Length || args[at + 1].Split('x') is not [var w, var h]
-            || !int.TryParse(w, out int width) || !int.TryParse(h, out int height) || DisplayServer.WindowGetSize() == new Vector2I(width, height))
+        if (at < 0 || at + 1 >= args.Length || args[at + 1].Split('x') is not [var w, var h] || !int.TryParse(w, out int width) || !int.TryParse(h, out int height))
             return;
-        DisplayServer.WindowSetPosition(Vector2I.Zero);
-        DisplayServer.WindowSetSize(new Vector2I(width, height));
-        GD.Print($"UNNAMED ui shots: the window sized to {width} x {height} for the capture (it is {DisplayServer.WindowGetSize().X} x {DisplayServer.WindowGetSize().Y})");
+        var wanted = new Vector2I(width, height);
+        GetTree().CreateTimer(1.0).Timeout += () =>
+        {
+            if (DisplayServer.WindowGetSize() != wanted)
+            {
+                DisplayServer.WindowSetPosition(Vector2I.Zero);
+                DisplayServer.WindowSetSize(wanted);
+            }
+            GD.Print($"UNNAMED ui shots: capturing at {DisplayServer.WindowGetSize().X} x {DisplayServer.WindowGetSize().Y} (asked for {width} x {height})");
+        };
     }
 
     private void OpenInventory(string? container)
