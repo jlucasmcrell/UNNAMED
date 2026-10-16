@@ -57,7 +57,7 @@ public partial class JournalPanel : CanvasLayer
             _chosen = tracked ?? quests.FirstOrDefault()?.Id ?? Recent;
         string signature = _chosen + "|" + tracked + "|" + string.Join("|", quests.Select(q =>
                 $"{q.Id}:{q.Status}:{q.LostTo}:" + string.Join(",", q.Objectives.Select(o => $"{o.Id}{o.Status}{o.Progress}"))))
-            + "|" + string.Join("|", journal.Recent.Select(e => $"{e.Tick}{e.Text}")) + "|" + string.Join("|", bounties.Select(b => $"{b.QuestId}{b.Standing}{b.ClaimantId}"))
+            + "|" + string.Join("|", journal.Recent.Select(e => $"{e.Tick}{e.Text}")) + "|" + string.Join("|", bounties.Select(b => $"{b.QuestId}{b.Standing}{b.ClaimantId}{AgainMinutes(b, session)}"))
             + "|" + string.Join("|", notes.Select(n => n.Text));
         if (signature == _drawn)
             return;
@@ -225,16 +225,19 @@ public partial class JournalPanel : CanvasLayer
         detail.AddChild(section);
     }
 
+    /// <summary>Whole minutes until a taken bounty is posted again, as the board shows them; null when it is not waiting.</summary>
+    private static string? AgainMinutes(BountyView bounty, GameSession session) =>
+        bounty.PostedAgainTick is { } at ? $"{Math.Max(0, at - session.Simulation!.WorldTick) * session.TickSeconds / 60:0}" : null;
+
     /// <summary>The bounty board: every bounty, by giver - open, held by the character, or taken, by whom, and when it is posted again.</summary>
     private static void BoardDetail(VBoxContainer detail, IReadOnlyList<BountyView> bounties, GameSession session)
     {
         var section = UiKit.Section("Bounty board", "Standing work. A competitive bounty goes to whoever finishes it first.");
         section.AddThemeConstantOverride("separation", 4);
-        long now = session.Simulation!.WorldTick;
         foreach (var bounty in bounties)
         {
             string giver = bounty.GiverId is { } g ? Names.Of(session, g) : "";
-            string again = bounty.PostedAgainTick is { } at ? $"posted again in {Math.Max(0, at - now) * session.TickSeconds / 60:0} min" : "";
+            string again = AgainMinutes(bounty, session) is { } minutes ? $"posted again in {minutes} min" : "";
             var row = UiKit.Row(null, bounty.Title, string.Join(" - ", new[] { giver, bounty.Competitive ? "competitive" : "", again }.Where(x => x.Length > 0)),
                 bounty.Standing == BountyStanding.Open ? HudStyle.Bone : HudStyle.Ash);
             row.Root.AddChild(bounty.Standing switch
