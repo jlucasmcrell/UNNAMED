@@ -32,6 +32,10 @@ Method, per frame (glTF frame, +Y up, metres; the maths is numpy and runs withou
     same way, by a two-bone solve that keeps the FK knee's hinge plane (thigh swing plus twist), so a
     planted source foot stays planted on a body whose thigh : shin ratio differs. A goal beyond the leg's
     reach first lowers the hips; what is lowered and anything still out of reach is recorded.
+    --stance rest (the default) keeps the travel relative to the TARGET's rest ankles, so a target whose rest
+    stands wider than the source's (the production A-pose: ankles 0.35 m apart over 0.20 m hips) walks that
+    much wider; --stance source moves each ankle's goal sideways onto the source's own stance about its thigh
+    midpoint, scaled the same way (height and fore-aft stay rest-relative), so the step width is the source's.
 
 Blender does only the rig and the export: it imports the target GLB, keys pose bones with
 basis = rest_local^-1 . wanted_local (glTF node locals; exact for a Blender-authored rig imported with the
@@ -275,7 +279,7 @@ class Scene:
 # the retarget
 
 class Retarget:
-    def __init__(self, source, target, bmap, scale_mode="legs"):
+    def __init__(self, source, target, bmap, scale_mode="legs", stance="rest"):
         self.src, self.tgt, self.map = source, target, bmap
         self.S0 = source.world(source.local())
         self.T0 = target.world(target.local())
@@ -314,8 +318,9 @@ class Retarget:
             return np.linalg.norm(p[1] - p[0]) + np.linalg.norm(p[2] - p[1])
         tl = np.mean([leg(target, self.T0, c) for c in bmap["target_legs"]])
         sl = np.mean([leg(source, self.S0, [self.entry[b]["source"] for b in c]) for c in bmap["target_legs"]])
-        hip_t = target.pos(self.T0, "hips")[1]
-        hip_s = self._pos0(self.entry["hips"]["source"])[1]
+        self.hips = bmap.get("target_hips", "hips")     # the bone that carries the body (UE skeletons: pelvis)
+        hip_t = target.pos(self.T0, self.hips)[1]
+        hip_s = self._pos0(self.entry[self.hips]["source"])[1]
         self.scale_legs, self.scale_hips = tl / sl, hip_t / hip_s
         if scale_mode == "legs":
             self.k = self.scale_legs
@@ -353,6 +358,18 @@ class Retarget:
         self.mid_t0 = np.mean([target.pos(self.T0, c[0]) for c in legs], axis=0)
         self.mid_src = [self.entry[c[0]]["source"] for c in legs]
         self.mid_s0 = np.mean([self._pos0(n) for n in self.mid_src], axis=0)
+        # --stance source: a constant sideways shift per ankle that turns rest-relative travel into the source's
+        # stance about the thigh midpoint (mid_t0 + k.Q.(ankle_s - mid_s0), lateral part); zero for --stance rest
+        self.stance = stance
+        self.stance_shift = {}
+        lat_t = np.array([lt[0], 0.0, lt[2]]) / np.linalg.norm([lt[0], lt[2]])
+        for thigh, _shin, foot in legs:
+            shift = np.zeros(3)
+            if stance == "source":
+                a_s0 = self._pos0(self.entry[foot]["source"])
+                shift = (self.mid_t0 + self.k * (self.Q @ (a_s0 - self.mid_s0))) - target.pos(self.T0, foot)
+                shift = np.dot(shift, lat_t) * lat_t        # sideways only: the rest's fore-aft offset stays
+            self.stance_shift[foot] = shift
         self.leg_span = {c[2]: np.linalg.norm(target.pos(self.T0, c[1]) - target.pos(self.T0, c[0]))
                          + np.linalg.norm(target.pos(self.T0, c[2]) - target.pos(self.T0, c[1])) for c in legs}
 
@@ -449,7 +466,7 @@ class Retarget:
 
     def _ankle_goal(self, body, foot):
         s_ankle = self.entry[foot]["source"]
-        return self.tgt.pos(self.T0, foot) + self.k * (
+        return self.tgt.pos(self.T0, foot) + self.stance_shift[foot] + self.k * (
             self.Q @ (self.src.pos(body, s_ankle) - self._pos0(s_ankle)))
 
     def _two_bone(self, world, thigh, shin, foot, goal):
@@ -514,7 +531,7 @@ class Retarget:
                 R = ortho(world[p][:3, :3] @ ortho(Lr[:3, :3])) if p else tgt.rot(self.T0, b)
             if p is None:                       # the root: at rest in the body frame
                 P = tgt.pos(self.T0, b)
-            elif b == "hips":
+            elif b == self.hips:
                 mid_s = np.mean([src.pos(B, n) for n in self.mid_src], axis=0)
                 mid_t = self.mid_t0 + self.k * (self.Q @ (mid_s - self.mid_s0))
                 R0 = tgt.rot(self.T0, b)
@@ -579,6 +596,25 @@ class Retarget:
 
 # ------------------------------------------------------------------------------------------------
 # inputs, provenance, record
+
+def close_loop(frames, times, seconds):
+    """Ease the last `seconds` of a clip into its first frame (each bone's local rotation slerped, position lerped, smoothstep
+    weight), so a take that ends away from where it began (an idle, a gesture) loops without a pop. Returns the largest
+    rotation the closure applied, in degrees."""
+    end, worst = times[-1], 0.0
+    first = frames[0]
+    for i, t in enumerate(times):
+        a = (t - (end - seconds)) / seconds
+        if a <= 0:
+            continue
+        w = a * a * (3 - 2 * a)
+        for b, m in frames[i].items():
+            q = slerp(mat_quat(ortho(m[:3, :3])), mat_quat(ortho(first[b][:3, :3])), w)
+            r = qmat(q)
+            worst = max(worst, rot_angle_deg(ortho(m[:3, :3]).T @ r))
+            frames[i][b] = compose(r, (1 - w) * m[:3, 3] + w * first[b][:3, 3])
+    return worst
+
 
 def sha256_file(path):
     h = hashlib.sha256()
@@ -647,6 +683,10 @@ def parse_args():
     p.add_argument("--scale", default="legs", help="legs | hips | <number>")
     p.add_argument("--feet", choices=("ik", "fk"), default="ik",
                    help="ik: ankles follow the source ankles' scaled travel (no slide); fk: rotations only")
+    p.add_argument("--stance", choices=("rest", "source"), default="rest",
+                   help="rest: ankles travel from the target's rest stance; source: the source's step width (feet=ik)")
+    p.add_argument("--loop-blend", type=float, default=0.0,
+                   help="seconds at the end eased into the first frame (a take that does not loop by itself; needs --loop)")
     p.add_argument("--fps", type=float, default=60.0,
                    help="bake rate (default 60, the game frame rate and the authored player clips' rate)")
     p.add_argument("--category", default="locomotion")
@@ -745,8 +785,9 @@ def main():
         source, target = Scene(src_path), Scene(args.target)
         tracks = source.tracks(args.clip)
         fps = args.fps or round(Scene.key_rate(tracks))
-        rt = Retarget(source, target, bmap, args.scale)
+        rt = Retarget(source, target, bmap, args.scale, args.stance)
         times, frames, travel = rt.run(tracks, fps, args.root, args.feet)
+        loop_closure_deg = close_loop(frames, times, args.loop_blend) if args.loop and args.loop_blend > 0 else 0.0
 
         rig_id = os.path.basename(args.target).replace("_rigged.glb", "").replace(".glb", "")
         out_glb = os.path.join(args.assets, "animation", "ready", family_dir(animation_id), animation_id + ".glb")
@@ -816,6 +857,10 @@ def main():
                 "facing_yaw_deg": round(rt.yaw_deg, 3),
                 "facing_yaw_measured_deg": round(rt.yaw_measured_deg, 3),
                 **rt.ik_facts,
+                "stance": args.stance,
+                "loop_blend_s": args.loop_blend if args.loop else 0.0,
+                "loop_closure_max_deg": round(loop_closure_deg, 2),
+                "stance_shift_m": {f: [round(float(x), 4) for x in v] for f, v in rt.stance_shift.items()},
                 "root_mode": args.root,
                 "root_travel_m": [round(float(x), 4) for x in net],
                 "root_path_m": round(float(seg.sum()), 4),
