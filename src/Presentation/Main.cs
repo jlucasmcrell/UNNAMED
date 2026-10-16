@@ -201,7 +201,8 @@ public partial class Main : Node3D
         if (_options.TryGetValue("--art-gallery", out string? gallery))
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
-            AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(gallery)));
+            AddChild(new Art.ArtGallery(new Art.ArtLibrary(catalog.Root),
+                Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(gallery)));
             return;
         }
         if (_options.TryGetValue("--kit-sheet", out string? kit))

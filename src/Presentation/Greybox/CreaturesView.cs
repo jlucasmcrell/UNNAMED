@@ -36,12 +36,13 @@ public partial class CreaturesView : Node3D
         _tick = simulation.WorldTick;
         var views = simulation.Creatures;
         var eye = GetViewport()?.GetCamera3D()?.GlobalPosition;
+        Art.OtherFauna.Dusk();
         foreach (var creature in views)
         {
             if (!_figures.TryGetValue(creature.Id, out var figure))
             {
                 var definition = simulation.Setup.Combat.Creatures[creature.DefId];
-                var skinned = Art.SkinnedCreature.Create(_art, _bindings, definition);
+                var skinned = Art.SkinnedCreature.Create(_art, _bindings, definition, creature.Id.Value);
                 string? model = _bindings.Creatures.GetValueOrDefault(creature.DefId)?.Model;
                 if (skinned is not null)
                     _art.Coverage.Resolved("creature", creature.DefId, model!);

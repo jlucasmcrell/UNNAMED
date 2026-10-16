@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.buck.name
 tags: [creature, beast]
-name: Stag
+name: Timber Stag
 notes: The stag that keeps a few hinds. Warier than they are, and the first to go.
 family: beast
 archetype: prey

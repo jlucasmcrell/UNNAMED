@@ -29,15 +29,17 @@ public sealed partial class SkinnedCreature : CreatureBody
     private int _phaseTicks = 1;
 
     /// <summary>The bound creature's skinned body, or null when the bindings or the asset lack it (the greybox is drawn instead).</summary>
-    public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition)
+    public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition, string individual)
     {
         if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
             return null;
         // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
         float Pace(string state, float measured) => (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
-        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace), _runPace = Pace("run", RunPace) };
+        // A bigger animal of the kind takes longer strides: its clips' paces grow with it.
+        float size = OtherFauna.Apply(model, definition.Id, look.Fauna, individual);
+        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size };
         creature.AddChild(model);
-        creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y + 0.4f, 0);
+        creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y * size + 0.4f, 0);
         creature.AddChild(creature._mark);
         return creature;
     }

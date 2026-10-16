@@ -25,6 +25,7 @@ public static class VisualOptions
         ["wind"] = new[] { "none", "on" },
         ["vfx"] = new[] { "flipbooks", "recipes" },
         ["life"] = new[] { "none", "on" },
+        ["fauna"] = new[] { "other", "earth" },  // earth: the WildMesh animals as scanned, without their otherfauna looks (before/after only)
         ["hooks"] = new[] { "none", "on" },
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)

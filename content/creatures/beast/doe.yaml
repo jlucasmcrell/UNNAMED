@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.doe.name
 tags: [creature, beast]
-name: Doe
+name: Timber Hind
 notes: Red deer of the Charwood and the road's birch (canon firstplay doe). Grazes in the open, watches everything, and is gone at twenty metres; a hunter needs a bow and a crouch.
 family: beast
 archetype: prey
