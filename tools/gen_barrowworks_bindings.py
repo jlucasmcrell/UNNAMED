@@ -24,7 +24,11 @@ import subprocess
 
 ROOT = r"C:\Otherreach_Build\barrowworks_wt"
 REGION = os.path.join(ROOT, "content", "regions", "barrowworks.yaml")
-BINDINGS = os.path.join(ROOT, "content", "_art_bindings.json")
+# The ring's OWN overlay, NOT Cairnwold's. `content/_art_bindings.json` is the region overlay the shipped
+# PLAY.bat passes on every launch, and `ArtBindings` REPLACES a top-level `roof_groups` - so a ring roof list
+# living there stopped the longhouse's and forge's roofs being built with the option off (review B4). A
+# region's art belongs in the region's own file; `Main` layers this one only for a run of the ring.
+BINDINGS = os.path.join(ROOT, "content", "_art_bindings_barrowworks.json")
 
 # The look: old works, cut into the hill. The brief names stone, bronze, ceramic, dark iron and asks for
 # "few material families". Two of stone, then: the worked halls wear dressed masonry, and the rooms past the

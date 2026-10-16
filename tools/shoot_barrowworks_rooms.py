@@ -64,7 +64,7 @@ try:
                      "--region", "region.barrowworks",
                      "--content-root", os.path.join(ROOT, "content"),
                      "--asset-root", ASSET_ROOT,
-                     "--bindings-overlay", os.path.join(ROOT, "content", "_art_bindings.json"),
+                     "--bindings-overlay", os.path.join(ROOT, "content", "_art_bindings_barrowworks.json"),
                      "--visual", "barrowworks=1",
                      # The sixth field is the standoff scale. The harness's 9 m and 26 m are landscape-scale and
                      # walk the character straight through a room's wall; 0.15 gives 0.03 / 1.35 / 3.9 m, which

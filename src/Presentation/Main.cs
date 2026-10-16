@@ -147,6 +147,13 @@ public partial class Main : Node3D
     /// **this ceiling is what suppresses those spikes.** *The eased value then converges on the true speed, which is
     /// what the 1.002 ratio means.* **A teleport, a respawn or a cell transition is still caught by it.**
     /// </summary>
+    /// <summary>
+    /// The ring's region id. A run of it takes the ring's own bindings (<c>content/_art_bindings_barrowworks.json</c>)
+    /// rather than the region overlay the shipped launch passes, because a region's art belongs in the region's file
+    /// (review B4). A normal launch plays <c>region.starting_frontier</c> and never reaches that branch.
+    /// </summary>
+    private const string BarrowworksRegion = "region.barrowworks";
+
     private const float SpeedCeiling = 8f;
     /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
     private const double DeathFadeLeadSeconds = 1.2;
@@ -327,8 +334,15 @@ public partial class Main : Node3D
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
         // sheets, the audio beds). The asset workspace carries it, so a region is chosen by --asset-root and
         // --region together and neither half reaches into the other's files.
-        string? regionBindings = _options.GetValueOrDefault("--bindings-overlay")
-            ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
+        // A run of the ring takes the ring's own bindings, because a region's art belongs in the region's file.
+        // The ring's used to live in Cairnwold's overlay, which the shipped PLAY.bat passes on EVERY launch - and
+        // `ArtBindings` replaces a top-level `roof_groups`, so the longhouse's and forge's roofs stopped being
+        // built with the option off (review B4). A normal launch plays region.starting_frontier, so it never
+        // reaches this and its overlay is exactly what it always was.
+        string? regionBindings = region == BarrowworksRegion
+            ? Path.Combine(contentRoot, "_art_bindings_barrowworks.json")
+            : _options.GetValueOrDefault("--bindings-overlay")
+                ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
         if (regionBindings is not null && System.IO.File.Exists(regionBindings))
             GD.Print($"UNNAMED art: regional bindings layered over the shared ones from {regionBindings}");
         _bindings = Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, regionBindings);
