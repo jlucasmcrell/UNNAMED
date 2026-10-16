@@ -51,6 +51,8 @@ public partial class Hud : CanvasLayer
     private readonly Label _deathText = Text(20);
     private double _deathUntil;
     private double _clock;
+    private readonly ColorRect _fade = new() { Color = new Color(0, 0, 0, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+    private float _fadeTarget;
 
     // The production HUD (visual option hud=production, which every quality tier selects): HudView lays out the same information at the
     // same moments, in the finished style (HudStyle); the classic controls above are then never put on the screen. The compass, reticle
@@ -60,6 +62,10 @@ public partial class Hud : CanvasLayer
 
     public override void _Ready()
     {
+        var fadeLayer = new CanvasLayer { Layer = 100 };
+        _fade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        fadeLayer.AddChild(_fade);
+        AddChild(fadeLayer);
         if (_production)
         {
             ReadyProduction();
@@ -298,6 +304,9 @@ public partial class Hud : CanvasLayer
         _deathUntil = _clock + seconds;
     }
 
+    /// <summary>Fade the whole screen to black (true) or back (false), a second either way.</summary>
+    public void FadeToBlack(bool black) => _fadeTarget = black ? 1 : 0;
+
     public bool DebugVisible
     {
         get => _debug.Visible;
@@ -400,6 +409,7 @@ public partial class Hud : CanvasLayer
     public override void _Process(double delta)
     {
         _clock += delta;
+        _fade.Color = _fade.Color with { A = Mathf.MoveToward(_fade.Color.A, _fadeTarget, (float)delta) };
         if (_death.Visible && _clock >= _deathUntil)
             _death.Visible = false;
         for (int i = _live.Count - 1; i >= 0; i--)

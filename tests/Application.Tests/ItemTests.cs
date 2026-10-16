@@ -28,7 +28,7 @@ public class ItemTests
     private static (Simulation Simulation, EventBus Bus) Custom(GameSession session, Func<ItemSetup, ItemSetup> change)
     {
         var bus = new EventBus();
-        var setup = session.Setup with { Items = change(session.Setup.Items) };
+        var setup = session.Setup with { Items = change(session.Setup.Items), Combat = session.Setup.Combat with { Spawns = ImmutableArray<SpawnSite>.Empty } };   // the walk to the den is not a fight
         var player = Simulation.NewCharacter(setup, EntityId.NewId(EntityKind.Character), "Wanderer", 7);
         return (Simulation.Start(setup, player, new WorldDelta(session.Generator, 42, new Registry()), 0, bus), bus);
     }
