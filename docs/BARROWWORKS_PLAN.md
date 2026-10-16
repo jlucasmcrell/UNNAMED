@@ -400,6 +400,29 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2f - the verdict, on a worktree that renders
+
+**The blockout is real and it renders.** With the import cache in place, the room frames show the character
+standing on the blockout's floor, the walls receding away, and **sky visible through the room's opening** -
+the 3 m centred gap the generator cuts. The geometry, the openings and the character placement are all
+correct. This supersedes P2d, whose "renders correctly, merely unlit" was an over-read of an amplified empty
+frame; the conclusion happens to survive, but for reasons that were not established at the time.
+
+**The interior is genuinely dark.** In the R01 and R02 frames the room is lit only by a deep blue sky
+ambient that does not reach an enclosed space. That is the same finding P2d reached, now measured on a
+project that can show the difference - so interior lighting is a real piece of P2 work and not an artefact.
+
+**The survey is the wrong shape for this phase.** `--survey` does thirteen stations at three standpoints
+each, and measured on this machine it takes **8-16 minutes per standpoint** at the default tier: the first
+six frames took 31 minutes, and the run was stopped with 6 of ~39 taken. **Room shots belong on `--shot
+"x,z,yaw_deg"`**, one room per run, thirty seconds each. The full survey is for a final pass, not for
+looking at a blockout.
+
+**Where P2 stands:** the blockout exists, all thirteen rooms are named and walkable, both entrances are gated
+and round-trip correctly, and six frames prove it renders. **Not done:** interior lighting, and the
+per-room frames taken with `--shot` rather than a survey. Visual acceptance stays **BLOCKED** - a greybox in
+near-darkness is not finished art, and the owner has not reviewed it.
+
 ### P2e - the screenshots were never about the interior: the worktree had no imported assets
 
 **The owner's testimony was right and my measurement was wrong.** They watched every Godot launch and said
