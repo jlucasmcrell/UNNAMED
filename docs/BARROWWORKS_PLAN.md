@@ -161,7 +161,48 @@ completed defeat stays completed. Death keeps the existing Ashen Waystone behavi
 
 From `11_ASSET_REQUIREMENTS.md`. **A file on disk is a candidate, not an accepted asset.**
 
-### 3.1 Blocker to resolve first: the depot drive letter moved
+### 3.1 CORRECTED - the brief ranks its sources, and I had reversed them
+
+The first cut of this section read the brief's P3 as "Poly Haven and ambientCG", put those at the top, and
+buried the rest in a note. **That is backwards.** The brief says *"Sources on disk, **best first**"* and
+gives a four-item ranking, quoted here so it is not paraphrased again:
+
+1. `Sketchfab_20261016\` - Kalamos Cave, Rock Wall Scan, the minerals (calcite, limonite dripstone, salt
+   stalagmite, malachite) for growths in the deep rooms, and the industrial pipe packs.
+2. `Stylized_Borderline_20261016\` - the Rotopoly sewer kit (CC0), the Nodex3D medieval dungeon kit, Kyle's
+   Rock Pack. `SHORTLIST.md` carries the ratings.
+3. The **Fab Megascans** "Old Mine", "Derelict Corridor" and "Dark Ruins" samples. These are Unreal content:
+   export with `ue_export/export_pack.ps1` on the ExportHost project, **never FabAssets**. The depot already
+   has a `UE_Exports\` folder for this.
+4. Poly Haven and ambientCG **textures**, for the box/triplanar retexture method.
+
+So 1-3 are the **geometry and material kits**, and Poly Haven/ambientCG at 4 are the **retexture fallback** -
+used when a surface has no kit to cover it, not as the starting point. The owner's own instruction agrees:
+*if we do not have to re-texture, we should not.*
+
+### 3.2 What the restore ALREADY uses - measured, not assumed
+
+The world's materials are **already 4K realistic PBR with full provenance.** This changes what P3 is. From
+`Otherreach_Playtest_RESTORE_20261015b\primary\materials`:
+
+- **22 world materials, 145 files, 2,317 MB.** Each folder holds `basecolor`, `normal`, `orm` (or `arm`),
+  `albedo_height`, `normal_rough`, a Godot `material` resource, and a **`provenance.json`**.
+- Every map measured is **4096 x 4096**. Not 2K, not placeholder.
+- Provenance names the source, the source asset, the source page, the authors, the licence, the licence URL,
+  the **licence text's SHA-256**, a `shippable` flag, the resolution, and a **SHA-256 per shipped map**.
+- Sources are almost all **Poly Haven, CC0 1.0** (`ter_ph_*` is terrain/Poly Haven; `cw_*` is Cairnwold).
+- The mechanism already exists and is in production: `ArtLibrary.WorldMaterial(id)` builds an
+  `OrmMaterial3D` with `Uv1Triplanar` **and** `Uv1WorldTriplanar`, tiled in metres by the record's
+  `TileSizeM`, so a material tiles in world space on any surface without UVs.
+
+**So there is no texture to "update".** The library is already the best realistic PBR on disk and the engine
+already applies it triplanar. What the Barrowworks needs is **its own material set built the same way** -
+old works: stone, bronze, ceramic, dark iron, damp ground - dropped into `materials/<id>/` with a provenance
+file, and it will apply itself. That is authoring to the existing pattern, not a retexture pass.
+
+### 3.3 Blocker: the depot drive letter moved
+
+
 
 `11` gives every depot path under `F:\Otherreach_External_Assets`. **`F:` does not exist on this
 machine.** The depot is now `C:\Otherreach_External_Assets`. Paths in the source document are therefore
