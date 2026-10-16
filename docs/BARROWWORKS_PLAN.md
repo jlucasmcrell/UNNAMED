@@ -347,7 +347,33 @@ back where they entered. With the option off, nothing in the playtest changes an
 | Date | Commit | What landed | Suite |
 |---|---|---|---|
 | 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
-| 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | **855 passing, 0 failed** |
+| 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
+| 2026-10-16 | _(this commit)_ | P1b: a site's cell follows the space it stands in + 3 tests | **860 passing, 0 failed** |
+
+### P1b — sites carry their space, and `SpaceId` moved to Domain
+
+**Landed:** `DoorSite`, `SwitchSite`, `BarrierSite` and `LocationSite` each carry a `Space`, defaulting to
+the exterior. `Simulation.CellOf` resolves a site's flag cell in that space. A door, a switch and a
+barrier are exactly where a `world.*` flag lives, and a flag cell is where the flag, its delta and its
+baseline hash live — so before this, an interior grille at local metres would have opened the exterior
+gate sharing its coordinates.
+
+**`SpaceId` had to move to `src/Domain/Spatial/`.** It was written beside `CellKey` in `World`, and the
+build refused it: `RegionLayout` is Domain, Domain cannot reference World, and the four site records
+need the type. Domain is the innermost layer that World and Content can both see, so a space identity
+belongs there. This is `tests/Architecture.Tests` doing its job — the layer boundary is enforced, and it
+caught a placement mistake rather than a boundary violation.
+
+**Why the sites and not `Body`:** `Body` is referenced at roughly 250 sites as a bare position. Putting a
+space on it would have been a sprawling change across combat, companion, creature, quest and presentation
+code. A site is authored content that genuinely knows where it stands, which is the narrowest place to
+put the fact, and it is what `CellOf` actually reads.
+
+**Not done, still the bulk of P1:** the player's own space as runtime state; the saved return anchor; the
+enter and exit transitions; the frozen-while-absent lifecycle; save and load while inside; and the sweep
+of the position-derived cells that do *not* come from a site — `Crafting`, `Creatures`, `Combat`, `Social`
+and `Items` each derive a cell or an RNG channel straight from a body's coordinates and will need the
+space of whoever is standing there.
 
 ### P1a — what landed, and what did not
 

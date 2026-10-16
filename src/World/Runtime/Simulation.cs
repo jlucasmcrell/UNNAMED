@@ -167,19 +167,23 @@ public sealed class Simulation
     }
 
     /// <summary>The cell a door stands in: its flag lives in that cell's delta.</summary>
-    public static CellKey CellOf(DoorSite door) =>
-        CellKey.OfWorld(door.ClosedFootprint.CenterXMm / 1000.0, door.ClosedFootprint.CenterZMm / 1000.0);
+    public static CellKey CellOf(DoorSite door) => CellOf(door.Space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
-    public static CellKey CellOf(SwitchSite site) => CellOf(site.Body);
+    public static CellKey CellOf(SwitchSite site) => CellOf(site.Space, site.Body);
 
     /// <summary>The cell a barrier stands in (M6): the flag that lifts it lives in that cell's delta.</summary>
-    public static CellKey CellOf(BarrierSite barrier) => CellOf(barrier.Footprint);
+    public static CellKey CellOf(BarrierSite barrier) => CellOf(barrier.Space, barrier.Footprint);
 
-    private static CellKey CellOf(Blocker footprint)
+    /// <summary>
+    /// A site's cell, in the space the site stands in. <see cref="CellKey.OfInterior"/> with the exterior
+    /// space is <see cref="CellKey.OfWorld"/>, so an authored exterior site still resolves to exactly the
+    /// cell it always did (M8 D10).
+    /// </summary>
+    private static CellKey CellOf(SpaceId space, Blocker footprint)
     {
         var (x, z) = Footprints.Center(footprint);
-        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
+        return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
     }
 
     public SimulationSetup Setup { get; }

@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Globalization;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World;
 
@@ -66,45 +67,6 @@ public readonly record struct RegionKey(int Rx, int Rz) : IComparable<RegionKey>
         value = (int)signed;
         return true;
     }
-}
-
-/// <summary>
-/// The identity of a space a coordinate belongs to (WORLD_ARCHITECTURE.md §8). The exterior world is
-/// the default space; an interior is its own, so that two equal local coordinates in different spaces
-/// can never collide.
-/// </summary>
-/// <remarks>
-/// The M8 design is explicit that this is not a portal-scene concern: combat target membership,
-/// projectiles, perception, inventory reach, stations, discoveries, companion orders, baseline identity
-/// and serialization all derive a cell or a position, and an interior whose local origin sits inside the
-/// exterior region grid would otherwise share that cell, its deltas and its random stream with real
-/// ground. The default value is the exterior and its name is empty, so every existing key, save file and
-/// parse stays byte-identical.
-/// </remarks>
-public readonly record struct SpaceId
-{
-    /// <summary>The exterior world. The default, and the only space that existed before M8.</summary>
-    public static readonly SpaceId Exterior = default;
-
-    public SpaceId(string name) => Name = name ?? "";
-
-    /// <summary>Canonical name, e.g. <c>space.barrowworks</c>; empty for the exterior.</summary>
-    /// <remarks><c>default(SpaceId)</c> has a null Name because a struct's default runs no constructor -
-    /// and <see cref="CellKey.TryParse"/> starts from <c>default</c> - so every reader treats null as the
-    /// empty exterior name rather than dereferencing it.</remarks>
-    public string Name { get; }
-
-    public bool IsExterior => string.IsNullOrEmpty(Name);
-
-    /// <summary>Rejects a name that cannot round-trip through a save key, rather than writing a broken one.</summary>
-    public static SpaceId Parse(string value)
-    {
-        if (value.Length != 0 && (value.Contains('/') || value.Contains(':') || value.Any(char.IsWhiteSpace)))
-            throw new FormatException($"Not a space name: '{value}'");
-        return new SpaceId(value);
-    }
-
-    public override string ToString() => Name ?? "";
 }
 
 /// <summary>
