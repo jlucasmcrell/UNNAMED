@@ -3,6 +3,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Travel;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
@@ -254,10 +255,29 @@ public class HistoricalFixtureTests
         Assert.Equal(schema >= 15 ? "waystone.fixture.ford" : null, loaded.Player.ReturnPoint);
         Assert.Equal(schema >= 15 ? new[] { "road.fixture.track#0", "road.fixture.track#1" } : Array.Empty<string>(), loaded.Player.RoadsWalked);
 
+        // Schema 16's deeds (WP5, E-7): three hounds killed, two draughts handed to the warden, a sword crafted - every name renamed to
+        // today's; before it, nothing counted.
+        Assert.Equal(schema >= 16
+                ? new[]
+                {
+                    new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900),
+                    new DeedTally(DeedKind.Delivered, "item.potion.minor_healing", "npc.fixture.warden_sera", 2, 4_200),
+                    new DeedTally(DeedKind.Killed, "creature.beast.ash_ember_hound", null, 3, 4_800),
+                }
+                : Array.Empty<DeedTally>(),
+            loaded.Player.Deeds);
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
+            >= 16 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x3", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x6",
+                "location.wolf_den -> location.den_mouth", "npc.fixture.warden -> npc.fixture.warden_sera x4",
+                "quest.fixture.errand -> quest.fixture.wardens_errand", "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 14 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x2", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

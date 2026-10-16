@@ -384,6 +384,7 @@ public sealed class Simulation
             Waystones = _travel.Records(),
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
+            Deeds = _state.Deeds.Values.ToImmutableArray(),
         };
     }
 

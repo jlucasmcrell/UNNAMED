@@ -421,6 +421,45 @@ public class NpcTests
         Assert.Equal(("That's plenty. My thanks.", "dialogue.test.arrows/ask.1"), (Now(arena).Text, Now(arena).LineId));
     }
 
+    /// <summary>E-7, schema 16: the deeds counted - a delivery to Renn here - survive a save and load, and the line still knows them.</summary>
+    [Fact]
+    public void DeedsDone_ContinueAcrossASaveAndLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var given = new DeedCondition(Domain.Quests.DeedKind.Delivered, Arrows, 1, false) { NpcId = Renn };
+        var ask = new DialogueNode("ask", "Spare any arrows?", ImmutableArray.Create(
+            new DialogueChoice("give", "Take one.", ImmutableArray<DialogueCondition>.Empty,
+                ImmutableArray.Create<DialogueConsequence>(new TransferItemConsequence(Arrows, 1, false)), "ask")), null, false, null)
+        {
+            Variants = ImmutableArray.Create(new DialogueVariant("Thanks for the arrow.", ImmutableArray.Create<DialogueCondition>(given))),
+        };
+        var dialogue = new DialogueDefinition("dialogue.test.arrows", ImmutableArray.Create(Renn), "ask",
+            new[] { ask }.ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal));
+        var social = session.Setup.Social;
+        var rules = session.Setup with
+        {
+            Social = new SocialSetup(social.Npcs.SetItem(Renn, social.Npcs[Renn] with { DialogueId = dialogue.Id }), social.Dialogues.SetItem(dialogue.Id, dialogue)),
+        };
+        var arena = Arena.OpenCreatures(session, rules, AtRenn, 0, Array.Empty<(string, double, double, string)>(),
+            r => With(r, 0, new InventoryEntry(EntityId.NewId(EntityKind.Item), Arrows, 5)));
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Renn)));
+        Assert.Null(Say(arena, "give"));
+        Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
+        arena.Tick(3);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("gave"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var again = Arena.Resume(rules, store.Load(SaveSlots.Manual("gave"), new LoadContext(session.Generator, session.Content, new Registry())));
+
+        Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
+        var deed = Assert.Single(again.Simulation.CaptureRecord().Deeds);
+        Assert.Equal((Domain.Quests.DeedKind.Delivered, Arrows, (string?)Renn, 1), (deed.Kind, deed.SubjectId, deed.NpcId, deed.Count));
+        Assert.Null(again.Submit(new TalkCommand(again.Player, Renn)));
+        Assert.Equal("Thanks for the arrow.", Now(again).Text);
+    }
+
     /// <summary>E-10: a bark's line ID is its NPC's and its place among their conversation's barks, counted from 1.</summary>
     [Fact]
     public void Barks_CarryLineIdsDerivedFromTheirPlace()

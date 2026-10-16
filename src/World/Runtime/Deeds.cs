@@ -8,7 +8,7 @@ namespace UNNAMED.World.Runtime;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Deeds"/> - how many times the character has killed, crafted, harvested or delivered each thing, and
-/// when last. Every deed recorded for the quests is tallied here too, whether or not a quest was waiting for it.
+/// when last (saved with the player, schema 16). Every deed recorded for the quests is tallied here too, whether or not a quest was waiting for it.
 /// </summary>
 internal sealed class DeedSystem
 {

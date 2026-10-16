@@ -57,6 +57,7 @@ public class PlayerRecordCompletenessTests
                 Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Woken, 4_400)),
                 ReturnPoint = "waystone.fixture.cairn",
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
+                Deeds = player.Deeds,
             };
     }
 

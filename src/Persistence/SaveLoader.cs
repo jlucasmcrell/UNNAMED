@@ -10,6 +10,7 @@ using MessagePack;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -364,8 +365,25 @@ internal static class SaveLoader
                 companions.TryAdd(id, companion with { NpcId = id });
         }
 
+        // Deeds (schema 16): a deed whose subject or NPC was removed goes with it; two tallies that resolve to one are summed, keeping
+        // the later tick.
+        var deeds = new SortedDictionary<string, DeedTally>(StringComparer.Ordinal);
+        foreach (var deed in player.Deeds)
+        {
+            if (Resolve(deed.SubjectId, $"player deed ({DeedKeys.Key(deed.Kind)})") is not { } subject)
+                continue;
+            string? npc = null;
+            if (deed.NpcId is not null && (npc = Resolve(deed.NpcId, "player deed (delivered to)")) is null)
+                continue;
+            var resolved = deed with { SubjectId = subject, NpcId = npc };
+            deeds[resolved.Key] = deeds.TryGetValue(resolved.Key, out var known)
+                ? known with { Count = (int)Math.Min(int.MaxValue, (long)known.Count + resolved.Count), LastTick = Math.Max(known.LastTick, resolved.LastTick) }
+                : resolved;
+        }
+
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values),
+                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values)
+                .WithDeeds(deeds.Values),
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),

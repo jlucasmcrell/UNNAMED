@@ -136,7 +136,8 @@
     },
     "waystones": [],
     "return_point": null,
-    "roads_walked": []
+    "roads_walked": [],
+    "deeds": []
   },
   "cells": [
     {

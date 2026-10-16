@@ -21,6 +21,7 @@ using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
+using V15 = UNNAMED.Persistence.Sections.V15;
 
 namespace UNNAMED.Persistence;
 
@@ -82,7 +83,8 @@ public static class SchemaMigrations
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
-        new SchemaV14ToV15());
+        new SchemaV14ToV15(),
+        new SchemaV15ToV16());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -824,7 +826,7 @@ public sealed class SchemaV14ToV15 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V15.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -847,6 +849,53 @@ public sealed class SchemaV14ToV15 : SchemaMigration
                 Waystones = Array.Empty<WaystoneDto>(),
                 ReturnPoint = null,
                 RoadsWalked = Array.Empty<string>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 15 to 16 (WP5, E-7): the player gains the deeds they have done - how many times they killed, crafted, harvested or delivered
+/// each thing - which dialogue's deed condition reads. A save that predates them counted none: it starts the tally at nothing.
+/// </summary>
+public sealed class SchemaV15ToV16 : SchemaMigration
+{
+    public override int From => 15;
+
+    public override string Summary => "schema 15 -> 16: the player gains the deeds they have done (none counted)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = Array.Empty<DeedDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

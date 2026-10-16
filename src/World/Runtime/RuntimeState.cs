@@ -77,7 +77,7 @@ public enum StateSlice
     /// <summary>The Waystones the player knows and the one they chose to return to (S-38). Saved with the player (schema 15).</summary>
     Waystones,
 
-    /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads.</summary>
+    /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
     Deeds,
 }
 
@@ -123,6 +123,7 @@ internal sealed class RuntimeState
         RoadsWalked = player.RoadsWalked.ToImmutableSortedSet(StringComparer.Ordinal);
         KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
         ReturnPoint = player.ReturnPoint;
+        Deeds = player.Deeds.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -152,8 +153,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
-    public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; } =
-        ImmutableSortedDictionary.Create<string, DeedTally>(StringComparer.Ordinal);
+    public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
