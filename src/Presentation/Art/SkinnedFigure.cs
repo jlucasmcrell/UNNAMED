@@ -50,7 +50,6 @@ public sealed partial class SkinnedFigure : Figure
             return null;
         var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases };
         figure.AddChild(model);
-        Outfit.Dress(art, model, person.Outfit);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
             || posture.Bind(model.Skeleton, "hips", new[] { "thigh.L", "thigh.R" }, new[] { "shin.L", "shin.R" }))
@@ -82,7 +81,19 @@ public sealed partial class SkinnedFigure : Figure
             figure.AddChild(face);
             figure._face = face;
         }
+        // A MetaHuman's corrective helper joints, then its garments' springs: they correct and swing the pose the clips, IK and
+        // look-at made, so they stay the skeleton's last modifiers (CHARACTER_ANIMATION_STRATEGY.md 4.4), including over the ones
+        // the figure's owner adds once this returns.
+        CorrectiveJoints.Load(art, person.Model, model.Skeleton);
+        Outfit.Dress(art, model, person.Outfit);
+        Callable.From(() => KeepLast(model.Skeleton)).CallDeferred();
         return figure;
+    }
+
+    private static void KeepLast(Skeleton3D skeleton)
+    {
+        foreach (var node in skeleton.GetChildren().Where(n => n is CorrectiveJoints).Concat(skeleton.GetChildren().Where(n => n is SpringBoneSimulator3D)).ToList())
+            skeleton.MoveChild(node, -1);
     }
 
     /// <summary>
