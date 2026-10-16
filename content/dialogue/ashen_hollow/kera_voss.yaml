@@ -143,6 +143,9 @@ nodes:
         text: "I'll find out what it measures."
         consequences:
           - { command: start_quest, quest_ref: quest.barrowworks.unfinished_measure }
+          # The wedge has to be taught somewhere or `o_wedge` can never be crafted: crafting refuses a recipe the
+          # character does not know (Crafting.cs:164) and nothing taught this one (review B3b).
+          - { command: give_recipe, recipe_ref: recipe.smithing.fitting_wedge }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_about_the_ring }
         next: again
   barrowworks_again:
@@ -156,6 +159,9 @@ nodes:
         conditions: [{ kind: quest_state, quest_ref: quest.barrowworks.unfinished_measure, is: not_started }]
         consequences:
           - { command: start_quest, quest_ref: quest.barrowworks.unfinished_measure }
+          # The wedge has to be taught somewhere or `o_wedge` can never be crafted: crafting refuses a recipe the
+          # character does not know (Crafting.cs:164) and nothing taught this one (review B3b).
+          - { command: give_recipe, recipe_ref: recipe.smithing.fitting_wedge }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_about_the_ring }
         next: again
       - id: back

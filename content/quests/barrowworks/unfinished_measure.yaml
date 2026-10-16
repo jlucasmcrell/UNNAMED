@@ -77,28 +77,34 @@ objectives:
     type: explore_location
     description: See what the headworks measures.
     params: { location_ref: location.barrowworks.headworks, within_m: 10 }
+    # `branch: first`: answering one way closes the other, so the choice is a choice. Satisfying one of the two
+    # endings closes its alternative (Quests.cs L504-505) rather than leaving both open to be satisfied.
+    branch: first
     next: [o_preserve, o_dismantle]
   - id: o_preserve
     type: world_state
     description: Tell Kera to leave the mechanism whole.
     params: { flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, value: 1 }
-    next: [o_done]
+    # The report is a sibling, not a follower of the close: it must be satisfiable while the quest is still open.
+    next: [o_done, o_report]
   - id: o_dismantle
     type: world_state
     description: Tell Kera to break the mechanism up for what it is made of.
     params: { flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, value: 1 }
-    next: [o_done]
-  # ── close, and the optional report ──────────────────────────────────────────────────────────────────────────────────────
-  # Closing waits on whichever ending was answered, so telling Kera what the ring was, and what to do with it, both happen
-  # before the quest is complete.
+    next: [o_done, o_report]
+  # ── close, and the report ──────────────────────────────────────────────────────────────────────────────────────────────
+  # Closing is TERMINAL: telling Kera what the ring was and what to do with it ends the quest. It waits on whichever
+  # ending was answered, and no longer on both - `all_of` here could never hold once the branch point closed one of
+  # them, because `Activate` wants every member Satisfied (Quests.cs L521).
   - id: o_done
     type: talk_to
     description: Tell Kera what the ring turned out to be, and what to do with it.
     params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [barrowworks_told] }
-    all_of: [o_preserve, o_dismantle]
-    next: [o_report]
-  # The optional report: the design's beat for a character who went further than they were asked to. It asks for no fight and
-  # no new thing, so a player who never finds the blind store is never blocked by it - and a player who does is paid for it.
+    # The design's optional beat: a character who went further than they were asked to. It gates nothing, so a player
+    # who never finds the blind store is never blocked by it. Read it before telling Kera and it counts.
+    #
+    # The engine has no `optional` marker (QuestContent declares it in ObjectiveFieldsNotBuilt), so "optional" here
+    # means "a sibling that no terminal waits on" - and that is what makes it optional rather than required.
   - id: o_report
     type: world_state
     description: Report what the blind store was for.
