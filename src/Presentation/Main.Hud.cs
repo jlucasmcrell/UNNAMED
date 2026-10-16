@@ -79,7 +79,9 @@ public partial class Main
         else
             _hud.SetTarget(null, 0, 0);
         var quests = simulation.Quests;
-        _hud.SetTracker(JournalPanel.Tracker(quests));
+        string? tracked = simulation.TrackedQuest(_journal.Tracked);
+        _hud.SetTracker(JournalPanel.Tracker(quests, tracked));
+        _hud.SetMarker(Bearing(tracked is null ? null : simulation.Marker(tracked)));
         _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
             $"{c.Name} - {c.Doing}, {c.Standing}" +
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
@@ -101,6 +103,16 @@ public partial class Main
                 "tiers:\n" + string.Join("\n", simulation.CellTiers.Select(kv => $"  {kv.Key}  {kv.Value}")) +
                 "\ndiscovered:\n" + string.Join("\n", view.Discoveries.Select(d => $"  {Names.Of(_session, d.LocationId)} (tick {d.Tick})")));
         }
+    }
+
+    /// <summary>The compass's mark (WP4): the bearing from the character to the tracked beat, hidden once they stand at it.</summary>
+    private float? Bearing(QuestMarker? marker)
+    {
+        if (marker is null)
+            return null;
+        var body = _controller.Authoritative;
+        double dx = marker.XMm - body.XMm, dz = marker.ZMm - body.ZMm;
+        return dx * dx + dz * dz < 3_000.0 * 3_000.0 ? null : (float)(Math.Atan2(dx, dz) * 180 / Math.PI);
     }
 
     /// <summary>
