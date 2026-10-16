@@ -157,6 +157,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Travel = WorldContent.BuildTravel(loader),
+            Clock = WorldContent.BuildClock(loader),
+            Offline = WorldContent.BuildOffline(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

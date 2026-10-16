@@ -32,3 +32,9 @@ public sealed record LocationDiscovered(string LocationId, DiscoveryMethod Metho
 public sealed record ExperienceGained(XpSource Source, long Awarded, long Repaid, int LevelsGained, int Level, long Tick);
 
 public sealed record CellTierChanged(string CellKey, SimulationTier From, SimulationTier To, long Tick);
+
+/// <summary>
+/// World time passed at once while the character was away (WP11): the calendar's hook. <see cref="DaysCrossed"/> counts the midnights the
+/// world clock passed; a system that keeps a calendar reads them here or from the ticks.
+/// </summary>
+public sealed record WorldTimeAdvanced(long FromTick, long ToTick, long DaysCrossed);

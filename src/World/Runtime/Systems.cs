@@ -95,8 +95,11 @@ internal sealed class SystemContext
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
-/// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>
-internal sealed class ClockSystem
+/// <summary>
+/// Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04). Its abstract advance is closed-form: the tick
+/// jumps, and the calendar's day is a function of it (<see cref="WorldClock"/>).
+/// </summary>
+internal sealed class ClockSystem : IAbstractAdvance
 {
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
@@ -108,6 +111,19 @@ internal sealed class ClockSystem
     }
 
     public void Tick() => _context.State.AdvanceClock(_owner);
+
+    /// <summary>The world going on while the character was away (WP11): the first system of the advance, so the others see the new tick.</summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+        if (_context.State.WorldTick != fromTick)
+            throw new InvalidOperationException($"The clock reads {_context.State.WorldTick}, not the advance's start {fromTick}");
+        _context.State.AdvanceClock(_owner, toTick - fromTick);
+        long days = _context.Setup.Clock.DaysCrossed(fromTick, toTick);
+        log.Add(new AdvanceLine(toTick, AdvanceKinds.TimePassed, string.Empty, toTick - fromTick));
+        if (days > 0)
+            log.Add(new AdvanceLine(toTick, AdvanceKinds.DaysPassed, string.Empty, days));
+        _context.Events.Publish(new WorldTimeAdvanced(fromTick, toTick, days));
+    }
 
     /// <summary>World time passing at once - a journey by the stones (S-38). Nothing is simulated through it: what was due falls due on the next tick.</summary>
     public string? Handle(AdvanceTime command)

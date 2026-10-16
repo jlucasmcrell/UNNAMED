@@ -122,6 +122,8 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.Barks),   // which of an NPC's barks hold now, for the lines said in passing
             nameof(UNNAMED.World.Runtime.Simulation.TravelOptions),   // the journeys a Waystone offers and their costs, for its panel (S-38)
+            nameof(UNNAMED.World.Runtime.Simulation.Advance),   // the offline catch-up, the session's at login like Step (WP11)
+            nameof(UNNAMED.World.Runtime.Simulation.BeginLoginGrace),   // the login grace, the session's at login (WP11)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -170,6 +172,7 @@ public class ArchitectureTests
         {
             "BindingFlags.NonPublic", "UnsafeAccessor", "InternalsVisibleTo", ".SetValue(", "Activator.CreateInstance",
             "System.Runtime.CompilerServices.Unsafe", ".Step()", ".DrainCommands()", "IWorldStateWriter", "SaveStore",
+            ".BeginLoginGrace()",
         };
         var offenders = new List<string>();
         foreach (string file in Directory.EnumerateFiles(presentation, "*.cs", SearchOption.AllDirectories)
@@ -183,6 +186,37 @@ public class ArchitectureTests
             }
         }
         Assert.True(offenders.Count == 0, "Presentation reaches past the command path:\n" + string.Join("\n", offenders));
+    }
+
+    /// <summary>
+    /// The wall clock is read in one place, <c>Application/GameSession.cs</c>, which turns an absence into a tick count (WP11; canon
+    /// SYSTEMS.md: the domain never reads the wall clock). A ULID's timestamp is identity, not game time, so <c>EntityId</c> may.
+    /// </summary>
+    [Fact]
+    public void TheWallClock_IsReadOnlyByTheSession()
+    {
+        string root = RepositoryRoot();
+        string[] allowed = { Path.Combine("src", "Application", "GameSession.cs"), Path.Combine("src", "Domain", "EntityId.cs") };
+        string[] forbidden = { "DateTime.Now", "DateTime.UtcNow", "DateTimeOffset.Now", "DateTimeOffset.UtcNow", "Environment.TickCount", "TimeProvider.System" };
+        var offenders = new List<string>();
+        foreach (string project in new[] { "Domain", "World", "Application", "Content" })
+        {
+            foreach (string file in Directory.EnumerateFiles(Path.Combine(root, "src", project), "*.cs", SearchOption.AllDirectories)
+                         .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                                     && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)))
+            {
+                string relative = Path.GetRelativePath(root, file);
+                if (allowed.Contains(relative))
+                    continue;
+                string[] lines = File.ReadAllLines(file);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    foreach (string pattern in forbidden.Where(p => lines[i].Contains(p, StringComparison.Ordinal)))
+                        offenders.Add($"{relative}:{i + 1}: {pattern}");
+                }
+            }
+        }
+        Assert.True(offenders.Count == 0, "The wall clock is read outside GameSession:\n" + string.Join("\n", offenders));
     }
 
     private static string RepositoryRoot()

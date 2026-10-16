@@ -440,12 +440,11 @@ public sealed class WorldDelta
         _creatures[record.Key] = record;
     }
 
-    /// <summary>The creature is its baseline again: its record, and its individual identity, go.</summary>
-    internal void RemoveCreature(string key)
-    {
-        if (_creatures.Remove(key, out var record) && _registry.Exists(record.InstanceId))
-            _registry.DestroyEntity(record.InstanceId);
-    }
+    /// <summary>
+    /// The creature is its baseline again: its record goes. Its identity stays - it is the same creature, standing as its spawner placed
+    /// it, and it may diverge again (only a first generation can be baseline, and a retired identity can never be registered again).
+    /// </summary>
+    internal void RemoveCreature(string key) => _creatures.Remove(key);
 
     /// <summary>The sounds made on the last tick, which creatures hear on the next (schema 14), in the order they were made.</summary>
     public ImmutableArray<Noise> Noises => _noises;

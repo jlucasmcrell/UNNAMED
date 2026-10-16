@@ -55,7 +55,7 @@ public sealed record NodeView(string Key, string Name, string NodeDefId, string 
 /// is the world generator's, keyed by name; its record holds its last harvest tick and how many harvests it has had. A
 /// finite seam holds its charges and no more; a stand refills at each world-day boundary (PROTOTYPE.md C12).
 /// </summary>
-internal sealed class GatheringSystem
+internal sealed class GatheringSystem : IAbstractAdvance
 {
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
@@ -72,6 +72,14 @@ internal sealed class GatheringSystem
             var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
             return (Keys.NodeKey(cell, site.Name, 0), cell, site);
         }).ToImmutableArray();
+    }
+
+    /// <summary>
+    /// The absence needs nothing (WP11): whether a node is ready is a function of its last harvest and the world tick, so a seam or a stand
+    /// due back while the character was away is ready the moment the clock has moved.
+    /// </summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
     }
 
     private CraftingSetup Setup => _context.Setup.Crafting;
