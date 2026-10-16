@@ -40,15 +40,28 @@ public class ReachabilityTests
     /// A quest whose step names a place another region holds, or a line no reply leads to, can never finish (the Oct 15 playthrough:
     /// Iron Under Ash stalled at Blackvein Cut in a region with no places in it, and Mara's <c>told</c> had no way in).
     /// </summary>
+    /// <remarks>
+    /// Checked against the places, people, spawns and items of <b>both</b> regions a run can stand in, because
+    /// The Unfinished Measure spans them: Kera gives it in the Ashen Hollow, and its five places are the ring's,
+    /// which is its own region and its own load (the gate opens the portals, it does not merge the layouts).
+    /// With the option off the quest is not offered either, so checking it against a run that cannot reach it
+    /// would report a failure no player can experience.
+    /// </remarks>
     [Fact]
     public void EveryQuestStep_PointsAtSomethingInTheRegion()
     {
         using var profile = new TempProfile();
-        var setup = Harness.Boot(profile).Setup;
+        var setup = Harness.Boot(profile, barrowworks: true).Setup;
+        using var ringProfile = new TempProfile();
+        var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
         var places = setup.Layout.Locations.Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
+        places.UnionWith(ring.Layout.Locations.Select(l => l.Id));
         var people = setup.Layout.Npcs.Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
+        people.UnionWith(ring.Layout.Npcs.Select(n => n.NpcId));
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         var reachable = Reachable(setup);
+        reachable.UnionWith(Reachable(ring));
 
         var missing = new List<string>();
         foreach (var quest in setup.Quests.Quests.Values)

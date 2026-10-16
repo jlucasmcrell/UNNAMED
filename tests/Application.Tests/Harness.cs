@@ -42,11 +42,18 @@ internal static class Harness
         throw new DirectoryNotFoundException("Repository root (src/UNNAMED.sln) not found above " + AppContext.BaseDirectory);
     }
 
-    /// <summary>The game's own content, booted exactly as the game boots it - or in another of its regions.</summary>
-    public static GameSession Boot(TempProfile profile, string? regionId = null)
+    /// <summary>
+    /// The game's own content, booted exactly as the game boots it - or in another of its regions, or with the
+    /// Barrowworks gated on (<c>--visual barrowworks=1</c>), which is the only way a run reaches the ring.
+    /// </summary>
+    public static GameSession Boot(TempProfile profile, string? regionId = null, bool barrowworks = false)
     {
         var options = new GameOptions(Path.Combine(RepoRoot(), "content"), profile.Root);
-        return GameSession.Boot(regionId is null ? options : options with { RegionId = regionId });
+        if (regionId is not null)
+            options = options with { RegionId = regionId };
+        if (barrowworks)
+            options = options with { Barrowworks = true };
+        return GameSession.Boot(options);
     }
 
     /// <summary>Run whole ticks, one per frame, the way a 20 Hz frame loop would.</summary>

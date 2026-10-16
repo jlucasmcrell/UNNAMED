@@ -391,6 +391,46 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P4d - the quest itself, and Kera's three lines
+
+**The port is in.** `content/quests/barrowworks/unfinished_measure.yaml` - 14 objectives, verbatim from the
+frozen design stage for stage, with the design's own comments kept because they state why each step waits on
+what it waits on. **One change and one only:** `fact:defeat.creature.boss.ring_custodian` becomes
+`world.barrowworks.ring_custodian_defeated`, for the reason P4a records - `DefinitionId` admits no colon.
+
+**Kera carries three new nodes** and four new replies, and the gating is the interesting part.
+
+**The gate had to be content-visible, and the only honest one available is a flag.** `VisualOptions` is read
+**only in Presentation** - the established pattern gates *art* (`ArtBindings.OptionModel`), not dialogue - and
+`SocialContent.Conditions` is a closed set of eight that includes nothing about a visual option. Adding a ninth
+would make Content depend on a Presentation concept, which the layering forbids. So the offer waits on
+`world.barrowworks.withdrawal_notice_read`: **a flag whose only setter is reading the notice in the intake
+hall, and the intake hall is unreachable while `--visual barrowworks=1` is off, because the run clears the
+portals.** With the option off the choice never renders. That is the constraint satisfied by construction
+rather than by inspection.
+
+**Three things the validators caught, all of them real:**
+
+1. **`SOC001` refused my first `barrowworks` node** - it was `once: true` with a consequence-carrying reply, so
+   *a character who listens and walks away without answering would lose the quest for good*. That is a genuine
+   design bug and the validator's own advice is the fix: **the same reply is offered again on the fallback
+   line**, gated on the quest not being started. It reads better too - she asks twice because she means it.
+2. **`ReachabilityTests` found `o_done` naming a node no reply led to.** Fixed with one reply per ending,
+   because the design's choice is two answers and a condition list is a conjunction.
+3. **`ReachabilityTests` also refused the quest's five places** until the test's model was corrected. It booted
+   one region and required every quest's steps to resolve there. **The Unfinished Measure spans two** - Kera
+   gives it in the Ashen Hollow and its places are the ring's, which is its own region and its own load: the
+   gate opens the portals, it does not merge the layouts. The test now checks both.
+
+**Verified:** the quest parses with a real parser, 14 objectives, **no dangling links**, and the content suite
+plus the whole solution are green. **945 tests pass, 0 failed** (Content 147, Application 270).
+
+**What P4 still wants:** the readings have no setters yet - nothing in the ring writes
+`withdrawal_notice_read`, `fitting_note_read` or `diagram_rack_read`, because the notice, the fitting note and
+the diagram rack are props that need an interaction to read them (the brief's AR10 record boards). Until they
+exist the quest can be offered and not advanced, and that is the honest state of it. Also outstanding: the
+Custodian itself (P5), the doors G1-G3, and `lint`/`xref` recorded as a clean run.
+
 ### P4c - the fitting wedge, and the second pinned list
 
 **The quest's craft step needs a thing to craft.** `o_wedge` is `craft_item` on
