@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: Kera's repeatable ore run. The spoil at Blackvein and the rotten east crags (node.ore.loose_iron) renew daily, so the work never strands.
 title: Iron off the Shelf
 summary: Kera always needs ore - two lumps, from the seam, the spoil or the crags.
+track: bounty
 giver_ref: npc.ashen_hollow.kera_voss
 entry_objective: o_deliver
 objectives:

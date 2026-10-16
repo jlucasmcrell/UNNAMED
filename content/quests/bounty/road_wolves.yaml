@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: Renn's standing Wayhold bounty - a repeatable cull, paid the moment the third wolf falls (a kill count is a hard count, AG-5; the wolves around both settlements now return).
 title: Wolves on the Road
 summary: The Wayhold pays for every three wolves taken off the road. Renn keeps the tally.
+track: bounty
 giver_ref: npc.ashen_hollow.renn_vale
 entry_objective: o_cull
 objectives:

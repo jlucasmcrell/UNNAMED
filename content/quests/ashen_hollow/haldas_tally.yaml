@@ -6,6 +6,7 @@ tags: [quest]
 notes: "The small side quest of DIRECTION_AND_CONTENT_PLAN.md C.2d. Halda Crowden ran the trapline on the north slope before the wolves took the den, and died up there; her tally lies in the den cache (loot.den_cache). Renn recognises it when the character carries it (his tally reply, which starts this) and the quest forks (branch: first). Return it: Tam's halda_token reply takes it (trust +10) and her halda line is heard; she then gives Halda's Bow (her bow reply). Keep it: Renn's keep reply sets world.hollow.halda_tally_kept, and the character walks Halda's line - two pelts and two portions from her snares (node.trap.pelt_snare, node.trap.larder_snare, daily) - to its end at the den, whose cache was hers. The snares renew each world day, so the route stays walkable after the quest closes; Tam is not offered the tally once it is kept."
 title: Halda's Tally
 summary: A trapper's tally from the wolves' den, a hand's length of horn notched once for every hide. Renn knows whose it was.
+track: side
 giver_ref: npc.ashen_hollow.renn_vale
 entry_objective: o_tally
 objectives:

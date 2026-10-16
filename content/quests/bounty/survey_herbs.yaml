@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: Canon firstplay survey_herbs, ported with woundmoss (the Charwood herb patch, now gatherable) in place of ashbloom, which belongs to Mara's bog quest.
 title: Leaves for the Survey
 summary: Two handfuls of woundmoss for Sel to compare with the moss she pressed last season.
+track: bounty
 giver_ref: npc.ashen_hollow.sel_arien
 entry_objective: o_deliver
 objectives:
