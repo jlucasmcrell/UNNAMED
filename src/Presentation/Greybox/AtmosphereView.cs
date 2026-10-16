@@ -37,6 +37,11 @@ public partial class AtmosphereView : Node3D
                 continue;
             if (e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True && SkyView.DaylightNow < 0.5f)
                 continue;
+            if (e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True && SkyView.DaylightNow >= 0.5f)
+                continue;
+            // The otherworld concepts' air (Greybox/Otherworld.cs): drawn only when a concept is on.
+            if (e.TryGetProperty("otherworld", out var other) && other.ValueKind == JsonValueKind.True && Otherworld.Strength <= 0)
+                continue;
             if (e.TryGetProperty("at", out var at) && at.GetString() == "ravine_rivers")
             {
                 if (VisualOptions.Water == "none")

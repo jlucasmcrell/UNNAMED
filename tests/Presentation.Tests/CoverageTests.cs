@@ -166,6 +166,31 @@ public class ScatterRulesTests
     }
 
     [Fact]
+    public void Otherworld_FieldAndOtherfloraAreRead()
+    {
+        // The otherworld concepts (art direction D.1): the shipped region names its field, and the signature plants draw only under a concept.
+        var shipped = ScatterRules.Parse(File.ReadAllText(Repository.File("content", "_scatter_rules.json")));
+        Assert.NotNull(shipped.Otherworld);
+        Assert.Equal(2, shipped.Otherworld!.Calm.Count);
+        Assert.All(new[] { "veilthistle", "listening_grass", "nightlace" },
+            n => Assert.Equal("subtle|bold", shipped.Kinds.Single(k => k.Name == n).OnlyWhen?["otherworld"]));
+
+        var rules = ScatterRules.Parse("""
+            { "otherworld": { "calm": [[1, 2]], "fold": [3, 4], "fold_m": [10, 50] },
+              "kinds": { "fern": { "mesh": "model:fern_a", "max_per_m2": 1, "otherflora": { "hue": -20, "glow": [0.1, 0.2, 0.3], "late": 2 } },
+                         "rock": { "mesh": "model:rock_a", "max_per_m2": 1 } } }
+            """);
+        Assert.Empty(rules.Problems);
+        Assert.Equal(new GroundPoint(3, 4), rules.Otherworld!.Fold);
+        var fern = rules.Kinds.Single(k => k.Name == "fern").Otherflora!;
+        Assert.Equal(-20, fern.Hue);
+        Assert.Equal(new[] { 0.1f, 0.2f, 0.3f }, fern.Glow);
+        Assert.Equal(1, fern.Late);
+        Assert.Null(rules.Kinds.Single(k => k.Name == "rock").Otherflora);
+        Assert.Single(ScatterRules.Parse("""{ "otherworld": { "calm": [], "fold": [0, 0], "fold_m": [1, 2] } }""").Problems);
+    }
+
+    [Fact]
     public void RulesThatAreNotJson_ScatterNothing()
     {
         var rules = ScatterRules.Parse("{ kinds");

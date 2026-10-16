@@ -396,6 +396,9 @@ public partial class HollowView : Node3D
             // takes a structure's wind away (Palette.Windblown skips any surface whose material is no longer a
             // BaseMaterial3D, which is what Wear leaves behind). Same id, same formula, same determinism.
             Palette.Windblown(model, look.Wind, Palette.Shifted(blocker.Id, Colors.White));
+            // A tree that answers the wind a breath late (`late_s`): Old Late.
+            if (look.LateS > 0)
+                Palette.Late(model, look.LateS);
         }
         // A prop's own flame and light, where its binding gives it any (Phase B: Cairnwold's lantern posts).
         PropEffects(model, look, blocker.Id);

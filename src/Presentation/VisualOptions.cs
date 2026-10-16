@@ -75,6 +75,8 @@ public static class VisualOptions
         ["air"] = new[] { "flat", "sun", "hue" },
         // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
         ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
+        // How far from Earth the plants, rocks, water and air look (Greybox/Otherworld.cs): concepts for the owner to pick from.
+        ["otherworld"] = new[] { "off", "subtle", "bold" },
     };
 
     private static readonly Dictionary<string, string> Defaults = new()
@@ -115,6 +117,7 @@ public static class VisualOptions
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
         ["celestial"] = "mix",
+        ["otherworld"] = "off",
     };
 
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>
@@ -156,6 +159,7 @@ public static class VisualOptions
     public static string Foldscar => Values["foldscar"];
     public static string AntiAliasing => Values["aa"];
     public static string Celestial => Values["celestial"];
+    public static string Otherworld => Values["otherworld"];
 
     /// <summary>One option changed mid-run by a harness (the visual audit's per-shot hour and sky); refused as --visual refuses it.</summary>
     internal static void Pin(string key, string value)

@@ -172,6 +172,20 @@
       "direction": [0, 1, 0], "gravity": [0.04, 0.01, 0.02], "damping": [0.05, 0.1], "blend": "add", "energy": 1.0,
       "color": ["#fff0c000", "#fff0c099", "#fff0c099", "#fff0c000"]
     },
+    "fold_spores": {
+      "note": "Otherworld concept: pale spores rising slowly and drifting against the wind round the Foldscar and the wet moor (the pollen's soft point, cooler and slower).",
+      "mode": "stream", "texture": "vfx/cos_ns1_point.png", "box": [24, 5, 24],
+      "amount": 70, "lifetime": 14, "size": [0.008, 0.016], "velocity": [0.02, 0.07], "spread": 160,
+      "direction": [0, 1, 0], "gravity": [-0.02, 0.015, -0.01], "damping": [0.02, 0.05], "blend": "add", "energy": 1.4,
+      "color": ["#d8f2ff00", "#d8f2ff88", "#e6dcff88", "#e6dcff00"]
+    },
+    "moss_lights": {
+      "note": "Otherworld concept: faint green-teal points low over the moss after dark, rising a little and going out.",
+      "mode": "stream", "texture": "vfx/cos_ns1_point.png", "box": [30, 1.2, 30],
+      "amount": 140, "lifetime": 6, "size": [0.06, 0.09], "velocity": [0.01, 0.05], "spread": 120,
+      "direction": [0, 1, 0], "gravity": [0.0, 0.01, 0.0], "damping": [0.05, 0.1], "blend": "add", "energy": 4.0,
+      "color": ["#7dffcf00", "#7dffcfcc", "#62e6ffaa", "#62e6ff00"]
+    },
     "rain": {
       "note": "Heavy rain in a storm (overhaul): Kenney soft streak drawn ALONG each drop's fall (billboard velocity) instead of a 128 px generated bar standing upright.",
       "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [24, 2, 24], "quad": [0.03, 1.0], "billboard": "velocity",

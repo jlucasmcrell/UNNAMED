@@ -63,6 +63,7 @@ public static class SkyView
     /// and 9 were spent buying, exactly where it is.
     /// </summary>
     private static readonly Color GoldenAir = new(0.85f, 0.62f, 0.42f);
+    private static readonly Color OtherAir = new(0.64f, 0.67f, 0.80f);
 
     private const string NightFillName = "NightFill";
 
@@ -105,6 +106,7 @@ public static class SkyView
     {
         float daylight = Daylight(altitude);
         _daylightLevel = daylight;
+        Otherworld.Night(1f - daylight);
         if (sky.Environment is { } environment)
         {
             // The environment's depth fog glows with a fixed light colour: scale it with the daylight, or night stays a grey noon.
@@ -159,6 +161,8 @@ public static class SkyView
                     fog = FogDay.Lerp(GoldenAir, warmth * 0.55f);
                 }
             }
+            // The otherworld concepts lean the air toward the ring-sky's cool lavender, at the same luminance as FogDay (0.677).
+            fog = fog.Lerp(OtherAir, 0.6f * Otherworld.Strength);
             environment.FogLightColor = fog * light;
             environment.VolumetricFogAmbientInject = ambient;
         }

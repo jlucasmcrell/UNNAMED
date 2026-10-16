@@ -4,7 +4,8 @@
     "camera (follow: camera, at its offset) and running only while the ground under the camera is one of 'grounds' (world material IDs,",
     "as the art bindings' terrain map names them; omitted: anywhere), or placed along the ravine rivers (at: ravine_rivers). 'weather'",
     "lists the states it runs in (omitted: all); day_only: only while the sun is up. Nothing here is simulated or saved.",
-    "Asset overhaul 2026-10-14: weather states rain (light rain), storm (heavy rain), fog and snow (--visual weather=<state>)."
+    "Asset overhaul 2026-10-14: weather states rain (light rain), storm (heavy rain), fog and snow (--visual weather=<state>).",
+    "night_only: only while the sun is down; otherworld: only under --visual otherworld=subtle|bold (Greybox/Otherworld.cs)."
   ],
   "emitters": [
     { "recipe": "ash_motes", "follow": "camera", "offset": [0, 2.5, 0], "grounds": ["material_marsh_grass_turf"], "weather": ["fair", "clear", "overcast", "fog"],
@@ -17,6 +18,10 @@
     { "recipe": "rain", "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"] },
     { "recipe": "fog_bank", "follow": "camera", "offset": [0, 0.5, 0], "weather": ["fog"] },
     { "recipe": "snow", "follow": "camera", "offset": [0, 10, 0], "weather": ["snow"] },
-    { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." }
+    { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." },
+    { "recipe": "fold_spores", "follow": "camera", "offset": [0, 1.8, 0], "grounds": ["material_churned_wet_mud", "cw_mud_wet", "cw_heather"], "weather": ["fair", "clear", "overcast", "fog"], "otherworld": true,
+      "note": "Otherworld concept: pale spores rising slowly round the Foldscar and over the wet moor, day and night." },
+    { "recipe": "moss_lights", "follow": "camera", "offset": [0, 0.6, 0], "grounds": ["material_churned_wet_mud", "cw_moor_grass", "cw_heather", "cw_mud_wet"], "weather": ["fair", "clear", "overcast", "fog"], "night_only": true, "otherworld": true,
+      "note": "Otherworld concept: 'lights some nights' in the moss (Berrin, Cairnwold) - faint green-teal points low over the ground after dark." }
   ]
 }

@@ -58,6 +58,13 @@ public static class WaterView
         {
             var flowing = (ShaderMaterial)FlowWater.Duplicate();
             flowing.SetShaderParameter("flow_dir", flow);
+            // The otherworld concepts: a little more teal in the shallows, a little more violet-blue in the deep (Otherworld.cs).
+            float strange = Otherworld.Strength;
+            if (strange > 0)
+            {
+                flowing.SetShaderParameter("shallow_colour", new Vector3(0.16f, 0.27f, 0.24f).Lerp(new Vector3(0.11f, 0.27f, 0.30f), strange));
+                flowing.SetShaderParameter("deep_colour", new Vector3(0.03f, 0.07f, 0.08f).Lerp(new Vector3(0.035f, 0.05f, 0.11f), strange));
+            }
             material = flowing;
         }
         else
