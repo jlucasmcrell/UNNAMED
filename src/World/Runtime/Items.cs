@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -71,6 +72,9 @@ public sealed record ItemUnequipped(EntityId Actor, EquipSlot Slot, EntityId Ite
 public sealed record ItemView(string Ref, string DefId, int Count)
 {
     public int Quality { get; init; }
+
+    /// <summary>A notable instance's record (WP3a), for the tooltip; null for an ordinary stack or one not yet taken.</summary>
+    public NotableRecord? Notable { get; init; }
 }
 
 public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableArray<ItemView> Items);
@@ -78,6 +82,8 @@ public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableAr
 public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XMm, long ZMm)
 {
     public int Quality { get; init; }
+
+    public NotableRecord? Notable { get; init; }
 }
 
 /// <summary>One carried stack to spend, and how many of it.</summary>
@@ -88,7 +94,20 @@ internal sealed record StackTake(EntityId ItemId, int Count);
 /// a gift), or only spend (a gift the other way, <see cref="ItemId"/> null) - all or nothing, judged with the spent stacks
 /// already gone (M3f).
 /// </summary>
-internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? ItemId, int Count, int Quality) : InternalCommand;
+internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? ItemId, int Count, int Quality) : InternalCommand
+{
+    /// <summary>Where what is received comes from, should it be notable (WP3a): its provenance line. Null: given.</summary>
+    public NotableOrigin? Origin { get; init; }
+}
+
+/// <summary>How a notable instance came to be held: the provenance its record is made with (WP3a).</summary>
+internal sealed record NotableOrigin(ProvenanceKind Kind, string SourceRef, string? Maker = null);
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: the character used what they have equipped - a kill made (WP3a) - so each equipped notable instance
+/// grows a little more familiar (OD-C07: familiarity is counted and shown, never generic damage).
+/// </summary>
+internal sealed record CountUse : InternalCommand;
 
 /// <summary>
 /// To <see cref="InventorySystem"/>: a trade (M4) - a stack moves between the player and a trader's wares, and coin the
@@ -103,7 +122,11 @@ internal sealed record AddCurrency(long Amount) : InternalCommand;
 /// To <see cref="InventorySystem"/>: an item given that is never lost - a quest's reward (M5): into the pack, or where the character
 /// stands when the pack has no room or it would be too heavy.
 /// </summary>
-internal sealed record GrantItem(string ItemId, int Count, int Quality) : InternalCommand;
+internal sealed record GrantItem(string ItemId, int Count, int Quality) : InternalCommand
+{
+    /// <summary>What granted it, for a notable reward's provenance: the quest. Null: given by the world.</summary>
+    public string? SourceRef { get; init; }
+}
 
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
@@ -249,9 +272,16 @@ internal sealed class InventorySystem
                 return full;
         }
 
-        // Everything checked: take from the source, then put at the destination.
+        // Everything checked: take from the source, then put at the destination; a notable record travels with its item.
         var moving = Take(command.From, source, command.Count, whole);
-        Put(command.To, definition, command.Count, moving, source.Quality);
+        var origin = command.From.Kind switch
+        {
+            PlaceKind.Container when trading => new NotableOrigin(ProvenanceKind.Bought, command.From.ContainerKey!),
+            PlaceKind.Container => new NotableOrigin(ProvenanceKind.Found, command.From.ContainerKey!),
+            PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, CellOf(source.XMm, source.ZMm).ToString()),
+            _ => null,
+        };
+        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick);
         _context.Events.Publish(new ItemMoved(_player, definition.Id, command.Count, command.From, command.To, tick));
         return null;
     }
@@ -304,6 +334,7 @@ internal sealed class InventorySystem
             return $"{command.Item} is not carried";
         if (State.PlayerCombat.Defeated)
             return "dead";
+        // A book teaches what it holds: formulas (M3e) or recipes (a recipe book, WP3a).
         if (_context.Setup.Magic.Teaches.TryGetValue(entry.DefId, out var formulas))
         {
             var fresh = formulas.Where(f => !ProgressionEngine.Knows(State.Progression, f)).ToList();
@@ -355,7 +386,7 @@ internal sealed class InventorySystem
         }
         Remove(command.Takes.Select(t => (State.Inventory.Single(e => e.ItemId == t.ItemId), t.Count)).ToList());
         if (definition is not null)
-            Put(ItemPlace.Carried, definition, command.Count, null, command.Quality);
+            Put(ItemPlace.Carried, definition, command.Count, null, command.Quality, null, command.Origin, tick);
         return null;
     }
 
@@ -371,8 +402,33 @@ internal sealed class InventorySystem
     {
         if (Items.Catalog.Find(command.ItemId) is not { } definition)
             return $"{command.ItemId} is not an item this build knows";
-        if (Handle(new ExchangeItems(ImmutableArray<StackTake>.Empty, command.ItemId, command.Count, command.Quality), tick) is not null)
-            Put(ItemPlace.Ground, definition, command.Count, null, command.Quality);
+        var origin = new NotableOrigin(ProvenanceKind.Given, command.SourceRef ?? "world");
+        if (Handle(new ExchangeItems(ImmutableArray<StackTake>.Empty, command.ItemId, command.Count, command.Quality) { Origin = origin }, tick) is not null)
+            Put(ItemPlace.Ground, definition, command.Count, null, command.Quality, null, origin, tick);
+        return null;
+    }
+
+    /// <summary>
+    /// A use of what is equipped (WP3a): every equipped notable instance counts one, and at its step's count grows a step more familiar
+    /// (<c>config.inventory familiarity_uses_per_step</c>). Nothing else about the item changes.
+    /// </summary>
+    public string? Handle(CountUse command)
+    {
+        var equipped = State.Equipment.Values.ToHashSet();
+        var entries = State.Inventory.ToList();
+        bool changed = false;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            if (entries[i].Notable is not { } notable || !equipped.Contains(entries[i].ItemId))
+                continue;
+            var used = notable.Used(Items.Inventory.FamiliarityUsesPerStep);
+            if (used == notable)
+                continue;
+            entries[i] = entries[i] with { Notable = used };
+            changed = true;
+        }
+        if (changed)
+            State.SetInventory(_owner, entries);
         return null;
     }
 
@@ -430,7 +486,8 @@ internal sealed class InventorySystem
     public ContainerView View(ContainerSite site)
     {
         var record = State.World.Container(site.Key);
-        return new ContainerView(site, record?.InstanceId, ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality }).ToImmutableArray());
+        return new ContainerView(site, record?.InstanceId,
+            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable }).ToImmutableArray());
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
@@ -438,7 +495,7 @@ internal sealed class InventorySystem
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
-                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality };
+                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable };
             }))
             .ToImmutableArray();
 
@@ -448,7 +505,10 @@ internal sealed class InventorySystem
     // ── the moving parts ────────────────────────────────────────────────────
 
     /// <summary>One stack as it is found: its reference, what and how many, its identity if it has one, where it lies, how good.</summary>
-    private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm, int Quality);
+    private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm, int Quality)
+    {
+        public NotableRecord? Notable { get; init; }
+    }
 
     private string? Check(ItemPlace place, bool trading)
     {
@@ -468,19 +528,21 @@ internal sealed class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality)).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable }).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell))
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality);
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable };
             }
             default:
             {
                 var site = _context.FindContainer(place.ContainerKey!)!;
-                return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm, item.Quality))
-                    .FirstOrDefault(l => l.Ref == itemRef);
+                return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm, item.Quality)
+                    {
+                        Notable = item.Notable,
+                    }).FirstOrDefault(l => l.Ref == itemRef);
             }
         }
     }
@@ -489,15 +551,18 @@ internal sealed class InventorySystem
     private bool IsCorpse(string key) => _context.CorpseSites().Any(s => s.Key == key);
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
-    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality)> ContentsOf(ContainerSite site)
+    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality)).ToList();
-        return Baseline(site).Select((drop, i) => ($"{site.Key}#{i:00}", drop.ItemId, drop.Count, (EntityId?)null, 0)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable)).ToList();
+        return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null)).ToList();
     }
 
-    /// <summary>The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16).</summary>
-    private List<LootDrop> Baseline(ContainerSite site)
+    /// <summary>
+    /// The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16). A body's drops each roll their
+    /// quality by the creature's level (DCP:662, WP3a) on their own channel, so the items themselves are what they always were.
+    /// </summary>
+    private List<(LootDrop Drop, int Quality)> Baseline(ContainerSite site)
     {
         var cell = CellOf(site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
@@ -505,12 +570,18 @@ internal sealed class InventorySystem
         var drops = Items.Merchants.TryGetValue(site.Key, out var merchant)
             ? merchant.Stock.Select(s => new LootDrop(s.ItemId, s.Count)).ToImmutableArray()
             : LootRoller.Roll(Items.LootTables[site.LootTableId], Items.LootTables, sample => channel.UInt64(sample) / 18446744073709551616.0);
-        var stacks = new List<LootDrop>();
-        foreach (var drop in drops)
+        var qualities = site.DropLevel is { } level && !_context.Setup.Crafting.DropQuality.IsEmpty
+            ? RngChannel.Open(State.World.WorldSeed, cell, "loot-quality", site.Key)
+            : (RngChannel?)null;
+        var stacks = new List<(LootDrop, int)>();
+        foreach (var (drop, i) in drops.Select((d, i) => (d, i)))
         {
+            int quality = qualities is null
+                ? Quality.Standard
+                : CraftingRules.DropQuality(site.DropLevel!.Value, _context.Setup.Crafting.DropQuality, qualities.Value.UInt64((uint)i) / 18446744073709551616.0);
             int stackMax = Items.Catalog.Find(drop.ItemId)?.StackMax ?? 1;
             for (int left = drop.Count; left > 0; left -= stackMax)
-                stacks.Add(new LootDrop(drop.ItemId, Math.Min(left, stackMax)));
+                stacks.Add((new LootDrop(drop.ItemId, Math.Min(left, stackMax)), quality));
         }
         return stacks;
     }
@@ -522,13 +593,14 @@ internal sealed class InventorySystem
             return existing;
         var registry = State.World.Registry;
         var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
-        var items = Baseline(site).Select(drop => new ContainerItem(NewItem(drop.ItemId), drop.ItemId, drop.Count)).ToImmutableArray();
+        var items = Baseline(site).Select(stack => new ContainerItem(NewItem(stack.Drop.ItemId), stack.Drop.ItemId, stack.Drop.Count) { Quality = stack.Quality })
+            .ToImmutableArray();
         var record = new ContainerRecord(site.Key, chest, CellOf(site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
         return record;
     }
 
-    /// <summary>Remove <paramref name="count"/> from the source. Returns the identity that travels, if the whole stack moves.</summary>
+    /// <summary>Remove <paramref name="count"/> from the source. Returns the identity that travels, if the whole stack moves; its record goes with it.</summary>
     private EntityId? Take(ItemPlace place, Located source, int count, bool whole)
     {
         switch (place.Kind)
@@ -550,7 +622,7 @@ internal sealed class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable);
                 return null;
             }
             default:
@@ -572,9 +644,17 @@ internal sealed class InventorySystem
         }
     }
 
-    /// <summary>Add <paramref name="count"/> at the destination, merging into stacks of the same kind and quality first.</summary>
-    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality)
+    /// <summary>
+    /// Add <paramref name="count"/> at the destination, merging into stacks of the same kind and quality first. A notable record travels
+    /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
+    /// </summary>
+    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick)
     {
+        if (notable is null && ItemClasses.KeepsRecord(definition, quality))
+        {
+            var from = origin ?? new NotableOrigin(ProvenanceKind.Given, "world");
+            notable = new NotableRecord(definition.Name ?? definition.Id, from.Kind, from.SourceRef, tick) { Maker = from.Kind == ProvenanceKind.Crafted ? from.Maker ?? "unknown" : null };
+        }
         switch (place.Kind)
         {
             case PlaceKind.Inventory:
@@ -583,7 +663,7 @@ internal sealed class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null });
                 Retire(moving);
                 State.SetInventory(_owner, entries);
                 break;
@@ -596,7 +676,7 @@ internal sealed class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality);
+                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality, stack == 1 ? notable : null);
                 break;
             }
             default:
@@ -607,7 +687,7 @@ internal sealed class InventorySystem
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality });
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;
@@ -769,9 +849,11 @@ internal sealed class EquipmentSystem
         return phase == CombatPhase.Idle ? null : $"not in the middle of an action ({phase.ToString().ToLowerInvariant()})";
     }
 
-    /// <summary>The armor worn, summed, for the character sheet; combat reads it per region.</summary>
+    /// <summary>The armor worn, summed and moved by each piece's quality, for the character sheet; combat reads it per region.</summary>
     public int Armor() =>
         _context.State.Equipment.Values
-            .Select(id => _context.State.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId)
-            .Sum(def => def is null ? 0 : _context.Setup.Items.Catalog.Find(def)?.ArmorValue ?? 0);
+            .Select(id => _context.State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Sum(entry => entry is not null && _context.Setup.Items.Catalog.Find(entry.DefId) is { } item
+                ? EquipmentRules.ArmorOf(item, entry.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
+                : 0);
 }

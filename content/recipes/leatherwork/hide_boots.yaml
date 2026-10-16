@@ -1,0 +1,15 @@
+id: recipe.leatherwork.hide_boots
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_boots.name
+tags: [recipe]
+name: Hide Boots
+notes: A deer hide cut and stitched into boots at the bench (WP3a); taught by Bench Patterns.
+station: workbench
+skill_ref: skill.survival
+complexity: 5
+inputs:
+  - { item_ref: item.material.deer_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_boots, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 20 }       # level XP for the first only (AG-7)

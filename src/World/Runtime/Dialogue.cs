@@ -186,7 +186,10 @@ internal sealed class DialogueSystem : IDialogueFacts
     private string? Transfer(string npcId, TransferItemConsequence transfer, long tick)
     {
         if (transfer.ToPlayer)
-            return _context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, transfer.ItemId, transfer.Count, Quality.Standard));
+            return _context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, transfer.ItemId, transfer.Count, Quality.Standard)
+            {
+                Origin = new NotableOrigin(Domain.Items.ProvenanceKind.Given, npcId),
+            });
         var takes = ImmutableArray.CreateBuilder<StackTake>();
         int left = transfer.Count;
         int worst = Quality.Fine;

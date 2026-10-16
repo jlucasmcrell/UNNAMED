@@ -150,7 +150,7 @@ public sealed class Simulation
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
-        _crafting = new CraftingSystem(_context, player.Id);
+        _crafting = new CraftingSystem(_context, player.Id, player.Name);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
@@ -203,7 +203,13 @@ public sealed class Simulation
     {
         var spawn = setup.Layout.Spawn;
         var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
-        var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count))).ToList();
+        // A notable piece of the kit carries its record from the start (WP3a).
+        var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count)
+        {
+            Notable = ItemClasses.KeepsRecord(setup.Items.Catalog.Get(item.ItemId), Domain.Crafting.Quality.Standard)
+                ? new NotableRecord(setup.Items.Catalog.Get(item.ItemId).Name ?? item.ItemId, ProvenanceKind.Kit, "kit", 0)
+                : null,
+        })).ToList();
         var equipment = kit.Where(k => k.Item.Equip)
             .Select(k => KeyValuePair.Create(setup.Items.Catalog.Get(k.Item.ItemId).Slot!.Value, k.Entry.ItemId));
         var contact = call is null
@@ -272,6 +278,15 @@ public sealed class Simulation
 
     /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
     public CombatView Combat => _combat.View();
+
+    /// <summary>
+    /// How much of a station's experiment set the character has found (WP3a): known of the set, and its size. The recipes themselves are
+    /// not shown until found. (0, 0) for a station with no experiments, or no such station.
+    /// </summary>
+    public (int Found, int Total) Experiments(string stationKey) =>
+        Setup.Layout.Stations.FirstOrDefault(s => s.Key == stationKey) is { } station && _crafting.ExperimentSet(station) is var set
+            ? (set.Count(id => ProgressionEngine.Knows(_state.Progression, id)), set.Length)
+            : (0, 0);
 
     /// <summary>The region's resource nodes, and which can be harvested now (M3f).</summary>
     public ImmutableArray<NodeView> Nodes => _gathering.Views();
@@ -368,6 +383,7 @@ public sealed class Simulation
                 CastCommand cast => _combat.Handle(cast, WorldTick),
                 GatherCommand gather => _gathering.Handle(gather, WorldTick),
                 CraftCommand craft => _crafting.Handle(craft, WorldTick),
+                ExperimentCommand experiment => _crafting.Handle(experiment, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -529,6 +545,7 @@ public sealed class Simulation
         Trade trade => _inventory.Handle(trade, Now),
         AddCurrency add => _inventory.Handle(add),
         GrantItem grant => _inventory.Handle(grant, Now),
+        CountUse use => _inventory.Handle(use),
         ChangeRelationship change => _relationships.Handle(change, Now),
         StartQuest start => _quests.Handle(start, Now),
         RecordDeed deed => _deeds.Handle(deed) ?? _quests.Handle(deed),

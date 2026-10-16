@@ -1,0 +1,15 @@
+id: item.armor.wool_trousers
+kind: item.armor
+schema: 1
+display_key: item.armor.wool_trousers.name
+tags: [item]
+name: Wool Trousers
+notes: Legs armor (WP3a; the wardrobe plan's wool trousers). Worked at the bench from bog-cotton.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.8
+value_base: 10
+slot: legs
+armor_value: 1
+material_class: cloth

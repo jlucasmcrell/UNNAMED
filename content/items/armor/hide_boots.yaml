@@ -1,0 +1,15 @@
+id: item.armor.hide_boots
+kind: item.armor
+schema: 1
+display_key: item.armor.hide_boots.name
+tags: [item]
+name: Hide Boots
+notes: Feet armor (WP3a; the wardrobe plan's boots). A deer hide cut and stitched at the bench.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.0
+value_base: 14
+slot: feet
+armor_value: 2
+material_class: leather

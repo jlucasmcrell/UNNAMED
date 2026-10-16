@@ -1,0 +1,17 @@
+id: item.tome.herbal_remedies
+kind: item
+schema: 1
+display_key: item.tome.herbal_remedies.name
+tags: [item]
+name: Herbal Remedies
+notes: A recipe book (WP3a, K2). Read once, it teaches two salves worked at the cookfire from ashbloom and boneleaf.
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 30
+use:
+  consume: true
+  grants:
+    - { kind: recipe, ref: recipe.herbal.salve_minor_ashbloom }
+    - { kind: recipe, ref: recipe.herbal.salve_ember_boneleaf }

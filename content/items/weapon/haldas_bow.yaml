@@ -4,15 +4,17 @@ schema: 1
 display_key: item.weapon.haldas_bow.name
 tags: [item]
 name: Halda's Bow
-notes: Halda Crowden's own bow, which Tam gives the character who brings Halda's tally home (Halda's Tally, the return choice). A notable bow a step past the hunting bow - 10 damage where it has 9, a 0.85 s draw where it has 0.9 - on the same rough arrows and the same might. Phase 1 trains no bow skill.
+notes: Halda Crowden's own bow, which Tam gives the character who brings Halda's tally home (Halda's Tally, the return choice). A notable bow a step past the hunting bow - 10 damage where it has 9, a 0.85 s draw where it has 0.9 - on the same rough arrows and the same might. Arrows that land train skill.bow, as the hunting bow's do. A notable find, it carries its own record (WP3a).
 category: weapon
 stack_max: 1
 weight: 1.4
 value_base: 70
-rarity: uncommon
+item_class: notable
+rarity: rare        # derived from item_class (DCP:903)
 damage: [10, 10]
 damage_type: physical_pierce
 draw_time: 0.85
 hands: two
 ammo_item_ref: item.ammo.arrow_rough
+skill_ref: skill.bow
 requirements: { attribute.might: 9 }   # an attribute minimum, never a level (PROGRESSION.md §11.1)

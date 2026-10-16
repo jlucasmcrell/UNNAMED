@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Items;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.World;
@@ -59,6 +60,9 @@ public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, stri
 
     /// <summary>The stack's quality (schema 9).</summary>
     public int Quality { get; init; }
+
+    /// <summary>A notable instance's record (WP3a): it lies in the world with its item.</summary>
+    public NotableRecord? Notable { get; init; }
 }
 
 /// <summary>An item inside a world container.</summary>
@@ -66,6 +70,9 @@ public sealed record ContainerItem(EntityId ItemId, string DefId, int Count)
 {
     /// <summary>The stack's quality (schema 9).</summary>
     public int Quality { get; init; }
+
+    /// <summary>A notable instance's record (WP3a): it stays with its item in a chest or a trader's wares.</summary>
+    public NotableRecord? Notable { get; init; }
 }
 
 /// <summary>
@@ -377,13 +384,13 @@ public sealed class WorldDelta
     /// Place an existing item instance in the world (a drop): it keeps its identity, which the caller has already
     /// registered, and its count.
     /// </summary>
-    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0)
+    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0, NotableRecord? notable = null)
     {
         if (!InCell(xCm) || !InCell(zCm))
             throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
         if (count <= 0)
             throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
-        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality };
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable };
     }
 
     /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>
@@ -640,7 +647,7 @@ public sealed class WorldDelta
         var created = CreatedIn(cell);
         h.Add(created.Count);
         foreach (var c in created)
-            h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality);
+            NotableDigest.Add(h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality), c.Notable);
 
         var containers = ContainersIn(cell);
         h.Add(containers.Count);
@@ -648,7 +655,7 @@ public sealed class WorldDelta
         {
             h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
             foreach (var item in c.Items)
-                h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality);
+                NotableDigest.Add(h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality), item.Notable);
         }
 
         var creatures = CreaturesIn(cell);

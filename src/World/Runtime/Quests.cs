@@ -341,7 +341,7 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
                     (what, named, amount) = ($"{coin.Amount} coin", null, coin.Amount);
                     break;
                 case ItemReward item:
-                    _context.Dispatch(new GrantItem(item.ItemId, item.Count, Quality.Standard));
+                    _context.Dispatch(new GrantItem(item.ItemId, item.Count, Quality.Standard) { SourceRef = quest.Id });
                     (what, named, amount) = ($"{item.Count} {item.ItemId}", item.ItemId, item.Count);
                     break;
                 case TechniqueReward technique:

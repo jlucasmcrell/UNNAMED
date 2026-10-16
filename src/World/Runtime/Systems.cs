@@ -64,6 +64,15 @@ internal sealed class SystemContext
             ? new ContainerSite(merchant, string.Empty, npc.Site.XMm, npc.Site.ZMm, WaresStackSlots)
             : null;
 
+    /// <summary>
+    /// How much further the character is seen for what they have equipped (WP3a): the equipped items' <c>stealth_penalty</c>, summed and
+    /// capped at 1 - a lit torch in the off hand.
+    /// </summary>
+    public double PlayerStealthPenalty() =>
+        Math.Min(1, State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Sum(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthPenalty ?? 0));
+
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;
 
@@ -82,7 +91,10 @@ internal sealed class SystemContext
     public IEnumerable<ContainerSite> CorpseSites() =>
         State.Creatures.Values
             .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
-            .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots));
+            .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots)
+            {
+                DropLevel = c.Definition.Level,
+            });
 
     /// <summary>
     /// What the player's body cannot pass besides the static blockers: closed doors, standing barriers, living creatures and people - but

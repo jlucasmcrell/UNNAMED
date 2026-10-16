@@ -57,7 +57,11 @@ public sealed record RoadSite(string Id, string Name, ImmutableArray<(long XMm, 
 /// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,
 /// rolled the same way every time; the key is its identity in saves.
 /// </summary>
-public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots);
+public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
+{
+    /// <summary>A body's: the level of the creature it was, which its drops roll their quality by (DCP:662). Null for an authored container.</summary>
+    public int? DropLevel { get; init; }
+}
 
 /// <summary>
 /// An authored resource node (M3f): a node definition at a fixed place. Its identity and harvest state belong to the world
@@ -66,7 +70,11 @@ public sealed record ContainerSite(string Key, string LootTableId, long XMm, lon
 public sealed record NodeSite(string Name, string NodeDefId, long XMm, long ZMm);
 
 /// <summary>A crafting station (M3f): a place where recipes of its kind are worked - the forge's hearth, its anvil.</summary>
-public sealed record StationSite(string Key, string Kind, long XMm, long ZMm);
+public sealed record StationSite(string Key, string Kind, long XMm, long ZMm)
+{
+    /// <summary>How far the station has been upgraded (WP3a): 0 is a common station; masterwork needs <c>config.crafting</c>'s grade.</summary>
+    public int Grade { get; init; }
+}
 
 /// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
 public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);

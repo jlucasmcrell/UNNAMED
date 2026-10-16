@@ -345,7 +345,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private CreatureState Perceive(CreatureState c, long tick, List<Noise> noises)
     {
         var rules = Setup.Awareness;
-        var senses = c.Definition.Senses;
+        // A lit torch in hand is seen from further off (its stealth cost, WP3a).
+        var senses = c.Definition.Senses is var own && _context.PlayerStealthPenalty() is > 0 and var penalty
+            ? own with { SightMm = (long)Math.Round(own.SightMm * (1 + penalty)) }
+            : c.Definition.Senses;
         var player = State.Body;
         bool target = !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
@@ -783,7 +786,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
         if (killer == _player)
+        {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
+            _context.Dispatch(new CountUse());
+        }
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {

@@ -1,0 +1,17 @@
+id: recipe.smithing.torch
+kind: recipe
+schema: 1
+display_key: recipe.smithing.torch.name
+tags: [recipe]
+name: Torch
+notes: Timber and bog-cotton lint fired at the forge (owner, ORR:1333); found by experiment at a forge.
+station: forge
+skill_ref: skill.smithing
+complexity: 0
+discovery: { experiment: true }   # one of its station kind's experiment candidates (C12:263-302)
+inputs:
+  - { item_ref: item.material.timber, count: 1 }
+  - { item_ref: item.material.bog_cotton, count: 1 }
+outputs:
+  - { item_ref: item.tool.torch, count: 1, quality_roll: false }
+xp_award: { xp: 10 }       # level XP for the first only (AG-7)

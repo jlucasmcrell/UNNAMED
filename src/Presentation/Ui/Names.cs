@@ -24,9 +24,10 @@ public static partial class Names
         return words.Length == 0 ? words : char.ToUpperInvariant(words[0]) + words[1..];
     }
 
-    /// <summary>An item's name with its quality (M3f): a fine or crude one says so; a standard one is just itself.</summary>
+    /// <summary>An item's name with its quality (M3f): a masterwork, fine or crude one says so; a standard one is just itself.</summary>
     public static string Item(GameSession session, string defId, int quality) => quality switch
     {
+        Quality.Masterwork => "Masterwork " + Of(session, defId),
         Quality.Fine => "Fine " + Of(session, defId),
         Quality.Crude => "Crude " + Of(session, defId),
         _ => Of(session, defId),
