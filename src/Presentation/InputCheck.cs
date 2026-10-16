@@ -27,7 +27,7 @@ public sealed class InputCheck
     private static readonly string[] Gameplay =
     {
         "move_forward", "sprint", "attack", "guard", "dodge", "use", "interact", "jump", "crouch", "cast_1", "companion_order", "quicksave",
-        "quickload", "first_person",
+        "first_person",
     };
 
     // From the Ashen Waystone to Sel's table, by the lodge's south side.
