@@ -766,13 +766,32 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
 | 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
 | 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
-| 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
+| 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only (**SUPERSEDED 2026-10-17 by `8a56a22`** - the space is saved at schema 16; `P1e` below is the history of the deferral, not the state) | **879 passing, 0 failed** |
 | 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
 | 2026-10-16 | `888d67d` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
 | 2026-10-16 | `28af843` | P1h: `RegionLayout.SpaceId`, and site cells follow the layout's space | **886 passing, 0 failed** |
 | 2026-10-16 | `c4b9dbe` | P2a: `space:` on the region schema, and the 13-room blockout | **890 passing, 0 failed** |
 | 2026-10-16 | `8750d66` | P2b: the two gated entrances, through real content | **896 passing, 0 failed** |
 | 2026-10-16 | `_P2c_` | P2c: the thirteen rooms as named places, and the survey's stations | **897 passing, 0 failed** |
+| 2026-10-16 | `a0029e8` | P3a: the ring's structures bound to a surface; the walls stop being greybox | **~900 passing** |
+| 2026-10-16 | `38d8f50` | P3b: the cells floored, so a room stands on rock and not a flat colour | **~900 passing** |
+| 2026-10-16 | `bef0e33` | P3b: the deep rooms get their own stone, chosen by measured brightness | **~900 passing** |
+| 2026-10-16 | `88106a0` | P3c: a region roofs its own rooms; 29 groups, and `Roofs` is no longer a hardcoded list | **~900 passing** |
+| 2026-10-16 | `0b441d2` | P3d: the dungeon is lit by its own light and not the sun's; 29 interior lamps | **~900 passing** |
+| 2026-10-16 | `de44375` | P4a: the content port begins - the Barrowworks' eight world flags | **~900 passing** |
+| 2026-10-16 | `aebce7c` `393a32f` | P4b: the design's five places get the design's names, and each room maps to its place | **~900 passing** |
+| 2026-10-16 | `4eaacd7` | P4c: the fitting wedge, and the recipe's second pinned list | **~900 passing** |
+| 2026-10-16 | `0ad2b27` | P4d: the quest itself, and Kera's three gated lines | **~905 passing** |
+| 2026-10-16 | `05a3f91` | P4e: the three readings get props and switches, and G1-G3 exist | **~940 passing** |
+| 2026-10-16 | `df9038d` | P5: the Ring Custodian | **948 passing, 0 failed** |
+| 2026-10-16 | `5545acf` | the floor's material had no provenance, so its licence could not be attested | **948 passing** |
+| 2026-10-16 | `49df1b0` | P6: the handoff report, at `C:\Otherreach_External_Assets\REPORT_FOR_CLAUDE_BARROWWORKS.md` | **948 passing** |
+| 2026-10-17 | `8a56a22` | **schema 16: the space a body stands in is saved, so a save inside the ring loads inside it** | **953 passing, 0 failed** |
+| 2026-10-17 | `cb2b3cf` `5330834` `5930cfa` | three merges of the moved snapshot; the death sequence kept in `Combat.cs` | **971 passing, 0 failed** |
+| 2026-10-17 | `13209e1` | the Blind Store's ledger and the headworks choice - three flags the quest waited on and nothing wrote | **963 passing** |
+| 2026-10-17 | `5c3e621` | every step of the quest is satisfiable: the flags, the places, the chain, both answers | **967 passing** |
+| 2026-10-17 | `1fd7007` | the switches actually answer the quest when used, in the cell the objective reads | **971 passing** |
+| 2026-10-17 | `90da415` | all thirteen rooms photographed against the current content; the P2 pass was greybox | **971 passing** |
 
 ### P2a — `space:` on the region schema, and thirteen rooms that connect
 
@@ -1244,6 +1263,14 @@ presentation-only calls (`Main.cs`, `GroundField.cs`, `HollowView.cs`, `SoundEve
 world and need nothing.
 
 ### P1e — persistence deferred, deliberately
+
+> **SUPERSEDED 2026-10-17.** The deferral below was the right call while nothing could enter the ring,
+> and `8a56a22` has since done the work it deferred: the space and the traversal are saved at schema 16,
+> with a frozen `Sections/V15`, a `15 -> 16` step and a v16 fixture. **Read this section as the history of
+> the deferral, not as the state of the branch.** The guard test it names,
+> `TheSpace_IsNotPersistedYet_SoItMustStayUnreachable`, is now
+> `WithTheGateOff_TheSpaceSystem_IsNeverEnteredAtAll`: its premise is gone and the guarantee it kept is not.
+
 
 **Attempted and reverted:** the space wired all the way through persistence — `PlayerRecord` fields, the
 player DTO, a schema 14 → 15 bump and a `SchemaV14ToV15` step.
