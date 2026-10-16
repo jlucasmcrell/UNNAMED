@@ -1057,6 +1057,12 @@
    "hand": "off_hand",
    "note": "The manifest's hunting_bow slot."
   },
+  "item.weapon.haldas_bow": {
+   "model": "weapon_yew_longbow_warbow",
+   "family": "bow",
+   "hand": "off_hand",
+   "note": "Halda's Bow draws as the hunting bow until it has its own model."
+  },
   "item.weapon.march_spear": {
    "model": "weapon_boar_spear_hunting",
    "family": "polearm",
@@ -1075,6 +1081,7 @@
  "icons": {
   "item.consumable.salve_minor": "ui.item.restorative",
   "item.weapon.hunting_bow": "ui.weapon.bow",
+  "item.weapon.haldas_bow": "ui.weapon.bow",
   "item.weapon.march_spear": "ui.weapon.march_spear",
   "item.weapon.rusted_sword": "ui.weapon.one_handed",
   "item.ammo.arrow_rough": "ui.item.arrow_rough",

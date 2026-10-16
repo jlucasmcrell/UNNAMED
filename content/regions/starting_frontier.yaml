@@ -147563,6 +147563,26 @@ nodes:
   position_m:
   - 1062
   - 755
+- name: halda_pelt_snare_west
+  node_ref: node.trap.pelt_snare
+  position_m:
+  - 476
+  - 784
+- name: halda_larder_snare_west
+  node_ref: node.trap.larder_snare
+  position_m:
+  - 482
+  - 792
+- name: halda_pelt_snare_east
+  node_ref: node.trap.pelt_snare
+  position_m:
+  - 536
+  - 783
+- name: halda_larder_snare_east
+  node_ref: node.trap.larder_snare
+  position_m:
+  - 546
+  - 792
 stations:
 - key: station.forge_hearth
   kind: forge

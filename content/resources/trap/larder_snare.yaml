@@ -1,0 +1,9 @@
+id: resource.trap.larder_snare
+kind: resource
+schema: 1
+display_key: resource.trap.larder_snare.name
+tags: [resource]
+name: Larder Snare
+notes: What one of Halda's larder snares on the north slope holds when it is checked - a portion of meat. Renews at the world-day boundary.
+yields:
+  - { item_ref: item.material.raw_meat, count_range: [1, 1] }
