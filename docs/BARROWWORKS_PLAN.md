@@ -391,6 +391,31 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P6 - the handoff report
+
+**Written to \C:\\Otherreach_External_Assets\\REPORT_FOR_CLAUDE_BARROWWORKS.md\.** It leads with what is
+delivered, names the two Done criteria that are NOT met before it names anything else, lists every material with
+its licence and source, every commit, and the eight files the branch and the moved snapshot both touch.
+
+**The two gaps it names, in its own §6:**
+
+1. **The Ring Custodian's defeat sets no flag.** World flags are written by switches, dialogue and quest
+   rewards - **nothing in this engine writes a flag when a creature dies** - so the quest cannot observe the
+   kill. The design says the encounter owns that fact; teaching shared combat a flag-on-defeat is not this
+   brief.
+2. **Saving and loading inside the ring does not work.** The space is runtime state only (OQ-10, decided in P1
+   before any content existed), so a save taken inside loads the body outside. This is the one Done criterion
+   that is not met, and it needs a persistence schema bump to 16 with a migration and a binary fixture.
+
+**Also named:** G3 does not open on a wedge; P3's minerals, structural modules, gauge props and Megascans export
+are not built; P2's visual acceptance was blocked pending owner review and never unblocked; no frame-time budget
+was measured against the High-tier target.
+
+**And the licensing defect found while gathering the report:** \cw_gravel_stones\, which P3b had chosen for the
+floor, is **the only one of the restore's 22 materials with no provenance file** - so its licence cannot be
+attested, and no render could show that. Replaced with \	er_ph_river_small_rocks\ (Poly Haven, CC0, 4096px,
+provenance present). All three materials the ring binds are now CC0 with provenance and \shippable: true\.
+
 ### P5 - the Ring Custodian
 
 **P5 is in.** The creature `o_custodian` waits on exists, stands where the objective says, and has the fight the
