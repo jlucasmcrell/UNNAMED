@@ -134,6 +134,8 @@ public partial class NpcsView : Node3D
         public double Quiet;
         public string? Last;
         public bool Voiced;
+        public AudioStreamPlayer3D? Voice;
+        public AudioStream? Line;
     }
 
     private const float BarkReach = Audio.VoiceRules.BarkFullM;
@@ -176,9 +178,10 @@ public partial class NpcsView : Node3D
             var fresh = lines.Where(l => l.Text != bark.Last).ToArray();
             var line = fresh.Length > 0 ? fresh[_random.RandiRange(0, fresh.Length - 1)] : lines[0];
             bark.Last = line.Text;
-            double? voiced = Voice?.Bark(line.LineId, head);
-            bark.Voiced = voiced is not null;
-            bark.Left = voiced is { } seconds ? seconds + 0.3 : 1.5 + line.Text.Length / 15.0;
+            bark.Voice = Voice?.Bark(line.LineId, head);
+            bark.Line = bark.Voice?.Stream;
+            bark.Voiced = bark.Line is not null;
+            bark.Left = bark.Line is { } voiced ? voiced.GetLength() + 0.3 : 1.5 + line.Text.Length / 15.0;
             bark.Shown = 0;
             bark.Quiet = bark.Left + _random.RandfRange(25f, 45f);
             bark.Label.Text = line.Text;
@@ -194,6 +197,8 @@ public partial class NpcsView : Node3D
         bark.Label.Modulate = new Color(1, 1, 1, alpha);
         bark.Label.OutlineModulate = new Color(0, 0, 0, alpha);
         bark.Label.GlobalPosition = head + Vector3.Up * 0.45f;
+        if (bark.Voice is { Playing: true } voice && voice.Stream == bark.Line)
+            voice.GlobalPosition = head;   // a speaker who walks on - a companion following - takes their voice along
         return bark.Label.Text;
     }
 

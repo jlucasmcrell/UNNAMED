@@ -45,8 +45,11 @@ public partial class VoicePlayer : Node
     /// <summary>Stop the conversation's line (the conversation ended).</summary>
     public void Hush() => _line.Stop();
 
-    /// <summary>Say a bark where its speaker's head is: how long it lasts, in seconds, or null when it has no recording.</summary>
-    public double? Bark(string lineId, Vector3 at)
+    /// <summary>
+    /// Say a bark where its speaker's head is: the voice saying it, which the caller keeps at the speaker's head while it plays, or null
+    /// when it has no recording.
+    /// </summary>
+    public AudioStreamPlayer3D? Bark(string lineId, Vector3 at)
     {
         if (Stream(lineId) is not { } stream)
             return null;
@@ -60,7 +63,7 @@ public partial class VoicePlayer : Node
         player.Stream = stream;
         player.GlobalPosition = at;
         player.Play();
-        return stream.GetLength();
+        return player;
     }
 
     public override void _Process(double delta)
