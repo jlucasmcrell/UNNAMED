@@ -190,14 +190,14 @@ public sealed class Simulation
             ProgressionEngine.Create(setup.Progression), spawn.FacingMdeg, equipment: equipment);
     }
 
-    /// <summary>The cell a door stands in: its flag lives in that cell's delta.</summary>
-    public static CellKey CellOf(DoorSite door) => CellOf(door.Space, door.ClosedFootprint);
+    /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>
+    public static CellKey CellOf(SpaceId space, DoorSite door) => CellOf(space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
-    public static CellKey CellOf(SwitchSite site) => CellOf(site.Space, site.Body);
+    public static CellKey CellOf(SpaceId space, SwitchSite site) => CellOf(space, site.Body);
 
     /// <summary>The cell a barrier stands in (M6): the flag that lifts it lives in that cell's delta.</summary>
-    public static CellKey CellOf(BarrierSite barrier) => CellOf(barrier.Space, barrier.Footprint);
+    public static CellKey CellOf(SpaceId space, BarrierSite barrier) => CellOf(space, barrier.Footprint);
 
     /// <summary>
     /// A site's cell, in the space the site stands in. <see cref="CellKey.OfInterior"/> with the exterior

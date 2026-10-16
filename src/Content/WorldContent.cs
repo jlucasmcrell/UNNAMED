@@ -308,7 +308,7 @@ public static class WorldContent
             // A requirement is read in the switch's cell, so something in that cell must set it - or the switch could never work.
             foreach (var sw in switches)
             {
-                foreach (string flag in sw.Requires.Where(f => !switches.Any(o => o.FlagId == f && CellOf(o.Body) == CellOf(sw.Body))))
+                foreach (string flag in sw.Requires.Where(f => !switches.Any(o => o.FlagId == f && CellOf(spaceId, o.Body) == CellOf(spaceId, sw.Body))))
                     Check(false, "WLD013", $"{sw.Key} requires {flag}, which no switch in its cell sets");
             }
 
@@ -321,7 +321,7 @@ public static class WorldContent
                 Check(key.StartsWith("barrier.", StringComparison.Ordinal), "WLD014", $"barrier key '{key}' must start with 'barrier.'");
                 Check(flags.ContainsKey(barrier.FlagId), "WLD014", $"{key} names world flag '{barrier.FlagId}', which is not a declared world_flag");
                 // Only a switch can lift a barrier in Phase 1 - a door is toggled by hand and would lift it both ways.
-                Check(switches.Any(s => s.FlagId == barrier.FlagId && CellOf(s.Body) == CellOf(barrier.Footprint)), "WLD014",
+                Check(switches.Any(s => s.FlagId == barrier.FlagId && CellOf(spaceId, s.Body) == CellOf(spaceId, barrier.Footprint)), "WLD014",
                     $"{key} is lifted by {barrier.FlagId}, which no switch in its cell sets");
                 barriers.Add(barrier);
             }
@@ -444,11 +444,12 @@ public static class WorldContent
         loader.Definitions.TryGetValue(dormant.RiteDialogueId, out var dialogue) && dialogue.Kind == "dialogue"
         && Read(dialogue.YamlSource).GetValueOrDefault("nodes") is Dictionary<object, object> nodes && nodes.ContainsKey(dormant.RiteNodeId);
 
-    /// <summary>The cell a footprint stands in: a switch's or a barrier's flag lives in that cell's delta.</summary>
-    private static CellKey CellOf(Blocker blocker)
+    /// <summary>The cell a footprint stands in, in the space the region stands in: a switch's or a barrier's flag
+    /// lives in that cell's delta, and the runtime resolves it the same way (review B2).</summary>
+    private static CellKey CellOf(SpaceId space, Blocker blocker)
     {
         var (x, z) = Footprints.Center(blocker);
-        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
+        return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
     }
 
     private static TerrainGrid BuildTerrain(Dictionary<object, object> terrain)

@@ -1,8 +1,9 @@
-// UNNAMED Application tests - using the ring's switches actually answers the quest
-// The satisfiability test proves every flag HAS a writer. This proves the writer works: a body standing at the
-// prop, using it the way a key press does, sets the flag - and stands inside the place the objective reads it
-// from. That last part is the whole reason the choice is a switch on the measure and not a line of Kera's: a
-// world flag is per-cell, and she stands at the waystation.
+// UNNAMED Application tests - a switch's flag lands in the cell the quest reads it from (review B2)
+// These used to compare the switch's cell with itself: both sides were computed from `site.Space`, which nothing
+// ever set, so the test passed while every reading in the ring was unsatisfiable. The write now goes through the
+// real interaction path and the expected cell comes from the objective's own location in the layout's space -
+// which is what the quest's CellOfLocation resolves to. On the old code these fail, because the write went to an
+// exterior cell and the read to a space-qualified one.
 
 using UNNAMED.Application;
 using UNNAMED.Domain.Quests;
@@ -44,6 +45,24 @@ public class BarrowworksSwitchTests
     };
 
     /// <summary>
+    /// The cell the quest reads a flag from: the objective's own place, in the space the layout stands in, which
+    /// is what <c>QuestSystem.CellOfLocation</c> resolves. Written out rather than reached through the private
+    /// system, and deliberately NOT derived from the switch - deriving it from the switch is what made the old
+    /// test compare a thing with itself.
+    /// </summary>
+    private static CellKey QuestCell(GameSession session, string locationId)
+    {
+        var place = session.Setup.Layout.Locations.Single(l => l.Id == locationId);
+        return CellKey.OfInterior(session.Setup.Layout.SpaceId, place.XMm / 1000.0, place.ZMm / 1000.0);
+    }
+
+    /// <summary>The place each reading's objective watches, from the quest's own definitions.</summary>
+    private static Dictionary<string, string> ObjectivePlaces(GameSession session) =>
+        session.Setup.Quests.Quests[Quest].Order
+            .Select(o => o.Condition).OfType<WorldStateObjective>()
+            .ToDictionary(c => c.FlagId, c => c.LocationId, StringComparer.Ordinal);
+
+    /// <summary>
     /// An arena standing on a switch's structure. The ring is opened as its own region, so its metres are placed
     /// through the hollow's frame, which is where region.barrowworks puts its origin.
     /// </summary>
@@ -55,52 +74,45 @@ public class BarrowworksSwitchTests
     }
 
     [Fact]
-    public void EachReading_WhenUsed_SetsItsFlag()
+    public void EachReading_WhenUsed_SetsItsFlagWhereTheQuestReadsIt()
     {
         using var profile = new TempProfile();
         using var session = Boot(profile);
+        var places = ObjectivePlaces(session);
 
         foreach (var (key, flag) in Readings)
         {
             var site = session.Setup.Layout.Switches.Single(s => s.Key == key);
             var arena = StandingOn(session, site);
-            var cell = Simulation.CellOf(site);
+            var read = QuestCell(session, places[flag]);
 
-            Assert.Equal(0, arena.Simulation.World.GetFlag(cell, flag));
+            Assert.Equal(0, arena.Simulation.World.GetFlag(read, flag));
             Assert.Null(arena.Submit(new InteractCommand(arena.Simulation.PlayerId, key)));
-            Assert.NotEqual(0, arena.Simulation.World.GetFlag(cell, flag));
+            Assert.NotEqual(0, arena.Simulation.World.GetFlag(read, flag));
         }
     }
 
     /// <summary>
-    /// Each switch stands in the same CELL as the place its objective reads the flag from. This is the property
-    /// that matters and not a formality: a world flag is per-cell, so the same flag set in another cell reads as
-    /// zero and the step is answered by nothing. It is the reason the choice is a switch on the measure rather
-    /// than a line of Kera's - she stands at the waystation, a different cell entirely.
+    /// The symptom, stated directly: a ring switch's flag cell is space-qualified. The old code wrote to
+    /// <c>r_1_1:c_00_00</c> - real exterior ground - because `SwitchSite.Space` defaulted to the exterior and
+    /// nothing set it, while the quest read <c>space.barrowworks/…</c>.
     /// </summary>
     [Fact]
-    public void EachSwitch_StandsInTheCellItsObjectiveReads()
+    public void TheRingsFlagCells_AreInTheRingsSpace_NotOnExteriorGround()
     {
         using var profile = new TempProfile();
         using var session = Boot(profile);
-        var layout = session.Setup.Layout;
+        var space = session.Setup.Layout.SpaceId;
 
-        var reads = session.Setup.Quests.Quests[Quest].Order
-            .Select(o => o.Condition).OfType<WorldStateObjective>()
-            .ToDictionary(c => c.FlagId, c => c.LocationId, StringComparer.Ordinal);
-
-        foreach (var (key, flag) in Readings)
+        Assert.False(space.IsExterior);
+        foreach (var site in session.Setup.Layout.Switches)
         {
-            var site = layout.Switches.Single(s => s.Key == key);
-            var place = layout.Locations.Single(l => l.Id == reads[flag]);
-            var (xMm, zMm) = Centre(site);
-
-            // Both are placed with the switch's own space, which is the space the flag is read in. A location is
-            // region-local and carries no space of its own, so this is the only space either of them has.
-            var here = CellKey.OfInterior(site.Space, xMm / 1000.0, zMm / 1000.0);
-            var there = CellKey.OfInterior(site.Space, place.XMm / 1000.0, place.ZMm / 1000.0);
-            Assert.Equal(there, here);
+            var cell = Simulation.CellOf(space, site);
+            Assert.Equal(space, cell.Space);
         }
+
+        foreach (var door in session.Setup.Layout.Doors)
+            Assert.Equal(space, Simulation.CellOf(space, door).Space);
     }
 
     /// <summary>
@@ -112,27 +124,39 @@ public class BarrowworksSwitchTests
     {
         using var profile = new TempProfile();
         using var session = Boot(profile);
+        var places = ObjectivePlaces(session);
+        string preserved = "world.barrowworks.headworks_preserved";
+        string dismantled = "world.barrowworks.headworks_dismantled";
 
-        var preserve = session.Setup.Layout.Switches.Single(s => s.FlagId == "world.barrowworks.headworks_preserved");
-        var dismantle = session.Setup.Layout.Switches.Single(s => s.FlagId == "world.barrowworks.headworks_dismantled");
+        var preserve = session.Setup.Layout.Switches.Single(s => s.FlagId == preserved);
+        var dismantle = session.Setup.Layout.Switches.Single(s => s.FlagId == dismantled);
         Assert.Equal("r12_headworks_measure", preserve.Body.Id);
         Assert.Equal("r12_headworks_measure", dismantle.Body.Id);
 
         var arena = StandingOn(session, preserve);
         Assert.Null(arena.Submit(new InteractCommand(arena.Simulation.PlayerId, preserve.Key)));
 
-        var cell = Simulation.CellOf(preserve);
-        Assert.NotEqual(0, arena.Simulation.World.GetFlag(cell, "world.barrowworks.headworks_preserved"));
-        Assert.Equal(0, arena.Simulation.World.GetFlag(cell, "world.barrowworks.headworks_dismantled"));
+        Assert.NotEqual(0, arena.Simulation.World.GetFlag(QuestCell(session, places[preserved]), preserved));
+        Assert.Equal(0, arena.Simulation.World.GetFlag(QuestCell(session, places[dismantled]), dismantled));
     }
 
+    /// <summary>
+    /// The other side of the same coin: an ordinary exterior switch is where it always was. The fix resolves a
+    /// site's cell in the LAYOUT's space, and the exterior is both the default and <c>OfWorld</c>, so no authored
+    /// exterior site moves cell.
+    /// </summary>
     [Fact]
-    public void WithTheGateOff_ThereAreNoSwitchesToUse()
+    public void AnExteriorSwitch_KeepsTheCellItHasAlwaysHad()
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile);
+        var layout = session.Setup.Layout;
 
-        // The ring declares its switches; the starting frontier declares the Foldscar's three stones.
-        Assert.DoesNotContain(session.Setup.Layout.Switches, s => s.Key.StartsWith("switch.barrowworks.", StringComparison.Ordinal));
+        Assert.True(layout.SpaceId.IsExterior);
+        foreach (var site in layout.Switches)
+        {
+            var (xMm, zMm) = Centre(site);
+            Assert.Equal(CellKey.OfWorld(xMm / 1000.0, zMm / 1000.0), Simulation.CellOf(layout.SpaceId, site));
+        }
     }
 }

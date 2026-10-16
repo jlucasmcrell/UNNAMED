@@ -144,21 +144,20 @@ public class CoordinateTests
         Assert.True(default(CellKey).Space.IsExterior);
     }
 
-    // ── a site's cell follows the space it stands in (M8 D10) ───────────────────────────────────────
+    // ── a site's cell follows the space its layout stands in (M8 D10) ───────────────────────────────
     // Simulation.CellOf is how a door's, a switch's and a barrier's flag cell is found, and a flag cell
-    // is where the flag, its delta and its baseline hash live. Two sites at the same authored coordinates
-    // in different spaces must therefore resolve to different cells.
+    // is where the flag, its delta and its baseline hash live. The space is the caller's - the layout's -
+    // because a layout is one space and its sites are authored in one frame (review B2).
 
-    private static DoorSite DoorAt(SpaceId space, long xMm, long zMm) =>
+    private static DoorSite DoorAt(long xMm, long zMm) =>
         new("door.barrowworks.grille", "world.barrowworks.gate_g1_open",
-            new BoxBlocker("door.barrowworks.grille", xMm - 150, zMm - 150, xMm + 150, zMm + 150, 2_200))
-        { Space = space };
+            new BoxBlocker("door.barrowworks.grille", xMm - 150, zMm - 150, xMm + 150, zMm + 150, 2_200));
 
     [Fact]
     public void AnInteriorSite_AndAnExteriorSiteAtTheSamePlace_ResolveToDifferentCells()
     {
-        var exterior = Simulation.CellOf(DoorAt(SpaceId.Exterior, 40_000, 260_000));
-        var interior = Simulation.CellOf(DoorAt(Barrowworks, 40_000, 260_000));
+        var exterior = Simulation.CellOf(SpaceId.Exterior, DoorAt(40_000, 260_000));
+        var interior = Simulation.CellOf(Barrowworks, DoorAt(40_000, 260_000));
 
         Assert.Equal("r_0_0:c_00_02", exterior.ToString());
         Assert.Equal("space.barrowworks/r_0_0:c_00_02", interior.ToString());
@@ -168,20 +167,18 @@ public class CoordinateTests
     [Fact]
     public void AnExteriorSite_KeepsTheCellItHasAlwaysHad()
     {
-        // The default Space is the exterior, so no authored site changes behaviour.
-        var implicitSpace = Simulation.CellOf(DoorAt(SpaceId.Exterior, 40_000, 260_000));
-        var explicitExterior = Simulation.CellOf(new DoorSite("k", "f",
-            new BoxBlocker("k", 39_850, 259_850, 40_150, 260_150, 2_200)));
+        // The exterior is the default, and OfInterior with it is OfWorld, so no authored exterior site moves.
+        var exterior = Simulation.CellOf(SpaceId.Exterior, DoorAt(40_000, 260_000));
 
-        Assert.Equal(explicitExterior, implicitSpace);
-        Assert.Equal("r_0_0:c_00_02", explicitExterior.ToString());
+        Assert.Equal("r_0_0:c_00_02", exterior.ToString());
+        Assert.Equal(CellKey.OfWorld(40.0, 260.0), exterior);
     }
 
     [Fact]
     public void TwoInteriorSites_InDifferentSpaces_DoNotShareAFlagCell()
     {
-        var barrowworks = Simulation.CellOf(DoorAt(Barrowworks, 0, 0));
-        var undermeasure = Simulation.CellOf(DoorAt(SpaceId.Parse("space.undermeasure"), 0, 0));
+        var barrowworks = Simulation.CellOf(Barrowworks, DoorAt(0, 0));
+        var undermeasure = Simulation.CellOf(SpaceId.Parse("space.undermeasure"), DoorAt(0, 0));
 
         Assert.NotEqual(barrowworks, undermeasure);
     }

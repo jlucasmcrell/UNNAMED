@@ -39,11 +39,17 @@ internal sealed class SystemContext
     /// <summary>Route an internal command to its owner; null when accepted, otherwise the reason.</summary>
     public Func<InternalCommand, string?> Dispatch { get; }
 
-    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(door), door.FlagId) != 0;
+    /// <summary>
+    /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
+    /// the quest that reads that flag are always the same cell (review B2).
+    /// </summary>
+    private SpaceId Space => Setup.Layout.SpaceId;
 
-    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(site), site.FlagId) != 0;
+    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(Space, door), door.FlagId) != 0;
 
-    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
+    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(Space, site), site.FlagId) != 0;
+
+    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(Space, barrier), barrier.FlagId) != 0;
 
     /// <summary>
     /// The cell a body stands in, in the space it is in (M8 D10). A cell is where a flag, a delta and an
@@ -313,7 +319,7 @@ internal sealed class InteractionSystem
                        || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
         if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
-        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(_context.Setup.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
         return null;
@@ -329,7 +335,7 @@ internal sealed class InteractionSystem
             return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
         if (_context.IsSet(site))
             return $"the {site.Name} is already set";
-        var cell = Simulation.CellOf(site);
+        var cell = Simulation.CellOf(_context.Setup.Layout.SpaceId, site);
         if (site.Requires.Any(flag => _context.State.World.GetFlag(cell, flag) == 0))
             return site.LockedText;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)

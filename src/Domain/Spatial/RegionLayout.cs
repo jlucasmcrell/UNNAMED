@@ -9,16 +9,7 @@ namespace UNNAMED.Domain.Spatial;
 /// A door: an interactable whose open state is a <c>world.*</c> flag in the cell it stands in. Closed, its
 /// footprint blocks movement; open, it does not. The key is what an interaction command names.
 /// </summary>
-/// <remarks>
-/// <see cref="Space"/> is the space the door stands in, and it is what makes its cell unique (M8 D10). An
-/// interior door at local metres near the origin would otherwise share a cell - and so a flag, a delta and
-/// a baseline hash - with real exterior ground. The default is the exterior, so every authored door keeps
-/// the cell it has always had.
-/// </remarks>
-public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint)
-{
-    public SpaceId Space { get; init; } = SpaceId.Exterior;
-}
+public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint);
 
 /// <summary>
 /// A switch (M6): an interactable standing on a structure (<see cref="Body"/>) that sets a <c>world.*</c> flag in its cell to 1 -
@@ -27,22 +18,14 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
 /// <see cref="Name"/>, <see cref="DoneText"/> is what happens, <see cref="LockedText"/> why it will not work yet.
 /// </summary>
 public sealed record SwitchSite(string Key, string FlagId, Blocker Body, ImmutableArray<string> Requires, string Name, string Verb,
-    string DoneText, string? LockedText)
-{
-    /// <summary>The space the switch stands in. See <see cref="DoorSite.Space"/>.</summary>
-    public SpaceId Space { get; init; } = SpaceId.Exterior;
-}
+    string DoneText, string? LockedText);
 
 /// <summary>
 /// A barrier (M6): a footprint that blocks like a closed door while a <c>world.*</c> flag in its cell is 0 - the fold that holds Tavar
 /// until the Foldscar is steadied. It has no handle: only what sets its flag lifts it. <see cref="Prompt"/> says what it is to someone
 /// standing at it.
 /// </summary>
-public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, string Prompt)
-{
-    /// <summary>The space the barrier stands in. See <see cref="DoorSite.Space"/>.</summary>
-    public SpaceId Space { get; init; } = SpaceId.Exterior;
-}
+public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, string Prompt);
 
 /// <summary>
 /// A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it. Its space is the
@@ -148,8 +131,9 @@ public sealed record RegionLayout(
     /// </summary>
     /// <remarks>
     /// This sits on the layout rather than on each site type because a layout <em>is</em> one space: its
-    /// sites are authored together in one coordinate frame. Putting it on six site records would let them
-    /// disagree with each other and with the layout that holds them, which is a state no rule covers.
+    /// sites are authored together in one coordinate frame. It was once on the door, the switch and the
+    /// barrier too, and nothing ever set them - so an interior's switches wrote their flags to exterior
+    /// cells while the quest read space-qualified ones and no reading could ever be satisfied (review B2).
     /// </remarks>
     public SpaceId SpaceId { get; init; } = SpaceId.Exterior;
 

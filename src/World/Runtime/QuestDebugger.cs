@@ -297,8 +297,8 @@ internal sealed class QuestDebugger
         foreach (var site in Setup.Layout.Switches.Where(s => s.FlagId == w.FlagId))
         {
             var (x, z) = Footprints.Center(site.Body);
-            var missing = site.Requires.Where(f => State.World.GetFlag(Simulation.CellOf(site), f) == 0).ToList();
-            yield return $"{site.Verb.ToLowerInvariant()} the {site.Name} at ({Point(x, z)}): {site.Key}, in cell {Simulation.CellOf(site)}" +
+            var missing = site.Requires.Where(f => State.World.GetFlag(Simulation.CellOf(Setup.Layout.SpaceId, site), f) == 0).ToList();
+            yield return $"{site.Verb.ToLowerInvariant()} the {site.Name} at ({Point(x, z)}): {site.Key}, in cell {Simulation.CellOf(Setup.Layout.SpaceId, site)}" +
                 (missing.Count == 0 ? "" : $"; it waits on {string.Join(", ", missing)}");
         }
         foreach (var (dialogue, node, choice) in Replies().Where(r => r.Choice.Consequences.OfType<SetWorldFlagConsequence>().Any(s => s.FlagId == w.FlagId)))
