@@ -348,7 +348,28 @@ back where they entered. With the option off, nothing in the playtest changes an
 |---|---|---|---|
 | 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
 | 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
-| 2026-10-16 | _(this commit)_ | P1b: a site's cell follows the space it stands in + 3 tests | **860 passing, 0 failed** |
+| 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
+| 2026-10-16 | _(this commit)_ | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
+
+### P1c — portals, and the return anchor the design warns about
+
+**Landed:** `SpacePortal`, `SpaceTraversal` and `SpacePortalSet` in `src/Domain/Spatial/SpacePortals.cs`.
+A portal is an exterior anchor and the interior anchor it arrives at; entering stores **which portal** was
+used, and leaving returns to *that* portal's exterior anchor.
+
+**Why it is one field and not a coordinate.** The design names this failure explicitly: *"A player
+returning via B must not be snapped to the saved entry A because a single global return vector was
+reused."* So the traversal records the **portal key**, never a position. Storing the coordinate as well
+would let the two disagree, and the design is equally clear that the stored entry is not a reason to force
+a particular exit. `Leave` throws rather than falling back to another anchor — a refused exit is better
+than an invented one, and a test asserts exactly that.
+
+**The Barrowworks' own two entrances are the test fixture:** the hill above Blackvein and the Sinking Moss
+drain mouth, at the coordinates the design gives. Round-tripping through either ends where it started, and
+the two exits are asserted to differ.
+
+**Still not wired to anything.** No transition command, no runtime state, no save. This is the rule written
+down and proved; connecting it to the simulation is the next piece.
 
 ### P1b — sites carry their space, and `SpaceId` moved to Domain
 
