@@ -20,7 +20,7 @@ uniform float or_giant_spin = 0.0;
 uniform vec3 or_giant_tint : source_color = vec3(1.0);
 uniform sampler2D or_giant_map : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec2 or_ring_span = vec2(1.24, 2.27);    // ring inner and outer radius in giant radii (0 = no ring)
-uniform sampler2D or_ring_profile : source_color, filter_linear, repeat_disable;
+uniform sampler2D or_ring_profile : filter_linear_mipmap, repeat_disable;   // linear float (EXR), 4096 samples
 
 uniform bool or_moon1_on = false;
 uniform vec3 or_moon1_dir = vec3(0.0, 0.5, -1.0);
@@ -98,9 +98,27 @@ vec3 or_moon(vec3 d, vec3 c, float r, sampler2D map, vec3 tint, out float a) {
 	return tint * (0.12 + 0.9 * albedo) * lit + tint * 0.004;   // a faint night side (light from the giant)
 }
 
+// The ring profile at radius rr, filtered to the pixel's radial footprint fw so the fine Cassini structure averages instead of
+// aliasing into stepped stripes, with the inner and outer edges anti-aliased. fw is fwidth(rr), taken by the caller before any
+// branch that can differ between neighbouring pixels.
+vec4 or_ring_sample(float rr, float fw, vec2 span) {
+	float width = span.y - span.x;
+	float lod = log2(max(fw / width * 4096.0, 1.0));
+	vec4 p = textureLod(or_ring_profile, vec2(clamp((rr - span.x) / width, 0.0, 1.0), 0.5), lod);
+	p.a *= clamp((rr - span.x) / fw + 0.5, 0.0, 1.0) * clamp((span.y - rr) / fw + 0.5, 0.0, 1.0);
+	return p;
+}
+
 float or_ring_alpha(float rr) {
 	if (or_ring_span.y <= 0.0 || rr < or_ring_span.x || rr > or_ring_span.y) return 0.0;
-	return texture(or_ring_profile, vec2((rr - or_ring_span.x) / (or_ring_span.y - or_ring_span.x), 0.5)).a;
+	return textureLod(or_ring_profile, vec2((rr - or_ring_span.x) / (or_ring_span.y - or_ring_span.x), 0.5), 0.0).a;
+}
+
+// The shadow a sphere (centre c, radius r) casts on point h, soft over a thin penumbra so its edge does not stair-step.
+float or_sphere_shadow(vec3 h, vec3 c, float r, float floor_level) {
+	vec3 oc = h - c;
+	float b = dot(oc, or_sun), k = b * b - (dot(oc, oc) - r * r);
+	return mix(1.0, floor_level, smoothstep(-0.01 * r * r, 0.01 * r * r, k) * step(b, 0.0));
 }
 
 // The giant and its ring. Returns premultiplied radiance; a = how much of the sky behind it is hidden.
@@ -129,20 +147,21 @@ vec3 or_giant(vec3 d, out float a) {
 	}
 	if (or_ring_span.y > 0.0) {
 		float dd = dot(d, ax);
-		if (abs(dd) > 1e-4) {
-			float tr = dot(c, ax) / dd;
-			vec3 h = d * tr;
-			float rr = length(h - c) / r;
-			float ra = tr > 0.0 ? or_ring_alpha(rr) : 0.0;
+		float tr = dot(c, ax) / (abs(dd) > 1e-4 ? dd : 1e-4);
+		vec3 h = d * tr;
+		float rr = length(h - c) / r;
+		float fw = max(fwidth(rr), 1e-5);
+		// A footprint wider than the whole ring is where the ray runs along its plane (edge-on, sub-pixel): nothing to draw there.
+		if (abs(dd) > 1e-4 && tr > 0.0 && fw < or_ring_span.y - or_ring_span.x && rr > or_ring_span.x - fw && rr < or_ring_span.y + fw) {
+			vec4 prof = or_ring_sample(rr, fw, or_ring_span);
+			float ra = prof.a;
 			if (ra > 0.0 && (disc <= 0.0 || tr < tp)) {
-				vec3 rc = texture(or_ring_profile, vec2((rr - or_ring_span.x) / (or_ring_span.y - or_ring_span.x), 0.5)).rgb / 0.6;
+				vec3 rc = prof.rgb / 0.6;
 				// Lit face toward us: reflected light; otherwise only what scatters through.
 				float sunSide = dot(or_sun, ax), eyeSide = dot(-d, ax);
 				float face = sunSide * eyeSide > 0.0 ? abs(sunSide) * 1.2 + 0.08 : abs(sunSide) * (1.0 - ra) * 1.4;
 				// The giant's shadow across the ring.
-				vec3 oc = h - c;
-				float b = dot(oc, or_sun), cc = dot(oc, oc) - r * r, k = b * b - cc;
-				float shadow = (k > 0.0 && -b - sqrt(k) > 0.0) ? 0.03 : 1.0;
+				float shadow = or_sphere_shadow(h, c, r, 0.03);
 				vec3 ring = rc * face * shadow * 0.9;
 				col = col * (1.0 - ra) + ring * ra;
 				a = a + ra * (1.0 - a);
@@ -155,27 +174,22 @@ vec3 or_giant(vec3 d, out float a) {
 // The world's own ring, an arc from horizon to horizon: a plane through the world's centre, which lies or_arc_world below.
 vec3 or_arc(vec3 d, out float a) {
 	a = 0.0;
-	if (d.y <= 0.0) return vec3(0.0);
 	vec3 centre = vec3(0.0, -or_arc_world, 0.0);
 	float dd = dot(d, or_arc_axis);
-	if (abs(dd) < 1e-5) return vec3(0.0);
-	float t = dot(centre, or_arc_axis) / dd;
-	if (t <= 0.0) return vec3(0.0);
+	float t = dot(centre, or_arc_axis) / (abs(dd) > 1e-5 ? dd : 1e-5);
 	vec3 h = d * t;
 	float rr = length(h - centre) / or_arc_world;
-	if (rr < or_arc_span.x || rr > or_arc_span.y) return vec3(0.0);
-	vec2 uv = vec2((rr - or_arc_span.x) / (or_arc_span.y - or_arc_span.x), 0.5);
-	vec4 p = texture(or_ring_profile, uv);
-	// Fine radial structure stays sharp at this size; the opacity itself is what the eye reads.
+	float fw = max(fwidth(rr), 1e-5);
+	// A footprint wider than the whole ring is where the ray runs along its plane (edge-on, sub-pixel): nothing to draw there.
+	if (d.y <= 0.0 || abs(dd) < 1e-5 || t <= 0.0 || fw > or_arc_span.y - or_arc_span.x || rr < or_arc_span.x - fw || rr > or_arc_span.y + fw) return vec3(0.0);
+	vec4 p = or_ring_sample(rr, fw, or_arc_span);
 	a = p.a * 0.92;
 	float sunSide = dot(or_sun, or_arc_axis), eyeSide = dot(-d, or_arc_axis);
 	// Backlit (sun beyond the far face) the thin rings glow by forward scattering, brightest looking toward the sun.
 	float forward = 0.7 + 3.0 * pow(max(dot(d, or_sun), 0.0), 3.0);
 	float face = sunSide * eyeSide > 0.0 ? abs(sunSide) * 1.1 + 0.06 : (abs(sunSide) + 0.05) * (1.0 - p.a) * (0.35 + p.a * 2.0) * forward;
 	// The world's shadow falls across the ring at night: is the sun hidden behind the world from this point?
-	vec3 oc = h - centre;
-	float b = dot(oc, or_sun), cc = dot(oc, oc) - or_arc_world * or_arc_world, k = b * b - cc;
-	float shadow = (k > 0.0 && -b - sqrt(k) > 0.0) ? 0.02 : 1.0;
+	float shadow = or_sphere_shadow(h, centre, or_arc_world, 0.02);
 	return p.rgb / 0.6 * face * shadow * 0.85;
 }
 

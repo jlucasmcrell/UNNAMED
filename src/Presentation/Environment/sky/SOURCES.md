@@ -8,7 +8,7 @@ remap, colour ramp, blend, crop). No generative tool touched any of them. The sc
 | File | Made from | Credit | Licence |
 |---|---|---|---|
 | `giant_bands.jpg` (4096x2048) | PIA07782, Cassini's cylindrical map of Jupiter (2000 flyby): north/south swapped, longitude rolled, latitudes re-banded, recoloured to a rust-ochre-cream ramp | NASA/JPL/Space Science Institute | Public domain (NASA/JPL media policy; credit requested) |
-| `ring_profile.png` (2048x4) | PIA06175, Cassini "Panoramic Rings" natural-colour mosaic: one radial line through the ansa (C ring to F ring), colour and opacity | NASA/JPL/Space Science Institute | Public domain (as above) |
+| `ring_profile.exr` (4096x4, float) | PIA06175, Cassini "Panoramic Rings" natural-colour mosaic: one radial line through the ansa (C ring to F ring), linear colour and opacity at float precision (`asset_work\skying_exr.py`, written by Godot's `Image.save_exr` via `exr_from_raw.gd`); mipmapped so the shader filters the fine structure to each pixel's footprint | NASA/JPL/Space Science Institute | Public domain (as above) |
 | `moon_pale.jpg` (2048x1024) | PIA14928 Rhea global map (2012) blended with PIA14931 Tethys global map (2012), mirrored and rolled | NASA/JPL-Caltech/Space Science Institute | Public domain (as above) |
 | `moon_wisp.jpg` (2048x1024) | PIA12814 Dione global map (2010), mirrored and rolled, with Rhea's fine crater detail | NASA/JPL/Space Science Institute; NASA/JPL-Caltech/Space Science Institute | Public domain (as above) |
 | `moon_first.jpg` (2048x1024) | PIA14931 Tethys global map modulated by PIA12814 Dione's albedo; replaces Earth's Moon on Sky3D's moon | NASA/JPL-Caltech/Space Science Institute; NASA/JPL/Space Science Institute | Public domain (as above) |

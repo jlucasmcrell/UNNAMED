@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nbgbu72r74pe"
-path="res://.godot/imported/ring_profile.png-f98572a61c7dfc32b55fffadd6cf59b4.ctex"
+uid="uid://b6yoqhm0fuepx"
+path="res://.godot/imported/ring_profile.exr-ed10018527002e7bc967ee0c4ecfe34b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Environment/sky/ring_profile.png"
-dest_files=["res://.godot/imported/ring_profile.png-f98572a61c7dfc32b55fffadd6cf59b4.ctex"]
+source_file="res://Environment/sky/ring_profile.exr"
+dest_files=["res://.godot/imported/ring_profile.exr-ed10018527002e7bc967ee0c4ecfe34b.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -125,7 +125,7 @@ public static class CelestialView
         if (look == "none")
             return;
 
-        var ring = Load("ring_profile.png");
+        var ring = Load("ring_profile.exr");
         var pale = Load("moon_pale.jpg");
         var wisp = Load("moon_wisp.jpg");
         if (Load("moon_first.jpg") is { } first)
