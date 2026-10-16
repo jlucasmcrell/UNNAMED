@@ -89,7 +89,7 @@ public partial class Main
         _title = new TitleScreen
         {
             Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
-            Continue = next => LoadChosen(next.Slot, next.Copy, next),
+            Continue = _ => Continue(),
             NewGame = () =>
             {
                 _session.NewGame(DefaultCharacter);

@@ -29,6 +29,18 @@ internal static class CanonicalState
             json.WriteNumber("world_tick", result.Manifest.WorldTick);
             json.WriteNumber("world_time_advanced_ticks", result.Manifest.WorldTimeAdvancedTicks);
             json.WriteNumber("playtime_seconds", result.Manifest.PlaytimeSeconds);
+            json.WriteString("saved_utc", result.Manifest.SavedUtc);
+            json.WriteStartArray("away_log");
+            foreach (var line in result.Manifest.AwayLog)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("tick", line.Tick);
+                json.WriteString("kind", line.Kind);
+                json.WriteString("ref", line.Ref);
+                json.WriteNumber("amount", line.Amount);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
 
             json.WriteStartObject("player");
             json.WriteString("id", player.Id.Value);

@@ -157,14 +157,46 @@ public partial class Main
         }
     }
 
-    /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
-    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue() =>
-        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy, next) is { } result ? (next.Slot, next.Copy, result) : null;
+    /// <summary>
+    /// Continue (B-01, DN7): log in to the newest save that can be loaded, as the start screen offers it - the live world, gone on while
+    /// the character was away (WP11). With <paramref name="catchUp"/> false it is restored exactly instead. Null when there is none, or
+    /// it failed.
+    /// </summary>
+    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue(bool catchUp = true)
+    {
+        if (_session.StartChoice().Continue is not { } next)
+            return null;
+        if (!catchUp)
+            return LoadChosen(next.Slot, next.Copy, next) is { } restored ? (next.Slot, next.Copy, restored) : null;
+        string what = SavesPanel.Describe(next.Slot, next.Copy);
+        try
+        {
+            var login = _session.Continue();
+            Started();
+            _loadedFrom = what;
+            _hud.Toast(login.Result.IsComplete ? $"Continued: {what}" : $"Continued {what}, with losses - see the log");
+            GD.Print($"UNNAMED login: away {login.CatchUp.RequestedTicks} ticks, the world caught up {login.CatchUp.HonouredTicks}" +
+                     $"{(login.CatchUp.Capped ? " (capped)" : "")}; {login.Away.Lines.Count} away-log lines");
+            foreach (string problem in login.Result.Report.Loss.Concat(login.Result.Report.Warnings))
+                GD.PushWarning(problem);
+            return (login.Slot, SaveCopy.Current, login.Result);
+        }
+        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
+        {
+            GD.PushError($"UNNAMED continue from {next.Slot} failed: {e.Message}");
+            string failure = $"{what} could not be loaded: {e.Message}";
+            if (_session.Simulation is null)
+                _saves.ShowFailure(failure);
+            else
+                _saves.OpenInGame(failure);
+            return null;
+        }
+    }
 
     /// <summary>
-    /// Load the copy of a save the player chose. When it cannot be loaded, the saves list opens saying why, with that save's backups and
-    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2). A save the list offered is loaded from
-    /// its own character's folder (OD-14); without one, the slot is the character in play's.
+    /// Restore the copy of a save the player chose: its moment, with no catch-up (DN7). When it cannot be loaded, the saves list opens saying
+    /// why, with that save's backups and the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2). A
+    /// save the list offered is loaded from its own character's folder (OD-14); without one, the slot is the character in play's.
     /// </summary>
     private LoadResult? LoadChosen(string slot, SaveCopy copy, SaveSummary? offered = null)
     {

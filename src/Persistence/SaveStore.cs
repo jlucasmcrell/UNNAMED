@@ -408,7 +408,11 @@ public sealed class SaveStore
                     "permanent. Load it in the game and save to accept the loss.");
 
             Commit(slot, SaveDocuments.Capture(result.World, result.Player, context.Content,
-                result.Manifest.WorldTick, result.Manifest.PlaytimeSeconds, result.Manifest.WorldTimeAdvancedTicks));
+                result.Manifest.WorldTick, result.Manifest.PlaytimeSeconds, result.Manifest.WorldTimeAdvancedTicks) with
+            {
+                SavedUtc = result.Manifest.SavedAt,
+                AwayLog = result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray(),
+            });
             return report;
         }
     }
@@ -621,23 +625,30 @@ public sealed class SaveStore
         }
     }
 
-    private SaveManifest BuildManifest(SaveDocument document) => new()
+    private SaveManifest BuildManifest(SaveDocument document)
     {
-        SaveFormatVersion = SaveFormat.Current,
-        SchemaVersion = SaveFormat.SchemaVersion,
-        ContentVersion = document.ContentVersion,
-        ContentHash = document.ContentHash,
-        WorldSeed = WorldSeed.Format(document.WorldSeed),
-        WorldgenVersion = document.Worldgen.Version,
-        WorldgenFingerprint = document.Worldgen.Fingerprint,
-        RngContractVersion = document.Worldgen.RngContractVersion,
-        WorldTick = document.WorldTick,
-        WorldTimeAdvancedTicks = document.WorldTimeAdvancedTicks,
-        CommandLogSha256 = null,
-        BuildTimestamp = (document.CapturedAt ?? _clock()).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
-        PlaytimeSeconds = document.PlaytimeSeconds,
-        Flags = new ManifestFlags { QuarantinedSections = ImmutableArray<string>.Empty },
-    };
+        var at = document.CapturedAt ?? _clock();
+        return new SaveManifest
+        {
+            SaveFormatVersion = SaveFormat.Current,
+            SchemaVersion = SaveFormat.SchemaVersion,
+            ContentVersion = document.ContentVersion,
+            ContentHash = document.ContentHash,
+            WorldSeed = WorldSeed.Format(document.WorldSeed),
+            WorldgenVersion = document.Worldgen.Version,
+            WorldgenFingerprint = document.Worldgen.Fingerprint,
+            RngContractVersion = document.Worldgen.RngContractVersion,
+            WorldTick = document.WorldTick,
+            WorldTimeAdvancedTicks = document.WorldTimeAdvancedTicks,
+            CommandLogSha256 = null,
+            BuildTimestamp = at.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
+            SavedUtc = SaveManifest.FormatSavedUtc(document.SavedUtc ?? at),
+            PlaytimeSeconds = document.PlaytimeSeconds,
+            AwayLog = document.AwayLog.IsDefault ? ImmutableArray<AwayLogEntry>.Empty
+                : document.AwayLog.Skip(Math.Max(0, document.AwayLog.Length - AwayLogEntry.Kept)).Select(AwayLogEntry.Of).ToImmutableArray(),
+            Flags = new ManifestFlags { QuarantinedSections = ImmutableArray<string>.Empty },
+        };
+    }
 
     private void Step(SaveStep step) => _onStep?.Invoke(step);
 

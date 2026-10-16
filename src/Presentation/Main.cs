@@ -410,7 +410,9 @@ public partial class Main : Node3D
 
         if (verify || showcaseContinues)
         {
-            _continued = Continue();
+            // The playthrough's relaunch proves the save came back exactly, so it restores the newest save with no catch-up (DN7); the
+            // showcase logs in as a player would.
+            _continued = Continue(catchUp: !verify);
             if (_continued is null)
             {
                 GD.PushError(verify ? "UNNAMED playthrough verification: Continue loaded nothing" : "UNNAMED showcase: the profile has no save to continue");

@@ -136,8 +136,9 @@ internal static class SaveLoader
         {
             manifest = manifestJson.Deserialize<SaveManifest>(SectionCodec.ManifestOptions)
                 ?? throw new JsonException("manifest.json is empty");
+            _ = manifest.SavedAt;   // a saved_utc that is not a moment is a corrupt manifest, not an absence of zero
         }
-        catch (Exception e) when (e is JsonException or InvalidOperationException or NotSupportedException)
+        catch (Exception e) when (e is JsonException or InvalidOperationException or NotSupportedException or FormatException)
         {
             throw new SaveCorruptionException($"manifest.json in '{saveName}' does not have the schema-{context.SchemaVersion} shape: {e.Message}", backups, e);
         }

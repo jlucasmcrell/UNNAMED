@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Persistence;
@@ -17,7 +18,7 @@ public static class SaveFormat
     /// GAMEPLAY STATE schema (§6.1). Every older version back to <see cref="OldestSupportedSchema"/>
     /// migrates step by step (<see cref="SchemaMigrations"/>), and every one has a committed fixture.
     /// </summary>
-    public const int SchemaVersion = 17;
+    public const int SchemaVersion = 18;
 
     public const int OldestSupportedSchema = 1;
 
@@ -73,8 +74,46 @@ public sealed record SaveManifest
     public string? CommandLogSha256 { get; init; }
 
     [JsonPropertyName("build_timestamp")] public required string BuildTimestamp { get; init; }
+
+    /// <summary>
+    /// The real moment the world was captured, to the millisecond, UTC (schema 18; WP11). A login measures the absence from it, so the world
+    /// can go on while the character is away. Written by the session's clock, and kept as it was by a migration.
+    /// </summary>
+    [JsonPropertyName("saved_utc")] public required string SavedUtc { get; init; }
+
     [JsonPropertyName("playtime_seconds")] public required double PlaytimeSeconds { get; init; }
+
+    /// <summary>The tail of the last login's "while you were away" log (schema 18; WP11): at most <see cref="AwayLogEntry.Kept"/> lines, oldest first.</summary>
+    [JsonPropertyName("away_log")] public required ImmutableArray<AwayLogEntry> AwayLog { get; init; }
+
     [JsonPropertyName("flags")] public required ManifestFlags Flags { get; init; }
+
+    /// <summary><see cref="SavedUtc"/>'s format: ISO 8601, UTC, milliseconds.</summary>
+    public const string SavedUtcFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+
+    public static string FormatSavedUtc(DateTimeOffset at) =>
+        at.UtcDateTime.ToString(SavedUtcFormat, System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary><see cref="SavedUtc"/> as a moment; a manifest whose value does not parse is corrupt.</summary>
+    [JsonIgnore]
+    public DateTimeOffset SavedAt => DateTimeOffset.ParseExact(SavedUtc, SavedUtcFormat, System.Globalization.CultureInfo.InvariantCulture,
+        System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal);
+}
+
+/// <summary>One line of the away log as the manifest keeps it: an <see cref="AdvanceLine"/>.</summary>
+public sealed record AwayLogEntry
+{
+    /// <summary>How many lines a save keeps (§2.12: the last 50).</summary>
+    public const int Kept = 50;
+
+    [JsonPropertyName("tick")] public required long Tick { get; init; }
+    [JsonPropertyName("kind")] public required string Kind { get; init; }
+    [JsonPropertyName("ref")] public required string Ref { get; init; }
+    [JsonPropertyName("amount")] public required long Amount { get; init; }
+
+    public static AwayLogEntry Of(AdvanceLine line) => new() { Tick = line.Tick, Kind = line.Kind, Ref = line.Ref, Amount = line.Amount };
+
+    public AdvanceLine ToLine() => new(Tick, Kind, Ref, Amount);
 }
 
 public sealed record ManifestFlags
@@ -106,6 +145,15 @@ public sealed record SaveDocument(
     /// not when its bytes reached the disk, so saves order by the moment they hold. Null: when it is written.
     /// </summary>
     public DateTimeOffset? CapturedAt { get; init; }
+
+    /// <summary>
+    /// <c>saved_utc</c> (schema 18): the real moment the world was captured. Null: <see cref="CapturedAt"/>, or when it is written. A
+    /// migration passes the source's on, so migrating a save never shortens the absence a login measures.
+    /// </summary>
+    public DateTimeOffset? SavedUtc { get; init; }
+
+    /// <summary>The tail of the last login's away log (schema 18), oldest first; at most <see cref="AwayLogEntry.Kept"/> lines are written.</summary>
+    public ImmutableArray<AdvanceLine> AwayLog { get; init; } = ImmutableArray<AdvanceLine>.Empty;
 }
 
 /// <summary>

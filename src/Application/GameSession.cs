@@ -30,6 +30,12 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
 
     /// <summary>Called at each step of every save's commit, on the thread writing it: fault injection for tests. The game leaves it null.</summary>
     public Action<SaveStep>? SaveStepHook { get; init; }
+
+    /// <summary>
+    /// Where the session reads the real time: the wall clock unless a test gives another. The session is the only reader (WP11): it stamps
+    /// <c>saved_utc</c> and measures an absence, and the world only ever receives a tick count.
+    /// </summary>
+    public Func<DateTimeOffset>? Clock { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -68,6 +74,12 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
 
 /// <summary>A character's save folder as the start screen lists it: whose it is, and its saves, newest first.</summary>
 public sealed record CharacterSaves(string? Character, string? Name, ImmutableArray<SaveSummary> Saves);
+
+/// <summary>
+/// A login (WP11): the live save Continue loaded, when it was saved and when it was loaded by the session's clock, the absence that asked
+/// for (<see cref="CatchUp.RequestedTicks"/>) and what the world honoured (DN1), and what happened meanwhile that the character could know.
+/// </summary>
+public sealed record Login(string Slot, LoadResult Result, DateTimeOffset SavedUtc, DateTimeOffset NowUtc, CatchUp CatchUp, AdvanceLog Away);
 
 /// <summary>
 /// How a save written in the background went (P-01): its slot, whether it was an autosave, the playtime its world was captured at, and
@@ -118,6 +130,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private Simulation? _simulation;
     private double _accumulator;
     private double _lastAutosave;
+    private long _worldTimeAdvanced;
+    private ImmutableArray<AdvanceLine> _away = ImmutableArray<AdvanceLine>.Empty;
 
     private GameSession(GameOptions options, SimulationSetup setup, ContentIdentity content, ICellBaselineGenerator generator,
         IReadOnlyDictionary<string, string> names, ImmutableArray<BaselineTransition> transitions)
@@ -225,6 +239,18 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>Seconds of play, carried through saves (<c>playtime_seconds</c>).</summary>
     public double PlaytimeSeconds { get; private set; }
 
+    /// <summary>Every world tick an absence has honoured in this world's life (<c>world_time_advanced_ticks</c>; canon PERSISTENCE.md).</summary>
+    public long WorldTimeAdvancedTicks => _worldTimeAdvanced;
+
+    /// <summary>The last login's away log, as the running world's saves carry it (its tail); empty before any catch-up.</summary>
+    public ImmutableArray<AdvanceLine> AwayLog => _away;
+
+    /// <summary>The last <see cref="Continue"/> in this session, or null.</summary>
+    public Login? LastLogin { get; private set; }
+
+    /// <summary>The real time now: the one place the wall clock is read (WP11).</summary>
+    private DateTimeOffset Now() => Options.Clock?.Invoke() ?? DateTimeOffset.UtcNow;
+
     public double TickSeconds => Setup.TickMilliseconds / 1000.0;
 
     public ImmutableArray<BaselineTransition> Transitions => _transitions;
@@ -268,7 +294,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
         _store = StoreFor(id.Value);
         _card = new CharacterCard(id.Value, player.Name, spec.PeopleId, spec.CallId);
-        Begin(simulation, playtime: 0);
+        Begin(simulation, playtime: 0, worldTimeAdvanced: 0, ImmutableArray<AdvanceLine>.Empty);
         // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
         if (_simulation!.HasOpeningQuests)
         {
@@ -278,12 +304,33 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return _simulation!;
     }
 
-    /// <summary>Load a slot of the character in play through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
+    /// <summary>
+    /// Log in (WP11; DN7): load the character's live state - the newest save that loads, Continue on the start screen - and let the world
+    /// go on for as long as they were away. The absence is measured from the save's <c>saved_utc</c> by the session's clock, capped at
+    /// one Reckoning (config.time), and applied through <see cref="Simulation.Advance"/>, every system bringing itself to the new tick;
+    /// then the login grace begins. A clock that reads earlier than the save catches nothing up. Throws a <see cref="SaveException"/> when
+    /// there is nothing to continue or it cannot be loaded.
+    /// </summary>
+    public Login Continue()
+    {
+        var live = StartChoice().Continue ?? throw new SaveException("There is no save to continue");
+        var result = Load(live);
+        var now = Now();
+        var catchUp = OfflineCatchUp.Compute(result.Manifest.SavedAt, now, 1000 / Setup.TickMilliseconds, Setup.Offline.CapTicks);
+        var away = _simulation!.Advance(catchUp.HonouredTicks);
+        _simulation.BeginLoginGrace();
+        _worldTimeAdvanced += catchUp.HonouredTicks;
+        _away = away.Tail(AwayLogEntry.Kept);
+        return LastLogin = new Login(live.Slot, result, result.Manifest.SavedAt, now, catchUp, away);
+    }
+
+    /// <summary>Restore a slot of the character in play through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
     public LoadResult Load(string slot) => Load(slot, SaveCopy.Current);
 
     /// <summary>
-    /// Load one copy of a slot of the character in play: the save, a backup, or the save it displaced (B-01). A copy other than the save
-    /// itself is loaded only because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
+    /// Restore one copy of a slot of the character in play: the save, a backup, or the save it displaced (B-01) - the moment it holds,
+    /// exactly, with no catch-up (DN7: a restore is for recovery; only <see cref="Continue"/> lets the world go on). A copy other than the
+    /// save itself is loaded only because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
     /// </summary>
     public LoadResult Load(string slot, SaveCopy copy) => Load(_character, slot, copy);
 
@@ -300,7 +347,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _store = store;
         _card = character is null ? null
             : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
-        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
+        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds,
+            result.Manifest.WorldTimeAdvancedTicks, result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray());
         return result;
     }
 
@@ -405,8 +453,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private SaveDocument Capture()
     {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
-        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds)
-            with { CapturedAt = DateTimeOffset.UtcNow };
+        var now = Now();
+        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
+            with { CapturedAt = now, SavedUtc = now, AwayLog = _away };
     }
 
     private void Queue(string slot, bool auto)
@@ -528,7 +577,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>Whether an event's autosave is waiting to be taken.</summary>
     public bool AutosaveRequested => _autosaveRequested;
 
-    private readonly List<JournalEntry> _away = new();
+    private readonly List<JournalEntry> _awayNotes = new();
 
     /// <summary>
     /// The journal, its Recent list holding the away log's lines among the quests' own (WP11 writes them through <see cref="NoteAway"/>);
@@ -541,13 +590,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
             if (_simulation?.Journal is not { } journal)
                 return null;
             // Oldest first into the merge, which puts what came later first.
-            return _away.Count == 0 ? journal : journal with { Recent = QuestJournal.Recent(journal.Recent.Reverse().Concat(_away)) };
+            return _awayNotes.Count == 0 ? journal : journal with { Recent = QuestJournal.Recent(journal.Recent.Reverse().Concat(_awayNotes)) };
         }
     }
 
     /// <summary>Lines of the "while you were away" log, for the journal's Recent list, at the tick the character came back.</summary>
     public void NoteAway(long tick, IEnumerable<string> lines) =>
-        _away.AddRange(lines.Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => new JournalEntry(tick, JournalEntryKind.Away, l)));
+        _awayNotes.AddRange(lines.Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => new JournalEntry(tick, JournalEntryKind.Away, l)));
 
     /// <summary>The running character's journal notes; null before a world runs.</summary>
     public JournalNotes? Notes { get; private set; }
@@ -578,14 +627,17 @@ public sealed class GameSession : IDomainEvents, IDisposable
         SubscriberFailed?.Invoke(exception, @event);
     }
 
-    private void Begin(Simulation simulation, double playtime)
+    private void Begin(Simulation simulation, double playtime, long worldTimeAdvanced, ImmutableArray<AdvanceLine> away)
     {
         _simulation = simulation;
         _accumulator = 0;
         PlaytimeSeconds = playtime;
         _lastAutosave = playtime;
         _autosaveRequested = false;
-        _away.Clear();
+        _awayNotes.Clear();
         Notes = new JournalNotes(Options.ProfileRoot, simulation.PlayerId);
+        _worldTimeAdvanced = worldTimeAdvanced;
+        _away = away;
+        LastLogin = null;
     }
 }

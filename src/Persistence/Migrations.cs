@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain;
@@ -86,7 +87,8 @@ public static class SchemaMigrations
         new SchemaV13ToV14(),
         new SchemaV14ToV15(),
         new SchemaV15ToV16(),
-        new SchemaV16ToV17());
+        new SchemaV16ToV17(),
+        new SchemaV17ToV18());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -950,6 +952,33 @@ public sealed class SchemaV16ToV17 : SchemaMigration
                 Identity = new IdentityDto { Pronouns = "they", People = "people.veth", BodyPreset = "body.default", Call = null },
             }, options);
         }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 17 to 18 (the persistent clock, WP11): the manifest gains <c>saved_utc</c>, the real moment the world was captured, which a login
+/// measures the absence from - before it, <c>build_timestamp</c> was that moment to the second, so it is carried over - and <c>away_log</c>,
+/// the tail of the last login's "while you were away" log: none, since no login before it caught anything up. No section changes.
+/// </summary>
+public sealed class SchemaV17ToV18 : SchemaMigration
+{
+    public override int From => 17;
+
+    public override string Summary => "schema 17 -> 18: the manifest gains saved_utc (from build_timestamp) and an away log (empty)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        string? built = document.Manifest["build_timestamp"]?.GetValue<string>();
+        if (built is null || !DateTimeOffset.TryParse(built, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var captured))
+        {
+            report.Blockers.Add($"schema-17 manifest has no readable build_timestamp ('{built}') to carry over as saved_utc");
+            return;
+        }
+        document.Manifest["saved_utc"] = SaveManifest.FormatSavedUtc(captured);
+        document.Manifest["away_log"] = new JsonArray();
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

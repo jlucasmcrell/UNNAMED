@@ -12,6 +12,7 @@ using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.Persistence;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.M2Probe;
@@ -308,11 +309,20 @@ public static class M2Fixtures
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);
 
-        /// <summary>Write the fixture with this build's writer.</summary>
+        /// <summary>
+        /// Write the fixture with this build's writer. From schema 18 it was saved at a known moment, after a login that caught up a game day
+        /// and a quarter (Fixtures/README.md).
+        /// </summary>
         public static void Write(string profileRoot) =>
             new SaveStore(profileRoot).Save(SaveSlots.Quick, SaveDocuments.Capture(
                 World(new Registry()), Player(), new ContentIdentity(WriterContentVersion, WriterContentHash, Array.Empty<string>()),
-                5_000, playtimeSeconds: 321.5));
+                5_000, playtimeSeconds: 321.5, worldTimeAdvancedTicks: 72_000) with
+            {
+                CapturedAt = new DateTimeOffset(2026, 10, 17, 9, 30, 0, 250, TimeSpan.Zero),
+                SavedUtc = new DateTimeOffset(2026, 10, 17, 9, 30, 0, 250, TimeSpan.Zero),
+                AwayLog = ImmutableArray.Create(new AdvanceLine(4_000, AdvanceKinds.TimePassed, string.Empty, 72_000),
+                    new AdvanceLine(4_000, AdvanceKinds.DaysPassed, string.Empty, 1)),
+            });
     }
 
     public static SaveDocument Document(WorldDelta world, PlayerRecord? player = null, long tick = 5_000, ContentIdentity? content = null) =>

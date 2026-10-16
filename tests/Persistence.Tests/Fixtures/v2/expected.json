@@ -3,6 +3,8 @@
   "world_tick": 5000,
   "world_time_advanced_ticks": 0,
   "playtime_seconds": 321.5,
+  "saved_utc": "2026-09-23T13:30:25.000Z",
+  "away_log": [],
   "player": {
     "id": "chr_01HF7YAT00041061050R3GG28A",
     "name": "Aelin",

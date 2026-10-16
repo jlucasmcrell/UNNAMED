@@ -274,6 +274,19 @@ public class HistoricalFixtureTests
                 : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
             loaded.Player.Identity);
         Assert.Equal("Aelin", loaded.Player.Name);
+        // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
+        // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.
+        if (schema >= 18)
+        {
+            Assert.Equal("2026-10-17T09:30:00.250Z", loaded.Manifest.SavedUtc);
+            Assert.Equal(72_000, loaded.Manifest.WorldTimeAdvancedTicks);
+            Assert.Equal(new[] { ("time.passed", 72_000L), ("time.days", 1L) }, loaded.Manifest.AwayLog.Select(l => (l.Kind, l.Amount)));
+        }
+        else
+        {
+            Assert.Equal(DateTimeOffset.Parse(loaded.Manifest.BuildTimestamp, System.Globalization.CultureInfo.InvariantCulture), loaded.Manifest.SavedAt);
+            Assert.Empty(loaded.Manifest.AwayLog);
+        }
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
