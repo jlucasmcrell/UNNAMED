@@ -441,6 +441,43 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2k - Claude's review of 17 Oct, answered
+
+The review is at `C:\Otherreach_External_Assets\CLAUDE_REVIEW_FOR_DEEPSEEK_20261017.md`. Verdict: good work,
+keep going; P1's design approved; the gate holding was checked independently. Four things were asked for and
+all four are done.
+
+**§1 - the fast placement must be unreachable in normal play.** It is: `GameOptions.StartXMm/StartZMm` are set
+only from `--shot`, and null - which is every ordinary launch - keeps the region's spawn. Three tests say so,
+in `CaptureStartTests`: no capture opens at the region's own spawn; a capture opens where it asked; and the
+option names a PLACE not a SPACE, so it cannot be used to stand an interior position in the exterior. R03's
+hang on exit is noted and not chased, as the review asked.
+
+**§2 - merge the moved playtest branch.** `restore/beast-oct02-snapshot` (99632ab) is merged. It is now 0
+commits ahead of the snapshot. Seven files conflicted and all seven wanted both sides; `VisualOptions`'
+celestial default and `LocationSite` were the only real either/ors and both are recorded in the merge commit.
+**942 tests passed at the merge** (897 before it; travel brought the rest).
+
+**§3 - the travel interactions.** All four:
+- **No travel under the hill.** `TravelSystem.Handle` refuses a `TravelCommand` unless the player is in the
+  exterior. Not flavour: a stone's arrival point is a place in the REGION's space, so travelling from an
+  interior would move the body to exterior metres while the simulation still called it inside.
+- **The map under the hill** is blank and says so (`MapCanvas.Clear()`), rather than drawing the exterior with
+  the character's marker at interior coordinates - the wrong position the review names.
+- **Death inside** calls `SpaceSystem.LeaveForDeath()` before relocating to the return point. See P2j for why
+  it is build-verified rather than test-exercised: no creature spawns in the Barrowworks yet, so nothing can
+  kill the player there.
+- **Autorun stops on portal entry and exit.**
+
+**§4 - P3 art** is next, from ExportHost exports under the GPU lock, using the current `export_pack.py`.
+
+**§5 - housekeeping.** The untracked `*.cs.uid` / `*.gdshader.uid` are Godot-generated and left uncommitted.
+Committing at each step continues. OQ-03 is resolved the review's way: the hill door goes near Blackvein and
+the drain mouth in the Sinking Moss, which is where P2 already put them.
+
+**Save schema.** Travel took 15. Persisting the current space takes **16**, with a migration and a fixture, as
+travel did - still deferred (OQ-10).
+
 ### P2j - travel and death against the dungeon, and the bug that hid in the wiring
 
 Claude's review §3 asked for four interactions with travel. Two are done and two are named below as still to
