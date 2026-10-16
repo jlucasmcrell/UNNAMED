@@ -1,0 +1,27 @@
+id: location.barrowworks.r13_inspection_bay
+kind: location
+schema: 1
+display_key: location.barrowworks.r13_inspection_bay.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Inspection Bay (room 13), a chamber of the Barrowworks. An optional combat and lookout loop: a screened view that hints at the arena's proportions without allowing a shot. Placement and radius are the blockout's and provisional.
+name: Inspection Bay
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 72.0
+  - 0.0
+  - 84.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 10
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false

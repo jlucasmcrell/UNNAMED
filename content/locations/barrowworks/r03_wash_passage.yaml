@@ -1,0 +1,27 @@
+id: location.barrowworks.r03_wash_passage
+kind: location
+schema: 1
+display_key: location.barrowworks.r03_wash_passage.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Wash Passage (room 03), a chamber of the Barrowworks. The first threat. A shallow wet floor against a dry safe edge; the spider is visible before its detection boundary. Placement and radius are the blockout's and provisional.
+name: Wash Passage
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 28.0
+  - 0.0
+  - 38.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 10
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false

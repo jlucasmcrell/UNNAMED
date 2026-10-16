@@ -1,0 +1,27 @@
+id: location.barrowworks.r08_return_gallery
+kind: location
+schema: 1
+display_key: location.barrowworks.r08_return_gallery.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Return Gallery (room 08), a chamber of the Barrowworks. The earned shortcut. A reachable mechanical latch, with a daylight and dust cue leading back to the intake hall. Placement and radius are the blockout's and provisional.
+name: Return Gallery
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 72.0
+  - 0.0
+  - 38.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 15
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false

@@ -537,7 +537,7 @@ public class ContentLoaderTests
                 "item.material.raw_meat", "item.material.small_hide", "item.material.spider_silk", "item.material.timber", "item.material.wolf_hide",
                 "item.quest.halda_token", "item.tome.field_notes", "item.tome.resonance_primer", "item.tool.water_flask", "item.trinket.wolf_fang",
                 "item.weapon.hunting_bow", "item.weapon.march_spear", "item.weapon.rusted_sword",
-                "location.blackvein_cut", "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge",
+                "location.barrowworks.r01_threshold", "location.barrowworks.r02_intake_hall", "location.barrowworks.r03_wash_passage", "location.barrowworks.r04_drain_mouth", "location.barrowworks.r05_sorting_floor", "location.barrowworks.r06_still_bay", "location.barrowworks.r07_gauge_archive", "location.barrowworks.r08_return_gallery", "location.barrowworks.r09_blind_store", "location.barrowworks.r10_service_vestibule", "location.barrowworks.r11_measuring_court", "location.barrowworks.r12_headworks", "location.barrowworks.r13_inspection_bay", "location.blackvein_cut", "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge",
                 "location.cairnwold.the_bog", "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village",
                 "location.den_mouth", "location.foldscar", "location.herb_patch", "location.outpost", "location.road.basin_rim",
                 "location.road.lantern_shrine", "location.road.overturned_wain", "location.road.sunk_barrow", "location.ruined_cart",

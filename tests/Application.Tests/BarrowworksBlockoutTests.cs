@@ -102,6 +102,27 @@ public class BarrowworksBlockoutTests
     }
 
     [Fact]
+    public void EveryRoom_IsANamedPlace_SoTheSurveyHasThirteenStations()
+    {
+        // SurveyShots builds one camera station per location the region authored, so the per-room screenshots
+        // exist exactly when every room is a named place. This is the check that they do - and the same
+        // content P4 needs, since a room the player cannot discover is not a room.
+        using var profile = new TempProfile();
+        var session = Boot(profile);
+        var places = session.Setup.Layout.Locations;
+
+        Assert.Equal(13, places.Length);
+        foreach (var (id, x, z) in Rooms)
+        {
+            // Room ids are R01..R13; the place ids are location.barrowworks.r01_threshold and so on.
+            var place = places.FirstOrDefault(p => p.Id.Contains(id.ToLowerInvariant(), StringComparison.Ordinal));
+            Assert.NotNull(place);
+            Assert.Equal((long)(x * 1000), place.XMm);
+            Assert.Equal((long)(z * 1000), place.ZMm);
+        }
+    }
+
+    [Fact]
     public void WithTheGateOff_TheInteriorRegionIsStillItsOwnSpace_AndDeclaresNoPortal()
     {
         // Booting the interior directly is a harness path; a player reaches it only through a portal, and no

@@ -45,17 +45,10 @@ public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, s
 }
 
 /// <summary>
-/// A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it.
+/// A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it. Its space is the
+/// layout's, which is where an interior's places get theirs (M8 D10, <see cref="RegionLayout.SpaceId"/>).
 /// </summary>
-/// <remarks>
-/// <see cref="Space"/> matters more here than for a door: a discovery is a fact about a place, and a room
-/// inside the Barrowworks must not be discovered by walking over the exterior ground its local coordinates
-/// happen to name.
-/// </remarks>
-public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp)
-{
-    public SpaceId Space { get; init; } = SpaceId.Exterior;
-}
+public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp);
 
 /// <summary>
 /// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,

@@ -357,6 +357,7 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `28af843` | P1h: `RegionLayout.SpaceId`, and site cells follow the layout's space | **886 passing, 0 failed** |
 | 2026-10-16 | `c4b9dbe` | P2a: `space:` on the region schema, and the 13-room blockout | **890 passing, 0 failed** |
 | 2026-10-16 | `8750d66` | P2b: the two gated entrances, through real content | **896 passing, 0 failed** |
+| 2026-10-16 | `_P2c_` | P2c: the thirteen rooms as named places, and the survey's stations | **897 passing, 0 failed** |
 
 ### P2a — `space:` on the region schema, and thirteen rooms that connect
 
@@ -398,6 +399,30 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 **BLOCKED** pending the owner's review, and will stay so until P3's art kit replaces this.
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
+
+### P2c — the thirteen rooms as named places, and the survey's stations
+
+**The blockout had no places, and `SurveyShots` builds one camera station per location a region authored.**
+So the per-room screenshots the phase asks for did not merely need a camera — they needed the rooms to be
+**discoverable places**, which is content P4 needs anyway: a room the player cannot discover is not a room.
+
+**Landed:** thirteen `location` content files under `content/locations/barrowworks/`, one per room, each with
+its display name, its centre in the blockout's metres, a 6 m discovery radius and the room's own purpose in
+its notes — all from the plan's section 1, which comes from the frozen level design. Nothing invented.
+
+**The checker is the point.** `EveryRoom_IsANamedPlace_SoTheSurveyHasThirteenStations` asserts the region
+builds exactly thirteen places and that each sits at its room's centre. That is what makes the screenshots
+possible, and it is the same assertion P4 will lean on.
+
+**A stored-but-unused field removed.** `LocationSite.Space`, added in P1b, was never read: the layout's own
+`SpaceId` drives `CellOfSite`, so a per-place space was a second source of truth that no rule consulted.
+Removed rather than left. `DoorSite.Space`, `SwitchSite.Space` and `BarrierSite.Space` stay — `Simulation.CellOf`
+reads those.
+
+**One redundancy recorded rather than fixed:** a door, switch or barrier now also sits in a region whose
+`SpaceId` is known, so their own `Space` is a second source of truth too. It is read, so it is not dead; but
+the two can disagree, and `TryBuildLayout` does not yet reject that. Left for P4, where the doors G1–G3 are
+authored and the disagreement would first be possible.
 
 ### P2b — the two gated entrances, and a player who can walk in
 

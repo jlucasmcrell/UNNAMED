@@ -1,0 +1,27 @@
+id: location.barrowworks.r06_still_bay
+kind: location
+schema: 1
+display_key: location.barrowworks.r06_still_bay.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Still Bay (room 06), a chamber of the Barrowworks. A quiet beat and the midpoint's orientation: a silent bench, repair fragments, and the warning that lies ahead. Placement and radius are the blockout's and provisional.
+name: Still Bay
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 50.0
+  - 0.0
+  - 60.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 10
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false
