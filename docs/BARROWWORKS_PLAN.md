@@ -355,6 +355,35 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
 | 2026-10-16 | `_P1g_` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
 
+### P1h — a layout is one space, so its sites follow it
+
+**Landed:** `RegionLayout.SpaceId` (exterior by default) and `SystemContext.CellOfSite`, which resolves an
+authored site's coordinates in the layout's own space. Six sites converted: the fixed-node cell in
+`Crafting`, the spawn-site cell and the creature record's host cell in `Creatures`, a location's cell in
+`Quests`, a place's flag cell in `Social`, and a place's tier cell in `Discovery`. `Items` was converted
+too, and its private `CellOf` helper — which served both sites and a body — is gone, split into
+`CellOfSite` for the two container callers and `CellOf(body)` for the ground drop.
+
+**Why on the layout and not on six site records.** A layout *is* one space: its nodes, spawns, containers,
+stations, NPCs and named places are authored together in one coordinate frame. Putting a space on each site
+record would let them disagree with each other and with the layout holding them — a state no rule covers.
+
+**Deliberately not converted:** `WorldContent.cs`, which *builds* the layout and so has no layout to read a
+space from. That one is P2's, when an interior layout exists to build.
+
+**A near-miss worth recording.** Converting `Items.cs` truncated it to zero bytes. The Python opened the
+path with `io.open(path, 'w')` — which truncates on open — and then failed on an illegal `newline` argument,
+so the file was emptied and never written. `git checkout --` restored all 777 lines from HEAD, verified
+byte-identical, and the conversion was redone with the edit tool.
+
+The lesson is specific and cheap: **never open a source file for write in a script.** Write to a temporary
+and move it, or use the edit tool. `git checkout` was the only reason this cost minutes rather than the
+file. Every earlier script in this session that used the same pattern was one bad argument away from the
+same outcome.
+
+**Tested:** a layout is in the exterior unless it says otherwise; an interior layout's site coordinates
+resolve to a space-qualified cell and not to the exterior ground those metres would otherwise name.
+
 ### P1g — the gate, and why it is a flag rather than an option read
 
 **The brief names the spelling:** `--visual barrowworks=1`. **D-11 forbids the obvious implementation:**

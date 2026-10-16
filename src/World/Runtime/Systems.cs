@@ -58,6 +58,14 @@ internal sealed class SystemContext
     /// </remarks>
     public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
 
+    /// <summary>
+    /// The cell an authored site's coordinates name, in the space the layout itself stands in (M8 D10). An
+    /// interior region's nodes, spawns, containers and named places are authored in its own local metres, so
+    /// their cells must be qualified with the layout's space rather than the exterior.
+    /// </summary>
+    public CellKey CellOfSite(long xMm, long zMm) =>
+        CellKey.OfInterior(Setup.Layout.SpaceId, xMm / 1000.0, zMm / 1000.0);
+
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
 
@@ -468,7 +476,7 @@ internal sealed class DiscoverySystem
         {
             if (state.Discoveries.ContainsKey(place.Id))
                 continue;
-            string cell = CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0).ToString();
+            string cell = _context.CellOfSite(place.XMm, place.ZMm).ToString();
             if (state.Tiers.GetValueOrDefault(cell, SimulationTier.D) != SimulationTier.A)
                 continue;
             double dx = state.Body.XMm - place.XMm, dz = state.Body.ZMm - place.ZMm;

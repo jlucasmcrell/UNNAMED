@@ -259,7 +259,7 @@ internal sealed class QuestSystem : IQuestFacts
 
     internal CellKey CellOfLocation(string locationId) =>
         _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
-            ? CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0)
+            ? _context.CellOfSite(place.XMm, place.ZMm)
             : throw new InvalidOperationException($"{locationId} is not a place in this region");
 
     // ── what predicates may ask ─────────────────────────────────────────────

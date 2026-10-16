@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -221,5 +222,37 @@ public class CoordinateTests
         var undermeasure = RngChannel.Open(WorldSeed, CellKey.OfInterior(SpaceId.Parse("space.undermeasure"), 0.0, 0.0), "loot", "crate");
 
         Assert.NotEqual(barrowworks.UInt64(3), undermeasure.UInt64(3));
+    }
+
+    // ── a layout is one space, so its sites share it (M8 D10) ───────────────────────────────────────
+    // Nodes, spawns, containers, stations, NPCs and named places are authored together in one coordinate
+    // frame, so the space belongs on the layout rather than on six site records that could disagree with
+    // each other and with the layout holding them.
+
+    [Fact]
+    public void ALayoutIsInTheExteriorUnlessItSaysOtherwise()
+    {
+        var layout = new RegionLayout("region.test", ImmutableArray<string>.Empty, default!, [], [],
+            new Body(0, 0, 0, 0), new RegionGeneration(0, 0, 0));
+
+        Assert.True(layout.SpaceId.IsExterior);
+        Assert.True(layout.Portals.Portals.IsEmpty);
+    }
+
+    [Fact]
+    public void AnInteriorLayoutsSiteCells_AreQualifiedWithItsOwnSpace()
+    {
+        // A node authored at the interior's local metres must not resolve to the exterior ground those
+        // metres would otherwise name.
+        var layout = new RegionLayout("region.barrowworks", ImmutableArray<string>.Empty, default!, [], [],
+            new Body(0, 0, 0, 0), new RegionGeneration(0, 0, 0)) { SpaceId = Barrowworks };
+        var node = new NodeSite("barrowworks.ore", "resource.ore.iron_vein", 4_000, 26_000);
+
+        var inLayoutSpace = CellKey.OfInterior(layout.SpaceId, node.XMm / 1000.0, node.ZMm / 1000.0);
+        var inExterior = CellKey.OfWorld(node.XMm / 1000.0, node.ZMm / 1000.0);
+
+        Assert.Equal("space.barrowworks/r_0_0:c_00_00", inLayoutSpace.ToString());
+        Assert.Equal("r_0_0:c_00_00", inExterior.ToString());
+        Assert.NotEqual(inLayoutSpace, inExterior);
     }
 }

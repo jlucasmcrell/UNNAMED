@@ -176,7 +176,7 @@ internal sealed class CreatureSystem
         var space = _context.Setup.Layout.Space;
         foreach (var site in Setup.Spawns)
         {
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
+            var cell = _context.CellOfSite(site.XMm, site.ZMm);
             for (int i = 0; i < site.Members.Length; i++)
             {
                 var member = site.Members[i];
@@ -843,7 +843,7 @@ internal sealed class CreatureSystem
                 State.RemoveCreatureRecord(_owner, c.Key);
             return;
         }
-        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, CellKey.OfWorld(c.Site.XMm / 1000.0, c.Site.ZMm / 1000.0).ToString(), c.Generation,
+        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, _context.CellOfSite(c.Site.XMm, c.Site.ZMm).ToString(), c.Generation,
             c.Condition, c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick)
         {
             Mind = c.Mind,

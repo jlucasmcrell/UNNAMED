@@ -69,7 +69,7 @@ internal sealed class GatheringSystem
         _player = player;
         _nodes = context.Setup.Layout.Nodes.Select(site =>
         {
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
+            var cell = context.CellOfSite(site.XMm, site.ZMm);
             return (Keys.NodeKey(cell, site.Name, 0), cell, site);
         }).ToImmutableArray();
     }

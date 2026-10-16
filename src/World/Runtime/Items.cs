@@ -499,7 +499,7 @@ internal sealed class InventorySystem
     /// <summary>The loot table's result for this world, split into stacks: the same on every load (SYSTEMS.md S-16).</summary>
     private List<LootDrop> Baseline(ContainerSite site)
     {
-        var cell = CellOf(site.XMm, site.ZMm);
+        var cell = _context.CellOfSite(site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
         // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
         var drops = Items.Merchants.TryGetValue(site.Key, out var merchant)
@@ -523,7 +523,7 @@ internal sealed class InventorySystem
         var registry = State.World.Registry;
         var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
         var items = Baseline(site).Select(drop => new ContainerItem(NewItem(drop.ItemId), drop.ItemId, drop.Count)).ToImmutableArray();
-        var record = new ContainerRecord(site.Key, chest, CellOf(site.XMm, site.ZMm).ToString(), items);
+        var record = new ContainerRecord(site.Key, chest, _context.CellOfSite(site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
         return record;
     }
@@ -591,7 +591,7 @@ internal sealed class InventorySystem
             case PlaceKind.Ground:
             {
                 var body = State.Body;
-                var cell = CellOf(body.XMm, body.ZMm);
+                var cell = _context.CellOf(body);
                 var (minX, minZ) = CellOrigin(cell);
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
@@ -675,8 +675,6 @@ internal sealed class InventorySystem
         double dx = State.Body.XMm - xMm, dz = State.Body.ZMm - zMm;
         return Math.Sqrt(dx * dx + dz * dz);
     }
-
-    private static CellKey CellOf(long xMm, long zMm) => CellKey.OfWorld(xMm / 1000.0, zMm / 1000.0);
 
     private static (long X, long Z) CellOrigin(CellKey cell) =>
         (((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000,

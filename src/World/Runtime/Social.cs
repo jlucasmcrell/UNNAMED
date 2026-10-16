@@ -407,7 +407,7 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     private long PlaceFlag(string locationId, string flagId) =>
         _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
-            ? State.World.GetFlag(CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0), flagId)
+            ? State.World.GetFlag(_context.CellOfSite(place.XMm, place.ZMm), flagId)
             : 0;
 
     public int Carried(string itemId, int qualityMin) =>

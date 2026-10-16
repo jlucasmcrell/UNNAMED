@@ -118,6 +118,19 @@ public sealed record RegionLayout(
     /// </summary>
     public SpacePortalSet Portals { get; init; } = SpacePortalSet.Empty;
 
+    /// <summary>
+    /// The space this layout's own sites stand in (M8 D10). The exterior for every region that is part of
+    /// the world; an interior layout - the Barrowworks' thirteen rooms - sets its own, and then every node,
+    /// spawn, container, station, NPC and place in it resolves to a cell in that space rather than to the
+    /// exterior ground its local metres happen to name.
+    /// </summary>
+    /// <remarks>
+    /// This sits on the layout rather than on each site type because a layout <em>is</em> one space: its
+    /// sites are authored together in one coordinate frame. Putting it on six site records would let them
+    /// disagree with each other and with the layout that holds them, which is a state no rule covers.
+    /// </remarks>
+    public SpaceId SpaceId { get; init; } = SpaceId.Exterior;
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 
     public SwitchSite? FindSwitch(string key) => Switches.FirstOrDefault(s => s.Key == key);
