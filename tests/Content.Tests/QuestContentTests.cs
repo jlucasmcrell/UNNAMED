@@ -34,8 +34,10 @@ public class QuestContentTests
             {
                 string path = Path.Combine(Root, relative);
                 string text = File.ReadAllText(path).Replace("\r\n", "\n");
-                Assert.Contains(from, text);
-                File.WriteAllText(path, text.Replace(from, to));
+                // A raw string literal in this file has the checkout's line endings: CRLF on Windows.
+                string lf = from.Replace("\r\n", "\n");
+                Assert.Contains(lf, text);
+                File.WriteAllText(path, text.Replace(lf, to.Replace("\r\n", "\n")));
             }
         }
 
