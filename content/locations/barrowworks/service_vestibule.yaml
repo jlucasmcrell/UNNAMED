@@ -1,0 +1,27 @@
+id: location.barrowworks.service_vestibule
+kind: location
+schema: 1
+display_key: location.barrowworks.service_vestibule.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Service Vestibule (room 10), a chamber of the Barrowworks. Before the Custodian. A solid dogleg removes every firing line into the arena; slow strikes are audible before the danger is. Placement and radius are the blockout's and provisional.
+name: Service Vestibule
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 50.0
+  - 0.0
+  - 84.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 15
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false

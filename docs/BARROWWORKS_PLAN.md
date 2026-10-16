@@ -391,6 +391,30 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P4b - the design's five places get the design's names
+
+**The quest names five places**, and they are a subset of the blockout's thirteen: the design writes
+`location.barrowworks.intake_hall`, `.gauge_archive`, `.blind_store`, `.service_vestibule`, `.headworks`,
+while the blockout had named the same five rooms `r02_intake_hall`, `r07_gauge_archive`, `r09_blind_store`,
+`r10_service_vestibule`, `r12_headworks`. The room names were already the design's - only the ids carried the
+blockout's `rNN_` prefix.
+
+**Renamed rather than duplicated.** Adding five second locations would have put two discoverable places in one
+room, so the discovery log would report the same chamber twice, and the design's names are canon where the
+`rNN_` prefix is mine. The other eight rooms keep their blockout ids, which is honest - those are the
+blockout's places and the design never named them.
+
+**Verified:** the five ids resolve, thirteen barrowworks locations in all, every file parsed by a real YAML
+parser (**13 files, 0 bad**), and the content suite's pinned list re-sorted so `intake_hall` sits before
+`r01_threshold` where ordinal order puts it. **Content tests 147 pass, 0 failed.**
+
+**And a mistake worth recording, because the shape of it will recur.** The rename script inserted a note line
+at the top of each `notes: >-` block at an indentation different from the text below it. A YAML folded scalar
+takes its indentation from its first line, so everything after it stopped being part of the block and all five
+files stopped parsing - LOAD003, caught by the content suite before it reached a commit. **A script that edits
+YAML by string surgery has to be checked by a YAML parser, and the content suite is that parser.** The rename
+is recorded here and in the tool, not inside each file's prose, which is where it did the damage.
+
 ### P4a - the content port, begun: the source read, and the flags
 
 **P3's look is established** (P3a-P3d: 4K stone in two families, a gravel floor, a roof, and interior lamps by

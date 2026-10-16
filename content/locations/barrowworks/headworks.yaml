@@ -1,0 +1,27 @@
+id: location.barrowworks.headworks
+kind: location
+schema: 1
+display_key: location.barrowworks.headworks.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Headworks (room 12), a chamber of the Barrowworks. The aftermath and the choice. A damaged head, two explicit handles, and the information before the confirmation. Placement and radius are the blockout's and provisional.
+name: Headworks
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 50.0
+  - 0.0
+  - 131.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 25
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false
