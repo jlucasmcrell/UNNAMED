@@ -170,9 +170,9 @@ internal sealed class QuestSystem : IQuestFacts
     public void Listen(SimulationEvents events)
     {
         events.Listen<CreatureKilled>(e => Defeated(e.DefId));
-        events.Listen<ReplyChosen>(e => Handle(new RecordDeed(new Deed(DeedKind.Chose, ChoiceGiven.ChoiceSubject(e.DialogueId, e.NodeId, e.ReplyId), 1,
+        events.Listen<ReplyChosen>(e => _context.Dispatch(new RecordDeed(new Deed(DeedKind.Chose, ChoiceGiven.ChoiceSubject(e.DialogueId, e.NodeId, e.ReplyId), 1,
             Quality.Standard, e.NpcId, e.Tick))));
-        events.Listen<PlayerTravelled>(e => Handle(new RecordDeed(new Deed(DeedKind.Travelled, e.ToKey, 1, Quality.Standard, null, e.Tick))));
+        events.Listen<PlayerTravelled>(e => _context.Dispatch(new RecordDeed(new Deed(DeedKind.Travelled, e.ToKey, 1, Quality.Standard, null, e.Tick))));
     }
 
     /// <summary>Every defeat flag content names, by creature: the flag and the place whose cell holds it.</summary>
