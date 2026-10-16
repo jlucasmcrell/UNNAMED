@@ -245,3 +245,29 @@ player reads rather than reacts to). The third attack is not in the content.
 design, or the combat system gains a third attack slot - which is a change to shared combat, not to the
 Barrowworks, and outside this brief's scope. Deleting the ability I had written (`index_grasp`) is the honest
 state in the meantime; keeping an ability nothing can use would be dead content.
+
+---
+
+## OQ-16 - The design has the fitting wedge open G3, and neither a door nor a switch can require an item
+
+The design chains **o_wedge -> o_open**: a character fits a wedge to the measure at the waystation's anvil, and
+then opens the headworks door (G3) beyond the measuring court. **The quest orders this; the world does not enforce
+it.**
+
+**G3 is a door, and a door opens by being used.** `door.longhouse` in the reference regions has no switch
+anywhere, and the flag it names is what the door itself records when it swings. A switch cannot stand in for that,
+because **WLD013 refuses a switch and a door that share a world flag** - which is right: two interactables writing
+one flag is two answers to one question.
+
+The one thing that would express the design is **an item requirement on a door**, which the engine does not have.
+A switch's `requires` names **other world flags**, read in that switch's own cell - not items. So G3 opens like
+any other door, and nothing stops a character who never crafted the wedge.
+
+**Smallest unblocking choice taken:** the design is ported as written - the quest still asks for the wedge before
+it asks for the door - and the missing enforcement is **recorded rather than approximated** with a flag chain the
+design never describes. Claude's plan section 2.11 already lists "the wedge opening G3" as remaining W7 work, so
+this is the same gap reached from the other end.
+
+**Needed to close it:** either an `item_ref` on `DoorSite` (Content, plus the door interaction), or a switch a
+door reads without sharing its flag. Both are shared-world changes rather than Barrowworks content, which is why
+they are not made here.

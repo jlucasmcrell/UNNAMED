@@ -220,10 +220,15 @@ w("")
 #      and south-east edges are all openings (R01, R03 and the G1 shortcut), and the first placement stood the
 #      board in the north one, blocking a passage a body has to walk through. East and west are solid.
 #   K2 the fitting note and P the diagram rack, both in the gauge archive.
+#   K3 the blind store's ledger, in the blind store itself - the room the design hides behind G2, and the one
+#      o_report asks what it was for. ON THE EAST WALL: R09's only edge is the G2 secret from R07, which is to the
+#      west, so the east wall is the solid one. Reading it is how a body learns what the store was.
 for sid, x0, z0, x1, z1, h, why in [
-    ("r02_notice_board",    56.2, 26.4, 56.6, 29.6, 1.6, "the withdrawal notice, against the intake hall's east wall"),
-    ("r07_fitting_stand",   65.4, 57.4, 65.8, 60.6, 1.4, "the fitting note, on the gauge archive's west wall"),
-    ("r07_diagram_rack",    78.2, 57.4, 78.6, 60.6, 1.8, "the diagram rack, on the gauge archive's east wall"),
+    ("r02_notice_board",     56.2, 26.4, 56.6, 29.6, 1.6, "the withdrawal notice, against the intake hall's east wall"),
+    ("r07_fitting_stand",    65.4, 57.4, 65.8, 60.6, 1.4, "the fitting note, on the gauge archive's west wall"),
+    ("r07_diagram_rack",     78.2, 57.4, 78.6, 60.6, 1.8, "the diagram rack, on the gauge archive's east wall"),
+    ("r09_blind_ledger",     96.2, 57.4, 96.6, 62.6, 1.5, "the blind store's ledger, against the blind store's east wall"),
+    ("r12_headworks_measure", 42.4, 128.4, 42.8, 133.6, 2.2, "the measure itself, against the headworks' west wall"),
 ]:
     box(sid, x0, z0, x1, z1, h)
 w("# Walls and corridors. Room walls are 4 m; corridors are floor-only (height 0) so they read as passages.")
@@ -263,6 +268,37 @@ w("    flag_ref: world.barrowworks.diagram_rack_read")
 w("    name: diagram rack")
 w("    verb: Read")
 w("    done_text: \"Rack after rack of the same drawing, each a little further from the last, and none of them finished. Whatever the ring was built to gauge, the measuring of it was still being worked out when the works stopped.\"")
+w("  - key: switch.barrowworks.blind_ledger")
+w("    structure: r09_blind_ledger")
+w("    flag_ref: world.barrowworks.blind_store_read")
+w("    name: blind store ledger")
+w("    verb: Read")
+w("    done_text: \"A ledger in a room nothing was ever taken out of. Every column is a measurement of the same thing, taken again and again over years, and every one of them is short of the last. The final page is dated the day the works stopped, and the number on it is not a measurement at all - it is the width of the gap between what the ring gauged and what it was meant to.\"")
+# The choice (o_preserve / o_dismantle). The design's prose says "tell Kera", but both objectives read their flag
+# AT location.barrowworks.headworks - a world flag is per-cell, and Kera stands at the waystation, so a flag she
+# set would never satisfy a check made in the headworks. The mechanism is what the character acts on, and it is
+# the only place the choice can be recorded. Two switches on one structure: the player does one or the other, and
+# the mechanism is left whole or broken up.
+w("  - key: switch.barrowworks.headworks_preserve")
+w("    structure: r12_headworks_measure")
+w("    flag_ref: world.barrowworks.headworks_preserved")
+w("    name: the measure")
+w("    verb: Leave")
+w("    done_text: \"The measure is a beam of fitted segments, each one cut to a tolerance nothing in the ring could hold, and the whole of it is still true. Whatever it was for, it was made to outlast the works that built it, and it has. You leave it standing.\"")
+w("  - key: switch.barrowworks.headworks_dismantle")
+w("    structure: r12_headworks_measure")
+w("    flag_ref: world.barrowworks.headworks_dismantled")
+w("    name: the measure")
+w("    verb: Break up")
+w("    done_text: \"The measure comes apart at the joints, because it was built to. Every segment is a length of good ash haft and a plate of worked iron, and the ring has no one left in it to measure anything with. You take it apart for what it is made of.\"")
+# The three gates are DOORS, and a door opens by being used: WLD013 refuses a switch and a door that share a
+# world flag, so a switch is not how a gate is opened and the reference regions have none - `door.longhouse` has
+# no switch anywhere, and its flag is what the door itself records when it swings. G1 and G2 need nothing more:
+# you have to find them, which is what "shortcut" and "secret" mean.
+#
+# G3 is the R11-R12 aftermath, and the design has the fitting WEDGE open it (o_wedge -> o_open). The switch model
+# cannot express that either - `requires` names other world flags, not items - so G3 opens like any other door
+# and the wedge is not enforced. See OPEN_QUESTIONS OQ-16.
 w("barriers: []")
 w("")
 

@@ -188,6 +188,8 @@ structures:
   - { id: r02_notice_board, box_m: [56.2, 26.4, 56.6, 29.6], height_m: 1.6 }
   - { id: r07_fitting_stand, box_m: [65.4, 57.4, 65.8, 60.6], height_m: 1.4 }
   - { id: r07_diagram_rack, box_m: [78.2, 57.4, 78.6, 60.6], height_m: 1.8 }
+  - { id: r09_blind_ledger, box_m: [96.2, 57.4, 96.6, 62.6], height_m: 1.5 }
+  - { id: r12_headworks_measure, box_m: [42.4, 128.4, 42.8, 133.6], height_m: 2.2 }
 
 # G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).
 doors:
@@ -217,4 +219,22 @@ switches:
     name: diagram rack
     verb: Read
     done_text: "Rack after rack of the same drawing, each a little further from the last, and none of them finished. Whatever the ring was built to gauge, the measuring of it was still being worked out when the works stopped."
+  - key: switch.barrowworks.blind_ledger
+    structure: r09_blind_ledger
+    flag_ref: world.barrowworks.blind_store_read
+    name: blind store ledger
+    verb: Read
+    done_text: "A ledger in a room nothing was ever taken out of. Every column is a measurement of the same thing, taken again and again over years, and every one of them is short of the last. The final page is dated the day the works stopped, and the number on it is not a measurement at all - it is the width of the gap between what the ring gauged and what it was meant to."
+  - key: switch.barrowworks.headworks_preserve
+    structure: r12_headworks_measure
+    flag_ref: world.barrowworks.headworks_preserved
+    name: the measure
+    verb: Leave
+    done_text: "The measure is a beam of fitted segments, each one cut to a tolerance nothing in the ring could hold, and the whole of it is still true. Whatever it was for, it was made to outlast the works that built it, and it has. You leave it standing."
+  - key: switch.barrowworks.headworks_dismantle
+    structure: r12_headworks_measure
+    flag_ref: world.barrowworks.headworks_dismantled
+    name: the measure
+    verb: Break up
+    done_text: "The measure comes apart at the joints, because it was built to. Every segment is a length of good ash haft and a plate of worked iron, and the ring has no one left in it to measure anything with. You take it apart for what it is made of."
 barriers: []
