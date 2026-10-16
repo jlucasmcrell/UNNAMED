@@ -373,7 +373,9 @@ public partial class ProjectilesView : Node3D
         _lastBurst = _clock;
         var node = new Node3D { Position = at };
         AddChild(node);
-        var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = 3f, OmniRange = 6f };
+        // Settings' flash reduction (PJ03 §6.3) holds the burst's light to a third.
+        float peak = Settings.SettingsStore.Current.Profile.Camera.ReduceFlashes ? 1f : 3f;
+        var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = peak, OmniRange = 6f };
         node.AddChild(light);
         var forms = stem is null ? new List<Art.FormulaForm>() : Forms($"{stem}_impact");
         var bursts = stem is null ? new List<GpuParticles3D>() : Recipes($"{stem}_impact");
@@ -392,7 +394,7 @@ public partial class ProjectilesView : Node3D
             }
             double life = Math.Max(_recipes!.Lifetime(_recipes.For($"{stem}_impact")), forms.Count > 0 ? Art.BoltShock.Seconds : 0) + 0.2;
             // The light: a hard flash that falls away fast, not a glow that lingers.
-            _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)(3 * Math.Pow(Math.Max(0, left / life), 3))));
+            _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)(peak * Math.Pow(Math.Max(0, left / life), 3))));
             return;
         }
         if (Book(stem, "impact", "a swelling flash") is { } book)
@@ -404,7 +406,7 @@ public partial class ProjectilesView : Node3D
             _lingering.Add((node, _clock + ttl, left =>
             {
                 Frame(quad, book, Math.Min(book.Frames - 1, (int)((_clock - start) * book.Fps)));
-                light.LightEnergy = (float)Math.Max(0, 3 * left / ttl);
+                light.LightEnergy = (float)Math.Max(0, peak * left / ttl);
             }));
             return;
         }
@@ -424,7 +426,7 @@ public partial class ProjectilesView : Node3D
             float t = 1 - (float)(left / seconds);
             flash.Scale = Vector3.One * (1 + 5 * t);
             ((StandardMaterial3D)flash.MaterialOverride).AlbedoColor = new Color(0.7f, 0.85f, 1f, 0.8f * (1 - t));
-            light.LightEnergy = 3 * (1 - t);
+            light.LightEnergy = peak * (1 - t);
         }));
     }
 

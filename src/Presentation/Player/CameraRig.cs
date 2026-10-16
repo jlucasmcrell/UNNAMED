@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Presentation.Greybox;
+using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Player;
 
@@ -32,7 +33,7 @@ public partial class CameraRig : Node3D
     private float _shoulder;
     private float _restoreDistance = 3.5f;
 
-    public Camera3D Camera { get; } = new() { Name = "Camera", Fov = 75, Near = 0.05f };
+    public Camera3D Camera { get; } = new() { Name = "Camera", Fov = new CameraPrefs().Fov, Near = 0.05f };
 
     /// <summary>Radians about +Y. At 0 the camera looks along -Z.</summary>
     public float Yaw { get; set; }
@@ -53,7 +54,19 @@ public partial class CameraRig : Node3D
     /// <summary>A crouched eye's height.</summary>
     public const float CrouchedEyeHeight = 1.05f;
 
-    public float Sensitivity { get; set; } = 0.0025f;
+    /// <summary>Radians a pixel of mouse travel turns the camera (Settings, Camera: look sensitivity).</summary>
+    public float Sensitivity { get; private set; } = CameraPrefs.BaseSensitivity;
+
+    /// <summary>Moving the mouse forward looks down (Settings, Camera: invert vertical look).</summary>
+    public bool InvertY { get; private set; }
+
+    /// <summary>The player's camera settings: look speed, vertical look and the field of view, applied at once.</summary>
+    public void Use(CameraPrefs prefs)
+    {
+        Sensitivity = CameraPrefs.BaseSensitivity * prefs.Sensitivity;
+        InvertY = prefs.InvertY;
+        Camera.Fov = prefs.Fov;
+    }
 
     public bool IsFirstPerson => TargetDistance <= FirstPersonBelow;
 
@@ -79,7 +92,7 @@ public partial class CameraRig : Node3D
     public void Look(Vector2 mouseDelta)
     {
         Yaw = Mathf.Wrap(Yaw - mouseDelta.X * Sensitivity, -Mathf.Pi, Mathf.Pi);
-        Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * Sensitivity, -1.35f, 1.2f);
+        Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * Sensitivity * (InvertY ? -1 : 1), -1.35f, 1.2f);
     }
 
     public void Zoom(float metres) => TargetDistance = Mathf.Clamp(TargetDistance + metres, 0, MaxDistance);

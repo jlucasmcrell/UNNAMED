@@ -97,7 +97,12 @@ public sealed class UiShots
     /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
     /// chosen on the System Menu, and Escape pressed on it: back to play, or back to the menu with <c>--menu-escape back</c>.
     /// </summary>
-    private static readonly string[] Screens = { "menu", "character", "journal", "effects", "companions", "help", "saves", "", "announce", "menu_character", "escape", "" };
+    private static readonly string[] Screens =
+    {
+        "menu", "character", "journal", "effects", "companions", "help", "saves",
+        "settings", "settings_audio", "settings_controls", "settings_camera", "settings_interface", "credits", "",
+        "announce", "menu_character", "escape", "",
+    };
 
     /// <summary>
     /// The screens pictured again once the route has filled them ("late_&lt;after&gt;_&lt;screen&gt;"): after the ward (an effect on, what is

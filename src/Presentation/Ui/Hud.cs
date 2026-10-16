@@ -387,6 +387,8 @@ public partial class Hud : CanvasLayer
 
     public void Toast(string text, double seconds = 4)
     {
+        // Settings' notice duration (Interface): short, normal, long or longer.
+        seconds *= Settings.SettingsStore.Current.Profile.Interface.NoticeDuration;
         if (_view is not null)
         {
             _view.Toast(text, seconds);

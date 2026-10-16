@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -11,24 +12,58 @@ namespace UNNAMED.Presentation.Ui;
 /// Type: Barlow for reading, Barlow Condensed in small capitals for names and labels (SIL Open Font License 1.1, <c>Ui/Fonts/OFL.txt</c>).
 /// Colour: soot panels, bone text, iron rules, and ember only for what asks for the player's attention - a key to press, the level,
 /// the tracked quest, the formula being worked. Pool colours are the classic ones, dulled, and never carry meaning without a word.
+/// Settings changes four things here (<see cref="Use"/>): the size of every word, a high-contrast set (opaque panels, brighter quiet
+/// text and rules), and the harm and aid colours for colour-vision support - the only pair whose difference is a colour (PJ03 §4.7).
 /// </summary>
 public static class HudStyle
 {
-    public static readonly Color Soot = new(0.045f, 0.045f, 0.042f, 0.76f);
+    private static bool _contrast;
+    private static ColourVision _vision;
+
+    public static Color Soot => _contrast ? new(0.02f, 0.02f, 0.02f, 0.96f) : new(0.045f, 0.045f, 0.042f, 0.76f);
     public static readonly Color Track = new(0.02f, 0.02f, 0.02f, 0.78f);
-    public static readonly Color Iron = new(0.52f, 0.52f, 0.49f, 0.55f);
+    public static Color Iron => _contrast ? new(0.8f, 0.8f, 0.76f, 0.9f) : new(0.52f, 0.52f, 0.49f, 0.55f);
     public static readonly Color IronBright = new(0.66f, 0.65f, 0.61f, 0.9f);
     public static readonly Color Bone = new(0.93f, 0.91f, 0.86f);
-    public static readonly Color Ash = new(0.76f, 0.74f, 0.69f);
-    public static readonly Color Muted = new(0.67f, 0.66f, 0.62f);
+    public static Color Ash => _contrast ? new(0.9f, 0.89f, 0.85f) : new(0.76f, 0.74f, 0.69f);
+    public static Color Muted => _contrast ? new(0.86f, 0.85f, 0.81f) : new(0.67f, 0.66f, 0.62f);
     public static readonly Color Ember = new(0.93f, 0.66f, 0.33f);
     public static readonly Color Brass = new(0.83f, 0.69f, 0.45f);
-    public static readonly Color Wound = new(0.94f, 0.55f, 0.48f);
+
+    /// <summary>Harm, a refusal, a wound: a soft red, or for red-green colour vision a vermilion, for blue-yellow a rose.</summary>
+    public static Color Wound => _vision switch
+    {
+        ColourVision.Protanopia or ColourVision.Deuteranopia => new(0.92f, 0.45f, 0.14f),
+        ColourVision.Tritanopia => new(0.96f, 0.42f, 0.52f),
+        _ => new(0.94f, 0.55f, 0.48f),
+    };
 
     // The management screens' two additions (the Field Instrument UI): a secondary surface for hover, insets and idle buttons, and the
     // colour of what is positive or available (READY, a requirement met, a gain).
     public static readonly Color Coal = new(0.085f, 0.083f, 0.078f);
-    public static readonly Color Lichen = new(0.56f, 0.74f, 0.47f);
+
+    /// <summary>Aid, READY, a requirement met: a lichen green, or for red-green colour vision a sky blue, for blue-yellow a teal.</summary>
+    public static Color Lichen => _vision switch
+    {
+        ColourVision.Protanopia or ColourVision.Deuteranopia => new(0.42f, 0.72f, 0.96f),
+        ColourVision.Tritanopia => new(0.3f, 0.8f, 0.78f),
+        _ => new(0.56f, 0.74f, 0.47f),
+    };
+
+    /// <summary>How much larger than designed every word is drawn (Settings, Interface: text size).</summary>
+    public static float TextScale { get; private set; } = 1f;
+
+    /// <summary>Settings' text size, contrast and colour vision; Main restyles what is already built (<see cref="UiKit.Restyle"/>).</summary>
+    public static void Use(float textScale, bool highContrast, ColourVision vision)
+    {
+        TextScale = textScale;
+        _contrast = highContrast;
+        _vision = vision;
+        _theme = null;
+    }
+
+    /// <summary>A designed font size at the player's text size.</summary>
+    public static int Sized(int size) => (int)Math.Round(size * TextScale);
 
     public static readonly Color HealthFill = new(0.71f, 0.2f, 0.16f);
     public static readonly Color StaminaFill = new(0.77f, 0.62f, 0.28f);
@@ -78,7 +113,7 @@ public static class HudStyle
 
     private static Theme BuildTheme()
     {
-        var theme = new Theme { DefaultFont = Body, DefaultFontSize = 17 };
+        var theme = new Theme { DefaultFont = Body, DefaultFontSize = Sized(17) };
         theme.SetColor("font_color", "Label", Bone);
         theme.SetColor("font_shadow_color", "Label", new Color(0, 0, 0, 0.6f));
         theme.SetConstant("shadow_offset_x", "Label", 0);
@@ -136,10 +171,14 @@ public static class HudStyle
     {
         var label = new Label { Uppercase = caps, MouseFilter = Control.MouseFilterEnum.Ignore };
         label.AddThemeFontOverride("font", font);
-        label.AddThemeFontSizeOverride("font_size", size);
+        label.SetMeta(DesignedSize, size);
+        label.AddThemeFontSizeOverride("font_size", Sized(size));
         label.AddThemeColorOverride("font_color", color);
         return label;
     }
+
+    /// <summary>The size a label was designed at, kept on it so a new text size can be applied to what is already built.</summary>
+    public const string DesignedSize = "designed_font_size";
 
     /// <summary>The thin iron rule between a panel's parts.</summary>
     public static HSeparator Rule(int room = 8)

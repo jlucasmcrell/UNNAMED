@@ -47,7 +47,7 @@ public partial class Main
         {
             case 20:
                 SaveScreenshot(directory, "01_start_screen");
-                if (!_saves.PressContinue())
+                if (!_title.PressContinue())
                 {
                     GD.PushError("UNNAMED resume shots: the start screen offered no Continue");
                     GetTree().Quit(1);
@@ -69,7 +69,6 @@ public partial class Main
 
     /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
     private StartCamera? _startCamera;
-    private Ui.GraphicsPanel? _graphics;
 
     private void Started()
     {
@@ -79,10 +78,8 @@ public partial class Main
             _startCamera = null;
             _camera.Camera.MakeCurrent();
             StartCamera.Track(this, _camera.Camera);
-            _graphics?.QueueFree();
-            _graphics = null;
         }
-        _saves.Close();
+        CloseFrontEnd();
         _music.Title(false);
         _lastSave = null;
         _loadedFrom = null;
