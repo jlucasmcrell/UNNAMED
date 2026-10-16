@@ -342,7 +342,21 @@ back where they entered. With the option off, nothing in the playtest changes an
 
 ---
 
-## 11. P2 — the blockout
+## 10. Progress log
+
+| Date | Commit | What landed | Suite |
+|---|---|---|---|
+| 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
+| 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
+| 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
+| 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
+| 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
+| 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
+| 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
+| 2026-10-16 | `888d67d` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
+| 2026-10-16 | `28af843` | P1h: `RegionLayout.SpaceId`, and site cells follow the layout's space | **886 passing, 0 failed** |
+| 2026-10-16 | `c4b9dbe` | P2a: `space:` on the region schema, and the 13-room blockout | **890 passing, 0 failed** |
+| 2026-10-16 | `8750d66` | P2b: the two gated entrances, through real content | **896 passing, 0 failed** |
 
 ### P2a — `space:` on the region schema, and thirteen rooms that connect
 
@@ -408,19 +422,6 @@ brief names — Blackvein's spoil heaps, and The Sinking Moss — and those two 
 the interior is 137 m from R01 to R04. At that distance the interior is a shortcut between two distant
 places rather than two ways into one dungeon. Placed as instructed and recorded rather than silently
 "fixed"; the smallest change is one pair of numbers.
-
-## 10. Progress log
-
-| Date | Commit | What landed | Suite |
-|---|---|---|---|
-| 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
-| 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
-| 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
-| 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
-| 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
-| 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
-| 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
-| 2026-10-16 | `888d67d` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
 
 ### P1h — a layout is one space, so its sites follow it
 
