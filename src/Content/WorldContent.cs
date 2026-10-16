@@ -248,8 +248,12 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"stations[{i}] must be a map");
                 var (sx, sz) = Pair(site, "position_m");
-                var station = new StationSite(Text(site, "key"), Text(site, "kind"), sx, sz);
+                var station = new StationSite(Text(site, "key"), Text(site, "kind"), sx, sz)
+                {
+                    Grade = site.ContainsKey("grade") ? Int(site, "grade") : 0,
+                };
                 Check(station.Key.StartsWith("station.", StringComparison.Ordinal), "WLD011", $"station key '{station.Key}' must start with 'station.'");
+                Check(station.Grade >= 0, "WLD011", $"{station.Key}: grade is 0 (a common station) or more (upgraded)");
                 Check(sx >= minX && sx <= maxX && sz >= minZ && sz <= maxZ, "WLD011", $"{station.Key} lies outside the walkable bounds");
                 stations.Add(station);
             }

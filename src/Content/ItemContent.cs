@@ -26,8 +26,12 @@ public static class ItemContent
         Try(() => BuildCatalog(loader), "items", errors);
         Try(() => CheckLootRecursion(BuildLootTables(loader)), "loot", errors);
         Try(() => BuildMerchants(loader), "merchants", errors);
+        Try(() => CheckCraftOnly(BuildCatalog(loader), BuildLootTables(loader), BuildMerchants(loader)), "masterwork", errors);
         if (loader.Definitions.ContainsKey("config.inventory"))
+        {
             Try(() => BuildStartingKit(loader), "config.inventory", errors);
+            Try(() => BuildInventoryRules(loader, 0), "config.inventory", errors);
+        }
         if (loader.Definitions.ContainsKey("config.economy"))
             Try(() => BuildPricing(loader), "config.economy", errors);
         return errors;
@@ -46,8 +50,12 @@ public static class ItemContent
     {
         var map = Config(loader, "config.inventory");
         var rules = new InventoryRules(Int(map, "stack_slots"), Grams(map, "carry_base_kg"), Grams(map, "carry_kg_per_might"), reachMm);
+        if (map.ContainsKey("familiarity_uses_per_step"))
+            rules = rules with { FamiliarityUsesPerStep = List(map, "familiarity_uses_per_step").Select((v, i) => ParseInt(v, $"familiarity_uses_per_step[{i}]")).ToImmutableArray() };
         if (rules.StackSlots < 1 || rules.CarryBaseGrams < 0 || rules.CarryGramsPerMight < 0)
             throw new FormatException("config.inventory needs at least one stack slot and non-negative carry weights");
+        if (rules.FamiliarityUsesPerStep.Length != NotableRecord.MaxFamiliarity || rules.FamiliarityUsesPerStep.Any(n => n < 1))
+            throw new FormatException($"config.inventory familiarity_uses_per_step lists {NotableRecord.MaxFamiliarity} counts of at least 1, one per step");
         return rules;
     }
 
@@ -108,12 +116,52 @@ public static class ItemContent
         else if (map.GetValueOrDefault("equip_slot") is string equip)
         {
             slot = EquipSlots.Parse(equip);
-            if (slot is EquipSlot.MainHand or EquipSlot.OffHand)
-                throw new FormatException($"{id}: equip_slot {equip} is for weapons; a plain item takes a worn slot");
+            // The off hand takes a carried light (the torch) as well as a weapon; the main hand is a weapon's alone.
+            if (slot is EquipSlot.MainHand)
+                throw new FormatException($"{id}: equip_slot {equip} is for weapons; a plain item takes a worn slot or the off hand");
         }
-        return new ItemDefinition(id, Text(map, "category"), Int(map, "stack_max"), Grams(map, "weight"), Long(map, "value_base"),
-            Text(map, "rarity"), Flag(map, "no_drop"), Flag(map, "no_sell"), slot, Requirements(id, map), weapon,
-            map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0);
+
+        // The class is authored; rarity is derived from it, and a rarity written beside it must be that one (DCP:903).
+        var itemClass = map.GetValueOrDefault("item_class") is string written ? ItemClasses.Parse(written) : ItemClass.Ordinary;
+        string rarity = ItemClasses.Rarity(itemClass);
+        if (map.GetValueOrDefault("rarity") is string authored && authored != rarity)
+            throw new FormatException($"{id}: rarity {authored} does not match item_class {ItemClasses.Key(itemClass)}, whose rarity is {rarity} (rarity is derived from the class)");
+        int stackMax = Int(map, "stack_max");
+        if (itemClass != ItemClass.Ordinary && stackMax != 1)
+            throw new FormatException($"{id}: a {ItemClasses.Key(itemClass)} item is one of a kind (stack_max 1): its record is the instance's");
+        long light = map.ContainsKey("light_radius") ? Grams(map, "light_radius") : 0;
+        double stealth = map.ContainsKey("stealth_penalty") ? Number(map, "stealth_penalty") : 0;
+        if (light < 0 || stealth is < 0 or > 1 || ((light > 0 || stealth > 0) && slot is null))
+            throw new FormatException($"{id}: light_radius (m, not below 0) and stealth_penalty ([0, 1]) belong to something equipped");
+        return new ItemDefinition(id, Text(map, "category"), stackMax, Grams(map, "weight"), Long(map, "value_base"),
+            rarity, Flag(map, "no_drop"), Flag(map, "no_sell"), slot, Requirements(id, map), weapon,
+            map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
+        {
+            Name = map.GetValueOrDefault("name") as string,
+            Class = itemClass,
+            LightRadiusMm = light,
+            StealthPenalty = stealth,
+        };
+    }
+
+    /// <summary>
+    /// A masterwork is craft-only (PROGRESSION.md §11.2: no drop may reproduce a masterwork-quality crafted base): no loot table holds a
+    /// masterwork-class item and no trader stocks one.
+    /// </summary>
+    private static bool CheckCraftOnly(ItemCatalog catalog, ImmutableSortedDictionary<string, LootTable> tables, ImmutableSortedDictionary<string, Merchant> merchants)
+    {
+        bool Masterwork(string? item) => item is not null && catalog.Find(item)?.Class == ItemClass.Masterwork;
+        foreach (var table in tables.Values)
+        {
+            if (table.Weighted.Concat(table.Independent).Concat(table.Guaranteed).FirstOrDefault(e => Masterwork(e.ItemId)) is { } entry)
+                throw new FormatException($"{table.Id} drops {entry.ItemId}, a masterwork: masterwork is craft-only");
+        }
+        foreach (var merchant in merchants.Values)
+        {
+            if (merchant.Stock.FirstOrDefault(s => Masterwork(s.ItemId)) is { } line)
+                throw new FormatException($"{merchant.Id} stocks {line.ItemId}, a masterwork: masterwork is craft-only");
+        }
+        return true;
     }
 
     /// <summary><c>requirements: { attribute.might: 9, skill.one_hand_blade: 5 }</c> - never a level (PROGRESSION.md §11.1).</summary>

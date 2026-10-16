@@ -1,0 +1,15 @@
+id: item.armor.cloak
+kind: item.armor
+schema: 1
+display_key: item.armor.cloak.name
+tags: [item]
+name: Cloak
+notes: Cloak slot (WP3a; the wardrobe plan's cloak). Bog-cotton over a wolf hide; found by experiment at the bench.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.2
+value_base: 16
+slot: cloak
+armor_value: 1
+material_class: cloth

@@ -1,0 +1,15 @@
+id: item.armor.smith_gloves
+kind: item.armor
+schema: 1
+display_key: item.armor.smith_gloves.name
+tags: [item]
+name: Smith Gloves
+notes: Hands armor (WP3a; the wardrobe plan's smith gloves). Stitched at the bench from a small hide.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 8
+slot: hands
+armor_value: 1
+material_class: leather

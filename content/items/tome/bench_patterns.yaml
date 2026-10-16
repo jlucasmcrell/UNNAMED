@@ -1,0 +1,18 @@
+id: item.tome.bench_patterns
+kind: item
+schema: 1
+display_key: item.tome.bench_patterns.name
+tags: [item]
+name: Bench Patterns
+notes: A recipe book (WP3a, K2). Read once, it teaches the gloves, trousers and boots worked at the bench.
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 30
+use:
+  consume: true
+  grants:
+    - { kind: recipe, ref: recipe.leatherwork.smith_gloves }
+    - { kind: recipe, ref: recipe.leatherwork.wool_trousers }
+    - { kind: recipe, ref: recipe.leatherwork.hide_boots }

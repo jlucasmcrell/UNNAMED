@@ -1,0 +1,17 @@
+id: recipe.leatherwork.timber_shield
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.timber_shield.name
+tags: [recipe]
+name: Timber Shield
+notes: Rough timber faced with a small hide (WP3a, DCP:669); found by experiment at a bench.
+station: workbench
+skill_ref: skill.survival
+complexity: 6
+discovery: { experiment: true }   # one of its station kind's experiment candidates (C12:263-302)
+inputs:
+  - { item_ref: item.material.timber, count: 2 }
+  - { item_ref: item.material.small_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.timber_shield, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 20 }       # level XP for the first only (AG-7)

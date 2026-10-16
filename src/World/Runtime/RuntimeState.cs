@@ -266,10 +266,11 @@ internal sealed class RuntimeState
         Equipment = equipment;
     }
 
-    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0)
+    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0,
+        NotableRecord? notable = null)
     {
         Require(owner, StateSlice.WorldItems);
-        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality);
+        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality, notable);
     }
 
     public CreatedEntityRecord TakeItem(SliceOwner owner, EntityId itemId)

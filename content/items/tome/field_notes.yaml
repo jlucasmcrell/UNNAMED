@@ -9,7 +9,7 @@ category: book
 stack_max: 1
 weight: 0.2
 value_base: 40
-rarity: uncommon
+rarity: common
 use:
   consume: true
   grants:

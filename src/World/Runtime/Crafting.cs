@@ -22,6 +22,9 @@ public sealed record CraftingSetup(
 {
     public ImmutableArray<YieldBonus> YieldBonuses { get; init; } = ImmutableArray<YieldBonus>.Empty;
 
+    /// <summary>How a corpse's stacks roll their quality by the creature's level (DCP:662; WP3a). Empty: every drop is standard.</summary>
+    public ImmutableArray<DropQualityBand> DropQuality { get; init; } = ImmutableArray<DropQualityBand>.Empty;
+
     public static CraftingSetup Empty { get; } = new(new CraftingConstants(),
         ImmutableSortedDictionary.Create<string, NodeDefinition>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, RecipeDefinition>(StringComparer.Ordinal));
@@ -35,6 +38,13 @@ public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
 public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor);
 
+/// <summary>
+/// Experiment at a station within reach (C12:263-302; WP3a): with what is carried, try for one of the station's experiment recipes not yet
+/// known. Its set is seeded from the world and the station, so it is the same on every load; carrying a recipe's inputs finds it. Nothing
+/// is spent: what is found is learned, and worked like any other recipe.
+/// </summary>
+public sealed record ExperimentCommand(EntityId Actor, string StationKey) : GameCommand(Actor);
+
 // ── events ──────────────────────────────────────────────────────────────────
 
 /// <summary>A node was harvested. <see cref="Spent"/>: it cannot be harvested again until it refills, if it ever does.</summary>
@@ -42,6 +52,9 @@ public sealed record NodeGathered(string NodeKey, string NodeDefId, string ItemI
 
 /// <summary>A recipe was worked: its inputs spent, its output made at this quality.</summary>
 public sealed record ItemCrafted(string RecipeId, string ItemId, int Count, int Quality, long Tick);
+
+/// <summary>An experiment found a recipe (WP3a): it is known now.</summary>
+public sealed record RecipeDiscovered(string StationKey, string RecipeId, long Tick);
 
 // ── views ───────────────────────────────────────────────────────────────────
 
@@ -141,11 +154,13 @@ internal sealed class CraftingSystem
 
     private readonly SystemContext _context;
     private readonly EntityId _player;
+    private readonly string _maker;
 
-    public CraftingSystem(SystemContext context, EntityId player)
+    public CraftingSystem(SystemContext context, EntityId player, string maker)
     {
         _context = context;
         _player = player;
+        _maker = maker;
     }
 
     private CraftingSetup Setup => _context.Setup.Crafting;
@@ -164,9 +179,9 @@ internal sealed class CraftingSystem
         if (!ProgressionEngine.Knows(State.Progression, recipe.Id))
             return $"{recipe.Id} is not known";
         var body = State.Body;
-        long reach = _context.Setup.Items.Inventory.ReachMm;
-        if (!_context.Setup.Layout.Stations.Any(s => s.Kind == recipe.StationKind
-                && Math.Sqrt(Math.Pow(s.XMm - body.XMm, 2) + Math.Pow(s.ZMm - body.ZMm, 2)) <= reach))
+        // The best station of its kind within reach: an upgraded one is what masterwork needs.
+        if (_context.Setup.Layout.Stations.Where(s => s.Kind == recipe.StationKind && InReach(s))
+                .OrderByDescending(s => s.Grade).ThenBy(s => s.Key, StringComparer.Ordinal).FirstOrDefault() is not { } station)
             return $"no {recipe.StationKind} in reach";
 
         var takes = ImmutableArray.CreateBuilder<StackTake>();
@@ -193,7 +208,14 @@ internal sealed class CraftingSystem
         int quality = recipe.QualityRoll
             ? CraftingRules.Roll(weakest, skill, recipe.Complexity, Setup.Constants, channel.UInt64(0) / SampleScale)
             : weakest;
-        if (_context.Dispatch(new ExchangeItems(takes.ToImmutable(), recipe.OutputItemId, recipe.OutputCount, quality)) is { } refused)
+        // A fine piece of a masterwork-possible recipe, at an upgraded station, may come out masterwork (C12:186-205) - with the maker's mark.
+        if (recipe.QualityRoll)
+            quality = CraftingRules.Masterwork(quality, recipe.MasterworkPossible, station.Grade, Setup.Constants, channel.UInt64(1) / SampleScale);
+        var exchange = new ExchangeItems(takes.ToImmutable(), recipe.OutputItemId, recipe.OutputCount, quality)
+        {
+            Origin = new NotableOrigin(Domain.Items.ProvenanceKind.Crafted, recipe.Id, _maker),
+        };
+        if (_context.Dispatch(exchange) is { } refused)
             return refused;
         _context.Dispatch(new PracticeSkill(new SkillPractice(recipe.SkillId, recipe.Complexity, PracticeOutcome.Success, tick)
         {
@@ -204,5 +226,49 @@ internal sealed class CraftingSystem
         _context.Events.Publish(new ItemCrafted(recipe.Id, recipe.OutputItemId, recipe.OutputCount, quality, tick));
         _context.Dispatch(new RecordDeed(new Deed(DeedKind.Crafted, recipe.OutputItemId, recipe.OutputCount, quality, null, tick)));
         return null;
+    }
+
+    public string? Handle(ExperimentCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        if (_context.Setup.Layout.Stations.FirstOrDefault(s => s.Key == command.StationKey) is not { } station)
+            return $"there is no station '{command.StationKey}'";
+        if (!InReach(station))
+            return $"{station.Key} is out of reach";
+        var set = ExperimentSet(station);
+        if (set.IsEmpty)
+            return $"there is nothing to find by experiment at a {station.Kind}";
+        var fresh = set.Where(id => !ProgressionEngine.Knows(State.Progression, id)).ToList();
+        if (fresh.Count == 0)
+            return $"everything this {station.Kind} has to teach is known";
+        var carried = State.Inventory.Where(e => !State.Equipment.ContainsValue(e.ItemId))
+            .GroupBy(e => e.DefId, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Sum(e => e.Count), StringComparer.Ordinal);
+        string? found = fresh.FirstOrDefault(id => Setup.Recipes[id].Inputs.All(i => carried.GetValueOrDefault(i.ItemId) >= i.Count));
+        if (found is null)
+            return "nothing comes of it: what you carry suggests nothing new here";
+        _context.Dispatch(new LearnTechnique(new TechniqueLearning(found, LearningSource.Experiment, tick) { SourceRef = station.Key }));
+        _context.Events.Publish(new RecipeDiscovered(station.Key, found, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A station's experiment set (C12:263-302): <c>config.crafting experiments</c> of its kind's candidate recipes, picked from the world
+    /// seed and the station - the same in every session of this world.
+    /// </summary>
+    public ImmutableArray<string> ExperimentSet(StationSite station)
+    {
+        int count = Setup.Constants.ExperimentsPerStation.GetValueOrDefault(station.Kind);
+        var candidates = Setup.Recipes.Values.Where(r => r.Experiment && r.StationKind == station.Kind).Select(r => r.Id);
+        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(station.XMm / 1000.0, station.ZMm / 1000.0), "experiment", station.Key);
+        return CraftingRules.ExperimentSet(candidates, count, sample => channel.UInt64(sample) / SampleScale);
+    }
+
+    private bool InReach(StationSite station)
+    {
+        var body = State.Body;
+        return Math.Sqrt(Math.Pow(station.XMm - body.XMm, 2) + Math.Pow(station.ZMm - body.ZMm, 2)) <= _context.Setup.Items.Inventory.ReachMm;
     }
 }

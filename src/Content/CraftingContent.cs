@@ -26,11 +26,53 @@ public static class CraftingContent
         Try(() => BuildNodes(loader), "nodes", errors);
         Try(() => BuildRecipes(loader), "recipes", errors);
         Try(() => BuildYieldBonuses(loader), "skills", errors);
+        Try(() => BuildDropQuality(loader), "config.crafting", errors);
+        Try(() => CheckExperiments(BuildConstants(loader), BuildRecipes(loader)), "experiments", errors);
         return errors;
     }
 
     public static CraftingSetup Build(ContentLoader loader) =>
-        new(BuildConstants(loader), BuildNodes(loader), BuildRecipes(loader)) { YieldBonuses = BuildYieldBonuses(loader) };
+        new(BuildConstants(loader), BuildNodes(loader), BuildRecipes(loader))
+        {
+            YieldBonuses = BuildYieldBonuses(loader),
+            DropQuality = BuildDropQuality(loader),
+        };
+
+    /// <summary>
+    /// <c>config.crafting drop_quality</c>: from which creature level which share of a corpse's stacks is crude and which fine (DCP:662).
+    /// Absent: every drop is standard.
+    /// </summary>
+    public static ImmutableArray<DropQualityBand> BuildDropQuality(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.crafting"))
+            return ImmutableArray<DropQualityBand>.Empty;
+        var bands = Rows(Config(loader, "config.crafting"), "drop_quality", "config.crafting")
+            .Select(row => new DropQualityBand(Int(row, "level_min"), Int(row, "crude_percent"), Int(row, "fine_percent")))
+            .OrderBy(b => b.LevelMin).ToImmutableArray();
+        if (bands.Any(b => b.LevelMin < 0 || b.CrudePercent < 0 || b.FinePercent < 0 || b.CrudePercent + b.FinePercent > 100)
+            || bands.Select(b => b.LevelMin).Distinct().Count() != bands.Length)
+            throw new FormatException("config.crafting drop_quality: distinct level_min not below 0, and crude and fine percentages together at most 100");
+        return bands;
+    }
+
+    /// <summary>Every station kind a world sets experiments at needs at least that many candidate recipes worked there.</summary>
+    private static bool CheckExperiments(CraftingConstants constants, ImmutableSortedDictionary<string, RecipeDefinition> recipes)
+    {
+        if (recipes.IsEmpty)
+            return true;   // a pack with no recipes (a config alone) sets no station's experiments
+        foreach (var (kind, count) in constants.ExperimentsPerStation)
+        {
+            int candidates = recipes.Values.Count(r => r.Experiment && r.StationKind == kind);
+            if (candidates < count)
+                throw new FormatException($"config.crafting experiments.{kind} is {count}, but only {candidates} recipe(s) worked at a {kind} are experiment candidates");
+        }
+        return true;
+    }
+
+    private static int ParseCount(object? value, string what) =>
+        int.TryParse(value as string, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int n) && n >= 0
+            ? n
+            : throw new FormatException($"config.crafting {what} must be a whole number not below 0");
 
     /// <summary><c>config.crafting</c>: how a smith's skill against a recipe's complexity moves quality, and what quality does to a weapon.</summary>
     public static CraftingConstants BuildConstants(ContentLoader loader)
@@ -46,10 +88,27 @@ public static class CraftingContent
             CrudePercentPerPoint = Int(quality, "crude_percent_per_point"),
             CrudePercentMax = Int(quality, "crude_percent_max"),
             WeaponDamagePerStep = Int(quality, "weapon_damage_per_step"),
+            ArmorPerStep = quality.ContainsKey("armor_per_step") ? Int(quality, "armor_per_step") : new CraftingConstants().ArmorPerStep,
         };
+        var config = Config(loader, "config.crafting");
+        if (config.GetValueOrDefault("masterwork") is Dictionary<object, object> masterwork)
+        {
+            constants = constants with
+            {
+                MasterworkPercentOfFine = Int(masterwork, "percent_of_fine"),
+                MasterworkStationGrade = Int(masterwork, "station_grade_min"),
+            };
+            if (constants.MasterworkPercentOfFine is < 0 or > 100 || constants.MasterworkStationGrade < 1)
+                throw new FormatException("config.crafting masterwork: percent_of_fine in [0, 100], and station_grade_min at least 1 (an upgraded station)");
+        }
+        if (config.GetValueOrDefault("experiments") is Dictionary<object, object> experiments)
+        {
+            var counts = experiments.ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv => ParseCount(kv.Value, $"experiments.{kv.Key}"), StringComparer.Ordinal);
+            constants = constants with { ExperimentsPerStation = counts };
+        }
         if (constants.FinePercentAtComplexity is < 0 or > 100 || constants.FinePercentMax is < 0 or > 100 || constants.CrudePercentMax is < 0 or > 100
             || constants.FinePercentPerPoint < 0 || constants.CrudePercentPerPoint < 0 || constants.FinePercentMax + constants.CrudePercentMax > 100
-            || constants.WeaponDamagePerStep < 0)
+            || constants.WeaponDamagePerStep < 0 || constants.ArmorPerStep < 0)
             throw new FormatException("config.crafting holds a value out of range (percentages in [0, 100], fine and crude together at most 100)");
         return constants;
     }
@@ -102,6 +161,7 @@ public static class CraftingContent
     public static ImmutableSortedDictionary<string, RecipeDefinition> BuildRecipes(ContentLoader loader)
     {
         var skills = loader.GetByKind("skill");
+        var items = new[] { "item", "item.weapon", "item.armor" }.SelectMany(k => loader.GetByKind(k)).ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
         return loader.GetByKind("recipe").Values.Select(definition =>
         {
             var map = Read(definition.YamlSource);
@@ -116,10 +176,20 @@ public static class CraftingContent
             var output = outputs[0];
             long xp = map.GetValueOrDefault("xp_award") is Dictionary<object, object> award ? Int(award, "xp") : 0;
             var recipe = new RecipeDefinition(id, Text(map, "station"), skill, Int(map, "complexity"), inputs, Text(output, "item_ref"), Int(output, "count"),
-                output.GetValueOrDefault("quality_roll") as string == "true", xp);
+                output.GetValueOrDefault("quality_roll") as string == "true", xp)
+            {
+                MasterworkPossible = output.GetValueOrDefault("masterwork_possible") as string == "true",
+                Experiment = map.GetValueOrDefault("discovery") is Dictionary<object, object> discovery && discovery.GetValueOrDefault("experiment") as string == "true",
+            };
+            if (map.GetValueOrDefault("discovery") is Dictionary<object, object> found && found.Keys.Any(k => k as string != "experiment"))
+                throw new FormatException($"{id}: discovery holds only experiment (reveal_tags is not built)");
+            if (recipe.MasterworkPossible && (!recipe.QualityRoll || recipe.OutputCount != 1))
+                throw new FormatException($"{id}: masterwork_possible needs quality_roll and one piece out (a masterwork is one of a kind)");
+            if (recipe.MasterworkPossible && items.GetValueOrDefault(recipe.OutputItemId) is { } made && Read(made.YamlSource).GetValueOrDefault("stack_max") as string != "1")
+                throw new FormatException($"{id}: masterwork_possible makes {recipe.OutputItemId}, which stacks: a masterwork is one of a kind (stack_max 1)");
             if (recipe.Complexity < 0 || recipe.OutputCount < 1 || recipe.FirstTimeXp < 0 || inputs.Any(i => i.Count < 1) || inputs.IsEmpty)
                 throw new FormatException($"{id}: complexity and XP not below 0, at least one input, and every count at least 1");
-            foreach (string field in new[] { "tools", "craft_time_min", "discovery", "quality_curve", "profession", "required_skill" })
+            foreach (string field in new[] { "tools", "craft_time_min", "quality_curve", "profession", "required_skill" })
             {
                 if (map.ContainsKey(field))
                     throw new FormatException($"{id}: {field} is not built in Phase 1");

@@ -11,3 +11,20 @@ quality:
   crude_percent_per_point: 3       # +3% per point of complexity past the skill
   crude_percent_max: 40
   weapon_damage_per_step: 2        # a fine weapon hits 2 harder, a crude one 2 softer
+  armor_per_step: 1                # a fine piece of armour gives 1 more, a crude one 1 less (WP3a)
+# Masterwork (WP3a; C12:186-205): craft-only. A fine roll of a recipe flagged masterwork_possible, worked at a station of at least this
+# grade, comes out masterwork this share of the time - two steps past standard, with the maker's mark. No drop is ever masterwork.
+masterwork:
+  percent_of_fine: 25
+  station_grade_min: 1
+# The experiment set (WP3a; C12:263-302): how many of a station kind's candidate recipes each station of that kind holds, seeded from
+# the world and the station, so a reload changes nothing.
+experiments:
+  workbench: 2
+  forge: 1
+# Drop quality by the creature's level (WP3a; DCP:662): from each level up, this share of a body's stacks is crude and this share fine.
+# Never masterwork.
+drop_quality:
+  - { level_min: 1, crude_percent: 30, fine_percent: 0 }
+  - { level_min: 3, crude_percent: 20, fine_percent: 10 }
+  - { level_min: 5, crude_percent: 10, fine_percent: 20 }

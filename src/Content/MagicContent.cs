@@ -152,10 +152,12 @@ public static class MagicContent
         }).ToImmutableSortedDictionary(f => f.Id, f => f, StringComparer.Ordinal);
     }
 
-    /// <summary>What reading a book teaches: <c>use: { consume: true, grants: [{ kind: spell, ref }] }</c> (DATA_MODEL.md §4.1).</summary>
+    /// <summary>What reading a book teaches: <c>use: { consume: true, grants: [{ kind: spell | recipe, ref }] }</c> (DATA_MODEL.md §4.1).</summary>
     public static ImmutableSortedDictionary<string, ImmutableArray<string>> BuildTeaches(ContentLoader loader,
-        ImmutableSortedDictionary<string, FormulaDefinition> formulas) =>
-        loader.GetByKind("item").Values
+        ImmutableSortedDictionary<string, FormulaDefinition> formulas)
+    {
+        var recipes = loader.GetByKind("recipe");
+        return loader.GetByKind("item").Values
             .Select(d => (d.Id, Use: Read(d.YamlSource).GetValueOrDefault("use") as Dictionary<object, object>))
             .Where(d => d.Use?.ContainsKey("grants") == true)
             .ToImmutableSortedDictionary(d => d.Id, d =>
@@ -166,12 +168,17 @@ public static class MagicContent
                     throw new FormatException($"{d.Id}: teach_requires is not built in Phase 1");
                 return Rows(d.Use, "grants", d.Id).Select(grant =>
                 {
-                    if (Text(grant, "kind") != "spell")
-                        throw new FormatException($"{d.Id}: Phase 1 books teach formulas (grants of kind spell)");
-                    string formula = Text(grant, "ref");
-                    return formulas.ContainsKey(formula) ? formula : throw new FormatException($"{d.Id}: {formula} is not a formula");
+                    string taught = Text(grant, "ref");
+                    return Text(grant, "kind") switch
+                    {
+                        "spell" => formulas.ContainsKey(taught) ? taught : throw new FormatException($"{d.Id}: {taught} is not a formula"),
+                        // A recipe book (WP3a, K2): read once, it teaches its recipes as a tome teaches formulas.
+                        "recipe" => recipes.ContainsKey(taught) ? taught : throw new FormatException($"{d.Id}: {taught} is not a recipe"),
+                        var other => throw new FormatException($"{d.Id}: a book teaches formulas or recipes (grants of kind spell or recipe), not {other}"),
+                    };
                 }).ToImmutableArray();
             }, StringComparer.Ordinal);
+    }
 
     private static void Try(Action build, string what, List<ValidationError> errors)
     {

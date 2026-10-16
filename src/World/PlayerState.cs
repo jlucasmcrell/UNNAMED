@@ -18,8 +18,21 @@ namespace UNNAMED.World;
 /// <summary>An inventory stack held by the player, keyed by its item instance ID.</summary>
 public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count)
 {
-    /// <summary>The stack's quality (M3f, schema 9): crude -1, standard 0, fine +1. It belongs to the instance, never the definition.</summary>
+    /// <summary>The stack's quality (M3f, schema 9): crude -1, standard 0, fine +1, masterwork +2. It belongs to the instance, never the definition.</summary>
     public int Quality { get; init; }
+
+    /// <summary>A notable instance's record (WP3a): name, provenance, familiarity. Null for an ordinary stack.</summary>
+    public NotableRecord? Notable { get; init; }
+}
+
+/// <summary>How a notable-instance record enters a digest: nothing for an ordinary stack, so ordinary stacks hash as they always have.</summary>
+public static class NotableDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, NotableRecord? notable) =>
+        notable is null
+            ? h
+            : h.Add("notable").Add(notable.Name).Add(ProvenanceKinds.Key(notable.Provenance)).Add(notable.SourceRef).Add(notable.Tick)
+                .Add(notable.Maker ?? "-").Add(notable.Familiarity).Add(notable.Uses);
 }
 
 /// <summary>How a place became known (SYSTEMS.md S-30). Phase 1 discovers by visiting only; the rest arrive with S-30.</summary>
@@ -119,7 +132,7 @@ public sealed record PlayerRecord
         {
             if (entry.ItemId.Kind != EntityKind.Item)
                 throw new ArgumentException($"Inventory holds item instances, got {entry.ItemId}", nameof(inventory));
-            if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0)
+            if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0 || entry.Notable is { IsValid: false } || (entry.Notable is not null && entry.Count != 1))
                 throw new ArgumentException($"Invalid inventory entry {entry}", nameof(inventory));
         }
         if (Inventory.Select(e => e.ItemId).Distinct().Count() != Inventory.Length)
@@ -387,7 +400,7 @@ public sealed record PlayerRecord
             using var h = new CanonicalHasher();
             h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
-                h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
+                NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
