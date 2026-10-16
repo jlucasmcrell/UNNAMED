@@ -8,6 +8,7 @@ using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -75,6 +76,9 @@ public enum StateSlice
 
     /// <summary>The Waystones the player knows and the one they chose to return to (S-38). Saved with the player (schema 15).</summary>
     Waystones,
+
+    /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads.</summary>
+    Deeds,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -148,6 +152,8 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
+    public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; } =
+        ImmutableSortedDictionary.Create<string, DeedTally>(StringComparer.Ordinal);
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -201,6 +207,12 @@ internal sealed class RuntimeState
         if (Discoveries.ContainsKey(record.LocationId))
             throw new InvalidOperationException($"{record.LocationId} is already discovered");
         Discoveries = Discoveries.Add(record.LocationId, record);
+    }
+
+    public void SetDeed(SliceOwner owner, DeedTally tally)
+    {
+        Require(owner, StateSlice.Deeds);
+        Deeds = Deeds.SetItem(tally.Key, tally);
     }
 
     public void WalkRoad(SliceOwner owner, string stretch)

@@ -10,7 +10,8 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// The open conversation: who speaks, their line, and the replies on offer now - numbered, so keys 1 to 9 answer as well as
-/// the mouse. It redraws from the simulation's conversation view whenever a line is spoken; it holds no state of its own.
+/// the mouse. It redraws from the simulation's conversation view whenever a line is spoken; it holds no state of its own. A line with
+/// a recording is said aloud as it arrives (WP5), and its words show while subtitles are on; a line without one always shows them.
 /// </summary>
 public partial class DialoguePanel : CanvasLayer
 {
@@ -24,6 +25,12 @@ public partial class DialoguePanel : CanvasLayer
     private readonly bool _styled = VisualOptions.ProductionHud;
 
     public void Bind(GameSession session) => _session = session;
+
+    /// <summary>Who says the lines aloud; none in a run without sound.</summary>
+    public Audio.VoicePlayer? Voice { get; set; }
+
+    /// <summary>The line last said (aloud, or found to have no recording), so a redraw of the same line does not say it again.</summary>
+    private string? _said;
 
     /// <summary>The replies on screen, in order: what keys 1 to 9 answer.</summary>
     public IReadOnlyList<string> Replies { get; private set; } = Array.Empty<string>();
@@ -57,13 +64,21 @@ public partial class DialoguePanel : CanvasLayer
     /// <summary>The replies scroll past this height (M-06): nine long ones stay on the screen.</summary>
     private const float RepliesHeight = 420;
 
+    private bool _voiced;
+
     private readonly ScrollContainer _scroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
 
-    /// <summary>Show the conversation as it stands now, or hide the panel when there is none.</summary>
-    public void Refresh()
+    /// <summary>
+    /// Show the conversation as it stands now, or hide the panel when there is none. <paramref name="spoken"/>: a line was just said
+    /// (arriving at it again says it again); any other redraw says a line only when it is new.
+    /// </summary>
+    public void Refresh(bool spoken = false)
     {
         if (_session.Simulation?.Conversation is not { } view)
         {
+            if (_said is not null)
+                Voice?.Hush();
+            _said = null;
             Visible = false;
             Replies = Array.Empty<string>();
             return;
@@ -71,6 +86,12 @@ public partial class DialoguePanel : CanvasLayer
         Visible = true;
         _speaker.Text = Names.Of(_session, view.NpcId);
         _line.Text = view.Text;
+        if (spoken || view.LineId != _said)
+        {
+            _said = view.LineId;
+            _voiced = Voice?.Say(view.LineId) ?? false;
+        }
+        _line.Visible = Audio.VoiceRules.ShowWords(_voiced, Audio.VoicePlayer.Subtitles);
         foreach (var child in _replies.GetChildren())
         {
             _replies.RemoveChild(child);   // now, so the list's height is its new replies'

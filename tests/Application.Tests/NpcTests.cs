@@ -387,6 +387,58 @@ public class NpcTests
         Assert.Equal(new[] { "thanks" }, Replies(arena));
     }
 
+    /// <summary>
+    /// E-6 and E-7, over a conversation of this test's own given to Renn: his line has a second wording, said once the character has
+    /// handed him arrows - a deed the tally counts whether or not a quest asked for it - and each wording has its own derived line ID.
+    /// </summary>
+    [Fact]
+    public void ALinesVariant_IsSaidOnceItsDeedIsDone_UnderItsOwnLineId()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var given = new DeedCondition(Domain.Quests.DeedKind.Delivered, Arrows, 2, false) { NpcId = Renn };
+        var ask = new DialogueNode("ask", "Spare any arrows?", ImmutableArray.Create(
+            new DialogueChoice("give", "Take one.", ImmutableArray<DialogueCondition>.Empty,
+                ImmutableArray.Create<DialogueConsequence>(new TransferItemConsequence(Arrows, 1, false)), "ask")), null, false, null)
+        {
+            Variants = ImmutableArray.Create(new DialogueVariant("That's plenty. My thanks.", ImmutableArray.Create<DialogueCondition>(given))),
+        };
+        var dialogue = new DialogueDefinition("dialogue.test.arrows", ImmutableArray.Create(Renn), "ask",
+            new[] { ask }.ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal));
+        var social = session.Setup.Social;
+        var rules = session.Setup with
+        {
+            Social = new SocialSetup(social.Npcs.SetItem(Renn, social.Npcs[Renn] with { DialogueId = dialogue.Id }), social.Dialogues.SetItem(dialogue.Id, dialogue)),
+        };
+        var arena = Arena.OpenCreatures(session, rules, AtRenn, 0, Array.Empty<(string, double, double, string)>(),
+            r => With(r, 0, new InventoryEntry(EntityId.NewId(EntityKind.Item), Arrows, 5)));
+
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Renn)));
+        Assert.Equal(("Spare any arrows?", "dialogue.test.arrows/ask"), (Now(arena).Text, Now(arena).LineId));
+        Assert.Null(Say(arena, "give"));
+        Assert.Equal("Spare any arrows?", Now(arena).Text);   // one is not yet two
+        Assert.Null(Say(arena, "give"));
+        Assert.Equal(("That's plenty. My thanks.", "dialogue.test.arrows/ask.1"), (Now(arena).Text, Now(arena).LineId));
+    }
+
+    /// <summary>E-10: a bark's line ID is its NPC's and its place among their conversation's barks, counted from 1.</summary>
+    [Fact]
+    public void Barks_CarryLineIdsDerivedFromTheirPlace()
+    {
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile), AtKera);
+        var dialogue = arena.Simulation.Setup.Social.Dialogues["dialogue.ashen_hollow.kera_voss"];
+
+        var lines = arena.Simulation.BarkLines(Kera);
+        Assert.NotEmpty(lines);
+        foreach (var line in lines)
+        {
+            int number = int.Parse(line.LineId["bark.ashen_hollow.kera_voss.".Length..], System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal(dialogue.Barks[number - 1].Text, line.Text);
+        }
+        Assert.Equal(lines.Select(l => l.Text), arena.Simulation.Barks(Kera));
+    }
+
     [Fact]
     public void WalkingAway_EndsTheConversation_AndTheSpeakerTurnsBack()
     {

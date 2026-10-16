@@ -179,7 +179,7 @@ public partial class Main
     /// <summary>The waystation's people (M4): conversations on their panel, trade on the inventory's, and what they think in the log.</summary>
     private void SubscribeSocial()
     {
-        _session.Subscribe<ConversationLine>(_ => _dialogue.Refresh());
+        _session.Subscribe<ConversationLine>(_ => _dialogue.Refresh(spoken: true));
         // What a reply hands over is said, by name and count (the owner's first playtest: "it doesn't say what you're giving them").
         _session.Subscribe<ReplyChosen>(e => _reply = (e.NpcId, e.Tick));
         _session.Subscribe<ItemConsumed>(e =>

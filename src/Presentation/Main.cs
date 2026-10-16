@@ -76,6 +76,7 @@ public partial class Main : Node3D
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
     private Audio.MusicPlayer _music = null!;
+    private Audio.VoicePlayer _voice = null!;
     private Ui.SoundPanel _soundPanel = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
@@ -373,6 +374,12 @@ public partial class Main : Node3D
         _music = new Audio.MusicPlayer { Name = "Music" };
         AddChild(_music);
         _music.Bind(_sounds, _session, _bindings);
+        // Voice-over (WP5): a line's recording, when the asset workspace has one, on the Voice bus with the music ducked under it.
+        Audio.VoicePlayer.LoadSubtitles(harness);
+        _voice = new Audio.VoicePlayer { Name = "Voice" };
+        _voice.Load(_assets.Root);
+        AddChild(_voice);
+        _npcs.Voice = _voice;
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);

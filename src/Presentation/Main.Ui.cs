@@ -15,6 +15,7 @@ public partial class Main
         _inventory.Bind(_session, _controller);
         AddChild(_inventory);
         _dialogue = new DialoguePanel { Name = "Dialogue" };
+        _dialogue.Voice = _voice;
         _dialogue.Bind(_session);
         AddChild(_dialogue);
         _journal = new JournalPanel { Name = "Journal" };

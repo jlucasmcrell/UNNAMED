@@ -107,6 +107,48 @@ public class SocialContentTests
             "conditions: [{ kind: visited, node: crowned }]", "a bark's visited condition names node 'crowned'");
     }
 
+    private const string AgainLine = "  again:\n    text: \"Back, and all your fingers still on. That's a good start.\"\n";
+
+    /// <summary>E-6 and E-7: a line's other wordings and the deed condition read from content, each wording gated like a reply.</summary>
+    [Fact]
+    public void ALinesVariants_AndADeedCondition_AreRead()
+    {
+        using var content = new EditedContent("dialogue/ashen_hollow/kera_voss.yaml", AgainLine, AgainLine +
+            "    variants:\n" +
+            "      - text: \"Back, and blooded.\"\n" +
+            "        conditions: [{ kind: deed, deed: killed, creature_ref: creature.beast.ash_ember_hound, count: 2 }]\n" +
+            "      - text: \"Back, and no ore yet.\"\n" +
+            "        conditions: [{ kind: deed, deed: delivered, item_ref: item.material.iron_ore, npc_ref: npc.ashen_hollow.kera_voss, not: true }]\n");
+        var loader = Load(content.Root);
+        Assert.Empty(loader.Errors);
+        var again = SocialContent.BuildDialogues(loader)["dialogue.ashen_hollow.kera_voss"].Nodes["again"];
+
+        Assert.Equal(new[] { "Back, and blooded.", "Back, and no ore yet." }, again.Variants.Select(v => v.Text));
+        Assert.Equal(new DeedCondition(UNNAMED.Domain.Quests.DeedKind.Killed, "creature.beast.ash_ember_hound", 2, false), Assert.Single(again.Variants[0].Conditions));
+        Assert.Equal(new DeedCondition(UNNAMED.Domain.Quests.DeedKind.Delivered, "item.material.iron_ore", 1, true) { NpcId = "npc.ashen_hollow.kera_voss" },
+            Assert.Single(again.Variants[1].Conditions));
+    }
+
+    [Fact]
+    public void AVariantWithNothingToAsk_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", AgainLine, AgainLine + "    variants:\n      - text: \"Always this.\"\n",
+            "variant 1 has no conditions");
+
+    [Fact]
+    public void ADeedOnTheWrongKindOfThing_OrNamingAnNpcForAKill_IsRefused()
+    {
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "{ kind: has_item, item_ref: item.material.iron_ore }",
+            "{ kind: deed, deed: killed, item_ref: item.material.iron_ore }", "'creature_ref' is missing");
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "{ kind: has_item, item_ref: item.material.iron_ore }",
+            "{ kind: deed, deed: killed, creature_ref: creature.beast.ash_ember_hound, npc_ref: npc.ashen_hollow.kera_voss }", "only a delivered deed names npc_ref");
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "{ kind: has_item, item_ref: item.material.iron_ore }",
+            "{ kind: deed, deed: stolen, item_ref: item.material.iron_ore }", "not 'stolen'");
+    }
+
+    [Fact]
+    public void ANodeIdALineIdCannotBeDerivedFrom_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "  again:\n", "  Again.1:\n", "a node ID is lower-case letters");
+
     [Fact]
     public void CompanionRulesThatDoNotNest_AreRefused() =>
         AssertRefused("config/companion.yaml", "run_beyond_m: 4 ", "run_beyond_m: 2 ", "the follow distances nest");

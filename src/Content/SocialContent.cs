@@ -24,7 +24,7 @@ public static class SocialContent
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
     private static readonly string[] Conditions =
-        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present" };
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed" };
 
     private static readonly string[] Consequences =
         { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion" };
@@ -112,7 +112,9 @@ public static class SocialContent
 
     /// <summary>
     /// Conversations (DATA_MODEL.md §4.12): <c>participants</c>, a <c>root_node</c>, and <c>nodes</c> by ID, each with its
-    /// <c>text</c> (inline until localization), <c>choices</c>, <c>next</c>, <c>once</c> and <c>next_if_exhausted</c>.
+    /// <c>text</c> (inline until localization), <c>variants</c> (E-6: <c>[{text, conditions}]</c>, other wordings said while their
+    /// conditions hold), <c>choices</c>, <c>next</c>, <c>once</c> and <c>next_if_exhausted</c>. A node ID is lower-case letters, digits and
+    /// underscores: line IDs (E-10) are derived from it.
     /// </summary>
     public static ImmutableSortedDictionary<string, DialogueDefinition> BuildDialogues(ContentLoader loader) =>
         loader.GetByKind("dialogue").Values.Select(definition =>
@@ -138,14 +140,21 @@ public static class SocialContent
     private static DialogueNode Node(string id, string nodeId, Dictionary<object, object> map, ContentLoader loader)
     {
         string where = $"{id} node {nodeId}";
+        if (nodeId.Length == 0 || !nodeId.All(c => c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '_'))
+            throw new FormatException($"{where}: a node ID is lower-case letters, digits and underscores (its line ID is derived from it)");
         var choices = Rows(map, "choices", where).Select(row => Choice(where, row, loader)).ToImmutableArray();
         if (choices.Select(c => c.Id).Distinct(StringComparer.Ordinal).Count() != choices.Length)
             throw new FormatException($"{where}: two replies share an id");
         string? next = map.GetValueOrDefault("next") as string;
         if (next is not null && !choices.IsEmpty)
             throw new FormatException($"{where}: a node with replies goes on through them, not through next");
+        var variants = Rows(map, "variants", where).Select((row, i) => new DialogueVariant(Text(row, "text"),
+            Rows(row, "conditions", $"{where} variant {i + 1}").Select(c => Condition($"{where} variant {i + 1}", c, loader)).ToImmutableArray())).ToImmutableArray();
+        // A variant with nothing to ask would always be said, and the node's own text never.
+        if (variants.FirstOrDefault(v => v.Conditions.IsEmpty) is { } always)
+            throw new FormatException($"{where}: variant {variants.IndexOf(always) + 1} has no conditions, so the line's own text is never said");
         return new DialogueNode(nodeId, Text(map, "text"), choices, next, map.GetValueOrDefault("once") as string == "true",
-            map.GetValueOrDefault("next_if_exhausted") as string);
+            map.GetValueOrDefault("next_if_exhausted") as string) { Variants = variants };
     }
 
     private static DialogueChoice Choice(string where, Dictionary<object, object> map, ContentLoader loader)
@@ -164,8 +173,8 @@ public static class SocialContent
     {
         string kind = Text(map, "kind");
         bool negated = map.GetValueOrDefault("not") as string == "true";
-        if (negated && kind is not ("visited" or "has_item" or "quest_state" or "companion_present"))
-            throw new FormatException($"{at}: only visited, has_item, quest_state and companion_present conditions take not");
+        if (negated && kind is not ("visited" or "has_item" or "quest_state" or "companion_present" or "deed"))
+            throw new FormatException($"{at}: only visited, has_item, quest_state, companion_present and deed conditions take not");
         return kind switch
         {
             "visited" => new VisitedCondition(Text(map, "node"), negated)
@@ -186,6 +195,7 @@ public static class SocialContent
             "quest_state" => QuestState(at, map, loader, negated),
             "companion_present" => new CompanionPresentCondition(Defined(loader, Text(map, "npc_ref"), "npc", at),
                 map.GetValueOrDefault("order") is string order ? Order(order, at) : null, negated),
+            "deed" => Deed(at, map, loader, negated),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -235,6 +245,27 @@ public static class SocialContent
         return new QuestStateCondition(quest, objective, state, negated);
     }
 
+    /// <summary>
+    /// <c>deed</c> (E-7): <c>deed</c> is <c>killed</c> (a <c>creature_ref</c>), <c>crafted</c> (an <c>item_ref</c>), <c>harvested</c> (a
+    /// <c>resource_ref</c>) or <c>delivered</c> (an <c>item_ref</c>, optionally to <c>npc_ref</c>); <c>count</c> is how many times at least (1).
+    /// </summary>
+    private static DeedCondition Deed(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
+    {
+        string key = Text(map, "deed");
+        var kind = DeedKeys.Parse(key)
+                   ?? throw new FormatException($"{at}: a deed is {string.Join(", ", Enum.GetValues<DeedKind>().Select(DeedKeys.Key))}, not '{key}'");
+        var (field, subjectKind) = kind switch
+        {
+            DeedKind.Killed => ("creature_ref", "creature"),
+            DeedKind.Harvested => ("resource_ref", "resource"),
+            _ => ("item_ref", "item"),
+        };
+        string? npc = map.GetValueOrDefault("npc_ref") is string named ? Defined(loader, named, "npc", at) : null;
+        if (npc is not null && kind != DeedKind.Delivered)
+            throw new FormatException($"{at}: only a delivered deed names npc_ref");
+        return new DeedCondition(kind, Defined(loader, Text(map, field), subjectKind, at), Positive(map, "count", 1), negated) { NpcId = npc };
+    }
+
     /// <summary>Every way through a conversation leads to a node it has, and no chain of spent lines loops.</summary>
     private static void CheckGraph(DialogueDefinition dialogue)
     {
@@ -257,6 +288,8 @@ public static class SocialContent
                 foreach (var visited in choice.Conditions.OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
                     Exists(visited.NodeId, $"node {node.Id} reply {choice.Id}'s visited condition");
             }
+            foreach (var visited in node.Variants.SelectMany(v => v.Conditions).OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
+                Exists(visited.NodeId, $"node {node.Id}'s variant's visited condition");
             var seen = new HashSet<string>(StringComparer.Ordinal);
             for (var at = node; at.Once && at.NextIfExhausted is { } next; at = dialogue.Nodes[next])
             {
@@ -317,6 +350,7 @@ public static class SocialContent
                 throw new FormatException($"{dialogue.Id}: recruits or orders a companion, but none of its participants can join the character");
             // A visited condition about another conversation names a line that conversation has.
             foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions)
+                         .Concat(dialogue.Nodes.Values.SelectMany(n => n.Variants).SelectMany(v => v.Conditions))
                          .Concat(dialogue.Barks.SelectMany(b => b.Conditions)).OfType<VisitedCondition>()
                          .Where(v => v.DialogueId is { } other && other != dialogue.Id))
             {

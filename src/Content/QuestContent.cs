@@ -350,7 +350,8 @@ public static class QuestContent
         }
 
         var asking = replies.Select(r => (At: $"{r.Dialogue.Id} node {r.Node.Id} reply {r.Choice.Id}", r.Choice.Conditions))
-            .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))));
+            .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))))
+            .Concat(dialogues.Values.SelectMany(d => d.Nodes.Values.SelectMany(n => n.Variants.Select((v, i) => (At: $"{d.Id} node {n.Id} variant {i + 1}", v.Conditions)))));
         foreach (var (at, conditions) in asking)
         {
             foreach (var condition in conditions.OfType<QuestStateCondition>())

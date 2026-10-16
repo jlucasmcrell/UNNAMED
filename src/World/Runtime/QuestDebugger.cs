@@ -410,6 +410,8 @@ internal sealed class QuestDebugger
         QuestStateCondition q => $"needs {q.QuestId}{(q.ObjectiveId is { } o ? " " + o : "")} {(q.Negated ? "not " : "")}{q.State}",
         CompanionPresentCondition p => $"needs {p.NpcId} {(p.Negated ? "not " : "")}with the character" +
             (p.Order is { } order ? $", {Domain.Companions.CompanionKeys.Key(order)}ing" : ""),
+        DeedCondition d => $"needs {d.SubjectId} {DeedKeys.Key(d.Kind)}{(d.NpcId is { } to ? " to " + to : "")} {(d.Negated ? "fewer than" : "at least")} {d.Count} " +
+            $"time(s); it was {DeedSystem.Count(State, d.Kind, d.SubjectId, d.NpcId)}",
         _ => condition.ToString(),
     };
 

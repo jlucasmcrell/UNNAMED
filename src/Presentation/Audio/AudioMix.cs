@@ -7,7 +7,8 @@ using Godot;
 namespace UNNAMED.Presentation.Audio;
 
 /// <summary>
-/// Two buses under Master - <see cref="Music"/> for the score and <see cref="Effects"/> for every other sound - and the three volumes
+/// Three buses under Master - <see cref="Music"/> for the score, <see cref="Voice"/> for voice-over and <see cref="Effects"/> for every
+/// other sound - and the three volumes
 /// (0..1) the Sound screen sets, kept in <c>user://audio_volume.json</c>. Harness runs read the defaults, never the player's file.
 /// </summary>
 public static class AudioMix
@@ -15,13 +16,14 @@ public static class AudioMix
     public const string ConfigPath = "user://audio_volume.json";
     public const string Music = "Music";
     public const string Effects = "Effects";
+    public const string Voice = "Voice";
 
     public sealed record Volumes(float Master = 1f, float Music = 0.7f, float Effects = 1f);
 
-    /// <summary>The Music and Effects buses, made once per engine run, both sending to Master.</summary>
+    /// <summary>The Music, Effects and Voice buses, made once per engine run, each sending to Master.</summary>
     public static void EnsureBuses()
     {
-        foreach (string name in new[] { Music, Effects })
+        foreach (string name in new[] { Music, Effects, Voice })
         {
             if (AudioServer.GetBusIndex(name) >= 0)
                 continue;
