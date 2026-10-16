@@ -15,8 +15,11 @@ namespace UNNAMED.Presentation.Ui;
 /// </summary>
 public partial class SystemMenuPanel : CanvasLayer
 {
-    /// <summary>A destination: its group, its words, the input action it is on (or none - menu only), its icon key, and what choosing it does.</summary>
-    public sealed record Entry(string Group, string Label, string? Key, string? Icon, Action Chosen);
+    /// <summary>
+    /// A destination: its group, its words, the input action it is on (or none - menu only), its icon key, what choosing it does, and
+    /// whether it can be chosen yet (a disabled row is shown greyed). One line in Main's list adds a screen.
+    /// </summary>
+    public sealed record Entry(string Group, string Label, string? Key, string? Icon, Action Chosen, bool Enabled = true);
 
     /// <summary>
     /// The strip's facts, as Main has them for the HUD: the name, the level and the XP toward the next (exact), what is owed, the points
@@ -69,7 +72,7 @@ public partial class SystemMenuPanel : CanvasLayer
     /// <summary>Choose a destination by its words, as pressing its row does (the UI shots harness); false when there is none.</summary>
     public bool Choose(string label)
     {
-        if (Entries.FirstOrDefault(e => e.Label == label) is not { } entry)
+        if (Entries.FirstOrDefault(e => e.Label == label && e.Enabled) is not { } entry)
             return false;
         Visible = false;
         entry.Chosen();
@@ -116,6 +119,7 @@ public partial class SystemMenuPanel : CanvasLayer
             foreach (var entry in Entries.Where(e => e.Group == group))
             {
                 var row = UiKit.ListRow(entry.Label, entry.Label, height: 48, left: UiKit.Icon(_icons, entry.Icon, 28));
+                row.Button.Disabled = !entry.Enabled;
                 if (entry.Key == "character")
                 {
                     // A point to spend shows where it is spent: an ember count on the Character row, as the HUD plate's cap says.
