@@ -23,6 +23,28 @@ public class BarrowworksBlockoutTests
         ("R11", 50, 106), ("R12", 50, 131), ("R13", 72, 84),
     ];
 
+    /// <summary>
+    /// Which place each room is, by the place's own id. Eight carry the blockout's room number; the five the
+    /// frozen M8 design names - intake hall, gauge archive, blind store, service vestibule, headworks - carry
+    /// the design's name instead, because that is what the quest's location_refs say (P4b).
+    /// </summary>
+    private static readonly Dictionary<string, string> PlaceOfRoom = new()
+    {
+        ["R01"] = "location.barrowworks.r01_threshold",
+        ["R02"] = "location.barrowworks.intake_hall",
+        ["R03"] = "location.barrowworks.r03_wash_passage",
+        ["R04"] = "location.barrowworks.r04_drain_mouth",
+        ["R05"] = "location.barrowworks.r05_sorting_floor",
+        ["R06"] = "location.barrowworks.r06_still_bay",
+        ["R07"] = "location.barrowworks.gauge_archive",
+        ["R08"] = "location.barrowworks.r08_return_gallery",
+        ["R09"] = "location.barrowworks.blind_store",
+        ["R10"] = "location.barrowworks.service_vestibule",
+        ["R11"] = "location.barrowworks.r11_measuring_court",
+        ["R12"] = "location.barrowworks.headworks",
+        ["R13"] = "location.barrowworks.r13_inspection_bay",
+    };
+
     private static GameSession Boot(TempProfile profile) =>
         GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root)
         {
@@ -119,8 +141,7 @@ public class BarrowworksBlockoutTests
         Assert.Equal(13, places.Length);
         foreach (var (id, x, z) in Rooms)
         {
-            // Room ids are R01..R13; the place ids are location.barrowworks.r01_threshold and so on.
-            var place = places.FirstOrDefault(p => p.Id.Contains(id.ToLowerInvariant(), StringComparison.Ordinal));
+            var place = places.FirstOrDefault(p => p.Id == PlaceOfRoom[id]);
             Assert.NotNull(place);
             Assert.Equal((long)(x * 1000), place.XMm);
             Assert.Equal((long)(z * 1000), place.ZMm);
