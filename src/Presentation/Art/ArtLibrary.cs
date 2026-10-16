@@ -72,6 +72,14 @@ public sealed class ArtLibrary
 
     private IReadOnlyDictionary<string, string> _withheld = new Dictionary<string, string>();
 
+    /// <summary>A model file parsed ahead on a worker (<see cref="Prefetch"/>): the document and state, or why it would not parse.</summary>
+    private sealed record Parsed(GltfDocument Document, GltfState State, Error Error);
+
+    private readonly Dictionary<string, TaskCompletionSource<Parsed>> _ahead = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<string> _loadOrder = new();
+    private SemaphoreSlim? _window;
+    private readonly CancellationTokenSource _prefetchEnded = new();
+
     public ArtLibrary(string? root)
     {
         Root = root;
@@ -550,11 +558,13 @@ public sealed class ArtLibrary
             return null;
         }
         ulong started = Time.GetTicksUsec();
+        _loadOrder.Add(path);
         // Disposed on return: the state holds every decoded source image, which otherwise stays in memory until the .NET collector
-        // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way).
-        using var document = new GltfDocument();
-        using var state = new GltfState();
-        var error = document.AppendFromFile(path, state);
+        // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way). Parsed ahead on a worker when it was prefetched.
+        var parsed = Take(path);
+        using var document = parsed?.Document ?? new GltfDocument();
+        using var state = parsed?.State ?? new GltfState();
+        var error = parsed?.Error ?? document.AppendFromFile(path, state);
         if (error != Error.Ok || document.GenerateScene(state) is not Node3D root)
         {
             Problem(id, $"the glTF would not load ({error})");
@@ -577,7 +587,11 @@ public sealed class ArtLibrary
         error = packed.Pack(root);
         root.Free();
         _sceneCount++;
-        _sceneMs += (Time.GetTicksUsec() - started) / 1000.0;
+        double ms = (Time.GetTicksUsec() - started) / 1000.0;
+        _sceneMs += ms;
+        // UNNAMED_LOAD_REPORT=1: each model file's load time and when in the boot it came, for the startup measurement (WP1).
+        if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+            GD.Print($"UNNAMED load file: {ms:0} ms at {Time.GetTicksMsec() / 1000.0:0.0} s {Path.GetFileName(path)} ({new FileInfo(path).Length / 1048576.0:0.0} MB)");
         if (error != Error.Ok)
         {
             Problem(id, $"the loaded scene would not pack ({error})");
@@ -585,6 +599,90 @@ public sealed class ArtLibrary
         }
         return packed;
     }
+
+    /// <summary>
+    /// The model files a boot will ask for, parsed and their images decoded on worker threads ahead of the scene build, which then only
+    /// builds each scene on the main thread (<see cref="LoadScene"/>). <paramref name="paths"/> is the last boot's order
+    /// (<see cref="LoadOrder"/>), so the workers run ahead in the order the build asks; at most <paramref name="ahead"/> files are parsed
+    /// and waiting at once, which bounds the decoded images held in memory. A file the build never asks for is let go at
+    /// <see cref="EndPrefetch"/>. Measured on BEAST (WP1): the parse and decode were most of the boot's model time.
+    /// </summary>
+    public void Prefetch(IEnumerable<string> paths, int ahead)
+    {
+        var window = _window = new SemaphoreSlim(ahead);
+        var ended = _prefetchEnded.Token;
+        var queue = paths.Where(p => File.Exists(p) && !_ahead.ContainsKey(p)).Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(p => (Path: p, Done: _ahead[p] = new TaskCompletionSource<Parsed>(TaskCreationOptions.RunContinuationsAsynchronously))).ToList();
+        Task.Run(async () =>
+        {
+            foreach (var (path, done) in queue)
+            {
+                await window.WaitAsync();
+                if (ended.IsCancellationRequested)
+                {
+                    done.TrySetCanceled();
+                    continue;
+                }
+                _ = Task.Run(() =>
+                {
+                    var document = new GltfDocument();
+                    var state = new GltfState();
+                    try
+                    {
+                        done.TrySetResult(new Parsed(document, state, document.AppendFromFile(path, state)));
+                    }
+                    catch (Exception e)
+                    {
+                        document.Dispose();
+                        state.Dispose();
+                        done.TrySetException(e);
+                    }
+                });
+            }
+        });
+    }
+
+    /// <summary>A prefetched file's parse, waited for if a worker is still on it; null when it was not prefetched or its parse failed.</summary>
+    private Parsed? Take(string path)
+    {
+        if (!_ahead.Remove(path, out var pending))
+            return null;
+        try
+        {
+            return pending.Task.Result;
+        }
+        catch (AggregateException e)
+        {
+            GD.PushWarning($"UNNAMED art: {Path.GetFileName(path)} could not be parsed ahead ({e.InnerException?.Message}); parsed again in place");
+            return null;
+        }
+        finally
+        {
+            _window?.Release();
+        }
+    }
+
+    /// <summary>The scene is built: whatever was prefetched and not asked for is let go as its worker finishes.</summary>
+    public void EndPrefetch()
+    {
+        _prefetchEnded.Cancel();
+        foreach (var pending in _ahead.Values)
+        {
+            pending.Task.ContinueWith(t =>
+            {
+                if (t.IsCompletedSuccessfully)
+                {
+                    t.Result.Document.Dispose();
+                    t.Result.State.Dispose();
+                }
+            });
+            _window?.Release();
+        }
+        _ahead.Clear();
+    }
+
+    /// <summary>Every model file loaded so far, in the order the build asked for them: the next boot's prefetch order.</summary>
+    public IReadOnlyList<string> LoadOrder => _loadOrder;
 
     /// <summary>
     /// Every texture of every material in a freshly loaded model, once (the scene is cached and instanced after): mipmaps where the runtime

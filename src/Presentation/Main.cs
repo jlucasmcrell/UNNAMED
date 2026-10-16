@@ -335,6 +335,13 @@ public partial class Main : Node3D
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
 
+        // A player's run parses the model files on workers ahead of the build, in the order the last boot asked for them (WP1's
+        // startup measurement); a harness run builds as it always has, so its load numbers stay comparable - unless it names its own
+        // order file with --load-order, which is how the two are measured against each other.
+        string? loadOrder = _options.GetValueOrDefault("--load-order") is { } order ? Path.GetFullPath(order)
+            : harness ? null : ProjectSettings.GlobalizePath(LoadOrderPath);
+        if (loadOrder is not null)
+            Prefetch(loadOrder);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
         try
@@ -359,6 +366,9 @@ public partial class Main : Node3D
             BuildScene();
         }
         _sceneMs = Time.GetTicksMsec() - building;
+        _art.EndPrefetch();
+        if (loadOrder is not null)
+            KeepLoadOrder(loadOrder);
         var cost = _art.Cost;
         GD.Print($"UNNAMED load: the scene built in {_sceneMs} ms - {cost.Scenes} model files in {cost.SceneMs:0} ms (their {cost.ModelTextures} textures "
                  + $"given mipmaps in {cost.MipmapMs:0} ms), {cost.MaterialMaps} material maps in {cost.MaterialMapMs:0} ms, the ground field in {_groundMs} ms; "
@@ -509,6 +519,31 @@ public partial class Main : Node3D
             _perf.SpawnProxies(this, _session.Setup.Layout);
             _session.Subscribe<HitResolved>(e => _perfStruck += e.Target == _session.Simulation!.PlayerId ? 1 : 0);
             _session.Subscribe<PlayerDied>(_ => _perfDied++);
+        }
+    }
+
+    /// <summary>The model files the last boot loaded, in its order, one path a line: the next boot's prefetch (machine-local, rebuilt each boot).</summary>
+    private const string LoadOrderPath = "user://model_load_order.txt";
+
+    private void Prefetch(string path)
+    {
+        if (!File.Exists(path))
+            return;
+        var order = File.ReadAllLines(path);
+        int ahead = Math.Clamp(System.Environment.ProcessorCount / 2, 2, 8);
+        _art.Prefetch(order, ahead);
+        GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the last boot's order");
+    }
+
+    private void KeepLoadOrder(string path)
+    {
+        try
+        {
+            File.WriteAllLines(path, _art.LoadOrder);
+        }
+        catch (IOException e)
+        {
+            GD.PushWarning($"UNNAMED load: the model load order could not be kept ({e.Message}); the next start parses in place");
         }
     }
 
@@ -1117,7 +1152,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots"
+                    or "--front-shots" or "--load-order"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
