@@ -18,8 +18,8 @@ $env:GODOT_AI_DISABLE_TELEMETRY = '1'
 $unshipped = 'godot_ai', 'godotsteam', 'GD-Sync', 'terrabrush'
 
 New-Item -ItemType Directory -Force (Split-Path $Log) | Out-Null
-Set-Content $Log "--- worktree at $Commit"
-function Say($text) { $text | Tee-Object $Log -Append }
+Set-Content $Log "--- worktree at $Commit" -Encoding Default
+function Say($text) { Write-Host $text; Add-Content $Log $text }
 function Fail($text) { Say "FAILED: $text"; exit 1 }
 # cmd does the redirect: PowerShell 5.1 turns a native stderr line into an error record
 function Run($exe, $arguments) { cmd /c "`"$exe`" $arguments >> `"$Log`" 2>&1"; return $LASTEXITCODE }
@@ -47,6 +47,12 @@ New-Item -ItemType Directory -Force $Out | Out-Null
 Say '--- import'
 $code = Run $engine "--headless --path `"$proj`" --import"
 Say "import exit $code"
+if ($code -ne 0) {
+    # The first import of a fresh worktree has crashed in the font importer; the second run resumes from what was imported.
+    Say '--- import again'
+    $code = Run $engine "--headless --path `"$proj`" --import"
+    Say "import exit $code"
+}
 if ($code -ne 0) { Fail "import exit $code" }
 Say '--- build'
 $code = Run $engine "--headless --path `"$proj`" --build-solutions --quit"
@@ -64,5 +70,5 @@ if ($bad) { Fail ("errors in the Godot output:`n" + ($bad.Line -join "`n")) }
 $exe = Get-Item "$Out\Otherreach.exe" -ErrorAction SilentlyContinue
 if (-not $exe -or $exe.Length -lt 100MB) { Fail 'Otherreach.exe is missing or too small' }
 if (-not (Get-ChildItem $Out -Directory -Filter 'data_*')) { Fail 'the exe data folder is missing' }
-Get-ChildItem $Out | Select-Object Name, Length | Format-Table -AutoSize | Out-String | Tee-Object $Log -Append
+Say (Get-ChildItem $Out | Select-Object Name, Length | Format-Table -AutoSize | Out-String)
 exit 0
