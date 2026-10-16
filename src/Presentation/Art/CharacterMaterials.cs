@@ -91,11 +91,15 @@ public static class CharacterMaterials
     /// MetaHuman's own LOD0-3 from the Blender assembly) switched by distance with a dithered cross-fade; returns the number of levels
     /// found (0: a model without a chain is left alone). Where each level ends comes from <c>lods</c>: <c>chain_&lt;n&gt;</c> for a chain of
     /// n levels when it is given, else <c>lod0_end</c> and <c>lod1_end</c>. <c>chain_&lt;n&gt;_shadow_levels</c> limits shadow casting to that many
-    /// nearest levels: a distant figure's shadow costs a draw per surface per cascade and nobody can read it.
+    /// nearest levels: a distant figure's shadow costs a draw per surface per cascade. A mesh named <c>..._shadow</c> (the assembler's
+    /// merged low-poly body and head) is that figure's shadow from where its levels stop casting: one draw per cascade instead of one
+    /// per surface, and the figure keeps its shadow at every distance.
     /// </summary>
     public static int ApplyLods(Node model)
     {
-        var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList();
+        var all = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList();
+        var proxies = all.Where(m => m.Name.ToString().EndsWith("_shadow", StringComparison.Ordinal)).ToList();
+        var meshes = all.Except(proxies).ToList();
         static int Level(MeshInstance3D m)
         {
             string name = m.Name.ToString();
@@ -121,6 +125,11 @@ public static class CharacterMaterials
             m.VisibilityRangeEndMargin = level == levels ? 0 : margin;
             if (level >= shadowLevels)
                 m.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+        }
+        foreach (var proxy in proxies)
+        {
+            proxy.CastShadow = GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
+            proxy.VisibilityRangeBegin = shadowLevels <= levels ? ends[shadowLevels - 1] : 0;
         }
         return levels + 1;
     }
