@@ -71,6 +71,9 @@ public partial class Main : Node3D
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
     private bool _autorun;
+
+    /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
+    private bool _wasOutside = true;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Art.HitImpacts _hits = null!;
@@ -1188,6 +1191,20 @@ public partial class Main : Node3D
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
         // Autorun: the key turns it on and off, and stepping back turns it off; while on, the character goes forward, still steered by
         // the camera and the side keys, at whatever gait is held.
+        //
+        // ENTERING OR LEAVING A SPACE STOPS IT. A portal puts the body down somewhere it did not walk to, and a
+        // character who keeps going from there walks into whatever happens to be in front of them - the far
+        // room's wall on the way in, or straight back through the door on the way out (M8 D10).
+        bool outside = _session.Simulation?.PlayerInExterior ?? true;
+        if (outside != _wasOutside)
+        {
+            _wasOutside = outside;
+            if (_autorun)
+            {
+                _autorun = false;
+                _hud.Toast("Autorun off - you went through a door", 2);
+            }
+        }
         if (Input.IsActionJustPressed("autorun"))
         {
             _autorun = !_autorun;
