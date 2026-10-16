@@ -404,6 +404,10 @@ public class QuestContentTests
             e => e.Code == "QST001" && e.Message.Contains("offers no reply 'take_bears'", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("dialogue_choice", "{ npc_ref: npc.ashen_hollow.renn_vale, node: elsewhere, choice: back }")),
             e => e.Code == "QST001" && e.Message.Contains("has no line 'elsewhere'", StringComparison.Ordinal));
+        Assert.Contains(ErrorsWith(Halda, HaldaFirst,
+                Step("defeat_creature", "{ creature_ref: creature.grazer.barrowback, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
+                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
+            e => e.Code == "QST001" && e.Message.Contains("no spawn places creature.grazer.barrowback", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("waystone_known", "{ waystone_ref: waystone.far_north }")),
             e => e.Code == "QST001" && e.Message.Contains("no region places the Waystone waystone.far_north", StringComparison.Ordinal));
     }

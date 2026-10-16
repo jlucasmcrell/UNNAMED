@@ -436,6 +436,8 @@ public static class QuestContent
                         if (defeats.TryGetValue(d.FlagId, out var first) && (first.Creature != d.CreatureId || first.Location != d.LocationId))
                             throw new FormatException($"{at}: {d.FlagId} already records {first.Creature} at {first.Location} ({first.At})");
                         defeats[d.FlagId] = (d.CreatureId, d.LocationId, at);
+                        if (!creatureSpawns.Value.Any(s => s.Members.Any(m => m.CreatureId == d.CreatureId)))
+                            throw new FormatException($"{at}: no spawn places {d.CreatureId}, so it can never be defeated");
                         if (d.Boss && creatureSpawns.Value.FirstOrDefault(s => s.RespawnTicks > 0 && s.Members.Any(m => m.CreatureId == d.CreatureId)) is { } returns)
                             throw new FormatException($"{at}: a boss does not return, and {d.CreatureId} returns at {returns.Key}");
                         break;
