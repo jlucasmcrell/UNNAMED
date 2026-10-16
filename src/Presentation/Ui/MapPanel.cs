@@ -36,7 +36,7 @@ public partial class MapPanel : CanvasLayer
         Visible = false;
         _sheet = UiKit.Sheet(this, "Map", "map", UiKit.Wide);
         _sheet.SetHint("What you have found: the places you have been, the roads you have walked, the stones you know.");
-        _canvas = new MapCanvas { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _canvas = new MapCanvas { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipContents = true };
         _sheet.Body.AddChild(_canvas);
         var legend = new HBoxContainer();
         legend.AddThemeConstantOverride("separation", 12);
