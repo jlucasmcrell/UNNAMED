@@ -25,7 +25,7 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
     Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null,
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
-    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0);
+    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0);
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -117,6 +117,9 @@ public sealed record WeaponArt(string Model, string Family, bool OffHand);
 
 public sealed record CellSound(string Bed, IReadOnlyList<string> Details, string Surface);
 
+/// <summary>A place with a music theme (a family stem such as <c>mus.settlement</c>) heard within its radius.</summary>
+public sealed record MusicPlace(string Theme, float RadiusM);
+
 /// <summary>
 /// The presentation's bindings (<c>res://Art/art_bindings.json</c>): game IDs to the asset pipeline's stable semantic IDs. Data, so no
 /// content ID lives in the game's code; presentation only, so nothing here touches a rule, a save or the content hash.
@@ -169,6 +172,18 @@ public sealed class ArtBindings
     /// <summary>What a switch sounds like as it is set, by its key (the audio bindings' <c>switches</c>; Phase B VFX lane).</summary>
     public IReadOnlyDictionary<string, string> SwitchSounds { get; private init; } = new Dictionary<string, string>();
     public string? ForgeStation { get; private init; }
+
+    /// <summary>The footstep surface of a worn path or road (<c>audio.path_surface</c>), heard on the path whatever its cell's ground; none, the cell's.</summary>
+    public string? PathSurface { get; private init; }
+
+    /// <summary>The bed heard inside a building (<c>audio.interior_bed</c>), in place of the cell's.</summary>
+    public string? InteriorBed { get; private init; }
+
+    /// <summary>What using a consumable sounds like, by item ID (<c>audio.consumables</c>: a family).</summary>
+    public IReadOnlyDictionary<string, string> ConsumableSounds { get; private init; } = new Dictionary<string, string>();
+
+    /// <summary>The places with music, by location ID (<c>audio.music.places</c>).</summary>
+    public IReadOnlyDictionary<string, MusicPlace> MusicPlaces { get; private init; } = new Dictionary<string, MusicPlace>();
 
     /// <summary>The look for a region structure by its ID (exact, then by prefix - a tree's model chosen by its ID), or null.</summary>
     public Placement? Structure(string id)
@@ -369,6 +384,13 @@ public sealed class ArtBindings
                 FormulaSounds = Strings(audio, "formulas"),
                 SwitchSounds = Strings(audio, "switches"),
                 ForgeStation = Text(audio, "forge_station"),
+                PathSurface = Text(audio, "path_surface"),
+                InteriorBed = Text(audio, "interior_bed"),
+                ConsumableSounds = Strings(audio, "consumables"),
+                MusicPlaces = audio.ValueKind == JsonValueKind.Object && audio.TryGetProperty("music", out var music) && music.TryGetProperty("places", out var places)
+                    ? places.EnumerateObject().ToDictionary(p => p.Name, p => new MusicPlace(Text(p.Value, "theme")!,
+                        p.Value.TryGetProperty("radius_m", out var r) ? (float)r.GetDouble() : 60f), StringComparer.Ordinal)
+                    : new Dictionary<string, MusicPlace>(),
             };
             if (root.TryGetProperty("structures", out var structures))
             {
@@ -484,7 +506,7 @@ public sealed class ArtBindings
             ? emitters.EnumerateArray().Where(x => Text(x, "recipe") is not null && x.TryGetProperty("at", out _))
                 .Select(x => (Text(x, "recipe")!, Vector(x.GetProperty("at")))).ToList()
             : null,
-        Number(e, "yaw_spread", 0));
+        Number(e, "yaw_spread", 0), Number(e, "late_s", 0));
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;

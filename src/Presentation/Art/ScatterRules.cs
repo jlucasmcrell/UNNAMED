@@ -65,6 +65,41 @@ public sealed record ScatterKind(
 
     /// <summary>The prepared model this kind scatters (<c>mesh: "model:&lt;id&gt;"</c>), or null for a procedural mesh.</summary>
     public string? ModelId => Mesh.StartsWith("model:", StringComparison.Ordinal) ? Mesh["model:".Length..] : null;
+
+    /// <summary>How this kind is wrong in this world (<c>otherflora</c>), at full strangeness; null keeps it as scanned.</summary>
+    public Otherflora? Otherflora { get; init; }
+
+    /// <summary>Where the place is strange enough for this kind (<c>where_strange</c>: [from, to] of the rules' otherworld field): none below
+    /// from, all of its density above to. Null grows it anywhere. The signature plants of the thin places.</summary>
+    public (float From, float To)? WhereStrange { get; init; }
+}
+
+/// <summary>
+/// One kind's "plausible but wrong" (art direction D.1/D.2), each lever at full strangeness - the shader scales it by where the plant
+/// stands (Greybox/Otherworld.cs). Colours are linear RGB. Hue: degrees the albedo turns about the grey axis. Backlight: the colour
+/// light comes through the leaf. Pale: toward bone white. Sheen: a cool, glossy, reflecting leaf. Late: how far the sway lags (0-1 of
+/// a breath). Glow: a night emission on the bright (or, with <c>glow_green</c>, the green: moss) parts. Vein, iridescence, lichen: for
+/// stones - a tinted seam, a thin-film shimmer along it, a coloured crust on the upward faces.
+/// </summary>
+public sealed record Otherflora(float Hue, float[]? Backlight, float Pale, float Sheen, float Late, float[]? Glow, bool GlowGreen,
+    float[]? Vein, float Iridescence, float[]? Lichen);
+
+/// <summary>A point on the ground (metres).</summary>
+public readonly record struct GroundPoint(float X, float Z);
+
+/// <summary>Where the world is strange (<c>otherworld</c>): the villages it is calm round, the Foldscar it is strangest at, and the strangeness
+/// at a village centre and in the open.</summary>
+public sealed record OtherworldField(IReadOnlyList<GroundPoint> Calm, GroundPoint Fold, float FoldFullM, float FoldNoneM, float Village, float Wild)
+{
+    /// <summary>The strangeness at a point, 0-1, before the run's strength: Greybox/Otherworld.cs's otherworld_at, in C#.</summary>
+    public float At(float x, float z)
+    {
+        static float Smooth(float a, float b, float v) => Math.Clamp((v - a) / (b - a), 0, 1) is var t ? t * t * (3 - 2 * t) : 0;
+        float calm = Calm.Min(c => MathF.Sqrt((x - c.X) * (x - c.X) + (z - c.Z) * (z - c.Z)));
+        float open = Village + (Wild - Village) * Smooth(45, 170, calm);
+        float fold = 1 - Smooth(FoldFullM, FoldNoneM, MathF.Sqrt((x - Fold.X) * (x - Fold.X) + (z - Fold.Z) * (z - Fold.Z)));
+        return Math.Max(open, fold);
+    }
 }
 
 /// <summary>
@@ -74,6 +109,9 @@ public sealed record ScatterKind(
 public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBelowM, float NeverSlope,
     IReadOnlyDictionary<string, IReadOnlyList<ScatterPath>> Paths, IReadOnlyList<ScatterKind> Kinds, IReadOnlyList<string> Problems)
 {
+    /// <summary>The strangeness field, or null when the rules name none.</summary>
+    public OtherworldField? Otherworld { get; init; }
+
     public static ScatterRules None { get; } = new(16, 1.5f, 0.2f, 0.75f, new Dictionary<string, IReadOnlyList<ScatterPath>>(), Array.Empty<ScatterKind>(),
         Array.Empty<string>());
 
@@ -126,9 +164,34 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
             }
             var never = root.TryGetProperty("never", out var n) && n.ValueKind == JsonValueKind.Object ? n : default;
             var pathRule = root.TryGetProperty("path", out var p) && p.ValueKind == JsonValueKind.Object ? p : default;
+            OtherworldField? field = null;
+            if (root.TryGetProperty("otherworld", out var o) && o.ValueKind == JsonValueKind.Object)
+            {
+                var calm = o.TryGetProperty("calm", out var c) && c.ValueKind == JsonValueKind.Array
+                    ? c.EnumerateArray().Select(Point).OfType<GroundPoint>().ToList() : new List<GroundPoint>();
+                if (calm.Count is < 1 or > 2 || (o.TryGetProperty("fold", out var f) ? Point(f) : null) is not { } fold
+                    || Numbers(o, "fold_m") is not { Count: 2 } reach || !(reach[1] > reach[0]))
+                    problems.Add("otherworld: needs calm (one or two [x, z]), fold [x, z] and fold_m [full, none]");
+                else
+                    field = new OtherworldField(calm, fold, reach[0], reach[1], Math.Clamp(Number(o, "village", 0.25f), 0, 1), Math.Clamp(Number(o, "wild", 0.6f), 0, 1));
+            }
             return new ScatterRules(Positive(root, "chunk_m", 16), Positive(pathRule, "width_m", 1.5f), Number(never, "below_height_m", 0.2f),
-                Positive(never, "slope_over", 0.75f), paths, kinds, problems);
+                Positive(never, "slope_over", 0.75f), paths, kinds, problems) { Otherworld = field };
         }
+    }
+
+    private static GroundPoint? Point(JsonElement e) =>
+        e.ValueKind == JsonValueKind.Array && e.GetArrayLength() == 2 && e.EnumerateArray().All(v => v.ValueKind == JsonValueKind.Number)
+            ? new GroundPoint((float)e[0].GetDouble(), (float)e[1].GetDouble()) : null;
+
+    private static Otherflora? Flora(JsonElement e)
+    {
+        if (!e.TryGetProperty("otherflora", out var o) || o.ValueKind != JsonValueKind.Object)
+            return null;
+        float[]? Rgb(string name) => Numbers(o, name) is { Count: 3 } v ? v.ToArray() : null;
+        return new Otherflora(Number(o, "hue", 0), Rgb("backlight"), Math.Clamp(Number(o, "pale", 0), 0, 1), Math.Clamp(Number(o, "sheen", 0), 0, 1),
+            Math.Clamp(Number(o, "late", 0), 0, 1), Rgb("glow"), o.TryGetProperty("glow_green", out var g) && g.ValueKind == JsonValueKind.True,
+            Rgb("vein"), Math.Clamp(Number(o, "iridescence", 0), 0, 1), Rgb("lichen"));
     }
 
     private static ScatterKind? Kind(string name, JsonElement e, out string? why)
@@ -190,6 +253,8 @@ public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBel
                     .Select(v => v.GetString()!.StartsWith("model:", StringComparison.Ordinal) ? v.GetString()!["model:".Length..] : v.GetString()!)
                     .ToList()
                 : Array.Empty<string>(),
+            Otherflora = Flora(e),
+            WhereStrange = Numbers(e, "where_strange") is { Count: 2 } strange && strange[1] > strange[0] ? (strange[0], strange[1]) : null,
         };
     }
 

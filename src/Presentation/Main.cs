@@ -38,6 +38,9 @@ public partial class Main : Node3D
     private static readonly string[] QuickKeys = { "quick_1", "quick_2", "quick_3" };
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
+
+    /// <summary>F3 and F4 work in debug builds, or on a release build launched with <c>--dev</c>.</summary>
+    private bool _developer;
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
     private HollowView _hollow = null!;
@@ -79,6 +82,8 @@ public partial class Main : Node3D
     private Art.HitImpacts _hits = null!;
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
+    private Audio.MusicPlayer _music = null!;
+    private Ui.SoundPanel _soundPanel = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -147,6 +152,8 @@ public partial class Main : Node3D
     /// what the 1.002 ratio means.* **A teleport, a respawn or a cell transition is still caught by it.**
     /// </summary>
     private const float SpeedCeiling = 8f;
+    /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
+    private const double DeathFadeLeadSeconds = 1.2;
 
     /// <summary>
     /// The same eased frame speed as <see cref="_drawnSpeed"/> with NO ceiling, written to the state log only.
@@ -196,7 +203,8 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
-        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
+        _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
+        bool harness = _flags.Any(f => f != "--dev") || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
@@ -369,6 +377,8 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED texture cache: {_art.Cache.Hits} textures from the cache, {_art.Cache.Added} added, {_art.Cache.Failed} failed; "
                      + $"{_art.Cache.CompressedBytes / 1048576.0:0.0} MB compressed");
         _art.Cache.Save();
+        // The player's mix (Master, Music, Effects); a harness run keeps the defaults so its captures stay comparable.
+        Audio.AudioMix.Apply(harness ? new Audio.AudioMix.Volumes() : Audio.AudioMix.Saved());
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
         if (_sounds.Problems.Count > 0)
@@ -379,7 +389,10 @@ public partial class Main : Node3D
             AddChild(new Audio.AmbientAudio(_sounds, _ground));
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
-        _soundEvents.Bind(_session, _bindings, _sounds);
+        _soundEvents.Bind(_session, _bindings, _sounds, _ground);
+        _music = new Audio.MusicPlayer { Name = "Music" };
+        AddChild(_music);
+        _music.Bind(_sounds, _session, _bindings);
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
@@ -397,7 +410,7 @@ public partial class Main : Node3D
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
-        _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
         _effectsPanel = new EffectsPanel { Name = "Effects" };
@@ -412,6 +425,8 @@ public partial class Main : Node3D
         _map = new MapPanel { Name = "Map" };
         _map.Bind(_session);
         AddChild(_map);
+        _soundPanel = new Ui.SoundPanel { Name = "Sound" };
+        AddChild(_soundPanel);
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
@@ -424,6 +439,7 @@ public partial class Main : Node3D
                 new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
                 new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
                 new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
+                new("System", "Sound", null, "panel.sound", FromMenu(() => Show(_soundPanel))),
                 new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
             },
             Quit = () => GetTree().Quit(0),
@@ -480,6 +496,7 @@ public partial class Main : Node3D
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
             _saves.OpenStart();
+            _music.Title(true);
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
@@ -943,7 +960,7 @@ public partial class Main : Node3D
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _soundPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -956,7 +973,7 @@ public partial class Main : Node3D
         if (_help.Visible)
             _help.Toggle();
         _waystones.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map, _soundPanel })
             screen.Visible = false;
     }
 
@@ -1164,9 +1181,9 @@ public partial class Main : Node3D
             _inventory.TakeAll();
         if (looting && Input.IsActionJustPressed("interact"))
             CloseInventory();
-        if (Input.IsActionJustPressed("debug_overlay"))
+        if (_developer && Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
-        if (Input.IsActionJustPressed("quest_debug"))
+        if (_developer && Input.IsActionJustPressed("quest_debug"))
         {
             _questDebug.Visible = !_questDebug.Visible;
             _questDebug.Refresh(_session, 0, now: true);
@@ -1431,6 +1448,8 @@ public partial class Main : Node3D
         var simulation = _session.Simulation!;
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
+        _avatar.SetDowned(combat.Defeated);
+        _hud.FadeToBlack(combat.Defeated && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
@@ -1448,6 +1467,7 @@ public partial class Main : Node3D
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
             _inventory.OpenContainer, Screen is not null, delta);
+        _music.Update(feet, delta);
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         LogStates(simulation, delta, speed);
@@ -2044,6 +2064,7 @@ public partial class Main : Node3D
             _graphics = null;
         }
         _saves.Close();
+        _music.Title(false);
         _lastSave = null;
         _loadedFrom = null;
         _hud.Visible = true;

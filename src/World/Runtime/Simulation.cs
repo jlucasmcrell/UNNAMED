@@ -396,7 +396,9 @@ public sealed class Simulation
     /// <summary>The player as a save records them: identity from the loaded record, everything else from live state.</summary>
     public PlayerRecord CaptureRecord()
     {
-        var body = _state.Body;
+        // A save made while the character lies dead is the save of their respawn: it loads at the return point.
+        bool dead = _state.PlayerCombat.Defeated;
+        var body = dead ? _travel.ReturnBody() : _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
             _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
@@ -404,7 +406,7 @@ public sealed class Simulation
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
             _state.Quests.Values, _companions.Records())
         {
-            Posture = _state.Posture,
+            Posture = dead ? Posture.Grounded : _state.Posture,
             Waystones = _travel.Records(),
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
@@ -450,6 +452,7 @@ public sealed class Simulation
         Harm harm => _combat.Handle(harm, Now),
         Heal heal => _combat.Handle(heal, Now),
         EndFight end => _combat.Handle(end),
+        AwaitRespawn await => _combat.Handle(await),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),

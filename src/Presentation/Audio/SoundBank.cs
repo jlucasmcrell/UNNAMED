@@ -16,12 +16,12 @@ namespace UNNAMED.Presentation.Audio;
 /// </summary>
 public partial class SoundBank : Node
 {
-    private sealed record Sound(string Id, string File, bool Stereo, bool Loop, bool Flat);
+    private sealed record Sound(string Id, string File, bool Stereo, bool Loop, bool Flat, float Jitter);
 
     private readonly Dictionary<string, Sound> _sounds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<string>> _families = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _last = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, AudioStreamWav?> _streams = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, AudioStream?> _streams = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _played = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _unknown = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, int> _requested = new(StringComparer.Ordinal);
@@ -79,7 +79,9 @@ public partial class SoundBank : Node
                 if ((audio == "proof" || audio == "proof_open" && (open ??= AudioAudition.OpenProofs(assetRoot)).Contains(id))
                     && Path.Combine(assetRoot, "audio_proof", id + ".wav") is var proof && File.Exists(proof))
                     file = proof;
-                _sounds[id] = new Sound(id, file, stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui");
+                // A family's pitch jitter (semitones either way) is applied per play, so no two hits sound alike even on the same take.
+                float jitter = sound.TryGetProperty("pitch_jitter_semitones", out var j) && j.ValueKind == JsonValueKind.Number ? (float)j.GetDouble() : 0f;
+                _sounds[id] = new Sound(id, file, stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui", jitter);
                 string family = id.LastIndexOf('.') is var dot and > 0 && id[(dot + 1)..].All(char.IsDigit) ? id[..dot] : id;
                 if (!_families.TryGetValue(family, out var members))
                     _families[family] = members = new List<string>();
@@ -118,14 +120,15 @@ public partial class SoundBank : Node
             return false;
         _resolved.Add(family);
         Node player;
+        float pitch = sound.Jitter > 0 ? Mathf.Pow(2f, (float)(_pick.NextDouble() * 2 - 1) * sound.Jitter / 12f) : 1f;
         if (sound.Flat || at is null)
         {
-            player = new AudioStreamPlayer { Stream = stream };
+            player = new AudioStreamPlayer { Stream = stream, PitchScale = pitch, Bus = AudioMix.Effects };
         }
         else
         {
             // A mono sound is placed: heard fully within a few metres and gone by forty.
-            player = new AudioStreamPlayer3D { Stream = stream, Position = at.Value, UnitSize = 4f, MaxDistance = 45f };
+            player = new AudioStreamPlayer3D { Stream = stream, Position = at.Value, UnitSize = 4f, MaxDistance = 45f, PitchScale = pitch, Bus = AudioMix.Effects };
         }
         AddChild(player);
         void Start()
@@ -199,11 +202,23 @@ public partial class SoundBank : Node
         if (Stream(sound) is not { } stream)
             return null;
         _resolved.Add(id);
-        var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f };
+        var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f, Bus = AudioMix.Effects };
         AddChild(player);
         player.Play();
         _played.Add(id);
         return player;
+    }
+
+    /// <summary>A variation of a family (other than the last) as a stream, for a player of the caller's own - the score's decks.</summary>
+    public AudioStream? Take(string family)
+    {
+        if (_sounds.Count > 0)
+            Asked(family);
+        if (Pick(family) is not { } sound || Stream(sound) is not { } stream)
+            return null;
+        _resolved.Add(family);
+        _played.Add(sound.Id);
+        return stream;
     }
 
     /// <summary>At shutdown: stop what still plays (the loops) and let go of the loaded streams, so none outlives the engine.</summary>
@@ -238,12 +253,21 @@ public partial class SoundBank : Node
         return _sounds[id];
     }
 
-    private AudioStreamWav? Stream(Sound sound)
+    private AudioStream? Stream(Sound sound)
     {
         if (_streams.TryGetValue(sound.Id, out var cached))
             return cached;
-        AudioStreamWav? stream = null;
-        if (File.Exists(sound.File))
+        AudioStream? stream = null;
+        if (File.Exists(sound.File) && sound.File.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
+        {
+            // The score is Vorbis (AUDIO_DESIGN.md: music 48 kHz stereo Vorbis); a looping cue wraps over its whole length.
+            if (AudioStreamOggVorbis.LoadFromFile(sound.File) is { } ogg)
+            {
+                ogg.Loop = sound.Loop;
+                stream = ogg;
+            }
+        }
+        else if (File.Exists(sound.File))
         {
             // A loop wraps over its whole length: the pipeline cross-faded each bed at its own seam.
             var options = new Godot.Collections.Dictionary();
@@ -258,7 +282,7 @@ public partial class SoundBank : Node
         if (stream is null)
         {
             GD.PushWarning($"UNNAMED audio: {sound.Id} would not load from {sound.File}");
-            _errors[sound.Id] = File.Exists(sound.File) ? "the file would not load as WAV" : $"no file at {sound.File}";
+            _errors[sound.Id] = File.Exists(sound.File) ? "the file would not load" : $"no file at {sound.File}";
         }
         _streams[sound.Id] = stream;
         return stream;

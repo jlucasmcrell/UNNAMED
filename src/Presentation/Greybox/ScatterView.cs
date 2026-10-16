@@ -57,6 +57,8 @@ public partial class ScatterView : Node3D
         BladesOnly = bladesOnly;
         _ground = ground;
         _rules = rules;
+        if (rules.Otherworld is { } strange)
+            Otherworld.Set(strange);
         BuildFields(layout, buildingPrefixes);
         foreach (var kind in rules.Kinds)
         {
@@ -70,8 +72,9 @@ public partial class ScatterView : Node3D
                 continue;
             if (BladesOnly && kind.Name != "moor_grass")
                 continue;
-            // A kind drawn only under some presentation options (Phase B: the procedural leaf cards give way to the leaf-litter models).
-            if (kind.OnlyWhen is { } when && when.Any(w => VisualOptions.All.GetValueOrDefault(w.Key) != w.Value))
+            // A kind drawn only under some presentation options (Phase B: the procedural leaf cards give way to the leaf-litter models);
+            // "a|b" names several values.
+            if (kind.OnlyWhen is { } when && when.Any(w => !w.Value.Split('|').Contains(VisualOptions.All.GetValueOrDefault(w.Key))))
                 continue;
             if (kind.ModelId is { } model)
             {
@@ -213,6 +216,10 @@ public partial class ScatterView : Node3D
             if (roll >= share * Density(kind.Rules, px, pz, w) / kind.Rules.MaxPerM2)
                 continue;
             var (basis, sink, tint) = Place(kind.Rules, rng, w);
+            // The place's strangeness rides in the tint's alpha (the foliage shader's INSTANCE_CUSTOM.a), worked out once a plant here
+            // rather than in every vertex of it. Model kinds only: the procedural meshes' instance colour alpha is their coverage.
+            if (kind.Levels)
+                tint.A = _rules.Otherworld?.At(px, pz) ?? 0f;
             int m = kind.Levels ? 0 : rng.Next(kind.Meshes.Length);
             // The form: a pooled kind picks one of its prepared models per instance, so a field of a
             // quarter of a million clumps is a mix of forms rather than one clump stamped repeatedly.
@@ -442,6 +449,8 @@ public partial class ScatterView : Node3D
         float path = _ground.PathAt(x, z);
         if (kind.PathShoulders > 0)
             d += kind.PathShoulders * GroundField.SmoothStep(0.05f, 0.3f, path) * (1f - GroundField.SmoothStep(0.4f, 0.7f, path));
+        if (kind.WhereStrange is { } strange)
+            d *= _rules.Otherworld is { } field ? GroundField.SmoothStep(strange.From, strange.To, field.At(x, z)) : 0;
         d *= Clear(x, z, kind.ClearMargin, kind.OffPath, path);
         if (!kind.OffPath)
             d *= 1f - GroundField.SmoothStep(0.45f, 0.7f, path);
@@ -715,7 +724,13 @@ public partial class ScatterView : Node3D
 
     private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
     {
-        var material = new ShaderMaterial { Shader = _foliageShader ??= new Shader { Code = WindField.FoliageShader } };
+        bool mineral = kind.Otherflora is { Vein: not null } or { Lichen: not null };
+        var material = new ShaderMaterial
+        {
+            Shader = mineral
+                ? _mineralShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader, mineral: true) }
+                : _foliageShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader) },
+        };
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
         // THE GROUND COVER'S EDGE IS A DENSITY, NOT A RING. A chunk's band ends all at once, so a kind used to stop in a hard
@@ -751,6 +766,33 @@ public partial class ScatterView : Node3D
             kind.ModelId?.StartsWith("veg_gen_grass", StringComparison.Ordinal) == true
             || kind.ModelId?.StartsWith("veg_gen_tussock", StringComparison.Ordinal) == true
             || kind.ModelId?.StartsWith("veg_gen_blade", StringComparison.Ordinal) == true);
+        if (kind.Otherflora is { } wrong)
+        {
+            static Vector3 Rgb(float[] c) => new(c[0], c[1], c[2]);
+            material.SetShaderParameter("ow_hue", wrong.Hue);
+            material.SetShaderParameter("ow_pale", wrong.Pale);
+            material.SetShaderParameter("ow_sheen", wrong.Sheen);
+            material.SetShaderParameter("ow_late", kind.Wind ? wrong.Late : 0f);
+            material.SetShaderParameter("ow_glow_green", wrong.GlowGreen);
+            material.SetShaderParameter("ow_iridescence", wrong.Iridescence);
+            if (wrong.Backlight is { } backlight)
+            {
+                material.SetShaderParameter("ow_backlight", Rgb(backlight));
+                material.SetShaderParameter("ow_backlight_on", 1f);
+            }
+            if (wrong.Glow is { } glow)
+                material.SetShaderParameter("ow_glow", Rgb(glow));
+            if (wrong.Vein is { } vein)
+            {
+                material.SetShaderParameter("ow_vein", Rgb(vein));
+                material.SetShaderParameter("ow_vein_on", 1f);
+            }
+            if (wrong.Lichen is { } lichen)
+            {
+                material.SetShaderParameter("ow_lichen", Rgb(lichen));
+                material.SetShaderParameter("ow_lichen_on", 1f);
+            }
+        }
         if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
         {
             if (image.IsCompressed())
@@ -777,6 +819,7 @@ public partial class ScatterView : Node3D
     }
 
     private static Shader? _foliageShader;
+    private static Shader? _mineralShader;
 
     private static Mesh[] Meshes(ArtLibrary art, ScatterKind kind)
     {

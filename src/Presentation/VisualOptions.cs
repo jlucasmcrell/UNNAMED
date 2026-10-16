@@ -85,6 +85,8 @@ public static class VisualOptions
         // GameOptions.Barrowworks and that is what content reads. The spelling is --visual because the brief
         // asks for it; the structure is GameOptions because the layering requires it.
         ["barrowworks"] = new[] { "0", "1" },
+        // How far from Earth the plants, rocks, water and air look (Greybox/Otherworld.cs).
+        ["otherworld"] = new[] { "off", "subtle", "bold" },
     };
 
     private static readonly Dictionary<string, string> Defaults = new()
@@ -128,6 +130,8 @@ public static class VisualOptions
         // The Barrowworks is off unless it is asked for. Defaults is also what `--visual phase_a` copies, so a
         // Phase-A run excludes it too, which is what "invisible in a normal launch" means.
         ["barrowworks"] = "0",
+        // The owner's pick (2026-10-17): subtle, the level of the village wildlife variants. off and bold stay for comparison.
+        ["otherworld"] = "subtle",
     };
 
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>
@@ -169,6 +173,7 @@ public static class VisualOptions
     public static string Foldscar => Values["foldscar"];
     public static string AntiAliasing => Values["aa"];
     public static string Celestial => Values["celestial"];
+    public static string Otherworld => Values["otherworld"];
 
     /// <summary>
     /// Whether this run includes the Barrowworks (<c>--visual barrowworks=1</c>). Read once at startup and

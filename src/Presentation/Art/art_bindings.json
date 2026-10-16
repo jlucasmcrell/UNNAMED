@@ -565,12 +565,12 @@
      "talk": "player.mh.idle"
     },
     "paces": {
-     "walk": 1.037,
-     "run": 3.1926,
-     "sprint": 4.7336,
+     "walk": 1.2956,
+     "run": 2.9581,
+     "sprint": 6.1264,
      "crouch_walk": 1.0662
     },
-    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m, the other states the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
    }
   },
   "player=metahuman_f": {
@@ -591,12 +591,12 @@
      "talk": "player.mh.idle"
     },
     "paces": {
-     "walk": 0.9684,
-     "run": 2.9811,
-     "sprint": 4.42,
+     "walk": 1.2098,
+     "run": 2.7622,
+     "sprint": 5.7206,
      "crouch_walk": 0.9956
     },
-    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m, the other states the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m x the hips-height ratio 0.9135 / 0.9783."
    }
   }
  },

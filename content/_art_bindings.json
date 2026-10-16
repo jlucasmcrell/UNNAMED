@@ -2741,6 +2741,13 @@
     },
     "r07_diagram_rack": {
       "surface": "cw_rock_ground"
+},
+    "old_late": {
+      "model": "flora_old_late",
+      "material": "wood",
+      "wind": 3.0,
+      "late_s": 1.5,
+      "note": "Otherworld concept 2026-10-16: OLD LATE, the landmark giant (Quiet-folk name, DIRECTION_AND_CONTENT_PLAN E7). The BlenderKit ceiba (flora_bk_kapok_giant_tree_a) at 2.2x, 59 m; the gust reaches its crown 1.5 s after the trees round it (late_s, the tree shader ow_late)."
     }
   },
   "doors": {
@@ -3994,7 +4001,7 @@
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
-        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records.",
+        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "clips": {
           "idle": "player.cw_player.idle",
           "walk": "player.cw_player.walk",
@@ -4022,6 +4029,11 @@
           "hit": "player.cw_player.hit",
           "death": "player.cw_player.death",
           "interact": "player.cw_player.interact"
+        },
+        "paces": {
+          "walk": 1.2908,
+          "run": 2.9471,
+          "sprint": 6.1034
         }
       }
     },
@@ -4055,12 +4067,17 @@
           "death": "player.cw_player.death",
           "interact": "player.cw_player.interact"
         },
-        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more."
+        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
+        "paces": {
+          "walk": 1.2908,
+          "run": 2.9471,
+          "sprint": 6.1034
+        }
       },
       "npc.ashen_hollow.kera_voss": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_a",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -4068,12 +4085,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.1425,
+          "run": 2.6086
+        }
       },
       "npc.ashen_hollow.renn_vale": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_b",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -4081,12 +4102,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.2703,
+          "run": 2.9003
+        }
       },
       "npc.ashen_hollow.sel_arien": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_a",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -4094,12 +4119,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.1858,
+          "run": 2.7075
+        }
       },
       "npc.ashen_hollow.tavar_orr": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_b",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -4107,7 +4136,39 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.2694,
+          "run": 2.8981
+        }
+      },
+      "npc.cairnwold.durn_skell": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_b"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.mara_ling": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_a"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.berrin_garth": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_b"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.tam_crowden": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_a"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
       }
     }
   },
@@ -4168,7 +4229,8 @@
     "node.wood.ash_stand": {
       "model": "flora_ph_sapling_stand",
       "spent": "flora_ph_tree_stump_a",
-      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. "
+      "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. ",
+      "sound": "wood"
     },
     "node.ore.iron_seam": {
       "model": "node_bp_iron_ore",
@@ -4177,27 +4239,32 @@
     },
     "node.firstplay.ashbloom": {
       "model": "cw_fern_a",
-      "note": "The Sinking Moss's ashbloom patches (What The Bog Kept): Cairnwold's own fern stands in until an ashbloom model exists."
+      "note": "The Sinking Moss's ashbloom patches (What The Bog Kept): Cairnwold's own fern stands in until an ashbloom model exists.",
+      "sound": "herb"
     },
     "node.herb.woundmoss": {
       "model": "cw_fern_a",
       "spent": "flora_ph_weed_plant",
-      "note": "World life 2026-10-15: a fern clump stands for the moss cushion; picked, a few weeds."
+      "note": "World life 2026-10-15: a fern clump stands for the moss cushion; picked, a few weeds.",
+      "sound": "herb"
     },
     "node.herb.boneleaf": {
       "model": "flora_boneleaf_bush",
       "spent": "flora_ph_weed_plant",
-      "note": "World life 2026-10-15: the boneleaf bush (canon wrong flora)."
+      "note": "World life 2026-10-15: the boneleaf bush (canon wrong flora).",
+      "sound": "herb"
     },
     "node.fibre.bog_cotton": {
       "model": "flora_cattail_clump",
       "spent": "flora_ph_weed_plant",
-      "note": "World life 2026-10-15: a reed clump stands in for the cotton grass until a cotton-grass model exists."
+      "note": "World life 2026-10-15: a reed clump stands in for the cotton grass until a cotton-grass model exists.",
+      "sound": "fibre"
     },
     "node.wood.deadfall": {
       "model": "flora_ph_fallen_log",
       "spent": "flora_ph_tree_stump_b",
-      "note": "World life 2026-10-15: a sound fallen trunk; cut, a stump is left."
+      "note": "World life 2026-10-15: a sound fallen trunk; cut, a stump is left.",
+      "sound": "wood"
     },
     "node.ore.loose_iron": {
       "model": "node_bp_iron_ore",
@@ -4257,7 +4324,8 @@
     },
     "workbench": {
       "model": "prop_cos_table_tavern_01",
-      "note": "World life 2026-10-15: the bench hides, arrows and bows are made at."
+      "note": "World life 2026-10-15: the bench hides, arrows and bows are made at.",
+      "sound": "workbench"
     },
     "cookfire": {
       "model": "prop_ph_stone_fire_pit",
@@ -4277,7 +4345,8 @@
         "shadows": false,
         "fog_energy": 0.4
       },
-      "note": "World life 2026-10-15: a banked fire in a stone ring - roast meat and salves."
+      "note": "World life 2026-10-15: a banked fire in a stone ring - roast meat and salves.",
+      "sound": "cook"
     }
   },
   "companion_weapon": {
@@ -4807,6 +4876,25 @@
           "sfx.amb.charwood.branch_movement.01"
         ],
         "surface": "puddle"
+      }
+    },
+    "path_surface": "dirt",
+    "interior_bed": "amb.interior.room_tone.01",
+    "consumables": {
+      "item.consumable.roast_meat": "sfx.player.eat",
+      "item.consumable.salve_minor": "sfx.player.salve"
+    },
+    "music": {
+      "comment": "MusicPlayer: a settlement plays its theme (.day / .night) within radius_m of its location; elsewhere no music while exploring (AUDIO_DESIGN.md).",
+      "places": {
+        "location.outpost": {
+          "theme": "mus.settlement",
+          "radius_m": 70
+        },
+        "location.cairnwold.village": {
+          "theme": "mus.settlement",
+          "radius_m": 110
+        }
       }
     }
   },

@@ -1,0 +1,12 @@
+OTHERREACH PLAYTEST
+
+1. Extract this Setup zip into any normal folder (spaces in the path are fine).
+2. Double-click Setup.cmd. It downloads the game in parts, checks every part against its SHA-256,
+   unpacks it into a new folder beside Setup.cmd and deletes each part once it is unpacked.
+3. When it says "Installed", open the new Otherreach-Playtest folder and double-click PLAY.bat.
+   PLAY Ultra 4K.bat selects Ultra at 4K and needs more graphics memory.
+
+No administrator access is needed. Setup never starts the game.
+If a download stops, run Setup.cmd again: it continues where it stopped.
+To install elsewhere (needs the free space it reports): Setup.cmd -InstallDir "D:\Otherreach"
+Saves are kept in the saves folder inside the game folder.

@@ -44,6 +44,8 @@ public partial class WindField : Node
         RenderingServer.GlobalShaderParameterAdd("wind", RenderingServer.GlobalShaderParameterType.Vec4, Pack());
         RenderingServer.GlobalShaderParameterAdd("wind_gust", RenderingServer.GlobalShaderParameterType.Float, Gust);
         RenderingServer.GlobalShaderParameterAdd("wind_time", RenderingServer.GlobalShaderParameterType.Float, 0f);
+        // The tree and foliage shaders below also read the strangeness field.
+        Otherworld.Register();
     }
 
     /// <summary>Set the wind (the weather's input): direction in the ground plane, strength and gustiness 0-1.</summary>
@@ -78,6 +80,14 @@ shader_type spatial;
 render_mode cull_back, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
+// ow_late is a breath-late sway: the gust that crosses the ground reaches this tree seconds after its neighbours (Old Late).
+uniform float ow_late = 0.0;
+#ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
+// Otherworld (Otherworld.Variant), at full strangeness: the leaves turn toward blue-green, the bark's shade toward violet.
+uniform float ow_hue = -40.0;
+uniform float ow_violet = 1.0;
+varying float strange;
+#endif
 // One turn an hour: the sway's rates are whole turns per hour, so TIME's hourly rollover never jumps a branch.
 const float CYCLE = 6.28318530718 / 3600.0;
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic;
@@ -94,10 +104,13 @@ uniform float tree_height = 13.0;
 uniform float stiffness = 1.0;
 
 void vertex() {
+    vec3 origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+#ifdef OTHERWORLD
+    strange = otherworld_at(origin);
+#endif
     // TIME, not a clock of our own: the renderer runs vertex() again at the previous frame's TIME for the motion vectors,
     // and a global uniform has no previous value - swaying leaves had zero motion and TAA smeared and sparkled them.
-    float wind_time = TIME;
-    vec3 origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+    float wind_time = TIME - ow_late;
     mat3 basis = mat3(MODEL_MATRIX);
     float scale2 = max(dot(basis[0], basis[0]), 0.0001);
     float h = clamp(VERTEX.y / max(tree_height, 0.01), 0.0, 1.0);
@@ -118,6 +131,13 @@ void vertex() {
 void fragment() {
     vec4 a = has_albedo ? texture(albedo_tex, UV) : vec4(1.0);
     ALBEDO = a.rgb * albedo_colour.rgb;
+#ifdef OTHERWORLD
+    if (strange > 0.0) {
+        float l = dot(ALBEDO, vec3(0.2126, 0.7152, 0.0722));
+        ALBEDO = foliage ? max(otherworld_hue(ALBEDO, ow_hue * strange), vec3(0.0))
+                         : mix(ALBEDO, ALBEDO * vec3(1.04, 0.9, 1.2), ow_violet * strange * (1.0 - smoothstep(0.05, 0.35, l)));
+    }
+#endif
     if (foliage) {
         ALPHA = a.a * albedo_colour.a;
         ALPHA_SCISSOR_THRESHOLD = alpha_cut;
@@ -149,6 +169,27 @@ render_mode cull_disabled, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
 const float CYCLE = 6.28318530718 / 3600.0;
+#ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
+// Otherworld (ScatterRules' otherflora, at full strangeness; Otherworld.cs scales it by where the plant stands). All zero: as scanned.
+// OW_MINERAL (stones only): the seam and the lichen, which need the plant's own frame.
+uniform float ow_hue = 0.0;
+uniform vec3 ow_backlight = vec3(0.0);
+uniform float ow_backlight_on = 0.0;
+uniform float ow_pale = 0.0;
+uniform float ow_sheen = 0.0;
+uniform float ow_late = 0.0;
+uniform vec3 ow_glow = vec3(0.0);
+uniform bool ow_glow_green = false;
+varying float strange;
+#ifdef OW_MINERAL
+uniform vec3 ow_vein = vec3(0.0);
+uniform float ow_vein_on = 0.0;
+uniform float ow_iridescence = 0.0;
+uniform vec3 ow_lichen = vec3(0.0);
+uniform float ow_lichen_on = 0.0;
+varying vec3 ow_place;
+#endif
+#endif
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic;
 uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic;
 uniform sampler2D arm_tex : hint_default_white, filter_linear_mipmap;
@@ -168,7 +209,6 @@ uniform float thin_to = 0.0;
 varying vec3 tint;
 
 void vertex() {
-    float wind_time = TIME;   // see TreeShader: the motion vectors need TIME
     tint = INSTANCE_CUSTOM.rgb;
     vec3 origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
     mat3 basis = mat3(MODEL_MATRIX);
@@ -176,6 +216,17 @@ void vertex() {
     float tall = plant_height * sqrt(scale2);
     float h = clamp(COLOR.r, 0.0, 1.0);
     float phase = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453);
+    float wind_time = TIME;   // see TreeShader: the motion vectors need TIME
+#ifdef OTHERWORLD
+    // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
+    // wrong all at once.
+    strange = clamp(INSTANCE_CUSTOM.a * otherworld_mix.x * (0.6 + 0.8 * fract(phase * 7.31)), 0.0, 1.0);
+#ifdef OW_MINERAL
+    ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
+#endif
+    // A breath late: up to 1.6 s behind the gust its neighbours answer.
+    wind_time -= ow_late * strange * 1.6;
+#endif
     float gust = 0.5 + 0.5 * sin(wind_time * 212.0 * CYCLE - dot(origin.xz, wind.xz) * 0.045);
     float sway = sin(wind_time * 917.0 * CYCLE + phase * 6.2832) * 0.65 + sin(wind_time * 1776.0 * CYCLE + phase * 11.0 + COLOR.g * 3.0) * 0.35;
     float amount = wind.w * mix(1.0, 0.35 + 1.3 * gust, wind_gust) * h * h / max(stiffness, 0.05);
@@ -195,7 +246,34 @@ void vertex() {
 
 void fragment() {
     vec4 a = texture(albedo_tex, UV);
-    ALBEDO = a.rgb * tint;
+    vec3 colour = a.rgb * tint;
+#ifdef OTHERWORLD
+    float lift = 0.0;
+    if (strange > 0.0) {
+        colour = max(otherworld_hue(colour, ow_hue * strange), vec3(0.0));
+        float l = dot(colour, vec3(0.2126, 0.7152, 0.0722));
+        colour = mix(colour, vec3(0.80, 0.78, 0.72) * (0.55 + l), ow_pale * strange);
+        colour *= mix(vec3(1.0), vec3(0.78, 0.9, 1.0), ow_sheen * strange);
+#ifdef OW_MINERAL
+        if (ow_vein_on > 0.0) {
+            // A seam through the stone, in the stone's own frame so it stays put: a thin ridge of a warped wave, only where it is strange enough.
+            vec3 p = ow_place * 2.2;
+            float n = abs(sin(dot(p, vec3(1.3, 0.7, 1.1)) + 1.4 * sin(p.y * 2.1 + p.x * 0.9) + 0.9 * sin(p.z * 1.9 - p.y)));
+            float vein = (1.0 - smoothstep(0.04, 0.12 + 0.1 * strange, n)) * smoothstep(0.3, 0.75, strange);
+            vec3 film = 0.5 + 0.5 * cos(6.2832 * (vec3(0.0, 0.33, 0.67) + 1.7 * dot(NORMAL, VIEW)));
+            colour = mix(colour, mix(ow_vein, film * 0.7, ow_iridescence) * (0.45 + l), vein);
+            lift = vein;
+        }
+        if (ow_lichen_on > 0.0) {
+            float up = (INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).y;
+            vec3 q = ow_place * 3.0;
+            float crust = smoothstep(0.35, 0.8, up) * smoothstep(0.15, 0.55, sin(q.x + 2.0 * sin(q.z * 0.8)) * sin(q.z * 1.3 + q.y) * 0.5 + 0.5);
+            colour = mix(colour, ow_lichen * (0.6 + l), crust * strange * 0.85);
+        }
+#endif
+    }
+#endif
+    ALBEDO = colour;
     ALPHA = a.a;
     ALPHA_SCISSOR_THRESHOLD = alpha_cut;
     if (has_arm) {
@@ -213,6 +291,20 @@ void fragment() {
     }
     SPECULAR = 0.3;
     BACKLIGHT = backlight_colour;
+#ifdef OTHERWORLD
+    if (strange > 0.0) {
+        ROUGHNESS = mix(ROUGHNESS, 0.3, max(ow_sheen, lift * 0.8) * strange);
+        SPECULAR = mix(0.3, 0.6, ow_sheen * strange);
+        BACKLIGHT = mix(backlight_colour, ow_backlight, ow_backlight_on * strange);
+        // The night glow: on the paler parts (a flower head, a frond's tip) or, for moss, the green ones. The albedo is linear, and a
+        // scanned plant's sits at 0.03-0.2, so the masks are set there.
+        float key = ow_glow_green ? clamp((a.g - max(a.r, a.b)) * 14.0, 0.0, 1.0) : smoothstep(0.04, 0.22, max(a.r, max(a.g, a.b)));
+        EMISSION = ow_glow * key * strange * otherworld_mix.y;
+#ifdef OW_MINERAL
+        EMISSION += ow_vein * lift * 0.35 * strange * otherworld_mix.y;
+#endif
+    }
+#endif
     if (has_normal) {
         NORMAL_MAP = texture(normal_tex, UV).rgb;
     }

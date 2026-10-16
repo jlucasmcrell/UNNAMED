@@ -229,8 +229,8 @@ void fragment() {
                     continue;
                 bool foliage = own.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash;
                 var shader = foliage
-                    ? _leafShader ??= new Shader { Code = WindField.TreeShader.Replace("cull_back", "cull_disabled") }
-                    : _treeShader ??= new Shader { Code = WindField.TreeShader };
+                    ? _leafShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader.Replace("cull_back", "cull_disabled")) }
+                    : _treeShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader) };
                 var tree = new ShaderMaterial { Shader = shader };
                 tree.SetShaderParameter("albedo_tex", own.AlbedoTexture);
                 tree.SetShaderParameter("has_albedo", own.AlbedoTexture is not null);
@@ -246,6 +246,16 @@ void fragment() {
                 tree.SetShaderParameter("stiffness", stiffness);
                 mesh.SetSurfaceOverrideMaterial(s, tree);
             }
+        }
+    }
+
+    /// <summary>A <see cref="Windblown"/> tree's sway set <paramref name="seconds"/> behind the world's wind (the tree shader's <c>ow_late</c>).</summary>
+    public static void Late(Node3D model, float seconds)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            for (int s = 0; s < mesh.GetSurfaceOverrideMaterialCount(); s++)
+                (mesh.GetSurfaceOverrideMaterial(s) as ShaderMaterial)?.SetShaderParameter("ow_late", seconds);
         }
     }
 
