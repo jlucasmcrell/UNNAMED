@@ -321,6 +321,39 @@ Sketchfab's Malopolski set); the six to eight reusable structural modules the br
 generator's plain boxes; the gauge props modelled in Blender with an animatable needle; and the ExportHost
 export of the Fab Megascans packs once the owner adds them.
 
+### P3c - the dungeon gets a lid, and `Roofs` stops being a hardcoded list
+
+**The defect.** `HollowView.Roofs` carried `new[] { "longhouse", "forge" }` **in code**. Those two are
+Cairnwold's, and no region could ask for a third - so the Barrowworks' thirteen rooms stood open to the sky,
+which is wrong for workings cut into a hill and cannot be fixed from content. Every frame above shows it.
+
+**The fix, in two halves.** `ArtBindings` gains `RoofGroups`, read from a `roof_groups` array in the
+bindings and **defaulting to those same two names**, so a region that names none is byte-for-byte the region
+it was. `HollowView.Roofs` iterates the bindings instead of the literal. The Barrowworks then declares its
+own: **29 groups - 13 rooms plus 16 corridor legs.**
+
+**One group per room or corridor leg, and never a bare `corr_`.** A group is gathered into a **single slab**
+over the combined bounds of every structure sharing its prefix, so `corr_` alone would have laid one slab
+across the whole dungeon. The generator asserts the shape and the check is in its output.
+
+**Verified.** The same room and shot, and the top band says it better than the prose: sky is gone.
+
+| R02, same shot | world mean | top band mean |
+|---|---|---|
+| open to the sky | 55.7 | **99.5** (sky) |
+| roofed | 21.1 | **9.2** (ceiling) |
+
+And the frame shows it: a ceiling overhead, the doorway ahead framing the **lit next room** beyond it.
+
+**The cost, and it is the right cost.** The room is genuinely darker - 55.7 to 21.1 - because it is now a
+room rather than a courtyard. **The interior's lighting is no longer a plausible-looking defect; it is the
+next thing to fix**, and it is the same finding P2d reached from a frame that could not show it.
+
+**The bug worth recording.** The first attempt produced **zero roofs** while every file involved was correct.
+`Roofs` appends `"_"` to each group, and the generator had emitted the groups **with** a trailing underscore -
+so the prefix became `r01__` and matched nothing. The default names never carried one. The generator now emits
+them bare and says why in a comment, because the next person to add a room will make the same mistake.
+
 ## 4. Content port (P4)
 
 Old content: `implemented/content/quests/barrowworks/unfinished_measure.yaml` — **`schema: 1`, which is

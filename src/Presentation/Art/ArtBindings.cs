@@ -135,6 +135,16 @@ public sealed class ArtBindings
 
     public static ArtBindings Empty { get; } = new();
 
+    /// <summary>
+    /// The id prefixes whose structures form a roofed room, each getting one slab over its own walls.
+    /// </summary>
+    /// <remarks>
+    /// Defaults to the two the greybox has always roofed. A region that is properly under cover - the
+    /// Barrowworks is workings cut into a hill - names its own rooms here, because `Roofs` used to carry those
+    /// two names in code and no region could ask for a third.
+    /// </remarks>
+    public IReadOnlyList<string> RoofGroups { get; private set; } = new[] { "longhouse", "forge" };
+
     /// <summary>Assets that exist but are not fit to draw, with why (reported to the asset pipeline; the greybox stands in).</summary>
     public IReadOnlyDictionary<string, string> Withheld { get; private init; } = new Dictionary<string, string>();
     public IReadOnlyDictionary<string, string> Terrain { get; private init; } = new Dictionary<string, string>();
@@ -388,6 +398,12 @@ public sealed class ArtBindings
                     if (look.Model is not null || look.Lights is { Count: > 0 })
                         bindings._buildings[wall.Name] = look;
                 }
+            }
+            if (root.TryGetProperty("roof_groups", out var groups))
+            {
+                var named = groups.EnumerateArray().Select(g => g.GetString()!).Where(g => !string.IsNullOrWhiteSpace(g)).ToList();
+                if (named.Count > 0)
+                    bindings.RoofGroups = named;
             }
             return bindings;
         }

@@ -503,9 +503,14 @@ public partial class HollowView : Node3D
     }
 
     /// <summary>Scenery: a roof over each building, the group of structures sharing an id prefix that forms walls.</summary>
-    private static IEnumerable<Node3D> Roofs(RegionLayout layout)
+    /// <remarks>
+    /// The groups are the bindings' (`roof_groups`), so a region can roof its own rooms: the Barrowworks is
+    /// workings cut into a hill and every one of its thirteen rooms wants a lid. The bindings default to the two
+    /// the greybox has always roofed, so a region that names none is unchanged.
+    /// </remarks>
+    private IEnumerable<Node3D> Roofs(RegionLayout layout)
     {
-        foreach (string group in new[] { "longhouse", "forge" })
+        foreach (string group in _bindings.RoofGroups)
         {
             var walls = layout.Space.Blockers.OfType<BoxBlocker>().Where(b => b.Id.StartsWith(group + "_", StringComparison.Ordinal)).ToList();
             if (walls.Count == 0)
