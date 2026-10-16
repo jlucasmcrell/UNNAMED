@@ -525,6 +525,75 @@ internal sealed class TierSystem
 }
 
 /// <summary>
+/// Owns: <see cref="StateSlice.PlayerSpace"/>. Moves the player between the exterior and an interior space
+/// through a declared portal (M8 D10), and remembers which portal they came in by so leaving returns them
+/// to the anchor they actually used.
+/// </summary>
+/// <remarks>
+/// It owns only which space the body is in and how it got there; it writes the body itself by dispatching
+/// <see cref="Relocate"/>, because the body is the movement system's. Refusals are returned as a reason and
+/// never as an exception: a command that cannot be honoured leaves the character exactly where they were,
+/// which is the recoverable coherent snapshot the design asks for when a transition cannot complete.
+/// </remarks>
+internal sealed class SpaceSystem
+{
+    private readonly SystemContext _context;
+    private readonly SliceOwner _owner;
+    private readonly EntityId _player;
+
+    public SpaceSystem(SystemContext context, SliceOwner owner, EntityId player)
+    {
+        _context = context;
+        _owner = owner;
+        _player = player;
+    }
+
+    /// <summary>How close the body must stand to a portal's anchor to use it: an arm's reach, as for a door.</summary>
+    private long ReachMm => _context.Setup.Items.Inventory.ReachMm + _context.Setup.Movement.BodyRadiusMm;
+
+    /// <summary>Enter the space a portal leads to, placing the body at its interior anchor.</summary>
+    public string? Enter(EnterSpaceCommand command)
+    {
+        if (command.Actor != _player)
+            return "Only the player moves between spaces";
+
+        var portals = _context.Setup.Layout.Portals;
+        var portal = portals.Find(command.PortalKey);
+        if (portal is null)
+            return $"No portal '{command.PortalKey}'";
+
+        if (!_context.State.Space.IsExterior)
+            return $"Already inside {_context.State.Space}";
+
+        var body = _context.State.Body;
+        double away = Math.Sqrt(Math.Pow(portal.ExteriorXMm - body.XMm, 2) + Math.Pow(portal.ExteriorZMm - body.ZMm, 2));
+        if (away > ReachMm)
+            return $"Too far from '{command.PortalKey}' to use it";
+
+        var (x, z, traversal) = portals.Enter(command.PortalKey);
+        _context.State.SetSpace(_owner, portal.Space, traversal);
+        _context.Dispatch(new Relocate(new Body(x, _context.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, body.FacingMdeg)));
+        return null;
+    }
+
+    /// <summary>Leave the space, arriving at the exterior anchor of the portal that was used to enter it.</summary>
+    public string? Leave(LeaveSpaceCommand command)
+    {
+        if (command.Actor != _player)
+            return "Only the player moves between spaces";
+
+        if (_context.State.Space.IsExterior)
+            return "Already outside";
+
+        var (x, z) = _context.Setup.Layout.Portals.Leave(_context.State.Traversal);
+        var facing = _context.State.Body.FacingMdeg;
+        _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
+        _context.Dispatch(new Relocate(new Body(x, _context.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, facing)));
+        return null;
+    }
+}
+
+/// <summary>
 /// What a tier runs for the entities in its cells. Phase 1 has no simulated entities yet (creatures arrive in M3d,
 /// NPCs in M4), so tier A's work is the systems above and D runs nothing. B and C are declared, not built: the
 /// interface is where M4's regional and abstract simulation plug in (ROADMAP M3: "tier B/C stubbed behind the

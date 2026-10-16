@@ -93,6 +93,7 @@ public sealed class Simulation
     private readonly QuestSystem _quests;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
+    private readonly SpaceSystem _spaces;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -134,6 +135,7 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
+        _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
@@ -208,6 +210,13 @@ public sealed class Simulation
         var (x, z, target) = _combat.Trace(_state.Body with { FacingMdeg = facingMdeg }, rangeMm);
         return (x, z, target is not null);
     }
+
+    /// <summary>
+    /// Whether the player is in the exterior world (M8 D10). Read-only: what presentation needs to know so
+    /// a HUD or a map prompt can say which space the character is in, and so a test can assert a transition
+    /// without reaching into state.
+    /// </summary>
+    public bool PlayerInExterior => _state.Space.IsExterior;
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
@@ -288,6 +297,8 @@ public sealed class Simulation
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
+                EnterSpaceCommand enter => _spaces.Enter(enter),
+                LeaveSpaceCommand leave => _spaces.Leave(leave),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),

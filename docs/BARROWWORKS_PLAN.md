@@ -350,6 +350,7 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
 | 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
 | 2026-10-16 | _(this commit)_ | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
+| 2026-10-16 | _P1d_ | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
 
 ### P1c — portals, and the return anchor the design warns about
 

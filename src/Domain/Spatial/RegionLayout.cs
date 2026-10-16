@@ -111,6 +111,13 @@ public sealed record RegionLayout(
     /// <summary>The region's barriers (M6).</summary>
     public ImmutableArray<BarrierSite> Barriers { get; init; } = ImmutableArray<BarrierSite>.Empty;
 
+    /// <summary>
+    /// The portals leading out of this region and into an interior space (M8 D10). Empty for every region
+    /// that has no interior, which is all of them until the Barrowworks is gated on; a region's own
+    /// entrances are the exterior anchors of these.
+    /// </summary>
+    public SpacePortalSet Portals { get; init; } = SpacePortalSet.Empty;
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 
     public SwitchSite? FindSwitch(string key) => Switches.FirstOrDefault(s => s.Key == key);

@@ -25,6 +25,12 @@ public enum StateSlice
     /// <summary>The player's position and facing (ARCHITECTURE.md §5: "Position (actors) - Movement system").</summary>
     PlayerBody,
 
+    /// <summary>
+    /// Which space the player is in, and the portal they came in by (M8 D10). Owned with <see cref="PlayerBody"/> by the
+    /// space system: where a body is includes which space it is in, and the two are never written apart.
+    /// </summary>
+    PlayerSpace,
+
     /// <summary>The progression record (level, attributes, skills, techniques, pools, guards).</summary>
     PlayerProgression,
 
@@ -140,6 +146,12 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
 
+    /// <summary>The space the player is in. The exterior until the space system moves them (M8 D10).</summary>
+    public SpaceId Space { get; private set; } = SpaceId.Exterior;
+
+    /// <summary>The portal the player came in by, so leaving returns them to the anchor they used.</summary>
+    public SpaceTraversal Traversal { get; private set; } = SpaceTraversal.None;
+
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
     public SliceOwner Claim(string system, params StateSlice[] slices)
@@ -178,6 +190,23 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerBody);
         Posture = posture;
+    }
+
+    /// <summary>
+    /// Move the player into a space and say which portal they came in by; the exterior with
+    /// <see cref="SpaceTraversal.None"/> is going back outside. One call, because a body in a space it did
+    /// not arrive in - or holding a traversal that names another space's portal - is a state no rule covers.
+    /// </summary>
+    public void SetSpace(SliceOwner owner, SpaceId space, SpaceTraversal traversal)
+    {
+        Require(owner, StateSlice.PlayerSpace);
+        if (space.IsExterior != traversal.IsNone)
+            throw new InvalidOperationException(
+                space.IsExterior
+                    ? "Left to the exterior while still holding a portal traversal"
+                    : $"Entered {space} without coming in by a portal");
+        Space = space;
+        Traversal = traversal;
     }
 
     public void SetProgression(SliceOwner owner, CharacterProgression progression)
