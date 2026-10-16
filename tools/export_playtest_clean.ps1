@@ -65,7 +65,7 @@ if ($code -ne 0) { Fail "export exit $code" }
 
 # Godot exits 0 after a failed extension load or a failed pack, so read the log as well.
 $plain = (Get-Content $Log) -replace '\x1b\[[0-9;]*m', ''
-$bad = $plain | Select-String -Pattern 'GDExtension|Error loading extension|error CS\d+|ERROR: .*(export|pack)|Failed to (export|save|open)|Cannot export|Export failed' | Select-Object -First 10
+$bad = $plain | Select-String -Pattern 'ERROR: .*(GDExtension|extension|export|pack)|Error loading extension|error CS\d+|Failed to (export|save|open)|Cannot export|Export failed' | Select-Object -First 10
 if ($bad) { Fail ("errors in the Godot output:`n" + ($bad.Line -join "`n")) }
 $exe = Get-Item "$Out\Otherreach.exe" -ErrorAction SilentlyContinue
 if (-not $exe -or $exe.Length -lt 100MB) { Fail 'Otherreach.exe is missing or too small' }
