@@ -216,16 +216,15 @@ public class SpaceTransitionTests
     }
 
     [Fact]
-    public void TheSpace_IsNotPersistedYet_SoItMustStayUnreachable()
+    public void WithTheGateOff_TheSpaceSystem_IsNeverEnteredAtAll()
     {
-        // The space is runtime state only: a schema bump is its own committed unit of work under
-        // tests/Persistence.Tests/Fixtures/README.md, and it has not been done. The consequence is that a
-        // save made inside would load with the body at interior-local coordinates still in the exterior -
-        // the same collision the space identity exists to prevent, in reverse.
+        // The gate-off guarantee, from the space system's side: no region declares a portal unless a run asks for
+        // the Barrowworks, so no entry is possible and the body never leaves the exterior. This is what keeps an
+        // option-off playtest the playtest it was.
         //
-        // That is safe only while the state cannot be entered, so this asserts the thing that keeps it
-        // safe: no shipped region declares a portal. Whoever adds the Barrowworks' entrances to content
-        // must land the schema bump in the same change.
+        // This test used to say the space was not persisted, and that whoever added the entrances had to land the
+        // schema bump in the same change. Both are now done - the space is saved at schema 16 and the entrances
+        // are gated - so that premise is gone and what remains is the guarantee itself.
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
