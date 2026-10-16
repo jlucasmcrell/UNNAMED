@@ -41,6 +41,21 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// what it gates is content the simulation holds, which is not a presentation concern (D-11).
     /// </remarks>
     public bool Barrowworks { get; init; }
+
+    /// <summary>
+    /// Where a new game places the player, overriding the region's own spawn. Null - the ordinary case - uses
+    /// the spawn, so a normal launch and every existing test are untouched.
+    /// </summary>
+    /// <remarks>
+    /// A harness that photographs a place needs the player standing at that place. Left to the spawn, it has to
+    /// WALK him there, and in the Barrowworks that walk measured around a quarter of an hour per room (plan
+    /// P2h), because `SurveyShots` steps one tick per frame and the frames are slow. The spawn is a content
+    /// decision; where a capture wants to stand is not.
+    /// </remarks>
+    public long? StartXMm { get; init; }
+
+    /// <inheritdoc cref="StartXMm"/>
+    public long? StartZMm { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -230,7 +245,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
         while (seed == 0)
             seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         var id = EntityId.NewId(EntityKind.Character);
-        var player = Simulation.NewCharacter(Setup, id, characterName, PlayerRecord.DerivedAppearanceSeed(id));
+        // A capture stands where it asked to; null keeps the region's spawn, which is what every ordinary run
+        // and every existing test gets.
+        var player = Simulation.NewCharacter(Setup, id, characterName, PlayerRecord.DerivedAppearanceSeed(id),
+            Options.StartXMm, Options.StartZMm);
         var world = new WorldDelta(Generator, seed, new Registry());
         Begin(Simulation.Start(Setup, player, world, 0, _bus), playtime: 0);
         return _simulation!;

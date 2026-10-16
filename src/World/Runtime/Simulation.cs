@@ -162,13 +162,19 @@ public sealed class Simulation
     /// A new character standing at the region's spawn point, with the starting package (PROGRESSION.md §5) and the
     /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped).
     /// </summary>
-    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed)
+    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed,
+        long? atXMm = null, long? atZMm = null)
     {
         var spawn = setup.Layout.Spawn;
+        // A caller may name where the character stands. The region's own spawn is the ordinary answer and stays
+        // the default; a capture that photographs a named place opens him there rather than walking him to it,
+        // which in the Barrowworks measured about a quarter of an hour per room (plan P2h).
+        long xMm = atXMm ?? spawn.XMm;
+        long zMm = atZMm ?? spawn.ZMm;
         var kit = setup.Items.StartingKit.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count))).ToList();
         var equipment = kit.Where(k => k.Item.Equip)
             .Select(k => KeyValuePair.Create(setup.Items.Catalog.Get(k.Item.ItemId).Slot!.Value, k.Entry.ItemId));
-        return new PlayerRecord(id, name, spawn.XMm, spawn.YMm, spawn.ZMm, appearanceSeed, kit.Select(k => k.Entry),
+        return new PlayerRecord(id, name, xMm, spawn.YMm, zMm, appearanceSeed, kit.Select(k => k.Entry),
             ProgressionEngine.Create(setup.Progression), spawn.FacingMdeg, equipment: equipment);
     }
 

@@ -441,6 +441,52 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2i - all thirteen rooms photographed, and the fix was one option
+
+**P2g's blocker is closed.** A session can now open the player where a capture asks, so a room shot no longer
+has to walk him there.
+
+**The measurement that proves it.** The same room, the same spec, the only difference being where the player
+opens:
+
+| R02, `--shot "50,28,0"` | wall-clock | frames |
+|---|---|---|
+| player opened at the region's spawn, walked to the room | **757 s**, killed | 0 |
+| player opened at (50, 28) | **27 s** | 2 |
+
+**28x.** And the whole set:
+
+| | |
+|---|---|
+| rooms photographed | **13 of 13** |
+| frames | **26** (a near and a mid each) |
+| total wall-clock | **6.6 minutes** |
+| per room | **23-24 s** |
+
+R03 reported a timeout and was skipped, but it had already written its frames - the process failed to exit,
+not to capture. Nothing is missing.
+
+**What the frames show.** R01, R03 and the rest render the blockout as it is: the room's walls, the centred
+3 m opening through to the next room, the character standing on the floor with a cast shadow, sky above and
+through the gap. That is what P2 asked for and it is now evidenced for every room rather than asserted.
+
+**How it was done, and why there rather than a hack.** `GameOptions` gained `StartXMm`/`StartZMm`, and the
+spawn override goes to the one function that decides where a new character stands,
+`Simulation.NewCharacter`. Null is the default and keeps the region's spawn, so a normal launch and every
+existing test are untouched by construction. Presentation reads only the first two fields of `--shot` (the
+place) and passes them down; `SurveyShots.One` still owns the rest of the spec and is still the one place
+that reports a bad one.
+
+**The rejected alternative is worth recording.** The obvious lever was lifting `Engine.MaxFps`, which
+`--shot` and `--survey` both pin to the tick rate - `ConnectedCheck` uncaps it, so there is precedent. That
+would have been wrong: the pin exists so *"each picture is taken at the same moment every run"*, and
+uncapping trades the reproducibility of every capture for speed. Placing the player costs nothing and keeps
+it.
+
+**Correction to P2h.** That section concluded a thirteen-room pass was "three to four hours" and that any
+room but the spawn was unaffordable. Both were true of the harness as it stood and are false now: **the pass
+is seven minutes.** P2h is kept because its measurement is what identified the walk as the cost.
+
 ### P2h - the real cost of a non-spawn room: about a quarter of an hour each
 
 Chasing P2g's blocker gave a number, and the number is the finding.

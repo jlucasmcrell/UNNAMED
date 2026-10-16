@@ -249,6 +249,11 @@ public partial class Main : Node3D
             LockProfile = true,
             RegionId = region,
             Barrowworks = VisualOptions.Barrowworks,
+            // A --shot names a place to stand, so the session opens the player there instead of making the
+            // capture walk him across the region - which measured about a quarter of an hour per room in the
+            // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
+            StartXMm = ShotStart()?.X,
+            StartZMm = ShotStart()?.Z,
         });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
@@ -906,6 +911,25 @@ public partial class Main : Node3D
             SaveScreenshot(_perfOut, _perf.SegmentName);
             _stats!.SkipNext();
         }
+    }
+
+    /// <summary>
+    /// The place a <c>--shot "x,z,..."</c> names, in millimetres, or null when no shot was asked for.
+    /// </summary>
+    /// <remarks>
+    /// Only the first two fields are read here - the place to stand. Everything after them belongs to
+    /// <see cref="SurveyShots.One"/>, which parses the spec again for the yaw, pitch, hold and standoff. Null on
+    /// anything unparseable, so a bad spec falls back to the region's spawn and <c>SurveyShots.One</c> is still
+    /// the one place that reports it.
+    /// </remarks>
+    private (long X, long Z)? ShotStart()
+    {
+        if (!_options.TryGetValue("--shot", out string? spec))
+            return null;
+        var parts = spec.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length < 2 || !double.TryParse(parts[0], out double x) || !double.TryParse(parts[1], out double z))
+            return null;
+        return ((long)Math.Round(x * 1000), (long)Math.Round(z * 1000));
     }
 
     /// <summary>
