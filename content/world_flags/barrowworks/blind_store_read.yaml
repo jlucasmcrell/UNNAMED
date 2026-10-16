@@ -1,0 +1,9 @@
+id: world.barrowworks.blind_store_read
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.blind_store_read.name
+tags: [world_flag]
+notes: Whether the blind store has been read.
+type: bool
+default: 0
+owning_system: S-22

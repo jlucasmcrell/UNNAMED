@@ -391,6 +391,60 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P4a - the content port, begun: the source read, and the flags
+
+**P3's look is established** (P3a-P3d: 4K stone in two families, a gravel floor, a roof, and interior lamps by
+the engine's own mechanism), so this moves to **P4**, which is what the brief's Done criteria actually need: a
+player who can clear thirteen rooms, make the choice and find the blind store.
+
+**The source, read in full:** `C:\Otherreach_Recovery\canon_readonly\implemented\content\quests\barrowworks\unfinished_measure.yaml`
+- 111 lines, `schema: 1`, 14 objectives, 9 flags, 5 locations, 4 reward lines, and a long `notes` that states
+  the design's intent for each step. **`canon_readonly` and read only.**
+
+**The brief was right that this is a port and not a rewrite.** Checked rather than assumed: every objective
+type the source uses - `talk_to`, `world_state`, `visit_location`, `explore_location`, `acquire_item`,
+`craft_item` - **already exists** in current content, and `flag_ref` is already the dotted `world.*` form the
+source writes.
+
+**What the audit found already present and what is missing:**
+
+| dependency | state |
+|---|---|
+| `item.material.ash_haft` | **exists** |
+| `item.tool.fitting_wedge` | missing |
+| the 8 dotted flags | missing - **written this round** |
+| the design's 5 locations | missing (the blockout's 13 are named `rNN_*`, not these) |
+| Kera's `barrowworks` / `_again` / `_told` nodes | missing - the brief allows one gated Kera branch |
+
+**The ninth flag could not be ported as written.** The source names it
+`fact:defeat.creature.boss.ring_custodian`, and `DefinitionId` will not accept it: its pattern is
+`^[a-z0-9]+(\.[a-z0-9_]*[a-z_][a-z0-9_]*)+(\.[0-9]{2})?$`, which **admits no colon**, and no id anywhere in the
+content uses one. It is translated to **`world.barrowworks.ring_custodian_defeated`** - the shape every other
+flag has, saying the same thing.
+
+**The rename keeps the design's intent, which is the part that matters.** The source is explicit that the
+Custodian's defeat is read as a **durable fact and not as a kill count** - *"a defeat that happened before the
+quest was offered still counts, and the quest cannot be stranded by doing things out of order"*. The current
+content does have a `kill_creature` objective type, and using it would have been the obvious translation and
+the wrong one: it would have made the quest order-dependent, which is the specific thing the design guards
+against. So it stays a world flag.
+
+**Verified:** eight flags under `content/world_flags/barrowworks/`, every id checked against the same pattern
+`DefinitionId.IsValid` uses - **0 failing** - and the content suite's pinned-ID list updated in sorted position
+(`world.barrowworks.*` sorts before `world.cairnwold.*`). **Content tests 147 pass, 0 failed.**
+
+**Still to do in P4:** the fitting wedge item; the design's five locations, anchored to the blockout's rooms
+(intake hall R02, gauge archive R07, service vestibule R10, headworks R12, blind store R09); Kera's three
+dialogue nodes, gated; the quest file itself; then `lint` and `xref` at 0 errors.
+
+**One thing to raise with the owner.** The source's craft step reads *"Fit a wedge to the measure **at the
+waystation's anvil**"* - and the waystation is in the Ashen Hollow, outside the hill. Every other step is
+inside the ring. Either the anvil is meant to be somewhere in the Barrowworks, or the quest deliberately sends
+a character back out mid-dungeon. **Recorded as OQ-14 rather than guessed**, because it changes what a player
+does and it is the owner's to decide.
+
+
+
 Old content: `implemented/content/quests/barrowworks/unfinished_measure.yaml` — **`schema: 1`, which is
 the same schema the current quests use**, so this is a port rather than a rewrite. Port it; do not
 redesign it.

@@ -1,0 +1,9 @@
+id: world.barrowworks.diagram_rack_read
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.diagram_rack_read.name
+tags: [world_flag]
+notes: Whether the diagram rack in the gauge archive has been read.
+type: bool
+default: 0
+owning_system: S-22

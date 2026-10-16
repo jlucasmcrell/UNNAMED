@@ -207,3 +207,21 @@ The depot is still `C:\Otherreach_External_Assets` and every path in this plan s
 **Why it is a question and not an assumption:** if the owner means to move the depot to `D:`, then the art
 root, the material paths and the launch command in §P3a all change - and a drive letter moving is the exact
 defect §3.1 already had to work around once. Nothing is blocked today. Asked rather than guessed.
+
+---
+
+## OQ-14 - The quest's craft step is at the waystation's anvil, which is outside the hill
+
+`unfinished_measure.yaml` objective `o_wedge` reads: *"Fit a wedge to the measure **at the waystation's
+anvil**."*
+
+Every other step in the fourteen is inside the service ring. The waystation is an Ashen Hollow place, outside
+the hill and some distance from either entrance.
+
+Two readings, and the owner's to pick:
+- the anvil is meant to be somewhere in the Barrowworks, and the source text is stale; or
+- the quest deliberately sends a character back out mid-dungeon, which is a real design beat (it makes the
+  reading and the making two separate journeys).
+
+**Not guessed at**, because it changes what a player does and where they go. Ported as written until the owner
+says otherwise, so the behaviour matches the design document rather than my reading of it.

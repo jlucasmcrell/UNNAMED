@@ -1,0 +1,9 @@
+id: world.barrowworks.gate_g3_open
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.gate_g3_open.name
+tags: [world_flag]
+notes: Whether the headworks door beyond the measuring court stands open.
+type: bool
+default: 0
+owning_system: S-22

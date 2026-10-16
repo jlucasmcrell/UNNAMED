@@ -1,0 +1,9 @@
+id: world.barrowworks.withdrawal_notice_read
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.withdrawal_notice_read.name
+tags: [world_flag]
+notes: Whether the withdrawal notice in the intake hall has been read.
+type: bool
+default: 0
+owning_system: S-22
