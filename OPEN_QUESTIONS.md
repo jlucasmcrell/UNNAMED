@@ -194,3 +194,16 @@ broken.
 **Caution:** the import pass rewrites tracked `*.import` files under `Art/` and `Environment/`. Those are
 Godot's own metadata and the rewrite is spurious; restore them (`git checkout -- src/Presentation/Art
 src/Presentation/Environment`) so they never reach a commit.
+
+---
+
+## OQ-13 - A new drive `D:` exists, empty, with depot-shaped folders on it
+
+After the 16 Oct drive install, `D:` is present with **1,862.9 GB free and 0.1 GB used**, carrying three
+**empty** folders: `Otherreach_Depot`, `Otherreach_Audio_Library`, `Otherreach_Scratch`.
+
+The depot is still `C:\Otherreach_External_Assets` and every path in this plan still resolves there.
+
+**Why it is a question and not an assumption:** if the owner means to move the depot to `D:`, then the art
+root, the material paths and the launch command in §P3a all change - and a drive letter moving is the exact
+defect §3.1 already had to work around once. Nothing is blocked today. Asked rather than guessed.

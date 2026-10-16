@@ -1793,54 +1793,6 @@
       "model": "prop_bp_cart_wreck",
       "material": "wood"
     },
-    "corr_r01_r02_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r02_r03_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r02_r03_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r03_r04_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r03_r05_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r05_r06_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r06_r07_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r07_r08_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r08_r02_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r08_r02_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r07_r09_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r06_r10_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r07_r13_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r13_r10_x": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r10_r11_z": {
-      "surface": "cw_wet_stone_wall"
-    },
-    "corr_r11_r12_z": {
-      "surface": "cw_wet_stone_wall"
-    },
     "r01_wall_s_w": {
       "surface": "cw_wet_stone_wall"
     },
@@ -2034,123 +1986,171 @@
       "surface": "cw_wet_stone_wall"
     },
     "r09_wall_s_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_s_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_n_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_n_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_w_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_w_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_e_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r09_wall_e_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_s_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_s_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_n_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_n_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_w_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_w_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_e_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r10_wall_e_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_s_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_s_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_n_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_n_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_w_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_w_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_e_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r11_wall_e_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_s_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_s_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_n_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_n_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_w_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_w_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_e_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r12_wall_e_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_s_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_s_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_n_w": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_n_e": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_w_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_w_n": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_e_s": {
-      "surface": "cw_wet_stone_wall"
+      "surface": "cw_rock_ground"
     },
     "r13_wall_e_n": {
+      "surface": "cw_rock_ground"
+    },
+    "corr_r01_r02_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r02_r03_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r02_r03_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r03_r04_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r03_r05_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r05_r06_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r06_r07_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r07_r08_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r08_r02_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r08_r02_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r07_r09_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r06_r10_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r07_r13_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r13_r10_x": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r10_r11_z": {
+      "surface": "cw_wet_stone_wall"
+    },
+    "corr_r11_r12_z": {
       "surface": "cw_wet_stone_wall"
     }
   },
@@ -3201,8 +3201,8 @@
     "r_0_0:c_07_07": "material_marsh_grass_turf",
     "r_0_0:c_08_06": "cw_moor_grass",
     "r_0_0:c_08_07": "cw_moor_grass",
-    "space.barrowworks/r_0_0:c_00_00": "ter_ph_lichen_rock",
-    "space.barrowworks/r_0_0:c_00_01": "ter_ph_lichen_rock"
+    "space.barrowworks/r_0_0:c_00_00": "cw_gravel_stones",
+    "space.barrowworks/r_0_0:c_00_01": "cw_gravel_stones"
   },
   "people": {
     "player": {
@@ -4221,5 +4221,5 @@
       }
     }
   },
-  "__barrowworks__": "GENERATED by tools/gen_barrowworks_bindings.py - 120 Barrowworks structures, each its own collision box with the surface `cw_wet_stone_wall`. Regenerate after the blockout moves."
+  "__barrowworks__": "GENERATED by tools/gen_barrowworks_bindings.py - 120 Barrowworks structures, each its own collision box: 80 in `cw_wet_stone_wall`, 40 deep rooms in `cw_dark_rock`, and 2 cells floored with `ter_ph_lichen_rock`. Regenerate after the blockout moves."
 }
