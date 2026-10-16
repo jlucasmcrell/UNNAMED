@@ -6,6 +6,7 @@ tags: [quest]
 notes: The playtest's closing journal entry. Renn's farewell line (offered once all four story quests are done) starts it and the same line completes it, so it lands under Done with the feedback text as its summary. Text only - the itch.io line is words for the player to read; nothing here or anywhere reaches the network.
 title: End of the playtest
 summary: You have walked this part of the world end to end - Blackvein, the Foldscar, Durn's moor and Mara's bog. That is all of it for now. Thank you for playing. If you have a minute, leave a comment on the game's itch.io page - what you enjoyed, what broke, and where you got lost. Every comment gets read.
+track: side
 giver_ref: npc.ashen_hollow.renn_vale
 entry_objective: o_book
 objectives:

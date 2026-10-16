@@ -253,7 +253,7 @@ public static class SocialContent
     {
         string key = Text(map, "deed");
         var kind = DeedKeys.Parse(key)
-                   ?? throw new FormatException($"{at}: a deed is {string.Join(", ", Enum.GetValues<DeedKind>().Select(DeedKeys.Key))}, not '{key}'");
+                   ?? throw new FormatException($"{at}: a deed is {string.Join(", ", DeedKeys.Tallied.Select(DeedKeys.Key))}, not '{key}'");
         var (field, subjectKind) = kind switch
         {
             DeedKind.Killed => ("creature_ref", "creature"),

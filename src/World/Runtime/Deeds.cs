@@ -26,7 +26,7 @@ internal sealed class DeedSystem
     public string? Handle(RecordDeed command)
     {
         var deed = command.Deed;
-        if (deed.Count <= 0)
+        if (deed.Count <= 0 || !DeedKeys.Tallied.Contains(deed.Kind))
             return null;
         string key = DeedKeys.TallyKey(deed.Kind, deed.Subject, deed.NpcId);
         int before = State.Deeds.TryGetValue(key, out var tally) ? tally.Count : 0;

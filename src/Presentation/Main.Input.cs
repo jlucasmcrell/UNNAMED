@@ -101,7 +101,7 @@ public partial class Main
         {
             Escape();
         }
-        else
+        else if (!_journal.Typing)   // a note being written takes its letters, not the screens' keys (WP4)
         {
             if (Input.IsActionJustPressed("inventory"))
                 Toggle(_inventory, () => OpenInventory(null));

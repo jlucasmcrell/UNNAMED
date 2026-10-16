@@ -6,6 +6,7 @@ tags: [quest]
 notes: Quest 1 of the content bible (§15), Kera's. There is no objective to kill anything - ore got without a fight counts - and nothing assumes an order the fiction does not need (bible §32) - a shelf visited before the quest counts, and so does ore already carried. Blackvein Cut is the old quarry south of the waystation. The seam is finite, so each item objective also counts what its item is made into - ore smelted early is still ore obtained, and a billet or a spear made ahead still counts - and the quest cannot be stranded by working ahead of it (the Phase-1 technical audit, C-01).
 title: Iron Under Ash
 summary: Kera Voss will make a smith of you if you bring iron up out of Blackvein Cut and make something worth carrying.
+track: side
 giver_ref: npc.ashen_hollow.kera_voss
 entry_objective: o_speak
 objectives:

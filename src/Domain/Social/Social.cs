@@ -154,9 +154,14 @@ public sealed record DeedTally(DeedKind Kind, string SubjectId, string? NpcId, i
     public string Key => DeedKeys.TallyKey(Kind, SubjectId, NpcId);
 }
 
-/// <summary>The deeds' stable keys in content and saves.</summary>
+/// <summary>
+/// The deeds' stable keys in content and saves. Only the deeds E-7 tallies have one: a reply chosen or a stone travelled to (WP4) is counted
+/// by the quests waiting for it, never tallied.
+/// </summary>
 public static class DeedKeys
 {
+    public static readonly ImmutableArray<DeedKind> Tallied = ImmutableArray.Create(DeedKind.Crafted, DeedKind.Harvested, DeedKind.Killed, DeedKind.Delivered);
+
     public static string Key(DeedKind kind) => kind switch
     {
         DeedKind.Crafted => "crafted",
@@ -166,7 +171,7 @@ public static class DeedKeys
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown deed"),
     };
 
-    public static DeedKind? Parse(string key) => Enum.GetValues<DeedKind>().Cast<DeedKind?>().FirstOrDefault(k => Key(k!.Value) == key);
+    public static DeedKind? Parse(string key) => Tallied.Cast<DeedKind?>().FirstOrDefault(k => Key(k!.Value) == key);
 
     public static string TallyKey(DeedKind kind, string subjectId, string? npcId) => $"{Key(kind)}|{subjectId}|{npcId}";
 }

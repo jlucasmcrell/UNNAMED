@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -36,6 +37,12 @@ public sealed record QuestCompleted(string QuestId, string ByObjective, long Tic
 
 public sealed record QuestFailed(string QuestId, string By, long Tick);
 
+/// <summary>An objective's <c>choice</c> was made: its flag is set, and the journal keeps the line.</summary>
+public sealed record ChoiceMade(string QuestId, string ObjectiveId, string FlagId, long Value, string Line, long Tick);
+
+/// <summary>A competitive bounty was finished first by <see cref="ClaimantId"/> - the character's ID, or another actor's - and is closed until it is posted again.</summary>
+public sealed record BountyClaimed(string QuestId, string ClaimantId, long Tick);
+
 /// <summary>One reward of a completed quest, granted through its owner's command: what it was, and the definition and amount it names.</summary>
 public sealed record RewardGranted(string QuestId, string Kind, string What, long Tick)
 {
@@ -48,10 +55,75 @@ public sealed record RewardGranted(string QuestId, string Kind, string What, lon
 
 /// <summary>A quest as the journal shows it: the objectives the character knows of, in authored order.</summary>
 public sealed record QuestView(string Id, string Title, string Summary, QuestStatus Status, long StartedTick, long? EndedTick,
-    ImmutableArray<ObjectiveView> Objectives);
+    ImmutableArray<ObjectiveView> Objectives)
+{
+    public QuestTrack Track { get; init; } = QuestTrack.Side;
+
+    /// <summary>The main story's act; null off the main track.</summary>
+    public int? Act { get; init; }
+
+    /// <summary>Who finished this bounty first while the character held it, by name; null when nobody did.</summary>
+    public string? LostTo { get; init; }
+}
+
+/// <summary>The journal: every quest the character took up (active first), and the Recent list, newest first.</summary>
+public sealed record JournalView(ImmutableArray<QuestView> Quests, ImmutableArray<JournalEntry> Recent)
+{
+    /// <summary>The main story's quests, by act and then as they were taken up ("the story so far").</summary>
+    public ImmutableArray<QuestView> Main => Quests.Where(q => q.Track == QuestTrack.Main).OrderBy(q => q.Act).ThenBy(q => q.StartedTick).ToImmutableArray();
+
+    public ImmutableArray<QuestView> Side => Quests.Where(q => q.Track == QuestTrack.Side).ToImmutableArray();
+
+    public ImmutableArray<QuestView> Bounties => Quests.Where(q => q.Track == QuestTrack.Bounty).ToImmutableArray();
+}
+
+public enum BountyStanding
+{
+    /// <summary>Posted, and nobody holds it.</summary>
+    Open,
+
+    /// <summary>The character holds it.</summary>
+    Held,
+
+    /// <summary>Done with for now - finished by the character or claimed by another, or failed - and not posted again yet.</summary>
+    Claimed,
+}
+
+/// <summary>
+/// One bounty on its giver's board: whether it is open, held by the character or claimed - by whom, and when it is posted again. A bounty
+/// never posted to anyone yet is open.
+/// </summary>
+public sealed record BountyView(string QuestId, string Title, string? GiverId, bool Competitive, BountyStanding Standing)
+{
+    /// <summary>Who claimed it: the character's ID or another actor's; null unless <see cref="BountyStanding.Claimed"/>.</summary>
+    public string? ClaimantId { get; init; }
+
+    /// <summary>The claimant's name, as the board shows it ("Taken by ...").</summary>
+    public string? ClaimantName { get; init; }
+
+    /// <summary>When it is posted again; null when it is open or held.</summary>
+    public long? PostedAgainTick { get; init; }
+}
+
+/// <summary>
+/// The compass's mark for the tracked beat: the place, person or stone the active objective names, where it is now. The label is a person's
+/// or a stone's name, and a place's ID (presentation names it from content).
+/// </summary>
+public sealed record QuestMarker(string QuestId, string ObjectiveId, TargetKind Kind, string Ref, string Label, long XMm, long ZMm);
 
 /// <summary>One objective in the journal, with its count when it counts something.</summary>
 public sealed record ObjectiveView(string Id, string Description, ObjectiveStatus Status, string? Progress);
+
+// ── commands ───────────────────────────────────────────────────────────────────
+
+/// <summary>A new character's story begins: every <c>on_new_game</c> quest not yet started starts now. Submitted once, by a new game.</summary>
+public sealed record BeginStoryCommand(EntityId Actor) : GameCommand(Actor);
+
+/// <summary>
+/// Another actor - not the character, who claims a bounty by finishing it - finished a competitive bounty first. The actor is one the world
+/// knows: a named NPC now, the region's adventurers once they arrive (WP13).
+/// </summary>
+public sealed record ClaimBountyCommand(EntityId Actor, string QuestId) : GameCommand(Actor);
 
 // ── internal commands ──────────────────────────────────────────────────────────
 
@@ -79,14 +151,92 @@ internal sealed class QuestSystem : IQuestFacts
     private readonly SliceOwner _owner;
     private readonly Dictionary<string, LinkedList<TraceEntry>> _traces = new(StringComparer.Ordinal);
 
-    public QuestSystem(SystemContext context, SliceOwner owner)
+    private readonly EntityId _player;
+
+    public QuestSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
         _context = context;
         _owner = owner;
+        _player = player;
     }
 
     private RuntimeState State => _context.State;
     private QuestSetup Setup => _context.Setup.Quests;
+
+    /// <summary>
+    /// What the quests listen for, each answered with a command: a creature's death writes its defeat flag, by whoever's hand; a reply given
+    /// and an arrival by the stones count for the objectives waiting for them.
+    /// </summary>
+    public void Listen(SimulationEvents events)
+    {
+        events.Listen<CreatureKilled>(e => Defeated(e.DefId));
+        events.Listen<ReplyChosen>(e => Handle(new RecordDeed(new Deed(DeedKind.Chose, ChoiceGiven.ChoiceSubject(e.DialogueId, e.NodeId, e.ReplyId), 1,
+            Quality.Standard, e.NpcId, e.Tick))));
+        events.Listen<PlayerTravelled>(e => Handle(new RecordDeed(new Deed(DeedKind.Travelled, e.ToKey, 1, Quality.Standard, null, e.Tick))));
+    }
+
+    /// <summary>Every defeat flag content names, by creature: the flag and the place whose cell holds it.</summary>
+    private ImmutableSortedDictionary<string, ImmutableArray<(string FlagId, string LocationId)>> DefeatFlags =>
+        _defeatFlags ??= Setup.Quests.Values.SelectMany(q => q.Order.Select(o => o.Condition).Concat(q.FailIf)).OfType<DefeatCreature>()
+            .GroupBy(d => d.CreatureId, StringComparer.Ordinal)
+            .ToImmutableSortedDictionary(g => g.Key, g => g.Select(d => (d.FlagId, d.LocationId)).Distinct().ToImmutableArray(), StringComparer.Ordinal);
+
+    private ImmutableSortedDictionary<string, ImmutableArray<(string FlagId, string LocationId)>>? _defeatFlags;
+
+    private void Defeated(string creatureId)
+    {
+        if (!DefeatFlags.TryGetValue(creatureId, out var flags))
+            return;
+        foreach (var (flag, location) in flags)
+        {
+            // A place another region holds is read as unset here, and is not written here either.
+            if (!_context.Setup.Layout.Locations.Any(l => l.Id == location) || WorldFlag(flag, location) != 0)
+                continue;
+            _context.Dispatch(new SetWorldFlag(CellOfLocation(location), flag, 1));
+        }
+    }
+
+    public string? Handle(BeginStoryCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        foreach (var quest in Setup.Quests.Values.Where(q => q.OnNewGame && !State.Quests.ContainsKey(q.Id)))
+            Handle(new StartQuest(quest.Id, null), tick);
+        return null;
+    }
+
+    public string? Handle(ClaimBountyCommand command, long tick)
+    {
+        if (command.Actor == _player)
+            return "the character claims a bounty by finishing it";
+        if (Claimants().All(c => c.Id != command.Actor))
+            return $"unknown actor {command.Actor}";
+        if (!Setup.Quests.TryGetValue(command.QuestId, out var quest))
+            return $"there is no quest {command.QuestId}";
+        if (!quest.Competitive)
+            return $"{quest.Title} is not open to anyone else";
+        var held = State.Quests.GetValueOrDefault(quest.Id);
+        if (!QuestRules.CanClaim(quest, held, tick))
+            return $"{quest.Title} is already claimed";
+        var claimed = QuestRules.Claim(quest, held, command.Actor.Value, tick);
+        State.SetQuest(_owner, claimed);
+        if (held is { Status: QuestStatus.Active })
+        {
+            foreach (var o in held.Objectives.Where(o => o.Status == ObjectiveStatus.Active))
+                _context.Events.Publish(new ObjectiveClosed(quest.Id, o.Id, tick));
+            _context.Events.Publish(new QuestFailed(quest.Id, claimed.EndedBy!, tick));
+        }
+        _context.Events.Publish(new BountyClaimed(quest.Id, command.Actor.Value, tick));
+        Trace(quest.Id, tick, ImmutableArray.Create($"claimed by {command.Actor}"), force: true);
+        return null;
+    }
+
+    /// <summary>The actors besides the character who may claim a bounty, with their names: the named NPCs (WP13 adds the adventurers).</summary>
+    private IEnumerable<(EntityId Id, string Name)> Claimants() => State.Npcs.Values.Select(n => (n.InstanceId, n.Definition.Name));
+
+    /// <summary>A claimant by name: the character, a known actor, or the ID itself.</summary>
+    private string ClaimantName(string id) =>
+        id == _player.Value ? "You" : Claimants().FirstOrDefault(c => c.Id.Value == id) is { Name: { } name } ? name : id;
 
     public string? Handle(StartQuest command, long tick)
     {
@@ -134,9 +284,34 @@ internal sealed class QuestSystem : IQuestFacts
                 continue;
             State.SetQuest(_owner, step.State);
             foreach (var t in step.Transitions)
+            {
                 Publish(quest.Id, t, tick);
+                if (t.Kind == TransitionKind.Satisfied)
+                    Apply(quest, quest.Objectives[t.ObjectiveId], tick);
+            }
             if (step.State.Status == QuestStatus.Completed)
+            {
                 Grant(quest, tick);
+                if (quest.Competitive)
+                    _context.Events.Publish(new BountyClaimed(quest.Id, _player.Value, tick));
+            }
+        }
+    }
+
+    /// <summary>An objective's effects, once: a satisfied objective is never satisfied again.</summary>
+    private void Apply(QuestDefinition quest, ObjectiveDefinition objective, long tick)
+    {
+        foreach (var effect in objective.Effects)
+        {
+            switch (effect)
+            {
+                case ChoiceEffect choice:
+                    _context.Dispatch(new SetWorldFlag(CellOfLocation(choice.LocationId), choice.FlagId, choice.Value));
+                    _context.Events.Publish(new ChoiceMade(quest.Id, objective.Id, choice.FlagId, choice.Value, choice.Line, tick));
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unknown effect {effect.GetType().Name}");
+            }
         }
     }
 
@@ -183,7 +358,7 @@ internal sealed class QuestSystem : IQuestFacts
 
     public ImmutableArray<QuestView> Views() =>
         State.Quests.Values
-            .Where(s => Setup.Quests.ContainsKey(s.QuestId))
+            .Where(s => Setup.Quests.ContainsKey(s.QuestId) && QuestRules.Held(s))
             .OrderBy(s => s.Status == QuestStatus.Active ? 0 : 1).ThenBy(s => s.StartedTick).ThenBy(s => s.QuestId, StringComparer.Ordinal)
             .Select(s =>
             {
@@ -194,8 +369,79 @@ internal sealed class QuestSystem : IQuestFacts
                     .Where(x => x.State is { } st && st.Status != ObjectiveStatus.Closed && (!x.Definition.Hidden || st.Status == ObjectiveStatus.Satisfied))
                     .Select(x => new ObjectiveView(x.Definition.Id, x.Definition.Description, x.State!.Status, Progress(x.Definition, x.State)))
                     .ToImmutableArray();
-                return new QuestView(quest.Id, quest.Title, quest.Summary, s.Status, s.StartedTick, s.EndedTick, objectives);
+                return new QuestView(quest.Id, quest.Title, quest.Summary, s.Status, s.StartedTick, s.EndedTick, objectives)
+                {
+                    Track = quest.Track,
+                    Act = quest.Act,
+                    LostTo = QuestRules.Claimant(s) is { } claimant ? ClaimantName(claimant) : null,
+                };
             }).ToImmutableArray();
+
+    /// <summary>The journal: the quests, and the Recent list their records give.</summary>
+    public JournalView Journal() =>
+        new(Views(), QuestJournal.Recent(State.Quests.Values.Where(s => Setup.Quests.ContainsKey(s.QuestId))
+            .SelectMany(s => QuestJournal.Entries(Setup.Quests[s.QuestId], s, ClaimantName))));
+
+    /// <summary>Every bounty and where it stands on its giver's board, by giver and then title.</summary>
+    public ImmutableArray<BountyView> Bounties(long tick) =>
+        Setup.Quests.Values.Where(q => q.Track == QuestTrack.Bounty)
+            .OrderBy(q => q.GiverId ?? "", StringComparer.Ordinal).ThenBy(q => q.Title, StringComparer.Ordinal)
+            .Select(q =>
+            {
+                var s = State.Quests.GetValueOrDefault(q.Id);
+                var view = new BountyView(q.Id, q.Title, q.GiverId, q.Competitive, s is { Status: QuestStatus.Active } ? BountyStanding.Held : BountyStanding.Open);
+                if (s is null || s.Status == QuestStatus.Active || QuestRules.CanStart(q, s, tick))
+                    return view;
+                // Ended and not posted again yet: claimed - by another, or by the character, who finished it.
+                string? claimant = QuestRules.Claimant(s) ?? (s.Status == QuestStatus.Completed ? _player.Value : null);
+                return view with
+                {
+                    Standing = BountyStanding.Claimed,
+                    ClaimantId = claimant,
+                    ClaimantName = claimant is null ? null : ClaimantName(claimant),
+                    PostedAgainTick = q.RepeatAfterTicks is { } after && s.EndedTick is { } ended ? ended + after : null,
+                };
+            }).ToImmutableArray();
+
+    /// <summary>
+    /// The quest the tracker follows: the one asked for while it is active; else the main story's, earliest act first; else the first
+    /// active quest. Null when nothing is under way.
+    /// </summary>
+    public string? Tracked(string? preferred)
+    {
+        var active = State.Quests.Values.Where(s => s.Status == QuestStatus.Active && Setup.Quests.ContainsKey(s.QuestId)).ToList();
+        if (preferred is not null && active.Any(s => s.QuestId == preferred))
+            return preferred;
+        return active.OrderBy(s => Setup.Quests[s.QuestId].Track == QuestTrack.Main ? 0 : 1).ThenBy(s => Setup.Quests[s.QuestId].Act ?? 0)
+            .ThenBy(s => s.StartedTick).ThenBy(s => s.QuestId, StringComparer.Ordinal).FirstOrDefault()?.QuestId;
+    }
+
+    /// <summary>
+    /// The compass's mark for a quest: the first active objective, in authored order, whose place, person or stone the character knows -
+    /// a place discovered, someone they have spoken with, a stone they know or whose place they found. Null when there is none.
+    /// </summary>
+    public QuestMarker? Marker(string questId)
+    {
+        if (!Setup.Quests.TryGetValue(questId, out var quest) || State.Quests.GetValueOrDefault(questId) is not { Status: QuestStatus.Active } state)
+            return null;
+        var layout = _context.Setup.Layout;
+        foreach (var objective in quest.Order.Where(o => !o.Hidden && state.Objective(o.Id) is { Status: ObjectiveStatus.Active }))
+        {
+            if (QuestRules.Target(objective.Condition) is not { } target)
+                continue;
+            switch (target.Kind)
+            {
+                case TargetKind.Location when layout.Locations.FirstOrDefault(l => l.Id == target.Ref) is { } place && Discovered(place.Id):
+                    return new QuestMarker(quest.Id, objective.Id, target.Kind, target.Ref, place.Id, place.XMm, place.ZMm);
+                case TargetKind.Npc when State.Npcs.TryGetValue(target.Ref, out var npc) && npc.Definition.DialogueId is { } dialogue
+                                         && State.Conversations.ContainsKey(dialogue):
+                    return new QuestMarker(quest.Id, objective.Id, target.Kind, target.Ref, npc.Definition.Name, npc.Body.XMm, npc.Body.ZMm);
+                case TargetKind.Stone when layout.FindWaystone(target.Ref) is { } stone && (KnowsStone(stone.Key) || Discovered(stone.LocationId)):
+                    return new QuestMarker(quest.Id, objective.Id, target.Kind, target.Ref, stone.Name, stone.ArrivalXMm, stone.ArrivalZMm);
+            }
+        }
+        return null;
+    }
 
     private static string? Progress(ObjectiveDefinition definition, ObjectiveState state) => definition.Condition switch
     {
@@ -284,6 +530,11 @@ internal sealed class QuestSystem : IQuestFacts
         _context.Setup.Layout.Locations.Any(l => l.Id == locationId) ? State.World.GetFlag(CellOfLocation(locationId), flagId) : 0;
 
     public int Relationship(string npcId, string dimension) => State.RelationshipOf(npcId, dimension);
+
+    public bool KnowsStone(string stoneKey) => State.KnownStones.ContainsKey(stoneKey);
+
+    public CompanionOrder? CompanionPresent(string npcId) =>
+        State.Companions.TryGetValue(npcId, out var companion) && companion.Condition == CompanionCondition.Up ? companion.Order : null;
 }
 
 /// <summary>

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -92,6 +93,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>A frame longer than this is clamped, so a stall or a long load cannot spiral (WORLD_ARCHITECTURE.md §6.1).</summary>
     public const double MaxFrameSeconds = 0.25;
 
+    /// <summary>
+    /// The least playtime between an event's autosave and the autosave before it: a run of quests completed together, or a stone travelled
+    /// straight after a quest, is one save, not a burst.
+    /// </summary>
+    public const double EventAutosaveSpacingSeconds = 10;
+
     private readonly EventBus _bus;
     private readonly SaveStore _store;
     private readonly ProfileLock? _lock;
@@ -106,6 +113,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
     {
         Options = options;
         _bus = new EventBus(OnSubscriberFailed);
+        // Event autosaves (WP4; PERSISTENCE.md §7.4): a quest completed and an arrival by the stones each save the world soon after.
+        _bus.Subscribe<QuestCompleted>(_ => RequestAutosave());
+        _bus.Subscribe<PlayerTravelled>(_ => RequestAutosave());
         _transitions = transitions;
         _names = names;
         Setup = setup;
@@ -220,6 +230,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var player = Simulation.NewCharacter(Setup, id, characterName, PlayerRecord.DerivedAppearanceSeed(id));
         var world = new WorldDelta(Generator, seed, new Registry());
         Begin(Simulation.Start(Setup, player, world, 0, _bus), playtime: 0);
+        // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
+        if (_simulation!.HasOpeningQuests)
+        {
+            _simulation.Enqueue(new BeginStoryCommand(id));
+            _simulation.DrainCommands();
+        }
         return _simulation!;
     }
 
@@ -370,15 +386,60 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // An autosave is taken at this boundary and written in the background (P-01) - but not while the last is still being written: the
         // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
         string? taken = null;
-        if (!_pending.Any(p => p.Auto) && AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave))
+        bool writing = _pending.Any(p => p.Auto);
+        if (!writing && (AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave)
+                         || _autosaveRequested && PlaytimeSeconds - _lastAutosave >= EventAutosaveSpacingSeconds))
         {
             Queue(taken = _store.NextAutosaveSlot(), auto: true);
             _lastAutosave = PlaytimeSeconds;
+            _autosaveRequested = false;
         }
         return new FrameResult(ticks, _accumulator / TickSeconds, saves) { AutosaveTaken = taken };
     }
 
     private int _autosaveFailures;
+    private bool _autosaveRequested;
+
+    /// <summary>
+    /// Autosave soon, because something worth keeping just happened (WP4's event autosaves): a quest completed and an arrival by the stones
+    /// ask through the events; entering or leaving a space and finishing the creator ask here. It is taken at a frame's tick boundary and
+    /// written in the background like any autosave, no sooner than <see cref="EventAutosaveSpacingSeconds"/> after the last one.
+    /// </summary>
+    public void RequestAutosave() => _autosaveRequested = _simulation is not null;
+
+    /// <summary>Whether an event's autosave is waiting to be taken.</summary>
+    public bool AutosaveRequested => _autosaveRequested;
+
+    private readonly List<JournalEntry> _away = new();
+
+    /// <summary>
+    /// The journal, its Recent list holding the away log's lines among the quests' own (WP11 writes them through <see cref="NoteAway"/>);
+    /// null before a world runs.
+    /// </summary>
+    public JournalView? Journal
+    {
+        get
+        {
+            if (_simulation?.Journal is not { } journal)
+                return null;
+            // Oldest first into the merge, which puts what came later first.
+            return _away.Count == 0 ? journal : journal with { Recent = QuestJournal.Recent(journal.Recent.Reverse().Concat(_away)) };
+        }
+    }
+
+    /// <summary>Lines of the "while you were away" log, for the journal's Recent list, at the tick the character came back.</summary>
+    public void NoteAway(long tick, IEnumerable<string> lines) =>
+        _away.AddRange(lines.Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => new JournalEntry(tick, JournalEntryKind.Away, l)));
+
+    /// <summary>The running character's journal notes; null before a world runs.</summary>
+    public JournalNotes? Notes { get; private set; }
+
+    /// <summary>Write a note in the journal, at the current world tick; the reason it was refused, or null.</summary>
+    public string? AddNote(string text) =>
+        Notes is { } notes ? notes.Add(text, _simulation!.WorldTick) : "there is no running world";
+
+    /// <summary>Cross out a journal note; the reason it was refused, or null.</summary>
+    public string? RemoveNote(int index) => Notes is { } notes ? notes.Remove(index) : "there is no running world";
 
     public void Subscribe<T>(Action<T> handler) => _bus.Subscribe(handler);
 
@@ -405,5 +466,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _accumulator = 0;
         PlaytimeSeconds = playtime;
         _lastAutosave = playtime;
+        _autosaveRequested = false;
+        _away.Clear();
+        Notes = new JournalNotes(_store.Root, simulation.PlayerId);
     }
 }

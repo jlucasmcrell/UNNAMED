@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
@@ -17,19 +18,24 @@ namespace UNNAMED.Content;
 /// the graph has no cycle, a join waits only on objectives that lead to it and never on two alternatives of one branch, a timed
 /// objective says where failure goes; rewards are closed-set kinds; and across content, something starts every quest, every line
 /// a <c>talk_to</c> waits for exists, every crafted or delivered item can be crafted or delivered, and every <c>quest_state</c>
-/// condition names a quest and objective that exist.
+/// condition names a quest and objective that exist. WP4 adds the story fields (<c>track</c>, <c>act</c>, <c>on_new_game</c>,
+/// <c>competitive</c>), objective <c>effects</c> (<c>choice</c>), and the objectives <c>defeat_creature</c>/<c>defeat_boss</c> (a boss never
+/// returns; one defeat flag records one creature in one place), <c>companion_present</c> (someone who can join), <c>dialogue_choice</c> (a
+/// reply the line offers), <c>travel_to</c> and <c>waystone_known</c> (a stone some region places).
 /// </summary>
 public static class QuestContent
 {
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
-    private static readonly string[] Fields = { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy" };
+    private static readonly string[] Fields =
+        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
         { "title_key", "summary_key", "journal_entries", "level_band", "faction_ref", "parent_quest_ref", "chain_index", "abandon_policy" };
 
-    private static readonly string[] ObjectiveFields = { "id", "type", "description", "params", "next", "all_of", "branch", "visibility", "time_limit_min", "on_fail" };
+    private static readonly string[] ObjectiveFields =
+        { "id", "type", "description", "params", "next", "all_of", "branch", "visibility", "time_limit_min", "on_fail", "effects" };
 
     private static readonly string[] ObjectiveFieldsNotBuilt =
         { "description_key", "hidden", "optional", "any_of", "not", "timer_anchor", "world_time_required", "requirements" };
@@ -80,10 +86,33 @@ public static class QuestContent
             Rows(map, "rewards", id).Select((row, i) => Reward($"{id} rewards[{i}]", row, loader)).ToImmutableArray())
         {
             RepeatAfterTicks = map.ContainsKey("repeat_policy") ? Repeat(id, Map(map, "repeat_policy"), ticksPerMinute) : null,
+            Track = map.GetValueOrDefault("track") is { } track
+                ? QuestTracks.Parse(track as string ?? "") ?? throw new FormatException($"{id}: track is main, side or bounty, not '{track}'")
+                : QuestTrack.Side,
+            Act = map.ContainsKey("act") ? Positive(map, "act", id) : null,
+            OnNewGame = Flag(map, "on_new_game", id),
+            Competitive = Flag(map, "competitive", id),
         };
+        if (quest.Track == QuestTrack.Main != quest.Act.HasValue)
+            throw new FormatException($"{id}: a main-track quest names its act, and only a main-track quest has one");
+        if (quest.Track == QuestTrack.Bounty && quest.RepeatAfterTicks is null)
+            throw new FormatException($"{id}: a bounty is standing work, posted again after it is done (repeat_policy)");
+        if (quest.Competitive && quest.Track != QuestTrack.Bounty)
+            throw new FormatException($"{id}: only a bounty (track: bounty) is competitive");
+        if (quest.OnNewGame && quest.RepeatAfterTicks is not null)
+            throw new FormatException($"{id}: a quest every new character starts is taken once (no repeat_policy)");
         CheckGraph(quest);
         return quest;
     }
+
+    private static bool Flag(Dictionary<object, object> map, string key, string at) =>
+        map.GetValueOrDefault(key) switch
+        {
+            null => false,
+            "true" => true,
+            "false" => false,
+            var other => throw new FormatException($"{at}: {key} is true or false, not '{other}'"),
+        };
 
     /// <summary>
     /// <c>repeat_policy: { repeatable, cooldown_min }</c>: a repeatable quest is offered again <c>cooldown_min</c> game minutes after it
@@ -122,6 +151,7 @@ public static class QuestContent
             throw new FormatException($"{at}: a time_limit_min says where failure goes (on_fail), and only a timed objective fails");
         return new ObjectiveDefinition(id, Text(map, "description"), condition, Ids(map, "next", at))
         {
+            Effects = Rows(map, "effects", at).Select((row, i) => Effect($"{at} effects[{i}]", row, loader)).ToImmutableArray(),
             AllOf = Ids(map, "all_of", at),
             FirstBranch = branch == "first",
             Hidden = visibility == "hidden",
@@ -160,6 +190,15 @@ public static class QuestContent
             "relationship_value" => new RelationshipValueObjective(Defined(loader, Text(p, "npc_ref"), "npc", where), Dimension(Text(p, "dimension"), where),
                 (int)Math.Max(LongOr(p, "min", int.MinValue, where), int.MinValue), (int)Math.Min(LongOr(p, "max", int.MaxValue, where), int.MaxValue)),
             "wait_until" => new WaitUntil(Ticks(Positive(p, "after_min", where), ticksPerMinute)),
+            "defeat_creature" or "defeat_boss" => new DefeatCreature(Defined(loader, Text(p, "creature_ref"), "creature", where),
+                Defined(loader, Text(p, "flag_ref"), "world_flag", where), Defined(loader, Text(p, "location_ref"), "location", where), type == "defeat_boss"),
+            "companion_present" => new CompanionPresent(Defined(loader, Text(p, "npc_ref"), "npc", where),
+                p.GetValueOrDefault("order") is { } order
+                    ? CompanionKeys.ParseOrder(order as string ?? "") ?? throw new FormatException($"{where}: order is follow or wait, not '{order}'")
+                    : null),
+            "dialogue_choice" => Choice(where, p, loader),
+            "travel_to" => new TravelTo(StoneKey(Text(p, "waystone_ref"), where)),
+            "waystone_known" => new WaystoneKnown(StoneKey(Text(p, "waystone_ref"), where)),
             _ => throw new FormatException($"{at}: '{type}' is not built"),
         };
         var allowed = Params(type);
@@ -183,8 +222,49 @@ public static class QuestContent
         "world_state" => new[] { "flag_ref", "location_ref", "value", "min", "max" },
         "relationship_value" => new[] { "npc_ref", "dimension", "min", "max" },
         "wait_until" => new[] { "after_min" },
+        "defeat_creature" or "defeat_boss" => new[] { "creature_ref", "flag_ref", "location_ref" },
+        "companion_present" => new[] { "npc_ref", "order" },
+        "dialogue_choice" => new[] { "npc_ref", "dialogue_ref", "node", "choice" },
+        "travel_to" or "waystone_known" => new[] { "waystone_ref" },
         _ => Array.Empty<string>(),
     };
+
+    /// <summary>A Waystone's key, as a region names it (<c>waystone.&lt;name&gt;</c>); that some region has it is checked across content.</summary>
+    private static string StoneKey(string key, string at) =>
+        key.StartsWith("waystone.", StringComparison.Ordinal) && key.Length > "waystone.".Length
+            ? key
+            : throw new FormatException($"{at}: '{key}' is not a Waystone key (waystone.<name>)");
+
+    /// <summary><c>dialogue_choice</c>: the NPC's own conversation unless one is named, the line, and the reply given there.</summary>
+    private static ChoiceGiven Choice(string where, Dictionary<object, object> p, ContentLoader loader)
+    {
+        string npc = Defined(loader, Text(p, "npc_ref"), "npc", where);
+        string dialogue = p.GetValueOrDefault("dialogue_ref") as string
+            ?? Read(loader.Definitions[npc].YamlSource).GetValueOrDefault("dialogue_ref") as string
+            ?? throw new FormatException($"{where}: {npc} has no conversation");
+        Defined(loader, dialogue, "dialogue", where);
+        return new ChoiceGiven(npc, dialogue, Text(p, "node"), Text(p, "choice"));
+    }
+
+    /// <summary>
+    /// An objective's effect - the closed set is <c>choice</c>: a namespaced world flag (<c>flag_ref</c>, read and set in the cell of
+    /// <c>location_ref</c>) takes <c>value</c> (1 unless named), and the journal keeps <c>line</c>.
+    /// </summary>
+    private static QuestEffect Effect(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string kind = Text(map, "kind");
+        if (kind != "choice")
+            throw new FormatException($"{at}: '{kind}' is not an objective effect (choice)");
+        if (map.Keys.Select(k => k as string ?? "").FirstOrDefault(k => k is not ("kind" or "flag_ref" or "location_ref" or "value" or "line")) is { } stray)
+            throw new FormatException($"{at}: '{stray}' is not part of a choice (flag_ref, location_ref, value, line)");
+        string flag = Defined(loader, Text(map, "flag_ref"), "world_flag", at);
+        if (flag.Split('.').Length < 3)
+            throw new FormatException($"{at}: a choice's flag is namespaced (world.<story>.<name>), not '{flag}'");
+        string line = Text(map, "line");
+        if (string.IsNullOrWhiteSpace(line))
+            throw new FormatException($"{at}: a choice has a journal line");
+        return new ChoiceEffect(flag, Defined(loader, Text(map, "location_ref"), "location", at), LongOr(map, "value", 1, at), line);
+    }
 
     /// <summary><c>acquire_item</c>: the item, and <c>or_item_refs</c> - other items that count too, such as what it is made into.</summary>
     private static AcquireItem Acquire(string where, Dictionary<object, object> p, ContentLoader loader)
@@ -319,10 +399,16 @@ public static class QuestContent
         var usedUp = new Lazy<HashSet<string>>(() => CombatContent.BuildUseEffects(loader).Keys.Concat(MagicContent.Build(loader).Teaches.Keys)
             .ToHashSet(StringComparer.Ordinal));
 
+        // Every Waystone key the regions place, read only when an objective names a stone.
+        var stones = new Lazy<HashSet<string>>(() => loader.GetByKind("region").Keys
+            .SelectMany(region => WorldContent.BuildLayout(loader, region).Waystones.Select(w => w.Key)).ToHashSet(StringComparer.Ordinal));
+        var creatureSpawns = new Lazy<List<UNNAMED.World.Runtime.SpawnSite>>(() => loader.GetByKind("region").Keys.SelectMany(region => CombatContent.BuildSpawns(loader, region)).ToList());
+        var defeats = new Dictionary<string, (string Creature, string Location, string At)>(StringComparer.Ordinal);
+
         foreach (var quest in quests.Values)
         {
-            if (!replies.Any(r => r.Choice.Consequences.OfType<StartQuestConsequence>().Any(s => s.QuestId == quest.Id)))
-                throw new FormatException($"{quest.Id}: nothing starts it (no conversation's start_quest names it)");
+            if (!quest.OnNewGame && !replies.Any(r => r.Choice.Consequences.OfType<StartQuestConsequence>().Any(s => s.QuestId == quest.Id)))
+                throw new FormatException($"{quest.Id}: nothing starts it (no conversation's start_quest names it, and it is not on_new_game)");
             foreach (var objective in quest.Order.Select(o => (o.Id, o.Condition)).Concat(quest.FailIf.Select((c, i) => ($"fail_if[{i}]", c))))
             {
                 string at = $"{quest.Id} {objective.Item1}";
@@ -345,6 +431,31 @@ public static class QuestContent
                     case DeliverItem d when !replies.Any(r => r.Dialogue.Participants.Contains(d.NpcId)
                             && r.Choice.Consequences.OfType<TransferItemConsequence>().Any(x => !x.ToPlayer && x.ItemId == d.ItemId)):
                         throw new FormatException($"{at}: no reply of {d.NpcId}'s takes {d.ItemId}, so it can never be delivered");
+                    case DefeatCreature d:
+                        // One flag records one creature's defeat, in one place: every objective naming it reads what the death wrote.
+                        if (defeats.TryGetValue(d.FlagId, out var first) && (first.Creature != d.CreatureId || first.Location != d.LocationId))
+                            throw new FormatException($"{at}: {d.FlagId} already records {first.Creature} at {first.Location} ({first.At})");
+                        defeats[d.FlagId] = (d.CreatureId, d.LocationId, at);
+                        if (d.Boss && creatureSpawns.Value.FirstOrDefault(s => s.RespawnTicks > 0 && s.Members.Any(m => m.CreatureId == d.CreatureId)) is { } returns)
+                            throw new FormatException($"{at}: a boss does not return, and {d.CreatureId} returns at {returns.Key}");
+                        break;
+                    case CompanionPresent c when npcs.TryGetValue(c.NpcId, out var npc) && npc.Companion is null:
+                        throw new FormatException($"{at}: {c.NpcId} cannot join the character, so is never a companion");
+                    case ChoiceGiven c:
+                    {
+                        var conversation = dialogues[c.DialogueId];
+                        if (!conversation.Participants.Contains(c.NpcId))
+                            throw new FormatException($"{at}: {c.NpcId} does not speak {c.DialogueId}");
+                        if (!conversation.Nodes.TryGetValue(c.NodeId, out var line))
+                            throw new FormatException($"{at}: {c.DialogueId} has no line '{c.NodeId}'");
+                        if (line.Choices.All(x => x.Id != c.ChoiceId))
+                            throw new FormatException($"{at}: the line '{c.NodeId}' of {c.DialogueId} offers no reply '{c.ChoiceId}'");
+                        break;
+                    }
+                    case TravelTo t when !stones.Value.Contains(t.StoneKey):
+                        throw new FormatException($"{at}: no region places the Waystone {t.StoneKey}");
+                    case WaystoneKnown w when !stones.Value.Contains(w.StoneKey):
+                        throw new FormatException($"{at}: no region places the Waystone {w.StoneKey}");
                 }
             }
         }

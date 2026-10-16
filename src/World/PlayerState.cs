@@ -388,7 +388,7 @@ public sealed record PlayerRecord
             var deeds = value.IsDefault ? ImmutableArray<DeedTally>.Empty : value.OrderBy(d => d.Key, StringComparer.Ordinal).ToImmutableArray();
             foreach (var d in deeds)
             {
-                if (!Enum.IsDefined(d.Kind) || !DefinitionId.IsValid(d.SubjectId) || d.Count < 1 || d.LastTick < 0
+                if (!DeedKeys.Tallied.Contains(d.Kind) || !DefinitionId.IsValid(d.SubjectId) || d.Count < 1 || d.LastTick < 0
                     || (d.NpcId is not null && (d.Kind != DeedKind.Delivered || !DefinitionId.IsValid(d.NpcId) || !d.NpcId.StartsWith("npc.", StringComparison.Ordinal))))
                     throw new ArgumentException($"Invalid deed tally {d}", nameof(Deeds));
             }

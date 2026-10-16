@@ -7,8 +7,9 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// Heading only (content bible §22: "prefer a simple compass/heading cue over an omniscient minimap"): a dial that turns so its north
-/// points north, the cardinal letters on it, a fixed mark for where the view faces, and the bearing in words and degrees. It shows no
-/// place, creature, container or resource. The dial is the asset pipeline's <c>ui.hud.compass</c> when the workspace is present -
+/// points north, the cardinal letters on it, a fixed mark for where the view faces, and the bearing in words and degrees. It shows one
+/// place only (WP4): a diamond on the face toward the tracked quest's current beat, while the character knows where that is - never a
+/// creature, container or resource, and there is no minimap. The dial is the asset pipeline's <c>ui.hud.compass</c> when the workspace is present -
 /// its face, cut out of the icon's painted background - and a drawn one otherwise.
 /// </summary>
 public partial class Compass : Control
@@ -74,6 +75,16 @@ public partial class Compass : Control
         _marks.DrawnDial = false;
     }
 
+    /// <summary>The tracked beat's bearing from the character, in degrees clockwise from north; null hides the mark.</summary>
+    public void SetMarker(float? bearingDegrees)
+    {
+        float? radians = bearingDegrees is { } b ? Mathf.DegToRad(Mathf.PosMod(b, 360f)) : null;
+        if (radians == _marks.Marker || radians is { } r && _marks.Marker is { } m && Mathf.Abs(Mathf.AngleDifference(r, m)) < 0.002f)
+            return;
+        _marks.Marker = radians;
+        _marks.QueueRedraw();
+    }
+
     /// <summary>Where the view faces, in degrees clockwise from north.</summary>
     public void SetHeading(float degrees)
     {
@@ -96,6 +107,9 @@ public partial class Compass : Control
         public bool DrawnDial { get; set; } = true;
 
         public bool Styled { get; set; }
+
+        /// <summary>The tracked beat's bearing in radians clockwise from north, or null.</summary>
+        public float? Marker { get; set; }
 
         public override void _Draw()
         {
@@ -130,6 +144,14 @@ public partial class Compass : Control
                 // Centred by its measured width: a fixed box narrower than the letter drops it (the W).
                 float width = font.GetStringSize(letters[i], HorizontalAlignment.Left, -1, size).X;
                 DrawString(font, at + new Vector2(-width / 2, 6), letters[i], HorizontalAlignment.Left, -1, size, colour);
+            }
+            // The tracked beat: a diamond inside the letters, turning with the dial.
+            if (Marker is { } bearing)
+            {
+                var at = centre + Vector2.Up.Rotated(Turn + bearing) * (radius * 0.45f);
+                var diamond = new[] { at + new Vector2(0, -6), at + new Vector2(5, 0), at + new Vector2(0, 6), at + new Vector2(-5, 0) };
+                DrawColoredPolygon(diamond, Styled ? HudStyle.Ember : new Color(0.95f, 0.85f, 0.4f));
+                DrawPolyline(diamond.Append(diamond[0]).ToArray(), new Color(0.02f, 0.02f, 0.02f, 0.9f), 1.5f, true);
             }
             // The view's mark: fixed at the top, where the camera faces.
             DrawColoredPolygon(new[] { centre + new Vector2(-6, -radius - 7), centre + new Vector2(6, -radius - 7), centre + new Vector2(0, -radius + 3) },

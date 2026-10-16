@@ -109,7 +109,8 @@ public sealed class Simulation
         _identity = player;
         _cells = setup.Layout.CellKeys.Select(CellKey.Parse).OrderBy(c => c).ToImmutableArray();
         _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player);
-        _context = new SystemContext(_state, setup, events, Dispatch);
+        var bus = new SimulationEvents(events);
+        _context = new SystemContext(_state, setup, bus, Dispatch);
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
         foreach (var entry in player.Inventory)
         {
@@ -139,7 +140,8 @@ public sealed class Simulation
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _trade = new TradeSystem(_context, player.Id, _inventory.View);
-        _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
+        _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
+        _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
@@ -269,6 +271,21 @@ public sealed class Simulation
     /// <summary>The quests the character has started, as the journal shows them: active first (M5).</summary>
     public ImmutableArray<QuestView> Quests => _quests.Views();
 
+    /// <summary>The journal (WP4): the quests by track, and the Recent list their records give, newest first.</summary>
+    public JournalView Journal => _quests.Journal();
+
+    /// <summary>Every bounty on its giver's board: open, held by the character, or claimed - by whom, and until when.</summary>
+    public ImmutableArray<BountyView> Bounties => _quests.Bounties(WorldTick);
+
+    /// <summary>The quest the tracker follows: <paramref name="preferred"/> while it is active, else the main story's, else the first active.</summary>
+    public string? TrackedQuest(string? preferred = null) => _quests.Tracked(preferred);
+
+    /// <summary>Where the compass marks a quest's current beat, when the character knows where that is.</summary>
+    public QuestMarker? Marker(string questId) => _quests.Marker(questId);
+
+    /// <summary>Whether a new game has a story to begin: some quest starts for every new character (<c>on_new_game</c>).</summary>
+    public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame);
+
     /// <summary>The quest debugger (M5): what a quest is waiting on right now, every term's value, and its recent trace.</summary>
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
 
@@ -324,6 +341,8 @@ public sealed class Simulation
                 TouchStoneCommand touch => _travel.Handle(touch, WorldTick),
                 BindStoneCommand bind => _travel.Handle(bind, WorldTick),
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
+                BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
+                ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
