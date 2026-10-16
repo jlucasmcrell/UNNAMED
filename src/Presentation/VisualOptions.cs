@@ -72,8 +72,8 @@ public static class VisualOptions
         // All three exist for the same reason as `skin`: ONE BUILD photographs every arm in the same session,
         // which is what a blind A/B of a lighting change needs (TRAP 12). Never set in a shipping run.
         ["air"] = new[] { "flat", "sun", "hue" },
-        // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): three looks for the owner to choose between, or none.
-        ["celestial"] = new[] { "none", "giant", "arc", "binary" },
+        // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
+        ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
     };
 
     private static readonly Dictionary<string, string> Defaults = new()
@@ -113,7 +113,7 @@ public static class VisualOptions
         //     --visual air=flat   (what shipped before)   --visual air=sun   (the refused arm)
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
-        ["celestial"] = "arc",
+        ["celestial"] = "mix",
     };
 
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>

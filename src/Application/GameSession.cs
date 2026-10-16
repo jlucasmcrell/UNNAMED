@@ -175,11 +175,17 @@ public sealed class GameSession : IDomainEvents, IDisposable
         if (generator.Fingerprint != M3LayoutFingerprint)
             transitions = transitions.Add(new BaselineTransition("M6: the content bible's four cells", M3LayoutFingerprint, generator.Fingerprint,
                 DropVanishedTargets: true));
-        return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions);
+        return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions)
+        {
+            ClockAtWorldStartHours = WorldContent.ClockAtWorldStartHours(loader),
+        };
     }
 
     public GameOptions Options { get; }
     public SimulationSetup Setup { get; }
+
+    /// <summary>What the world clock reads at tick 0, in hours (config.time): the sky shows it and the creatures keep their hours by it.</summary>
+    public double ClockAtWorldStartHours { get; private init; }
     public ContentIdentity Content { get; }
     public ICellBaselineGenerator Generator { get; }
 

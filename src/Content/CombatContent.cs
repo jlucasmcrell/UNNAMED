@@ -92,15 +92,15 @@ public static class CombatContent
     }
 
     /// <summary>
-    /// <c>hours</c>: when night falls and day breaks, by the clock - which reads <c>clock_at_world_start_h</c> at world tick 0 and runs
-    /// through config.time's day (the sky's own clock, SkyView.DefaultHour, is the same reading).
+    /// <c>hours</c>: when night falls and day breaks, by the world clock - which reads config.time's <c>clock_at_world_start_h</c> at
+    /// world tick 0 and runs through config.time's day, the same clock the sky shows.
     /// </summary>
     private static CreatureHours Hours(ContentLoader loader, Dictionary<object, object> map, int tickMs)
     {
         var time = Config(loader, "config.time");
         double hoursPerDay = Number(time, "game_hours_per_day");
         long ticksPerDay = (long)Math.Round(hoursPerDay * Number(time, "game_minutes_per_hour") * Number(time, "seconds_per_game_minute") * 1000 / tickMs);
-        double start = Number(map, "clock_at_world_start_h");
+        double start = WorldContent.ClockAtWorldStartHours(loader);
         long Into(string key)
         {
             double hour = Number(map, key);

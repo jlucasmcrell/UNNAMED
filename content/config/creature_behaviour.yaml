@@ -20,7 +20,7 @@ noise_m:                      # STEALTH §7: how far each sound carries
   blow: 20
   call: 45                    # a howl
 corpse: { decay_s: 600, stack_slots: 8 }
-hours: { clock_at_world_start_h: 10.5, night_from_h: 20.5, day_from_h: 5.5 }   # when roles that keep hours rest; the clock is the sky's (SkyView.DefaultHour at world tick 0)
+hours: { night_from_h: 20.5, day_from_h: 5.5 }   # when roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too)
 roles:
   den_guardian: { unaware: hold, territory_m: 16, calls_for_help: true, answers_calls: true }   # holds the den mouth and howls
   pack_hunter: { unaware: hold, answers_calls: true, flank_m: 3 }                                 # comes to a howl, closes from the side

@@ -109,6 +109,18 @@ public static class WorldContent
         return 1000 / perSecond;
     }
 
+    /// <summary>What the world clock reads at tick 0, in hours, from <c>config.time</c>'s <c>clock_at_world_start_h</c>: the sky and the
+    /// creatures' hours both run from it.</summary>
+    public static double ClockAtWorldStartHours(ContentLoader loader)
+    {
+        var map = Config(loader, "config.time");
+        double hour = Number(map, "clock_at_world_start_h");
+        double hoursPerDay = Number(map, "game_hours_per_day");
+        if (hour < 0 || hour >= hoursPerDay)
+            throw new FormatException($"config.time clock_at_world_start_h {hour} is an hour of the day, from 0 to {hoursPerDay}");
+        return hour;
+    }
+
     private static RegionLayout? TryBuildLayout(ContentLoader loader, string regionId, List<ValidationError> errors)
     {
         if (!loader.Definitions.TryGetValue(regionId, out var region) || region.Kind != "region")

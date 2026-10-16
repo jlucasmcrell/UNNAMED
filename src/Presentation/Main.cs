@@ -242,6 +242,7 @@ public partial class Main : Node3D
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true, RegionId = region });
+        SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
