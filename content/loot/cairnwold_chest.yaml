@@ -1,0 +1,12 @@
+id: loot.cairnwold_chest
+kind: loot
+schema: 1
+display_key: loot.cairnwold_chest.name
+tags: [loot]
+notes: Cairnwold's common chest by the lodge - what a moor village keeps by the door for whoever comes in off the road. All static. Not the waystation's; nothing here Renn would stock.
+rolls: 0
+guaranteed:
+  - { item_ref: item.consumable.roast_meat, count_range: [2, 2] }
+  - { item_ref: item.material.bog_cotton, count_range: [2, 2] }
+  - { item_ref: item.material.small_hide, count_range: [1, 1] }
+  - { item_ref: item.consumable.salve_minor, count_range: [1, 1] }

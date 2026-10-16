@@ -173,6 +173,14 @@ nodes:
         consequences:
           - { command: give_recipe, recipe_ref: recipe.herbal.salve_minor }
         next: salve_lesson
+      - id: cinder
+        text: "What do you want the cinder sacs for?"
+        conditions:
+          - { kind: visited, node: salve_lesson }
+          - { kind: visited, node: ember_lesson, not: true }
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.herbal.salve_ember }
+        next: ember_lesson
       - id: back
         text: "Not today."
         next: again
@@ -201,12 +209,20 @@ nodes:
         text: "It's true, then."
         next: again
   salve_lesson:
-    text: "Two handfuls of woundmoss worked into fat over a fire - any fire; the yard's will do - and a pinch of cotton-grass lint to bind it. It won't mend a bone. It will stop the bleeding while you walk back here to have the bone set. That's three things, in order. Don't improve them."
+    text: "Two handfuls of woundmoss worked down over a fire - any fire; the yard's will do - and a pinch of cotton-grass lint to bind it. It won't mend a bone. It will stop the bleeding while you walk back here to have the bone set. That's three things, in order. Don't improve them."
     once: true
     next_if_exhausted: again
     choices:
       - id: back
-        text: "Moss, fat, lint."
+        text: "Moss, fire, lint."
+        next: again
+  ember_lesson:
+    text: "\"You noticed. Good - nobody else has.\" She lowers her voice, though there's no one to hear. \"Work one into a finished salve over the fire and the mending runs twice as fast. I have no idea why. I've tried it eleven times and it worked eleven times, and I still won't put it in the Record until I know why. So it's not a secret. It's unfinished.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Unfinished. I'll keep it to myself."
         next: again
 barks:
   - { text: "Two chances in three. No - three in five. Hm." }

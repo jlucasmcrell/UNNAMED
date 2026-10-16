@@ -321,7 +321,9 @@ public class CombatTests
         Assert.All(spent, s => Assert.Equal(("item.ammo.arrow_rough", 1), (s.DefId, s.Count)));
         Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == "item.ammo.arrow_rough");
         Assert.Contains(hits, h => h.Attacker == arena.Player && h.Source == "item.weapon.hunting_bow" && h.Damage > 0);
-        Assert.Empty(practice);   // Phase 1 trains no bow skill
+        // Each arrow that wounds trains the bow's own family skill, and nothing else.
+        Assert.Equal(hits.Count(h => h.Attacker == arena.Player && h.Damage > 0), practice.Count);
+        Assert.All(practice, p => Assert.Equal("skill.bow", p.SkillId));
         Assert.Equal("no item.ammo.arrow_rough to shoot", arena.Submit(new AttackCommand(arena.Player)));
     }
 

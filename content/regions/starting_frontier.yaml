@@ -147331,13 +147331,13 @@ containers:
   - 760.2
   stack_slots: 8
 - key: container.cairnwold.waystation_chest
-  loot_ref: loot.waystation_chest
+  loot_ref: loot.cairnwold_chest
   position_m:
   - 951.0
   - 653.5
   stack_slots: 12
 - key: container.cairnwold.merchant_cart
-  loot_ref: loot.merchant_cart
+  loot_ref: loot.cairnwold_cart
   position_m:
   - 975.0
   - 678.0

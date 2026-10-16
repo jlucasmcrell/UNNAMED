@@ -130,7 +130,7 @@ nodes:
       - id: give_billet
         text: "One billet. Fresh."
         conditions:
-          - { kind: quest_state, quest_ref: quest.bounty.moor_billets, is: active }
+          - { kind: quest_state, quest_ref: quest.bounty.moor_billets, objective: o_deliver, is: active }   # only once the fresh one is smelted: a stock billet before then is taken uncounted
           - { kind: has_item, item_ref: item.material.iron_ingot, count: 1 }
         consequences: [{ command: transfer_item, item_ref: item.material.iron_ingot, count: 1, to: npc }]
         next: billet_paid
@@ -146,6 +146,15 @@ nodes:
           - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_cap }
           - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_vest }
         next: hide_lesson
+      - id: heavy_hides
+        text: "What about the heavy hides? Fellhorn. Barrowback."
+        conditions:
+          - { kind: visited, node: hide_lesson }
+          - { kind: visited, node: heavy_hide_lesson, not: true }
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_vest_barrowback }
+          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_cap_fellhorn }
+        next: heavy_hide_lesson
       - id: back
         text: "Not now."
         next: again
@@ -166,6 +175,14 @@ nodes:
     choices:
       - id: back
         text: "I'll take a light."
+        next: again
+  heavy_hide_lesson:
+    text: "The hammer stops. \"Barrowback.\" He holds his arms apart, and then a little further. \"One fleece. A wolf for the shoulders. Vest.\" The hammer starts. Stops. \"Fellhorn. The hump. Cut it whole. Cap.\" He looks at you. \"Fewer seams. Fewer mistakes.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Fewer seams."
         next: again
   hide_lesson:
     text: "He hands you a hide without looking. \"Wolf and a small pelt. Cap.\" Another. \"Two wolves, one deer. Vest.\" He points at the bench. \"There. Not my anvil.\""

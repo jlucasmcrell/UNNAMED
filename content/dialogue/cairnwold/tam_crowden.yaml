@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.cairnwold.tam_crowden.name
 tags: [dialogue]
-notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest; the trade-and-moor node. Voice (NPC_PERSONALITY_BIBLE.md) - quick, anxious, kind, correcting her own numbers out loud; she counts everyone up the west end because her sister Halda went up the north slope after the wolves and did not come down (DIRECTION_AND_CONTENT_PLAN.md C.2d). Bringing her Halda's token from the den is the small version of C.2d; the bow and the keep-it choice wait for that quest.
+notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. She posts two standing bounties (For the Pot, Hides for the Winter) and teaches the cookfire. Voice (NPC_PERSONALITY_BIBLE.md) - quick, anxious, kind, correcting her own numbers out loud; she counts everyone up the west end because her sister Halda went up the north slope after the wolves and did not come down (DIRECTION_AND_CONTENT_PLAN.md C.2d). Bringing her Halda's token from the den is the small version of C.2d; the bow and the keep-it choice wait for that quest.
 participants: [npc.cairnwold.tam_crowden]
 root_node: greet
 nodes:

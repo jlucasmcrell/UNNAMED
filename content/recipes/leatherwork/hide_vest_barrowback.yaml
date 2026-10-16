@@ -1,0 +1,16 @@
+id: recipe.leatherwork.hide_vest_barrowback
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_vest_barrowback.name
+tags: [recipe]
+name: Hide Vest (Barrowback)
+notes: One barrowback fleece cut to a vest, a wolf hide for the shoulders - Durn's heavy-hide lesson. The thick piece needs less stitching than three hides laced together, so it comes out fine more often than the wolf-and-deer vest.
+station: workbench
+skill_ref: skill.survival
+complexity: 5
+inputs:
+  - { item_ref: item.material.barrowback_hide, count: 1 }
+  - { item_ref: item.material.wolf_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_vest, count: 1, quality_roll: true }
+xp_award: { xp: 30 }       # level XP for the first only (AG-7)

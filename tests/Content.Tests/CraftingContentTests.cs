@@ -65,8 +65,9 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "recipe.cooking.roast_meat", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.herbal.salve_minor",
-            "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_vest", "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
+            "recipe.cooking.roast_meat", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
+            "recipe.herbal.salve_ember", "recipe.herbal.salve_minor", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn",
+            "recipe.leatherwork.hide_vest", "recipe.leatherwork.hide_vest_barrowback", "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
         }, crafting.Recipes.Keys);
         Assert.Equal(("workbench", 12), (crafting.Recipes["recipe.fletching.arrows"].StationKind, crafting.Recipes["recipe.fletching.arrows"].OutputCount));
         var billet = crafting.Recipes["recipe.smithing.iron_billet"];

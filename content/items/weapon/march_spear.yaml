@@ -15,3 +15,4 @@ damage_type: physical_pierce
 attack_speed: 1.0         # one thrust a second
 reach: 2.4
 hands: two
+skill_ref: skill.polearm

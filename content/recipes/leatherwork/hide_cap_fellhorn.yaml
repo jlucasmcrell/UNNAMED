@@ -1,0 +1,15 @@
+id: recipe.leatherwork.hide_cap_fellhorn
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_cap_fellhorn.name
+tags: [recipe]
+name: Hide Cap (Fellhorn)
+notes: A cap cut whole from a fellhorn's hump, the hair left on - Durn's heavy-hide lesson. One piece and no seam to fail, so it comes out fine more often than the wolf-and-pelt cap.
+station: workbench
+skill_ref: skill.survival
+complexity: 1
+inputs:
+  - { item_ref: item.material.fellhorn_hide, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_cap, count: 1, quality_roll: true }
+xp_award: { xp: 20 }       # level XP for the first only (AG-7)

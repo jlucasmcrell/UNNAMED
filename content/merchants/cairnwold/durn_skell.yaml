@@ -3,10 +3,12 @@ kind: merchant
 schema: 1
 display_key: merchant.cairnwold.durn_skell.name
 tags: [merchant]
-notes: "Durn Skell's stock at the forge - a stub merchant, no economy: what a smith in a moorland village has, and nothing he would have to have bought in. Opened by Durn's own dialogue."
+notes: "Durn Skell's stock at the forge - a stub merchant, no economy: what a smith in a moorland village has, and nothing he would have to have bought in. Wolf and deer hides off the moor (the small pelts go to Tam), the gear he makes from them, and ash hafts from the stand - no iron; Cairnwold's own is running out. Opened by Durn's own dialogue."
 stock_mode: fixed
 stock:
-  - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
-  - { item_ref: item.armor.hide_vest, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.hide_vest, count: 1, price_bias: 1.0 }   # his moor gear (the bench lesson); PROTOTYPE.md C18 - every item can be got
   - { item_ref: item.armor.hide_cap, count: 1, price_bias: 1.0 }
+  - { item_ref: item.material.wolf_hide, count: 3, price_bias: 1.0 }
+  - { item_ref: item.material.deer_hide, count: 2, price_bias: 1.0 }
+  - { item_ref: item.material.ash_haft, count: 2, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc]

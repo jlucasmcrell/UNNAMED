@@ -3,7 +3,7 @@ kind: loot
 schema: 1
 display_key: loot.waystation_chest.name
 tags: [loot]
-notes: "The waystation's storage chest (content bible §5) - all static. Dried ashbloom, since no herb grows wild in Phase 1 (PROTOTYPE.md C18 - every item can be got)."
+notes: "The waystation's storage chest (content bible §5) - all static. Dried ashbloom from the bog, a start on Sel's salves before the player has found the patches."
 rolls: 0
 guaranteed:
   - { item_ref: item.consumable.salve_minor, count_range: [1, 1] }

@@ -50,8 +50,33 @@ nodes:
       - id: notices
         text: "Anything posted for the road?"
         next: notices
+      # The playtest's closing beat: offered once all four story quests are done, and once only.
+      - id: farewell
+        text: "I think I've seen this stretch of the road."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, is: completed }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: completed }
+          - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, is: completed }
+          - { kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: completed }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.end_of_playtest, is: not_started }
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.end_of_playtest }]
+        next: farewell
       - id: leave
         text: "Nothing for now."
+  farewell:
+    text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road, end to end - there's no more of it yet, not that anyone's built. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: sign
+        text: "I'll write myself in."
+        next: signed
+  signed:
+    text: "He reads what you wrote, upside down, and nods as if it were a bill he'd expected. \"Bound somewhere. Good. The bed's still yours if the road brings you back - and it will. Roads do.\""
+    choices:
+      - id: back
+        text: "Thank you, Renn."
+        next: again
   place:
     text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
     choices:
@@ -136,3 +161,5 @@ barks:
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
   - text: "Three wolves, traveller. The Wayhold counts. So do I."
     conditions: [{ kind: quest_state, quest_ref: quest.bounty.road_wolves, is: active }]
+  - text: "You're in the book, traveller. In ink. That's as permanent as anything gets out here."
+    conditions: [{ kind: visited, node: signed }]

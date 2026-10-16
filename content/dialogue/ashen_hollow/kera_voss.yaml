@@ -192,8 +192,24 @@ nodes:
           - { command: give_recipe, recipe_ref: recipe.fletching.arrows }
           - { command: give_recipe, recipe_ref: recipe.fletching.hunting_bow }
         next: fletching
+      - id: silk
+        text: "Could I string a bow with spider silk?"
+        conditions:
+          - { kind: visited, node: fletching }
+          - { kind: visited, node: silk_string, not: true }
+        consequences:
+          - { command: give_recipe, recipe_ref: recipe.fletching.hunting_bow_silk }
+        next: silk_string
       - id: back
         text: "Later."
+        next: again
+  silk_string:
+    text: "\"Ha! Now you're thinking like a Kal.\" She pulls a hank of grey thread off a nail behind the bellows. \"Dragline. I lash handles with it. Two strands, twisted, waxed - better than cotton grass, and it doesn't sulk in the wet. Mind, you've to take it off the spider first, and the spider has views.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "The spider has views."
         next: again
   ore_taken:
     text: "The spoil at the old cut gives a lump or two a day if you turn it over. Don't you strike the seam for it - that's for real work. Go on. Shoo."
