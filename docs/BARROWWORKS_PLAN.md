@@ -400,6 +400,45 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2d - the screenshot pass, and what it found
+
+**The survey command, for reuse** (GPU lock held for the duration, released after):
+
+```
+powershell -ExecutionPolicy Bypass -File C:\Otherreach_Recovery\gpu_lock.ps1 acquire "deepseek <job>"
+C:\Godot_v4.7.2-stable_mono_win64\Godot_v4.7.2-stable_mono_win64_console.exe ^
+  --path src/Presentation -- --region region.barrowworks --content-root content ^
+  --visual barrowworks=1 --shot "50,10,0" --shot-out C:\Otherreach_Build\barrowworks_shots\trial
+powershell -ExecutionPolicy Bypass -File C:\Otherreach_Recovery\gpu_lock.ps1 release "deepseek <job>"
+```
+
+`--shot` takes `x,z,yaw_deg[,pitch][,seconds]` and stands the character on that spot; `--survey <dir>` does
+every location the region authored, which is now all thirteen rooms.
+
+**What the first frame showed, and how it was read.** The run reported the character standing at (50, 10) in
+R01 at Y = 0.00, then reaching (50, 2.5), and failing to reach (50, 0.4) - so collision and the walk space
+are real. The frame itself came back **black below the HUD**, which the owner saw live.
+
+Black is two very different findings, so the frame was measured rather than guessed at: **1,629,817 of
+2,016,000 pixels (81 %) are non-zero**, and lifting the levels by 24x and auto-contrasting resolved the
+picture. It shows **the blockout drawn correctly** - two wall forms with the centred 3 m doorway between
+them, the character standing in the room, the floor under them. The geometry, the openings and the
+character placement are all right.
+
+**So the blockout is built and renders; it is simply unlit.** The survey deliberately uses the game's own
+sun, sky and camera rather than the audit's built `Environment` ("the pictures worth looking at are
+gameplay pictures"), and a windowless interior gets no sun. Nothing is broken - there is no interior light,
+because until now there was no interior.
+
+**P2's screenshots are therefore BLOCKED on interior lighting, and this is not finished.** A black frame is
+not evidence a reviewer can accept, and calling the blockout photographed would be false. Interior lighting
+is a real feature (a light the interior declares, or an ambient the space applies) and is the next piece of
+work, not a tweak.
+
+**Not attempted:** the lighting itself. Started and stopped here deliberately rather than begun at the end
+of a long session - it changes how the game draws a space, which is exactly the kind of change that deserves
+its own pass with its own measurement.
+
 ### P2c — the thirteen rooms as named places, and the survey's stations
 
 **The blockout had no places, and `SurveyShots` builds one camera station per location a region authored.**
