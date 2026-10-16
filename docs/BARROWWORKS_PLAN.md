@@ -351,6 +351,7 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
 | 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
 | 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
+| 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
 
 ### P1d — the space system, wired into the running simulation
 
