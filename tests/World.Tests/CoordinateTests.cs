@@ -65,4 +65,79 @@ public class CoordinateTests
         Assert.Equal(400, cells.Count);
         Assert.Equal(cells.OrderBy(c => c.ToString(), StringComparer.Ordinal), cells);
     }
+
+    // ── space qualification (M8 D10) ────────────────────────────────────────────────────────────────
+    // The design's requirement is that two equal local coordinates in different spaces must never
+    // interact or share a random stream. The Barrowworks sits at interior-local metres near the origin,
+    // which is real exterior ground, so without a space in the identity its deltas and its RNG would
+    // land on the same cell as the waystation's.
+
+    private static readonly SpaceId Barrowworks = SpaceId.Parse("space.barrowworks");
+
+    [Fact]
+    public void SameLocalCoordinates_InDifferentSpaces_AreDifferentCells()
+    {
+        var exterior = CellKey.OfWorld(0.0, 0.0);
+        var interior = CellKey.OfInterior(Barrowworks, 0.0, 0.0);
+
+        Assert.NotEqual(exterior, interior);
+        Assert.NotEqual(exterior.ToString(), interior.ToString());
+        Assert.NotEqual(exterior.GetHashCode(), interior.GetHashCode());
+        Assert.Equal("r_0_0:c_00_00", exterior.ToString());
+        Assert.Equal("space.barrowworks/r_0_0:c_00_00", interior.ToString());
+    }
+
+    [Fact]
+    public void TwoInteriorSpaces_DoNotCollide()
+    {
+        var barrowworks = CellKey.OfInterior(Barrowworks, 0.0, 0.0);
+        var undermeasure = CellKey.OfInterior(SpaceId.Parse("space.undermeasure"), 0.0, 0.0);
+
+        Assert.NotEqual(barrowworks, undermeasure);
+        Assert.NotEqual(barrowworks.ToString(), undermeasure.ToString());
+    }
+
+    [Fact]
+    public void InteriorCells_RoundTripThroughTheirCanonicalKey()
+    {
+        string key = CellKey.OfInterior(Barrowworks, 0.0, 26.0).ToString();
+        Assert.Equal("space.barrowworks/r_0_0:c_00_00", key);
+        Assert.Equal(key, CellKey.Parse(key).ToString());
+        Assert.Equal(Barrowworks, CellKey.Parse(key).Space);
+    }
+
+    [Fact]
+    public void ExteriorKeys_AreUnchangedBySpaceQualification()
+    {
+        // Every pre-M8 key must parse and print exactly as it did, or existing saves break.
+        Assert.Equal("r_0_0:c_07_11", CellKey.OfWorld(750.0, 1150.0).ToString());
+        Assert.Equal(SpaceId.Exterior, CellKey.OfWorld(750.0, 1150.0).Space);
+        Assert.Equal(SpaceId.Exterior, CellKey.Parse("r_0_0:c_07_11").Space);
+        Assert.True(SpaceId.Exterior.IsExterior);
+        Assert.Equal("", SpaceId.Exterior.ToString());
+    }
+
+    [Fact]
+    public void OfInterior_WithTheExteriorSpace_MatchesOfWorld() =>
+        Assert.Equal(CellKey.OfWorld(250.0, 350.0), CellKey.OfInterior(SpaceId.Exterior, 250.0, 350.0));
+
+    [Theory]
+    [InlineData("space/name")]     // '/' is the space separator
+    [InlineData("space:name")]     // ':' separates region from cell
+    [InlineData("space name")]     // whitespace
+    public void SpaceId_RejectsNamesThatCannotRoundTrip(string name) =>
+        Assert.Throws<FormatException>(() => SpaceId.Parse(name));
+
+    [Fact]
+    public void CellKey_RejectsAnInteriorKeyWhoseSpaceIsMalformed() =>
+        Assert.False(CellKey.TryParse("bad/space/r_0_0:c_00_00", out _));
+
+    [Fact]
+    public void DefaultCellKey_IsTheExteriorSpace()
+    {
+        // TryParse starts from `default`, and a struct's default runs no constructor.
+        Assert.True(default(SpaceId).IsExterior);
+        Assert.Equal("", default(SpaceId).ToString());
+        Assert.True(default(CellKey).Space.IsExterior);
+    }
 }
