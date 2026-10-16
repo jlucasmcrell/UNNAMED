@@ -70,9 +70,10 @@ public sealed class SurveyShots
     /// direction: "you do not have to play an entire playthrough of the level to gauge whether grass looks right.
     /// 5-10 seconds at most is plenty." The four-minute nine-station pass was the wrong tool for a look-and-see.
     ///
-    /// <paramref name="spec"/> is <c>x,z,yaw_deg[,pitch][,seconds]</c> - the place to stand, the way to face, the
-    /// tilt, and how long to hold before the frame is kept. Two standpoints are taken: at the place, and backed
-    /// off 12 m behind it, so the same spot is judged near and a little way off.
+    /// <paramref name="spec"/> is <c>x,z,yaw_deg[,pitch][,seconds][,standoff]</c> - the place to stand, the way to
+    /// face, the tilt, how long to hold before the frame is kept, and how far off to judge it from. Standpoints
+    /// are taken at the place and backed off twice, so the same spot is judged near and a little way off; their
+    /// distances are landscape-scale by default and <paramref name="spec"/>'s standoff scales them for a room.
     /// </summary>
     public static SurveyShots One(GameSession session, PlayerController controller, CameraRig camera,
         string directory, string spec)
@@ -83,6 +84,12 @@ public sealed class SurveyShots
         double yawDeg = parts.Length > 2 && double.TryParse(parts[2], out double y) ? y : 0;
         float pitch = parts.Length > 3 && float.TryParse(parts[3], out float p) ? p : -0.08f;
         double seconds = parts.Length > 4 && double.TryParse(parts[4], out double s) ? s : 6;
+        // The standoffs are LANDSCAPE-SCALE unless the spec says otherwise. 9 m and 26 m suit open ground and
+        // are impossible indoors: in the Barrowworks the character is walked 9 m and then 26 m straight through
+        // a wall, so a room's own review circles a wall instead of the room. A sixth field scales them - 0.15
+        // gives 0.03 m, 1.35 m and 3.9 m, which fits a 10 m chamber. Absent, it is 1 and nothing that already
+        // works moves.
+        double standoff = parts.Length > 5 && double.TryParse(parts[5], out double o) && o > 0 ? o : 1;
         int settle = Math.Max(20, (int)Math.Round(seconds / session.TickSeconds));
         var camera0 = Mathf.DegToRad((float)yawDeg);
         var shots = new SurveyShots(session, controller, camera, directory, oneOnly: true);
@@ -92,8 +99,8 @@ public sealed class SurveyShots
         // at the character's feet. Stand on it; the yaw chooses what is in front.
         shots._stations.Add(new Station("shot", x, z, "the one place asked for",
             new Standpoint(0.2, camera0, pitch, settle, "near"),
-            new Standpoint(9.0, camera0, pitch, settle, "mid"),
-            new Standpoint(26.0, camera0, pitch * 0.5f, settle, "far")));
+            new Standpoint(9.0 * standoff, camera0, pitch, settle, "mid"),
+            new Standpoint(26.0 * standoff, camera0, pitch * 0.5f, settle, "far")));
         return shots;
     }
 

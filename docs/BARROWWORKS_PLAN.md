@@ -400,6 +400,37 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2g - a room photographs; the other twelve do not, and it is the harness not the blockout
+
+**R01 photographed in 23 s** - walls, the centred 3 m opening, the character, a cast shadow, the floor, sky
+above. That is a blockout frame and it is what P2 asks for.
+
+**The other twelve timed out at 120 s each and were skipped.** The simulation was running throughout (the log
+ticks the sky clock from 10.50 to 11.25 h), so nothing hung: the harness was *walking* and not arriving.
+
+**The distinguishing fact is which room worked.** R01 is the region's `spawn`, so its shot needs no walk at
+all. Every other room requires `SurveyShots` to walk the character from the spawn to that room first - and
+that walk is what does not complete. This is the `could not reach` path the earlier survey run also hit
+(standpoint (50, 0.4) reported unreachable while (50, 10) and (50, 2.5) succeeded).
+
+**Ruled out by measurement, not assumption:** the doorways are not too tight. The body's footprint is
+**0.35 m** (`config/base_speeds.yaml`) against a **3.0 m** opening - 8.6 times the radius - and the
+corridors are 3.0 m. A collision explanation would need the opening to be within a body-width of the wall.
+
+**What this costs P2, stated plainly.** One room is photographed; twelve are not. The blockout itself is not
+implicated - it loads, all thirteen rooms are named places, both entrances round-trip, and R01 shows the
+geometry the generator authors. What is blocked is the *harness*: `--shot` and `--survey` are landscape
+tools that walk a character to a standpoint, and they do not complete that walk inside this blockout.
+
+**The smallest unblocking choice:** give the shot path a way to place the character at the standpoint rather
+than walk to it, for a harness that is photographing a room rather than surveying a region. That is a change
+to `SurveyShots`, not to the blockout, and it is the next piece of P2.
+
+**A second finding worth keeping:** the flood-fill test that "proves" all thirteen rooms are reachable uses
+`Blocker.Separation` as a *point* test at 1 m steps. A point can pass where a walking body jams, so that test
+under-reports. It should walk, or the blockout's openings should be checked with the movement solver. Until
+then `EveryRoom_IsReachableFromTheSpawn` asserts less than its name claims.
+
 ### P2f - the verdict, on a worktree that renders
 
 **The blockout is real and it renders.** With the import cache in place, the room frames show the character
