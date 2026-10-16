@@ -51,7 +51,7 @@ public class CraftingContentTests
         Assert.Equal(new[]
         {
             "node.fibre.bog_cotton", "node.firstplay.ashbloom", "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.iron_seam", "node.ore.loose_iron",
-            "node.wood.ash_stand", "node.wood.deadfall",
+            "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall",
         }, crafting.Nodes.Keys);
         var spoil = crafting.Nodes["node.ore.loose_iron"];
         Assert.Equal(("item.material.iron_ore", 1, 1, Respawn.Daily), (spoil.ItemId, spoil.Charges, spoil.YieldMin, spoil.Respawn));
@@ -60,6 +60,11 @@ public class CraftingContentTests
             (seam.ItemId, seam.YieldMin, seam.YieldMax, seam.Charges, seam.Respawn, seam.SkillId, seam.Difficulty));
         var stand = crafting.Nodes["node.wood.ash_stand"];
         Assert.Equal(("item.material.ash_haft", 1, 1, 1, Respawn.Daily), (stand.ItemId, stand.YieldMin, stand.YieldMax, stand.Charges, stand.Respawn));
+        // Halda's trapline (Halda's Tally): a pelt snare and a larder snare, each a catch a day.
+        var pelt = crafting.Nodes["node.trap.pelt_snare"];
+        Assert.Equal(("item.material.small_hide", 1, 1, 1, Respawn.Daily), (pelt.ItemId, pelt.YieldMin, pelt.YieldMax, pelt.Charges, pelt.Respawn));
+        var larder = crafting.Nodes["node.trap.larder_snare"];
+        Assert.Equal(("item.material.raw_meat", 1, 1, 1, Respawn.Daily), (larder.ItemId, larder.YieldMin, larder.YieldMax, larder.Charges, larder.Respawn));
         var bloom = crafting.Nodes["node.firstplay.ashbloom"];
         Assert.Equal(("item.material.herb_ashbloom", 1, 1, 1, Respawn.Daily), (bloom.ItemId, bloom.YieldMin, bloom.YieldMax, bloom.Charges, bloom.Respawn));
 

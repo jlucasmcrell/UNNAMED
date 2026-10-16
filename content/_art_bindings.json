@@ -3165,6 +3165,11 @@
       "family": "bow",
       "hand": "off_hand"
     },
+    "item.weapon.haldas_bow": {
+      "model": "weapon_bp_hunting_bow",
+      "family": "bow",
+      "hand": "off_hand"
+    },
     "item.weapon.march_spear": {
       "model": "weapon_bp_march_spear",
       "family": "polearm"

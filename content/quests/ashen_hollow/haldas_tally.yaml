@@ -1,0 +1,43 @@
+id: quest.ashen_hollow.haldas_tally
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.haldas_tally.name
+tags: [quest]
+notes: "The small side quest of DIRECTION_AND_CONTENT_PLAN.md C.2d. Halda Crowden ran the trapline on the north slope before the wolves took the den, and died up there; her tally lies in the den cache (loot.den_cache). Renn recognises it when the character carries it (his tally reply, which starts this) and the quest forks (branch: first). Return it: Tam's halda_token reply takes it (trust +10) and her halda line is heard; she then gives Halda's Bow (her bow reply). Keep it: Renn's keep reply sets world.hollow.halda_tally_kept, and the character walks Halda's line - two pelts and two portions from her snares (node.trap.pelt_snare, node.trap.larder_snare, daily) - to its end at the den, whose cache was hers. The snares renew each world day, so the route stays walkable after the quest closes; Tam is not offered the tally once it is kept."
+title: Halda's Tally
+summary: A trapper's tally from the wolves' den, a hand's length of horn notched once for every hide. Renn knows whose it was.
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_tally
+objectives:
+  - id: o_tally
+    type: talk_to
+    description: Ask Renn whose tally this is.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [tally] }
+    next: [o_return, o_keep]
+    branch: first
+  - id: o_return
+    type: talk_to
+    description: Take Halda's tally home to her sister, Tam Crowden, at the Cairnwold granary.
+    params: { npc_ref: npc.cairnwold.tam_crowden, nodes: [halda] }
+  - id: o_keep
+    type: world_state
+    description: Or keep it, and tell Renn you will walk Halda's line.
+    params: { flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, value: 1 }
+    next: [o_pelts, o_larder]
+  - id: o_pelts
+    type: harvest_resource
+    description: Check Halda's pelt snares on the north slope.
+    params: { resource_ref: resource.trap.pelt_snare, count: 2 }
+    next: [o_den]
+  - id: o_larder
+    type: harvest_resource
+    description: Check Halda's larder snares on the north slope.
+    params: { resource_ref: resource.trap.larder_snare, count: 2 }
+    next: [o_den]
+  - id: o_den
+    type: explore_location
+    description: Walk the line to its end, at the den. Her cache is there.
+    params: { location_ref: location.den_mouth, within_m: 10 }
+    all_of: [o_pelts, o_larder]
+rewards:
+  - { kind: xp, amount: 60 }

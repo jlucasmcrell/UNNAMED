@@ -3,7 +3,7 @@ kind: dialogue
 schema: 1
 display_key: dialogue.cairnwold.tam_crowden.name
 tags: [dialogue]
-notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest; the trade-and-moor node. Voice (NPC_PERSONALITY_BIBLE.md) - quick, anxious, kind, correcting her own numbers out loud; she counts everyone up the west end because her sister Halda went up the north slope after the wolves and did not come down (DIRECTION_AND_CONTENT_PLAN.md C.2d). Bringing her Halda's token from the den is the small version of C.2d; the bow and the keep-it choice wait for that quest.
+notes: Tam Crowden at the granary. Counts what comes off the moor - the region's own spawns on it (moor_strays, birch_boar, barrow_sentinel, gorge_spiders) are what she is counting. No quest of her own; the trade-and-moor node. Voice (NPC_PERSONALITY_BIBLE.md) - quick, anxious, kind, correcting her own numbers out loud; she counts everyone up the west end because her sister Halda went up the north slope after the wolves and did not come down (DIRECTION_AND_CONTENT_PLAN.md C.2d). Bringing her Halda's token from the den is the return choice of Halda's Tally (quest.ashen_hollow.haldas_tally, C.2d) - she takes it, trust +10, and gives Halda's Bow; once the character has told Renn they are keeping it (world.hollow.halda_tally_kept) she is not offered it.
 participants: [npc.cairnwold.tam_crowden]
 root_node: greet
 nodes:
@@ -20,7 +20,9 @@ nodes:
         next: count
       - id: halda_token
         text: "I found this in the wolves' den."
-        conditions: [{ kind: has_item, item_ref: item.quest.halda_token }]
+        conditions:
+          - { kind: has_item, item_ref: item.quest.halda_token }
+          - { kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 0, max: 0 }   # not once Renn was told it is kept
         consequences:
           - { command: transfer_item, item_ref: item.quest.halda_token, count: 1, to: npc }
           - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 10, event: brought_halda_home }
@@ -40,11 +42,21 @@ nodes:
         next: count
       - id: halda_token
         text: "I found this in the wolves' den."
-        conditions: [{ kind: has_item, item_ref: item.quest.halda_token }]
+        conditions:
+          - { kind: has_item, item_ref: item.quest.halda_token }
+          - { kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 0, max: 0 }   # not once Renn was told it is kept
         consequences:
           - { command: transfer_item, item_ref: item.quest.halda_token, count: 1, to: npc }
           - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 10, event: brought_halda_home }
         next: halda
+      - id: bow
+        text: "You said there was something of Halda's."
+        conditions:
+          - { kind: visited, node: halda }
+          - { kind: visited, node: bow_given, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.weapon.haldas_bow, count: 1, to: player }
+        next: bow_given
       - id: wolves
         text: "I've been hunting wolves."
         conditions:
@@ -86,6 +98,26 @@ nodes:
     choices:
       - id: back
         text: "I'm glad it's home."
+        next: halda_bow
+  halda_bow:
+    text: "\"Wait. Wait there - one moment.\" She goes into the granary and comes back with a bow wrapped in sacking, and holds it out at arm's length like it might go off. \"Hers. Ash and horn. She said it pulled a fraction sweeter than anything Durn sells, and she was right, and she never let him forget it. It's been on the third peg for two winters. I counted it every morning. I'd like it counted somewhere it gets used.\""
+    choices:
+      - id: bow
+        text: "I'll use it well."
+        conditions:
+          - { kind: visited, node: halda }
+          - { kind: visited, node: bow_given, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.weapon.haldas_bow, count: 1, to: player }
+        next: bow_given
+      - id: later
+        text: "Keep it a while longer."
+        next: again
+  bow_given:
+    text: "\"There. One bow, out.\" She cuts a notch, and then, carefully, another beside it. \"And one tally, in. That comes out even. That comes out even, doesn't it?\" She nods before you can. \"Bring it back down. You and it, both, every time. I'm counting.\""
+    choices:
+      - id: back
+        text: "Every time."
         next: again
   wolves:
     text: "\"Wolves.\" She looks at the hide a long moment. \"Up the north slope?\" Then she cuts a notch - a new stick, one she keeps in her apron, not the granary one. \"That's one fewer. I count those too.\""
@@ -168,3 +200,5 @@ barks:
     conditions: [{ kind: has_item, item_ref: item.material.wolf_hide }]
   - text: "Two hides. Hare or fox. Two. Two is the number."
     conditions: [{ kind: quest_state, quest_ref: quest.bounty.winter_hides, is: active }]
+  - text: "One bow, out. Thirty-one, in. Even. That's even."
+    conditions: [{ kind: visited, node: bow_given }]
