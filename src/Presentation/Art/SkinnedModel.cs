@@ -52,7 +52,7 @@ public sealed partial class SkinnedModel : Node3D
                       ? " - this model carries no zone names at all (one atlas), so there is nothing for the zone pass to do; not a mismatch"
                       : $" - {zoneNamed} surface(s) carry zone names but none matched a kind in character_materials.json,"
                         + " so skin SSS and the eye cornea are NOT applied"));
-        CharacterMaterials.ApplyLods(model);
+        int levels = CharacterMaterials.ApplyLods(model);
         // Imported players (none in these files today) would fight ours over the same bones.
         foreach (var imported in model.FindChildren("*", nameof(AnimationPlayer), true, false))
             imported.QueueFree();
@@ -77,6 +77,8 @@ public sealed partial class SkinnedModel : Node3D
         }
         player.AddAnimationLibrary("", library);
         figure._player = player;
+        if (levels >= 4)
+            figure.Throttle();
         figure.FindOutfits(model);
         figure.SetOutfit("base");
         return figure;
@@ -127,6 +129,38 @@ public sealed partial class SkinnedModel : Node3D
             else
                 mesh.SetSurfaceOverrideMaterial(surface, shown ? null : _unseen);
         }
+    }
+
+    // A MetaHuman's clip and skeleton modifiers (springs, IK, look-at) step every frame within 10 m, at 30 Hz to 20 m, at 15 Hz
+    // beyond, and not at all off screen: each step is the time owed since the last, so motion keeps its speed (the 13-figure budget).
+    // By time, not by frame count: at a low frame rate "every 4th frame" was a few updates a second.
+    private bool _throttled;
+    private double _owed;
+    private VisibleOnScreenNotifier3D _seen = null!;
+
+    private void Throttle()
+    {
+        _throttled = true;
+        _player.CallbackModeProcess = AnimationMixer.AnimationCallbackModeProcess.Manual;
+        Skeleton.ModifierCallbackModeProcess = Skeleton3D.ModifierCallbackModeProcessEnum.Manual;
+        _seen = new VisibleOnScreenNotifier3D { Name = "Seen", Aabb = new Aabb(new Vector3(-1, 0, -1), new Vector3(2, 2.2f, 2)) };
+        AddChild(_seen);
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!_throttled)
+            return;
+        _owed += delta;
+        if (!_seen.IsOnScreen())
+            return;
+        float distance = GetViewport().GetCamera3D() is { } camera ? camera.GlobalPosition.DistanceTo(GlobalPosition) : 0f;
+        if (_owed < (distance > 20f ? 1.0 / 15 : distance > 10f ? 1.0 / 30 : 0))
+            return;
+        double step = Math.Min(_owed, 0.25);
+        _owed = 0;
+        _player.Advance(step);
+        Skeleton.Advance(step);
     }
 
     public bool Has(string state) => _states.Contains(state);
