@@ -96,15 +96,19 @@ public partial class SavesPanel : CanvasLayer
         list.AddThemeConstantOverride("separation", 4);
         if (choice.Saves.IsEmpty)
             list.AddChild(UiKit.EmptyState("No saves yet", "No saves yet.", "Quicksave", "quicksave"));
+        // Each character keeps its own slots (OD-14): with more than one, a row says whose save it is.
+        var whose = _session.CharacterSaves() is { Length: > 1 } characters
+            ? characters.ToDictionary(c => c.Character ?? "", c => c.Name ?? "Unnamed character", StringComparer.Ordinal)
+            : null;
         bool newest = true;
         foreach (var save in choice.Saves)
         {
-            var load = Row(list, save, newest && save.Problem is null);
+            var load = Row(list, save, newest && save.Problem is null, whose?.GetValueOrDefault(save.Character ?? ""));
             if (newest)
                 focus ??= load;
             newest = false;
             foreach (var copy in _session.OtherCopies(save))
-                Row(list, copy, false);
+                Row(list, copy, false, whose?.GetValueOrDefault(copy.Character ?? ""));
         }
         _sheet.Body.AddChild(list);
         var back = Action(_atStart ? "Back to the title" : "Back to the game", () => Closed?.Invoke());
@@ -116,10 +120,10 @@ public partial class SavesPanel : CanvasLayer
     }
 
     /// <summary>A save's row: its name, when it was written and how long was played; Load at the right (primary on the newest).</summary>
-    private Button? Row(VBoxContainer list, SaveSummary save, bool primary)
+    private Button? Row(VBoxContainer list, SaveSummary save, bool primary, string? whose)
     {
         bool copy = save.Copy != SaveCopy.Current;
-        var row = UiKit.Row(null, Describe(save.Slot, save.Copy), $"{When(save)} · {Played(save)}", copy ? HudStyle.Ash : HudStyle.Bone, copy ? 32 : 40);
+        var row = UiKit.Row(null, Describe(save.Slot, save.Copy), $"{(whose is null ? "" : whose + " · ")}{When(save)} · {Played(save)}", copy ? HudStyle.Ash : HudStyle.Bone, copy ? 32 : 40);
         if (copy)
             row.Root.AddThemeConstantOverride("separation", 12);
         Button? load = null;
