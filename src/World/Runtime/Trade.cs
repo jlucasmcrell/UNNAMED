@@ -1,4 +1,4 @@
-// UNNAMED World - NPCs, conversations, relationships and trade at run time (SYSTEMS.md S-24, S-26, S-28; M4)
+// UNNAMED World - trade with NPCs: buy, sell and merchant wares (M3b economy stub, opened by M4)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -14,31 +14,21 @@ using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
 
-// ── commands ────────────────────────────────────────────────────────────────
-
 /// <summary>Buy from a trader within reach: one of their wares (by its <see cref="WareView.Ref"/>), at their price.</summary>
 public sealed record BuyCommand(EntityId Actor, string NpcId, string Ware, int Count) : GameCommand(Actor);
 
 /// <summary>Sell a carried stack to a trader within reach who buys that kind of thing.</summary>
 public sealed record SellCommand(EntityId Actor, string NpcId, EntityId Item, int Count) : GameCommand(Actor);
 
-// ── events ──────────────────────────────────────────────────────────────────
-
 public sealed record ItemBought(string NpcId, string ItemId, int Count, long Price, long Tick);
 
 public sealed record ItemSold(string NpcId, string ItemId, int Count, long Price, long Tick);
-
-// ── views ───────────────────────────────────────────────────────────────────
 
 /// <summary>A trader's wares as they stand, each at the price they ask for one.</summary>
 public sealed record WaresView(string NpcId, string MerchantId, ImmutableArray<WareView> Wares);
 
 /// <summary>A ware: <see cref="Ref"/> is what a <see cref="BuyCommand"/> names it by.</summary>
 public sealed record WareView(string Ref, string ItemId, int Count, int Quality, long Price);
-
-// ── state and internal commands ─────────────────────────────────────────────
-
-// ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
 /// Owns no state. Trade with an NPC who offers it (M3b's economy stub, opened by M4's NPCs): a trader's wares are a container
