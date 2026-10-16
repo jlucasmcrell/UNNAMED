@@ -71,6 +71,8 @@ public partial class Main : Node3D
     private Art.HitImpacts _hits = null!;
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
+    private Audio.MusicPlayer _music = null!;
+    private Ui.SoundPanel _soundPanel = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -346,6 +348,8 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED texture cache: {_art.Cache.Hits} textures from the cache, {_art.Cache.Added} added, {_art.Cache.Failed} failed; "
                      + $"{_art.Cache.CompressedBytes / 1048576.0:0.0} MB compressed");
         _art.Cache.Save();
+        // The player's mix (Master, Music, Effects); a harness run keeps the defaults so its captures stay comparable.
+        Audio.AudioMix.Apply(harness ? new Audio.AudioMix.Volumes() : Audio.AudioMix.Saved());
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
         if (_sounds.Problems.Count > 0)
@@ -356,7 +360,10 @@ public partial class Main : Node3D
             AddChild(new Audio.AmbientAudio(_sounds, _ground));
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
-        _soundEvents.Bind(_session, _bindings, _sounds);
+        _soundEvents.Bind(_session, _bindings, _sounds, _ground);
+        _music = new Audio.MusicPlayer { Name = "Music" };
+        AddChild(_music);
+        _music.Bind(_sounds, _session, _bindings);
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
@@ -383,6 +390,8 @@ public partial class Main : Node3D
         _companionsPanel = new CompanionsPanel { Name = "Companions" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
+        _soundPanel = new Ui.SoundPanel { Name = "Sound" };
+        AddChild(_soundPanel);
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
@@ -394,6 +403,7 @@ public partial class Main : Node3D
                 new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
                 new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
                 new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
+                new("System", "Sound", null, "panel.sound", FromMenu(() => Show(_soundPanel))),
                 new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
             },
             Quit = () => GetTree().Quit(0),
@@ -448,6 +458,7 @@ public partial class Main : Node3D
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
             _saves.OpenStart();
+            _music.Title(true);
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
@@ -936,7 +947,7 @@ public partial class Main : Node3D
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _soundPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -948,7 +959,7 @@ public partial class Main : Node3D
         _saves.Close();
         if (_help.Visible)
             _help.Toggle();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _soundPanel })
             screen.Visible = false;
     }
 
@@ -1347,6 +1358,7 @@ public partial class Main : Node3D
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
             _inventory.OpenContainer, Screen is not null, delta);
+        _music.Update(feet, delta);
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         LogStates(simulation, delta, speed);
@@ -1923,6 +1935,7 @@ public partial class Main : Node3D
             _graphics = null;
         }
         _saves.Close();
+        _music.Title(false);
         _lastSave = null;
         _loadedFrom = null;
         _hud.Visible = true;

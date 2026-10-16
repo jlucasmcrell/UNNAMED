@@ -25,6 +25,7 @@
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />
     <Compile Include="..\..\src\Presentation\Audio\AudioCoverage.cs" Link="Linked\AudioCoverage.cs" />
+    <Compile Include="..\..\src\Presentation\Audio\MusicChoice.cs" Link="Linked\MusicChoice.cs" />
     <Compile Include="..\..\src\Presentation\Ui\NameWords.cs" Link="Linked\NameWords.cs" />
   </ItemGroup>
 
