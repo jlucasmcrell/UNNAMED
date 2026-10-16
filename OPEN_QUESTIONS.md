@@ -271,3 +271,36 @@ this is the same gap reached from the other end.
 **Needed to close it:** either an `item_ref` on `DoorSite` (Content, plus the door interaction), or a switch a
 door reads without sharing its flag. Both are shared-world changes rather than Barrowworks content, which is why
 they are not made here.
+
+---
+
+## OQ-17 - Why the Custodian's defeat is a world flag and not a `kill_creature` objective
+
+`o_custodian` reads `world.barrowworks.ring_custodian_defeated`, a flag **nothing in the engine writes yet**, and
+that reads like a mistake until you try the obvious fix. The engine has a `kill_creature` objective
+(`Domain/Quests/Quests.cs`), the bounty quests use it, and swapping `o_custodian` to it would make the step
+complete today with no new machinery. **It is still the wrong choice, and here is the measurement.**
+
+**`kill_creature` counts deeds done while the objective is active.**
+`KillCreature.CountsDeeds => true`, and `QuestRules.Record` (Quests.cs L402) advances an objective only when
+`o.Status == ObjectiveStatus.Active && Counts(definition.Condition, deed)`. A kill that happened before
+`o_custodian` activated is **never counted - not late, not on a re-read: never.** The deed is not consulted again.
+
+**So it would make the step missable.** The ring's two portals exist independently of the quest: a player can walk
+in, fight the Custodian, and only then talk to Kera. With `kill_creature` that player is stuck holding a corpse
+and an objective that can never be satisfied, with no in-fiction way to understand why - which is worse than the
+step being blocked for everyone, because it is blocked for *some* players at random.
+
+**The design says so itself.** The source names the Custodian's defeat `fact:defeat.creature.boss.ring_custodian` -
+a **fact**, read as durable world state, and the port's own `notes` record that it stays a flag rather than a kill
+count so the design's order-independence survives. The bounty that *does* use `kill_creature` is a **repeatable
+cull** ("paid the moment the third wolf falls"), where counting only while active is exactly right. The two are
+different kinds of thing and the engine's vocabulary already distinguishes them.
+
+**What is actually missing is a writer, and that is WP4's.** Plan section 2.11 assigns the creature-defeat path to
+WP4 and says Barrowworks should consume it rather than build a second one. `o_custodian` already reads the flag by
+the name that path should write; `BarrowworksQuestSatisfiabilityTests` names the flag as its one exemption, so the
+day WP4 lands, that test is where a mismatched id shows up.
+
+**Recorded because the question recurs.** Anyone reading `o_custodian` will reach for `kill_creature`, and the
+answer is three lines of `Quests.cs` away rather than obvious.
