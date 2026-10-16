@@ -352,7 +352,64 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
 | 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
 | 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
-| 2026-10-16 | `_P1f_` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
+| 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
+
+### P1f — the position-derived cell sweep
+
+**What the sweep found.** `RngChannel.Open` seeds from `CanonicalHasher` over the cell's canonical string,
+and that string carries the space. So the random stream was **already** space-separated by P1a, with nothing
+added — a channel is keyed by the cell, and the cell knows its space. The design's requirement holds
+structurally rather than by a rule anyone has to remember.
+
+**So the sweep reduced to one question: is the cell passed in space-qualified?** Eleven `RngChannel.Open`
+sites and every flag and delta lookup were checked. Most already come from a space-carrying source —
+worldgen, a node, a spawn site, a container site. **Four derived a cell from a bare `Body`:**
+
+| Site | Was | Now |
+|---|---|---|
+| `Combat.cs:851` | `OfWorld(at.XMm/1000, at.ZMm/1000)` | `_context.CellOf(at)` |
+| `Companions.cs:622` | same | `_context.CellOf(at)` |
+| `Crafting.cs:192` | same | `_context.CellOf(body)` |
+| `Creatures.cs:480` | same | `OfInterior(State.Space, …)` |
+
+Plus the two tier lookups (`Companions.cs:627`, `Creatures.cs:981`), which are worse than a wrong roll: a
+body in the wrong cell asks for the wrong tier, so the wrong cells get simulated.
+
+**One helper, not five edits.** `SystemContext.CellOf(Body)` resolves a body's cell in the ambient space,
+which is the player's. That is correct while one space holds every actor — the Barrowworks is a single shared
+instance, its rooms are always reached through the player, and the design freezes an absent space rather than
+simulating it. A space recorded per creature is what a second concurrently simulated space would need, and
+the remark says so.
+
+**Three tests make separation a property rather than a hope:** the same local coordinates in two spaces draw
+different values; a channel is still stable across opens in one space, so determinism survived; and two
+interior spaces do not share a stream.
+
+**Left alone deliberately.** The remaining `CellKey.OfWorld` calls that take a *site* (`Crafting.cs:72`,
+`Creatures.cs:179`, `Items.cs:679`, `Quests.cs:262`, `Social.cs:410`, `Systems.cs:471`) are correct for a
+region that is one space, and become wrong only once a region's layout itself belongs to an interior. The fix
+there is a space on `RegionLayout` rather than on each site type — P2 work, once the rooms are authored. The
+presentation-only calls (`Main.cs`, `GroundField.cs`, `HollowView.cs`, `SoundEvents.cs`) read the exterior
+world and need nothing.
+
+### P1e — persistence deferred, deliberately
+
+**Attempted and reverted:** the space wired all the way through persistence — `PlayerRecord` fields, the
+player DTO, a schema 14 → 15 bump and a `SchemaV14ToV15` step.
+
+**Why it was reverted.** `Fixtures/README.md` requires a schema bump to land as one complete unit: a new
+`v15/` fixture written by the new writer through `M2.Probe`, the previous current section shapes frozen as
+`Sections/V14` with the step producing 14 repointed at them, and every `expected.json` whose state gained a
+field updated — and it warns never to change one to make a failing migration pass. Reverting is what took
+Persistence.Tests from 11 failures back to 173/173.
+
+**Why deferring is safe.** The state is unreachable: no region declares a portal, so `EnterSpaceCommand` can
+never succeed in a shipped run. `TheSpace_IsNotPersistedYet_SoItMustStayUnreachable` asserts that, so the
+deferral cannot rot silently, and it fails the moment a portal is declared without the bump beside it.
+
+**The hazard, stated rather than left implicit:** a save made inside would load with the body at
+interior-local coordinates while the simulation believes it is in the exterior — the collision the space
+identity exists to prevent, in reverse. OQ-10 carries this and the smallest choice that avoids it.
 
 ### P1d — the space system, wired into the running simulation
 
