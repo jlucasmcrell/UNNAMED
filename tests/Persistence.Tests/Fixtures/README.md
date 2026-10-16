@@ -78,6 +78,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `spawn.fixture.den#0` may charge again at tick 5060, is immune to a stagger until 5020, and is stunned - 40 ticks from 4995; two sounds wait to be heard: a howl of `creature.beast.ash_hound` at (12345, 67890) mm carrying 30 m, and a blow at (14000, 66000) mm carrying 12 m | creature record continuation, entities `noises` | Schema 14 (the Phase-1 technical audit, L-06). The howl's kind is **renamed** to `creature.beast.ash_ember_hound`, as the creature record's is. v1-v13 migrate to no cooldown, stagger or immunity and nothing to hear; a schema-14 creature without its continuation, or a section without its noises, is corrupt, not defaulted |
 | Aelin knows `waystone.fixture.cairn` (touched, tick 4100) and `waystone.fixture.ford` (woken, tick 4500), both of `region.fixture_vale`, has made the ford stone her return point, and has walked stretches 0 and 1 of `road.fixture.track` | player waystones, return point, walked roads | Schema 15 (Waystone travel, S-38). The fixture pack has no Waystones: the records are the character's, kept as they are. v1-v14 migrate to no stone known, no return point (the region's spawn) and no road walked; a schema-15 player without its Waystone records or walked roads is corrupt, not defaulted |
 | Aelin has killed `creature.beast.ash_hound` three times (last at tick 4800), handed `item.potion.healing_draught` to `npc.fixture.warden` twice (last at 4200) and crafted `item.weapon.iron_sword` once (at 3900) | player deeds | Schema 16 (WP5, E-7: what dialogue's `deed` condition reads). The hound, the draught and the warden are **renamed** to `creature.beast.ash_ember_hound`, `item.potion.minor_healing` and `npc.fixture.warden_sera`: the renames must reach the deed tallies. v1-v15 migrate to no deed counted; a schema-16 player without its deeds is corrupt, not defaulted |
+| Aelin is "she", `people.veth`, body preset `body.build_slender`, of the Call `call.scholar` | player identity | Schema 17 (the character creator, WP2). The fixture pack has no peoples or Calls: the identity is the character's, kept as it is, like a Waystone record. v1-v16 migrate to the character the game made before the creator - "they", `people.veth`, `body.default`, no Call - and keep their name; a schema-17 player without its identity is corrupt, not defaulted |
 
 ## Provenance
 
@@ -98,6 +99,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v13/` | The owner-playtest schema-13 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v15/` | The Waystone-travel schema-15 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v16/` | The WP5 schema-16 writer (deeds) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v17/` | The character-creator schema-17 writer (WP2) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

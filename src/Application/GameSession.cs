@@ -296,7 +296,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // Only once it loaded: a refused load leaves the running world, and the folder it saves to, as they were.
         _character = character;
         _store = store;
-        _card = character is null ? null : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, null, null);
+        _card = character is null ? null
+            : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
     }

@@ -22,6 +22,7 @@ using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
+using V16 = UNNAMED.Persistence.Sections.V16;
 
 namespace UNNAMED.Persistence;
 
@@ -84,7 +85,8 @@ public static class SchemaMigrations
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
         new SchemaV14ToV15(),
-        new SchemaV15ToV16());
+        new SchemaV15ToV16(),
+        new SchemaV16ToV17());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -872,7 +874,7 @@ public sealed class SchemaV15ToV16 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V16.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -896,6 +898,56 @@ public sealed class SchemaV15ToV16 : SchemaMigration
                 ReturnPoint = old.ReturnPoint,
                 RoadsWalked = old.RoadsWalked,
                 Deeds = Array.Empty<DeedDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 16 to 17 (WP2, the character creator): the player gains an identity besides their name - pronouns, people, body preset and Call.
+/// A save that predates the creator keeps its name (the game's own were all "Wanderer") and is the character the game always made: "they",
+/// a Veth of the default body, and no Call.
+/// </summary>
+public sealed class SchemaV16ToV17 : SchemaMigration
+{
+    public override int From => 16;
+
+    public override string Summary => "schema 16 -> 17: the player gains an identity (they, people.veth, body.default) and no Call; the name is kept";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V16.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                // Literal, not CharacterIdentity.BeforeTheCreator: a step is a fixed function of the schema it reads.
+                Identity = new IdentityDto { Pronouns = "they", People = "people.veth", BodyPreset = "body.default", Call = null },
             }, options);
         }
         document.Manifest["schema_version"] = To;

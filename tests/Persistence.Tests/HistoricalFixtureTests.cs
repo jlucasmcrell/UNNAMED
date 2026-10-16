@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
@@ -266,6 +267,13 @@ public class HistoricalFixtureTests
                 }
                 : Array.Empty<DeedTally>(),
             loaded.Player.Deeds);
+        // Schema 17's identity (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call; before it, the
+        // character the game always made - "they", a Veth of the default body, with no Call - and her name kept.
+        Assert.Equal(schema >= 17
+                ? new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar")
+                : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
+            loaded.Player.Identity);
+        Assert.Equal("Aelin", loaded.Player.Name);
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.

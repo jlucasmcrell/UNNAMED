@@ -86,7 +86,7 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
 }
 
 /// <summary>
-/// What a character is besides its name, kept on the player record (schema 16). A character made before the creator has the default
+/// What a character is besides its name, kept on the player record (schema 17). A character made before the creator has the default
 /// people and body, "they", and no Call.
 /// </summary>
 public sealed record CharacterIdentity(Pronouns Pronouns, string PeopleId, string BodyPresetId, string? CallId)

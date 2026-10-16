@@ -58,6 +58,7 @@ public class PlayerRecordCompletenessTests
                 ReturnPoint = "waystone.fixture.cairn",
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
                 Deeds = player.Deeds,
+                Identity = player.Identity,
             };
     }
 

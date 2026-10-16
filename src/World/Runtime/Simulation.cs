@@ -54,7 +54,11 @@ public sealed record PlayerView(
     long Currency,
     long CarriedGrams,
     long CarryLimitGrams,
-    int Armor);
+    int Armor)
+{
+    /// <summary>Pronouns, people, body preset and Call, as the creator made them: what presentation draws and words the character by.</summary>
+    public CharacterIdentity Identity { get; init; } = CharacterIdentity.BeforeTheCreator;
+}
 
 /// <summary>A door and whether it is open.</summary>
 public sealed record DoorView(DoorSite Site, bool Open);
@@ -182,7 +186,7 @@ public sealed class Simulation
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed);
+        return NewCharacter(setup, id, spec.Name, call, appearanceSeed) with { Identity = CharacterIdentity.Of(spec) };
     }
 
     private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed)
@@ -242,7 +246,7 @@ public sealed class Simulation
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
-        Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor());
+        Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor()) { Identity = _identity.Identity };
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
@@ -428,6 +432,7 @@ public sealed class Simulation
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
             Deeds = _state.Deeds.Values.ToImmutableArray(),
+            Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
         };
     }
 

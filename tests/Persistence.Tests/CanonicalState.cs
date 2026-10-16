@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -187,6 +188,15 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            json.WriteStartObject("identity");
+            json.WriteString("pronouns", PronounKeys.Key(player.Identity.Pronouns));
+            json.WriteString("people", player.Identity.PeopleId);
+            json.WriteString("body_preset", player.Identity.BodyPresetId);
+            if (player.Identity.CallId is { } call)
+                json.WriteString("call", call);
+            else
+                json.WriteNull("call");
+            json.WriteEndObject();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

@@ -7,6 +7,7 @@ using MessagePack;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
@@ -75,6 +76,12 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 16. The 15 -> 16 step gives older saves none: no deed was counted before the deed condition (E-7).</summary>
     [Key("deeds")] public DeedDto[]? Deeds { get; set; }
+
+    /// <summary>
+    /// Required from schema 17. The 16 -> 17 step gives older saves the identity of a character made before the creator: "they", a Veth of
+    /// the default body, and no Call.
+    /// </summary>
+    [Key("identity")] public IdentityDto? Identity { get; set; }
 }
 
 /// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
@@ -86,6 +93,16 @@ public sealed class DeedDto
     [Key("npc")] public string? Npc { get; set; }
     [Key("count")] public int Count { get; set; }
     [Key("last_tick")] public long LastTick { get; set; }
+}
+
+/// <summary>Who the character is besides their name, as the creator made them (schema 17). No World Rules or difficulty: there are none.</summary>
+[MessagePackObject]
+public sealed class IdentityDto
+{
+    [Key("pronouns")] public string Pronouns { get; set; } = "";
+    [Key("people")] public string People { get; set; } = "";
+    [Key("body_preset")] public string BodyPreset { get; set; } = "";
+    [Key("call")] public string? Call { get; set; }
 }
 
 /// <summary>A Waystone the character knows (schema 15).</summary>
@@ -450,6 +467,13 @@ public static class SectionCodec
         ReturnPoint = player.ReturnPoint,
         RoadsWalked = player.RoadsWalked.ToArray(),
         Deeds = player.Deeds.Select(d => new DeedDto { Deed = DeedKeys.Key(d.Kind), Subject = d.SubjectId, Npc = d.NpcId, Count = d.Count, LastTick = d.LastTick }).ToArray(),
+        Identity = new IdentityDto
+        {
+            Pronouns = PronounKeys.Key(player.Identity.Pronouns),
+            People = player.Identity.PeopleId,
+            BodyPreset = player.Identity.BodyPresetId,
+            Call = player.Identity.CallId,
+        },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -477,6 +501,8 @@ public static class SectionCodec
         var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
         var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
+        var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
+        var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -507,6 +533,7 @@ public static class SectionCodec
             RoadsWalked = roads.ToImmutableArray(),
             Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
                 d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
+            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call),
         };
     }
 

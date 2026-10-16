@@ -156,7 +156,13 @@
     "waystones": [],
     "return_point": null,
     "roads_walked": [],
-    "deeds": []
+    "deeds": [],
+    "identity": {
+      "pronouns": "they",
+      "people": "people.veth",
+      "body_preset": "body.default",
+      "call": null
+    }
   },
   "cells": [
     {

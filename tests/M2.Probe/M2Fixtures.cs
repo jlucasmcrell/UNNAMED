@@ -3,6 +3,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -171,6 +172,8 @@ public static class M2Fixtures
             Deeds = ImmutableArray.Create(new DeedTally(DeedKind.Killed, "creature.beast.ash_hound", null, 3, 4_800),
                 new DeedTally(DeedKind.Delivered, "item.potion.healing_draught", "npc.fixture.warden", 2, 4_200),
                 new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900)),
+            // Schema 17 (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call.
+            Identity = new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar"),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

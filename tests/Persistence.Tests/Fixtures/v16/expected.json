@@ -252,7 +252,13 @@
         "count": 3,
         "last_tick": 4800
       }
-    ]
+    ],
+    "identity": {
+      "pronouns": "they",
+      "people": "people.veth",
+      "body_preset": "body.default",
+      "call": null
+    }
   },
   "cells": [
     {

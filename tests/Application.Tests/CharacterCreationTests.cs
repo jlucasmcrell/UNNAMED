@@ -41,6 +41,8 @@ public class CharacterCreationTests
         var plain = Harness.Boot(other).NewGame(Harness.Named("Wanderer"), seed: 42).CaptureRecord();
 
         Assert.Equal("Wenna Lind", record.Name);
+        Assert.Equal(new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", callId), record.Identity);
+        Assert.Equal(record.Identity, simulation.Player.Identity);   // what presentation draws and words the character by
         // Attributes: the bias over the base, as creation grants - outside the cap on later grants.
         Assert.Equal(CallDefinition.BiasPoints, call.Package.AttributeBias.Values.Sum());
         foreach (var attribute in ProgressionKeys.Attributes)
@@ -66,6 +68,29 @@ public class CharacterCreationTests
         Assert.Equal(20, simulation.WorldTick);
     }
 
+    [Theory]
+    [MemberData(nameof(Calls))]
+    public void ACharacterFromTheCreator_RoundTripsThroughASave_IdentityAndAll(string callId)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var spec = new CharacterSpec("Corin Vessmoor", Pronouns.He, "people.veth", "body.build_broad", callId);
+        var simulation = session.NewGame(spec, seed: 42);
+        Harness.Ticks(session, 40);
+        var before = simulation.CaptureRecord();
+        string digest = simulation.StateDigest();
+        session.Save(SaveSlots.Quick);
+
+        var again = Harness.Boot(profile);
+        var loaded = again.Load(SaveSlots.Quick);
+
+        Assert.True(loaded.IsComplete);
+        Assert.Equal(new CharacterIdentity(Pronouns.He, "people.veth", "body.build_broad", callId), loaded.Player.Identity);
+        Assert.Equal(before.Digest, loaded.Player.Digest);
+        Assert.Equal(digest, again.Simulation!.StateDigest());
+        Assert.Equal(new CharacterCard(again.Character!, "Corin Vessmoor", "people.veth", callId), CharacterFolders.ReadCard(again.SaveFolder));
+    }
+
     [Fact]
     public void ANewGame_WithNoCall_IsTheCharacterEveryGameMadeBeforeTheCreator()
     {
@@ -73,6 +98,7 @@ public class CharacterCreationTests
         var record = Harness.Boot(profile).NewGame(Harness.Named("Wanderer"), seed: 42).CaptureRecord();
 
         Assert.Equal("Wanderer", record.Name);
+        Assert.Equal(CharacterIdentity.BeforeTheCreator, record.Identity);
         Assert.Empty(record.Progression.Grants);
         Assert.Empty(record.Relationships);
         Assert.Equal(new[] { "item.consumable.salve_minor", "item.tool.water_flask", "item.weapon.rusted_sword" },
