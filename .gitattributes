@@ -3,3 +3,8 @@
 tests/Persistence.Tests/Fixtures/v*/quick/** binary
 # Game saves the game itself wrote (tests/Application.Tests/GameSaves/README.md): byte-exact for the same reason.
 tests/Application.Tests/GameSaves/*/save/** binary
+
+# Release tooling: Windows scripts and launchers must keep CRLF
+tools/release/**/*.cmd text eol=crlf
+tools/release/**/*.bat text eol=crlf
+tools/release/payload/*.bat text eol=crlf

@@ -1,0 +1,60 @@
+Otherreach playtest: third-party notices, credits and AI-use note.
+Owner-generated art and audio remain subject to the Otherreach project rights.
+
+== Engine and runtime
+
+Godot Engine, Copyright (c) 2014-present Godot Engine contributors, Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur. MIT licence.
+See Godot_LICENSE.txt, and Godot_THIRD_PARTY_NOTICES.txt for the components inside the engine and their licences. https://godotengine.org
+Microsoft .NET runtime, Copyright (c) .NET Foundation and Contributors. MIT licence. See DotNet_LICENSE.txt and DotNet_ThirdPartyNotices.txt.
+MessagePack for C# (MIT): MessagePack_LICENSE.txt. YamlDotNet (MIT): YamlDotNet_LICENSE.txt.
+COGITO, Copyright (c) 2023 Phazorknight (Philip Drobar). MIT licence. See COGITO_LICENSE.txt. https://codeberg.org/Phazorknight/Cogito
+COGITO's own credit list names Kenney, Quaternius, Nathan Hoad and Bryce Dixon for the assets it carries.
+Other add-ons and libraries that ship with the game keep their licences in this folder, one file each.
+
+== Credits: assets used under Creative Commons Attribution 4.0 (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/ . All were modified or refitted for game characters unless noted.
+
+Clothing and hair for the characters (MakeHuman community assets):
+- "elvs_male_boho_top1", "elvs_mens_apron1", "elvs_ruffle_sleeve_peasant_blouse_1", "elvs_scruffy_beard1", "elvs_braid_bun",
+  "elvs_keylth_hair" by Elvaerwyn.
+- "punkduck_medieval_dress" by punkduck.
+- Leather Pants by MaciekG. http://www.makehumancommunity.org/clothes/leather_pants.html
+- Riding Boots by punkduck. http://www.makehumancommunity.org/clothes/riding_boots.html
+See Character_assets_CC-BY_CREDITS.txt and the PROVENANCE.json records. The MPFB core character assets are CC0.
+
+Sky:
+- The Milky Way panorama, ESO/S. Brunier (eso0932a), CC BY 4.0, used in original and modified forms. https://www.eso.org/public/images/eso0932a/
+- Pinwheel Galaxy (M101), heic0602a: ESA/Hubble & NASA; Hubble data K.D. Kuntz, F. Bresolin, J. Trauger, J. Mould, Y.-H. Chu;
+  CFHT/J.-C. Cuillandre/Coelum; NOAO/AURA/NSF G. Jacoby, B. Bohannan, M. Hanna. CC BY 4.0, modified. https://esahubble.org/images/heic0602a/
+Character skin shader: HumanShaders by MatMADNESS, MIT and CC BY 4.0. https://github.com/matmadness/HumanShaders
+
+== Other credits and licences
+
+Cassini imagery (public domain; credit requested): PIA07782 Jupiter cylindrical map and PIA06175 "Panoramic Rings" -
+NASA/JPL/Space Science Institute; PIA14928 Rhea and PIA14931 Tethys global maps - NASA/JPL-Caltech/Space Science Institute;
+PIA12814 Dione global map - NASA/JPL/Space Science Institute.
+Sky3D code and MoonMap licences accompany this package.
+
+Powered by Stability AI. This Stability AI Model is licensed under the Stability AI Community License, Copyright (c) Stability AI Ltd.
+All Rights Reserved. https://stability.ai/community-license-agreement
+
+Fab assets (Fab Standard License; not redistributable as source assets):
+Fire FX VDB by SHOGUN GAMES (Fab listing 8ba5d959-cc53-48ef-91e9-20912bb82f8e) - rendered to the hearth and forge fire flipbooks.
+Medieval Lake Village by DanStudios (Fab listing 7d67384d-acb8-4ff8-9e71-c5036b5ea34a) and Old Windmill by LAYA DESIGN
+(Fab listing e1fe3062-e190-468b-b456-201a8fba136d) - kit pieces assembled into the Cairnwold and Ashen Hollow buildings.
+Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh
+Standard licence; not redistributable as source assets.
+Recorded sound effects: Sonniss GDC 2026 Game Audio Bundle (royalty-free) and Leartes Cosmos Premium sounds.
+Textures and models from Poly Haven and ambientCG are CC0.
+
+== Use of AI in this game
+
+Some of the content in this playtest was made with generative AI tools, run locally:
+- Sound effects and ambience: generated with Stable Audio (Stability AI).
+- Interim music: generated with Stable Audio Open 1.0 (Stability AI), from text prompts.
+- 3D models: 27 models, including five creatures (ash ember hound, bone walker husk, bristleback boar, cave hunting spider, frost wolf),
+  reconstructed from images by the image-to-3D models TRELLIS and Pixal3D.
+- User-interface icons: images generated with Z-Image Turbo.
+- Magic effect flipbooks: AI-generated.
+There is no AI-generated voice acting: the characters' lines are written text, with no spoken audio.
+The recorded sound libraries and the Fab and WildMesh assets were not fed to any AI model.

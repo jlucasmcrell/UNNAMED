@@ -442,6 +442,7 @@ public class CombatTests
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
         for (int i = 0; i < 200 && died.Count == 0; i++)
             arena.Tick();
+        arena.Tick(session.Setup.Combat.Constants.DeathTicks);
 
         var death = Assert.Single(died);
         Assert.Equal((Arena.Wolf, Arena.Bite), (death.KillerDefId, death.Cause));
@@ -463,6 +464,63 @@ public class CombatTests
         arena.Tick(400);
         Assert.Single(died);
         Assert.Equal(owed, arena.Simulation.Player.Progression.XpDebt);
+    }
+
+    [Fact]
+    public void ADeath_LeavesTheBodyWhereItFell_ForTheDeathDelay_InputLocked_ThenRespawns()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, Open, 0, new[] { (Open.X, Open.Z + 1.9) }, r => WithHealth(r, 3));
+        var died = arena.Record<PlayerDied>();
+        var respawned = arena.Record<PlayerRespawned>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 200 && died.Count == 0; i++)
+            arena.Tick();
+
+        var death = Assert.Single(died);
+        Assert.Equal(death.Tick + session.Setup.Combat.Constants.DeathTicks, death.RespawnTick);
+        var fell = arena.Simulation.Player.Body;
+        Assert.True(arena.Simulation.Combat.Defeated);
+        Assert.Equal(session.Setup.Combat.Constants.DeathTicks, arena.Simulation.Combat.RespawnTicksLeft);
+        Assert.Equal("dead", arena.Submit(new AttackCommand(arena.Player)));
+        Assert.Null(arena.Submit(new MoveCommand(arena.Player, new MoveIntent(MoveIntent.FullDeflection, 0, Gait.Run, 0))));
+
+        arena.Tick((int)(death.RespawnTick - arena.Simulation.WorldTick) - 1);
+        Assert.Empty(respawned);
+        Assert.True(arena.Simulation.Combat.Defeated);
+        Assert.Equal(fell, arena.Simulation.Player.Body);
+
+        arena.Tick();
+        Assert.Equal(death.RespawnTick, Assert.Single(respawned).Tick);
+        Assert.False(arena.Simulation.Combat.Defeated);
+        Assert.NotEqual(fell.XMm, arena.Simulation.Player.Body.XMm);
+    }
+
+    [Fact]
+    public void ASaveMadeWhileDead_LoadsAliveAtTheReturnPoint_WithTheDeathSettled()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, Open, 0, new[] { (Open.X, Open.Z + 1.9) }, r => WithHealth(r, 3));
+        var died = arena.Record<PlayerDied>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 200 && died.Count == 0; i++)
+            arena.Tick();
+        arena.Tick(10);
+        Assert.True(arena.Simulation.Combat.Defeated);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("dead"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("dead"), new LoadContext(session.Generator, session.Content, new Registry())));
+
+        var spawn = session.Setup.Layout.Spawn;
+        Assert.False(loaded.Simulation.Combat.Defeated);
+        Assert.Equal((spawn.XMm, spawn.ZMm), (loaded.Simulation.Player.Body.XMm, loaded.Simulation.Player.Body.ZMm));
+        Assert.Equal(died[0].DebtAdded, loaded.Simulation.Player.Progression.XpDebt);
+        Assert.Equal(PoolState.Full, loaded.Simulation.Player.Progression.Pools);
+        Assert.Equal("effect.weakened", Assert.Single(loaded.Simulation.Combat.Effects).EffectId);
     }
 
     [Fact]

@@ -62,6 +62,9 @@ public partial class HelpPanel : CanvasLayer
 
     private Sheet _sheet = null!;
 
+    /// <summary>Whether the developer keys are on (a debug build, or <c>--dev</c>): they are listed only then.</summary>
+    public bool DeveloperKeys { get; init; }
+
     /// <summary>Where the saves and the log are (M-07): what a tester sends with a problem report.</summary>
     public string Files { get; set; } = string.Empty;
 
@@ -89,7 +92,7 @@ public partial class HelpPanel : CanvasLayer
             column.AddThemeConstantOverride("separation", 16);
             foreach (var (heading, lines) in Columns[c])
                 column.AddChild(Section(heading, lines, HudStyle.Brass, HudStyle.Bone));
-            if (c == Columns.Length - 1)
+            if (DeveloperKeys && c == Columns.Length - 1)
                 column.AddChild(Section("Developer", Developer, HudStyle.Muted, HudStyle.Ash));
             columns.AddChild(column);
         }

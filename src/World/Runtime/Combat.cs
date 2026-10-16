@@ -100,7 +100,7 @@ public sealed record DeathRecapLine(string AttackerDefId, string Source, int Dam
 /// The player died. <see cref="KillerDefId"/> and <see cref="Cause"/> are the last blow's; <see cref="Recap"/> is the
 /// last few, so a tester can name what killed them (ROADMAP.md M3c). The penalty is XP debt, never lost XP (AG-8).
 /// </summary>
-public sealed record PlayerDied(string KillerDefId, string Cause, ImmutableArray<DeathRecapLine> Recap, long DebtAdded, long Tick);
+public sealed record PlayerDied(string KillerDefId, string Cause, ImmutableArray<DeathRecapLine> Recap, long DebtAdded, long Tick, long RespawnTick);
 
 public sealed record PlayerRespawned(Body Body, long Tick);
 
@@ -141,6 +141,12 @@ public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? A
 
     /// <summary>The formula being cast, while the working runs.</summary>
     public string? Casting { get; init; }
+
+    /// <summary>The character lies dead, until the respawn.</summary>
+    public bool Defeated { get; init; }
+
+    /// <summary>Ticks until the respawn (the fade to black closes on it); zero when alive.</summary>
+    public int RespawnTicksLeft { get; init; }
 }
 
 // ── state (internal) ────────────────────────────────────────────────────────
@@ -245,8 +251,11 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     public static PlayerCombat Rested { get; } = new(ActionState.Idle, false, 0, -1_000_000, -1_000_000, ImmutableArray<DeathRecapLine>.Empty);
 
-    /// <summary>Health reached zero; the death system settles it at the end of the tick.</summary>
+    /// <summary>Health reached zero; the death system settles it at the end of the tick, then waits out the death before the respawn.</summary>
     public bool Defeated { get; init; }
+
+    /// <summary>The tick the death ends in a respawn; zero until the death system has settled it.</summary>
+    public long RespawnAt { get; init; }
 
     /// <summary>Thousandths of a point accrued by sprinting, regeneration and recovery, so integer pools move smoothly.</summary>
     public int SprintMilli { get; init; }
@@ -292,6 +301,9 @@ internal sealed record Heal(EntityId Target, string Source, int Amount) : Intern
 
 /// <summary>To <see cref="CombatSystem"/>: the player respawned; their fight is over.</summary>
 internal sealed record EndFight : InternalCommand;
+
+/// <summary>To <see cref="CombatSystem"/>: a death is settled; the player lies down until this tick.</summary>
+internal sealed record AwaitRespawn(long At) : InternalCommand;
 
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
 internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
@@ -753,6 +765,12 @@ internal sealed partial class CombatSystem
         return null;
     }
 
+    public string? Handle(AwaitRespawn command)
+    {
+        State.SetPlayerCombat(_owner, State.PlayerCombat with { RespawnAt = command.At });
+        return null;
+    }
+
     private int LosePlayerHealth(int amount, string attackerDefId, string source, long tick)
     {
         var combat = State.PlayerCombat;
@@ -865,6 +883,8 @@ internal sealed partial class CombatSystem
             StrainTolerance = StrainTolerance(),
             Strained = MagicRules.Strained(Strain(), StrainTolerance(), M),
             Casting = combat.Action.Kind == ActionKind.Cast && phase != CombatPhase.Idle ? combat.Action.Formula!.Id : null,
+            Defeated = combat.Defeated,
+            RespawnTicksLeft = combat.Defeated ? (int)Math.Max(0, combat.RespawnAt - State.WorldTick) : 0,
         };
     }
 }
@@ -984,19 +1004,27 @@ internal sealed class DeathSystem
         var combat = state.PlayerCombat;
         if (!combat.Defeated)
             return;
-        var last = combat.Recent.LastOrDefault();
-        long debtBefore = state.Progression.XpDebt;
-        _context.Dispatch(new RecordDeath());
-        _context.Events.Publish(new PlayerDied(last?.AttackerDefId ?? "unknown", last?.Source ?? "unknown", combat.Recent,
-            state.Progression.XpDebt - debtBefore, tick));
-        _context.Dispatch(new ClearEffects(_player));
+        if (combat.RespawnAt == 0)
+        {
+            var last = combat.Recent.LastOrDefault();
+            long debtBefore = state.Progression.XpDebt;
+            long respawnAt = tick + _context.Setup.Combat.Constants.DeathTicks;
+            _context.Dispatch(new RecordDeath());
+            _context.Events.Publish(new PlayerDied(last?.AttackerDefId ?? "unknown", last?.Source ?? "unknown", combat.Recent,
+                state.Progression.XpDebt - debtBefore, tick, respawnAt));
+            _context.Dispatch(new ClearEffects(_player));
+            if (_context.Setup.Combat.Effects.ContainsKey(_context.Setup.Combat.Constants.DeathEffect))
+                _context.Dispatch(new ApplyEffect(_player, _context.Setup.Combat.Constants.DeathEffect));
+            _context.Dispatch(new AwaitRespawn(respawnAt));
+            return;
+        }
+        if (tick < combat.RespawnAt)
+            return;
         // Back at the stone the character chose to return to, or the region's spawn while they have chosen none (S-38).
         var body = _returnPoint();
         _context.Dispatch(new Relocate(body));
         _context.Dispatch(new EndFight());
         _context.Dispatch(new ForgetPlayer());
-        if (_context.Setup.Combat.Effects.ContainsKey(_context.Setup.Combat.Constants.DeathEffect))
-            _context.Dispatch(new ApplyEffect(_player, _context.Setup.Combat.Constants.DeathEffect));
         _context.Events.Publish(new PlayerRespawned(body, tick));
     }
 }
