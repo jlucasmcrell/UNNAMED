@@ -209,8 +209,24 @@ public sealed class InventoryDto
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("count")] public int Count { get; set; }
 
-    /// <summary>Required from schema 9: the stack's quality (-1 crude, 0 standard, 1 fine). The 8 -> 9 step gives older stacks 0.</summary>
+    /// <summary>Required from schema 9: the stack's quality (-1 crude, 0 standard, 1 fine, 2 masterwork from schema 19). The 8 -> 9 step gives older stacks 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null for an ordinary stack.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
+}
+
+/// <summary>A notable instance's record (schema 19): name, provenance, the maker's mark when made, familiarity.</summary>
+[MessagePackObject]
+public sealed class NotableDto
+{
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("provenance")] public string Provenance { get; set; } = "";
+    [Key("source_ref")] public string SourceRef { get; set; } = "";
+    [Key("tick")] public long Tick { get; set; }
+    [Key("maker")] public string? Maker { get; set; }
+    [Key("familiarity")] public int Familiarity { get; set; }
+    [Key("uses")] public int Uses { get; set; }
 }
 
 [MessagePackObject]
@@ -340,6 +356,9 @@ public sealed class ContainerItemDto
 
     /// <summary>Required from schema 9. The 8 -> 9 step gives older stacks 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
 }
 
 [MessagePackObject]
@@ -356,6 +375,9 @@ public sealed class CreatedDto
 
     /// <summary>Required from schema 9. The 8 -> 9 step gives older records 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
 }
 
 [MessagePackObject]
@@ -413,7 +435,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -476,13 +498,38 @@ public static class SectionCodec
         },
     }, Options);
 
-    /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
+    /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
     private static int QualityOf(int? quality, string what) => quality switch
     {
         null => throw new FormatException($"{what} has no quality (required from schema 9)"),
         var q when UNNAMED.Domain.Crafting.Quality.IsValid(q.Value) => q.Value,
-        var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0 or 1"),
+        var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0, 1 or 2"),
     };
+
+    private static NotableDto? NotableToDto(NotableRecord? notable) => notable is null ? null : new NotableDto
+    {
+        Name = notable.Name,
+        Provenance = ProvenanceKinds.Key(notable.Provenance),
+        SourceRef = notable.SourceRef,
+        Tick = notable.Tick,
+        Maker = notable.Maker,
+        Familiarity = notable.Familiarity,
+        Uses = notable.Uses,
+    };
+
+    /// <summary>A stack's saved notable record (schema 19), whole and in range, or null for an ordinary stack.</summary>
+    private static NotableRecord? NotableOf(NotableDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        var record = new NotableRecord(dto.Name, ProvenanceKinds.Parse(dto.Provenance), dto.SourceRef, dto.Tick)
+        {
+            Maker = dto.Maker,
+            Familiarity = dto.Familiarity,
+            Uses = dto.Uses,
+        };
+        return record.IsValid ? record : throw new FormatException($"{what} has an invalid notable record");
+    }
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
@@ -511,7 +558,7 @@ public static class SectionCodec
         if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
             throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
@@ -619,6 +666,7 @@ public static class SectionCodec
                 ZCm = c.ZCm,
                 Count = c.Count,
                 Quality = c.Quality,
+                Notable = NotableToDto(c.Notable),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -626,7 +674,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -684,12 +732,13 @@ public static class SectionCodec
             {
                 Count = c.Count ?? throw new FormatException($"created instance {c.InstanceId} has no count (required from schema 6)"),
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
+                Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

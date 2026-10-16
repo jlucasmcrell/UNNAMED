@@ -18,13 +18,15 @@
         "item_id": "itm_01HF7YAT01144GJ289144GJ281",
         "def_id": "item.weapon.iron_sword",
         "count": 1,
-        "quality": 1
+        "quality": 1,
+        "notable": null
       },
       {
         "item_id": "itm_01HF7YAT02144GJ289144GJ282",
         "def_id": "item.potion.minor_healing",
         "count": 3,
-        "quality": 0
+        "quality": 0,
+        "notable": null
       }
     ],
     "progression": {
@@ -295,6 +297,7 @@
       "z_cm": 800,
       "count": 3,
       "quality": 1,
+      "notable": null,
       "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
     },
     {
@@ -305,6 +308,7 @@
       "z_cm": 600,
       "count": 1,
       "quality": 0,
+      "notable": null,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
   ],
@@ -319,13 +323,15 @@
           "item_id": "itm_01M38NHKP19E6YFQG8S390W2EJ",
           "def_id": "item.weapon.iron_sword",
           "count": 1,
-          "quality": 0
+          "quality": 0,
+          "notable": null
         },
         {
           "item_id": "itm_01M38NHKP1KRX6X5K5WTY4QSP3",
           "def_id": "item.potion.minor_healing",
           "count": 4,
-          "quality": -1
+          "quality": -1,
+          "notable": null
         }
       ]
     },
@@ -339,7 +345,8 @@
           "item_id": "itm_01M38NHKP29Z8X6ZQ1HDCDA1N1",
           "def_id": "item.potion.minor_healing",
           "count": 1,
-          "quality": 0
+          "quality": 0,
+          "notable": null
         }
       ]
     }

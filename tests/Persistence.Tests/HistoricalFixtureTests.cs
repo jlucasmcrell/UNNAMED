@@ -6,6 +6,7 @@ using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Travel;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
@@ -286,6 +287,17 @@ public class HistoricalFixtureTests
         {
             Assert.Equal(DateTimeOffset.Parse(loaded.Manifest.BuildTimestamp, System.Globalization.CultureInfo.InvariantCulture), loaded.Manifest.SavedAt);
             Assert.Empty(loaded.Manifest.AwayLog);
+        }
+        // Schema 19's notable records (WP3a): the carried sword was given as the cull's reward and has grown a little familiar; the chest's
+        // blade is a masterwork with its maker's mark. Before it, no stack carried a record, and none was masterwork.
+        var carried = loaded.Player.Inventory.Single(e => e.ItemId == M2Fixtures.Historical.SwordId);
+        Assert.Equal(schema >= 19 ? new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 } : null,
+            carried.Notable);
+        if (chest is not null)
+        {
+            var blade = chest.Items.Single(i => i.DefId == "item.weapon.iron_sword");
+            Assert.Equal(schema >= 19 ? (2, new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" }) : (0, null),
+                (blade.Quality, blade.Notable));
         }
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);

@@ -130,7 +130,7 @@ public static class ProvenanceKinds
 }
 
 /// <summary>
-/// The record a notable instance carries on its stack (WP3a; schema 16): its name, where it came from - how, from what (a recipe, a
+/// The record a notable instance carries on its stack (WP3a; schema 19): its name, where it came from - how, from what (a recipe, a
 /// container, a quest, a trader), by whose hand when it was made, and when - and how familiar its holder has grown with it, 0..5.
 /// Familiarity is never generic damage (OD-C07): it is counted from use and shown, and what it unlocks is a later milestone's.
 /// </summary>

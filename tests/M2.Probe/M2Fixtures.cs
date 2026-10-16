@@ -120,7 +120,12 @@ public static class M2Fixtures
             {
                 // Schema 9: the sword is a fine one (quality lands on the instance).
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }),
-                    "item.weapon.iron_sword", 1) { Quality = 1 },
+                    "item.weapon.iron_sword", 1)
+                {
+                    Quality = 1,
+                    // Schema 19 (WP3a): the sword carries a notable record - given as the cull's reward, grown a little familiar.
+                    Notable = new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 },
+                },
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
             },
@@ -243,7 +248,12 @@ public static class M2Fixtures
             var blade = registry.CreateEntity(DefinitionId.Parse("item.weapon.iron_sword")).InstanceId;
             var potions = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
             world.SetContainer(new ContainerRecord("container.fixture_chest", chest, TenCells[9].ToString(), ImmutableArray.Create(
-                new ContainerItem(blade, "item.weapon.iron_sword", 1),
+                // Schema 19 (WP3a): a masterwork blade in the chest, with its maker's mark.
+                new ContainerItem(blade, "item.weapon.iron_sword", 1)
+                {
+                    Quality = 2,
+                    Notable = new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" },
+                },
                 new ContainerItem(potions, "item.potion.healing_draught", 4) { Quality = -1 })));   // schema 9: crude
             // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half
             // searched (its body is a changed container); one gone, of a renamed species, two generations on and due back.

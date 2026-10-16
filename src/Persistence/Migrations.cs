@@ -24,6 +24,7 @@ using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
 using V16 = UNNAMED.Persistence.Sections.V16;
+using V18 = UNNAMED.Persistence.Sections.V18;
 
 namespace UNNAMED.Persistence;
 
@@ -88,7 +89,8 @@ public static class SchemaMigrations
         new SchemaV14ToV15(),
         new SchemaV15ToV16(),
         new SchemaV16ToV17(),
-        new SchemaV17ToV18());
+        new SchemaV17ToV18(),
+        new SchemaV18ToV19());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -561,7 +563,7 @@ public sealed class SchemaV8ToV9 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                Inventory = old.Inventory.Select(i => new V18.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
                 Progression = old.Progression,
                 FacingMdeg = old.FacingMdeg,
                 Discoveries = old.Discoveries,
@@ -576,17 +578,17 @@ public sealed class SchemaV8ToV9 : SchemaMigration
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V13.EntitiesSection
             {
                 Records = old.Records,
-                Created = old.Created.Select(c => new CreatedDto
+                Created = old.Created.Select(c => new V18.Created
                 {
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = 0,
                 }).ToArray(),
                 Baselines = old.Baselines,
-                Containers = old.Containers?.Select(c => new ContainerDto
+                Containers = old.Containers?.Select(c => new V18.Container
                 {
                     Key = c.Key,
                     InstanceId = c.InstanceId,
                     HostCell = c.HostCell,
-                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                    Items = c.Items.Select(i => new V18.ContainerItem { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
                 }).ToArray(),
                 Creatures = old.Creatures,
             }, options);
@@ -774,7 +776,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V13.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V18.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
@@ -924,7 +926,7 @@ public sealed class SchemaV16ToV17 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V16.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V18.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -979,6 +981,77 @@ public sealed class SchemaV17ToV18 : SchemaMigration
         }
         document.Manifest["saved_utc"] = SaveManifest.FormatSavedUtc(captured);
         document.Manifest["away_log"] = new JsonArray();
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 18 to 19 (WP3a, itemization): a stack - carried, in a container, or lying in the world - may carry a notable instance's record
+/// (name, provenance, familiarity). A save that predates records has none: a notable item from before it takes its record the next time
+/// it moves, as one found then. Masterwork quality (+2) is new too; no older stack holds it.
+/// </summary>
+public sealed class SchemaV18ToV19 : SchemaMigration
+{
+    public override int From => 18;
+
+    public override string Summary => "schema 18 -> 19: stacks gain a notable instance's record (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V18.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V18.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created.Select(c => new CreatedDto
+                {
+                    InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = c.Quality,
+                }).ToArray(),
+                Baselines = old.Baselines,
+                Containers = old.Containers?.Select(c => new ContainerDto
+                {
+                    Key = c.Key,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                }).ToArray(),
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+            }, options);
+        }
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

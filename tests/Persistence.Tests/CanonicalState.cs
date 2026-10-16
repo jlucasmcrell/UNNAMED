@@ -58,6 +58,7 @@ internal static class CanonicalState
                 json.WriteString("def_id", entry.DefId);
                 json.WriteNumber("count", entry.Count);
                 json.WriteNumber("quality", entry.Quality);
+                WriteNotable(json, entry.Notable);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -265,6 +266,7 @@ internal static class CanonicalState
                 json.WriteNumber("z_cm", created.ZCm);
                 json.WriteNumber("count", created.Count);
                 json.WriteNumber("quality", created.Quality);
+                WriteNotable(json, created.Notable);
                 json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
@@ -286,6 +288,7 @@ internal static class CanonicalState
                     json.WriteString("def_id", item.DefId);
                     json.WriteNumber("count", item.Count);
                     json.WriteNumber("quality", item.Quality);
+                    WriteNotable(json, item.Notable);
                     json.WriteEndObject();
                 }
                 json.WriteEndArray();
@@ -350,6 +353,25 @@ internal static class CanonicalState
     }
 
     /// <summary>The progression record (schema 4), every field, in canonical order.</summary>
+    /// <summary>A stack's notable record (schema 19): null for an ordinary stack.</summary>
+    private static void WriteNotable(Utf8JsonWriter json, UNNAMED.Domain.Items.NotableRecord? notable)
+    {
+        if (notable is null)
+        {
+            json.WriteNull("notable");
+            return;
+        }
+        json.WriteStartObject("notable");
+        json.WriteString("name", notable.Name);
+        json.WriteString("provenance", UNNAMED.Domain.Items.ProvenanceKinds.Key(notable.Provenance));
+        json.WriteString("source_ref", notable.SourceRef);
+        json.WriteNumber("tick", notable.Tick);
+        if (notable.Maker is { } maker) json.WriteString("maker", maker); else json.WriteNull("maker");
+        json.WriteNumber("familiarity", notable.Familiarity);
+        json.WriteNumber("uses", notable.Uses);
+        json.WriteEndObject();
+    }
+
     private static void WriteProgression(Utf8JsonWriter json, CharacterProgression p)
     {
         json.WriteStartObject("progression");

@@ -34,7 +34,12 @@ public class PlayerRecordCompletenessTests
     private static PlayerRecord Full()
     {
         var player = M2Fixtures.Historical.Player();
-        var vest = new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 }), "item.armor.fixture_vest", 1);
+        var vest = new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 }), "item.armor.fixture_vest", 1)
+        {
+            // A masterwork with its maker's mark (schema 19).
+            Quality = 2,
+            Notable = new Domain.Items.NotableRecord("Fixture Vest", Domain.Items.ProvenanceKind.Crafted, "recipe.fixture.vest", 4_200) { Maker = "Aelin", Uses = 2 },
+        };
         var progression = player.Progression with
         {
             Allocation = player.Progression.Allocation.SetItem(CharacterAttribute.Precision, 2),
@@ -136,6 +141,7 @@ public class PlayerRecordCompletenessTests
     private static readonly SortedDictionary<string, string> Coupled = new(StringComparer.Ordinal)
     {
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
+        ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
     };
 
@@ -225,6 +231,7 @@ public class PlayerRecordCompletenessTests
             seen[path + "[]"] = seen.TryGetValue(path + "[]", out bool held) && held || !none;   // some instance of the list holds something
             return;
         }
+        seen[path] = true;   // an optional record (a stack's notable record, schema 19) held by some instance
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                      .Where(p => p.GetIndexParameters().Length == 0 && !Computed.Contains(p.Name)))
             Walk(property.GetValue(value), property.PropertyType, $"{path}.{property.Name}", seen);
