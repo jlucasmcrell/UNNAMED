@@ -1,0 +1,15 @@
+id: ability.creature.gauge_sweep
+kind: ability
+schema: 1
+display_key: ability.creature.gauge_sweep.name
+tags: [ability]
+name: Gauge Sweep
+notes: The Custodian swings its measuring arm through a wide arc. The longest reach it has and the widest telegraph - the arm tracks round before it commits, so a body that reads the windup can simply not be there.
+class: creature
+range_m: 2.6
+windup_s: 1.1
+active_s: 0.25
+recovery_s: 1.3
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [12, 16] }

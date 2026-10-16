@@ -391,6 +391,44 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P5 - the Ring Custodian
+
+**P5 is in.** The creature `o_custodian` waits on exists, stands where the objective says, and has the fight the
+design describes - as far as this engine lets a creature have a fight.
+
+| | |
+|---|---|
+| id | `creature.construct.ring_custodian` |
+| where | the service vestibule (R10), at the blockout's own centre for it: (50, 84) |
+| level / health | 5 / 150, as the brief sets them |
+| role | `sentinel` - "guards its post and no further" |
+| respawn | none: the design reads the defeat as a durable fact, and a respawning Custodian would make that fact a farm |
+| turn rate | 55 deg/s against the animated armour's 90 - the fight is about staying behind it |
+
+**Three constraints the engine imposed, each surfaced by a validator rather than guessed at:**
+
+1. **`CMB001: a second attack is a charge (Phase 1 builds one blow and one charge)`, and `set.Count > 2` throws.**
+   The brief asks for **three telegraphed attacks**; the combat system builds **at most a blow and a charge**.
+   So the Custodian has a blow (`gauge_sweep`, 1.1 s windup) and a charge (`measure_fall`, 1.2 s windup,
+   7 m/s, 12 m), **both telegraphed** - and the third is recorded as **OQ-15** rather than smuggled in as a
+   second blow the engine would refuse. The third ability I wrote, `index_grasp`, was **deleted**: the engine
+   cannot use it, so keeping it would be dead content.
+2. **`role 'guardian' is not a role config.creature_behaviour defines`.** I invented a role. The config's own
+   list has `sentinel`, which is exactly this creature: guards its post and no further.
+3. **`respawn kind 'never' is not built in Phase 1 (timer, none)`.** I invented a third kind. `none` is the one
+   that means what I meant.
+
+**And one thing that is correct but needed the test to say so.** `CombatContent` carries **one region's spawns
+at a time**, so the Custodian is correctly absent from a start-area run - `CombatContentTests`'s `29` is right
+and my first instinct to make it 30 was wrong. Two reachability checks booted one region and required every
+creature and every quest step to resolve there; the Custodian and the quest's five places are the ring's, which
+is its own region and its own load. **Both now check both**, and a start-area run is asserted *not* to carry it.
+
+**Verified:** three new tests in `BarrowworksCustodianTests` - the creature stands in the room the objective
+names, at the blockout's coordinates, does not respawn, has a blow and a charge that both telegraph, and turns
+slower than the armour it is built from; and a start-area run does not carry it. **948 tests pass, 0 failed**
+(was 945).
+
 ### P4e - the readings, and the three gates
 
 **The quest can now be advanced.** P4d left it offerable and not progressable, because nothing in the ring wrote

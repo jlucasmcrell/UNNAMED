@@ -1,0 +1,23 @@
+id: creature.construct.ring_custodian
+kind: creature
+schema: 1
+display_key: creature.construct.ring_custodian.name
+tags: [creature, construct]
+name: Ring Custodian
+notes: "The service ring's own keeper (M8 I4), and the ring was built to gauge something and never finished the job - so what stands in the measuring court is a machine still waiting for a reading that stopped coming. Plate front and sides takes most of a blow; the back of the housing is open where the index mechanism runs, and that is where it comes apart. Three attacks, each with a telegraph a body can read: the long sweep, the overhead fall, and the short grasp. Slow to turn, which is the whole fight - stay behind it. Bloodless, and it does not pursue far past its own court. PROVISIONAL NUMBERS: the brief sets level 5 and 150 health; the rest exists so the fight can be exercised."
+family: construct
+archetype: construct
+level_band: [5, 5]
+pools: { health: 150 }
+attack_set: [ability.creature.gauge_sweep, ability.creature.measure_fall]
+armor: { head: 30, torso: 50, limbs: 40 }
+resistances: { physical_pierce: 0.5, physical_slash: 0.25 }
+weak_point: { region: torso, from_behind: true }
+move_speed_m_s: 1.6
+turn_deg_s: 55   # slower than the animated armour: the fight is about staying behind it
+body_radius_m: 0.6
+xp_value: 150
+loot_table: loot.ring_custodian
+perception: { sight_m: 18, hearing_m: 22, fov_deg: 120 }
+tier_hint: B
+tameable: false

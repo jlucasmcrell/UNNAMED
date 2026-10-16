@@ -14,15 +14,24 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class ReachabilityTests
 {
+    /// <remarks>
+    /// Both regions a run can stand in, for the same reason <see cref="EveryQuestStep_PointsAtSomethingInTheRegion"/>
+    /// checks both: the Ring Custodian is region.barrowworks' and the start area's run correctly does not carry it,
+    /// so checking it here alone would report a creature no player can fail to meet.
+    /// </remarks>
     [Fact]
     public void EveryCreatureAndNode_StandsInTheRegion()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
+        using var ringProfile = new TempProfile();
+        var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
 
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
         var placed = setup.Layout.Nodes.Select(n => n.NodeDefId).ToHashSet(StringComparer.Ordinal);
+        placed.UnionWith(ring.Layout.Nodes.Select(n => n.NodeDefId));
         Assert.Empty(setup.Crafting.Nodes.Keys.Where(n => !placed.Contains(n)));
     }
 

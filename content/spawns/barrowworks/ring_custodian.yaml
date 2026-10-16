@@ -1,0 +1,25 @@
+id: spawn.barrowworks.ring_custodian
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.ring_custodian.name
+tags:
+- spawn
+notes: "The Ring Custodian, standing in the service vestibule - R10, the room the quest's o_custodian names. One, and it does not respawn: the design reads its defeat as a durable fact, so a second Custodian would make the fact a farm instead. placement is the blockout's R10 centre (50, 84) and provisional."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.construct.ring_custodian
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 50
+  - 84
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: B

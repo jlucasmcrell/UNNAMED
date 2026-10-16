@@ -225,3 +225,23 @@ Two readings, and the owner's to pick:
 
 **Not guessed at**, because it changes what a player does and where they go. Ported as written until the owner
 says otherwise, so the behaviour matches the design document rather than my reading of it.
+
+---
+
+## OQ-15 - The brief asks the Ring Custodian for three telegraphed attacks; the engine builds two
+
+The brief's P5 says: "Ring Custodian (L5, 150 HP, **3 telegraphed attacks**, rear weak point)."
+
+`CombatContent` builds **at most a blow and a charge** per creature, and says so in two places: a second attack
+that is not a charge is refused (*"a second attack is a charge (Phase 1 builds one blow and one charge)"*), and
+a third is refused outright (*"Phase 1 builds at most a blow and a charge"*). The animated armour has one
+attack; the boar has a blow and a charge; **nothing in the content has three.**
+
+**Picked the smallest unblocking choice:** the Custodian has the two the engine builds, and **both telegraph** -
+a 1.1 s windup on the blow and a 1.2 s on the charge, which is what the brief is really asking for (a fight a
+player reads rather than reacts to). The third attack is not in the content.
+
+**The owner's call, when they want it:** either the brief's "three" becomes "two, both telegraphed" in the
+design, or the combat system gains a third attack slot - which is a change to shared combat, not to the
+Barrowworks, and outside this brief's scope. Deleting the ability I had written (`index_grasp`) is the honest
+state in the meantime; keeping an ability nothing can use would be dead content.
