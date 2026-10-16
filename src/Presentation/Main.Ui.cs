@@ -44,18 +44,7 @@ public partial class Main
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
-            Entries = new SystemMenuPanel.Entry[]
-            {
-                new("You", "Character", "character", "panel.character", FromMenu(() => Show(_character))),
-                new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
-                new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
-                new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
-                new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
-                new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
-                new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
-                new("System", "Sound", null, "panel.sound", FromMenu(() => Show(_soundPanel))),
-                new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
-            },
+            Entries = MenuEntries(),
             Quit = () => GetTree().Quit(0),
             Status = MenuStatus,
         };
@@ -90,6 +79,23 @@ public partial class Main
         AddChild(_saves);
         _saves.UseIcons(icons);
     }
+
+    /// <summary>
+    /// The System Menu's rows, in each group's order: group, words, key, icon, what choosing it does, and optionally whether it can be
+    /// chosen yet. A new screen is one row here.
+    /// </summary>
+    private SystemMenuPanel.Entry[] MenuEntries() => new SystemMenuPanel.Entry[]
+    {
+        new("You", "Character", "character", "panel.character", FromMenu(() => Show(_character))),
+        new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
+        new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
+        new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
+        new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
+        new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
+        new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
+        new("System", "Sound", null, "panel.sound", FromMenu(() => Show(_soundPanel))),
+        new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
+    };
 
     /// <summary>
     /// A panel that takes the keys and the mouse is open: a conversation, or a management screen - the System Menu, the inventory (on the
