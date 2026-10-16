@@ -171,6 +171,14 @@ internal static class CanonicalState
             foreach (string stretch in player.RoadsWalked)
                 json.WriteStringValue(stretch);
             json.WriteEndArray();
+            // Schema 16: the space the body stands in, and how it traverses it. Both are written even when they
+            // are the empty string and null, because the digest has to see them change - a save taken inside the
+            // ring differs from one taken outside it in exactly these two fields.
+            json.WriteString("space_id", player.SpaceId ?? "");
+            if (player.SpaceTraversal is { } traversal)
+                json.WriteString("space_traversal", traversal);
+            else
+                json.WriteNull("space_traversal");
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

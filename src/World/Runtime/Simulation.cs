@@ -145,6 +145,10 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
+        // A loaded body stands where its save left it, and half of that is the space (schema 16). Without this the
+        // ring's local coordinates load into the exterior - the Vestibule's (50, 84) would put a body in the Ashen
+        // Hollow - because the space system starts at the exterior and nothing told it otherwise.
+        _spaces.Adopt(player.SpaceId, player.SpaceTraversal);
         // After `_spaces`, which it captures: a delegate to an instance method taken before the instance exists
         // throws at construction, and taking it here is what keeps death's space reset honest (M8 D10).
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody, _spaces.LeaveForDeath);
@@ -404,6 +408,11 @@ public sealed class Simulation
             Waystones = _travel.Records(),
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
+            // Schema 16: the space and the portal into it, from live state. The identity record cannot carry these
+            // - a body moves between spaces during a run and its identity does not - so a save that read them from
+            // _identity would record the exterior for a body standing inside the ring.
+            SpaceId = _state.Space.Name ?? "",
+            SpaceTraversal = _state.Traversal.IsNone ? null : _state.Traversal.PortalKey,
         };
     }
 

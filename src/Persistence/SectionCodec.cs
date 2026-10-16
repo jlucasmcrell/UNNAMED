@@ -71,6 +71,19 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: no road was on the map before it.</summary>
     [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
+
+    /// <summary>
+    /// Required from schema 16: the space the body stands in (M8 D10). The 15 -> 16 step gives older saves the
+    /// exterior, which is where every save written before the Barrowworks was - and where a save that never
+    /// entered the ring still is.
+    /// </summary>
+    [Key("space_id")] public string? SpaceId { get; set; }
+
+    /// <summary>
+    /// From schema 16: how the body is traversing that space, or null for none. A body standing in the ring is
+    /// <c>inside</c>; a body on a road is <c>road</c>. Null and the exterior together mean ordinary walking.
+    /// </summary>
+    [Key("space_traversal")] public string? SpaceTraversal { get; set; }
 }
 
 /// <summary>A Waystone the character knows (schema 15).</summary>
@@ -434,6 +447,10 @@ public static class SectionCodec
         Waystones = player.Waystones.Select(w => new WaystoneDto { Stone = w.StoneKey, Region = w.RegionId, Method = WaystoneMethods.Key(w.Method), Tick = w.Tick }).ToArray(),
         ReturnPoint = player.ReturnPoint,
         RoadsWalked = player.RoadsWalked.ToArray(),
+        // Schema 16: the space and the portal that led into it. The space is written as "" for the exterior, which
+        // is what PlayerRecord.SpaceId holds, so the reader does not have to treat null and empty differently.
+        SpaceId = player.SpaceId,
+        SpaceTraversal = player.SpaceTraversal,
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -460,6 +477,10 @@ public static class SectionCodec
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
         var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
+        // The space is required from schema 16. Null is refused rather than defaulted: a save that predates the
+        // schema travels through the 15 -> 16 step, which writes "" for the exterior, so a null here means the
+        // file was written by something that did not know about the field.
+        var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 16)");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -488,6 +509,8 @@ public static class SectionCodec
                 WaystoneMethods.Parse(w.Method) ?? throw new FormatException($"Waystone {w.Stone} was known by '{w.Method}'"), w.Tick)).ToImmutableArray(),
             ReturnPoint = dto.ReturnPoint,
             RoadsWalked = roads.ToImmutableArray(),
+            SpaceId = spaceId,
+            SpaceTraversal = dto.SpaceTraversal,
         };
     }
 

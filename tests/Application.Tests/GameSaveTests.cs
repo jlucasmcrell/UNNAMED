@@ -32,6 +32,10 @@ public class GameSaveTests
         // Schema 15: the player knows no Waystone, has chosen none to return to, and has walked no road.
         (new Regex(@"^\$\.player\.(Waystones|RoadsWalked)$"), "[]"),
         (new Regex(@"^\$\.player\.ReturnPoint$"), "null"),
+        // Schema 16: the player stands in no space but the world's own, which has the empty name, and traverses
+        // none. An M6 save was in the hollow, and the hollow is not an interior.
+        (new Regex(@"^\$\.player\.SpaceId$"), "\"\""),
+        (new Regex(@"^\$\.player\.SpaceTraversal$"), "null"),
     };
 
     [Fact]
@@ -66,7 +70,7 @@ public class GameSaveTests
         }
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3, differences.Count);   // the posture and digest, four fields a record, the noises, the Waystones
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 2, differences.Count);   // the posture and digest, four fields a record, the noises, the Waystones, the space
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

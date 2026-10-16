@@ -213,7 +213,9 @@
     },
     "waystones": [],
     "return_point": null,
-    "roads_walked": []
+    "roads_walked": [],
+    "space_id": "",
+    "space_traversal": null
   },
   "cells": [
     {

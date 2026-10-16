@@ -587,6 +587,28 @@ internal sealed class SpaceSystem
     /// <summary>How close the body must stand to a portal's anchor to use it: an arm's reach, as for a door.</summary>
     private long ReachMm => _context.Setup.Items.Inventory.ReachMm + _context.Setup.Movement.BodyRadiusMm;
 
+    /// <summary>
+    /// Put the body into the space its save recorded (schema 16), without moving it and without a portal.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A load is the one way a body arrives in a space it did not walk into: the save holds the position and the
+    /// space, and the two are one coordinate between them.
+    /// </para>
+    /// <para>
+    /// An empty name is the exterior's, and the exterior is what a body that never entered the ring is in - so an
+    /// empty name is NOT adopted. A region that is itself an interior (region.barrowworks, opened directly by a
+    /// capture or a survey) starts its bodies in its own space, and overwriting that with the empty exterior name
+    /// would put every such body outside the room it is standing in. Only a save that names a space moves one.
+    /// </para>
+    /// </remarks>
+    public void Adopt(string spaceId, string? traversal)
+    {
+        if (string.IsNullOrEmpty(spaceId))
+            return;
+        _context.State.SetSpace(_owner, new SpaceId(spaceId), new SpaceTraversal(traversal));
+    }
+
     /// <summary>Enter the space a portal leads to, placing the body at its interior anchor.</summary>
     public string? Enter(EnterSpaceCommand command)
     {

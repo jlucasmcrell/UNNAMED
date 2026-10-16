@@ -57,6 +57,10 @@ public class PlayerRecordCompletenessTests
                 Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Woken, 4_400)),
                 ReturnPoint = "waystone.fixture.cairn",
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
+            // Schema 16: a body inside a ring, arrived through one of its portals - not the exterior, so the
+            // digest sees both fields change.
+            SpaceId = "space.fixture.ring",
+            SpaceTraversal = "portal.fixture.mouth",
             };
     }
 

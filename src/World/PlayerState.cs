@@ -376,6 +376,57 @@ public sealed record PlayerRecord
 
     private readonly ImmutableArray<string> _roadsWalked = ImmutableArray<string>.Empty;
 
+    /// <summary>
+    /// The space the character stands in (schema 16, M8 D10). Empty means the exterior, which is where every
+    /// character was before the Barrowworks existed and where most still are - the same empty-name convention
+    /// <see cref="SpaceId"/> uses everywhere else, so a save from before schema 16 reads as the exterior.
+    /// </summary>
+    /// <remarks>
+    /// This is what makes a save taken inside the ring load back inside it. Before schema 16 the position was
+    /// the only thing a save held about where a body was, and the ring's local coordinates sit inside the
+    /// exterior grid - so a save taken in the Vestibule loaded the body into the Ashen Hollow at the same
+    /// metres. The space is the missing half of the coordinate.
+    /// </remarks>
+    public string SpaceId
+    {
+        get => _spaceId;
+        init
+        {
+            var name = value ?? "";
+            if (name.Length > 0 && (!name.StartsWith("space.", StringComparison.Ordinal) || !DefinitionId.IsValid(name)))
+                throw new ArgumentException($"A space is named space.<id>, got '{name}'", nameof(SpaceId));
+            _spaceId = name;
+        }
+    }
+
+    private readonly string _spaceId = "";
+
+    /// <summary>
+    /// The portal the character came into its space through (schema 16): null while it is in the exterior, or a
+    /// <c>SpaceTraversal</c> portal key. This is the whole of the return rule - the design is explicit that the
+    /// stored entry is not a reason to force a particular exit, so the portal is kept and no coordinate is.
+    /// </summary>
+    /// <remarks>
+    /// Stored rather than derived because a body that saved mid-traversal must load mid-traversal, or saving would
+    /// be a way to escape the rule that leaving goes back out of the portal you came in by.
+    /// </remarks>
+    public string? SpaceTraversal
+    {
+        get => _spaceTraversal;
+        init
+        {
+            if (value is not null && (!value.StartsWith("portal.", StringComparison.Ordinal) || !DefinitionId.IsValid(value)))
+                throw new ArgumentException($"A traversal is a portal.<id> key or null, got '{value}'", nameof(SpaceTraversal));
+            _spaceTraversal = value;
+        }
+    }
+
+    private readonly string? _spaceTraversal;
+
+    /// <summary>The same player standing in a different space, traversing it differently (schema 16).</summary>
+    public PlayerRecord WithSpace(string spaceId, string? traversal) =>
+        this with { SpaceId = spaceId, SpaceTraversal = traversal };
+
     /// <summary>The same player holding themselves differently.</summary>
     public PlayerRecord WithPosture(Posture posture) => this with { Posture = posture };
 
@@ -429,6 +480,10 @@ public sealed record PlayerRecord
             h.Add(ReturnPoint ?? "-").Add(RoadsWalked.Length);
             foreach (string stretch in RoadsWalked)
                 h.Add(stretch);
+            // Schema 16: the space and the portal into it. Both are in the digest because two bodies at the same
+            // metres in different spaces are in different places, and a digest that could not tell them apart
+            // would let a load land in the wrong one without any test noticing.
+            h.Add(SpaceId).Add(SpaceTraversal ?? "-");
             return h.Finish();
         }
     }

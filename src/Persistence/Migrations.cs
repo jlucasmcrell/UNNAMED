@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using UNNAMED.World.Legacy;
@@ -21,6 +22,7 @@ using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
+using V15 = UNNAMED.Persistence.Sections.V15;
 
 namespace UNNAMED.Persistence;
 
@@ -82,7 +84,8 @@ public static class SchemaMigrations
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
-        new SchemaV14ToV15());
+        new SchemaV14ToV15(),
+        new SchemaV15ToV16());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -824,7 +827,10 @@ public sealed class SchemaV14ToV15 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            // Writes the FROZEN schema-15 shape, not the current DTO: schema 16 adds the space, so this step must
+            // keep producing exactly what schema 15 produced. Sections/V15.Player mirrors the current DTO field
+            // for field as it stood before schema 16.
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V15.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -847,6 +853,61 @@ public sealed class SchemaV14ToV15 : SchemaMigration
                 Waystones = Array.Empty<WaystoneDto>(),
                 ReturnPoint = null,
                 RoadsWalked = Array.Empty<string>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 16: the space a body stands in, and how it is traversing it (M8 D10, the Barrowworks).
+/// </summary>
+/// <remarks>
+/// Every save written before this one was in the exterior, because there was nowhere else to be: the interior
+/// space system is the first thing that let a body stand somewhere that is not the world. So the step gives
+/// older saves the exterior and no traversal, which is exactly the state those saves were in - and it reads the
+/// frozen schema-15 shape, so it stays a fixed <c>V15 -> V16</c> function.
+/// </remarks>
+public sealed class SchemaV15ToV16 : SchemaMigration
+{
+    public override int From => 15;
+
+    public override string Summary => "schema 15 -> 16: the player gains the space they stand in (the exterior) and how they are traversing it (none)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                // SpaceId.Exterior's name is empty by design, so an older save stores the empty string and every
+                // reader treats it as the exterior - the same convention the whole content plane uses.
+                SpaceId = SpaceId.Exterior.Name ?? "",
+                SpaceTraversal = null,
             }, options);
         }
         document.Manifest["schema_version"] = To;
