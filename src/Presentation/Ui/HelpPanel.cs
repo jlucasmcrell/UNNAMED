@@ -42,7 +42,7 @@ public partial class HelpPanel : CanvasLayer
             ("Conversation", new[] { ("Answer", new[] { "reply_1", "reply_9" }), ("Walk away", new[] { "release_mouse" }) }),
             ("Saving", new[]
             {
-                ("Quicksave", new[] { "quicksave" }), ("Quickload", new[] { "quickload" }), ("Every save, backups too", new[] { "saves" }),
+                ("Save now", new[] { "quicksave" }), ("Every save, to restore one", new[] { "saves" }),
             }),
         },
         new[]

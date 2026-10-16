@@ -34,7 +34,7 @@ public partial class SettingsPanel : CanvasLayer
         ["cast_1"] = "Formula 1", ["cast_2"] = "Formula 2", ["cast_3"] = "Formula 3", ["take_all"] = "Take all",
         ["companion_order"] = "Companions: follow or wait", ["first_person"] = "First person, and back", ["shoulder_swap"] = "Change shoulder",
         ["inventory"] = "Inventory", ["character"] = "Character", ["journal"] = "Journal", ["map"] = "Map", ["help"] = "Controls and help",
-        ["saves"] = "Saves", ["quicksave"] = "Save now", ["quickload"] = "Quickload",
+        ["saves"] = "Saves", ["quicksave"] = "Save now",
         ["reply_1"] = "Answer 1", ["reply_2"] = "Answer 2", ["reply_3"] = "Answer 3", ["reply_4"] = "Answer 4", ["reply_5"] = "Answer 5",
         ["reply_6"] = "Answer 6", ["reply_7"] = "Answer 7", ["reply_8"] = "Answer 8", ["reply_9"] = "Answer 9",
     };

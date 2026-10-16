@@ -10,7 +10,9 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// From the title screen's Load (<see cref="TitleScreen"/>): every save with its backups and the save it displaced, each loadable by
-/// choice - a restore. In the game (L, or a failed quickload) the same list, and a way back.
+/// choice - a restore. In the game (L, or a failed load) the same list, and a way back. Under MMO rules there is one live world (DN7):
+/// Continue on the title picks it up, and the world has gone on while the character was away; every row here is a restore, which brings
+/// back that moment with no catch-up.
 /// A save that cannot be loaded says why, and the copies of it that can be loaded are listed beneath it: nothing falls back silently.
 /// A STANDARD sheet: problems first, then a row a slot with its copies indented under it, and how saving happens in the hint.
 /// </summary>
@@ -81,8 +83,8 @@ public partial class SavesPanel : CanvasLayer
         var choice = _session.StartChoice();
         _sheet.Head(_atStart ? "Load" : "Saves", _atStart ? null : "saves", closeWord: _atStart ? "Back" : "Close");
         _sheet.SetIcon(_icon);
-        _sheet.SetHint(_atStart ? "A save, or one of the copies kept behind it, restores the world as it was then."
-            : $"{HelpPanel.Key("quicksave")} quicksaves · {HelpPanel.Key("quickload")} quickloads · autosaves are kept as you play");
+        _sheet.SetHint(_atStart ? "A save, or one of the copies kept behind it, restores the world as it was then, with no catch-up."
+            : $"{HelpPanel.Key("quicksave")} saves now · autosaves are kept as you play · a restore brings back its moment, and the world does not catch up");
         UiKit.Clear(_sheet.Body);
         Control? focus = null;
 
@@ -130,7 +132,7 @@ public partial class SavesPanel : CanvasLayer
         // A damaged save may still give up what survives (§7.2: partial recovery beats none); one this build cannot read, nothing.
         if (save.Problem is null || save.Problem.StartsWith("it is damaged", StringComparison.Ordinal))
         {
-            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save),
+            load = Action(save.Problem is null ? "Restore" : "Restore what survives", () => Load?.Invoke(save),
                 primary ? UiKit.Kind.Primary : UiKit.Kind.Normal, compact: copy);
             row.Root.AddChild(load);
         }

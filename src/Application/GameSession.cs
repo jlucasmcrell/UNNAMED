@@ -184,6 +184,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Travel = WorldContent.BuildTravel(loader),
             Character = CharacterContent.Build(loader),
+            Clock = WorldContent.BuildClock(loader),
+            Offline = WorldContent.BuildOffline(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

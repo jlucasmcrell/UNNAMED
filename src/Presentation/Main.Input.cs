@@ -250,8 +250,6 @@ public partial class Main
             _camera.SwapShoulder();
         if (Input.IsActionJustPressed("quicksave"))
             QuickSave();
-        if (Input.IsActionJustPressed("quickload"))
-            QuickLoad();
     }
 
     private static void DefineInput()
@@ -283,7 +281,6 @@ public partial class Main
         Bind("map", Key.M);
         Bind("autorun", Key.Quoteleft);   // the owner's second-play brief §23: autorun on tilde
         Bind("quicksave", Key.F5);
-        Bind("quickload", Key.F9);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
         Bind("inventory", Key.Tab, Key.I);

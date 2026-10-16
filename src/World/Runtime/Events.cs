@@ -64,3 +64,7 @@ internal sealed class SimulationEvents : IEventBus
         _views.Publish(@event);
     }
 }
+/// World time passed at once while the character was away (WP11): the calendar's hook. <see cref="DaysCrossed"/> counts the midnights the
+/// world clock passed; a system that keeps a calendar reads them here or from the ticks.
+/// </summary>
+public sealed record WorldTimeAdvanced(long FromTick, long ToTick, long DaysCrossed);

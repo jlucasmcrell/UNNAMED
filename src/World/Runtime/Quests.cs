@@ -142,7 +142,7 @@ internal sealed record RecordDeed(Deed Deed) : InternalCommand;
 /// completed quest's rewards once, through their owners' commands. Holds no per-quest logic: the definitions are data and the
 /// rules are <see cref="QuestRules"/> (D-07). Keeps, transiently, a trace of recent evaluations for the quest debugger.
 /// </summary>
-internal sealed class QuestSystem : IQuestFacts
+internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
 {
     /// <summary>How many distinct evaluations the trace keeps per quest; a run of identical evaluations is one entry.</summary>
     public const int TraceLength = 64;
@@ -237,6 +237,13 @@ internal sealed class QuestSystem : IQuestFacts
     /// <summary>A claimant by name: the character, a known actor, or the ID itself.</summary>
     private string ClaimantName(string id) =>
         id == _player.Value ? "You" : Claimants().FirstOrDefault(c => c.Id.Value == id) is { Name: { } name } ? name : id;
+
+    /// The absence needs nothing (WP11): a repeatable quest's cooldown is a world-tick deadline (<see cref="QuestRules.CanStart"/>), so one
+    /// that ran out while the character was away can be taken again at once. Objectives are not worked off-screen.
+    /// </summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+    }
 
     public string? Handle(StartQuest command, long tick)
     {

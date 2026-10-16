@@ -1,4 +1,4 @@
-// UNNAMED Presentation - Main's saves: new game, load, continue, quicksave, and the resync after each (D-11)
+// UNNAMED Presentation - Main's saves: new game, continue, restore, save now, and the resync after each (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -39,10 +39,11 @@ public partial class Main
         _scatter.Build(_session.Simulation!.World.WorldSeed);
     }
 
-    /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
+    /// <summary>
+    /// F5, "save now": taken now, written in the background (P-01); "Saved", or why not, when it has been. There is no quickload: one live
+    /// world (DN7), and an older save is only ever restored by choice from the saves list.
+    /// </summary>
     private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
-
-    private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
 
     /// <summary>
     /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened

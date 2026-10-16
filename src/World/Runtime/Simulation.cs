@@ -38,6 +38,11 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The peoples and Calls the character creator offers (WP2).</summary>
     public CharacterSetup Character { get; init; } = CharacterSetup.None;
+    /// <summary>The world clock's day (config.time): what the calendar counts.</summary>
+    public WorldClock Clock { get; init; } = WorldClock.Default;
+
+    /// <summary>The catch-up cap and the login grace (config.time; WP11).</summary>
+    public OfflineRules Offline { get; init; } = OfflineRules.None;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -108,8 +113,10 @@ public sealed class Simulation
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
+    private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
     private bool _stepping;
+    private bool _advancing;
 
     private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
     {
@@ -139,7 +146,7 @@ public sealed class Simulation
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
         _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Effective);
         _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Effective);
-        _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
+        _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
@@ -154,6 +161,9 @@ public sealed class Simulation
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
+        // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
+        // that goes on while the character is away adds itself here.
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -387,7 +397,7 @@ public sealed class Simulation
     /// </summary>
     public void Step()
     {
-        if (_stepping)
+        if (_stepping || _advancing)
             throw new InvalidOperationException("Step is not re-entrant: an event handler may enqueue commands, never step the world");
         _stepping = true;
         try
@@ -413,6 +423,42 @@ public sealed class Simulation
             _stepping = false;
         }
     }
+
+    /// <summary>
+    /// The world going on while the character was away (WP11): every system brings itself <paramref name="ticks"/> later at once, through
+    /// its <see cref="IAbstractAdvance"/>, the clock first. Chunk-invariant: one advance of n ticks leaves the state that advances summing
+    /// to n do (T-22). Called at a tick boundary, never from inside <see cref="Step"/>.
+    /// </summary>
+    public AdvanceLog Advance(long ticks)
+    {
+        if (ticks < 0)
+            throw new ArgumentOutOfRangeException(nameof(ticks), ticks, "The world never goes back in time");
+        if (_stepping || _advancing)
+            throw new InvalidOperationException("Advance is not re-entrant: an event handler may enqueue commands, never advance the world");
+        long from = WorldTick, to = checked(from + ticks);
+        var log = new AdvanceLog(from, to);
+        if (ticks == 0)
+            return log;
+        _advancing = true;
+        try
+        {
+            AbstractAdvance.Run(from, to, _advances, log);
+        }
+        finally
+        {
+            _advancing = false;
+        }
+        return log;
+    }
+
+    /// <summary>
+    /// The login grace (§2.12 item 6): for config.time's <c>login_grace_seconds</c> from now, creatures neither see nor hear the character,
+    /// so nothing that came back while they were away is upon them before the world is on screen. Not saved: every login starts its own.
+    /// </summary>
+    public void BeginLoginGrace() => _creatures.BeginGrace(WorldTick + Setup.Offline.LoginGraceTicks);
+
+    /// <summary>The last tick of the login grace; at or before the world tick when there is none.</summary>
+    public long LoginGraceUntil => _creatures.GraceUntil;
 
     /// <summary>The player as a save records them: identity from the loaded record, everything else from live state.</summary>
     public PlayerRecord CaptureRecord()
