@@ -130,18 +130,25 @@ public partial class NpcsView : Node3D
     {
         public required Label3D Label { get; init; }
         public double Left;
+        public double Shown;
         public double Quiet;
         public string? Last;
+        public bool Voiced;
     }
 
-    private const float BarkReach = 5f;
+    private const float BarkReach = Audio.VoiceRules.BarkFullM;
+
+    /// <summary>Who says barks aloud when their recording exists (WP5); none in a run without sound.</summary>
+    public Audio.VoicePlayer? Voice { get; set; }
     private readonly Dictionary<string, Barking> _barks = new(StringComparer.Ordinal);
     private readonly RandomNumberGenerator _random = new();
 
     /// <summary>
     /// A line said in passing (the NPC's barks, from their conversation's content): when the character comes within reach of someone
     /// not talking to anyone, and that someone has been quiet long enough, they say one of the barks that hold now - over their head,
-    /// with the face speaking it - then keep quiet for half a minute or so. Decoration: which line and when are presentation's.
+    /// with the face speaking it - then keep quiet for half a minute or so. Decoration: which line and when are presentation's. A bark
+    /// with a recording is said aloud where they stand, for as long as it lasts, and its words show while subtitles are on; the words
+    /// fade in, fade as the character walks off, and fade out at the end (E-5).
     /// </summary>
     private string? Bark(Simulation simulation, NpcView npc, Figure figure, Vector3 feet, double delta)
     {
@@ -156,19 +163,25 @@ public partial class NpcsView : Node3D
             _barks[npc.Id] = bark = new Barking { Label = label, Quiet = _random.RandfRange(1f, 4f) };
         }
         bark.Left -= delta;
+        bark.Shown += delta;
         bark.Quiet -= delta;
-        bool near = feet.DistanceTo(PlayerHead.GlobalPosition) < BarkReach && simulation.Conversation is null && !npc.Downed;
+        float distance = feet.DistanceTo(PlayerHead.GlobalPosition);
+        var head = figure.Head ?? feet + Vector3.Up * 1.6f;
+        bool near = distance < BarkReach && simulation.Conversation is null && !npc.Downed;
         var lines = near && bark.Quiet <= 0 ? simulation.Barks(npc.Id) : default;
         if (!lines.IsDefault && lines.IsEmpty)
             bark.Quiet = 5;
         else if (!lines.IsDefault)
         {
-            var fresh = lines.Where(l => l != bark.Last).ToArray();
-            string line = fresh.Length > 0 ? fresh[_random.RandiRange(0, fresh.Length - 1)] : lines[0];
-            bark.Last = line;
-            bark.Left = 1.5 + line.Length / 15.0;
+            var fresh = lines.Where(l => l.Text != bark.Last).ToArray();
+            var line = fresh.Length > 0 ? fresh[_random.RandiRange(0, fresh.Length - 1)] : lines[0];
+            bark.Last = line.Text;
+            double? voiced = Voice?.Bark(line.LineId, head);
+            bark.Voiced = voiced is not null;
+            bark.Left = voiced is { } seconds ? seconds + 0.3 : 1.5 + line.Text.Length / 15.0;
+            bark.Shown = 0;
             bark.Quiet = bark.Left + _random.RandfRange(25f, 45f);
-            bark.Label.Text = line;
+            bark.Label.Text = line.Text;
         }
         if (bark.Left <= 0 || simulation.Conversation is not null)
         {
@@ -176,8 +189,11 @@ public partial class NpcsView : Node3D
             bark.Label.Visible = false;
             return null;
         }
-        bark.Label.Visible = true;
-        bark.Label.GlobalPosition = (figure.Head ?? feet + Vector3.Up * 1.6f) + Vector3.Up * 0.45f;
+        float alpha = Audio.VoiceRules.BarkAlpha(distance, bark.Shown, bark.Left);
+        bark.Label.Visible = alpha > 0.01f && Audio.VoiceRules.ShowWords(bark.Voiced, Settings.SettingsStore.Current.Profile.Interface.Subtitles);
+        bark.Label.Modulate = new Color(1, 1, 1, alpha);
+        bark.Label.OutlineModulate = new Color(0, 0, 0, alpha);
+        bark.Label.GlobalPosition = head + Vector3.Up * 0.45f;
         return bark.Label.Text;
     }
 

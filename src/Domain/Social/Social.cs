@@ -57,13 +57,40 @@ public sealed record DialogueBark(string Text, ImmutableArray<DialogueCondition>
 /// to <see cref="NextIfExhausted"/>, or ends the conversation if it has none. <see cref="Next"/>, on a node without replies,
 /// continues without a choice.
 /// </summary>
-public sealed record DialogueNode(string Id, string Text, ImmutableArray<DialogueChoice> Choices, string? Next, bool Once, string? NextIfExhausted);
+public sealed record DialogueNode(string Id, string Text, ImmutableArray<DialogueChoice> Choices, string? Next, bool Once, string? NextIfExhausted)
+{
+    /// <summary>
+    /// E-6: other wordings of the same line, each said instead of <see cref="Text"/> while its conditions hold; the first that holds is
+    /// said. The node, its replies and where it goes are the same whichever wording is said.
+    /// </summary>
+    public ImmutableArray<DialogueVariant> Variants { get; init; } = ImmutableArray<DialogueVariant>.Empty;
+}
+
+/// <summary>A wording of a node's line (E-6), said while its conditions hold (the same conditions a reply takes).</summary>
+public sealed record DialogueVariant(string Text, ImmutableArray<DialogueCondition> Conditions);
+
+/// <summary>A line as it is said: its derived line ID (E-10) and its words.</summary>
+public sealed record SpokenLine(string LineId, string Text);
+
+/// <summary>
+/// Stable line IDs (E-10), derived from where a line stands in content and never written into it: <c>&lt;dialogue&gt;/&lt;node&gt;</c> for a
+/// node's line, <c>&lt;dialogue&gt;/&lt;node&gt;.&lt;n&gt;</c> for its n-th variant, and <c>bark.&lt;npc&gt;.&lt;n&gt;</c> for the n-th bark of an NPC's
+/// conversation, counting from 1 and without the <c>npc.</c> prefix. They name voice-over files (<c>vo/&lt;line-id&gt;.ogg</c>).
+/// </summary>
+public static class LineIds
+{
+    public static string Node(string dialogueId, string nodeId, int variant = 0) =>
+        variant == 0 ? $"{dialogueId}/{nodeId}" : $"{dialogueId}/{nodeId}.{variant}";
+
+    public static string Bark(string npcId, int number) =>
+        $"bark.{(npcId.StartsWith("npc.", StringComparison.Ordinal) ? npcId["npc.".Length..] : npcId)}.{number}";
+}
 
 /// <summary>A reply: offered while its conditions hold; choosing it runs its consequences, then goes to <see cref="Next"/> (none ends).</summary>
 public sealed record DialogueChoice(string Id, string Text, ImmutableArray<DialogueCondition> Conditions,
     ImmutableArray<DialogueConsequence> Consequences, string? Next);
 
-/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds).</summary>
+/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds, M5 and M6 two more, E-7 <c>deed</c>).</summary>
 public abstract record DialogueCondition;
 
 /// <summary>
@@ -107,6 +134,42 @@ public sealed record QuestStateCondition(string QuestId, string? ObjectiveId, st
 /// inverts it.
 /// </summary>
 public sealed record CompanionPresentCondition(string NpcId, CompanionOrder? Order, bool Negated) : DialogueCondition;
+
+/// <summary>
+/// <c>deed</c> (E-7): the character has done something at least <see cref="Count"/> times - killed a creature, crafted or harvested
+/// something, or delivered an item (to <see cref="NpcId"/>, when named); <c>not: true</c> inverts it.
+/// </summary>
+public sealed record DeedCondition(DeedKind Kind, string SubjectId, int Count, bool Negated) : DialogueCondition
+{
+    public string? NpcId { get; init; }
+}
+
+/// <summary>
+/// How many times the character has done one deed (E-7) - to one NPC, for a delivery - and when they last did it. What a <c>deed</c>
+/// condition reads; quests count their own.
+/// </summary>
+public sealed record DeedTally(DeedKind Kind, string SubjectId, string? NpcId, int Count, long LastTick)
+{
+    /// <summary>The tally's key: one tally per deed, subject and NPC.</summary>
+    public string Key => DeedKeys.TallyKey(Kind, SubjectId, NpcId);
+}
+
+/// <summary>The deeds' stable keys in content and saves.</summary>
+public static class DeedKeys
+{
+    public static string Key(DeedKind kind) => kind switch
+    {
+        DeedKind.Crafted => "crafted",
+        DeedKind.Harvested => "harvested",
+        DeedKind.Killed => "killed",
+        DeedKind.Delivered => "delivered",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown deed"),
+    };
+
+    public static DeedKind? Parse(string key) => Enum.GetValues<DeedKind>().Cast<DeedKind?>().FirstOrDefault(k => Key(k!.Value) == key);
+
+    public static string TallyKey(DeedKind kind, string subjectId, string? npcId) => $"{Key(kind)}|{subjectId}|{npcId}";
+}
 
 /// <summary>A closed-set consequence (DATA_MODEL.md §4.12): dialogue emits these as commands and never writes state itself.</summary>
 public abstract record DialogueConsequence;
@@ -158,6 +221,9 @@ public interface IDialogueFacts
 
     /// <summary>The order an NPC who is the character's companion is under; null when they are not a companion (M6).</summary>
     CompanionOrder? CompanionOrderOf(string npcId);
+
+    /// <summary>How many times the character has done this deed (E-7): of any NPC when <paramref name="npcId"/> is null.</summary>
+    int Deeds(DeedKind kind, string subjectId, string? npcId);
 }
 
 public static class DialogueRules
@@ -173,11 +239,23 @@ public static class DialogueRules
         QuestStateCondition { ObjectiveId: null, State: QuestKeys.Available } q => facts.QuestAvailable(q.QuestId) != q.Negated,
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
+        DeedCondition d => facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count != d.Negated,
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),
     };
 
     public static bool Offered(DialogueChoice choice, string dialogueId, IDialogueFacts facts) =>
         choice.Conditions.All(c => Holds(c, dialogueId, facts));
+
+    /// <summary>The line a node says now (E-6): its first variant whose conditions hold, or its own text; with the line's ID (E-10).</summary>
+    public static SpokenLine Line(DialogueNode node, string dialogueId, IDialogueFacts facts)
+    {
+        for (int i = 0; i < node.Variants.Length; i++)
+        {
+            if (node.Variants[i].Conditions.All(c => Holds(c, dialogueId, facts)))
+                return new SpokenLine(LineIds.Node(dialogueId, node.Id, i + 1), node.Variants[i].Text);
+        }
+        return new SpokenLine(LineIds.Node(dialogueId, node.Id), node.Text);
+    }
 
     /// <summary>
     /// The node a conversation arrives at: a spent once-node passes on to its <c>next_if_exhausted</c>, and so on; null when

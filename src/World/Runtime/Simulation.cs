@@ -98,6 +98,7 @@ public sealed class Simulation
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly TravelSystem _travel;
+    private readonly DeedSystem _deeds;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -141,6 +142,7 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
+        _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
@@ -255,8 +257,11 @@ public sealed class Simulation
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
 
-    /// <summary>What an NPC could say in passing now (their barks whose conditions hold); presentation picks one and when.</summary>
-    public ImmutableArray<string> Barks(string npcId) => _dialogue.Barks(npcId);
+    /// <summary>
+    /// What an NPC could say in passing now (their barks whose conditions hold), each with its line ID (E-10); presentation picks one and
+    /// when, and voices it when its recording exists.
+    /// </summary>
+    public ImmutableArray<Domain.Social.SpokenLine> Barks(string npcId) => _dialogue.Barks(npcId);
 
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
@@ -379,6 +384,7 @@ public sealed class Simulation
             Waystones = _travel.Records(),
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
+            Deeds = _state.Deeds.Values.ToImmutableArray(),
         };
     }
 
@@ -431,7 +437,7 @@ public sealed class Simulation
         GrantItem grant => _inventory.Handle(grant, Now),
         ChangeRelationship change => _relationships.Handle(change, Now),
         StartQuest start => _quests.Handle(start, Now),
-        RecordDeed deed => _quests.Handle(deed),
+        RecordDeed deed => _deeds.Handle(deed) ?? _quests.Handle(deed),
         Recruit recruit => _companions.Handle(recruit, Now),
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),

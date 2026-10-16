@@ -6,6 +6,7 @@ using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.Persistence;
@@ -165,6 +166,11 @@ public static class M2Fixtures
                 new WaystoneRecord("waystone.fixture.ford", "region.fixture_vale", WaystoneMethod.Woken, 4_500)),
             ReturnPoint = "waystone.fixture.ford",
             RoadsWalked = ImmutableArray.Create("road.fixture.track#0", "road.fixture.track#1"),
+            // Schema 16 (WP5, E-7): three ash hounds killed, two healing draughts handed to the warden, a sword crafted - the hound, the
+            // draught and the warden under the names they had then.
+            Deeds = ImmutableArray.Create(new DeedTally(DeedKind.Killed, "creature.beast.ash_hound", null, 3, 4_800),
+                new DeedTally(DeedKind.Delivered, "item.potion.healing_draught", "npc.fixture.warden", 2, 4_200),
+                new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900)),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

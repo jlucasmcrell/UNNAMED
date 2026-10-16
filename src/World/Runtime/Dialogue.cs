@@ -35,8 +35,14 @@ public sealed record ConversationEnded(string NpcId, long Tick);
 /// <summary>An NPC opened a service to the player (Phase 1: trade).</summary>
 public sealed record ServiceOpened(string NpcId, string Service, long Tick);
 
-/// <summary>The open conversation: the line, and the replies offered now.</summary>
-public sealed record ConversationView(string NpcId, string DialogueId, string NodeId, string Text, ImmutableArray<ReplyView> Replies);
+/// <summary>
+/// The open conversation: the line as it is said now (the node's wording or a variant of it, E-6), its line ID (E-10), and the replies
+/// offered now.
+/// </summary>
+public sealed record ConversationView(string NpcId, string DialogueId, string NodeId, string Text, ImmutableArray<ReplyView> Replies)
+{
+    public string LineId { get; init; } = LineIds.Node(DialogueId, NodeId);
+}
 
 public sealed record ReplyView(string Id, string Text);
 
@@ -150,7 +156,8 @@ internal sealed class DialogueSystem : IDialogueFacts
         var replies = node.Choices.IsEmpty
             ? ImmutableArray.Create(new ReplyView(Continue, node.Next is null ? "(leave)" : "(go on)"))
             : node.Choices.Where(c => DialogueRules.Offered(c, dialogue.Id, this)).Select(c => new ReplyView(c.Id, c.Text)).ToImmutableArray();
-        return new ConversationView(open.NpcId, open.DialogueId, open.NodeId, node.Text, replies);
+        var line = DialogueRules.Line(node, dialogue.Id, this);
+        return new ConversationView(open.NpcId, open.DialogueId, open.NodeId, line.Text, replies) { LineId = line.LineId };
     }
 
     private void GoTo(Conversation open, DialogueDefinition dialogue, string? next, long tick)
@@ -267,6 +274,8 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     public CompanionOrder? CompanionOrderOf(string npcId) => State.Companions.TryGetValue(npcId, out var companion) ? companion.Order : null;
 
+    public int Deeds(DeedKind kind, string subjectId, string? npcId) => DeedSystem.Count(State, kind, subjectId, npcId);
+
     public string QuestState(string questId, string? objectiveId)
     {
         if (!State.Quests.TryGetValue(questId, out var quest))
@@ -286,14 +295,15 @@ internal sealed class DialogueSystem : IDialogueFacts
         return choice.Conditions.Select(c => (c, DialogueRules.Holds(c, dialogueId, facts))).ToImmutableArray();
     }
 
-    /// <summary>The barks <paramref name="npcId"/> could say now: their conversation's barks whose conditions hold.</summary>
-    public ImmutableArray<string> Barks(string npcId)
+    /// <summary>The barks <paramref name="npcId"/> could say now: their conversation's barks whose conditions hold, with their line IDs.</summary>
+    public ImmutableArray<SpokenLine> Barks(string npcId)
     {
         if (!State.Npcs.TryGetValue(npcId, out var npc) || npc.Definition.DialogueId is not { } dialogueId
             || !Setup.Dialogues.TryGetValue(dialogueId, out var dialogue))
-            return ImmutableArray<string>.Empty;
+            return ImmutableArray<SpokenLine>.Empty;
         var facts = new SpeakerFacts(this, npcId);
-        return dialogue.Barks.Where(b => b.Conditions.All(c => DialogueRules.Holds(c, dialogueId, facts))).Select(b => b.Text).ToImmutableArray();
+        return dialogue.Barks.Select((b, i) => (Bark: b, Line: new SpokenLine(LineIds.Bark(npcId, i + 1), b.Text)))
+            .Where(b => b.Bark.Conditions.All(c => DialogueRules.Holds(c, dialogueId, facts))).Select(b => b.Line).ToImmutableArray();
     }
 
     /// <summary>What a conversation with one NPC would see, without one open: flags in that NPC's cell.</summary>
@@ -327,5 +337,7 @@ internal sealed class DialogueSystem : IDialogueFacts
         public bool QuestAvailable(string questId) => _system.QuestAvailable(questId);
 
         public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
+
+        public int Deeds(DeedKind kind, string subjectId, string? npcId) => _system.Deeds(kind, subjectId, npcId);
     }
 }

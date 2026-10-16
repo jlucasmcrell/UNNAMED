@@ -10,6 +10,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
@@ -71,6 +72,20 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: no road was on the map before it.</summary>
     [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
+
+    /// <summary>Required from schema 16. The 15 -> 16 step gives older saves none: no deed was counted before the deed condition (E-7).</summary>
+    [Key("deeds")] public DeedDto[]? Deeds { get; set; }
+}
+
+/// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
+[MessagePackObject]
+public sealed class DeedDto
+{
+    [Key("deed")] public string Deed { get; set; } = "";
+    [Key("subject")] public string Subject { get; set; } = "";
+    [Key("npc")] public string? Npc { get; set; }
+    [Key("count")] public int Count { get; set; }
+    [Key("last_tick")] public long LastTick { get; set; }
 }
 
 /// <summary>A Waystone the character knows (schema 15).</summary>
@@ -434,6 +449,7 @@ public static class SectionCodec
         Waystones = player.Waystones.Select(w => new WaystoneDto { Stone = w.StoneKey, Region = w.RegionId, Method = WaystoneMethods.Key(w.Method), Tick = w.Tick }).ToArray(),
         ReturnPoint = player.ReturnPoint,
         RoadsWalked = player.RoadsWalked.ToArray(),
+        Deeds = player.Deeds.Select(d => new DeedDto { Deed = DeedKeys.Key(d.Kind), Subject = d.SubjectId, Npc = d.NpcId, Count = d.Count, LastTick = d.LastTick }).ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -460,6 +476,7 @@ public static class SectionCodec
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
         var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
+        var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -488,6 +505,8 @@ public static class SectionCodec
                 WaystoneMethods.Parse(w.Method) ?? throw new FormatException($"Waystone {w.Stone} was known by '{w.Method}'"), w.Tick)).ToImmutableArray(),
             ReturnPoint = dto.ReturnPoint,
             RoadsWalked = roads.ToImmutableArray(),
+            Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
+                d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
         };
     }
 

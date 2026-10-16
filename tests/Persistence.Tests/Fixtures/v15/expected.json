@@ -229,7 +229,8 @@
     "roads_walked": [
       "road.fixture.track#0",
       "road.fixture.track#1"
-    ]
+    ],
+    "deeds": []
   },
   "cells": [
     {

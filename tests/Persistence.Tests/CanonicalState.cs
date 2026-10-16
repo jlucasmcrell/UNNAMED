@@ -3,6 +3,7 @@ using System.Text.Json;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 
@@ -170,6 +171,21 @@ internal static class CanonicalState
             json.WriteStartArray("roads_walked");
             foreach (string stretch in player.RoadsWalked)
                 json.WriteStringValue(stretch);
+            json.WriteEndArray();
+            json.WriteStartArray("deeds");
+            foreach (var deed in player.Deeds)
+            {
+                json.WriteStartObject();
+                json.WriteString("deed", DeedKeys.Key(deed.Kind));
+                json.WriteString("subject", deed.SubjectId);
+                if (deed.NpcId is { } npc)
+                    json.WriteString("npc", npc);
+                else
+                    json.WriteNull("npc");
+                json.WriteNumber("count", deed.Count);
+                json.WriteNumber("last_tick", deed.LastTick);
+                json.WriteEndObject();
+            }
             json.WriteEndArray();
             json.WriteEndObject();
 
