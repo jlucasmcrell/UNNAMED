@@ -689,6 +689,586 @@
       ],
       "note": "fab_build.py over the region's own wall runs (0.4 m blockers), door gaps from the runs (door.longhouse +x); Fab kit pieces, see ready/bld_fab_ah_waystation/bld_fab_ah_waystation_meta.json kit_pieces. No 'surface' (own 2K maps).",
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
+    },
+    "r01": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r02": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r03": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r04": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r05": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r06": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r07": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r08": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.9,
+        "range": 26,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "r09": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.55,
+          0.6,
+          0.7
+        ],
+        "energy": 1.5,
+        "range": 24,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.3,
+        "attenuation": 0.9
+      }
+    },
+    "r10": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.55,
+          0.6,
+          0.7
+        ],
+        "energy": 1.5,
+        "range": 24,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.3,
+        "attenuation": 0.9
+      }
+    },
+    "r11": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.55,
+          0.6,
+          0.7
+        ],
+        "energy": 1.5,
+        "range": 24,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.3,
+        "attenuation": 0.9
+      }
+    },
+    "r12": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.55,
+          0.6,
+          0.7
+        ],
+        "energy": 1.5,
+        "range": 24,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.3,
+        "attenuation": 0.9
+      }
+    },
+    "r13": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.55,
+          0.6,
+          0.7
+        ],
+        "energy": 1.5,
+        "range": 24,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.3,
+        "attenuation": 0.9
+      }
+    },
+    "corr_r01_r02_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r02_r03_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r02_r03_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r03_r04_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r03_r05_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r05_r06_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r06_r07_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r06_r10_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r07_r08_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r07_r09_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r07_r13_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r08_r02_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r08_r02_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r10_r11_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r11_r12_z": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
+    },
+    "corr_r13_r10_x": {
+      "interior_light": {
+        "at": [
+          0.0,
+          3.2,
+          0.0
+        ],
+        "colour": [
+          0.62,
+          0.66,
+          0.72
+        ],
+        "energy": 1.2,
+        "range": 14,
+        "shadows": true,
+        "size": 0.6,
+        "fog_energy": 0.35,
+        "attenuation": 0.85
+      }
     }
   },
   "structures": {

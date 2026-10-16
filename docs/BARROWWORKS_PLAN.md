@@ -354,6 +354,41 @@ next thing to fix**, and it is the same finding P2d reached from a frame that co
 so the prefix became `r01__` and matched nothing. The default names never carried one. The generator now emits
 them bare and says why in a comment, because the next person to add a room will make the same mistake.
 
+### P3d - the interior is lit, by its own light and not the sun's
+
+**The defect P3c created, and P2d predicted.** Roofing the rooms made them rooms, and a room with no lamp in it
+measured world mean **21.1** against the courtyard's 55.7 - dark because it was enclosed, which is correct and
+unreadable. This is the same finding P2d reached from a frame that could not show it, arriving at last with a
+cause.
+
+**No new code.** The engine already has the path: a `building_walls` entry carrying an `interior_light` and
+**no model** registers a lamp at its footprint's centre without replacing the walls (HollowView's building
+loop). That is the mechanism the seven Cairnwold cottages' lamps and the lodge hearth are built on. So the
+dungeon needed bindings, not rendering work - the same conclusion as the walls, one phase along.
+
+**Twenty-nine lamps, generated:** thirteen rooms and sixteen corridor legs, because a five-metre passage under
+a roof slab is a black tube without one. The generator derives them from the region's own structure ids, so
+they stay in step with the blockout.
+
+**The light is cold, and that is deliberate.** The brief's look is old works with *restrained* glow and no
+sci-fi panels; a barrow cut into a hill has no hearth in it. Colour `[0.62, 0.66, 0.72]`, energy 1.9, range
+26 m, sitting at 3.2 m in a room whose walls are 4 m - one lamp has to reach the corners of a 24 m chamber,
+not pool round a fire. The deep rooms get 1.5 and the corridors 1.2, so "further from the door is darker"
+survives as a fact about the place rather than a flourish.
+
+**Verified, three states of the same room and shot:**
+
+| R02, same shot | world mean | |
+|---|---|---|
+| open to the sky | 55.7 | the courtyard P2 left |
+| roofed, unlit | 21.1 | P3c's cost, measured |
+| **roofed and lit** | **48.4** | readable again, and by its own light |
+
+The frame agrees: coursed stone either side, a gravel floor with colour in it, the character readable, the
+doorway ahead framing the far room, a ceiling overhead. **The blockout is now a place rather than a
+diagram.** 945 tests pass, 0 failed; Cairnwold's 10 `building_walls` entries are untouched and its own lamps
+and hearth are unaffected because a region that binds no light of its own is the region it was.
+
 ## 4. Content port (P4)
 
 Old content: `implemented/content/quests/barrowworks/unfinished_measure.yaml` — **`schema: 1`, which is
