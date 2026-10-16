@@ -219,6 +219,7 @@ public static class CombatContent
             BowRecoveryTicks = Ticks(ranged, "recovery_s"),
             LeashMm = Mm(map, "creature_leash_m"),
             DeathEffect = Text(Map(map, "death"), "effect_ref"),
+            DeathTicks = Ticks(Map(map, "death"), "respawn_delay_s"),
             Unarmed = new AttackProfile("unarmed", IntOf(unarmedDamage, 0, "unarmed.damage"), IntOf(unarmedDamage, 1, "unarmed.damage"),
                 Damage(Text(unarmedMap, "damage_type")), Mm(unarmedMap, "reach"), unarmedWindup, unarmedActive,
                 Math.Max(0, unarmedTotal - unarmedWindup - unarmedActive), Int(unarmedMap, "stamina_cost")),

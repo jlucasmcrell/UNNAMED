@@ -88,6 +88,8 @@ public sealed class PlayerController
     /// <summary>Submit a world-space movement wish (length at most 1) if it changed. Scripted runs steer this way.</summary>
     public void SteerWorld(Vector3 direction, Gait gait, CameraRig camera, bool faceCamera = false)
     {
+        if (_session.Simulation!.Combat.Defeated)
+            direction = Vector3.Zero;   // dead: input is locked until the respawn
         int facing = camera.IsFirstPerson || faceCamera
             ? FacingOf(camera.GroundForward)
             : direction.LengthSquared() > 0.0001f ? FacingOf(direction) : _motion.Sent.FacingMdeg;

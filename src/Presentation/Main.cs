@@ -144,6 +144,8 @@ public partial class Main : Node3D
     /// what the 1.002 ratio means.* **A teleport, a respawn or a cell transition is still caught by it.**
     /// </summary>
     private const float SpeedCeiling = 8f;
+    /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
+    private const double DeathFadeLeadSeconds = 1.2;
 
     /// <summary>
     /// The same eased frame speed as <see cref="_drawnSpeed"/> with NO ceiling, written to the state log only.
@@ -1382,6 +1384,8 @@ public partial class Main : Node3D
         var simulation = _session.Simulation!;
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
+        _avatar.SetDowned(combat.Defeated);
+        _hud.FadeToBlack(combat.Defeated && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;

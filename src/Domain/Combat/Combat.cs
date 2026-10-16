@@ -135,6 +135,7 @@ public sealed record CombatConstants
     public int DefaultStaminaCost { get; init; } = 8;
     public long LeashMm { get; init; } = 40_000;
     public string DeathEffect { get; init; } = "effect.weakened";
+    public int DeathTicks { get; init; } = 80;
     public AttackProfile Unarmed { get; init; } = new("unarmed", 2, 3, "physical_blunt", 1_200, 5, 2, 5, 4);
 }
 
