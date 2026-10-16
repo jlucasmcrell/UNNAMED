@@ -556,7 +556,7 @@ public class ContentLoaderTests
                 "quest.cairnwold.iron_from_the_moor", "quest.cairnwold.what_the_bog_kept",
                 "recipe.cooking.roast_meat", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.herbal.salve_minor",
                 "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_vest", "recipe.smithing.iron_billet", "recipe.smithing.march_spear",
-                "region.ashen_hollow", "region.starting_frontier",
+                "region.ashen_hollow", "region.barrowworks", "region.starting_frontier",
                 "resource.fibre.bog_cotton", "resource.firstplay.ashbloom", "resource.herb.boneleaf", "resource.herb.woundmoss", "resource.ore.iron",
                 "resource.wood.ash", "resource.wood.deadfall",
                 "skill.athletics", "skill.force", "skill.one_hand_blade", "skill.smithing", "skill.survival", "skill.vital", "skill.warding",

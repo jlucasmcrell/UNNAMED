@@ -128,16 +128,29 @@ public static class WorldContent
         {
             var map = Read(region.YamlSource);
             var regionKey = RegionKey.Parse(Text(map, "region_key"));
+            // `space:` is the space this region's coordinates belong to (M8 D10). Absent means the exterior,
+            // which is every region that existed before M8 and every one that is part of the world; an
+            // interior - the Barrowworks' thirteen rooms - names its own. Its cells then have to be written
+            // space-qualified, and CellKey.Parse has read that prefix since P1.
+            var spaceId = map.TryGetValue("space", out var rawSpace) && rawSpace is string spaceName
+                ? SpaceId.Parse(spaceName)
+                : SpaceId.Exterior;
             var cells = List(map, "cells").Select(c => CellKey.Parse(c as string ?? throw new FormatException("a cell key must be text"))).ToList();
             Check(cells.Count > 0, "WLD002", "a region covers at least one cell");
             Check(cells.All(c => c.Region == regionKey), "WLD002", $"every cell must be in {regionKey}");
             Check(cells.Distinct().Count() == cells.Count, "WLD002", "a cell is listed twice");
+            // A region is one space, so a cell in another one is a content error rather than something to
+            // reconcile: the two would share no flags, no deltas and no random streams.
+            Check(cells.All(c => c.Space == spaceId), "WLD002",
+                spaceId.IsExterior
+                    ? "an exterior region must list exterior cells"
+                    : $"every cell must be in {spaceId}");
 
             var bounds = Map(map, "bounds_m");
             var (minX, minZ) = Pair(bounds, "min");
             var (maxX, maxZ) = Pair(bounds, "max");
             Check(minX < maxX && minZ < maxZ, "WLD002", "bounds_m min must be below max");
-            Check(Covered(cells, minX, minZ, maxX, maxZ), "WLD002", "the walkable bounds must lie inside the region's cells");
+            Check(Covered(cells, spaceId, minX, minZ, maxX, maxZ), "WLD002", "the walkable bounds must lie inside the region's cells");
 
             var terrain = BuildTerrain(Map(map, "terrain"));
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
@@ -299,6 +312,9 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                // The space this region's coordinates belong to: the exterior for the world's regions, its own
+                // for an interior (M8 D10). Everything derived from a site in this layout follows it.
+                SpaceId = spaceId,
             };
 
             // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand
@@ -383,7 +399,7 @@ public static class WorldContent
             errors.Add(Error("WLD006", $"{flag.Id} must default to 0 (false): the cell delta records divergence from 0", flag.SourceFile));
     }
 
-    private static bool Covered(List<CellKey> cells, long minX, long minZ, long maxX, long maxZ)
+    private static bool Covered(List<CellKey> cells, SpaceId space, long minX, long minZ, long maxX, long maxZ)
     {
         const long size = WorldMath.CellSizeMeters * 1000L;
         // Every 1 mm-inset corner of every cell-sized tile of the bounds must fall in a listed cell.
@@ -392,7 +408,9 @@ public static class WorldContent
         {
             foreach (var (px, pz) in new[] { (x, z), (Math.Min(x + size, maxX) - 1, z), (x, Math.Min(z + size, maxZ) - 1), (Math.Min(x + size, maxX) - 1, Math.Min(z + size, maxZ) - 1) })
             {
-                if (!cells.Contains(CellKey.OfWorld(px / 1000.0, pz / 1000.0)))
+                // In the region's own space: an interior's local metres would otherwise be checked against
+                // the exterior cells those metres happen to name (M8 D10).
+                if (!cells.Contains(CellKey.OfInterior(space, px / 1000.0, pz / 1000.0)))
                     return false;
             }
         }

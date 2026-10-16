@@ -342,6 +342,51 @@ back where they entered. With the option off, nothing in the playtest changes an
 
 ---
 
+## 11. P2 — the blockout
+
+### P2a — `space:` on the region schema, and thirteen rooms that connect
+
+**An interior is just another region.** That is the whole design: `content/regions/barrowworks.yaml` is a
+region content file like any other, declared with `space: space.barrowworks` and cells written
+space-qualified. No new content kind, no new loader path, and the existing `structures` / `doors` /
+`bounds_m` / `terrain` schema carries the blockout unchanged.
+
+**What the schema gained:** an optional `space:` key, read into `RegionLayout.SpaceId`, plus two checks
+that use it — every listed cell must be in the declared space, and the bounds-coverage walk now resolves
+points with `CellKey.OfInterior` rather than `CellKey.OfWorld`. Absent, it is the exterior, so every region
+that existed before is byte-identical. That closes the last two sites P1f deliberately left.
+
+**The blockout is generated, not typed.** `tools/gen_barrowworks_blockout.py` holds the room table and edge
+list from this plan's sections 1 and 1.1 and derives the geometry: four walls per room with a 3 m opening
+centred on each, and a 3 m corridor per edge. 13 rooms, 14 edges, 120 structures, 196 lines of YAML.
+Hand-typing a hundred-odd boxes would have made the connectivity graph unreviewable, which is the one thing
+a blockout exists to make checkable.
+
+**Two real errors the checks caught, both worth recording:**
+
+1. **The content validator refused the file:** `WLD007: the spawn point must be inside the bounds and clear
+   of every structure`. The corridors ran centre to centre, so a corridor box passed straight through R01's
+   middle and contained the spawn. Fixed by clipping each corridor leg to the *gap* between the two rooms'
+   outer rectangles. A validator catching a geometry mistake before a screenshot was taken is exactly what
+   it is for.
+2. **The rooms needed shifting.** R04's west wall sits at x = -47 m in the design's own metres, and cells
+   index from 0, so the whole interior is offset by (+50, +10). The design's coordinates are preserved in
+   the generator's table; only the blockout's are shifted.
+
+**Proven by walking, not by looking.** `BarrowworksBlockoutTests` flood-fills the walk space from the
+spawn at 1 m steps, using `Blocker.Separation` with the body's own radius — the same test movement uses, so
+a gap a body cannot fit through is not counted as a route. **All thirteen rooms are reachable.** That is the
+one failure a screenshot cannot show.
+
+**This is a GREYBOX and is not finished art.** Openings are on all four sides of every room on purpose —
+a blockout exists to make circulation testable before the real doorways are placed. G1, G2 and G3 arrive
+with the content port (P4). No lighting pass, no materials, no dressing. Visual acceptance for P2 is
+**BLOCKED** pending the owner's review, and will stay so until P3's art kit replaces this.
+
+**Not yet done in P2:** the two gated entrances in the exterior. The interior is reachable in tests by
+booting `region.barrowworks` directly; a player cannot reach it until the portals exist, which is the next
+piece.
+
 ## 10. Progress log
 
 | Date | Commit | What landed | Suite |
