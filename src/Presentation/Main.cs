@@ -38,6 +38,9 @@ public partial class Main : Node3D
     private static readonly string[] QuickKeys = { "quick_1", "quick_2", "quick_3" };
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
+
+    /// <summary>F3 and F4 work in debug builds, or on a release build launched with <c>--dev</c>.</summary>
+    private bool _developer;
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
     private HollowView _hollow = null!;
@@ -195,7 +198,8 @@ public partial class Main : Node3D
     {
         ParseArguments(OS.GetCmdlineUserArgs());
         // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
-        bool harness = _flags.Count > 0 || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
+        _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
+        bool harness = _flags.Any(f => f != "--dev") || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
         VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
@@ -383,7 +387,7 @@ public partial class Main : Node3D
         _character = new CharacterPanel { Name = "Character" };
         _character.Bind(_session);
         AddChild(_character);
-        _help = new HelpPanel { Name = "Help", Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
         _effectsPanel = new EffectsPanel { Name = "Effects" };
@@ -1131,9 +1135,9 @@ public partial class Main : Node3D
             _inventory.TakeAll();
         if (looting && Input.IsActionJustPressed("interact"))
             CloseInventory();
-        if (Input.IsActionJustPressed("debug_overlay"))
+        if (_developer && Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
-        if (Input.IsActionJustPressed("quest_debug"))
+        if (_developer && Input.IsActionJustPressed("quest_debug"))
         {
             _questDebug.Visible = !_questDebug.Visible;
             _questDebug.Refresh(_session, 0, now: true);
