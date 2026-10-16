@@ -1,0 +1,192 @@
+[
+ {
+  "cue": "mus.title",
+  "seed": 11,
+  "prompt": "slow solemn folk theme, solo battered wooden flute melody over a soft fiddle drone, sparse frame drum, wide room reverb, warm acoustic, melancholic and hopeful, 70 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.title_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.title",
+  "seed": 23,
+  "prompt": "slow solemn folk theme, solo battered wooden flute melody over a soft fiddle drone, sparse frame drum, wide room reverb, warm acoustic, melancholic and hopeful, 70 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.title_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.settlement.day",
+  "seed": 11,
+  "prompt": "gentle village folk tune, wooden flute and fiddle playing together slightly out of tune, light frame drum, warm acoustic, calm daytime, 92 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.settlement.day_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.settlement.day",
+  "seed": 23,
+  "prompt": "gentle village folk tune, wooden flute and fiddle playing together slightly out of tune, light frame drum, warm acoustic, calm daytime, 92 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.settlement.day_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.settlement.night",
+  "seed": 11,
+  "prompt": "quiet night folk lullaby, solo wooden flute, very sparse, soft fiddle harmonics, hushed, lots of silence, warm room tone, 60 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.settlement.night_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.settlement.night",
+  "seed": 23,
+  "prompt": "quiet night folk lullaby, solo wooden flute, very sparse, soft fiddle harmonics, hushed, lots of silence, warm room tone, 60 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.settlement.night_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.combat",
+  "seed": 11,
+  "prompt": "tense driving folk battle music, pounding frame drums, urgent fiddle ostinato, sharp wooden flute stabs, acoustic, dark and fast, 140 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.combat_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.combat",
+  "seed": 23,
+  "prompt": "tense driving folk battle music, pounding frame drums, urgent fiddle ostinato, sharp wooden flute stabs, acoustic, dark and fast, 140 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.combat_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.stinger.discovery",
+  "seed": 11,
+  "prompt": "short discovery fanfare phrase, wooden flute rising melody over a swelling fiddle drone, acoustic, wonder, ends on a held note",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 9,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.stinger.discovery_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.stinger.discovery",
+  "seed": 23,
+  "prompt": "short discovery fanfare phrase, wooden flute rising melody over a swelling fiddle drone, acoustic, wonder, ends on a held note",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 9,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.stinger.discovery_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ }
+]

@@ -39,6 +39,8 @@ public partial class SoundEvents : Node
     private SoundBank _bank = null!;
     private GameSession _session = null!;
     private ArtBindings _bindings = null!;
+    private GroundField? _ground;
+    private bool _crouched;
     private AudioStreamPlayer? _forge;
     private Vector3 _feet;
     private float _walked;
@@ -52,11 +54,12 @@ public partial class SoundEvents : Node
     private bool _wieldedKnown;
     private double _clock;
 
-    public void Bind(GameSession session, ArtBindings bindings, SoundBank bank)
+    public void Bind(GameSession session, ArtBindings bindings, SoundBank bank, GroundField? ground)
     {
         _session = session;
         _bindings = bindings;
         _bank = bank;
+        _ground = ground;
         if (bank.Count == 0)
             return;
         // Indoors is inside a building's walls: the bounds of the structures that share a wall prefix.
@@ -102,14 +105,15 @@ public partial class SoundEvents : Node
         else
         {
             if (_airborneFor > 0.3)
-                _bank.Play($"sfx.player.land.{(surface == "stone" ? "stone" : "dirt")}", feet);
+                _bank.Play(_bank.Has($"sfx.player.land.{surface}") ? $"sfx.player.land.{surface}" : $"sfx.player.land.{(surface == "stone" ? "stone" : "dirt")}", feet);
             _airborneFor = 0;
             _walked += moved < 2f ? moved : 0;
             bool run = speed > RunSpeed;
             if (speed > 0.3f && _walked >= (run ? RunStride : Stride))
             {
                 _walked = 0;
-                _bank.Play($"sfx.player.footstep.{surface}.{(run ? "run" : "walk")}", feet);
+                string gait = _crouched && _bank.Has($"sfx.player.footstep.{surface}.crouch") ? "crouch" : run ? "run" : "walk";
+                _bank.Play($"sfx.player.footstep.{surface}.{gait}", feet);
             }
         }
         // The weapon a new game or a load starts with is simply in hand; only a change is heard.
@@ -197,8 +201,10 @@ public partial class SoundEvents : Node
         });
         s.Subscribe<StanceChanged>(e =>
         {
-            if (e.Actor == PlayerId)
-                _bank.Play(e.Stance == Stance.Crouched ? "sfx.player.crouch.enter" : "sfx.player.crouch.exit", _feet);
+            if (e.Actor != PlayerId)
+                return;
+            _crouched = e.Stance == Stance.Crouched;
+            _bank.Play(_crouched ? "sfx.player.crouch.enter" : "sfx.player.crouch.exit", _feet);
         });
         s.Subscribe<Jumped>(e =>
         {
@@ -265,37 +271,57 @@ public partial class SoundEvents : Node
         s.Subscribe<ItemUnequipped>(e => Equipped(e.Actor, e.Slot, false));
         s.Subscribe<NodeGathered>(e =>
         {
-            // gather_hit() then gather_complete(): the pick into the seam, and the ore breaking free.
-            if (_bindings.Nodes.GetValueOrDefault(e.NodeDefId)?.Sound != "mining")
-                return;
-            _bank.Play("sfx.crafting.mining.strike", _feet);
-            _bank.Play("sfx.crafting.mining.strike", _feet, 0.45);
-            _bank.Play("sfx.crafting.ore.break", _feet, 0.9);
+            switch (_bindings.Nodes.GetValueOrDefault(e.NodeDefId)?.Sound)
+            {
+                case "mining":
+                    // gather_hit() then gather_complete(): the pick into the seam, and the ore breaking free.
+                    _bank.Play("sfx.crafting.mining.strike", _feet);
+                    _bank.Play("sfx.crafting.mining.strike", _feet, 0.45);
+                    _bank.Play("sfx.crafting.ore.break", _feet, 0.9);
+                    break;
+                case "wood":
+                    _bank.Play("sfx.crafting.gather.wood", _feet);
+                    _bank.Play("sfx.crafting.gather.wood", _feet, 0.55);
+                    break;
+                case { } sound:
+                    _bank.Play($"sfx.crafting.gather.{sound}", _feet);
+                    break;
+            }
         });
         s.Subscribe<ItemCrafted>(_ =>
         {
-            // craft_hit() at an anvil (a few blows), then craft_complete().
-            bool anvil = _openStation is { } station && _bindings.Stations.GetValueOrDefault(station)?.Sound == "anvil";
+            // craft_hit() at an anvil (a few blows), or the station's own work (the cookfire's sizzle, the bench), then craft_complete().
+            string? sound = _openStation is { } station ? _bindings.Stations.GetValueOrDefault(station)?.Sound : null;
+            bool anvil = sound == "anvil";
             for (int i = 0; anvil && i < 3; i++)
                 _bank.Play("sfx.crafting.anvil.strike", _feet, 0.4 * i);
-            _bank.Play("sfx.crafting.complete", _feet, anvil ? 1.3 : 0);
+            bool worked = !anvil && sound is not null && _bank.Play($"sfx.crafting.{sound}", _feet);
+            _bank.Play("sfx.crafting.complete", _feet, anvil ? 1.3 : worked ? 1.0 : 0);
+        });
+        s.Subscribe<ItemConsumed>(e =>
+        {
+            if (e.Actor == PlayerId && _bindings.ConsumableSounds.GetValueOrDefault(e.DefId) is { } sound)
+                _bank.Play(sound, Chest(_feet));
         });
         s.Subscribe<PlayerDied>(_ => _bank.Play("sfx.player.death", _feet));
         s.Subscribe<CommandRejected>(_ => _bank.Play("sfx.ui.error"));
         s.Subscribe<ReplyChosen>(_ => _bank.Play("sfx.ui.select"));
-        // A level gained and a quest finished are heard as well as announced (the owner's first playtest), until they have their own sound.
+        // A level gained, a quest finished and a trade are heard as well as announced (the owner's first playtest).
         s.Subscribe<ExperienceGained>(e =>
         {
             if (e.LevelsGained > 0)
-                _bank.Play("sfx.ui.select");
+                _bank.Play(Own("sfx.ui.level_up"));
         });
-        s.Subscribe<QuestCompleted>(_ => _bank.Play("sfx.ui.select"));
-        s.Subscribe<ItemBought>(_ => _bank.Play("sfx.ui.select"));
-        s.Subscribe<ItemSold>(_ => _bank.Play("sfx.ui.select"));
+        s.Subscribe<QuestCompleted>(_ => _bank.Play(Own("sfx.ui.quest_complete")));
+        s.Subscribe<ItemBought>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
+        s.Subscribe<ItemSold>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
         s.Subscribe<ConversationEnded>(_ => _bank.Play("sfx.ui.back"));
     }
 
     private string? _openStation;
+
+    /// <summary>A moment's own sound, or the UI's confirm while the set has none.</summary>
+    private string Own(string family) => _bank.Has(family) ? family : "sfx.ui.select";
 
     /// <summary>The station open alongside the inventory (its kind), for the sound of what is made there.</summary>
     public void SetStation(string? kind) => _openStation = kind;
@@ -312,9 +338,9 @@ public partial class SoundEvents : Node
         var creature = Creature(e.Target);
         if (e.Blocked)
         {
-            // block(): sword only.
-            if (e.Target == PlayerId && Family(simulation.Combat.Weapon.Source) == "sword")
-                _bank.Play("sfx.weapon.sword.block", Chest(at));
+            // block(): the weapon in the player's guard - the sword's steel, or the spear's shaft where the set has it.
+            if (e.Target == PlayerId && Family(simulation.Combat.Weapon.Source) is { } guard && _bank.Has($"sfx.weapon.{guard}.block"))
+                _bank.Play($"sfx.weapon.{guard}.block", Chest(at));
             return;
         }
         // impact(weapon family, target material): the matrix of families; an arrow on plate has no asset of its own and takes the spear's.
@@ -334,7 +360,10 @@ public partial class SoundEvents : Node
         {
             var combat = simulation.Combat;
             bool heavy = e.Critical || e.Damage * 100 >= combat.MaxHealth * 15;
-            _bank.Play(heavy ? "sfx.player.hurt.heavy" : "sfx.player.hurt.light", Chest(at));
+            // A creature's blow lands on the body before the voice answers it (no hit on the player had an impact of its own).
+            if (Creature(e.Attacker) is not null && _bank.Has("sfx.player.impact.creature_blow"))
+                _bank.Play("sfx.player.impact.creature_blow", Chest(at));
+            _bank.Play(heavy ? "sfx.player.hurt.heavy" : "sfx.player.hurt.light", Chest(at), 0.04);
             // ward_hit(): a blow landing on the braced body.
             foreach (var effect in combat.Effects)
             {
@@ -405,7 +434,8 @@ public partial class SoundEvents : Node
     {
         string cell = CellKey.OfWorld(feet.X, feet.Z).ToString();
         var sounds = _bindings.CellSounds.GetValueOrDefault(cell);
-        _bed = sounds?.Bed;
+        // Inside a building its room tone replaces the cell's bed; the cell's details still come through the walls.
+        _bed = _bindings.InteriorBed is { } room && Indoors(feet) ? room : sounds?.Bed;
         if (_bed is not null && !_beds.ContainsKey(_bed) && _bank.Loop(_bed) is { } started)
             _beds[_bed] = started;
         float step = (float)(delta / BedFadeSeconds);
@@ -452,10 +482,15 @@ public partial class SoundEvents : Node
         _forge.VolumeDb = Mathf.LinearToDb(Math.Max(0.0001f, level * level));
     }
 
+    private bool Indoors(Vector3 feet) => _indoors.Any(box => box.HasPoint(feet));
+
+    /// <summary>The ground under the foot: a building's floor, a worn path or road, else the cell's ground.</summary>
     private string Surface(Vector3 feet)
     {
-        if (_indoors.Any(box => box.HasPoint(feet)))
+        if (Indoors(feet))
             return _bindings.InteriorSurface;
+        if (_bindings.PathSurface is { } path && _ground is not null && _ground.Region.HasPoint(new Vector2(feet.X, feet.Z)) && _ground.PathAt(feet.X, feet.Z) > 0.5f)
+            return path;
         return _bindings.CellSounds.GetValueOrDefault(CellKey.OfWorld(feet.X, feet.Z).ToString())?.Surface ?? "dirt";
     }
 
@@ -526,6 +561,17 @@ public partial class SoundEvents : Node
         }
         Add("sfx.player.land.stone", "land(stone)");
         Add("sfx.player.land.dirt", "land(dirt)");
+        foreach (string surface in surfaces)
+        {
+            Add($"sfx.player.land.{surface}", $"land({surface})", optional: surface is not ("stone" or "dirt"));
+            Add($"sfx.player.footstep.{surface}.crouch", $"footstep({surface}, crouch)", optional: true);
+        }
+        if (bindings.PathSurface is { } path)
+        {
+            Add($"sfx.player.footstep.{path}.walk", "footstep(path, walk)");
+            Add($"sfx.player.footstep.{path}.run", "footstep(path, run)");
+        }
+        Add("sfx.player.impact.creature_blow", "creature_blow()", optional: true);
         Add("sfx.player.jump.effort", "jump_effort()");
         Add("sfx.player.crouch.enter", "crouch_enter()");
         Add("sfx.player.crouch.exit", "crouch_exit()");
@@ -551,6 +597,7 @@ public partial class SoundEvents : Node
                     break;
                 case "polearm":
                     Add("sfx.weapon.polearm.thrust", "swing(polearm)");
+                    Add("sfx.weapon.polearm.block", "block(polearm)", optional: true);
                     Add("sfx.player.weapon.spear.ready", "ready(polearm)");
                     foreach (string material in materials)
                         Add($"sfx.weapon.polearm.impact.{material}", $"impact(polearm, {material})");
@@ -598,8 +645,16 @@ public partial class SoundEvents : Node
             Add("sfx.crafting.mining.strike", "gather_hit()");
             Add("sfx.crafting.ore.break", "gather_complete()");
         }
+        foreach (string sound in bindings.Nodes.Values.Select(n => n.Sound).OfType<string>().Where(s => s != "mining").Distinct(StringComparer.Ordinal))
+            Add($"sfx.crafting.gather.{sound}", $"gather({sound})");
         if (bindings.Stations.Values.Any(s => s.Sound == "anvil"))
             Add("sfx.crafting.anvil.strike", "craft_hit()");
+        foreach (string sound in bindings.Stations.Values.Select(s => s.Sound).OfType<string>().Where(s => s != "anvil").Distinct(StringComparer.Ordinal))
+            Add($"sfx.crafting.{sound}", $"craft({sound})");
+        foreach (string sound in bindings.ConsumableSounds.Values.Distinct(StringComparer.Ordinal))
+            Add(sound, "consume()");
+        if (bindings.InteriorBed is { } room)
+            Add(room, "interior bed");
         Add("sfx.crafting.complete", "craft_complete()");
         if (bindings.ForgeStation is not null)
             Add("sfx.crafting.forge.ambience.01", "station_ambience()");
@@ -611,6 +666,18 @@ public partial class SoundEvents : Node
         }
         foreach (string ui in new[] { "menu.open", "menu.close", "select", "back", "equip", "error" })
             Add($"sfx.ui.{ui}", $"ui {ui}");
+        Add("sfx.ui.level_up", "level_up()", optional: true);
+        Add("sfx.ui.quest_complete", "quest_complete()", optional: true);
+        Add("sfx.interaction.trade.coins", "trade()", optional: true);
+        // The score (MusicPlayer): asked for only where the set has it.
+        Add(MusicChoice.Title, "music(title)", optional: true);
+        Add(MusicChoice.Combat, "music(combat)", optional: true);
+        Add(MusicChoice.Discovery, "music(discovery)", optional: true);
+        foreach (string theme in bindings.MusicPlaces.Values.Select(p => p.Theme).Distinct(StringComparer.Ordinal))
+        {
+            Add($"{theme}.day", "music(settlement, day)", optional: true);
+            Add($"{theme}.night", "music(settlement, night)", optional: true);
+        }
         return list.GroupBy(m => m.Family, StringComparer.Ordinal).Select(g => g.First() with { Optional = g.All(m => m.Optional) }).ToList();
     }
 }
