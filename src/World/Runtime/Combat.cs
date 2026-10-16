@@ -848,7 +848,7 @@ internal sealed partial class CombatSystem
     /// <summary>The rolls of one blow, keyed by who struck whom on which tick: the same on a replay and after a load.</summary>
     private Func<uint, double> Random(string attacker, string target, Body at, long tick)
     {
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(at.XMm / 1000.0, at.ZMm / 1000.0), "combat", $"{attacker}>{target}@{tick}");
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(at), "combat", $"{attacker}>{target}@{tick}");
         return sample => channel.UInt64(sample) / SampleScale;
     }
 

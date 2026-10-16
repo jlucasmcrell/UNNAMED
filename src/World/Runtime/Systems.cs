@@ -44,6 +44,20 @@ internal sealed class SystemContext
 
     public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
 
+    /// <summary>
+    /// The cell a body stands in, in the space it is in (M8 D10). A cell is where a flag, a delta and an
+    /// <see cref="RngChannel"/> seed live, so a body's own coordinates are not enough to name one: an
+    /// interior's local metres would otherwise address real exterior ground.
+    /// </summary>
+    /// <remarks>
+    /// The space is the player's, which is the simulation's ambient space. That is correct while one space
+    /// holds every actor: the Barrowworks is a single shared instance, its rooms are always reached through
+    /// the player, and the design freezes an absent space rather than simulating it, so no creature is ever
+    /// acting in a space the player is not in. The generalisation - a space recorded per creature rather
+    /// than taken from the player - is what a second concurrently simulated space would need.
+    /// </remarks>
+    public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
+
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
 

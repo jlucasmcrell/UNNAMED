@@ -619,12 +619,12 @@ internal sealed class CompanionSystem
     /// <summary>The rolls of one blow, keyed by who struck whom on which tick: the same on a replay and after a load.</summary>
     private Func<uint, double> Random(string attacker, string target, Body at, long tick)
     {
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(at.XMm / 1000.0, at.ZMm / 1000.0), "combat", $"{attacker}>{target}@{tick}");
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(at), "combat", $"{attacker}>{target}@{tick}");
         return sample => channel.UInt64(sample) / SampleScale;
     }
 
     private SimulationTier TierOf(Body body) =>
-        State.Tiers.GetValueOrDefault(CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0).ToString(), SimulationTier.D);
+        State.Tiers.GetValueOrDefault(_context.CellOf(body).ToString(), SimulationTier.D);
 
     private static double Distance(long x0, long z0, long x1, long z1)
     {

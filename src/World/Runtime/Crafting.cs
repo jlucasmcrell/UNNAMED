@@ -189,7 +189,7 @@ internal sealed class CraftingSystem
         }
 
         int skill = ProgressionEngine.SkillLevel(State.Progression, recipe.SkillId);
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0), "craft", $"{recipe.Id}@{tick}");
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(body), "craft", $"{recipe.Id}@{tick}");
         int quality = recipe.QualityRoll
             ? CraftingRules.Roll(weakest, skill, recipe.Complexity, Setup.Constants, channel.UInt64(0) / SampleScale)
             : weakest;

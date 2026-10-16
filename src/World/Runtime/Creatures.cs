@@ -477,7 +477,7 @@ internal sealed class CreatureSystem
         if (radius <= 0)
             return c;
         long leg = (tick + Offset(c.Key, WanderLegTicks)) / WanderLegTicks;
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
+        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfInterior(State.Space, aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
         double angle = channel.UInt64(0) / SampleScale * 2 * Math.PI, distance = Math.Sqrt(channel.UInt64(1) / SampleScale) * radius;
         long x = aroundX + (long)Math.Round(Math.Sin(angle) * distance), z = aroundZ + (long)Math.Round(Math.Cos(angle) * distance);
         return Arrived(c, x, z) ? c : c with { Body = Move(c, x, z, Gait.Walk) };
@@ -978,7 +978,7 @@ internal sealed class CreatureSystem
     private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
 
     private SimulationTier TierOf(Body body) =>
-        State.Tiers.GetValueOrDefault(CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0).ToString(), SimulationTier.D);
+        State.Tiers.GetValueOrDefault(_context.CellOf(body).ToString(), SimulationTier.D);
 
     private static double Distance(long x0, long z0, long x1, long z1)
     {

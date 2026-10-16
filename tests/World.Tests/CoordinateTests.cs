@@ -184,4 +184,42 @@ public class CoordinateTests
 
         Assert.NotEqual(barrowworks, undermeasure);
     }
+
+    // ── the random stream follows the cell, so it follows the space (M8 D10) ────────────────────────
+    // RngChannel.Open hashes the cell's canonical string, and that string carries the space. This is the
+    // design's requirement made structural: "two equal local coordinates in different spaces must never
+    // interact or share a random stream accidentally". It holds because nothing had to be added - a channel
+    // is keyed by the cell, and the cell now knows its space.
+
+    private const ulong WorldSeed = 0x5C1A9E7B4D2F0083;
+
+    [Fact]
+    public void TheSameLocalCoordinates_InDifferentSpaces_DrawDifferentValues()
+    {
+        var exterior = RngChannel.Open(WorldSeed, CellKey.OfWorld(0.0, 260.0), "combat", "a>b@1");
+        var interior = RngChannel.Open(WorldSeed, CellKey.OfInterior(Barrowworks, 0.0, 260.0), "combat", "a>b@1");
+
+        Assert.NotEqual(exterior.UInt64(0), interior.UInt64(0));
+    }
+
+    [Fact]
+    public void AChannelIsStable_AcrossOpensInTheSameSpace()
+    {
+        // The separation must not have cost determinism: the same key still gives the same stream, which is
+        // what makes a replay and a reload agree.
+        var first = RngChannel.Open(WorldSeed, CellKey.OfInterior(Barrowworks, 12.0, 34.0), "gather", "k@7");
+        var second = RngChannel.Open(WorldSeed, CellKey.OfInterior(Barrowworks, 12.0, 34.0), "gather", "k@7");
+
+        for (uint sample = 0; sample < 8; sample++)
+            Assert.Equal(first.UInt64(sample), second.UInt64(sample));
+    }
+
+    [Fact]
+    public void TwoInteriorSpaces_DoNotShareAStream()
+    {
+        var barrowworks = RngChannel.Open(WorldSeed, CellKey.OfInterior(Barrowworks, 0.0, 0.0), "loot", "crate");
+        var undermeasure = RngChannel.Open(WorldSeed, CellKey.OfInterior(SpaceId.Parse("space.undermeasure"), 0.0, 0.0), "loot", "crate");
+
+        Assert.NotEqual(barrowworks.UInt64(3), undermeasure.UInt64(3));
+    }
 }
