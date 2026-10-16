@@ -3050,7 +3050,7 @@
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
-        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records.",
+        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "clips": {
           "idle": "player.cw_player.idle",
           "walk": "player.cw_player.walk",
@@ -3078,6 +3078,11 @@
           "hit": "player.cw_player.hit",
           "death": "player.cw_player.death",
           "interact": "player.cw_player.interact"
+        },
+        "paces": {
+          "walk": 1.2908,
+          "run": 2.9471,
+          "sprint": 6.1034
         }
       }
     },
@@ -3111,12 +3116,17 @@
           "death": "player.cw_player.death",
           "interact": "player.cw_player.interact"
         },
-        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more."
+        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
+        "paces": {
+          "walk": 1.2908,
+          "run": 2.9471,
+          "sprint": 6.1034
+        }
       },
       "npc.ashen_hollow.kera_voss": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_a",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -3124,12 +3134,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.1425,
+          "run": 2.6086
+        }
       },
       "npc.ashen_hollow.renn_vale": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_b",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -3137,12 +3151,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.2703,
+          "run": 2.9003
+        }
       },
       "npc.ashen_hollow.sel_arien": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_a",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -3150,12 +3168,16 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.1858,
+          "run": 2.7075
+        }
       },
       "npc.ashen_hollow.tavar_orr": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "talk": "player.cw_player.idle",
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_b",
           "walk": "player.cw_player.walk",
           "run": "player.cw_player.run",
           "attack": "player.cw_player.sword_attack",
@@ -3163,7 +3185,39 @@
           "death": "player.cw_player.death",
           "stop": "player.cw_player.stop"
         },
-        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id."
+        "note": "CAIRNWOLD's own clips, on the production skeleton every one of these bodies shares. The shared bindings carry a base people entry per NPC whose clips point at the demo's npc.*_prod files, and a region override MERGES onto it rather than replacing it - which is why Tavar Orr alone still asked for npc.orenth_guide_prod.attack, .death, .hit, .run and .walk after idle and talk were bound. Every state the NPCs ask for is named here so nothing falls through to a demo id. Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike.",
+        "paces": {
+          "walk": 1.2694,
+          "run": 2.8981
+        }
+      },
+      "npc.cairnwold.durn_skell": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_b"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.mara_ling": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_a"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.berrin_garth": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_b",
+          "talk": "npc.cw_npc.talk_b"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
+      },
+      "npc.cairnwold.tam_crowden": {
+        "clips": {
+          "idle": "npc.cw_npc.idle_a",
+          "talk": "npc.cw_npc.talk_a"
+        },
+        "note": "Idle and talk since 2026-10-16: Fab motion capture on the production rig (anim.npc.cw_npc.idle_a/_b, talk_a/_b; tools/asset_pipeline/locomotion_fab.py), alternated between the NPCs so no two neighbours stand alike."
       }
     }
   },
