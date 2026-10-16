@@ -75,7 +75,7 @@ public static class VisualOptions
         ["air"] = new[] { "flat", "sun", "hue" },
         // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
         ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
-        // How far from Earth the plants, rocks, water and air look (Greybox/Otherworld.cs): concepts for the owner to pick from.
+        // How far from Earth the plants, rocks, water and air look (Greybox/Otherworld.cs).
         ["otherworld"] = new[] { "off", "subtle", "bold" },
     };
 
@@ -117,7 +117,8 @@ public static class VisualOptions
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
         ["celestial"] = "mix",
-        ["otherworld"] = "off",
+        // The owner's pick (2026-10-17): subtle, the level of the village wildlife variants. off and bold stay for comparison.
+        ["otherworld"] = "subtle",
     };
 
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>

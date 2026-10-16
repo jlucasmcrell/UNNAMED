@@ -11,7 +11,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// highest at the Foldscar. The field is three global shader parameters, so every shader works it out from where it stands:
 /// <c>otherworld_calm</c> (xy, zw: the two villages' centres), <c>otherworld_fold</c> (xy: the Foldscar's heart; z, w: full strength
 /// within, none beyond, metres) and <c>otherworld_mix</c> (x: the run's strength, 0 for off; y: night 0-1; z: strangeness at a village
-/// centre; w: in the open). <c>--visual otherworld=off</c> leaves strength 0, which every effect multiplies, so off draws as before.
+/// centre; w: in the open). <c>--visual otherworld=off</c> compiles the layer out, so off draws as before; subtle is the default (owner, 2026-10-17).
 /// </summary>
 public static class Otherworld
 {
