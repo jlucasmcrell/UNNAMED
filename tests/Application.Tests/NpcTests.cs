@@ -165,14 +165,14 @@ public class NpcTests
         var arena = At(Harness.Boot(profile), AtKera);
         const string Ore = "Blackvein's south, new iron. The ore won't walk up here on its own.";
 
-        var before = arena.Simulation.Barks(Kera);
+        var before = arena.Simulation.Barks(Kera).Select(b => b.Text).ToList();
         Assert.Contains("Mind the anvil. It bites.", before);
         Assert.DoesNotContain(Ore, before);
         Assert.DoesNotContain("There's my spear-maker! Walk tall, new iron.", before);
 
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
         Assert.Null(Say(arena, "teach"));
-        Assert.Contains(Ore, arena.Simulation.Barks(Kera));
+        Assert.Contains(Ore, arena.Simulation.Barks(Kera).Select(b => b.Text));
         Assert.Empty(arena.Simulation.Barks("npc.nobody"));
     }
 
@@ -429,14 +429,13 @@ public class NpcTests
         var arena = At(Harness.Boot(profile), AtKera);
         var dialogue = arena.Simulation.Setup.Social.Dialogues["dialogue.ashen_hollow.kera_voss"];
 
-        var lines = arena.Simulation.BarkLines(Kera);
+        var lines = arena.Simulation.Barks(Kera);
         Assert.NotEmpty(lines);
         foreach (var line in lines)
         {
             int number = int.Parse(line.LineId["bark.ashen_hollow.kera_voss.".Length..], System.Globalization.CultureInfo.InvariantCulture);
             Assert.Equal(dialogue.Barks[number - 1].Text, line.Text);
         }
-        Assert.Equal(lines.Select(l => l.Text), arena.Simulation.Barks(Kera));
     }
 
     [Fact]

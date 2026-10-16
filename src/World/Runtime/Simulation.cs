@@ -257,11 +257,11 @@ public sealed class Simulation
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
 
-    /// <summary>What an NPC could say in passing now (their barks whose conditions hold); presentation picks one and when.</summary>
-    public ImmutableArray<string> Barks(string npcId) => _dialogue.Barks(npcId).Select(b => b.Text).ToImmutableArray();
-
-    /// <summary>The barks an NPC could say now, each with its line ID (E-10): what presentation voices.</summary>
-    public ImmutableArray<Domain.Social.SpokenLine> BarkLines(string npcId) => _dialogue.Barks(npcId);
+    /// <summary>
+    /// What an NPC could say in passing now (their barks whose conditions hold), each with its line ID (E-10); presentation picks one and
+    /// when, and voices it when its recording exists.
+    /// </summary>
+    public ImmutableArray<Domain.Social.SpokenLine> Barks(string npcId) => _dialogue.Barks(npcId);
 
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);

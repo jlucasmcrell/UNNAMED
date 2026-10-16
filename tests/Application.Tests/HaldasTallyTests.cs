@@ -208,7 +208,7 @@ public class HaldasTallyTests
         // Kept: the tally stays in the pack, he no longer asks about it, and he will talk about her line instead.
         Assert.Equal(1, Carried(arena, Token));
         Assert.Equal(new[] { "place", "work", "trapline", "notices", "leave" }, Replies(arena));
-        Assert.Contains("North slope. Before breakfast, Halda said. I wrote it down.", arena.Simulation.Barks(Renn));
+        Assert.Contains("North slope. Before breakfast, Halda said. I wrote it down.", arena.Simulation.Barks(Renn).Select(b => b.Text));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
 
         Walk(arena, OutOfTheLonghouse);

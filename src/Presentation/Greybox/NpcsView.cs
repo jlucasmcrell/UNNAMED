@@ -168,7 +168,7 @@ public partial class NpcsView : Node3D
         float distance = feet.DistanceTo(PlayerHead.GlobalPosition);
         var head = figure.Head ?? feet + Vector3.Up * 1.6f;
         bool near = distance < BarkReach && simulation.Conversation is null && !npc.Downed;
-        var lines = near && bark.Quiet <= 0 ? simulation.BarkLines(npc.Id) : default;
+        var lines = near && bark.Quiet <= 0 ? simulation.Barks(npc.Id) : default;
         if (!lines.IsDefault && lines.IsEmpty)
             bark.Quiet = 5;
         else if (!lines.IsDefault)
