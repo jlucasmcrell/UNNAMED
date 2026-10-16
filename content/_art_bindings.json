@@ -1792,6 +1792,13 @@
     "road_wain_wreck": {
       "model": "prop_bp_cart_wreck",
       "material": "wood"
+    },
+    "old_late": {
+      "model": "flora_old_late",
+      "material": "wood",
+      "wind": 3.0,
+      "late_s": 1.5,
+      "note": "Otherworld concept 2026-10-16: OLD LATE, the landmark giant (Quiet-folk name, DIRECTION_AND_CONTENT_PLAN E7). The BlenderKit ceiba (flora_bk_kapok_giant_tree_a) at 2.2x, 59 m; the gust reaches its crown 1.5 s after the trees round it (late_s, the tree shader ow_late)."
     }
   },
   "doors": {
