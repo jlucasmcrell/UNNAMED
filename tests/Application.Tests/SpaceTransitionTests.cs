@@ -191,4 +191,27 @@ public class SpaceTransitionTests
         Assert.Empty(session.Setup.Layout.Portals.Portals);
         Assert.True(session.Setup.Layout.Portals.Into(Barrowworks).IsEmpty);
     }
+
+    [Fact]
+    public void TheSpace_IsNotPersistedYet_SoItMustStayUnreachable()
+    {
+        // The space is runtime state only: a schema bump is its own committed unit of work under
+        // tests/Persistence.Tests/Fixtures/README.md, and it has not been done. The consequence is that a
+        // save made inside would load with the body at interior-local coordinates still in the exterior -
+        // the same collision the space identity exists to prevent, in reverse.
+        //
+        // That is safe only while the state cannot be entered, so this asserts the thing that keeps it
+        // safe: no shipped region declares a portal. Whoever adds the Barrowworks' entrances to content
+        // must land the schema bump in the same change.
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        Assert.Empty(session.Setup.Layout.Portals.Portals);
+        // With no portal declared, every entry is refused and the player never leaves the exterior.
+        var arena = Arena.OpenWith(session, session.Setup, Harness.HollowOf(session.Setup), 0, []);
+        arena.Simulation.Enqueue(new EnterSpaceCommand(arena.Simulation.PlayerId, Threshold));
+        arena.Simulation.DrainCommands();
+
+        Assert.True(arena.Simulation.PlayerInExterior);
+    }
 }

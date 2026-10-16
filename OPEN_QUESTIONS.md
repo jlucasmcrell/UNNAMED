@@ -103,3 +103,39 @@ boss body is "GREYBOX ACCEPTABLE FOR PROOF"; and `11` says that if production re
 
 **Smallest choice:** greybox both, and state BLOCKED for final visual acceptance in the handoff report.
 Do not describe greybox geometry as finished art.
+
+---
+
+## OQ-10 — The space is runtime state only; persisting it needs its own pass
+
+**What was attempted:** the space and the portal the character came in by were wired all the way through
+persistence — `PlayerRecord` fields, the player DTO, a schema 14 -> 15 bump, and a `SchemaV14ToV15` step
+that gives older saves the exterior and no traversal.
+
+**Why it was reverted:** `tests/Persistence.Tests/Fixtures/README.md` requires a schema bump to land as one
+complete unit — a new `v15/` fixture written by the new writer through M2.Probe, the previous current
+section shapes frozen as `Sections/V14` with the step that produces 14 repointed at them, and every
+`expected.json` whose current state gained a field updated — and it warns explicitly never to change an
+`expected.json` to make a failing migration pass. That is a focused piece of work, not a tail-end addition
+to another task. Bumping the format would also change the save for the existing playtest, which the
+brief's default-off rule protects.
+
+**Why it is safe to defer:** the state is unreachable. No region declares a portal, so
+`EnterSpaceCommand` can never succeed in a shipped run, and there is nothing to persist.
+`SpaceTransitionTests.TheSpace_IsNotPersistedYet_SoItMustStayUnreachable` asserts exactly that, so the
+deferral cannot rot silently.
+
+**The hazard this creates, stated plainly:** a save made inside a space would load with the body at
+interior-local coordinates while the simulation believes it is in the exterior — the same collision the
+space identity exists to prevent, in reverse.
+
+**Smallest choice:** do not declare a portal in content until the schema bump lands in the same change.
+The test above fails the moment one is added without it.
+
+**What stands:** the whole space model and the `SpaceSystem` are intact and green —
+`SpaceId`, `CellKey.Space`, `OfInterior`, space-carrying sites, portals with distinct return anchors, and
+enter/exit through the running simulation. Only the persistence of it is deferred.
+
+**For the eventual pass:** `RuntimeState.Space` and `.Traversal` are the transient source; the live
+`PlayerRecord` is where the two persisted fields belong; `SectionCodec.EncodePlayer`/its loader are the
+two wiring points, both already written once and easy to restore.
