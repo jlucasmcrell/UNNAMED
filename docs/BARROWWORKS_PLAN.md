@@ -349,8 +349,35 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
 | 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | 855 passing, 0 failed |
 | 2026-10-16 | `5f591c8` | P1b: a site's cell follows the space it stands in + 3 tests | 860 passing, 0 failed |
-| 2026-10-16 | _(this commit)_ | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
-| 2026-10-16 | _P1d_ | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
+| 2026-10-16 | `1cfbf48` | P1c: portals and the return anchor + 9 tests | **869 passing, 0 failed** |
+| 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
+
+### P1d — the space system, wired into the running simulation
+
+**Landed:** `StateSlice.PlayerSpace`; `RuntimeState.Space` and `.Traversal`; `EnterSpaceCommand` and
+`LeaveSpaceCommand`; a `SpaceSystem` owning the slice; and `RegionLayout.Portals`. The transition now runs
+through a real simulation: entry places the body at the portal's interior anchor, and leaving returns it to
+the exterior anchor of the portal that was used.
+
+**Verified end to end, nine tests against a running arena:** both entrances lead to the same space; each
+round-trips to its own anchor; the two exits are asserted to differ (the design's named failure); being too
+far is refused and the character does not move; an unknown portal, a second entry and a bare leave are all
+refused; and a region with no portals declared changes nothing.
+
+**A refusal leaves the character where they were.** The system returns a reason rather than throwing —
+the recoverable coherent snapshot the design asks for when a transition cannot complete — so a refused
+entry cannot half-move a body or strand a traversal.
+
+**`SetSpace` enforces the pairing:** space and traversal are written in one call and must agree. Going to
+the exterior while still holding a traversal, or entering without one, throws. A body in a space it did not
+arrive in is a state no rule covers, so it is unrepresentable.
+
+**Default-off intact and asserted:** every region declares no portals and the player starts in the exterior.
+
+**Harness note for the next person:** these tests run against a bare `Arena`, not a `GameSession`, because
+the space system is simulation-side. Arena metres are the hollow's, so region millimetres convert through
+`Harness.HollowOf`. The first attempt drove `session.Submit` and failed with *"there is no running world"* —
+an arena builds its own simulation and does not attach it to the session.
 
 ### P1c — portals, and the return anchor the design warns about
 
