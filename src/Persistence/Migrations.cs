@@ -20,6 +20,7 @@ using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
+using V14 = UNNAMED.Persistence.Sections.V14;
 
 namespace UNNAMED.Persistence;
 
@@ -80,7 +81,8 @@ public static class SchemaMigrations
         new SchemaV10ToV11(),
         new SchemaV11ToV12(),
         new SchemaV12ToV13(),
-        new SchemaV13ToV14());
+        new SchemaV13ToV14(),
+        new SchemaV14ToV15());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -721,7 +723,7 @@ public sealed class SchemaV12ToV13 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V12.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V14.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -797,6 +799,54 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                     Continuation = new CreatureContinuationDto(),
                 }).ToArray(),
                 Noises = Array.Empty<NoiseDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 14 to 15 (Waystone travel, S-38): the player gains the Waystones they know, the one they chose to return to, and the stretches of
+/// road they have walked. A save that predates them knew no stone, chose none - so it returns at the region's spawn, as it always did -
+/// and has no road on its map.
+/// </summary>
+public sealed class SchemaV14ToV15 : SchemaMigration
+{
+    public override int From => 14;
+
+    public override string Summary => "schema 14 -> 15: the player gains the Waystones they know (none), a return point (none: the region's spawn) " +
+                                      "and the roads they have walked (none)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = Array.Empty<WaystoneDto>(),
+                ReturnPoint = null,
+                RoadsWalked = Array.Empty<string>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

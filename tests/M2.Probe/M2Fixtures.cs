@@ -7,6 +7,7 @@ using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -158,6 +159,12 @@ public static class M2Fixtures
         {
             // Schema 13 (the owner's M6 playtest): Aelin is crouched, on the ground.
             Posture = new Posture(Stance.Crouched, Airborne: false, AirMs: 0),
+            // Schema 15 (Waystone travel): two stones known - one touched awake, one woken - the woken one chosen as the return point,
+            // and two stretches of a road walked.
+            Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Touched, 4_100),
+                new WaystoneRecord("waystone.fixture.ford", "region.fixture_vale", WaystoneMethod.Woken, 4_500)),
+            ReturnPoint = "waystone.fixture.ford",
+            RoadsWalked = ImmutableArray.Create("road.fixture.track#0", "road.fixture.track#1"),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

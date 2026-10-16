@@ -147214,6 +147214,12 @@ structures:
   - 698.4
   - 0.1
   height_m: 2.8
+- id: rock_rim_stone
+  circle_m:
+  - 879.5
+  - 703.5
+  - 0.55
+  height_m: 2.0
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -147648,3 +147654,44 @@ barriers:
   - 3
   height_m: 2.6
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
+waystones:
+- key: waystone.ashen
+  structure: rock_waystone
+  name: Ashen Waystone
+  location_ref: location.outpost
+  arrival_m:
+  - 430
+  - 758
+- key: waystone.rim
+  structure: rock_rim_stone
+  name: Rim Stone
+  location_ref: location.road.basin_rim
+  arrival_m:
+  - 881.3
+  - 701.8
+  dormant:
+    flag_ref: world.road.rim_stone_woken
+    rite:
+      dialogue_ref: dialogue.cairnwold.berrin_garth
+      node: rim_stone
+    dormant_text: The stone is cold under your hand and does not answer. Somebody in Cairnwold might know what it wants.
+    wake_text: You lay your hand on the stone three times and say its name to it. On the third, something under the lichen answers - a hum you feel in your teeth more than hear. The Rim Stone is awake, and you will know it again.
+roads:
+- id: road.old_east_road
+  name: Old East Road
+  points_m:
+  - [430, 758]
+  - [440, 748]
+  - [464, 748]
+  - [522, 690]
+  - [564, 690]
+  - [600, 656]
+  - [680, 657]
+  - [760, 658]
+  - [840, 659]
+  - [900, 660]
+  - [920, 660]
+  - [940, 652]
+  - [961, 659]
+  - [972, 666]
+  - [980, 674]

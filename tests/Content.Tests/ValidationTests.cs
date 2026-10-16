@@ -521,7 +521,7 @@ public class ContentLoaderTests
                 "ability.creature.peck", "ability.creature.spider_bite", "ability.creature.tusk_sweep", "ability.creature.wolf_bite",
                 "config.base_speeds", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
                 "config.economy", "config.inventory", "config.level_cap", "config.magic", "config.progression", "config.simulation_tiers",
-                "config.time", "config.xp_curve",
+                "config.time", "config.travel", "config.xp_curve",
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.grazer.barrowback", "creature.grazer.fellhorn",
@@ -573,7 +573,7 @@ public class ContentLoaderTests
                 "world.cairnwold.cw_house_07_door_open", "world.cairnwold.forge_shed_door_open", "world.cairnwold.granary_door_open",
                 "world.cairnwold.longhouse_door_open", "world.foldscar.steadied", "world.foldscar.stone_north_aligned",
                 "world.foldscar.stone_southeast_aligned", "world.foldscar.stone_southwest_aligned", "world.hollow.forge_shed_door_open",
-                "world.hollow.granary_door_open", "world.hollow.longhouse_door_open",
+                "world.hollow.granary_door_open", "world.hollow.longhouse_door_open", "world.road.rim_stone_woken",
             },
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }

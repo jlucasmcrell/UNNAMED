@@ -963,17 +963,19 @@ internal sealed class StatusEffectSystem
 
 /// <summary>
 /// Owns no state. Settles a death at the end of the tick it happened in (PROTOTYPE.md §5 step 7): XP debt, never lost
-/// XP (AG-8); the effects of the fight cleared; respawn at the outpost; a spell of weakness. It asks each owner in turn.
+/// XP (AG-8); the effects of the fight cleared; respawn at the return point (the region's spawn until one is chosen); a spell of weakness. It asks each owner in turn.
 /// </summary>
 internal sealed class DeathSystem
 {
     private readonly SystemContext _context;
     private readonly EntityId _player;
+    private readonly Func<Body> _returnPoint;
 
-    public DeathSystem(SystemContext context, EntityId player)
+    public DeathSystem(SystemContext context, EntityId player, Func<Body> returnPoint)
     {
         _context = context;
         _player = player;
+        _returnPoint = returnPoint;
     }
 
     public void Tick(long tick)
@@ -988,8 +990,8 @@ internal sealed class DeathSystem
         _context.Events.Publish(new PlayerDied(last?.AttackerDefId ?? "unknown", last?.Source ?? "unknown", combat.Recent,
             state.Progression.XpDebt - debtBefore, tick));
         _context.Dispatch(new ClearEffects(_player));
-        var spawn = _context.Setup.Layout.Spawn;
-        var body = new Body(spawn.XMm, spawn.YMm, spawn.ZMm, spawn.FacingMdeg);
+        // Back at the stone the character chose to return to, or the region's spawn while they have chosen none (S-38).
+        var body = _returnPoint();
         _context.Dispatch(new Relocate(body));
         _context.Dispatch(new EndFight());
         _context.Dispatch(new ForgetPlayer());

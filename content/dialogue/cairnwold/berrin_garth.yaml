@@ -24,6 +24,9 @@ nodes:
       - id: book
         text: "What's the big book by the fire?"
         next: lodge_book
+      - id: rim_stone
+        text: "There's a standing stone up on the Rim. It's cold, and it doesn't answer."
+        next: rim_stone
       - id: leave
         text: "Later."
   again:
@@ -54,6 +57,10 @@ nodes:
         text: "What keeps you here?"
         conditions: [{ kind: visited, node: personal, not: true }]
         next: personal
+      - id: rim_stone
+        text: "The standing stone up on the Rim."
+        conditions: [{ kind: visited, node: rim_stone, not: true }]
+        next: rim_stone
       - id: leave
         text: "Later."
   primer:
@@ -116,6 +123,14 @@ nodes:
     choices:
       - id: back
         text: "That's oddly reassuring."
+        next: again
+  rim_stone:
+    text: "\"The Rim Stone? Oh, it's a Waystone right enough - or it was. Cold since before my grandfather, and he was cold before most things.\" He hauls the lodge book round and turns back a great many pages, then a great many more. \"Here. Old Corra had it: 'Three hands and a name.' And then not another word on it for forty years, which was very like her. Three times with the flat of your hand - one after another, mind, it's not a dance - and then you tell it its name. The Rim Stone. As if you're reminding it.\" He shuts the book. \"Nobody's tried in my time. Nobody here has ever wanted to be anywhere it went.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Three hands and a name. I'll remember."
         next: again
   personal:
     text: "Keeps me? Ha. Nothing keeps me - I keep it. That's a Veth joke; it's funnier if you're Veth. Someone has to remember why the doors are where they are, and Tam counts what comes in, and I remember who brought it. Only... I've started writing things down twice. Don't tell Tam. She'll want to count them."

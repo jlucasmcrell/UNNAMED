@@ -1,0 +1,9 @@
+id: config.travel
+kind: config
+schema: 1
+display_key: config.travel.name
+tags: [config]
+notes: Waystone travel (SYSTEMS.md S-38; OWNER OD-03, OD-C16; NEXT_AREA_TRAVEL_CITY_PLAN.md D.3, accepted 2026-10-16). Travel goes between stones the character knows, and the world lives through a share of the road's walking time instead.
+world_time_fraction: 0.25     # the owner's quarter of the walk (OD-C16: world time passes; the fraction is tuning)
+road_walked_within_m: 12      # passing this close to a stretch of road puts it on the character's map
+touch_text: "The stone hums under the hand, as it must for every traveller who stops here. You will know this stone again."

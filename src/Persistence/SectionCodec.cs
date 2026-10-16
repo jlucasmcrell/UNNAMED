@@ -11,6 +11,7 @@ using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Sections;
@@ -61,6 +62,25 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 13. The 12 -> 13 step gives older saves a body standing on the ground (the owner's M6 playtest).</summary>
     [Key("posture")] public PostureDto? Posture { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: there was no stone to know before Waystone travel.</summary>
+    [Key("waystones")] public WaystoneDto[]? Waystones { get; set; }
+
+    /// <summary>From schema 15: the stone chosen as the return point, or null while none is (the region's spawn).</summary>
+    [Key("return_point")] public string? ReturnPoint { get; set; }
+
+    /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: no road was on the map before it.</summary>
+    [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
+}
+
+/// <summary>A Waystone the character knows (schema 15).</summary>
+[MessagePackObject]
+public sealed class WaystoneDto
+{
+    [Key("stone")] public string Stone { get; set; } = "";
+    [Key("region")] public string Region { get; set; } = "";
+    [Key("method")] public string Method { get; set; } = "";
+    [Key("tick")] public long Tick { get; set; }
 }
 
 /// <summary>Standing or crouched, and how far into a jump (schema 13).</summary>
@@ -411,6 +431,9 @@ public static class SectionCodec
             })
             .ToArray(),
         Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
+        Waystones = player.Waystones.Select(w => new WaystoneDto { Stone = w.StoneKey, Region = w.RegionId, Method = WaystoneMethods.Key(w.Method), Tick = w.Tick }).ToArray(),
+        ReturnPoint = player.ReturnPoint,
+        RoadsWalked = player.RoadsWalked.ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
@@ -435,6 +458,8 @@ public static class SectionCodec
         var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
         var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
+        var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
+        var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -456,7 +481,14 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion)) { Posture = new Posture(stance, posture.Airborne, posture.AirMs) };
+            companions.Select(Companion))
+        {
+            Posture = new Posture(stance, posture.Airborne, posture.AirMs),
+            Waystones = waystones.Select(w => new WaystoneRecord(w.Stone, w.Region,
+                WaystoneMethods.Parse(w.Method) ?? throw new FormatException($"Waystone {w.Stone} was known by '{w.Method}'"), w.Tick)).ToImmutableArray(),
+            ReturnPoint = dto.ReturnPoint,
+            RoadsWalked = roads.ToImmutableArray(),
+        };
     }
 
     private static CompanionRecord Companion(CompanionDto c)
