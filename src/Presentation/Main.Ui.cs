@@ -2,12 +2,21 @@
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
+using UNNAMED.Persistence;
+using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
 
 namespace UNNAMED.Presentation;
 
 public partial class Main
 {
+    private SettingsPanel _settings = null!;
+    private CreditsPanel _credits = null!;
+    private TitleScreen _title = null!;
+    private FirstLaunchPanel _firstLaunch = null!;
+
+    /// <summary>The settings as last applied: a change applies only the parts it touched (a volume slider never restyles the interface).</summary>
+    private ClientPrefs _applied = new();
     /// <summary>The panels and the System Menu: built, bound and given their icons.</summary>
     private void BuildPanels(string profile)
     {
@@ -39,13 +48,15 @@ public partial class Main
         _map = new MapPanel { Name = "Map" };
         _map.Bind(_session);
         AddChild(_map);
-        _soundPanel = new Ui.SoundPanel { Name = "Sound" };
-        AddChild(_soundPanel);
+        _settings = new SettingsPanel { Name = "Settings" };
+        AddChild(_settings);
+        _credits = new CreditsPanel { Name = "Credits", Folder = NoticesFolder() };
+        AddChild(_credits);
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
             Entries = MenuEntries(),
-            Quit = () => GetTree().Quit(0),
+            Quit = Quit,
             Status = MenuStatus,
         };
         AddChild(_menu);
@@ -68,17 +79,148 @@ public partial class Main
         _help.UseIcons(icons);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
-        _saves.NewGame = () =>
-        {
-            _session.NewGame("Wanderer");
-            Started();
-        };
         _saves.Load = (slot, copy) => LoadChosen(slot, copy);
-        _saves.Quit = () => GetTree().Quit(0);
-        _saves.Closed = _saves.Close;
+        _saves.Closed = () => BackToTitle(_saves.Close);
         AddChild(_saves);
         _saves.UseIcons(icons);
+        _settings.Closed = () => BackToTitle(CloseScreens);
+        _credits.Closed = () => BackToTitle(CloseScreens);
+        _title = new TitleScreen
+        {
+            Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
+            Continue = (slot, copy) => LoadChosen(slot, copy),
+            NewGame = () =>
+            {
+                _session.NewGame("Wanderer");
+                Started();
+            },
+            Load = () => FromTitle(_saves.OpenStart),
+            Settings = () => FromTitle(() => _settings.Open()),
+            Credits = () => FromTitle(() => _credits.Visible = true),
+            Quit = Quit,
+        };
+        _title.Bind(_session);
+        AddChild(_title);
+        _firstLaunch = new FirstLaunchPanel { Name = "FirstLaunch", Done = () => _title.Open() };
+        AddChild(_firstLaunch);
     }
+
+    /// <summary>
+    /// The settings in force from the start: the keys (the defaults taken first, for Reset), the camera, the interface and, for a player's
+    /// run, the picture once the world's sky and sun exist. Every later change applies the part it touched.
+    /// </summary>
+    private void UseSettings(bool applyPicture)
+    {
+        SettingsStore.CaptureDefaults();
+        _applied = SettingsStore.Current;
+        SettingsStore.ApplyBindings();
+        _camera.Use(_applied.Profile.Camera);
+        if (_applied.Profile.Interface != new InterfacePrefs { SeenHints = _applied.Profile.Interface.SeenHints })
+            SettingsStore.ApplyInterface(GetTree());
+        // Sky3D makes its sun as it enters the tree, after this frame: the picture's dials are applied once it has.
+        if (applyPicture)
+            Callable.From(() => SettingsStore.ApplyPicture(GetViewport())).CallDeferred();
+        SettingsStore.Changed += SettingsChanged;
+    }
+
+    private void SettingsChanged()
+    {
+        var now = SettingsStore.Current;
+        var was = _applied;
+        _applied = now;
+        if (now.Machine.WindowMode != was.Machine.WindowMode || now.Machine.Resolution != was.Machine.Resolution
+            || now.Machine.Vsync != was.Machine.Vsync || now.Machine.FrameCap != was.Machine.FrameCap)
+            SettingsStore.ApplyWindow();
+        if (now.Machine.RenderScale != was.Machine.RenderScale || now.Machine.Brightness != was.Machine.Brightness || now.Machine.Dials != was.Machine.Dials)
+            SettingsStore.ApplyPicture(GetViewport());
+        if (now.Profile.Audio != was.Profile.Audio)
+            SettingsStore.ApplyAudio();
+        if (now.Profile.Controls != was.Profile.Controls)
+            SettingsStore.ApplyBindings();
+        if (now.Profile.Camera != was.Profile.Camera)
+            _camera.Use(now.Profile.Camera);
+        if (now.Profile.Interface with { SeenHints = was.Profile.Interface.SeenHints } != was.Profile.Interface)
+            SettingsStore.ApplyInterface(GetTree());
+    }
+
+    /// <summary>The front end at launch: the first-launch screen the first time the game starts on this machine, then the title.</summary>
+    private void OpenFrontEnd()
+    {
+        if (SettingsStore.Current.Profile.FirstLaunchDone)
+            _title.Open();
+        else
+            _firstLaunch.Visible = true;
+    }
+
+    /// <summary>A world began: every front-end screen goes.</summary>
+    private void CloseFrontEnd()
+    {
+        _title.Close();
+        _firstLaunch.Visible = false;
+        _saves.Close();
+        _settings.Visible = false;
+        _credits.Visible = false;
+    }
+
+    /// <summary>A screen opened from the title: the title steps aside for it, and comes back when it closes.</summary>
+    private void FromTitle(Action open)
+    {
+        _title.Close();
+        open();
+    }
+
+    /// <summary>A screen opened from the title or the game closed: before a world runs the title returns; in the game, play.</summary>
+    private void BackToTitle(Action close)
+    {
+        close();
+        if (_session.Simulation is null)
+            _title.Open();
+    }
+
+    /// <summary>Escape before a world runs: a screen opened from the title closes back to it; the title and the first launch stay.</summary>
+    private void FrontEscape()
+    {
+        if (_settings.Capturing)
+            return;
+        if (_settings.Visible)
+            BackToTitle(_settings.Close);
+        else if (_credits.Visible)
+            BackToTitle(() => _credits.Visible = false);
+        else if (_saves.Visible)
+            BackToTitle(_saves.Close);
+    }
+
+    /// <summary>
+    /// Quit, from the title or the System Menu: a running world is saved first, with no question (MMO rules: one live world, saved on the
+    /// way out - DN7). The save is written in the background and finished before the game exits (<see cref="_ExitTree"/>).
+    /// TODO(WP11): save to the character's live state once the live-state and backup split lands.
+    /// </summary>
+    private void Quit()
+    {
+        SaveOnTheWayOut();
+        GetTree().Quit(0);
+    }
+
+    private void SaveOnTheWayOut()
+    {
+        if (_session?.Simulation is not null && !_scripted)
+            _session.SaveInBackground(SaveSlots.Quick);
+    }
+
+    /// <summary>The window's close button quits as Quit does: the world is saved on the way out.</summary>
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest)
+            SaveOnTheWayOut();
+    }
+
+    /// <summary>
+    /// The third-party notices Credits reads: beside an exported build (the release payload's <c>THIRD_PARTY_NOTICES</c>), and in the
+    /// repository the payload's own folder.
+    /// </summary>
+    private static string NoticesFolder() => OS.HasFeature("template")
+        ? Path.Combine(Home(), "THIRD_PARTY_NOTICES")
+        : Path.Combine(Home(), "tools", "release", "payload", "THIRD_PARTY_NOTICES");
 
     /// <summary>
     /// The System Menu's rows, in each group's order: group, words, key, icon, what choosing it does, and optionally whether it can be
@@ -93,7 +235,7 @@ public partial class Main
         new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
         new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
         new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
-        new("System", "Sound", null, "panel.sound", FromMenu(() => Show(_soundPanel))),
+        new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
         new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
     };
 
@@ -107,7 +249,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _soundPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -120,7 +262,8 @@ public partial class Main
         if (_help.Visible)
             _help.Toggle();
         _waystones.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map, _soundPanel })
+        _settings.Close();
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map, _credits })
             screen.Visible = false;
     }
 
@@ -173,7 +316,112 @@ public partial class Main
             case "map":
                 Show(_map);
                 break;
+            case "credits":
+                _credits.Visible = true;
+                break;
+            case not null when name.StartsWith("settings", StringComparison.Ordinal):
+                // "settings" opens its first page, "settings_controls" that page.
+                _settings.Open(name.Length > 9 ? name[9..] : "display");
+                break;
         }
+    }
+
+    /// <summary>Every management screen, as the smoke opens them to prove the world runs under each.</summary>
+    private static readonly string[] EveryScreen =
+        { "menu", "character", "inventory", "journal", "effects", "companions", "map", "help", "saves", "settings", "settings_controls", "credits" };
+
+    private int _noPauseScreen;
+    private int _noPauseFrames;
+    private long _noPauseFrom;
+
+    private bool NoPauseDone => _noPauseScreen >= EveryScreen.Length;
+
+    /// <summary>
+    /// The smoke's no-pause check: each screen opened by name, then held open for ten frames, in which the world must have ticked, the
+    /// tree must not be paused and time must run at its own rate - and the screen must still be the one open. Null while it runs, true
+    /// when a screen passed, false (said in the log) when one stopped the world.
+    /// </summary>
+    private bool? NoPauseStep()
+    {
+        if (NoPauseDone)
+            return null;
+        string name = EveryScreen[_noPauseScreen];
+        long tick = _session.Simulation!.WorldTick;
+        if (_noPauseFrames++ == 0)
+        {
+            ScreenByName(name);
+            _noPauseFrom = tick;
+            return null;
+        }
+        if (_noPauseFrames <= 10)
+            return null;
+        bool open = Screen is not null;
+        bool ran = tick > _noPauseFrom && !GetTree().Paused && Engine.TimeScale == 1.0;
+        GD.Print($"UNNAMED no-pause: {name} open {open}, world tick {_noPauseFrom} -> {tick}, paused {GetTree().Paused}, time scale {Engine.TimeScale}");
+        if (!open || !ran)
+        {
+            GD.PushError($"UNNAMED no-pause: FAIL - with {name} open the world {(open ? "stopped" : "was not shown: the screen did not open")}");
+            return false;
+        }
+        ScreenByName("");
+        _noPauseScreen++;
+        _noPauseFrames = 0;
+        return true;
+    }
+
+    private int _frontFrame;
+    private int _frontStep;
+
+    /// <summary>
+    /// <c>--front-shots dir</c>: the front end as a player meets it, each screen pictured - the first-launch screen, the title, each
+    /// Settings page, Credits and, with a save in <c>--profile</c>, Load - then a new game is started and saved (so a second run, on the
+    /// same profile, pictures the title with Continue) and the run quits. A harness: it reads and writes no player settings.
+    /// </summary>
+    private void FrontShots(string directory)
+    {
+        if (++_frontFrame == 1)
+        {
+            _title.Close();
+            _firstLaunch.Visible = true;
+        }
+        if (_frontFrame % 30 != 0)
+            return;
+        var steps = new (string Shot, Action? Then)[]
+        {
+            ("01_first_launch", () => { _firstLaunch.Visible = false; _title.Open(); }),
+            ("02_title", () => FromTitle(() => _settings.Open("display"))),
+            ("03_settings_display", () => _settings.Open("audio")),
+            ("04_settings_audio", () => _settings.Open("controls")),
+            ("05_settings_controls", () => _settings.Open("camera")),
+            ("06_settings_camera", () => _settings.Open("interface")),
+            ("07_settings_interface", () => { BackToTitle(_settings.Close); FromTitle(() => _credits.Visible = true); }),
+            ("08_credits", () => { BackToTitle(() => _credits.Visible = false); if (!_session.SaveSlots().IsEmpty) FromTitle(_saves.OpenStart); }),
+            ("09_load_when_saves_exist", () =>
+            {
+                BackToTitle(_saves.Close);
+                _session.NewGame("Wanderer");
+                Started();
+            }),
+            ("10_in_game", () =>
+            {
+                _menu.Visible = true;
+                _menu.Choose("Settings");
+            }),
+            ("11_in_game_settings", () =>
+            {
+                CloseScreens();
+                _session.Save(SaveSlots.Quick);
+            }),
+        };
+        if (_frontStep >= steps.Length)
+        {
+            GD.Print($"UNNAMED front shots written to {directory}");
+            GetTree().Quit(0);
+            return;
+        }
+        var (shot, then) = steps[_frontStep++];
+        SaveScreenshot(directory, shot);
+        then?.Invoke();
     }
 
     /// <summary>The Waystone panel, at the stone the character stands at.</summary>

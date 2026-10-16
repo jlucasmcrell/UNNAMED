@@ -30,7 +30,7 @@ public static partial class UiKit
 
     private static Theme BuildTheme()
     {
-        var theme = new Theme { DefaultFont = HudStyle.Body, DefaultFontSize = 18 };
+        var theme = new Theme { DefaultFont = HudStyle.Body, DefaultFontSize = HudStyle.Sized(18) };
         theme.SetColor("font_color", "Label", HudStyle.Bone);
         theme.SetStylebox("panel", "PanelContainer", new StyleBoxEmpty());
         theme.SetStylebox("panel", "ScrollContainer", new StyleBoxEmpty());
@@ -40,7 +40,7 @@ public static partial class UiKit
         foreach (string type in new[] { "Button", "OptionButton", "CheckButton" })
         {
             theme.SetFont("font", type, type == "Button" ? HudStyle.Caps : HudStyle.Body);
-            theme.SetFontSize("font_size", type, 17);
+            theme.SetFontSize("font_size", type, HudStyle.Sized(17));
             foreach (string state in new[] { "font_color", "font_hover_color", "font_focus_color", "font_pressed_color", "font_hover_pressed_color" })
                 theme.SetColor(state, type, HudStyle.Bone);
             theme.SetColor("font_disabled_color", type, disabled);
@@ -76,13 +76,13 @@ public static partial class UiKit
         theme.SetStylebox("panel", "PopupMenu", Box(new Color(HudStyle.Soot, 0.98f), HudStyle.Iron, 4));
         theme.SetStylebox("hover", "PopupMenu", Box(HudStyle.Coal, HudStyle.Ember, 2));
         theme.SetFont("font", "PopupMenu", HudStyle.Body);
-        theme.SetFontSize("font_size", "PopupMenu", 17);
+        theme.SetFontSize("font_size", "PopupMenu", HudStyle.Sized(17));
         theme.SetColor("font_color", "PopupMenu", HudStyle.Bone);
         theme.SetColor("font_hover_color", "PopupMenu", HudStyle.Ember);
 
         theme.SetStylebox("panel", "TooltipPanel", Box(new Color(HudStyle.Soot, 0.98f), HudStyle.IronBright, 10, 6));
         theme.SetFont("font", "TooltipLabel", HudStyle.Body);
-        theme.SetFontSize("font_size", "TooltipLabel", 16);
+        theme.SetFontSize("font_size", "TooltipLabel", HudStyle.Sized(16));
         theme.SetColor("font_color", "TooltipLabel", HudStyle.Bone);
 
         theme.SetStylebox("slider", "HSlider", Box(HudStyle.Track, HudStyle.Iron, 0, 3));
@@ -488,6 +488,28 @@ public static partial class UiKit
         }
     }
 
+    /// <summary>
+    /// After Settings changes the text size, contrast or colours (<see cref="HudStyle.Use"/>): the menu theme rebuilt, every sheet given it
+    /// and its frame again, and every word drawn at its designed size times the new text size. Screens rebuild their rows as they open.
+    /// </summary>
+    public static void Restyle(Node root)
+    {
+        _theme = null;
+        foreach (var node in root.FindChildren("*", "", true, false))
+        {
+            switch (node)
+            {
+                case SheetRoot sheet:
+                    sheet.Theme = Theme;
+                    sheet.Frame?.Panel.AddThemeStyleboxOverride("panel", SheetBox());
+                    break;
+                case Label label when label.HasMeta(HudStyle.DesignedSize):
+                    label.AddThemeFontSizeOverride("font_size", HudStyle.Sized(label.GetMeta(HudStyle.DesignedSize).AsInt32()));
+                    break;
+            }
+        }
+    }
+
     /// <summary>The sheet a screen's layer holds, or null: for what Main changes on a screen from outside (Escape's word).</summary>
     public static Sheet? SheetOf(CanvasLayer layer) =>
         layer.GetChildren().OfType<SheetRoot>().FirstOrDefault()?.Frame;
@@ -721,7 +743,10 @@ public sealed class Sheet
     {
         if (!GodotObject.IsInstanceValid(Panel))
             return;
-        float width = _width, top = UiKit.BandTop, bottom = UiKit.BandTop + UiKit.BandHeight;
+        // The band on the reference canvas; on a smaller one (a larger interface scale) it is centred and shortened to fit, 16 clear.
+        var canvas = Root.IsInsideTree() && Root.Size.X > 100 ? Root.Size : new Vector2(1920, 1080);
+        float width = Math.Min(_width, canvas.X - 32), top = Math.Min(UiKit.BandTop, Math.Max(16, (canvas.Y - UiKit.BandHeight) / 2));
+        float bottom = Math.Min(top + UiKit.BandHeight, canvas.Y - 16);
         if (Root.IsInsideTree() && Root.GetTree().Root.FindChild("HudView", true, false) is HudView { Visible: true } hud && hud.IsVisibleInTree())
         {
             float centre = Root.Size.X / 2;
@@ -743,7 +768,7 @@ public sealed class Sheet
                 else
                     width = Math.Min(width, narrowed);
             }
-            width = Math.Min(width, _width);
+            width = Math.Min(width, Math.Min(_width, canvas.X - 32));
         }
         Panel.OffsetLeft = -width / 2;
         Panel.OffsetRight = width / 2;

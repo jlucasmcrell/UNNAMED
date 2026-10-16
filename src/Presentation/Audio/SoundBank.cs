@@ -12,11 +12,11 @@ namespace UNNAMED.Presentation.Audio;
 /// this repository. IDs numbered <c>.01</c>, <c>.02</c>... are one family; a family is played by picking a variation at random that is
 /// never the one it played last (PHASE1_AUDIO_EVENT_CONTRACT.md). A mono sound plays at a place in the world; a stereo one (the beds,
 /// the Strain layers, the forge) and the UI's play flat. Every sound at the level it was delivered at: the set is already levelled
-/// relative to itself, so nothing here trims one. Without the workspace every call is silent.
+/// relative to itself, so nothing here trims one; each plays on its group's bus (<see cref="AudioMix.BusFor"/>). Without the workspace every call is silent.
 /// </summary>
 public partial class SoundBank : Node
 {
-    private sealed record Sound(string Id, string File, bool Stereo, bool Loop, bool Flat, float Jitter);
+    private sealed record Sound(string Id, string File, bool Stereo, bool Loop, bool Flat, float Jitter, string Bus);
 
     private readonly Dictionary<string, Sound> _sounds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<string>> _families = new(StringComparer.Ordinal);
@@ -81,7 +81,7 @@ public partial class SoundBank : Node
                     file = proof;
                 // A family's pitch jitter (semitones either way) is applied per play, so no two hits sound alike even on the same take.
                 float jitter = sound.TryGetProperty("pitch_jitter_semitones", out var j) && j.ValueKind == JsonValueKind.Number ? (float)j.GetDouble() : 0f;
-                _sounds[id] = new Sound(id, file, stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui", jitter);
+                _sounds[id] = new Sound(id, file, stereo, loop.GetBoolean(), stereo || Text(sound, "group") == "ui", jitter, AudioMix.BusFor(Text(sound, "group")));
                 string family = id.LastIndexOf('.') is var dot and > 0 && id[(dot + 1)..].All(char.IsDigit) ? id[..dot] : id;
                 if (!_families.TryGetValue(family, out var members))
                     _families[family] = members = new List<string>();
@@ -123,12 +123,12 @@ public partial class SoundBank : Node
         float pitch = sound.Jitter > 0 ? Mathf.Pow(2f, (float)(_pick.NextDouble() * 2 - 1) * sound.Jitter / 12f) : 1f;
         if (sound.Flat || at is null)
         {
-            player = new AudioStreamPlayer { Stream = stream, PitchScale = pitch, Bus = AudioMix.Effects };
+            player = new AudioStreamPlayer { Stream = stream, PitchScale = pitch, Bus = sound.Bus };
         }
         else
         {
             // A mono sound is placed: heard fully within a few metres and gone by forty.
-            player = new AudioStreamPlayer3D { Stream = stream, Position = at.Value, UnitSize = 4f, MaxDistance = 45f, PitchScale = pitch, Bus = AudioMix.Effects };
+            player = new AudioStreamPlayer3D { Stream = stream, Position = at.Value, UnitSize = 4f, MaxDistance = 45f, PitchScale = pitch, Bus = sound.Bus };
         }
         AddChild(player);
         void Start()
@@ -202,7 +202,7 @@ public partial class SoundBank : Node
         if (Stream(sound) is not { } stream)
             return null;
         _resolved.Add(id);
-        var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f, Bus = AudioMix.Effects };
+        var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f, Bus = sound.Bus };
         AddChild(player);
         player.Play();
         _played.Add(id);

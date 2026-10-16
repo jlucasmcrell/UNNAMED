@@ -2,6 +2,7 @@
 // Godot presentation only: it reads the input map; nothing here holds state (D-11)
 
 using Godot;
+using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -18,8 +19,8 @@ public partial class HelpPanel : CanvasLayer
         {
             ("Moving", new[]
             {
-                ("Move", new[] { "move_forward", "move_left", "move_back", "move_right" }), ("Sprint (hold)", new[] { "sprint" }),
-                ("Walk (hold)", new[] { "walk" }), ("Jump", new[] { "jump" }), ("Crouch or stand", new[] { "crouch" }),
+                ("Move", new[] { "move_forward", "move_left", "move_back", "move_right" }), ("Sprint", new[] { "sprint" }),
+                ("Walk", new[] { "walk" }), ("Jump", new[] { "jump" }), ("Crouch", new[] { "crouch" }),
                 ("Autorun, on or off", new[] { "autorun" }),
             }),
             ("Looking", new[]
@@ -30,7 +31,7 @@ public partial class HelpPanel : CanvasLayer
             ("Acting", new[]
             {
                 ("Open, take, talk, work, help up", new[] { "interact" }), ("Attack, or shoot the bow", new[] { "attack" }),
-                ("Guard, or aim the bow (hold)", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
+                ("Guard, or aim the bow", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
                 ("Use a quick slot", new[] { "quick_1", "quick_3" }), ("Work a formula", new[] { "cast_1", "cast_3" }),
                 ("Take all, from a container", new[] { "take_all" }),
             }),
@@ -113,7 +114,11 @@ public partial class HelpPanel : CanvasLayer
         {
             var row = new HBoxContainer { CustomMinimumSize = new Vector2(0, 26) };
             row.AddThemeConstantOverride("separation", 6);
-            var label = UiKit.Words(does, 17, words);
+            // Held or pressed on and off, as Settings has it (Controls: hold or toggle).
+            string mode = actions.Length == 1 && ControlPrefs.Toggleable.ContainsKey(actions[0])
+                ? SettingsStore.Current.Profile.Controls.IsToggle(actions[0]) ? " (on or off)" : " (hold)"
+                : "";
+            var label = UiKit.Words(does + mode, 17, words);
             label.VerticalAlignment = VerticalAlignment.Center;
             row.AddChild(label);
             foreach (var part in Caps(actions))
@@ -156,9 +161,11 @@ public partial class HelpPanel : CanvasLayer
     public static string Key(string action) =>
         InputMap.HasAction(action) && InputMap.ActionGetEvents(action).FirstOrDefault() is { } input ? KeyName(input) : "unbound";
 
-    private static string KeyName(InputEvent input) => input switch
+    public static string KeyName(InputEvent input) => input switch
     {
-        InputEventKey key => OS.GetKeycodeString(key.Keycode != Godot.Key.None ? key.Keycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode)),
+        // A headless run has no keyboard layout to ask: the key's own name.
+        InputEventKey key => OS.GetKeycodeString(key.Keycode != Godot.Key.None ? key.Keycode
+            : DisplayServer.GetName() == "headless" ? key.PhysicalKeycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode)),
         InputEventMouseButton { ButtonIndex: MouseButton.Left } => "Left mouse",
         InputEventMouseButton { ButtonIndex: MouseButton.Right } => "Right mouse",
         InputEventMouseButton mouse => $"Mouse {mouse.ButtonIndex}",

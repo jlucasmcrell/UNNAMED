@@ -17,7 +17,7 @@ public static class RenderTiers
     /// <summary>How far the prepared ground cover reaches, as a multiple of each kind's <c>fade_m</c>. The plants thin out one by one
     /// over the outer part of it (ScatterView), so a longer reach costs a thinned far band, not a full one; it is paid for by the
     /// grass no longer casting into the sun's cascades (2026-10-15).</summary>
-    public static float GroundReach => VisualOptions.Tier switch
+    public static float GroundReach => VisualOptions.ReachScale * VisualOptions.Tier switch
     {
         "high" => 1.5f,
         "ultra" => 1.8f,
@@ -26,7 +26,7 @@ public static class RenderTiers
 
     /// <summary>How far the library models (trees, rocks, buildings) hold each level before the next lighter one, as a multiple of
     /// ArtLibrary's ladder: Ultra keeps a tree's crown off its crossed-plane impostor until 225 m rather than 150.</summary>
-    public static float LodReach => VisualOptions.Tier == "ultra" ? 1.5f : 1.0f;
+    public static float LodReach => VisualOptions.ReachScale * (VisualOptions.Tier == "ultra" ? 1.5f : 1.0f);
 
     /// <summary>The server-wide settings (shadow atlas and filter, SSAO/SSIL quality) for the run's tier.</summary>
     public static void ApplyGlobal()

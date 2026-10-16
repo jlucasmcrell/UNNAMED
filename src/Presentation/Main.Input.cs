@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
+using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
 
@@ -43,8 +44,41 @@ public partial class Main
             Input.MouseMode = wanted;
     }
 
+    /// <summary>The toggleable actions pressed on (Settings, Controls: hold or toggle), until pressed again.</summary>
+    private readonly Dictionary<string, bool> _toggled = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Whether an action that can be held or toggled is on this frame: held down, or - set to press on, press off - pressed once and not
+    /// yet pressed again. Call it once a frame for each action, since a toggle reads the press.
+    /// </summary>
+    private bool Engaged(string action)
+    {
+        if (!SettingsStore.Current.Profile.Controls.IsToggle(action))
+            return Input.IsActionPressed(action);
+        if (Input.IsActionJustPressed(action))
+            _toggled[action] = !_toggled.GetValueOrDefault(action);
+        return _toggled.GetValueOrDefault(action);
+    }
+
+    /// <summary>The gait the keys ask for: sprint over walk over the run.</summary>
+    private Gait ReadGait()
+    {
+        bool sprint = Engaged("sprint"), walk = Engaged("walk");
+        return sprint ? Gait.Sprint : walk ? Gait.Walk : Gait.Run;
+    }
+
+    /// <summary>Before a world runs (the title and the screens it opens): only Escape, back to the title.</summary>
+    private void ReadFrontInput()
+    {
+        if (Input.IsActionJustPressed("release_mouse"))
+            FrontEscape();
+    }
+
     private void ReadInput()
     {
+        // A key being bound in Settings is the binding: it opens no screen and moves no one.
+        if (_settings.Capturing)
+            return;
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
         bool looting = _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
@@ -100,8 +134,7 @@ public partial class Main
             var lootStick = looting && _inventory.Visible ? new Vector2(
                 Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
                 Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back")) : Vector2.Zero;
-            var lootGait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
-            _controller.Steer(_camera, lootStick, lootGait);
+            _controller.Steer(_camera, lootStick, ReadGait());
             if (combat.Blocking)
                 _controller.Guard(false);
             return;
@@ -110,7 +143,10 @@ public partial class Main
         var stick = new Vector2(
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
-        var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+        var gait = ReadGait();
+        // A sprint pressed on ends where the running does.
+        if (stick == Vector2.Zero && !_autorun)
+            _toggled["sprint"] = false;
         // Autorun: the key turns it on and off, and stepping back turns it off; while on, the character goes forward, still steered by
         // the camera and the side keys, at whatever gait is held.
         if (Input.IsActionJustPressed("autorun"))
@@ -126,7 +162,7 @@ public partial class Main
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
-        bool holding = captured && Input.IsActionPressed("guard");
+        bool holding = captured && Engaged("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
         _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || slot >= 0 || combat.Phase == CombatPhase.Windup);
@@ -204,8 +240,10 @@ public partial class Main
         }
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
-        if (Input.IsActionJustPressed("crouch"))
-            _controller.Crouch(_session.Simulation!.Posture.Stance != UNNAMED.Domain.Spatial.Stance.Crouched);
+        // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is.
+        bool crouched = _session.Simulation!.Posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
+        if (SettingsStore.Current.Profile.Controls.IsToggle("crouch") ? Input.IsActionJustPressed("crouch") : Input.IsActionPressed("crouch") != crouched)
+            _controller.Crouch(!crouched);
         if (Input.IsActionJustPressed("first_person"))
             _camera.ToggleFirstPerson();
         if (Input.IsActionJustPressed("shoulder_swap"))
@@ -233,7 +271,7 @@ public partial class Main
         Bind("walk", Key.Ctrl);
         Bind("interact", Key.E);
         Bind("jump", Key.Space);
-        Bind("crouch", Key.X);            // a toggle (the owner's M6 playtest); C stays the dodge
+        Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);
         Bind("help", Key.F1);
         Bind("take_all", Key.R);          // in a container's panel
