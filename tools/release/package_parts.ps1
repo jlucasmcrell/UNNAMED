@@ -80,7 +80,7 @@ $manifest = [ordered]@{
     release_tag = $Tag
     install_folder = $installFolder
     url_template = "$BaseUrl$Tag/{name}"
-    total_uncompressed_bytes = [long]($fileRecords | Measure-Object { $_.bytes } -Sum).Sum
+    total_uncompressed_bytes = [long]($fileRecords | ForEach-Object { $_.bytes } | Measure-Object -Sum).Sum
     parts = $partRecords
     files = $fileRecords
 }
@@ -96,6 +96,6 @@ Copy-Item $manifestPath $starter
 Compress-Archive -Path "$starter\*" -DestinationPath $setupZip
 Remove-Item -Recurse -Force $starter
 
-$partBytes = [long]($partRecords | Measure-Object { $_.bytes } -Sum).Sum
+$partBytes = [long]($partRecords | ForEach-Object { $_.bytes } | Measure-Object -Sum).Sum
 "Parts: $($partRecords.Count), download $('{0:N2}' -f ($partBytes / 1GB)) GB (+ Setup zip $('{0:N1}' -f ((Get-Item $setupZip).Length / 1KB)) KB), unpacked $('{0:N2}' -f ($manifest.total_uncompressed_bytes / 1GB)) GB"
 "Manifest $manifestPath"
