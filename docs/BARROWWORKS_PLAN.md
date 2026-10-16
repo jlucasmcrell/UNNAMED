@@ -441,6 +441,34 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2h - the real cost of a non-spawn room: about a quarter of an hour each
+
+Chasing P2g's blocker gave a number, and the number is the finding.
+
+| room | what it needs | wall-clock | frames |
+|---|---|---|---|
+| R01 (the region's spawn) | no walk - the character is already there | **23 s** | 3 |
+| R02 (18 m away) | a walk from the spawn | **757 s and rising**, killed | 0 |
+
+**Ruled out, by measurement:** the performance tier. The 757 s run was `--visual tier=performance` and took
+longer than the High-tier attempt without producing a frame. **Ruled out earlier:** the doorway width -
+body footprint 0.35 m against a 3.0 m opening.
+
+**And the walk does work.** The very first `--survey` run did photograph R02, taking about **16 minutes** to
+get there. So the harness is not stuck: it is walking, and the walk is that slow in wall-clock. At
+`Engine.MaxFps = 1 / TickSeconds = 20`, a settled standpoint costs `max(20, 3 / 0.05) = 60` frames and three
+standpoints cost 180 - so the frames themselves are cheap and **the walk between rooms is what costs the
+time.**
+
+**What this means operationally.** A thirteen-room pass at this rate is roughly **three to four hours**, not
+the minutes the earlier plan assumed. Any room's picture is affordable; thirteen of them in one sitting is
+not. Photograph the room a change touches, which is what `--shot` is for, and leave the full survey for a
+final pass with the time set aside for it.
+
+**The blocker itself stands unchanged from P2g**: `--shot` steers the character to a standpoint and waits,
+and there is no path that places him there. For a blockout whose rooms are 10 m apart that is the wrong
+mechanism, and it is still the next piece of P2.
+
 ### P2g - a room photographs; the other twelve do not, and it is the harness not the blockout
 
 **R01 photographed in 23 s** - walls, the centred 3 m opening, the character, a cast shadow, the floor, sky
