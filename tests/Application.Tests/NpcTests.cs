@@ -78,7 +78,7 @@ public class NpcTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Tester", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 42);
 
         var npcs = simulation.Npcs.Where(n => n.Id.StartsWith("npc.ashen_hollow.", StringComparison.Ordinal)).OrderBy(n => n.Id, StringComparer.Ordinal).ToList();
         // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village.
@@ -88,7 +88,7 @@ public class NpcTests
         Assert.All(npcs, n => Assert.False(n.Talking));
         Assert.Equal((461_600L, 739_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
         // A named NPC is the same instance in every world: identity is derived, never rolled (D-10).
-        var again = session.NewGame("Tester", seed: 7);
+        var again = session.NewGame(Harness.Named("Tester"), seed: 7);
         Assert.Equal(simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId), again.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => n.InstanceId));
         Assert.All(npcs, n => Assert.Equal(EntityKind.Npc, n.InstanceId.Kind));
         // They are solid: bodies walk round them.

@@ -272,7 +272,7 @@ public class TravelTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(session, 2);
         var map = simulation.Map;
         Assert.Equal(new[] { "location.outpost" }, map.Places.Select(p => p.LocationId));
@@ -294,7 +294,7 @@ public class TravelTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkTo(session, (long)(AtAshen.X * 1000), (long)(AtAshen.Z * 1000), Domain.Spatial.Gait.Walk));
         session.Submit(new TouchStoneCommand(simulation.PlayerId, Ashen));
         session.Submit(new BindStoneCommand(simulation.PlayerId, Ashen));

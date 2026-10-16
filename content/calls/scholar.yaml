@@ -1,0 +1,12 @@
+id: call.scholar
+kind: call
+schema: 1
+display_key: call.scholar.name
+tags: [call]
+name: Scholar
+notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98). Built only from existing items, skills and NPCs; the contact is the waystation's archivist (content bible §9). The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo. It teaches no formula - Sel's notes and the primer stay the ways in.
+attribute_bias: { will: 2, insight: 2 }
+skills: { skill.force: 15, skill.warding: 15 }
+kit:
+  - { item_ref: item.consumable.salve_ember, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.sel_arien, trust: 5 }

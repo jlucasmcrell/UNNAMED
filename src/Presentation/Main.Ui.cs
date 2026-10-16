@@ -70,10 +70,10 @@ public partial class Main
         _saves.Bind(_session);
         _saves.NewGame = () =>
         {
-            _session.NewGame("Wanderer");
+            _session.NewGame(DefaultCharacter);
             Started();
         };
-        _saves.Load = (slot, copy) => LoadChosen(slot, copy);
+        _saves.Load = save => LoadChosen(save.Slot, save.Copy, save);
         _saves.Quit = () => GetTree().Quit(0);
         _saves.Closed = _saves.Close;
         AddChild(_saves);

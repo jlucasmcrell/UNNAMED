@@ -39,7 +39,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Equal(0, simulation.WorldTick);
         Assert.Equal(session.Setup.Layout.Spawn, simulation.Player.Body);
@@ -52,7 +52,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var start = simulation.Player.Body;
 
         session.Submit(new MoveCommand(simulation.PlayerId, new MoveIntent(0, 1000, Gait.Run, 0)));
@@ -71,7 +71,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         long z = simulation.Player.Body.ZMm;
 
         session.Submit(new MoveCommand(simulation.PlayerId, new MoveIntent(0, 1000, gait, 0)));
@@ -85,7 +85,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Equal(0, session.Frame(0.02).TicksRun);
         Assert.Equal(0, session.Frame(0.02).TicksRun);
@@ -100,7 +100,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         var result = session.Frame(10.0);
 
@@ -113,7 +113,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         // Out of the waystation and down the road towards the Foldscar, then due south until the edge stops the body.
         Assert.True(Harness.WalkPath(session, (44, 138), (60, 128), (100, 100), (120, 80)));
 
@@ -128,7 +128,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.True(Harness.WalkPath(session, (15, 185)));
 
@@ -142,7 +142,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var rejected = Harness.Record<CommandRejected>(session);
 
         session.Submit(new MoveCommand(simulation.PlayerId, new MoveIntent(5000, 0, Gait.Run, 0)));
@@ -163,7 +163,7 @@ public class SessionTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Equal(Enum.GetValues<StateSlice>().OrderBy(s => s), simulation.SliceOwners.Keys.OrderBy(s => s));
         Assert.Equal("MovementSystem", simulation.SliceOwners[StateSlice.PlayerBody]);

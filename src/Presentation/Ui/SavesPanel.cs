@@ -32,7 +32,7 @@ public partial class SavesPanel : CanvasLayer
     /// <summary>What the player chose: Main starts or loads, and closes the panel once a world runs.</summary>
     public Action? NewGame { get; set; }
 
-    public Action<string, SaveCopy>? Load { get; set; }
+    public Action<SaveSummary>? Load { get; set; }
 
     public Action? Quit { get; set; }
 
@@ -64,7 +64,7 @@ public partial class SavesPanel : CanvasLayer
     {
         if (!Visible || !_atStart || _session.StartChoice().Continue is not { } next)
             return false;
-        Load?.Invoke(next.Slot, next.Copy);
+        Load?.Invoke(next);
         return true;
     }
 
@@ -109,7 +109,7 @@ public partial class SavesPanel : CanvasLayer
             actions.AddThemeConstantOverride("separation", 8);
             if (choice.Continue is { } next)
             {
-                var resume = Action($"Continue   {Describe(next.Slot, next.Copy)}, {When(next)}, {Played(next)}", () => Load?.Invoke(next.Slot, next.Copy), UiKit.Kind.Primary);
+                var resume = Action($"Continue   {Describe(next.Slot, next.Copy)}, {When(next)}, {Played(next)}", () => Load?.Invoke(next), UiKit.Kind.Primary);
                 resume.Alignment = HorizontalAlignment.Left;
                 actions.AddChild(resume);
                 focus = resume;
@@ -165,7 +165,7 @@ public partial class SavesPanel : CanvasLayer
             if (newest && !_atStart)
                 focus ??= load;
             newest = false;
-            foreach (var copy in _session.OtherCopies(save.Slot))
+            foreach (var copy in _session.OtherCopies(save))
                 Row(list, copy, false);
         }
         _sheet.Body.AddChild(list);
@@ -191,7 +191,7 @@ public partial class SavesPanel : CanvasLayer
         // A damaged save may still give up what survives (§7.2: partial recovery beats none); one this build cannot read, nothing.
         if (save.Problem is null || save.Problem.StartsWith("it is damaged", StringComparison.Ordinal))
         {
-            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save.Slot, save.Copy),
+            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save),
                 primary ? UiKit.Kind.Primary : UiKit.Kind.Normal, compact: copy);
             row.Root.AddChild(load);
         }

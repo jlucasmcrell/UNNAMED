@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -48,6 +49,9 @@ internal static class Harness
         var options = new GameOptions(Path.Combine(RepoRoot(), "content"), profile.Root);
         return GameSession.Boot(regionId is null ? options : options with { RegionId = regionId });
     }
+
+    /// <summary>A new game's character with only a name chosen, and no Call: the character every test made before the creator.</summary>
+    public static CharacterSpec Named(string name) => CharacterSpec.Quick(name, null);
 
     /// <summary>Run whole ticks, one per frame, the way a 20 Hz frame loop would.</summary>
     public static void Ticks(GameSession session, int ticks)

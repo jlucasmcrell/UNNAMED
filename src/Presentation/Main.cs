@@ -285,7 +285,7 @@ public partial class Main : Node3D
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
-            _session.NewGame("Wanderer", fixedWorld ? Playthrough.Seed : 0);
+            _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 

@@ -80,7 +80,7 @@ public class CraftingTests
     public void TheHollow_HasItsSeamAndItsStand_InTheWorldsBaseline()
     {
         using var profile = new TempProfile();
-        var simulation = Harness.Boot(profile).NewGame("Tester", seed: 42);
+        var simulation = Harness.Boot(profile).NewGame(Harness.Named("Tester"), seed: 42);
 
         Assert.Equal(new[]
             {

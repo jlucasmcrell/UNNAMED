@@ -154,7 +154,14 @@ public enum SaveCopy
 /// One copy of a save, read from its manifest and integrity root without loading it: what a player chooses between. <see cref="Problem"/>
 /// is null when the copy is whole and this build can read it; otherwise it says why not.
 /// </summary>
-public sealed record SaveSummary(string Slot, SaveCopy Copy, string? Problem, DateTimeOffset WrittenAt, double PlaytimeSeconds, long WorldTick);
+public sealed record SaveSummary(string Slot, SaveCopy Copy, string? Problem, DateTimeOffset WrittenAt, double PlaytimeSeconds, long WorldTick)
+{
+    /// <summary>
+    /// The character folder the save is in (<see cref="CharacterFolders"/>): the character's instance ID, or null for a save written at
+    /// the profile root before saves were kept per character (OD-14).
+    /// </summary>
+    public string? Character { get; init; }
+}
 
 /// <summary>A step boundary in the §7.1 write sequence. Tests inject a crash at each one.</summary>
 public enum SaveStep

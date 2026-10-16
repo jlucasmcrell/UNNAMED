@@ -65,7 +65,7 @@ public class AsyncSaveTests
         using var profile = new TempProfile();
         using var held = new Held(SaveStep.StagingWritten);
         using var session = Boot(profile, held.Hook);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         long taken = PlayTo(session, 300);   // the autosave is taken at the end of this frame
         held.WaitReached(1);
@@ -89,7 +89,7 @@ public class AsyncSaveTests
         using var profile = new TempProfile();
         using var held = new Held(SaveStep.StagingWritten);
         using var session = Boot(profile, held.Hook);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         PlayTo(session, 300);
         held.WaitReached(1);
@@ -115,7 +115,7 @@ public class AsyncSaveTests
         using var profile = new TempProfile();
         using var held = new Held(SaveStep.StagingWritten);
         using var session = Boot(profile, held.Hook);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         long autosaved = PlayTo(session, 300);
         held.WaitReached(1);
@@ -144,7 +144,7 @@ public class AsyncSaveTests
             if (failing && step == SaveStep.IntegrityRootWritten)
                 throw new IOException("the disk is full");
         });
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         PlayTo(session, 10);
         session.Save(SaveSlots.Quick);
         long first = session.Simulation!.WorldTick;
@@ -157,7 +157,7 @@ public class AsyncSaveTests
 
         Assert.Equal((SaveSlots.Quick, false, "the disk is full"), (outcome.Slot, outcome.Auto, outcome.Failure));
         failing = false;
-        new SaveStore(profile.Root).RecoverInterruptedCommits();   // what the next boot does with what the failed commit left
+        new SaveStore(session.SaveFolder).RecoverInterruptedCommits();   // what the next boot does with what the failed commit left
         Assert.Equal(first, session.Load(SaveSlots.Quick).Manifest.WorldTick);
     }
 
@@ -168,7 +168,7 @@ public class AsyncSaveTests
         using var held = new Held(SaveStep.StagingPromoted);
         long taken;
         var session = Boot(profile, held.Hook);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         PlayTo(session, 30);
         taken = session.Simulation!.WorldTick;
         session.SaveInBackground(SaveSlots.Quick);

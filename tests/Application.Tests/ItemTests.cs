@@ -66,7 +66,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var player = session.NewGame("Wanderer", seed: 42).Player;
+        var player = session.NewGame(Harness.Named("Wanderer"), seed: 42).Player;
 
         // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made.
         Assert.Equal(new[] { "item.consumable.salve_minor", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
@@ -126,7 +126,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Null(Rejection(session, new UnequipCommand(simulation.PlayerId, EquipSlot.MainHand)));
         Assert.Empty(simulation.Player.Equipment);
@@ -138,7 +138,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var flask = Carried(simulation, "item.tool.water_flask").ItemId;
         var body = simulation.Player.Body;
 
@@ -159,7 +159,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         string before = simulation.StateDigest();
         var sword = Carried(simulation, "item.weapon.rusted_sword").ItemId;
 
@@ -190,7 +190,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var flask = Carried(simulation, "item.tool.water_flask").ItemId;
         session.Submit(new MoveItemCommand(simulation.PlayerId, flask.Value, ItemPlace.Carried, ItemPlace.Ground, 1));
         Assert.True(Harness.WalkPath(session, (30, 140)));
@@ -203,7 +203,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, ToTheDenCache));
 
         var untouched = simulation.Containers.Single(c => c.Site.Key == Den);
@@ -238,8 +238,8 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var first = session.NewGame("A", seed: 1).Containers.Single(c => c.Site.Key == Den).Items;
-        var second = session.NewGame("B", seed: 2).Containers.Single(c => c.Site.Key == Den).Items;
+        var first = session.NewGame(Harness.Named("A"), seed: 1).Containers.Single(c => c.Site.Key == Den).Items;
+        var second = session.NewGame(Harness.Named("B"), seed: 2).Containers.Single(c => c.Site.Key == Den).Items;
         Assert.Equal(first.AsEnumerable(), second.AsEnumerable());   // a static table: no randomness to vary
     }
 
@@ -355,7 +355,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Contains("out of reach", Rejection(session, new TakeAllCommand(simulation.PlayerId, Den)));
         string wares = session.Setup.Items.Merchants.Keys.First();
@@ -367,7 +367,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, ToTheDenCache));
         session.Submit(new MoveItemCommand(simulation.PlayerId, $"{Den}#00", ItemPlace.In(Den), ItemPlace.Carried, 12));
         Harness.Ticks(session, 1);
@@ -389,7 +389,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         session.Submit(new UnequipCommand(simulation.PlayerId, EquipSlot.MainHand));   // equipment changed from the kit's
         session.Submit(new MoveItemCommand(simulation.PlayerId, Carried(simulation, "item.tool.water_flask").ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, 1));
         Assert.True(Harness.WalkPath(session, ToTheDenCache));

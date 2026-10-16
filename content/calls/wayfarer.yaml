@@ -1,0 +1,13 @@
+id: call.wayfarer
+kind: call
+schema: 1
+display_key: call.wayfarer.name
+tags: [call]
+name: Wayfarer
+notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98) - the content bible's working package name (§14). Built only from existing items, skills and NPCs. The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo.
+attribute_bias: { endurance: 2, might: 1, agility: 1 }
+skills: { skill.athletics: 15, skill.one_hand_blade: 15 }
+kit:
+  - { item_ref: item.armor.hide_vest, count: 1, equip: true }
+  - { item_ref: item.consumable.roast_meat, count: 2 }
+contact: { npc_ref: npc.ashen_hollow.renn_vale, trust: 5 }
