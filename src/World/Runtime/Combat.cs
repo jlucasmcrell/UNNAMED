@@ -970,12 +970,14 @@ internal sealed class DeathSystem
     private readonly SystemContext _context;
     private readonly EntityId _player;
     private readonly Func<Body> _returnPoint;
+    private readonly Action _leaveSpace;
 
-    public DeathSystem(SystemContext context, EntityId player, Func<Body> returnPoint)
+    public DeathSystem(SystemContext context, EntityId player, Func<Body> returnPoint, Action leaveSpace)
     {
         _context = context;
         _player = player;
         _returnPoint = returnPoint;
+        _leaveSpace = leaveSpace;
     }
 
     public void Tick(long tick)
@@ -990,7 +992,11 @@ internal sealed class DeathSystem
         _context.Events.Publish(new PlayerDied(last?.AttackerDefId ?? "unknown", last?.Source ?? "unknown", combat.Recent,
             state.Progression.XpDebt - debtBefore, tick));
         _context.Dispatch(new ClearEffects(_player));
-        // Back at the stone the character chose to return to, or the region's spawn while they have chosen none (S-38).
+        // Back at the stone the character chose to return to, or the region's spawn while they have chosen none
+        // (S-38). OUT OF THE SPACE FIRST: a return point is a place in the REGION's space, so a death inside an
+        // interior has to come out of it, or the body would stand at the stone's metres while the simulation
+        // still called it inside and every cell it touched would be the wrong cell.
+        _leaveSpace();
         var body = _returnPoint();
         _context.Dispatch(new Relocate(body));
         _context.Dispatch(new EndFight());

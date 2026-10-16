@@ -106,6 +106,12 @@ internal sealed class TravelSystem
 
     public string? Handle(TravelCommand command, long tick)
     {
+        // No road runs under the hill (canon). A stone's arrival point is a place in the REGION's own space, so
+        // travelling from an interior would put the body at exterior metres while the simulation still called
+        // it inside - the collision the space identity exists to prevent. Refused in the simulation rather than
+        // in the panel, so no UI path can reach it.
+        if (!State.Space.IsExterior)
+            return "No road runs under the hill";
         if (Reach(command.Actor, command.FromKey, out var from) is { } refused)
             return refused;
         if (!Knows(from))
@@ -129,6 +135,12 @@ internal sealed class TravelSystem
     }
 
     /// <summary>Where a character who died comes back: beside the stone they chose, or the region's spawn when they chose none here.</summary>
+    /// <remarks>
+    /// The return point is a place in the REGION's own space, so a character who dies in an interior has to come
+    /// back out of it - the caller resets the space before relocating to this (see <see cref="DeathSystem"/>).
+    /// Without that the body would stand at the stone's exterior metres while the simulation still called it
+    /// inside, and every cell it touched would be the wrong cell.
+    /// </remarks>
     public Body ReturnBody()
     {
         if (State.ReturnPoint is { } key && Layout.FindWaystone(key) is { } stone)

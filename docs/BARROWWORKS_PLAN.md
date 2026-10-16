@@ -441,6 +441,38 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2j - travel and death against the dungeon, and the bug that hid in the wiring
+
+Claude's review §3 asked for four interactions with travel. Two are done and two are named below as still to
+do, because saying which is which is worth more than a claim.
+
+**No travel under the hill - done.** `TravelSystem.Handle(TravelCommand)` refuses when the player is not in
+the exterior, with `"No road runs under the hill"`. The reason is not flavour: a stone's arrival point is a
+place in the **region's** space, so travelling from an interior would put the body at exterior metres while
+the simulation still called it inside - the collision the space identity exists to prevent, and exactly the
+"wrong position" the review warns about. It is enforced in the simulation, not in the panel, so no UI path
+can reach round it. Two tests: travel is refused and the body stays put, and a body opened inside without a
+traversal cannot leave at all.
+
+**Death inside - implemented, not yet exercised.** `DeathSystem` relocates to the return point, and the
+return point is a place in the region's own space, so it now calls `SpaceSystem.LeaveForDeath()` **before**
+relocating. Without it a character who died inside would stand at the stone's metres while the simulation
+still called it inside, and every cell it then touched would be the wrong cell.
+
+**It is not covered by a test, and the reason is concrete:** nothing in the Barrowworks can kill the player
+yet. The region declares a player `spawn:` and **no creature spawns**, so there is no hostile to do it. That
+test waits on the content port (P4). The state reset itself is covered - the portal-leave test drives the same
+reset - and the death wiring is build-verified rather than exercised. A test named for death that never kills
+anybody would be worse than no test.
+
+**The bug that hid in the wiring.** Capturing `_spaces.LeaveForDeath` in the `DeathSystem` constructor threw
+`ArgumentException: Delegate to an instance method cannot have null 'this'` on **every** simulation start,
+because `_death` was constructed nine lines above `_spaces`. The fix is ordering: `_death` is built after
+`_spaces`, with a comment saying why, because the next person to add a system will hit the same trap.
+
+**Still to do from the review, in order:** the map (M) inside the interior must show the interior or nothing,
+never the exterior with a wrong position; and autorun must stop on portal entry and exit.
+
 ### P2i - all thirteen rooms photographed, and the fix was one option
 
 **P2g's blocker is closed.** A session can now open the player where a capture asks, so a room shot no longer

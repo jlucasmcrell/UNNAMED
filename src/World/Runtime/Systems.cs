@@ -633,6 +633,23 @@ internal sealed class SpaceSystem
         _context.Dispatch(new Relocate(new Body(x, _context.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, facing)));
         return null;
     }
+
+    /// <summary>
+    /// Put the player outside whatever space they are in, without needing a portal to leave by.
+    /// </summary>
+    /// <remarks>
+    /// Death is the caller. A return point is a place in the region's own space (S-38), so a character who dies
+    /// inside an interior has to come OUT of it. Leaving them in the interior while moving the body to the
+    /// stone's metres would stand them at the wrong coordinates in the wrong space, and every cell they then
+    /// touched would be the wrong cell. This is deliberately not <see cref="Leave"/>: there is no portal here to
+    /// anchor to and none is wanted - dying is not a door.
+    /// </remarks>
+    public void LeaveForDeath()
+    {
+        if (_context.State.Space.IsExterior)
+            return;
+        _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
+    }
 }
 
 /// <summary>
