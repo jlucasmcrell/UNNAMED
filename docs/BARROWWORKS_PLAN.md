@@ -383,9 +383,31 @@ a blockout exists to make circulation testable before the real doorways are plac
 with the content port (P4). No lighting pass, no materials, no dressing. Visual acceptance for P2 is
 **BLOCKED** pending the owner's review, and will stay so until P3's art kit replaces this.
 
-**Not yet done in P2:** the two gated entrances in the exterior. The interior is reachable in tests by
-booting `region.barrowworks` directly; a player cannot reach it until the portals exist, which is the next
-piece.
+**Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
+
+### P2b — the two gated entrances, and a player who can walk in
+
+**Content now carries the entrances.** `content/regions/starting_frontier.yaml` gained a `portals:` section
+and the region schema gained the reader for it — a key, the space it leads to, an exterior anchor and an
+interior anchor. Three checks: the key is namespaced, the space is not the exterior, and the exterior anchor
+is walkable ground in the region that declares it.
+
+**The gate is now exercised for real.** P1g's filter was vacuous while no content declared a portal. It is
+not any more: with the Barrowworks off, both authored entrances are dropped and the interior is unreachable;
+with it on, both are registered and both work. `WithTheGateOff_EnteringIsImpossible` walks to A's anchor and
+is refused.
+
+**Six tests, and they are the phase's acceptance:** entering by the threshold arrives at R01's centre in the
+blockout; each entrance leaves to *its own* anchor through real content rather than a fixture; the two are
+not at the same place; and entering is impossible with the gate off. `EachEntrance_LeavesToItsOwnAnchor` is
+the design's named failure tested against content rather than against a hand-built fixture, which is what
+makes it worth having twice.
+
+**PROVISIONAL PLACEMENT — the owner should move these (OQ-11).** The anchors are the canon features the
+brief names — Blackvein's spoil heaps, and The Sinking Moss — and those two places are **610 m apart** while
+the interior is 137 m from R01 to R04. At that distance the interior is a shortcut between two distant
+places rather than two ways into one dungeon. Placed as instructed and recorded rather than silently
+"fixed"; the smallest change is one pair of numbers.
 
 ## 10. Progress log
 

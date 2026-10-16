@@ -139,3 +139,31 @@ enter/exit through the running simulation. Only the persistence of it is deferre
 **For the eventual pass:** `RuntimeState.Space` and `.Traversal` are the transient source; the live
 `PlayerRecord` is where the two persisted fields belong; `SectionCodec.EncodePlayer`/its loader are the
 two wiring points, both already written once and easy to restore.
+
+---
+
+## OQ-11 — The two entrances are 610 m apart, because that is where the canon features are
+
+**What was asked:** place the two entrances "relative to the Ashen Hollow hill and Sinking Moss drain
+mouth, inside content/regions/ as two placements only, and record coordinates so the owner can move them".
+
+**What was placed**, at the canon features those words name:
+
+| Entrance | Exterior anchor | Canon feature | Interior anchor |
+|---|---|---|---|
+| A `portal.barrowworks.threshold` | (438, 663) | Blackvein's spoil heaps, `blackvein_spoil_1`/`_2` at (440,662) and (436,665) | R01 centre (50, 10) |
+| B `portal.barrowworks.drain` | (1050, 770) | The Sinking Moss, `location.cairnwold.the_bog` anchored at (1050, 770) | R04 centre (8, 38) |
+
+**The consequence, stated rather than buried:** those two places are about **610 m apart**, and the interior
+is about 137 m from R01 to R04. So walking in at A and out at B is 137 m of dungeon against 610 m of
+overland - the interior becomes a *shortcut between two distant places* rather than the two ways into one
+dungeon that `04_LEVEL_MAPS.md` describes. Entrance B exists to be an alternate way in, not a route across
+the world.
+
+**Smallest unblocking choice:** leave the placements as instructed and let the owner move B. Nothing depends
+on the separation being small: both entrances are gated, both round-trip to their own anchor, and
+`BarrowworksEntranceTests.TheTwoEntrances_AreNotAtTheSamePlace` records the distance so the change is
+visible rather than silent.
+
+**If B should move**, the smallest fix is one pair of numbers in `content/regions/starting_frontier.yaml`
+under `portals:`. The interior anchor does not change; only `exterior_m` does.

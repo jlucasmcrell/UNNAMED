@@ -147648,3 +147648,27 @@ barriers:
   - 3
   height_m: 2.6
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
+
+# The Barrowworks' two entrances (M8 D10, P2). Both lead into the one interior, and each remembers which was
+# used, so leaving returns a body to the anchor it came in by rather than to a single shared vector.
+#
+# PROVISIONAL PLACEMENT - the owner should move these (OPEN_QUESTIONS OQ-11). The two anchors are the canon
+# features the phase brief names: entrance A beside Blackvein's spoil heaps (the nodes blackvein_spoil_1 and
+# _2, at 440,662 and 436,665), entrance B at The Sinking Moss (location.cairnwold.the_bog, anchored at
+# 1050,770). Those two places are about 610 m apart, which is where the canon features are rather than a
+# decision anyone made: at that distance the interior becomes a shortcut between two distant places rather
+# than two ways into one dungeon. The coordinates are here so they can be moved.
+#
+# Neither is registered unless the run asks for one: GameSession empties this set unless the Barrowworks gate
+# is on, so with the option off these two entries are inert.
+portals:
+  # A - R01 Threshold, the hill above Blackvein. Interior anchor is R01's centre in the blockout.
+  - key: portal.barrowworks.threshold
+    space: space.barrowworks
+    exterior_m: [438, 663]
+    interior_m: [50, 10]
+  # B - R04 Drain Mouth, the Sinking Moss. Interior anchor is R04's centre in the blockout.
+  - key: portal.barrowworks.drain
+    space: space.barrowworks
+    exterior_m: [1050, 770]
+    interior_m: [8, 38]

@@ -297,6 +297,26 @@ public static class WorldContent
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Portals (M8 D10): the ways into an interior space. A region may declare them whenever its
+            // entrances are authored; whether they are registered at all is the run's decision, and the gate
+            // that makes it is in GameSession, not here.
+            var portals = ImmutableArray.CreateBuilder<SpacePortal>();
+            foreach (var (entry, i) in (map.ContainsKey("portals") ? List(map, "portals") : new List<object>()).Select((p, i) => (p, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"portals[{i}] must be a map");
+                string key = Text(site, "key");
+                var portalSpace = SpaceId.Parse(Text(site, "space"));
+                var (exteriorX, exteriorZ) = Pair(site, "exterior_m");
+                var (interiorX, interiorZ) = Pair(site, "interior_m");
+                Check(key.StartsWith("portal.", StringComparison.Ordinal), "WLD015", $"portal key '{key}' must start with 'portal.'");
+                Check(!portalSpace.IsExterior, "WLD015", $"{key} leads to the exterior, which is entered through nothing");
+                // The exterior anchor is a place in this region, so it has to be walkable ground in it.
+                Check(exteriorX >= minX && exteriorX <= maxX && exteriorZ >= minZ && exteriorZ <= maxZ, "WLD015",
+                    $"{key}'s exterior anchor is outside the walkable bounds");
+                portals.Add(new SpacePortal(key, portalSpace, exteriorX, exteriorZ, interiorX, interiorZ));
+            }
+            Check(portals.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == portals.Count, "WLD015", "two portals share a key");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -315,6 +335,7 @@ public static class WorldContent
                 // The space this region's coordinates belong to: the exterior for the world's regions, its own
                 // for an interior (M8 D10). Everything derived from a site in this layout follows it.
                 SpaceId = spaceId,
+                Portals = new SpacePortalSet(portals.ToImmutable()).Validate(),
             };
 
             // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand
