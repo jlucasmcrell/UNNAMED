@@ -47,9 +47,25 @@ HEADER = "__barrowworks__"
 
 
 def wall_for(structure_id):
-    """Which stone family a structure wears, by which room it belongs to."""
+    """Which surface a structure wears: the readings their own stone, every wall its room's family."""
+    if structure_id in READING_PROPS:
+        return READING_PROPS[structure_id]
     m = re.match(r"r(\d\d)_", structure_id)
     return DEEP_WALL if m and int(m.group(1)) >= DEEP_FROM else WALL
+
+
+# The three readings are boards and stands, and the brief puts them in its own words: readings "cut into
+# walls". So they are stone like everything else here - but the OTHER stone, the rough one, against the dressed
+# masonry of the room. A reading has to be findable, and the cheapest honest way to make a 3 m slab findable
+# against a stone wall is to give it the stone that is a different colour. One family for all three, which is
+# also what the brief asks of the palette: "few material families".
+READING_STONE = "cw_rock_ground"
+
+READING_PROPS = {
+    "r02_notice_board": READING_STONE,
+    "r07_fitting_stand": READING_STONE,
+    "r07_diagram_rack": READING_STONE,
+}
 
 
 def region_structure_ids():

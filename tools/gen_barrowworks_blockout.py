@@ -212,18 +212,57 @@ w("  heights_m:")
 for _ in range(rows):
     w(f"    - {heights}")
 w("")
+# The three readings (M8 P8A). The quest's K1, K2 and P are world flags, and a flag is set by a switch standing
+# on a structure - so each reading is a board or a stand with a switch on it. They are props, not walls: waist
+# height, against a wall, where a body walking the room will find them.
+#   K1 the withdrawal notice, in the intake hall - the first room a body walks into, so it can be satisfied by
+#      walking in, which is what the design asks of it. ON THE EAST WALL: the intake hall's north, south-west
+#      and south-east edges are all openings (R01, R03 and the G1 shortcut), and the first placement stood the
+#      board in the north one, blocking a passage a body has to walk through. East and west are solid.
+#   K2 the fitting note and P the diagram rack, both in the gauge archive.
+for sid, x0, z0, x1, z1, h, why in [
+    ("r02_notice_board",    56.2, 26.4, 56.6, 29.6, 1.6, "the withdrawal notice, against the intake hall's east wall"),
+    ("r07_fitting_stand",   65.4, 57.4, 65.8, 60.6, 1.4, "the fitting note, on the gauge archive's west wall"),
+    ("r07_diagram_rack",    78.2, 57.4, 78.6, 60.6, 1.8, "the diagram rack, on the gauge archive's east wall"),
+]:
+    box(sid, x0, z0, x1, z1, h)
 w("# Walls and corridors. Room walls are 4 m; corridors are floor-only (height 0) so they read as passages.")
 w("structures:")
 for sid, entry in structures:
     w(f"  - {{ id: {sid}, {entry} }}")
 w("")
-w("# No doors yet: G1, G2 and G3 arrive with the content port (P4). The blockout leaves every edge open.")
-w("doors: []")
+# The three gates the design's own edge list names (04_LEVEL_MAPS.md): G1 is the R08-R02 shortcut, G2 the
+# R07-R09 secret, G3 the R11-R12 aftermath. Each is a door in the edge's opening, shut until its flag is set.
+w("# G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).")
+w("doors:")
+w("  - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [72.6, 29.4, 73.4, 32.6], height_m: 2.4 }")
+w("  - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [86.4, 57.4, 87.2, 60.6], height_m: 2.4 }")
+w("  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.3, 112.4, 51.7, 113.2], height_m: 2.4 }")
 w("containers: []")
 w("npcs: []")
 w("nodes: []")
 w("stations: []")
-w("switches: []")
+# A switch stands on a structure and sets its flag in that cell, once. These three are the readings: the verb is
+# Read rather than Turn, because what a character does to a notice is read it.
+w("switches:")
+w("  - key: switch.barrowworks.notice")
+w("    structure: r02_notice_board")
+w("    flag_ref: world.barrowworks.withdrawal_notice_read")
+w("    name: withdrawal notice")
+w("    verb: Read")
+w("    done_text: \"A withdrawal notice, cut into the board and painted over twice. The service ring is closed pending a measurement that was never completed, and the signature at the foot has been struck through so hard the chisel went through the board.\"")
+w("  - key: switch.barrowworks.fitting_note")
+w("    structure: r07_fitting_stand")
+w("    flag_ref: world.barrowworks.fitting_note_read")
+w("    name: fitting note")
+w("    verb: Read")
+w("    done_text: \"A stand of thin boards, each one a note about how a part was fitted - what it was cut to, what it was cut for, and by whose hand. The last board is blank except for a taper drawn on it and a single word: unfinished.\"")
+w("  - key: switch.barrowworks.diagram_rack")
+w("    structure: r07_diagram_rack")
+w("    flag_ref: world.barrowworks.diagram_rack_read")
+w("    name: diagram rack")
+w("    verb: Read")
+w("    done_text: \"Rack after rack of the same drawing, each a little further from the last, and none of them finished. Whatever the ring was built to gauge, the measuring of it was still being worked out when the works stopped.\"")
 w("barriers: []")
 w("")
 

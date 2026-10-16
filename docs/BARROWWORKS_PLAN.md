@@ -391,6 +391,50 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P4e - the readings, and the three gates
+
+**The quest can now be advanced.** P4d left it offerable and not progressable, because nothing in the ring wrote
+the flags its readings ask for. Three props and three switches change that:
+
+| reading | where | flag |
+|---|---|---|
+| the withdrawal notice | intake hall, east wall | `world.barrowworks.withdrawal_notice_read` |
+| the fitting note | gauge archive, west wall | `world.barrowworks.fitting_note_read` |
+| the diagram rack | gauge archive, east wall | `world.barrowworks.diagram_rack_read` |
+
+**A flag is set by a switch standing on a structure**, so each reading is a board or a stand with a switch on
+it - the engine's own mechanism (`switches:` in the region, the same one the Foldscar's three Quiet Stones
+use). The verb is `Read` rather than `Turn`, and each has a `done_text` that says what the reading is, because
+what a character does to a notice is read it.
+
+**The three gates the design's own edge list names are in too:** G1 the R08-R02 shortcut, G2 the R07-R09
+secret, G3 the R11-R12 aftermath, each a door in its edge's opening with its own flag. **Nothing the quest
+requires is behind G2** - the blind store is, and the blind store is the optional report, so a player who never
+finds the secret is never blocked.
+
+**Verified:** 123 structures (the 120 walls plus the three readings), three doors, three switches, **every
+switch's `structure` resolves**, all three reading flags set, ten flags in all. Content suite 147 pass, whole
+solution **945 pass, 0 failed**. A render of the intake hall shows the notice board with `no binding: a box`
+**0** - the reading is dressed, not greybox.
+
+**Two things I got wrong and fixed by looking:**
+
+1. **The board's material.** My first choice gave each prop a different surface - gravel for a board. The brief
+   puts the readings in its own words, *"readings cut into walls"*, so they are stone like everything else here,
+   and the right contrast is **the other stone**: rough rock against dressed masonry. One family for all three,
+   which is also the brief's "few material families". The frame shows the contrast working.
+2. **The board's placement.** It first stood in the intake hall's north opening, **blocking a passage a body has
+   to walk through** - visible only in the render, not in any test. The hall's north, south-west and south-east
+   edges are all openings (R01, R03 and the G1 shortcut); east and west are solid. It is on the east wall now.
+
+**Recorded, not fixed:** the crop above still shows an opening above the board, so its wall may carry a doorway
+I have not accounted for. The reading is findable and dressed, which is what the quest needs; standing it
+against a fully solid run of wall wants one more look.
+
+**Still to do in P4:** the doors' own interaction text and the G3 wedge unlocking (the design has the fitting
+wedge open G3), and the `lint`/`xref` clean run recorded. Then P5's Ring Custodian, which is the creature
+`o_custodian` waits on and which the ring declares no spawn of.
+
 ### P4d - the quest itself, and Kera's three lines
 
 **The port is in.** `content/quests/barrowworks/unfinished_measure.yaml` - 14 objectives, verbatim from the

@@ -185,12 +185,36 @@ structures:
   - { id: corr_r13_r10_x, box_m: [57.6, 82.5, 65.4, 85.5], height_m: 0.0 }
   - { id: corr_r10_r11_z, box_m: [48.5, 90.6, 51.5, 93.4], height_m: 0.0 }
   - { id: corr_r11_r12_z, box_m: [48.5, 118.6, 51.5, 125.4], height_m: 0.0 }
+  - { id: r02_notice_board, box_m: [56.2, 26.4, 56.6, 29.6], height_m: 1.6 }
+  - { id: r07_fitting_stand, box_m: [65.4, 57.4, 65.8, 60.6], height_m: 1.4 }
+  - { id: r07_diagram_rack, box_m: [78.2, 57.4, 78.6, 60.6], height_m: 1.8 }
 
-# No doors yet: G1, G2 and G3 arrive with the content port (P4). The blockout leaves every edge open.
-doors: []
+# G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).
+doors:
+  - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [72.6, 29.4, 73.4, 32.6], height_m: 2.4 }
+  - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [86.4, 57.4, 87.2, 60.6], height_m: 2.4 }
+  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.3, 112.4, 51.7, 113.2], height_m: 2.4 }
 containers: []
 npcs: []
 nodes: []
 stations: []
-switches: []
+switches:
+  - key: switch.barrowworks.notice
+    structure: r02_notice_board
+    flag_ref: world.barrowworks.withdrawal_notice_read
+    name: withdrawal notice
+    verb: Read
+    done_text: "A withdrawal notice, cut into the board and painted over twice. The service ring is closed pending a measurement that was never completed, and the signature at the foot has been struck through so hard the chisel went through the board."
+  - key: switch.barrowworks.fitting_note
+    structure: r07_fitting_stand
+    flag_ref: world.barrowworks.fitting_note_read
+    name: fitting note
+    verb: Read
+    done_text: "A stand of thin boards, each one a note about how a part was fitted - what it was cut to, what it was cut for, and by whose hand. The last board is blank except for a taper drawn on it and a single word: unfinished."
+  - key: switch.barrowworks.diagram_rack
+    structure: r07_diagram_rack
+    flag_ref: world.barrowworks.diagram_rack_read
+    name: diagram rack
+    verb: Read
+    done_text: "Rack after rack of the same drawing, each a little further from the last, and none of them finished. Whatever the ring was built to gauge, the measuring of it was still being worked out when the works stopped."
 barriers: []

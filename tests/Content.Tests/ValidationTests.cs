@@ -571,7 +571,7 @@ public class ContentLoaderTests
                 "spawn.road.barrow_husks", "spawn.road.charred_pair", "spawn.road.deer", "spawn.road.hares", "spawn.road.wayside_pack",
                 "spell.force.impulse_bolt", "spell.vital.mending_thread", "spell.warding.brace_ward",
                 "world.barrowworks.blind_store_read", "world.barrowworks.diagram_rack_read", "world.barrowworks.fitting_note_read",
-                "world.barrowworks.gate_g3_open", "world.barrowworks.headworks_dismantled", "world.barrowworks.headworks_preserved",
+                "world.barrowworks.gate_g1_open", "world.barrowworks.gate_g2_open", "world.barrowworks.gate_g3_open", "world.barrowworks.headworks_dismantled", "world.barrowworks.headworks_preserved",
                 "world.barrowworks.ring_custodian_defeated", "world.barrowworks.withdrawal_notice_read",
                 "world.cairnwold.cw_house_01_door_open", "world.cairnwold.cw_house_02_door_open", "world.cairnwold.cw_house_03_door_open",
                 "world.cairnwold.cw_house_04_door_open", "world.cairnwold.cw_house_05_door_open", "world.cairnwold.cw_house_06_door_open",
