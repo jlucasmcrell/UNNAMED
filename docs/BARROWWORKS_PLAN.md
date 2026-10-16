@@ -326,11 +326,55 @@ back where they entered. With the option off, nothing in the playtest changes an
 
 ## 9. Immediate next actions
 
-1. Write `OPEN_QUESTIONS.md` with: the stale `F:` path, the `assets/` ownership tension, the OD-05
-   placement question (world location deliberately unassigned), and the unknown external death-return
-   distance.
-2. Read `05`/`06` (quest and state graph), `08` (boss), `09` (encounters), `13` (slices), `14`
+1. ~~Write `OPEN_QUESTIONS.md`~~ — done, commit `eb5ff85`.
+2. Read `05`/`06` (quest and state graph), `08` (boss), `09` (encounters), `13` (slices) and `14`
    (acceptance) before P1 lands, so the system is shaped by what it must carry.
-3. Find how `VisualOptions.cs` gates an existing option and mirror it exactly for `--visual barrowworks=1`.
-4. Read `src/World/Runtime` for the cell/region loading path and `SwitchRegion` if present, then write the
-   P1 design note before writing code.
+3. **Resolved while implementing P1a, and it changed the plan:** `VisualOptions.cs` states in its own
+   header that *"every option chooses how the game is drawn, never what the simulation holds (D-11)"*.
+   Gating the **entrances** is a simulation change, so putting `barrowworks` in `VisualOptions` would
+   violate that contract even though the brief offers `--visual barrowworks=1` as the example. The gate
+   belongs on `GameOptions` (Application owns content booting), set from a launch flag in `Main.cs`,
+   mirroring `VisualOptions`' *style* — declared allowed values, explicit default, refuse an unknown key
+   by name. Recorded as OQ-09. Trivial to move under `--visual` if Claude prefers the literal spelling.
+4. **No `SwitchRegion` exists.** There is no region-switching path to reuse, so P1's enter/exit
+   transition is new code rather than an extension of one. `RegionLayout` and the cell/baseline path in
+   `src/World` are what the system has to work with.
+
+---
+
+## 10. Progress log
+
+| Date | Commit | What landed | Suite |
+|---|---|---|---|
+| 2026-10-16 | `eb5ff85` | P0: this plan and `OPEN_QUESTIONS.md` | 847 passing |
+| 2026-10-16 | `b9234da` | P1a: cell identity is space-qualified + 8 tests | **855 passing, 0 failed** |
+
+### P1a — what landed, and what did not
+
+**Landed:** the identity change. `CellKey` now carries a `SpaceId`. The exterior stays the default and its
+canonical key spelling is unchanged, so every existing cell key, delta record, baseline hash and
+historical save fixture is untouched — the whole suite, fixture tests included, is green with **no
+migration**. `OfInterior` names a space; `OfWorld` keeps its exterior-only meaning, so no existing call
+site changed behaviour.
+
+**Verified by test, not by inspection:** the same local coordinate in two spaces is a different cell and
+hashes differently; two interiors do not collide; interior keys round-trip; exterior keys are
+byte-identical; a space name containing `/`, `:` or whitespace is rejected rather than written.
+
+**A real bug caught by the suite:** a struct's `default` runs no constructor, so `default(SpaceId).Name`
+is null and `IsExterior` dereferenced it — `NullReferenceException` on the first parse, because
+`TryParse` starts from `default`. Fixed by treating null as the empty exterior name. This is exactly the
+class of failure the tests exist to catch, and it would have been invisible in review.
+
+**Not done, and it is the bulk of P1:** the portal anchors and the saved return anchor; the enter and
+exit transitions with dirty-exterior / promote-interior checkpointing; failure handling that leaves a
+recoverable source snapshot; the frozen-while-absent lifecycle; save and load while inside; and the
+space-qualification of every cell-bearing runtime path named in `12_SYSTEM_DEPENDENCIES.md` — combat
+membership, projectiles, perception, inventory reach, stations, discoveries, companion orders.
+
+**The next step is not more code in `Coordinates.cs`.** It is to sweep the ~30 `CellKey.OfWorld` call
+sites and decide, per site, whether it is exterior-only or must become space-aware. The answer differs
+per site — `SoundEvents` and `GroundField` are presentation-side and may not need it at all, while
+`Crafting`, `Creatures`, `Combat` and `Social` derive RNG channels and almost certainly do — so it is a
+review, not a mechanical edit.
+
