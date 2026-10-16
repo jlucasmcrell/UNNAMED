@@ -744,9 +744,10 @@ public sealed class Sheet
     {
         if (!GodotObject.IsInstanceValid(Panel))
             return;
-        // The band on the reference canvas; on a smaller one (a larger interface scale) it is centred and shortened to fit, 16 clear.
+        // The band on the reference canvas; on a smaller one (a larger interface scale) it rises, and then shortens, to fit 16 clear of the
+        // foot - keeping its top below the HUD's plate for as long as the canvas allows.
         var canvas = Root.IsInsideTree() && Root.Size.X > 100 ? Root.Size : new Vector2(1920, 1080);
-        float width = Math.Min(_width, canvas.X - 32), top = Math.Min(UiKit.BandTop, Math.Max(16, (canvas.Y - UiKit.BandHeight) / 2));
+        float width = Math.Min(_width, canvas.X - 32), top = Math.Min(UiKit.BandTop, Math.Max(16, canvas.Y - UiKit.BandHeight - 16));
         float bottom = Math.Min(top + UiKit.BandHeight, canvas.Y - 16);
         if (Root.IsInsideTree() && Root.GetTree().Root.FindChild("HudView", true, false) is HudView { Visible: true } hud && hud.IsVisibleInTree())
         {

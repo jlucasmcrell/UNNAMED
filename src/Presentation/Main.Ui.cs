@@ -393,8 +393,7 @@ public partial class Main
         {
             _frontStarted = Time.GetTicksMsec();
             SizeForCapture();
-            // After the window has its capture size, which is what the first launch sizes its interface from.
-            GetTree().CreateTimer(1.5).Timeout += OpenFirstLaunch;
+            OpenFirstLaunch();
         }
         if (Time.GetTicksMsec() < _frontStarted + 4000 + 1500 * (ulong)_frontStep)
             return;
