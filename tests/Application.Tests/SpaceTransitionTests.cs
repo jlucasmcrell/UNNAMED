@@ -193,6 +193,29 @@ public class SpaceTransitionTests
     }
 
     [Fact]
+    public void TheGate_IsOffUnlessARunAsksForIt()
+    {
+        // The brief's spelling is --visual barrowworks=1, and VisualOptions is Presentation, which Application
+        // cannot reference (the projects reference Presentation -> Application). So Presentation parses the
+        // switch and passes it down as this flag, and with it false nothing about a run changes.
+        var options = new GameOptions("content", "profile");
+
+        Assert.False(options.Barrowworks);
+    }
+
+    [Fact]
+    public void ASessionBootedWithoutTheGate_DeclaresNoPortal()
+    {
+        // The guarantee, end to end: no gate means no portal declared, which means the interior is
+        // unreachable and the playtest is the one it always was.
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        Assert.False(session.Options.Barrowworks);
+        Assert.Empty(session.Setup.Layout.Portals.Portals);
+    }
+
+    [Fact]
     public void TheSpace_IsNotPersistedYet_SoItMustStayUnreachable()
     {
         // The space is runtime state only: a schema bump is its own committed unit of work under

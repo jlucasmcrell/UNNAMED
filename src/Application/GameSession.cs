@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -28,6 +29,18 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
 
     /// <summary>Called at each step of every save's commit, on the thread writing it: fault injection for tests. The game leaves it null.</summary>
     public Action<SaveStep>? SaveStepHook { get; init; }
+
+    /// <summary>
+    /// Whether this run includes the Barrowworks (M8 D10). Off in every run that does not ask for it, which is
+    /// the whole of the default-off guarantee: with this false no portal is registered, so the interior can
+    /// never be entered, nothing in the playtest changes, and every existing save and test is untouched.
+    /// </summary>
+    /// <remarks>
+    /// Presentation parses <c>--visual barrowworks=1</c> and sets this - the projects reference Presentation
+    /// to Application, so a flag is passed down rather than an option read upward. The gate lives here because
+    /// what it gates is content the simulation holds, which is not a presentation concern (D-11).
+    /// </remarks>
+    public bool Barrowworks { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -144,6 +157,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
             throw new ContentBootException(loader.Errors.ToList());
 
         var layout = WorldContent.BuildLayout(loader, options.RegionId);
+        // The Barrowworks is gated here (M8 D10). Content may declare its entrances whenever they are
+        // authored; without the gate none of them is registered, so no portal exists, EnterSpaceCommand
+        // cannot succeed, and the interior is unreachable. The default-off guarantee is therefore enforced
+        // in code rather than by content discipline - a forgotten flag cannot leak the interior into a
+        // normal launch, and `--visual phase_a` (which restores every default) closes it too.
+        if (!options.Barrowworks)
+            layout = layout with { Portals = SpacePortalSet.Empty };
         var movement = WorldContent.BuildMovement(loader);
         var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
             WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))

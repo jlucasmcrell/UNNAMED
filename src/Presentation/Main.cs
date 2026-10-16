@@ -241,7 +241,15 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
-        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true, RegionId = region });
+        // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
+        // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
+        // unless asked for, so a normal launch is the launch it always was.
+        _session = GameSession.Boot(new GameOptions(contentRoot, profile)
+        {
+            LockProfile = true,
+            RegionId = region,
+            Barrowworks = VisualOptions.Barrowworks,
+        });
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")

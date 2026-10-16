@@ -353,6 +353,34 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
 | 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
 | 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
+| 2026-10-16 | `_P1g_` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
+
+### P1g — the gate, and why it is a flag rather than an option read
+
+**The brief names the spelling:** `--visual barrowworks=1`. **D-11 forbids the obvious implementation:**
+`VisualOptions` is Presentation, and the projects reference **Presentation -> Application**, so nothing in
+World or Application can read it. The two constraints have one synthesis, and it is also the layering's
+correct shape:
+
+- `VisualOptions` gains `barrowworks` (`0`/`1`, default `0`) — the switch, spelled as the brief names it.
+  `Defaults` is what `--visual phase_a` copies, so a Phase-A run excludes it too.
+- `GameOptions` gains `Barrowworks` — the gate, on the record Application already owns.
+- `Main.cs` reads the switch once at boot and passes it down.
+
+Presentation parses the command line; Application owns what content the simulation holds. Neither layer
+learns the other's concepts, which is what D-11 is actually protecting.
+
+**It is enforced, not merely read.** `GameSession` clears `RegionLayout.Portals` unless the gate is set, so
+a portal declared in content is inert without `--visual barrowworks=1`. A forgotten flag cannot leak the
+interior into a normal launch, and the guarantee does not rest on content discipline.
+
+**Honest limitation:** with no content declaring entrances yet, the filter is currently vacuous — it is
+exercised for real when P2 authors the two entrances. What is *not* vacuous today is the switch, the flag,
+the pass-down and the default-off assertion, all of which are tested.
+
+**Tested:** `GameOptions` defaults the gate off; a session booted without it carries the flag false and
+declares no portal. `VisualOptions` itself is untested here because its `Parse` calls `GD.Print` and needs
+the Godot runtime; the launch in P2 is what exercises the parse.
 
 ### P1f — the position-derived cell sweep
 
