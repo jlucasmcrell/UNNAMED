@@ -353,7 +353,7 @@ back where they entered. With the option off, nothing in the playtest changes an
 | 2026-10-16 | `1b39e1b` | P1d: the space system, wired into the simulation + 9 tests | **878 passing, 0 failed** |
 | 2026-10-16 | `0cc2c89` | P1e: persistence deferred, with a guard test; space stays runtime-only | **879 passing, 0 failed** |
 | 2026-10-16 | `8524f64` | P1f: the position-derived cell sweep, 4 sites + 3 tests | **882 passing, 0 failed** |
-| 2026-10-16 | `_P1g_` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
+| 2026-10-16 | `888d67d` | P1g: the gate, `--visual barrowworks=1` passed down as a GameOptions flag | **884 passing, 0 failed** |
 
 ### P1h — a layout is one space, so its sites follow it
 
