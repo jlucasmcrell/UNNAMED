@@ -1,0 +1,24 @@
+sfx.weapon.sword.impact.flesh            new 6 x  -15.8 LUFS-M low 0.70 onset    2 ms max-env-corr 0.96 | old 3 x  -17.0 LUFS-M low 0.79 distinct sources 1
+sfx.weapon.polearm.impact.flesh          new 6 x  -16.0 LUFS-M low 0.80 onset    3 ms max-env-corr 0.96 | old 3 x  -17.1 LUFS-M low 0.85 distinct sources 1
+sfx.weapon.bow.arrow.impact.flesh        new 5 x  -17.9 LUFS-M low 0.56 onset   15 ms max-env-corr 0.98 | old 3 x  -19.6 LUFS-M low 0.51 distinct sources 3
+sfx.weapon.sword.impact.plate            new 5 x  -16.5 LUFS-M low 0.94 onset    0 ms max-env-corr 0.94 | old 3 x  -19.2 LUFS-M low 0.69 distinct sources 3
+sfx.weapon.polearm.impact.plate          new 5 x  -16.3 LUFS-M low 0.95 onset    0 ms max-env-corr 0.99 | old 3 x  -18.2 LUFS-M low 0.59 distinct sources 3
+sfx.weapon.sword.impact.wood             new 4 x  -18.5 LUFS-M low 0.69 onset    0 ms max-env-corr 0.93 | old 2 x  -21.1 LUFS-M low 0.47 distinct sources 2
+sfx.weapon.polearm.impact.wood           new 4 x  -19.3 LUFS-M low 0.71 onset    0 ms max-env-corr 0.96 | old 2 x  -23.0 LUFS-M low 0.14 distinct sources 1
+sfx.weapon.sword.impact.stone            new 4 x  -19.0 LUFS-M low 0.75 onset    1 ms max-env-corr 0.95 | old 2 x  -19.0 LUFS-M low 0.00 distinct sources 1
+sfx.weapon.polearm.impact.stone          new 4 x  -18.6 LUFS-M low 0.77 onset    1 ms max-env-corr 0.95 | old 2 x  -19.0 LUFS-M low 0.18 distinct sources 2
+sfx.weapon.bow.arrow.impact.wood         new 4 x  -20.2 LUFS-M low 0.62 onset    0 ms max-env-corr 0.95 | old 3 x  -21.1 LUFS-M low 0.24 distinct sources 2
+sfx.weapon.bow.arrow.impact.stone        new 3 x  -19.9 LUFS-M low 0.42 onset    0 ms max-env-corr 0.87 | old 2 x  -22.1 LUFS-M low 0.27 distinct sources 2
+sfx.weapon.sword.block                   new 6 x  -18.0 LUFS-M low 0.47 onset    0 ms max-env-corr 0.98 | old 3 x  -21.5 LUFS-M low 0.45 distinct sources 3
+sfx.weapon.polearm.block                 new 4 x  -18.0 LUFS-M low 0.52 onset    0 ms max-env-corr 0.99 | old 0 x -
+sfx.weapon.sword.swing.light             new 6 x  -21.0 LUFS-M low 0.09 onset   50 ms max-env-corr 0.95 | old 3 x  -22.0 LUFS-M low 0.33 distinct sources 2
+sfx.weapon.sword.swing.heavy             new 4 x  -20.0 LUFS-M low 0.24 onset  116 ms max-env-corr 0.92 | old 2 x  -21.0 LUFS-M low 0.37 distinct sources 2
+sfx.weapon.polearm.thrust                new 5 x  -21.0 LUFS-M low 0.12 onset   60 ms max-env-corr 0.93 | old 3 x  -22.0 LUFS-M low 0.00 distinct sources 3
+sfx.weapon.bow.draw                      new 3 x  -26.0 LUFS-M low 0.08 onset   64 ms max-env-corr 0.36 | old 2 x  -27.0 LUFS-M low 0.53 distinct sources 2
+sfx.weapon.bow.release                   new 4 x  -22.0 LUFS-M low 0.43 onset    0 ms max-env-corr 1.00 | old 3 x  -22.0 LUFS-M low 0.10 distinct sources 3
+sfx.player.weapon.bow.nock               new 2 x  -28.0 LUFS-M low 0.07 onset    0 ms max-env-corr 0.82 | old 1 x  -29.0 LUFS-M low 0.00 distinct sources 1
+sfx.weapon.bow.arrow.flight              new 3 x  -25.0 LUFS-M low 0.00 onset   17 ms max-env-corr 0.98 | old 1 x  -27.0 LUFS-M low 0.42 distinct sources 1
+sfx.player.hurt.light                    new 6 x  -20.0 LUFS-M low 0.26 onset   20 ms max-env-corr 0.90 | old 3 x  -22.0 LUFS-M low 0.50 distinct sources 3
+sfx.player.hurt.heavy                    new 4 x  -18.0 LUFS-M low 0.33 onset   22 ms max-env-corr 0.87 | old 2 x  -19.0 LUFS-M low 0.23 distinct sources 2
+sfx.player.death                         new 2 x  -18.0 LUFS-M low 0.41 onset   14 ms max-env-corr 0.46 | old 1 x  -19.0 LUFS-M low 0.04 distinct sources 1
+sfx.player.impact.creature_blow          new 5 x  -17.8 LUFS-M low 0.90 onset   26 ms max-env-corr 0.96 | old 0 x -
