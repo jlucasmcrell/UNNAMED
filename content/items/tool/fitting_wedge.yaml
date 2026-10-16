@@ -1,0 +1,12 @@
+id: item.tool.fitting_wedge
+kind: item
+schema: 1
+display_key: item.tool.fitting_wedge.name
+tags: [item]
+name: Fitting Wedge
+notes: A wedge cut to the measure's own taper, fitted at the anvil. The design's craft step (M8 P8A) - and the reason it reads the durable production record rather than a counter is that a wedge made before Kera asks for one still counts. What it opens is the headworks door beyond the measuring court.
+category: tool
+stack_max: 1
+weight: 0.3
+value_base: 14
+rarity: uncommon

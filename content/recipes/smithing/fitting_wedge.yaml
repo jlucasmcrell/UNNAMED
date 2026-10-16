@@ -1,0 +1,15 @@
+id: recipe.smithing.fitting_wedge
+kind: recipe
+schema: 1
+display_key: recipe.smithing.fitting_wedge.name
+tags: [recipe]
+name: Fitting Wedge
+notes: "An ash haft cut down to the measure's taper at the anvil. Its only input is the haft, because the quest's craft step waits on the haft and nothing else - make it wait on a billet too and a character who has read the walls but not yet smelted anything is stranded. Low complexity on purpose; the design's craft step is a step, not a skill check."
+station: anvil
+skill_ref: skill.smithing
+complexity: 4
+inputs:
+  - { item_ref: item.material.ash_haft, count: 1 }
+outputs:
+  - { item_ref: item.tool.fitting_wedge, count: 1, quality_roll: false }
+xp_award: { xp: 25 }       # level XP for the first wedge only (AG-7)

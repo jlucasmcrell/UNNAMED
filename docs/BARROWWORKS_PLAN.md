@@ -391,6 +391,33 @@ and hearth are unaffected because a region that binds no light of its own is the
 
 ## 4. Content port (P4)
 
+### P4c - the fitting wedge, and the second pinned list
+
+**The quest's craft step needs a thing to craft.** `o_wedge` is `craft_item` on
+`item.tool.fitting_wedge`, so the port needs the item and the recipe that makes it. Both exist now:
+
+- `content/items/tool/fitting_wedge.yaml` - a tool, stack 1, uncommon
+- `content/recipes/smithing/fitting_wedge.yaml` - **station `anvil`**, `skill.smithing`, complexity 4, one input
+
+**The recipe's only input is the ash haft, and that is a design decision rather than a guess.** `o_wedge`
+carries `all_of: [o_haft]` and nothing else, and `o_haft` is `acquire_item` on `item.material.ash_haft`. Make
+the wedge want a billet as well and a character who has read the walls but smelted nothing is stranded on a
+step the design never asked them to take. The station is `anvil` because the source's own text says "at the
+waystation's anvil"; `smithing` because that is the skill the anvil recipes use.
+
+**A second pinned list existed and I had missed it.** The suite pins expected ids in **two** places - a
+general one in `ValidationTests` and a crafting-specific one in `CraftingContentTests` - and P4a had updated
+only the first. `CraftingContentTests.TheGamesCrafting_IsItsNodesAndRecipes` caught it, which is exactly what
+it is for. Both now carry the new ids, in ordinal position.
+
+**And the YAML trap again, in a new disguise.** The recipe's `notes:` was an unquoted scalar containing
+`complexity on purpose: the design's...` - and a colon inside a plain scalar is invalid mapping syntax, so the
+file would not parse at all. LOAD003, caught by the content suite. **Both of this phase's YAML mistakes were
+caught by the loader and neither reached a commit**, which is the point of having one.
+
+**Verified:** both new files parsed by a real YAML parser before the suite ran, both ids pinned in both lists
+in sorted position, **945 tests pass, 0 failed** (Content 147, Application 270).
+
 ### P4b - the design's five places get the design's names
 
 **The quest names five places**, and they are a subset of the blockout's thirteen: the design writes
