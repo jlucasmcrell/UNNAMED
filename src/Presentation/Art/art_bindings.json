@@ -1160,7 +1160,10 @@
   "quick.empty": "ui.quick.empty",
   "panel.character": "ui.panel.character",
   "panel.inventory": "ui.panel.inventory",
-  "panel.journal": "ui.panel.journal"
+  "panel.journal": "ui.panel.journal",
+  "panel.map": "ui.panel.map",
+  "panel.waystones": "ui.panel.waystones",
+  "travel.return_point": "ui.travel.return_point"
  },
  "effects": {
   "cast_charge": "vfx.magic.cast_charge",

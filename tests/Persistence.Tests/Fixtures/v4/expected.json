@@ -112,7 +112,10 @@
       "stance": "standing",
       "airborne": false,
       "air_ms": 0
-    }
+    },
+    "waystones": [],
+    "return_point": null,
+    "roads_walked": []
   },
   "cells": [
     {

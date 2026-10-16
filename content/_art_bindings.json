@@ -1441,6 +1441,11 @@
       "wind": 0.4,
       "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. replaces flora_ph_fir_tree_c_4k"
     },
+    "rock_rim_stone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "The dormant Rim Stone above Cairnwold (travel groundwork 2026-10-16): the Ashen Waystone's scanned stone at the Rim's own smaller footprint, so the two read as one kind of thing."
+    },
     "rock_waystone": {
       "model": "landmark_ph_waystone_a",
       "material": "stone",
@@ -3379,7 +3384,33 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_Chicken (staged 2026-10-14). Its gait clips keep their authored paces (walk 0.29, run 1.40 m/s), read from the clip records. No recorded voice yet: silent."
+      "note": "WildMesh SK_Chicken (staged 2026-10-14). Its gait clips keep their authored paces (walk 0.29, run 1.40 m/s), read from the clip records. No recorded voice yet: silent.",
+      "otherfauna": {
+        "shader": {
+          "saturation": 0.22,
+          "value": 0.92,
+          "hue_jitter": 14,
+          "key_hue": 356,
+          "key_width": 12,
+          "key_shift": -100,
+          "key_saturation": 0.85,
+          "key_min_saturation": 0.72,
+          "band_tint": [
+            0.42,
+            0.44,
+            0.5
+          ],
+          "band_strength": 0.55,
+          "band_spacing": 0.022,
+          "band_width": 0.42,
+          "band_wobble": 0.45,
+          "band_from": 0.25
+        },
+        "scale": [
+          1.0,
+          1.12
+        ]
+      }
     },
     "creature.beast.rooster": {
       "model": "creature_wm_rooster",
@@ -3390,7 +3421,48 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_Rooster (staged 2026-10-14), clip paces from the records. Silent."
+      "note": "WildMesh SK_Rooster (staged 2026-10-14), clip paces from the records. Silent.",
+      "otherfauna": {
+        "shader": {
+          "saturation": 0.32,
+          "value": 0.92,
+          "hue_jitter": 14,
+          "key_hue": 356,
+          "key_width": 7,
+          "key_shift": -100,
+          "key_saturation": 0.85,
+          "key_min_saturation": 0.8,
+          "band_tint": [
+            0.42,
+            0.44,
+            0.5
+          ],
+          "band_strength": 0.55,
+          "band_spacing": 0.022,
+          "band_width": 0.42,
+          "band_wobble": 0.45,
+          "band_from": 0.25,
+          "sheen_strength": 0.3,
+          "sheen_a": [
+            0.1,
+            0.22,
+            0.09
+          ],
+          "sheen_b": [
+            0.07,
+            0.11,
+            0.24
+          ]
+        },
+        "bones": {
+          "RigHeadComb1": 1.3,
+          "RigHeadComb2": 1.3
+        },
+        "scale": [
+          1.05,
+          1.12
+        ]
+      }
     },
     "creature.beast.rabbit": {
       "model": "creature_wm_rabbit",
@@ -3401,7 +3473,59 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_Rabbit (staged 2026-10-14): walk is the slow grazing hop (0.76 m/s), run 3.26 m/s. Silent."
+      "note": "WildMesh SK_Rabbit (staged 2026-10-14): walk is the slow grazing hop (0.76 m/s), run 3.26 m/s. Silent.",
+      "otherfauna": {
+        "shader": {
+          "saturation": 0.38,
+          "value": 1.12,
+          "hue_jitter": 10,
+          "mottle_tint": [
+            0.78,
+            0.86,
+            1.0
+          ],
+          "mottle_strength": 0.5,
+          "mottle_scale": 0.045,
+          "mottle_cover": 0.5,
+          "mottle_from": 0.2,
+          "band_tint": [
+            0.42,
+            0.42,
+            0.48
+          ],
+          "band_strength": 0.5,
+          "band_spacing": 0.075,
+          "band_width": 0.32,
+          "band_wobble": 0.35,
+          "band_from": 0.5,
+          "glow_colour": [
+            0.35,
+            0.75,
+            1.0
+          ],
+          "glow_strength": 0.05,
+          "glow_spacing": 0.02,
+          "glow_size": 0.03,
+          "glow_from": [
+            0,
+            0.95,
+            0
+          ],
+          "glow_to": [
+            1,
+            1,
+            1
+          ]
+        },
+        "bones": {
+          "EarL1": 1.4,
+          "EarR1": 1.4
+        },
+        "scale": [
+          1.08,
+          1.25
+        ]
+      }
     },
     "creature.beast.doe": {
       "model": "creature_wm_doe",
@@ -3412,7 +3536,49 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_FemaleDeer (replaces the blocked 100 MODELS Doe). Silent: no deer recording on disk."
+      "note": "WildMesh SK_FemaleDeer (replaces the blocked 100 MODELS Doe). Silent: no deer recording on disk.",
+      "otherfauna": {
+        "shader": {
+          "hue_shift": -6,
+          "saturation": 0.78,
+          "hue_jitter": 10,
+          "mottle_tint": [
+            0.7,
+            0.86,
+            0.55
+          ],
+          "mottle_strength": 0.7,
+          "mottle_scale": 0.14,
+          "mottle_cover": 0.5,
+          "mottle_from": 0.45,
+          "glow_colour": [
+            0.45,
+            0.95,
+            0.7
+          ],
+          "glow_strength": 0.35,
+          "glow_spacing": 0.11,
+          "glow_size": 0.035,
+          "glow_from": [
+            0.38,
+            0.66,
+            0.2
+          ],
+          "glow_to": [
+            0.62,
+            0.9,
+            0.72
+          ]
+        },
+        "bones": {
+          "RigLEar1": 1.2,
+          "RigREar1": 1.2
+        },
+        "scale": [
+          1.0,
+          1.12
+        ]
+      }
     },
     "creature.beast.buck": {
       "model": "creature_wm_buck",
@@ -3423,7 +3589,74 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_Deer stag (staged 2026-10-14). Silent."
+      "note": "WildMesh SK_Deer stag (staged 2026-10-14). Silent.",
+      "otherfauna": {
+        "shader": {
+          "hue_shift": -6,
+          "saturation": 0.78,
+          "hue_jitter": 10,
+          "mottle_tint": [
+            0.7,
+            0.86,
+            0.55
+          ],
+          "mottle_strength": 0.7,
+          "mottle_scale": 0.14,
+          "mottle_cover": 0.5,
+          "mottle_from": 0.45,
+          "glow_colour": [
+            0.45,
+            0.95,
+            0.7
+          ],
+          "glow_strength": 0.35,
+          "glow_spacing": 0.11,
+          "glow_size": 0.035,
+          "glow_from": [
+            0.38,
+            0.66,
+            0.2
+          ],
+          "glow_to": [
+            0.62,
+            0.9,
+            0.72
+          ]
+        },
+        "by_material": {
+          "antler": {
+            "saturation": 0.3,
+            "value": 1.3,
+            "mottle_strength": 0.0,
+            "glow_colour": [
+              0.45,
+              0.8,
+              1.0
+            ],
+            "glow_strength": 0.06,
+            "glow_spacing": 0.04,
+            "glow_size": 0.05,
+            "glow_from": [
+              0,
+              0.82,
+              0
+            ],
+            "glow_to": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "bones": {
+          "EarL1": 1.2,
+          "EarR1": 1.2
+        },
+        "scale": [
+          1.05,
+          1.18
+        ]
+      }
     },
     "creature.beast.red_fox": {
       "model": "creature_wm_red_fox",
@@ -3434,7 +3667,52 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_Fox, the realistic A_ fox (staged 2026-10-14). Silent: no fox recording on disk."
+      "note": "WildMesh SK_Fox, the realistic A_ fox (staged 2026-10-14). Silent: no fox recording on disk.",
+      "otherfauna": {
+        "shader": {
+          "hue_shift": -8,
+          "saturation": 0.62,
+          "value": 0.72,
+          "hue_jitter": 12,
+          "band_tint": [
+            0.32,
+            0.3,
+            0.3
+          ],
+          "band_strength": 0.7,
+          "band_spacing": 0.085,
+          "band_width": 0.32,
+          "band_wobble": 0.3,
+          "band_from": 0.55,
+          "glow_colour": [
+            0.7,
+            0.85,
+            0.35
+          ],
+          "glow_strength": 0.22,
+          "glow_spacing": 0.02,
+          "glow_size": 0.03,
+          "glow_from": [
+            0,
+            0,
+            0
+          ],
+          "glow_to": [
+            1,
+            0.75,
+            0.06
+          ]
+        },
+        "bones": {
+          "EarL1": 1.3,
+          "EarR1": 1.3,
+          "Tail1": 1.15
+        },
+        "scale": [
+          0.95,
+          1.1
+        ]
+      }
     },
     "creature.grazer.barrowback": {
       "model": "creature_wm_barrowback",

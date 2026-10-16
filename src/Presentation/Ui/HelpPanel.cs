@@ -20,6 +20,7 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("Move", new[] { "move_forward", "move_left", "move_back", "move_right" }), ("Sprint (hold)", new[] { "sprint" }),
                 ("Walk (hold)", new[] { "walk" }), ("Jump", new[] { "jump" }), ("Crouch or stand", new[] { "crouch" }),
+                ("Autorun, on or off", new[] { "autorun" }),
             }),
             ("Looking", new[]
             {
@@ -48,6 +49,7 @@ public partial class HelpPanel : CanvasLayer
             ("Screens", new[]
             {
                 ("System menu, or close a screen", new[] { "release_mouse" }), ("Inventory", new[] { "inventory" }), ("Journal", new[] { "journal" }),
+                ("Map", new[] { "map" }),
                 ("Character", new[] { "character" }), ("These controls", new[] { "help" }),
             }),
         },

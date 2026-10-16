@@ -3,6 +3,7 @@ using System.Text.Json;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Tests;
@@ -151,6 +152,25 @@ internal static class CanonicalState
             json.WriteBoolean("airborne", player.Posture.Airborne);
             json.WriteNumber("air_ms", player.Posture.AirMs);
             json.WriteEndObject();
+            json.WriteStartArray("waystones");
+            foreach (var stone in player.Waystones)
+            {
+                json.WriteStartObject();
+                json.WriteString("stone", stone.StoneKey);
+                json.WriteString("region", stone.RegionId);
+                json.WriteString("method", WaystoneMethods.Key(stone.Method));
+                json.WriteNumber("tick", stone.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            if (player.ReturnPoint is { } returnPoint)
+                json.WriteString("return_point", returnPoint);
+            else
+                json.WriteNull("return_point");
+            json.WriteStartArray("roads_walked");
+            foreach (string stretch in player.RoadsWalked)
+                json.WriteStringValue(stretch);
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

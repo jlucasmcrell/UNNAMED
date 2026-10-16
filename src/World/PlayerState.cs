@@ -11,6 +11,7 @@ using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 
 namespace UNNAMED.World;
 
@@ -33,6 +34,12 @@ public enum DiscoveryMethod
 
 /// <summary>A discovered-location record (PERSISTENCE.md §5.1): which place, how, and on which world tick.</summary>
 public sealed record DiscoveryRecord(string LocationId, DiscoveryMethod Method, long Tick);
+
+/// <summary>
+/// A Waystone the character knows (S-38's unlock record; schema 15): which stone, in which region, how they came to know it, and when.
+/// The region is what lets a later area's stones join the same list without rework; today every stone is in the region played.
+/// </summary>
+public sealed record WaystoneRecord(string StoneKey, string RegionId, WaystoneMethod Method, long Tick);
 
 /// <summary>What one NPC thinks of the player on one dimension (SYSTEMS.md S-26; schema 10). A value of 0 is never stored.</summary>
 public sealed record RelationshipValue(string NpcId, string Dimension, int Value);
@@ -225,32 +232,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -316,6 +323,59 @@ public sealed record PlayerRecord
 
     private readonly Posture _posture;
 
+    /// <summary>The Waystones the character knows, sorted by stone (schema 15): touched awake, or woken by them.</summary>
+    public ImmutableArray<WaystoneRecord> Waystones
+    {
+        get => _waystones;
+        init
+        {
+            var stones = value.IsDefault ? ImmutableArray<WaystoneRecord>.Empty : value.OrderBy(w => w.StoneKey, StringComparer.Ordinal).ToImmutableArray();
+            foreach (var stone in stones)
+            {
+                if (!stone.StoneKey.StartsWith("waystone.", StringComparison.Ordinal) || !DefinitionId.IsValid(stone.RegionId)
+                    || !stone.RegionId.StartsWith("region.", StringComparison.Ordinal) || !Enum.IsDefined(stone.Method) || stone.Tick < 0)
+                    throw new ArgumentException($"Invalid Waystone record {stone}", nameof(Waystones));
+            }
+            if (stones.Select(w => w.StoneKey).Distinct(StringComparer.Ordinal).Count() != stones.Length)
+                throw new ArgumentException("A Waystone is known once", nameof(Waystones));
+            _waystones = stones;
+        }
+    }
+
+    private readonly ImmutableArray<WaystoneRecord> _waystones = ImmutableArray<WaystoneRecord>.Empty;
+
+    /// <summary>
+    /// The stone the character chose to return to (schema 15): one they know, made their return point by a deliberate act and never by
+    /// travel. Null until they choose: they return at the region's spawn, the Ashen Waystone.
+    /// </summary>
+    public string? ReturnPoint
+    {
+        get => _returnPoint;
+        init
+        {
+            if (value is not null && !Waystones.Any(w => w.StoneKey == value))
+                throw new ArgumentException($"The return point {value} is not a Waystone the character knows", nameof(ReturnPoint));
+            _returnPoint = value;
+        }
+    }
+
+    private readonly string? _returnPoint;
+
+    /// <summary>The stretches of road the character has walked, sorted (schema 15): what the map draws of the roads.</summary>
+    public ImmutableArray<string> RoadsWalked
+    {
+        get => _roadsWalked;
+        init
+        {
+            var stretches = value.IsDefault ? ImmutableArray<string>.Empty : value.OrderBy(k => k, StringComparer.Ordinal).ToImmutableArray();
+            if (stretches.Any(k => !k.StartsWith("road.", StringComparison.Ordinal) || !k.Contains('#')) || stretches.Distinct(StringComparer.Ordinal).Count() != stretches.Length)
+                throw new ArgumentException("Walked roads are distinct road.<id>#<stretch> keys", nameof(RoadsWalked));
+            _roadsWalked = stretches;
+        }
+    }
+
+    private readonly ImmutableArray<string> _roadsWalked = ImmutableArray<string>.Empty;
+
     /// <summary>The same player holding themselves differently.</summary>
     public PlayerRecord WithPosture(Posture posture) => this with { Posture = posture };
 
@@ -325,7 +385,7 @@ public sealed record PlayerRecord
         get
         {
             using var h = new CanonicalHasher();
-            h.Add("unnamed.player/v9").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
+            h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
                 h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
             h.Add(Progression.Digest).Add(Discoveries.Length);
@@ -363,6 +423,12 @@ public sealed record PlayerRecord
                     h.Add(mark.XMm).Add(mark.ZMm);
             }
             h.Add(StanceKeys.Key(Posture.Stance)).Add(Posture.Airborne ? 1 : 0).Add(Posture.AirMs);
+            h.Add(Waystones.Length);
+            foreach (var w in Waystones)
+                h.Add(w.StoneKey).Add(w.RegionId).Add(WaystoneMethods.Key(w.Method)).Add(w.Tick);
+            h.Add(ReturnPoint ?? "-").Add(RoadsWalked.Length);
+            foreach (string stretch in RoadsWalked)
+                h.Add(stretch);
             return h.Finish();
         }
     }

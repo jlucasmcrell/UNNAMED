@@ -23,7 +23,8 @@ namespace UNNAMED.Presentation;
 /// bow at the cart, a haft from the ash stand, Blackvein Cut and its walker, ore from the seam, the billet and the spear, Kera shown
 /// the spear, Sel's field notes and Tavar's story, the Foldscar - its three Quiet Stones in turn, the south-east one by the way round the
 /// spider, the heart steadied - Tavar freed and recruited, and home with him following; then east to Cairnwold for Durn's spear from
-/// the moor's own iron and ash and Mara's three ashbloom from the Sinking Moss, and home again. Then a ward (Strain), a save, and quit
+/// the moor's own iron and ash and Mara's three ashbloom from the Sinking Moss; Berrin's rite for the Rim Stone, the stone woken and made
+/// the return point, and home again by the stones (S-38). Then a ward (Strain), a save, and quit
 /// (§30: save, quit completely). One tick a frame, from a fixed seed: the run is the same every time, so a third party replays it
 /// by running it (PROTOTYPE.md §9 item 6) and gets the same <c>state_replay.json</c>. Writes <c>transcript.md</c> (every beat and event
 /// with its game time), <c>commands.tsv</c> (every command with its tick), a screenshot per beat, the save in <c>profile/</c>,
@@ -33,7 +34,7 @@ namespace UNNAMED.Presentation;
 /// <c>--playthrough-verify &lt;dir&gt;</c>, the relaunch: loads that save, writes <c>state_loaded.json</c> and <c>state_diff.txt</c> - the
 /// field-by-field comparison as a diff of expected against actual (§9 item 2) - and fails unless the load was complete and the state
 /// digest is the save's; then tells Tavar to wait, walks to the wolves' den and stands until the pack kills the character, and checks
-/// the death's XP debt landed exactly once (C17).
+/// the death's XP debt landed exactly once (C17) and that the character came back at the stone they chose, the Rim Stone (S-38).
 /// </para>
 /// </summary>
 public sealed class Playthrough
@@ -52,6 +53,9 @@ public sealed class Playthrough
     private const string Ore = "item.material.iron_ore";
     private const string Haft = "item.material.ash_haft";
     private const string Ashbloom = "item.material.herb_ashbloom";
+    private const string Berrin = "npc.cairnwold.berrin_garth";
+    private const string AshenStone = "waystone.ashen";
+    private const string RimStone = "waystone.rim";
 
     // The content bible's acceptance path (§31), point by point, in the four cells' layout - authored in the hollow's own 200 m square,
     // which region.starting_frontier places at its south-west corner (Hollow).
@@ -94,7 +98,12 @@ public sealed class Playthrough
     private static readonly (double X, double Z)[] ToTheMossEast = { (1059.5, 775.5) };
     private static readonly (double X, double Z)[] BackToMara =
         { (1042.5, 751.5), (1037, 750.5), (1032.8, 743.2), (988, 684.2), (987.8, 678.8), (985.2, 677), (984.5, 676.8), (976.2, 666.2) };
-    private static readonly (double X, double Z)[] HomeFromCairnwold = { (970.2, 664.8), (965.2, 667.8), (950.8, 669.8), (524.8, 708.8), (448, 737) };
+    // The Ashen Waystone, from the spawn beside it; Berrin at the long lodge's east door from Mara's well, and up to the Rim Stone from
+    // him (planned round the village's blockers, with every door shut).
+    private static readonly (double X, double Z)[] ToTheAshenStone = { (428.9, 758) };
+    private static readonly (double X, double Z)[] ToBerrin = { (978, 653), (978.5, 651), (971, 643), (961, 644), (959, 645) };
+    private static readonly (double X, double Z)[] ToTheRimStone =
+        { (955.5, 648.5), (955.5, 659.5), (954, 661), (949.5, 661), (944, 662), (938, 667), (936, 667), (908.5, 677.5), (906, 677.5), (882, 702), (880.6, 702.5) };
 
     /// <summary>The Ashen Hollow's south-west corner in region.starting_frontier: recovery 04f079a moved every place in it by this.</summary>
     private const double HollowX = 400, HollowZ = 600;
@@ -112,6 +121,9 @@ public sealed class Playthrough
     private readonly bool _verify;
     private readonly (string Slot, SaveCopy Copy, LoadResult Result)? _continued;
     private readonly List<Beat> _beats = new();
+
+    /// <summary>Opens a management screen by name through Main ("" closes them): the map pictured after the journey.</summary>
+    private readonly Action<string>? _screen;
     private readonly StringBuilder _transcript = new();
     private readonly List<string> _failures = new();
 
@@ -128,11 +140,13 @@ public sealed class Playthrough
     private long _debtAdded;
     private long _debtBefore;
     private bool _respawned;
+    private Body? _respawnedAt;
     private string? _broken;
 
     public Playthrough(GameSession session, PlayerController controller, CameraRig camera, DialoguePanel dialogue, string directory, bool verify,
-        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null)
+        (string Slot, SaveCopy Copy, LoadResult Result)? continued = null, Action<string>? screen = null)
     {
+        _screen = screen;
         _session = session;
         _controller = controller;
         _camera = camera;
@@ -231,6 +245,7 @@ public sealed class Playthrough
             // The one condition the standing-turn state exists for, and the one the route otherwise never produces:
             // the body is still, and the camera swings, so with faceCamera it steps around rather than sliding.
             new Beat("turn", "Standing at the waystone: the body steps around to a new facing", 900, TurnOnTheSpot, "01b_turn"),
+            new Beat("waystone", "The Ashen Waystone touched: the first of the Waystones you know (S-38)", 600, () => TouchStone(AshenStone, ToTheAshenStone), "01c_waystone"),
             new Beat("chest", "The waystation's storage chest opened and emptied (§29 0:30)", 1_500, OpenTheChest, "02_chest"),
             new Beat("smithy", "Into Kera's smithy", 1_500, () => Travel(ToTheSmithyDoor) && Door("door.forge_shed") && Walk(IntoTheSmithy)),
             new Beat("kera", "Kera teaches the forge: Iron Under Ash begins (§29 2:00)", 900, () => Converse(Kera, "teach", "thanks"), "03_kera"),
@@ -271,7 +286,14 @@ public sealed class Playthrough
             new Beat("moss_east", "A third, where the ground is wettest", 1_200, () => Gather("bog_ashbloom_2", ToTheMossEast, Ashbloom), "c10_ashbloom"),
             new Beat("moss_back", "Back to the well", 5_000, () => Travel(BackToMara)),
             new Beat("quest4", "Mara given three ashbloom: What The Bog Kept complete", 1_200, () => Converse(Mara, "bog_return", "back") && Completed("quest.cairnwold.what_the_bog_kept"), "c11_what_the_bog_kept"),
-            new Beat("homeward", "West along the road, home to the waystation", 9_000, () => Travel(HomeFromCairnwold), "c12_home"),
+            // The Rim Stone (NEXT_AREA_TRAVEL_CITY_PLAN.md K1, D.3): Berrin's rite, the stone woken, made the return point, and home by it.
+            new Beat("berrin", "Berrin reads the Rim Stone's rite from the lodge book: three hands and a name", 3_000, AskBerrin, "c12_berrin"),
+            new Beat("rim", "Up to the Rim: the cold stone woken with Berrin's rite", 4_000, () => TouchStone(RimStone, ToTheRimStone), "c13_rim_woken"),
+            new Beat("bind", "The Rim Stone made the return point, by its own act at the stone", 300, () => BindStone(RimStone), "c14_return_point"),
+            new Beat("homeward", "Home by the stones, Tavar with the character: the Rim Stone to the Ashen Waystone, the world a quarter of the road's walk on", 5_000,
+                () => FastTravel(RimStone, AshenStone), "c15_by_the_stones"),
+            new Beat("map", "The map: the places found, the Old East Road walked, the two stones known and the return point", 120, () => Screen("map"), "c16_map"),
+            new Beat("map_closed", "The map put away", 120, () => Screen("")),
             new Beat("ward", "Brace Wards worked at home until Strain passed tolerance and cost health (§33: Health and Strain not at rest)", 1_200,
                 () => Strain(magic.Formulas.Keys.First(f => magic.Formulas[f].Targeting == Targeting.Self && f.Contains("ward", StringComparison.Ordinal))), "20_ward"),
             new Beat("save", "Saved - then the application quits (§30)", 60, SaveAndDump, "21_saved"),
@@ -286,7 +308,7 @@ public sealed class Playthrough
             new Beat("wait", "Tavar told to wait", 60, () => Order(CompanionOrder.Wait)),
             new Beat("den", "To the wolves' den", 4_000, () => Walk(ToTheDen), "31_den"),
             new Beat("death", "Stood against the pack until it killed the character", 3_000, DieAtTheDen, "32_death"),
-            new Beat("respawn", "Back at the Ashen Waystone, the debt owed once (C17)", 1_200, CheckTheDebt, "33_respawn"),
+            new Beat("respawn", "Back at the stone chosen as the return point, the Rim Stone, the debt owed once (C17)", 1_200, CheckTheDebt, "33_respawn"),
         });
     }
 
@@ -381,6 +403,98 @@ public sealed class Playthrough
 
     private bool Completed(string questId) =>
         _session.Simulation!.Quests.Any(q => q.Id == questId && q.Status == Domain.Quests.QuestStatus.Completed);
+
+    /// <summary>To Berrin at the long lodge's door, and his lines on the Rim Stone; true once the conversation is over.</summary>
+    private bool AskBerrin()
+    {
+        if (_phase == 0)
+        {
+            if (!Travel(ToBerrin, Near))
+                return false;
+            _phase = 1;
+            _waypoint = 0;
+        }
+        return Converse(Berrin, "rim_stone", "back");
+    }
+
+    /// <summary>Walk to a Waystone and lay a hand on it, facing it: true once the character knows it.</summary>
+    private bool TouchStone(string key, (double X, double Z)[] spot)
+    {
+        if (!Travel(spot, Near))
+            return false;
+        var view = _session.Simulation!.Waystones.Single(w => w.Site.Key == key);
+        var (x, z) = Footprints.Center(view.Site.Body);
+        Look(x, z);
+        if (view.Known)
+            return _phase > 0 || (_broken = $"{key} was known before it was touched") is null;
+        if (_phase++ % 10 == 0)
+            _controller.TouchStone(key);
+        if (_phase > 40)
+            _broken = $"{key} would not answer: the touches were refused";
+        return false;
+    }
+
+    /// <summary>Make the stone the character stands at their return point, as its panel's button does; true once it is.</summary>
+    private bool BindStone(string key)
+    {
+        if (_session.Simulation!.Waystones.Single(w => w.Site.Key == key).ReturnPoint)
+            return true;
+        if (_phase++ % 10 == 0)
+            _controller.BindStone(key);
+        return false;
+    }
+
+    private long _leftAt;
+
+    /// <summary>Open a screen by name ("" closes them), and give it a few frames to lay out; true then.</summary>
+    private bool Screen(string name)
+    {
+        if (_screen is null)
+            return true;
+        if (_phase == 0)
+            _screen(name);
+        return ++_phase > 10;
+    }
+
+    /// <summary>
+    /// Go by the stones, as the panel's Travel button does, and check what it did: the character set down beside the far stone, every
+    /// following companion with them, the world on by exactly the journey's cost, and the return point untouched.
+    /// </summary>
+    private bool FastTravel(string from, string to)
+    {
+        var simulation = _session.Simulation!;
+        if (_phase == 0)
+        {
+            var option = simulation.TravelOptions(from).Single(o => o.ToKey == to);
+            if (option.Blocked is { } why)
+                return (_broken = $"the stones would not go: {why}") is null;
+            _leftAt = simulation.WorldTick;
+            _travelCost = option.Cost;
+            Note($"At the {_session.Setup.Layout.FindWaystone(from)!.Name}: {TravelWords.Journey(option.Cost.WalkTicks, option.Cost.WorldTicks, Main.TicksPerDay)} ({option.Cost.RoadMm / 1000.0:0} m by road)");
+            _controller.TravelTo(from, to);
+            _phase = 1;
+            return false;
+        }
+        if (_phase++ < 4)
+            return false;
+        var site = _session.Setup.Layout.FindWaystone(to)!;
+        var body = simulation.Player.Body;
+        string? returnPoint = simulation.Waystones.FirstOrDefault(w => w.ReturnPoint)?.Site.Key;
+        string party = string.Join(", ", simulation.Companions.Select(c => $"{c.Name} {Metres(Distance(c.Body, body))} away"));
+        Note($"Arrived at {Where(body)}, {Metres(Math.Sqrt(Math.Pow(body.XMm - site.ArrivalXMm, 2) + Math.Pow(body.ZMm - site.ArrivalZMm, 2)))} from the stone's arrival; " +
+             $"world tick {_leftAt} -> {simulation.WorldTick} (cost {_travelCost!.WorldTicks}); companions: {party}; return point {returnPoint}");
+        if (Math.Sqrt(Math.Pow(body.XMm - site.ArrivalXMm, 2) + Math.Pow(body.ZMm - site.ArrivalZMm, 2)) > 2_000)
+            _failures.Add($"the journey set the character down at {Where(body)}, not beside the {site.Name}");
+        if (simulation.WorldTick < _leftAt + _travelCost.WorldTicks)
+            _failures.Add($"the world went on {simulation.WorldTick - _leftAt} ticks, less than the journey's {_travelCost.WorldTicks}");
+        if (simulation.Companions.Any(c => c.Order == CompanionOrder.Follow && Distance(c.Body, body) > 8_000))
+            _failures.Add("a following companion was left behind by the stones");
+        if (returnPoint != RimStone)
+            _failures.Add($"the return point is {returnPoint ?? "none"} after the journey, not the Rim Stone it was bound to");
+        return LookAtTavar();
+    }
+
+    private Domain.Travel.TravelCost? _travelCost;
 
     private bool TalkToSel()
     {
@@ -600,6 +714,13 @@ public sealed class Playthrough
              (_deaths == 1 && debt == _debtBefore + _debtAdded ? "the penalty applied exactly once" : "NOT applied exactly once"));
         if (_deaths != 1 || debt != _debtBefore + _debtAdded)
             _failures.Add("the death's penalty was not applied exactly once");
+        // Back at the stone chosen as the return point (S-38): the Rim Stone the acceptance run bound, not the region's spawn.
+        var stone = _session.Setup.Layout.FindWaystone(RimStone)!;
+        var body = simulation.Player.Body;
+        double off = Math.Sqrt(Math.Pow(body.XMm - stone.ArrivalXMm, 2) + Math.Pow(body.ZMm - stone.ArrivalZMm, 2));
+        Note($"Came back {Metres(off)} from the {stone.Name}'s arrival point");
+        if (_respawnedAt is { } at && Math.Sqrt(Math.Pow(at.XMm - stone.ArrivalXMm, 2) + Math.Pow(at.ZMm - stone.ArrivalZMm, 2)) > 1)
+            _failures.Add($"the character came back at {Where(at)}, not at the Rim Stone they chose");
         return _frame > 0;
     }
 
@@ -661,8 +782,14 @@ public sealed class Playthrough
         _session.Subscribe<PlayerRespawned>(e =>
         {
             _respawned = true;
-            Note($"Returned at the Ashen Waystone: {Where(e.Body)}");
+            _respawnedAt = e.Body;
+            string at = _session.Simulation!.Waystones.FirstOrDefault(w => w.ReturnPoint)?.Site.Name ?? "Ashen Waystone (the region's spawn)";
+            Note($"Returned at the {at}: {Where(e.Body)}");
         });
+        _session.Subscribe<StoneTouched>(e => Note($"{(e.Method == Domain.Travel.WaystoneMethod.Woken ? "Woken" : "Touched")}: {e.StoneKey} - \"{e.Text}\""));
+        _session.Subscribe<ReturnPointBound>(e => Note($"Return point: {e.StoneKey}"));
+        _session.Subscribe<PlayerTravelled>(e => Note($"By the stones: {e.FromKey} to {e.ToKey}, {e.Cost.RoadMm / 1000.0:0} m of road, " +
+            $"{e.Cost.WalkTicks} ticks of walking, {e.Cost.WorldTicks} of world time; with {(e.Party.IsEmpty ? "no one" : string.Join(", ", e.Party.Select(Name)))}"));
     }
 
     private void Note(string line)

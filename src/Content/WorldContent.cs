@@ -5,6 +5,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 using YamlDotNet.Serialization;
 
@@ -39,6 +40,7 @@ public static class WorldContent
         {
             TryBuild(() => BuildMovement(loader), "config.base_speeds", loader, errors);
             TryBuild(() => BuildTiers(loader), "config.simulation_tiers", loader, errors);
+            TryBuild(() => BuildTravel(loader), "config.travel", loader, errors);
         }
         return errors;
     }
@@ -92,6 +94,19 @@ public static class WorldContent
         return rules;
     }
 
+    /// <summary>Waystone travel's tuning (S-38), from <c>config.travel</c>; a pack from before Waystone travel keeps the defaults.</summary>
+    public static TravelRules BuildTravel(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.travel"))
+            return TravelRules.Default;
+        var map = Config(loader, "config.travel");
+        var rules = new TravelRules((int)Math.Round(Number(map, "world_time_fraction") * 1000, MidpointRounding.AwayFromZero),
+            Mm(map, "road_walked_within_m"), Text(map, "touch_text"));
+        if (rules.WorldTimePermille is <= 0 or > 1000 || rules.RoadWalkedWithinMm <= 0)
+            throw new FormatException("config.travel needs a world_time_fraction in (0, 1] and a positive road_walked_within_m");
+        return rules;
+    }
+
     /// <summary>Display names: every definition's <c>name</c> field, where it has one (DATA_MODEL.md §4.18 places do).</summary>
     public static IReadOnlyDictionary<string, string> DisplayNames(ContentLoader loader) =>
         loader.Definitions.Values
@@ -107,6 +122,18 @@ public static class WorldContent
         if (perSecond <= 0 || 1000 % perSecond != 0)
             throw new FormatException($"config.time ticks_per_second {perSecond} must divide 1000 ms exactly");
         return 1000 / perSecond;
+    }
+
+    /// <summary>What the world clock reads at tick 0, in hours, from <c>config.time</c>'s <c>clock_at_world_start_h</c>: the sky and the
+    /// creatures' hours both run from it.</summary>
+    public static double ClockAtWorldStartHours(ContentLoader loader)
+    {
+        var map = Config(loader, "config.time");
+        double hour = Number(map, "clock_at_world_start_h");
+        double hoursPerDay = Number(map, "game_hours_per_day");
+        if (hour < 0 || hour >= hoursPerDay)
+            throw new FormatException($"config.time clock_at_world_start_h {hour} is an hour of the day, from 0 to {hoursPerDay}");
+        return hour;
     }
 
     private static RegionLayout? TryBuildLayout(ContentLoader loader, string regionId, List<ValidationError> errors)
@@ -179,7 +206,10 @@ public static class WorldContent
                     throw new FormatException($"{location.Id} anchor.world must be [x, y, z]");
                 var discovery = Map(place, "discovery");
                 var site = new LocationSite(location.Id, ToMm(anchor[0], "anchor.world"), ToMm(anchor[2], "anchor.world"),
-                    Mm(discovery, "radius_m"), Long(discovery, "xp"));
+                    Mm(discovery, "radius_m"), Long(discovery, "xp"))
+                {
+                    RevealRadiusMm = place.ContainsKey("map") ? Mm(Map(place, "map"), "reveals_radius_m") : 0,
+                };
                 Check(site.XMm >= minX && site.XMm <= maxX && site.ZMm >= minZ && site.ZMm <= maxZ, "WLD005", $"{location.Id} lies outside the walkable bounds");
                 Check(site.DiscoveryRadiusMm > 0 && site.DiscoveryXp >= 0, "WLD005", $"{location.Id} needs a positive discovery radius and non-negative XP");
                 locations.Add(site);
@@ -284,6 +314,59 @@ public static class WorldContent
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Waystones (S-38): each stands on a structure, beside a place, with a clear spot to arrive at; a dormant one names the flag
+            // that wakes it in its cell and the line of a conversation that holds its rite.
+            long bodyRadius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
+            var waystones = ImmutableArray.CreateBuilder<WaystoneSite>();
+            foreach (var (entry, i) in (map.ContainsKey("waystones") ? List(map, "waystones") : new List<object>()).Select((w, i) => (w, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"waystones[{i}] must be a map");
+                string key = Text(site, "key");
+                string structure = Text(site, "structure");
+                var body = structures.FirstOrDefault(s => s.Id == structure);
+                Check(body is not null, "WLD015", $"{key} stands on structure '{structure}', which the region does not have");
+                var (ax, az) = Pair(site, "arrival_m");
+                string place = Text(site, "location_ref");
+                var stone = new WaystoneSite(key, Text(site, "name"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), place, ax, az);
+                Check(key.StartsWith("waystone.", StringComparison.Ordinal), "WLD015", $"waystone key '{key}' must start with 'waystone.'");
+                Check(locations.Any(l => l.Id == place), "WLD015", $"{key} names place '{place}', which is not a location in this region");
+                Check(Kinematics.IsClear(ax, az, bodyRadius, new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures), ImmutableArray<Blocker>.Empty),
+                    "WLD015", $"{key}'s arrival_m must be inside the bounds and clear of every structure");
+                if (site.ContainsKey("dormant"))
+                {
+                    var dormant = Map(site, "dormant");
+                    var rite = Map(dormant, "rite");
+                    var sleeping = new DormantStone(Text(dormant, "flag_ref"), Text(rite, "dialogue_ref"), Text(rite, "node"), Text(dormant, "dormant_text"),
+                        Text(dormant, "wake_text"));
+                    stone = stone with { Dormant = sleeping };
+                    Check(flags.ContainsKey(sleeping.FlagId), "WLD015", $"{key} is woken by world flag '{sleeping.FlagId}', which is not a declared world_flag");
+                    Check(RiteExists(loader, sleeping), "WLD015",
+                        $"{key}'s rite is line '{sleeping.RiteNodeId}' of '{sleeping.RiteDialogueId}', which that conversation does not have");
+                }
+                waystones.Add(stone);
+            }
+            Check(waystones.Select(w => w.Key).Distinct(StringComparer.Ordinal).Count() == waystones.Count, "WLD015", "two waystones share a key");
+            var wakeFlags = waystones.Where(w => w.Dormant is not null).Select(w => w.Dormant!.FlagId).ToList();
+            Check(wakeFlags.Concat(switches.Select(s => s.FlagId)).Concat(doors.Select(d => d.FlagId)).Distinct(StringComparer.Ordinal).Count()
+                  == wakeFlags.Count + switches.Count + doors.Count, "WLD015", "a waystone shares its world flag with another interactable");
+
+            var roads = ImmutableArray.CreateBuilder<RoadSite>();
+            foreach (var (entry, i) in (map.ContainsKey("roads") ? List(map, "roads") : new List<object>()).Select((r, i) => (r, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"roads[{i}] must be a map");
+                string id = Text(site, "id");
+                var points = List(site, "points_m").Select((p, j) =>
+                {
+                    var pair = p as List<object> ?? throw new FormatException($"{id} points_m[{j}] must be [x, z]");
+                    return pair.Count == 2 ? (ToMm(pair[0], id), ToMm(pair[1], id)) : throw new FormatException($"{id} points_m[{j}] must be [x, z]");
+                }).ToImmutableArray();
+                Check(id.StartsWith("road.", StringComparison.Ordinal) && !id.Contains('#'), "WLD016", $"road id '{id}' must start with 'road.' and hold no '#'");
+                Check(points.Length >= 2, "WLD016", $"{id} needs at least two points");
+                Check(points.All(p => p.Item1 >= minX && p.Item1 <= maxX && p.Item2 >= minZ && p.Item2 <= maxZ), "WLD016", $"{id} leaves the walkable bounds");
+                roads.Add(new RoadSite(id, Text(site, "name"), points));
+            }
+            Check(roads.Select(r => r.Id).Distinct(StringComparer.Ordinal).Count() == roads.Count, "WLD016", "two roads share an id");
+
             var spawnMap = Map(map, "spawn");
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
@@ -299,6 +382,8 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                Waystones = waystones.ToImmutable(),
+                Roads = roads.ToImmutable(),
             };
 
             // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand
@@ -317,6 +402,11 @@ public static class WorldContent
             return null;
         }
     }
+
+    /// <summary>A dormant stone's rite is a line its conversation really has.</summary>
+    private static bool RiteExists(ContentLoader loader, DormantStone dormant) =>
+        loader.Definitions.TryGetValue(dormant.RiteDialogueId, out var dialogue) && dialogue.Kind == "dialogue"
+        && Read(dialogue.YamlSource).GetValueOrDefault("nodes") is Dictionary<object, object> nodes && nodes.ContainsKey(dormant.RiteNodeId);
 
     /// <summary>The cell a footprint stands in: a switch's or a barrier's flag lives in that cell's delta.</summary>
     private static CellKey CellOf(Blocker blocker)

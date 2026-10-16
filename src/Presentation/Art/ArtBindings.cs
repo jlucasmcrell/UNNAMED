@@ -86,7 +86,11 @@ public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Ran
 }
 
 public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh,
-    IReadOnlyDictionary<string, string> Steps, int StepsPerSound);
+    IReadOnlyDictionary<string, string> Steps, int StepsPerSound)
+{
+    /// <summary>How the species is drawn "plausible but wrong" over its scanned model (<see cref="OtherFauna"/>), or null as scanned.</summary>
+    public FaunaLook? Fauna { get; init; }
+}
 
 /// <summary>
 /// A skinned person: the body, the hand bones a weapon rides on, the grip frame on each (in the bone's own space: where the hand closes
@@ -329,7 +333,8 @@ public sealed class ArtBindings
                     ? creatures.EnumerateObject().ToDictionary(c => c.Name, c => new CreatureArt(Text(c.Value, "model")!,
                         new[] { "idle", "walk", "run", "attack", "hit", "death" }.ToDictionary(s => s, s => $"{Text(c.Value, "clips")}.{s}"),
                         Text(c.Value, "voice") ?? string.Empty, Text(c.Value, "flesh") ?? "flesh", Strings(c.Value, "steps"),
-                        c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1), StringComparer.Ordinal)
+                        c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1) { Fauna = FaunaLook.Parse(c.Value) },
+                        StringComparer.Ordinal)
                     : new Dictionary<string, CreatureArt>(),
                 People = root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,

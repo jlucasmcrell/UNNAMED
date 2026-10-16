@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.rooster.name
 tags: [creature, beast]
-name: Cockerel
+name: Ashcomb Cock
 notes: The yard's cockerel, one to a flock. As peaceful as the hens and as quick to scatter.
 family: beast
 archetype: prey

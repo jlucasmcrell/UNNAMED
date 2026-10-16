@@ -1,0 +1,9 @@
+id: world.road.rim_stone_woken
+kind: world_flag
+schema: 1
+display_key: world.road.rim_stone_woken.name
+tags: [world_flag]
+notes: Whether the dormant Rim Stone above Cairnwold has been woken (NEXT_AREA_TRAVEL_CITY_PLAN.md K1; 19 §9.8). Set once by the travel system when someone who has heard Berrin's rite touches it (S-38); persisted in the stone's cell delta.
+type: bool
+default: 0
+owning_system: S-38

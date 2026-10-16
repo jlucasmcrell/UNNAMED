@@ -121,6 +121,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.Barks),   // which of an NPC's barks hold now, for the lines said in passing
+            nameof(UNNAMED.World.Runtime.Simulation.TravelOptions),   // the journeys a Waystone offers and their costs, for its panel (S-38)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

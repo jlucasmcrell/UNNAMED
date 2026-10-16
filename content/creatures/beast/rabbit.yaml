@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.rabbit.name
 tags: [creature, beast]
-name: Hare
+name: Frost Hare
 notes: Moor hares on the open ground round both settlements - sharp-eared, gone at a run, a pelt and a meal for whoever is quieter than they are.
 family: beast
 archetype: prey

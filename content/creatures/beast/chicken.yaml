@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.chicken.name
 tags: [creature, beast]
-name: Hen
+name: Ashcomb Hen
 notes: Cairnwold's and the waystation's hens - peaceful domestic fowl (canon firstplay chicken). They scratch about the yard, scatter from anyone who comes close and roost at dark. No combat XP, no ownership.
 family: beast
 archetype: prey

@@ -3,6 +3,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Travel;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
@@ -243,6 +244,15 @@ public class HistoricalFixtureTests
 
         // Schema 13's posture (the owner's M6 playtest): Aelin crouched, on the ground; before it, standing.
         Assert.Equal(schema >= 13 ? new Posture(Stance.Crouched, false, 0) : Posture.Grounded, loaded.Player.Posture);
+
+        // Schema 15's Waystone travel: two stones known - one touched, one woken and chosen to return to - and two stretches of road
+        // walked; before it, no stone known, none chosen (the region's spawn), no road on the map.
+        Assert.Equal(schema >= 15
+                ? new[] { new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Touched, 4_100), new WaystoneRecord("waystone.fixture.ford", "region.fixture_vale", WaystoneMethod.Woken, 4_500) }
+                : Array.Empty<WaystoneRecord>(),
+            loaded.Player.Waystones);
+        Assert.Equal(schema >= 15 ? "waystone.fixture.ford" : null, loaded.Player.ReturnPoint);
+        Assert.Equal(schema >= 15 ? new[] { "road.fixture.track#0", "road.fixture.track#1" } : Array.Empty<string>(), loaded.Player.RoadsWalked);
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
