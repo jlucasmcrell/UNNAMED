@@ -267,6 +267,60 @@ worn metal, wood, damp ground. These are authoring counts, not draw-call guarant
 
 ---
 
+## 6. P3 - the art kit (begun)
+
+### P3a - the walls stop being greybox, and the lever was already in the engine
+
+**What the blockout looked like, and why.** Every render until now reported
+`UNNAMED art: baked occlusion drawn on 0 material(s)` and `0 model files in 0 ms`. `HollowView.ArtStructure`
+asks the bindings for a structure's look and, with none, falls through to `BuildStructure` - a flat box. The
+blockout's 120 structures are named `r01_wall_s_w`, `r02_wall_n_e`, and the bindings had **no entry for any of
+them**. So the grey was not a missing asset or a broken pipeline: it was a missing binding, and the coverage
+report said `no binding: a box` 120 times for anyone reading it.
+
+**The lever.** `ArtStructure` already handles the case exactly: a binding with a **`surface` and no `model`**
+builds the same collision box and overrides its material with the named world material. `ArtLibrary.WorldMaterial`
+then applies it **world-triplanar at the material's own tile size**, so a 0.6 m thick wall 4 m tall wears stone
+at the right scale with no UVs at all. That is the brief's box/triplanar retexture method, in the form the
+engine already carries - so P3 needed no new rendering work, only bindings.
+
+**What was done.** `tools/gen_barrowworks_bindings.py` reads the region's structure ids and writes a
+`structures` entry for each, `{ "surface": "cw_wet_stone_wall" }` - Poly Haven's 4K `castle_wall_slates`,
+dressed stone that has been wet a long time, which is the brief's "old works: stone". It is idempotent: a
+re-run replaces its own entries and leaves every other region's alone, so a regenerated blockout can be
+re-dressed by running it again.
+
+**Verified, not assumed.** The same room, the same shot, before and after:
+
+| | coverage | frame |
+|---|---|---|
+| no binding | `no binding: a box` x **120** | 1,666,724 B |
+| bound to `cw_wet_stone_wall` | `no binding: a box` x **0** | 2,289,816 B |
+
+And the frame shows it: coursed stone with mortar lines and depth, the centred opening leading through to the
+next room, the character against it. **The greybox is gone.**
+
+**Where the materials live, and the honest limit.** Materials resolve against the run's **art root**
+(`--asset-root`), which is how every region's materials already work - the restore carries 22 of them,
+`materials/<id>/` with 4K maps and a provenance file. This branch does **not** ship them: they are 2.3 GB and
+belong to the depot, not to a git branch. So the bindings ship with the branch and the 4K materials come from
+the art root the run names. **A bare `--visual barrowworks=1` launch with no art root still draws greybox, and
+the coverage report still says `no binding`** - which is the honest failure and not a silent one. Recording
+that here because it is the difference between "P3 is done" and "P3's bindings are done".
+
+**Measured with:**
+```
+godot --path src/Presentation -- --region region.barrowworks --content-root content \
+  --bindings-overlay content/_art_bindings.json \
+  --asset-root C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary \
+  --visual barrowworks=1 --shot "50,28,0,-0.08,3,0.15" --shot-out <dir>
+```
+
+**Still to do in P3:** the room family materials beyond walls (floor, the deep rooms' minerals from
+Sketchfab's Malopolski set); the six to eight reusable structural modules the brief asks for, replacing the
+generator's plain boxes; the gauge props modelled in Blender with an animatable needle; and the ExportHost
+export of the Fab Megascans packs once the owner adds them.
+
 ## 4. Content port (P4)
 
 Old content: `implemented/content/quests/barrowworks/unfinished_measure.yaml` — **`schema: 1`, which is
