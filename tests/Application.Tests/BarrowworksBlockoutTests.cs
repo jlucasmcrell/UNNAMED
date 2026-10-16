@@ -40,6 +40,11 @@ public class BarrowworksBlockoutTests
         Assert.False(session.Setup.Layout.SpaceId.IsExterior);
         // Its cells are qualified with that space, so they cannot collide with exterior ground.
         Assert.All(session.Setup.Layout.CellKeys, key => Assert.StartsWith("space.barrowworks/", key));
+        // And the body OPENS in it. A body standing in an interior's metres while the simulation believes it is
+        // outside is the collision the space identity exists to prevent, in reverse - and it is what kept the
+        // interior unlit, because "is the player inside" is what the interior light asks.
+        var arena = Arena.OpenWith(session, session.Setup, Harness.HollowOf(session.Setup), 0, []);
+        Assert.False(arena.Simulation.PlayerInExterior);
     }
 
     [Fact]

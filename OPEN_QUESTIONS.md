@@ -167,3 +167,30 @@ visible rather than silent.
 
 **If B should move**, the smallest fix is one pair of numbers in `content/regions/starting_frontier.yaml`
 under `portals:`. The interior anchor does not change; only `exterior_m` does.
+
+---
+
+## OQ-12 - A fresh worktree cannot render until two gitignored directories are populated
+
+**Found the hard way.** Every render taken in this worktree was black - the game's own starting region as
+much as the Barrowworks - and the cause was not the code at all:
+
+| Directory | gitignore | this worktree | needed |
+|---|---|---|---|
+| `src/Presentation/.godot/` | yes | **absent** | 2,269 imported assets |
+| `src/Presentation/addons/` | yes | 3 of 23 | the rest |
+
+Godot does not draw unimported assets, so a fresh worktree of this project has **no world at all** until:
+
+```
+godot --headless --path src/Presentation --import
+robocopy C:\Otherreach_Recovery\UNNAMED\src\Presentation\addons src\Presentation\addons /E
+```
+
+**Not a code problem, and not recorded anywhere.** The plan's P2e section carries the measurements. Anyone
+who checks this branch out fresh and runs the survey will otherwise conclude, as I did, that the dungeon is
+broken.
+
+**Caution:** the import pass rewrites tracked `*.import` files under `Art/` and `Environment/`. Those are
+Godot's own metadata and the rewrite is spurious; restore them (`git checkout -- src/Presentation/Art
+src/Presentation/Environment`) so they never reach a commit.

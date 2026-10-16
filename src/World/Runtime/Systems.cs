@@ -607,6 +607,12 @@ internal sealed class SpaceSystem
         if (_context.State.Space.IsExterior)
             return "Already outside";
 
+        // A body can be inside without having come in by a portal: a harness or a survey opens an interior
+        // region directly, and an older save's player was written inside without one. There is then no anchor
+        // to leave by, which is a refusal and not an error - leaving has to know where "out" is.
+        if (_context.State.Traversal.IsNone)
+            return "There is no way out from here";
+
         var (x, z) = _context.Setup.Layout.Portals.Leave(_context.State.Traversal);
         var facing = _context.State.Body.FacingMdeg;
         _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);

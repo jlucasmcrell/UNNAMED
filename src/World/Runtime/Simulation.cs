@@ -103,7 +103,11 @@ public sealed class Simulation
         Setup = setup;
         _identity = player;
         _cells = setup.Layout.CellKeys.Select(CellKey.Parse).OrderBy(c => c).ToImmutableArray();
-        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player);
+        // The session opens in the region's own space: the exterior for the world's regions, its own for an
+        // interior (M8 D10). A body placed in an interior's metres while the simulation believes it is outside
+        // is the collision the space identity exists to prevent, in reverse, so this is set from the layout.
+        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player,
+            setup.Layout.SpaceId);
         _context = new SystemContext(_state, setup, events, Dispatch);
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
         foreach (var entry in player.Inventory)

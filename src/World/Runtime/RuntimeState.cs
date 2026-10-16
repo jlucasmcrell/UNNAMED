@@ -101,11 +101,16 @@ internal sealed class RuntimeState
 {
     private readonly Dictionary<StateSlice, string> _owners = new();
 
-    public RuntimeState(WorldDelta world, long worldTick, Body body, PlayerRecord player)
+    public RuntimeState(WorldDelta world, long worldTick, Body body, PlayerRecord player, SpaceId startingSpace = default)
     {
         World = world;
         WorldTick = worldTick;
         Body = body;
+        // The space this session opens in is the region's own (M8 D10). A region that is part of the world is
+        // the exterior, which is the default; booting an interior region - as a harness or a survey does -
+        // opens in that interior. Without this the body stands in the interior's metres while the simulation
+        // believes it is outside, which is the collision the space identity exists to prevent, in reverse.
+        Space = startingSpace;
         Posture = player.Posture;
         Progression = player.Progression;
         Discoveries = player.Discoveries.ToImmutableSortedDictionary(d => d.LocationId, d => d, StringComparer.Ordinal);
@@ -194,17 +199,20 @@ internal sealed class RuntimeState
 
     /// <summary>
     /// Move the player into a space and say which portal they came in by; the exterior with
-    /// <see cref="SpaceTraversal.None"/> is going back outside. One call, because a body in a space it did
-    /// not arrive in - or holding a traversal that names another space's portal - is a state no rule covers.
+    /// <see cref="SpaceTraversal.None"/> is going back outside.
     /// </summary>
+    /// <remarks>
+    /// The invariant is one-way: <em>holding a traversal implies being inside</em>. The exterior can never hold
+    /// one - there is nothing out there to have come in by - but a space may be held with none, because a body
+    /// can be inside without having entered through a portal: a harness or a survey opens an interior region
+    /// directly, and a save can be written inside. Such a body can look around and cannot leave, which
+    /// <see cref="SpaceSystem.Leave"/> refuses by name rather than by throwing.
+    /// </remarks>
     public void SetSpace(SliceOwner owner, SpaceId space, SpaceTraversal traversal)
     {
         Require(owner, StateSlice.PlayerSpace);
-        if (space.IsExterior != traversal.IsNone)
-            throw new InvalidOperationException(
-                space.IsExterior
-                    ? "Left to the exterior while still holding a portal traversal"
-                    : $"Entered {space} without coming in by a portal");
+        if (space.IsExterior && !traversal.IsNone)
+            throw new InvalidOperationException("Left to the exterior while still holding a portal traversal");
         Space = space;
         Traversal = traversal;
     }

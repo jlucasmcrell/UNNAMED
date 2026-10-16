@@ -400,6 +400,56 @@ with the content port (P4). No lighting pass, no materials, no dressing. Visual 
 
 **Superseded by P2b:** the entrances now exist, so a player can reach the interior. See below.
 
+### P2e - the screenshots were never about the interior: the worktree had no imported assets
+
+**The owner's testimony was right and my measurement was wrong.** They watched every Godot launch and said
+there was *never* a world - not dark, absent - and that it had never changed. I had measured a 976 KB frame
+falling to 52 KB and read that as "my light made it worse". It was noise in a frame that was already empty.
+
+**The decisive experiment I should have run first:** render the **exterior**, ordinary play, no Barrowworks
+involved at all. It came back **mean 3.09**, with 23,019 pixels above 32 in a 2,016,000-pixel frame. The
+exterior of the game's own starting region was as black as the interior. **The Barrowworks was never the
+subject.**
+
+**Root cause.** `src/Presentation/.godot/` is gitignored, so a fresh worktree has **no import cache at all**:
+
+| | `.godot/imported` |
+|---|---|
+| shared checkout | **2,271 files** |
+| this worktree | **missing** |
+
+Godot does not render unimported assets. Every frame I took - exterior and interior, gated and ungated - was
+of a project with nothing to draw. `src/Presentation/addons/` is gitignored too and was also incomplete (3
+addons against 23); copying those changed nothing on its own, so the addons were a red herring and the
+import cache was the whole of it.
+
+**The fix, and the evidence it is the fix:** run one import pass in the worktree
+(`godot --headless --path src/Presentation --import`, 2,269 files), then the same exterior shot again:
+
+| | mean luminance | pixels above 32 |
+|---|---|---|
+| exterior, no import cache | **3.09** | 23,019 |
+| exterior, imported | **100.86** | 1,938,945 |
+
+**Grass, sky, the character, a shadow, an ash hound and a rock formation** - the game, rendering, in this
+worktree for the first time.
+
+**What this means for the phases already done.** Nothing in P0-P2's *code* was wrong: the blockout builds,
+its walls and doorway are where the generator put them, collision works, the space identity holds, the gate
+is enforced, and all 897 tests pass. But **every visual claim I made before this is void** - in particular
+P2d's "the blockout renders correctly, it is merely unlit", which was an over-read of an amplified empty
+frame. The honest position is that until this round **no render had been seen**, and P2's screenshots must be
+re-taken and re-judged from zero.
+
+**A setup step the brief did not mention and no document recorded.** A fresh worktree of this project needs
+two gitignored directories populated before it can render: `.godot/` (imported assets, via an import pass)
+and `addons/`. Anyone building a second worktree will hit this. It is recorded here so they do not.
+
+**The interior is genuinely dark** - now that there is a world to compare it to, the room frames show walls,
+floor and character lit faintly by a blue sky ambient that does not reach an enclosed space. That finding
+survived the fix; the lighting work it implies is real, and was reverted this round because it was measured
+against a frame that could not show its effect.
+
 ### P2d - the screenshot pass, and what it found
 
 **The survey command, for reuse** (GPU lock held for the duration, released after):
