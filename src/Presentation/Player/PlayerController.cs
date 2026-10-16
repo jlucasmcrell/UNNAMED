@@ -19,11 +19,12 @@ public enum FocusKind
     Npc,
     Switch,
     Barrier,
+    Waystone,
 }
 
 /// <summary>
 /// What the player means to use: a door, a container, an item lying in the world (and its quality), a resource node (its
-/// definition), a crafting station (its kind), a named NPC (M4), a switch not yet set, or a barrier standing in the way (M6).
+/// definition), a crafting station (its kind), a named NPC (M4), a switch not yet set, a barrier standing in the way (M6), or a Waystone (S-38).
 /// </summary>
 public sealed record Focus(FocusKind Kind, string Key, string DefId, long XMm, long ZMm, int Quality = 0);
 
@@ -64,6 +65,9 @@ public sealed class PlayerController
 
     /// <summary>Back at the Waystone, standing (M-05, L-14): a key still held is sent again, and the jump there is not a step.</summary>
     public void OnRespawned(PlayerRespawned respawned) => _motion.OnRespawned(respawned);
+
+    /// <summary>Set down at the far stone (S-38), as at a respawn.</summary>
+    public void OnTravelled(PlayerTravelled travelled) => _motion.OnTravelled(travelled);
 
     public void OnDoorToggled(DoorToggled toggled) => _open[toggled.DoorKey] = toggled.Open;
 
@@ -208,6 +212,12 @@ public sealed class PlayerController
             var (x, z) = Footprints.Center(view.Site.Body);
             candidates.Add((new Focus(FocusKind.Switch, view.Site.Key, view.Site.FlagId, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
+        // A Waystone is touched like a switch is worked, from the body to its edge (S-38); a known one opens its panel.
+        foreach (var view in simulation.Waystones)
+        {
+            var (x, z) = Footprints.Center(view.Site.Body);
+            candidates.Add((new Focus(FocusKind.Waystone, view.Site.Key, view.Site.Key, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
         // A standing barrier cannot be used, but whoever stands at it is told what it is.
         foreach (var view in simulation.Barriers.Where(b => b.Standing))
         {
@@ -249,6 +259,19 @@ public sealed class PlayerController
     /// <summary>Tell a companion to follow or to wait (M6).</summary>
     public void Order(string npcId, Domain.Companions.CompanionOrder order) =>
         _session.Submit(new OrderCompanionCommand(_session.Simulation!.PlayerId, npcId, order));
+
+    /// <summary>A hand on a Waystone (S-38): it is known from now on, or - dormant, its rite heard - woken.</summary>
+    public void TouchStone(string stoneKey)
+    {
+        _session.Submit(new TouchStoneCommand(_session.Simulation!.PlayerId, stoneKey));
+        Reached?.Invoke();
+    }
+
+    /// <summary>Make the stone the character stands at their return point: its own act, never travel's.</summary>
+    public void BindStone(string stoneKey) => _session.Submit(new BindStoneCommand(_session.Simulation!.PlayerId, stoneKey));
+
+    /// <summary>Go by the stones, from the one the character stands at to another they know.</summary>
+    public void TravelTo(string fromKey, string toKey) => _session.Submit(new TravelCommand(_session.Simulation!.PlayerId, fromKey, toKey));
 
     /// <summary>Help a downed companion up (M6).</summary>
     public void Revive(string npcId)

@@ -66,6 +66,11 @@ public partial class Main : Node3D
     private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
     private CompanionsPanel _companionsPanel = null!;
+    private WaystonePanel _waystones = null!;
+    private MapPanel _map = null!;
+
+    /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
+    private bool _autorun;
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Art.HitImpacts _hits = null!;
@@ -385,6 +390,12 @@ public partial class Main : Node3D
         _companionsPanel = new CompanionsPanel { Name = "Companions" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
+        _waystones = new WaystonePanel { Name = "Waystones" };
+        _waystones.Bind(_session, _controller);
+        AddChild(_waystones);
+        _map = new MapPanel { Name = "Map" };
+        _map.Bind(_session);
+        AddChild(_map);
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
@@ -394,6 +405,7 @@ public partial class Main : Node3D
                 new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
                 new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
                 new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
+                new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
                 new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
                 new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
                 new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
@@ -414,6 +426,8 @@ public partial class Main : Node3D
         _character.UseIcons(icons);
         _effectsPanel.UseIcons(icons);
         _companionsPanel.UseIcons(icons);
+        _waystones.UseIcons(icons);
+        _map.UseIcons(icons);
         _menu.UseIcons(icons);
         _journal.UseIcons(icons);
         _help.UseIcons(icons);
@@ -491,51 +505,7 @@ public partial class Main : Node3D
         }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
             SizeForCapture();
-            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, name =>
-            {
-                // Escape is pressed on whatever is open; every other name opens its screen in place of the last.
-                if (name != "escape")
-                    CloseScreens();
-                switch (name)
-                {
-                    case "menu_character":
-                        // A destination chosen on the System Menu, as its row's press chooses it.
-                        _menu.Visible = true;
-                        _menu.Choose("Character");
-                        break;
-                    case "escape":
-                        Escape();
-                        break;
-                    case "menu":
-                        _menu.Visible = true;
-                        break;
-                    case "character":
-                        Show(_character);
-                        break;
-                    case "inventory":
-                        OpenInventory(null);
-                        break;
-                    case "journal":
-                        Show(_journal);
-                        break;
-                    case "effects":
-                        Show(_effectsPanel);
-                        break;
-                    case "companions":
-                        Show(_companionsPanel);
-                        break;
-                    case "help":
-                        _help.Toggle();
-                        break;
-                    case "saves":
-                        _saves.OpenInGame();
-                        break;
-                    case "announce":
-                        // The announcement as a level-up shows it, pictured without waiting a level (a preview: nothing is awarded).
-                        _hud.Announce("Level up", "Level 2", HudStyle.Ember, ("A point to spend on the character sheet", HelpPanel.Key("character")));
-                        break;
-                }
-            });
+            _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, ScreenByName);
         }
         else if (playthrough is not null)
         {
@@ -544,7 +514,7 @@ public partial class Main : Node3D
             _realtime = _flags.Contains("--realtime");
             if (!_realtime)
                 Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
-            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued);
+            _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued, ScreenByName);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
         {
@@ -938,7 +908,7 @@ public partial class Main : Node3D
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -950,8 +920,68 @@ public partial class Main : Node3D
         _saves.Close();
         if (_help.Visible)
             _help.Toggle();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel })
+        _waystones.Close();
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map })
             screen.Visible = false;
+    }
+
+    /// <summary>
+    /// A screen opened by name, for the harnesses that picture them (the UI shots, the playthrough): Escape is pressed on whatever is open;
+    /// every other name opens its screen in place of the last, and "" closes them.
+    /// </summary>
+    private void ScreenByName(string name)
+    {
+        if (name != "escape")
+            CloseScreens();
+        switch (name)
+        {
+            case "menu_character":
+                // A destination chosen on the System Menu, as its row's press chooses it.
+                _menu.Visible = true;
+                _menu.Choose("Character");
+                break;
+            case "escape":
+                Escape();
+                break;
+            case "menu":
+                _menu.Visible = true;
+                break;
+            case "character":
+                Show(_character);
+                break;
+            case "inventory":
+                OpenInventory(null);
+                break;
+            case "journal":
+                Show(_journal);
+                break;
+            case "effects":
+                Show(_effectsPanel);
+                break;
+            case "companions":
+                Show(_companionsPanel);
+                break;
+            case "help":
+                _help.Toggle();
+                break;
+            case "saves":
+                _saves.OpenInGame();
+                break;
+            case "announce":
+                // The announcement as a level-up shows it, pictured without waiting a level (a preview: nothing is awarded).
+                _hud.Announce("Level up", "Level 2", HudStyle.Ember, ("A point to spend on the character sheet", HelpPanel.Key("character")));
+                break;
+            case "map":
+                Show(_map);
+                break;
+        }
+    }
+
+    /// <summary>The Waystone panel, at the stone the character stands at.</summary>
+    private void Show(WaystonePanel panel, string stoneKey)
+    {
+        CloseScreens();
+        panel.Open(stoneKey);
     }
 
     /// <summary>Open a screen in place of whatever was open: a destination replaces the menu, and a screen's own key replaces another.</summary>
@@ -1088,6 +1118,8 @@ public partial class Main : Node3D
                 Toggle(_character, () => Show(_character));
             if (Input.IsActionJustPressed("journal"))
                 Toggle(_journal, () => Show(_journal));
+            if (Input.IsActionJustPressed("map"))
+                Toggle(_map, () => Show(_map));
             if (Input.IsActionJustPressed("help"))
                 Toggle(_help, _help.Toggle);
             if (Input.IsActionJustPressed("saves"))
@@ -1106,6 +1138,7 @@ public partial class Main : Node3D
         }
         if (modal)
         {
+            _autorun = false;
             // Loot stays within reach: walking is allowed, while other panels and gameplay actions remain blocked.
             var lootStick = looting && _inventory.Visible ? new Vector2(
                 Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
@@ -1121,6 +1154,17 @@ public partial class Main : Node3D
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = Input.IsActionPressed("sprint") ? Gait.Sprint : Input.IsActionPressed("walk") ? Gait.Walk : Gait.Run;
+        // Autorun: the key turns it on and off, and stepping back turns it off; while on, the character goes forward, still steered by
+        // the camera and the side keys, at whatever gait is held.
+        if (Input.IsActionJustPressed("autorun"))
+        {
+            _autorun = !_autorun;
+            _hud.Toast(_autorun ? $"Autorun - [{HelpPanel.Key("autorun")}] or a step back stops it" : "Autorun off", 2);
+        }
+        if (Input.IsActionPressed("move_back"))
+            _autorun = false;
+        if (_autorun)
+            stick = new Vector2(stick.X, 1);
 
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
@@ -1183,6 +1227,12 @@ public partial class Main : Node3D
                     break;
                 case FocusKind.Switch:
                     _controller.Interact(focus.Key);
+                    break;
+                case FocusKind.Waystone:
+                    if (_session.Simulation!.Waystones.Any(w => w.Site.Key == focus.Key && w.Known))
+                        Show(_waystones, focus.Key);
+                    else
+                        _controller.TouchStone(focus.Key);
                     break;
             }
         }
@@ -1373,6 +1423,9 @@ public partial class Main : Node3D
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] Help {Names.Of(_session, npc.Key)} up",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] Talk to {Names.Of(_session, npc.Key)}",
             { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Waystone } stone => simulation.Waystones.First(w => w.Site.Key == stone.Key) is var w && w.Known
+                ? $"[{HelpPanel.Key("interact")}] The {w.Site.Name}: Waystones you know"
+                : $"[{HelpPanel.Key("interact")}] Touch the stone",
             { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
             { } item => $"[{HelpPanel.Key("interact")}] Pick up {Names.Item(_session, item.DefId, item.Quality)}",
         });
@@ -1446,7 +1499,20 @@ public partial class Main : Node3D
     {
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
         _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
-        _session.Subscribe<DoorToggled>(e =>
+        // Waystones (S-38): what a hand on a stone found, a return point chosen, and a journey's arrival with the time it took.
+        _session.Subscribe<StoneTouched>(e =>
+        {
+            _hud.Toast(e.Text, 7);
+            Show(_waystones, e.StoneKey);
+        });
+        _session.Subscribe<ReturnPointBound>(e => _hud.Toast($"The {StoneName(e.StoneKey)} is your return point. When you fall, you come back here.", 5));
+        _session.Subscribe<PlayerTravelled>(e =>
+        {
+            _controller.OnTravelled(e);
+            _autorun = false;
+            CloseScreens();
+            _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, e.Cost.WorldTicks, TicksPerDay).Replace("You arrive", "You arrived").Replace("would take", "would have taken")}", 7);
+        });        _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
@@ -1477,7 +1543,7 @@ public partial class Main : Node3D
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
-                or SpendAttributeCommand)
+                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand)
                 _hud.Toast(e.Reason, 3);
             // A jump or a stand refused under the beam says why; one refused mid-action or in the air stays quiet.
             if (e.Command is JumpCommand or CrouchCommand && e.Reason == "no room to stand")
@@ -1701,8 +1767,10 @@ public partial class Main : Node3D
             string recap = string.Join("\n", e.Recap.Select(r =>
                 r.AttackerDefId == r.Source ? $"{Name(r.Source)}: {r.Damage}" : $"{Name(r.AttackerDefId)}, {Name(r.Source).ToLowerInvariant()}: {r.Damage}"));
             string killer = e.KillerDefId == e.Cause ? Name(e.Cause) : $"the {Name(e.KillerDefId)} ({Name(e.Cause).ToLowerInvariant()})";
+            _autorun = false;
+            string returnAt = _session.Simulation!.Waystones.FirstOrDefault(w => w.ReturnPoint)?.Site.Name ?? "Ashen Waystone";
             _hud.ShowDeath($"You died - killed by {killer}.\n\nThe last blows:\n{recap}\n\nXP debt +{e.DebtAdded} (nothing earned is lost). " +
-                           "You return at the Ashen Waystone, weakened for a minute.");   // content bible §18
+                           $"You return at the {returnAt}, weakened for a minute.");   // content bible §18; the return point chosen (S-38)
         });
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -1711,6 +1779,8 @@ public partial class Main : Node3D
                 _hud.Toast(e.Reason, 2);
         });
     }
+
+    private string StoneName(string key) => _session.Setup.Layout.FindWaystone(key)?.Name ?? key;
 
     private string CreatureDef(Domain.EntityId id) =>
         _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == id)?.DefId ?? "creature";
@@ -2147,6 +2217,8 @@ public partial class Main : Node3D
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
         Bind("journal", Key.J);
+        Bind("map", Key.M);
+        Bind("autorun", Key.Quoteleft);   // the owner's second-play brief §23: autorun on tilde
         Bind("quicksave", Key.F5);
         Bind("quickload", Key.F9);
         Bind("saves", Key.L);
