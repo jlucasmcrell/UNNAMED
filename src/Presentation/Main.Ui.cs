@@ -80,7 +80,7 @@ public partial class Main
         _help.UseIcons(icons);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
-        _saves.Load = (slot, copy) => LoadChosen(slot, copy);
+        _saves.Load = save => LoadChosen(save.Slot, save.Copy, save);
         _saves.Closed = () => BackToTitle(_saves.Close);
         AddChild(_saves);
         _saves.UseIcons(icons);
@@ -89,10 +89,10 @@ public partial class Main
         _title = new TitleScreen
         {
             Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
-            Continue = (slot, copy) => LoadChosen(slot, copy),
+            Continue = next => LoadChosen(next.Slot, next.Copy, next),
             NewGame = () =>
             {
-                _session.NewGame("Wanderer");
+                _session.NewGame(DefaultCharacter);
                 Started();
             },
             Load = () => FromTitle(_saves.OpenStart),
@@ -435,7 +435,7 @@ public partial class Main
             ("09_load_when_saves_exist", () =>
             {
                 BackToTitle(_saves.Close);
-                _session.NewGame("Wanderer");
+                _session.NewGame(DefaultCharacter);
                 Started();
             }),
             ("10_in_game", () =>

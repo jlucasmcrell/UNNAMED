@@ -109,7 +109,7 @@ public class StoryFrameworkTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.False(simulation.HasOpeningQuests);
         Assert.Empty(simulation.CommandLog);   // today's content has no opening: a new game submits nothing
 
@@ -131,7 +131,7 @@ public class StoryFrameworkTests
             """));
         using var second = new TempProfile();
         var story = GameSession.Boot(new GameOptions(opened.Root, second.Root));
-        var begun = story.NewGame("Wanderer", seed: 42);
+        var begun = story.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.Equal(0, begun.WorldTick);
         Assert.Equal(QuestStatus.Active, Assert.Single(begun.Quests).Status);
         Assert.IsType<BeginStoryCommand>(Assert.Single(begun.CommandLog).Command);
@@ -399,13 +399,13 @@ public class StoryFrameworkTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.Empty(session.Journal!.Recent);
         session.NoteAway(0, new[] { "Three days passed.", " ", "Renn sold the last of the salt." });
         Assert.Equal(new[] { "Renn sold the last of the salt.", "Three days passed." }, session.Journal!.Recent.Select(e => e.Text));
         Assert.All(session.Journal.Recent, e => Assert.Equal(JournalEntryKind.Away, e.Kind));
 
-        session.NewGame("Wanderer", seed: 43);
+        session.NewGame(Harness.Named("Wanderer"), seed: 43);
         Assert.Empty(session.Journal!.Recent);
     }
 
@@ -414,7 +414,7 @@ public class StoryFrameworkTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var first = session.NewGame("Wanderer", seed: 42);
+        var first = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.Equal("a note has words", session.AddNote("   "));
         Assert.NotNull(session.AddNote(new string('x', JournalNotes.MaxLength + 1)));
         Assert.Null(session.AddNote("Ask Renn about the den."));
@@ -425,7 +425,7 @@ public class StoryFrameworkTests
 
         // The same character's notes come back from the file; another character's journal starts empty.
         Assert.Equal(new[] { "Kera wants ore." }, new JournalNotes(profile.Root, first.PlayerId).All.Select(n => n.Text));
-        session.NewGame("Wanderer", seed: 43);
+        session.NewGame(Harness.Named("Wanderer"), seed: 43);
         Assert.Empty(session.Notes!.All);
         Assert.Empty(session.SaveSlots());   // notes are not a save
     }
@@ -461,7 +461,7 @@ public class StoryFrameworkTests
         var session = Harness.Boot(profile);
         session.RequestAutosave();
         Assert.False(session.AutosaveRequested);   // no world yet: nothing to save
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(session, (int)Math.Ceiling(GameSession.EventAutosaveSpacingSeconds / session.TickSeconds));
         session.RequestAutosave();
         var taken = session.Frame(session.TickSeconds);

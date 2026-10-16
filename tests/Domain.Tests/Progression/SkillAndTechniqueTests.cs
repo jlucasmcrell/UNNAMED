@@ -138,4 +138,24 @@ public class SkillAndTechniqueTests
         Assert.Equal(LearningSource.StartingPackage, p.Known["ability.martial.weapon_focus"].Source);
         Assert.Equal(CharacterProgression.Empty.Digest, ProgressionEngine.Create(Rules).Digest);   // Phase 1's package is empty
     }
+    [Fact]
+    public void ACallsPackage_StacksOnTheStartingPackage_AsCreationGrants_AndASharedSkillTakesTheHigherLevel()
+    {
+        var package = new StartingPackage(
+            ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 1) }),
+            ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create(Athletics, 20) }),
+            ImmutableArray<string>.Empty);
+        var call = new StartingPackage(
+            ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 2), KeyValuePair.Create(CharacterAttribute.Will, 2) }),
+            ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create(Athletics, 15), KeyValuePair.Create("skill.smithing", 15) }),
+            ImmutableArray<string>.Empty);
+        var rules = Default(package: package);
+
+        var p = ProgressionEngine.Create(rules with { StartingPackage = package.With(call) });
+
+        Assert.Equal(13, ProgressionEngine.AttributeValue(p, CharacterAttribute.Might, rules));
+        Assert.Equal(12, ProgressionEngine.AttributeValue(p, CharacterAttribute.Will, rules));
+        Assert.All(p.Grants, g => Assert.Equal(GrantSource.Creation, g.Source));
+        Assert.Equal((20, 15), (ProgressionEngine.SkillLevel(p, Athletics), ProgressionEngine.SkillLevel(p, "skill.smithing")));
+    }
 }

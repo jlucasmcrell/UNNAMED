@@ -16,7 +16,7 @@ public class SaveLoadTests
     /// </summary>
     private static Simulation PlaySomething(GameSession session)
     {
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
         Assert.True(Harness.WalkPath(session, (60, 128), (100, 100), (135, 70)));
@@ -58,7 +58,7 @@ public class SaveLoadTests
         var simulation = PlaySomething(session);
         session.Save(SaveSlots.Quick);
 
-        var cells = SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(profile.Root, SaveSlots.Quick, SaveFormat.Cells)));
+        var cells = SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(session.SaveFolder, SaveSlots.Quick, SaveFormat.Cells)));
         var outpost = Assert.Single(cells);
         Assert.Equal("r_0_0:c_04_07", outpost.CellKey);
         Assert.Equal(new[] { KeyValuePair.Create(LonghouseFlag, 1L) }, outpost.Flags);
@@ -70,7 +70,7 @@ public class SaveLoadTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
         Harness.Ticks(session, 1);
@@ -78,7 +78,7 @@ public class SaveLoadTests
         Harness.Ticks(session, 1);
         session.Save(SaveSlots.Quick);
 
-        Assert.Empty(SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(profile.Root, SaveSlots.Quick, SaveFormat.Cells))));
+        Assert.Empty(SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(session.SaveFolder, SaveSlots.Quick, SaveFormat.Cells))));
     }
 
     [Fact]

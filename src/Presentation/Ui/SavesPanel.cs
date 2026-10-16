@@ -28,8 +28,8 @@ public partial class SavesPanel : CanvasLayer
     /// <summary>The screen's own tile in the game, as its System Menu row shows it; the start screen has none.</summary>
     public void UseIcons(HudIcons icons) => _icon = icons.Binds("panel.saves") ? icons.For("panel.saves") : null;
 
-    /// <summary>What the player chose: Main loads, and closes the panel once a world runs.</summary>
-    public Action<string, SaveCopy>? Load { get; set; }
+    /// <summary>What the player chose: Main loads it from its own character's folder, and closes the panel once a world runs.</summary>
+    public Action<SaveSummary>? Load { get; set; }
 
     /// <summary>Back: to the game, or to the title screen. Main closes the panel.</summary>
     public Action? Closed { get; set; }
@@ -103,7 +103,7 @@ public partial class SavesPanel : CanvasLayer
             if (newest)
                 focus ??= load;
             newest = false;
-            foreach (var copy in _session.OtherCopies(save.Slot))
+            foreach (var copy in _session.OtherCopies(save))
                 Row(list, copy, false);
         }
         _sheet.Body.AddChild(list);
@@ -126,7 +126,7 @@ public partial class SavesPanel : CanvasLayer
         // A damaged save may still give up what survives (§7.2: partial recovery beats none); one this build cannot read, nothing.
         if (save.Problem is null || save.Problem.StartsWith("it is damaged", StringComparison.Ordinal))
         {
-            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save.Slot, save.Copy),
+            load = Action(save.Problem is null ? "Load" : "Load what survives", () => Load?.Invoke(save),
                 primary ? UiKit.Kind.Primary : UiKit.Kind.Normal, compact: copy);
             row.Root.AddChild(load);
         }

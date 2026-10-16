@@ -245,7 +245,7 @@ public class CombatTests
     public void TheWolf_IsInTheWorld_AtItsAuthoredLevel_AndTheStraysStandInTheValley()
     {
         using var profile = new TempProfile();
-        var simulation = Harness.Boot(profile).NewGame("Tester", seed: 42);
+        var simulation = Harness.Boot(profile).NewGame(Harness.Named("Tester"), seed: 42);
         var strays = simulation.Creatures.Where(c => c.Key.StartsWith("spawn.hollow.valley_strays#", StringComparison.Ordinal)).ToList();
         Assert.Equal(2, strays.Count);
         Assert.All(strays, s =>

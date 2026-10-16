@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
@@ -34,6 +35,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>How Waystone travel is tuned (S-38).</summary>
     public TravelRules Travel { get; init; } = TravelRules.Default;
+
+    /// <summary>The peoples and Calls the character creator offers (WP2).</summary>
+    public CharacterSetup Character { get; init; } = CharacterSetup.None;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -164,16 +168,36 @@ public sealed class Simulation
 
     /// <summary>
     /// A new character standing at the region's spawn point, with the starting package (PROGRESSION.md §5) and the
-    /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped).
+    /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped), and no Call.
     /// </summary>
-    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed)
+    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed) =>
+        NewCharacter(setup, id, name, null, appearanceSeed);
+
+    /// <summary>
+    /// A new character made from the creator's spec: the starting package and kit, plus its Call's package, kit and contact (accepted
+    /// OD-C03). The spec must name a playable people and, if any, a defined Call.
+    /// </summary>
+    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, CharacterSpec spec, ulong appearanceSeed)
+    {
+        spec = spec.Validated();
+        setup.Character.Check(spec);
+        var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
+        return NewCharacter(setup, id, spec.Name, call, appearanceSeed);
+    }
+
+    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed)
     {
         var spawn = setup.Layout.Spawn;
-        var kit = setup.Items.StartingKit.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count))).ToList();
+        var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
+        var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count))).ToList();
         var equipment = kit.Where(k => k.Item.Equip)
             .Select(k => KeyValuePair.Create(setup.Items.Catalog.Get(k.Item.ItemId).Slot!.Value, k.Entry.ItemId));
+        var contact = call is null
+            ? Array.Empty<RelationshipValue>()
+            : new[] { new RelationshipValue(call.Contact.NpcId, "trust", call.Contact.Trust) };
         return new PlayerRecord(id, name, spawn.XMm, spawn.YMm, spawn.ZMm, appearanceSeed, kit.Select(k => k.Entry),
-            ProgressionEngine.Create(setup.Progression), spawn.FacingMdeg, equipment: equipment);
+            ProgressionEngine.Create(call is null ? setup.Progression : setup.Progression with { StartingPackage = setup.Progression.StartingPackage.With(call.Package) }),
+            spawn.FacingMdeg, equipment: equipment, relationships: contact);
     }
 
     /// <summary>The cell a door stands in: its flag lives in that cell's delta.</summary>

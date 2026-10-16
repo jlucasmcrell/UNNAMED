@@ -14,7 +14,7 @@ public class InteractionAndDiscoveryTests
     /// <summary>Stand just outside the longhouse door, on its east side.</summary>
     private static Simulation AtTheLonghouseDoor(GameSession session)
     {
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         return simulation;
     }
@@ -42,7 +42,7 @@ public class InteractionAndDiscoveryTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var rejected = Harness.Record<CommandRejected>(session);
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.longhouse"));
@@ -91,7 +91,7 @@ public class InteractionAndDiscoveryTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var rejected = Harness.Record<CommandRejected>(session);
 
         session.Submit(new InteractCommand(simulation.PlayerId, "door.nowhere"));
@@ -105,7 +105,7 @@ public class InteractionAndDiscoveryTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
 
@@ -121,7 +121,7 @@ public class InteractionAndDiscoveryTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
 

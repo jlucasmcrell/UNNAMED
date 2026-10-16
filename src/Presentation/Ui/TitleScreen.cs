@@ -28,7 +28,7 @@ public partial class TitleScreen : CanvasLayer
 
     public void Bind(GameSession session) => _session = session;
 
-    public Action<string, SaveCopy>? Continue { get; set; }
+    public Action<SaveSummary>? Continue { get; set; }
     public Action? NewGame { get; set; }
     public Action? Load { get; set; }
     public Action? Settings { get; set; }
@@ -95,7 +95,7 @@ public partial class TitleScreen : CanvasLayer
     {
         if (!Visible || _session.StartChoice().Continue is not { } next)
             return false;
-        Continue?.Invoke(next.Slot, next.Copy);
+        Continue?.Invoke(next);
         return true;
     }
 
@@ -112,7 +112,7 @@ public partial class TitleScreen : CanvasLayer
         Control? focus = null;
         if (choice.Continue is { } next)
         {
-            var resume = Entry("Continue", () => Continue?.Invoke(next.Slot, next.Copy), UiKit.Kind.Primary,
+            var resume = Entry("Continue", () => Continue?.Invoke(next), UiKit.Kind.Primary,
                 $"{SavesPanel.Describe(next.Slot, next.Copy)} · {SavesPanel.When(next)} · {SavesPanel.Played(next)}");
             focus = resume;
         }

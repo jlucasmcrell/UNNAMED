@@ -2,6 +2,7 @@
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
+using UNNAMED.Domain.Character;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
@@ -12,6 +13,12 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
+    /// <summary>
+    /// The character a new game makes until the creator screen exists (WP2's local part): the slice's acceptance character, with no Call,
+    /// exactly as before the creator.
+    /// </summary>
+    private static readonly CharacterSpec DefaultCharacter = CharacterSpec.Quick(CharacterSpec.DefaultName, null);
+
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
     private void Resync()
     {
@@ -151,18 +158,19 @@ public partial class Main
 
     /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
     private (string Slot, SaveCopy Copy, LoadResult Result)? Continue() =>
-        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy) is { } result ? (next.Slot, next.Copy, result) : null;
+        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy, next) is { } result ? (next.Slot, next.Copy, result) : null;
 
     /// <summary>
     /// Load the copy of a save the player chose. When it cannot be loaded, the saves list opens saying why, with that save's backups and
-    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2).
+    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2). A save the list offered is loaded from
+    /// its own character's folder (OD-14); without one, the slot is the character in play's.
     /// </summary>
-    private LoadResult? LoadChosen(string slot, SaveCopy copy)
+    private LoadResult? LoadChosen(string slot, SaveCopy copy, SaveSummary? offered = null)
     {
         string what = SavesPanel.Describe(slot, copy);
         try
         {
-            var result = _session.Load(slot, copy);
+            var result = offered is null ? _session.Load(slot, copy) : _session.Load(offered);
             Started();
             _loadedFrom = what;
             _hud.Toast(result.IsComplete ? $"Loaded: {what}" : $"Loaded {what}, with losses - see the log");

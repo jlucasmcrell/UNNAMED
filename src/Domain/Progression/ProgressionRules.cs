@@ -133,8 +133,8 @@ public sealed record XpGuards(
 }
 
 /// <summary>
-/// What a new character starts with (§5). Phase 1 has no archetype choice, so one default package from
-/// <c>config.progression</c> applies to every character.
+/// What a new character starts with (§5): the default package from <c>config.progression</c>, which applies to every character, plus the
+/// package of the Call the character chose, if any (accepted OD-C03).
 /// </summary>
 public sealed record StartingPackage(
     ImmutableSortedDictionary<CharacterAttribute, int> AttributeBias,
@@ -145,6 +145,21 @@ public sealed record StartingPackage(
         ImmutableSortedDictionary<CharacterAttribute, int>.Empty,
         ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal),
         ImmutableArray<string>.Empty);
+
+    /// <summary>
+    /// This package with a Call's added: attribute bias adds up, a skill both start begins at the higher level, and techniques are both
+    /// packages'. A new character is made from the result through <see cref="ProgressionEngine.Create"/>, so it is all creation grants.
+    /// </summary>
+    public StartingPackage With(StartingPackage call)
+    {
+        var bias = AttributeBias.ToBuilder();
+        foreach (var (attribute, points) in call.AttributeBias)
+            bias[attribute] = bias.GetValueOrDefault(attribute) + points;
+        var skills = Skills.ToBuilder();
+        foreach (var (skill, level) in call.Skills)
+            skills[skill] = Math.Max(skills.GetValueOrDefault(skill), level);
+        return new StartingPackage(bias.ToImmutable(), skills.ToImmutable(), Techniques.Union(call.Techniques, StringComparer.Ordinal).ToImmutableArray());
+    }
 }
 
 /// <summary>A tier row from §3.2's pacing table: the hours mixed play should take across these levels.</summary>

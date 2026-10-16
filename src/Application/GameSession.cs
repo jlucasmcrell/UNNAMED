@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Character;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -58,9 +59,15 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
     /// <summary>Newer saves that Continue passes over because they cannot be loaded as they are. They are shown, never skipped silently.</summary>
     public ImmutableArray<SaveSummary> PassedOver => Saves.TakeWhile(s => s.Problem is not null).ToImmutableArray();
 
-    /// <summary>A new game writes to the same slots as the saves already there, so it is confirmed first when there are any.</summary>
-    public bool NewGameAsksFirst => !Saves.IsEmpty;
+    /// <summary>
+    /// Never: a new character saves in a folder of its own (OD-14), so starting one cannot replace a save already there. Kept so a start
+    /// screen written before folders asks nothing.
+    /// </summary>
+    public bool NewGameAsksFirst => false;
 }
+
+/// <summary>A character's save folder as the start screen lists it: whose it is, and its saves, newest first.</summary>
+public sealed record CharacterSaves(string? Character, string? Name, ImmutableArray<SaveSummary> Saves);
 
 /// <summary>
 /// How a save written in the background went (P-01): its slot, whether it was an autosave, the playtime its world was captured at, and
@@ -100,7 +107,11 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public const double EventAutosaveSpacingSeconds = 10;
 
     private readonly EventBus _bus;
-    private readonly SaveStore _store;
+    private readonly SaveStore _profileStore;
+    private readonly Dictionary<string, SaveStore> _characterStores = new(StringComparer.Ordinal);
+    private SaveStore _store;
+    private string? _character;
+    private CharacterCard? _card;
     private readonly ProfileLock? _lock;
     private readonly IReadOnlyDictionary<string, string> _names;
     private readonly ImmutableArray<BaselineTransition> _transitions;
@@ -125,8 +136,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _lock = options.LockProfile ? ProfileLock.Acquire(options.ProfileRoot) : null;
         try
         {
-            _store = new SaveStore(options.ProfileRoot, options.SaveStepHook);
-            _store.RecoverInterruptedCommits();
+            _profileStore = new SaveStore(options.ProfileRoot, options.SaveStepHook);
+            _profileStore.RecoverInterruptedCommits();
+            foreach (var character in CharacterFolders.List(options.ProfileRoot))
+                StoreFor(character.Value).RecoverInterruptedCommits();
+            // Until a game starts, the saves in play are those Continue would load: the newest loadable save's character.
+            _character = StartChoice().Continue?.Character;
+            _store = StoreOf(_character);
         }
         catch
         {
@@ -167,6 +183,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Travel = WorldContent.BuildTravel(loader),
+            Character = CharacterContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
@@ -221,15 +238,35 @@ public sealed class GameSession : IDomainEvents, IDisposable
         }
     }
 
-    /// <summary>A new character in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2).</summary>
-    public Simulation NewGame(string characterName, ulong seed = 0)
+    /// <summary>The peoples a character can be made from and the Calls they can choose: what the creator offers (WP2).</summary>
+    public CharacterSetup Characters => Setup.Character;
+
+    /// <summary>
+    /// The character folder whose saves are in play (OD-14): the running character's, or before a game starts the one Continue would load.
+    /// Null for the saves written at the profile root before folders existed.
+    /// </summary>
+    public string? Character => _character;
+
+    /// <summary>The folder the character in play saves to: its own under <c>characters/</c>, or the profile root for a save from before folders.</summary>
+    public string SaveFolder => _store.Root;
+
+    /// <summary>
+    /// A new character, made from the creator's spec, in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2). The
+    /// character's saves go to a folder of their own (OD-14). Throws an <see cref="ArgumentException"/> when the spec is invalid or names
+    /// a people or Call this content does not offer.
+    /// </summary>
+    public Simulation NewGame(CharacterSpec spec, ulong seed = 0)
     {
         while (seed == 0)
             seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         var id = EntityId.NewId(EntityKind.Character);
-        var player = Simulation.NewCharacter(Setup, id, characterName, PlayerRecord.DerivedAppearanceSeed(id));
+        var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id));
         var world = new WorldDelta(Generator, seed, new Registry());
-        Begin(Simulation.Start(Setup, player, world, 0, _bus), playtime: 0);
+        var simulation = Simulation.Start(Setup, player, world, 0, _bus);
+        _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
+        _store = StoreFor(id.Value);
+        _card = new CharacterCard(id.Value, player.Name, spec.PeopleId, spec.CallId);
+        Begin(simulation, playtime: 0);
         // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
         if (_simulation!.HasOpeningQuests)
         {
@@ -239,17 +276,27 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return _simulation!;
     }
 
-    /// <summary>Load a slot through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
+    /// <summary>Load a slot of the character in play through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
     public LoadResult Load(string slot) => Load(slot, SaveCopy.Current);
 
     /// <summary>
-    /// Load one copy of a slot: the save, a backup, or the save it displaced (B-01). A copy other than the save itself is loaded only
-    /// because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
+    /// Load one copy of a slot of the character in play: the save, a backup, or the save it displaced (B-01). A copy other than the save
+    /// itself is loaded only because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
     /// </summary>
-    public LoadResult Load(string slot, SaveCopy copy)
+    public LoadResult Load(string slot, SaveCopy copy) => Load(_character, slot, copy);
+
+    /// <summary>Load a save as the start screen or the saves list offered it, from whichever character's folder holds it.</summary>
+    public LoadResult Load(SaveSummary save) => Load(save.Character, save.Slot, save.Copy);
+
+    private LoadResult Load(string? character, string slot, SaveCopy copy)
     {
         WaitForSaves(Timeout.InfiniteTimeSpan);   // a save being written finishes first: the slot loaded is the one it committed
-        var result = _store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
+        var store = StoreOf(character);
+        var result = store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
+        // Only once it loaded: a refused load leaves the running world, and the folder it saves to, as they were.
+        _character = character;
+        _store = store;
+        _card = character is null ? null : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, null, null);
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
         return result;
     }
@@ -258,17 +305,61 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public MigrationReport PlanLoadAt(string saveDirectory) =>
         SaveStore.PlanMigrationAt(saveDirectory, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
 
-    public ImmutableArray<SaveSummary> SaveSlots() => _store.Summaries();
+    /// <summary>The saves of the character in play, newest first.</summary>
+    public ImmutableArray<SaveSummary> SaveSlots() => Summaries(_character);
 
-    /// <summary>What the start screen offers: the saves in the profile, newest first, and which one Continue loads (B-01).</summary>
+    /// <summary>
+    /// What the start screen offers: every character's saves, newest first, and which one Continue loads (B-01). Each save names the
+    /// folder it is in, so loading it reaches the right character.
+    /// </summary>
     public StartChoice StartChoice()
     {
-        var saves = _store.Summaries();
+        var saves = Folders().SelectMany(folder => Summaries(folder))
+            .OrderByDescending(s => s.WrittenAt).ThenByDescending(s => s.PlaytimeSeconds).ThenBy(s => s.Slot, StringComparer.Ordinal)
+            .ThenBy(s => s.Character, StringComparer.Ordinal)
+            .ToImmutableArray();
         return new StartChoice(saves.FirstOrDefault(s => s.Problem is null), saves);
     }
 
-    /// <summary>A slot's backups and the save it displaced unproven, for a player choosing one after the save itself failed.</summary>
-    public ImmutableArray<SaveSummary> OtherCopies(string slot) => _store.OtherCopies(slot);
+    /// <summary>Every character with saves, the one with the newest save first; the saves from before folders, if any, as one more.</summary>
+    public ImmutableArray<CharacterSaves> CharacterSaves() =>
+        StartChoice().Saves.GroupBy(s => s.Character ?? "")   // in the start screen's order: the first group holds the newest save
+            .Select(g => new CharacterSaves(g.First().Character,
+                g.First().Character is { } folder ? CharacterFolders.ReadCard(StoreOf(folder).Root)?.Name : null, g.ToImmutableArray()))
+            .ToImmutableArray();
+
+    /// <summary>A slot's backups and the save it displaced unproven, of the character in play, for a player choosing one after the save itself failed.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(string slot) => Tagged(_store.OtherCopies(slot), _character);
+
+    /// <summary>The other copies of a save as the saves list offered it, from whichever character's folder holds it.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(SaveSummary save) => Tagged(StoreOf(save.Character).OtherCopies(save.Slot), save.Character);
+
+    /// <summary>The profile root's saves (null), then each character's folder.</summary>
+    private IEnumerable<string?> Folders() =>
+        new string?[] { null }.Concat(CharacterFolders.List(Options.ProfileRoot).Select(id => (string?)id.Value));
+
+    private ImmutableArray<SaveSummary> Summaries(string? character) => Tagged(StoreOf(character).Summaries(), character);
+
+    private static ImmutableArray<SaveSummary> Tagged(ImmutableArray<SaveSummary> saves, string? character) =>
+        saves.Select(s => s with { Character = character }).ToImmutableArray();
+
+    private SaveStore StoreOf(string? character) => character is null ? _profileStore : StoreFor(character);
+
+    /// <summary>One store per folder for the session (a store serializes its own writes), made on first use.</summary>
+    private SaveStore StoreFor(string character)
+    {
+        lock (_characterStores)
+        {
+            if (!_characterStores.TryGetValue(character, out var store))
+            {
+                var id = EntityId.TryParse(character, out var parsed) && parsed.Kind == EntityKind.Character
+                    ? parsed
+                    : throw new ArgumentException($"'{character}' is not a character's save folder", nameof(character));
+                _characterStores[character] = store = new SaveStore(CharacterFolders.PathOf(Options.ProfileRoot, id), Options.SaveStepHook);
+            }
+            return store;
+        }
+    }
 
     /// <summary>Save the running world to a slot (the §7.1 write sequence). The world tick is saved, never reset or advanced.</summary>
     public void Save(string slot)
@@ -276,6 +367,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var document = Capture();
         WaitForSaves(Timeout.InfiniteTimeSpan);   // after any save taken before it, never in front of one
         _store.Save(slot, document);
+        RecordCard(_store, _card);
     }
 
     /// <summary>
@@ -317,8 +409,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private void Queue(string slot, bool auto)
     {
         var document = Capture();
+        var (store, card) = (_store, _card);   // the folder of the character it was taken from, whatever is in play when it is written
         // One writer, in capture order: each save starts once the one before it has finished, however that one went.
-        var written = _writer.ContinueWith(_ => _store.Save(slot, document), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        var written = _writer.ContinueWith(_ =>
+        {
+            store.Save(slot, document);
+            RecordCard(store, card);
+        }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         _writer = written;
         _pending.Add(new PendingSave(slot, auto, document.PlaytimeSeconds, written));
     }
@@ -354,6 +451,24 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public string DisplayName(string definitionId) => _names.GetValueOrDefault(definitionId, definitionId);
 
     public IReadOnlyList<string> Slots() => _store.ListSlots();
+
+    /// <summary>
+    /// After a character's save is committed, its folder's card, if the folder has none yet, so the start screen can name whose saves they
+    /// are. Only a label: a card that cannot be written is left for the next save, and never fails the save.
+    /// </summary>
+    private static void RecordCard(SaveStore store, CharacterCard? card)
+    {
+        if (card is null || File.Exists(Path.Combine(store.Root, CharacterFolders.CardFile)))
+            return;
+        try
+        {
+            CharacterFolders.WriteCard(store.Root, card);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // The saves are there; the start screen lists them unnamed until a later save writes it.
+        }
+    }
 
     public ImmutableArray<int> Backups(string slot) => _store.AvailableBackups(slot);
 
@@ -468,6 +583,6 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _lastAutosave = playtime;
         _autosaveRequested = false;
         _away.Clear();
-        Notes = new JournalNotes(_store.Root, simulation.PlayerId);
+        Notes = new JournalNotes(Options.ProfileRoot, simulation.PlayerId);
     }
 }

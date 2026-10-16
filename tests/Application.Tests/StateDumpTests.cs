@@ -12,7 +12,7 @@ public class StateDumpTests
     private static GameSession Played(TempProfile profile)
     {
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame("Wanderer", seed: 42);
+        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, (44, 138), (54.5, 134), (53, 128)));
         session.Submit(new UNNAMED.World.Runtime.InteractCommand(simulation.PlayerId, "door.longhouse"));
         Assert.True(Harness.WalkPath(session, (60, 128), (100, 100)));
