@@ -377,7 +377,7 @@ public partial class SettingsPanel : CanvasLayer
             var row = new HBoxContainer { CustomMinimumSize = new Vector2(0, 44) };
             row.AddThemeConstantOverride("separation", 12);
             var name = UiKit.Words(Words(action), 18);
-            name.CustomMinimumSize = new Vector2(240, 0);
+            name.CustomMinimumSize = new Vector2(220, 0);
             name.SizeFlagsHorizontal = Control.SizeFlags.Fill;
             name.VerticalAlignment = VerticalAlignment.Center;
             row.AddChild(name);
@@ -388,13 +388,13 @@ public partial class SettingsPanel : CanvasLayer
                 int chosen = slot;
                 string id = action;
                 var box = UiKit.Action(text, () => Listen(id, chosen), listening ? UiKit.Kind.Primary : UiKit.Kind.Normal, compact: true, id: $"key.{action}.{slot}");
-                box.CustomMinimumSize = new Vector2(150, 32);
+                box.CustomMinimumSize = new Vector2(136, 32);
                 box.TooltipText = "Choose, then press the new key";
                 row.AddChild(box);
             }
             if (ControlPrefs.Toggleable.ContainsKey(action))
             {
-                var mode = new OptionButton { CustomMinimumSize = new Vector2(150, 32), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+                var mode = new OptionButton { CustomMinimumSize = new Vector2(136, 32), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
                 mode.AddItem("Hold");
                 mode.AddItem("On or off");
                 mode.Selected = controls.IsToggle(action) ? 1 : 0;
@@ -561,7 +561,7 @@ public partial class SettingsPanel : CanvasLayer
     {
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 12);
-        row.AddChild(new Control { CustomMinimumSize = new Vector2(296, 0) });
+        row.AddChild(new Control { CustomMinimumSize = new Vector2(336, 0) });
         row.AddChild(UiKit.Chip("Harm", HudStyle.Wound));
         row.AddChild(UiKit.Chip("Aid", HudStyle.Lichen));
         row.AddChild(UiKit.Chip("Ready", HudStyle.Lichen));
@@ -587,16 +587,17 @@ public partial class SettingsPanel : CanvasLayer
     {
         var row = new HBoxContainer { CustomMinimumSize = new Vector2(0, 56) };
         row.AddThemeConstantOverride("separation", 16);
-        var words = new VBoxContainer { CustomMinimumSize = new Vector2(280, 0), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        var words = new VBoxContainer { CustomMinimumSize = new Vector2(320, 0), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
         words.AddThemeConstantOverride("separation", 0);
         words.AddChild(UiKit.Words(name, 18));
         if (about.Length > 0)
             words.AddChild(UiKit.Words(about, 16, HudStyle.Muted));
         row.AddChild(words);
         control.FocusMode = Control.FocusModeEnum.All;
-        control.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        // A switch is as wide as its word; every other control takes the row's room.
+        control.SizeFlagsHorizontal = control is CheckButton ? Control.SizeFlags.ShrinkBegin : Control.SizeFlags.ExpandFill;
         control.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-        control.CustomMinimumSize = new Vector2(0, control is HSlider ? 24 : 40);
+        control.CustomMinimumSize = new Vector2(control is CheckButton ? 120 : 0, control is HSlider ? 24 : 40);
         UiKit.Id(control, id);
         row.AddChild(control);
         if (value is not null)
@@ -623,8 +624,16 @@ public partial class SettingsPanel : CanvasLayer
         return Line(id, name, about, slider, label);
     }
 
-    /// <summary>The page drawn again after the change has been handled: for a setting that changes how the page itself reads.</summary>
-    private void Redraw() => Callable.From(ShowPage).CallDeferred();
+    /// <summary>
+    /// The whole screen drawn again after the change has been handled: for a setting that changes how the screen itself reads (the tier's
+    /// line, the interface's size and its words), with the focus handed back.
+    /// </summary>
+    private void Redraw() => Callable.From(() =>
+    {
+        string? focused = UiKit.FocusedId(_sheet.Root);
+        Build();
+        UiKit.Refocus(_sheet.Root, focused);
+    }).CallDeferred();
 
     internal static HBoxContainer Choice(string id, string name, string about, string[] items, int selected, Action<int> set, Action? after = null)
     {

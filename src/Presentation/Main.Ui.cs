@@ -369,7 +369,7 @@ public partial class Main
         return true;
     }
 
-    private int _frontFrame;
+    private ulong _frontStarted;
     private int _frontStep;
 
     /// <summary>
@@ -379,12 +379,15 @@ public partial class Main
     /// </summary>
     private void FrontShots(string directory)
     {
-        if (++_frontFrame == 1)
+        // The window sized for the capture first (--capture-size), then a picture every second and a half once it has settled.
+        if (_frontStarted == 0)
         {
+            _frontStarted = Time.GetTicksMsec();
+            SizeForCapture();
             _title.Close();
             _firstLaunch.Visible = true;
         }
-        if (_frontFrame % 30 != 0)
+        if (Time.GetTicksMsec() < _frontStarted + 4000 + 1500 * (ulong)_frontStep)
             return;
         var steps = new (string Shot, Action? Then)[]
         {
@@ -394,7 +397,22 @@ public partial class Main
             ("04_settings_audio", () => _settings.Open("controls")),
             ("05_settings_controls", () => _settings.Open("camera")),
             ("06_settings_camera", () => _settings.Open("interface")),
-            ("07_settings_interface", () => { BackToTitle(_settings.Close); FromTitle(() => _credits.Visible = true); }),
+            // The largest text and a larger interface, as a player who needs them sees Settings and the title (in memory only: a harness
+            // writes no preferences).
+            ("07_settings_interface", () =>
+            {
+                SettingsStore.Set(SettingsStore.Current with
+                {
+                    Profile = SettingsStore.Current.Profile with { Interface = SettingsStore.Current.Profile.Interface with { UiScale = 1.25f, TextSize = 2f } },
+                });
+                _settings.Open("controls");
+            }),
+            ("07b_settings_controls_large_text", () => BackToTitle(_settings.Close)),
+            ("07c_title_large_text", () =>
+            {
+                SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { Interface = new InterfacePrefs() } });
+                FromTitle(() => _credits.Visible = true);
+            }),
             ("08_credits", () => { BackToTitle(() => _credits.Visible = false); if (!_session.SaveSlots().IsEmpty) FromTitle(_saves.OpenStart); }),
             ("09_load_when_saves_exist", () =>
             {

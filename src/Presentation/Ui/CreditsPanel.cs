@@ -26,7 +26,16 @@ public partial class CreditsPanel : CanvasLayer
         Visible = false;
         Layer = 12;
         _sheet = UiKit.Sheet(this, "Credits", null, UiKit.Wide);
-        _sheet.OnShown(() => UiKit.FirstFocusable(_sheet.Root)?.GrabFocus());
+        // The focus on Back at the top, and the page at its start: following the focus in has scrolled a long sheet down by a line.
+        _sheet.OnShown(() =>
+        {
+            UiKit.FirstFocusable(_sheet.Root)?.GrabFocus();
+            GetTree().CreateTimer(0.05).Timeout += () =>
+            {
+                if (_sheet.Scroll is { } scroll)
+                    scroll.ScrollVertical = 0;
+            };
+        });
         VisibilityChanged += () =>
         {
             if (Visible)

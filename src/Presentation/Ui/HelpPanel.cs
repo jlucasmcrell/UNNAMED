@@ -163,6 +163,8 @@ public partial class HelpPanel : CanvasLayer
 
     public static string KeyName(InputEvent input) => input switch
     {
+        // The key left of 1 is "tilde" to a player (the owner's second-play brief §23), not the engine's "QuoteLeft".
+        InputEventKey { PhysicalKeycode: Godot.Key.Quoteleft } or InputEventKey { Keycode: Godot.Key.Quoteleft } => "~",
         // A headless run has no keyboard layout to ask: the key's own name.
         InputEventKey key => OS.GetKeycodeString(key.Keycode != Godot.Key.None ? key.Keycode
             : DisplayServer.GetName() == "headless" ? key.PhysicalKeycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode)),

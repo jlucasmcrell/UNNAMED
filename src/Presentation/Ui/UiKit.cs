@@ -274,7 +274,8 @@ public static partial class UiKit
         var button = new Button
         {
             ThemeTypeVariation = "ListRow",
-            CustomMinimumSize = new Vector2(0, height),
+            // The row holds its words in a free-standing box, so it grows with the player's text size itself.
+            CustomMinimumSize = new Vector2(0, height * HudStyle.TextScale),
             FocusMode = Control.FocusModeEnum.All,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
         };
