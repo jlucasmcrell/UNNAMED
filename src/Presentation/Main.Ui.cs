@@ -149,7 +149,16 @@ public partial class Main
         if (SettingsStore.Current.Profile.FirstLaunchDone)
             _title.Open();
         else
-            _firstLaunch.Visible = true;
+            OpenFirstLaunch();
+    }
+
+    /// <summary>The first-launch screen, readable before anything is chosen: the interface sized for the window the game opened in.</summary>
+    private void OpenFirstLaunch()
+    {
+        _title.Close();
+        var prefs = SettingsStore.Current;
+        SettingsStore.Set(prefs with { Profile = prefs.Profile with { Interface = prefs.Profile.Interface with { UiScale = SettingsStore.RecommendedUiScale() } } });
+        _firstLaunch.Visible = true;
     }
 
     /// <summary>A world began: every front-end screen goes.</summary>
@@ -384,14 +393,20 @@ public partial class Main
         {
             _frontStarted = Time.GetTicksMsec();
             SizeForCapture();
-            _title.Close();
-            _firstLaunch.Visible = true;
+            // After the window has its capture size, which is what the first launch sizes its interface from.
+            GetTree().CreateTimer(1.5).Timeout += OpenFirstLaunch;
         }
         if (Time.GetTicksMsec() < _frontStarted + 4000 + 1500 * (ulong)_frontStep)
             return;
         var steps = new (string Shot, Action? Then)[]
         {
-            ("01_first_launch", () => { _firstLaunch.Visible = false; _title.Open(); }),
+            ("01_first_launch", () =>
+            {
+                _firstLaunch.Visible = false;
+                // The recommended settings, as the first launch's own button sets them.
+                SettingsStore.Set(new ClientPrefs { Profile = new ProfilePrefs { FirstLaunchDone = true, Interface = new InterfacePrefs { UiScale = SettingsStore.RecommendedUiScale() } } });
+                _title.Open();
+            }),
             ("02_title", () => FromTitle(() => _settings.Open("display"))),
             ("03_settings_display", () => _settings.Open("audio")),
             ("04_settings_audio", () => _settings.Open("controls")),
@@ -410,7 +425,10 @@ public partial class Main
             ("07b_settings_controls_large_text", () => BackToTitle(_settings.Close)),
             ("07c_title_large_text", () =>
             {
-                SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { Interface = new InterfacePrefs() } });
+                SettingsStore.Set(SettingsStore.Current with
+                {
+                    Profile = SettingsStore.Current.Profile with { Interface = new InterfacePrefs { UiScale = SettingsStore.RecommendedUiScale() } },
+                });
                 FromTitle(() => _credits.Visible = true);
             }),
             ("08_credits", () => { BackToTitle(() => _credits.Visible = false); if (!_session.SaveSlots().IsEmpty) FromTitle(_saves.OpenStart); }),

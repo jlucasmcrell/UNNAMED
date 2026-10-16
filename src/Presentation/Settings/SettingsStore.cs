@@ -225,6 +225,13 @@ public static class SettingsStore
 
     public static void ApplyAudio() => AudioMix.Apply(Current.Profile.Audio);
 
+    /// <summary>
+    /// The interface size a first launch starts at: the interface is drawn for a 1080-line screen and scaled with the window, so on a
+    /// window under 900 lines its 16 px floor falls to about 11 px - a quarter larger brings it back to 13.
+    /// </summary>
+    public static float RecommendedUiScale() =>
+        DisplayServer.GetName() != "headless" && DisplayServer.WindowGetSize().Y < 900 ? 1.25f : 1f;
+
     /// <summary>The interface's size, its text's size, contrast and colours: the HUD and every screen restyled.</summary>
     public static void ApplyInterface(SceneTree tree)
     {

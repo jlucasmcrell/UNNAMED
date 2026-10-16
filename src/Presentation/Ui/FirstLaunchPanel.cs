@@ -66,6 +66,10 @@ public partial class FirstLaunchPanel : CanvasLayer
 
         var prefs = SettingsStore.Current;
         var picture = UiKit.Section("Text and picture");
+        float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f };
+        picture.AddChild(SettingsPanel.Choice("first.scale", "Interface size", "Everything on screen but the world. Set for this window's size.",
+            scales.Select(s => $"{s * 100:0} %").ToArray(), Array.IndexOf(scales, scales.OrderBy(s => Math.Abs(s - prefs.Profile.Interface.UiScale)).First()),
+            i => Profile(p => p with { Interface = p.Interface with { UiScale = scales[i] } }), Redraw));
         float[] sizes = { 1f, 1.25f, 1.5f, 1.75f, 2f };
         picture.AddChild(SettingsPanel.Choice("first.text", "Text size", "Words alone, over the interface's size.",
             sizes.Select(s => $"{s * 100:0} %").ToArray(), Array.IndexOf(sizes, sizes.OrderBy(s => Math.Abs(s - prefs.Profile.Interface.TextSize)).First()),
@@ -122,7 +126,7 @@ public partial class FirstLaunchPanel : CanvasLayer
     private void Finish(bool recommended) => Callable.From(() =>
     {
         if (recommended)
-            SettingsStore.Set(new ClientPrefs());
+            SettingsStore.Set(new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { UiScale = SettingsStore.RecommendedUiScale() } } });
         Profile(p => p with { FirstLaunchDone = true });
         Visible = false;
         Done?.Invoke();
