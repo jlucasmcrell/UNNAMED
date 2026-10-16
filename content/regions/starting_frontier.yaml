@@ -141996,23 +141996,23 @@ structures:
   height_m: 7.0
 - id: ah_furn_longhouse_bed_01
   box_m:
-  - 436.42
+  - 436.52
   - 724.8
-  - 437.28
+  - 437.38
   - 726.7
   height_m: 0.62
 - id: ah_furn_longhouse_bed_02
   box_m:
-  - 436.42
+  - 436.52
   - 726.9
-  - 437.28
+  - 437.38
   - 728.8
   height_m: 0.62
 - id: ah_furn_longhouse_bed_03
   box_m:
-  - 436.42
+  - 436.52
   - 729.0
-  - 437.28
+  - 437.38
   - 730.9
   height_m: 0.62
 - id: ah_furn_longhouse_table_01
@@ -142045,17 +142045,17 @@ structures:
   height_m: 0.46
 - id: ah_furn_longhouse_stool_03
   box_m:
-  - 442.6
-  - 724.5
-  - 442.94
-  - 724.84
+  - 441.5
+  - 725.105
+  - 441.84
+  - 725.445
   height_m: 0.46
 - id: ah_furn_longhouse_stool_04
   box_m:
-  - 443.8
-  - 724.5
-  - 444.14
-  - 724.84
+  - 444.76
+  - 725.105
+  - 445.1
+  - 725.445
   height_m: 0.46
 - id: ah_furn_longhouse_shelf
   box_m:
@@ -142067,9 +142067,9 @@ structures:
   clearance_m: 1.3
 - id: ah_furn_longhouse_chest
   box_m:
-  - 449.92
+  - 449.82
   - 724.79
-  - 450.7
+  - 450.6
   - 725.51
   height_m: 0.8
 - id: ah_furn_longhouse_barrel_01
@@ -142103,9 +142103,9 @@ structures:
 - id: ah_furn_forge_rack
   box_m:
   - 458.5
-  - 738.42
+  - 738.47
   - 459.17
-  - 739.02
+  - 739.07
   height_m: 0.8
 - id: ah_furn_forge_barrel
   box_m:
@@ -146128,9 +146128,9 @@ structures:
   height_m: 0.44
 - id: cw_furn_house_03_chest
   box_m:
-  - 974.39
+  - 974.32
   - 653.42
-  - 975.08
+  - 975.01
   - 653.86
   height_m: 0.38
 - id: cw_furn_house_04_bench
@@ -146184,9 +146184,9 @@ structures:
   height_m: 0.44
 - id: cw_furn_house_06_chest
   box_m:
-  - 973.39
+  - 973.32
   - 668.42
-  - 974.08
+  - 974.01
   - 668.86
   height_m: 0.38
 - id: cw_furn_house_07_bench
@@ -146198,9 +146198,9 @@ structures:
   height_m: 0.44
 - id: cw_furn_house_07_chest
   box_m:
-  - 957.39
+  - 957.32
   - 674.42
-  - 958.08
+  - 958.01
   - 674.86
   height_m: 0.38
 - id: cw_furn_house_01_bed
@@ -146431,46 +146431,46 @@ structures:
   clearance_m: 0.8825
 - id: cw_furn_house_03_table
   box_m:
-  - 970.92
+  - 971.08
   - 653.51
-  - 971.47
+  - 971.63
   - 654.71
   height_m: 0.88
 - id: cw_furn_house_06_table
   box_m:
-  - 969.92
+  - 970.08
   - 668.52
-  - 970.47
+  - 970.63
   - 669.72
   height_m: 0.88
 - id: cw_furn_house_07_table
   box_m:
-  - 953.92
+  - 954.08
   - 674.52
-  - 954.47
+  - 954.63
   - 675.72
   height_m: 0.88
 - id: cw_furn_house_03_table_oil_lamp_with_handle
   box_m:
-  - 971.005
+  - 971.165
   - 653.914
-  - 971.385
+  - 971.545
   - 654.306
   height_m: 1.28
   clearance_m: 0.88
 - id: cw_furn_house_06_table_tinder_box
   box_m:
-  - 970.016
+  - 970.176
   - 668.957
-  - 970.374
+  - 970.534
   - 669.243
   height_m: 1.28
   clearance_m: 0.88
 - id: cw_furn_house_07_table_hand_bell
   box_m:
-  - 954.099
+  - 954.259
   - 675.044
-  - 954.291
+  - 954.451
   - 675.236
   height_m: 1.28
   clearance_m: 0.88
@@ -146579,40 +146579,40 @@ structures:
   - 947.75
   - 643.88
   height_m: 0.45
-- id: cw_furn_lodge_hearth_bench_w
+- id: cw_furn_lodge_hearth_bench_n
   box_m:
-  - 947.96
-  - 643.3
-  - 948.28
-  - 644.6
+  - 948.55
+  - 645.3
+  - 949.85
+  - 645.62
   height_m: 0.45
 - id: cw_furn_lodge_hearth_bench_e
   box_m:
-  - 950.12
+  - 950.55
   - 643.3
-  - 950.44
+  - 950.87
   - 644.6
   height_m: 0.45
 - id: cw_furn_lodge_crate_1
   box_m:
-  - 937.42
+  - 937.48
   - 645.13
-  - 938.12
+  - 938.18
   - 645.68
   height_m: 0.6
 - id: cw_furn_lodge_crate_2
   box_m:
-  - 937.42
+  - 937.48
   - 645.83
-  - 938.12
+  - 938.18
   - 646.38
   height_m: 0.6
 - id: cw_furn_lodge_chest
   box_m:
   - 937.42
   - 639.22
-  - 938.23
-  - 639.74
+  - 938.67
+  - 639.92
   height_m: 0.57
 - id: cw_furn_lodge_shelf_1
   box_m:
@@ -147577,7 +147577,7 @@ stations:
 - key: station.cairnwold.forge_hearth
   kind: forge
   position_m:
-  - 984.0
+  - 983.9
   - 684.0
 - key: station.cairnwold.forge_anvil
   kind: anvil
