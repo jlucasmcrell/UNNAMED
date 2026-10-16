@@ -36,9 +36,12 @@ BINDINGS = os.path.join(ROOT, "content", "_art_bindings.json")
 # see by. Chosen from measured brightness, not from the name.
 WALL = "cw_wet_stone_wall"
 DEEP_WALL = "cw_rock_ground"
-# The floor is the hill the rooms are cut into. `ter_ph_lichen_rock` (58.7) was the first choice and was too
-# dark under the walls; `cw_gravel_stones` (78.5) is a mine floor a body reads its footing on.
-FLOOR = "cw_gravel_stones"
+# The floor is the hill the rooms are cut into. `ter_ph_lichen_rock` (58.7) was the first choice and too dark
+# under the walls; `cw_gravel_stones` was the second and is WRONG for a reason no render can show - it is the
+# only one of the restore's 22 materials with NO provenance file, so its licence cannot be attested, and the
+# brief ships CC0/CC-BY/MIT/Fab Standard only. `ter_ph_river_small_rocks` is the same thing done properly:
+# Poly Haven, CC0, 4096px, provenance present, shippable true.
+FLOOR = "ter_ph_river_small_rocks"
 
 # R09 onwards is "deep": the Blind Store, the vestibule, the court, the headworks, the inspection bay.
 DEEP_FROM = 9
