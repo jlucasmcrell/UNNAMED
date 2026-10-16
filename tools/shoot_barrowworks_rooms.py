@@ -17,6 +17,9 @@ GODOT = r"C:\Godot_v4.7.2-stable_mono_win64\Godot_v4.7.2-stable_mono_win64_conso
 LOCK = r"C:\Otherreach_Recovery\gpu_lock.ps1"
 OUT = r"C:\Otherreach_Build\barrowworks_shots\perroom"
 OWNER = "deepseek barrowworks P2 per-room shots"
+# The art root and the bindings. Without them the rooms render as greybox boxes, which is what the first pass
+# through this script did - a picture of the blockout, not of the ring.
+ASSET_ROOT = r"C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary"
 
 # Room centres in the blockout's own metres, and the way to face: north is +Z, which looks on towards the
 # next room along the critical path.
@@ -60,18 +63,22 @@ try:
                     [GODOT, "--path", os.path.join(ROOT, "src", "Presentation"), "--",
                      "--region", "region.barrowworks",
                      "--content-root", os.path.join(ROOT, "content"),
+                     "--asset-root", ASSET_ROOT,
+                     "--bindings-overlay", os.path.join(ROOT, "content", "_art_bindings.json"),
                      "--visual", "barrowworks=1",
                      # The sixth field is the standoff scale. The harness's 9 m and 26 m are landscape-scale and
                      # walk the character straight through a room's wall; 0.15 gives 0.03 / 1.35 / 3.9 m, which
                      # fits a chamber 10 m across.
                      "--shot", f"{x},{z},{yaw},-0.08,3,0.15",
                      "--shot-out", room_dir],
-                    stdout=handle, stderr=subprocess.STDOUT, timeout=120)
+                    stdout=handle, stderr=subprocess.STDOUT, timeout=900)
         except subprocess.TimeoutExpired:
-            # A room whose standpoints the character cannot walk to spins rather than failing. R02 did exactly
-            # that. Skip it and keep the rest: a batch that aborts on one room is a batch that photographs
-            # none of them.
-            print(f"  {name:24} TIMED OUT after 120s - skipped")
+            # A room whose standpoints the character cannot walk to spins rather than failing, and a room it
+            # walks to slowly does the same for longer. R02 did the first in P2. In P3 R03 took 534 s while the
+            # other twelve took 58-94 s - so at a 120 s cap the CAP was the bug, and R03 was skipped for being
+            # slow rather than for being unreachable. 900 s is fifteen minutes: past every room measured, and
+            # short enough that a batch still finishes.
+            print(f"  {name:24} TIMED OUT after 900s - skipped")
             failed.append(name)
             continue
         shots = [f for f in os.listdir(room_dir) if f.endswith(".png")]
