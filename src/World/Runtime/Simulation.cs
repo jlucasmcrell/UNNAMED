@@ -7,6 +7,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 
 namespace UNNAMED.World.Runtime;
 
@@ -30,6 +31,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The quests (M5).</summary>
     public QuestSetup Quests { get; init; } = QuestSetup.Empty;
+
+    /// <summary>How Waystone travel is tuned (S-38).</summary>
+    public TravelRules Travel { get; init; } = TravelRules.Default;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -94,6 +98,7 @@ public sealed class Simulation
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly SpaceSystem _spaces;
+    private readonly TravelSystem _travel;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private long _sequence;
     private bool _stepping;
@@ -130,7 +135,8 @@ public sealed class Simulation
         _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Effective);
         _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Effective);
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects));
-        _death = new DeathSystem(_context, player.Id);
+        _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
+        _death = new DeathSystem(_context, player.Id, _travel.ReturnBody);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
@@ -257,6 +263,15 @@ public sealed class Simulation
     /// <summary>The region's named NPCs (M4).</summary>
     public ImmutableArray<NpcView> Npcs => _npcs.Views();
 
+    /// <summary>The region's Waystones: awake or dormant, known or not, and which is the return point (S-38).</summary>
+    public ImmutableArray<WaystoneView> Waystones => _travel.Views();
+
+    /// <summary>The journeys the stones offer from this one to every other stone the character knows, with their costs (S-38).</summary>
+    public ImmutableArray<TravelOption> TravelOptions(string fromKey) => _travel.Options(fromKey);
+
+    /// <summary>What the character's map holds: the places they discovered, the roads they walked, the stones they know.</summary>
+    public KnownMap Map => Cartography.Known(Setup.Layout, _state.Discoveries.Keys, _state.RoadsWalked, _state.KnownStones.Keys);
+
     /// <summary>The character's companions (M6).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
 
@@ -326,6 +341,9 @@ public sealed class Simulation
                 SellCommand sell => _trade.Handle(sell, WorldTick),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
+                TouchStoneCommand touch => _travel.Handle(touch, WorldTick),
+                BindStoneCommand bind => _travel.Handle(bind, WorldTick),
+                TravelCommand travel => _travel.Handle(travel, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -378,7 +396,13 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values, _companions.Records()) { Posture = _state.Posture };
+            _state.Quests.Values, _companions.Records())
+        {
+            Posture = _state.Posture,
+            Waystones = _travel.Records(),
+            ReturnPoint = _state.ReturnPoint,
+            RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
+        };
     }
 
     /// <summary>
@@ -434,6 +458,8 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
+        AdvanceTime advance => _clock.Handle(advance),
+        ArriveWithParty arrive => _companions.Handle(arrive),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

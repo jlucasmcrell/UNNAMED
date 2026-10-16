@@ -25,6 +25,7 @@ public static class VisualOptions
         ["wind"] = new[] { "none", "on" },
         ["vfx"] = new[] { "flipbooks", "recipes" },
         ["life"] = new[] { "none", "on" },
+        ["fauna"] = new[] { "other", "earth" },  // earth: the WildMesh animals as scanned, without their otherfauna looks (before/after only)
         ["hooks"] = new[] { "none", "on" },
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)
@@ -72,8 +73,8 @@ public static class VisualOptions
         // All three exist for the same reason as `skin`: ONE BUILD photographs every arm in the same session,
         // which is what a blind A/B of a lighting change needs (TRAP 12). Never set in a shipping run.
         ["air"] = new[] { "flat", "sun", "hue" },
-        // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): three looks for the owner to choose between, or none.
-        ["celestial"] = new[] { "none", "giant", "arc", "binary" },
+        // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
+        ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
         // 1: the Barrowworks is in the run - its two entrances become usable and its interior is loaded.
         // 0 is the default and the whole of the default-off guarantee: with it off, no portal is registered
         // anywhere, so EnterSpaceCommand cannot succeed and the playtest is the one it always was.
@@ -123,7 +124,7 @@ public static class VisualOptions
         //     --visual air=flat   (what shipped before)   --visual air=sun   (the refused arm)
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
-        ["celestial"] = "arc",
+        ["celestial"] = "mix",
         // The Barrowworks is off unless it is asked for. Defaults is also what `--visual phase_a` copies, so a
         // Phase-A run excludes it too, which is what "invisible in a normal launch" means.
         ["barrowworks"] = "0",

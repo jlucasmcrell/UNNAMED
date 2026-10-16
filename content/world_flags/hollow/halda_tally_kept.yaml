@@ -1,0 +1,9 @@
+id: world.hollow.halda_tally_kept
+kind: world_flag
+schema: 1
+display_key: world.hollow.halda_tally_kept.name
+tags: [world_flag]
+notes: Whether the character told Renn they would keep Halda's tally and walk her trapline (Halda's Tally, the keep choice) rather than take it home to Tam. Set once by Renn's keep reply, in the waystation's cell (read there through location.outpost); persisted in that cell's delta. While it is set Tam is not offered the tally.
+type: bool
+default: 0
+owning_system: S-28

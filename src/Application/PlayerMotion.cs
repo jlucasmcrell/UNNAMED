@@ -45,11 +45,16 @@ public sealed class PlayerMotion
     /// A respawn set the body down at the Waystone, standing (M-05): the copy follows, so a key still held is sent again rather than
     /// taken for the intent already sent - and the jump to the Waystone is no step for a dodge to carry on along (L-14).
     /// </summary>
-    public void OnRespawned(PlayerRespawned respawned)
+    public void OnRespawned(PlayerRespawned respawned) => SetDown(respawned.Body);
+
+    /// <summary>A journey by the stones set the body down at the far one (S-38): the same as a respawn's.</summary>
+    public void OnTravelled(PlayerTravelled travelled) => SetDown(travelled.Arrival);
+
+    private void SetDown(Body body)
     {
-        Body = respawned.Body;
+        Body = body;
         LastStep = (0, 0);
-        Sent = MoveIntent.Idle(respawned.Body.FacingMdeg);
+        Sent = MoveIntent.Idle(body.FacingMdeg);
     }
 
     /// <summary>A dodge was asked for: until its first step arrives, the step before it is no guide to where it goes (L-14).</summary>

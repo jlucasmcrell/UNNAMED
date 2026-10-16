@@ -48,7 +48,30 @@ public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, s
 /// A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it. Its space is the
 /// layout's, which is where an interior's places get theirs (M8 D10, <see cref="RegionLayout.SpaceId"/>).
 /// </summary>
-public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp);
+public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp)
+{
+    /// <summary>How much ground round the place the map shows once it is discovered (its <c>map.reveals_radius_m</c>).</summary>
+    public long RevealRadiusMm { get; init; }
+}
+
+/// <summary>
+/// A Waystone (OWNER OD-03, OD-C16): an old standing stone on a structure (<see cref="Body"/>) that every traveller who touches it knows
+/// again. Travel between stones a character knows arrives at <see cref="ArrivalXMm"/>, <see cref="ArrivalZMm"/>, a clear spot beside it.
+/// <see cref="LocationId"/> is the place it stands in. A dormant stone (<see cref="Dormant"/>) does not answer until it is woken.
+/// </summary>
+public sealed record WaystoneSite(string Key, string Name, Blocker Body, string LocationId, long ArrivalXMm, long ArrivalZMm)
+{
+    public DormantStone? Dormant { get; init; }
+}
+
+/// <summary>
+/// What a dormant Waystone needs (19 §9.8): it wakes for someone who has heard its rite - the line <see cref="RiteNodeId"/> of the
+/// conversation <see cref="RiteDialogueId"/> - and once woken its <see cref="FlagId"/> is set in its cell, for everyone, for good.
+/// </summary>
+public sealed record DormantStone(string FlagId, string RiteDialogueId, string RiteNodeId, string DormantText, string WakeText);
+
+/// <summary>A road as a line of points (the region's road graph): what Waystone travel measures, and what the map draws once walked.</summary>
+public sealed record RoadSite(string Id, string Name, ImmutableArray<(long XMm, long ZMm)> Points);
 
 /// <summary>
 /// An authored world container (SYSTEMS.md S-14): until the player first changes it, its contents are its loot table,
@@ -104,6 +127,12 @@ public sealed record RegionLayout(
     /// <summary>The region's barriers (M6).</summary>
     public ImmutableArray<BarrierSite> Barriers { get; init; } = ImmutableArray<BarrierSite>.Empty;
 
+    /// <summary>The region's Waystones.</summary>
+    public ImmutableArray<WaystoneSite> Waystones { get; init; } = ImmutableArray<WaystoneSite>.Empty;
+
+    /// <summary>The region's roads.</summary>
+    public ImmutableArray<RoadSite> Roads { get; init; } = ImmutableArray<RoadSite>.Empty;
+
     /// <summary>
     /// The portals leading out of this region and into an interior space (M8 D10). Empty for every region
     /// that has no interior, which is all of them until the Barrowworks is gated on; a region's own
@@ -125,6 +154,8 @@ public sealed record RegionLayout(
     public SpaceId SpaceId { get; init; } = SpaceId.Exterior;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
+
+    public WaystoneSite? FindWaystone(string key) => Waystones.FirstOrDefault(w => w.Key == key);
 
     public SwitchSite? FindSwitch(string key) => Switches.FirstOrDefault(s => s.Key == key);
 

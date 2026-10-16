@@ -15,7 +15,12 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public static class SkyView
 {
-    public const float DefaultHour = 10.5f;
+    /// <summary>
+    /// What the world clock reads at tick 0, in hours: config.time's clock_at_world_start_h, set by the frame loop from the booted
+    /// session, so the sky and the creatures' hours (CombatContent) run from the one reading. 07:30 by the owner's ruling (2026-10-06,
+    /// confirmed 2026-10-16): spawn looks east into a low morning sun under the ring. The value here only serves a run with no session.
+    /// </summary>
+    public static float ClockAtWorldStart { get; set; } = 7.5f;
     private const string Sky3DScript = "res://addons/sky_3d/src/Sky3D.gd";
 
     // Hour is defined below, beside the clock that drives it. The note that used to sit here - "the simulation has
@@ -192,7 +197,7 @@ public static class SkyView
     private static Node? _sky;
 
     /// <summary>The hour the sky is showing: the world clock when a run has one, else the fixed --visual hour.</summary>
-    public static float Hour => IsFinite(_clockHour) ? _clockHour : VisualOptions.Hour ?? DefaultHour;
+    public static float Hour => IsFinite(_clockHour) ? _clockHour : VisualOptions.Hour ?? ClockAtWorldStart;
 
     private static float _clockHour = float.NaN;
 
@@ -207,10 +212,9 @@ public static class SkyView
         if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky) || ticksPerDay <= 0)
             return;
         double day = worldTick / ticksPerDay;
-        // THE DAY STARTS AT THE HOUR THE REGION WAS AUTHORED FOR, not at tick zero. A world tick of 0 is
-        // midnight, so driving the sky straight from it would open every run in darkness - and this run's own
-        // default hour is 10.5, the late morning the light was tuned in. The clock advances from there, so a
-        // fresh game still looks like the game, and 48 real minutes later it has been through a night.
+        // THE DAY STARTS AT THE WORLD CLOCK'S READING AT TICK 0 (ClockAtWorldStart, from config.time), not at
+        // midnight, which would open every run in darkness. The clock advances from there, and 48 real minutes
+        // later it has been through a night - the same hours the creatures rest by.
         //
         // `--visual hour=N` PINS IT, AND UNTIL NOW IT DID NOT. The option has existed all along ("the harness's
         // time-of-day override, 0-24") and Hour fell back to it - but only while _clockHour was not yet finite,
@@ -224,7 +228,7 @@ public static class SkyView
         // A/B whose arms come from separate runs needs this pinned on BOTH of them.
         _clockHour = VisualOptions.Hour is { } pinned
             ? pinned
-            : (float)((DefaultHour + (day - Math.Floor(day)) * 24.0) % 24.0);
+            : (float)((ClockAtWorldStart + (day - Math.Floor(day)) * 24.0) % 24.0);
         // Sky3D recomputes its sun and moon from this when it is set; TimeOfDay is its own name for the hour.
         sky.Set("current_time", _clockHour);
         // AND THE AIR FOLLOWS THE SAME CLOCK. The line above is where the sun is; this is what the air is made of, and

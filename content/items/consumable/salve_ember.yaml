@@ -1,0 +1,13 @@
+id: item.consumable.salve_ember
+kind: item
+schema: 1
+display_key: item.consumable.salve_ember.name
+tags: [item]
+name: Ember Salve
+notes: Heals 36 over 6 s through effect.ember_mending - a minor salve worked with a cinder sac (recipe.herbal.salve_ember). Warm to the touch.
+category: consumable
+stack_max: 5
+weight: 0.2
+value_base: 40
+rarity: common
+use: { effect_ref: effect.ember_mending, consume: true }

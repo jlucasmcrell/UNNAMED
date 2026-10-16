@@ -3,7 +3,7 @@ kind: creature
 schema: 1
 display_key: creature.beast.red_fox.name
 tags: [creature, beast]
-name: Red Fox
+name: Lantern Fox
 notes: Peaceful wildlife (canon firstplay fox). Wanders at rest and flees people or wounds; hunting it is optional, and its pelt is a small hide.
 family: beast
 archetype: prey

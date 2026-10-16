@@ -73,12 +73,21 @@ public partial class ArtGallery : Node3D
             var model = SkinnedModel.Create(_art, creature.Model, creature.Clips);
             if (model is null)
                 continue;
+            float size = OtherFauna.Apply(model, defId, creature.Fauna, defId);
             model.Position = new Vector3(x, 0, 0);
             AddChild(model);
             Label(defId, new Vector3(x, 2.6f, 0));
             _animated.Add((model, new[] { "walk", "attack", "idle" }));
+            // Each species the otherfauna pass redraws, close and three-quarter on, for its before/after.
+            if (creature.Fauna is not null)
+            {
+                var box = Bounds(model);
+                float tall = box.End.Y * size, away = 1.5f * Math.Max(tall, box.Size.Z * size);
+                _shots.Add(($"fauna_{defId.Split('.')[^1]}", new Vector3(x + 0.75f * away, 0.6f * tall + 0.25f, away), new Vector3(x, 0.45f * tall, 0)));
+            }
             x += 3.2f;
         }
+        OtherFauna.Dusk();
         _shots.Add(("creatures_front", new Vector3(x / 2 - 1.6f, 2.2f, 9f), new Vector3(x / 2 - 1.6f, 0.8f, 0)));
         _shots.Add(("creatures_side", new Vector3(-7f, 2f, 0.5f), new Vector3(x / 2, 0.8f, 0)));
 

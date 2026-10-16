@@ -87,7 +87,7 @@ public class CraftingTests
                 "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
                 "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
                 "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2", "foldscar_boneleaf_1", "foldscar_boneleaf_2", "foldscar_boneleaf_3",
-                "hollow_ash_stand_2", "hollow_woundmoss_1", "hollow_woundmoss_2", "hollow_woundmoss_3", "iron_seam", "moor_deadfall_1", "moor_deadfall_2",
+                "halda_larder_snare_east", "halda_larder_snare_west", "halda_pelt_snare_east", "halda_pelt_snare_west", "hollow_ash_stand_2", "hollow_woundmoss_1", "hollow_woundmoss_2", "hollow_woundmoss_3", "iron_seam", "moor_deadfall_1", "moor_deadfall_2",
                 "moss_cotton_1", "moss_cotton_2", "moss_cotton_3", "road_deadfall", "road_woundmoss",
             }, simulation.Nodes.Select(n => n.Name).OrderBy(n => n, StringComparer.Ordinal));
         var nodes = simulation.Nodes.Where(n => n.Name is "ash_stand" or "iron_seam").OrderBy(n => n.Name, StringComparer.Ordinal).ToList();

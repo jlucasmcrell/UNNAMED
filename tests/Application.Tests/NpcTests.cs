@@ -417,8 +417,8 @@ public class NpcTests
         var arena = At(session, AtKera, r => With(r, 25, Stack(Hide, 2), token));
         var wares = arena.Simulation.Wares(Kera)!;
         var arrows = wares.Wares.First(w => w.ItemId == Arrows);
-        var vest = wares.Wares.Single(w => w.ItemId == "item.armor.hide_vest");
-        Assert.Equal((60, 1L, 1, 30L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, vest.Count, vest.Price));
+        var bow = wares.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
+        Assert.Equal((60, 1L, 1, 45L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, bow.Count, bow.Price));
         Assert.Null(arena.Simulation.Wares(Renn));   // Renn does not trade
 
         var bought = arena.Record<ItemBought>();
@@ -427,8 +427,8 @@ public class NpcTests
         Assert.Equal(new ItemBought(Kera, Arrows, 20, 20, arena.Simulation.WorldTick), Assert.Single(bought));
         Assert.Equal(40, arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count));
         // Touched, her wares got their identities (the slot-promotion rule): a ware is named by what the view says now.
-        vest = arena.Simulation.Wares(Kera)!.Wares.Single(w => w.ItemId == "item.armor.hide_vest");
-        Assert.Equal("not enough coin: 30 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, vest.Ref, 1)));
+        bow = arena.Simulation.Wares(Kera)!.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
+        Assert.Equal("not enough coin: 45 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, bow.Ref, 1)));
         Assert.Equal("Kera Voss has no such ware", arena.Submit(new BuyCommand(arena.Player, Kera, "merchant.nothing#00", 1)));
 
         // She buys a hide at 40% of its value, and it joins her wares; a quest token she will not buy.
@@ -492,7 +492,7 @@ public class NpcTests
         }
         Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
         Assert.Empty(arena.Simulation.World.Container(Wares)!.Items);
-        Assert.Equal((60, 1, 1), (Carried(arena, Arrows), Carried(arena, "item.armor.hide_vest"), Carried(arena, "item.armor.hide_cap")));
+        Assert.Equal((60, 1, 4), (Carried(arena, Arrows), Carried(arena, "item.weapon.hunting_bow"), Carried(arena, "item.consumable.salve_minor")));   // three salves bought, one carried from the start
         arena.Tick(2);
         Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
 
@@ -505,7 +505,7 @@ public class NpcTests
         Assert.Empty(again.Simulation.Wares(Kera)!.Wares);
         Assert.Empty(again.Simulation.World.Container(Wares)!.Items);
         // What she is sold afterwards joins her wares, as it always did.
-        Assert.Null(again.Submit(new SellCommand(again.Player, Kera, again.Simulation.Player.Inventory.Single(e => e.DefId == "item.armor.hide_vest").ItemId, 1)));
-        Assert.Equal("item.armor.hide_vest", Assert.Single(again.Simulation.Wares(Kera)!.Wares).ItemId);
+        Assert.Null(again.Submit(new SellCommand(again.Player, Kera, again.Simulation.Player.Inventory.Single(e => e.DefId == "item.weapon.hunting_bow").ItemId, 1)));
+        Assert.Equal("item.weapon.hunting_bow", Assert.Single(again.Simulation.Wares(Kera)!.Wares).ItemId);
     }
 }

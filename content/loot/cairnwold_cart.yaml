@@ -1,0 +1,11 @@
+id: loot.cairnwold_cart
+kind: loot
+schema: 1
+display_key: loot.cairnwold_cart.name
+tags: [loot]
+notes: The carrier's cart at Cairnwold - the road's goods come up this far and stop. All static. The bow is the Ashen Hollow cart's find; this one holds no second.
+rolls: 0
+guaranteed:
+  - { item_ref: item.ammo.arrow_rough, count_range: [8, 8] }
+  - { item_ref: item.material.timber, count_range: [3, 3] }
+  - { item_ref: item.material.feathers, count_range: [4, 4] }

@@ -1,0 +1,15 @@
+id: effect.ember_mending
+kind: effect
+schema: 1
+display_key: effect.ember_mending.name
+tags: [effect]
+name: Ember Mending
+notes: The ember salve's healing - 36 health over 6 s, twice the minor salve's mending in the same time.
+category: hot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 3.0          # game minutes (config.time): 6 s
+tick_interval_min: 0.5     # 1 s: six ticks of 6
+on_tick:
+  - { type: heal, amount: 6 }
+dispel_category: none

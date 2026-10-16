@@ -41,6 +41,19 @@ nodes:
         text: "What do you make of this?"
         conditions: [{ kind: has_item, item_ref: item.weapon.march_spear }]
         next: spear
+      # Halda's Tally (C.2d): only while the character carries her tally and has not told him they are keeping it, then her line.
+      - id: tally
+        text: "I found this in the wolves' den. Do you know it?"
+        conditions:
+          - { kind: has_item, item_ref: item.quest.halda_token }
+          - { kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 0, max: 0 }
+        consequences:
+          - { command: start_quest, quest_ref: quest.ashen_hollow.haldas_tally }
+        next: tally
+      - id: trapline
+        text: "About Halda's line."
+        conditions: [{ kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 1 }]
+        next: trapline
       - id: personal
         text: "How did you end up keeping this place?"
         conditions:
@@ -50,8 +63,33 @@ nodes:
       - id: notices
         text: "Anything posted for the road?"
         next: notices
+      # The playtest's closing beat: offered once all four story quests are done, and once only.
+      - id: farewell
+        text: "I think I've seen this stretch of the road."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, is: completed }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.three_quiet_stones, is: completed }
+          - { kind: quest_state, quest_ref: quest.cairnwold.iron_from_the_moor, is: completed }
+          - { kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: completed }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.end_of_playtest, is: not_started }
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.end_of_playtest }]
+        next: farewell
       - id: leave
         text: "Nothing for now."
+  farewell:
+    text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road, end to end - there's no more of it yet, not that anyone's built. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: sign
+        text: "I'll write myself in."
+        next: signed
+  signed:
+    text: "He reads what you wrote, upside down, and nods as if it were a bill he'd expected. \"Bound somewhere. Good. The bed's still yours if the road brings you back - and it will. Roads do.\""
+    choices:
+      - id: back
+        text: "Thank you, Renn."
+        next: again
   place:
     text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
     choices:
@@ -83,6 +121,39 @@ nodes:
     choices:
       - id: back
         text: "I'll try to be bound somewhere."
+        next: again
+  tally:
+    text: "He turns it over once and doesn't need to again. \"A trapper's tally. Halda Crowden's - she notched one for every hide, so nobody at Cairnwold could argue her count. She's in my book: Halda, the north slope, bound for her snares. Two winters back. Nobody's written the other half.\" He sets it on the counter between you. \"Her sister Tam keeps the granary at Cairnwold, and counts everyone up the west road because of it. Or you keep it, and walk Halda's line - the snares are still out on the slope, and they don't know she's gone. Either's honest. Only one of them is kind.\""
+    choices:
+      - id: keep
+        text: "I'll keep it, and walk her line."
+        conditions: [{ kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 0, max: 0 }]
+        consequences:
+          - { command: set_world_flag, flag_ref: world.hollow.halda_tally_kept, value: 1 }
+        next: kept
+      - id: tam
+        text: "Tam should have it."
+        next: to_tam
+      - id: back
+        text: "Let me think on it."
+        next: again
+  to_tam:
+    text: "Cairnwold, east along the road, the granary by the west end. She'll have counted you before you get there. Give it her yourself - I'd only write it down, and she's had enough of things being written down."
+    choices:
+      - id: back
+        text: "I'll take it to her."
+        next: again
+  kept:
+    text: "\"Then it's yours.\" He writes a line in the book and blots it. \"Her snares run along the north slope either side of the den - pelt snares and larder snares, the old cord ones. Check them once a day; they'll fill again by morning. And the den was her cache before it was the wolves'. Whatever's in it was hers. Now it's whoever walks her line.\""
+    choices:
+      - id: back
+        text: "I'll walk it."
+        next: again
+  trapline:
+    text: "North slope, either side of the den. Pelts on one, meat on the other, once a day. Halda walked it before breakfast. I'm not saying you have to. I'm saying she did."
+    choices:
+      - id: back
+        text: "Before breakfast."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
   notices:
@@ -136,3 +207,7 @@ barks:
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
   - text: "Three wolves, traveller. The Wayhold counts. So do I."
     conditions: [{ kind: quest_state, quest_ref: quest.bounty.road_wolves, is: active }]
+  - text: "You're in the book, traveller. In ink. That's as permanent as anything gets out here."
+    conditions: [{ kind: visited, node: signed }]
+  - text: "North slope. Before breakfast, Halda said. I wrote it down."
+    conditions: [{ kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 1 }]

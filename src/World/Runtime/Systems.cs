@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Travel;
 
 namespace UNNAMED.World.Runtime;
 
@@ -129,6 +130,13 @@ internal sealed class ClockSystem
     }
 
     public void Tick() => _context.State.AdvanceClock(_owner);
+
+    /// <summary>World time passing at once - a journey by the stones (S-38). Nothing is simulated through it: what was due falls due on the next tick.</summary>
+    public string? Handle(AdvanceTime command)
+    {
+        _context.State.AdvanceClock(_owner, command.Ticks);
+        return null;
+    }
 }
 
 /// <summary>
@@ -486,6 +494,12 @@ internal sealed class DiscoverySystem
             _context.Events.Publish(new LocationDiscovered(place.Id, DiscoveryMethod.Visited, tick));
             if (place.DiscoveryXp > 0)
                 _context.Dispatch(new AwardExperience(new XpAward(XpSource.Discovery, place.DiscoveryXp, tick)));
+        }
+        // The roads the body walks along, stretch by stretch: what the map draws of them (schema 15).
+        foreach (string stretch in Roads.StretchesNear(_context.Setup.Layout.Roads, state.Body.XMm, state.Body.ZMm, _context.Setup.Travel.RoadWalkedWithinMm))
+        {
+            if (!state.RoadsWalked.Contains(stretch))
+                state.WalkRoad(_owner, stretch);
         }
     }
 }

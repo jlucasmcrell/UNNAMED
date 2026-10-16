@@ -4,7 +4,7 @@ schema: 1
 display_key: recipe.herbal.salve_minor.name
 tags: [recipe]
 name: Minor Salve
-notes: Woundmoss worked into fat over a fire and bound with bog-cotton lint - Sel's field dressing, so the salve can be made and not only found.
+notes: Woundmoss worked down over a fire and bound with bog-cotton lint - Sel's field dressing, so the salve can be made and not only found.
 station: cookfire
 skill_ref: skill.survival
 complexity: 3

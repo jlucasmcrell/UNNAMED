@@ -4,7 +4,7 @@ schema: 1
 display_key: item.consumable.salve_minor.name
 tags: [item]
 name: Minor Salve
-notes: Heals 18 over 6 s through effect.mending; also an ingredient of sword_temper.
+notes: Heals 18 over 6 s through effect.mending; also the base of the ember salve (recipe.herbal.salve_ember).
 category: consumable
 stack_max: 5
 weight: 0.2

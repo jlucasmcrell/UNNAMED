@@ -1,0 +1,8 @@
+id: skill.bow
+kind: skill
+schema: 1
+display_key: skill.bow.name
+tags: [skill]
+name: Bow
+family: combat
+notes: The bow's weapon-family skill (PROGRESSION.md §5's combat list; §6). Arrows that land train it. No passive yet - competence only.

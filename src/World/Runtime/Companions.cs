@@ -207,6 +207,25 @@ internal sealed class CompanionSystem
         return null;
     }
 
+    /// <summary>
+    /// The party went by the stones (S-38): every companion following and on their feet is put down on a ring round where the character
+    /// arrived, behind first, facing them, with no trail to walk back along. Those told to wait stay where they wait.
+    /// </summary>
+    public string? Handle(ArriveWithParty command)
+    {
+        var terrain = _context.Setup.Layout.Space.Terrain;
+        int place = 0;
+        foreach (var c in State.Companions.Values.Where(c => c.Order == CompanionOrder.Follow && c.Condition == CompanionCondition.Up).ToList())
+        {
+            var npc = State.Npcs[c.NpcId];
+            var arrival = command.Arrival;
+            var at = Ring(arrival, arrival.FacingMdeg + 180_000 + place++ * 45_000, 2_000, Obstacles(c.NpcId)) ?? (arrival.XMm, arrival.ZMm);
+            Place(npc, new Body(at.X, terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, arrival.XMm, arrival.ZMm)));
+            State.SetCompanion(_owner, c with { StuckTicks = 0, Trail = ImmutableArray<TrailMark>.Empty, TargetKey = null, Action = ActionState.Idle });
+        }
+        return null;
+    }
+
     // ── blows on a companion ────────────────────────────────────────────────
 
     /// <summary>A creature's blow on a companion: resolved like one on the character - their armor, no guard, no dodge - and applied here.</summary>

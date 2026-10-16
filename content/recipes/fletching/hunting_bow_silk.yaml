@@ -1,0 +1,17 @@
+id: recipe.fletching.hunting_bow_silk
+kind: recipe
+schema: 1
+display_key: recipe.fletching.hunting_bow_silk.name
+tags: [recipe]
+name: Hunting Bow (Silk String)
+notes: The field bow strung with a hunting spider's dragline in place of spun bog cotton (canon WORLD_MATERIALS - silk is a bowstring). Kera's lashing trick; the string is easier to get right than spun cotton.
+station: workbench
+skill_ref: skill.survival
+complexity: 4
+inputs:
+  - { item_ref: item.material.ash_haft, count: 2 }
+  - { item_ref: item.material.small_hide, count: 1 }
+  - { item_ref: item.material.spider_silk, count: 2 }
+outputs:
+  - { item_ref: item.weapon.hunting_bow, count: 1, quality_roll: true }
+xp_award: { xp: 30 }       # level XP for the first only (AG-7)

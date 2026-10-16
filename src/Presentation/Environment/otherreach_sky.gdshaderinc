@@ -237,14 +237,14 @@ vec3 or_aurora_glow(vec3 d, float time) {
 	float side = dot(normalize(vec3(d.x, 0.0, d.z)), or_aurora_dir);
 	if (d.y <= 0.0 || side < -0.2) return vec3(0.0);
 	vec3 acc = vec3(0.0);
-	for (int i = 0; i < 18; i++) {
+	for (int i = 0; i < 12; i++) {
 		float of = 0.006 * fract(sin(float(i) * 12.9898) * 43758.5453);
-		float pt = ((0.8 + pow(float(i), 1.4) * 0.002)) / (d.y * 2.0 + 0.4);
+		float pt = ((0.8 + pow(float(i) * 1.5, 1.4) * 0.002)) / (d.y * 2.0 + 0.4);
 		pt -= of;
 		vec2 bpos = d.xz * pt;
 		float rzt = or_trinoise(bpos * 1.1, 0.06, time);
-		vec3 c2 = mix(vec3(0.15, 1.0, 0.45), vec3(0.85, 0.25, 0.55), clamp(float(i) / 18.0 * 1.4 - 0.25, 0.0, 1.0));
-		acc += c2 * rzt * exp2(-float(i) * 0.065 - 2.5);
+		vec3 c2 = mix(vec3(0.15, 1.0, 0.45), vec3(0.85, 0.25, 0.55), clamp(float(i) / 12.0 * 1.4 - 0.25, 0.0, 1.0));
+		acc += c2 * rzt * exp2(-float(i) * 1.5 * 0.065 - 2.5) * 1.5;
 	}
 	return acc * smoothstep(0.15, 0.8, side) * smoothstep(0.0, 0.06, d.y) * (1.0 - smoothstep(0.25, 0.6, d.y));
 }
@@ -263,14 +263,14 @@ vec3 otherreach_sky(vec3 col, vec3 d, vec3 space, float moon_mask, float horizon
 	if (or_space_boost > 0.0)
 		add += (space * or_space_boost + space * space * or_space_boost * 6.0) * night * front;
 	if (or_galaxy_on)
-		add += or_galaxy(d) * night * horizon_blend * ext * or_fog_comp * front;
+		add += or_galaxy(d) * smoothstep(0.75, 1.0, night) * horizon_blend * ext * or_fog_comp * front;   // a faint object: only once it is dark
 	if (or_star_on) {
 		float sa; vec3 s = or_star(d, sa);
 		add += s * ext * or_fog_comp * front * (0.35 + 0.65 * night);
 	}
 	if (or_arc_on) {
 		float aa; vec3 arc = or_arc(d, aa);
-		add += arc * ext * gain * front * (1.0 - hide);
+		add = add * (1.0 - aa * front) + arc * ext * gain * front * (1.0 - hide);   // the ring hides what lies beyond it
 		hide = max(hide, aa * front);
 	}
 	if (or_giant_on) {
@@ -290,7 +290,7 @@ vec3 otherreach_sky(vec3 col, vec3 d, vec3 space, float moon_mask, float horizon
 	}
 	if (or_airglow > 0.0)
 		add += vec3(0.18, 0.55, 0.22) * or_airglow * night * exp(-pow((d.y - 0.10) / 0.09, 2.0)) * smoothstep(-0.01, 0.03, d.y) * or_fog_comp;
-	if (or_aurora > 0.0 && night > 0.6)
-		add += or_aurora_glow(d, time) * or_aurora * smoothstep(0.6, 1.0, night) * or_fog_comp;
+	if (or_aurora > 0.0 && night > 0.85)
+		add += or_aurora_glow(d, time) * or_aurora * smoothstep(0.85, 1.0, night) * or_fog_comp;   // only in full dark
 	return col - space * hide + add;
 }

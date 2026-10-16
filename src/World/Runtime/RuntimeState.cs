@@ -34,7 +34,7 @@ public enum StateSlice
     /// <summary>The progression record (level, attributes, skills, techniques, pools, guards).</summary>
     PlayerProgression,
 
-    /// <summary>Discovered-location records (S-30's Phase-1 subset: discovery credit).</summary>
+    /// <summary>Discovered-location records (S-30's Phase-1 subset: discovery credit), and the stretches of road walked (schema 15).</summary>
     Discoveries,
 
     /// <summary>Cell-level <c>world.*</c> flags in the sparse world delta.</summary>
@@ -78,6 +78,9 @@ public enum StateSlice
 
     /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
     Companions,
+
+    /// <summary>The Waystones the player knows and the one they chose to return to (S-38). Saved with the player (schema 15).</summary>
+    Waystones,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -124,6 +127,9 @@ internal sealed class RuntimeState
         Conversations = player.Conversations.ToImmutableSortedDictionary(c => c.DialogueId, c => c.Heard.ToImmutableSortedSet(StringComparer.Ordinal),
             StringComparer.Ordinal);
         Quests = player.Quests.ToImmutableSortedDictionary(q => q.QuestId, q => q, StringComparer.Ordinal);
+        RoadsWalked = player.RoadsWalked.ToImmutableSortedSet(StringComparer.Ordinal);
+        KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
+        ReturnPoint = player.ReturnPoint;
     }
 
     public WorldDelta World { get; }
@@ -132,6 +138,9 @@ internal sealed class RuntimeState
     public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
+    public ImmutableSortedSet<string> RoadsWalked { get; private set; }
+    public ImmutableSortedDictionary<string, WaystoneRecord> KnownStones { get; private set; }
+    public string? ReturnPoint { get; private set; }
     public ImmutableSortedDictionary<string, SimulationTier> Tiers { get; private set; } =
         ImmutableSortedDictionary.Create<string, SimulationTier>(StringComparer.Ordinal);
     public ImmutableArray<InventoryEntry> Inventory { get; private set; }
@@ -229,6 +238,33 @@ internal sealed class RuntimeState
         if (Discoveries.ContainsKey(record.LocationId))
             throw new InvalidOperationException($"{record.LocationId} is already discovered");
         Discoveries = Discoveries.Add(record.LocationId, record);
+    }
+
+    public void WalkRoad(SliceOwner owner, string stretch)
+    {
+        Require(owner, StateSlice.Discoveries);
+        RoadsWalked = RoadsWalked.Add(stretch);
+    }
+
+    public void KnowStone(SliceOwner owner, WaystoneRecord record)
+    {
+        Require(owner, StateSlice.Waystones);
+        if (KnownStones.ContainsKey(record.StoneKey))
+            throw new InvalidOperationException($"{record.StoneKey} is already known");
+        KnownStones = KnownStones.Add(record.StoneKey, record);
+    }
+
+    public void SetReturnPoint(SliceOwner owner, string stoneKey)
+    {
+        Require(owner, StateSlice.Waystones);
+        ReturnPoint = KnownStones.ContainsKey(stoneKey) ? stoneKey : throw new InvalidOperationException($"{stoneKey} is not a known stone");
+    }
+
+    /// <summary>World time passing at once (Waystone travel): the clock moves on by whole ticks.</summary>
+    public void AdvanceClock(SliceOwner owner, long ticks)
+    {
+        Require(owner, StateSlice.Clock);
+        WorldTick += ticks >= 0 ? ticks : throw new InvalidOperationException("The clock never runs backwards");
     }
 
     public void SetFlag(SliceOwner owner, CellKey cell, string flagId, long value)

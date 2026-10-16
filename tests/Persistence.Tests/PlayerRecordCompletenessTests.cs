@@ -12,6 +12,7 @@ using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
 using UNNAMED.Persistence.Sections;
+using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 
 namespace UNNAMED.Persistence.Tests;
@@ -51,7 +52,12 @@ public class PlayerRecordCompletenessTests
                         DownedTick = 4_990,
                         Trail = ImmutableArray.Create(new TrailMark(151_500, -38_500)),
                     }))
-            { Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120) };
+            {
+                Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120),
+                Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Woken, 4_400)),
+                ReturnPoint = "waystone.fixture.cairn",
+                RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
+            };
     }
 
     [Fact]

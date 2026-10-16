@@ -71,7 +71,7 @@ public class ProgressionContentTests : IDisposable
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
 
         Assert.Equal(
-            new[] { "skill.athletics", "skill.force", "skill.one_hand_blade", "skill.smithing", "skill.survival", "skill.vital", "skill.warding" },
+            new[] { "skill.athletics", "skill.bow", "skill.force", "skill.one_hand_blade", "skill.polearm", "skill.smithing", "skill.survival", "skill.vital", "skill.warding" },
             loader.GetByKind("skill").Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
 

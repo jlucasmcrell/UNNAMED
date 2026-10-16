@@ -1,0 +1,16 @@
+id: recipe.herbal.salve_ember
+kind: recipe
+schema: 1
+display_key: recipe.herbal.salve_ember.name
+tags: [recipe]
+name: Ember Salve
+notes: A minor salve warmed through with an ember hound's cinder sac - what Sel buys the sacs for. Mends twice as much in the same time.
+station: cookfire
+skill_ref: skill.survival
+complexity: 5
+inputs:
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+  - { item_ref: item.material.cinder_sac, count: 1 }
+outputs:
+  - { item_ref: item.consumable.salve_ember, count: 1, quality_roll: false }
+xp_award: { xp: 25 }       # level XP for the first only (AG-7)
