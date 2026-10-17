@@ -916,10 +916,11 @@ public partial class HollowView : Node3D
             // AO-mapped surface toward black.
             SsaoLightAffect = 0.0f, SsaoAOChannelAffect = 0.0f,
             SsilEnabled = true, SsilRadius = 4f, SsilIntensity = 0.9f, SsilSharpness = 0.98f, SsilNormalRejection = 1f,
-            SdfgiEnabled = exterior, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = false, SdfgiReadSkyLight = true, SdfgiBounceFeedback = 0.5f,
+            // Keep the viewport feature stable across the portal; closed rooms use no sky/bounce contribution.
+            SdfgiEnabled = true, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = false, SdfgiReadSkyLight = exterior, SdfgiBounceFeedback = 0.5f,
             // 50 percent, not 75: the docs say 50 "is usually the best choice for scenes that don't feature much
             // verticality", and a village on a moor is exactly that. Free quality.
-            SdfgiEnergy = 0.55f, SdfgiNormalBias = 1.1f, SdfgiProbeBias = 1.1f, SdfgiYScale = Godot.Environment.SdfgiyScale.Scale50Percent,
+            SdfgiEnergy = exterior ? 0.55f : 0f, SdfgiNormalBias = 1.1f, SdfgiProbeBias = 1.1f, SdfgiYScale = Godot.Environment.SdfgiyScale.Scale50Percent,
             // GLOW WAS NEVER FIRING. The HDR threshold is relative to the tonemapper's white value, and under AgX
             // that is `agx_white = 16.29` - so the old 1.1 meant 17.9, which nothing in this scene can reach. The
             // bright sky, the cloud breaks and any wet-stone specular have been silently not blooming.

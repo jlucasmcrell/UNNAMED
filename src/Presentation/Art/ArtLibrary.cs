@@ -82,13 +82,17 @@ public sealed class ArtLibrary
 
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
+    private readonly string? _nativeSceneRoot;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
     {
         Root = root;
         _sceneCachePrefix = sceneCachePrefix;
         _buildSceneCache = buildSceneCache;
-        Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache);
+        _nativeSceneRoot = sceneCachePrefix is not null && FallbackRoot is not null
+            ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString()) : null;
+        Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
+            _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
         PackedTerrainCache = useTextureCache && FallbackRoot is not null
             ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_terrain"), false) : null;
     }
@@ -583,13 +587,13 @@ public sealed class ArtLibrary
             return null;
         }
         ulong started = Time.GetTicksUsec();
-        string? stamp = _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal)
-            ? "v1 " + Engine.GetVersionInfo()["string"].AsString() + " "
+        string? stamp = _nativeSceneRoot is not null && _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal)
+            ? "v4 " + Engine.GetVersionInfo()["string"].AsString() + " "
               + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) : null;
-        string native = path + ".scn";
+        string native = _nativeSceneRoot is null ? "" : Path.Combine(_nativeSceneRoot, "scenes", Path.GetRelativePath(WorkspaceOf(path), path) + ".scn").Replace('\\', '/');
         if (stamp is not null && !_buildSceneCache && File.Exists(native) && File.Exists(native + ".sha256")
             && File.ReadAllText(native + ".sha256") == stamp
-            && ResourceLoader.Load<PackedScene>(native, cacheMode: ResourceLoader.CacheMode.IgnoreDeep) is { } cached)
+            && ResourceLoader.Load<PackedScene>(native, cacheMode: ResourceLoader.CacheMode.Ignore) is { } cached)
         {
             _sceneCount++;
             _sceneMs += (Time.GetTicksUsec() - started) / 1000.0;
@@ -637,9 +641,11 @@ public sealed class ArtLibrary
         }
         if (stamp is not null && _buildSceneCache)
         {
-            var saved = ResourceSaver.Save(packed, native, ResourceSaver.SaverFlags.BundleResources | ResourceSaver.SaverFlags.Compress);
+            Directory.CreateDirectory(Path.GetDirectoryName(native)!);
+            var saved = ResourceSaver.Save(packed, native, ResourceSaver.SaverFlags.Compress);
             if (saved != Error.Ok) throw new IOException($"Could not build native scene {native}: {saved}");
             File.WriteAllText(native + ".sha256", stamp);
+            File.WriteAllText(native + ".source.json", JsonSerializer.Serialize(new { source = path, stamp }));
             GD.Print($"UNNAMED native scene built: {native}");
         }
         return packed;
@@ -941,16 +947,24 @@ public sealed class ArtLibrary
         string relative = Path.Combine("animation", "ready", family, $"anim.{id}.glb");
         Animation? clip = null;
         SkeletonRest? rest = null;
-        if (At(relative) is { } clipPath && LoadScene(id, clipPath)?.Instantiate() is { } scene)
+        if (At(relative) is { } clipPath)
         {
-            var player = Find<AnimationPlayer>(scene);
-            if (player?.GetAnimationList() is { Length: > 0 } names)
-                clip = (Animation)player.GetAnimation(names[0]).Duplicate();
-            else
-                Problem(id, "the clip file holds no animation");
-            if (Find<Skeleton3D>(scene) is { } source)
-                rest = SkeletonRest.Of(source);
-            scene.Free();
+            // Clips may carry a whole textured body. Keep only the copied animation/rest, not a temporary packed model.
+            using var packed = LoadScene(id, clipPath);
+            if (packed?.Instantiate() is { } scene)
+            {
+                try
+                {
+                    var player = Find<AnimationPlayer>(scene);
+                    if (player?.GetAnimationList() is { Length: > 0 } names)
+                        clip = (Animation)player.GetAnimation(names[0]).Duplicate();
+                    else
+                        Problem(id, "the clip file holds no animation");
+                    if (Find<Skeleton3D>(scene) is { } source)
+                        rest = SkeletonRest.Of(source);
+                }
+                finally { scene.Free(); }
+            }
         }
         if (clip is not null)
             Use(id);

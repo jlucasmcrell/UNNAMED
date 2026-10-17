@@ -29,15 +29,22 @@ out=ROOT/'docs/BARROWWORKS_ASSET_MANIFEST.json'
 out.write_text(json.dumps({'asset_root':str(DEPOT),'raw_sources_committed':False,'assets':records},indent=2)+'\n')
 print('Recorded',len(records),'assets')
 
-# Native scenes are optional, engine-version/source-digest checked derivatives; GLBs remain authoritative.
+# Native caches are opt-in, derived outside the primary package. Textures are shared external resources.
 scenes=[]
-for path in sorted(DEPOT.rglob('bw_codex_*.glb.scn')):
-    source=Path(str(path)[:-4])
-    stamp=Path(str(path)+'.sha256')
-    assert stamp.exists() and stamp.read_text().endswith(hashlib.sha256(source.read_bytes()).hexdigest().upper()),source
+textures=[]
+for path in sorted((DEPOT/'barrowworks_native').rglob('*.scn')):
+    meta=json.loads(Path(str(path)+'.source.json').read_text())
+    source=Path(meta['source']);stamp=Path(str(path)+'.sha256').read_text()
+    assert stamp==meta['stamp'] and stamp.startswith('v4 ') and stamp.endswith(hashlib.sha256(source.read_bytes()).hexdigest().upper()),source
     scenes.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
-                   'source':str(source),'stamp':stamp.read_text()})
-(ROOT/'docs/BARROWWORKS_SCENE_CACHE.json').write_text(json.dumps({'raw_sources_committed':False,'outputs':scenes},indent=2)+'\n')
+                   'source':str(source),'stamp':stamp})
+for path in sorted((DEPOT/'barrowworks_native').rglob('*.dds.res')):
+    source=PRIMARY/'texture_cache'/path.name[:-4]
+    assert source.exists(),source
+    textures.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+                     'source_dds':str(source),'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest()})
+(ROOT/'docs/BARROWWORKS_SCENE_CACHE.json').write_text(json.dumps({'raw_sources_committed':False,'outputs':scenes,
+    'shared_textures':textures,'relocation':'External texture paths are absolute; rebuild the cache after moving the asset depot.'},indent=2)+'\n')
 # Terrain cache is deliberately separate from the shared primary texture-cache junction.
 terrain=[]
 for path in sorted((DEPOT/'barrowworks_terrain/texture_cache').glob('*.dds')):
@@ -46,4 +53,4 @@ for path in sorted((DEPOT/'barrowworks_terrain/texture_cache').glob('*.dds')):
 assert len(terrain)==18,'Rebuild all nine packed terrain pairs before publishing a cache manifest'
 (ROOT/'docs/BARROWWORKS_TERRAIN_CACHE.json').write_text(json.dumps({'cache_root':str(DEPOT/'barrowworks_terrain/texture_cache'),
     'licence':'CC0 1.0; existing Poly Haven packed terrain maps','raw_sources_committed':False,'outputs':terrain},indent=2)+'\n')
-print('Recorded',len(scenes),'native scenes and',len(terrain),'packed terrain maps')
+print('Recorded',len(scenes),'native scenes,',len(textures),'shared textures and',len(terrain),'packed terrain maps')

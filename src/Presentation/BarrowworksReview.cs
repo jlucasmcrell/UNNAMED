@@ -22,6 +22,7 @@ public sealed class BarrowworksReview
     private double _captureSeconds;
     private ulong _lastFrameUsec;
     private readonly bool _realtime;
+    private readonly bool _returnBaseline;
     private readonly Performance.Monitor[] PipelineMonitors =
     {
         Performance.Monitor.PipelineCompilationsCanvas, Performance.Monitor.PipelineCompilationsMesh,
@@ -72,9 +73,11 @@ public sealed class BarrowworksReview
         }
     }
     public void Screenshot() => _stats.SkipNext();
+    public void Mark(string text) => _stats.Mark(text);
     public void WriteTiming() => _stats.Write(Directory, new Dictionary<string, string>
     {
-        ["route"] = "Frontier threshold -> all thirteen Barrowworks rooms -> solo Custodian -> headworks",
+        ["route"] = _returnBaseline ? "Fresh exterior drain launch; no portal used; ten-second same-view control"
+            : "Frontier threshold -> all thirteen Barrowworks rooms -> solo Custodian -> headworks -> drain return",
         ["clock"] = _realtime ? "Normal fixed 20 Hz through GameSession.Frame(delta); monotonic frame timing; boot/screenshot readback excluded, portal entry/return included"
             : "One ordinary simulation tick per rendered frame; monotonic frame timing; boot/screenshot readback excluded, portal entry/return included",
         ["tier"] = VisualOptions.Tier,
@@ -87,6 +90,8 @@ public sealed class BarrowworksReview
         _controller = controller;
         _camera = camera;
         _realtime = realtime;
+        _returnBaseline = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1";
+        if (_returnBaseline) _entered = _leaving = _thresholdShot = true;
         if (DisplayServer.GetName() != "headless")
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
         Engine.MaxFps = 0; // Capture headroom rather than the window's refresh/cap, as ConnectedCheck does.
@@ -168,7 +173,7 @@ public sealed class BarrowworksReview
             if (!_leaving) return "failed";
             _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
             _camera.Yaw=0;_camera.Pitch=-.08f;_camera.TargetDistance=6;
-            if ((_exteriorSettle+=_frameSeconds)<1.2) return null;
+            if ((_exteriorSettle+=_realtime ? _frameSeconds : _session.TickSeconds)<(_returnBaseline ? 10 : 5)) return null;
             if (_exteriorSettle<100) {_exteriorSettle=100;return "entrance_drain";}
             if (!_reentered && OS.GetEnvironment("BARROWWORKS_REVIEW_REENTER") == "1")
             {

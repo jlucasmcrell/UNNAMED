@@ -24,6 +24,8 @@ public sealed class TextureCache
     private sealed record Entry(string Dds, long Size, string Sig, string Role);
 
     private readonly string? _root;
+    private readonly string? _nativeRoot;
+    private readonly bool _buildNative;
     private readonly Dictionary<string, Entry> _entries = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _loaded = new(StringComparer.Ordinal);
     private bool _dirty;
@@ -38,9 +40,11 @@ public sealed class TextureCache
     /// <summary>What the cached textures take on the GPU (their files' payload, mips included).</summary>
     public long CompressedBytes { get; private set; }
 
-    public TextureCache(string? root, bool building)
+    public TextureCache(string? root, bool building, string? nativeRoot = null, bool buildNative = false)
     {
         _root = root;
+        _nativeRoot = nativeRoot;
+        _buildNative = buildNative;
         Building = building && root is not null;
         if (root is null)
             return;
@@ -153,6 +157,15 @@ public sealed class TextureCache
             return texture;
         texture = null;
         string path = Path.Combine(_root!, Folder, name);
+        string? native = _nativeRoot is null ? null : Path.Combine(_nativeRoot, name + ".res").Replace('\\', '/');
+        if (!_buildNative && native is not null && File.Exists(native) && File.Exists(path)
+            && ResourceLoader.Load<ImageTexture>(native) is { } shared)
+        {
+            // Reuse the same external texture as native model scenes, including their LODs.
+            _loaded[name] = shared;
+            CompressedBytes += new FileInfo(path).Length - 148; // BC7 DDS/DX10 header.
+            return shared;
+        }
         if (File.Exists(path))
         {
             // Disposed here: the uploaded texture keeps no CPU copy, and a 4096 map's image would otherwise wait for the collector.
@@ -162,6 +175,13 @@ public sealed class TextureCache
             {
                 texture = ImageTexture.CreateFromImage(image);
                 CompressedBytes += image.GetDataSize();
+                if (_buildNative && native is not null)
+                {
+                    Directory.CreateDirectory(_nativeRoot!);
+                    var saved = ResourceSaver.Save(texture, native, ResourceSaver.SaverFlags.Compress);
+                    if (saved != Error.Ok) throw new IOException($"Could not build native texture {native}: {saved}");
+                    texture.TakeOverPath(native);
+                }
             }
         }
         _loaded[name] = texture;

@@ -11,11 +11,15 @@ leaving, after views/creatures/items have switched back. No simulation state or 
 The enabled run uses the existing signed BC7 cache in the primary asset package; distribute its
 `texture_cache/` manifest and DDS files with the package. Missing/stale cache entries retain the normal
 fallback and are reported; budget evidence must identify the actual package/cache hits. Option off keeps
-its original upload path. Indoor SDFGI is disabled: local lights and contact shading light a closed hill.
+its original upload path. The viewport keeps SDFGI enabled across the portal to retain its feature
+variants; closed rooms use zero SDFGI energy and no sky read, with local lights/contact shading.
 Only the court rim has a shadowed room light; the other pools and corridor lights are unshadowed.
 
 Portal-entry prewarm issues real material/skin/shadow/GI draws in the actual High viewport from the
-court, every room and the two exterior-return views, including the alarm glyphs and impact effects.
+court, every room and the two exterior-return views, including the impact effects. Camera/avatar/particle transforms are flushed explicitly because forced
+draws do not advance the scene tree. Alarm font fill/outline atlases are cached directly; a deferred
+hidden label primes the real 3D glyph material after Label3D shapes its text, retaining those resources
+until the space is freed. All combat clips are posed during priming and the initial idle is restored.
 Draws do not swap to the window; camera/body presentation transforms restore in a finally block.
 It reuses the existing outdoor GI allocation before the first indoor draw and allocates no auxiliary
 viewport. No commands or authoritative state change. Entry and return stalls remain visible in raw
@@ -31,13 +35,28 @@ budget. Build with the installed editor binary, CPU-only (PowerShell, from the r
 `BARROWWORKS_TERRAIN_CACHE.json` records derived hashes. Native Terrain3D remains enabled, including its
 zero-mm agreement with domain ground; this optimization does not select the terrain fallback.
 
-Native scene derivatives avoid decoding the same embedded GLB images on every entry. Build them with
-`--build-scene-cache` added to the headless real-portal review command below, then omit that flag for
-play. The depot holds adjacent `.glb.scn` files with bundled resources, plus `.scn.sha256` stamps containing
-the source digest, Godot version and cache-format revision. Missing/stale scenes use their source GLB;
-no native scenes or source binaries are committed. Rebuild after an art export or engine upgrade, then
-run `python tools/manifest_barrowworks_assets.py` to refresh `BARROWWORKS_SCENE_CACHE.json` and the terrain
-manifest. This cache revision is unrelated to the save schema. Only enabled Barrowworks IDs opt in.
+Native scene derivatives avoid temporary RGBA uploads before the cache swaps in BC7 textures.
+Build with `--build-scene-cache` added to the headless real-portal review command below, then omit that
+flag for play. The owned depot holds `barrowworks_native/<Godot version>/scenes/` and `textures/`;
+the primary package remains read-only. All currently used model/clip scenes opt in while the ring is
+enabled. Shared `.dds.res` textures retain their BC7 data and are external references reused across
+models/LODs. Root scenes load independently; their immutable texture dependencies share the loader's
+cache. Missing/stale native scenes use the original GLB. Scene stamps contain full source SHA-256,
+Godot version and cache-format revision (currently v4, unrelated to save schema). Transient clip scenes
+are disposed after copying animation/rest data, rather than waiting for finalization with their meshes.
+
+External resource references are absolute: **rebuild this cache after relocating the asset depot**.
+Relative external references outside `res://` failed the engine reload check, so they are not shipped as
+working portability support. Keep the signed source DDS cache and source GLBs available for validation
+and fallback. No native resources/source binaries are committed. Rebuild after art/filter/engine changes,
+then run `python tools/manifest_barrowworks_assets.py`; the scene-cache manifest records 602 scenes and
+1,454 shared textures for this package. Reload checks confirm compressed texture data and shared texture
+instance identity. Run the integrity check (from PowerShell at the repository root):
+`godot --headless --path src/Presentation --script (Resolve-Path tools/check_barrowworks_native_cache.gd)`.
+It checks every cached file digest, independently loaded model texture identity/compression and the
+Custodian's eleven joints, and exits nonzero on a failed assertion. Different-resolution LOD images
+remain distinct. The normal High run must verify actual memory/timing with this full cache.
+
 Exterior creature figures are retained, hidden and stopped while indoors, then their interpolation is
 placed at the current authoritative bodies on return. Loading/new game resets both projections. Interior
 figures belong to the interior scene and are freed with it. This preserves exterior rendering resources
@@ -58,7 +77,7 @@ waits for the whole death clip, from outside the body. Readings wrap within the 
 previous reading; ordinary exterior notices keep their existing behavior.
 
 Room LOD maps are 512/256/128; fixture maps are capped at 512, the authored body at 1024. Clip GLBs now
-carry only their skeleton and keyed tracks (11�20 KB each), retaining all eleven joints instead of
+carry only their skeleton and keyed tracks (11-20 KB each), retaining all eleven joints instead of
 embedding another 20 MB armored mesh/atlas in each of eight animation files.
 
 Additional CC0 reuse: ScottishMaritimeMuseum, *Boiler from the puffer VIC 32*,
@@ -244,3 +263,60 @@ hashes. Distribution credit is also in the external depot's `CREDITS.txt`.
 - **OQ-11, portal placement:** threshold (438, 663) at Blackvein spoil and drain (1050, 770) at Sinking Moss remain about 610 m apart. The approximately 137 m interior route therefore makes a substantial overland shortcut. These anchors are provisional. Recommendation: owner chooses whether to move the drain closer; keep current anchors until that decision. The art berms dress these placements and do not settle this map question.
 - **OQ-16, wedge and G3:** the original design couples crafting/fitting the wedge to the headworks door. The quest orders those deeds, but current G3's physical interlock is the durable Custodian defeat, not possession or consumption of a wedge. Recommendation: owner confirms whether the wedge must also physically gate G3, and whether it is consumed. Do not silently substitute quest order for an item requirement; shared door/item policy belongs with the integration owner.
 - **OQ-17, defeat semantics:** durable `world.barrowworks.ring_custodian_defeated` is now written in the ring's own cell and survives quest activation order; the former missing-writer engine gap is fixed. Keep the fact rather than a while-active kill counter. Owner/integration review still needs to ratify encounter retreat/reset/death policy against S35 and the advancing WP4 implementation; do not reintroduce the old missing-writer claim.
+
+## Review 5 remaining evidence
+
+The definitive three interleaved idle option-off A/B pairs are **PENDING**, by owner instruction while
+priority UE body work and wave-5 tests occupy BEAST. Fixtures compare 23d75688 with db4df5e4, High,
+barrowworks=0. Retain per-run FPS, 1% low and frame mean, CPU/job overlap observations and raw frames.
+Pair 1's db4df5e4 sample is rejected (`invalid.txt`): it overlapped our own headless cache builder.
+An apparently quiet start/end CPU reading does not validate the whole interval. Complete/repeat the
+three qualified pairs when the owner announces the quiet window; no option-off regression claim is
+made from the partial study.
+
+Latest CPU verification: Release build zero errors (39 existing presentation warnings), Presentation
+127/127, Architecture 18/18, content lint 339 definitions/zero errors, xref exit 0. The full review-5
+suite passed 1,361 tests, zero failed/skipped. The cache integrity check verifies all 602 scenes and
+1,454 shared textures, thirteen shared albedo identities across independent loads, and eleven joints.
+The final headless route completes all thirteen rooms, fight, headworks, drain exit and re-entry;
+all three earned door hinges remain open after the resources are released/rebuilt.
+
+## Final shared-cache High route (review 5)
+
+`review5_shared_high`: BEAST / RTX 3090, Forward+, High 1920x1050, normal fixed 20 Hz,
+46,105 frames / 290.47 measured seconds. Average 158.7 FPS; 1% low 22.8 FPS; frame mean
+6.300 ms / p99 14.457 ms. GPU mean 5.303 ms / p95 8.141 ms. Renderer peak 10,565.3 MB.
+WDDM process dedicated sampled maximum 10,682.5 MiB, shared sampled maximum 460.1 MiB;
+these are separate allocation measures, not exact physical peaks or a RAZER measurement.
+
+**Hitch gate FAILS: 119 frames >33 ms**, including 113 frames at the final drain/exterior return.
+The five-second return observation added evidence rather than changing exclusions: the exterior
+remains roughly 41-44 ms per frame through the last sample. Do not compare 119 directly with
+previous runs' 29/37 without their shorter 1.2-second exterior tail. Entry is 9,688.099 ms,
+including 4,885 ms prewarm; return includes a 197.505 ms frame (193.588 ms GPU). Return adds
+six Draw variants across its two marked events; Surface +4 / Draw +1 no longer appears later
+in the court. A 91.896 ms court sample and two 39.073/33.729 ms samples have no correlated
+instrumented cause. The 34.915 ms headworks sample includes the harness's 27.381 ms path search.
+No timing threshold, screenshot exclusion or simulation clock was relaxed.
+
+The source is ready for review with the ring **still disabled by default**. The enablement hitch
+gate is explicitly open; do not turn it on from the aggregate GPU p95 or engine memory total alone.
+All thirteen room images, physical readings, three attack poses, corpse portrait and the distinct
+threshold/drain berms were personally inspected in this final capture. No prewarm-only glyph leaks
+into those images. Ordinary solo fight, headworks and drain exit finish successfully.
+
+Partial option-off observations (not a completed or accepted idle study):
+
+| Pair/order | Revision | FPS | 1% low FPS | Frame mean ms | Status |
+|---|---|---:|---:|---:|---|
+| 1 A | 23d75688 | 83.8 | 32.7 | 11.927 | partial; whole-window qualification pending |
+| 1 B | db4df5e4 | 83.5 | 26.9 | 11.979 | REJECTED: own headless builder overlap |
+| 2 B | db4df5e4 | 86.3 | 31.7 | 11.593 | partial; whole-window qualification pending |
+| 2 A | 23d75688 | 88.3 | 33.0 | 11.325 | partial; whole-window qualification pending |
+| 3 A | 23d75688 | — | — | — | pending owner quiet window |
+| 3 B | db4df5e4 | — | — | — | pending owner quiet window |
+
+Raw files use `review5_idle_off_<pair>_<revision>` under the evidence root. The next pair-script
+launch waits for `review5_owner_quiet_window.flag` there, created only after the owner announces
+the window. This marker is a diagnostic scheduling gate, not part of the game. Repeat/qualify three
+complete interleaved pairs; the existing CPU observer did not identify every possible competing job.

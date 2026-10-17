@@ -40,6 +40,7 @@ public partial class HitImpacts : Node3D
                 {
                     parent.AddChild(burst);
                     burst.GlobalPosition = at;
+                    burst.ForceUpdateTransform();
                     ParticleRecipes.Fire(burst);
                 }
     }

@@ -289,7 +289,8 @@ public partial class Main : Node3D
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
         if (VisualOptions.Barrowworks && _options.ContainsKey("--barrowworks-review"))
-            shotStart = (438_000, 664_000);
+            shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
+                ? (1_050_000, 770_000) : (438_000, 664_000);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -362,7 +363,7 @@ public partial class Main : Node3D
         }
         // The opt-in co-loaded ring uses the existing signed BC7 cache; off retains the original upload path.
         _art = new Art.ArtLibrary(_assets.Root, useTextureCache: VisualOptions.Barrowworks,
-            sceneCachePrefix: VisualOptions.Barrowworks ? "bw_codex_" : null, buildSceneCache: _flags.Contains("--build-scene-cache"));
+            sceneCachePrefix: VisualOptions.Barrowworks ? "" : null, buildSceneCache: _flags.Contains("--build-scene-cache"));
         if (Art.ArtLibrary.FallbackRoot is { } second)
             GD.Print($"UNNAMED assets: falling back to {second} for anything {_assets.Root ?? "the region"} does not hold");
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
@@ -721,6 +722,9 @@ public partial class Main : Node3D
             camera.Environment = light;
             camera.GlobalPosition = at;
             camera.LookAt(target);
+            // Node3D normally defers these notifications until frame end; ForceDraw does not advance the tree.
+            camera.ForceUpdateTransform();
+            _avatar.ForceUpdateTransform();
             for (int i = 0; i < 3; i++) RenderingServer.ForceDraw(false, 1.0 / 60);
         }
         try
@@ -764,12 +768,18 @@ public partial class Main : Node3D
                 _hits.Prepare(bursts, new Vector3(50, 1, 106));
                 CourtDraw();
             }
+            var body = _controller.Authoritative;
+            var feet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
+            _avatar.Position = feet;
+            Draw(feet + transform.Origin - bodyPosition, feet + new Vector3(0, 1.5f, 0), _interior.SpaceEnvironment);
         }
         finally
         {
             camera.GlobalTransform = transform;
             camera.Environment = environment;
             _avatar.Position = bodyPosition;
+            camera.ForceUpdateTransform();
+            _avatar.ForceUpdateTransform();
             _hollow.Visible = false;
             _interior.Visible = true;
             _exteriorCreatures.Visible = false;
@@ -1094,12 +1104,20 @@ public partial class Main : Node3D
             ShowSpace(outside);
             _autorun = false;
         }
-        if (_stats is not null)
+        if (_stats is not null || _barrowworksReview is not null)
         {
             if (frame.AutosaveTaken is { } taken)
-                _stats.Mark($"autosave to {taken} taken at {_session.PlaytimeSeconds:0.0} s of play");
+            {
+                string note = $"autosave to {taken} taken at {_session.PlaytimeSeconds:0.0} s of play";
+                _stats?.Mark(note);
+                _barrowworksReview?.Mark(note);
+            }
             foreach (var save in frame.Saves)
-                _stats.Mark($"{save.Slot} written in the background{(save.Failure is { } why ? $" - FAILED: {why}" : "")}");
+            {
+                string note = $"{save.Slot} written in the background{(save.Failure is { } why ? $" - FAILED: {why}" : "")}";
+                _stats?.Mark(note);
+                _barrowworksReview?.Mark(note);
+            }
         }
         foreach (var save in frame.Saves)
         {

@@ -62,16 +62,50 @@ public sealed partial class SkinnedCreature : CreatureBody
 
     internal void PrewarmMarks(Action draw)
     {
-        string text = _mark.Text;
-        bool visible = _mark.Visible;
-        foreach (string mark in new[] { "!", "?" })
+        // Label3D text changes are deferred, so temporarily assigning "!" then restoring it never drew a glyph.
+        // Prime the actual fill/outline atlas directly, without changing what this creature communicates.
+        var fonts = (_mark.Font ?? ThemeDB.FallbackFont).GetRids();
+        using var fontArray = (Godot.Collections.Array)fonts;
+        var server = TextServerManager.GetPrimaryInterface();
+        foreach (var font in fonts)
+            foreach (int outline in new[] { 0, _mark.OutlineSize })
+                foreach (char mark in "!?")
+                    server.FontRenderRange(font, new Vector2I(_mark.FontSize, outline), mark, mark);
+        ForceUpdateTransform();
+        foreach (string state in _clips)
         {
-            _mark.Text = mark;
-            _mark.Visible = true;
+            _model.Hold(state, 0.5f, 0);
+            _model.Skeleton.Advance(0);
             draw();
         }
-        _mark.Text = text;
-        _mark.Visible = visible;
+        _model.Play("idle", 0, restart: true);
+        _model.Skeleton.Advance(0);
+        // Shape the real 3D glyph material after Label3D's deferred update, then retain it invisibly with this space.
+        var glyph = (Label3D)_mark.Duplicate();
+        glyph.Name = "PreparedAlarmGlyphs";
+        glyph.Text = "!?";
+        glyph.Visible = false;
+        glyph.Layers = 1u << 19;
+        AddChild(glyph);
+        Callable.From(() =>
+        {
+            if (!GodotObject.IsInstanceValid(glyph) || !IsInsideTree() || GetViewport().GetCamera3D() is not { } camera) return;
+            uint mask = camera.CullMask;
+            try
+            {
+                camera.CullMask = mask | glyph.Layers;
+                glyph.GlobalPosition = camera.GlobalPosition - camera.GlobalBasis.Z * 2;
+                glyph.Visible = true;
+                camera.ForceUpdateTransform();
+                glyph.ForceUpdateTransform();
+                for (int i = 0; i < 3; i++) RenderingServer.ForceDraw(false, 1.0 / 60);
+            }
+            finally
+            {
+                glyph.Visible = false;
+                camera.CullMask = mask;
+            }
+        }).CallDeferred();
     }
 
     public override void Pose(CreatureView creature, float alpha, double delta)
