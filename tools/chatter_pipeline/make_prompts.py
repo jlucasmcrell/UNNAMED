@@ -48,6 +48,7 @@ TIME_NOTES = {
 LINES_PER_CELL = 12          # 4 places x 6 time bands x 12 = 288, plus the event block below = 300
 UNTAGGED_SPEAKERS = 3        # of the twelve, this many carry no trade, so any speaker can use them
 WEATHER_TAGGED = 6           # of the twelve, this many carry a weather tag; the rest can be said in any weather
+CANON_MIN_CELL = 5           # of the twelve, at least this many carry a fact specific to this world
 EVENT_LINES = 3              # per event, in the batch's event block
 EVENT_PLAN = ["weather_turned", "creature_slain", "market_day", "bounty_claimed"]
 
@@ -64,7 +65,7 @@ EVENT_FACTS = {
 
 
 def trade_order(index):
-    """The ten trades rotated, so consecutive cells do not start with the same trade."""
+    """The ten trades, rotated, to say which trades a cell should hear from - not which line gets which trade."""
     offset = index * 3 % len(SPEAKERS)
     return SPEAKERS[offset:] + SPEAKERS[:offset]
 
@@ -77,20 +78,16 @@ def build_plan(schema, batch):
     weighted = (WEATHER_MIX * ((len(cells) * WEATHER_TAGGED + len(WEATHER_MIX) - 1) // len(WEATHER_MIX))
                 )[:(len(cells) * WEATHER_TAGGED)]
     for index, (place, band) in enumerate(cells):
-        trades = trade_order(index)
-        speaker_plan = []
-        for line in range(LINES_PER_CELL - UNTAGGED_SPEAKERS):
-            trade = trades[line % len(trades)]
-            speaker_plan.append([trade] if line % 3 else [trade, trades[(line + 1) % len(trades)]])
         plan.append({
             "id": f"{place}-{band}",
             "place": place,
             "time": band,
             "count": LINES_PER_CELL,
             "untagged": UNTAGGED_SPEAKERS,
-            "speakers": speaker_plan,
+            "canon": CANON_MIN_CELL,
+            "trades": trade_order(index),
             "weather": weighted[index * WEATHER_TAGGED:(index + 1) * WEATHER_TAGGED],
-            "world": index % 4 != 3,
+            "world": True,
         })
     events = []
     for order, event in enumerate(EVENT_PLAN):
@@ -106,18 +103,16 @@ def render(plan, schema):
     examples = (PROMPTS / "examples.md").read_text(encoding="utf-8")
     rendered = []
     for cell in plan["cells"]:
-        speakers = "\n".join(f"  - `{trade}`" for trade in sorted({t for pair in cell["speakers"] for t in pair}))
-        speaker_plan = ", ".join(" + ".join(pair) for pair in cell["speakers"])
+        speakers = "\n".join(f"  - `{trade}`" for trade in cell["trades"])
         weather_counts = {}
         for weather in cell["weather"]:
             weather_counts[weather] = weather_counts.get(weather, 0) + 1
         weather_plan = (f"Tag {WEATHER_TAGGED} of the lines by weather: " + ", ".join(
             f"{count} {weather}" for weather, count in sorted(weather_counts.items()))
             + ". The rest carry no weather tag, so they can be said in any weather.")
-        channel_plan = ("One line is spoken as if to the whole valley (channel: world): the one placed tenth in your "
-                        "order. The others are local, and need no channel field."
-                        if cell["world"] else
-                        "Every line here is local; leave the channel field off.")
+        channel_plan = ("Exactly one line is spoken as if to the whole valley (`channel: world`), and it must be worth "
+                        "broadcasting: a road, trade, a price, weather coming in, work or company wanted, or news of a "
+                        "creature or a bounty. The other eleven are local and need no channel field.")
         prompt = template
         for name, value in (
             ("count", str(cell["count"])),
@@ -126,7 +121,7 @@ def render(plan, schema):
             ("time_band", cell["time"]),
             ("time_note", TIME_NOTES[cell["time"]]),
             ("speakers", speakers),
-            ("speaker_plan", speaker_plan),
+            ("canon_min", str(cell["canon"])),
             ("weather_plan", weather_plan),
             ("channel_plan", channel_plan),
             ("untagged_speakers", str(cell["untagged"])),
@@ -135,14 +130,15 @@ def render(plan, schema):
             prompt = prompt.replace("{{" + name + "}}", value)
         rendered.append((cell["id"], prompt))
     for event in plan["events"]:
-        prompt = (f"# Event lines: {event['event']}\n\nRead `voice.md` and `facts.md` first.\n\n"
+        prompt = (f"# Event lines: {event['event']}\n\nRead `voice.md`, `facts.md` and `canon.md` first.\n\n"
                   f"Write {EVENT_LINES} ambient chatter lines said by ordinary people in **{event['place']}** at "
                   f"**{event['time']}**, each waiting on the event `{event['event']}`.\n\n"
                   f"{EVENT_FACTS[event['event']]}\n\n"
-                  f"Each line carries `events: [{event['event']}]` and the trade or trades it fits in `speakers`. "
-                  f"One sentence, at most 140 characters, dry, concrete, nobody addressing the player.\n\n"
+                  f"Each line carries `events: [{event['event']}]` and the trade or trades it fits in `speakers`, and "
+                  f"`canon: true` if it uses a fact from `canon.md`. One sentence, at most 140 characters, dry, "
+                  f"concrete, nobody addressing the player.\n\n"
                   f"Return only YAML, one mapping per line:\n"
-                  f"- {{ text: \"...\", speakers: [villager], events: [{event['event']}] }}\n")
+                  f"- {{ text: \"...\", speakers: [villager], events: [{event['event']}], canon: true }}\n")
         rendered.append((f"event-{event['event']}-{event['cell']}-{len(rendered)}", prompt))
     return rendered
 
@@ -155,7 +151,7 @@ def main():
     (out / "cells").mkdir(parents=True, exist_ok=True)
     rendered = render(plan, schema)
     digest = hashlib.sha256()
-    for name in ("voice.md", "facts.md", "examples.md", "cell_prompt.md"):
+    for name in ("voice.md", "facts.md", "canon.md", "examples.md", "cell_prompt.md"):
         digest.update((PROMPTS / name).read_bytes())
     for name, prompt in rendered:
         (out / "cells" / (name + ".md")).write_text(prompt, encoding="utf-8")
@@ -171,8 +167,7 @@ def main():
         counts = {}
         for weather in cell["weather"]:
             counts[weather] = counts.get(weather, 0) + 1
-        print(f"  {cell['id']:<24} {cell['count']} lines  "
-              f"{'world' if cell['world'] else 'local':<5}  weather {counts}")
+        print(f"  {cell['id']:<24} {cell['count']} lines  canon>={cell['canon']}  weather {counts}")
 
 
 if __name__ == "__main__":

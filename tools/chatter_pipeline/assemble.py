@@ -54,29 +54,33 @@ def write_entry(line):
     return "  - { " + ", ".join(parts) + ", ai_generated: true }"
 
 
-def main():
-    batch = sys.argv[1]
-    source = read_source(batch)
+def check_batch(source, batch):
+    """Everything wrong with a batch's source: the content rules per line, then near-duplicates, then keys."""
     schema, banned = load_meta(CONTENT)
-    batches = {batch}
     lines, problems = [], []
     for entry in source["lines"]:
         if entry.get("retired"):
             continue
         line = expand(entry, batch)
-        problems.extend(check_line(line, schema, banned, batches))
+        problems.extend(check_line(line, schema, banned, {batch}))
         lines.append(line)
     problems.extend(("CHT010", f"{a} is a near-duplicate of {b} (word-pair overlap {score})")
                     for a, b, score in near_duplicates(lines, schema.near_duplicate_jaccard))
+    keys = [line["key"] for line in lines]
+    if len(set(keys)) != len(keys):
+        problems.append(("CHT002", f"{batch} uses a line key twice"))
+    return lines, problems
+
+
+def main():
+    batch = sys.argv[1]
+    source = read_source(batch)
+    schema, _ = load_meta(CONTENT)
+    lines, problems = check_batch(source, batch)
     if problems:
         for code, message in problems:
             print(f"{code}: {message}")
         print(f"{batch}: {len(problems)} problems, nothing written")
-        return 1
-
-    keys = [line["key"] for line in lines]
-    if len(set(keys)) != len(keys):
-        print(f"{batch}: duplicate keys in the source")
         return 1
 
     header = [

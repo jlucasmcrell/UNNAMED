@@ -1,6 +1,7 @@
 # Voice: how every chatter line is written
 
-Version 1 (2026-10-18). This is the register the corpus is held to. It is read with `facts.md` and `cell_prompt.md`.
+Version 2 (2026-10-18). This is the register the corpus is held to. It is read with `facts.md`, `canon.md` and
+`cell_prompt.md`.
 
 ## What these lines are
 
@@ -10,6 +11,19 @@ directions or warnings. Nobody is explaining anything to anybody.
 
 The game picks a line by the speaker's trade, the place they stand, the hour and the weather, so a line has to be
 true for *any* individual of that trade in that place at that hour. A named person never says a corpus line.
+
+**This is this world, not generic medieval.** A person here counts the year in tallies, has seen the sky do something
+wrong, knows what a waystone is for, has an opinion about the survey or the watch, and knows people who went one way
+or another over a Call. About four lines in ten should carry one such fact, used as a fact and not explained.
+
+## Two channels, and what belongs on each
+
+- **Local** (the default) is heard only near the speaker: a remarked-on job, the body, the animal, the weather at the
+  door, the neighbours.
+- **World** is the whole valley hearing it. A world line has to be *worth broadcasting*: a road or a ford, trade and
+  prices, weather coming in, work or company wanted, or news of a creature or a bounty. A purely private remark on
+  the world channel is a fault: if what you have written is only of interest to someone standing next to the speaker,
+  it is a local line.
 
 ## Register
 
@@ -40,7 +54,15 @@ true for *any* individual of that trade in that place at that hour. A named pers
 7. Chat presents facts, it never creates them. No line may claim something happened that the game does not track.
 8. **Never place a named person.** Residents keep daily routines - work, meals, sleep, errands - so no line may say
    where a named character is or what they are doing at a given hour. Speak of a trade ("the smith"), never of the
-   tradesman's whereabouts.
+   tradesman's whereabouts. Never quote a named person.
+9. **A line's trade tag must be a trade that could say it.** The tag is a runtime filter: a line tagged `guard` is only
+   ever said by a guard. Tag from the content of the line, never to fill a quota, and leave `speakers` off when anyone
+   could say it.
+10. **Protected mystery.** Nothing may say or imply that the player's arrival, or any arrival, causes the Leak, the
+   bleeds or the trouble at the Foldscar. Nothing explains what the Foldscar is or why it is. People may wonder,
+   guess, disagree and be wrong about it; nobody settles it. If a line would settle it, cut the line.
+11. **Canon facts only.** Every world-specific thing a line says must come from `canon.md` or `facts.md`, with its
+   citation. If you want a fact that is not there, the line does not get written.
 
 ## Slots
 
