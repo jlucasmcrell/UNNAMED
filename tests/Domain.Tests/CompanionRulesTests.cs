@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 
@@ -56,5 +57,51 @@ public class CompanionRulesTests
             Assert.Equal(condition, CompanionKeys.ParseCondition(CompanionKeys.Key(condition)));
         Assert.Null(CompanionKeys.ParseOrder("guard"));
         Assert.Null(CompanionKeys.ParseCondition("dead"));
+    }
+
+    // ── the party (WP15a) ───────────────────────────────────────────────────
+
+    private static readonly HirelingContract Guard = new(HirelingRole.Guard, 3, 8, PartyRules.WageOnly) { Purse = 8 };
+
+    [Fact]
+    public void AMidnight_PaysTheNextDaysWage_FromAPurseThatHoldsIt()
+    {
+        var (next, paid, ends) = PartyRulesOf.Midnight(Guard, purse: 10, graceDays: 1);
+        Assert.Equal((Guard with { DaysServed = 1, Purse = 16 }, 8L, (string?)null), (next, paid, ends));
+    }
+
+    [Fact]
+    public void Unpaid_AHirelingWaitsOutTheGrace_ThenTheContractLapses_AndAPaidDayClearsWhatWasOwed()
+    {
+        var (owed, _, first) = PartyRulesOf.Midnight(Guard with { Days = 10 }, purse: 7, graceDays: 1);
+        Assert.Equal((1, (string?)null), (owed.UnpaidDays, first));
+        Assert.Equal(0, PartyRulesOf.Midnight(owed, purse: 8, graceDays: 1).Contract.UnpaidDays);
+        Assert.Equal("lapsed", PartyRulesOf.Midnight(owed, purse: 0, graceDays: 1).Ends);
+    }
+
+    [Fact]
+    public void TheLastDayServed_EndsTheContract_WithNoWageForADayNotWorked()
+    {
+        var (_, paid, ends) = PartyRulesOf.Midnight(Guard with { DaysServed = 2 }, purse: 100, graceDays: 1);
+        Assert.Equal((0L, "ended"), (paid, ends));
+    }
+
+    [Fact]
+    public void ThePartysRules_MustBeSensible_AndNameEveryRole()
+    {
+        var roles = Enum.GetValues<HirelingRole>().ToImmutableSortedDictionary(r => r, _ => new RoleTerms(5, 0, 0, 0, CompanionStance.Passive));
+        var rules = new PartyRules(3, 1, 2, 4, 1, 30, roles);
+        Assert.Null(rules.Problem());
+        Assert.Contains("porter is missing", (rules with { Roles = roles.Remove(HirelingRole.Porter) }).Problem());
+        Assert.Contains("grave wound", (rules with { GraveWoundDaysMax = 1 }).Problem());
+        Assert.Contains("max_members", (rules with { MaxMembers = 0 }).Problem());
+        Assert.True(PartyRulesOf.Injured(29, 100));
+        Assert.False(PartyRulesOf.Injured(30, 100));
+        foreach (var role in Enum.GetValues<HirelingRole>())
+            Assert.Equal(role, PartyKeys.ParseRole(PartyKeys.Key(role)));
+        foreach (var membership in Enum.GetValues<PartyMembership>())
+            Assert.Equal(membership, PartyKeys.ParseMembership(PartyKeys.Key(membership)));
+        foreach (var stance in Enum.GetValues<CompanionStance>())
+            Assert.Equal(stance, PartyKeys.ParseStance(PartyKeys.Key(stance)));
     }
 }

@@ -27,7 +27,8 @@ public static class SocialContent
         { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed" };
 
     private static readonly string[] Consequences =
-        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion" };
+        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
+          "hire_hireling", "dismiss_companion" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -41,6 +42,11 @@ public static class SocialContent
         // Companions (M6): an NPC who can join needs the rules companions behave by.
         if (npcs is not null && (npcs.Values.Any(n => n.Companion is not null) || loader.Definitions.ContainsKey("config.companion")))
             Try(() => BuildCompanionTuning(loader) ?? throw new FormatException("an NPC can join the character, so config.companion is required"), "config.companion", errors);
+        // The party (WP15a): whoever can join or be hired travels under its rules - and a hireling fights, so companions' too.
+        if (npcs is not null && npcs.Values.Any(n => n.Hireling is not null) && !loader.Definitions.ContainsKey("config.companion"))
+            errors.Add(new ValidationError { SeverityLevel = ValidationError.Severity.Error, Code = "SOC001", Message = "config.companion: an NPC can be hired, so config.companion is required" });
+        if (npcs is not null && (npcs.Values.Any(n => n.Companion is not null || n.Hireling is not null) || loader.Definitions.ContainsKey("config.party")))
+            Try(() => BuildPartyRules(loader) ?? throw new FormatException("an NPC can join or be hired, so config.party is required"), "config.party", errors);
         return errors;
     }
 
@@ -59,6 +65,32 @@ public static class SocialContent
             Mm(map, "guard_radius_m"), ToTicks(Number(map, "attack_pause_s"), tickMs), ToTicks(Number(map, "revive_window_s"), tickMs),
             Int(map, "revive_percent"), ToTicks(Number(map, "regen_delay_s"), tickMs), Int(map, "regen_per_s"));
         return tuning.Problem() is { } problem ? throw new FormatException($"config.companion: {problem}") : tuning;
+    }
+
+    /// <summary>
+    /// The party's rules (<c>config.party</c>; WP15a, DN9, DN11): <c>max_members</c> beside the character, <c>grace_days</c> a hireling
+    /// waits for an unpaid wage, <c>grave_wound_days_min</c>/<c>_max</c> a fallen companion recovers at home, <c>contract_days_min</c>/<c>_max</c>,
+    /// and under <c>roles</c> each role's <c>wage_per_day</c>, <c>stance</c>, and a porter's <c>carry_bonus_kg</c>, a gatherer's
+    /// <c>yields_per_day</c>, a crafter's <c>crafts_per_day</c>. Null when the pack has none.
+    /// </summary>
+    public static PartyRules? BuildPartyRules(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.party"))
+            return null;
+        var map = Config(loader, "config.party");
+        var roles = Map(map, "roles").ToImmutableSortedDictionary(
+            kv => PartyKeys.ParseRole(kv.Key as string ?? "") ?? throw new FormatException($"config.party: '{kv.Key}' is not a role (guard, porter, gatherer, crafter)"),
+            kv =>
+            {
+                var role = kv.Value as Dictionary<object, object> ?? throw new FormatException($"config.party: role {kv.Key} must be a map");
+                string stance = role.GetValueOrDefault("stance") as string ?? "aggressive";
+                return new RoleTerms(LongOr(role, "wage_per_day", -1), (long)Math.Round((role.ContainsKey("carry_bonus_kg") ? Number(role, "carry_bonus_kg") : 0) * 1000),
+                    (int)LongOr(role, "yields_per_day", 0), (int)LongOr(role, "crafts_per_day", 0),
+                    PartyKeys.ParseStance(stance) ?? throw new FormatException($"config.party: role {kv.Key}'s stance is aggressive, defensive or passive, not '{stance}'"));
+            });
+        var rules = new PartyRules(Int(map, "max_members"), Int(map, "grace_days"), Int(map, "grave_wound_days_min"), Int(map, "grave_wound_days_max"),
+            Int(map, "contract_days_min"), Int(map, "contract_days_max"), roles);
+        return rules.Problem() is { } problem ? throw new FormatException($"config.party: {problem}") : rules;
     }
 
     /// <summary>
@@ -87,9 +119,13 @@ public static class SocialContent
                 if (map.ContainsKey(field))
                     throw new FormatException($"{id}: {field} is not built in Phase 1");
             }
+            // A named companion is gravely wounded where a hireling dies (DN9): one NPC is never both.
+            if (map.ContainsKey("companion") && map.ContainsKey("hireling"))
+                throw new FormatException($"{id}: someone who joins as a companion is never also hired (a companion is wounded where a hireling dies)");
             return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string)
             {
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
+                Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
 
@@ -108,6 +144,19 @@ public static class SocialContent
         return profile.MaxHealth > 0 && profile.Armor.Values.All(a => a >= 0)
             ? profile
             : throw new FormatException($"{id} companion: health is positive and armor is never negative");
+    }
+
+    /// <summary>
+    /// <c>hireling</c> (WP15a): what an NPC who can be hired takes on - <c>roles</c> (guard, porter, gatherer, crafter) - and fights with,
+    /// as a companion's profile does (<c>health</c>, <c>weapon_item_ref</c>, <c>armor</c>).
+    /// </summary>
+    private static HirelingProfile HireProfile(string id, Dictionary<object, object> map, ContentLoader loader)
+    {
+        var roles = List(map, "roles").Select(r => PartyKeys.ParseRole(r as string ?? "")
+            ?? throw new FormatException($"{id} hireling: '{r}' is not a role (guard, porter, gatherer, crafter)")).Distinct().ToImmutableArray();
+        return roles.IsEmpty
+            ? throw new FormatException($"{id} hireling: names at least one role")
+            : new HirelingProfile(roles, Profile($"{id} hireling", map, loader));
     }
 
     /// <summary>
@@ -224,7 +273,20 @@ public static class SocialContent
                 ? Text(map, "service")
                 : throw new FormatException($"{at}: service '{Text(map, "service")}' is not built in Phase 1")),
             "start_quest" => new StartQuestConsequence(Defined(loader, Text(map, "quest_ref"), "quest", at)),
-            "recruit_companion" => new RecruitCompanionConsequence(),
+            "recruit_companion" => new RecruitCompanionConsequence
+            {
+                As = map.GetValueOrDefault("as") as string switch
+                {
+                    null or "companion" => PartyMembership.Companion,
+                    "temporary_ally" => PartyMembership.TemporaryAlly,
+                    var other => throw new FormatException($"{at}: recruit_companion joins as companion or temporary_ally, not '{other}' (hirelings are hired)"),
+                },
+            },
+            "hire_hireling" => map.GetValueOrDefault("risk_stated") as string == "true"
+                ? new HireHirelingConsequence(PartyKeys.ParseRole(Text(map, "role")) ?? throw new FormatException($"{at}: '{Text(map, "role")}' is not a role"),
+                    Positive(map, "days", 1))
+                : throw new FormatException($"{at}: hire_hireling needs risk_stated: true - the reply says the hireling can die (DN9)"),
+            "dismiss_companion" => new DismissCompanionConsequence(),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
         };
@@ -348,6 +410,15 @@ public static class SocialContent
                 .Any(c => c is RecruitCompanionConsequence or OrderCompanionConsequence);
             if (companionship && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Companion is not null))
                 throw new FormatException($"{dialogue.Id}: recruits or orders a companion, but none of its participants can join the character");
+            // Only someone who can be hired, in that role, is hired by their own conversation (WP15a).
+            foreach (var hire in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<HireHirelingConsequence>())
+            {
+                if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Hireling is { } h && h.Roles.Contains(hire.Role)))
+                    throw new FormatException($"{dialogue.Id}: hires a {PartyKeys.Key(hire.Role)}, but none of its participants hires on as one");
+            }
+            bool dismissal = dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).Any(c => c is DismissCompanionConsequence);
+            if (dismissal && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && (npc.Companion is not null || npc.Hireling is not null)))
+                throw new FormatException($"{dialogue.Id}: dismisses a party member, but none of its participants can join or be hired");
             // A visited condition about another conversation names a line that conversation has.
             foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions)
                          .Concat(dialogue.Nodes.Values.SelectMany(n => n.Variants).SelectMany(v => v.Conditions))

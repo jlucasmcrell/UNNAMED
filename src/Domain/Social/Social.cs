@@ -13,6 +13,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>Set for an NPC who can join the character (M6): how they fight.</summary>
     public CompanionProfile? Companion { get; init; }
 
+    /// <summary>Set for an NPC who can be hired (WP15a): the roles they take on and how they fight. Never on someone who can join as a companion.</summary>
+    public HirelingProfile? Hireling { get; init; }
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -197,8 +200,20 @@ public sealed record OpenServiceConsequence(string Service) : DialogueConsequenc
 /// <summary><c>start_quest</c> (M5): the speaker gives the player a quest. A quest already started is not started again.</summary>
 public sealed record StartQuestConsequence(string QuestId) : DialogueConsequence;
 
-/// <summary><c>recruit_companion</c> (M6): the speaker joins the character, following.</summary>
-public sealed record RecruitCompanionConsequence : DialogueConsequence;
+/// <summary><c>recruit_companion</c> (M6): the speaker joins the character, following - as a companion, or with <c>as: temporary_ally</c> (WP15a).</summary>
+public sealed record RecruitCompanionConsequence : DialogueConsequence
+{
+    public PartyMembership As { get; init; } = PartyMembership.Companion;
+}
+
+/// <summary>
+/// <c>hire_hireling</c> (WP15a): the speaker hires on in a role for so many days at the role's wage, the first day paid now. The reply
+/// that carries it states the risk (DN9: a hireling can die), which the content attests with <c>risk_stated: true</c>.
+/// </summary>
+public sealed record HireHirelingConsequence(HirelingRole Role, int Days) : DialogueConsequence;
+
+/// <summary><c>dismiss_companion</c> (WP15a): the speaker leaves the party and goes home; a hireling's wage already paid is not refunded.</summary>
+public sealed record DismissCompanionConsequence : DialogueConsequence;
 
 /// <summary><c>order_companion</c> (M6): the speaker, already a companion, takes an order - follow or wait.</summary>
 public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;

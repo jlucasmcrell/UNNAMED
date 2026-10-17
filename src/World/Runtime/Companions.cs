@@ -6,6 +6,8 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -31,7 +33,10 @@ public sealed record CompanionDowned(string NpcId, string ByDefId, long Tick);
 
 public sealed record CompanionRevived(string NpcId, int Health, long Tick);
 
-/// <summary>Downed too long with no hand: the companion fell, and is back at the Ashen Waystone, waiting there, whole.</summary>
+/// <summary>
+/// Downed too long with no hand: the party member fell. A named companion or an ally is gravely wounded and goes home to recover
+/// (<see cref="CompanionGravelyWounded"/>); a hireling dies (<see cref="HirelingDied"/>). <see cref="At"/> is where they are now.
+/// </summary>
 public sealed record CompanionFell(string NpcId, Body At, long Tick);
 
 // ── views ───────────────────────────────────────────────────────────────────
@@ -48,6 +53,16 @@ public sealed record CompanionView(string NpcId, EntityId InstanceId, string Nam
 
     /// <summary>How they are in words (content bible §19): healthy, wounded, critical or downed.</summary>
     public string Standing => CompanionRules.Condition(Condition, Health, MaxHealth);
+
+    /// <summary>A companion, a hireling or a temporary ally (WP15a).</summary>
+    public PartyMembership Membership { get; init; } = PartyMembership.Companion;
+
+    public CompanionStance Stance { get; init; } = CompanionStance.Aggressive;
+
+    public PartyTactics Tactics { get; init; } = PartyTactics.Default;
+
+    /// <summary>A hireling's contract: role, days left, wage, purse, work (WP15a).</summary>
+    public HirelingContract? Contract { get; init; }
 }
 
 // ── state and internal commands ─────────────────────────────────────────────
@@ -66,10 +81,17 @@ internal sealed record CompanionState(string NpcId, CompanionProfile Profile, At
     public ActionState Action { get; init; } = ActionState.Idle;
     public long NextAttackTick { get; init; }
     public string? TargetKey { get; init; }
+    public PartyMembership Membership { get; init; } = PartyMembership.Companion;
+    public CompanionStance Stance { get; init; } = CompanionStance.Aggressive;
+    public PartyTactics Tactics { get; init; } = PartyTactics.Default;
+    public HirelingContract? Contract { get; init; }
 }
 
 /// <summary>To <see cref="CompanionSystem"/>: the speaker joins the character (a conversation's <c>recruit_companion</c>).</summary>
-internal sealed record Recruit(string NpcId) : InternalCommand;
+internal sealed record Recruit(string NpcId) : InternalCommand
+{
+    public PartyMembership As { get; init; } = PartyMembership.Companion;
+}
 
 /// <summary>To <see cref="CompanionSystem"/>: the speaker takes an order (a conversation's <c>order_companion</c>).</summary>
 internal sealed record OrderCompanion(string NpcId, CompanionOrder Order) : InternalCommand;
@@ -83,14 +105,16 @@ internal sealed record PlaceNpc(string NpcId, Body Body) : InternalCommand;
 // ── the system ──────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Companions"/> - the companions the character has recruited (S-25): their order, whether they are up,
-/// their health, and the trail they walk. Their bodies are NPC bodies, moved through <see cref="NpcSystem"/>. The rules are plain
-/// (ROADMAP.md M6: "boringly reliable, not clever"): following, walk the character's trail and stand close; too far behind, or making
-/// no headway, catch up at once; waiting, stand. Fight what is engaged with the character - and, waiting, only what comes close.
-/// Downed, wait for a hand; with none in time, fall, and come back at the Ashen Waystone. A companion's kills are theirs: they earn
-/// the character no XP and count for no quest. Nothing here assumes how many companions there are.
+/// Owns: <see cref="StateSlice.Companions"/> - the party (S-25; WP15a): companions, hirelings and allies, their order, stance and
+/// standing rules, whether they are up, their health, the trail they walk and a hireling's contract - and the party's ledger of who is
+/// recovering from a grave wound and who has fallen. Their bodies are NPC bodies, moved through <see cref="NpcSystem"/>. The rules are
+/// plain (ROADMAP.md M6: "boringly reliable, not clever"): following, walk the character's trail and stand close; too far behind, or
+/// making no headway, catch up at once; waiting, stand. Fight what is engaged with the character - and, waiting or defensive, only what
+/// comes close; passive, nothing. Downed, wait for a hand; with none in time, fall (DN9): a named companion is gravely wounded and
+/// recovers at home, a hireling dies. A companion's kills are theirs: they earn the character no XP and count for no quest. How many
+/// may travel with the character is <c>config.party</c>'s; nothing else here assumes it.
 /// </summary>
-internal sealed class CompanionSystem
+internal sealed partial class CompanionSystem : IAbstractAdvance
 {
     private const double SampleScale = 18446744073709551616.0;
 
@@ -119,14 +143,14 @@ internal sealed class CompanionSystem
     private int TickMs => _context.Setup.TickMilliseconds;
 
     /// <summary>
-    /// World start: each saved companion stands where they stood. One whose NPC is no longer in the region, or can no longer join,
-    /// is left out - the load reports definitions that vanished.
+    /// World start: each saved companion stands where they stood. One whose NPC is no longer in the region, or can no longer join
+    /// (or, a hireling, be hired), is left out - the load reports definitions that vanished.
     /// </summary>
     public void Populate()
     {
         foreach (var record in _saved)
         {
-            if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || npc.Definition.Companion is not { } profile || Tuning is null
+            if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || BodyOf(npc.Definition, record.Membership) is not { } profile || Tuning is null
                 || AttackOf(profile) is not { } attack)
                 continue;
             var terrain = _context.Setup.Layout.Space.Terrain;
@@ -137,9 +161,17 @@ internal sealed class CompanionSystem
                 StuckTicks = record.StuckTicks,
                 LastCombatTick = record.LastCombatTick,
                 Trail = record.Trail,
+                Membership = record.Membership,
+                Stance = record.Stance,
+                Tactics = record.Tactics,
+                Contract = record.Contract,
             });
         }
     }
+
+    /// <summary>The body someone travels with: a companion's or an ally's from their companion profile, a hireling's from their hire profile.</summary>
+    private static CompanionProfile? BodyOf(NpcDefinition definition, PartyMembership membership) =>
+        membership == PartyMembership.Hireling ? definition.Hireling?.Body : definition.Companion;
 
     /// <summary>The companions as a save records them.</summary>
     public ImmutableArray<CompanionRecord> Records() =>
@@ -152,8 +184,16 @@ internal sealed class CompanionSystem
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 Trail = c.Trail,
+                Membership = c.Membership,
+                Stance = c.Stance,
+                Tactics = c.Tactics,
+                Contract = c.Contract,
             };
         }).ToImmutableArray();
+
+    /// <summary>Who is recovering and who has fallen, as a save records them.</summary>
+    public PartyLedger Ledger() =>
+        new(State.Recovering.Select(r => new RecoveryRecord(r.Key, r.Value)).ToImmutableArray(), State.Fallen.ToImmutableArray());
 
     // ── recruiting and orders ───────────────────────────────────────────────
 
@@ -163,9 +203,14 @@ internal sealed class CompanionSystem
             return null;   // already with the character: nothing to do, and no failure of the reply
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        if (npc.Definition.Companion is not { } profile || Tuning is null || AttackOf(profile) is not { } attack)
+        if (command.As == PartyMembership.Hireling || npc.Definition.Companion is not { } profile || Tuning is null || AttackOf(profile) is not { } attack)
             return $"{npc.Definition.Name} cannot join you";
-        State.SetCompanion(_owner, new CompanionState(command.NpcId, profile, attack, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth));
+        if (Joinable(npc.Definition) is { } refused)
+            return refused;
+        State.SetCompanion(_owner, new CompanionState(command.NpcId, profile, attack, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth)
+        {
+            Membership = command.As,
+        });
         _context.Events.Publish(new CompanionRecruited(command.NpcId, tick));
         return null;
     }
@@ -183,8 +228,16 @@ internal sealed class CompanionSystem
             return $"{Name(npcId)} is down";
         if (c.Order == order)
             return null;
-        // Told to follow, they set off from where they stand: the trail walked while they waited is not theirs to retrace.
-        State.SetCompanion(_owner, c with { Order = order, StuckTicks = 0, Trail = ImmutableArray<TrailMark>.Empty, TargetKey = null });
+        // Told to follow, they set off from where they stand: the trail walked while they waited is not theirs to retrace. A hireling told
+        // to follow leaves the work they were set to.
+        State.SetCompanion(_owner, c with
+        {
+            Order = order,
+            StuckTicks = 0,
+            Trail = ImmutableArray<TrailMark>.Empty,
+            TargetKey = null,
+            Contract = order == CompanionOrder.Follow && c.Contract is { } k ? k with { WorkSite = null, RecipeId = null } : c.Contract,
+        });
         _context.Events.Publish(new CompanionOrdered(npcId, order, tick));
         return null;
     }
@@ -269,18 +322,32 @@ internal sealed class CompanionSystem
     {
         foreach (string id in State.Companions.Keys.ToList())
         {
-            if (State.Npcs.TryGetValue(id, out var npc))
-                State.SetCompanion(_owner, Live(State.Companions[id], npc, tick));
+            if (State.Npcs.TryGetValue(id, out var npc) && Live(State.Companions[id], npc, tick) is { } lived)
+                State.SetCompanion(_owner, lived);
         }
+        // The party's day (WP15a): at midnight hirelings deliver their work and draw their wages; the wounded mend at home.
+        if (_context.Setup.Clock.DaysCrossed(tick - 1, tick) > 0)
+            Midnight(tick, null);
+        Recover(tick, null);
     }
 
-    private CompanionState Live(CompanionState c, NpcState npc, long tick)
+    /// <summary>One tick of a party member's life; null when they fell and are no longer in the party.</summary>
+    private CompanionState? Live(CompanionState c, NpcState npc, long tick)
     {
         var tuning = Tuning!;
         if (c.Condition == CompanionCondition.Downed)
-            return tick - c.DownedTick >= tuning.ReviveWindowTicks ? Fall(c, npc, tick) : c;
+        {
+            if (tick - c.DownedTick < tuning.ReviveWindowTicks)
+                return c;
+            Fall(c, npc, tick);
+            return null;
+        }
         if (TierOf(npc.Body) != SimulationTier.A)
-            return c;
+        {
+            // Left outside the simulated ground - the character went far at once, by a fall, a jump or a return - a follower would stand
+            // frozen there for good (NA:275): they catch up instead, as when too far behind.
+            return c.Order == CompanionOrder.Follow && !State.PlayerCombat.Defeated ? CatchUp(c, npc, "distance", tick) : c;
+        }
         c = Mend(c, tick);
         if (c.Order == CompanionOrder.Follow)
             c = Mark(c);
@@ -434,21 +501,39 @@ internal sealed class CompanionSystem
     /// </summary>
     private CreatureState? Target(CompanionState c, NpcState npc)
     {
+        // The stance (WP15a): passive never fights; defensive fights only what comes close, as a waiting companion does.
+        if (c.Stance == CompanionStance.Passive)
+            return null;
         var tuning = Tuning!;
         var body = npc.Body;
         var player = State.Body;
-        long radius = c.Order == CompanionOrder.Follow ? tuning.FightRadiusMm : tuning.GuardRadiusMm;
+        long radius = c.Order == CompanionOrder.Follow && c.Stance == CompanionStance.Aggressive ? tuning.FightRadiusMm : tuning.GuardRadiusMm;
+        bool leashed = c.Order == CompanionOrder.Follow && c.Tactics.KeepToLeash;
         bool InPlay(CreatureState x, long within) =>
             x.Alive && TierOf(x.Body) == SimulationTier.A && Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm) <= within
-            && (c.Order == CompanionOrder.Wait || Distance(player.XMm, player.ZMm, x.Body.XMm, x.Body.ZMm) <= tuning.LeashMm);
+            && (!leashed || Distance(player.XMm, player.ZMm, x.Body.XMm, x.Body.ZMm) <= tuning.LeashMm);
         if (c.TargetKey is { } key && State.Creatures.TryGetValue(key, out var current) && InPlay(current, radius * 3 / 2))
             return current;
         if (State.PlayerCombat.Defeated)
             return null;
+        // Protecting the injured, what is nearest an injured ally goes first; otherwise what is nearest.
+        var ward = c.Tactics.ProtectInjured ? InjuredAlly(c.NpcId) : null;
         return State.Creatures.Values
             .Where(x => x.Mind == CreatureMind.Engaged && InPlay(x, radius) && !Walled(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm))
-            .OrderBy(x => Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm)).ThenBy(x => x.Key, StringComparer.Ordinal)
+            .OrderBy(x => ward is { } w ? Distance(w.XMm, w.ZMm, x.Body.XMm, x.Body.ZMm) : Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm))
+            .ThenBy(x => x.Key, StringComparer.Ordinal)
             .FirstOrDefault();
+    }
+
+    /// <summary>The most hurt ally below the injured share - the character, or another party member on their feet - or null.</summary>
+    private Body? InjuredAlly(string self)
+    {
+        var stats = ProgressionEngine.Derive(State.Progression, _context.Setup.Progression);
+        int max = (int)stats.HealthMax, health = State.Progression.Pools.Health ?? max;
+        var allies = State.Companions.Values.Where(m => m.NpcId != self && m.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(m.NpcId))
+            .Select(m => (Share: m.Health * 1000L / Math.Max(1, m.Profile.MaxHealth), Injured: PartyRulesOf.Injured(m.Health, m.Profile.MaxHealth), Body: State.Npcs[m.NpcId].Body))
+            .Append((Share: health * 1000L / Math.Max(1, max), Injured: !State.PlayerCombat.Defeated && PartyRulesOf.Injured(health, max), Body: State.Body));
+        return allies.Where(a => a.Injured).OrderBy(a => a.Share).Select(a => (Body?)a.Body).FirstOrDefault();
     }
 
     /// <summary>Close to reach - a waiting companion holds their place and only turns - face the creature, and swing once a breath has passed.</summary>
@@ -527,18 +612,27 @@ internal sealed class CompanionSystem
     };
 
     /// <summary>
-    /// Downed too long with no hand: the companion falls, and is back at the Ashen Waystone - the region's spawn - whole, and waiting
-    /// there to be asked along again (content bible §18's simple fiction, a companion's share of it).
+    /// Downed too long with no hand, the party member falls (DN9). A named companion or an ally is gravely wounded: they leave the party
+    /// and go home, where they recover for some days (canon's guardrail: no companion lost to jank). A hireling dies, as they were told
+    /// when hired. Either way they are out of the party; the caller does not keep them.
     /// </summary>
-    private CompanionState Fall(CompanionState c, NpcState npc, long tick)
+    private void Fall(CompanionState c, NpcState npc, long tick)
     {
-        var spawn = _context.Setup.Layout.Spawn;
-        var obstacles = Obstacles(c.NpcId);
-        var at = Ring(spawn, spawn.FacingMdeg + 90_000, 2_000, obstacles) ?? (spawn.XMm, spawn.ZMm);
-        var to = new Body(at.X, _context.Setup.Layout.Space.Terrain.HeightAtMm(at.X, at.Z), at.Z, spawn.FacingMdeg);
-        Place(npc, to);
-        _context.Events.Publish(new CompanionFell(c.NpcId, to, tick));
-        return Up(c, c.Profile.MaxHealth, tick) with { Order = CompanionOrder.Wait };
+        State.RemoveCompanion(_owner, c.NpcId);
+        if (c.Membership == PartyMembership.Hireling)
+        {
+            State.AddFallen(_owner, c.NpcId);
+            _context.Events.Publish(new CompanionFell(c.NpcId, npc.Body, tick));
+            _context.Dispatch(new RemoveNpc(c.NpcId));
+            _context.Events.Publish(new HirelingDied(c.NpcId, tick));
+            return;
+        }
+        var home = Home(npc);
+        Place(npc, home);
+        _context.Events.Publish(new CompanionFell(c.NpcId, home, tick));
+        long until = tick + WoundDays(c.NpcId, tick) * _context.Setup.Clock.TicksPerDay;
+        State.SetRecovering(_owner, c.NpcId, until);
+        _context.Events.Publish(new CompanionGravelyWounded(c.NpcId, until, tick));
     }
 
     // ── views ───────────────────────────────────────────────────────────────
@@ -554,6 +648,10 @@ internal sealed class CompanionSystem
             return new CompanionView(c.NpcId, npc.InstanceId, npc.Definition.Name, c.Order, c.Condition, c.Health, c.Profile.MaxHealth, npc.Body, doing)
             {
                 FallsAtTick = c.Condition == CompanionCondition.Downed ? c.DownedTick + Tuning!.ReviveWindowTicks : null,
+                Membership = c.Membership,
+                Stance = c.Stance,
+                Tactics = c.Tactics,
+                Contract = c.Contract,
             };
         }).ToImmutableArray();
 

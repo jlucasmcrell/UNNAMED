@@ -1,0 +1,17 @@
+id: config.party
+kind: config
+schema: 1
+display_key: config.party.name
+tags: [config]
+notes: The party (SYSTEMS_COMPLETENESS_PLAN §2.15, WP15a). The character travels with up to max_members others - companions, hirelings and allies share the slots, and a combat animal or a summon would take one too (DN11). A hireling is paid each day's wage in advance at midnight from the character's purse; with too little in it they wait grace_days, then the contract lapses and they go home. Wages are per role (DN11's first proposal, 4-8 coin a day, for the owner to tune). A named companion who falls is gravely wounded and recovers at home for grave_wound_days; a hireling who falls dies, and is told so when hired (DN9). Every number here is provisional.
+max_members: 3
+grace_days: 1
+grave_wound_days_min: 2
+grave_wound_days_max: 4
+contract_days_min: 1
+contract_days_max: 30
+roles:
+  guard:    { wage_per_day: 8, stance: aggressive }                       # fights: the companion behaviour
+  porter:   { wage_per_day: 4, carry_bonus_kg: 30, stance: passive }      # adds to what the character carries while following
+  gatherer: { wage_per_day: 5, yields_per_day: 3, stance: passive }       # harvests their node each day, delivered to the character
+  crafter:  { wage_per_day: 7, crafts_per_day: 2, stance: passive }       # works a recipe at a station from what they were handed

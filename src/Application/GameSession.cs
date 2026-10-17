@@ -194,7 +194,11 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Combat = CombatContent.Build(loader, options.RegionId),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
-            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
+            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))
+            {
+                Companions = SocialContent.BuildCompanionTuning(loader),
+                Party = SocialContent.BuildPartyRules(loader),
+            },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Travel = WorldContent.BuildTravel(loader),
             Character = CharacterContent.Build(loader),

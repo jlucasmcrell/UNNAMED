@@ -199,6 +199,13 @@ public partial class DialoguePanel : CanvasLayer
                 case RecruitCompanionConsequence:
                     tags.Add(("Joins you", HudStyle.Lichen));
                     break;
+                case HireHirelingConsequence hire:
+                    // DN9: a hireling can die, and the hire says so before it is agreed.
+                    tags.Add(($"Hire: {_session.Simulation?.Party?.Roles.GetValueOrDefault(hire.Role)?.DailyWage ?? 0} a day, {hire.Days} days - can die", HudStyle.Ember));
+                    break;
+                case DismissCompanionConsequence:
+                    tags.Add(("Leaves you", HudStyle.Brass));
+                    break;
                 case GiveRecipeConsequence:
                     tags.Add(("Learn", HudStyle.Lichen));
                     break;
