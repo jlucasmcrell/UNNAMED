@@ -69,6 +69,7 @@ public class ArchitectureTests
             nameof(WorldDelta.FindCreated), nameof(WorldDelta.Container), nameof(WorldDelta.ContainersIn),
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
+            "get_" + nameof(WorldDelta.Economy), "get_" + nameof(WorldDelta.Merchants), nameof(WorldDelta.Merchant),   // the economy (WP14)
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -127,6 +128,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Advance),   // the offline catch-up, the session's at login like Step (WP11)
             nameof(UNNAMED.World.Runtime.Simulation.BeginLoginGrace),   // the login grace, the session's at login (WP11)
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
+            nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

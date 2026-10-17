@@ -548,6 +548,7 @@ public class ContentLoaderTests
                 "loot.bristleback_boar", "loot.cairnwold_cart", "loot.cairnwold_chest", "loot.cave_hunting_spider", "loot.chicken", "loot.deer", "loot.den_cache", "loot.fellhorn", "loot.fox",
                 "loot.merchant_cart", "loot.rabbit", "loot.rim_camp", "loot.shrine_offerings", "loot.wain_load", "loot.waystation_chest",
                 "loot.wolf_grey",
+                "market.ashen_hollow", "market.cairnwold",
                 "merchant.ashen_hollow.kera_voss", "merchant.cairnwold.durn_skell",
                 "node.fibre.bog_cotton", "node.firstplay.ashbloom", "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.iron_seam",
                 "node.ore.loose_iron", "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall",

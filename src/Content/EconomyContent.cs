@@ -71,18 +71,19 @@ public static class EconomyContent
             }
         }
 
-        var links = (economy.ContainsKey("trade_links") ? Rows(economy, "trade_links", "config.economy") : Enumerable.Empty<Dictionary<object, object>>())
-            .Select(row =>
+        // A trade link is declared by the market at one end, to the market at the other; its carrier works both ways.
+        var links = loader.GetByKind("market").Values.OrderBy(d => d.Id, StringComparer.Ordinal).SelectMany(definition =>
+            Rows(Read(definition.YamlSource), "trade_links", definition.Id).Select(row =>
             {
-                var link = new TradeLink(Text(row, "id"), Text(row, "from_market_ref"), Text(row, "to_market_ref"), Int(row, "delay_days"), Whole(row, "capacity_per_day"));
-                if (!markets.ContainsKey(link.From) || !markets.ContainsKey(link.To) || link.From == link.To)
-                    throw new FormatException($"trade link {link.Id} must join two different defined markets");
+                var link = new TradeLink(Text(row, "id"), definition.Id, Text(row, "to_market_ref"), Int(row, "delay_days"), Whole(row, "capacity_per_day"));
+                if (!markets.ContainsKey(link.To) || link.From == link.To)
+                    throw new FormatException($"trade link {link.Id} must join {link.From} to another defined market");
                 if (link.DelayDays < 1 || link.CapacityPerDay < 1)
                     throw new FormatException($"trade link {link.Id} takes at least a day and carries at least one a day");
                 return link;
-            }).ToImmutableArray();
+            })).ToImmutableArray();
         if (links.Select(l => l.Id).Distinct(StringComparer.Ordinal).Count() != links.Length)
-            throw new FormatException("config.economy names a trade link twice");
+            throw new FormatException("two trade links share an ID");
 
         var merchantEconomy = stockLines.Values.Select(merchant =>
         {

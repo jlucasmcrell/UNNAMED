@@ -38,6 +38,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
+        // Schema 20: no economy was kept, so the markets start at their targets and the merchants with full purses, from content.
+        (new Regex(@"^\$\.world\.(Economy|Merchants)$"), null),
     };
 
     [Fact]
@@ -74,8 +76,9 @@ public class GameSaveTests
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
-        // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, and each stack's notable record.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks, differences.Count);
+        // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record, and
+        // the economy and merchants.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 2, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

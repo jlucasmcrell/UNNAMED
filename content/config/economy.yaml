@@ -14,6 +14,3 @@ daily_relaxation: 0.1
 # memory fades by this share a day.
 sell_memory_half_units: 20
 sell_memory_daily_decay: 0.1
-# The one abstract trade link (§2.14): a daily carrier on the Old East Road takes surplus to deficit, arriving the next day.
-trade_links:
-  - { id: old_east_road, from_market_ref: market.ashen_hollow, to_market_ref: market.cairnwold, delay_days: 1, capacity_per_day: 20 }

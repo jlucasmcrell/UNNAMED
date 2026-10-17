@@ -6,6 +6,9 @@ tags: [market]
 notes: "Ashen Hollow's market (WP14, SYSTEMS_COMPLETENESS_PLAN §2.14): the waystation's stock of what travellers out to Blackvein and the Foldscar use - arrows, salves - and the iron Kera works. It makes no hides of its own; they come in off the Old East Road from Cairnwold. Stock is an abstract count per good, settled daily; production and consumption are working numbers pending WP12's job hooks (baseline floors)."
 merchants:
   - { merchant_ref: merchant.ashen_hollow.kera_voss }
+# The one abstract trade link (§2.14): a daily carrier on the Old East Road takes surplus to deficit both ways, arriving the next day.
+trade_links:
+  - { id: old_east_road, to_market_ref: market.cairnwold, delay_days: 1, capacity_per_day: 20 }
 goods:
   # target, [min, max]: the stock it settles toward and never leaves; production, consumption, imports: per game day; elasticity: k in the price formula
   - { item_ref: item.ammo.arrow_rough, target: 120, min: 20, max: 300, production: 20, consumption: 20, elasticity: 0.6 }
