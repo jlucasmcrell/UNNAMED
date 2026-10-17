@@ -367,7 +367,7 @@ public partial class InventoryPanel : CanvasLayer
     private void Details(Simulation simulation)
     {
         UiKit.Clear(_details);
-        var (defId, quality, notable) = Chosen(simulation);
+        var (defId, quality, notable, wear) = Chosen(simulation);
         if (defId is null)
         {
             _details.AddChild(UiKit.Section("Item"));
@@ -462,6 +462,14 @@ public partial class InventoryPanel : CanvasLayer
         else if (quality != Quality.Standard)
             notes.Add((quality > 0 ? "Fine work: better than the common make." : "Crude work: worse than the common make.", quality > 0 ? HudStyle.Lichen : HudStyle.Wound,
                 quality > 0 ? "quality.fine" : "quality.crude"));
+        // Durability (WP3b, D5): what is left of it, and a worn-out piece counting as crude until it is mended.
+        if (item is { DurabilityMax: > 0 })
+        {
+            int left = Durability.Remaining(wear, item.DurabilityMax);
+            Fact("Durability", $"{left} / {item.DurabilityMax}", left == 0 ? HudStyle.Wound : left * 4 <= item.DurabilityMax ? HudStyle.Brass : HudStyle.Ash);
+            if (Durability.IsWornOut(wear, item.DurabilityMax))
+                notes.Add(("Worn out: it counts as crude work until it is mended. It will not break.", HudStyle.Wound, null));
+        }
         // Class, provenance and familiarity (WP3a, DCP:673-676).
         if (item is not null && ItemClasses.Of(item, quality) is var itemClass && itemClass != ItemClass.Ordinary)
             Fact("Class", Names.Words(ItemClasses.Key(itemClass)), HudStyle.Brass);
@@ -505,19 +513,21 @@ public partial class InventoryPanel : CanvasLayer
     }
 
     /// <summary>The chosen item's definition and quality, wherever it lies; null when nothing is chosen or it is gone.</summary>
-    private (string? DefId, int Quality, NotableRecord? Notable) Chosen(Simulation simulation)
+    private (string? DefId, int Quality, NotableRecord? Notable, ItemWear? Wear) Chosen(Simulation simulation)
     {
         if (_chosen is null)
-            return (null, 0, null);
+            return (null, 0, null, null);
         if (_chosen.StartsWith("c:", StringComparison.Ordinal) && OpenContainer is { } open
             && simulation.Containers.FirstOrDefault(c => c.Site.Key == open)?.Items.FirstOrDefault(i => "c:" + i.Ref == _chosen) is { } inside)
-            return (inside.DefId, inside.Quality, inside.Notable);
+            return (inside.DefId, inside.Quality, inside.Notable, inside.Wear);
         if (_chosen.StartsWith("w:", StringComparison.Ordinal) && OpenTrader is { } trader
             && simulation.Wares(trader)?.Wares.FirstOrDefault(w => "w:" + w.Ref == _chosen) is { } ware)
-            return (ware.ItemId, ware.Quality, null);
+            return (ware.ItemId, ware.Quality, null, ware.Wear);
         if (_chosen.StartsWith("r:", StringComparison.Ordinal) && simulation.Setup.Crafting.Recipes.TryGetValue(_chosen[2..], out var recipe))
-            return (recipe.OutputItemId, Quality.Standard, null);
-        return simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } entry ? (entry.DefId, entry.Quality, entry.Notable) : (null, 0, null);
+            return (recipe.OutputItemId, Quality.Standard, null, null);
+        return simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } entry
+            ? (entry.DefId, entry.Quality, entry.Notable, entry.Wear)
+            : (null, 0, null, null);
     }
 
     /// <summary>A notable instance's provenance line (DCP:673-676): how it came to be held, from what, and by whose hand when made.</summary>

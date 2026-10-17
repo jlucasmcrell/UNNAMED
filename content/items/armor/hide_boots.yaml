@@ -13,3 +13,5 @@ value_base: 14
 slot: feet
 armor_value: 2
 material_class: leather
+durability_max: 150       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

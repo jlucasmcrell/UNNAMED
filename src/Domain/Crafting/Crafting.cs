@@ -58,6 +58,15 @@ public static class Quality
         Masterwork => "masterwork",
         _ => "standard",
     };
+
+    public static int Parse(string key) => key switch
+    {
+        "crude" => Crude,
+        "standard" => Standard,
+        "fine" => Fine,
+        "masterwork" => Masterwork,
+        _ => throw new FormatException($"Unknown quality '{key}' (crude, standard, fine, masterwork)"),
+    };
 }
 
 /// <summary>The tuning of crafting (<c>config.crafting</c>).</summary>

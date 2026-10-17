@@ -23,8 +23,8 @@ internal sealed record PayFromPurse(string MerchantId, long Coin) : InternalComm
 internal sealed record ShelfLine(string ItemId, int Count);
 
 /// <summary>
-/// To <see cref="InventorySystem"/>: a trader's shelf is drawn again (WP14) - each line's good, of standard make and with no record of its
-/// own, is brought to exactly that count. Everything else on the shelf - what the character sold them, a finer piece - stays.
+/// To <see cref="InventorySystem"/>: a trader's shelf is drawn again (WP14) - each line's good, of standard make, unworn and with no record
+/// of its own, is brought to exactly that count. Everything else on the shelf - what the character sold them, a finer piece - stays.
 /// </summary>
 internal sealed record RestockWares(string MerchantId, ImmutableArray<ShelfLine> Lines) : InternalCommand;
 

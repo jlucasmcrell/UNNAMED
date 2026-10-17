@@ -64,6 +64,9 @@ public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, stri
 
     /// <summary>A notable instance's record (WP3a): it lies in the world with its item.</summary>
     public NotableRecord? Notable { get; init; }
+
+    /// <summary>Its wear (WP3b): a worn piece dropped is as worn where it lies.</summary>
+    public ItemWear? Wear { get; init; }
 }
 
 /// <summary>An item inside a world container.</summary>
@@ -74,6 +77,9 @@ public sealed record ContainerItem(EntityId ItemId, string DefId, int Count)
 
     /// <summary>A notable instance's record (WP3a): it stays with its item in a chest or a trader's wares.</summary>
     public NotableRecord? Notable { get; init; }
+
+    /// <summary>Its wear (WP3b): it stays with its item in a chest or a trader's wares.</summary>
+    public ItemWear? Wear { get; init; }
 }
 
 /// <summary>
@@ -393,13 +399,14 @@ public sealed class WorldDelta
     /// Place an existing item instance in the world (a drop): it keeps its identity, which the caller has already
     /// registered, and its count.
     /// </summary>
-    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0, NotableRecord? notable = null)
+    internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0, NotableRecord? notable = null,
+        ItemWear? wear = null)
     {
         if (!InCell(xCm) || !InCell(zCm))
             throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
         if (count <= 0)
             throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
-        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable };
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable, Wear = wear };
     }
 
     /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>
@@ -687,7 +694,7 @@ public sealed class WorldDelta
         var created = CreatedIn(cell);
         h.Add(created.Count);
         foreach (var c in created)
-            NotableDigest.Add(h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality), c.Notable);
+            WearDigest.Add(NotableDigest.Add(h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality), c.Notable), c.Wear);
 
         var containers = ContainersIn(cell);
         h.Add(containers.Count);
@@ -695,7 +702,7 @@ public sealed class WorldDelta
         {
             h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
             foreach (var item in c.Items)
-                NotableDigest.Add(h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality), item.Notable);
+                WearDigest.Add(NotableDigest.Add(h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality), item.Notable), item.Wear);
         }
 
         var creatures = CreaturesIn(cell);

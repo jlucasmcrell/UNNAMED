@@ -8,6 +8,21 @@ stack_slots: 24            # stacks carried
 carry_base_kg: 30
 carry_kg_per_might: 2      # Might is one of Phase 1's three live attributes
 familiarity_uses_per_step: [3, 6, 10, 15, 25]   # kills made with a notable piece equipped, from each familiarity step to the next (WP3a)
+# Wear and repair (WP3b, D5): weapons, armour and tools wear from use - a blow landed wears the weapon, a blow taken the piece on that
+# part of the body (the shield when it was blocked), a harvest the tool in the main hand. Worn out, a piece counts as crude and is never
+# lost. A trader repairs for this share of its value at full wear (scaled by the wear), and gives back at best this quality.
+durability:
+  wear_per_hit: 1
+  wear_per_hit_taken: 1
+  wear_per_gather: 1
+  merchant_fee_percent: 40
+  merchant_quality_cap: standard
+# The laden band (WP3b, D4): above this share of the carry limit, a sprint drains this share of its usual stamina and a dodge costs this
+# share of its usual. Nothing heavier than the limit itself is ever taken up.
+laden:
+  band_percent: 80
+  sprint_drain_percent: 150
+  dodge_cost_percent: 125
 starting_items:
   - { item_ref: item.weapon.rusted_sword, count: 1, equip: true }
   - { item_ref: item.consumable.salve_minor, count: 1 }

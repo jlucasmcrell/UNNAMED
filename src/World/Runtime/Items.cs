@@ -75,6 +75,9 @@ public sealed record ItemView(string Ref, string DefId, int Count)
 
     /// <summary>A notable instance's record (WP3a), for the tooltip; null for an ordinary stack or one not yet taken.</summary>
     public NotableRecord? Notable { get; init; }
+
+    /// <summary>Its wear (WP3b), for the tooltip; null when unworn.</summary>
+    public ItemWear? Wear { get; init; }
 }
 
 public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableArray<ItemView> Items);
@@ -84,6 +87,8 @@ public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XM
     public int Quality { get; init; }
 
     public NotableRecord? Notable { get; init; }
+
+    public ItemWear? Wear { get; init; }
 }
 
 /// <summary>One carried stack to spend, and how many of it.</summary>
@@ -284,7 +289,7 @@ internal sealed class InventorySystem
             PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, CellOf(source.XMm, source.ZMm).ToString()),
             _ => null,
         };
-        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick);
+        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null);
         _context.Events.Publish(new ItemMoved(_player, definition.Id, command.Count, command.From, command.To, tick));
         return null;
     }
@@ -450,7 +455,51 @@ internal sealed class InventorySystem
     }
 
     /// <summary>
-    /// A trader's shelf drawn again from their town market (WP14): each line's good, of standard make and with no record of its own, is
+    /// Wear on what is equipped (WP3b, D5): each piece in the slots that has durability takes the wear once, up to its durability; one that
+    /// reaches it is worn out - its quality reads crude until it is repaired - and is never lost.
+    /// </summary>
+    public string? Handle(WearEquipped command, long tick)
+    {
+        var worn = command.Slots.Where(State.Equipment.ContainsKey).Select(slot => State.Equipment[slot]).Distinct().ToHashSet();
+        var entries = State.Inventory.ToList();
+        var outs = new List<InventoryEntry>();
+        for (int i = 0; i < entries.Count; i++)
+        {
+            var entry = entries[i];
+            if (!worn.Contains(entry.ItemId) || Items.Catalog.Find(entry.DefId) is not { DurabilityMax: > 0 } definition)
+                continue;
+            bool wasOut = Durability.IsWornOut(entry.Wear, definition.DurabilityMax);
+            var (quality, wear) = Durability.Worn(entry.Quality, entry.Wear, definition.DurabilityMax, command.Points);
+            entries[i] = entry with { Quality = quality, Wear = wear };
+            if (!wasOut && Durability.IsWornOut(wear, definition.DurabilityMax))
+                outs.Add(entries[i]);
+        }
+        if (entries.SequenceEqual(State.Inventory))
+            return null;
+        State.SetInventory(_owner, entries);
+        foreach (var entry in outs)
+            _context.Events.Publish(new ItemWornOut(entry.ItemId, entry.DefId, tick));
+        return null;
+    }
+
+    /// <summary>A carried piece repaired (WP3b): no wear, and the rolled quality capped at the quality it was made at (C13:226).</summary>
+    public string? Handle(RepairItem command)
+    {
+        var entries = State.Inventory.ToList();
+        int index = entries.FindIndex(e => e.ItemId == command.Item);
+        if (index < 0)
+            return $"{command.Item} is not carried";
+        var entry = entries[index];
+        if (!Durability.NeedsRepair(entry.Quality, entry.Wear))
+            return $"{entry.DefId} needs no repair";
+        var (quality, wear) = Durability.Repaired(entry.Quality, entry.Wear, command.Rolled);
+        entries[index] = entry with { Quality = quality, Wear = wear };
+        State.SetInventory(_owner, entries);
+        return null;
+    }
+
+    /// <summary>
+    /// A trader's shelf drawn again from their town market (WP14): each line's good, of standard make, unworn and with no record of its own, is
     /// brought to exactly its count - the newest stacks go first, and their identities retire - and nothing else on the shelf changes.
     /// </summary>
     public string? Handle(RestockWares command)
@@ -462,7 +511,7 @@ internal sealed class InventorySystem
         foreach (var line in command.Lines)
         {
             var definition = Items.Catalog.Get(line.ItemId);
-            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null;
+            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null && i.Wear is null;
             int have = items.Where(Plain).Sum(i => i.Count);
             for (int over = have - line.Count; over > 0;)
             {
@@ -545,7 +594,7 @@ internal sealed class InventorySystem
     {
         var record = State.World.Container(site.Key);
         return new ContainerView(site, record?.InstanceId,
-            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable }).ToImmutableArray());
+            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable, Wear = i.Wear }).ToImmutableArray());
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
@@ -553,7 +602,7 @@ internal sealed class InventorySystem
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
-                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable };
+                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable, Wear = c.Wear };
             }))
             .ToImmutableArray();
 
@@ -566,6 +615,8 @@ internal sealed class InventorySystem
     private sealed record Located(string Ref, string DefId, int Count, EntityId? Id, int Index, long XMm, long ZMm, int Quality)
     {
         public NotableRecord? Notable { get; init; }
+
+        public ItemWear? Wear { get; init; }
     }
 
     private string? Check(ItemPlace place, bool trading)
@@ -586,13 +637,13 @@ internal sealed class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable }).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear }).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell))
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable };
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear };
             }
             default:
             {
@@ -600,6 +651,7 @@ internal sealed class InventorySystem
                 return ContentsOf(site).Select((item, index) => new Located(item.Ref, item.DefId, item.Count, item.Id, index, site.XMm, site.ZMm, item.Quality)
                     {
                         Notable = item.Notable,
+                        Wear = item.Wear,
                     }).FirstOrDefault(l => l.Ref == itemRef);
             }
         }
@@ -609,11 +661,12 @@ internal sealed class InventorySystem
     private bool IsCorpse(string key) => _context.CorpseSites().Any(s => s.Key == key);
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
-    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable)> ContentsOf(ContainerSite site)
+    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable)).ToList();
-        return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear)).ToList();
+        return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null,
+            (ItemWear?)null)).ToList();
     }
 
     /// <summary>
@@ -680,7 +733,7 @@ internal sealed class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear);
                 return null;
             }
             default:
@@ -706,7 +759,8 @@ internal sealed class InventorySystem
     /// Add <paramref name="count"/> at the destination, merging into stacks of the same kind and quality first. A notable record travels
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
-    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick)
+    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
+        ItemWear? wear = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -721,7 +775,7 @@ internal sealed class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
                 Retire(moving);
                 State.SetInventory(_owner, entries);
                 break;
@@ -734,7 +788,7 @@ internal sealed class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality, stack == 1 ? notable : null);
+                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null);
                 break;
             }
             default:
@@ -745,7 +799,7 @@ internal sealed class InventorySystem
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null });
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;
