@@ -8,3 +8,6 @@ tests/Application.Tests/GameSaves/*/save/** binary
 tools/release/**/*.cmd text eol=crlf
 tools/release/**/*.bat text eol=crlf
 tools/release/payload/*.bat text eol=crlf
+
+# WP17 character build scripts run under bash
+tools/character_build/*.sh text eol=lf
