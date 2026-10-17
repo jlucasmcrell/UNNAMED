@@ -197,9 +197,11 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             if (AgentByInstance(e.Group.Leader) is { } a)
                 _context.Dispatch(new Recruit(a.Key) { As = PartyMembership.TemporaryAlly });
         });
-        events.Listen<QuestCompleted>(e =>
+        // The character finished the bounty a group set out on, and was paid for it (a competitive bounty's claim comes after its rewards).
+        events.Listen<BountyClaimed>(e =>
         {
-            if (Current?.Agents.Values.Any(a => a.Party == PartyKeys.Key(PartyMembership.TemporaryAlly) && a.Plan.Ref == e.QuestId) == true)
+            if (e.ClaimantId == _player.Value
+                && Current?.Agents.Values.Any(a => a.Party == PartyKeys.Key(PartyMembership.TemporaryAlly) && a.Plan.Ref == e.QuestId) == true)
                 _context.Dispatch(new ShareBounty(e.QuestId));
         });
     }
@@ -253,12 +255,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         {
             long d = state.Day + 1;
             long midnight = d * Clock.TicksPerDay - Clock.StartTicks;
-            // A temporary ally's day with the character is over at midnight: they part, and go on with their own life.
+            // A temporary ally's day with the character is over at midnight: they part, and go on with their own life. One lying downed
+            // stays with the party until helped up or fallen.
             foreach (var ally in state.Agents.Values.Where(a => a.Party == PartyKeys.Key(PartyMembership.TemporaryAlly)).ToList())
-            {
-                if (_context.Dispatch(new Dismiss(ally.Key)) is not null)
-                    continue;
-            }
+                _context.Dispatch(new Dismiss(ally.Key));
             var (next, happenings) = AdventurerEngine.Midnight(Current!, setup.Rules, Day(d));
             State.SetAdventurers(_owner, next);
             Carry(state, happenings, midnight, log);

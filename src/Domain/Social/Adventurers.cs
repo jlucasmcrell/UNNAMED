@@ -326,7 +326,6 @@ public static class AdventurerEngine
     public const string Consumed = "consumed";
     public const string Travelled = "travelled";
     public const string LevelUp = "level_up";
-    public const string Planned = "planned";
 
     /// <summary>A slot's key: its settlement and number.</summary>
     public static string SlotKey(string settlement, int number) => $"{settlement}.slot_{number}";
@@ -424,8 +423,6 @@ public static class AdventurerEngine
             agents[key] = Plan(a, rules, day, claimed, planned, happenings);
         }
         Group(agents, rules, day);
-        foreach (var a in agents.Values.Where(a => a.Party is null && AdventurerGoals.Out(a.Plan.Goal)))
-            happenings.Add(new AdventurerHappening(Planned, a.Key) { Ref = a.Plan.Goal, Settlement = a.At });
         return (new AdventurerState(day.Day, agents.ToImmutable(), vacancies.ToImmutable()), happenings.ToImmutable());
     }
 

@@ -456,7 +456,9 @@ public sealed class Simulation
     /// </summary>
     public PartySheetView? PartySheet(string npcId) => _sheets.View(npcId, id =>
     {
-        var name = Setup.Social.Npcs.TryGetValue(id, out var definition) ? definition.Name : id;
+        // Someone the region does not place (an adventurer, WP13) is known by their body's definition.
+        var definition = Setup.Social.Npcs.GetValueOrDefault(id) ?? (_state.Npcs.TryGetValue(id, out var npc) ? npc.Definition : null);
+        var name = definition?.Name ?? id;
         var (regard, disposition) = _approval.Standing(id, name);
         int health = 0;
         if (_companions.Views().FirstOrDefault(c => c.NpcId == id) is { } member)
