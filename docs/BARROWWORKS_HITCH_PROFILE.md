@@ -136,3 +136,24 @@ gate is explicitly open; do not turn it on from the aggregate GPU p95 or engine 
 All thirteen room images, physical readings, three attack poses, corpse portrait and the distinct
 threshold/drain berms were personally inspected in this final capture. No prewarm-only glyph leaks
 into those images. Ordinary solo fight, headworks and drain exit finish successfully.
+
+### Fresh-drain control result
+
+`review5_drain_control` exits 0. It launches directly at (1050,770), with Barrowworks enabled but
+**without ever entering or loading the interior**. The last 100 recorded frames average 41.133 ms
+(frame), 40.372 ms GPU and 12.850 ms render CPU. The full route's final 100 frames average
+42.457 / 41.788 / 11.983 ms respectively. Sustained slow exterior rendering is therefore reproduced
+without a portal transition. This is a same-location diagnostic, not proof of option-off equivalence
+or a diagnosis of which exterior draw is expensive. The required idle revision A/B is still pending.
+
+This fresh-launch control retains its boot/first-draw warmup, including a 14,440.208 ms sample.
+Its aggregate 9.8 FPS is **not** a steady frame-rate result. The original raw metadata inherited the
+full-route boot-exclusion wording; the source now labels controls correctly. Do not discard or alter
+those raw samples. The last-100 comparison above is an explicitly identified tail diagnostic;
+the full route's 119-hitch count remains unchanged. Investigate/profile local exterior rendering
+separately from portal pipeline preparation. Entry loading and the unassigned court spikes still
+prevent claiming the enablement hitch gate passes.
+
+Final GPU leases were released normally. Release/Debug builds have zero errors; existing presentation
+warnings and the previously observed font/CanvasItem/texture shutdown warnings remain visible in logs.
+No save schema was renumbered, no merge performed, and the ring remains disabled by default.

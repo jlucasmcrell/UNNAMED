@@ -78,7 +78,8 @@ public sealed class BarrowworksReview
     {
         ["route"] = _returnBaseline ? "Fresh exterior drain launch; no portal used; ten-second same-view control"
             : "Frontier threshold -> all thirteen Barrowworks rooms -> solo Custodian -> headworks -> drain return",
-        ["clock"] = _realtime ? "Normal fixed 20 Hz through GameSession.Frame(delta); monotonic frame timing; boot/screenshot readback excluded, portal entry/return included"
+        ["clock"] = _returnBaseline ? "Fresh-launch control; initial boot/first-draw warmup retained in raw data; compare the steady tail separately"
+            : _realtime ? "Normal fixed 20 Hz through GameSession.Frame(delta); monotonic frame timing; boot/screenshot readback excluded, portal entry/return included"
             : "One ordinary simulation tick per rendered frame; monotonic frame timing; boot/screenshot readback excluded, portal entry/return included",
         ["tier"] = VisualOptions.Tier,
     });

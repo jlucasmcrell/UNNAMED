@@ -320,3 +320,37 @@ Raw files use `review5_idle_off_<pair>_<revision>` under the evidence root. The 
 launch waits for `review5_owner_quiet_window.flag` there, created only after the owner announces
 the window. This marker is a diagnostic scheduling gate, not part of the game. Repeat/qualify three
 complete interleaved pairs; the existing CPU observer did not identify every possible competing job.
+
+The cache check's failure path was exercised with a scratch copy containing a deliberately bad
+checksum: it reports an assertion and exits 1 (`review5_cache_negative.log`), while the published
+manifest exits 0 with the PASS marker (`review5_cache_integrity_final.log`). No asset/cache file was
+modified for this negative control.
+
+A diagnostic fresh-drain control uses `BARROWWORKS_REVIEW_RETURN_BASELINE=1` with the same normal
+High review command. It seeds only that review fixture at (1050,770), never enters the ring, then
+records ten seconds at the return camera. Omit/unset the environment variable for the full route.
+This separates same-location exterior cost from portal effects; it changes no ordinary launch.
+
+### Fresh-drain control result
+
+`review5_drain_control` exits 0. It launches directly at (1050,770), with Barrowworks enabled but
+**without ever entering or loading the interior**. The last 100 recorded frames average 41.133 ms
+(frame), 40.372 ms GPU and 12.850 ms render CPU. The full route's final 100 frames average
+42.457 / 41.788 / 11.983 ms respectively. Sustained slow exterior rendering is therefore reproduced
+without a portal transition. This is a same-location diagnostic, not proof of option-off equivalence
+or a diagnosis of which exterior draw is expensive. The required idle revision A/B is still pending.
+
+This fresh-launch control retains its boot/first-draw warmup, including a 14,440.208 ms sample.
+Its aggregate 9.8 FPS is **not** a steady frame-rate result. The original raw metadata inherited the
+full-route boot-exclusion wording; the source now labels controls correctly. Do not discard or alter
+those raw samples. The last-100 comparison above is an explicitly identified tail diagnostic;
+the full route's 119-hitch count remains unchanged. Investigate/profile local exterior rendering
+separately from portal pipeline preparation. Entry loading and the unassigned court spikes still
+prevent claiming the enablement hitch gate passes.
+
+Final GPU leases were released normally. Release/Debug builds have zero errors; existing presentation
+warnings and the previously observed font/CanvasItem/texture shutdown warnings remain visible in logs.
+No save schema was renumbered, no merge performed, and the ring remains disabled by default.
+
+Final rebuild totals: Release solution 49 warnings / zero errors; Debug Presentation with rebuilt dependencies 42 warnings / zero errors (39 Presentation warnings plus three existing Content warnings). Final Presentation 127/127 and Architecture 18/18 pass. Earlier 39-warning totals were incremental builds; logs are retained.
+
