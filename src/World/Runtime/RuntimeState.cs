@@ -103,6 +103,9 @@ public enum StateSlice
 
     /// <summary>Open offers to set out together and the temporary-ally groups that formed (WP16). Transient: never saved.</summary>
     Lfg,
+
+    /// <summary>Every NPC's life - needs, activity, condition, pose and route - the role slots' arrivals and the pairs (WP12). In the world delta.</summary>
+    NpcLife,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -506,6 +509,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Fallen = Fallen.Add(npcId);
+    }
+
+    public void SetNpcLife(SliceOwner owner, NpcLifeState life)
+    {
+        Require(owner, StateSlice.NpcLife);
+        World.SetNpcLife(life);
     }
 
     /// <summary>An NPC is gone from the world: a hireling who died (DN9).</summary>

@@ -1,0 +1,16 @@
+id: routine.cairnwold.mara_ling
+kind: routine
+schema: 1
+display_key: routine.cairnwold.mara_ling.name
+tags: [routine]
+notes: "Mara keeps the well; works where the region places her; sleeps in house 02."
+region_ref: region.starting_frontier
+npc_ref: npc.cairnwold.mara_ling
+settlement: cairnwold
+role: villager
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [962, 650], facing_deg: 0 }
+  work: { position_m: [975, 665], facing_deg: 180 }
+  eat: { position_m: [957.55, 687.75], facing_deg: 270 }
+  social: { position_m: [968.75, 661.25], facing_deg: 270 }

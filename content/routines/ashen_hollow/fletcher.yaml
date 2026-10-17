@@ -1,0 +1,19 @@
+id: routine.ashen_hollow.fletcher
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.fletcher.name
+tags: [routine]
+notes: "An Ashen Hollow role resident (DN3): the fletcher. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: ashen_hollow
+role: fletcher
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [445, 730.4], facing_deg: 180 }
+  work: { position_m: [440, 744], facing_deg: 270 }
+  eat: { position_m: [447, 734.7], facing_deg: 0 }
+  social: { position_m: [455.5, 736.8], facing_deg: 270 }
+job: { market_ref: market.ashen_hollow, item_ref: item.ammo.arrow_rough, per_day: 4 }   # joins the market's stock each day the job is held (WP14's job hook)
+pairs:
+  - { routine_ref: routine.ashen_hollow.miner, kind: friend }

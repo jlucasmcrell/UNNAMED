@@ -36,13 +36,14 @@ public static class ContentChecks
         ["location_ref"] = new[] { "location" },
         ["fact_ref"] = new[] { "fact" },
         ["flag_ref"] = new[] { "world_flag" },
-        ["schedule_ref"] = new[] { "schedule" },
+        ["routine_ref"] = new[] { "routine" },   // an NPC's routine (WP12; was the schedule stub)
         ["anchor_ref"] = new[] { "anchor" },
         ["merchant_ref"] = new[] { "merchant" },
         ["skill_ref"] = new[] { "skill" },   // skill joined the closed kind table at M2c (§4.21)
         ["node_ref"] = new[] { "node" },     // a region's authored node (M3f)
         ["market_ref"] = new[] { "market" }, // a town market (WP14)
         ["piece_ref"] = new[] { "piece" },   // a building piece a teacher teaches (WP9)
+        ["people_ref"] = new[] { "people" }, // the people a role slot's residents come from (WP12)
     };
 
     /// <summary>§4 fields that are references although they predate the <c>_ref</c> naming convention.</summary>

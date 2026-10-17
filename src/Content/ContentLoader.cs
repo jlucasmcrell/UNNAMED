@@ -225,6 +225,16 @@ public class ContentLoader
             var chatterErrors = ChatterContent.Validate(this);
             _errors.AddRange(chatterErrors);
             success &= chatterErrors.Count == 0;
+
+            // Navigation's tuning, and that every NPC's place can be reached (NAV codes; WP12)
+            var navigationErrors = NavigationContent.Validate(this);
+            _errors.AddRange(navigationErrors);
+            success &= navigationErrors.Count == 0;
+
+            // NPC life: routines, anchors, jobs, pairs and the rules of needs and arrivals (NPL codes; WP12)
+            var lifeErrors = NpcLifeContent.Validate(this);
+            _errors.AddRange(lifeErrors);
+            success &= lifeErrors.Count == 0;
         }
         
         return success;
@@ -694,7 +704,7 @@ public class ContentLoader
                         tag.StartsWith("effect.") || tag.StartsWith("recipe.") || tag.StartsWith("resource.") ||
                         tag.StartsWith("faction.") || tag.StartsWith("loot.") || tag.StartsWith("merchant.") ||
                         tag.StartsWith("affix.") || tag.StartsWith("node.") || tag.StartsWith("spawn.") ||
-                        tag.StartsWith("location.") || tag.StartsWith("species.") || tag.StartsWith("schedule.") ||
+                        tag.StartsWith("location.") || tag.StartsWith("species.") || tag.StartsWith("routine.") ||
                         tag.StartsWith("set.") || tag.StartsWith("region.") || tag.StartsWith("anchor.") ||
                         tag.StartsWith("fact.") || tag.StartsWith("world_flag."))
                     {

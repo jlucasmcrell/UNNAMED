@@ -1,0 +1,17 @@
+id: routine.ashen_hollow.tavar_orr
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.tavar_orr.name
+tags: [routine]
+notes: "Tavar is caught in the Foldscar until its heart is steadied (content bible §8): every anchor is where the region places him, so he does not leave it. Where he lives once freed is an open question for the owner."
+region_ref: region.starting_frontier
+npc_ref: npc.ashen_hollow.tavar_orr
+settlement: ashen_hollow
+role: villager
+work_hours: [0, 0]
+weights: { shop: -1000, socialise: -1000 }   # he cannot leave the Foldscar
+anchors:
+  home: { position_m: [545, 642], facing_deg: 53 }
+  work: { position_m: [545, 642], facing_deg: 53 }
+  eat: { position_m: [545, 642], facing_deg: 53 }
+  social: { position_m: [545, 642], facing_deg: 53 }

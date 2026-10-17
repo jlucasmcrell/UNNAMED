@@ -205,6 +205,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Economy = EconomyContent.Build(loader),
             Techniques = TeachingContent.BuildTechniques(loader),
             Chat = ChatterContent.Build(loader),
+            Navigation = NavigationContent.Build(loader),
+            NpcLife = NpcLifeContent.Build(loader, options.RegionId),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

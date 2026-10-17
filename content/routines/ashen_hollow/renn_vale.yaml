@@ -1,0 +1,16 @@
+id: routine.ashen_hollow.renn_vale
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.renn_vale.name
+tags: [routine]
+notes: "Renn keeps the waystation: works where the region places them, in the lodge facing its door; sleeps at the lodge's east end."
+region_ref: region.starting_frontier
+npc_ref: npc.ashen_hollow.renn_vale
+settlement: ashen_hollow
+role: steward
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [449, 730.4], facing_deg: 180 }
+  work: { position_m: [446.5, 726.2], facing_deg: 90 }
+  eat: { position_m: [448.8, 736.5], facing_deg: 270 }
+  social: { position_m: [455, 733], facing_deg: 270 }

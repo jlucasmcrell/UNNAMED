@@ -507,7 +507,7 @@ internal sealed class DiscoverySystem
 /// <summary>
 /// Owns: <see cref="StateSlice.CellTiers"/>. Assigns every cell of the region a simulation tier from its distance
 /// to the player (S-21, D-06), one step per tick with hysteresis. Tier A cells are fully simulated and tier D
-/// cells are stored state only; tiers B and C have no simulation yet (<see cref="ITierSimulation"/>).
+/// cells are stored state only; tiers B and C run their <see cref="ITierSimulation"/>s (WP12: the NPCs').
 /// </summary>
 internal sealed class TierSystem
 {
@@ -561,26 +561,13 @@ internal sealed class TierSystem
 }
 
 /// <summary>
-/// What a tier runs for the entities in its cells. Phase 1 has no simulated entities yet (creatures arrive in M3d,
-/// NPCs in M4), so tier A's work is the systems above and D runs nothing. B and C are declared, not built: the
-/// interface is where M4's regional and abstract simulation plug in (ROADMAP M3: "tier B/C stubbed behind the
-/// interface").
+/// What a tier runs for the entities in its cells (D-06): the plug-in point for the coarser tiers. Tier A's work is the systems above; B
+/// and C are the NPCs' regional and abstract simulations (<see cref="NpcTierSimulation"/>, WP12); D runs nothing per tick - stored state,
+/// advanced an hour at a time with every life and by the offline catch-up (<see cref="IAbstractAdvance"/>).
 /// </summary>
 internal interface ITierSimulation
 {
     SimulationTier Tier { get; }
 
     void Tick(long tick, IReadOnlyList<CellKey> cells);
-}
-
-internal sealed class StubTierSimulation : ITierSimulation
-{
-    public StubTierSimulation(SimulationTier tier) => Tier = tier;
-
-    public SimulationTier Tier { get; }
-
-    public void Tick(long tick, IReadOnlyList<CellKey> cells)
-    {
-        // Intentionally empty until M4 (B: coarse movement on routes; C: schedule bands and economy).
-    }
 }

@@ -77,6 +77,9 @@ internal sealed class TradeSystem
         _merchants = merchants;
     }
 
+    /// <summary>Why a merchant is not trading now (WP12's hook: only at work, 06:00-20:00); null when they are.</summary>
+    public Func<NpcState, string?> Closed { get; init; } = _ => null;
+
     private RuntimeState State => _context.State;
     private ItemSetup Items => _context.Setup.Items;
 
@@ -221,6 +224,8 @@ internal sealed class TradeSystem
         if (!npc.Definition.Offers(NpcServices.Trade) || npc.Definition.MerchantId is not { } merchantId || !Items.Merchants.TryGetValue(merchantId, out var stock))
             return $"{npc.Definition.Name} does not trade";
         merchant = stock;
+        if (Closed(npc) is { } closed)
+            return closed;
         return !_context.InTalkReach(npc.Body) ? $"{npc.Definition.Name} is out of reach" : null;
     }
 }

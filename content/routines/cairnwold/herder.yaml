@@ -1,0 +1,18 @@
+id: routine.cairnwold.herder
+kind: routine
+schema: 1
+display_key: routine.cairnwold.herder.name
+tags: [routine]
+notes: "A Cairnwold role resident (DN3): the herder. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: cairnwold
+role: herder
+work_hours: [6, 18]
+anchors:
+  home: { position_m: [955.75, 675.85], facing_deg: 90 }
+  work: { position_m: [925, 660], facing_deg: 270 }
+  eat: { position_m: [957.3, 686.7], facing_deg: 315 }
+  social: { position_m: [967, 666], facing_deg: 180 }
+pairs:
+  - { routine_ref: routine.cairnwold.carter, kind: friend }

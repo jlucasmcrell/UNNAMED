@@ -237,12 +237,12 @@ public static class ContentKindRegistry
             IdPrefix: "species"
         );
         
-        // 22. schedule
-        kinds["schedule"] = new ContentKindDefinition(
-            Kind: "schedule",
-            FullKind: "schedule",
-            Directory: "schedules",
-            IdPrefix: "schedule"
+        // 22. routine - an NPC's day: anchors, work hours, activity weights, job and pairs (WP12; replaces the old schedule stub)
+        kinds["routine"] = new ContentKindDefinition(
+            Kind: "routine",
+            FullKind: "routine",
+            Directory: "routines",
+            IdPrefix: "routine"
         );
         
         // 23. set

@@ -1,0 +1,18 @@
+id: routine.ashen_hollow.guard
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.guard.name
+tags: [routine]
+notes: "An Ashen Hollow role resident (DN3): the guard. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: ashen_hollow
+role: guard
+work_hours: [8, 20]
+anchors:
+  home: { position_m: [443, 730.4], facing_deg: 180 }
+  work: { position_m: [433, 754], facing_deg: 0 }
+  eat: { position_m: [445.7, 735.2], facing_deg: 45 }
+  social: { position_m: [457.5, 733], facing_deg: 270 }
+pairs:
+  - { routine_ref: routine.ashen_hollow.hunter, kind: friend }

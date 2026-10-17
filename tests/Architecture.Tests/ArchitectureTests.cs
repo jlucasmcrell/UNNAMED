@@ -70,6 +70,7 @@ public class ArchitectureTests
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
             "get_" + nameof(WorldDelta.Economy), "get_" + nameof(WorldDelta.Merchants), nameof(WorldDelta.Merchant),   // the economy (WP14)
+            "get_" + nameof(WorldDelta.NpcLife),   // NPC life (WP12)
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -135,6 +136,10 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.RepairQuote),   // what a trader would charge to mend a piece, for the repair button (WP3b)
             nameof(UNNAMED.World.Runtime.Simulation.PartySheet),   // a party member's level, gear and regard, for the party card (WP15b)
             nameof(UNNAMED.World.Runtime.Simulation.ChatText),   // a chat message in words, from content's lines, for the chat view (WP16)
+            nameof(UNNAMED.World.Runtime.Simulation.AtWork),   // whether an NPC is working at their work anchor now (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.TradeRefusal),   // why a merchant is not trading now, for the trade column (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.TeachRefusal),   // why a teacher is not teaching now, for WP9's trainers (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.NpcPairs),   // whom an NPC knows and as what, for barks (WP12)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

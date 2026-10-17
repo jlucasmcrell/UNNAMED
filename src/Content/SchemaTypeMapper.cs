@@ -40,7 +40,7 @@ public static class SchemaTypeMapper
             "location" => typeof(ContentEnvelope),
             "config" => typeof(ContentEnvelope),
             "species" => typeof(ContentEnvelope),
-            "schedule" => typeof(ContentEnvelope),
+            "routine" => typeof(ContentEnvelope),
             "set" => typeof(ContentEnvelope),
             "region" => typeof(ContentEnvelope),
             "anchor" => typeof(ContentEnvelope),
@@ -84,7 +84,7 @@ public static class SchemaTypeMapper
             "location" => true,
             "config" => true,
             "species" => true,
-            "schedule" => true,
+            "routine" => true,
             "set" => true,
             "region" => true,
             "anchor" => true,
@@ -125,7 +125,7 @@ public static class SchemaTypeMapper
             "LocationSchema" => "location",
             "ConfigSchema" => "config",
             "SpeciesSchema" => "species",
-            "ScheduleSchema" => "schedule",
+            "RoutineSchema" => "routine",
             "SetSchema" => "set",
             "RegionSchema" => "region",
             "AnchorSchema" => "anchor",
@@ -337,13 +337,10 @@ public record SpeciesSchema : ContentEnvelope
 }
 
 /// <summary>
-/// Base schema for schedule kind.
-/// Extended from ContentEnvelope with schedule-specific fields.
+/// Base schema for routine kind (WP12; NpcLifeContent reads its fields).
 /// </summary>
-public record ScheduleSchema : ContentEnvelope
+public record RoutineSchema : ContentEnvelope
 {
-    // Schedule-specific properties would be added here
-    // For now, inherits all from ContentEnvelope
 }
 
 /// <summary>
