@@ -36,7 +36,7 @@ public partial class Main
         _character = new CharacterPanel { Name = "Character", AllSkills = () => ShowSkills(null) };
         _character.Bind(_session);
         AddChild(_character);
-        _skills = new SkillsPanel { Name = "Skills", Assign = AssignQuickSlot };
+        _skills = new SkillsPanel { Name = "Skills", Assign = AssignQuickSlot, NearStation = () => _inventory.OpenStation?.Kind };
         _skills.Bind(_session);
         AddChild(_skills);
         _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
