@@ -259,7 +259,7 @@ public class ItemTests
         simulation.DrainCommands();
 
         Assert.Contains("too heavy", Assert.Single(rejected).Reason);
-        Assert.Equal(3, simulation.Player.Inventory.Length);
+        Assert.Equal(4, simulation.Player.Inventory.Length);
         Assert.Null(simulation.World.Container(Den));   // the refusal did not even give the cache its identities
     }
 
@@ -268,7 +268,7 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { StackSlots = 3 } });
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { StackSlots = 4 } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
