@@ -82,7 +82,7 @@ internal sealed class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.Layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm);
+            long y = _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(site.XMm, site.ZMm);
             State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
         }
     }
