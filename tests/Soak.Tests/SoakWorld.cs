@@ -85,6 +85,24 @@ internal sealed class SoakWorld : IDisposable
         return reason;
     }
 
+    /// <summary>
+    /// WP12's merchants walk their day and trade only at work, in trading hours. Wait them out, as the playthrough waits out a meal: a
+    /// few steps while they walk back to their post, an hour at a time while they are shut, eating or away.
+    /// </summary>
+    public static void AwaitTrade(Simulation sim, params string[] npcIds)
+    {
+        long hour = sim.Setup.Clock.TicksPerDay / 24;
+        bool Away() => npcIds.Any(id => sim.TradeRefusal(id) is not null);
+        for (int i = 0; i < 48 && Away(); i++)
+        {
+            for (int t = 0; t < 400 && Away(); t++)
+                sim.Step();
+            if (Away())
+                sim.Advance(hour);
+        }
+        Assert.All(npcIds, id => Assert.Null(sim.TradeRefusal(id)));
+    }
+
     public static void Equal(Simulation expected, Simulation actual, string context, bool replayable = false)
     {
         string a = StateDump.Render(expected, replayable), b = StateDump.Render(actual, replayable);

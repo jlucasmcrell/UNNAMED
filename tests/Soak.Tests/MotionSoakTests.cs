@@ -1,6 +1,7 @@
 using UNNAMED.Domain;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit.Abstractions;
 
@@ -63,10 +64,10 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
                 double dx = next.Body.XMm - old.Body.XMm, dz = next.Body.ZMm - old.Body.ZMm;
                 // Root locomotion speed is planar; terrain height and the prescribed jump arc are separate.
                 double distance = Math.Sqrt(dx * dx + dz * dz);
-                double limit = old.Speed * sim.Setup.TickMilliseconds / 1000.0 + 2; // integer rounding of both axes
+                double limit = old.Lives ? LifeLimit(sim, old.Body) : old.LimitMm;
                 bool teleport = allowed.TryGetValue(id, out var arrival) && arrival.XMm == next.Body.XMm && arrival.ZMm == next.Body.ZMm;
-                if (distance > limit && !teleport)
-                    violations.Add($"seed={seed} tick={sim.WorldTick} entity={id}: ({old.Body.XMm},{old.Body.ZMm}) -> ({next.Body.XMm},{next.Body.ZMm}), {distance:F2} mm > {limit:F2} mm");
+                if (distance <= limit || teleport) continue;
+                violations.Add($"seed={seed} tick={sim.WorldTick} entity={id}: ({old.Body.XMm},{old.Body.ZMm}) -> ({next.Body.XMm},{next.Body.ZMm}), {distance:F2} mm > {limit:F2} mm");
             }
         }
         output.WriteLine($"seed={seed}: {ticks} ticks ({ticks * sim.Setup.TickMilliseconds / 1000.0:F0} simulated seconds), {observed} body intervals, {rejected} rejected commands, {violations.Count} violations");
@@ -74,18 +75,41 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
         Assert.True(violations.Count == 0, string.Join("\n", violations.Take(50)));
     }
 
-    private static Dictionary<string, (Body Body, double Speed)> Positions(Simulation sim)
+    private sealed record Observed(Body Body, double LimitMm, bool Lives);
+
+    /// <summary>Each body and how far it may move in one tick: its top speed for a tick, plus two millimetres of integer rounding.</summary>
+    private static Dictionary<string, Observed> Positions(Simulation sim)
     {
-        double playerMax = Enum.GetValues<Gait>().Max(g => sim.Setup.Movement.SpeedMmPerSecond(g));
-        var result = new Dictionary<string, (Body, double)> { [sim.PlayerId.Value] = (sim.Player.Body, playerMax) };
-        foreach (var npc in sim.Npcs) result[npc.InstanceId.Value] = (npc.Body, playerMax);
+        double tick = sim.Setup.TickMilliseconds / 1000.0;
+        double playerMax = Enum.GetValues<Gait>().Max(g => sim.Setup.Movement.SpeedMmPerSecond(g)) * tick + 2;
+        var result = new Dictionary<string, Observed> { [sim.PlayerId.Value] = new(sim.Player.Body, playerMax, false) };
+        // Companions are moved by the party, at the character's bound; the others with a life walk WP12's tiers (LifeLimit).
+        var lives = sim.Lives.Select(l => l.Key).Except(sim.Companions.Select(c => c.NpcId)).ToHashSet();
+        foreach (var npc in sim.Npcs) result[npc.InstanceId.Value] = new(npc.Body, playerMax, lives.Contains(npc.Id));
         foreach (var creature in sim.Creatures)
         {
             var def = sim.Setup.Combat.Creatures[creature.DefId];
             double speed = Math.Max(def.MoveSpeedMmPerSecond, def.Charge?.ChargeSpeedMmPerSecond ?? 0);
-            result[creature.Id.Value] = (creature.Body, speed);
+            result[creature.Id.Value] = new(creature.Body, speed * tick + 2, false);
         }
-        foreach (var item in sim.WorldItems) result[item.Id.Value] = (new Body(item.XMm, 0, item.ZMm, 0), 0);
+        foreach (var item in sim.WorldItems) result[item.Id.Value] = new(new Body(item.XMm, 0, item.ZMm, 0), 2, false);
         return result;
+    }
+
+    /// <summary>
+    /// WP12's tier simulations, bounded as NpcLifeWorldTests bounds them, by the tier the tick simulated the body at (the tiers are
+    /// updated before anyone moves): tier A walks, held to the tick; tier B glides ten ticks of walking every tenth tick
+    /// (NpcSystem.RegionalEveryTicks), with half a metre for stepping out of a wall; tier C and D are out of sight and parked by the hour.
+    /// </summary>
+    private static double LifeLimit(Simulation sim, Body was)
+    {
+        double tick = sim.Setup.TickMilliseconds / 1000.0;
+        var tier = sim.CellTiers.GetValueOrDefault(CellKey.OfWorld(was.XMm / 1000.0, was.ZMm / 1000.0).ToString(), SimulationTier.D);
+        return tier switch
+        {
+            SimulationTier.A => Enum.GetValues<Gait>().Max(g => sim.Setup.Movement.SpeedMmPerSecond(g)) * tick + 2,
+            SimulationTier.B => sim.Setup.Movement.SpeedMmPerSecond(Gait.Walk) * tick * 10 + 500,
+            _ => double.PositiveInfinity,
+        };
     }
 }

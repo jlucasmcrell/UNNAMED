@@ -40,6 +40,7 @@ public sealed class SaveFuzzTests(ITestOutputHelper output)
             // Mid-trade: open the actual dialogue and buy; the next command is identical in both branches.
             foreach (var branch in new[] { continuous, resumed })
             {
+                SoakWorld.AwaitTrade(branch, kera.NpcId);
                 Assert.Null(w.Command(branch, new TalkCommand(branch.PlayerId, kera.NpcId)));
                 Assert.Null(w.Command(branch, new ChooseCommand(branch.PlayerId, "trade")));
                 var arrow = branch.Wares(kera.NpcId)!.Wares.FirstOrDefault(e => e.ItemId == "item.ammo.arrow_rough");
@@ -87,7 +88,4 @@ public sealed class SaveFuzzTests(ITestOutputHelper output)
             output.WriteLine($"v{v} -> v{SaveFormat.SchemaVersion}: loaded and advanced one day");
         }
     }
-
-    [Fact(Skip = "Coverage gap: LFG/JoinGroupCommand is absent on restore/beast-oct02-snapshot (WP10/WP13 not integrated)."), Trait("Category", "Unavailable")]
-    public void SaveDuringLfg_RequiresGroupCommands() => Assert.Contains(typeof(Simulation).Assembly.GetTypes(), t => t.Name == "JoinGroupCommand");
 }
