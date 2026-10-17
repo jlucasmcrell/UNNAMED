@@ -479,11 +479,13 @@ public sealed class Simulation
     /// <summary>The player as a save records them: identity from the loaded record, everything else from live state.</summary>
     public PlayerRecord CaptureRecord()
     {
-        // A save made while the character lies dead is the save of their respawn: it loads at the return point.
-        bool dead = _state.PlayerCombat.Defeated;
+        // A save made while the character lies dead is the save of their respawn: it loads at the return point. One made while they lie
+        // downed with a hand near is the save of being helped up where they lie (OD-13 = B).
+        bool downed = _state.PlayerCombat.DownedUntil > 0;
+        bool dead = _state.PlayerCombat.Defeated && !downed;
         var body = dead ? _travel.ReturnBody() : _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
-            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
+            downed ? _combat.HelpedUp(_state.Progression) : _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
@@ -533,6 +535,7 @@ public sealed class Simulation
         Heal heal => _combat.Handle(heal, Now),
         EndFight end => _combat.Handle(end),
         AwaitRespawn await => _combat.Handle(await),
+        LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),

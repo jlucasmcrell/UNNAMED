@@ -168,6 +168,8 @@ public partial class Main : Node3D
 
     public override void _Ready()
     {
+        // An exception nothing catches is written to a local crash file, and the next launch's title says so (WP10; never sent anywhere).
+        InstallCrashLog();
         // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
         try
         {
@@ -953,7 +955,8 @@ public partial class Main : Node3D
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.SetDowned(combat.Defeated);
-        _hud.FadeToBlack(combat.Defeated && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
+        // Downed is not dead (OD-13 = B): the character lies in view until helped up, and the fade waits for a death.
+        _hud.FadeToBlack(combat.Defeated && !combat.Downed && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;

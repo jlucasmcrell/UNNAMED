@@ -1,0 +1,10 @@
+id: hint.formulas
+kind: hint
+schema: 1
+display_key: hint.formulas.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: magic
+trigger: formula_learned
+order: 0
+text: "{key:cast_1} {key:cast_2} {key:cast_3} work your formulas. Each spends Focus and builds Strain; with Strain high, a working can cost health."

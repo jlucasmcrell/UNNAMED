@@ -19,7 +19,10 @@ public static class AudioMix
     public const string Interface = "Interface";
     public const string Voice = "Voice";
 
-    /// <summary>The buses, made once per engine run, each sending to Master.</summary>
+    /// <summary>
+    /// The buses, each sending to Master. <c>res://default_bus_layout.tres</c> carries them, in this order, so the engine starts with them
+    /// (WP10 A3); this makes any the layout lacks - a layout edited away, or a harness without it.
+    /// </summary>
     public static void EnsureBuses()
     {
         foreach (string name in new[] { Music, Effects, Ambience, Interface, Voice })

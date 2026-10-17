@@ -35,6 +35,12 @@ public partial class TitleScreen : CanvasLayer
     public Action? Credits { get; set; }
     public Action? Quit { get; set; }
 
+    /// <summary>What the last run left when it closed unexpectedly (WP10's crash hooks): said at the head of the title until dismissed.</summary>
+    public Diagnostics.CrashNotice? CrashNotice { get; set; }
+
+    /// <summary>Opens the folder the crash log is in, on this machine.</summary>
+    public Action? OpenLogs { get; set; }
+
     /// <summary>The build and its content, for the foot of the panel.</summary>
     public string Version { get; set; } = string.Empty;
 
@@ -106,6 +112,20 @@ public partial class TitleScreen : CanvasLayer
         UiKit.Clear(_column);
         if (_failure is not null)
             _column.AddChild(UiKit.Callout(HudStyle.Wound, _failure));
+        if (CrashNotice is { } crash)
+        {
+            _column.AddChild(UiKit.Callout(HudStyle.Ember,
+                $"Otherreach closed unexpectedly last time. What happened is in {System.IO.Path.GetFileName(crash.LogFile)}, kept on this computer only."));
+            var answers = new HBoxContainer();
+            answers.AddThemeConstantOverride("separation", 8);
+            answers.AddChild(UiKit.Action("Open the log folder", () => OpenLogs?.Invoke(), id: "title.crash.open"));
+            answers.AddChild(UiKit.Action("Dismiss", Deferred(() =>
+            {
+                CrashNotice = null;
+                Render();
+            }), id: "title.crash.dismiss"));
+            _column.AddChild(answers);
+        }
         foreach (var passed in choice.PassedOver)
             _column.AddChild(UiKit.Callout(HudStyle.Wound,
                 $"{SavesPanel.Describe(passed.Slot, passed.Copy)} ({SavesPanel.When(passed)}) could not be continued: {passed.Problem}. Load lists its other copies."));

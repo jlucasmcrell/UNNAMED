@@ -1,0 +1,10 @@
+id: hint.hiring
+kind: hint
+schema: 1
+display_key: hint.hiring.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: party
+trigger: hire_offered
+order: 0
+text: "A hireling works for a daily wage from your coin. If you cannot pay, they leave after a day's grace."

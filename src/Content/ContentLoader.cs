@@ -200,6 +200,11 @@ public class ContentLoader
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
+
+            // Hints: the guidance lines and the moments they wait for (HNT codes; WP10)
+            var hintErrors = HintContent.Validate(this);
+            _errors.AddRange(hintErrors);
+            success &= hintErrors.Count == 0;
         }
         
         return success;

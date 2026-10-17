@@ -1,0 +1,10 @@
+id: hint.waystones
+kind: hint
+schema: 1
+display_key: hint.waystones.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: travel
+trigger: stone_touched
+order: 0
+text: "A Waystone you know can be your return point, and carries you to the others you know, at a cost in time."

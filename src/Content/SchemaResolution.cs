@@ -301,6 +301,14 @@ public static class ContentKindRegistry
             IdPrefix: "call"
         );
 
+        // 30. hint - a line of guidance shown once at its moment (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1, WP10)
+        kinds["hint"] = new ContentKindDefinition(
+            Kind: "hint",
+            FullKind: "hint",
+            Directory: "hints",
+            IdPrefix: "hint"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

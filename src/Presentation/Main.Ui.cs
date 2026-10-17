@@ -89,11 +89,13 @@ public partial class Main
         _title = new TitleScreen
         {
             Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
+            CrashNotice = _crashNotice, OpenLogs = OpenCrashFolder,
             Continue = _ => Continue(),
             NewGame = () =>
             {
                 _session.NewGame(DefaultCharacter);
                 Started();
+                Hint(Domain.Guidance.HintTriggers.NewGame);
             },
             Load = () => FromTitle(_saves.OpenStart),
             Settings = () => FromTitle(() => _settings.Open()),

@@ -22,7 +22,9 @@ public partial class Main
         bool aiming = Aim(simulation, combat);
         _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);
 
-        _hud.SetPrompt(_controller.FocusOn(_camera) switch
+        var focus = _controller.FocusOn(_camera);
+        GuidanceFrame(simulation, combat, focus is not null);
+        _hud.SetPrompt(focus switch
         {
             null => null,
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",

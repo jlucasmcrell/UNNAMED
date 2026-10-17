@@ -136,6 +136,15 @@ public sealed record CombatConstants
     public long LeashMm { get; init; } = 40_000;
     public string DeathEffect { get; init; } = "effect.weakened";
     public int DeathTicks { get; init; } = 80;
+
+    /// <summary>
+    /// Downed (OD-13 = B, SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 X8): with a companion or hireling up and this near, a character
+    /// brought to nothing lies downed for <see cref="DownedTicks"/> and is helped up with <see cref="DownedRevivePercent"/> of their
+    /// health; with none, or once the last hand near them falls or leaves, they die as before. The party rule, not a difficulty.
+    /// </summary>
+    public int DownedTicks { get; init; } = 600;
+    public int DownedRevivePercent { get; init; } = 40;
+    public long DownedHandWithinMm { get; init; } = 16_000;
     public AttackProfile Unarmed { get; init; } = new("unarmed", 2, 3, "physical_blunt", 1_200, 5, 2, 5, 4);
 }
 
