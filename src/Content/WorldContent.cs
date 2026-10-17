@@ -462,7 +462,10 @@ public static class WorldContent
                 // The exterior anchor is a place in this region, so it has to be walkable ground in it.
                 Check(exteriorX >= minX && exteriorX <= maxX && exteriorZ >= minZ && exteriorZ <= maxZ, "WLD015",
                     $"{key}'s exterior anchor is outside the walkable bounds");
-                portals.Add(new SpacePortal(key, portalSpace, exteriorX, exteriorZ, interiorX, interiorZ));
+                portals.Add(new SpacePortal(key, portalSpace, exteriorX, exteriorZ, interiorX, interiorZ)
+                {
+                    ReachableFlag = site.ContainsKey("reachable_flag") ? Requirement(Map(site, "reachable_flag")) : null,
+                });
             }
             Check(portals.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == portals.Count, "WLD015", "two portals share a key");
             // Waystones (S-38): each stands on a structure, beside a place, with a clear spot to arrive at; a dormant one names the flag

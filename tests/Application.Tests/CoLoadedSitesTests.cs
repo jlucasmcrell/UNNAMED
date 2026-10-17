@@ -6,7 +6,11 @@
 //
 // These boot `region.starting_frontier` with barrowworks=1 and assert the ring's authored sites are visible.
 
+using System.Collections.Immutable;
 using UNNAMED.Application;
+using UNNAMED.Domain;
+using UNNAMED.World.Runtime;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using Xunit;
@@ -22,6 +26,26 @@ public class CoLoadedSitesTests
         var session = Harness.Boot(profile, barrowworks: barrowworks);
         session.NewGame(Harness.Named("Wanderer"), seed: 42);
         return session;
+    }
+
+    [Fact]
+    public void ReachablePortal_SeedsItsAuthoredFlagInTheDestinationPlace()
+    {
+        using var profile = new TempProfile();
+        var session = Frontier(profile, barrowworks: true);
+        var source = session.Setup.Layout;
+        var place = session.Setup.Interior!.Locations.First();
+        const string flag = "world.test.portal_offer";
+        var portals = source.Portals.Portals.Select((p, i) => p with
+        {
+            ReachableFlag = i == 0 ? new SiteFlagRequirement(flag, place.Id) : null,
+        }).ToImmutableArray();
+        var setup = session.Setup with { Layout = source with { Portals = new SpacePortalSet(portals) } };
+        var sim = Simulation.Start(setup, session.Simulation!.CaptureRecord(),
+            new WorldDelta(session.Generator, 42, new Registry()), 0, new EventBus());
+        var cell = CellKey.OfInterior(session.Setup.Interior.SpaceId, place.XMm / 1000.0, place.ZMm / 1000.0);
+        Assert.Equal(1, sim.World.GetFlag(cell, flag));
+        Assert.Equal(0, sim.World.GetFlag(cell, "world.barrowworks.ring_accessible"));
     }
 
     [Fact]

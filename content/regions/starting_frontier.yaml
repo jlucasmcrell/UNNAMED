@@ -147706,6 +147706,7 @@ portals:
     space: space.barrowworks
     exterior_m: [438, 663]
     interior_m: [50, 10]
+    reachable_flag: { flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall }
   # B - R04 Drain Mouth, the Sinking Moss. Interior anchor is R04's centre in the blockout.
   - key: portal.barrowworks.drain
     space: space.barrowworks

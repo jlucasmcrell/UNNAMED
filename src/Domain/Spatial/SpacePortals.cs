@@ -18,6 +18,10 @@ namespace UNNAMED.Domain.Spatial;
 /// </remarks>
 public sealed record SpacePortal(string Key, SpaceId Space, long ExteriorXMm, long ExteriorZMm, long InteriorXMm, long InteriorZMm)
 {
+    /// <summary>A reachable destination may advertise an offer before entry, in its own named place's cell.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteFlagRequirement? ReachableFlag { get; init; }
+
     /// <summary>Rejects a portal whose key or space cannot be stored, rather than writing one that cannot be read back.</summary>
     public SpacePortal Validate()
     {

@@ -157,6 +157,24 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
     private long _graceUntil;
+    private sealed record TickSpace(Blocker[] Walls, Blocker[] Doors, Blocker[] People,
+        Blocker[] CompanionBodies, NpcState[] Companions);
+    private readonly Dictionary<SpaceId, TickSpace> _tickSpaces = new();
+
+    // Doors and people cannot move during this system's tick. Snapshot each space once, not once per creature/query.
+    private TickSpace Obstacles(SpaceId space)
+    {
+        if (_tickSpaces.TryGetValue(space, out var cached)) return cached;
+        var doors = _context.ClosedDoors(space).ToArray();
+        var people = State.Npcs.Values.Where(n => n.Space == space).ToArray();
+        var companions = people.Where(n => State.Companions.TryGetValue(n.Definition.Id, out var c)
+            && c.Condition == CompanionCondition.Up).ToArray();
+        Blocker BodyOf(NpcState n) => new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm,
+            _context.Setup.Movement.BodyRadiusMm, 0);
+        return _tickSpaces[space] = new TickSpace(
+            _context.Setup.SpaceFor(space).Blockers.Concat(doors).Where(b => space.IsExterior || b.ClearanceMm < 1800).ToArray(),
+            doors, people.Select(BodyOf).ToArray(), companions.Select(BodyOf).ToArray(), companions);
+    }
     private readonly Dictionary<string, int> _outsideAttemptTicks = new(StringComparer.Ordinal);
 
     public CreatureSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
@@ -319,6 +337,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     public void Tick(long tick)
     {
+        _tickSpaces.Clear();
         var noises = (InGrace(tick) ? Enumerable.Empty<Noise>() : PlayerNoises()).Concat(State.World.Noises).ToList();
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         foreach (string key in State.Creatures.Keys.ToList())
@@ -721,10 +740,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         var rules = new MovementRules(charge.ChargeSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var intent = new MoveIntent(action.DirXPermille, action.DirZPermille, Gait.Run, c.Body.FacingMdeg);
-        var others = new List<Blocker>(_context.ClosedDoors(c.Site.Space));
+        var others = new List<Blocker>(Obstacles(c.Site.Space).Doors);
         others.AddRange(Herd(c));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
-        others.AddRange(State.Npcs.Values.Where(n => n.Space == c.Site.Space).Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
+        others.AddRange(Obstacles(c.Site.Space).People);
         var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
@@ -758,7 +777,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
                 (int)Math.Round(Math.Cos(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000), Gait.Run, c.Body.FacingMdeg);
-            var obstacles = new List<Blocker>(_context.ClosedDoors(c.Site.Space))
+            var obstacles = new List<Blocker>(Obstacles(c.Site.Space).Doors)
             {
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
@@ -995,7 +1014,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
             Turn(c, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm)).FacingMdeg);
         var rules = new MovementRules(c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
-        var others = new List<Blocker>(_context.ClosedDoors(c.Site.Space))
+        var others = new List<Blocker>(Obstacles(c.Site.Space).Doors)
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
@@ -1049,13 +1068,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var player = State.Body;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         (Body, EntityId, string?) foe = (player, _player, null);
-        foreach (var companion in State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up))
+        foreach (var npc in Obstacles(c.Site.Space).Companions)
         {
-            if (!State.Npcs.TryGetValue(companion.NpcId, out var npc) || npc.Space != c.Site.Space)
-                continue;
+            if (State.Companions[npc.Definition.Id].Condition != CompanionCondition.Up) continue;
             double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
             if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
-                foe = (npc.Body, npc.InstanceId, companion.NpcId);
+                foe = (npc.Body, npc.InstanceId, npc.Definition.Id);
         }
         return foe;
     }
@@ -1064,10 +1082,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private const long FoeMarginMm = 1_000;
 
     /// <summary>Companions on their feet, as bodies creatures do not walk through.</summary>
-    private IEnumerable<Blocker> Companions(SpaceId space) =>
-        State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(x.NpcId))
-            .Select(x => State.Npcs[x.NpcId]).Where(n => n.Space == space)
-            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
+    private IEnumerable<Blocker> Companions(SpaceId space) => Obstacles(space).CompanionBodies;
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;
 
@@ -1093,7 +1108,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space)).Where(b => c.Site.Space.IsExterior || b.ClearanceMm < 1800);
+    private IEnumerable<Blocker> Walls(CreatureState c) => Obstacles(c.Site.Space).Walls;
 
     private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
 

@@ -101,10 +101,8 @@ nodes:
       - id: work
         text: "Need anything brought in?"
         next: work
-      # The Barrowworks (M8 D10). Gated rather than merely conditioned: the flag it waits on is set by reading
-      # the notice in the intake hall, and the intake hall is unreachable while `--visual barrowworks=1` is off
-      # because the run clears the portals. So with the option off this choice never renders and the playtest is
-      # the playtest it was - which is the whole requirement on everything this feature adds.
+      # The reachable portal seeds this offer flag in the intake hall's cell before entry.
+      # With Barrowworks disabled the run holds no portals, so the offer stays hidden.
       - id: ring
         text: "What's the sealed ring under the hill?"
         conditions:

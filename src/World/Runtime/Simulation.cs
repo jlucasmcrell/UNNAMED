@@ -296,15 +296,14 @@ public sealed class Simulation
     /// </summary>
     private void SeedReachableNotices()
     {
-        foreach (var (layout, place) in Setup.Sites(l => l.Locations))
+        foreach (var (_, portal) in Setup.Sites(l => l.Portals.Portals))
         {
-            if (place.Id == RingIntakeHall)
-                _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), RingReachableFlag, 1);
+            if (portal.ReachableFlag is not { } flag) continue;
+            foreach (var (layout, place) in Setup.Sites(l => l.Locations))
+                if (layout.SpaceId == portal.Space && place.Id == flag.LocationId)
+                    _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), flag.FlagId, 1);
         }
     }
-
-    private const string RingIntakeHall = "location.barrowworks.intake_hall";
-    private const string RingReachableFlag = "world.barrowworks.ring_accessible";
 
     /// <summary>
     /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts
