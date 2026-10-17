@@ -202,7 +202,7 @@ internal sealed class MovementSystem
         var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
         if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
             return "busy";
-        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
         _context.Events.Publish(new Jumped(_player, tick));
@@ -227,7 +227,7 @@ internal sealed class MovementSystem
             return "in the air";
         if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
             return "mid-dodge";
-        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
@@ -283,7 +283,7 @@ internal sealed class MovementSystem
         }
 
         var posture = _context.State.Posture;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)
             _context.State.SetPosture(_owner, next);
         if (to == from)
