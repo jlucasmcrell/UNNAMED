@@ -120,6 +120,12 @@ public class TeachingContentTests
         AssertRefused("SOC001", "npcs/ashen_hollow/tavar_orr.yaml", "band: familiar", "band: legendary", "'legendary' is not a skill band");
 
     [Fact]
+    public void AQuestRequirementOnAnObjectiveTheQuestDoesNotHave_IsRefused() =>
+        AssertRefused("QST001", "npcs/ashen_hollow/tavar_orr.yaml", "requires: { skill: { skill_ref: skill.bow, band: familiar } }",
+            "requires: { quest: { quest_ref: quest.ashen_hollow.iron_under_ash, objective: o_no_such, is: satisfied } }",
+            "npc.ashen_hollow.tavar_orr teaches[0]: quest.ashen_hollow.iron_under_ash has no objective 'o_no_such'");
+
+    [Fact]
     public void ANegativeFee_IsRefused() =>
         AssertRefused("SOC001", "npcs/cairnwold/berrin_garth.yaml", "piece_ref: piece.pad.timber, fee: 5", "piece_ref: piece.pad.timber, fee: -5",
             "fee is a whole number of coin, 0 or more");
@@ -132,7 +138,7 @@ public class TeachingContentTests
     [Fact]
     public void ALineTeachingWhatItsSpeakerDoesNotGiveByConversation_IsRefused() =>
         AssertRefused("SOC001", "npcs/cairnwold/tam_crowden.yaml", "recipe_ref: recipe.cooking.roast_meat, by_dialogue: true", "recipe_ref: recipe.cooking.roast_meat",
-            "teaches recipe.cooking.roast_meat, which no participant's teaches block gives by_dialogue");
+            "teaches recipe.cooking.roast_meat, which npc.cairnwold.tam_crowden, who speaks it, does not give by_dialogue");
 
     [Fact]
     public void ALessonByConversationThatNoLineGives_IsRefused() =>

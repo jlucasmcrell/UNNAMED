@@ -478,9 +478,12 @@ public static class QuestContent
         var asking = replies.Select(r => (At: $"{r.Dialogue.Id} node {r.Node.Id} reply {r.Choice.Id}", r.Choice.Conditions))
             .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))))
             .Concat(dialogues.Values.SelectMany(d => d.Nodes.Values.SelectMany(n => n.Variants.Select((v, i) => (At: $"{d.Id} node {n.Id} variant {i + 1}", v.Conditions)))));
-        foreach (var (at, conditions) in asking)
+        // A teacher's quest requirement (WP9) asks as a quest_state condition does.
+        var lessons = npcs.Values.SelectMany(n => n.Teaches.Select((t, i) => (At: $"{n.Id} teaches[{i}]",
+            Conditions: t.Requirements.OfType<QuestRequirement>().Select(q => q.Condition))));
+        foreach (var (at, conditions) in asking.Select(a => (a.At, a.Conditions.OfType<QuestStateCondition>())).Concat(lessons))
         {
-            foreach (var condition in conditions.OfType<QuestStateCondition>())
+            foreach (var condition in conditions)
             {
                 if (!quests.TryGetValue(condition.QuestId, out var quest))
                     throw new FormatException($"{at}: quest_state names {condition.QuestId}, which is not a quest");

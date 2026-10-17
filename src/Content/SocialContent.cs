@@ -475,12 +475,13 @@ public static class SocialContent
                 if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Hireling is { } h && h.Roles.Contains(hire.Role)))
                     throw new FormatException($"{dialogue.Id}: hires a {PartyKeys.Key(hire.Role)}, but none of its participants hires on as one");
             }
-            // A line teaches only what a participant gives by conversation (WP9): an entry of their block marked by_dialogue.
+            // A line teaches only what its speaker gives by conversation (WP9): an entry of their block marked by_dialogue. The lesson is
+            // asked of the NPC the conversation was opened with, so every NPC who opens it must give it.
             foreach (string taught in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<TeachConsequence>()
                          .SelectMany(t => t.DefinitionIds))
             {
-                if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Teaches.Any(o => o.DefinitionId == taught && o.ByDialogue)))
-                    throw new FormatException($"{dialogue.Id}: teaches {taught}, which no participant's teaches block gives by_dialogue");
+                if (npcs.Values.Where(n => n.DialogueId == dialogue.Id).FirstOrDefault(n => !n.Teaches.Any(o => o.DefinitionId == taught && o.ByDialogue)) is { } speaker)
+                    throw new FormatException($"{dialogue.Id}: teaches {taught}, which {speaker.Id}, who speaks it, does not give by_dialogue");
             }
             bool dismissal = dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).Any(c => c is DismissCompanionConsequence);
             if (dismissal && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && (npc.Companion is not null || npc.Hireling is not null)))
