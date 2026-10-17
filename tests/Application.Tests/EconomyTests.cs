@@ -220,6 +220,34 @@ public class EconomyTests
         Assert.True(piled.Stock > here.Stock && piled.Trend == -1, $"Ashen Hollow's iron at {here.Stock}, {piled.Stock} without the road");
     }
 
+    /// <summary>The markets, the road and the purses survive a save and load exactly, and go on from where they were.</summary>
+    [Fact]
+    public void TheEconomy_SurvivesASaveAndLoad_AndGoesOnTheSame()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, r => With(r, 500, Stack(Hide, 6)));
+        var arrows = arena.Simulation.Wares(Kera)!.Wares.First(w => w.ItemId == Arrows);
+        Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, arrows.Ref, 20)));
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, Carried(arena, Hide).ItemId, 6)));
+        arena.Simulation.Advance(5 * Day + 123);   // with goods on the road
+        Assert.True(arena.Simulation.Markets.Sum(m => m.Incoming) > 0);
+
+        var store = new Persistence.SaveStore(profile.Root);
+        long tick = arena.Simulation.WorldTick;
+        store.Save(Persistence.SaveSlots.Manual("market"), Persistence.SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, tick, 0));
+        var loaded = store.Load(Persistence.SaveSlots.Manual("market"),
+            new Persistence.LoadContext(session.Generator, session.Content, new UNNAMED.EntityRegistry.EntityRegistry()));
+        Assert.True(loaded.IsComplete);
+        var resumed = Simulation.Start(arena.Simulation.Setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        Assert.Equal(arena.Simulation.StateDigest(), resumed.StateDigest());
+        Assert.Equal(Seen(arena.Simulation), Seen(resumed));
+
+        arena.Simulation.Advance(9 * Day);
+        resumed.Advance(9 * Day);
+        Assert.Equal(arena.Simulation.StateDigest(), resumed.StateDigest());
+    }
+
     /// <summary>
     /// T-22: the economy is stepped one calendar day at a time, so one Reckoning at once, 183 one-day advances, and the same span in uneven
     /// pieces that split days leave the same markets, road and purses - after the character has traded, so nothing sits at its start.

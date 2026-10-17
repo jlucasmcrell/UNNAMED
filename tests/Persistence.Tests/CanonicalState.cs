@@ -429,6 +429,59 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            // The economy (schema 22).
+            if (snapshot.Economy is { } economy)
+            {
+                json.WriteStartObject("economy");
+                json.WriteNumber("day", economy.Day);
+                json.WriteStartArray("markets");
+                foreach (var market in economy.Markets.Values)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("market_id", market.MarketId);
+                    json.WriteStartObject("stock");
+                    foreach (var (item, count) in market.Stock)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteStartObject("sold_by_character");
+                    foreach (var (item, count) in market.SoldByCharacter)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("shipments");
+                foreach (var shipment in economy.Shipments)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("link_id", shipment.LinkId);
+                    json.WriteString("from_market", shipment.FromMarket);
+                    json.WriteString("to_market", shipment.ToMarket);
+                    json.WriteString("item_id", shipment.ItemId);
+                    json.WriteNumber("count", shipment.Count);
+                    json.WriteNumber("arrives_day", shipment.ArrivesDay);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("economy");
+            }
+            json.WriteStartArray("merchants");
+            foreach (var merchant in snapshot.Merchants)
+            {
+                json.WriteStartObject();
+                json.WriteString("merchant_id", merchant.MerchantId);
+                json.WriteNumber("purse", merchant.Purse);
+                json.WriteNumber("restocked_day", merchant.RestockedDay);
+                json.WriteNumber("shelf_day", merchant.ShelfDay);
+                json.WriteBoolean("traded", merchant.Traded);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";

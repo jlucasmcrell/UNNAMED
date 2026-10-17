@@ -27,6 +27,7 @@ using V16 = UNNAMED.Persistence.Sections.V16;
 using V18 = UNNAMED.Persistence.Sections.V18;
 using V19 = UNNAMED.Persistence.Sections.V19;
 using V20 = UNNAMED.Persistence.Sections.V20;
+using V21 = UNNAMED.Persistence.Sections.V21;
 
 namespace UNNAMED.Persistence;
 
@@ -94,7 +95,8 @@ public static class SchemaMigrations
         new SchemaV17ToV18(),
         new SchemaV18ToV19(),
         new SchemaV19ToV20(),
-        new SchemaV20ToV21());
+        new SchemaV20ToV21(),
+        new SchemaV21ToV22());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1037,7 +1039,7 @@ public sealed class SchemaV18ToV19 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V18.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V21.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created.Select(c => new CreatedDto
@@ -1172,6 +1174,40 @@ public sealed class SchemaV20ToV21 : SchemaMigration
                 Identity = old.Identity,
                 Factions = old.Factions,
                 Party = new PartyLedgerDto(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 21 to 22 (WP14, the living economy): the entities section gains the town markets, the goods on the road and the merchants'
+/// purses. A save that predates them held no economy: its markets start at their targets and its merchants with full purses on load, as a
+/// new world's do, and nothing is on the road.
+/// </summary>
+public sealed class SchemaV21ToV22 : SchemaMigration
+{
+    public override int From => 21;
+
+    public override string Summary => "schema 21 -> 22: the entities section gains the town markets and the merchants' purses (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V21.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+                Economy = null,
+                Merchants = Array.Empty<MerchantDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

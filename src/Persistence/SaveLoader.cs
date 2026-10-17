@@ -10,6 +10,7 @@ using MessagePack;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Persistence.Sections;
@@ -147,7 +148,14 @@ internal static class SaveLoader
         var (entities, created, containers, creatures, noises) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities,
             SectionCodec.DecodeEntitySection, quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty,
                 ImmutableArray<ContainerRecord>.Empty, ImmutableArray<CreatureRecord>.Empty, ImmutableArray<Noise>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures, Noises = noises };
+        // The economy (schema 22): its markets and goods are matched against content when the world starts (EconomyEngine.Reconcile),
+        // which drops what content no longer defines, so they take no part in the definition-ID pass.
+        var (economy, merchants) = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
+            SaveFormat.Entities, SectionCodec.DecodeEconomy, quarantined, report, ((EconomyState?)null, ImmutableArray<MerchantState>.Empty));
+        var delta = new DeltaSnapshot(cells, entities)
+        {
+            Created = created, Containers = containers, Creatures = creatures, Noises = noises, Economy = economy, Merchants = merchants,
+        };
         PlayerRecord player;
         try
         {
@@ -450,6 +458,7 @@ internal static class SaveLoader
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
+                Economy = delta.Economy, Merchants = delta.Merchants,
             });
     }
 

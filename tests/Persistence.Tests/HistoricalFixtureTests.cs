@@ -313,6 +313,22 @@ public class HistoricalFixtureTests
             Assert.Equal(schema >= 19 ? (2, new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" }) : (0, null),
                 (blade.Quality, blade.Notable));
         }
+        // Schema 22's economy (WP14): the vale's market on day 3 with four draughts on the road, and its trader's purse. Before it, a save
+        // held no economy: the markets start at their targets when the world does.
+        var economy = loaded.World.Economy;
+        if (schema >= 22)
+        {
+            Assert.NotNull(economy);
+            Assert.Equal((3L, 14L, 3L), (economy!.Day, economy.Markets["market.fixture.vale"].Stock["item.potion.minor_healing"],
+                economy.Markets["market.fixture.vale"].SoldByCharacter["item.potion.minor_healing"]));
+            Assert.Equal(4, Assert.Single(economy.Shipments).Count);
+            Assert.Equal(new UNNAMED.Domain.Economy.MerchantState("merchant.fixture.trader", 75, 2, 1, true), Assert.Single(loaded.World.Merchants));
+        }
+        else
+        {
+            Assert.Null(economy);
+            Assert.Empty(loaded.World.Merchants);
+        }
 
         // Schema 20's faction ledger (WP6): one ash hound killed at the ridge and told to the warden, so the keepers - the wardens, when it
         // was written - regard Aelin at +100; every name renamed to today's. Before it, no act and every faction neutral.

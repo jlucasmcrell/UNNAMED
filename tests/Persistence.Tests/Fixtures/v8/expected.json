@@ -367,5 +367,7 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": []
+  "noises": [],
+  "economy": null,
+  "merchants": []
 }

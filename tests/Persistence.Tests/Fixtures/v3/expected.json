@@ -164,5 +164,7 @@
   ],
   "containers": [],
   "creatures": [],
-  "noises": []
+  "noises": [],
+  "economy": null,
+  "merchants": []
 }

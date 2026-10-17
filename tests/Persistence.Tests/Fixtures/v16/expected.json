@@ -505,5 +505,7 @@
       "call": false,
       "caller_kind": null
     }
-  ]
+  ],
+  "economy": null,
+  "merchants": []
 }

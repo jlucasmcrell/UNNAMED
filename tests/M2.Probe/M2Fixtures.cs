@@ -4,6 +4,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
@@ -302,6 +303,20 @@ public static class M2Fixtures
                 new ContainerItem(meat, "item.potion.healing_draught", 1))));
             world.SetCreature(new CreatureRecord("spawn.fixture.ridge#0", "creature.beast.ash_hound", Creature(3), TenCells[2].ToString(), 2,
                 CreatureCondition.Gone, 20_000, 30_000, 0, 0, 4_900, 30_000));
+            // Schema 22 (WP14): the vale's market on day 3, short of draughts and remembering three the character sold it, with four more
+            // on the road from the ford; its trader's purse, restocked on day 2 and shelf drawn on day 1, traded with.
+            world.SetEconomy(new EconomyState(3,
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("market.fixture.vale", new MarketState("market.fixture.vale",
+                        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                        {
+                            KeyValuePair.Create("item.potion.minor_healing", 14L), KeyValuePair.Create("item.weapon.iron_sword", 2L),
+                        }),
+                        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("item.potion.minor_healing", 3L) }))),
+                }),
+                ImmutableArray.Create(new Shipment("road.fixture.track", "market.fixture.ford", "market.fixture.vale", "item.potion.minor_healing", 4, 4))));
+            world.SetMerchant(new MerchantState("merchant.fixture.trader", 75, 2, 1, Traded: true));
             return world;
         }
 

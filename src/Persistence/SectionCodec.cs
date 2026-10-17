@@ -10,6 +10,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -400,6 +401,59 @@ public sealed class EntitiesSectionDto
 
     /// <summary>The sounds made on the last tick that creatures hear on the next, in order. Required from schema 14.</summary>
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
+
+    /// <summary>The town markets, the road and the economy's day (WP14); null in a save from before the economy first ran (schema 22).</summary>
+    [Key("economy")] public EconomyDto? Economy { get; set; }
+
+    /// <summary>The merchants' purses and restocks (WP14). Required from schema 22.</summary>
+    [Key("merchants")] public MerchantDto[]? Merchants { get; set; }
+}
+
+/// <summary>The economy (schema 22; WP14): the last day settled, every market, and what is on the road.</summary>
+[MessagePackObject]
+public sealed class EconomyDto
+{
+    [Key("day")] public long Day { get; set; }
+    [Key("markets")] public MarketDto[] Markets { get; set; } = Array.Empty<MarketDto>();
+    [Key("shipments")] public ShipmentDto[] Shipments { get; set; } = Array.Empty<ShipmentDto>();
+}
+
+/// <summary>A town market: its stock of each good, and the character's recent sells there (sell history), both sorted by good.</summary>
+[MessagePackObject]
+public sealed class MarketDto
+{
+    [Key("market_id")] public string MarketId { get; set; } = "";
+    [Key("stock")] public GoodCountDto[] Stock { get; set; } = Array.Empty<GoodCountDto>();
+    [Key("sold_by_character")] public GoodCountDto[] SoldByCharacter { get; set; } = Array.Empty<GoodCountDto>();
+}
+
+[MessagePackObject]
+public sealed class GoodCountDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public long Count { get; set; }
+}
+
+[MessagePackObject]
+public sealed class ShipmentDto
+{
+    [Key("link_id")] public string LinkId { get; set; } = "";
+    [Key("from_market")] public string FromMarket { get; set; } = "";
+    [Key("to_market")] public string ToMarket { get; set; } = "";
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public long Count { get; set; }
+    [Key("arrives_day")] public long ArrivesDay { get; set; }
+}
+
+/// <summary>A merchant's purse, the day they last restocked, the restock their shelf was drawn for, and whether the character traded with them.</summary>
+[MessagePackObject]
+public sealed class MerchantDto
+{
+    [Key("merchant_id")] public string MerchantId { get; set; } = "";
+    [Key("purse")] public long Purse { get; set; }
+    [Key("restocked_day")] public long RestockedDay { get; set; }
+    [Key("shelf_day")] public long ShelfDay { get; set; }
+    [Key("traded")] public bool Traded { get; set; }
 }
 
 /// <summary>A sound waiting to be heard (schema 14): where, how far it carries, and - for a howl - whose kind answers it.</summary>
@@ -876,6 +930,26 @@ public static class SectionCodec
             }).ToArray(),
             Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
                 .ToArray(),
+            Economy = snapshot.Economy is { } economy
+                ? new EconomyDto
+                {
+                    Day = economy.Day,
+                    Markets = economy.Markets.Values.Select(m => new MarketDto
+                    {
+                        MarketId = m.MarketId,
+                        Stock = m.Stock.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                        SoldByCharacter = m.SoldByCharacter.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                    }).ToArray(),
+                    Shipments = economy.Shipments.Select(s => new ShipmentDto
+                    {
+                        LinkId = s.LinkId, FromMarket = s.FromMarket, ToMarket = s.ToMarket, ItemId = s.ItemId, Count = s.Count, ArrivesDay = s.ArrivesDay,
+                    }).ToArray(),
+                }
+                : null,
+            Merchants = snapshot.Merchants.OrderBy(m => m.MerchantId, StringComparer.Ordinal).Select(m => new MerchantDto
+            {
+                MerchantId = m.MerchantId, Purse = m.Purse, RestockedDay = m.RestockedDay, ShelfDay = m.ShelfDay, Traded = m.Traded,
+            }).ToArray(),
         }, Options);
     }
 
@@ -939,6 +1013,26 @@ public static class SectionCodec
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;
+
+    /// <summary>The entities section's economy (schema 22; WP14): the markets and the road (null before the economy first ran), and the merchants.</summary>
+    public static (EconomyState? Economy, ImmutableArray<MerchantState> Merchants) DecodeEconomy(byte[] bytes)
+    {
+        var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
+        var merchants = (section.Merchants ?? throw new FormatException("entities.msgpack has no merchants list (required from schema 22)"))
+            .Select(m => new MerchantState(m.MerchantId, m.Purse, m.RestockedDay, m.ShelfDay, m.Traded))
+            .ToImmutableArray();
+        if (section.Economy is not { } economy)
+            return (null, merchants);
+        static ImmutableSortedDictionary<string, long> Counts(GoodCountDto[] counts, string what) =>
+            counts.Select(c => KeyValuePair.Create(c.ItemId, c.Count)).ToImmutableSortedDictionary(StringComparer.Ordinal) is var built
+                && built.Count == counts.Length ? built : throw new FormatException($"{what} names a good twice");
+        var markets = economy.Markets.Select(m => new MarketState(m.MarketId, Counts(m.Stock, $"market {m.MarketId} stock"),
+            Counts(m.SoldByCharacter, $"market {m.MarketId} sell history"))).ToList();
+        if (markets.Select(m => m.MarketId).Distinct(StringComparer.Ordinal).Count() != markets.Count)
+            throw new FormatException("entities.msgpack names a market twice");
+        return (new EconomyState(economy.Day, markets.ToImmutableSortedDictionary(m => m.MarketId, m => m, StringComparer.Ordinal),
+            economy.Shipments.Select(s => new Shipment(s.LinkId, s.FromMarket, s.ToMarket, s.ItemId, s.Count, s.ArrivesDay)).ToImmutableArray()), merchants);
+    }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>
     public static string HostCell(string slotKey)

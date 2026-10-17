@@ -115,6 +115,8 @@ internal static class SemanticRebase
             Containers = rebasedContainers,
             Creatures = rebasedCreatures,
             Noises = delta.Noises,
+            Economy = delta.Economy,
+            Merchants = delta.Merchants,
         };
     }
 }

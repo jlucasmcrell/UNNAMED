@@ -257,5 +257,7 @@
     }
   ],
   "creatures": [],
-  "noises": []
+  "noises": [],
+  "economy": null,
+  "merchants": []
 }
