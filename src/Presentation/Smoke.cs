@@ -139,7 +139,11 @@ public sealed class Smoke
         bool cairnwold = IsCairnwold(region);
         _route = cairnwold ? Route : DemoRoute;
         _insideLeg = cairnwold ? Inside : DemoInside;
-        _forgeLeg = cairnwold ? ToTheForge : DemoToTheForge;
+        // BACK THE WAY IT CAME FIRST. The book's giver is met wherever their day has them (WP12), and Walk steers in a straight line: from
+        // where the character stood beside Sel at her house, the line to the forge leg's first point ran into a wall, and the run pressed
+        // against it at (451.25, 731.25) until the budget ran out. The line from the inside leg's last point to the giver was walked already,
+        // so walking it back is clear, and from there the forge leg is the one every passing run walked.
+        _forgeLeg = _insideLeg.TakeLast(1).Concat(cairnwold ? ToTheForge : DemoToTheForge).ToArray();
         GD.Print($"UNNAMED smoke: walking {(cairnwold ? "Cairnwold's" : "the demo's")} waypoints for region {region}");
         _session.Subscribe<AttackStarted>(e => _started |= e.Attacker == _session.Simulation!.PlayerId);
         _session.Subscribe<AttackMissed>(e => _missed |= e.Attacker == _session.Simulation!.PlayerId);
