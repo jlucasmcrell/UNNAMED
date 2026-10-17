@@ -97,6 +97,8 @@ internal sealed class ChatSystem
     public void AfterAbsence(AdvanceLog log)
     {
         _pending.Clear();
+        // What the catch-up raised (an offer posted, a bounty taken while away) was said to no one.
+        _heard.RemoveAll(m => m.Tick > log.FromTick && m.Tick <= log.ToTick);
         _plannedHour = long.MinValue;
         if (log.Ticks >= Clock.TicksPerDay)
             Remember("long_absence", log.ToTick, Facts());

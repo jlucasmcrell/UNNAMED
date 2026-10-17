@@ -799,6 +799,10 @@ public class ContentLoader
         string aliasesPath = Path.Combine(_contentRootPath ?? string.Empty, "_aliases.yaml");
         if (_contentRootPath is not null && File.Exists(aliasesPath))
             hasher.Add("_aliases.yaml").Add(Normalize(File.ReadAllText(aliasesPath)));
+        // Chatter's schema is read into the running game (its places and time bands, WP16), not only by the lint.
+        string chatterSchemaPath = Path.Combine(_contentRootPath ?? string.Empty, "chatter", "_schema.yaml");
+        if (_contentRootPath is not null && File.Exists(chatterSchemaPath))
+            hasher.Add("chatter/_schema.yaml").Add(Normalize(File.ReadAllText(chatterSchemaPath)));
         return hasher.Finish();
 
         static string Normalize(string? text) => (text ?? string.Empty).TrimStart('﻿').Replace("\r\n", "\n");

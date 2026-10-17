@@ -25,6 +25,23 @@ public class ChatterContentTests : IDisposable
     }
 
     [Fact]
+    public void ChattersSchema_IsPartOfTheContentHash()
+    {
+        string source = Path.Combine(RepoPaths.Root(), "content");
+        string root = Path.Combine(Path.GetTempPath(), "unnamed-cht-hash-" + Guid.NewGuid().ToString("N"));
+        _roots.Add(root);
+        foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        {
+            string target = Path.Combine(root, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target);
+        }
+        string before = Load(root).ComputeContentHash();
+        File.AppendAllText(Path.Combine(root, "chatter", "_schema.yaml"), "\n# edited\n");
+        Assert.NotEqual(before, Load(root).ComputeContentHash());
+    }
+
+    [Fact]
     public void TheGamesChatter_Lints_AndItsTemplatesCoverEveryUse_ByHand()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));

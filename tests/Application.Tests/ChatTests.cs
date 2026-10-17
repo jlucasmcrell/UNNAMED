@@ -135,6 +135,33 @@ public class ChatTests
     }
 
     [Fact]
+    public void AnOfferPostedWhileTheCharacterWasAway_IsOpen_ButWasHeardByNoOne()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var npc = EntityId.NewId(EntityKind.Npc);
+        var arena = Open(session, s => s with { SettingOuts = SettingOuts.Of(new[] { Offer(npc, 10 + Hour, 10 + 4 * Hour, SpotMm(session)) }) });
+        arena.Tick(1);
+        arena.Simulation.Advance(2 * Hour);
+        Assert.Equal(npc, Assert.Single(arena.Simulation.GroupOffers).Npc);
+        Assert.DoesNotContain(arena.Simulation.Chat, m => m.LineKey.StartsWith("lfg.", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AnNpcsNextOffer_PostedAsTheirLastOneLeaves_IsOpened()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var npc = EntityId.NewId(EntityKind.Npc);
+        var arena = Open(session, s => s with
+        {
+            SettingOuts = SettingOuts.Of(new[] { Offer(npc, 5, 5 + Hour, SpotMm(session)), Offer(npc, 5 + Hour, 5 + 3 * Hour, SpotMm(session)) }),
+        });
+        arena.Tick((int)(5 + Hour + 1));
+        Assert.Equal(5 + 3 * Hour, Assert.Single(arena.Simulation.GroupOffers).DepartTick);
+    }
+
+    [Fact]
     public void AtLoad_OffersStillOpen_AreReadAgain_Quietly()
     {
         using var profile = new TempProfile();

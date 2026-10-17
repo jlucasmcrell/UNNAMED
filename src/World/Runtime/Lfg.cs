@@ -148,19 +148,20 @@ internal sealed class LfgSystem : IAbstractAdvance
 
     public void Tick(long tick)
     {
-        foreach (var s in Source.Between(tick - 1, tick))
-            Open(s, tick, announce: true);
+        // Departures first: an NPC whose offer leaves now may post their next one on the same tick.
         foreach (var offer in State.Lfg.Offers.Values.Where(o => o.Out.DepartTick <= tick).ToList())
             Depart(offer, tick, present: Within(State.Body.XMm - offer.Out.MeetXMm, State.Body.ZMm - offer.Out.MeetZMm, Rules.JoinRadiusMm));
+        foreach (var s in Source.Between(tick - 1, tick))
+            Open(s, tick, announce: true);
     }
 
     /// <summary>The absence (WP11): who set out while the character was away and is still waiting is waiting; everyone else has gone.</summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
     {
-        foreach (var s in Source.Between(fromTick, toTick))
-            Open(s, toTick, announce: true);
         foreach (var offer in State.Lfg.Offers.Values.Where(o => o.Out.DepartTick <= toTick).ToList())
             Depart(offer, toTick, present: false);
+        foreach (var s in Source.Between(fromTick, toTick))
+            Open(s, toTick, announce: true);
     }
 
     public string? Handle(JoinGroupCommand command, long tick)
