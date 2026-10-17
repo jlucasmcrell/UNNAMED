@@ -127,6 +127,11 @@ public partial class Main
             _inventory.Refresh();
             _hud.Toast($"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
+        _session.Subscribe<FindingRecorded>(e =>
+        {
+            if (FindingWords.Toast(e.Finding, key => Names.Of(_session, key)) is { } said)
+                _hud.Toast(said, 4);
+        });
         SubscribeSocial();
         SubscribeParty();
         SubscribeQuests();

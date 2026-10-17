@@ -54,6 +54,8 @@ public class ItemizationTests
         var session = Harness.Boot(profile);
         var empty = At(session, AtBench, r => r);
         Assert.Equal((0, 2), empty.Simulation.Experiments(Bench));
+        // Trying with nothing to try closes the question once, with a Finding; the same attempt again is refused with the same words.
+        Assert.Null(empty.Submit(new ExperimentCommand(empty.Player, Bench)));
         Assert.Equal("nothing comes of it: what you carry suggests nothing new here", empty.Submit(new ExperimentCommand(empty.Player, Bench)));
 
         var arena = At(session, AtBench, r => Carrying(r, Stack("item.material.wolf_hide", 1), Stack("item.material.bog_cotton", 2),
@@ -71,6 +73,42 @@ public class ItemizationTests
         Assert.Equal(before, arena.Simulation.Player.Inventory);   // experimenting spends nothing
         Assert.Equal((2, 2), arena.Simulation.Experiments(Bench));
         Assert.Equal($"{Hearth} is out of reach", arena.Submit(new ExperimentCommand(arena.Player, Hearth)));
+    }
+
+    [Fact]
+    public void AnExperiment_RecordsAFinding_OnceForEachQuestionItCloses_AndTheyAreKept()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        // Nothing carried: one Finding that nothing came of it; trying again is refused and adds none.
+        var none = At(session, AtBench, r => r);
+        var recorded = none.Record<FindingRecorded>();
+        Assert.Null(none.Submit(new ExperimentCommand(none.Player, Bench)));
+        var nothing = Assert.Single(none.Simulation.Findings);
+        Assert.Equal((FindingKind.Nothing, Bench, "workbench", null), (nothing.Kind, nothing.StationKey, nothing.StationKind, nothing.RecipeId));
+        Assert.Empty(nothing.Materials);
+        Assert.NotNull(none.Submit(new ExperimentCommand(none.Player, Bench)));
+        Assert.Single(none.Simulation.Findings);
+        Assert.Single(recorded);
+
+        // Part of a recipe's makings: a hint at that recipe, naming what bore on it; the same hint is not recorded twice.
+        var part = At(session, AtBench, r => Carrying(r, Stack("item.material.wolf_hide", 1)));
+        Assert.Null(part.Submit(new ExperimentCommand(part.Player, Bench)));
+        var hint = Assert.Single(part.Simulation.Findings);
+        Assert.Equal((FindingKind.Hint, Cloak), (hint.Kind, hint.RecipeId));
+        Assert.Equal(new[] { "item.material.wolf_hide" }, hint.Materials);
+        Assert.False(Knows(part, Cloak));
+        Assert.Equal("there is more to this than what you carry, and you have learned all it will say", part.Submit(new ExperimentCommand(part.Player, Bench)));
+        Assert.Single(part.Simulation.Findings);
+
+        // All of the makings: the recipe is found, and the Finding says so.
+        var all = At(session, AtBench, r => Carrying(r, Stack("item.material.wolf_hide", 1), Stack("item.material.bog_cotton", 2)));
+        Assert.Null(all.Submit(new ExperimentCommand(all.Player, Bench)));
+        var found = Assert.Single(all.Simulation.Findings);
+        Assert.Equal((FindingKind.Found, Cloak), (found.Kind, found.RecipeId));
+        Assert.True(Knows(all, Cloak));
+        Assert.Equal(new[] { "item.material.bog_cotton", "item.material.wolf_hide" }, found.Materials);
     }
 
     [Fact]
