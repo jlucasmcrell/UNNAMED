@@ -312,6 +312,12 @@ public partial class SoundEvents : Node
             if (e.LevelsGained > 0)
                 _bank.Play(Own("sfx.ui.level_up"));
         });
+        // A skill risen (WP9): its own sound where the set has one; the set has none yet, so the level-up's.
+        s.Subscribe<SkillPracticed>(e =>
+        {
+            if (e.LevelsGained > 0)
+                _bank.Play(_bank.Has("sfx.ui.skill_up") ? "sfx.ui.skill_up" : Own("sfx.ui.level_up"));
+        });
         s.Subscribe<QuestCompleted>(_ => _bank.Play(Own("sfx.ui.quest_complete")));
         s.Subscribe<ItemBought>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
         s.Subscribe<ItemSold>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
@@ -667,6 +673,7 @@ public partial class SoundEvents : Node
         foreach (string ui in new[] { "menu.open", "menu.close", "select", "back", "equip", "error" })
             Add($"sfx.ui.{ui}", $"ui {ui}");
         Add("sfx.ui.level_up", "level_up()", optional: true);
+        Add("sfx.ui.skill_up", "skill_up()", optional: true);
         Add("sfx.ui.quest_complete", "quest_complete()", optional: true);
         Add("sfx.interaction.trade.coins", "trade()", optional: true);
         // The score (MusicPlayer): asked for only where the set has it.

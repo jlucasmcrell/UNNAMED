@@ -105,7 +105,11 @@ public sealed record PlayerDied(string KillerDefId, string Cause, ImmutableArray
 public sealed record PlayerRespawned(Body Body, long Tick);
 
 /// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2).</summary>
-public sealed record SkillPracticed(string SkillId, long Xp, int Level, long Tick);
+public sealed record SkillPracticed(string SkillId, long Xp, int Level, long Tick)
+{
+    /// <summary>The levels this use raised the skill by: a skill-up when above zero.</summary>
+    public int LevelsGained { get; init; }
+}
 
 /// <summary>A carried item was used: a consumable's effect (the salve's mending), or none for a book that taught.</summary>
 public sealed record ItemUsed(EntityId Actor, string DefId, string? EffectId, long Tick);
