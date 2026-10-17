@@ -268,14 +268,15 @@ public static class FactionContent
         if (row.ContainsKey("anathema"))
             throw new FormatException($"{at}: anathema is refused: it needs explicit acts, and none exist yet");
         int delta = Int(row, "delta");
-        if (delta == 0 || Math.Abs(delta) > MaxDelta)
+        if (delta == 0 || delta < -MaxDelta || delta > MaxDelta)
             throw new FormatException($"{at}: delta is non-zero and at most {MaxDelta} either way, not {delta}");
         return new Reaction(act, id, delta);
     }
 
     /// <summary>
-    /// FAC-R5: a reaction only to a single-instance act. A creature whose every spawner places it once (<c>respawn: none</c>), and a
-    /// flag that some switch sets and no dialogue or quest reward writes: a repeatable subject would need a repeat rule.
+    /// FAC-R5: a reaction only to a single-instance act. A creature placed once in the world, by a spawner that does not bring it back
+    /// (<c>respawn: none</c>), and a flag that some switch sets and no dialogue or quest reward writes: a repeatable subject would need a
+    /// repeat rule.
     /// </summary>
     private static IEnumerable<string> SingleInstanceProblems(World world, FactionDefinition faction)
     {
@@ -289,6 +290,9 @@ public static class FactionContent
                 if (respawning.Count > 0)
                     yield return $"a reaction to killing {reaction.Subject} needs every spawner to place it once (respawn: none); " +
                         $"{string.Join(", ", respawning)} brings it back";
+                int placed = world.Spawns.Sum(s => s.Members.Count(m => m.CreatureId == reaction.Subject));
+                if (placed > 1)
+                    yield return $"a reaction to killing {reaction.Subject} needs it placed once in the world; it is placed {placed} times";
             }
             else if (reaction.Kind == ActKinds.SwitchSet)
             {

@@ -136,6 +136,18 @@ public class FactionContentTests
         Refused("brings it back", (LongSurvey, SteadiedReaction, "act: creature_killed, creature_ref: creature.construct.animated_armour, delta: 100"));
 
     [Fact]
+    public void ACreaturePlacedTwiceReaction_IsRefused() =>
+        Refused("needs it placed once in the world; it is placed 2 times",
+            (LongSurvey, SteadiedReaction, "act: creature_killed, creature_ref: creature.construct.animated_armour, delta: 100"),
+            ("spawns/hollow/iron_shelf_armour.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"),
+            ("spawns/moor/barrow_sentinel.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"));
+
+    [Fact]
+    public void AReactionDeltaOfIntMinValue_IsRefused() =>
+        Refused("delta is non-zero and at most 250 either way, not -2147483648",
+            (LongSurvey, SteadiedReaction, "act: switch_set, flag_ref: world.foldscar.steadied, delta: -2147483648"));
+
+    [Fact]
     public void AReactionToAFlagContentCanReset_IsRefused() =>
         Refused("needs a flag only its switch sets; dialogue.ashen_hollow.sel_arien writes it too",
             (Sel, "          - " + SteadiedReport, "          - { command: set_world_flag, flag_ref: world.foldscar.steadied, value: 1 }\n          - " + SteadiedReport));
