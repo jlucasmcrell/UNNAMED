@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -176,7 +177,7 @@ public sealed class Simulation
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -278,7 +279,7 @@ public sealed class Simulation
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
-        Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor()) { Identity = _identity.Identity };
+        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity };
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
@@ -331,8 +332,20 @@ public sealed class Simulation
     /// <summary>The weather's seed cursor (WP7): the game hour the front last announced began; null before the first. What a save keeps of the weather.</summary>
     public long? WeatherCursor => _state.WeatherCursor;
 
-    /// <summary>The character's companions (M6).</summary>
+    /// <summary>The character's companions (M6): the whole party - companions, hirelings and allies (WP15a).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
+
+    /// <summary>The party's rules (<c>config.party</c>): its size, the grace on wages, the roles' terms. Null in a pack with none.</summary>
+    public PartyRules? Party => Setup.Social.Party;
+
+    /// <summary>
+    /// What hiring someone would mean (DN9, DN11), for the hiring sheet to state before the character agrees: the wage, the whole cost,
+    /// the loot rule, that the hireling can die - and why it would be refused now, if it would.
+    /// </summary>
+    public HireTerms HireTerms(string npcId, HirelingRole role, int days) => _companions.Terms(npcId, role, days);
+
+    /// <summary>Companions gravely wounded and recovering at home (DN9), and when each is well again.</summary>
+    public ImmutableArray<RecoveryView> Recovering => _companions.Recoveries();
 
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
@@ -423,6 +436,12 @@ public sealed class Simulation
                 SellCommand sell => _trade.Handle(sell, WorldTick),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
+                HireCommand hire => _companions.Handle(hire, WorldTick),
+                DismissCommand dismiss => _companions.Handle(dismiss, WorldTick),
+                SetStanceCommand stance => _companions.Handle(stance, WorldTick),
+                SetTacticsCommand tactics => _companions.Handle(tactics, WorldTick),
+                AssignWorkCommand work => _companions.Handle(work, WorldTick),
+                SupplyHirelingCommand supply => _companions.Handle(supply, WorldTick),
                 TouchStoneCommand touch => _travel.Handle(touch, WorldTick),
                 BindStoneCommand bind => _travel.Handle(bind, WorldTick),
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
@@ -530,6 +549,7 @@ public sealed class Simulation
             Deeds = _state.Deeds.Values.ToImmutableArray(),
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
             Factions = _state.Factions,
+            Party = _companions.Ledger(),
         };
     }
 
@@ -580,6 +600,7 @@ public sealed class Simulation
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
         AddCurrency add => _inventory.Handle(add),
+        SpendCurrency spend => _inventory.Handle(spend),
         GrantItem grant => _inventory.Handle(grant, Now),
         CountUse use => _inventory.Handle(use),
         ChangeRelationship change => _relationships.Handle(change, Now),
@@ -589,6 +610,9 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
+        RemoveNpc remove => _npcs.Handle(remove),
+        Hire hire => _companions.Handle(hire, Now),
+        Dismiss dismiss => _companions.Handle(dismiss, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),

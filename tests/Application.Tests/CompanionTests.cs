@@ -317,15 +317,23 @@ public class CompanionTests
         Assert.Equal("Tavar Orr is not down", arena.Submit(new ReviveCommand(arena.Player, Tavar)));
     }
 
+    /// <summary>
+    /// DN9: downed too long with no hand, a named companion is gravely wounded, not dead - he leaves the party and goes home, recovers
+    /// there for two to four days, and cannot be asked along before he is well. The wound outlasts a restart of the world.
+    /// </summary>
     [Fact]
-    public void DownedTooLong_HeFalls_AndIsBackAtTheWaystone_Waiting()
+    public void DownedTooLong_HeIsGravelyWounded_GoesHome_AndRecoversInTwoToFourDays()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var down = new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Downed, Harness.InRegion(70, 150).XMm, Harness.InRegion(70, 150).ZMm, 0, 0) { DownedTick = 0 };
-        var arena = Arena.OpenCreatures(session, session.Setup, Open, 90, Array.Empty<(string, double, double, string)>(), r => r.WithCompanions(new[] { down }));
+        var rules = session.Setup with { Layout = session.Setup.Layout with { Barriers = ImmutableArray<BarrierSite>.Empty } };
+        var down = new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Downed, Harness.InRegion(147, 44).XMm, Harness.InRegion(147, 44).ZMm, 0, 0) { DownedTick = 0 };
+        var arena = Arena.OpenCreatures(session, rules, (146.2, 42.8), 240, Array.Empty<(string, double, double, string)>(), r => r.WithCompanions(new[] { down }));
         var fell = arena.Record<CompanionFell>();
+        var wounded = arena.Record<CompanionGravelyWounded>();
+        var recovered = arena.Record<CompanionRecovered>();
         int window = session.Setup.Social.Companions!.ReviveWindowTicks;
+        long day = session.Setup.Clock.TicksPerDay;
 
         Assert.Equal(window, Him(arena).FallsAtTick);
         arena.Tick(window - 1);
@@ -333,10 +341,78 @@ public class CompanionTests
         arena.Tick(2);
 
         var fall = Assert.Single(fell);
-        var spawn = session.Setup.Layout.Spawn;
-        Assert.InRange(Math.Sqrt(Math.Pow(fall.At.XMm - spawn.XMm, 2) + Math.Pow(fall.At.ZMm - spawn.ZMm, 2)), 1_000, 2_500);
-        var him = Him(arena);
-        Assert.Equal((CompanionCondition.Up, CompanionOrder.Wait, 100, "waiting"), (him.Condition, him.Order, him.Health, him.Doing));
+        var home = session.Setup.Layout.Npcs.Single(n => n.NpcId == Tavar);
+        Assert.Equal((home.XMm, home.ZMm), (fall.At.XMm, fall.At.ZMm));
+        Assert.Empty(arena.Simulation.Companions);
+        var wound = Assert.Single(wounded);
+        Assert.InRange(wound.UntilTick - window, 2 * day, 4 * day);
+        Assert.Equal(wound.UntilTick, Assert.Single(arena.Simulation.Recovering).UntilTick);
+        Assert.Equal(wound.UntilTick, Assert.Single(arena.Simulation.CaptureRecord().Party.Recovering).UntilTick);
+
+        // Still recovering, he will not come along, asked or not.
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "found")));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "join")));
+        Assert.Empty(arena.Simulation.Companions);
+        Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
+
+        // A restart of the world keeps the wound; the days pass, away, and he is well.
+        var again = Simulation.Start(rules, arena.Simulation.CaptureRecord(), new WorldDelta(session.Generator, 42, new Registry()), arena.Simulation.WorldTick, arena.Bus);
+        Assert.Equal(wound.UntilTick, Assert.Single(again.Recovering).UntilTick);
+        again.Advance(wound.UntilTick - again.WorldTick - 1);
+        Assert.Empty(recovered);
+        again.Advance(1);
+        Assert.Equal(new CompanionRecovered(Tavar, wound.UntilTick), Assert.Single(recovered));
+        Assert.Empty(again.Recovering);
+    }
+
+    /// <summary>
+    /// NA:275: a follower left outside the simulated ground - more than tier A's 150 m from the character at once - stood frozen there for
+    /// good. He catches up instead. (Every cell of the Ashen Hollow is within 150 m of everywhere in it, so he is left beyond its cells.)
+    /// </summary>
+    [Fact]
+    public void LeftBeyondTheSimulatedGround_HeCatchesUp_InsteadOfFreezing()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = With(session, Open, Joined(70, 330));
+        var caughtUp = arena.Record<CompanionCaughtUp>();
+        Assert.True(Apart(arena) > 150_000);
+
+        arena.Tick(3);
+
+        Assert.Equal("distance", Assert.Single(caughtUp).Reason);
+        Assert.InRange(Apart(arena), 0, 6_000);
+    }
+
+    /// <summary>WP15a's stances: told to be passive, he does not fight what hunts the character - and back to aggressive, he does.</summary>
+    [Fact]
+    public void Passive_HeLeavesTheWolfAlone_Aggressive_HeFightsIt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = With(session, Open, Joined(72, 153), new[] { (Arena.Wolf, 76.0, 152.0, "pack_hunter") },
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack(Bow, 1)).Add(Arena.Stack(Arrows, 10))));
+        var tavarId = Him(arena).InstanceId;
+        var hits = arena.Record<HitResolved>();
+        var stances = arena.Record<PartyStanceChanged>();
+        Assert.Null(arena.Submit(new SetStanceCommand(arena.Player, Tavar, CompanionStance.Passive)));
+        Assert.Null(arena.Submit(new SetStanceCommand(arena.Player, Tavar, CompanionStance.Passive)));   // already: nothing to do
+        Assert.Equal(CompanionStance.Passive, Him(arena).Stance);
+
+        var bow = arena.Simulation.Player.Inventory.Single(e => e.DefId == Bow).ItemId;
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, bow)));
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(200);
+        Assert.DoesNotContain(hits, h => h.Attacker == tavarId);
+
+        Assert.Null(arena.Submit(new SetStanceCommand(arena.Player, Tavar, CompanionStance.Aggressive)));
+        for (int i = 0; i < 600 && !hits.Any(h => h.Attacker == tavarId); i++)
+            arena.Tick();
+        Assert.Contains(hits, h => h.Attacker == tavarId);
+        Assert.Equal(new[] { CompanionStance.Passive, CompanionStance.Aggressive }, stances.Select(s => s.Stance));
     }
 
     /// <summary>PROTOTYPE.md §7.4: "Kesh exists, is at the same position, in wait" - and everything else about him, field by field.</summary>

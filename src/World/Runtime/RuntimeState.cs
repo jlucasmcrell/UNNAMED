@@ -134,6 +134,8 @@ internal sealed class RuntimeState
         ReturnPoint = player.ReturnPoint;
         Deeds = player.Deeds.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
         Factions = player.Factions;
+        Recovering = player.Party.Recovering.ToImmutableSortedDictionary(r => r.NpcId, r => r.UntilTick, StringComparer.Ordinal);
+        Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -166,6 +168,12 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public long? WeatherCursor { get; private set; }
     public FactionLedger Factions { get; private set; }
+
+    /// <summary>Companions gravely wounded, recovering at home, and the tick they are well again (WP15a; part of the companions' slice).</summary>
+    public ImmutableSortedDictionary<string, long> Recovering { get; private set; }
+
+    /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
+    public ImmutableSortedSet<string> Fallen { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -408,6 +416,33 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    /// <summary>Someone leaves the party (WP15a): dismissed, their contract over, gravely wounded or dead.</summary>
+    public void RemoveCompanion(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Companions);
+        Companions = Companions.Remove(npcId);
+    }
+
+    /// <summary>A companion recovering at home until a tick; null: well again.</summary>
+    public void SetRecovering(SliceOwner owner, string npcId, long? untilTick)
+    {
+        Require(owner, StateSlice.Companions);
+        Recovering = untilTick is { } until ? Recovering.SetItem(npcId, until) : Recovering.Remove(npcId);
+    }
+
+    public void AddFallen(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Companions);
+        Fallen = Fallen.Add(npcId);
+    }
+
+    /// <summary>An NPC is gone from the world: a hireling who died (DN9).</summary>
+    public void RemoveNpc(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Npcs);
+        Npcs = Npcs.Remove(npcId);
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

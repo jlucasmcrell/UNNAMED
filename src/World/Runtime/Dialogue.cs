@@ -233,8 +233,14 @@ internal sealed class DialogueSystem : IDialogueFacts
                 // A quest already started is not started again, and that is no failure of the reply.
                 _context.Dispatch(new StartQuest(start.QuestId, open.NpcId));
                 break;
-            case RecruitCompanionConsequence:
-                _context.Dispatch(new Recruit(open.NpcId));
+            case RecruitCompanionConsequence recruit:
+                _context.Dispatch(new Recruit(open.NpcId) { As = recruit.As });
+                break;
+            case HireHirelingConsequence hire:
+                _context.Dispatch(new Hire(open.NpcId, hire.Role, hire.Days));
+                break;
+            case DismissCompanionConsequence:
+                _context.Dispatch(new Dismiss(open.NpcId));
                 break;
             case OrderCompanionConsequence order:
                 _context.Dispatch(new OrderCompanion(open.NpcId, order.Order));

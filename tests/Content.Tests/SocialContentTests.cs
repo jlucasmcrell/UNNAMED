@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Social;
 
 namespace UNNAMED.Content.Tests;
@@ -233,4 +234,44 @@ public class SocialContentTests
     public void ARelationshipOnADimensionThereIsNot_IsRefused() =>
         AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "dimension: trust, delta: 5, event: given_the_notes",
             "dimension: love, delta: 5, event: given_the_notes", "'love' is not a relationship dimension");
+
+    /// <summary>WP15a: the party's size, the grace on wages, the grave wound and each role's terms are content (DN9, DN11).</summary>
+    [Fact]
+    public void ThePartysRules_AreContent()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Assert.Empty(loader.Errors);
+        var rules = SocialContent.BuildPartyRules(loader)!;
+
+        Assert.Equal((3, 1, 2, 4, 1, 30), (rules.MaxMembers, rules.GraceDays, rules.GraveWoundDaysMin, rules.GraveWoundDaysMax, rules.ContractDaysMin, rules.ContractDaysMax));
+        Assert.Equal(new[] { HirelingRole.Guard, HirelingRole.Porter, HirelingRole.Gatherer, HirelingRole.Crafter }, rules.Roles.Keys);
+        Assert.All(rules.Roles.Values, t => Assert.InRange(t.DailyWage, 4, 8));   // DN11's first proposal
+        Assert.Equal(new RoleTerms(4, 30_000, 0, 0, CompanionStance.Passive), rules.Roles[HirelingRole.Porter]);
+        Assert.Equal(CompanionStance.Aggressive, rules.Roles[HirelingRole.Guard].Stance);
+    }
+
+    [Fact]
+    public void PartyRulesMissingARole_AreRefused() =>
+        AssertRefused("config/party.yaml", "  crafter:  { wage_per_day: 7, crafts_per_day: 2, stance: passive }", "", "crafter is missing");
+
+    [Fact]
+    public void AHireThatDoesNotStateTheRisk_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "consequences: [{ command: recruit_companion }]",
+            "consequences: [{ command: hire_hireling, role: guard, days: 3 }]", "hire_hireling needs risk_stated: true");
+
+    [Fact]
+    public void HiringSomeoneWhoDoesNotHireOn_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "consequences: [{ command: recruit_companion }]",
+            "consequences: [{ command: hire_hireling, role: guard, days: 3, risk_stated: true }]", "hires a guard, but none of its participants hires on as one");
+
+    /// <summary>DN9: a named companion is wounded where a hireling dies, so no one is both.</summary>
+    [Fact]
+    public void ACompanionWhoIsAlsoForHire_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "companion:\n  health: 100",
+            "hireling: { roles: [guard], health: 50, weapon_item_ref: item.weapon.march_spear }\ncompanion:\n  health: 100", "never also hired");
+
+    [Fact]
+    public void AHirelingRoleThereIsNot_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/renn_vale.yaml", "unique: true",
+            "unique: true\nhireling: { roles: [cook], health: 50, weapon_item_ref: item.weapon.march_spear }", "'cook' is not a role");
 }
