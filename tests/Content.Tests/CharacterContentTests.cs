@@ -66,6 +66,8 @@ public class CharacterContentTests
             Assert.Equal(CallDefinition.SkillCount, call.Package.Skills.Count);
             Assert.Empty(call.Package.Techniques);
             Assert.NotEmpty(call.Kit);
+            Assert.NotEmpty(call.Tagline);
+            Assert.DoesNotContain("class", call.Description, StringComparison.OrdinalIgnoreCase);
         });
     }
 

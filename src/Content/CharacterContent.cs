@@ -95,7 +95,7 @@ public static class CharacterContent
         if (trust != Relationships.Clamp(trust))
             throw new FormatException($"{id} contact.trust {trust} is outside {Relationships.Min}..{Relationships.Max}");
 
-        return new CallDefinition(id, new StartingPackage(bias, skills, ImmutableArray<string>.Empty), kit,
+        return new CallDefinition(id, Text(map, "tagline"), Text(map, "description"), new StartingPackage(bias, skills, ImmutableArray<string>.Empty), kit,
             new CallContact(Defined(loader, Text(contact, "npc_ref"), "npc", $"{id} contact"), trust));
     }
 

@@ -117,6 +117,8 @@ public sealed record CallContact(string NpcId, int Trust);
 /// </summary>
 public sealed record CallDefinition(
     string Id,
+    string Tagline,
+    string Description,
     StartingPackage Package,
     ImmutableArray<StartingItem> Kit,
     CallContact Contact)
