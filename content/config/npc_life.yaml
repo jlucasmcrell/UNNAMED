@@ -3,16 +3,10 @@ kind: config
 schema: 1
 display_key: config.npc_life.name
 tags: [config]
-notes: "NPC life (WP12, SYSTEMS_COMPLETENESS_PLAN §2.13). Needs are coarse bands 0-3 (canon §7.1); each rises by its rate every game hour and the activity that answers it takes off its satisfaction. Merchants trade 06:00-20:00 (the v1 D7 rule, kept). A role slot left empty is filled by an arrival 3-7 game days later (DN4, provisional). Every value here is a provisional tuning number; nothing here caps how many NPCs there are."
-needs:                       # in bands per game hour
-  hunger: { rise_per_hour: 0.25, satisfied_per_hour: 2.0 }    # eating
-  rest:   { rise_per_hour: 0.15, satisfied_per_hour: 0.45 }   # sleeping, or sheltering at home
-  social: { rise_per_hour: 0.12, satisfied_per_hour: 0.9 }    # visiting a friend or partner
-  coin:   { rise_per_hour: 0.1,  satisfied_per_hour: 0.4 }    # working
-night_hours: [22, 6]         # sleep is favoured from the first hour to the second
+notes: "NPC life (WP12, SYSTEMS_COMPLETENESS_PLAN §2.13). Owner, 2026-10-17: fixed daily schedules, no needs simulation, no meals or visits; each routine works its work hours, sleeps at home at night, and spends the rest at home or at the spots its schedule names. Merchants trade 06:00-20:00 (the v1 D7 rule, kept). A role slot left empty is filled by an arrival 3-7 game days later (DN4, provisional). Every value here is a provisional tuning number; nothing here caps how many NPCs there are."
+night_hours: [22, 6]         # asleep at home from the first hour to the second, unless the schedule says otherwise
 trading_hours: ["06:00", "20:00"]
 arrival_days: [3, 7]         # DN4: a vacancy fills this many game days after its resident left, drawn per vacancy
-meal_hours: [6, 12, 18]      # people sit down to eat at these hours, once they are hungry at all
 # Town roles (WP12b): what a routine's `roles` may name. A role hires out as the hireling roles listed (config.party's), and talks in
 # ambient chatter as the speaker type given (content/chatter/_schema.yaml). Whether someone can be hired is derived, never authored:
 # a vendor or a quest giver never is, whatever else they are; anyone else is when a role of theirs hires out and they are about their

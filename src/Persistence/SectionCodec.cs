@@ -475,7 +475,7 @@ public sealed class EntitiesSectionDto
     /// <summary>The merchants' purses and restocks (WP14). Required from schema 22.</summary>
     [Key("merchants")] public MerchantDto[]? Merchants { get; set; }
 
-    /// <summary>Every NPC life, the vacancies and the pairs (WP12); null in a save from before lives first ran (schema 26).</summary>
+    /// <summary>Every NPC life and the vacancies (WP12); null in a save from before lives first ran (schema 26).</summary>
     [Key("npc_life")] public NpcLifeDto? NpcLife { get; set; }
 
     /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null in a save from before adventurers first lived (schema 29).</summary>
@@ -564,7 +564,7 @@ public sealed class AdventurerVacancyDto
 
 /// <summary>
 /// NPC life (schema 26; WP12): the last game hour settled, every life - stored sparsely by the cell its body stands in, sorted by
-/// (cell, key), with no limit on how many - the role slots waiting for an arrival, and when each pair last met.
+/// (cell, key), with no limit on how many - and the role slots waiting for an arrival. Schema 29 dropped the needs, visits and pairs (owner, 2026-10-17).
 /// </summary>
 [MessagePackObject]
 public sealed class NpcLifeDto
@@ -572,10 +572,9 @@ public sealed class NpcLifeDto
     [Key("hour")] public long Hour { get; set; }
     [Key("npcs")] public NpcLifeRecordDto[] Npcs { get; set; } = Array.Empty<NpcLifeRecordDto>();
     [Key("vacancies")] public NpcVacancyDto[] Vacancies { get; set; } = Array.Empty<NpcVacancyDto>();
-    [Key("pairs_last_met")] public PairMetDto[] PairsLastMet { get; set; } = Array.Empty<PairMetDto>();
 }
 
-/// <summary>One NPC's life: routine, a resident's name and generation, needs, activity, condition, and the body's pose and route.</summary>
+/// <summary>One NPC's life: routine, a resident's name and generation, activity, condition, and the body's pose and route.</summary>
 [MessagePackObject]
 public sealed class NpcLifeRecordDto
 {
@@ -585,12 +584,7 @@ public sealed class NpcLifeRecordDto
     [Key("name")] public string? Name { get; set; }
     [Key("generation")] public int Generation { get; set; }
     [Key("arrived_day")] public long ArrivedDay { get; set; }
-    [Key("hunger")] public int Hunger { get; set; }
-    [Key("rest")] public int Rest { get; set; }
-    [Key("social")] public int Social { get; set; }
-    [Key("coin")] public int Coin { get; set; }
     [Key("activity")] public string Activity { get; set; } = "";
-    [Key("with")] public string? With { get; set; }
     [Key("condition")] public string Condition { get; set; } = "living";
     [Key("condition_until")] public long ConditionUntil { get; set; }
     [Key("x_mm")] public long XMm { get; set; }
@@ -626,12 +620,6 @@ public sealed class NpcVacancyDto
     [Key("arriving_name")] public string? ArrivingName { get; set; }
 }
 
-[MessagePackObject]
-public sealed class PairMetDto
-{
-    [Key("pair")] public string Pair { get; set; } = "";
-    [Key("hour")] public long Hour { get; set; }
-}
 
 /// <summary>The economy (schema 22; WP14): the last day settled, every market, and what is on the road.</summary>
 [MessagePackObject]
@@ -1255,7 +1243,7 @@ public static class SectionCodec
         Npcs = life.Npcs.Values.OrderBy(n => n.Cell, StringComparer.Ordinal).ThenBy(n => n.Key, StringComparer.Ordinal).Select(n => new NpcLifeRecordDto
         {
             Key = n.Key, RoutineId = n.RoutineId, Cell = n.Cell, Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay,
-            Hunger = n.Needs.Hunger, Rest = n.Needs.Rest, Social = n.Needs.Social, Coin = n.Needs.Coin, Activity = n.Activity, With = n.With,
+            Activity = n.Activity,
             Condition = n.Condition switch { NpcCondition.Injured => "injured", NpcCondition.Hired => "hired", _ => "living" }, ConditionUntil = n.ConditionUntil,
             XMm = n.XMm, ZMm = n.ZMm, FacingMdeg = n.FacingMdeg, StuckTicks = n.StuckTicks,
             Route = new NavRouteDto
@@ -1270,7 +1258,6 @@ public static class SectionCodec
                 SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration, ArrivingName = v.ArrivingName,
             })
             .ToArray(),
-        PairsLastMet = life.PairsLastMet.Select(kv => new PairMetDto { Pair = kv.Key, Hour = kv.Value }).ToArray(),
     };
 
     /// <summary>
@@ -1380,9 +1367,9 @@ public static class SectionCodec
                 "hired" => NpcCondition.Hired,   // schema 28 (WP12b): the party's, their routine suspended
                 _ => throw new FormatException($"npc life {n.Key} has an unknown condition '{n.Condition}'"),
             };
-            var record = new NpcLifeRecord(n.Key, n.RoutineId, new NpcNeeds(n.Hunger, n.Rest, n.Social, n.Coin), n.Activity, n.XMm, n.ZMm, n.FacingMdeg)
+            var record = new NpcLifeRecord(n.Key, n.RoutineId, n.Activity, n.XMm, n.ZMm, n.FacingMdeg)
             {
-                Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay, With = n.With, Condition = condition, ConditionUntil = n.ConditionUntil,
+                Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay, Condition = condition, ConditionUntil = n.ConditionUntil,
                 Route = route, StuckTicks = n.StuckTicks, Cell = n.Cell,
             };
             if (!npcs.TryAdd(n.Key, record))
@@ -1394,13 +1381,7 @@ public static class SectionCodec
             if (!vacancies.TryAdd(v.SlotId, new NpcVacancy(v.SlotId, v.LeftDay, v.ArrivalDay, v.NextGeneration) { ArrivingName = v.ArrivingName }))
                 throw new FormatException($"entities.msgpack holds the vacancy of {v.SlotId} twice");
         }
-        var met = ImmutableSortedDictionary.CreateBuilder<string, long>(StringComparer.Ordinal);
-        foreach (var p in life.PairsLastMet)
-        {
-            if (!met.TryAdd(p.Pair, p.Hour))
-                throw new FormatException($"entities.msgpack holds the pair {p.Pair} twice");
-        }
-        return new NpcLifeState(life.Hour, npcs.ToImmutable(), vacancies.ToImmutable(), met.ToImmutable());
+        return new NpcLifeState(life.Hour, npcs.ToImmutable(), vacancies.ToImmutable());
     }
 
     /// <summary>

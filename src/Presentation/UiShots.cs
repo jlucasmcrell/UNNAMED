@@ -763,16 +763,10 @@ public sealed class UiShots
     private const string Arrows = "item.ammo.arrow_rough";
 
     /// <summary>
-    /// Walk up to within a hand's reach of an NPC, from wherever the character stands, and face them. Someone away from their post to eat,
-    /// visit or shop (WP12) is waited for, not followed into a crowd.
+    /// Walk up to within a hand's reach of an NPC, from wherever the character stands, wherever their schedule has them (WP12), and face them.
     /// </summary>
     private bool Approach(string npcId)
     {
-        if (_session.Simulation!.Lives.FirstOrDefault(l => l.Key == npcId) is { Activity: NpcActivities.Eat or NpcActivities.Socialise or NpcActivities.Shop })
-        {
-            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-            return false;
-        }
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
         if (_way is null || _wayTo != npcId || Math.Abs(_wayFrom.XMm - npc.Body.XMm) + Math.Abs(_wayFrom.ZMm - npc.Body.ZMm) > 1_000)

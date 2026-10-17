@@ -2,6 +2,9 @@
 
 SYSTEMS_COMPLETENESS_PLAN_20261017 §2.13 (residents and vendors) and the WP12 brief in §6. The presentation and animation parts (role-resident dressing, walking and activity idles on the AnimationTree) are local Claude's.
 
+> **Owner cut, 2026-10-17 (wave 4 integration, schema 29): NPC life was going "too Sims".** Gone: the needs (hunger, rest, social, coin) and the utility chooser, meals, NPC-NPC pairs and visits, shopping, and rain shelter, with their config (`needs`, `meal_hours`), routine fields (`weights`, `pairs`, `eat`/`social` anchors) and tests. Each routine now has a fixed daily schedule: work in work hours, asleep at home at night, the rest at home or at a spot a `schedule` band names (`{ hours: [from, to], at: <anchor> }`; none authored yet). Kept: homes and work hours (merchants trade and trainers teach at work), the mover and navigation, tiers B/C/D, the offline catch-up, hireability and the hired state, trips and SettingOut, arrivals, jobs. The sections below describe the package as built before the cut.
+
+
 ## What is built
 
 - **Navigation** (ported by hand from `claude/m7-factions-building` of jlucasmcrell/UNNAMED, never merged):

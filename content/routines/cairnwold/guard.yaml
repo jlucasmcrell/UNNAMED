@@ -13,7 +13,3 @@ work_hours: [8, 20]
 anchors:
   home: { position_m: [940.75, 641.35], facing_deg: 90 }
   work: { position_m: [964.75, 675.25], facing_deg: 0 }
-  eat: { position_m: [959.12, 688.24], facing_deg: 262 }
-  social: { position_m: [969, 666], facing_deg: 180 }
-pairs:
-  - { routine_ref: routine.cairnwold.woodcutter, kind: rival }

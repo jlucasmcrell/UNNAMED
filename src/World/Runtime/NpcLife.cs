@@ -17,8 +17,8 @@ internal sealed record DepartNpc(string Key, string Reason) : InternalCommand;
 /// <summary>To <see cref="NpcSystem"/>: an NPC is injured until a tick and rests at home until then (WP13's outcome tables).</summary>
 internal sealed record InjureNpc(string Key, long UntilTick) : InternalCommand;
 
-/// <summary>An NPC's routine moved them on to a new activity at an hour's turn: what they were doing, what now, and with whom.</summary>
-public sealed record NpcActivityChanged(string Key, string From, string To, string? With, long Tick);
+/// <summary>An NPC's schedule moved them on to a new activity at an hour's turn: what they were doing, and what now.</summary>
+public sealed record NpcActivityChanged(string Key, string From, string To, long Tick);
 
 /// <summary>Someone new took up a role slot (DN4): their key, name and role.</summary>
 public sealed record NpcArrived(string Key, string Name, string Role, long Tick);
@@ -26,9 +26,9 @@ public sealed record NpcArrived(string Key, string Name, string Role, long Tick)
 /// <summary>A role resident left their slot, and when someone new will take it.</summary>
 public sealed record NpcDeparted(string Key, string Name, string Reason, long ArrivalDay, long Tick);
 
-/// <summary>An NPC's life as a view: who, what they do and with whom, their needs as bands, their condition, and whether they are at work now.</summary>
-public sealed record NpcLifeView(string Key, string Name, string Role, string Settlement, string Activity, string? With, int Hunger, int Rest,
-    int Social, int Coin, NpcCondition Condition, bool Resident, bool AtWork, long ArrivedDay);
+/// <summary>An NPC's life as a view: who, what they do, their condition, and whether they are at work now.</summary>
+public sealed record NpcLifeView(string Key, string Name, string Role, string Settlement, string Activity, NpcCondition Condition, bool Resident,
+    bool AtWork, long ArrivedDay);
 
 /// <summary>The kinds of <see cref="AdvanceLine"/> NPC life writes, for the away sheet.</summary>
 public static class NpcAdvanceKinds
@@ -50,7 +50,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
 
     /// <summary>
     /// The lives the world delta holds, carried onto the routines content defines now, or a new world's: each named NPC where the region puts
-    /// them, each slot's first resident at their work. Then every resident's body. A region with no routines holds no lives.
+    /// them, each slot's first resident where their schedule has them. Then every resident's body. A region with no routines holds no lives.
     /// </summary>
     private void PopulateLives()
     {
@@ -119,31 +119,12 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
 
     private CellKey RegionCell => new(CellKey.Parse(_context.Setup.Layout.CellKeys[0]).Region, 0, 0);
 
-    /// <summary>
-    /// What an hour's step reads: its first tick, day and hour of day, whether it rains over the region (WP7), and the hour's draws - one
-    /// channel an hour, each NPC's sample indexed by a stable hash of their key, so a Reckoning of hours costs a hash an hour, not one a life.
-    /// </summary>
+    /// <summary>What an hour's step reads: its first tick, day and hour of day, and what the trip planner has each routine doing.</summary>
     private NpcHourContext HourContext(long hour)
     {
         long tick = Math.Max(0, Clock.TickOfHour(hour));
         int hourOfDay = (int)(((hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
-        var channel = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"hour@{hour}");
-        return new NpcHourContext(hour, tick, Clock.Day(tick), hourOfDay, WeatherAt(hour) == WeatherState.Rain, key => channel.UInt64(KeyHash(key)))
-        {
-            Trip = routine => TripActivity(routine, hour),
-        };
-    }
-
-    private (long Span, ImmutableArray<WeatherFront> Fronts) _weatherSpan = (long.MinValue, ImmutableArray<WeatherFront>.Empty);
-
-    /// <summary>The weather over the region at an hour (WP7's pure function), the span's fronts kept while the hours walk through it.</summary>
-    private WeatherState WeatherAt(long hour)
-    {
-        var rules = _context.Setup.Weather;
-        long span = Math.DivRem(hour, rules.SpanHours, out long within) - (hour % rules.SpanHours < 0 ? 1 : 0);
-        if (_weatherSpan.Span != span)
-            _weatherSpan = (span, Weather.Fronts(State.World.WorldSeed, RegionCell, _context.Setup.Layout.Id, span, rules));
-        return _weatherSpan.Fronts.First(f => hour < f.EndHour).State;
+        return new NpcHourContext(hour, tick, Clock.Day(tick), hourOfDay) { Trip = routine => TripActivity(routine, hour) };
     }
 
     /// <summary>FNV-1a over a key's characters: stable across runs and machines, unlike <see cref="string.GetHashCode()"/>.</summary>
@@ -173,7 +154,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         {
             var before = life.Npcs;
             var given = new HashSet<string>(StringComparer.Ordinal);
-            var (next, happenings) = NpcLifeEngine.Hour(life, Life.Routines, Life.Pairs, Life.Rules, HourContext(life.Hour + 1), (r, g) => NameFor(r, g, given), CanArrive);
+            var (next, happenings) = NpcLifeEngine.Hour(life, Life.Routines, Life.Rules, HourContext(life.Hour + 1), (r, g) => NameFor(r, g, given), CanArrive);
             State.SetNpcLife(_owner, next);
             foreach (var happening in happenings.Where(h => h.Kind == NpcLifeEngine.Arrived))
             {
@@ -189,8 +170,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
                 continue;
             foreach (var npc in next.Npcs.Values)
             {
-                if (before.TryGetValue(npc.Key, out var was) && (was.Activity != npc.Activity || was.With != npc.With))
-                    _context.Events.Publish(new NpcActivityChanged(npc.Key, was.Activity, npc.Activity, npc.With, tick));
+                if (before.TryGetValue(npc.Key, out var was) && was.Activity != npc.Activity)
+                    _context.Events.Publish(new NpcActivityChanged(npc.Key, was.Activity, npc.Activity, tick));
             }
         }
         return arrivals;
@@ -264,7 +245,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
             return "an injury lasts into the future";
         if (npc.Condition == NpcCondition.Hired)
             return $"{command.Key} is in the party: what befalls them there is the party's";
-        SetLife(npc with { Condition = NpcCondition.Injured, ConditionUntil = command.UntilTick, Activity = NpcActivities.Sleep, With = null });
+        SetLife(npc with { Condition = NpcCondition.Injured, ConditionUntil = command.UntilTick, Activity = NpcActivities.Sleep });
         Rehire(State.WorldTick);
         return null;
     }
@@ -327,12 +308,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         {
             var routine = Life.Routines[n.RoutineId];
             string name = n.Name ?? (State.Npcs.TryGetValue(n.Key, out var npc) ? npc.Definition.Name : n.Key);
-            return new NpcLifeView(n.Key, name, routine.Role, routine.Settlement, n.Activity, n.With, n.Needs.Band(NpcNeed.Hunger), n.Needs.Band(NpcNeed.Rest),
-                n.Needs.Band(NpcNeed.Social), n.Needs.Band(NpcNeed.Coin), n.Condition, routine.IsSlot, AtWork(n.Key), n.ArrivedDay);
+            return new NpcLifeView(n.Key, name, routine.Role, routine.Settlement, n.Activity, n.Condition, routine.IsSlot, AtWork(n.Key), n.ArrivedDay);
         }).ToImmutableArray();
-
-    /// <summary>The pairs an NPC is in (§2.13): whom they know and as what - for barks and for presentation.</summary>
-    public ImmutableArray<NpcPair> PairsOf(string key) => Life.Pairs.Where(p => p.Involves(key)).ToImmutableArray();
 
     private static string Time(int minute) => $"{minute / 60:00}:{minute % 60:00}";
 

@@ -338,8 +338,9 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.World.Merchants);
         }
 
-        // Schema 26's NPC life (WP12): the warden walking to her work, the porter injured and eating, the carter's slot awaiting its next
-        // resident, a pair's last meeting. Before it, a save held no lives: the NPCs begin their routines when the world starts.
+        // Schema 26's NPC life (WP12): the warden walking to her work, the porter injured, the carter's slot awaiting its next resident.
+        // Before it, a save held no lives: the NPCs begin their routines when the world starts. A meal under way at schema 26-28 is time
+        // about their day at 29 (owner, 2026-10-17: no needs, meals or visits), and the pairs' last meetings are gone.
         var life = loaded.World.NpcLife;
         if (schema >= 26)
         {
@@ -351,7 +352,7 @@ public class HistoricalFixtureTests
             Assert.Equal(("Aldo Renning", 1, NpcCondition.Injured, 6_000L), (porter.Name, porter.Generation, porter.Condition, porter.ConditionUntil));
             // Schema 29 (WP13): the carter's slot is promised to a retiring adventurer.
             Assert.Equal(new NpcVacancy("routine.fixture.carter", 1, 5, 1) { ArrivingName = schema >= 29 ? "Wyn Carrow" : null }, Assert.Single(life.Vacancies).Value);
-            Assert.Equal(70, life.PairsLastMet["npc.fixture.warden|routine.fixture.porter"]);
+            Assert.Equal(schema >= 29 ? NpcActivities.Sleep : NpcActivities.Idle, porter.Activity);
             // Schema 28 (WP12b): a resident hired by the party, their routine suspended, and one away on a trip. Before it, neither existed.
             if (schema >= 28)
             {

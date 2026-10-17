@@ -104,7 +104,7 @@ public class ActOneStoryTests
     [InlineData("carry_cairnwold", 3)]
     public void Carrier_RequiresFieldCircuit_CanBeDeferred_ThenPersistsOnceWithMobileRenn(string reply, long expected)
     {
-        using var s = new Scene(5 * 2_400); // 12:30: away from Renn's normal work site
+        using var s = new Scene(13 * 2_400); // 20:30: home from Renn's work site (his fixed schedule: work 07-19)
         var work = s.Sim.Setup.Layout.Npcs.Single(n => n.NpcId == Renn);
         var body = s.Sim.Npcs.Single(n => n.Id == Renn).Body;
         Assert.NotEqual((work.XMm, work.ZMm), (body.XMm, body.ZMm));

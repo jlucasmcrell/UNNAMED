@@ -139,7 +139,7 @@ internal sealed partial class NpcSystem : INpcHireability, ISettingOutSource, IC
     {
         if (LifeOf(command.Key) is not { } life)
             return $"no one called {command.Key} lives here";
-        SetLife(life with { Condition = NpcCondition.Hired, ConditionUntil = 0, Activity = NpcActivities.Idle, With = null, Route = NavRoute.None, StuckTicks = 0 });
+        SetLife(life with { Condition = NpcCondition.Hired, ConditionUntil = 0, Activity = NpcActivities.Idle, Route = NavRoute.None, StuckTicks = 0 });
         Rehire(tick);
         return null;
     }
@@ -164,11 +164,8 @@ internal sealed partial class NpcSystem : INpcHireability, ISettingOutSource, IC
         life = life with { Condition = NpcCondition.Living, ConditionUntil = 0, Route = NavRoute.None, StuckTicks = 0 };
         if (command.Reason == "wounded" && State.Recovering.TryGetValue(command.Key, out long until) && until > tick)
             life = life with { Condition = NpcCondition.Injured, ConditionUntil = until };
-        var context = HourContext(lives.Hour);
-        var (activity, with) = life.Condition == NpcCondition.Living && context.Trip(routine) is { } trip
-            ? (trip, null)
-            : NpcLifeEngine.Choose(life, routine, Life.Routines, Life.Pairs, lives.PairsLastMet, lives.Npcs, Life.Rules, context);
-        SetLife(life with { Activity = activity, With = with });
+        string activity = NpcLifeEngine.ActivityOf(life, routine, Life.Rules, HourContext(lives.Hour));
+        SetLife(life with { Activity = activity });
         _context.Events.Publish(new NpcReturnedToLife(command.Key, activity, tick));
         Rehire(tick);
         return null;

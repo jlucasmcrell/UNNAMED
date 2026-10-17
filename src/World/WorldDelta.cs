@@ -745,7 +745,6 @@ public sealed class WorldDelta
     /// <summary>Why a saved NPC life cannot be trusted; null when it can.</summary>
     private static string? LifeProblem(NpcLifeRecord npc) =>
         !DefinitionId.IsValid(npc.Key) || !DefinitionId.IsValid(npc.RoutineId) ? "an invalid key or routine"
-        : !npc.Needs.Valid ? "needs outside 0..3999"
         : !NpcActivities.IsKnown(npc.Activity) ? $"'{npc.Activity}' is not an activity"
         : npc.Generation < 0 || npc.StuckTicks < 0 || npc.ConditionUntil < 0 ? "a negative generation, stuck count or condition time"
         : Domain.Spatial.NavRoute.ProblemOf(npc.Route.Status, npc.Route.GoalXMm, npc.Route.GoalZMm, npc.Route.Corners, npc.Route.PlannedTick,

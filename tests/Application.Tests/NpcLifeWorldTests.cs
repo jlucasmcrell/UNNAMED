@@ -33,7 +33,7 @@ public class NpcLifeWorldTests
     /// <summary>The bodies and lives a player could see, beyond the persistent digest.</summary>
     private static string Seen(Simulation simulation) =>
         simulation.StateDigest() + "|" + string.Join(";", simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal).Select(n => $"{n.Id}:{n.InstanceId}:{n.Name}:{n.Body}:{n.Activity}"))
-        + "|" + string.Join(";", simulation.Lives.Select(l => $"{l.Key}:{l.Activity}:{l.With}:{l.Hunger}{l.Rest}{l.Social}{l.Coin}:{l.AtWork}"));
+        + "|" + string.Join(";", simulation.Lives.Select(l => $"{l.Key}:{l.Activity}:{l.AtWork}"));
 
     [Fact]
     public void TheTowns_HoldTheEightNamed_AndSixRoleResidentsEach_NamedFromTheirPeople()
@@ -143,7 +143,7 @@ public class NpcLifeWorldTests
         }
         Assert.Contains(NpcActivities.Sleep, seen);
         Assert.Contains(NpcActivities.Work, seen);
-        Assert.Contains(NpcActivities.Eat, seen);
+        Assert.Contains(NpcActivities.Idle, seen);
         // Asleep at 02:00, they are where their routine has them: at home.
         simulation.Advance(18 * Hour + 30 * 60 * 20 / 60);
         var kera = session.Setup.NpcLife.RoutineOf(Kera)!;
@@ -267,8 +267,7 @@ public class NpcLifeWorldTests
         {
             var at = new NpcAnchor(1_052_000 + i % 40 * 1_000, 612_000 + i / 40 * 7_000, 0);
             var anchors = new Dictionary<string, NpcAnchor> { ["home"] = at, ["work"] = at with { XMm = at.XMm + 500 } }.ToImmutableSortedDictionary(StringComparer.Ordinal);
-            var routine = new RoutineDefinition($"routine.synthetic.r_{i:0000}", null, "synthetic", "labourer", anchors, 7, 19,
-                ImmutableSortedDictionary<string, int>.Empty) { PeopleId = "people.veth" };
+            var routine = new RoutineDefinition($"routine.synthetic.r_{i:0000}", null, "synthetic", "labourer", anchors, 7, 19) { PeopleId = "people.veth" };
             routines[routine.Id] = routine;
         }
         var setup = session.Setup with { NpcLife = session.Setup.NpcLife with { Routines = routines.ToImmutable() } };

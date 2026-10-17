@@ -1,4 +1,4 @@
-// UNNAMED Content - NPC life from content: routines, anchors, jobs, pairs and the rules of needs and arrivals (WP12)
+// UNNAMED Content - NPC life from content: routines, anchors, fixed schedules, jobs and the rules of night, trading and arrivals (WP12)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -19,7 +19,7 @@ namespace UNNAMED.Content;
 /// <c>vendor</c>, a quest's giver without <c>quest_giver</c>, a vendor or quest giver whose NPC file still says they hire on, or a speaker
 /// type the chatter schema does not know; NPL006 a trip's meeting place or destination a body cannot stand at or reach from the spawn.
 /// NPL007 someone who can join or be hired, placed in a region with routines, without a routine of their own there - the home anchor the
-/// party lets them walk back to (WP12b). There is no limit on how many routines, residents or pairs a pack may hold (owner, 2026-10-17).
+/// party lets them walk back to (WP12b). There is no limit on how many routines or residents a pack may hold (owner, 2026-10-17).
 /// <c>config.npc_life</c> is optional: a pack without it lives by <see cref="NpcLifeRules.Default"/>.
 /// </summary>
 public static class NpcLifeContent
@@ -168,13 +168,12 @@ public static class NpcLifeContent
         return errors;
     }
 
-    /// <summary>The lives of one region: its routines, the pairs they declare, and the rules.</summary>
+    /// <summary>The lives of one region: its routines and the rules.</summary>
     public static NpcLifeSetup Build(ContentLoader loader, string regionId)
     {
         var rules = BuildRules(loader);
         var npcs = SocialContent.BuildNpcs(loader);
         var routines = new List<RoutineDefinition>();
-        var declared = new List<(string From, string To, string Kind, string Id)>();
         foreach (var definition in loader.GetByKind("routine").Values.OrderBy(d => d.Id, StringComparer.Ordinal))
         {
             string id = definition.Id;
@@ -190,11 +189,17 @@ public static class NpcLifeContent
             var anchors = Map(map, "anchors").ToImmutableSortedDictionary(kv => kv.Key as string ?? throw new FormatException($"{id} anchors are named"),
                 kv => Anchor(kv.Value as Dictionary<object, object> ?? throw new FormatException($"{id} anchor {kv.Key} must be a map"), $"{id} anchor {kv.Key}"),
                 StringComparer.Ordinal);
-            foreach (string kind in anchors.Keys)
+            // A fixed daily schedule (owner, 2026-10-17): hour bands at named anchors; any hour no band covers is spent at home.
+            var schedule = Rows(map, "schedule", id).Select(row =>
             {
-                if (!NpcAnchorKinds.All.Contains(kind))
-                    throw new FormatException($"{id} has an anchor '{kind}'; anchors are {string.Join(", ", NpcAnchorKinds.All)}");
-            }
+                var span = List(row, "hours");
+                if (span.Count != 2)
+                    throw new FormatException($"{id} schedule hours is [from, to]");
+                var band = new NpcScheduleBand(IntOf(span, 0, $"{id} schedule hours") % 24, IntOf(span, 1, $"{id} schedule hours") % 24, Text(row, "at"));
+                return anchors.ContainsKey(band.Anchor) ? band : throw new FormatException($"{id} schedule names '{band.Anchor}', which is not one of its anchors");
+            }).ToImmutableArray();
+            foreach (string kind in anchors.Keys.Where(k => k is not (NpcAnchorKinds.Home or NpcAnchorKinds.Work) && !schedule.Any(b => b.Anchor == k)))
+                throw new FormatException($"{id} has an anchor '{kind}' its schedule never uses");
             if (!anchors.ContainsKey(NpcAnchorKinds.Home))
                 throw new FormatException($"{id} has no home anchor");
             var hours = List(map, "work_hours");
@@ -205,11 +210,6 @@ public static class NpcLifeContent
                 throw new FormatException($"{id} work_hours lie in 0..24");
             if (from != to && !anchors.ContainsKey(NpcAnchorKinds.Work))
                 throw new FormatException($"{id} works hours but has no work anchor");
-            var weights = map.TryGetValue("weights", out var w) && w is Dictionary<object, object> wm
-                ? wm.ToImmutableSortedDictionary(kv => NpcActivities.IsActivity(kv.Key as string ?? "") ? (string)kv.Key : throw new FormatException($"{id} weights '{kv.Key}', which is not an activity"),
-                    kv => int.TryParse(kv.Value as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out int v) ? v : throw new FormatException($"{id} weight {kv.Key} must be a whole number"),
-                    StringComparer.Ordinal)
-                : ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
             NpcJob? job = null;
             if (map.TryGetValue("job", out var j))
             {
@@ -221,34 +221,15 @@ public static class NpcLifeContent
             var roles = map.ContainsKey("roles")
                 ? List(map, "roles").Select(r => r as string ?? throw new FormatException($"{id} roles are names")).Distinct(StringComparer.Ordinal).ToImmutableArray()
                 : ImmutableArray<string>.Empty;
-            var routine = new RoutineDefinition(id, npcId, Text(map, "settlement"), Text(map, "role"), anchors, from % 24, to % 24, weights)
+            var routine = new RoutineDefinition(id, npcId, Text(map, "settlement"), Text(map, "role"), anchors, from % 24, to % 24)
             {
+                Schedule = schedule,
                 PeopleId = people,
                 Job = job,
                 Roles = roles,
                 Trip = map.TryGetValue("trip", out var t) ? Trip(loader, id, t as Dictionary<object, object> ?? throw new FormatException($"{id} trip must be a map")) : null,
             };
             routines.Add(routine);
-            foreach (var row in Rows(map, "pairs", id))
-            {
-                string other = row.GetValueOrDefault("npc_ref") as string ?? row.GetValueOrDefault("routine_ref") as string
-                    ?? throw new FormatException($"{id} pairs name an npc_ref or a routine_ref");
-                string kind = Text(row, "kind");
-                if (!NpcPairKinds.All.Contains(kind))
-                    throw new FormatException($"{id} pairs with {other} as '{kind}'; pairs are {string.Join(", ", NpcPairKinds.All)}");
-                declared.Add((routine.Key, other, kind, id));
-            }
-        }
-        var keys = routines.Select(r => r.Key).ToHashSet(StringComparer.Ordinal);
-        var pairs = new SortedDictionary<string, NpcPair>(StringComparer.Ordinal);
-        foreach (var (a, b, kind, id) in declared)
-        {
-            if (!keys.Contains(b) || a == b)
-                throw new FormatException($"{id} pairs with {b}, which has no routine in {regionId}");
-            var pair = string.CompareOrdinal(a, b) < 0 ? new NpcPair(a, b, kind) : new NpcPair(b, a, kind);
-            if (pairs.TryGetValue(pair.Key, out var seen) && seen.Kind != kind)
-                throw new FormatException($"{pair.A} and {pair.B} are paired as both {seen.Kind} and {kind}");
-            pairs[pair.Key] = pair;
         }
         var markets = EconomyContent.Build(loader).Markets;
         foreach (var routine in routines.Where(r => r.Job is not null))
@@ -257,7 +238,7 @@ public static class NpcLifeContent
                 throw new FormatException($"{routine.Id}'s job makes {routine.Job.ItemId} for {routine.Job.MarketId}, which does not keep it");
         }
         var (vocabulary, body, lead) = BuildRoles(loader);
-        return new NpcLifeSetup(routines.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal), pairs.Values.ToImmutableArray(), rules)
+        return new NpcLifeSetup(routines.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal), rules)
         {
             Roles = vocabulary,
             ResidentBody = body,
@@ -341,28 +322,13 @@ public static class NpcLifeContent
         if (!loader.Definitions.ContainsKey(ConfigId))
             return NpcLifeRules.Default;
         var map = Config(loader, ConfigId);
-        var needs = Map(map, "needs");
-        var rise = new SortedDictionary<NpcNeed, int>();
-        var satisfy = new SortedDictionary<NpcNeed, int>();
-        foreach (var need in Enum.GetValues<NpcNeed>())
-        {
-            var row = Map(needs, NpcNeeds.Key(need));
-            rise[need] = Milli(row, "rise_per_hour");
-            satisfy[need] = Milli(row, "satisfied_per_hour");
-        }
         var night = List(map, "night_hours");
         var trading = List(map, "trading_hours");
         var arrival = List(map, "arrival_days");
         if (night.Count != 2 || trading.Count != 2 || arrival.Count != 2)
             throw new FormatException("night_hours, trading_hours and arrival_days are each [from, to]");
-        var rules = new NpcLifeRules(rise.ToImmutableSortedDictionary(), satisfy.ToImmutableSortedDictionary(),
-            IntOf(night, 0, "night_hours"), IntOf(night, 1, "night_hours"), Minute(trading[0]), Minute(trading[1]),
+        var rules = new NpcLifeRules(IntOf(night, 0, "night_hours"), IntOf(night, 1, "night_hours"), Minute(trading[0]), Minute(trading[1]),
             IntOf(arrival, 0, "arrival_days"), IntOf(arrival, 1, "arrival_days"));
-        if (map.ContainsKey("meal_hours"))
-        {
-            var meals = List(map, "meal_hours");
-            rules = rules with { MealHours = Enumerable.Range(0, meals.Count).Select(i => IntOf(meals, i, "meal_hours")).ToImmutableArray() };
-        }
         return rules.Problem() is { } problem ? throw new FormatException(problem) : rules;
     }
 
@@ -376,9 +342,6 @@ public static class NpcLifeContent
         int facing = (int)Math.Round(Number(row, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
         return new NpcAnchor(Metres(0), Metres(1), ((facing % 360_000) + 360_000) % 360_000);
     }
-
-    private static int Milli(Dictionary<object, object> row, string key) =>
-        (int)Math.Round(Number(row, key) * 1000, MidpointRounding.AwayFromZero);
 
     private static int Minute(object value)
     {

@@ -346,32 +346,32 @@ public static class M2Fixtures
                 }),
                 ImmutableArray.Create(new Shipment("road.fixture.track", "market.fixture.ford", "market.fixture.vale", "item.potion.minor_healing", 4, 4))));
             world.SetMerchant(new MerchantState("merchant.fixture.trader", 75, 2, 1, Traded: true));
-            // Schema 26 (WP12): the lives at game hour 80 - the warden walking to her work two corners on, a little hungry; the vale's porter,
-            // the slot's second resident, arrived on day 2, eating with the warden's company remembered; the carter's slot empty since day 1,
-            // its next resident due on day 5; the warden and the porter last met at hour 70.
+            // Schema 26 (WP12): the lives at game hour 80 - the warden walking to her work two corners on; the vale's porter, the slot's second
+            // resident, arrived on day 2, injured and asleep; the carter's slot empty since day 1, its next resident due on day 5. (Schema 29
+            // dropped the needs and the pairs' last meetings: owner, 2026-10-17.)
             world.SetNpcLife(new NpcLifeState(80,
                 ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
                 {
-                    KeyValuePair.Create("npc.fixture.warden", new NpcLifeRecord("npc.fixture.warden", "routine.fixture.warden", new NpcNeeds(1_250, 400, 900, 0),
+                    KeyValuePair.Create("npc.fixture.warden", new NpcLifeRecord("npc.fixture.warden", "routine.fixture.warden",
                         NpcActivities.Work, 148_750, -41_500, 45_000)
                     {
                         Cell = TenCells[0].ToString(), StuckTicks = 2,
                         Route = NavRoute.Active(new NavPoint(152_000, -40_000), ImmutableArray.Create(new NavPoint(150_000, -41_000), new NavPoint(152_000, -40_000)),
                             4_990, 0x1122334455667788UL, new NavRect(128_000, -62_000, 172_999, -20_001), false),
                     }),
-                    KeyValuePair.Create("routine.fixture.porter", new NpcLifeRecord("routine.fixture.porter", "routine.fixture.porter", new NpcNeeds(2_100, 0, 300, 1_000),
-                        NpcActivities.Eat, 12_000, 34_000, 180_000)
+                    KeyValuePair.Create("routine.fixture.porter", new NpcLifeRecord("routine.fixture.porter", "routine.fixture.porter",
+                        NpcActivities.Sleep, 12_000, 34_000, 180_000)
                     {
-                        Cell = TenCells[0].ToString(), Name = "Aldo Renning", Generation = 1, ArrivedDay = 2, With = null,
+                        Cell = TenCells[0].ToString(), Name = "Aldo Renning", Generation = 1, ArrivedDay = 2,
                         Condition = NpcCondition.Injured, ConditionUntil = 6_000,
                     }),
                     // Schema 28 (WP12b): the vale's hunter hired by the party, their routine suspended; the trapper away on a trip.
-                    KeyValuePair.Create("routine.fixture.hunter", new NpcLifeRecord("routine.fixture.hunter", "routine.fixture.hunter", new NpcNeeds(500, 200, 0, 0),
+                    KeyValuePair.Create("routine.fixture.hunter", new NpcLifeRecord("routine.fixture.hunter", "routine.fixture.hunter",
                         NpcActivities.Idle, 150_000, -40_500, 90_000)
                     {
                         Cell = TenCells[0].ToString(), Name = "Mira Tolle", Condition = NpcCondition.Hired,
                     }),
-                    KeyValuePair.Create("routine.fixture.trapper", new NpcLifeRecord("routine.fixture.trapper", "routine.fixture.trapper", new NpcNeeds(800, 300, 100, 0),
+                    KeyValuePair.Create("routine.fixture.trapper", new NpcLifeRecord("routine.fixture.trapper", "routine.fixture.trapper",
                         NpcActivities.Away, 20_000, 30_000, 270_000)
                     {
                         Cell = TenCells[0].ToString(), Name = "Oswin Hale",
@@ -381,8 +381,7 @@ public static class M2Fixtures
                 {
                     // Schema 29 (WP13): the carter's slot is promised to a retiring adventurer.
                     KeyValuePair.Create("routine.fixture.carter", new NpcVacancy("routine.fixture.carter", 1, 5, 1) { ArrivingName = "Wyn Carrow" }),
-                }),
-                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("npc.fixture.warden|routine.fixture.porter", 70L) })));
+                })));
             // Schema 29 (WP13): the vale's adventurers on day 3 - Bram Hallow, level 3, an iron sword of fine make, 42 coin and two draughts in
             // his pack, out after the den's wolves with Kester and asking for company; Kester, injured until day 5; the vale's third slot empty
             // since day 2, someone new due on day 6. Kester's body stands at the lodge, and so does Bram's, lingering in sight though he is out.

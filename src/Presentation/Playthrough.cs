@@ -115,7 +115,7 @@ public sealed class Playthrough
 
     /// <summary>
     /// The way to someone, for the harnesses: over WP12's navigation lattice, through doors that stand open, and to a hand's reach (1.3 m)
-    /// on the side the way arrives from. Someone sheltering from rain stands in a row inside the longhouse: walked at in a straight line
+    /// on the side the way arrives from. Someone asleep or at home stands in a row inside the longhouse: walked at in a straight line
     /// they are a wall away, and from the wrong side the row pens the character short of talk reach. With no way found, the straight line.
     /// </summary>
     internal static (double X, double Z)[] WayTo(Simulation simulation, Body from, Body to)
@@ -306,12 +306,12 @@ public sealed class Playthrough
             new Beat("moor_spear", "A March Spear forged at Durn's anvil", 1_500, () => Make("anvil", ToDurnsAnvil), "c06_moor_spear"),
             new Beat("moor_out", "Out of the smithy", 600, () => Walk(OutOfDurnsSmithy)),
             new Beat("quest3", "Durn shown the spear: Iron From The Moor complete", 1_200, () => Show(Durn, "quest.cairnwold.iron_from_the_moor"), "c07_iron_from_the_moor"),
-            new Beat("mara", "Mara at the well: What The Bog Kept begins", 6_000, () => Converse(Mara, "ask", "offer", "back"), "c08_mara"),   // her meal waited out (WP12)
+            new Beat("mara", "Mara at the well: What The Bog Kept begins", 1_200, () => Converse(Mara, "ask", "offer", "back"), "c08_mara"),
             new Beat("moss", "North-east into the Sinking Moss: an ashbloom", 5_000, () => Gather("bog_ashbloom_1", ToTheMoss, Ashbloom), "c09_moss"),
             new Beat("moss_north", "A second ashbloom, further in", 1_200, () => Gather("bog_ashbloom_3", ToTheMossNorth, Ashbloom)),
             new Beat("moss_east", "A third, where the ground is wettest", 1_200, () => Gather("bog_ashbloom_2", ToTheMossEast, Ashbloom), "c10_ashbloom"),
             new Beat("moss_back", "Back to the well", 5_000, () => Travel(BackToMara)),
-            new Beat("quest4", "Mara given three ashbloom: What The Bog Kept complete", 6_000, () => Converse(Mara, "bog_return", "back") && Completed("quest.cairnwold.what_the_bog_kept"), "c11_what_the_bog_kept"),
+            new Beat("quest4", "Mara given three ashbloom: What The Bog Kept complete", 1_200, () => Converse(Mara, "bog_return", "back") && Completed("quest.cairnwold.what_the_bog_kept"), "c11_what_the_bog_kept"),
             // The Rim Stone (NEXT_AREA_TRAVEL_CITY_PLAN.md K1, D.3): Berrin's rite, the stone woken, made the return point, and home by it.
             new Beat("berrin", "Berrin reads the Rim Stone's rite from the lodge book: three hands and a name", 3_000, AskBerrin, "c12_berrin"),
             new Beat("rim", "Up to the Rim: the cold stone woken with Berrin's rite", 4_000, () => TouchStone(RimStone, ToTheRimStone), "c13_rim_woken"),
@@ -925,16 +925,10 @@ public sealed class Playthrough
     }
 
     /// <summary>
-    /// Walk up to within a hand's reach of an NPC and face them. Someone away from their post to eat, visit or shop (WP12) is waited for: a
-    /// beat meets them where it says, and following them into a crowd at the cookfire can pen the character in until the meal is over.
+    /// Walk up to within a hand's reach of an NPC, wherever their schedule has them (WP12), and face them.
     /// </summary>
     private bool Approach(string npcId)
     {
-        if (_session.Simulation!.Lives.FirstOrDefault(l => l.Key == npcId) is { Activity: NpcActivities.Eat or NpcActivities.Socialise or NpcActivities.Shop })
-        {
-            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-            return false;
-        }
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
         if (_way is null || _wayTo != npcId || Distance(_wayFrom, npc.Body) > 1_000)

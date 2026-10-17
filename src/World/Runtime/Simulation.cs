@@ -412,8 +412,6 @@ public sealed class Simulation
     /// <summary>Every NPC life (WP12): what each is doing and with whom, their needs as bands, their condition, and whether they are at work.</summary>
     public ImmutableArray<NpcLifeView> Lives => _npcs.Lives();
 
-    /// <summary>The pairs an NPC is in (WP12): whom they know and as what.</summary>
-    public ImmutableArray<NpcPair> NpcPairs(string npcId) => _npcs.PairsOf(npcId);
 
     /// <summary>
     /// Who can be hired (WP12b), derived: never a vendor or a quest giver; anyone else whose town roles hire out and who is about their own

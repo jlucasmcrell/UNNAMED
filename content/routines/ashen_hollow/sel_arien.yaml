@@ -13,5 +13,3 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [448.6, 730.9], facing_deg: 180 }
   work: { position_m: [472, 722], facing_deg: 135 }
-  eat: { position_m: [447.8, 740.0], facing_deg: 196 }
-  social: { position_m: [456.5, 734.5], facing_deg: 270 }

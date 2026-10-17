@@ -37,8 +37,6 @@ internal sealed partial class NpcSystem
     /// <summary>Tier B moves once every this many ticks (2 Hz at 20 Hz, §2.13).</summary>
     public const int RegionalEveryTicks = 10;
 
-    /// <summary>How far beside the one they visit, or in front of the stall they shop at, an NPC stands.</summary>
-    private const long BesideMm = 1_200;
 
     private int TickMs => _context.Setup.TickMilliseconds;
 
@@ -142,8 +140,8 @@ internal sealed partial class NpcSystem
     }
 
     /// <summary>
-    /// Where an NPC is headed now, and how they will face there: their activity's anchor; visiting, beside the one they visit; shopping, in
-    /// front of their settlement's merchant at work. A spot a body cannot stand at falls back to their own anchor. Derived, never stored.
+    /// Where an NPC is headed now, and how they will face there: a trip's meeting place or destination, else the anchor their schedule's
+    /// activity puts them at this hour. Derived, never stored.
     /// </summary>
     private (long X, long Z, int Facing) Goal(NpcLifeRecord npc)
     {
@@ -154,36 +152,9 @@ internal sealed partial class NpcSystem
             var at = npc.Activity == NpcActivities.SetOut ? trip.Meet : trip.Destination;
             return (at.XMm, at.ZMm, at.FacingMdeg);
         }
-        var own = routine.AnchorFor(npc.Activity);
-        if (npc.Activity == NpcActivities.Socialise && npc.With is { } other && LifeOf(other) is { } friend
-            && Life.Routines.TryGetValue(friend.RoutineId, out var theirs))
-        {
-            var at = theirs.AnchorFor(NpcActivities.Socialise);
-            if (Beside(at, 90_000) is { } spot)
-                return (spot.X, spot.Z, CombatRules.FacingTowards(spot.X, spot.Z, at.XMm, at.ZMm));
-        }
-        if (npc.Activity == NpcActivities.Shop)
-        {
-            var stall = Life.Routines.Values.Where(r => r.Settlement == routine.Settlement && r.NpcId is { } id && id != npc.Key
-                    && _context.Setup.Social.Npcs.TryGetValue(id, out var d) && d.Offers(NpcServices.Trade) && r.Anchors.ContainsKey(NpcAnchorKinds.Work))
-                .OrderBy(r => r.Id, StringComparer.Ordinal).Select(r => r.Anchors[NpcAnchorKinds.Work]).FirstOrDefault();
-            if (stall is not null && Beside(stall, 0) is { } spot)
-                return (spot.X, spot.Z, CombatRules.FacingTowards(spot.X, spot.Z, stall.XMm, stall.ZMm));
-        }
+        int hourOfDay = (int)(((State.World.NpcLife!.Hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
+        var own = routine.AnchorFor(npc.Activity, hourOfDay);
         return (own.XMm, own.ZMm, own.FacingMdeg);
-    }
-
-    /// <summary>A standable spot <see cref="BesideMm"/> from an anchor, turned <paramref name="turnMdeg"/> from the way it faces; null when none is.</summary>
-    private (long X, long Z)? Beside(NpcAnchor anchor, int turnMdeg)
-    {
-        foreach (int extra in new[] { 0, 180_000, 90_000, 270_000 })
-        {
-            double radians = (anchor.FacingMdeg + turnMdeg + extra) % 360_000 / 1000.0 * Math.PI / 180;
-            long x = anchor.XMm + (long)Math.Round(Math.Sin(radians) * BesideMm), z = anchor.ZMm + (long)Math.Round(Math.Cos(radians) * BesideMm);
-            if (_navigation.Standable(new NavPoint(x, z)))
-                return (x, z);
-        }
-        return null;
     }
 
     /// <summary>

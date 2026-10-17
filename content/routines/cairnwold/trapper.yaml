@@ -13,8 +13,6 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [972.75, 654.85], facing_deg: 90 }
   work: { position_m: [930, 700], facing_deg: 270 }
-  eat: { position_m: [958.9, 690.3], facing_deg: 231 }
-  social: { position_m: [964.25, 662.75], facing_deg: 90 }
 job: { market_ref: market.cairnwold, item_ref: item.material.deer_hide, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: hunt

@@ -3,7 +3,7 @@ using UNNAMED.Domain.Social;
 
 namespace UNNAMED.Domain.Tests.Social;
 
-/// <summary>NPC life's rules, pure (WP12, §2.13): needs, the routine chooser, departures and arrivals (DN4), job output, and no cap.</summary>
+/// <summary>NPC life's rules, pure (WP12, §2.13): fixed daily schedules, departures and arrivals (DN4), job output, and no cap.</summary>
 public class NpcLifeTests
 {
     private static readonly NpcLifeRules Rules = NpcLifeRules.Default;
@@ -13,12 +13,10 @@ public class NpcLifeTests
         {
             [NpcAnchorKinds.Home] = new(0, 0, 0),
             [NpcAnchorKinds.Work] = new(10_000, 0, 0),
-            [NpcAnchorKinds.Eat] = new(5_000, 5_000, 0),
-        }.ToImmutableSortedDictionary(StringComparer.Ordinal), from, to, ImmutableSortedDictionary<string, int>.Empty)
+        }.ToImmutableSortedDictionary(StringComparer.Ordinal), from, to)
         { PeopleId = npc is null ? "people.veth" : null, Job = job };
 
-    private static NpcHourContext At(long hour, bool raining = false) =>
-        new(hour, hour * 2_400, hour / 24, (int)(hour % 24), raining, key => (ulong)key.Length * 7919UL + (ulong)hour);
+    private static NpcHourContext At(long hour) => new(hour, hour * 2_400, hour / 24, (int)(hour % 24));
 
     private static ImmutableSortedDictionary<string, RoutineDefinition> Routines(params RoutineDefinition[] routines) =>
         routines.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal);
@@ -27,11 +25,10 @@ public class NpcLifeTests
         NpcLifeEngine.Begin(routines, Rules, At(hour), (r, g) => $"Name {g}", _ => null);
 
     private static NpcLifeState Live(NpcLifeState state, ImmutableSortedDictionary<string, RoutineDefinition> routines, long toHour,
-        IReadOnlyList<NpcPair>? pairs = null, Func<long, bool>? rain = null, Func<RoutineDefinition, bool>? canArrive = null)
+        Func<RoutineDefinition, bool>? canArrive = null)
     {
         while (state.Hour < toHour)
-            state = NpcLifeEngine.Hour(state, routines, pairs ?? Array.Empty<NpcPair>(), Rules, At(state.Hour + 1, rain?.Invoke(state.Hour + 1) ?? false),
-                (r, g) => $"Name {g}", canArrive ?? (_ => true)).State;
+            state = NpcLifeEngine.Hour(state, routines, Rules, At(state.Hour + 1), (r, g) => $"Name {g}", canArrive ?? (_ => true)).State;
         return state;
     }
 
@@ -42,45 +39,37 @@ public class NpcLifeTests
         var life = Begin(routines, 8);
         Assert.Equal(NpcActivities.Work, life.Npcs["npc.town.smith"].Activity);
         Assert.Equal(NpcActivities.Sleep, Live(life, routines, 26).Npcs["npc.town.smith"].Activity);   // 02:00 the next night
-        Assert.Throws<ArgumentOutOfRangeException>(() => NpcLifeEngine.Hour(life, routines, Array.Empty<NpcPair>(), Rules, At(10), (r, g) => null, _ => true));
+        Assert.Throws<ArgumentOutOfRangeException>(() => NpcLifeEngine.Hour(life, routines, Rules, At(10), (r, g) => null, _ => true));
     }
 
+    /// <summary>
+    /// Owner, 2026-10-17: a fixed daily schedule, the same every day - work in work hours, a named spot in the bands that name one, home the
+    /// rest, asleep there at night - and nothing else: no needs, no meals, no visits, no shelter.
+    /// </summary>
     [Fact]
-    public void NeedsRise_AndTheirActivityAnswersThem()
+    public void TheDay_IsAFixedSchedule_TheSameEveryDay()
     {
-        var routines = Routines(Routine("routine.town.smith", "npc.town.smith"));
-        var life = Live(Begin(routines, 8), routines, 12);
-        var npc = life.Npcs["npc.town.smith"];
-        Assert.True(npc.Needs.Hunger >= 900);   // four hours at the anvil
-        Assert.True(npc.Needs.Coin == 0);       // work answers coin
-        var later = Live(life, routines, 8 + 24 * 3);
-        Assert.True(later.Npcs.Values.All(n => n.Needs.Valid));
-    }
-
-    [Fact]
-    public void Rain_SendsEveryoneOutdoorsToShelter()
-    {
-        var routines = Routines(Routine("routine.town.idler", "npc.town.idler", 0, 0));
-        var life = Live(Begin(routines, 9), routines, 12, rain: h => h >= 11);
-        Assert.Equal(NpcActivities.Shelter, life.Npcs["npc.town.idler"].Activity);
-    }
-
-    [Fact]
-    public void Friends_VisitEachOther_AndRivalsDoNot()
-    {
-        var routines = Routines(Routine("routine.town.a", "npc.town.a", 0, 0), Routine("routine.town.b", "npc.town.b", 0, 0), Routine("routine.town.c", "npc.town.c", 0, 0));
-        var pairs = new[] { new NpcPair("npc.town.a", "npc.town.b", NpcPairKinds.Friend), new NpcPair("npc.town.a", "npc.town.c", NpcPairKinds.Rival) };
-        var life = Begin(routines, 9);
-        bool visited = false;
-        for (long h = 10; h < 9 + 24 * 3; h++)
+        var routine = Routine("routine.town.smith", "npc.town.smith") with
         {
-            life = Live(life, routines, h, pairs);
-            var a = life.Npcs["npc.town.a"];
-            Assert.NotEqual("npc.town.c", a.With);
-            visited |= a.Activity == NpcActivities.Socialise && a.With == "npc.town.b";
+            Anchors = Routine("x").Anchors.Add("bench", new NpcAnchor(3_000, 3_000, 90_000)),
+            Schedule = ImmutableArray.Create(new NpcScheduleBand(19, 21, "bench"), new NpcScheduleBand(5, 6, "bench")),
+        };
+        var routines = Routines(routine);
+        var life = Begin(routines, 0);
+        var days = new List<string>();
+        for (long h = 1; h <= 72; h++)
+        {
+            life = Live(life, routines, h);
+            days.Add(life.Npcs["npc.town.smith"].Activity);
         }
-        Assert.True(visited);
-        Assert.True(life.PairsLastMet.ContainsKey("npc.town.a|npc.town.b"));
+        Assert.Equal(days.Take(24), days.Skip(24).Take(24));
+        Assert.Equal(days.Take(24), days.Skip(48));
+        Assert.Equal(new[] { "idle", "sleep", "work", "idle", "sleep" },
+            new[] { 5, 3, 12, 20, 23 }.Select(hour => routine.ActivityAt(hour, Rules)));
+        Assert.Equal(new NpcAnchor(3_000, 3_000, 90_000), routine.AnchorFor(NpcActivities.Idle, 20));
+        Assert.Equal(routine.Anchors[NpcAnchorKinds.Home], routine.AnchorFor(NpcActivities.Idle, 6));
+        Assert.Equal(routine.Anchors[NpcAnchorKinds.Home], routine.AnchorFor(NpcActivities.Sleep, 2));
+        Assert.Equal(new[] { "work", "sleep", "idle" }, NpcActivities.All);
     }
 
     [Fact]
@@ -176,7 +165,7 @@ public class NpcLifeTests
 
         var hunter = Routine("routine.town.hunter") with { Roles = ImmutableArray.Create("hunter") };
         var vendor = hunter with { Roles = ImmutableArray.Create("hunter", NpcRoleKeys.Vendor) };
-        var life = new NpcLifeRecord("routine.town.hunter", hunter.Id, NpcNeeds.Sated, NpcActivities.Work, 0, 0, 0);
+        var life = new NpcLifeRecord("routine.town.hunter", hunter.Id, NpcActivities.Work, 0, 0, 0);
         var hires = NpcHireability.HiresAs(hunter.Roles, Vocabulary);
         Assert.Null(NpcHireability.Refusal(life, hunter, hires));
         Assert.NotNull(NpcHireability.Refusal(life, vendor, NpcHireability.HiresAs(vendor.Roles, Vocabulary)));
@@ -240,7 +229,7 @@ public class NpcLifeTests
         for (long h = 7; h <= 13; h++)
         {
             long hour = h;
-            life = NpcLifeEngine.Hour(life, routines, Array.Empty<NpcPair>(), Rules, At(hour) with { Trip = r => Trip(r, hour) }, (r, g) => "Ash", _ => true).State;
+            life = NpcLifeEngine.Hour(life, routines, Rules, At(hour) with { Trip = r => Trip(r, hour) }, (r, g) => "Ash", _ => true).State;
             string expected = hour == 8 ? NpcActivities.SetOut : hour is >= 9 and < 12 ? NpcActivities.Away : life.Npcs[routine.Key].Activity;
             Assert.Equal(expected, life.Npcs[routine.Key].Activity);
         }

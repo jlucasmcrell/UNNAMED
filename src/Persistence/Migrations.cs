@@ -1521,13 +1521,14 @@ public sealed class SchemaV27ToV28 : SchemaMigration
 /// <summary>
 /// Schema 28 to 29 (WP13, NPC adventurers): the entities section gains every adventurer and the slots awaiting arrivals, and a role slot's
 /// vacancy may name the retiring adventurer promised it. A save from before them held no adventurers: each settlement's slots fill on load,
-/// and no vacancy was promised to anyone.
+/// and no vacancy was promised to anyone. With it, NPC lives lose their needs, who they were visiting and when each pair last met (owner,
+/// 2026-10-17: fixed daily schedules); a meal, a visit, shopping or shelter under way becomes time about their day.
 /// </summary>
 public sealed class SchemaV28ToV29 : SchemaMigration
 {
     public override int From => 28;
 
-    public override string Summary => "schema 28 -> 29: the entities section gains the adventurers (none before)";
+    public override string Summary => "schema 28 -> 29: the entities section gains the adventurers (none before), and NPC lives lose their needs, visits and pairs";
 
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {
@@ -1549,12 +1550,19 @@ public sealed class SchemaV28ToV29 : SchemaMigration
                     ? new NpcLifeDto
                     {
                         Hour = life.Hour,
-                        Npcs = life.Npcs,
+                        // The needs, the visits and the pairs are gone (owner, 2026-10-17): a meal, a visit, a bit of shopping or shelter
+                        // becomes time about their day, and the schedule takes them on at the next hour.
+                        Npcs = life.Npcs.Select(n => new NpcLifeRecordDto
+                        {
+                            Key = n.Key, RoutineId = n.RoutineId, Cell = n.Cell, Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay,
+                            Activity = n.Activity is "eat" or "socialise" or "shop" or "shelter" ? "idle" : n.Activity,
+                            Condition = n.Condition, ConditionUntil = n.ConditionUntil, XMm = n.XMm, ZMm = n.ZMm, FacingMdeg = n.FacingMdeg,
+                            Route = n.Route, StuckTicks = n.StuckTicks,
+                        }).ToArray(),
                         Vacancies = life.Vacancies.Select(v => new NpcVacancyDto
                         {
                             SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration,
                         }).ToArray(),
-                        PairsLastMet = life.PairsLastMet,
                     }
                     : null,
                 Adventurers = null,

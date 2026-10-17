@@ -13,10 +13,6 @@ work_hours: [8, 20]
 anchors:
   home: { position_m: [443.6, 730.9], facing_deg: 180 }
   work: { position_m: [433, 754], facing_deg: 0 }
-  eat: { position_m: [444.95, 734.17], facing_deg: 36 }
-  social: { position_m: [457.5, 733], facing_deg: 270 }
-pairs:
-  - { routine_ref: routine.ashen_hollow.hunter, kind: friend }
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: bounty
   quest_ref: quest.bounty.road_wolves

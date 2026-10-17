@@ -561,9 +561,7 @@ internal static class CanonicalState
                     json.WriteString("name", npc.Name);
                     json.WriteNumber("generation", npc.Generation);
                     json.WriteNumber("arrived_day", npc.ArrivedDay);
-                    json.WriteString("needs", $"{npc.Needs.Hunger}/{npc.Needs.Rest}/{npc.Needs.Social}/{npc.Needs.Coin}");
                     json.WriteString("activity", npc.Activity);
-                    json.WriteString("with", npc.With);
                     json.WriteString("condition", npc.Condition.ToString());
                     json.WriteNumber("condition_until", npc.ConditionUntil);
                     json.WriteString("pose", $"{npc.XMm},{npc.ZMm},{npc.FacingMdeg}");
@@ -578,10 +576,6 @@ internal static class CanonicalState
                     json.WriteStringValue($"{vacancy.SlotId} left {vacancy.LeftDay} arrives {vacancy.ArrivalDay} as {vacancy.NextGeneration}"
                         + (vacancy.ArrivingName is { } arriving ? $" ({arriving})" : ""));
                 json.WriteEndArray();
-                json.WriteStartObject("pairs_last_met");
-                foreach (var (pair, hour) in life.PairsLastMet)
-                    json.WriteNumber(pair, hour);
-                json.WriteEndObject();
                 json.WriteEndObject();
             }
             else

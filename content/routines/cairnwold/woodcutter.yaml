@@ -13,8 +13,6 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [971.75, 669.85], facing_deg: 90 }
   work: { position_m: [973, 712], facing_deg: 0 }
-  eat: { position_m: [954.42, 691.02], facing_deg: 156 }
-  social: { position_m: [971.5, 663], facing_deg: 270 }
 job: { market_ref: market.cairnwold, item_ref: item.material.ash_haft, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: errand

@@ -1,4 +1,4 @@
-// UNNAMED Domain - NPC life: needs, routines, homes and work, role slots and arrivals, pairs (WP12; SYSTEMS_COMPLETENESS_PLAN §2.13)
+// UNNAMED Domain - NPC life: fixed daily schedules, homes and work, role slots and arrivals (WP12; SYSTEMS_COMPLETENESS_PLAN §2.13)
 // No Godot references - pure C#, integer only
 
 using System.Collections.Immutable;
@@ -6,30 +6,29 @@ using UNNAMED.Domain.Companions;
 
 namespace UNNAMED.Domain.Social;
 
-/// <summary>What an NPC can be doing (the routine chooser's activity set). Presentation picks the idles; the domain picks the activity.</summary>
+/// <summary>
+/// What an NPC is doing: working at their work site in work hours, asleep at home at night, or about the rest of their day at home or at a
+/// spot their schedule names (owner, 2026-10-17: fixed daily schedules, no needs simulation). Presentation picks the idles.
+/// </summary>
 public static class NpcActivities
 {
     public const string Work = "work";
-    public const string Eat = "eat";
     public const string Sleep = "sleep";
-    public const string Socialise = "socialise";
-    public const string Shop = "shop";
-    public const string Shelter = "shelter";
     public const string Idle = "idle";
 
-    /// <summary>Every activity, in the chooser's tie-break order.</summary>
-    public static readonly ImmutableArray<string> All = ImmutableArray.Create(Work, Eat, Sleep, Socialise, Shop, Shelter, Idle);
+    /// <summary>Every activity a schedule gives.</summary>
+    public static readonly ImmutableArray<string> All = ImmutableArray.Create(Work, Sleep, Idle);
 
     /// <summary>
-    /// Waiting at a trip's meeting place for its departure (WP12b): imposed by the trip planner, never chosen by utility. Its SettingOut is
+    /// Waiting at a trip's meeting place for its departure (WP12b): imposed by the trip planner, never by the schedule. Its SettingOut is
     /// raised during this hour, at least the trip lead before it ends.
     /// </summary>
     public const string SetOut = "set_out";
 
-    /// <summary>Gone on a trip (WP12b): walking to its destination, or there; imposed by the trip planner, never chosen by utility.</summary>
+    /// <summary>Gone on a trip (WP12b): walking to its destination, or there; imposed by the trip planner, never by the schedule.</summary>
     public const string Away = "away";
 
-    /// <summary>Every activity a life may be found doing: the chooser's, then the trip planner's.</summary>
+    /// <summary>Every activity a life may be found doing: the schedule's, then the trip planner's.</summary>
     public static readonly ImmutableArray<string> Known = All.Add(SetOut).Add(Away);
 
     public static bool IsActivity(string activity) => All.Contains(activity);
@@ -37,15 +36,20 @@ public static class NpcActivities
     public static bool IsKnown(string activity) => Known.Contains(activity);
 }
 
-/// <summary>The places an NPC's day is anchored to: where they sleep, work, eat and meet people (§2.13 "homes and anchors").</summary>
+/// <summary>The two places every NPC's day is anchored to: where they sleep and where they work. A schedule may name more spots.</summary>
 public static class NpcAnchorKinds
 {
     public const string Home = "home";
     public const string Work = "work";
-    public const string Eat = "eat";
-    public const string Social = "social";
+}
 
-    public static readonly ImmutableArray<string> All = ImmutableArray.Create(Home, Work, Eat, Social);
+/// <summary>An hour band of a fixed daily schedule: from one hour of the day up to another (a span past midnight wraps), at an anchor.</summary>
+public sealed record NpcScheduleBand(int FromHour, int ToHour, string Anchor)
+{
+    public bool Covers(int hourOfDay) =>
+        FromHour == ToHour ? false
+        : FromHour < ToHour ? hourOfDay >= FromHour && hourOfDay < ToHour
+        : hourOfDay >= FromHour || hourOfDay < ToHour;
 }
 
 /// <summary>A place on the ground an NPC goes to, and which way they face there.</summary>
@@ -177,30 +181,10 @@ public static class NpcHireability
     }
 }
 
-/// <summary>The kinds of NPC-NPC pair (§2.13): they drive who visits whom, and barks. Not romance (DN10).</summary>
-public static class NpcPairKinds
-{
-    public const string Friend = "friend";
-    public const string Rival = "rival";
-    public const string Partner = "partner";
-
-    public static readonly ImmutableArray<string> All = ImmutableArray.Create(Friend, Rival, Partner);
-}
-
-/// <summary>Two NPCs (by life key) and what they are to each other; <see cref="A"/> sorts before <see cref="B"/>.</summary>
-public sealed record NpcPair(string A, string B, string Kind)
-{
-    public string Key => $"{A}|{B}";
-
-    public bool Involves(string key) => A == key || B == key;
-
-    public string Other(string key) => A == key ? B : A;
-}
-
 /// <summary>
 /// One NPC's routine (a <c>routine</c> definition): who it is for - a named NPC (<see cref="NpcId"/>), or a role slot that residents
 /// fill one after another (<see cref="NpcId"/> null; the slot is the routine's own ID) - their settlement and role, their anchors, the
-/// hours they work, how much each activity weighs with them, and their job. A named NPC is essential (DN4): no rule ever kills them.
+/// hours they work, their fixed schedule outside them, and their job. A named NPC is essential (DN4): no rule ever kills them.
 /// </summary>
 public sealed record RoutineDefinition(
     string Id,
@@ -209,8 +193,7 @@ public sealed record RoutineDefinition(
     string Role,
     ImmutableSortedDictionary<string, NpcAnchor> Anchors,
     int WorkFromHour,
-    int WorkToHour,
-    ImmutableSortedDictionary<string, int> Weights)
+    int WorkToHour)
 {
     /// <summary>The people a slot's residents are drawn from, whose Suggest names they take (WP2's name source).</summary>
     public string? PeopleId { get; init; }
@@ -226,6 +209,12 @@ public sealed record RoutineDefinition(
     /// <summary>The trip they sometimes set out on, asking along whoever will come (WP12b); null for one who keeps to town.</summary>
     public NpcTrip? Trip { get; init; }
 
+    /// <summary>
+    /// Where they spend hours outside work besides home (a band names one of <see cref="Anchors"/>): authored, fixed, the same every day.
+    /// An hour no band covers is spent at home.
+    /// </summary>
+    public ImmutableArray<NpcScheduleBand> Schedule { get; init; } = ImmutableArray<NpcScheduleBand>.Empty;
+
     /// <summary>The key the NPC is known by in the world: the named NPC's ID, or the slot's.</summary>
     public string Key => NpcId ?? Id;
 
@@ -240,24 +229,29 @@ public sealed record RoutineDefinition(
         : WorkFromHour < WorkToHour ? hourOfDay >= WorkFromHour && hourOfDay < WorkToHour
         : hourOfDay >= WorkFromHour || hourOfDay < WorkToHour;
 
-    public NpcAnchor AnchorFor(string activity) => activity switch
+    /// <summary>What the schedule has them doing at an hour of the day: work in work hours, asleep at home at night, else about their day.</summary>
+    public string ActivityAt(int hourOfDay, NpcLifeRules rules) =>
+        WorksAt(hourOfDay) && Anchors.ContainsKey(NpcAnchorKinds.Work) ? NpcActivities.Work
+        : rules.IsNight(hourOfDay) && SpotAt(hourOfDay) is null ? NpcActivities.Sleep
+        : NpcActivities.Idle;
+
+    /// <summary>Where an activity puts them at an hour of the day: the work site, home, or the spot the schedule names.</summary>
+    public NpcAnchor AnchorFor(string activity, int hourOfDay) => activity switch
     {
         NpcActivities.Work => Anchors[NpcAnchorKinds.Work],
-        NpcActivities.Eat => Anchors.GetValueOrDefault(NpcAnchorKinds.Eat) ?? Anchors[NpcAnchorKinds.Home],
-        NpcActivities.Socialise => Anchors.GetValueOrDefault(NpcAnchorKinds.Social) ?? Anchors[NpcAnchorKinds.Home],
-        NpcActivities.Idle => Anchors.GetValueOrDefault(NpcAnchorKinds.Social) ?? Anchors[NpcAnchorKinds.Home],
+        NpcActivities.Idle when SpotAt(hourOfDay) is { } spot => Anchors[spot],
         _ => Anchors[NpcAnchorKinds.Home],
     };
+
+    private string? SpotAt(int hourOfDay) =>
+        Schedule.FirstOrDefault(b => b.Covers(hourOfDay)) is { Anchor: var spot } && spot != NpcAnchorKinds.Home ? spot : null;
 }
 
 /// <summary>
-/// How lives run (<c>config.npc_life</c>): how fast each need rises an hour and how much its activity takes off it, in thousandths of a
-/// band; the hours of the night; the merchants' trading hours (06:00-20:00); and how many days after someone leaves an arrival takes their
-/// place (DN4: 3-7). Each is content, provisional, and tunable.
+/// How lives run (<c>config.npc_life</c>): the hours of the night (asleep at home), the merchants' trading hours (06:00-20:00), and how many
+/// days after someone leaves an arrival takes their place (DN4: 3-7). Each is content, provisional, and tunable.
 /// </summary>
 public sealed record NpcLifeRules(
-    ImmutableSortedDictionary<NpcNeed, int> RisePerHour,
-    ImmutableSortedDictionary<NpcNeed, int> SatisfyPerHour,
     int NightFromHour,
     int NightToHour,
     int TradeFromMinute,
@@ -265,13 +259,7 @@ public sealed record NpcLifeRules(
     int ArrivalMinDays,
     int ArrivalMaxDays)
 {
-    /// <summary>The hours of the day people sit down to eat: the chooser favours eating then.</summary>
-    public ImmutableArray<int> MealHours { get; init; } = ImmutableArray.Create(6, 12, 18);
-
-    public static NpcLifeRules Default { get; } = new(
-        new Dictionary<NpcNeed, int> { [NpcNeed.Hunger] = 250, [NpcNeed.Rest] = 150, [NpcNeed.Social] = 120, [NpcNeed.Coin] = 100 }.ToImmutableSortedDictionary(),
-        new Dictionary<NpcNeed, int> { [NpcNeed.Hunger] = 2000, [NpcNeed.Rest] = 450, [NpcNeed.Social] = 900, [NpcNeed.Coin] = 400 }.ToImmutableSortedDictionary(),
-        22, 6, 6 * 60, 20 * 60, 3, 7);
+    public static NpcLifeRules Default { get; } = new(22, 6, 6 * 60, 20 * 60, 3, 7);
 
     public bool IsNight(int hourOfDay) =>
         NightFromHour < NightToHour ? hourOfDay >= NightFromHour && hourOfDay < NightToHour : hourOfDay >= NightFromHour || hourOfDay < NightToHour;
@@ -281,82 +269,28 @@ public sealed record NpcLifeRules(
     /// <summary>The first broken rule; null when there is none.</summary>
     public string? Problem()
     {
-        foreach (var need in Enum.GetValues<NpcNeed>())
-        {
-            if (!RisePerHour.ContainsKey(need) || !SatisfyPerHour.ContainsKey(need) || RisePerHour[need] < 0 || SatisfyPerHour[need] < 0)
-                return $"need '{NpcNeeds.Key(need)}' needs a rise and a satisfaction of at least 0";
-        }
         if (NightFromHour is < 0 or > 23 || NightToHour is < 0 or > 23)
             return "the night's hours lie in 0..23";
         if (TradeFromMinute < 0 || TradeToMinute > 24 * 60 || TradeFromMinute >= TradeToMinute)
             return "trading hours open before they close, within one day";
         if (ArrivalMinDays < 1 || ArrivalMaxDays < ArrivalMinDays)
             return "an arrival comes at least a day after someone leaves, within [min, max]";
-        if (MealHours.Any(h => h is < 0 or > 23))
-            return "meal hours lie in 0..23";
         return null;
     }
 }
 
-/// <summary>The four coarse needs (canon §7.1): each 0-3 bands, held as thousandths of a band (0..3999).</summary>
-public enum NpcNeed { Hunger, Rest, Social, Coin }
-
-/// <summary>An NPC's needs, each 0..3999 thousandths of a band; the band is the value over 1000.</summary>
-public sealed record NpcNeeds(int Hunger, int Rest, int Social, int Coin)
-{
-    public const int Max = 3_999;
-
-    public static NpcNeeds Sated { get; } = new(0, 0, 0, 0);
-
-    public static string Key(NpcNeed need) => need switch
-    {
-        NpcNeed.Hunger => "hunger",
-        NpcNeed.Rest => "rest",
-        NpcNeed.Social => "social",
-        NpcNeed.Coin => "coin",
-        _ => throw new ArgumentOutOfRangeException(nameof(need), need, "Unknown need"),
-    };
-
-    public static NpcNeed? Parse(string key) => Enum.GetValues<NpcNeed>().Cast<NpcNeed?>().FirstOrDefault(n => Key(n!.Value) == key);
-
-    public int this[NpcNeed need] => need switch
-    {
-        NpcNeed.Hunger => Hunger,
-        NpcNeed.Rest => Rest,
-        NpcNeed.Social => Social,
-        _ => Coin,
-    };
-
-    public int Band(NpcNeed need) => this[need] / 1000;
-
-    public NpcNeeds With(NpcNeed need, int value)
-    {
-        int v = Math.Clamp(value, 0, Max);
-        return need switch
-        {
-            NpcNeed.Hunger => this with { Hunger = v },
-            NpcNeed.Rest => this with { Rest = v },
-            NpcNeed.Social => this with { Social = v },
-            _ => this with { Coin = v },
-        };
-    }
-
-    public bool Valid => new[] { Hunger, Rest, Social, Coin }.All(v => v is >= 0 and <= Max);
-}
-
 /// <summary>
 /// An NPC's condition (§2.13 life states). An injured NPC rests at home until their injury passes (WP13's outcome tables set it). A hired
-/// one (WP12b) is the party's: their routine is suspended - no needs, no choices, no walking of their own - until they leave the party and
+/// one (WP12b) is the party's: their schedule is suspended - no walking of their own - until they leave the party and
 /// walk home to take it up again.
 /// </summary>
 public enum NpcCondition { Living, Injured, Hired }
 
 /// <summary>
-/// One NPC's life as the world holds it (saved, WP12): their routine, a resident's own name and generation, when they arrived, their
-/// needs, what they are doing and with whom, their condition, and their body's pose with the route it walks - so a load resumes them
-/// where they were, never teleported.
+/// One NPC's life as the world holds it (saved, WP12): their routine, a resident's own name and generation, when they arrived, what they
+/// are doing, their condition, and their body's pose with the route it walks - so a load resumes them where they were, never teleported.
 /// </summary>
-public sealed record NpcLifeRecord(string Key, string RoutineId, NpcNeeds Needs, string Activity, long XMm, long ZMm, int FacingMdeg)
+public sealed record NpcLifeRecord(string Key, string RoutineId, string Activity, long XMm, long ZMm, int FacingMdeg)
 {
     /// <summary>A resident's own name, drawn from their people's names; null for a named NPC, who is called what their definition says.</summary>
     public string? Name { get; init; }
@@ -366,9 +300,6 @@ public sealed record NpcLifeRecord(string Key, string RoutineId, NpcNeeds Needs,
 
     /// <summary>The calendar day they took up their place (day 0 for the world's first residents).</summary>
     public long ArrivedDay { get; init; }
-
-    /// <summary>The NPC they are visiting while socialising, by key; null otherwise.</summary>
-    public string? With { get; init; }
 
     public NpcCondition Condition { get; init; } = NpcCondition.Living;
 
@@ -392,27 +323,24 @@ public sealed record NpcVacancy(string SlotId, long LeftDay, long ArrivalDay, in
 
 /// <summary>
 /// Every NPC life the world holds, keyed with no limit (owner, 2026-10-17: no population cap in data, schema or code), the role slots
-/// waiting for an arrival, when each pair last met, and the last game hour settled.
+/// waiting for an arrival, and the last game hour settled.
 /// </summary>
 public sealed record NpcLifeState(
     long Hour,
     ImmutableSortedDictionary<string, NpcLifeRecord> Npcs,
-    ImmutableSortedDictionary<string, NpcVacancy> Vacancies,
-    ImmutableSortedDictionary<string, long> PairsLastMet)
+    ImmutableSortedDictionary<string, NpcVacancy> Vacancies)
 {
     public static NpcLifeState Empty(long hour) => new(hour,
         ImmutableSortedDictionary.Create<string, NpcLifeRecord>(StringComparer.Ordinal),
-        ImmutableSortedDictionary.Create<string, NpcVacancy>(StringComparer.Ordinal),
-        ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal));
+        ImmutableSortedDictionary.Create<string, NpcVacancy>(StringComparer.Ordinal));
 
     public void AddTo(CanonicalHasher h)
     {
-        h.Add("unnamed.npc-life/v1").Add(Hour).Add(Npcs.Count);
+        h.Add("unnamed.npc-life/v2").Add(Hour).Add(Npcs.Count);
         foreach (var n in Npcs.Values)
         {
             h.Add(n.Key).Add(n.RoutineId).Add(n.Name ?? "-").Add(n.Generation).Add(n.ArrivedDay)
-                .Add(n.Needs.Hunger).Add(n.Needs.Rest).Add(n.Needs.Social).Add(n.Needs.Coin)
-                .Add(n.Activity).Add(n.With ?? "-").Add((int)n.Condition).Add(n.ConditionUntil)
+                .Add(n.Activity).Add((int)n.Condition).Add(n.ConditionUntil)
                 .Add(n.XMm).Add(n.ZMm).Add(n.FacingMdeg).Add(n.StuckTicks).Add(n.Cell);
             n.Route.AddTo(h);
         }
@@ -423,17 +351,14 @@ public sealed record NpcLifeState(
             if (v.ArrivingName is { } arriving)
                 h.Add(arriving);
         }
-        h.Add(PairsLastMet.Count);
-        foreach (var (pair, hour) in PairsLastMet)
-            h.Add(pair).Add(hour);
     }
 }
 
 /// <summary>What an hour of lives did that the world (and the away sheet) may want to know.</summary>
 public sealed record NpcLifeHappening(string Kind, string Key, string Detail);
 
-/// <summary>Everything an hour's step reads besides the state: the hour, its first tick, its day and hour of day, the weather, and the draws.</summary>
-public sealed record NpcHourContext(long Hour, long Tick, long Day, int HourOfDay, bool Raining, Func<string, ulong> Sample)
+/// <summary>Everything an hour's step reads besides the state: the hour, its first tick, its day and hour of day.</summary>
+public sealed record NpcHourContext(long Hour, long Tick, long Day, int HourOfDay)
 {
     /// <summary>What the trip planner has a routine doing this hour (<see cref="NpcActivities.SetOut"/> or <see cref="NpcActivities.Away"/>), or null.</summary>
     public Func<RoutineDefinition, string?> Trip { get; init; } = _ => null;
@@ -441,17 +366,16 @@ public sealed record NpcHourContext(long Hour, long Tick, long Day, int HourOfDa
 
 /// <summary>
 /// The rules of NPC life, pure (§2.13). Lives advance one game hour at a time, on absolute hour boundaries, so the same hours give the
-/// same lives however they are split (T-22): a running world and the offline catch-up call the same <see cref="Hour"/>. An hour raises
-/// every need, lets the activity just done take off its own, chooses the next activity by utility under the hour, the needs and the
-/// weather, remembers who met whom, and fills any role slot whose arrival is due. Bodies are the runtime's: this only says where each NPC
-/// is headed.
+/// same lives however they are split (T-22): a running world and the offline catch-up call the same <see cref="Hour"/>. An hour sets each
+/// life to what their fixed schedule (or a planned trip) has them doing, and fills any role slot whose arrival is due. Bodies are the
+/// runtime's: this only says where each NPC is headed.
 /// </summary>
 public static class NpcLifeEngine
 {
     public const string Arrived = "arrived";
     public const string Departed = "departed";
 
-    /// <summary>A world's first lives: every routine's NPC at their routine's first choice, needs sated. Residents take names from their people.</summary>
+    /// <summary>A world's first lives: every routine's NPC at what their schedule has them doing. Residents take names from their people.</summary>
     public static NpcLifeState Begin(IReadOnlyDictionary<string, RoutineDefinition> routines, NpcLifeRules rules, NpcHourContext hour,
         Func<RoutineDefinition, int, string?> nameFor, Func<string, (long X, long Z, int Facing)?> placeOf)
     {
@@ -482,33 +406,13 @@ public static class NpcLifeEngine
 
     /// <summary>One game hour of every life: <paramref name="hour"/> must be the hour after the state's.</summary>
     public static (NpcLifeState State, ImmutableArray<NpcLifeHappening> Happenings) Hour(NpcLifeState state, IReadOnlyDictionary<string, RoutineDefinition> routines,
-        IReadOnlyList<NpcPair> pairs, NpcLifeRules rules, NpcHourContext hour, Func<RoutineDefinition, int, string?> nameFor,
-        Func<RoutineDefinition, bool> canArrive)
+        NpcLifeRules rules, NpcHourContext hour, Func<RoutineDefinition, int, string?> nameFor, Func<RoutineDefinition, bool> canArrive)
     {
         if (hour.Hour != state.Hour + 1)
             throw new ArgumentOutOfRangeException(nameof(hour), hour.Hour, $"Lives step one hour at a time: they stand at hour {state.Hour}");
         var happenings = ImmutableArray.CreateBuilder<NpcLifeHappening>();
         var npcs = state.Npcs.ToBuilder();
-        var met = state.PairsLastMet.ToBuilder();
 
-        // Needs rise, and the hour just spent takes off what its activity answers. Someone hired is the party's: their life waits.
-        foreach (var npc in state.Npcs.Values.Where(n => n.Condition != NpcCondition.Hired))
-        {
-            var needs = npc.Needs;
-            foreach (var need in Enum.GetValues<NpcNeed>())
-            {
-                int value = needs[need] + rules.RisePerHour[need];
-                if (Answers(npc.Activity) == need)
-                    value -= rules.SatisfyPerHour[need];
-                needs = needs.With(need, value);
-            }
-            npcs[npc.Key] = npc with { Needs = needs };
-            if (npc.Activity == NpcActivities.Socialise && npc.With is { } other && npcs.ContainsKey(other)
-                && pairs.FirstOrDefault(p => p.Involves(npc.Key) && p.Involves(other)) is { } pair)
-                met[pair.Key] = state.Hour;
-        }
-
-        // Each NPC chooses what the next hour is for, in key order.
         foreach (string key in npcs.Keys.ToList())
         {
             var npc = npcs[key];
@@ -524,11 +428,7 @@ public static class NpcLifeEngine
             }
             if (npc.Condition == NpcCondition.Injured && npc.ConditionUntil <= hour.Tick)
                 npc = npc with { Condition = NpcCondition.Living, ConditionUntil = 0 };
-            // A trip the planner set for this hour comes before the routine's own choice, for someone well enough to go.
-            var (activity, with) = npc.Condition == NpcCondition.Living && hour.Trip(routine) is { } trip
-                ? (trip, (string?)null)
-                : Choose(npc, routine, routines, pairs, met, npcs, rules, hour);
-            npcs[key] = npc with { Activity = activity, With = with };
+            npcs[key] = npc with { Activity = ActivityOf(npc, routine, rules, hour) };
         }
 
         // Arrivals (DN4): a slot whose day has come is filled by someone new, unless the place cannot take them yet (spawn suppression).
@@ -544,9 +444,17 @@ public static class NpcLifeEngine
             vacancies.Remove(vacancy.SlotId);
             happenings.Add(new NpcLifeHappening(Arrived, slot.Key, arrival.Name ?? slot.Key));
         }
-        return (state with { Hour = hour.Hour, Npcs = npcs.ToImmutable(), Vacancies = vacancies.ToImmutable(), PairsLastMet = met.ToImmutable() },
-            happenings.ToImmutable());
+        return (state with { Hour = hour.Hour, Npcs = npcs.ToImmutable(), Vacancies = vacancies.ToImmutable() }, happenings.ToImmutable());
     }
+
+    /// <summary>
+    /// What an hour has someone doing: an injured NPC sleeps; a trip the planner set for the hour comes first for someone well enough to
+    /// go; otherwise their fixed schedule.
+    /// </summary>
+    public static string ActivityOf(NpcLifeRecord npc, RoutineDefinition routine, NpcLifeRules rules, NpcHourContext hour) =>
+        npc.Condition == NpcCondition.Injured ? NpcActivities.Sleep
+        : npc.Condition == NpcCondition.Living && hour.Trip(routine) is { } trip ? trip
+        : routine.ActivityAt(hour.HourOfDay, rules);
 
     /// <summary>
     /// A resident leaves their slot (DN4: by a rule event - WP13's outcome tables, a hireling's death): the slot waits 3-7 days, drawn
@@ -592,79 +500,23 @@ public static class NpcLifeEngine
         }
     }
 
-    /// <summary>The need an activity answers; null for one that answers none.</summary>
-    public static NpcNeed? Answers(string activity) => activity switch
-    {
-        NpcActivities.Eat => NpcNeed.Hunger,
-        NpcActivities.Sleep => NpcNeed.Rest,
-        NpcActivities.Shelter => NpcNeed.Rest,
-        NpcActivities.Socialise => NpcNeed.Social,
-        NpcActivities.Work => NpcNeed.Coin,
-        _ => null,
-    };
-
-    /// <summary>
-    /// The routine chooser: a utility over the activities this hour allows - work only in work hours, socialising only with someone to
-    /// visit, shopping only in trading hours, shelter only in the rain - each the routine's weight, plus what the needs and the hour make of
-    /// it, plus a little of the hour's own draw and a little for going on as before. Ties go to the earlier activity. An injured NPC sleeps.
-    /// </summary>
-    public static (string Activity, string? With) Choose(NpcLifeRecord npc, RoutineDefinition routine, IReadOnlyDictionary<string, RoutineDefinition> routines,
-        IReadOnlyList<NpcPair> pairs, IReadOnlyDictionary<string, long> met, IReadOnlyDictionary<string, NpcLifeRecord> npcs, NpcLifeRules rules, NpcHourContext hour)
-    {
-        if (npc.Condition == NpcCondition.Injured)
-            return (NpcActivities.Sleep, null);
-        bool night = rules.IsNight(hour.HourOfDay);
-        string? visit = pairs.Where(p => p.Involves(npc.Key) && p.Kind != NpcPairKinds.Rival && npcs.ContainsKey(p.Other(npc.Key)))
-            .OrderBy(p => met.TryGetValue(p.Key, out long last) ? last : long.MinValue).ThenBy(p => p.Key, StringComparer.Ordinal)
-            .Select(p => p.Other(npc.Key)).FirstOrDefault();
-        ulong draw = hour.Sample(npc.Key);
-        string best = NpcActivities.Idle;
-        long bestScore = long.MinValue;
-        for (int i = 0; i < NpcActivities.All.Length; i++)
-        {
-            string activity = NpcActivities.All[i];
-            long? score = activity switch
-            {
-                NpcActivities.Work when routine.WorksAt(hour.HourOfDay) && routine.Anchors.ContainsKey(NpcAnchorKinds.Work) => 300 + 60L * npc.Needs.Band(NpcNeed.Coin),
-                NpcActivities.Work => null,
-                NpcActivities.Eat => 140L * npc.Needs.Band(NpcNeed.Hunger) - (night ? 200 : 0) + (rules.MealHours.Contains(hour.HourOfDay) && npc.Needs.Band(NpcNeed.Hunger) > 0 ? 260 : 0),
-                NpcActivities.Sleep => 120L * npc.Needs.Band(NpcNeed.Rest) + (night ? 420 : -260),
-                NpcActivities.Socialise when visit is not null && !night => 110L * npc.Needs.Band(NpcNeed.Social) + (hour.Raining ? -150 : 0),
-                NpcActivities.Socialise => null,
-                NpcActivities.Shop when !night && rules.IsTradingMinute(hour.HourOfDay * 60) && npc.Needs.Band(NpcNeed.Coin) == 0 => hour.Raining ? -100 : 40,
-                NpcActivities.Shop => null,
-                NpcActivities.Shelter when hour.Raining => 380,
-                NpcActivities.Shelter => null,
-                _ => hour.Raining ? -200 : 20,
-            };
-            if (score is not { } s)
-                continue;
-            s += routine.Weights.GetValueOrDefault(activity) + (long)((draw >> (i * 8)) % 30) + (activity == npc.Activity ? 45 : 0);
-            if (s > bestScore)
-                (best, bestScore) = (activity, s);
-        }
-        return (best, best == NpcActivities.Socialise ? visit : null);
-    }
-
     private static NpcLifeRecord Newcomer(RoutineDefinition routine, NpcLifeRules rules, NpcHourContext hour, int generation, string? name,
         (long X, long Z, int Facing)? place)
     {
-        var anchor = routine.Anchors.GetValueOrDefault(NpcAnchorKinds.Work) ?? routine.Anchors[NpcAnchorKinds.Home];
+        // Where the schedule has them this hour, unless the region places them.
+        string activity = routine.ActivityAt(hour.HourOfDay, rules);
+        var anchor = routine.AnchorFor(activity, hour.HourOfDay);
         var (x, z, facing) = place ?? (anchor.XMm, anchor.ZMm, anchor.FacingMdeg);
-        var record = new NpcLifeRecord(routine.Key, routine.Id, NpcNeeds.Sated, NpcActivities.Idle, x, z, facing)
+        return new NpcLifeRecord(routine.Key, routine.Id, activity, x, z, facing)
         {
             Name = routine.IsSlot ? name : null,
             Generation = generation,
         };
-        var empty = ImmutableDictionary<string, long>.Empty;
-        var (activity, _) = Choose(record, routine, new Dictionary<string, RoutineDefinition>(), Array.Empty<NpcPair>(), empty,
-            ImmutableDictionary<string, NpcLifeRecord>.Empty, rules, hour);
-        return record with { Activity = activity };
     }
 }
 
-/// <summary>The lives content defines for the region played: its routines by ID, the NPC-NPC pairs, and the rules (WP12).</summary>
-public sealed record NpcLifeSetup(ImmutableSortedDictionary<string, RoutineDefinition> Routines, ImmutableArray<NpcPair> Pairs, NpcLifeRules Rules)
+/// <summary>The lives content defines for the region played: its routines by ID, and the rules (WP12).</summary>
+public sealed record NpcLifeSetup(ImmutableSortedDictionary<string, RoutineDefinition> Routines, NpcLifeRules Rules)
 {
     /// <summary>The town roles routines name (WP12b): what each is hired as and talks as.</summary>
     public ImmutableSortedDictionary<string, NpcRole> Roles { get; init; } = ImmutableSortedDictionary.Create<string, NpcRole>(StringComparer.Ordinal);
@@ -678,8 +530,7 @@ public sealed record NpcLifeSetup(ImmutableSortedDictionary<string, RoutineDefin
     /// <summary>How many game minutes before a trip leaves its offer goes up (WP12b; at least 20, at most the hour of waiting).</summary>
     public int TripLeadMinutes { get; init; } = 40;
 
-    public static NpcLifeSetup Empty { get; } = new(ImmutableSortedDictionary.Create<string, RoutineDefinition>(StringComparer.Ordinal),
-        ImmutableArray<NpcPair>.Empty, NpcLifeRules.Default);
+    public static NpcLifeSetup Empty { get; } = new(ImmutableSortedDictionary.Create<string, RoutineDefinition>(StringComparer.Ordinal), NpcLifeRules.Default);
 
     /// <summary>A named NPC's routine, or a slot's, by the key the NPC is known by; null for an NPC with none.</summary>
     public RoutineDefinition? RoutineOf(string key) =>

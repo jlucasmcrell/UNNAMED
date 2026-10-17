@@ -140,7 +140,6 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.AtWork),   // whether an NPC is working at their work anchor now (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.TradeRefusal),   // why a merchant is not trading now, for the trade column (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.TeachRefusal),   // why a teacher is not teaching now, for WP9's trainers (WP12)
-            nameof(UNNAMED.World.Runtime.Simulation.NpcPairs),   // whom an NPC knows and as what, for barks (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.IsHireable),   // whether someone can be hired now, derived from town roles, for the hire prompt (WP12b)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)

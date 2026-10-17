@@ -652,6 +652,8 @@ Effort is in agent-days and includes tests, lint/xref and, for presentation work
 
 This amends D-06's mitigation text, so it needs the owner's explicit sign-off (AUTHORITY:21-31: owner rulings override the text they name).
 
+> **Owner ruling, 2026-10-17 (applied at the wave 4 integration, schema 29): NPC life is going "too Sims".** CUT: the coarse needs and the utility chooser driven by them, eating as a needs-driven activity, NPC-to-NPC pairs and social visits, and shopping; rain no longer moves people into a shelter line. Each NPC follows a simple authored fixed daily schedule instead: work in work hours, asleep at home at night, the rest at home or at a few named spots (`schedule:` hour bands; an optional hearth or table slot must keep its anchors at least talk range plus a body apart and reachable). KEPT: work hours and homes (vendors open, trainers teach at work in work hours), the mover and navigation, tiers B/C/D, the offline catch-up with chunk invariance, hireability, the hired state and companion homes, trips and SettingOut for LFG, arrivals and jobs, and the adventurers (§2.13 below), whose coin is their own. NPCs stay solid and step aside. The design text below is kept for the record; where it names needs, meals, pairs, visits, shopping or shelter, the ruling overrides it.
+
 **Design: residents and vendors (NPC_SIMULATION "Resident" and "Economic Agent"):**
 - **Needs as coarse bands:**
   - Hunger, rest, social, coin (canon §7.1 allows coarse needs).

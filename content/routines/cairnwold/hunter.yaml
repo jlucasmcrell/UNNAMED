@@ -13,11 +13,7 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [948, 666], facing_deg: 0 }
   work: { position_m: [1000, 700], facing_deg: 90 }
-  eat: { position_m: [953.47, 685.52], facing_deg: 46 }
-  social: { position_m: [970, 664.5], facing_deg: 225 }
 job: { market_ref: market.cairnwold, item_ref: item.material.wolf_hide, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
-pairs:
-  - { routine_ref: routine.cairnwold.trapper, kind: friend }
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: hunt
   creature_ref: creature.grazer.fellhorn

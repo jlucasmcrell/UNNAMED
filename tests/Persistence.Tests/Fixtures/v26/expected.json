@@ -702,9 +702,7 @@
         "name": null,
         "generation": 0,
         "arrived_day": 0,
-        "needs": "1250/400/900/0",
         "activity": "work",
-        "with": null,
         "condition": "Living",
         "condition_until": 0,
         "pose": "148750,-41500,45000",
@@ -718,9 +716,7 @@
         "name": "Aldo Renning",
         "generation": 1,
         "arrived_day": 2,
-        "needs": "2100/0/300/1000",
-        "activity": "eat",
-        "with": null,
+        "activity": "idle",
         "condition": "Injured",
         "condition_until": 6000,
         "pose": "12000,34000,180000",
@@ -730,10 +726,7 @@
     ],
     "vacancies": [
       "routine.fixture.carter left 1 arrives 5 as 1"
-    ],
-    "pairs_last_met": {
-      "npc.fixture.warden|routine.fixture.porter": 70
-    }
+    ]
   },
   "adventurers": null
 }

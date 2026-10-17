@@ -100,12 +100,11 @@ public class NpcLifeLinksTests
         Assert.Equal(NpcCondition.Hired, LifeOf(simulation, Porter).Condition);
         Assert.Equal(new HireabilityChanged(Porter, false, "is already in someone's hire", simulation.WorldTick), Assert.Single(changes));
         Assert.False(simulation.IsHireable(Porter));
-        var needs = LifeOf(simulation, Porter).Needs;
 
-        // Two game hours with the party: their routine waits - no needs rise, no choices - and the party moves them.
+        // Two game hours with the party: their schedule waits, and the party moves them.
         arena.Tick((int)(2 * Hour));
         var held = LifeOf(simulation, Porter);
-        Assert.Equal((NpcCondition.Hired, needs, NpcActivities.Idle), (held.Condition, held.Needs, held.Activity));
+        Assert.Equal((NpcCondition.Hired, NpcActivities.Idle), (held.Condition, held.Activity));
         Assert.Contains(simulation.Companions, c => c.NpcId == Porter);
 
         // Saved and loaded in the party's hands: still hired, still with the character.
@@ -162,10 +161,9 @@ public class NpcLifeLinksTests
                 r.Equipment, 100, r.Effects, r.Relationships, r.Conversations, r.Quests, new[] { guard }), keepSpawns: true, origin: (0, 0)).Simulation;
         Assert.Contains(resumed.Companions, c => c.NpcId == Kera);
         Assert.Equal(NpcCondition.Hired, LifeOf(resumed, Kera).Condition);
-        var needs = LifeOf(resumed, Kera).Needs;
         for (int i = 0; i < (int)Hour + 10; i++)
             resumed.Step();
-        Assert.Equal((NpcCondition.Hired, needs), (LifeOf(resumed, Kera).Condition, LifeOf(resumed, Kera).Needs));
+        Assert.Equal((NpcCondition.Hired, NpcActivities.Idle), (LifeOf(resumed, Kera).Condition, LifeOf(resumed, Kera).Activity));
     }
 
     [Fact]
@@ -373,33 +371,12 @@ public class NpcLifeLinksTests
         Assert.Equal(SimulationTier.A, shared.CellTiers[cell]);
     }
 
-    // ── the crowd at the cookfire ───────────────────────────────────────────
-
-    [Theory]
-    [InlineData("cairnwold")]
-    [InlineData("ashen_hollow")]
-    public void TheEatAnchors_StandWideEnoughApart_ToWalkBetween(string town)
-    {
-        using var profile = new TempProfile();
-        var session = Harness.Boot(profile);
-        var eats = session.Setup.NpcLife.Routines.Values.Where(r => r.Settlement == town && r.Anchors.ContainsKey(NpcAnchorKinds.Eat))
-            .Select(r => r.Anchors[NpcAnchorKinds.Eat]).ToList();
-        var ring = eats.Where(a => eats.Count(b => Math.Abs(a.XMm - b.XMm) < 10_000 && Math.Abs(a.ZMm - b.ZMm) < 10_000) > 3).ToList();
-        Assert.True(ring.Count >= 9, $"{ring.Count} eat at {town}'s fire");
-        foreach (var a in ring)
-        {
-            foreach (var b in ring.Where(b => b != a))
-            {
-                double d = Math.Sqrt(Math.Pow(a.XMm - b.XMm, 2) + Math.Pow(a.ZMm - b.ZMm, 2));
-                Assert.True(d >= 1_800, $"eat anchors {d:0} mm apart at {town}");
-            }
-        }
-    }
+    // ── crowds ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// The crowd trap in the rain: everyone shelters at home, the Ashen residents in a row inside the longhouse. Each home stands a talk
+    /// The crowd trap at night: everyone asleep at home, the Ashen residents in a row inside the longhouse. Each home stands a talk
     /// reach from the next, and each has a spot within a hand's reach, clear of the others' bodies, that the lattice reaches from the town's
-    /// work through the doors - so the character can walk up to anyone sheltering and talk.
+    /// work through the doors - so the character can walk up to anyone at home and talk.
     /// </summary>
     [Theory]
     [InlineData("cairnwold")]
@@ -439,28 +416,39 @@ public class NpcLifeLinksTests
     }
 
     /// <summary>
-    /// The integrator's crowd trap: everyone sat round a town's cookfire, the character in among them. Pushing out any way the town leaves
-    /// open gets them out within seconds - the NPC in the way steps aside - and the NPCs stay solid all the while.
+    /// The integrator's crowd trap, kept as a test of making way though meals are gone (owner, 2026-10-17): a schedule that gathers a whole
+    /// town in a ring round its cookfire, about 2 m apart, the character in among them. Pushing out any way the town leaves open gets them
+    /// out within seconds - the NPC in the way steps aside - and the NPCs stay solid all the while.
     /// </summary>
     [Theory]
     [InlineData("cairnwold")]
     [InlineData("ashen_hollow")]
-    public void AtMealtime_TheCrowdAtTheCookfire_MakesWay_ButStaysSolid(string town)
+    public void ACrowdAtTheCookfire_MakesWay_ButStaysSolid(string town)
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var setup = session.Setup;
-        var eats = setup.NpcLife.Routines.Values.Where(r => r.Settlement == town && r.Anchors.ContainsKey(NpcAnchorKinds.Eat)).Select(r => r.Anchors[NpcAnchorKinds.Eat]).ToList();
-        var ring = eats.Where(a => eats.Count(b => Math.Abs(a.XMm - b.XMm) < 10_000 && Math.Abs(a.ZMm - b.ZMm) < 10_000) > 3).ToList();
-        double cx = ring.Average(a => a.XMm), cz = ring.Average(a => a.ZMm);
-        // Everyone at the fire: a test rule that has them eat whenever they can, so the ring is full.
-        var hungry = setup with
+        var fire = setup.Layout.Stations.Single(st => st.Kind == "cookfire" && st.Key == $"station.{(town == "ashen_hollow" ? "hollow" : town)}.cookfire");
+        double cx = fire.XMm, cz = fire.ZMm;
+        // Everyone at the fire, all day: a test schedule with a spot on a 3.3 m ring for each of the town's routines, and no work.
+        var townsfolk = setup.NpcLife.Routines.Values.Where(r => r.Settlement == town).OrderBy(r => r.Id, StringComparer.Ordinal).ToList();
+        var gathered = setup with
         {
             NpcLife = setup.NpcLife with
             {
-                Routines = setup.NpcLife.Routines.ToImmutableSortedDictionary(kv => kv.Key, kv => kv.Value.Settlement == town
-                    ? kv.Value with { Weights = kv.Value.Weights.SetItem(NpcActivities.Eat, 5_000), Trip = null }
-                    : kv.Value, StringComparer.Ordinal),
+                Routines = setup.NpcLife.Routines.ToImmutableSortedDictionary(kv => kv.Key, kv =>
+                {
+                    int k = townsfolk.IndexOf(kv.Value);
+                    if (k < 0)
+                        return kv.Value;
+                    double a = 2 * Math.PI * k / townsfolk.Count;
+                    var spot = new NpcAnchor((long)(cx + Math.Sin(a) * 3_300), (long)(cz + Math.Cos(a) * 3_300), CombatRules.FacingTowards((long)(cx + Math.Sin(a) * 3_300), (long)(cz + Math.Cos(a) * 3_300), (long)cx, (long)cz));
+                    return kv.Value with
+                    {
+                        Anchors = kv.Value.Anchors.SetItem("fire", spot), WorkFromHour = 0, WorkToHour = 0, Trip = null,
+                        Schedule = ImmutableArray.Create(new NpcScheduleBand(0, 23, "fire")),
+                    };
+                }, StringComparer.Ordinal),
             },
         };
         // Each way out: the character pushes outward for ten seconds, first past an empty fire (a control: some ways are walled by the
@@ -481,7 +469,8 @@ public class NpcLifeLinksTests
             arena.Tick(40);
             if (crowd)
             {
-                int seated = arena.Simulation.Lives.Count(l => l.Settlement == town && l.Activity == NpcActivities.Eat);
+                int seated = arena.Simulation.Npcs.Count(n => (n.Id.StartsWith($"npc.{town}.", StringComparison.Ordinal) || n.Id.StartsWith($"routine.{town}.", StringComparison.Ordinal))
+                    && Math.Sqrt(Math.Pow(n.Body.XMm - cx, 2) + Math.Pow(n.Body.ZMm - cz, 2)) < 4_000);
                 Assert.True(seated >= 8, $"{seated} at the fire");
                 // They stay solid: what the character's prediction walks round.
                 Assert.All(arena.Simulation.Npcs.Where(n => n.Id.StartsWith($"npc.{town}.", StringComparison.Ordinal) || n.Id.StartsWith($"routine.{town}.", StringComparison.Ordinal)),
@@ -504,7 +493,7 @@ public class NpcLifeLinksTests
         }
         var open = Enumerable.Range(0, 8).Where(d => Out(empty, d, crowd: false)).ToList();
         Assert.True(open.Count >= 5, $"only {open.Count} ways out past an empty fire");
-        var through = open.Where(d => Out(hungry, d, crowd: true)).ToList();
+        var through = open.Where(d => Out(gathered, d, crowd: true)).ToList();
         _output.WriteLine($"{open.Count} ways open; {through.Count} of them through the crowd");
         Assert.Equal(open, through);
     }

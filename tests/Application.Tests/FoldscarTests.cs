@@ -290,8 +290,9 @@ public class FoldscarTests
         Assert.All(Switches(loaded), s => Assert.True(s.Item2));
         Assert.False(FoldStands(loaded));
         var cells = SectionCodec.DecodeCells(File.ReadAllBytes(Path.Combine(profile.Root, SaveSlots.Manual("foldscar"), SaveFormat.Cells)));
-        var foldscar = Assert.Single(cells);
-        Assert.Equal(Foldscar.ToString(), foldscar.CellKey);
+        // The Foldscar's cell holds the stones and the heart; any other cell changed is a door the towns' people walked through on their day.
+        var foldscar = Assert.Single(cells, c => c.CellKey == Foldscar.ToString());
+        Assert.All(cells.Where(c => c != foldscar).SelectMany(c => c.Flags), f => Assert.EndsWith("_door_open", f.Key));
         Assert.Equal(new[] { Steadied, "world.foldscar.stone_north_aligned", "world.foldscar.stone_southeast_aligned", "world.foldscar.stone_southwest_aligned" },
             foldscar.Flags.Select(f => f.Key).OrderBy(k => k, StringComparer.Ordinal));
         Walk(loaded, ToTavar);

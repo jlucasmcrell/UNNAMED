@@ -13,8 +13,6 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [439, 725.6], facing_deg: 0 }
   work: { position_m: [500, 745], facing_deg: 90 }
-  eat: { position_m: [449.18, 734.46], facing_deg: 316 }
-  social: { position_m: [458.5, 735.5], facing_deg: 270 }
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: hunt
   creature_ref: creature.beast.wolf_grey
