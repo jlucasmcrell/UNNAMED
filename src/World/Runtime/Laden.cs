@@ -11,9 +11,10 @@ namespace UNNAMED.World.Runtime;
 /// <summary>
 /// Owns no state. Above the laden band (<c>config.inventory laden</c>, 80% of the carry limit) the pack weighs on the legs (D4): a sprint
 /// drains more stamina than usual, and a dodge costs more. It adds to what combat already takes, through the pools' own command, and never
-/// reaches into combat: a sprint is read from the movement intent and the combat phase, as combat reads it, and a dodge is charged once combat
-/// has accepted it. Stamina still returns only once the legs rest, as ever. Nothing heavier than the limit is ever taken up: that refusal is
-/// the inventory's and is unchanged. The extra drain is a function of the absolute tick, so it needs no remainder of its own.
+/// reaches into combat: a sprint is read from the movement intent and the combat phase, as combat reads it, and a dodge is refused without
+/// its whole laden cost and charged the extra once combat has accepted it. Stamina still returns only once the legs rest, as ever. Nothing
+/// heavier than the limit is ever taken up: that refusal is the inventory's and is unchanged. The extra drain's part-points carry over
+/// laden-sprint ticks only, and are transient, as combat's own sprint remainder is.
 /// </summary>
 internal sealed class LadenSystem : IAbstractAdvance
 {
@@ -21,6 +22,7 @@ internal sealed class LadenSystem : IAbstractAdvance
     private readonly Func<MoveIntent> _intent;
     private readonly Func<long> _carried;
     private readonly Func<long> _limit;
+    private long _sprintMilli;
 
     public LadenSystem(SystemContext context, Func<MoveIntent> intent, Func<long> carried, Func<long> limit)
     {
@@ -50,17 +52,23 @@ internal sealed class LadenSystem : IAbstractAdvance
         if (combat.Defeated || combat.Blocking || !intent.IsMoving || intent.Gait != Gait.Sprint
             || combat.Action.PhaseAt(tick, Combat).Phase != CombatPhase.Idle || Stamina() <= 0 || !Laden)
             return;
-        // Thousandths of a point per tick; the points due are those the running total crosses on this tick.
-        long milli = (long)Combat.SprintStaminaPerSecond * (Rules.SprintDrainPercent - 100) * _context.Setup.TickMilliseconds / 100;
-        long due = tick * milli / 1000 - (tick - 1) * milli / 1000;
-        Spend((int)due);
+        // Thousandths of a point per laden-sprint tick, carried over as combat carries its own sprint's.
+        _sprintMilli += (long)Combat.SprintStaminaPerSecond * (Rules.SprintDrainPercent - 100) * _context.Setup.TickMilliseconds / 100;
+        Spend((int)(_sprintMilli / 1000));
+        _sprintMilli %= 1000;
     }
 
-    /// <summary>A dodge combat accepted: laden, it costs the extra share of a dodge, as much of it as is left.</summary>
-    public string? Dodged()
+    /// <summary>
+    /// A dodge: laden, refused without the whole laden cost, and once combat has accepted it charged the extra share over combat's own.
+    /// </summary>
+    public string? Dodge(Func<string?> dodge)
     {
-        if (Laden)
-            Spend((Combat.DodgeStaminaCost * Rules.DodgeCostPercent + 99) / 100 - Combat.DodgeStaminaCost);
+        int extra = Laden ? (Combat.DodgeStaminaCost * Rules.DodgeCostPercent + 99) / 100 - Combat.DodgeStaminaCost : 0;
+        if (extra > 0 && Stamina() is var stamina && stamina >= Combat.DodgeStaminaCost && stamina < Combat.DodgeStaminaCost + extra)
+            return "too tired to dodge";
+        if (dodge() is { } refused)
+            return refused;
+        Spend(extra);
         return null;
     }
 

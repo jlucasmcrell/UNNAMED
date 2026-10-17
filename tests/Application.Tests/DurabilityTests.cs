@@ -291,6 +291,39 @@ public class DurabilityTests
     }
 
     [Fact]
+    public void Laden_ASprintBrokenOffEveryFourthTick_StillPaysTheExtraForEverySprintingTick()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var light = At(session, Open, r => r);
+        var heavy = At(session, Open, r => Kit(r, session.Setup, 0, Load(session, 0.85)));
+        foreach (var arena in new[] { light, heavy })
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, new MoveIntent(1000, 0, Gait.Sprint, 90_000)));
+                arena.Tick(3);
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(90_000)));
+                arena.Tick();
+            }
+        }
+        // 60 sprinting ticks, 3 s: the extra is half of the 30 points a light sprint spends, wherever the stops fall.
+        Assert.Equal(15, light.Simulation.Combat.Stamina - heavy.Simulation.Combat.Stamina);
+    }
+
+    [Fact]
+    public void Laden_ADodgeWithoutItsWholeCost_IsRefused_AndSpendsNothing()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var heavy = At(session, Open, r => Kit(r, session.Setup, 0, Load(session, 0.85))
+            .WithProgression(r.Progression with { Pools = r.Progression.Pools with { Stamina = 22 } }));
+        Assert.True(heavy.Simulation.Laden);
+        Assert.Equal("too tired to dodge", heavy.Submit(new DodgeCommand(heavy.Player, 1000, 0)));
+        Assert.Equal(22, heavy.Simulation.Combat.Stamina);
+    }
+
+    [Fact]
     public void AWornPiece_KeepsItsWear_OnTheGround_AndInAChest()
     {
         using var profile = new TempProfile();
