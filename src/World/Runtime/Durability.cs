@@ -40,7 +40,7 @@ internal sealed record RepairItem(EntityId Item, int Rolled) : InternalCommand;
 
 /// <summary>
 /// Owns no state. Wear (D5) comes from what the character does, read from events and never from combat's or gathering's insides: a blow the
-/// character lands wears the main-hand weapon; a blow they take wears what is worn where it landed - or, blocked, the shield, else the weapon
+/// character lands with the main-hand weapon wears it; a blow they take wears what is worn where it landed - or, blocked, the shield, else the weapon
 /// that took it; a harvest wears a tool in the main hand. A piece wears only while it is equipped, and only the character's: while they are
 /// away they do nothing, so nothing of theirs wears (§2.4). Repair at a station is this system's too; a trader's repair is the trade's.
 /// </summary>
@@ -77,7 +77,9 @@ internal sealed class DurabilitySystem : IAbstractAdvance
             return;
         if (e.Attacker == _player && e.Target != _player)
         {
-            Wear(Rules.WearPerHit, EquipSlot.MainHand);
+            // A blow of the weapon itself: a working cast or a bare-handed blow wears nothing.
+            if (Equipped(EquipSlot.MainHand) is { } weapon && e.Source == weapon.DefId)
+                Wear(Rules.WearPerHit, EquipSlot.MainHand);
         }
         else if (e.Target == _player)
         {

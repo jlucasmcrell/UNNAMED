@@ -91,6 +91,25 @@ public class DurabilityTests
     }
 
     [Fact]
+    public void AWorkingThatStrikes_WearsNoWeapon()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string Bolt = "spell.force.impulse_bolt";
+        var arena = At(session, Open, r => Skilled(r.WithProgression(r.Progression with
+        {
+            Known = r.Progression.Known.SetItem(Bolt, new KnownTechnique(LearningSource.Teacher, "npc.test", 0)),
+        }), "skill.force", 5), new[] { (Arena.Wolf, Open.X, Open.Z + 15.0, "sentinel") });
+        var hits = arena.Record<HitResolved>();
+        Assert.Null(arena.Submit(new CastCommand(arena.Player, Bolt)));
+        var formula = arena.Simulation.Setup.Magic.Formulas[Bolt];
+        arena.Tick(formula.CastTicks + formula.RecoveryTicks + 2);
+
+        Assert.Equal(Bolt, Assert.Single(hits, h => h.Attacker == arena.Player).Source);
+        Assert.Null(Carried(arena, Sword).Wear);
+    }
+
+    [Fact]
     public void BlowsTaken_WearWhatIsWornWhereTheyLand()
     {
         using var profile = new TempProfile();
