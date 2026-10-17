@@ -31,6 +31,7 @@ internal sealed class ChatSystem
     private readonly CellKey _region;
     private readonly LfgSystem _lfg;
     private readonly Func<long, WeatherState> _weather;
+    private readonly IChatterSpeakers _speakers;
     private readonly List<ChatMessage> _heard = new();
     private readonly List<ChatMessage> _pending = new();
     private readonly List<(string Event, long Tick, ImmutableSortedDictionary<string, string> Facts)> _recent = new();
@@ -38,8 +39,9 @@ internal sealed class ChatSystem
     private readonly HashSet<(string QuestId, long Tick)> _lost = new();
     private long _plannedHour = long.MinValue;
 
-    public ChatSystem(SystemContext context, EntityId player, CellKey region, LfgSystem lfg, Func<long, WeatherState> weather)
+    public ChatSystem(SystemContext context, EntityId player, CellKey region, LfgSystem lfg, Func<long, WeatherState> weather, IChatterSpeakers speakers)
     {
+        _speakers = speakers;
         _context = context;
         _player = player;
         _region = region;
@@ -192,7 +194,7 @@ internal sealed class ChatSystem
         string weather = WeatherStates.Key(_weather(tick));
         var named = _context.Setup.Social.Npcs.Keys.Select(NpcSystem.InstanceIdOf).ToHashSet();
         int worldLines = 0;
-        foreach (var speaker in _context.Setup.ChatterSpeakers.At(tick).Where(s => !s.Named && !named.Contains(s.Id)).OrderBy(s => s.Id))
+        foreach (var speaker in _speakers.At(tick).Where(s => !s.Named && !named.Contains(s.Id)).OrderBy(s => s.Id))
         {
             foreach (var channel in new[] { ChatChannel.Local, ChatChannel.World })
             {

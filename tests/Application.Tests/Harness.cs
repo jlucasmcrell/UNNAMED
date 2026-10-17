@@ -1,4 +1,8 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -26,6 +30,27 @@ internal static class Harness
 
     /// <summary>Where the hollow lies in a region: its south-west corner, in starting_frontier and in the retired region.ashen_hollow alike.</summary>
     public static (double X, double Z) HollowOf(SimulationSetup setup) => (setup.Layout.Space.MinXMm / 1000.0, setup.Layout.Space.MinZMm / 1000.0);
+
+    /// <summary>
+    /// The setup with these townsfolk hireable in every role, each with a spear (the WP15 tests' townsfolk). Who can be hired is derived
+    /// from town roles (WP12b), and the named are vendors or quest givers, who never are: for the test they keep a role that hires out.
+    /// </summary>
+    public static SimulationSetup HireableTownsfolk(SimulationSetup setup, params string[] ids) => setup with
+    {
+        Social = setup.Social with
+        {
+            Npcs = ids.Aggregate(setup.Social.Npcs, (npcs, id) => npcs.SetItem(id, npcs[id] with
+            {
+                Hireling = new HirelingProfile(Enum.GetValues<HirelingRole>().ToImmutableArray(),
+                    new CompanionProfile(60, "item.weapon.march_spear", ImmutableSortedDictionary<BodyRegion, int>.Empty)),
+            })),
+        },
+        NpcLife = setup.NpcLife with
+        {
+            Routines = setup.NpcLife.Routines.ToImmutableSortedDictionary(kv => kv.Key,
+                kv => kv.Value.NpcId is { } npc && ids.Contains(npc) ? kv.Value with { Roles = ImmutableArray.Create("guard") } : kv.Value, StringComparer.Ordinal),
+        },
+    };
 
     /// <summary>The region's own origin, for an arena whose places are given in region metres.</summary>
     public static readonly (double X, double Z) Region = (0, 0);

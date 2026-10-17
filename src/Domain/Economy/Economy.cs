@@ -162,10 +162,12 @@ public static class EconomyEngine
 
     /// <summary>
     /// One day: <paramref name="day"/> must be the day after the state's. Returns the economy after it, and what each merchant took that day
-    /// selling the town what it used (their purse's income), by merchant.
+    /// selling the town what it used (their purse's income), by merchant. <paramref name="jobs"/> is what the towns' residents made at their
+    /// jobs that day, by <c>market/item</c> (WP12's hook): a good's production is the larger of its floor and its jobs (WP12b) - the floor
+    /// stands for the work of a town nobody simulates, and the jobs replace it where they make more, never add to it.
     /// </summary>
     public static (EconomyState State, ImmutableSortedDictionary<string, long> Income) Step(EconomySetup setup, EconomyState state, long day,
-        Func<string, long> valueBase)
+        Func<string, long> valueBase, IReadOnlyDictionary<string, long>? jobs = null)
     {
         if (day != state.Day + 1)
             throw new ArgumentOutOfRangeException(nameof(day), day, $"The economy steps one day at a time: it stands at day {state.Day}");
@@ -189,8 +191,8 @@ public static class EconomyEngine
             {
                 long s = stock[good.ItemId];
                 int factor = PriceFactor(good, Clamp(good, s), rules);
-                // The town makes its floor, and brings in what it is short of.
-                s += good.Production;
+                // The town makes its floor, or what its residents' jobs make when that is more, and brings in what it is short of.
+                s += Math.Max(good.Production, jobs?.GetValueOrDefault(JobKey(market.Id, good.ItemId)) ?? 0);
                 if (s < good.Target)
                     s = Math.Min(good.Target, s + good.Imports);
                 // It uses what it needs, never past its reserve: the merchants who sell it are paid for each.
@@ -249,6 +251,9 @@ public static class EconomyEngine
         var remembered = sold > 0 ? state.SoldByCharacter.SetItem(itemId, state.SoldByCharacter.GetValueOrDefault(itemId) + sold) : state.SoldByCharacter;
         return state with { Stock = stock, SoldByCharacter = remembered };
     }
+
+    /// <summary>The key <see cref="Step"/>'s jobs are counted by: a market and a good.</summary>
+    public static string JobKey(string marketId, string itemId) => $"{marketId}/{itemId}";
 
     /// <summary>Goods made in the town besides its floor (a resident's job, WP12): they join the stock, within its bounds.</summary>
     public static MarketState Produced(MarketDefinition market, MarketState state, string itemId, long count) =>

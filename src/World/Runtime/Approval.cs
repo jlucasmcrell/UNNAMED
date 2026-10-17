@@ -33,8 +33,8 @@ public sealed record PartyLifeEntry(string NpcId, PartyMembership Membership, st
 /// <summary>
 /// The life a party member goes back to (§2.15 "Persistent world"; canon :181-183): dismissed companions and hirelings become residents or
 /// adventurers in the NPC life simulation (WP12, WP13), keep their level, gear and relationship, and go on living, including while the
-/// character is away; and can be asked along again where they now live. Until WP12 merges, <see cref="HomeLife"/> stands in: they wait at
-/// home as built. The sheet and what they think of the character are kept by the simulation either way.
+/// character is away; and can be asked along again where they now live. WP12b supplies it: joining suspends a life (the <c>hired</c> life
+/// state), leaving resumes it and they walk home. The sheet and what they think of the character are kept by the simulation either way.
 /// </summary>
 public interface IPartyLife
 {
@@ -43,18 +43,12 @@ public interface IPartyLife
 
     /// <summary>They joined the party again: the life simulation lets them go.</summary>
     void Release(string npcId, long tick);
-}
 
-/// <summary>The stand-in until WP12's life simulation (§2.15): someone who leaves the party goes home and waits there, as WP15a built it.</summary>
-public sealed class HomeLife : IPartyLife
-{
-    public void TakeUp(PartyLifeEntry entry)
-    {
-    }
-
-    public void Release(string npcId, long tick)
-    {
-    }
+    /// <summary>
+    /// Whether someone leaving the party walks back to their life on their own feet (WP12b: they have a routine), rather than being put
+    /// at home as WP15a built it. A recorder that only listens says no.
+    /// </summary>
+    bool Walks(string npcId) => false;
 }
 
 // ── internal commands ───────────────────────────────────────────────────────

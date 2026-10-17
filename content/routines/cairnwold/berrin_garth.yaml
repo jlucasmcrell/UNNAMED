@@ -8,9 +8,10 @@ region_ref: region.starting_frontier
 npc_ref: npc.cairnwold.berrin_garth
 settlement: cairnwold
 role: steward
+roles: [steward]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [944.75, 641.35], facing_deg: 90 }
   work: { position_m: [957.5, 643.5], facing_deg: 0 }
-  eat: { position_m: [956, 686.2], facing_deg: 0 }
+  eat: { position_m: [955.26, 684.55], facing_deg: 10 }
   social: { position_m: [967.75, 663.25], facing_deg: 180 }

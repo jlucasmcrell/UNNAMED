@@ -8,6 +8,7 @@ region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.tavar_orr
 settlement: ashen_hollow
 role: villager
+roles: [guide]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [0, 0]
 weights: { shop: -1000, socialise: -1000 }   # he cannot leave the Foldscar
 anchors:

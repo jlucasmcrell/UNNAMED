@@ -8,9 +8,20 @@ region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: ashen_hollow
 role: hunter
+roles: [hunter]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [439, 725.6], facing_deg: 0 }
   work: { position_m: [500, 745], facing_deg: 90 }
-  eat: { position_m: [448.3, 735.2], facing_deg: 315 }
+  eat: { position_m: [449.18, 734.46], facing_deg: 316 }
   social: { position_m: [458.5, 735.5], facing_deg: 270 }
+trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
+  purpose: hunt
+  creature_ref: creature.beast.wolf_grey
+  meet_location_ref: location.outpost
+  meet: { position_m: [452, 748], facing_deg: 90 }
+  destination_location_ref: location.den_mouth
+  destination: { position_m: [508, 770], facing_deg: 45 }
+  chance_percent: 35
+  hours: [8, 15]
+  away_hours: 4

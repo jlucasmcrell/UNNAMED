@@ -8,10 +8,21 @@ region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: cairnwold
 role: woodcutter
+roles: [woodcutter]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [971.75, 669.85], facing_deg: 90 }
   work: { position_m: [973, 712], facing_deg: 0 }
-  eat: { position_m: [954.2, 688.8], facing_deg: 135 }
+  eat: { position_m: [954.42, 691.02], facing_deg: 156 }
   social: { position_m: [971.5, 663], facing_deg: 270 }
-job: { market_ref: market.cairnwold, item_ref: item.material.ash_haft, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)
+job: { market_ref: market.cairnwold, item_ref: item.material.ash_haft, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
+trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
+  purpose: errand
+  item_ref: item.material.timber
+  meet_location_ref: location.cairnwold.village
+  meet: { position_m: [972.5, 672], facing_deg: 0 }
+  destination_location_ref: location.cairnwold.ash_stand
+  destination: { position_m: [975, 710], facing_deg: 0 }
+  chance_percent: 25
+  hours: [8, 15]
+  away_hours: 3

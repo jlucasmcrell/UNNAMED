@@ -54,6 +54,22 @@ public class EconomyEngineTests
         Assert.Equal(0, EconomyEngine.Offer(1, 0.4, 1000, 0, EconomyRules.Default, 1));
     }
 
+    /// <summary>WP12b: a good's production is the larger of its floor and what the residents' jobs made - never the two added.</summary>
+    [Theory]
+    [InlineData(0, 55)]     // no jobs: the floor, 5
+    [InlineData(3, 55)]     // jobs below the floor: still the floor
+    [InlineData(5, 55)]
+    [InlineData(9, 59)]     // jobs above it: the jobs, alone
+    public void Production_IsTheLargerOfTheFloorAndTheJobs(long made, long stock)
+    {
+        var setup = Setup(new[] { Good(Ore, production: 5) }, new[] { Good(Hide) });
+        var state = WithStock(EconomyEngine.Reconcile(setup, null, 0), "market.west", Ore, 50);
+        var jobs = new Dictionary<string, long> { [EconomyEngine.JobKey("market.west", Ore)] = made };
+        // 50 + production; then a tenth of what is short of 100 comes back.
+        long relaxed = stock + Math.Max(1, (100 - stock) / 10);
+        Assert.Equal(relaxed, EconomyEngine.Step(setup, state, 1, _ => 10, jobs).State.Markets["market.west"].Stock[Ore]);
+    }
+
     [Fact]
     public void ADay_MakesImportsUsesRelaxesAndClamps()
     {

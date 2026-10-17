@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
@@ -14,7 +15,11 @@ namespace UNNAMED.Content;
 /// Builds the domain's <see cref="NpcLifeSetup"/> for a region and lints every region's routines (NPL codes): NPL001 a malformed routine
 /// or <c>config.npc_life</c>; NPL002 a merchant whose work hours are not the trading hours (§2.13: merchants trade 06:00-20:00); NPL003 an
 /// anchor a body cannot stand at or reach from the spawn; NPL004 a named NPC with two routines in one region, or a routine for an NPC the
-/// region does not place. There is no limit on how many routines, residents or pairs a pack may hold (owner, 2026-10-17).
+/// region does not place; NPL005 a routine's roles (WP12b): a role <c>config.npc_life</c> does not define, a trader without
+/// <c>vendor</c>, a quest's giver without <c>quest_giver</c>, a vendor or quest giver whose NPC file still says they hire on, or a speaker
+/// type the chatter schema does not know; NPL006 a trip's meeting place or destination a body cannot stand at or reach from the spawn.
+/// NPL007 someone who can join or be hired, placed in a region with routines, without a routine of their own there - the home anchor the
+/// party lets them walk back to (WP12b). There is no limit on how many routines, residents or pairs a pack may hold (owner, 2026-10-17).
 /// <c>config.npc_life</c> is optional: a pack without it lives by <see cref="NpcLifeRules.Default"/>.
 /// </summary>
 public static class NpcLifeContent
@@ -85,6 +90,44 @@ public static class NpcLifeContent
                         errors.Add(NavigationContent.Error("NPL002", $"{routine.Id}: {npcId} trades, so works the trading hours", file));
                 }
             }
+            var givers = loader.GetByKind("quest").Values.Select(q => Read(q.YamlSource).GetValueOrDefault("giver_ref") as string).OfType<string>()
+                .ToHashSet(StringComparer.Ordinal);
+            ImmutableSortedSet<string>? speakers = null;
+            try
+            {
+                if (loader.GetByKind("chatter").Count > 0)
+                    speakers = ChatterContent.ReadSchema(loader).SpeakerTypes;
+            }
+            catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException or IOException)
+            {
+                // the CHT codes report it
+            }
+            foreach (var routine in setup.Routines.Values)
+            {
+                string? file = loader.Definitions[routine.Id].SourceFile;
+                foreach (string role in routine.Roles.Where(r => !setup.Roles.ContainsKey(r)))
+                    errors.Add(NavigationContent.Error("NPL005", $"{routine.Id}: role '{role}' is not one config.npc_life defines", file));
+                if (routine.NpcId is not { } npcId)
+                    continue;
+                if (npcs.TryGetValue(npcId, out var npc) && npc.Offers(NpcServices.Trade) && !routine.Roles.Contains(NpcRoleKeys.Vendor))
+                    errors.Add(NavigationContent.Error("NPL005", $"{routine.Id}: {npcId} trades, so is a {NpcRoleKeys.Vendor}", file));
+                if (givers.Contains(npcId) && !routine.Roles.Contains(NpcRoleKeys.QuestGiver))
+                    errors.Add(NavigationContent.Error("NPL005", $"{routine.Id}: {npcId} gives a quest, so is a {NpcRoleKeys.QuestGiver}", file));
+                if (npc?.Hireling is not null && routine.Roles.Any(NpcRoleKeys.NeverHired.Contains))
+                    errors.Add(NavigationContent.Error("NPL005", $"{routine.Id}: {npcId} is a vendor or quest giver, who never hires on, yet their file has a hireling block", file));
+            }
+            if (speakers is not null)
+            {
+                foreach (var role in setup.Roles.Values.Where(r => r.SpeakerType is { } t && !speakers.Contains(t)))
+                    errors.Add(NavigationContent.Error("NPL005", $"{ConfigId}: role '{role.Id}' talks as '{role.SpeakerType}', which is not a chatter speaker type",
+                        loader.Definitions.GetValueOrDefault(ConfigId)?.SourceFile));
+            }
+            // Companion home anchors (WP12b): someone the party lets go walks back to their routine, so whoever can join or be hired has one.
+            foreach (var site in layout.Npcs.Where(n => npcs.TryGetValue(n.NpcId, out var d) && (d.Companion is not null || d.Hireling is not null)))
+            {
+                if (!setup.Routines.Values.Any(r => r.NpcId == site.NpcId))
+                    errors.Add(NavigationContent.Error("NPL007", $"{site.NpcId} can join or be hired in {regionId}, so has a routine there: the home they walk back to", null));
+            }
             foreach (var group in setup.Routines.Values.Where(r => r.NpcId is not null).GroupBy(r => r.NpcId!).Where(g => g.Count() > 1))
                 errors.Add(NavigationContent.Error("NPL004", $"{group.Key} has {group.Count()} routines in {regionId}", null));
 
@@ -108,6 +151,16 @@ public static class NpcLifeContent
                     if (!NavSearch.Standable(grid, person, _ => true, at, config.Classes[config.PersonClass].RadiusMm) || !reach.Near(at, AnchorReachMm))
                         errors.Add(NavigationContent.Error("NPL003",
                             $"{routine.Id}: its {kind} anchor ({anchor.XMm / 1000.0:0.###}, {anchor.ZMm / 1000.0:0.###}) cannot be stood at, or reached from the spawn",
+                            loader.Definitions[routine.Id].SourceFile));
+                }
+                if (routine.Trip is not { } trip)
+                    continue;
+                foreach (var (kind, anchor) in new[] { ("meeting place", trip.Meet), ("destination", trip.Destination) })
+                {
+                    var at = new NavPoint(anchor.XMm, anchor.ZMm);
+                    if (!NavSearch.Standable(grid, person, _ => true, at, config.Classes[config.PersonClass].RadiusMm) || !reach.Near(at, AnchorReachMm))
+                        errors.Add(NavigationContent.Error("NPL006",
+                            $"{routine.Id}: its trip's {kind} ({anchor.XMm / 1000.0:0.###}, {anchor.ZMm / 1000.0:0.###}) cannot be stood at, or reached from the spawn",
                             loader.Definitions[routine.Id].SourceFile));
                 }
             }
@@ -165,10 +218,15 @@ public static class NpcLifeContent
                 if (job.PerDay < 0)
                     throw new FormatException($"{id} job makes at least 0 a day");
             }
+            var roles = map.ContainsKey("roles")
+                ? List(map, "roles").Select(r => r as string ?? throw new FormatException($"{id} roles are names")).Distinct(StringComparer.Ordinal).ToImmutableArray()
+                : ImmutableArray<string>.Empty;
             var routine = new RoutineDefinition(id, npcId, Text(map, "settlement"), Text(map, "role"), anchors, from % 24, to % 24, weights)
             {
                 PeopleId = people,
                 Job = job,
+                Roles = roles,
+                Trip = map.TryGetValue("trip", out var t) ? Trip(loader, id, t as Dictionary<object, object> ?? throw new FormatException($"{id} trip must be a map")) : null,
             };
             routines.Add(routine);
             foreach (var row in Rows(map, "pairs", id))
@@ -198,7 +256,83 @@ public static class NpcLifeContent
             if (!markets.TryGetValue(routine.Job!.MarketId, out var market) || !market.Goods.ContainsKey(routine.Job.ItemId))
                 throw new FormatException($"{routine.Id}'s job makes {routine.Job.ItemId} for {routine.Job.MarketId}, which does not keep it");
         }
-        return new NpcLifeSetup(routines.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal), pairs.Values.ToImmutableArray(), rules);
+        var (vocabulary, body, lead) = BuildRoles(loader);
+        return new NpcLifeSetup(routines.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal), pairs.Values.ToImmutableArray(), rules)
+        {
+            Roles = vocabulary,
+            ResidentBody = body,
+            TripLeadMinutes = lead,
+        };
+    }
+
+    /// <summary>
+    /// <c>trip</c> (WP12b): what for (<c>purpose</c>: hunt, bounty or errand) and what names it - a hunt's <c>creature_ref</c>, a bounty's
+    /// <c>quest_ref</c>, an errand's <c>item_ref</c> - where they wait (<c>meet_location_ref</c> names it, <c>meet</c> is the spot) and where
+    /// they go (<c>destination_location_ref</c>, <c>destination</c>), a day's <c>chance_percent</c>, the <c>hours</c> it may leave in, and
+    /// <c>away_hours</c>.
+    /// </summary>
+    private static NpcTrip Trip(ContentLoader loader, string id, Dictionary<object, object> map)
+    {
+        string purpose = Text(map, "purpose");
+        string named = purpose switch
+        {
+            LfgPurposes.Hunt => NameOf(loader, Text(map, "creature_ref"), id),
+            LfgPurposes.Bounty => NameOf(loader, Text(map, "quest_ref"), id),
+            LfgPurposes.Errand => NameOf(loader, Text(map, "item_ref"), id),
+            _ => throw new FormatException($"{id} trip purpose '{purpose}' is not one of {string.Join(", ", LfgPurposes.All)}"),
+        };
+        string meetId = Text(map, "meet_location_ref");
+        var hours = List(map, "hours");
+        if (hours.Count != 2)
+            throw new FormatException($"{id} trip hours is [from, to]");
+        var trip = new NpcTrip(purpose, named, meetId, NameOf(loader, meetId, id), Anchor(Map(map, "meet"), $"{id} trip meet"),
+            NameOf(loader, Text(map, "destination_location_ref"), id), Anchor(Map(map, "destination"), $"{id} trip destination"),
+            Int(map, "chance_percent"), IntOf(hours, 0, $"{id} trip hours"), IntOf(hours, 1, $"{id} trip hours"), Int(map, "away_hours"));
+        return trip.Problem() is { } problem ? throw new FormatException($"{id}: {problem}") : trip;
+    }
+
+    /// <summary>A definition's name as content gives it (<c>name</c>, or a quest's <c>title</c>): the words a trip's offer says.</summary>
+    private static string NameOf(ContentLoader loader, string refId, string id)
+    {
+        if (!loader.Definitions.TryGetValue(refId, out var definition))
+            throw new FormatException($"{id} trip names {refId}, which is not defined");
+        var map = Read(definition.YamlSource);
+        return map.GetValueOrDefault("name") as string ?? map.GetValueOrDefault("title") as string
+            ?? throw new FormatException($"{id} trip names {refId}, which has no name to say");
+    }
+
+    /// <summary>
+    /// <c>config.npc_life</c>'s town roles (WP12b): each role's <c>hires_as</c> (guard, porter, gatherer, crafter) and the chatter
+    /// <c>speaker</c> type it talks as; <c>vendor</c> and <c>quest_giver</c> must be defined and never hire out. Then the body a hired
+    /// resident fights with (<c>resident_hireling</c>, as an NPC's <c>hireling</c> block without roles) and the trips' lead.
+    /// </summary>
+    public static (ImmutableSortedDictionary<string, NpcRole> Roles, CompanionProfile? ResidentBody, int TripLeadMinutes) BuildRoles(ContentLoader loader)
+    {
+        var none = ImmutableSortedDictionary.Create<string, NpcRole>(StringComparer.Ordinal);
+        if (!loader.Definitions.ContainsKey(ConfigId))
+            return (none, null, 40);
+        var map = Config(loader, ConfigId);
+        var roles = map.ContainsKey("roles")
+            ? Map(map, "roles").ToImmutableSortedDictionary(kv => kv.Key as string ?? throw new FormatException("roles are named"), kv =>
+            {
+                string id = (string)kv.Key;
+                var row = kv.Value as Dictionary<object, object> ?? new Dictionary<object, object>();
+                var hires = row.ContainsKey("hires_as")
+                    ? List(row, "hires_as").Select(r => PartyKeys.ParseRole(r as string ?? "") ?? throw new FormatException($"role {id} hires as '{r}', which is not a hireling role"))
+                        .Distinct().OrderBy(r => r).ToImmutableArray()
+                    : ImmutableArray<HirelingRole>.Empty;
+                if (NpcRoleKeys.NeverHired.Contains(id) && !hires.IsEmpty)
+                    throw new FormatException($"role {id} never hires out");
+                return new NpcRole(id, hires, row.GetValueOrDefault("speaker") as string);
+            }, StringComparer.Ordinal)
+            : none;
+        if (!roles.IsEmpty && NpcRoleKeys.NeverHired.FirstOrDefault(r => !roles.ContainsKey(r)) is { } missing)
+            throw new FormatException($"roles defines {missing}: the roles that never hire out are always there");
+        var body = map.ContainsKey("resident_hireling") ? SocialContent.HirelingBody(ConfigId, Map(map, "resident_hireling"), loader) : null;
+        int lead = map.ContainsKey("trip_lead_minutes") ? Int(map, "trip_lead_minutes") : 40;
+        if (lead is < 20 or > 60)
+            throw new FormatException("trip_lead_minutes is 20 to 60: an offer goes up at least 20 game minutes ahead, within the hour of waiting");
+        return (roles, body, lead);
     }
 
     /// <summary><c>config.npc_life</c>'s rules, or the defaults for a pack without it.</summary>

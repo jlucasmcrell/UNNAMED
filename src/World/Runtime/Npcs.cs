@@ -71,11 +71,17 @@ internal sealed partial class NpcSystem
     private readonly SliceOwner _owner;
     private readonly WorldNavigation _navigation;
 
-    public NpcSystem(SystemContext context, SliceOwner owner, WorldNavigation navigation)
+    private readonly Func<long, IReadOnlyList<TierObserver>> _observers;
+    private readonly Func<MoveIntent> _playerIntent;
+
+    public NpcSystem(SystemContext context, SliceOwner owner, WorldNavigation navigation, Func<long, IReadOnlyList<TierObserver>> observers,
+        Func<MoveIntent> playerIntent)
     {
         _context = context;
         _owner = owner;
         _navigation = navigation;
+        _observers = observers;
+        _playerIntent = playerIntent;
     }
 
     private RuntimeState State => _context.State;
@@ -117,9 +123,19 @@ internal sealed partial class NpcSystem
         State.RemoveNpc(_owner, command.NpcId);
         if (State.World.Registry.Exists(npc.InstanceId))
             State.World.Registry.DestroyEntity(npc.InstanceId);
-        // Their life ends with them: no needs, no pairs, no job output after.
-        if (State.World.NpcLife is { } life && life.Npcs.ContainsKey(command.NpcId))
-            State.SetNpcLife(_owner, life with { Npcs = life.Npcs.Remove(command.NpcId) });
+        // Their life ends with them: no needs, no pairs, no job output after. A resident leaves their slot to an arrival (DN4).
+        if (State.World.NpcLife is { } life && life.Npcs.TryGetValue(command.NpcId, out var lived))
+        {
+            if (_context.Setup.NpcLife.Routines.TryGetValue(lived.RoutineId, out var slot) && slot.IsSlot)
+            {
+                ulong sample = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"arrival:{lived.RoutineId}#{lived.Generation + 1}").UInt64(0);
+                State.SetNpcLife(_owner, NpcLifeEngine.Depart(life, _context.Setup.NpcLife.Routines, _context.Setup.NpcLife.Rules, command.NpcId,
+                    _context.Setup.Clock.Day(State.WorldTick), sample, out _) ?? life with { Npcs = life.Npcs.Remove(command.NpcId) });
+            }
+            else
+                State.SetNpcLife(_owner, life with { Npcs = life.Npcs.Remove(command.NpcId) });
+        }
+        Rehire(State.WorldTick);
         return null;
     }
 
@@ -165,7 +181,7 @@ internal sealed partial class NpcSystem
                 Activity = life?.Activity,
                 Resident = _context.Setup.NpcLife.Routines.TryGetValue(n.Definition.Id, out var slot) && slot.IsSlot,
                 Role = n.Definition.Role,
-                Moving = life is { Route.Status: NavRouteStatus.Active } && !State.Companions.ContainsKey(n.Definition.Id),
+                Moving = life is { Route.Status: NavRouteStatus.Active, Condition: not NpcCondition.Hired } && !State.Companions.ContainsKey(n.Definition.Id),
             };
         }).ToImmutableArray();
 

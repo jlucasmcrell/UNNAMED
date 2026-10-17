@@ -20,17 +20,8 @@ public class PartySaveTests
     private const string Sel = "npc.ashen_hollow.sel_arien";
     private const string Tavar = "npc.ashen_hollow.tavar_orr";
 
-    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => setup with
-    {
-        Social = setup.Social with
-        {
-            Npcs = ids.Aggregate(setup.Social.Npcs, (npcs, id) => npcs.SetItem(id, npcs[id] with
-            {
-                Hireling = new HirelingProfile(Enum.GetValues<HirelingRole>().ToImmutableArray(),
-                    new CompanionProfile(60, "item.weapon.march_spear", ImmutableSortedDictionary<BodyRegion, int>.Empty)),
-            })),
-        },
-    };
+    /// <summary>The setup with these townsfolk hireable in every role, each with a spear.</summary>
+    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => Harness.HireableTownsfolk(setup, ids);
 
     private static object Of(CompanionRecord c) =>
         (c.NpcId, c.Order, c.Condition, c.XMm, c.ZMm, c.Health, c.Membership, c.Stance, c.Tactics, c.Contract, string.Join(";", c.Trail));

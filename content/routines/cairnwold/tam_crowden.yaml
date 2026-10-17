@@ -8,9 +8,10 @@ region_ref: region.starting_frontier
 npc_ref: npc.cairnwold.tam_crowden
 settlement: cairnwold
 role: villager
+roles: [quartermaster, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [949, 652], facing_deg: 0 }
   work: { position_m: [941, 681.5], facing_deg: 180 }
-  eat: { position_m: [955.25, 689.05], facing_deg: 180 }
+  eat: { position_m: [956.44, 691.05], facing_deg: 190 }
   social: { position_m: [965.75, 664.5], facing_deg: 135 }

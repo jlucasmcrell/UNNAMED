@@ -66,11 +66,20 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>The chatter corpus, the LFG, news and system templates, and chat's tuning (WP16).</summary>
     public ChatSetup Chat { get; init; } = ChatSetup.Empty;
 
-    /// <summary>Who sets out and will take company (the WP12 contract): nobody, until the NPC life simulation lands.</summary>
-    public ISettingOutSource SettingOuts { get; init; } = Runtime.SettingOuts.None;
+    /// <summary>
+    /// Who sets out and will take company (the WP12 contract). Null, as content builds it: the NPC life simulation's trip planner (WP12b). A
+    /// fixed schedule (<see cref="Runtime.SettingOuts.Of"/>) stands in for it in tests of the contract.
+    /// </summary>
+    public ISettingOutSource? SettingOuts { get; init; }
 
-    /// <summary>Who may say an ambient line, and where (the WP12 contract): nobody, until the NPC life simulation lands.</summary>
-    public IChatterSpeakers ChatterSpeakers { get; init; } = Runtime.ChatterSpeakers.None;
+    /// <summary>
+    /// Who may say an ambient line, and where (the WP12 contract). Null, as content builds it: the NPC life simulation's role residents
+    /// (WP12b). A fixed set (<see cref="Runtime.ChatterSpeakers.Of"/>) stands in for them in tests of chat.
+    /// </summary>
+    public IChatterSpeakers? ChatterSpeakers { get; init; }
+
+    /// <summary>Who the world is simulated around (WP12b): the character alone, unless a server - or a test - names others.</summary>
+    public ITierObservers Observers { get; init; } = TierObservers.PlayerOnly;
 
     /// <summary>The navigation lattice and its limits (<c>config.navigation</c>; WP12).</summary>
     public NavConfig Navigation { get; init; } = NavConfig.Default;
@@ -165,7 +174,7 @@ public sealed class Simulation
     private bool _stepping;
     private bool _advancing;
 
-    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife life)
+    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life)
     {
         Setup = setup;
         _identity = player;
@@ -195,7 +204,7 @@ public sealed class Simulation
         _flags = new WorldFlagSystem(_context, _state.Claim(nameof(WorldFlagSystem), StateSlice.WorldFlags));
         _progression = new ProgressionSystem(_context, _state.Claim(nameof(ProgressionSystem), StateSlice.PlayerProgression));
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
-        _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells);
+        _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
         _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Effective);
@@ -206,7 +215,8 @@ public sealed class Simulation
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id, player.Name);
         _navigation = new WorldNavigation(_context);
-        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation);
+        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
+            () => _movement.Effective);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
@@ -216,7 +226,8 @@ public sealed class Simulation
         _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
-        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions, life);
+        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
+            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = _npcs.HireRefusal };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
@@ -230,8 +241,8 @@ public sealed class Simulation
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _approval = new ApprovalSystem(_context, _dialogue.Banter);
         _approval.Listen(bus);
-        _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id);
-        _chat = new ChatSystem(_context, player.Id, new CellKey(_cells[0].Region, 0, 0), _lfg, t => _weather.FrontAt(t).State);
+        _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id, setup.SettingOuts ?? _npcs);
+        _chat = new ChatSystem(_context, player.Id, new CellKey(_cells[0].Region, 0, 0), _lfg, t => _weather.FrontAt(t).State, setup.ChatterSpeakers ?? _npcs);
         _chat.Listen(bus);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new NpcTierSimulation(SimulationTier.B, _npcs), new NpcTierSimulation(SimulationTier.C, _npcs));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
@@ -243,6 +254,7 @@ public sealed class Simulation
         _markets.Populate();
         _merchants.Populate();
         _companions.Populate();
+        _npcs.SettleParty();
         _creatures.Populate();
         _lfg.Populate();
         _tiers.Settle();
@@ -253,14 +265,14 @@ public sealed class Simulation
     /// empty, so the first tick announces the front overhead.
     /// </summary>
     /// <param name="life">
-    /// The life party members go back to when they leave the party (WP15b): the NPC life simulation once WP12 merges; until then, and when
-    /// none is given, <see cref="HomeLife"/> - they wait at home.
+    /// Hears party members join and leave (WP15b's <see cref="IPartyLife"/>) besides the NPC life simulation, which always takes them up
+    /// (WP12b): a recorder for tests, or null.
     /// </param>
     public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life = null)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        return new Simulation(setup, player, world, worldTick, events, life ?? new HomeLife());
+        return new Simulation(setup, player, world, worldTick, events, life);
     }
 
     /// <summary>
@@ -387,6 +399,21 @@ public sealed class Simulation
 
     /// <summary>The pairs an NPC is in (WP12): whom they know and as what.</summary>
     public ImmutableArray<NpcPair> NpcPairs(string npcId) => _npcs.PairsOf(npcId);
+
+    /// <summary>
+    /// Who can be hired (WP12b), derived: never a vendor or a quest giver; anyone else whose town roles hire out and who is about their own
+    /// life. <see cref="HireabilityChanged"/> follows each change. WP13's contract.
+    /// </summary>
+    public INpcHireability Hiring => _npcs;
+
+    /// <summary>Whether someone can be hired now (WP12b).</summary>
+    public bool IsHireable(string npcId) => _npcs.IsHireable(npcId);
+
+    /// <summary>Who sets out on a trip and asks along whoever will come (WP12b's planner): every SettingOut in (from, to], in tick order.</summary>
+    public ISettingOutSource Trips => _npcs;
+
+    /// <summary>Who the world is simulated around now (WP12b): the character, and any other observer.</summary>
+    public IReadOnlyList<TierObserver> Observers => _tiers.Observers(WorldTick);
 
     /// <summary>Whether an NPC is working at their work anchor now (WP12); one with no routine always is.</summary>
     public bool AtWork(string npcId) => _npcs.AtWork(npcId);
@@ -816,6 +843,8 @@ public sealed class Simulation
         RemoveNpc remove => _npcs.Handle(remove),
         DepartNpc depart => _npcs.Handle(depart, Now),
         InjureNpc injure => _npcs.Handle(injure),
+        HandToParty hand => _npcs.Handle(hand, Now),
+        TakeBackFromParty back => _npcs.Handle(back, Now),
         Hire hire => _companions.Handle(hire, Now),
         Dismiss dismiss => _companions.Handle(dismiss, Now),
         RefitMember refit => _companions.Handle(refit),

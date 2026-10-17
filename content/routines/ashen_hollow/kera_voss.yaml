@@ -8,10 +8,11 @@ region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.kera_voss
 settlement: ashen_hollow
 role: craftsperson
+roles: [smith, vendor, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [6, 20]
 anchors:
   home: { position_m: [455, 744.3], facing_deg: 90 }
   work: { position_m: [461.6, 739.6], facing_deg: 300 }
-  eat: { position_m: [445.2, 736.5], facing_deg: 90 }
+  eat: { position_m: [443.69, 736.04], facing_deg: 76 }
   social: { position_m: [454, 736], facing_deg: 270 }
-job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)
+job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
