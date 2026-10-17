@@ -9,6 +9,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -82,6 +83,53 @@ public sealed class PlayerDto
     /// the default body, and no Call.
     /// </summary>
     [Key("identity")] public IdentityDto? Identity { get; set; }
+
+    /// <summary>Required from schema 20. The 19 -> 20 step gives older saves the empty ledger: there was no faction to tell before WP6.</summary>
+    [Key("factions")] public FactionLedgerDto? Factions { get; set; }
+}
+
+/// <summary>The character's faction ledger (schema 20): the acts logged, what each faction knows of them, and the standing each holds.</summary>
+[MessagePackObject]
+public sealed class FactionLedgerDto
+{
+    [Key("next_act_seq")] public long NextActSeq { get; set; }
+    [Key("acts")] public ActDto[] Acts { get; set; } = Array.Empty<ActDto>();
+    [Key("knowledge")] public FactionKnowledgeDto[] Knowledge { get; set; } = Array.Empty<FactionKnowledgeDto>();
+    [Key("standing")] public FactionStandingDto[] Standing { get; set; } = Array.Empty<FactionStandingDto>();
+}
+
+/// <summary>An act some faction reacts to, where and when the character did it (schema 20).</summary>
+[MessagePackObject]
+public sealed class ActDto
+{
+    [Key("seq")] public long Seq { get; set; }
+    [Key("kind")] public string Kind { get; set; } = "";
+    [Key("subject")] public string Subject { get; set; } = "";
+    [Key("cell")] public string Cell { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+}
+
+/// <summary>What one faction knows of one act (schema 20).</summary>
+[MessagePackObject]
+public sealed class FactionKnowledgeDto
+{
+    [Key("knower")] public string Knower { get; set; } = "";
+    [Key("act")] public long Act { get; set; }
+    [Key("identity")] public string Identity { get; set; } = "";
+    [Key("source")] public string Source { get; set; } = "";
+    [Key("via")] public string? Via { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+    [Key("delta")] public int Delta { get; set; }
+}
+
+/// <summary>The character's points with one faction, never 0 (schema 20).</summary>
+[MessagePackObject]
+public sealed class FactionStandingDto
+{
+    [Key("faction")] public string Faction { get; set; } = "";
+    [Key("points")] public int Points { get; set; }
 }
 
 /// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
@@ -496,6 +544,16 @@ public static class SectionCodec
             BodyPreset = player.Identity.BodyPresetId,
             Call = player.Identity.CallId,
         },
+        Factions = new FactionLedgerDto
+        {
+            NextActSeq = player.Factions.NextActSeq,
+            Acts = player.Factions.Acts.Select(a => new ActDto { Seq = a.Seq, Kind = a.Kind, Subject = a.Subject, Cell = a.CellKey, XMm = a.XMm, ZMm = a.ZMm, Tick = a.Tick }).ToArray(),
+            Knowledge = player.Factions.Knowledge.Select(k => new FactionKnowledgeDto
+            {
+                Knower = k.Knower, Act = k.Act, Identity = k.Identity, Source = k.Source, Via = k.Via, Tick = k.Tick, Delta = k.Delta,
+            }).ToArray(),
+            Standing = player.Factions.Standing.Select(st => new FactionStandingDto { Faction = st.FactionId, Points = st.Points }).ToArray(),
+        },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -549,6 +607,7 @@ public static class SectionCodec
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
         var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
         var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
+        var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -581,6 +640,10 @@ public static class SectionCodec
             Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
                 d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
             Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call),
+            Factions = new FactionLedger(factions.NextActSeq,
+                factions.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.Cell, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
+                factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),
+                factions.Standing.Select(st => new FactionStanding(st.Faction, st.Points)).ToImmutableArray()),
         };
     }
 

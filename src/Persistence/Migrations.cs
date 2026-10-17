@@ -25,6 +25,7 @@ using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
 using V16 = UNNAMED.Persistence.Sections.V16;
 using V18 = UNNAMED.Persistence.Sections.V18;
+using V19 = UNNAMED.Persistence.Sections.V19;
 
 namespace UNNAMED.Persistence;
 
@@ -90,7 +91,8 @@ public static class SchemaMigrations
         new SchemaV15ToV16(),
         new SchemaV16ToV17(),
         new SchemaV17ToV18(),
-        new SchemaV18ToV19());
+        new SchemaV18ToV19(),
+        new SchemaV19ToV20());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1003,7 +1005,7 @@ public sealed class SchemaV18ToV19 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V18.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V19.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1050,6 +1052,56 @@ public sealed class SchemaV18ToV19 : SchemaMigration
                 }).ToArray(),
                 Creatures = old.Creatures,
                 Noises = old.Noises,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 19 to 20 (WP6): the player gains a faction ledger - the acts some faction reacts to, what each faction knows of them, and the
+/// standing each holds. A save that predates factions told none of anything: it starts with the empty ledger, every faction neutral.
+/// </summary>
+public sealed class SchemaV19ToV20 : SchemaMigration
+{
+    public override int From => 19;
+
+    public override string Summary => "schema 19 -> 20: the player gains a faction ledger (no act, every faction neutral)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V19.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                // Literal, not FactionLedger.Empty: a step is a fixed function of the schema it reads.
+                Factions = new FactionLedgerDto { NextActSeq = 1 },
             }, options);
         }
         document.Manifest["schema_version"] = To;

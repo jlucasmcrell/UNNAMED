@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Persistence;
 using UNNAMED.World.Runtime;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
@@ -181,5 +183,31 @@ public class FactionTests
         Assert.Equal(before, Ledger(once));
         Assert.Equal(Ledger(once), Ledger(pieces));
         Assert.Equal(once.WorldTick, pieces.WorldTick);
+    }
+
+    /// <summary>Schema 20: what a faction knows and how it regards the character are kept by a save, and the act log counts on after a load.</summary>
+    [Fact]
+    public void TheLedger_IsKeptByASave()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var paid = new QuestDefinition("quest.test.wayhold_errand", "Errand", "Errand.", Renn, "o_wait",
+            ImmutableArray.Create(new ObjectiveDefinition("o_wait", "Wait.", new WaitUntil(1), ImmutableArray<string>.Empty)),
+            ImmutableArray<ObjectiveCondition>.Empty, ImmutableArray.Create<QuestReward>(new ReputationReward(Wayhold, 260))) { OnNewGame = true };
+        var setup = session.Setup with { Quests = new QuestSetup(session.Setup.Quests.Quests.SetItem(paid.Id, paid)) };
+        var arena = Arena.OpenCreatures(session, setup, (46, 128), 0, NoCreatures);
+        Assert.Null(arena.Submit(new BeginStoryCommand(arena.Player)));
+        arena.Tick(4);
+        Assert.Equal((260, "trusted"), Standing(arena.Simulation, Wayhold));
+
+        var store = new SaveStore(profile.Root);
+        long now = arena.Simulation.WorldTick;
+        store.Save(SaveSlots.Manual("factions"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, now, 0));
+        var loaded = store.Load(SaveSlots.Manual("factions"), new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.True(loaded.IsComplete);
+        Assert.Equal(arena.Simulation.CaptureRecord().Factions, loaded.Player.Factions);
+        var again = Simulation.Start(setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        Assert.Equal(Ledger(arena.Simulation), Ledger(again));
+        Assert.Equal(arena.Simulation.StateDigest(), again.StateDigest());
     }
 }

@@ -22,7 +22,7 @@ one under the current code and migrates every one through the real commit path
    after an intended shape change, run the fixture tests once with `UNNAMED_WRITE_FIXTURE_EXPECTATIONS=1`,
    then review the diff line by line. Apart from generated ULIDs, every fixture must describe the world
    below.
-4. The fixtures load against `content/` (fixture content 0.2.8) and `worldgen_profile.json`. Those are
+4. The fixtures load against `content/` (fixture content 0.2.9) and `worldgen_profile.json`. Those are
    test data, not game content. `content-0.1.0/` is the pack v1-v3 were written with; `content-0.1.1/` -
    0.1.0 plus the skill, formula and recipe definitions the progression record names - is the pack v4
    was written with; `content-0.1.2/` - 0.1.1 plus a region, the place the discovery record names, and the
@@ -34,7 +34,7 @@ one under the current code and migrates every one through the real commit path
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
-   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5). The writer packs are historical and are never edited, so they need not pass today's
+   require (M3f); 0.2.7 renamed the warden and the warden's conversation (M4); 0.2.8 added the quests and renamed the errand (M5); 0.2.9 added `config.factions` and `faction.fixture.keepers`, which the v20 writer calls `faction.fixture.wardens` (WP6). The writer packs are historical and are never edited, so they need not pass today's
    checks; the current pack must.
 
 ## The fixture world
@@ -81,6 +81,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | Aelin is "she", `people.veth`, body preset `body.build_slender`, of the Call `call.scholar` | player identity | Schema 17 (the character creator, WP2). The fixture pack has no peoples or Calls: the identity is the character's, kept as it is, like a Waystone record. v1-v16 migrate to the character the game made before the creator - "they", `people.veth`, `body.default`, no Call - and keep their name; a schema-17 player without its identity is corrupt, not defaulted |
 | Saved at `2026-10-17T09:30:00.250Z` (`saved_utc`), after a login that caught up 72 000 ticks - a game day and a quarter - so `world_time_advanced_ticks` is 72 000 and the away log holds two lines: `time.passed` 72 000 and `time.days` 1, at tick 4000 | manifest | Schema 18 (the persistent clock, WP11). v1-v17 migrate `saved_utc` from their own `build_timestamp`, to the second, and to an empty away log; a schema-18 manifest without either, or with a `saved_utc` that is not a moment, is corrupt, not defaulted |
 | The carried sword carries a notable record: "Iron Sword", given by `quest.fixture.cull` at tick 3500, familiarity 2 with 1 use toward the next step; the chest's sword is a masterwork (quality 2) with its record: made by Aelin from `recipe.fixture.sword` at tick 2000 | player inventory, changed container | Schema 19 (WP3a, itemization). A record is optional on a stack, so v1-v18 migrate to none, and no older stack is masterwork |
+| Aelin killed `creature.beast.ash_hound` at (21.5, 4.25) m in `r_0_0:c_00_02` at tick 4800 (act 1; the next is 2) and told `npc.fixture.warden` at tick 4900, so `faction.fixture.wardens` knows it of her, identified, and regards her at +100 | player factions | Schema 20 (WP6, report-only standing). The hound, the warden and the wardens are **renamed** to `creature.beast.ash_ember_hound`, `npc.fixture.warden_sera` and `faction.fixture.keepers`: the renames must reach the act, the knowledge row and the standing. v1-v19 migrate to the empty ledger; a schema-20 player without its ledger is corrupt, not defaulted |
 
 ## Provenance
 
@@ -104,6 +105,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v17/` | The character-creator schema-17 writer (WP2) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v18/` | The persistent-clock schema-18 writer (WP11) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v19/` | The WP3a itemization schema-19 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v20/` | The WP6 faction-ledger schema-20 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

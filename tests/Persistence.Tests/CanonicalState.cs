@@ -210,6 +210,44 @@ internal static class CanonicalState
             else
                 json.WriteNull("call");
             json.WriteEndObject();
+            json.WriteStartObject("factions");
+            json.WriteNumber("next_act_seq", player.Factions.NextActSeq);
+            json.WriteStartArray("acts");
+            foreach (var act in player.Factions.Acts)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("seq", act.Seq);
+                json.WriteString("kind", act.Kind);
+                json.WriteString("subject", act.Subject);
+                json.WriteString("cell", act.CellKey);
+                json.WriteNumber("x_mm", act.XMm);
+                json.WriteNumber("z_mm", act.ZMm);
+                json.WriteNumber("tick", act.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("knowledge");
+            foreach (var row in player.Factions.Knowledge)
+            {
+                json.WriteStartObject();
+                json.WriteString("knower", row.Knower);
+                json.WriteNumber("act", row.Act);
+                json.WriteString("identity", row.Identity);
+                json.WriteString("source", row.Source);
+                if (row.Via is { } via)
+                    json.WriteString("via", via);
+                else
+                    json.WriteNull("via");
+                json.WriteNumber("tick", row.Tick);
+                json.WriteNumber("delta", row.Delta);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartObject("standing");
+            foreach (var row in player.Factions.Standing)
+                json.WriteNumber(row.FactionId, row.Points);
+            json.WriteEndObject();
+            json.WriteEndObject();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

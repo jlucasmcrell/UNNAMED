@@ -262,6 +262,12 @@
       "people": "people.veth",
       "body_preset": "body.build_slender",
       "call": "call.scholar"
+    },
+    "factions": {
+      "next_act_seq": 1,
+      "acts": [],
+      "knowledge": [],
+      "standing": {}
     }
   },
   "cells": [

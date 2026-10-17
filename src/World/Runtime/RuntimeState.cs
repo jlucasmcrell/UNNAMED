@@ -86,7 +86,7 @@ public enum StateSlice
     /// region and the hour, so nothing else of it is state.
     /// </summary>
     Weather,
-    /// <summary>The character's faction ledger (WP6): the act log, what each faction knows of it, and the standing each holds.</summary>
+    /// <summary>The character's faction ledger (WP6): the act log, what each faction knows of it, and the standing each holds. Saved with the player (schema 20).</summary>
     Factions,
 }
 
@@ -133,6 +133,7 @@ internal sealed class RuntimeState
         KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
         ReturnPoint = player.ReturnPoint;
         Deeds = player.Deeds.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
+        Factions = player.Factions;
     }
 
     public WorldDelta World { get; }
@@ -164,7 +165,7 @@ internal sealed class RuntimeState
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public long? WeatherCursor { get; private set; }
-    public FactionLedger Factions { get; private set; } = FactionLedger.Empty;
+    public FactionLedger Factions { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 

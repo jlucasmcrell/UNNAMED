@@ -64,6 +64,14 @@ public class PlayerRecordCompletenessTests
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
                 Deeds = player.Deeds,
                 Identity = player.Identity,
+                // Three acts, the last two told to no one, so a sequence can move alone and a row can name another act (schema 20).
+                Factions = new Domain.Factions.FactionLedger(6,
+                    player.Factions.Acts.AddRange(new[]
+                    {
+                        new Domain.Factions.ActRecord(2, Domain.Factions.ActKinds.SwitchSet, "world.lever.mill_gate", "r_0_0:c_00_07", 70_000, 3_000, 4_850),
+                        new Domain.Factions.ActRecord(4, Domain.Factions.ActKinds.CreatureKilled, "creature.beast.wolf_grey", "r_0_0:c_00_02", 21_000, 4_000, 4_950),
+                    }),
+                    player.Factions.Knowledge, player.Factions.Standing.Add(new Domain.Factions.FactionStanding("faction.fixture.wilders", -40))),
             };
     }
 
@@ -165,6 +173,7 @@ public class PlayerRecordCompletenessTests
         }))
         .OfType<string>()
         .Concat(UNNAMED.Domain.Social.Relationships.Dimensions)
+        .Concat(UNNAMED.Domain.Factions.ActKinds.Built).Concat(UNNAMED.Domain.Factions.Identities.All).Concat(UNNAMED.Domain.Factions.KnowledgeSources.All)
         .Distinct(StringComparer.Ordinal)
         .ToArray();
 

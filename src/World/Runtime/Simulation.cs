@@ -529,6 +529,7 @@ public sealed class Simulation
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
             Deeds = _state.Deeds.Values.ToImmutableArray(),
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
+            Factions = _state.Factions,
         };
     }
 

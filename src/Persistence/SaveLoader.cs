@@ -9,6 +9,7 @@ using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Persistence.Sections;
@@ -382,9 +383,38 @@ internal static class SaveLoader
                 : resolved;
         }
 
+        // The faction ledger (schema 20): an act whose subject was removed goes, with what any faction knew of it; a faction removed takes
+        // its knowledge and standing with it; a member removed leaves the knowledge, told by no one now named. Two factions that resolve to
+        // one keep the first row for an act and sum their standing, within the range.
+        var ledger = player.Factions;
+        var acts = new List<ActRecord>();
+        foreach (var act in ledger.Acts)
+        {
+            if (Resolve(act.Subject, $"player act {act.Seq} ({act.Kind})") is { } subject)
+                acts.Add(act with { Subject = subject });
+        }
+        var kept = acts.Select(a => a.Seq).ToHashSet();
+        var knowledge = new SortedDictionary<(string Knower, long Act), FactionKnowledge>(
+            Comparer<(string Knower, long Act)>.Create((a, b) => string.CompareOrdinal(a.Knower, b.Knower) is var c && c != 0 ? c : a.Act.CompareTo(b.Act)));
+        foreach (var row in ledger.Knowledge.Where(k => kept.Contains(k.Act)))
+        {
+            if (Resolve(row.Knower, $"faction knowledge of act {row.Act}") is not { } knower)
+                continue;
+            string? via = row.Via is { } told ? Resolve(told, $"faction knowledge of act {row.Act} (told to)") : null;
+            knowledge.TryAdd((knower, row.Act), row with { Knower = knower, Via = via });
+        }
+        var standing = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        foreach (var row in ledger.Standing)
+        {
+            if (Resolve(row.FactionId, "player standing") is { } faction)
+                standing[faction] = Math.Clamp(standing.GetValueOrDefault(faction) + row.Points, FactionLedger.MinPoints, FactionLedger.MaxPoints);
+        }
+        var factions = new FactionLedger(ledger.NextActSeq, acts.ToImmutableArray(), knowledge.Values.ToImmutableArray(),
+            standing.Where(kv => kv.Value != 0).Select(kv => new FactionStanding(kv.Key, kv.Value)).ToImmutableArray());
+
         return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
                 .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values)
-                .WithDeeds(deeds.Values),
+                .WithDeeds(deeds.Values).WithFactions(factions),
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),

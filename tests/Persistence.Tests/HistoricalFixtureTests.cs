@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -18,7 +20,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.8";
+    public const string ContentVersion = "0.2.9";
 
     public static string Root { get; } = FindRoot();
 
@@ -300,10 +302,29 @@ public class HistoricalFixtureTests
                 (blade.Quality, blade.Notable));
         }
 
+        // Schema 20's faction ledger (WP6): one ash hound killed at the ridge and told to the warden, so the keepers - the wardens, when it
+        // was written - regard Aelin at +100; every name renamed to today's. Before it, no act and every faction neutral.
+        Assert.Equal(schema >= 20
+                ? new FactionLedger(2,
+                    ImmutableArray.Create(new ActRecord(1, ActKinds.CreatureKilled, "creature.beast.ash_ember_hound", "r_0_0:c_00_02", 21_500, 4_250, 4_800)),
+                    ImmutableArray.Create(new FactionKnowledge("faction.fixture.keepers", 1, Identities.Identified, KnowledgeSources.Reported,
+                        "npc.fixture.warden_sera", 4_900, 100)),
+                    ImmutableArray.Create(new FactionStanding("faction.fixture.keepers", 100)))
+                : FactionLedger.Empty,
+            loaded.Player.Factions);
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
+            >= 20 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x6", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 16 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x3", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
