@@ -72,6 +72,9 @@ structures = []
 notes = []
 
 
+floors = []   # corridors: floor, never a blocker (review 3, B7)
+
+
 def box(sid, x0, z0, x1, z1, height, clearance=None):
     x0, z0, x1, z1 = round(x0, 3), round(z0, 3), round(x1, 3), round(z1, 3)
     if x1 - x0 <= 0.001 or z1 - z0 <= 0.001:
@@ -86,20 +89,45 @@ def box(sid, x0, z0, x1, z1, height, clearance=None):
 #
 # A wall runs from outer corner to outer corner. Its opening is centred on the clear span, so it is
 # clear of both corner returns by (clear - OPENING)/2.
+# Which sides of each room an edge leaves by, so only those walls get an opening (review 3, B7).
+opening_sides = {}
+for a, b, _ in EDGES:
+    ax, az = by_id[a][1]
+    bx, bz = by_id[b][1]
+    if bx > ax:
+        opening_sides.setdefault(a, set()).add("e")
+        opening_sides.setdefault(b, set()).add("w")
+    elif bx < ax:
+        opening_sides.setdefault(a, set()).add("w")
+        opening_sides.setdefault(b, set()).add("e")
+    if bz > az:
+        opening_sides.setdefault(a, set()).add("n")
+        opening_sides.setdefault(b, set()).add("s")
+    elif bz < az:
+        opening_sides.setdefault(a, set()).add("s")
+        opening_sides.setdefault(b, set()).add("n")
+
 for rid, name, _, _ in ROOMS:
     ox0, oz0, ox1, oz1 = outer_rect(rid)
     cx0, cz0, cx1, cz1 = clear_rect(rid)
     half = OPENING / 2
     midx, midz = (cx0 + cx1) / 2, (cz0 + cz1) / 2
+    open_sides = opening_sides.get(rid, set())
 
-    # South and north walls (constant Z), full width with a gap around midx.
+    # South and north walls (constant Z): an opening only if an edge leaves that way.
     for tag, z0, z1 in (("s", oz0, cz0), ("n", cz1, oz1)):
-        box(f"{rid.lower()}_wall_{tag}_w", ox0, z0, midx - half, z1, 4.0)
-        box(f"{rid.lower()}_wall_{tag}_e", midx + half, z0, ox1, z1, 4.0)
-    # West and east walls (constant X), full depth with a gap around midz.
+        if tag in open_sides:
+            box(f"{rid.lower()}_wall_{tag}_w", ox0, z0, midx - half, z1, 4.0)
+            box(f"{rid.lower()}_wall_{tag}_e", midx + half, z0, ox1, z1, 4.0)
+        else:
+            box(f"{rid.lower()}_wall_{tag}", ox0, z0, ox1, z1, 4.0)
+    # West and east walls (constant X), likewise.
     for tag, x0, x1 in (("w", ox0, cx0), ("e", cx1, ox1)):
-        box(f"{rid.lower()}_wall_{tag}_s", x0, oz0, x1, midz - half, 4.0)
-        box(f"{rid.lower()}_wall_{tag}_n", x0, midz + half, x1, oz1, 4.0)
+        if tag in open_sides:
+            box(f"{rid.lower()}_wall_{tag}_s", x0, oz0, x1, midz - half, 4.0)
+            box(f"{rid.lower()}_wall_{tag}_n", x0, midz + half, x1, oz1, 4.0)
+        else:
+            box(f"{rid.lower()}_wall_{tag}", x0, oz0, x1, oz1, 4.0)
 
 # ── corridors, one L-shaped run per edge ─────────────────────────────────────────────────────────────
 #
@@ -141,15 +169,50 @@ for a, b, kind in EDGES:
     corner_z = (overlap_z[0] + overlap_z[1]) / 2 if overlap_z[1] > overlap_z[0] else az
     corner_x = (overlap_x[0] + overlap_x[1]) / 2 if overlap_x[1] > overlap_x[0] else bx
 
+    # The corridors are FLOOR, not wall. They were structures with height_m 0.0, and Kinematics.Blocks reads height 0
+    # as "unknown, blocks everything" - so all sixteen were solid blocks and the rooms could only be reached by
+    # walking round the outside (review 3, B7). A corridor is a way through, so it is not a blocker at all.
     if abs(bx - ax) > 0.001:
         x0, x1 = (gap_x if gap_x else (min(ax, bx), max(ax, bx)))
-        box(f"corr_{a.lower()}_{b.lower()}_x", x0, corner_z - half, x1, corner_z + half, 0.0)
+        floors.append((f"corr_{a.lower()}_{b.lower()}_x", (x0, corner_z - half, x1, corner_z + half)))
     if abs(bz - az) > 0.001:
         z0, z1 = (gap_z if gap_z else (min(az, bz), max(az, bz)))
-        box(f"corr_{a.lower()}_{b.lower()}_z", corner_x - half, z0, corner_x + half, z1, 0.0)
+        floors.append((f"corr_{a.lower()}_{b.lower()}_z", (corner_x - half, z0, corner_x + half, z1)))
     notes.append(f"    # {a}-{b}: {kind}")
 
 # ── bounds and cells ─────────────────────────────────────────────────────────────────────────────────
+# ── the three gates ─────────────────────────────────────────────────────────────────────────────────────────
+# Each is the door in an edge's doorway: G1 the R08-R02 shortcut, G2 the R07-R09 secret, G3 the R11-R12 way to the
+# headworks. Generated from the edge so the box always sits in the opening - the hand-written boxes had drifted and
+# G3 was 36 m from its own doorway (review 3, B7).
+GATES = [
+    ("R08", "R02", "g1"),   # G1 shortcut
+    ("R07", "R09", "g2"),   # G2 secret
+    ("R11", "R12", "g3"),   # G3 aftermath, the one o_open opens
+]
+doors = []
+for a, b, gate in GATES:
+    ax, az = by_id[a][1]
+    bx, bz = by_id[b][1]
+    a_o, b_o = outer_rect(a), outer_rect(b)
+    if abs(bz - az) >= abs(bx - ax):
+        # The rooms are stacked in Z, so the doorway is in a wall of constant Z - A's north or south - and its
+        # opening is centred on the X the two share. The reverse of this sent G3 through R11's east wall, 36 m
+        # from the corridor it was meant to close.
+        lo = (max(a_o[0], b_o[0]) + min(a_o[2], b_o[2])) / 2
+        z = a_o[3] if bz > az else a_o[1]
+        doors.append((gate, (lo - OPENING / 2, z - 0.4, lo + OPENING / 2, z + 0.4)))
+    else:
+        # Stacked in X: the doorway is in a wall of constant X, centred on the Z they share.
+        lo = (max(a_o[1], b_o[1]) + min(a_o[3], b_o[3])) / 2
+        x = a_o[2] if bx > ax else a_o[0]
+        doors.append((gate, (x - 0.4, lo - OPENING / 2, x + 0.4, lo + OPENING / 2)))
+
+# ── the rock mass ────────────────────────────────────────────────────────────────────────────────────────────
+# The rooms stood in an open field with a doorway in every wall, so a body walked round the corridors and G1-G3 gated
+# nothing (review 3, B7). Four thick walls of rock around the whole footprint, with a gap at each of the two portal
+# anchors, enclose it: the only way from one room to another is through it.
+ROCK = 6.0   # how thick the enclosing rock is, and how far the walk space extends past the rooms
 xs0 = [outer_rect(r)[0] for r, _, _, _ in ROOMS]
 zs0 = [outer_rect(r)[1] for r, _, _, _ in ROOMS]
 xs1 = [outer_rect(r)[2] for r, _, _, _ in ROOMS]
@@ -159,6 +222,13 @@ min_x, min_z, max_x, max_z = min(xs0), min(zs0), max(xs1), max(zs1)
 for sid, _ in structures:
     pass
 min_x, min_z = min(min_x, 0.0), min(min_z, 0.0)
+
+# The mass itself: four thick walls just outside the rooms, so the ring is a place under a hill rather than nine
+# boxes in a field. Entry is by portal, so it needs no gap - and with it the only way between rooms is the corridors.
+box("rock_s", min_x, min_z, max_x, min_z + ROCK, 40.0)
+box("rock_n", min_x, max_z - ROCK, max_x, max_z, 40.0)
+box("rock_w", min_x, min_z, min_x + ROCK, max_z, 40.0)
+box("rock_e", max_x - ROCK, min_z, max_x, max_z, 40.0)
 
 CELL = 100
 cells = []
@@ -240,9 +310,9 @@ w("")
 # R07-R09 secret, G3 the R11-R12 aftermath. Each is a door in the edge's opening, shut until its flag is set.
 w("# G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).")
 w("doors:")
-w("  - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [72.6, 29.4, 73.4, 32.6], height_m: 2.4 }")
-w("  - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [86.4, 57.4, 87.2, 60.6], height_m: 2.4 }")
-w("  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.3, 112.4, 51.7, 113.2], height_m: 2.4 }")
+for gate, (x0, z0, x1, z1) in doors:
+    w(f"  - {{ key: door.barrowworks.{gate}, flag_ref: world.barrowworks.gate_{gate}_open, "
+      f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4 }}")
 w("containers: []")
 w("npcs: []")
 w("nodes: []")

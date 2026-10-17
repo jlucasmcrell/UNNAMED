@@ -298,12 +298,12 @@ public sealed class Simulation
         foreach (var (layout, place) in Setup.Sites(l => l.Locations))
         {
             if (place.Id == RingIntakeHall)
-                _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), RingNoticeFlag, 1);
+                _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), RingReachableFlag, 1);
         }
     }
 
     private const string RingIntakeHall = "location.barrowworks.intake_hall";
-    private const string RingNoticeFlag = "world.barrowworks.withdrawal_notice_read";
+    private const string RingReachableFlag = "world.barrowworks.ring_accessible";
 
     /// <summary>
     /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts

@@ -15,7 +15,7 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class KeraOfferTests
 {
-    private const string Notice = "world.barrowworks.withdrawal_notice_read";
+    private const string Notice = "world.barrowworks.ring_accessible";
     private const string Hall = "location.barrowworks.intake_hall";
 
     private static long NoticeValue(GameSession session)

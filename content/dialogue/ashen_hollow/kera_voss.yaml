@@ -108,13 +108,13 @@ nodes:
       - id: ring
         text: "What's the sealed ring under the hill?"
         conditions:
-          - { kind: world_state, flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: location.barrowworks.intake_hall, min: 1 }
+          - { kind: world_state, flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 }
           - { kind: visited, node: barrowworks, not: true }
         next: barrowworks
       - id: ring_again
         text: "About the ring under the hill."
         conditions:
-          - { kind: world_state, flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: location.barrowworks.intake_hall, min: 1 }
+          - { kind: world_state, flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 }
           - { kind: visited, node: barrowworks }
         next: barrowworks_again
       # o_done: telling her which way it went. Two replies because the design's choice is two answers and a
