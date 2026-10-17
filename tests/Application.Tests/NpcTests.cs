@@ -84,7 +84,8 @@ public class NpcTests
         // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village.
         Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
-        Assert.Equal(8, simulation.Npcs.Count(n => !n.Resident));   // and 6 role residents a town (WP12, DN3)
+        Assert.Equal(8, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and 6 role residents a town (WP12, DN3)
+        Assert.Equal(8, simulation.Npcs.Count(n => n.Role == "adventurer"));   // and 4 adventurers a town at their lodge (WP13, DN5)
         Assert.Equal(12, simulation.Npcs.Count(n => n.Resident));
         Assert.All(npcs, n => Assert.False(n.Talking));
         Assert.Equal((461_600L, 739_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));

@@ -209,8 +209,23 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     {
         if (command.Actor == _player)
             return "the character claims a bounty by finishing it";
-        if (Claimants().All(c => c.Id != command.Actor))
+        if (Claimants().All(c => c.Id != command.Actor) && _context.OtherActorName(command.Actor.Value) is null)
             return $"unknown actor {command.Actor}";
+        return Claim(command.Actor, command.QuestId, tick);
+    }
+
+    /// <summary>An adventurer finished a competitive bounty first (WP13), from inside the world.</summary>
+    public string? Handle(ClaimBounty command)
+    {
+        long tick = command.Tick;
+        if (command.Claimant == _player || _context.OtherActorName(command.Claimant.Value) is null && Claimants().All(c => c.Id != command.Claimant))
+            return $"unknown claimant {command.Claimant}";
+        return Claim(command.Claimant, command.QuestId, tick);
+    }
+
+    private string? Claim(EntityId claimant, string questId, long tick)
+    {
+        var command = new ClaimBountyCommand(claimant, questId);
         if (!Setup.Quests.TryGetValue(command.QuestId, out var quest))
             return $"there is no quest {command.QuestId}";
         if (!quest.Competitive)
@@ -231,12 +246,12 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
         return null;
     }
 
-    /// <summary>The actors besides the character who may claim a bounty, with their names: the named NPCs (WP13 adds the adventurers).</summary>
+    /// <summary>The actors with bodies besides the character who may claim a bounty, with their names; adventurers are named by <see cref="SystemContext.OtherActorName"/>.</summary>
     private IEnumerable<(EntityId Id, string Name)> Claimants() => State.Npcs.Values.Select(n => (n.InstanceId, n.Definition.Name));
 
     /// <summary>A claimant by name: the character, a known actor, or the ID itself.</summary>
     private string ClaimantName(string id) =>
-        id == _player.Value ? "You" : Claimants().FirstOrDefault(c => c.Id.Value == id) is { Name: { } name } ? name : id;
+        id == _player.Value ? "You" : Claimants().FirstOrDefault(c => c.Id.Value == id) is { Name: { } name } ? name : _context.OtherActorName(id) ?? id;
 
     /// The absence needs nothing (WP11): a repeatable quest's cooldown is a world-tick deadline (<see cref="QuestRules.CanStart"/>), so one
     /// that ran out while the character was away can be taken again at once. Objectives are not worked off-screen.

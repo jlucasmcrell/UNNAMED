@@ -235,6 +235,11 @@ public class ContentLoader
             var lifeErrors = NpcLifeContent.Validate(this);
             _errors.AddRange(lifeErrors);
             success &= lifeErrors.Count == 0;
+
+            // Adventurers: their settlements, grounds, ladder, outcome table and lodges (ADV codes; WP13)
+            var adventurerErrors = AdventurerContent.Validate(this);
+            _errors.AddRange(adventurerErrors);
+            success &= adventurerErrors.Count == 0;
         }
         
         return success;

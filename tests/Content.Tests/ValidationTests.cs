@@ -523,7 +523,7 @@ public class ContentLoaderTests
                 "ability.polearm.long_thrust",
                 "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer",
                 "chatter.lfg", "chatter.news",
-                "config.base_speeds", "config.chat", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
+                "config.adventurers", "config.base_speeds", "config.chat", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
                 "config.economy", "config.factions", "config.inventory", "config.level_cap", "config.magic", "config.navigation", "config.npc_life",
                 "config.party", "config.progression", "config.simulation_tiers", "config.teaching", "config.time", "config.travel", "config.weather",
                 "config.xp_curve",

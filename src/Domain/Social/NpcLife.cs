@@ -383,7 +383,11 @@ public sealed record NpcLifeRecord(string Key, string RoutineId, NpcNeeds Needs,
 }
 
 /// <summary>A role slot whose resident has left (DN4): an arrival takes the place on <see cref="ArrivalDay"/>.</summary>
-public sealed record NpcVacancy(string SlotId, long LeftDay, long ArrivalDay, int NextGeneration);
+public sealed record NpcVacancy(string SlotId, long LeftDay, long ArrivalDay, int NextGeneration)
+{
+    /// <summary>Who arrives, when someone is already promised the slot - a retiring adventurer (WP13); null for a newcomer named from their people.</summary>
+    public string? ArrivingName { get; init; }
+}
 
 /// <summary>
 /// Every NPC life the world holds, keyed with no limit (owner, 2026-10-17: no population cap in data, schema or code), the role slots
@@ -413,7 +417,11 @@ public sealed record NpcLifeState(
         }
         h.Add(Vacancies.Count);
         foreach (var v in Vacancies.Values)
+        {
             h.Add(v.SlotId).Add(v.LeftDay).Add(v.ArrivalDay).Add(v.NextGeneration);
+            if (v.ArrivingName is { } arriving)
+                h.Add(arriving);
+        }
         h.Add(PairsLastMet.Count);
         foreach (var (pair, hour) in PairsLastMet)
             h.Add(pair).Add(hour);
@@ -529,7 +537,7 @@ public static class NpcLifeEngine
             if (vacancy.ArrivalDay > hour.Day || !routines.TryGetValue(vacancy.SlotId, out var slot) || !canArrive(slot))
                 continue;
             var anchor = slot.Anchors[NpcAnchorKinds.Home];
-            var arrival = Newcomer(slot, rules, hour, vacancy.NextGeneration, nameFor(slot, vacancy.NextGeneration), (anchor.XMm, anchor.ZMm, anchor.FacingMdeg))
+            var arrival = Newcomer(slot, rules, hour, vacancy.NextGeneration, vacancy.ArrivingName ?? nameFor(slot, vacancy.NextGeneration), (anchor.XMm, anchor.ZMm, anchor.FacingMdeg))
                 with { ArrivedDay = hour.Day };
             npcs[slot.Key] = arrival;
             vacancies.Remove(vacancy.SlotId);

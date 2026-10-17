@@ -207,6 +207,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Chat = ChatterContent.Build(loader),
             Navigation = NavigationContent.Build(loader),
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),
+            Adventurers = AdventurerContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

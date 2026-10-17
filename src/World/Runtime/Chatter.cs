@@ -284,7 +284,7 @@ internal sealed class ChatSystem
     private string Name(string definitionId, string otherwise) => Chat.Names.GetValueOrDefault(definitionId, otherwise);
 
     private string ClaimantName(string claimantId) =>
-        State.Npcs.Values.FirstOrDefault(n => n.InstanceId.Value == claimantId)?.Definition.Name ?? "someone";
+        State.Npcs.Values.FirstOrDefault(n => n.InstanceId.Value == claimantId)?.Definition.Name ?? _context.OtherActorName(claimantId) ?? "someone";
 
     private static ImmutableSortedDictionary<string, string> Facts(params (string Slot, string Value)[] facts) =>
         facts.ToImmutableSortedDictionary(f => f.Slot, f => f.Value, StringComparer.Ordinal);

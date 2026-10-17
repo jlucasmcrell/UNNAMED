@@ -106,6 +106,9 @@ public enum StateSlice
 
     /// <summary>Every NPC's life - needs, activity, condition, pose and route - the role slots' arrivals and the pairs (WP12). In the world delta.</summary>
     NpcLife,
+
+    /// <summary>Every NPC adventurer's life and the slots awaiting arrivals (WP13). In the world delta.</summary>
+    Adventurers,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -515,6 +518,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.NpcLife);
         World.SetNpcLife(life);
+    }
+
+    public void SetAdventurers(SliceOwner owner, AdventurerState adventurers)
+    {
+        Require(owner, StateSlice.Adventurers);
+        World.SetAdventurers(adventurers);
     }
 
     /// <summary>An NPC is gone from the world: a hireling who died (DN9).</summary>

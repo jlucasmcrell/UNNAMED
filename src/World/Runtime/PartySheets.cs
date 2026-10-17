@@ -115,6 +115,32 @@ internal sealed class PartySheetSystem : IAbstractAdvance
     private PartySheet SheetOf(string npcId) =>
         State.PartySheets.GetValueOrDefault(npcId) ?? new PartySheet(npcId, ProgressionEngine.Create(Rules));
 
+    /// <summary>
+    /// Someone with a life of their own joins as they are (WP13: an adventurer keeps their level and gear when hired): their sheet is theirs,
+    /// and what they wear becomes instances the world knows.
+    /// </summary>
+    public string? Handle(AdoptSheet command)
+    {
+        foreach (var item in command.Sheet.Items)
+        {
+            if (!State.World.Registry.Exists(item.ItemId))
+                State.World.Registry.CreateEntity(DefinitionId.Parse(item.DefId), item.ItemId);
+        }
+        State.SetPartySheet(_owner, command.Sheet);
+        return null;
+    }
+
+    /// <summary>Someone with a life of their own left with their sheet (WP13): it, and what is on it, goes back into that life.</summary>
+    public string? Handle(ReleaseSheet command)
+    {
+        if (!State.PartySheets.TryGetValue(command.NpcId, out var sheet))
+            return null;
+        foreach (var item in sheet.Items.Where(i => State.World.Registry.Exists(i.ItemId)))
+            State.World.Registry.DestroyEntity(item.ItemId);
+        State.RemovePartySheet(_owner, command.NpcId);
+        return null;
+    }
+
     public string? Handle(ReturnLoans command, long tick)
     {
         if (!State.PartySheets.TryGetValue(command.NpcId, out var sheet))

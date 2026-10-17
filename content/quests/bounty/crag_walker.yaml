@@ -7,6 +7,7 @@ notes: Durn's night bounty on the crag walker (spawn.cairnwold.crag_walker), whi
 title: What Walks the Crags
 summary: Durn will pay for whatever walks the foot of the south crags at night - or for any husk put down.
 track: bounty
+competitive: true   # WP13: any adventurer may take it too - the first to finish it claims it (WP4)
 giver_ref: npc.cairnwold.durn_skell
 entry_objective: o_put_down
 objectives:
