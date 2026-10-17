@@ -95,7 +95,8 @@ public partial class Main
             {
                 _session.NewGame(DefaultCharacter);
                 Started();
-                Hint(Domain.Guidance.HintTriggers.NewGame);
+                // A new game happens once: every hint waiting on it is queued now, not one.
+                while (Hint(Domain.Guidance.HintTriggers.NewGame)) { }
             },
             Load = () => FromTitle(_saves.OpenStart),
             Settings = () => FromTitle(() => _settings.Open()),

@@ -54,18 +54,21 @@ public partial class HintLine : CanvasLayer
     /// <summary>The words now on the line, or null when it is empty (the smoke and the screenshot pass read it).</summary>
     public string? Showing => _panel.Visible ? _words.Text : null;
 
-    public void Show(string words)
+    /// <summary>Show a hint, or queue it behind the one showing; false when the queue is full and the hint is dropped.</summary>
+    public bool Show(string words)
     {
         if (_panel.Visible)
         {
-            if (_queue.Count < Waiting)
-                _queue.Enqueue(words);
-            return;
+            if (_queue.Count >= Waiting)
+                return false;
+            _queue.Enqueue(words);
+            return true;
         }
         _words.Text = words;
         _left = Seconds * SettingsStore.Current.Profile.Interface.NoticeDuration;
         _panel.Modulate = Colors.White;
         _panel.Visible = true;
+        return true;
     }
 
     /// <summary>Everything off the line (a world ending, guidance turned off).</summary>

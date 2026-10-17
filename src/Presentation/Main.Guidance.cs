@@ -19,13 +19,14 @@ public partial class Main
 
     /// <summary>
     /// Hints (PJ07): each named moment shows the next hint waiting on it that the player has not seen, as their guidance level allows,
-    /// and marks it seen in their preferences, so it never shows again until they reset hints. A harness run plays on the defaults and
-    /// keeps nothing, so its hints come and go with the run.
+    /// and marks it seen in their preferences, so it never shows again until they reset hints. A hint the line has no room for is not
+    /// marked, so it waits for the moment's next turn. A harness run plays on the defaults and keeps nothing, so its hints come and go
+    /// with the run. True when a hint was shown or queued.
     /// </summary>
-    private void Hint(string trigger)
+    private bool Hint(string trigger)
     {
         if (_hintLine is null || _session.Hints.Count == 0 || _hintless.Contains(trigger))
-            return;
+            return false;
         var prefs = SettingsStore.Current;
         var ui = prefs.Profile.Interface;
         var depth = ui.Guidance switch { Guidance.Full => HintDepth.Every, Guidance.Light => HintDepth.FirstOfEachCategory, _ => HintDepth.None };
@@ -33,10 +34,12 @@ public partial class Main
         if (HintRules.Pick(_session.Hints.Values, trigger, seen, depth) is not { } hint)
         {
             _hintless.Add(trigger);
-            return;
+            return false;
         }
-        _hintLine.Show(HintRules.Words(hint.Text, HelpPanel.Key));
+        if (!_hintLine.Show(HintRules.Words(hint.Text, HelpPanel.Key)))
+            return false;
         SettingsStore.Set(prefs with { Profile = prefs.Profile with { Interface = ui with { SeenHints = ui.SeenHints.Append(hint.Id).ToArray() } } });
+        return true;
     }
 
     /// <summary>The hint line on the HUD, and the moments the simulation's events name.</summary>
