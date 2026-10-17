@@ -23,6 +23,12 @@ public sealed record LearnRow(string DefinitionId, string Name, string Kind, str
 {
     /// <summary>The Learn action is offered only for a lesson ready to ask for.</summary>
     public bool CanLearn => State == LearnState.Ready;
+
+    /// <summary>What is taught, in a line: what a technique does and costs, what a recipe makes and needs, what a formula works. Null when nothing says.</summary>
+    public string? Teaches { get; init; }
+
+    /// <summary>The availability word, before committing (canon 26 §4.3, §5.2): Known, Ready, Ask them, or why not - "Needs skill", "Needs trust", "Builds on", "Short of coin".</summary>
+    public string Word { get; init; } = "";
 }
 
 /// <summary>The column: whether the teacher teaches now (and why not), and the lessons - ready first, then blocked, then known.</summary>
@@ -39,17 +45,17 @@ public static class LearnModel
     /// lesson is still listed, so the player sees what will be on offer - except one still waiting on the world (an unmet flag), which the
     /// player has no way to ask after yet (the Barrowworks wedge where the ring cannot be reached).
     /// </summary>
-    public static LearnColumn Column(TeachingView view, string teacher, long coin, Func<string, string> name)
+    public static LearnColumn Column(TeachingView view, string teacher, long coin, Func<string, string> name, Func<string, string?>? teaches = null)
     {
         var rows = view.Lessons.Where(lesson => lesson.Known || !lesson.Requirements.Any(r => r is { Requirement: FlagRequirement, Met: false }))
-            .Select(lesson => Row(lesson, view.Unavailable, teacher, coin, name))
+            .Select(lesson => Row(lesson, view.Unavailable, teacher, coin, name, teaches))
             .OrderBy(r => r.State switch { LearnState.Ready => 0, LearnState.InConversation => 1, LearnState.Blocked => 2, _ => 3 })
             .ThenBy(r => r.Name, StringComparer.Ordinal)
             .ToImmutableArray();
         return new LearnColumn(view.NpcId, view.Unavailable is null ? null : Sentence(teacher, view.Unavailable), rows);
     }
 
-    public static LearnRow Row(LessonView lesson, string? unavailable, string teacher, long coin, Func<string, string> name)
+    public static LearnRow Row(LessonView lesson, string? unavailable, string teacher, long coin, Func<string, string> name, Func<string, string?>? teaches = null)
     {
         var chips = lesson.Requirements.Select(r => new LearnChip(Chip(r, teacher, name), r.Met)).ToImmutableArray();
         string fee = lesson.Fee <= 0 ? "No fee" : $"{lesson.Fee} coin";
@@ -83,8 +89,28 @@ public static class LearnModel
         {
             state = LearnState.Ready;
         }
-        return new LearnRow(lesson.DefinitionId, name(lesson.DefinitionId), KindWord(lesson.Kind), fee, state, why, chips);
+        return new LearnRow(lesson.DefinitionId, name(lesson.DefinitionId), KindWord(lesson.Kind), fee, state, why, chips)
+        {
+            Teaches = teaches?.Invoke(lesson.DefinitionId),
+            Word = Word(lesson, state, unavailable),
+        };
     }
+
+    /// <summary>The word a lesson carries: the first unmet requirement's kind, else the fee, else the teacher's hours.</summary>
+    private static string Word(LessonView lesson, LearnState state, string? unavailable) => state switch
+    {
+        LearnState.Known => "Known",
+        LearnState.Ready => "Ready",
+        LearnState.InConversation => "Ask them",
+        _ => lesson.Requirements.FirstOrDefault(r => !r.Met)?.Requirement switch
+        {
+            SkillBandRequirement => "Needs skill",
+            TrustRequirement => "Needs trust",
+            PrerequisiteRequirement => "Builds on",
+            null => unavailable is not null ? "Not teaching now" : "Short of coin",
+            _ => "Needs more",
+        },
+    };
 
     public static string KindWord(TeachingKind kind) => kind switch
     {
