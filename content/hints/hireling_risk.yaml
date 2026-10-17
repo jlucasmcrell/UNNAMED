@@ -1,0 +1,10 @@
+id: hint.hireling_risk
+kind: hint
+schema: 1
+display_key: hint.hireling_risk.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: party
+trigger: hire_offered
+order: 1
+text: "A hireling who falls in a fight can die. A named companion who falls goes home to recover instead."

@@ -119,6 +119,7 @@ public partial class Main
         SubscribeSocial();
         SubscribeQuests();
         SubscribeCombat();
+        SubscribeGuidance();
     }
 
     /// <summary>
@@ -282,6 +283,13 @@ public partial class Main
         });
         _session.Subscribe<ItemUsed>(e => _hud.Toast(e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
         _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());
+        // Downed with a hand near (OD-13 = B): who will help the character up, and when they are up.
+        _session.Subscribe<PlayerDowned>(e =>
+        {
+            _autorun = false;
+            _hud.Toast($"You are down - {Names.Of(_session, e.HandNpcId)} will help you up", 6);
+        });
+        _session.Subscribe<PlayerRevived>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} helps you up", 4));
         _session.Subscribe<PlayerDied>(e =>
         {
             string recap = string.Join("\n", e.Recap.Select(r =>

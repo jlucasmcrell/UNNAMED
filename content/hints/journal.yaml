@@ -1,0 +1,10 @@
+id: hint.journal
+kind: hint
+schema: 1
+display_key: hint.journal.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: quests
+trigger: quest_started
+order: 0
+text: "{key:journal} opens the journal: your quests, what each needs next, and notes of your own."

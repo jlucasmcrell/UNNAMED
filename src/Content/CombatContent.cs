@@ -220,14 +220,18 @@ public static class CombatContent
             LeashMm = Mm(map, "creature_leash_m"),
             DeathEffect = Text(Map(map, "death"), "effect_ref"),
             DeathTicks = Ticks(Map(map, "death"), "respawn_delay_s"),
+            DownedTicks = map.ContainsKey("downed") ? Ticks(Map(map, "downed"), "duration_s") : new CombatConstants().DownedTicks,
+            DownedRevivePercent = map.ContainsKey("downed") ? Int(Map(map, "downed"), "revive_percent") : new CombatConstants().DownedRevivePercent,
+            DownedHandWithinMm = map.ContainsKey("downed") ? Mm(Map(map, "downed"), "hand_within_m") : new CombatConstants().DownedHandWithinMm,
             Unarmed = new AttackProfile("unarmed", IntOf(unarmedDamage, 0, "unarmed.damage"), IntOf(unarmedDamage, 1, "unarmed.damage"),
                 Damage(Text(unarmedMap, "damage_type")), Mm(unarmedMap, "reach"), unarmedWindup, unarmedActive,
                 Math.Max(0, unarmedTotal - unarmedWindup - unarmedActive), Int(unarmedMap, "stamina_cost")),
         };
         if (constants.ArmorK <= 0 || constants.CritMultiplier < 1 || constants.BaseCritPercent is < 0 or > 100
             || constants.PierceArmorIgnored is < 0 or > 1 || constants.BlockMitigationPercent is < 0 or > 100
-            || windupPercent + activePercent >= 100 || windupPercent <= 0 || activePercent <= 0 || constants.DodgeTicks < 1)
-            throw new FormatException("config.damage_constants holds a value out of range (armor_k > 0, crit_multiplier >= 1, percentages in [0, 100], windup + active < 100, dodge i-frames of at least one tick)");
+            || windupPercent + activePercent >= 100 || windupPercent <= 0 || activePercent <= 0 || constants.DodgeTicks < 1
+            || constants.DownedTicks < 1 || constants.DownedRevivePercent is < 1 or > 100 || constants.DownedHandWithinMm <= 0)
+            throw new FormatException("config.damage_constants holds a value out of range (armor_k > 0, crit_multiplier >= 1, percentages in [0, 100], windup + active < 100, dodge i-frames of at least one tick, a downed spell of at least one tick, a revive share of 1-100 and a hand's reach above 0)");
         return constants;
     }
 

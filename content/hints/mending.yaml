@@ -1,0 +1,10 @@
+id: hint.mending
+kind: hint
+schema: 1
+display_key: hint.mending.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: survival
+trigger: health_low
+order: 0
+text: "Health comes back slowly once you are out of a fight. {key:use} uses a consumable you carry."

@@ -179,6 +179,8 @@ public partial class Main
                      $"{(login.CatchUp.Capped ? " (capped)" : "")}; {login.Away.Lines.Count} away-log lines");
             foreach (string problem in login.Result.Report.Loss.Concat(login.Result.Report.Warnings))
                 GD.PushWarning(problem);
+            if (login.Away.Lines.Count > 0)
+                Hint(Domain.Guidance.HintTriggers.AwaySheet);
             return (login.Slot, SaveCopy.Current, login.Result);
         }
         catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)

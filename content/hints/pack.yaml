@@ -1,0 +1,10 @@
+id: hint.pack
+kind: hint
+schema: 1
+display_key: hint.pack.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: items
+trigger: item_picked_up
+order: 0
+text: "{key:inventory} opens your pack: equip, use and drop from there. Everything you carry has its weight."

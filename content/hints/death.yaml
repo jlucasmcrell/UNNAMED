@@ -1,0 +1,10 @@
+id: hint.death
+kind: hint
+schema: 1
+display_key: hint.death.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: survival
+trigger: player_died
+order: 0
+text: "Death costs XP debt, paid from the XP you earn next; nothing earned is lost. You come back at your return point."

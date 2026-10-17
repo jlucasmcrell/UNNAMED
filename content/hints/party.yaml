@@ -1,0 +1,10 @@
+id: hint.party
+kind: hint
+schema: 1
+display_key: hint.party.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: party
+trigger: companion_recruited
+order: 0
+text: "{key:companion_order} tells your companions to wait or to follow. They fight what fights you."

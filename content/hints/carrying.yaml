@@ -1,0 +1,10 @@
+id: hint.carrying
+kind: hint
+schema: 1
+display_key: hint.carrying.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: items
+trigger: over_limit
+order: 0
+text: "You carry all you can. Drop, sell or put something down before you take more."

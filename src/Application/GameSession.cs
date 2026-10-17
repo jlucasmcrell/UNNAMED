@@ -7,6 +7,7 @@ using UNNAMED.Content;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Guidance;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -224,6 +225,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions)
         {
             ClockAtWorldStartHours = WorldContent.ClockAtWorldStartHours(loader),
+            Hints = HintContent.Build(loader),
         };
     }
 
@@ -232,6 +234,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
 
     /// <summary>What the world clock reads at tick 0, in hours (config.time): the sky shows it and the creatures keep their hours by it.</summary>
     public double ClockAtWorldStartHours { get; private init; }
+
+    /// <summary>The guidance hints (WP10): presentation shows them once each, as the player's guidance level allows. Not game state.</summary>
+    public ImmutableSortedDictionary<string, HintDefinition> Hints { get; private init; } =
+        ImmutableSortedDictionary.Create<string, HintDefinition>(StringComparer.Ordinal);
     public ContentIdentity Content { get; }
     public ICellBaselineGenerator Generator { get; }
 
