@@ -54,7 +54,7 @@ public class TeachingTests
         var arena = AtKeras(Harness.Boot(profile), 100, blade: 4);
 
         var view = arena.Simulation.Teaching(Kera)!;
-        Assert.True(view.Available);   // TODO(WP12): only at the forge, in her working hours
+        Assert.True(view.Available);   // at the forge, in her working hours (WP12)
         Assert.Equal(new[] { Billet, "recipe.smithing.march_spear", "recipe.fletching.arrows", "recipe.fletching.hunting_bow",
             "recipe.fletching.hunting_bow_silk", PowerStrike }, view.Lessons.Select(l => l.DefinitionId));
         Assert.All(view.Lessons.Take(5), l => Assert.True(l.ByDialogue && l.Fee == 0 && l.Met));
@@ -64,6 +64,20 @@ public class TeachingTests
         Assert.Equal((new SkillBandRequirement(Blade, "familiar", 15) as TeachingRequirement, false, 4L), (gate.Requirement, gate.Met, gate.Have));
         Assert.False(strike.Met);
         Assert.Null(arena.Simulation.Teaching("npc.ashen_hollow.renn_vale"));   // Renn teaches nothing
+    }
+
+    [Fact]
+    public void ATeacher_TeachesOnlyAtTheirWork_InTheirWorkHours()
+    {
+        using var profile = new TempProfile();
+        var arena = AtKeras(Harness.Boot(profile), 100, blade: 15);
+        Assert.True(arena.Simulation.Teaching(Kera)!.Available);
+        // The night comes on: she leaves the forge, and the Learn column says why she is not teaching (WP12's answer).
+        for (int hour = 0; hour < 24 && arena.Simulation.TeachRefusal(Kera) is null; hour++)
+            arena.Simulation.Advance(2_400);
+        string? refusal = arena.Simulation.TeachRefusal(Kera);
+        Assert.NotNull(refusal);
+        Assert.Equal(refusal, arena.Simulation.Teaching(Kera)!.Unavailable);
     }
 
     [Fact]

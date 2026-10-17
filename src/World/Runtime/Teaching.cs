@@ -38,21 +38,12 @@ internal sealed record Teach(string NpcId, ImmutableArray<string> DefinitionIds)
 
 /// <summary>
 /// When and where a teacher teaches (C10: at their work anchor, in their work hours, §2.13). The NPC life simulation (WP12) answers it;
-/// until it is merged, <see cref="AnyHourTeaching"/> does, and every teacher teaches wherever and whenever they are spoken to.
+/// a teacher with no routine teaches wherever and whenever they are spoken to.
 /// </summary>
 internal interface ITeachingHours
 {
     /// <summary>Why this NPC is not teaching at this tick (away from their work anchor, out of work hours); null when they are.</summary>
     string? Unavailable(string npcId, long tick);
-}
-
-/// <summary>
-/// Every teacher teaches at any hour, wherever they stand.
-/// TODO(WP12): replace with the NPC life simulation's answer - teaching only at the teacher's work anchor in their work hours (§2.13).
-/// </summary>
-internal sealed class AnyHourTeaching : ITeachingHours
-{
-    public string? Unavailable(string npcId, long tick) => null;
 }
 
 /// <summary>

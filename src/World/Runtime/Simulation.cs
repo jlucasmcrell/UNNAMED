@@ -224,7 +224,7 @@ public sealed class Simulation
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
-        _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, new AnyHourTeaching());
+        _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, _npcs);
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);

@@ -37,7 +37,7 @@ public static class NpcAdvanceKinds
     public const string Arrived = "npc.arrived";
 }
 
-internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput
+internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachingHours
 {
     /// <summary>How near their work anchor an NPC must stand to be at work: a counter's width.</summary>
     public const long AtWorkMm = 1_500;
@@ -293,6 +293,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput
     /// Why an NPC will not teach now (WP9's hook): a teacher teaches only at their work anchor, in their work hours. Null when they will; an
     /// NPC with no routine teaches whenever spoken to.
     /// </summary>
+    string? ITeachingHours.Unavailable(string npcId, long tick) => TeachRefusal(npcId);
+
     public string? TeachRefusal(string npcId)
     {
         if (LifeOf(npcId) is not { } life || !Life.Routines.TryGetValue(life.RoutineId, out var routine))
