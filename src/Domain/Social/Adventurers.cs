@@ -382,6 +382,8 @@ public static class AdventurerEngine
         var agents = state.Agents.ToBuilder();
         var vacancies = state.Vacancies.ToBuilder();
         var claimed = new HashSet<string>(StringComparer.Ordinal);
+        // What this midnight's hunts have taken from each ground: those out on one share its creatures, never more than it holds.
+        var culled = new Dictionary<string, int>(StringComparer.Ordinal);
         // Someone with the party, or back from it with today already planned (let go at a midnight the absence has not lived yet), is left be.
         var away = state.Agents.Values.Where(a => a.Party is not null || a.Plan.Day >= day.Day).Select(a => a.Key).ToHashSet(StringComparer.Ordinal);
 
@@ -391,7 +393,7 @@ public static class AdventurerEngine
             var a = agents[key];
             if (away.Contains(key))
                 continue;
-            var resolved = Resolve(a, rules, day, agents, claimed, happenings);
+            var resolved = Resolve(a, rules, day, agents, claimed, culled, happenings);
             if (resolved is null)
             {
                 agents.Remove(key);
@@ -521,7 +523,8 @@ public static class AdventurerEngine
 
     /// <summary>A planned day comes to its end (DN2: by the table, never by a fight). Null: they died.</summary>
     private static AdventurerRecord? Resolve(AdventurerRecord a, AdventurerRules rules, AdventurerDay day,
-        ImmutableSortedDictionary<string, AdventurerRecord>.Builder agents, HashSet<string> claimed, ImmutableArray<AdventurerHappening>.Builder happenings)
+        ImmutableSortedDictionary<string, AdventurerRecord>.Builder agents, HashSet<string> claimed, Dictionary<string, int> culled,
+        ImmutableArray<AdventurerHappening>.Builder happenings)
     {
         if (a.Condition == AdventurerCondition.Injured && a.InjuredUntilDay <= day.Day)
             a = a with { Condition = AdventurerCondition.Active, InjuredUntilDay = 0 };
@@ -534,9 +537,9 @@ public static class AdventurerEngine
                 happenings.Add(new AdventurerHappening(Travelled, a.Key) { Ref = to, Settlement = a.At });
                 return a with { At = to };
             case AdventurerGoals.Bounty when plan.Ref is { } questId && day.Bounties.FirstOrDefault(b => b.QuestId == questId) is { } bounty:
-                return bounty.CreatureId is null ? Deliver(a, bounty, rules, day, claimed, happenings) : Fight(a, rules, day, Ground(bounty, day), bounty, claimed, happenings);
+                return bounty.CreatureId is null ? Deliver(a, bounty, rules, day, claimed, happenings) : Fight(a, rules, day, Ground(bounty, day), bounty, claimed, culled, happenings);
             case AdventurerGoals.Hunt when plan.Ref is { } ground && day.Grounds.TryGetValue(ground, out var g):
-                return Fight(a, rules, day, g, null, claimed, happenings);
+                return Fight(a, rules, day, g, null, claimed, culled, happenings);
             default:
                 return a;
         }
@@ -576,7 +579,7 @@ public static class AdventurerEngine
     /// the weapon's skill and fieldcraft, fills the pack from the loot tables, and - for a kill bounty - claims it if no one has first.
     /// </summary>
     private static AdventurerRecord? Fight(AdventurerRecord a, AdventurerRules rules, AdventurerDay day, AdventurerGround? ground, AdventurerBounty? bounty,
-        HashSet<string> claimed, ImmutableArray<AdventurerHappening>.Builder happenings)
+        HashSet<string> claimed, Dictionary<string, int> culled, ImmutableArray<AdventurerHappening>.Builder happenings)
     {
         if (ground is null)
             return a;
@@ -600,7 +603,11 @@ public static class AdventurerEngine
         if (roll >= row.DeathPercent + row.InjuryPercent + row.SuccessPercent)
             return a;
 
-        int kills = bounty is { } b ? Math.Min(ground.Members, Math.Max(1, b.Count)) : Math.Min(ground.Members, 1 + a.Level / 3);
+        int wanted = bounty is { } b ? Math.Max(1, b.Count) : 1 + a.Level / 3;
+        int kills = Math.Min(wanted, ground.Members - culled.GetValueOrDefault(ground.SpawnKey));
+        if (kills <= 0)
+            return a;   // those out before them took what the ground held
+        culled[ground.SpawnKey] = culled.GetValueOrDefault(ground.SpawnKey) + kills;
         happenings.Add(new AdventurerHappening(Culled, a.Key) { Ref = ground.SpawnKey, Amount = kills });
         var progression = a.Progression;
         string? weaponSkill = a.Gear.TryGetValue(EquipSlot.MainHand, out var weapon) ? day.Item(weapon.DefId)?.Weapon?.SkillId : null;

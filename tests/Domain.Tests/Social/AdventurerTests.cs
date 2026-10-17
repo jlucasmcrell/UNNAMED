@@ -225,6 +225,24 @@ public class AdventurerTests
         Assert.All(hunting, a => Assert.Equal(a.Level + 1 + rules.PowerPerCompanion * (hunting.Count - 1), AdventurerEngine.Power(a, rules)));
     }
 
+    /// <summary>Codex on #23: a group out after one ground shares its creatures - no midnight credits more kills there than it holds.</summary>
+    [Fact]
+    public void AGroupOnOneGround_SharesItsCreatures_AndNoMidnightCreditsMoreKillsThanItHolds()
+    {
+        var rules = Rules(target: 6);
+        var (_, happenings) = Live(Begin(rules), rules, 6);
+        var culls = happenings.Where(h => h.Kind == AdventurerEngine.Culled && h.Ref == Wolves).ToList();
+        Assert.NotEmpty(culls);
+        var state = Begin(rules);
+        for (long d = 1; d <= 6; d++)
+        {
+            var (next, happened) = AdventurerEngine.Midnight(state, rules, At(d, rules));
+            Assert.True(happened.Where(h => h.Kind == AdventurerEngine.Culled && h.Ref == Wolves).Sum(h => h.Amount) <= 3, $"day {d}");
+            Assert.Equal(happened.Where(h => h.Kind == AdventurerEngine.Culled).Sum(h => h.Amount), next.Agents.Values.Sum(a => a.Kills) - state.Agents.Values.Where(a => next.Agents.ContainsKey(a.Key)).Sum(a => a.Kills));
+            state = next;
+        }
+    }
+
     [Fact]
     public void TheSameDays_GiveTheSameLives()
     {
