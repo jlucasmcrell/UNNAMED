@@ -8,9 +8,10 @@ region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: ashen_hollow
 role: miner
+roles: [miner]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [441, 730.4], facing_deg: 180 }
   work: { position_m: [440, 651], facing_deg: 180 }
-  eat: { position_m: [448.3, 737.8], facing_deg: 225 }
+  eat: { position_m: [449.63, 738.68], facing_deg: 236 }
   social: { position_m: [452.75, 737.75], facing_deg: 270 }

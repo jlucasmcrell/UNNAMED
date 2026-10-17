@@ -42,7 +42,7 @@ public sealed record SettingOut(
 /// <summary>
 /// Where SettingOut comes from: the NPC life simulation (WP12), read by tick so an absence can be caught up closed-form. A pure read of
 /// the world: <see cref="Between"/> gives every SettingOut whose <see cref="SettingOut.Tick"/> lies in (fromTick, toTick], in tick order.
-/// Until WP12 lands nobody sets out (<see cref="SettingOuts.None"/>).
+/// The NPC life simulation's trip planner supplies it (WP12b); a fixed schedule (<see cref="SettingOuts.Of"/>) stands in for it in tests.
 /// </summary>
 public interface ISettingOutSource
 {
@@ -51,8 +51,6 @@ public interface ISettingOutSource
 
 public static class SettingOuts
 {
-    public static ISettingOutSource None { get; } = new Fixed(ImmutableArray<SettingOut>.Empty);
-
     /// <summary>A fixed schedule of setting-outs: the stub the tests run the contract with.</summary>
     public static ISettingOutSource Of(IEnumerable<SettingOut> schedule) => new Fixed(schedule.OrderBy(s => s.Tick).ThenBy(s => s.Npc).ToImmutableArray());
 
@@ -122,16 +120,18 @@ internal sealed class LfgSystem : IAbstractAdvance
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
+    private readonly ISettingOutSource _source;
 
-    public LfgSystem(SystemContext context, SliceOwner owner, EntityId player)
+    public LfgSystem(SystemContext context, SliceOwner owner, EntityId player, ISettingOutSource source)
     {
         _context = context;
         _owner = owner;
         _player = player;
+        _source = source;
     }
 
     private RuntimeState State => _context.State;
-    private ISettingOutSource Source => _context.Setup.SettingOuts;
+    private ISettingOutSource Source => _source;
     private ChatRules Rules => _context.Setup.Chat.Rules;
 
     /// <summary>

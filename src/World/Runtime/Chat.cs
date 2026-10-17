@@ -211,7 +211,8 @@ public sealed record ChatterSpeaker(EntityId Id, string Name, string SpeakerType
 
 /// <summary>
 /// Who is about to talk at a tick: the NPC life simulation's residents and travellers (WP12), off-screen ones included. A pure read:
-/// the same world at the same tick gives the same speakers. Until WP12 lands nobody does (<see cref="ChatterSpeakers.None"/>).
+/// the same world at the same tick gives the same speakers. The NPC life simulation's role residents are they (WP12b); a fixed set
+/// (<see cref="ChatterSpeakers.Of"/>) stands in for them in tests.
 /// </summary>
 public interface IChatterSpeakers
 {
@@ -220,8 +221,6 @@ public interface IChatterSpeakers
 
 public static class ChatterSpeakers
 {
-    public static IChatterSpeakers None { get; } = new Fixed(ImmutableArray<ChatterSpeaker>.Empty);
-
     /// <summary>The same speakers at every tick: for tests and for a pack whose talkers stand still.</summary>
     public static IChatterSpeakers Of(IEnumerable<ChatterSpeaker> speakers) => new Fixed(speakers.ToImmutableArray());
 

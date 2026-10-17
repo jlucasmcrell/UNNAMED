@@ -55,18 +55,8 @@ public class CompanionApprovalTests
     private static PlayerRecord Regarded(PlayerRecord r, params (string Npc, string Dimension, int Value)[] values) =>
         r.WithSocial(values.Select(v => new RelationshipValue(v.Npc, v.Dimension, v.Value)), r.Conversations);
 
-    /// <summary>The setup with these townsfolk hireable in every role, each with a spear (PartyTests).</summary>
-    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => setup with
-    {
-        Social = setup.Social with
-        {
-            Npcs = ids.Aggregate(setup.Social.Npcs, (npcs, id) => npcs.SetItem(id, npcs[id] with
-            {
-                Hireling = new HirelingProfile(Enum.GetValues<HirelingRole>().ToImmutableArray(),
-                    new CompanionProfile(60, "item.weapon.march_spear", ImmutableSortedDictionary<BodyRegion, int>.Empty)),
-            })),
-        },
-    };
+    /// <summary>The setup with these townsfolk hireable in every role, each with a spear.</summary>
+    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => Harness.HireableTownsfolk(setup, ids);
 
     /// <summary>The setup with Tavar valuing the ash stand's wood: a harvest of it moves him on these dimensions.</summary>
     private static SimulationSetup ValuingAsh(SimulationSetup setup, params (string Dimension, int Delta)[] changes) => setup with

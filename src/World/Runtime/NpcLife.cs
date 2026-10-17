@@ -66,8 +66,9 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         var life = State.World.NpcLife is { } saved
             ? NpcLifeEngine.Reconcile(saved, Life.Routines, Life.Rules, context, (r, g) => NameFor(r, g, given), PlaceOf)
             : NpcLifeEngine.Begin(Life.Routines, Life.Rules, context, (r, g) => NameFor(r, g, given), PlaceOf);
-        // A hireling who died in the character's service (DN9) has no life to go on with.
-        var living = life.Npcs.Where(kv => !State.Fallen.Contains(kv.Key));
+        // A named hireling who died in the character's service (DN9) has no life to go on with. A role slot's key is the slot's, not the
+        // person's: a resident who died left a vacancy, and whoever arrives in it is someone new.
+        var living = life.Npcs.Where(kv => !State.Fallen.Contains(kv.Key) || (Life.Routines.TryGetValue(kv.Value.RoutineId, out var r) && r.IsSlot));
         State.SetNpcLife(_owner, life with { Npcs = living.ToImmutableSortedDictionary(kv => kv.Key, kv => WithCell(kv.Value), StringComparer.Ordinal) });
         foreach (var npc in State.World.NpcLife!.Npcs.Values)
             Embody(npc);
@@ -88,7 +89,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         if (!State.World.Registry.Exists(id))
             State.World.Registry.CreateEntity(DefinitionId.Parse(routine.Id), id);
         var home = routine.Anchors[NpcAnchorKinds.Home];
-        var definition = new NpcDefinition(routine.Id, life.Name ?? routine.Role, routine.Role, ImmutableArray<string>.Empty, null, null);
+        // Residents have no NPC file: what they hire on as comes from their town roles (WP12b), and their body from config.
+        var definition = new NpcDefinition(routine.Id, life.Name ?? routine.Role, routine.Role, ImmutableArray<string>.Empty, null, null) { Hireling = ResidentHire(routine) };
         State.SetNpc(_owner, new NpcState(definition, id, new NpcSite(routine.Id, home.XMm, home.ZMm, home.FacingMdeg), BodyAt(life.XMm, life.ZMm, life.FacingMdeg)));
     }
 
@@ -126,7 +128,10 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         long tick = Math.Max(0, Clock.TickOfHour(hour));
         int hourOfDay = (int)(((hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
         var channel = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"hour@{hour}");
-        return new NpcHourContext(hour, tick, Clock.Day(tick), hourOfDay, WeatherAt(hour) == WeatherState.Rain, key => channel.UInt64(KeyHash(key)));
+        return new NpcHourContext(hour, tick, Clock.Day(tick), hourOfDay, WeatherAt(hour) == WeatherState.Rain, key => channel.UInt64(KeyHash(key)))
+        {
+            Trip = routine => TripActivity(routine, hour),
+        };
     }
 
     private (long Span, ImmutableArray<WeatherFront> Fronts) _weatherSpan = (long.MinValue, ImmutableArray<WeatherFront>.Empty);
@@ -157,6 +162,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
             return;
         LiveTo(Clock.Hour(tick), tick, publish: true);
         Park();
+        Rehire(tick);
     }
 
     /// <summary>Every hour from the state's to <paramref name="hour"/>, in turn; the arrivals take their bodies as they come.</summary>
@@ -209,11 +215,13 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         LiveTo(Clock.Hour(toTick), toTick, publish: false, log);
         foreach (var npc in State.World.NpcLife!.Npcs.Values)
         {
-            if (State.Companions.ContainsKey(npc.Key))
+            // The party's, or let go by it and not yet back to their life: their body stays where the party left it.
+            if (State.Companions.ContainsKey(npc.Key) || npc.Condition == NpcCondition.Hired)
                 continue;
             var (x, z, facing) = Goal(npc);
             Settle(npc, x, z, facing);
         }
+        Rehire(toTick);
     }
 
     /// <summary>Put a body down at a pose, standing, its route forgotten: only ever out of sight (C or D, or during the catch-up).</summary>
@@ -229,6 +237,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
     {
         if (State.World.NpcLife is not { } life || !life.Npcs.TryGetValue(command.Key, out var npc))
             return $"no one called {command.Key} lives here";
+        if (npc.Condition == NpcCondition.Hired)
+            return $"{command.Key} is in the party: what befalls them there is the party's";
         ulong sample = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"arrival:{npc.RoutineId}#{npc.Generation + 1}").UInt64(0);
         var next = NpcLifeEngine.Depart(life, Life.Routines, Life.Rules, command.Key, Clock.Day(tick), sample, out string? refusal);
         if (next is null)
@@ -242,6 +252,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         }
         var vacancy = next.Vacancies[npc.RoutineId];
         _context.Events.Publish(new NpcDeparted(command.Key, npc.Name ?? command.Key, command.Reason, vacancy.ArrivalDay, tick));
+        Rehire(tick);
         return null;
     }
 
@@ -251,7 +262,10 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
             return $"no one called {command.Key} lives here";
         if (command.UntilTick <= State.WorldTick)
             return "an injury lasts into the future";
+        if (npc.Condition == NpcCondition.Hired)
+            return $"{command.Key} is in the party: what befalls them there is the party's";
         SetLife(npc with { Condition = NpcCondition.Injured, ConditionUntil = command.UntilTick, Activity = NpcActivities.Sleep, With = null });
+        Rehire(State.WorldTick);
         return null;
     }
 

@@ -8,9 +8,10 @@ region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.sel_arien
 settlement: ashen_hollow
 role: scholar
+roles: [scholar, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [446.5, 730.9], facing_deg: 180 }
   work: { position_m: [472, 722], facing_deg: 135 }
-  eat: { position_m: [447, 738.3], facing_deg: 180 }
+  eat: { position_m: [447.8, 740.0], facing_deg: 196 }
   social: { position_m: [456.5, 734.5], facing_deg: 270 }

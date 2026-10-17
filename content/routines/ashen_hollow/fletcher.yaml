@@ -8,12 +8,13 @@ region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: ashen_hollow
 role: fletcher
+roles: [fletcher]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [445, 730.4], facing_deg: 180 }
   work: { position_m: [440, 744], facing_deg: 270 }
-  eat: { position_m: [447, 734.7], facing_deg: 0 }
+  eat: { position_m: [447.12, 733.54], facing_deg: 356 }
   social: { position_m: [455.5, 736.8], facing_deg: 270 }
-job: { market_ref: market.ashen_hollow, item_ref: item.ammo.arrow_rough, per_day: 4 }   # joins the market's stock each day the job is held (WP14's job hook)
+job: { market_ref: market.ashen_hollow, item_ref: item.ammo.arrow_rough, per_day: 4 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
 pairs:
   - { routine_ref: routine.ashen_hollow.miner, kind: friend }

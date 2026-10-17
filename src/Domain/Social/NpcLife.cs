@@ -2,6 +2,7 @@
 // No Godot references - pure C#, integer only
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Companions;
 
 namespace UNNAMED.Domain.Social;
 
@@ -19,7 +20,21 @@ public static class NpcActivities
     /// <summary>Every activity, in the chooser's tie-break order.</summary>
     public static readonly ImmutableArray<string> All = ImmutableArray.Create(Work, Eat, Sleep, Socialise, Shop, Shelter, Idle);
 
+    /// <summary>
+    /// Waiting at a trip's meeting place for its departure (WP12b): imposed by the trip planner, never chosen by utility. Its SettingOut is
+    /// raised during this hour, at least the trip lead before it ends.
+    /// </summary>
+    public const string SetOut = "set_out";
+
+    /// <summary>Gone on a trip (WP12b): walking to its destination, or there; imposed by the trip planner, never chosen by utility.</summary>
+    public const string Away = "away";
+
+    /// <summary>Every activity a life may be found doing: the chooser's, then the trip planner's.</summary>
+    public static readonly ImmutableArray<string> Known = All.Add(SetOut).Add(Away);
+
     public static bool IsActivity(string activity) => All.Contains(activity);
+
+    public static bool IsKnown(string activity) => Known.Contains(activity);
 }
 
 /// <summary>The places an NPC's day is anchored to: where they sleep, work, eat and meet people (§2.13 "homes and anchors").</summary>
@@ -38,6 +53,128 @@ public sealed record NpcAnchor(long XMm, long ZMm, int FacingMdeg);
 
 /// <summary>What an NPC's job makes for their town's market each day they hold it (§2.13 "work produces"; WP14's job hook).</summary>
 public sealed record NpcJob(string MarketId, string ItemId, long PerDay);
+
+/// <summary>
+/// A trip an NPC sets out on now and then (WP12b): what for (an <c>LfgPurposes</c> key) and its words, where they wait to leave and where
+/// they go - each a place's name, and a spot on the ground - how likely a day is to hold one, the hours of the day it may leave in, and how
+/// many hours it keeps them away. Every word is content's own: a creature's, a bounty's, an item's, a location's name.
+/// </summary>
+public sealed record NpcTrip(
+    string Purpose,
+    string PurposeName,
+    string MeetId,
+    string MeetName,
+    NpcAnchor Meet,
+    string DestinationName,
+    NpcAnchor Destination,
+    int ChancePercent,
+    int FromHour,
+    int ToHour,
+    int AwayHours)
+{
+    /// <summary>The longest a trip may keep someone away: it never reaches past the next day's own trip.</summary>
+    public const int MaxAwayHours = 12;
+
+    public string? Problem() =>
+        ChancePercent is < 0 or > 100 ? "a trip's chance_percent is 0 to 100"
+        : FromHour is < 1 or > 23 || ToHour < FromHour || ToHour > 23 ? "a trip leaves within [from, to] of one day, from 01:00 (its wait is the hour before)"
+        : AwayHours is < 1 or > MaxAwayHours ? $"a trip keeps them away 1 to {MaxAwayHours} hours"
+        : null;
+}
+
+/// <summary>A trip the planner set for a day: the routine, the absolute game hour it leaves, and the hour they are back.</summary>
+public sealed record PlannedTrip(string RoutineId, long DepartHour, long ReturnHour)
+{
+    /// <summary>The hour they wait at the meeting place: the one before they leave.</summary>
+    public long WaitHour => DepartHour - 1;
+
+    /// <summary>What the trip has them doing in an hour: waiting, away, or nothing of the trip's.</summary>
+    public string? ActivityAt(long hour) =>
+        hour == WaitHour ? NpcActivities.SetOut : hour >= DepartHour && hour < ReturnHour ? NpcActivities.Away : null;
+}
+
+/// <summary>
+/// The trip planner (WP12b), pure: whether a routine's trip happens on a day, and when, from a draw for that routine and day alone - so the
+/// same world plans the same trips whenever it is asked, whatever came before (T-22), and an offer posted while the character was away
+/// reads the same on a load.
+/// </summary>
+public static class NpcTrips
+{
+    /// <summary>The trip of a day, from its draw: <paramref name="draw"/> the routine's sample for the day.</summary>
+    public static PlannedTrip? On(RoutineDefinition routine, long day, int hoursPerDay, ulong draw)
+    {
+        if (routine.Trip is not { } trip || (int)(draw % 100) >= trip.ChancePercent)
+            return null;
+        int span = trip.ToHour - trip.FromHour + 1;
+        long depart = day * hoursPerDay + trip.FromHour + (long)((draw / 100) % (ulong)span);
+        return new PlannedTrip(routine.Id, depart, depart + trip.AwayHours);
+    }
+
+    /// <summary>
+    /// The trip that covers an hour, if any: the hour's own day's, or the day before's still away. <paramref name="drawOn"/> gives the
+    /// routine's sample for a day.
+    /// </summary>
+    public static PlannedTrip? Covering(RoutineDefinition routine, long hour, int hoursPerDay, Func<long, ulong> drawOn)
+    {
+        if (routine.Trip is null)
+            return null;
+        long day = Math.DivRem(hour, hoursPerDay, out long within) - (within < 0 ? 1 : 0);
+        foreach (long d in new[] { day + 1, day, day - 1 })
+        {
+            if (On(routine, d, hoursPerDay, drawOn(d)) is { } planned && planned.ActivityAt(hour) is not null)
+                return planned;
+        }
+        return null;
+    }
+}
+
+/// <summary>
+/// A town role (<c>config.npc_life</c>'s <c>roles</c>; WP12b): the hireling roles someone with it takes on, and the chatter speaker type
+/// they talk as. <see cref="NpcRoleKeys.Vendor"/> and <see cref="NpcRoleKeys.QuestGiver"/> are never hired, whatever else they are.
+/// </summary>
+public sealed record NpcRole(string Id, ImmutableArray<HirelingRole> HiresAs, string? SpeakerType);
+
+/// <summary>The two roles that rule out hiring (WP12b): the town needs its vendors and its quest givers where they are.</summary>
+public static class NpcRoleKeys
+{
+    public const string Vendor = "vendor";
+    public const string QuestGiver = "quest_giver";
+
+    public static readonly ImmutableArray<string> NeverHired = ImmutableArray.Create(Vendor, QuestGiver);
+}
+
+/// <summary>
+/// Whether someone can be hired now, derived (WP12b), never stored: never a vendor or a quest giver; otherwise whoever has a role that
+/// hires out, a body to work and fight with, and is about their life - living, in town, not already hired, not injured, not setting out.
+/// </summary>
+public static class NpcHireability
+{
+    /// <summary>The hireling roles a set of town roles takes on: none for a vendor or quest giver, else every role's, in role order.</summary>
+    public static ImmutableArray<HirelingRole> HiresAs(IEnumerable<string> roles, IReadOnlyDictionary<string, NpcRole> vocabulary)
+    {
+        var list = roles.ToList();
+        if (list.Any(NpcRoleKeys.NeverHired.Contains))
+            return ImmutableArray<HirelingRole>.Empty;
+        return list.SelectMany(r => vocabulary.TryGetValue(r, out var role) ? role.HiresAs : ImmutableArray<HirelingRole>.Empty)
+            .Distinct().OrderBy(r => r).ToImmutableArray();
+    }
+
+    /// <summary>Why a life cannot be hired now; null when they can. <paramref name="hiresAs"/> is what their roles take on.</summary>
+    public static string? Refusal(NpcLifeRecord life, RoutineDefinition routine, ImmutableArray<HirelingRole> hiresAs)
+    {
+        if (routine.Roles.Any(NpcRoleKeys.NeverHired.Contains))
+            return "is needed in town and does not hire on";
+        if (hiresAs.IsEmpty)
+            return "does not hire on";
+        return life.Condition switch
+        {
+            NpcCondition.Hired => "is already in someone's hire",
+            NpcCondition.Injured => "is injured and resting",
+            _ when life.Activity is NpcActivities.SetOut or NpcActivities.Away => "is away on their own business",
+            _ => null,
+        };
+    }
+}
 
 /// <summary>The kinds of NPC-NPC pair (§2.13): they drive who visits whom, and barks. Not romance (DN10).</summary>
 public static class NpcPairKinds
@@ -78,6 +215,15 @@ public sealed record RoutineDefinition(
     public string? PeopleId { get; init; }
 
     public NpcJob? Job { get; init; }
+
+    /// <summary>
+    /// What they are in their town (WP12b; <c>config.npc_life</c>'s <c>roles</c> names each): what they are hired as, if anything, and how
+    /// they talk. Whether they can be hired is derived from these (<see cref="NpcHireability"/>): a vendor or a quest giver never is.
+    /// </summary>
+    public ImmutableArray<string> Roles { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>The trip they sometimes set out on, asking along whoever will come (WP12b); null for one who keeps to town.</summary>
+    public NpcTrip? Trip { get; init; }
 
     /// <summary>The key the NPC is known by in the world: the named NPC's ID, or the slot's.</summary>
     public string Key => NpcId ?? Id;
@@ -197,8 +343,12 @@ public sealed record NpcNeeds(int Hunger, int Rest, int Social, int Coin)
     public bool Valid => new[] { Hunger, Rest, Social, Coin }.All(v => v is >= 0 and <= Max);
 }
 
-/// <summary>An NPC's condition (§2.13 life states). An injured NPC rests at home until their injury passes (WP13's outcome tables set it).</summary>
-public enum NpcCondition { Living, Injured }
+/// <summary>
+/// An NPC's condition (§2.13 life states). An injured NPC rests at home until their injury passes (WP13's outcome tables set it). A hired
+/// one (WP12b) is the party's: their routine is suspended - no needs, no choices, no walking of their own - until they leave the party and
+/// walk home to take it up again.
+/// </summary>
+public enum NpcCondition { Living, Injured, Hired }
 
 /// <summary>
 /// One NPC's life as the world holds it (saved, WP12): their routine, a resident's own name and generation, when they arrived, their
@@ -221,7 +371,7 @@ public sealed record NpcLifeRecord(string Key, string RoutineId, NpcNeeds Needs,
 
     public NpcCondition Condition { get; init; } = NpcCondition.Living;
 
-    /// <summary>The tick an injury passes; 0 when living.</summary>
+    /// <summary>The tick an injury passes; 0 when living. Hired (WP12b): the tick the party let them go, while the world catches up to it; 0 while in the party.</summary>
     public long ConditionUntil { get; init; }
 
     public Spatial.NavRoute Route { get; init; } = Spatial.NavRoute.None;
@@ -274,7 +424,11 @@ public sealed record NpcLifeState(
 public sealed record NpcLifeHappening(string Kind, string Key, string Detail);
 
 /// <summary>Everything an hour's step reads besides the state: the hour, its first tick, its day and hour of day, the weather, and the draws.</summary>
-public sealed record NpcHourContext(long Hour, long Tick, long Day, int HourOfDay, bool Raining, Func<string, ulong> Sample);
+public sealed record NpcHourContext(long Hour, long Tick, long Day, int HourOfDay, bool Raining, Func<string, ulong> Sample)
+{
+    /// <summary>What the trip planner has a routine doing this hour (<see cref="NpcActivities.SetOut"/> or <see cref="NpcActivities.Away"/>), or null.</summary>
+    public Func<RoutineDefinition, string?> Trip { get; init; } = _ => null;
+}
 
 /// <summary>
 /// The rules of NPC life, pure (§2.13). Lives advance one game hour at a time, on absolute hour boundaries, so the same hours give the
@@ -328,8 +482,8 @@ public static class NpcLifeEngine
         var npcs = state.Npcs.ToBuilder();
         var met = state.PairsLastMet.ToBuilder();
 
-        // Needs rise, and the hour just spent takes off what its activity answers.
-        foreach (var npc in state.Npcs.Values)
+        // Needs rise, and the hour just spent takes off what its activity answers. Someone hired is the party's: their life waits.
+        foreach (var npc in state.Npcs.Values.Where(n => n.Condition != NpcCondition.Hired))
         {
             var needs = npc.Needs;
             foreach (var need in Enum.GetValues<NpcNeed>())
@@ -351,9 +505,20 @@ public static class NpcLifeEngine
             var npc = npcs[key];
             if (!routines.TryGetValue(npc.RoutineId, out var routine))
                 continue;
+            // Someone the party let go while the world caught up (WP12b) takes their life up at the first hour after it; until then, and
+            // while still in the party, their life waits.
+            if (npc.Condition == NpcCondition.Hired)
+            {
+                if (npc.ConditionUntil <= 0 || npc.ConditionUntil > hour.Tick)
+                    continue;
+                npc = npc with { Condition = NpcCondition.Living, ConditionUntil = 0 };
+            }
             if (npc.Condition == NpcCondition.Injured && npc.ConditionUntil <= hour.Tick)
                 npc = npc with { Condition = NpcCondition.Living, ConditionUntil = 0 };
-            var (activity, with) = Choose(npc, routine, routines, pairs, met, npcs, rules, hour);
+            // A trip the planner set for this hour comes before the routine's own choice, for someone well enough to go.
+            var (activity, with) = npc.Condition == NpcCondition.Living && hour.Trip(routine) is { } trip
+                ? (trip, (string?)null)
+                : Choose(npc, routine, routines, pairs, met, npcs, rules, hour);
             npcs[key] = npc with { Activity = activity, With = with };
         }
 
@@ -492,6 +657,18 @@ public static class NpcLifeEngine
 /// <summary>The lives content defines for the region played: its routines by ID, the NPC-NPC pairs, and the rules (WP12).</summary>
 public sealed record NpcLifeSetup(ImmutableSortedDictionary<string, RoutineDefinition> Routines, ImmutableArray<NpcPair> Pairs, NpcLifeRules Rules)
 {
+    /// <summary>The town roles routines name (WP12b): what each is hired as and talks as.</summary>
+    public ImmutableSortedDictionary<string, NpcRole> Roles { get; init; } = ImmutableSortedDictionary.Create<string, NpcRole>(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The body a hired resident works and fights with (WP12b; <c>config.npc_life</c>'s <c>resident_hireling</c>): residents have no NPC
+    /// file of their own. Null: no resident can be hired.
+    /// </summary>
+    public CompanionProfile? ResidentBody { get; init; }
+
+    /// <summary>How many game minutes before a trip leaves its offer goes up (WP12b; at least 20, at most the hour of waiting).</summary>
+    public int TripLeadMinutes { get; init; } = 40;
+
     public static NpcLifeSetup Empty { get; } = new(ImmutableSortedDictionary.Create<string, RoutineDefinition>(StringComparer.Ordinal),
         ImmutableArray<NpcPair>.Empty, NpcLifeRules.Default);
 

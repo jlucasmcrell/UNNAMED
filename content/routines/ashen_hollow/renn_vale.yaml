@@ -8,9 +8,10 @@ region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.renn_vale
 settlement: ashen_hollow
 role: steward
+roles: [steward, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
   home: { position_m: [449, 730.4], facing_deg: 180 }
   work: { position_m: [446.5, 726.2], facing_deg: 90 }
-  eat: { position_m: [448.8, 736.5], facing_deg: 270 }
+  eat: { position_m: [450.17, 736.49], facing_deg: 276 }
   social: { position_m: [455, 733], facing_deg: 270 }

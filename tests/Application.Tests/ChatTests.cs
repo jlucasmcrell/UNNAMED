@@ -218,6 +218,8 @@ public class ChatTests
             Clock = new WorldClock(24 * QuickHour, 0),
             Chat = s.Chat with { Corpus = corpus, Rules = (rules ?? (r => r))(s.Chat.Rules with { LocalChancePercent = 60, WorldChancePercent = 30, HistoryMessages = 100_000 }) },
             ChatterSpeakers = ChatterSpeakers.Of(speakers),
+            // Ambient chatter alone: nobody sets out on a trip (WP12b's planner would post offers to World).
+            SettingOuts = SettingOuts.Of(Array.Empty<SettingOut>()),
         }, seed: seed);
 
     private static List<ChatterSpeaker> Speakers(GameSession session, int count)

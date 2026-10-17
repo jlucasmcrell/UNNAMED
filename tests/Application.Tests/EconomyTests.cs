@@ -199,7 +199,7 @@ public class EconomyTests
         Assert.Empty(settled);
         arena.Tick(1);
         Assert.Equal((0L, 1L), (Assert.Single(settled).FromDay, settled[0].ToDay));
-        Assert.Equal(105L, Good(arena.Simulation, Hollow, Arrows).Stock);   // 100 + 4 the fletcher made (WP12's job) + 20 made - 20 used, then a tenth of the 16 short
+        Assert.Equal(102L, Good(arena.Simulation, Hollow, Arrows).Stock);   // 100 + max(20 floor, 4 the fletcher made) - 20 used (WP12b), then a tenth of the 20 short
     }
 
     [Fact]

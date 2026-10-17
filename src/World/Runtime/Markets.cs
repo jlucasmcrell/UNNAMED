@@ -13,8 +13,8 @@ internal sealed record MarketTrade(string MarketId, string ItemId, long Bought, 
 internal sealed record ProduceGoods(string MarketId, string ItemId, long Count) : InternalCommand;
 
 /// <summary>
-/// What the towns' residents make at their jobs on a calendar day (WP12's job hook): the markets join it to their stock before they settle
-/// the day. A pure function of the day and of state that does not depend on when the markets ask, so a long absence and the same absence
+/// What the towns' residents make at their jobs on a calendar day (WP12's job hook): a good's production that day is the larger of its floor
+/// and its jobs (WP12b). A pure function of the day and of state that does not depend on when the markets ask, so a long absence and the same absence
 /// in pieces settle alike (T-22).
 /// </summary>
 internal interface IJobOutput
@@ -159,12 +159,11 @@ internal sealed class MarketSystem : IAbstractAdvance
         long from = state.Day;
         while (state.Day < day)
         {
+            // What the jobs made that day stands in for the floor where it is more (WP12b: max(floor, jobs)), never on top of it.
+            var jobs = new Dictionary<string, long>(StringComparer.Ordinal);
             foreach (var (marketId, itemId, count) in Jobs?.On(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
-            {
-                if (Economy.Markets.TryGetValue(marketId, out var market) && state.Markets.TryGetValue(marketId, out var stock))
-                    state = state with { Markets = state.Markets.SetItem(marketId, EconomyEngine.Produced(market, stock, itemId, count)) };
-            }
-            (state, var income) = EconomyEngine.Step(Economy, state, state.Day + 1, ValueBase);
+                jobs[EconomyEngine.JobKey(marketId, itemId)] = jobs.GetValueOrDefault(EconomyEngine.JobKey(marketId, itemId)) + count;
+            (state, var income) = EconomyEngine.Step(Economy, state, state.Day + 1, ValueBase, jobs);
             State.SetEconomy(_owner, state);
             _context.Dispatch(new SettleMerchants(state.Day, income));
         }

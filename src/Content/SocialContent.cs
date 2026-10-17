@@ -219,6 +219,9 @@ public static class SocialContent
             : throw new FormatException($"{id} companion: health is positive and armor is never negative");
     }
 
+    /// <summary>The body a hired resident works and fights with (WP12b): a companion's profile, read where config names it.</summary>
+    internal static CompanionProfile HirelingBody(string id, Dictionary<object, object> map, ContentLoader loader) => Profile(id, map, loader);
+
     /// <summary>
     /// <c>hireling</c> (WP15a): what an NPC who can be hired takes on - <c>roles</c> (guard, porter, gatherer, crafter) - and fights with,
     /// as a companion's profile does (<c>health</c>, <c>weapon_item_ref</c>, <c>armor</c>).

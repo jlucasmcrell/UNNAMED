@@ -154,4 +154,93 @@ public class NpcLifeTests
         Assert.Equal(NpcCondition.Living, well.Condition);
         Assert.Equal(NpcActivities.Work, well.Activity);
     }
+
+    // ── WP12b: roles and hireability, the hired state, trips ────────────────
+
+    private static readonly ImmutableSortedDictionary<string, NpcRole> Vocabulary = new[]
+    {
+        new NpcRole(NpcRoleKeys.Vendor, ImmutableArray<UNNAMED.Domain.Companions.HirelingRole>.Empty, "villager"),
+        new NpcRole(NpcRoleKeys.QuestGiver, ImmutableArray<UNNAMED.Domain.Companions.HirelingRole>.Empty, "villager"),
+        new NpcRole("hunter", ImmutableArray.Create(UNNAMED.Domain.Companions.HirelingRole.Guard, UNNAMED.Domain.Companions.HirelingRole.Gatherer), "hunter"),
+        new NpcRole("steward", ImmutableArray<UNNAMED.Domain.Companions.HirelingRole>.Empty, "villager"),
+    }.ToImmutableSortedDictionary(r => r.Id, r => r, StringComparer.Ordinal);
+
+    [Fact]
+    public void Hireability_IsDerivedFromRoles_AndAVendorOrQuestGiverNeverHiresOut()
+    {
+        Assert.Equal(new[] { UNNAMED.Domain.Companions.HirelingRole.Guard, UNNAMED.Domain.Companions.HirelingRole.Gatherer },
+            NpcHireability.HiresAs(new[] { "hunter" }, Vocabulary));
+        Assert.Empty(NpcHireability.HiresAs(new[] { "hunter", NpcRoleKeys.Vendor }, Vocabulary));
+        Assert.Empty(NpcHireability.HiresAs(new[] { "hunter", NpcRoleKeys.QuestGiver }, Vocabulary));
+        Assert.Empty(NpcHireability.HiresAs(new[] { "steward" }, Vocabulary));
+
+        var hunter = Routine("routine.town.hunter") with { Roles = ImmutableArray.Create("hunter") };
+        var vendor = hunter with { Roles = ImmutableArray.Create("hunter", NpcRoleKeys.Vendor) };
+        var life = new NpcLifeRecord("routine.town.hunter", hunter.Id, NpcNeeds.Sated, NpcActivities.Work, 0, 0, 0);
+        var hires = NpcHireability.HiresAs(hunter.Roles, Vocabulary);
+        Assert.Null(NpcHireability.Refusal(life, hunter, hires));
+        Assert.NotNull(NpcHireability.Refusal(life, vendor, NpcHireability.HiresAs(vendor.Roles, Vocabulary)));
+        Assert.NotNull(NpcHireability.Refusal(life with { Condition = NpcCondition.Hired }, hunter, hires));
+        Assert.NotNull(NpcHireability.Refusal(life with { Condition = NpcCondition.Injured, ConditionUntil = 99 }, hunter, hires));
+        Assert.NotNull(NpcHireability.Refusal(life with { Activity = NpcActivities.SetOut }, hunter, hires));
+        Assert.NotNull(NpcHireability.Refusal(life with { Activity = NpcActivities.Away }, hunter, hires));
+    }
+
+    [Fact]
+    public void AHiredLife_IsSuspended_AndTakenUpAtTheFirstHourAfterThePartyLetsThemGo()
+    {
+        var routines = Routines(Routine("routine.town.smith", "npc.town.smith"));
+        var life = Begin(routines, 8);
+        var hired = life with { Npcs = life.Npcs.SetItem("npc.town.smith", life.Npcs["npc.town.smith"] with { Condition = NpcCondition.Hired, Activity = NpcActivities.Idle }) };
+        var later = Live(hired, routines, 8 + 30);
+        Assert.Equal(hired.Npcs["npc.town.smith"] with { }, later.Npcs["npc.town.smith"]);   // no needs, no choices: the party's
+
+        // Let go at a tick within hour 40: the life waits until hour 41 begins, then lives again.
+        var letGo = later with { Npcs = later.Npcs.SetItem("npc.town.smith", later.Npcs["npc.town.smith"] with { ConditionUntil = 40 * 2_400 + 7 }) };
+        Assert.Equal(NpcCondition.Hired, Live(letGo, routines, 40).Npcs["npc.town.smith"].Condition);
+        var back = Live(letGo, routines, 41).Npcs["npc.town.smith"];
+        Assert.Equal((NpcCondition.Living, 0L), (back.Condition, back.ConditionUntil));
+    }
+
+    private static RoutineDefinition Tripper(int chance = 100, int from = 9, int to = 9, int away = 3) => Routine("routine.town.hunter") with
+    {
+        Trip = new NpcTrip("hunt", "Grey Wolf", "location.gate", "The Gate", new NpcAnchor(1_000, 0, 0), "The Den", new NpcAnchor(50_000, 0, 0),
+            chance, from, to, away),
+    };
+
+    [Fact]
+    public void TheTripPlanner_IsADrawPerDay_AndHasThemWaitAnHour_ThenGoAway()
+    {
+        var routine = Tripper();
+        var planned = NpcTrips.On(routine, 3, 24, 12345)!;
+        Assert.Equal(new PlannedTrip(routine.Id, 3 * 24 + 9, 3 * 24 + 12), planned);
+        Assert.Equal(NpcActivities.SetOut, planned.ActivityAt(3 * 24 + 8));
+        Assert.Equal(NpcActivities.Away, planned.ActivityAt(3 * 24 + 9));
+        Assert.Equal(NpcActivities.Away, planned.ActivityAt(3 * 24 + 11));
+        Assert.Null(planned.ActivityAt(3 * 24 + 12));
+        Assert.Null(NpcTrips.On(Tripper(chance: 0), 3, 24, 12345));
+        Assert.Null(NpcTrips.On(Routine("routine.town.idler"), 3, 24, 0));
+        // Covering asks the day itself and its neighbours: a trip found for any hour is the day's own.
+        Assert.Equal(planned, NpcTrips.Covering(routine, 3 * 24 + 10, 24, _ => 12345));
+        Assert.Null(NpcTrips.Covering(routine, 3 * 24 + 15, 24, _ => 12345));
+        Assert.NotNull(new NpcTrip("hunt", "x", "m", "M", new NpcAnchor(0, 0, 0), "D", new NpcAnchor(0, 0, 0), 50, 0, 3, 2).Problem());   // no hour to wait in
+        Assert.NotNull(Tripper(away: NpcTrip.MaxAwayHours + 1).Trip!.Problem());
+    }
+
+    [Fact]
+    public void ATrip_ComesBeforeTheRoutine_ForSomeoneWellEnoughToGo()
+    {
+        var routine = Tripper();
+        var routines = Routines(routine);
+        string? Trip(RoutineDefinition r, long hour) => NpcTrips.Covering(r, hour, 24, _ => 777)?.ActivityAt(hour);
+        var life = NpcLifeEngine.Begin(routines, Rules, At(6), (r, g) => "Ash", _ => null);
+        for (long h = 7; h <= 13; h++)
+        {
+            long hour = h;
+            life = NpcLifeEngine.Hour(life, routines, Array.Empty<NpcPair>(), Rules, At(hour) with { Trip = r => Trip(r, hour) }, (r, g) => "Ash", _ => true).State;
+            string expected = hour == 8 ? NpcActivities.SetOut : hour is >= 9 and < 12 ? NpcActivities.Away : life.Npcs[routine.Key].Activity;
+            Assert.Equal(expected, life.Npcs[routine.Key].Activity);
+        }
+        Assert.Equal(NpcActivities.Work, life.Npcs[routine.Key].Activity);   // back at 13:00, to work
+    }
 }

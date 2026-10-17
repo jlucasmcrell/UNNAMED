@@ -504,9 +504,43 @@ internal sealed class DiscoverySystem
     }
 }
 
+/// <summary>Someone the world is simulated around (WP12b): a key, and where they stand. In a single-player world, the character.</summary>
+public sealed record TierObserver(string Key, long XMm, long ZMm);
+
+/// <summary>
+/// Who the world is simulated around at a tick (WP12b; multiplayer-ready): every cell's tier is its distance to the nearest of them, and
+/// the NPC budgets admit those nearest any of them first. The character is always one, at <paramref name="player"/>; a server would add
+/// every connected player. A pure read: the same world and tick give the same observers.
+/// </summary>
+public interface ITierObservers
+{
+    IReadOnlyList<TierObserver> At(long tick, Body player);
+}
+
+public static class TierObservers
+{
+    public const string PlayerKey = "player";
+
+    /// <summary>The character alone: a single-player world.</summary>
+    public static ITierObservers PlayerOnly { get; } = new Fixed(ImmutableArray<TierObserver>.Empty);
+
+    /// <summary>The character, and others standing where they stand: for tests, and a stand-in for a server's other players.</summary>
+    public static ITierObservers With(IEnumerable<TierObserver> others) => new Fixed(others.ToImmutableArray());
+
+    private sealed class Fixed : ITierObservers
+    {
+        private readonly ImmutableArray<TierObserver> _others;
+
+        public Fixed(ImmutableArray<TierObserver> others) => _others = others;
+
+        public IReadOnlyList<TierObserver> At(long tick, Body player) =>
+            _others.Insert(0, new TierObserver(PlayerKey, player.XMm, player.ZMm));
+    }
+}
+
 /// <summary>
 /// Owns: <see cref="StateSlice.CellTiers"/>. Assigns every cell of the region a simulation tier from its distance
-/// to the player (S-21, D-06), one step per tick with hysteresis. Tier A cells are fully simulated and tier D
+/// to the nearest observer (S-21, D-06; WP12b: a set of observers, the character among them), one step per tick with hysteresis. Tier A cells are fully simulated and tier D
 /// cells are stored state only; tiers B and C run their <see cref="ITierSimulation"/>s (WP12: the NPCs').
 /// </summary>
 internal sealed class TierSystem
@@ -515,32 +549,40 @@ internal sealed class TierSystem
     private readonly SliceOwner _owner;
     private readonly ImmutableArray<CellKey> _cells;
 
-    public TierSystem(SystemContext context, SliceOwner owner, ImmutableArray<CellKey> cells)
+    private readonly ITierObservers _observers;
+
+    public TierSystem(SystemContext context, SliceOwner owner, ImmutableArray<CellKey> cells, ITierObservers observers)
     {
         _context = context;
         _owner = owner;
         _cells = cells;
+        _observers = observers;
     }
+
+    /// <summary>Who the world is simulated around at a tick: the character, and whoever else the observers name.</summary>
+    public IReadOnlyList<TierObserver> Observers(long tick) => _observers.At(tick, _context.State.Body);
 
     /// <summary>A hard boundary (a load, a new game): each cell settles directly, with no events (WORLD_ARCHITECTURE.md §5.1).</summary>
     public void Settle()
     {
+        var observers = Observers(_context.State.WorldTick);
         foreach (var cell in _cells)
         {
             var tier = SimulationTier.D;
             for (int step = 0; step < 3; step++)
-                tier = _context.Setup.Tiers.Next(tier, DistanceTo(cell));
+                tier = _context.Setup.Tiers.Next(tier, DistanceTo(cell, observers));
             _context.State.SetTier(_owner, cell.ToString(), tier);
         }
     }
 
     public void Tick(long tick)
     {
+        var observers = Observers(tick);
         foreach (var cell in _cells)
         {
             string key = cell.ToString();
             var from = _context.State.Tiers.GetValueOrDefault(key, SimulationTier.D);
-            var to = _context.Setup.Tiers.Next(from, DistanceTo(cell));
+            var to = _context.Setup.Tiers.Next(from, DistanceTo(cell, observers));
             if (to == from)
                 continue;
             _context.State.SetTier(_owner, key, to);
@@ -548,15 +590,20 @@ internal sealed class TierSystem
         }
     }
 
-    private long DistanceTo(CellKey cell)
+    /// <summary>A cell's distance to the nearest observer: to the nearest point of the cell, 0 inside it. Far beyond everything with none.</summary>
+    public static long DistanceTo(CellKey cell, IReadOnlyList<TierObserver> observers)
     {
         long minX = ((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000;
         long minZ = ((long)cell.Region.Rz * WorldMath.RegionSizeMeters + (long)cell.Cz * WorldMath.CellSizeMeters) * 1000;
         long size = WorldMath.CellSizeMeters * 1000L;
-        var body = _context.State.Body;
-        long dx = body.XMm < minX ? minX - body.XMm : body.XMm > minX + size ? body.XMm - (minX + size) : 0;
-        long dz = body.ZMm < minZ ? minZ - body.ZMm : body.ZMm > minZ + size ? body.ZMm - (minZ + size) : 0;
-        return (long)Math.Sqrt((double)dx * dx + (double)dz * dz);
+        long nearest = long.MaxValue;
+        foreach (var o in observers)
+        {
+            long dx = o.XMm < minX ? minX - o.XMm : o.XMm > minX + size ? o.XMm - (minX + size) : 0;
+            long dz = o.ZMm < minZ ? minZ - o.ZMm : o.ZMm > minZ + size ? o.ZMm - (minZ + size) : 0;
+            nearest = Math.Min(nearest, (long)Math.Sqrt((double)dx * dx + (double)dz * dz));
+        }
+        return nearest;
     }
 }
 

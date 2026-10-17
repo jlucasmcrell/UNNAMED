@@ -64,31 +64,39 @@ internal sealed partial class NpcSystem
         foreach (var record in life.Npcs.Values)
         {
             if (tiers.GetValueOrDefault(record.Key, SimulationTier.D) != tier || record.Key == talking || State.Companions.ContainsKey(record.Key)
-                || !State.Npcs.TryGetValue(record.Key, out var npc))
+                || record.Condition == NpcCondition.Hired || !State.Npcs.TryGetValue(record.Key, out var npc))
                 continue;
             var current = LifeOf(record.Key)!;
             if (tier == SimulationTier.A)
-                WalkTick(npc, current, tick);
+            {
+                if (!StepAside(npc, current))
+                    WalkTick(npc, current, tick);
+            }
             else
                 GlideTick(npc, current, tick);
         }
     }
 
     /// <summary>
-    /// The tier each NPC is simulated at: their cell's, then the budgets (§5, A=60 and B=300): beyond A's budget the farthest are simulated at
-    /// B, beyond B's at C. Someone being spoken to is always A. Admission only - nobody is refused or despawned for the count.
+    /// The tier each NPC is simulated at: their cell's, then the budgets (§5, A=60 and B=300): beyond A's budget those farthest from every
+    /// observer (WP12b: the nearest one counts) are simulated at B, beyond B's at C. Someone being spoken to is always A. Admission only -
+    /// nobody is refused or despawned for the count.
     /// </summary>
     internal ImmutableSortedDictionary<string, SimulationTier> EffectiveTiers(NpcLifeState life)
     {
         var rules = _context.Setup.Tiers;
         string? talking = State.Conversation?.NpcId;
-        var player = State.Body;
+        var observers = _observers(State.WorldTick);
         var placed = life.Npcs.Values.Where(n => State.Npcs.ContainsKey(n.Key)).Select(n =>
         {
             var body = State.Npcs[n.Key].Body;
-            double dx = body.XMm - player.XMm, dz = body.ZMm - player.ZMm;
+            double nearest = observers.Count == 0 ? double.MaxValue : observers.Min(o =>
+            {
+                double dx = body.XMm - o.XMm, dz = body.ZMm - o.ZMm;
+                return dx * dx + dz * dz;
+            });
             var tier = n.Key == talking ? SimulationTier.A : TierAt(body.XMm, body.ZMm);
-            return (n.Key, Tier: tier, Distance: n.Key == talking ? -1 : dx * dx + dz * dz);
+            return (n.Key, Tier: tier, Distance: n.Key == talking ? -1 : nearest);
         }).ToList();
         var result = ImmutableSortedDictionary.CreateBuilder<string, SimulationTier>(StringComparer.Ordinal);
         foreach (var (tier, budget, overflow) in new[] { (SimulationTier.A, rules.FullBudget, SimulationTier.B), (SimulationTier.B, rules.RegionalBudget, SimulationTier.C) })
@@ -125,7 +133,7 @@ internal sealed partial class NpcSystem
         var tiers = EffectiveTiers(life);
         foreach (var npc in life.Npcs.Values)
         {
-            if (tiers.GetValueOrDefault(npc.Key, SimulationTier.D) < SimulationTier.C || State.Companions.ContainsKey(npc.Key))
+            if (tiers.GetValueOrDefault(npc.Key, SimulationTier.D) < SimulationTier.C || State.Companions.ContainsKey(npc.Key) || npc.Condition == NpcCondition.Hired)
                 continue;
             var (x, z, facing) = Goal(npc);
             if (TierAt(x, z) >= SimulationTier.C && (npc.XMm, npc.ZMm, npc.FacingMdeg) != (x, z, facing))
@@ -140,6 +148,12 @@ internal sealed partial class NpcSystem
     private (long X, long Z, int Facing) Goal(NpcLifeRecord npc)
     {
         var routine = Life.Routines[npc.RoutineId];
+        // A trip (WP12b): waiting at its meeting place, then gone to its destination.
+        if (routine.Trip is { } trip && npc.Activity is NpcActivities.SetOut or NpcActivities.Away)
+        {
+            var at = npc.Activity == NpcActivities.SetOut ? trip.Meet : trip.Destination;
+            return (at.XMm, at.ZMm, at.FacingMdeg);
+        }
         var own = routine.AnchorFor(npc.Activity);
         if (npc.Activity == NpcActivities.Socialise && npc.With is { } other && LifeOf(other) is { } friend
             && Life.Routines.TryGetValue(friend.RoutineId, out var theirs))
@@ -352,6 +366,57 @@ internal sealed partial class NpcSystem
         obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, r, 0)));
         return obstacles;
+    }
+
+    /// <summary>How close the character must press, beyond touching, for someone to make way: a hand's width.</summary>
+    private const long PressMm = 120;
+
+    /// <summary>
+    /// Making way (WP12b): NPCs stay solid, but someone in the character's way - seated at a meal, idling, or on their way - steps aside
+    /// rather than hold them. In the way: touching, and the character's next step would carry them farther were this NPC not there (a push
+    /// straight on, or a slide along a wall that they block). They take one tick's walk across the way the character is going, to the side
+    /// they already stand on (by key, dead ahead), else the other side, else straight on. Derived from where the bodies stand and the
+    /// character's intent this tick - nothing to save - and they walk back to their place once the character has passed. False when nobody
+    /// pressed.
+    /// </summary>
+    private bool StepAside(NpcState npc, NpcLifeRecord life)
+    {
+        var intent = _playerIntent();
+        if (!intent.IsMoving)
+            return false;
+        var player = State.Body;
+        long r = _context.Setup.Movement.BodyRadiusMm;
+        long dx = npc.Body.XMm - player.XMm, dz = npc.Body.ZMm - player.ZMm;
+        long reach = 2 * r + PressMm;
+        if (dx * dx + dz * dz > reach * reach || !InTheWay(npc.Definition.Id, intent))
+            return false;
+        double ix = intent.DirXPermille, iz = intent.DirZPermille, il = Math.Sqrt(ix * ix + iz * iz);
+        double cross = ix * dz - iz * dx;
+        int side = cross > 0 ? 1 : cross < 0 ? -1 : (KeyHash(life.Key) & 1) == 0 ? 1 : -1;
+        var away = new (double X, double Z)[] { (-iz / il * side, ix / il * side), (iz / il * side, -ix / il * side), (ix / il, iz / il) };
+        long travel = (long)_context.Setup.Movement.SpeedMmPerSecond(Gait.Walk) * TickMs / 1000;
+        foreach (var (wx, wz) in away)
+        {
+            long tx = npc.Body.XMm + (long)Math.Round(wx * travel * 4), tz = npc.Body.ZMm + (long)Math.Round(wz * travel * 4);
+            var (moved, _) = Walk(npc, new NavPoint(tx, tz), new NavPoint(long.MinValue, long.MinValue));
+            if (moved.XMm == npc.Body.XMm && moved.ZMm == npc.Body.ZMm)
+                continue;
+            Write(npc, life, moved, NavRoute.None, 0);
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>Whether the character's next step would carry them farther without this NPC: the step taken with and without their body.</summary>
+    private bool InTheWay(string npcId, MoveIntent intent)
+    {
+        var from = State.Body;
+        var space = _context.Setup.Layout.Space;
+        var all = _context.Obstacles();
+        var (with, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all, TickMs);
+        var (without, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all.Where(b => b.Id != npcId).ToImmutableArray(), TickMs);
+        long Gone(Body b) => (b.XMm - from.XMm) * (b.XMm - from.XMm) + (b.ZMm - from.ZMm) * (b.ZMm - from.ZMm);
+        return Gone(without) > Gone(with) + 1;
     }
 
     private (long X, long Z) Home(NpcLifeRecord life)

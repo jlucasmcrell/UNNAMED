@@ -128,6 +128,12 @@ internal sealed partial class CompanionSystem
 {
     private PartyRules? Rules => _context.Setup.Social.Party;
 
+    /// <summary>
+    /// Why the life simulation says someone cannot be hired now (WP12b: a vendor or quest giver, injured, away, already hired), worded after
+    /// their name; null when it has no objection. Unset: no objection.
+    /// </summary>
+    public Func<string, string?>? Unhireable { get; init; }
+
     /// <summary>Why someone cannot join the party now, or null: the party is full, or they are still recovering from a grave wound.</summary>
     private string? Joinable(NpcDefinition definition)
     {
@@ -170,6 +176,8 @@ internal sealed partial class CompanionSystem
             return $"there is no one called {npcId} here";
         if (State.Companions.ContainsKey(npcId))
             return $"{npc.Definition.Name} is already with you";
+        if (Unhireable?.Invoke(npcId) is { } unhireable)
+            return $"{npc.Definition.Name} {unhireable}";
         if (Rules is not { } rules || Tuning is null || npc.Definition.Hireling is not { } profile || !profile.Roles.Contains(role) || AttackOf(profile.Body) is null)
             return $"{npc.Definition.Name} does not hire on as a {PartyKeys.Key(role)}";
         if (days < rules.ContractDaysMin || days > rules.ContractDaysMax)
@@ -225,7 +233,8 @@ internal sealed partial class CompanionSystem
     private void Leave(CompanionState c, string reason, long tick, AdvanceLog? log)
     {
         State.RemoveCompanion(_owner, c.NpcId);
-        if (State.Npcs.TryGetValue(c.NpcId, out var npc))
+        // Someone with a life walks home to it (WP12b); someone with none is put back at their place, as before.
+        if (State.Npcs.TryGetValue(c.NpcId, out var npc) && !_life.Walks(c.NpcId))
             Place(npc, Home(npc));
         // A loan comes back when they leave (§2.15); what is theirs goes with them, and so does their sheet, into the life they go back to.
         _context.Dispatch(new ReturnLoans(c.NpcId));

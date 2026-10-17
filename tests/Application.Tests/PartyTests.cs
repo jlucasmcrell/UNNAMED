@@ -32,17 +32,7 @@ public class PartyTests
     private static readonly (double X, double Z) AtKera = (60.3, 140.3);
 
     /// <summary>The setup with these townsfolk hireable in every role, each with a spear.</summary>
-    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => setup with
-    {
-        Social = setup.Social with
-        {
-            Npcs = ids.Aggregate(setup.Social.Npcs, (npcs, id) => npcs.SetItem(id, npcs[id] with
-            {
-                Hireling = new HirelingProfile(Enum.GetValues<HirelingRole>().ToImmutableArray(),
-                    new CompanionProfile(60, "item.weapon.march_spear", ImmutableSortedDictionary<BodyRegion, int>.Empty)),
-            })),
-        },
-    };
+    private static SimulationSetup Hireable(SimulationSetup setup, params string[] ids) => Harness.HireableTownsfolk(setup, ids);
 
     private static PlayerRecord WithCoin(PlayerRecord r, long coin, params InventoryEntry[] extra) =>
         new(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(extra), r.Progression, r.FacingMdeg, r.Discoveries, r.Equipment, coin,
