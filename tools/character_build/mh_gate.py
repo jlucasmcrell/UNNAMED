@@ -141,6 +141,14 @@ class Clip:
             node = g.doc["nodes"][ch["target"]["node"]].get("name", "")
             self.tracks.setdefault(node, {})[ch["target"]["path"]] = (times, values, s.get("interpolation", "LINEAR"))
             self.length = max(self.length, float(times[-1]))
+        # the rest the clip was authored on (its skeleton's joints), for carrying it over as ArtLibrary.Retarget does
+        joints = {j for s in g.doc.get("skins", []) for j in s["joints"]}
+        self.rest = {}
+        for j in joints:
+            n = g.doc["nodes"][j]
+            self.rest[n.get("name", "")] = (np.array(n.get("translation", [0, 0, 0]), float), np.array(n.get("rotation", [0, 0, 0, 1]), float))
+        self.height = hips_height({n: (g.local(j), g.doc["nodes"][g.parent[j]].get("name", "") if g.parent.get(j) in joints else None)
+                                   for j in joints for n in [g.doc["nodes"][j].get("name", "")]})
 
     def sample(self, joint, path, t):
         track = self.tracks.get(joint, {}).get(path)
@@ -339,10 +347,26 @@ def resolve_all(skel, above, locals_):
     return globals_
 
 
+def hips_height(rests):
+    """SkeletonRest.Height: the hips' (or pelvis') height at rest through the joints alone; rests: name -> (local matrix, parent)."""
+    name = next((n for n in ("hips", "pelvis") if n in rests), None)
+    if name is None:
+        return 0.0
+    m = np.eye(4)
+    while name is not None:
+        local, name = rests[name]
+        m = local @ m
+    return float(m[1, 3])
+
+
 def pose(skel, above, clip, t, table, rest_globals=None):
+    """The game's pose (Art/SkinnedModel.cs, ArtLibrary.Retarget): each key carried over relative to the clip's own rest - the
+    joint's rest plus the clip's motion away from its source's - root and hip travel scaled by the hips' height."""
     rest_locals = {n: r for n, (_, _, r) in skel.items()}
+    height = hips_height({n: (r, p) for n, (_, p, r) in skel.items()})
+    scale = height / clip.height if clip.height > 0.01 and height > 0.01 else 1.0
     locals_ = {}
-    for n, (_, _, rest) in skel.items():
+    for n, (_, p, rest) in skel.items():
         tr = clip.sample(n, "translation", t)
         ro = clip.sample(n, "rotation", t)
         sc = clip.sample(n, "scale", t)
@@ -350,6 +374,13 @@ def pose(skel, above, clip, t, table, rest_globals=None):
             locals_[n] = rest
             continue
         rq = mat_quat(rest[:3, :3])
+        if n in clip.rest:
+            from_t, from_q = clip.rest[n]
+            if tr is not None:
+                tr = rest[:3, 3] + (tr - from_t) * (scale if p is None or n in ("hips", "pelvis") else 1.0)
+            if ro is not None:
+                ro = qmul(qmul(rq, np.array([-from_q[0], -from_q[1], -from_q[2], from_q[3]])), ro)
+                ro /= np.linalg.norm(ro)
         locals_[n] = trs(rest[:3, 3] if tr is None else tr, rq if ro is None else ro, [1, 1, 1] if sc is None else sc)
     if a.arm_splay_deg:
         splay(skel, above, locals_, rest_globals, a.arm_splay_deg)
