@@ -17,7 +17,7 @@ namespace UNNAMED.Presentation.Ui;
 /// </summary>
 public partial class LearnSheet : CanvasLayer
 {
-    private const float Width = 440;
+    private const float Width = 440, MinRoom = 200;
 
     private PanelContainer _panel = null!;
     private VBoxContainer _body = null!;
@@ -64,7 +64,7 @@ public partial class LearnSheet : CanvasLayer
 
     /// <summary>
     /// Vertically centred on 600 px of the screen, and ending above the conversation where an enlarged interface brings the two together
-    /// (the column scrolls).
+    /// (the column scrolls); hidden when that leaves it too little room.
     /// </summary>
     private void Place()
     {
@@ -72,8 +72,10 @@ public partial class LearnSheet : CanvasLayer
         float top = Math.Max(16, canvas.Y / 2 - 300), bottom = Math.Min(canvas.Y - 16, canvas.Y / 2 + 300);
         if (Conversation?.Invoke() is { } talk && talk.Position.X < _panel.OffsetRight)
             bottom = Math.Min(bottom, talk.Position.Y - 12);
+        // With too little room left above an enlarged conversation, the column stands down: the reply's LEARN tag still says what is taught.
+        _panel.Visible = bottom - top >= MinRoom;
         _panel.OffsetTop = top;
-        _panel.OffsetBottom = Math.Max(top + 120, bottom);
+        _panel.OffsetBottom = Math.Max(top + MinRoom, bottom);
     }
 
     /// <summary>Shown while a conversation is open with someone who teaches or hires on; redrawn when what it shows changed.</summary>

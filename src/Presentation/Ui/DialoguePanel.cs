@@ -69,6 +69,24 @@ public partial class DialoguePanel : CanvasLayer
     /// <summary>The replies scroll past this height (M-06): nine long ones stay on the screen.</summary>
     private const float RepliesHeight = 420;
 
+    /// <summary>
+    /// Its foot as built, raised above whatever the HUD keeps beside it once it has stepped aside at an enlarged interface (health and stamina),
+    /// so the conversation never covers them.
+    /// </summary>
+    public override void _Process(double delta)
+    {
+        if (!Visible)
+            return;
+        float foot = _styled ? -72 : -80;
+        if (GetTree().Root.FindChild("HudView", true, false) is HudView { Aside: true } hud)
+        {
+            float bottom = _panel.GetParentControl().Size.Y;
+            foreach (var rect in hud.Intrusions().Where(r => r.Position.X < _panel.GetGlobalRect().End.X && r.End.X > _panel.GetGlobalRect().Position.X))
+                foot = Math.Min(foot, rect.Position.Y - 12 - bottom);
+        }
+        _panel.OffsetTop = _panel.OffsetBottom = foot;
+    }
+
     private bool _voiced;
 
     private readonly ScrollContainer _scroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
