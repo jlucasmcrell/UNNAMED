@@ -275,7 +275,7 @@ public class NpcLifeWorldTests
         var arena = AtSpawn(session, setup);
         int all = 1_000 + session.Setup.NpcLife.Routines.Count;
         Assert.Equal(all, arena.Simulation.Lives.Length);
-        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length, arena.Simulation.Npcs.Length);
+        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length + arena.Simulation.Adventurers.Count(a => a.InTown), arena.Simulation.Npcs.Length);
         Assert.All(arena.Simulation.Lives.Where(l => l.Settlement == "synthetic"),
             l => Assert.True(arena.Simulation.CellTiers[arena.Simulation.World.NpcLife!.Npcs[l.Key].Cell] >= SimulationTier.B));   // beyond sight
 
@@ -304,7 +304,7 @@ public class NpcLifeWorldTests
             near.Step();
         Assert.Contains(near.CellTiers.Values, t => t == SimulationTier.A);
         Assert.Equal(all, near.Lives.Length);
-        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length, near.Npcs.Length);
+        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length, near.Npcs.Count(n => n.Role != "adventurer"));   // and the adventurers in town (WP13)
         _output.WriteLine($"{all} lives; {log.Lines.Count} away lines");
     }
 }
