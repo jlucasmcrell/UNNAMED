@@ -87,12 +87,14 @@ internal sealed class NpcSystem
         }
     }
 
-    /// <summary>A hireling died (DN9): they are gone from the world.</summary>
+    /// <summary>A hireling died (DN9): they are gone from the world, their instance with them.</summary>
     public string? Handle(RemoveNpc command)
     {
-        if (!State.Npcs.ContainsKey(command.NpcId))
+        if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
         State.RemoveNpc(_owner, command.NpcId);
+        if (State.World.Registry.Exists(npc.InstanceId))
+            State.World.Registry.DestroyEntity(npc.InstanceId);
         return null;
     }
 

@@ -240,8 +240,20 @@ public class PartyTests
         var arena = At(session, 50, r => r.WithCompanions(new[] { down }));
         var died = arena.Record<HirelingDied>();
         int window = session.Setup.Social.Companions!.ReviveWindowTicks;
+        // The same fall in a world whose registry the test holds: the dead hireling's instance goes with her.
+        var registry = new Registry();
+        var watched = Simulation.Start(arena.Simulation.Setup, arena.Simulation.CaptureRecord(), new WorldDelta(session.Generator, 42, registry), 0, new EventBus());
+        var instance = watched.Npcs.Single(n => n.Id == Kera).InstanceId;
+        Assert.True(registry.Exists(instance));
 
         arena.Tick(window + 1);
+        for (int i = 0; i <= window; i++)
+        {
+            watched.DrainCommands();
+            watched.Step();
+        }
+        Assert.DoesNotContain(watched.Npcs, n => n.Id == Kera);
+        Assert.False(registry.Exists(instance));
 
         Assert.Equal(new HirelingDied(Kera, window), Assert.Single(died));
         Assert.Empty(arena.Simulation.Companions);
