@@ -7,6 +7,7 @@ notes: 'Canon firstplay lodge_supplies, ported: meat from hares, hens, deer, gra
 title: For the Pot
 summary: Two portions of meat for the lodge pot. Tam counts them in.
 track: bounty
+competitive: true   # WP13: any adventurer may take it too - the first to finish it claims it (WP4)
 giver_ref: npc.cairnwold.tam_crowden
 entry_objective: o_deliver
 objectives:

@@ -240,6 +240,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>Every NPC life, the role slots awaiting an arrival and the pairs' last meetings (WP12); null before lives first ran.</summary>
     public NpcLifeState? NpcLife { get; init; }
+
+    /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null before adventurers first lived.</summary>
+    public AdventurerState? Adventurers { get; init; }
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -268,6 +271,7 @@ public sealed class WorldDelta
     private EconomyState? _economy;
     private readonly SortedDictionary<string, MerchantState> _merchants = new(StringComparer.Ordinal);
     private NpcLifeState? _npcLife;
+    private AdventurerState? _adventurers;
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -500,6 +504,13 @@ public sealed class WorldDelta
 
     internal void SetNpcLife(NpcLifeState life) => _npcLife = life;
 
+    // ── adventurers (WP13) ──────────────────────────────────────────────────
+
+    /// <summary>Every adventurer, keyed with no limit (DN5); null until adventurers first live.</summary>
+    public AdventurerState? Adventurers => _adventurers;
+
+    internal void SetAdventurers(AdventurerState adventurers) => _adventurers = adventurers;
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -594,6 +605,7 @@ public sealed class WorldDelta
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
             Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(), NpcLife = _npcLife,
+            Adventurers = _adventurers,
         };
     }
 
@@ -696,9 +708,39 @@ public sealed class WorldDelta
             world._npcLife = life with { Npcs = npcs.ToImmutable(), Vacancies = vacancies };
         }
 
+        if (snapshot.Adventurers is { } adventurers)
+        {
+            // Each adventurer is checked on its own and a bad one dropped with its reason; nothing is refused for how many there are.
+            var agents = ImmutableSortedDictionary.CreateBuilder<string, AdventurerRecord>(StringComparer.Ordinal);
+            foreach (var a in adventurers.Agents.Values)
+            {
+                if (AdventurerProblem(a) is { } reason)
+                    problems.Add(new RejectedRecord("entities", $"adventurer {a.Key}", reason));
+                else
+                    agents[a.Key] = a;
+            }
+            var open = adventurers.Vacancies.Values.Where(v =>
+            {
+                bool bad = v.ArrivalDay < v.LeftDay || v.NextGeneration < 1 || agents.Values.Any(a => a.Slot == v.Slot);
+                if (bad)
+                    problems.Add(new RejectedRecord("entities", $"adventurer slot {v.Slot}", "a vacancy with an arrival before the leaving, or a holder"));
+                return !bad;
+            }).ToImmutableSortedDictionary(v => v.Slot, v => v, StringComparer.Ordinal);
+            world._adventurers = adventurers with { Agents = agents.ToImmutable(), Vacancies = open };
+        }
+
         rejected = problems.ToImmutable();
         return world;
     }
+
+    /// <summary>Why a saved adventurer cannot be trusted; null when it can.</summary>
+    private static string? AdventurerProblem(AdventurerRecord a) =>
+        !DefinitionId.IsValid(a.Key) ? "an invalid key"
+        : a.Coin < 0 || a.RiskPercent is < 0 or > 100 || a.Generation < 0 || a.Acquired < 0 || a.Kills < 0 || a.BountiesClaimed < 0 ? "a negative count, or risk outside 0..100"
+        : !AdventurerGoals.All.Contains(a.Plan.Goal) ? $"'{a.Plan.Goal}' is not a goal"
+        : a.Pack.Values.Any(c => c <= 0) ? "an empty or negative stack in the pack"
+        : a.Party is not null && a.Party != "hireling" && a.Party != "temporary_ally" ? $"'{a.Party}' is not a way to be in the party"
+        : null;
 
     /// <summary>Why a saved NPC life cannot be trusted; null when it can.</summary>
     private static string? LifeProblem(NpcLifeRecord npc) =>

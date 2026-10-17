@@ -77,6 +77,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The routines, pairs and rules of NPC life in the region played (WP12).</summary>
     public NpcLifeSetup NpcLife { get; init; } = NpcLifeSetup.Empty;
+
+    /// <summary>The NPC adventurers' settlements, rules and hiring (<c>config.adventurers</c>; WP13); null in a pack with none.</summary>
+    public AdventurerSetup? Adventurers { get; init; }
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -159,6 +162,7 @@ public sealed class Simulation
     private readonly ApprovalSystem _approval;
     private readonly LfgSystem _lfg;
     private readonly ChatSystem _chat;
+    private readonly AdventurerSystem _adventurers;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -233,13 +237,19 @@ public sealed class Simulation
         _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id);
         _chat = new ChatSystem(_context, player.Id, new CellKey(_cells[0].Region, 0, 0), _lfg, t => _weather.FrontAt(t).State);
         _chat.Listen(bus);
+        _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
+        _adventurers.Listen(bus);
+        _markets.Agents = _adventurers;
+        _lfg.Source = new CombinedSettingOuts(setup.SettingOuts, _adventurers);
+        _context.OtherActorName = _adventurers.NameOf;
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new NpcTierSimulation(SimulationTier.B, _npcs), new NpcTierSimulation(SimulationTier.C, _npcs));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _companions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
+        _adventurers.Populate();
         _markets.Populate();
         _merchants.Populate();
         _companions.Populate();
@@ -498,6 +508,9 @@ public sealed class Simulation
     /// <summary>The temporary-ally groups that set out (WP16); WP13 gives them their life.</summary>
     public ImmutableArray<AllyGroupView> AllyGroups => _lfg.Groups();
 
+    /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
+    public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
+
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
 
@@ -638,6 +651,7 @@ public sealed class Simulation
             _death.Tick(tick);
             _discovery.Tick(tick);
             _quests.Tick(tick);
+            _adventurers.Tick(tick);
             _markets.Tick(tick);
             _quickBar.Tick(tick);
             _lfg.Tick(tick);
@@ -750,12 +764,15 @@ public sealed class Simulation
         // NPC life (WP12): every life, the slots awaiting arrivals, the pairs.
         h.Add(World.NpcLife is not null);
         World.NpcLife?.AddTo(h);
+        // Adventurers (WP13): every life and the slots awaiting arrivals.
+        h.Add(World.Adventurers is not null);
+        World.Adventurers?.AddTo(h);
         return h.Finish();
     }
 
     /// <summary>
     /// An internal command at the tick boundary, as another system would send it: for tests and the fixture probe only (internal), standing
-    /// in for systems not built yet - WP13's departures and injuries.
+    /// in for systems not built yet - residents' departures and injuries by rule.
     /// </summary>
     internal string? Submit(InternalCommand command)
     {
@@ -832,6 +849,14 @@ public sealed class Simulation
         ReportAct report => _factions.Handle(report, Now),
         GrantStanding grant => _factions.Handle(grant, Now),
         Teach teach => _teaching.Handle(teach, Now),
+        ClaimBounty claim => _quests.Handle(claim),
+        CullCreatures cull => _creatures.Handle(cull),
+        AdoptSheet adopt => _sheets.Handle(adopt),
+        ReleaseSheet release => _sheets.Handle(release),
+        EmbodyNpc embody => _npcs.Handle(embody),
+        SettleRetiree retiree => _npcs.Handle(retiree),
+        AdventurerPartyChanged changed => _adventurers.Handle(changed, Now),
+        ShareBounty share => _adventurers.Handle(share, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

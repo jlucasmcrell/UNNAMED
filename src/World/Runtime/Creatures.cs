@@ -857,6 +857,41 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return c;
     }
 
+    /// <summary>
+    /// An adventurer's day took so many of a spawner's creatures (WP13; DN2: by the outcome table, never a fight). Only out of sight - a
+    /// creature in a tier-A cell is never taken - and only from a spawner whose creatures come back: the culled are gone, no corpse, and
+    /// their timer brings them back (§2.13 "kills reduce the spawn count, which respawn timers then restore"). Each is first brought to what
+    /// had fallen due by the cull's tick, so the same culls on the same days leave the same creatures however an absence is split (T-22).
+    /// Nobody's kill: no XP, no deed, no quest's defeat flag.
+    /// </summary>
+    public string? Handle(CullCreatures command)
+    {
+        long tick = command.Tick;
+        int left = command.Count;
+        foreach (string key in State.Creatures.Keys.Where(k => k.StartsWith(command.SpawnKey + "#", StringComparison.Ordinal)).OrderBy(k => k, StringComparer.Ordinal).ToList())
+        {
+            if (left <= 0)
+                break;
+            var c = State.Creatures[key];
+            if (c.Site.RespawnTicks <= 0 || TierOf(c.HomeXMm, c.HomeZMm) == SimulationTier.A || TierOf(c.Body.XMm, c.Body.ZMm) == SimulationTier.A)
+                continue;
+            c = Afterlife(c, tick, away: true);
+            if (!c.Alive)
+            {
+                Save(c);
+                continue;
+            }
+            _context.Dispatch(new ClearEffects(c.Id));
+            Save(AtHome(c) with { Condition = CreatureCondition.Gone, Health = 0, DiedTick = tick, RespawnTick = tick + c.Site.RespawnTicks });
+            _context.Events.Publish(new CreatureCulled(c.Id, c.Key, tick));
+            left--;
+        }
+        return null;
+    }
+
+    private SimulationTier TierOf(long xMm, long zMm) =>
+        State.Tiers.GetValueOrDefault(CellKey.OfWorld(xMm / 1000.0, zMm / 1000.0).ToString(), SimulationTier.D);
+
     public string? Handle(ForgetPlayer command)
     {
         foreach (var c in State.Creatures.Values.Where(c => c.Alive && c.Mind != CreatureMind.Unaware).ToList())

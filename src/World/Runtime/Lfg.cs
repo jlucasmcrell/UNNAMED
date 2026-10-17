@@ -128,10 +128,12 @@ internal sealed class LfgSystem : IAbstractAdvance
         _context = context;
         _owner = owner;
         _player = player;
+        Source = context.Setup.SettingOuts;
     }
 
     private RuntimeState State => _context.State;
-    private ISettingOutSource Source => _context.Setup.SettingOuts;
+    /// <summary>Who sets out: the setup's source, joined by composition with the adventurers' (WP13).</summary>
+    public ISettingOutSource Source { get; set; }
     private ChatRules Rules => _context.Setup.Chat.Rules;
 
     /// <summary>

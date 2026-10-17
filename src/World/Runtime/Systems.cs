@@ -39,6 +39,12 @@ internal sealed class SystemContext
     /// <summary>Route an internal command to its owner; null when accepted, otherwise the reason.</summary>
     public Func<InternalCommand, string?> Dispatch { get; }
 
+    /// <summary>
+    /// The name of an actor the world knows that is no NPC body - an adventurer out on a ground (WP13) - by instance ID; null for none. A
+    /// board names who claimed a bounty with it. Composition sets it once.
+    /// </summary>
+    public Func<string, string?> OtherActorName { get; set; } = _ => null;
+
     public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(door), door.FlagId) != 0;
 
     public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(site), site.FlagId) != 0;

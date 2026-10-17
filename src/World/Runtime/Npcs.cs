@@ -115,11 +115,40 @@ internal sealed partial class NpcSystem
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
         State.RemoveNpc(_owner, command.NpcId);
+        if (command.KeepIdentity)
+            return null;
         if (State.World.Registry.Exists(npc.InstanceId))
             State.World.Registry.DestroyEntity(npc.InstanceId);
         // Their life ends with them: no needs, no pairs, no job output after.
         if (State.World.NpcLife is { } life && life.Npcs.ContainsKey(command.NpcId))
             State.SetNpcLife(_owner, life with { Npcs = life.Npcs.Remove(command.NpcId) });
+        return null;
+    }
+
+    /// <summary>A body for someone the region does not place (WP13: an adventurer at their lodge), with their own instance.</summary>
+    public string? Handle(EmbodyNpc command)
+    {
+        if (State.Fallen.Contains(command.Definition.Id))
+            return $"{command.Definition.Name} is dead";
+        if (!State.World.Registry.Exists(command.InstanceId))
+            State.World.Registry.CreateEntity(DefinitionId.Parse(command.Definition.Id), command.InstanceId);
+        var site = command.Site;
+        State.SetNpc(_owner, new NpcState(command.Definition, command.InstanceId, site, BodyAt(site.XMm, site.ZMm, site.FacingMdeg)));
+        return null;
+    }
+
+    /// <summary>
+    /// A retiring adventurer takes an open role slot in their settlement (§2.13): the first slot, by ID, whose arrival has not yet come is
+    /// theirs - they arrive in it today, under their own name. Refused when none stands open.
+    /// </summary>
+    public string? Handle(SettleRetiree command)
+    {
+        long day = Clock.Day(command.Tick);
+        if (State.World.NpcLife is not { } life
+            || life.Vacancies.Values.Where(v => v.ArrivalDay > day && Life.Routines.TryGetValue(v.SlotId, out var r) && r.Settlement == command.Settlement)
+                .OrderBy(v => v.SlotId, StringComparer.Ordinal).FirstOrDefault() is not { } vacancy)
+            return $"no role slot stands open in {command.Settlement}";
+        State.SetNpcLife(_owner, life with { Vacancies = life.Vacancies.SetItem(vacancy.SlotId, vacancy with { ArrivalDay = day, ArrivingName = command.Name }) });
         return null;
     }
 

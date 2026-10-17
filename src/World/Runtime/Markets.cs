@@ -74,6 +74,9 @@ internal sealed class MarketSystem : IAbstractAdvance
     /// <summary>Where the residents' job output comes from (WP12); none until composition gives one.</summary>
     public IJobOutput? Jobs { get; set; }
 
+    /// <summary>What the adventurers trade here each day (WP13); none until composition gives it.</summary>
+    public IAgentTrade? Agents { get; set; }
+
     private RuntimeState State => _context.State;
     private EconomySetup Economy => _context.Setup.Economy;
     private EconomyState Current => State.World.Economy ?? throw new InvalidOperationException("The markets have not been populated");
@@ -159,6 +162,17 @@ internal sealed class MarketSystem : IAbstractAdvance
         long from = state.Day;
         while (state.Day < day)
         {
+            // The adventurers' day here (WP13): what they sold joins the stock, what they bought or had made leaves it - never remembered
+            // against the character - and what they paid goes to the merchants' purses.
+            foreach (var (marketId, itemId, delta) in Agents?.Goods(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
+            {
+                if (Economy.Markets.TryGetValue(marketId, out var market) && state.Markets.TryGetValue(marketId, out var stock))
+                    state = state with { Markets = state.Markets.SetItem(marketId, delta >= 0
+                        ? EconomyEngine.Produced(market, stock, itemId, delta)
+                        : EconomyEngine.Traded(market, stock, itemId, -delta, 0)) };
+            }
+            foreach (var (merchantId, coin) in Agents?.Coin(state.Day + 1) ?? Enumerable.Empty<(string, long)>())
+                _context.Dispatch(new PayMerchant(merchantId, coin, ByCharacter: false));
             foreach (var (marketId, itemId, count) in Jobs?.On(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
             {
                 if (Economy.Markets.TryGetValue(marketId, out var market) && state.Markets.TryGetValue(marketId, out var stock))
