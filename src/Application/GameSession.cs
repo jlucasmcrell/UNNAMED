@@ -218,10 +218,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // rather than the exterior's metres under it.
         var spaces = ImmutableDictionary<SpaceId, WalkSpace>.Empty.Add(layout.SpaceId, layout.Space);
         // An interior this run can reach, built once and shared by the ground map and the spawn co-load.
+        var layouts = ImmutableDictionary<SpaceId, RegionLayout>.Empty.Add(layout.SpaceId, layout);
         RegionLayout? inner = null;
         if (options.Barrowworks && !layout.Portals.Portals.IsEmpty)
         {
             inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+            layouts = layouts.SetItem(inner.SpaceId, inner);
             foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
                 spaces = spaces.SetItem(portal.Space, inner.Space);
         }
@@ -252,7 +254,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
             Spaces = spaces,
-            Interior = inner,
+            Layouts = layouts,
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

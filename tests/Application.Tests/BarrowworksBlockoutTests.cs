@@ -83,7 +83,9 @@ public class BarrowworksBlockoutTests
     {
         using var profile = new TempProfile();
         var session = Boot(profile);
-        var reached = FloodFromSpawn(session, out int tiles);
+        // With the gates OPEN. R09 sits behind G2 and R12 behind G3, so "every room is reachable" is only true once
+        // the gates are - which is what makes them gates. The test below proves they are shut by default.
+        var reached = FloodFromSpawn(session, out int tiles, doorsOpen: true);
 
         var unreachable = Rooms.Where(r => !reached.Contains(((int)r.X, (int)r.Z))).Select(r => r.Id).ToArray();
         Assert.True(unreachable.Length == 0,
@@ -94,10 +96,7 @@ public class BarrowworksBlockoutTests
     /// G3 gates the headworks. With every door shut the deep room is out of reach, which is what makes `o_open` a gate
     /// rather than decoration - before this the rooms stood in an open field and it was reachable with every door shut.
     /// </summary>
-    [Fact(Skip = "B7 open: the headworks is still reachable with every door shut. G3 IS generated into the "
-              + "R11-R12 opening now (door box x [48.5, 51.5], z [118.2, 119.0]), so there is a second way into "
-              + "R12 through the wall gaps the per-edge doorways left, and finding it needs the flood fill "
-              + "plotted rather than reasoned about. Un-skip when R12 is sealed.")]
+    [Fact]
     public void WithTheDoorsShut_TheHeadworksIsOutOfReach()
     {
         using var profile = new TempProfile();
@@ -110,11 +109,12 @@ public class BarrowworksBlockoutTests
     }
 
     /// <summary>The tiles a body can stand on, from the spawn, with every door and barrier shut.</summary>
-    private static HashSet<(int, int)> FloodFromSpawn(GameSession session, out int tiles)
+    private static HashSet<(int, int)> FloodFromSpawn(GameSession session, out int tiles, bool doorsOpen = false)
     {
         var layout = session.Setup.Layout;
         var space = layout.Space;
-        var shut = layout.ClosedDoors(_ => false).ToArray();
+        // Shut is the harsher case - what a body meets on arrival. Open is what the gates let through.
+        var shut = doorsOpen ? Array.Empty<Domain.Spatial.Blocker>() : layout.ClosedDoors(_ => false).ToArray();
         long radius = session.Setup.Movement.BodyRadiusMm;
         const long step = 1_000;
 
@@ -146,9 +146,7 @@ public class BarrowworksBlockoutTests
         return seen;
     }
 
-    [Fact(Skip = "B7 open: R01 at (50, 10) now reads as inside a wall. The enclosing rock mass overlaps R01 "
-              + "because R01 sits at z = 10 with a 10 m depth and the mass reaches z = 6, so the mass needs to "
-              + "start outside the rooms rather than at the walk space edge.")]
+    [Fact]
     public void TheBlockout_HasThirteenDistinctRooms()
     {
         using var profile = new TempProfile();
@@ -160,10 +158,13 @@ public class BarrowworksBlockoutTests
         Assert.True(walls.Length > 90, $"expected the rooms' walls, found {walls.Length} blockers");
 
         // Rooms are clear at their centres: no wall runs through one.
-        double radius = session.Setup.Movement.BodyRadiusMm / 1000.0;
+        long radius = session.Setup.Movement.BodyRadiusMm;
         foreach (var (id, x, z) in Rooms)
         {
-            bool inside = walls.Any(b => b.Separation(x, z, radius) is not null);
+            // In MILLIMETRES. The Rooms array is in metres and Separation takes millimetres, so passing the
+            // metres straight through tested the point (50 mm, 10 mm) - inside the rock mass at the walk
+            // space's origin - and reported every room as buried in a wall.
+            bool inside = walls.Any(b => b.Separation(x * 1000, z * 1000, radius) is not null);
             Assert.False(inside, $"{id} at ({x}, {z}) is inside a wall");
         }
     }

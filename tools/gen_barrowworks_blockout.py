@@ -136,48 +136,37 @@ for rid, name, _, _ in ROOMS:
 # refuses, correctly, because the spawn point then sits inside a structure. A leg with no gap on its axis
 # is omitted, and for a diagonal edge whose rectangles already overlap on that axis the overlap's midpoint
 # is used as the corner instead.
+# A doorway is centred on a room's clear span, so a corridor that starts anywhere else misses it and the wall closes
+# the room off. Each edge gets an L from A's own doorway to B's own, in shifted metres.
+half = CORRIDOR / 2
 for a, b, kind in EDGES:
     ax, az = shift(*by_id[a][1])
     bx, bz = shift(*by_id[b][1])
-    a_o = outer_rect(a)
-    b_o = outer_rect(b)
-    half = CORRIDOR / 2
+    a_clear = clear_rect(a)
+    b_clear = clear_rect(b)
+    a_mid = ((a_clear[0] + a_clear[2]) / 2, (a_clear[1] + a_clear[3]) / 2)
+    b_mid = ((b_clear[0] + b_clear[2]) / 2, (b_clear[1] + b_clear[3]) / 2)
 
-    # The gap along X between the two rectangles, or None when they overlap on that axis.
-    if bx > ax:
-        gap_x = (a_o[2], b_o[0])
-    elif bx < ax:
-        gap_x = (b_o[2], a_o[0])
+    if abs(bz - az) >= abs(bx - ax):
+        # Stacked in Z: A's doorway on its north or south wall, B's on the facing one, both on their own mid-X.
+        a_z = a_clear[3] if bz > az else a_clear[1]
+        b_z = b_clear[1] if bz > az else b_clear[3]
+        za, zb = (a_z, b_z) if bz > az else (b_z, a_z)
+        floors.append((f"corr_{a.lower()}_{b.lower()}_a_z", (a_mid[0] - half, za, a_mid[0] + half, zb)))
+        if abs(a_mid[0] - b_mid[0]) > 0.001:
+            lo, hi = min(a_mid[0], b_mid[0]), max(a_mid[0], b_mid[0])
+            z_at_b = zb if bz > az else za
+            floors.append((f"corr_{a.lower()}_{b.lower()}_x", (lo - half, z_at_b - half, hi + half, z_at_b + half)))
     else:
-        gap_x = None
-    if gap_x is not None and gap_x[1] - gap_x[0] <= 0.001:
-        gap_x = None
-
-    if bz > az:
-        gap_z = (a_o[3], b_o[1])
-    elif bz < az:
-        gap_z = (b_o[3], a_o[1])
-    else:
-        gap_z = None
-    if gap_z is not None and gap_z[1] - gap_z[0] <= 0.001:
-        gap_z = None
-
-    # Where the rectangles overlap on an axis, the corner belongs inside that overlap so the other leg
-    # meets the room rather than stopping in open air.
-    overlap_z = (max(a_o[1], b_o[1]), min(a_o[3], b_o[3]))
-    overlap_x = (max(a_o[0], b_o[0]), min(a_o[2], b_o[2]))
-    corner_z = (overlap_z[0] + overlap_z[1]) / 2 if overlap_z[1] > overlap_z[0] else az
-    corner_x = (overlap_x[0] + overlap_x[1]) / 2 if overlap_x[1] > overlap_x[0] else bx
-
-    # The corridors are FLOOR, not wall. They were structures with height_m 0.0, and Kinematics.Blocks reads height 0
-    # as "unknown, blocks everything" - so all sixteen were solid blocks and the rooms could only be reached by
-    # walking round the outside (review 3, B7). A corridor is a way through, so it is not a blocker at all.
-    if abs(bx - ax) > 0.001:
-        x0, x1 = (gap_x if gap_x else (min(ax, bx), max(ax, bx)))
-        floors.append((f"corr_{a.lower()}_{b.lower()}_x", (x0, corner_z - half, x1, corner_z + half)))
-    if abs(bz - az) > 0.001:
-        z0, z1 = (gap_z if gap_z else (min(az, bz), max(az, bz)))
-        floors.append((f"corr_{a.lower()}_{b.lower()}_z", (corner_x - half, z0, corner_x + half, z1)))
+        # Side by side in X: the doorway is in a wall of constant X, on each room's mid-Z.
+        a_x = a_clear[2] if bx > ax else a_clear[0]
+        b_x = b_clear[0] if bx > ax else b_clear[2]
+        xa, xb = (a_x, b_x) if bx > ax else (b_x, a_x)
+        floors.append((f"corr_{a.lower()}_{b.lower()}_a_x", (xa, a_mid[1] - half, xb, a_mid[1] + half)))
+        if abs(a_mid[1] - b_mid[1]) > 0.001:
+            lo, hi = min(a_mid[1], b_mid[1]), max(a_mid[1], b_mid[1])
+            x_at_b = xb if bx > ax else xa
+            floors.append((f"corr_{a.lower()}_{b.lower()}_z", (x_at_b - half, lo - half, x_at_b + half, hi + half)))
     notes.append(f"    # {a}-{b}: {kind}")
 
 # ── bounds and cells ─────────────────────────────────────────────────────────────────────────────────
@@ -225,10 +214,35 @@ min_x, min_z = min(min_x, 0.0), min(min_z, 0.0)
 
 # The mass itself: four thick walls just outside the rooms, so the ring is a place under a hill rather than nine
 # boxes in a field. Entry is by portal, so it needs no gap - and with it the only way between rooms is the corridors.
-box("rock_s", min_x, min_z, max_x, min_z + ROCK, 40.0)
-box("rock_n", min_x, max_z - ROCK, max_x, max_z, 40.0)
-box("rock_w", min_x, min_z, min_x + ROCK, max_z, 40.0)
-box("rock_e", max_x - ROCK, min_z, max_x, max_z, 40.0)
+# The mass is the walk space MINUS the rooms and corridors. A ring of four walls left the rooms standing free in an
+# open field - the flood fill crossed the whole space in one sheet and a body walked round every box rather than
+# through it, which is why G1-G3 gated nothing (review 3, B7, and the top-down plot of the fill).
+CELL_ROCK = 2.0     # granularity of the rock grid: fine enough to follow a room's corner
+_corridor_rects = [r for _, r in floors]
+
+
+def _in_room(x, z):
+    return any(o[0] - 0.05 <= x <= o[2] + 0.05 and o[1] - 0.05 <= z <= o[3] + 0.05
+               for o in (outer_rect(rid) for rid, _, _, _ in ROOMS))
+
+
+def _in_corridor(x, z):
+    return any(c[0] - 0.05 <= x <= c[2] + 0.05 and c[1] - 0.05 <= z <= c[3] + 0.05 for c in _corridor_rects)
+
+
+_rock = 0
+gx = min_x
+while gx < max_x - 0.001:
+    gz = min_z
+    while gz < max_z - 0.001:
+        cx0, cz0 = gx, gz
+        cx1, cz1 = min(gx + CELL_ROCK, max_x), min(gz + CELL_ROCK, max_z)
+        mx, mz = (cx0 + cx1) / 2, (cz0 + cz1) / 2
+        if not _in_room(mx, mz) and not _in_corridor(mx, mz):
+            box(f"rock_{_rock:04d}", cx0, cz0, cx1, cz1, 40.0)
+            _rock += 1
+        gz += CELL_ROCK
+    gx += CELL_ROCK
 
 CELL = 100
 cells = []
