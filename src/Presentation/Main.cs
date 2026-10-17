@@ -283,6 +283,7 @@ public partial class Main : Node3D
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
+        var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -295,8 +296,8 @@ public partial class Main : Node3D
             // A --shot names a place to stand, so the session opens the player there instead of making the
             // capture walk him across the region - which measured about a quarter of an hour per room in the
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
-            StartXMm = ShotStart()?.X,
-            StartZMm = ShotStart()?.Z,
+            StartXMm = shotStart?.X,
+            StartZMm = shotStart?.Z,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -616,7 +617,8 @@ public partial class Main : Node3D
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
-        _interior.Visible = false;
+        _interior.SetSpaceActive(false);
+        _hollow.SetSpaceActive(true);
         BuildPortalEntrances(_session.Setup.Layout);
         GD.Print($"UNNAMED barrowworks: the ring is built at {ring.SpaceId} and hidden until the body goes in");
     }
@@ -635,9 +637,9 @@ public partial class Main : Node3D
     /// </summary>
     private void ShowSpace(bool outside)
     {
-        _hollow.Visible = outside;
+        _hollow.SetSpaceActive(outside);
         if (_interior is { } ring)
-            ring.Visible = !outside;
+            ring.SetSpaceActive(!outside);
     }
 
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>

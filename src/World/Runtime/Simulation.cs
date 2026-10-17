@@ -262,7 +262,7 @@ public sealed class Simulation
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
-        // A loaded body stands where its save left it, and half of that is the space (schema 16). Without this the
+        // A loaded body stands where its save left it, and half of that is the space (the interior-space save extension). Without this the
         // ring's local coordinates load into the exterior - the Vestibule's (50, 84) would put a body in the Ashen
         // Hollow - because the space system starts at the exterior and nothing told it otherwise.
         _spaces.Adopt(player.SpaceId, player.SpaceTraversal);
@@ -418,6 +418,8 @@ public sealed class Simulation
     public ImmutableArray<CellKey> HeldCells => _cells;
 
     public bool PlayerInExterior => _state.Space.IsExterior;
+
+    public RegionLayout ActiveLayout => Setup.LayoutFor(_state.Space);
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),

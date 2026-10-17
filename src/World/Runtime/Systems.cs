@@ -43,13 +43,14 @@ internal sealed class SystemContext
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
     /// the quest that reads that flag are always the same cell (review B2).
     /// </summary>
-    private SpaceId Space => Setup.Layout.SpaceId;
+    private SpaceId SpaceOf<T>(T site, Func<RegionLayout, IEnumerable<T>> sites) =>
+        Setup.Sites(sites).FirstOrDefault(p => EqualityComparer<T>.Default.Equals(p.Site, site)).Layout?.SpaceId ?? Setup.Layout.SpaceId;
 
-    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(Space, door), door.FlagId) != 0;
+    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door, l => l.Doors), door), door.FlagId) != 0;
 
-    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(Space, site), site.FlagId) != 0;
+    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), site.FlagId) != 0;
 
-    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(Space, barrier), barrier.FlagId) != 0;
+    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(SpaceOf(barrier, l => l.Barriers), barrier), barrier.FlagId) != 0;
 
     /// <summary>
     /// The cell a body stands in, in the space it is in (M8 D10). A cell is where a flag, a delta and an
@@ -57,11 +58,8 @@ internal sealed class SystemContext
     /// interior's local metres would otherwise address real exterior ground.
     /// </summary>
     /// <remarks>
-    /// The space is the player's, which is the simulation's ambient space, and that is a shortcut that stops being
-    /// true the moment two spaces are live at once - which is what co-loading the interior is for. An interior is NOT
-    /// frozen while the player is away: the owner's rules supersede the design's old "persistent:false" and every
-    /// space a simulation holds is advanced by the IAbstractAdvance chain (WP11). The generalisation this needs - a
-    /// space recorded per creature, companion and NPC rather than taken from the player - is B1's remaining half.
+    /// This overload is for the player. Entities and authored sites use their own space. Unflagged interiors,
+    /// including Barrowworks, hold their state while absent (systems plan §2.11).
     /// </remarks>
     public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
 
@@ -82,11 +80,16 @@ internal sealed class SystemContext
         CellKey.OfInterior(space, xMm / 1000.0, zMm / 1000.0);
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
+    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null) => Setup.LayoutFor(space ?? State.Space).ClosedDoors(IsOpen, IsLifted);
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+        Setup.LayoutFor(State.Space).FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+
+    public SpaceId ContainerSpace(ContainerSite site) =>
+        Setup.Sites(l => l.Containers).FirstOrDefault(p => p.Site.Key == site.Key).Layout?.SpaceId
+        ?? State.Creatures.Values.FirstOrDefault(c => c.CorpseKey == site.Key)?.Site.Space
+        ?? Setup.Layout.SpaceId;
 
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;
@@ -117,7 +120,7 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.Layout.Space.Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(Body npc) =>
@@ -126,7 +129,7 @@ internal sealed class SystemContext
     /// <summary>Every corpse that can be searched: its body is still there, and its creature has a loot table.</summary>
     public IEnumerable<ContainerSite> CorpseSites() =>
         State.Creatures.Values
-            .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
+            .Where(c => c.Site.Space == State.Space && c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
             .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots)
             {
                 DropLevel = c.Definition.Level,
@@ -137,9 +140,9 @@ internal sealed class SystemContext
     /// not a companion (M6), who keeps out of the way instead, so a narrow door is never held shut by a friend.
     /// </summary>
     public ImmutableArray<Blocker> Obstacles() =>
-        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)
+        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
-            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id))
+            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && Setup.SpaceOfNpc(n.Definition.Id) == State.Space)
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
@@ -643,7 +646,7 @@ internal sealed class SpaceSystem
     private long ReachMm => _context.Setup.Items.Inventory.ReachMm + _context.Setup.Movement.BodyRadiusMm;
 
     /// <summary>
-    /// Put the body into the space its save recorded (schema 16), without moving it and without a portal.
+    /// Put the body into the space its save recorded (the interior-space save extension), without moving it and without a portal.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -661,7 +664,7 @@ internal sealed class SpaceSystem
     {
         if (string.IsNullOrEmpty(spaceId))
             return;
-        _context.State.SetSpace(_owner, new SpaceId(spaceId), new SpaceTraversal(traversal));
+        _context.State.SetSpace(_owner, new SpaceId(spaceId), traversal is { } key ? new SpaceTraversal(key) : SpaceTraversal.None);
     }
 
     /// <summary>Enter the space a portal leads to, placing the body at its interior anchor.</summary>

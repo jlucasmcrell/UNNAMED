@@ -24,6 +24,26 @@ public partial class HollowView : Node3D
     private Node3D? _debug;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+    private List<(WorldEnvironment Node, Godot.Environment Environment)>? _environments;
+
+    public void SetSpaceActive(bool active)
+    {
+        Visible = active;
+        _environments ??= Environments(this).Select(e => (e, e.Environment)).ToList();
+        foreach (var (node, environment) in _environments)
+            node.Environment = active ? environment : null;
+    }
+
+    private static IEnumerable<WorldEnvironment> Environments(Node root)
+    {
+        foreach (var child in root.GetChildren())
+        {
+            if (child is WorldEnvironment environment)
+                yield return environment;
+            foreach (var nested in Environments(child))
+                yield return nested;
+        }
+    }
 
     public static Vector3 ToGodot(long xMm, long yMm, long zMm) => new(xMm / 1000f, yMm / 1000f, zMm / 1000f);
 
@@ -813,7 +833,7 @@ public partial class HollowView : Node3D
             Sky = exterior ? new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
                 ProcessMode = Sky.ProcessModeEnum.Automatic } : null,
             AmbientLightSource = exterior ? Godot.Environment.AmbientSource.Sky : Godot.Environment.AmbientSource.Color,
-            AmbientLightColor = new Color(0.16f, 0.15f, 0.13f),
+            AmbientLightColor = exterior ? Colors.Black : new Color(0.16f, 0.15f, 0.13f),
             // DS Phase B (2026-09-27): directionality. Full-strength sky ambient (energy 1, sky contribution 1) lights
             // every surface from every direction at once, which is why the 27-view survey read flat and
             // directionless with no contact shadows - the same failure Digital Foundry describes on Crimson Desert
@@ -881,11 +901,14 @@ public partial class HollowView : Node3D
             Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
         else
         {
-            if (VisualOptions.Sky == "sky3d")
+            if (exterior && VisualOptions.Sky == "sky3d")
                 Coverage.Fallback("sky", "sky3d", skyWhy ?? "Sky3D did not build: the Phase-A sky stands");
             if (exterior && VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
                 Coverage.Fallback("sky", "hdri", hdriWhy ?? "the HDRI did not load: the Phase-A sky stands");
-            root.AddChild(sun);
+            if (exterior)
+                root.AddChild(sun);
+            else
+                sun.Free();
             root.AddChild(new WorldEnvironment { Environment = environment });
         }
         // Each building's particle emitters (B11: the smithy's chimney smoke), relative to its footprint's centre on the ground.

@@ -622,7 +622,7 @@ internal sealed class InventorySystem
     /// </summary>
     private List<(LootDrop Drop, int Quality)> Baseline(ContainerSite site)
     {
-        var cell = _context.CellOfSite(site.XMm, site.ZMm);
+        var cell = _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
         // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
         var drops = Items.Merchants.TryGetValue(site.Key, out var merchant)
@@ -653,7 +653,7 @@ internal sealed class InventorySystem
         var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
         var items = Baseline(site).Select(stack => new ContainerItem(NewItem(stack.Drop.ItemId), stack.Drop.ItemId, stack.Drop.Count) { Quality = stack.Quality })
             .ToImmutableArray();
-        var record = new ContainerRecord(site.Key, chest, _context.CellOfSite(site.XMm, site.ZMm).ToString(), items);
+        var record = new ContainerRecord(site.Key, chest, _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
         return record;
     }

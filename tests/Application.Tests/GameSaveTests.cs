@@ -32,8 +32,7 @@ public class GameSaveTests
         // Schema 15: the player knows no Waystone, has chosen none to return to, and has walked no road.
         (new Regex(@"^\$\.player\.(Waystones|RoadsWalked)$"), "[]"),
         (new Regex(@"^\$\.player\.ReturnPoint$"), "null"),
-        // The player record carries its space from the merge on; schema 19 has no field for it yet, so a
-        // save still loses it. That is what BarrowworksPersistenceTests is waiting on.
+        // The interior-space save extension defaults earlier characters to the exterior with no portal traversal.
         (new Regex(@"^\$\.player\.SpaceId$"), "\"\""),
         (new Regex(@"^\$\.player\.SpaceTraversal$"), "null"),
         // Schema 16: the player has counted no deed.

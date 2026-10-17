@@ -362,7 +362,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var player = State.Body;
         bool target = !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
-        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls()) : null;
+        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
         var next = c with { Awareness = awareness };
         if (seen is not null)
@@ -583,7 +583,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return c with { Body = backed with { FacingMdeg = Turn(c, facing).FacingMdeg } };
         }
 
-        bool clear = !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
@@ -668,11 +668,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         var rules = new MovementRules(charge.ChargeSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var intent = new MoveIntent(action.DirXPermille, action.DirZPermille, Gait.Run, c.Body.FacingMdeg);
-        var others = new List<Blocker>(_context.ClosedDoors());
+        var others = new List<Blocker>(_context.ClosedDoors(c.Site.Space));
         others.AddRange(Herd(c));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
         others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
-        var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), others, TickMs);
+        var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
             // It ran into something solid: rock, wall or tree takes the charge, and the charger reels.
@@ -705,17 +705,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
                 (int)Math.Round(Math.Cos(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000), Gait.Run, c.Body.FacingMdeg);
-            var obstacles = new List<Blocker>(_context.ClosedDoors())
+            var obstacles = new List<Blocker>(_context.ClosedDoors(c.Site.Space))
             {
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
             obstacles.AddRange(Companions());
-            c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), obstacles, TickMs) };
+            c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
-            && !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+            && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         InternalCommand blow = foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
         if (reaches && _context.Dispatch(blow) is null)
         {
@@ -941,18 +941,18 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
             Turn(c, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm)).FacingMdeg);
         var rules = new MovementRules(c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
-        var others = new List<Blocker>(_context.ClosedDoors())
+        var others = new List<Blocker>(_context.ClosedDoors(c.Site.Space))
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
         others.AddRange(Companions());
         others.AddRange(Herd(c));
-        return Kinematics.Step(from, intent, rules, SpaceNear(from), others, TickMs);
+        return Kinematics.Step(from, intent, rules, SpaceNear(c, from), others, TickMs);
     }
 
     /// <summary>The other living creatures near enough to be in this one's way this tick, as bodies it does not walk through.</summary>
     private IEnumerable<Blocker> Herd(CreatureState c) =>
-        State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key
+        State.Creatures.Values.Where(o => o.Alive && o.Site.Space == c.Site.Space && o.Key != c.Key
                 && Math.Abs(o.Body.XMm - c.Body.XMm) < NearMm && Math.Abs(o.Body.ZMm - c.Body.ZMm) < NearMm)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0));
 
@@ -961,21 +961,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private const long GridMm = 16_000;
 
-    private Dictionary<(long, long), WalkSpace>? _near;
+    private Dictionary<(SpaceId, long, long), WalkSpace>? _near;
 
     /// <summary>
     /// The walk space round a body, holding only the region's structures within a grid square of it (16 m): what a body that moves at
     /// most half a metre a tick can touch. Gathered once per square - the structures never move - so a step weighs a few dozen
     /// structures rather than the whole region's (the world-life pass more than tripled the creatures that walk).
     /// </summary>
-    private WalkSpace SpaceNear(Body body)
+    private WalkSpace SpaceNear(CreatureState creature, Body body)
     {
-        var space = _context.Setup.Layout.Space;
-        var square = (Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
-        _near ??= new Dictionary<(long, long), WalkSpace>();
+        var space = _context.Setup.SpaceFor(creature.Site.Space);
+        var square = (creature.Site.Space, Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
+        _near ??= new Dictionary<(SpaceId, long, long), WalkSpace>();
         if (_near.TryGetValue(square, out var near))
             return near;
-        long x0 = (square.Item1 - 1) * GridMm, z0 = (square.Item2 - 1) * GridMm, x1 = (square.Item1 + 2) * GridMm, z1 = (square.Item2 + 2) * GridMm;
+        long x0 = (square.Item2 - 1) * GridMm, z0 = (square.Item3 - 1) * GridMm, x1 = (square.Item2 + 2) * GridMm, z1 = (square.Item3 + 2) * GridMm;
         var blockers = space.Blockers.Where(b => b switch
         {
             BoxBlocker box => box.MaxXMm >= x0 && box.MinXMm <= x1 && box.MaxZMm >= z0 && box.MinZMm <= z1,
@@ -1039,9 +1039,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls() => _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors());
+    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space));
 
-    private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
+    private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
 
     private SimulationTier TierOf(CreatureState c) =>
         State.Tiers.GetValueOrDefault(_context.CellOfSite(c.Site.Space, c.Body.XMm, c.Body.ZMm).ToString(), SimulationTier.D);

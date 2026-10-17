@@ -110,6 +110,8 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var node = _nodes.FirstOrDefault(n => n.Key == command.NodeKey);
         if (node.Key is null || !Setup.Nodes.TryGetValue(node.Site.NodeDefId, out var definition))
             return $"there is no node '{command.NodeKey}'";
+        if (node.Cell.Space != State.Space)
+            return "that node is in another space";
         var body = State.Body;
         if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
             return "that is out of reach";

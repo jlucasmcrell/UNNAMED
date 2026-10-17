@@ -134,10 +134,11 @@ public class BarrowworksBlockoutTests
                 long nx = x + dx, nz = z + dz;
                 if (nx < space.MinXMm || nx > space.MaxXMm || nz < space.MinZMm || nz > space.MaxZMm)
                     continue;
-                if (!seen.Add(((int)(nx / step), (int)(nz / step))))
+                if (seen.Contains(((int)(nx / step), (int)(nz / step))))
                     continue;
                 if (!Clear(nx, nz))
                     continue;
+                seen.Add(((int)(nx / step), (int)(nz / step)));
                 queue.Enqueue((nx, nz));
             }
         }

@@ -171,12 +171,13 @@ public sealed class PlayerController
         var simulation = _session.Simulation!;
         long doorReach = _session.Setup.Movement.InteractReachMm, itemReach = _session.Setup.Items.Inventory.ReachMm;
         var candidates = new List<(Focus Focus, double Distance)>();
-        foreach (var door in _session.Setup.Layout.Doors)
+        foreach (var door in simulation.ActiveLayout.Doors)
         {
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
-        foreach (var site in simulation.Containers.Select(c => c.Site))
+        foreach (var site in simulation.Containers.Select(c => c.Site).Where(s =>
+                     simulation.ActiveLayout.Containers.Contains(s) || simulation.Creatures.Any(c => c.CorpseKey == s.Key)))
         {
             // A corpse is searched like a chest, and named for the creature it was.
             string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId ?? site.Key;
@@ -187,14 +188,14 @@ public sealed class PlayerController
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
         foreach (var node in simulation.Nodes)
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
-        foreach (var station in _session.Setup.Layout.Stations)
+        foreach (var station in simulation.ActiveLayout.Stations)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
         foreach (var npc in simulation.Npcs.Where(n => !simulation.Walled(Authoritative.XMm, Authoritative.ZMm, n.Body.XMm, n.Body.ZMm)))
             candidates.Add((new Focus(FocusKind.Npc, npc.Id, npc.Id, npc.Body.XMm, npc.Body.ZMm), Distance(npc.Body.XMm, npc.Body.ZMm) - talkReach));
         // A switch is worked like a door, from the body to its edge (M6); once set it has nothing more to offer.
-        foreach (var view in simulation.Switches.Where(s => !s.Set))
+        foreach (var view in simulation.Switches.Where(s => !s.Set && simulation.ActiveLayout.Switches.Contains(s.Site)))
         {
             var (x, z) = Footprints.Center(view.Site.Body);
             candidates.Add((new Focus(FocusKind.Switch, view.Site.Key, view.Site.FlagId, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));

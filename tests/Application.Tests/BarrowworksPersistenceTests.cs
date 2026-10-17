@@ -1,5 +1,5 @@
-// UNNAMED Application tests - the space survives a save (M8 D10, schema 16)
-// A save taken inside the ring loads back inside it. Before schema 16 the position was the only thing a save
+// UNNAMED Application tests - the space survives a save (M8 D10, the interior-space save extension)
+// A save taken inside the ring loads back inside it. Before the interior-space save extension the position was the only thing a save
 // held about where a body was, and the ring's local metres sit inside the exterior's grid - so the Vestibule's
 // (50, 84) loaded a body into the Ashen Hollow at the same metres, hundreds of metres from either entrance.
 
@@ -61,7 +61,7 @@ public class BarrowworksPersistenceTests
         SaveInsideTheRing(profile);
 
         // A second session on the SAME profile - a save lives in the profile's root, so a fresh one has nothing to
-        // load. Without schema 16 this loads the body into the Ashen Hollow at the ring's own metres.
+        // load. Without the interior-space save extension this loads the body into the Ashen Hollow at the ring's own metres.
         using var loaded = GameSession.Boot(Options(profile, atThreshold: false));
         var result = loaded.Load(SaveSlots.Quick);
 
