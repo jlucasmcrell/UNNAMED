@@ -1,0 +1,15 @@
+id: ability.polearm.long_thrust
+kind: ability
+schema: 1
+display_key: ability.polearm.long_thrust.name
+tags: [ability]
+name: Long Thrust
+notes: The polearm's active technique (D11). The spear's own thrust, wound up longer and reaching further, to strike first. Durn teaches it. Every number is provisional.
+class: active
+discipline: skill.polearm
+cost: { stamina: 20 }
+cooldown_s: 5
+windup_multiplier: 1.3
+reach_bonus_m: 0.8
+payload:
+  - { type: damage, multiplier_of_weapon: 1.3 }

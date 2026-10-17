@@ -42,6 +42,7 @@ public static class ContentChecks
         ["skill_ref"] = new[] { "skill" },   // skill joined the closed kind table at M2c (§4.21)
         ["node_ref"] = new[] { "node" },     // a region's authored node (M3f)
         ["market_ref"] = new[] { "market" }, // a town market (WP14)
+        ["piece_ref"] = new[] { "piece" },   // a building piece a teacher teaches (WP9)
     };
 
     /// <summary>§4 fields that are references although they predate the <c>_ref</c> naming convention.</summary>
@@ -53,6 +54,7 @@ public static class ContentChecks
         ["affix_pool"] = new[] { "affix" },
         ["domain"] = new[] { "skill" },   // a formula's magic-domain skill (§4.6)
         ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
+        ["discipline"] = new[] { "skill" },   // an active technique's weapon-family skill (§4.7; WP9)
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>

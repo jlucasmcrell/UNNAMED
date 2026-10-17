@@ -28,7 +28,7 @@ public static class SocialContent
         { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done" };
 
     private static readonly string[] Consequences =
-        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
+        { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
           "report_act", "hire_hireling", "dismiss_companion" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
@@ -128,6 +128,7 @@ public static class SocialContent
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
+                Teaches = TeachingContent.Offers(id, map, loader),
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
 
@@ -212,11 +213,11 @@ public static class SocialContent
     {
         string at = $"{where} reply {Text(map, "id")}";
         var consequences = Rows(map, "consequences", at).Select(c => Consequence(at, c, loader)).ToImmutableArray();
-        // An item changing hands and a hire are the consequences that can be refused, so a reply carries at most one and it goes first.
+        // An item changing hands, a hire and a lesson are the consequences that can be refused, so a reply carries at most one and it goes first.
         if (consequences.OfType<TransferItemConsequence>().Count() > 1)
             throw new FormatException($"{at}: a reply moves at most one item (transfer_item)");
-        if (consequences.Count(c => c is TransferItemConsequence or HireHirelingConsequence) > 1)
-            throw new FormatException($"{at}: a reply carries at most one consequence that can be refused (transfer_item, hire_hireling)");
+        if (consequences.Count(c => c is TransferItemConsequence or HireHirelingConsequence or TeachConsequence) > 1)
+            throw new FormatException($"{at}: a reply carries at most one consequence that can be refused (transfer_item, hire_hireling, teach)");
         return new DialogueChoice(Text(map, "id"), Text(map, "text"),
             Rows(map, "conditions", at).Select(c => Condition(at, c, loader)).ToImmutableArray(), consequences,
             map.GetValueOrDefault("next") as string);
@@ -234,11 +235,7 @@ public static class SocialContent
             {
                 DialogueId = map.GetValueOrDefault("dialogue_ref") is string other ? Defined(loader, other, "dialogue", at) : null,
             },
-            "world_state" => new WorldStateCondition(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
-                LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue))
-            {
-                LocationId = map.GetValueOrDefault("location_ref") is string place ? Defined(loader, place, "location", at) : null,
-            },
+            "world_state" => WorldState(at, map, loader),
             "has_item" => new HasItemCondition(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", 1),
                 (int)LongOr(map, "quality_min", -1), negated),
             "relationship" => new RelationshipCondition(Defined(loader, Text(map, "npc_ref"), "npc", at), Dimension(Text(map, "dimension"), at),
@@ -267,7 +264,8 @@ public static class SocialContent
                     "npc" => false,
                     var to => throw new FormatException($"{at}: transfer_item goes to player or npc, not '{to}'"),
                 }),
-            "give_recipe" => new GiveRecipeConsequence(Defined(loader, Text(map, "recipe_ref"), "recipe", at)),
+            "teach" => Teach(at, map),
+            "give_recipe" => throw new FormatException($"{at}: give_recipe is replaced by teach, naming entries of the speaker's teaches block (WP9)"),
             "set_world_flag" => new SetWorldFlagConsequence(Defined(loader, Text(map, "flag_ref"), "world_flag", at), LongOr(map, "value", 1)),
             "record_relationship_event" => new RelationshipEventConsequence(Defined(loader, Text(map, "npc_ref"), "npc", at),
                 Dimension(Text(map, "dimension"), at),
@@ -301,6 +299,25 @@ public static class SocialContent
     }
 
     /// <summary>
+    /// <c>teach</c> (WP9): <c>refs</c>, the entries of the speaker's <c>teaches</c> block this line teaches - all or nothing, on the block's
+    /// terms. The cross-check holds them to a participant's entries given <c>by_dialogue</c>.
+    /// </summary>
+    private static TeachConsequence Teach(string at, Dictionary<object, object> map)
+    {
+        var refs = List(map, "refs").Select(r => r as string ?? throw new FormatException($"{at}: teach's refs are definition IDs")).ToImmutableArray();
+        if (refs.IsEmpty || refs.Distinct(StringComparer.Ordinal).Count() != refs.Length)
+            throw new FormatException($"{at}: teach names at least one entry in refs, each once");
+        return new TeachConsequence(refs);
+    }
+
+    /// <summary><c>world_state</c>: a flag's value from <c>min</c> (1) to <c>max</c>, in the speaker's cell or a named place's (L-17).</summary>
+    internal static WorldStateCondition WorldState(string at, Dictionary<object, object> map, ContentLoader loader) =>
+        new(Defined(loader, Text(map, "flag_ref"), "world_flag", at), LongOr(map, "min", 1), LongOr(map, "max", long.MaxValue))
+        {
+            LocationId = map.GetValueOrDefault("location_ref") is string place ? Defined(loader, place, "location", at) : null,
+        };
+
+    /// <summary>
     /// <c>standing</c> (WP6): the character's tier with <c>faction_ref</c> from <c>min_tier</c> (default anathema) to <c>max_tier</c>
     /// (default exalted), as levels. FAC001 holds it to the speaker's own faction.
     /// </summary>
@@ -329,7 +346,7 @@ public static class SocialContent
         CompanionKeys.ParseOrder(order) ?? throw new FormatException($"{at}: a companion's order is follow or wait, not '{order}'");
 
     /// <summary><c>quest_state</c> (M5): a quest's state, or with <c>objective</c> one of its objectives'; the quest lint checks the objective exists.</summary>
-    private static QuestStateCondition QuestState(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
+    internal static QuestStateCondition QuestState(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
     {
         string quest = Defined(loader, Text(map, "quest_ref"), "quest", at);
         string? objective = map.GetValueOrDefault("objective") as string;
@@ -344,7 +361,7 @@ public static class SocialContent
     /// <c>deed</c> (E-7): <c>deed</c> is <c>killed</c> (a <c>creature_ref</c>), <c>crafted</c> (an <c>item_ref</c>), <c>harvested</c> (a
     /// <c>resource_ref</c>) or <c>delivered</c> (an <c>item_ref</c>, optionally to <c>npc_ref</c>); <c>count</c> is how many times at least (1).
     /// </summary>
-    private static DeedCondition Deed(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
+    internal static DeedCondition Deed(string at, Dictionary<object, object> map, ContentLoader loader, bool negated)
     {
         string key = Text(map, "deed");
         var kind = DeedKeys.Parse(key)
@@ -431,6 +448,15 @@ public static class SocialContent
             if (dialogues.TryGetValue(npc.DialogueId!, out var dialogue) && !dialogue.Participants.Contains(npc.Id))
                 throw new FormatException($"{npc.Id}: {npc.DialogueId} does not name it among its participants");
         }
+        // A lesson given by conversation (WP9) is given by a line of the teacher's own: otherwise nothing would ever teach it.
+        foreach (var npc in npcs.Values)
+        {
+            var taught = npc.DialogueId is { } own && dialogues.TryGetValue(own, out var spoken)
+                ? spoken.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<TeachConsequence>().SelectMany(t => t.DefinitionIds).ToHashSet(StringComparer.Ordinal)
+                : new HashSet<string>(StringComparer.Ordinal);
+            if (npc.Teaches.FirstOrDefault(o => o.ByDialogue && !taught.Contains(o.DefinitionId)) is { } untaught)
+                throw new FormatException($"{npc.Id}: teaches {untaught.DefinitionId} by_dialogue, but no line of {npc.DialogueId ?? "their conversation"} teaches it");
+        }
         foreach (var dialogue in dialogues.Values)
         {
             foreach (var open in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<OpenServiceConsequence>())
@@ -448,6 +474,13 @@ public static class SocialContent
             {
                 if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Hireling is { } h && h.Roles.Contains(hire.Role)))
                     throw new FormatException($"{dialogue.Id}: hires a {PartyKeys.Key(hire.Role)}, but none of its participants hires on as one");
+            }
+            // A line teaches only what a participant gives by conversation (WP9): an entry of their block marked by_dialogue.
+            foreach (string taught in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).OfType<TeachConsequence>()
+                         .SelectMany(t => t.DefinitionIds))
+            {
+                if (!dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && npc.Teaches.Any(o => o.DefinitionId == taught && o.ByDialogue)))
+                    throw new FormatException($"{dialogue.Id}: teaches {taught}, which no participant's teaches block gives by_dialogue");
             }
             bool dismissal = dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).Any(c => c is DismissCompanionConsequence);
             if (dismissal && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && (npc.Companion is not null || npc.Hireling is not null)))

@@ -15,8 +15,7 @@ nodes:
       - id: teach
         text: "Then teach me the forge."
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
-          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
@@ -35,8 +34,7 @@ nodes:
         text: "Teach me the forge."
         conditions: [{ kind: visited, node: lesson, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
-          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
@@ -189,8 +187,7 @@ nodes:
         text: "Show me how to make arrows."
         conditions: [{ kind: visited, node: fletching, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.fletching.arrows }
-          - { command: give_recipe, recipe_ref: recipe.fletching.hunting_bow }
+          - { command: teach, refs: [recipe.fletching.arrows, recipe.fletching.hunting_bow] }
         next: fletching
       - id: silk
         text: "Could I string a bow with spider silk?"
@@ -198,7 +195,7 @@ nodes:
           - { kind: visited, node: fletching }
           - { kind: visited, node: silk_string, not: true }
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.fletching.hunting_bow_silk }
+          - { command: teach, refs: [recipe.fletching.hunting_bow_silk] }
         next: silk_string
       - id: back
         text: "Later."

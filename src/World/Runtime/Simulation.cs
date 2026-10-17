@@ -57,6 +57,10 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
     public EconomySetup Economy { get; init; } = EconomySetup.Empty;
+
+    /// <summary>The player's active techniques, one weapon family's each (WP9, D11).</summary>
+    public ImmutableSortedDictionary<string, TechniqueDefinition> Techniques { get; init; } =
+        ImmutableSortedDictionary.Create<string, TechniqueDefinition>(StringComparer.Ordinal);
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -131,6 +135,7 @@ public sealed class Simulation
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
     private readonly QuickBarSystem _quickBar;
+    private readonly TeachingSystem _teaching;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -185,10 +190,11 @@ public sealed class Simulation
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
+        _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, new AnyHourTeaching());
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets, _teaching);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -374,6 +380,12 @@ public sealed class Simulation
     /// </summary>
     public ImmutableArray<Domain.Social.SpokenLine> Barks(string npcId) => _dialogue.Barks(npcId);
 
+    /// <summary>What an NPC teaches now and on what terms, for the Learn column (WP9); null when they teach nothing.</summary>
+    public TeachingView? Teaching(string npcId) => _teaching.View(npcId, WorldTick);
+
+    /// <summary>Ticks until a technique is ready again (WP9); 0 when it is ready now.</summary>
+    public int TechniqueCooldown(string techniqueId) => _combat.TechniqueCooldown(techniqueId, WorldTick);
+
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
@@ -449,6 +461,8 @@ public sealed class Simulation
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _combat.Handle(dodge, WorldTick),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
+                TechniqueCommand technique => _combat.Handle(technique, WorldTick),
+                LearnFromTeacherCommand learn => _teaching.Handle(learn, WorldTick),
                 GatherCommand gather => _gathering.Handle(gather, WorldTick),
                 CraftCommand craft => _crafting.Handle(craft, WorldTick),
                 ExperimentCommand experiment => _crafting.Handle(experiment, WorldTick),
@@ -671,6 +685,7 @@ public sealed class Simulation
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),
         GrantStanding grant => _factions.Handle(grant, Now),
+        Teach teach => _teaching.Handle(teach, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

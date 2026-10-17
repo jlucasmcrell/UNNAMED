@@ -516,13 +516,15 @@ public class ContentLoaderTests
         Assert.Equal(
             new[]
             {
+                "ability.blade.power_strike", "ability.bow.aimed_shot",
                 "ability.creature.armour_slam", "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.grazer_charge",
                 "ability.creature.hoof_kick", "ability.creature.horn_butt", "ability.creature.hound_lunge", "ability.creature.husk_slash",
                 "ability.creature.peck", "ability.creature.spider_bite", "ability.creature.tusk_sweep", "ability.creature.wolf_bite",
+                "ability.polearm.long_thrust",
                 "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer",
                 "config.base_speeds", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
                 "config.economy", "config.factions", "config.inventory", "config.level_cap", "config.magic", "config.party", "config.progression",
-                "config.simulation_tiers", "config.time", "config.travel", "config.weather", "config.xp_curve",
+                "config.simulation_tiers", "config.teaching", "config.time", "config.travel", "config.weather", "config.xp_curve",
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.grazer.barrowback", "creature.grazer.fellhorn",
@@ -561,6 +563,8 @@ public class ContentLoaderTests
                 "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
                 "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.mara_ling", "npc.cairnwold.tam_crowden",
                 "people.veth",
+                "piece.door.timber", "piece.doorway.timber", "piece.pad.timber", "piece.roof.timber", "piece.station.anvil",
+                "piece.storage.chest", "piece.wall.timber",
                 "quest.ashen_hollow.end_of_playtest", "quest.ashen_hollow.haldas_tally", "quest.ashen_hollow.iron_under_ash", "quest.ashen_hollow.three_quiet_stones", "quest.bounty.crag_walker",
                 "quest.bounty.crossing_timber", "quest.bounty.lodge_supplies", "quest.bounty.moor_billets", "quest.bounty.road_wolves",
                 "quest.bounty.shelf_iron", "quest.bounty.survey_herbs", "quest.bounty.winter_hides", "quest.bounty.wrong_leaves",

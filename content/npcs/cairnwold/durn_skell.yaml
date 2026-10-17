@@ -10,3 +10,16 @@ services: [trade]
 merchant_ref: merchant.cairnwold.durn_skell
 dialogue_ref: dialogue.cairnwold.durn_skell
 unique: true
+# What he teaches (WP9, C10): the forge and hides by his own lines, free, as he always has; the polearm's technique to anyone familiar
+# with a spear, for a fee into his purse. Fees are provisional.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.smithing.iron_billet, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.march_spear, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.leatherwork.hide_cap, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.leatherwork.hide_vest, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.leatherwork.hide_vest_barrowback, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.leatherwork.hide_cap_fellhorn, by_dialogue: true }
+  - kind: technique
+    ability_ref: ability.polearm.long_thrust
+    fee: 25
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }

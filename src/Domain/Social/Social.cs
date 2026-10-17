@@ -19,6 +19,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>Set for an NPC who can be hired (WP15a): the roles they take on and how they fight. Never on someone who can join as a companion.</summary>
     public HirelingProfile? Hireling { get; init; }
 
+    /// <summary>What the NPC teaches, on what terms (WP9, C10): their <c>teaches</c> block, in content order. Empty for someone who teaches nothing.</summary>
+    public ImmutableArray<TeachingOffer> Teaches { get; init; } = ImmutableArray<TeachingOffer>.Empty;
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -196,9 +199,6 @@ public abstract record DialogueConsequence;
 
 /// <summary><c>transfer_item</c>: the speaker gives the player an item, or takes one (<c>to: npc</c>).</summary>
 public sealed record TransferItemConsequence(string ItemId, int Count, bool ToPlayer) : DialogueConsequence;
-
-/// <summary><c>give_recipe</c>: the speaker teaches a recipe - a learning event from a teacher (PROGRESSION.md §4.4).</summary>
-public sealed record GiveRecipeConsequence(string RecipeId) : DialogueConsequence;
 
 /// <summary><c>set_world_flag</c>: a flag in the speaker's cell takes a value.</summary>
 public sealed record SetWorldFlagConsequence(string FlagId, long Value) : DialogueConsequence;

@@ -1,0 +1,15 @@
+id: ability.blade.power_strike
+kind: ability
+schema: 1
+display_key: ability.blade.power_strike.name
+tags: [ability]
+name: Power Strike
+notes: The blade's active technique (D11; DATA_MODEL.md §4.7's example). The sword's own swing, wound up longer and landed harder, and a cut that may bleed. Kera teaches it. Every number is provisional.
+class: active
+discipline: skill.one_hand_blade
+cost: { stamina: 22 }
+cooldown_s: 6
+windup_multiplier: 1.5
+payload:
+  - { type: damage, multiplier_of_weapon: 1.6 }
+  - { type: apply_effect, effect_ref: effect.bleeding, chance: 0.5 }

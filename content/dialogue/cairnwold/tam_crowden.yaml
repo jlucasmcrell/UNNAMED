@@ -157,7 +157,7 @@ nodes:
         text: "Show me the fire, then."
         conditions: [{ kind: visited, node: cooking, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.cooking.roast_meat }
+          - { command: teach, refs: [recipe.cooking.roast_meat] }
         next: cooking
       - id: back
         text: "Nothing today."

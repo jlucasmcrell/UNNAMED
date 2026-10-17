@@ -29,8 +29,11 @@ public static class ProgressionKeys
         CharacterAttribute.Might, CharacterAttribute.Endurance, CharacterAttribute.Agility, CharacterAttribute.Precision,
         CharacterAttribute.Will, CharacterAttribute.Insight, CharacterAttribute.Presence);
 
-    /// <summary>The content kinds whose definitions are known capabilities (§4.4): techniques, formulas, recipes.</summary>
-    public static readonly ImmutableArray<string> TechniqueKinds = ImmutableArray.Create("ability", "spell", "recipe");
+    /// <summary>
+    /// The content kinds whose definitions are known capabilities (§4.4): techniques, formulas, recipes - and building pieces, the known
+    /// construction techniques a builder reads (SYSTEMS.md S-32, taught by a teacher since WP9).
+    /// </summary>
+    public static readonly ImmutableArray<string> TechniqueKinds = ImmutableArray.Create("ability", "spell", "recipe", "piece");
 
     public static string Key(CharacterAttribute value) => value switch
     {
@@ -88,7 +91,7 @@ public static class ProgressionKeys
     /// <summary>A skill ID: a valid definition ID of the <c>skill</c> kind.</summary>
     public static bool IsSkillId(string? id) => DefinitionId.IsValid(id) && id!.StartsWith("skill.", StringComparison.Ordinal);
 
-    /// <summary>A known-capability ID: a valid definition ID of a technique kind (ability, spell, recipe).</summary>
+    /// <summary>A known-capability ID: a valid definition ID of a technique kind (ability, spell, recipe, piece).</summary>
     public static bool IsTechniqueId(string? id) =>
         DefinitionId.IsValid(id) && TechniqueKinds.Any(kind => id!.StartsWith(kind + ".", StringComparison.Ordinal));
 

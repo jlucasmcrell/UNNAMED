@@ -8,3 +8,13 @@ notes: Keeps the long lodge, and is Cairnwold's memory - who built the drystone 
 role: steward
 dialogue_ref: dialogue.cairnwold.berrin_garth
 unique: true
+# What he teaches (WP9, C10; owner decision, 2026-10-17): the timber building pieces, the anvil and the storage chest, each for a fee,
+# a pad before walls, walls before a doorway or a roof, a doorway before its door. Fees are provisional.
+teaches:
+  - { kind: building_piece, piece_ref: piece.pad.timber, fee: 5 }
+  - { kind: building_piece, piece_ref: piece.wall.timber, fee: 10, requires: { prerequisite: piece.pad.timber } }
+  - { kind: building_piece, piece_ref: piece.doorway.timber, fee: 10, requires: { prerequisite: piece.wall.timber } }
+  - { kind: building_piece, piece_ref: piece.door.timber, fee: 10, requires: { prerequisite: piece.doorway.timber } }
+  - { kind: building_piece, piece_ref: piece.roof.timber, fee: 15, requires: { prerequisite: piece.wall.timber } }
+  - { kind: building_piece, piece_ref: piece.storage.chest, fee: 10 }
+  - { kind: building_piece, piece_ref: piece.station.anvil, fee: 20 }

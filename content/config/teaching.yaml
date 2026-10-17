@@ -1,0 +1,13 @@
+id: config.teaching
+kind: config
+schema: 1
+display_key: config.teaching.name
+tags: [config]
+notes: Teachers (SYSTEMS_COMPLETENESS_PLAN §2.3 C10, WP9). A teaches entry may require a skill at a band - PROGRESSION.md §6's table, each band named with the skill level it starts at. A band only gates the lesson; no teacher, fee or lesson ever raises a skill (PROGRESSION.md:64, 223).
+skill_bands:
+  untrained: 0
+  familiar: 15      # the first family technique (PROGRESSION.md §6)
+  proficient: 30
+  adept: 45
+  expert: 60        # the common ceiling
+  master: 61        # designated masteries only

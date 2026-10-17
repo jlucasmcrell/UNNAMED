@@ -65,7 +65,7 @@ public class SocialContentTests
         // Kera teaches the two recipes (the starting package no longer does); Sel hands over her field notes (Berrin keeps the primer).
         var teach = dialogues["dialogue.ashen_hollow.kera_voss"].Nodes["greet"].Choices.Single(c => c.Id == "teach");
         Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear" },
-            teach.Consequences.OfType<GiveRecipeConsequence>().Select(g => g.RecipeId));
+            teach.Consequences.OfType<TeachConsequence>().Single().DefinitionIds);
         var take = dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["notes"].Choices.Single();
         Assert.Equal(new TransferItemConsequence("item.tome.field_notes", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());
     }
@@ -268,7 +268,7 @@ public class SocialContentTests
     public void AReplyThatHiresAndMovesAnItem_IsRefused() =>
         AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "consequences: [{ command: recruit_companion }]",
             "consequences: [{ command: transfer_item, item_ref: item.consumable.roast_meat, count: 1, to: player }, { command: hire_hireling, role: guard, days: 3, risk_stated: true }]",
-            "a reply carries at most one consequence that can be refused (transfer_item, hire_hireling)");
+            "a reply carries at most one consequence that can be refused (transfer_item, hire_hireling, teach)");
 
     /// <summary>DN9: a named companion is wounded where a hireling dies, so no one is both.</summary>
     [Fact]
