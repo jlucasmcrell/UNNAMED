@@ -3,7 +3,10 @@ using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.Content.Tests;
 
-/// <summary>Peoples and Calls from content (WP2): the Veth and the four CC-0 Calls build, and the CHR lint refuses what the creator cannot offer.</summary>
+/// <summary>
+/// Peoples, Calls and bodies from content (WP2, WP17): the Veth, the four CC-0 Calls and the Veth's five builds of each body type build,
+/// and the CHR lint refuses what the creator cannot offer.
+/// </summary>
 public class CharacterContentTests
 {
     private static ContentLoader Load(string root)
@@ -99,4 +102,41 @@ public class CharacterContentTests
     [Fact]
     public void APeopleListingANameTwice_IsRefused() =>
         AssertRefused("people/veth.yaml", "  - Teagan Peel", "  - Teagan Peel\n  - Wenna Lind", "lists a name twice");
+
+    [Fact]
+    public void TheVeth_HaveFiveBuildsOfEachBodyType_TheCoreThreeOffered_AsContent()
+    {
+        var setup = CharacterContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+
+        Assert.Equal(10, setup.Bodies.Count);
+        foreach (var type in new[] { ("veth_m", "Masculine"), ("veth_f", "Feminine") })
+        {
+            var builds = setup.Bodies.Values.Where(b => b.Type == type.Item1).OrderBy(b => b.Order).ToList();
+            Assert.Equal(new[] { "very_lean", "lean", "average", "heavy", "very_heavy" }, builds.Select(b => b.Build));
+            Assert.All(builds, b => Assert.Equal(("people.veth", type.Item2, $"body.{type.Item1}.{b.Build}"), (b.PeopleId, b.TypeLabel, b.Id)));
+            Assert.All(builds.Where(b => b.Build is "lean" or "average" or "heavy"), b => Assert.True(b.Offered));
+            Assert.All(builds, b => Assert.Equal(new[] { "chest", "hips", "thigh", "waist" }, b.MeasurementsMm.Keys));
+            // heavier builds measure more round the waist, and swing their arms wider of their own sides
+            Assert.True(builds.Zip(builds.Skip(1)).All(p => p.First.MeasurementsMm["waist"] < p.Second.MeasurementsMm["waist"]
+                                                              && p.First.ArmSplayDegrees <= p.Second.ArmSplayDegrees));
+        }
+        Assert.Equal(setup.Bodies.Values.Where(b => b.Offered).Select(b => b.Id).OrderBy(i => i, StringComparer.Ordinal),
+            setup.OfferedBodies("people.veth").Select(b => b.Id).OrderBy(i => i, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void ABodyOfAnUndefinedPeople_IsRefused() =>
+        AssertRefused("bodies/veth_m_lean.yaml", "people_ref: people.veth", "people_ref: people.kal", "people.kal is not a defined people");
+
+    [Fact]
+    public void ABodyNamedForAnotherBuild_IsRefused() =>
+        AssertRefused("bodies/veth_m_lean.yaml", "build: lean", "build: slight", "must be named body.<type>.<build>");
+
+    [Fact]
+    public void TwoBuildsAtOneOrder_AreRefused() =>
+        AssertRefused("bodies/veth_m_lean.yaml", "order: 2", "order: 3", "share build order 3");
+
+    [Fact]
+    public void AnArmSplayOutOfRange_IsRefused() =>
+        AssertRefused("bodies/veth_f_heavy.yaml", "arm_splay_deg: 10", "arm_splay_deg: 45", "arm_splay_deg must be a whole number of degrees, 0 to 30");
 }

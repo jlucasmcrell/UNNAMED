@@ -16,6 +16,9 @@ namespace UNNAMED.Content;
 /// starts exactly <see cref="CallDefinition.SkillCount"/> defined skills at <see cref="CallDefinition.SkillLevel"/>, adds kit that is
 /// one stack each and wears nothing over the common starting kit, and names a defined NPC as its contact. A pack with Calls needs a
 /// playable people. Calls are built only from items, skills and NPCs that already exist (C11): nothing here is new lore.
+/// A body (WP17) names a defined people, a type and a build with their labels, a build order unique within its people and type, its
+/// tape measurements in whole millimetres, its joints' rest offsets and its arm splay (0-30 degrees); every playable people offers at
+/// least one body of each type it defines.
 /// </summary>
 public static class CharacterContent
 {
@@ -25,13 +28,46 @@ public static class CharacterContent
         ImmutableSortedDictionary<string, PeopleDefinition>? peoples = null;
         Try(() => peoples = BuildPeoples(loader), "people", errors);
         Try(() => BuildCalls(loader), "calls", errors);
+        Try(() => BuildBodies(loader), "bodies", errors);
         if (peoples is not null && loader.GetByKind("call").Count > 0 && !peoples.Values.Any(p => p.Playable))
             errors.Add(Error("calls: the pack defines Calls but no playable people to make a character from"));
         return errors;
     }
 
     /// <summary>The creator's peoples and Calls; empty for a pack with none (test fixtures).</summary>
-    public static CharacterSetup Build(ContentLoader loader) => new(BuildPeoples(loader), BuildCalls(loader));
+    public static CharacterSetup Build(ContentLoader loader) => new(BuildPeoples(loader), BuildCalls(loader)) { Bodies = BuildBodies(loader) };
+
+    public static ImmutableSortedDictionary<string, BodyPreset> BuildBodies(ContentLoader loader)
+    {
+        var bodies = loader.GetByKind("body").Values.Select(definition =>
+        {
+            string id = definition.Id;
+            var map = Read(definition.YamlSource);
+            int order = Positive(map.GetValueOrDefault("order"), $"{id} order");
+            int splay = int.TryParse(map.GetValueOrDefault("arm_splay_deg") as string, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out int deg) && deg is >= 0 and <= 30
+                ? deg
+                : throw new FormatException($"{id} arm_splay_deg must be a whole number of degrees, 0 to 30");
+            var measured = Map(map, "measurements_mm").ToImmutableSortedDictionary(
+                kv => kv.Key as string ?? "", kv => Positive(kv.Value, $"{id} measurements_mm.{kv.Key}"), StringComparer.Ordinal);
+            var offsets = Map(map, "rest_offsets_mm").ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv =>
+                kv.Value is List<object> { Count: 3 } xyz
+                    ? new BoneOffset(IntOf(xyz, 0, $"{id} rest_offsets_mm.{kv.Key}"), IntOf(xyz, 1, $"{id} rest_offsets_mm.{kv.Key}"), IntOf(xyz, 2, $"{id} rest_offsets_mm.{kv.Key}"))
+                    : throw new FormatException($"{id} rest_offsets_mm.{kv.Key} must be [x, y, z]"), StringComparer.Ordinal);
+            return new BodyPreset(id, Defined(loader, Text(map, "people_ref"), "people", $"{id} people_ref"), Text(map, "type"), Text(map, "type_label"),
+                Text(map, "build"), Text(map, "build_label"), order, Flag(map, "offered"), splay, measured, offsets);
+        }).ToImmutableSortedDictionary(b => b.Id, b => b, StringComparer.Ordinal);
+        foreach (var body in bodies.Values)
+        {
+            if (body.Id != $"body.{body.Type}.{body.Build}")
+                throw new FormatException($"{body.Id} must be named body.<type>.<build> (body.{body.Type}.{body.Build})");
+        }
+        foreach (var clash in bodies.Values.GroupBy(b => (b.PeopleId, b.Type, b.Order)).Where(g => g.Count() > 1))
+            throw new FormatException($"{string.Join(" and ", clash.Select(b => b.Id))} share build order {clash.Key.Order}");
+        foreach (var type in bodies.Values.GroupBy(b => (b.PeopleId, b.Type)).Where(g => !g.Any(b => b.Offered)))
+            throw new FormatException($"{type.Key.PeopleId} offers no {type.Key.Type} body");
+        return bodies;
+    }
 
     public static ImmutableSortedDictionary<string, PeopleDefinition> BuildPeoples(ContentLoader loader) =>
         loader.GetByKind("people").Values.Select(definition =>

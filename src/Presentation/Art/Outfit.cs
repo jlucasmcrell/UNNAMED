@@ -13,20 +13,25 @@ namespace UNNAMED.Presentation.Art;
 /// and every garment on a lower layer, then drop the triangles of the regions an outer garment covers (region_mask.gdshaderinc), so
 /// neither can poke through it whatever the pose. A garment with loose parts names the skeleton's cloth chains it is weighted to
 /// (<c>chains</c>: prefix to stiffness, drag and gravity); only those chains spring, round capsules on the legs (memo 4.3 rule 7).
+/// A garment is baked per body (<c>&lt;garment&gt;__&lt;body&gt;</c>, WP17: authored once, the body's build carried into it at build time):
+/// a figure wears the variant baked for its own body, and a garment with no variant for that body is not worn rather than worn clipping.
 /// </summary>
 public static partial class Outfit
 {
     private const string ClothShaderPath = "res://Art/cloth.gdshader";
     private static Shader? _cloth;
 
-    /// <summary>Dress <paramref name="figure"/> in <paramref name="garments"/> (rigged asset IDs); returns how many were put on.</summary>
-    public static int Dress(ArtLibrary art, SkinnedModel figure, IReadOnlyList<string> garments)
+    /// <summary>
+    /// Dress <paramref name="figure"/>, drawn with the model <paramref name="body"/>, in <paramref name="garments"/> (rigged asset IDs, each
+    /// worn as its variant for that body); returns how many were put on.
+    /// </summary>
+    public static int Dress(ArtLibrary art, SkinnedModel figure, string body, IReadOnlyList<string> garments)
     {
         if (garments.Count == 0)
             return 0;
-        var body = figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
+        var skin = figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
         var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides)>();
-        foreach (string id in garments)
+        foreach (string id in garments.Select(g => PlayerBodies.Garment(g, body)))
         {
             if (art.RiggedFile(id, id + "_garment.json") is not { } spec)
             {
@@ -59,7 +64,7 @@ public static partial class Outfit
             worn.Add((meshes, layer, hides));
         }
         int all = worn.Aggregate(0, (mask, g) => mask | g.Hides);
-        foreach (var mesh in body)
+        foreach (var mesh in skin)
             mesh.SetInstanceShaderParameter("region_hidden_mask", all);
         foreach (var (meshes, layer, _) in worn)
         {

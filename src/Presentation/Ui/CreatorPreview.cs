@@ -35,7 +35,7 @@ public sealed partial class CreatorPreview : TextureRect
     private readonly MeshInstance3D _ground = new() { Name = "Ground", Mesh = new PlaneMesh { Size = new Vector2(120, 120) } };
     private readonly Godot.Environment _environment = new();
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
-    private readonly Dictionary<Figure, BuildShape?> _builds = new();
+    private readonly Dictionary<Figure, BuildPose?> _poses = new();
 
     private ArtLibrary _art = ArtLibrary.Empty;
     private ArtBindings _bindings = ArtBindings.Empty;
@@ -95,11 +95,11 @@ public sealed partial class CreatorPreview : TextureRect
     }
 
     /// <summary>
-    /// Draw this body: <paramref name="model"/> on the player's binding (null: the greybox mannequin, as the game would), at this
-    /// <paramref name="girth"/>, wearing the outfit for <paramref name="chest"/> (an item ID, or the base clothes). A body already
+    /// Draw this body: <paramref name="model"/> on the player's binding (null: the greybox mannequin, as the game would), its arms at the
+    /// build's <paramref name="armSplay"/>, wearing the outfit for <paramref name="chest"/> (an item ID, or the base clothes). A body already
     /// drawn once this session is shown again without loading.
     /// </summary>
-    public void Show(string? model, float girth, string? chest)
+    public void Show(string? model, float armSplay, string? chest)
     {
         string key = model ?? "";
         if (!_figures.TryGetValue(key, out var figure))
@@ -108,25 +108,13 @@ public sealed partial class CreatorPreview : TextureRect
             figure.Name = model ?? "Greybox";
             _turntable.AddChild(figure);
             _figures[key] = figure;
-            BuildShape? build = null;
-            if (figure is SkinnedFigure body)
-            {
-                build = new BuildShape();
-                if (build.Bind(body.Skeleton))
-                    body.Skeleton.AddChild(build);
-                else
-                {
-                    build.Free();
-                    build = null;
-                }
-            }
-            _builds[figure] = build;
+            _poses[figure] = figure is SkinnedFigure body ? BuildPose.On(body.Skeleton) : null;
         }
         foreach (var other in _figures.Values)
             other.Visible = other == figure;
         _figure = figure;
-        if (_builds[figure] is { } shape)
-            shape.Girth = girth;
+        if (_poses[figure] is { } pose)
+            pose.ArmSplayDegrees = armSplay;
         figure.Wear(chest);
     }
 

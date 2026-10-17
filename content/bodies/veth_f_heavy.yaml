@@ -1,0 +1,17 @@
+id: body.veth_f.heavy
+kind: body
+schema: 1
+display_key: body.veth_f.heavy.name
+tags: [body]
+name: Feminine, heavy
+notes: "WP17 (owner 2026-10-17). The Veth feminine body, heavy build - the owner's blend (Blend_F = Sunita x Tuya) moved along the Creator's Fat/Muscularity sliders by +0.90/+0.20 (tools/character_build/builds.json). Models mh_veth_f_heavy (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (19 faults)."
+people_ref: people.veth
+type: veth_f
+type_label: Feminine
+build: heavy
+build_label: Heavy
+order: 4
+offered: true
+arm_splay_deg: 10
+measurements_mm: { chest: 936, waist: 872, hips: 968, thigh: 497 }
+rest_offsets_mm: {}

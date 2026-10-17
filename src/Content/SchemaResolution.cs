@@ -333,6 +333,14 @@ public static class ContentKindRegistry
             IdPrefix: "chatter"
         );
 
+        // 34. body - a body a character can be made with: people, type, build, measurements, rest offsets (WP17)
+        kinds["body"] = new ContentKindDefinition(
+            Kind: "body",
+            FullKind: "body",
+            Directory: "bodies",
+            IdPrefix: "body"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

@@ -43,7 +43,7 @@ public static class ContentChecks
         ["node_ref"] = new[] { "node" },     // a region's authored node (M3f)
         ["market_ref"] = new[] { "market" }, // a town market (WP14)
         ["piece_ref"] = new[] { "piece" },   // a building piece a teacher teaches (WP9)
-        ["people_ref"] = new[] { "people" }, // the people a role slot's residents come from (WP12)
+        ["people_ref"] = new[] { "people" }, // a role slot's residents' people (WP12), a body's people (WP17)
     };
 
     /// <summary>§4 fields that are references although they predate the <c>_ref</c> naming convention.</summary>

@@ -33,7 +33,7 @@ public class CharacterCreationTests
         var session = Harness.Boot(profile);
         var call = session.Characters.Calls[callId];
         var rules = session.Setup.Progression;
-        var spec = new CharacterSpec("  Wenna   Lind ", Pronouns.She, "people.veth", "body.build_slender", callId);
+        var spec = new CharacterSpec("  Wenna   Lind ", Pronouns.She, "people.veth", "body.veth_f.lean", callId);
 
         var simulation = session.NewGame(spec, seed: 42);
         var record = simulation.CaptureRecord();
@@ -41,7 +41,7 @@ public class CharacterCreationTests
         var plain = Harness.Boot(other).NewGame(Harness.Named("Wanderer"), seed: 42).CaptureRecord();
 
         Assert.Equal("Wenna Lind", record.Name);
-        Assert.Equal(new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", callId), record.Identity);
+        Assert.Equal(new CharacterIdentity(Pronouns.She, "people.veth", "body.veth_f.lean", callId), record.Identity);
         Assert.Equal(record.Identity, simulation.Player.Identity);   // what presentation draws and words the character by
         // Attributes: the bias over the base, as creation grants - outside the cap on later grants.
         Assert.Equal(CallDefinition.BiasPoints, call.Package.AttributeBias.Values.Sum());
@@ -74,7 +74,7 @@ public class CharacterCreationTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var spec = new CharacterSpec("Corin Vessmoor", Pronouns.He, "people.veth", "body.build_broad", callId);
+        var spec = new CharacterSpec("Corin Vessmoor", Pronouns.He, "people.veth", "body.veth_m.heavy", callId);
         var simulation = session.NewGame(spec, seed: 42);
         Harness.Ticks(session, 40);
         var before = simulation.CaptureRecord();
@@ -85,7 +85,7 @@ public class CharacterCreationTests
         var loaded = again.Load(SaveSlots.Quick);
 
         Assert.True(loaded.IsComplete);
-        Assert.Equal(new CharacterIdentity(Pronouns.He, "people.veth", "body.build_broad", callId), loaded.Player.Identity);
+        Assert.Equal(new CharacterIdentity(Pronouns.He, "people.veth", "body.veth_m.heavy", callId), loaded.Player.Identity);
         Assert.Equal(before.Digest, loaded.Player.Digest);
         Assert.Equal(digest, again.Simulation!.StateDigest());
         Assert.Equal(new CharacterCard(again.Character!, "Corin Vessmoor", "people.veth", callId), CharacterFolders.ReadCard(again.SaveFolder));
@@ -138,6 +138,19 @@ public class CharacterCreationTests
         var session = Harness.Boot(profile);
 
         Assert.Throws<ArgumentException>(() => session.NewGame(new CharacterSpec("Wenna Lind", Pronouns.They, people, CharacterSpec.DefaultBodyPreset, call)));
+        Assert.Null(session.Simulation);
+    }
+
+    [Theory]
+    [InlineData("body.build_slender")]
+    [InlineData("body.veth_x.lean")]
+    [InlineData("body.veth_m.portly")]
+    public void ASpecNamingABodyContentDoesNotOffer_IsRefused(string body)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        Assert.Throws<ArgumentException>(() => session.NewGame(new CharacterSpec("Wenna Lind", Pronouns.They, "people.veth", body, "call.wayfarer")));
         Assert.Null(session.Simulation);
     }
 

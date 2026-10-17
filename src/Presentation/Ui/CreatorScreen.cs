@@ -222,23 +222,29 @@ public partial class CreatorScreen : CanvasLayer
 
     // ── bodies ──────────────────────────────────────────────────────────────
 
-    /// <summary>One body the creator offers: its preset, its type and build, the model it is drawn with and whether this build has it.</summary>
-    private sealed record Offered(string Id, BodyType Type, BodyBuild Build, string? Model, bool Installed);
+    /// <summary>One body the creator offers: its preset (content <c>body.*</c>), the model it is drawn with and whether that model is installed.</summary>
+    private sealed record Offered(BodyPreset Body, string? Model, bool Installed)
+    {
+        public string Id => Body.Id;
+    }
 
     /// <summary>
-    /// Every type and build the bindings name, each with the model it would be drawn with in this run's family. When none of them is
-    /// installed (a run with no asset workspace) the game draws everyone as the greybox, and every body is offered on it.
+    /// Every body content offers the draft's people, in the bindings' type order and then build order, each with the model it would be drawn
+    /// with in this run's family. When none of them is installed (a run with no asset workspace) the game draws everyone as the greybox,
+    /// and every body is offered on it.
     /// </summary>
     private List<Offered> OfferedBodies()
     {
         var bodies = _bindings.Bodies;
         string family = PlayerBodies.Family(VisualOptions.All.GetValueOrDefault("player"));
         bool Installed(string model) => _art.RiggedFile(model, model + "_rigged.glb") is not null;
-        var offered = bodies.Types.SelectMany(t => bodies.Builds.Select(b =>
+        var typeOrder = bodies.Types.Select(t => t.Type).ToList();
+        int TypeOrder(string type) => typeOrder.IndexOf(type) is var i && i >= 0 ? i : typeOrder.Count;
+        var offered = _session.Characters.OfferedBodies(Draft.PeopleId).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
         {
-            string? model = PlayerBodies.Model(t, family, Installed);
-            return new Offered(PlayerBodies.Id(t, b), t, b, model, model is not null);
-        })).ToList();
+            string? model = bodies.Model(b, family, Installed);
+            return new Offered(b, model, model is not null);
+        }).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))
             offered = offered.Select(o => o with { Installed = true }).ToList();
         return offered;
@@ -252,16 +258,16 @@ public partial class CreatorScreen : CanvasLayer
                ?? CharacterSpec.DefaultBodyPreset;
     }
 
-    /// <summary>The body the draft names, drawn: loaded the first time, then only its build and outfit change.</summary>
+    /// <summary>The body the draft names, drawn: loaded the first time, then only its arm splay and outfit change.</summary>
     private void ShowBody()
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         string? chest = Outfit(Draft.CallId);
-        string shown = $"{body?.Model}|{body?.Build.Girth}|{chest}";
+        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{chest}";
         if (shown == _shownBody)
             return;
         _shownBody = shown;
-        _preview.Show(body?.Model, body?.Build.Girth ?? 1f, chest);
+        _preview.Show(body?.Model, body?.Body.ArmSplayDegrees ?? 0, chest);
     }
 
     /// <summary>What the body wears for a Call's kit, by the game's own rule (Main): the chest item, "_cap" with a head item, else the head item.</summary>
@@ -368,7 +374,7 @@ public partial class CreatorScreen : CanvasLayer
         Go(CreatorStep.Identity);
     }
 
-    /// <summary>Step 2: a body type and a build (D3: a blend preset and 3 builds), on the model the game will draw.</summary>
+    /// <summary>Step 2: a body type and a build (D3: the owner's blends; WP17: five builds, each its own model with its garments baked on it).</summary>
     private void BodyStep()
     {
         var offered = OfferedBodies();
@@ -376,11 +382,12 @@ public partial class CreatorScreen : CanvasLayer
         var types = UiKit.Section("Body type", "independent of pronouns");
         var typeRow = new HBoxContainer();
         typeRow.AddThemeConstantOverride("separation", 8);
-        foreach (var type in _bindings.Bodies.Types)
+        foreach (var type in offered.Select(o => o.Body.Type).Distinct())
         {
-            var choice = offered.FirstOrDefault(o => o.Type == type && o.Build == current?.Build) ?? offered.First(o => o.Type == type);
-            string id = "creator.type." + type.Id;
-            var button = UiKit.Action(type.Label, Deferred(() =>
+            var ofType = offered.Where(o => o.Body.Type == type).ToList();
+            var choice = ofType.FirstOrDefault(o => o.Body.Build == current?.Body.Build) ?? ofType[ofType.Count / 2];
+            string id = "creator.type." + type;
+            var button = UiKit.Action(choice.Body.TypeLabel, Deferred(() =>
             {
                 _draft = Draft with { BodyPresetId = choice.Id };
                 Render(id);
@@ -389,31 +396,28 @@ public partial class CreatorScreen : CanvasLayer
             button.Disabled = !choice.Installed;
             if (!choice.Installed)
                 button.TooltipText = "This body is not installed in this build.";
-            UiKit.Select(button, current?.Type == type);
+            UiKit.Select(button, current?.Body.Type == type);
             typeRow.AddChild(button);
         }
         types.AddChild(typeRow);
         if (offered.Any(o => !o.Installed))
-            types.AddChild(UiKit.Words("A body type that is greyed out is not installed in this build.", 16, HudStyle.Muted));
+            types.AddChild(UiKit.Words("A body that is greyed out is not installed in this build.", 16, HudStyle.Muted));
         _body.AddChild(types);
 
         var builds = UiKit.Section("Build");
         var buildRow = new HBoxContainer();
-        buildRow.AddThemeConstantOverride("separation", 8);
-        foreach (var build in _bindings.Bodies.Builds)
+        buildRow.AddThemeConstantOverride("separation", 6);
+        foreach (var choice in offered.Where(o => o.Body.Type == current?.Body.Type))
         {
-            var choice = offered.FirstOrDefault(o => o.Type == current?.Type && o.Build == build);
-            if (choice is null)
-                continue;
-            string id = "creator.build." + build.Id;
-            var button = UiKit.Action(build.Label, Deferred(() =>
+            string id = "creator.build." + choice.Body.Build;
+            var button = UiKit.Action(choice.Body.BuildLabel, Deferred(() =>
             {
                 _draft = Draft with { BodyPresetId = choice.Id };
                 Render(id);
             }), id: id);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             button.Disabled = !choice.Installed;
-            UiKit.Select(button, current?.Build == build);
+            UiKit.Select(button, current?.Id == choice.Id);
             buildRow.AddChild(button);
         }
         builds.AddChild(buildRow);
@@ -560,7 +564,7 @@ public partial class CreatorScreen : CanvasLayer
         who.AddChild(UiKit.Stat("Name", draft.KeptName.Length > 0 ? draft.KeptName : "-", draft.Problem is null ? null : HudStyle.Wound));
         who.AddChild(UiKit.Stat("Pronouns", CreatorDraft.Words(draft.Pronouns)));
         who.AddChild(UiKit.Stat("People", Names.Of(_session, draft.PeopleId)));
-        who.AddChild(UiKit.Stat("Body", body is null ? "-" : $"{body.Type.Label}, {body.Build.Label.ToLowerInvariant()} build"));
+        who.AddChild(UiKit.Stat("Body", body is null ? "-" : $"{body.Body.TypeLabel}, {body.Body.BuildLabel.ToLowerInvariant()} build"));
         if (draft.CallId is { } callId && _session.Characters.Calls.TryGetValue(callId, out var call))
         {
             who.AddChild(UiKit.Stat("Call", Names.Of(_session, callId)));

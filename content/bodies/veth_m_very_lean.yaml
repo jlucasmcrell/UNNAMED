@@ -1,0 +1,17 @@
+id: body.veth_m.very_lean
+kind: body
+schema: 1
+display_key: body.veth_m.very_lean.name
+tags: [body]
+name: Masculine, very lean
+notes: "WP17 (owner 2026-10-17). The Veth masculine body, very lean build - the owner's blend (Blend_M = Victor x Trey) moved along the Creator's Fat/Muscularity sliders by -0.55/-0.35 (tools/character_build/builds.json). Models mh_veth_m_very_lean (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (7 faults). Not offered until the gate passes it."
+people_ref: people.veth
+type: veth_m
+type_label: Masculine
+build: very_lean
+build_label: Very lean
+order: 1
+offered: false
+arm_splay_deg: 4
+measurements_mm: { chest: 992, waist: 687, hips: 932, thigh: 541 }
+rest_offsets_mm: {}

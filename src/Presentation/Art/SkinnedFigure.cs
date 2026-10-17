@@ -90,7 +90,7 @@ public sealed partial class SkinnedFigure : Figure
         // look-at made, so they stay the skeleton's last modifiers (CHARACTER_ANIMATION_STRATEGY.md 4.4), including over the ones
         // the figure's owner adds once this returns.
         CorrectiveJoints.Load(art, person.Model, model.Skeleton);
-        Outfit.Dress(art, model, person.Outfit);
+        Outfit.Dress(art, model, person.Model, person.Outfit);
         Callable.From(() => KeepLast(model.Skeleton)).CallDeferred();
         return figure;
     }

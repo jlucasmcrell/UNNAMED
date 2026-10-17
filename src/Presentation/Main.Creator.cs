@@ -41,9 +41,9 @@ public partial class Main
         }
     }
 
-    /// <summary>The model the character is drawn with now, and the build drawn on it (null when the figure cannot take one).</summary>
+    /// <summary>The model the character is drawn with now, and its build pose (null when the figure cannot take one).</summary>
     private string? _avatarModel;
-    private BuildShape? _avatarBuild;
+    private BuildPose? _avatarPose;
 
     /// <summary>The road in, while it is being walked: when Begin was pressed, whether the body still lies, how far it has got up.</summary>
     private ulong _begunMs;
@@ -100,9 +100,9 @@ public partial class Main
     }
 
     /// <summary>
-    /// The character's own body, as their identity names it (<c>player_bodies</c>): the model drawn again only when it is not the one already
-    /// drawn, and its build set. A preset whose body this build does not have keeps the body drawn at boot, so a save made with a body
-    /// another build had still loads and plays.
+    /// The character's own body, as their identity names it (content <c>body.*</c>, drawn by <c>player_bodies</c>): the model drawn again only
+    /// when it is not the one already drawn, with its build's arm splay. A preset content does not define, or whose model this build does
+    /// not have, keeps the body drawn at boot, so a save made with a body another build had still loads and plays.
     /// </summary>
     private void UseBody()
     {
@@ -110,9 +110,9 @@ public partial class Main
             return;
         // A character made before the creator (and every harness's) keeps the body the run was bound with.
         string preset = simulation.Player.Identity.BodyPresetId;
-        var body = preset == CharacterSpec.DefaultBodyPreset ? null : _bindings.Bodies.Resolve(preset);
+        var body = _session.Characters.Bodies.GetValueOrDefault(preset);
         string family = PlayerBodies.Family(VisualOptions.All.GetValueOrDefault("player"));
-        string? model = body is { } b ? PlayerBodies.Model(b.Type, family, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
+        string? model = body is not null ? _bindings.Bodies.Model(body, family, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
         if (model is not null && model != _avatarModel && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned)
         {
             var feet = _avatar.Position;
@@ -124,22 +124,13 @@ public partial class Main
             _avatar.Position = feet;
             AddChild(_avatar);
             _avatarModel = model;
-            _avatarBuild = null;
+            _avatarPose = null;
             _art.Coverage.Resolved("person", "player", model);
         }
-        if (_avatarBuild is null && _avatar is SkinnedFigure figure)
-        {
-            _avatarBuild = new BuildShape();
-            if (_avatarBuild.Bind(figure.Skeleton))
-                figure.Skeleton.AddChild(_avatarBuild);
-            else
-            {
-                _avatarBuild.Free();
-                _avatarBuild = null;
-            }
-        }
-        if (_avatarBuild is not null)
-            _avatarBuild.Girth = body?.Build.Girth ?? 1f;
+        if (_avatarPose is null && _avatar is SkinnedFigure figure)
+            _avatarPose = BuildPose.On(figure.Skeleton);
+        if (_avatarPose is not null)
+            _avatarPose.ArmSplayDegrees = body?.ArmSplayDegrees ?? 0;
     }
 
     /// <summary>
@@ -257,33 +248,40 @@ public partial class Main
         if (Time.GetTicksMsec() < _creatorNext)
             return;
         var types = _bindings.Bodies.Types;
-        string Body(int type, string build) => types.Count > type ? $"{PlayerBodies.Prefix}{types[type].Id}.{build}" : CharacterSpec.DefaultBodyPreset;
+        string Body(int type, string build) => types.Count > type ? $"body.{types[type].Type}.{build}" : CharacterSpec.DefaultBodyPreset;
         var steps = new (string Shot, Action? Then, int NextMs)[]
         {
             ("01_people", () => _creator.Go(CreatorStep.Body), 2000),
-            ("02_body_default", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "lean") }), 2000),
-            ("03_body_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "heavy") }), 2000),
-            ("04_body_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "average") }), 6000),
-            ("05_body_second_type", () => _creator.Go(CreatorStep.Identity), 1500),
-            ("06_identity_empty", () => _creator.Use(_creator.Draft with { Name = "Wenna Lind", Pronouns = Pronouns.She }), 1500),
-            ("07_identity_named", () => _creator.Go(CreatorStep.Call), 1500),
-            ("08_call_wayfarer", () => _creator.Use(_creator.Draft with { CallId = "call.smiths_hand" }), 1500),
-            ("09_call_smiths_hand", () => _creator.Go(CreatorStep.Confirm), 1500),
-            ("10_confirm", () =>
+            // every build of each type, each its own model: a model's first showing loads it
+            ("02_body_default", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "very_lean") }), 6000),
+            ("03_body_very_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "lean") }), 6000),
+            ("04_body_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "heavy") }), 6000),
+            ("05_body_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "very_heavy") }), 6000),
+            ("06_body_very_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "very_lean") }), 6000),
+            ("07_body_second_type_very_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "lean") }), 6000),
+            ("08_body_second_type_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "heavy") }), 6000),
+            ("09_body_second_type_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "very_heavy") }), 6000),
+            ("10_body_second_type_very_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "average") }), 6000),
+            ("11_body_second_type", () => _creator.Go(CreatorStep.Identity), 1500),
+            ("12_identity_empty", () => _creator.Use(_creator.Draft with { Name = "Wenna Lind", Pronouns = Pronouns.She }), 1500),
+            ("13_identity_named", () => _creator.Go(CreatorStep.Call), 1500),
+            ("14_call_wayfarer", () => _creator.Use(_creator.Draft with { CallId = "call.smiths_hand" }), 1500),
+            ("15_call_smiths_hand", () => _creator.Go(CreatorStep.Confirm), 1500),
+            ("16_confirm", () =>
             {
                 _creator.RoadWalked = true;
                 _creator.Use(_creator.Draft with { Start = StartPoint.Waystone });
             }, 1500),
-            ("11_confirm_veteran", () =>
+            ("17_confirm_veteran", () =>
             {
                 _creator.RoadWalked = false;
                 _creator.Use(_creator.Draft with { Start = StartPoint.Road });
                 if (!_creator.PressBegin())
                     GD.PushError("UNNAMED creator shots: Begin was refused");
             }, 6000),
-            ("12_road_lying", GetUp, 700),
-            ("13_road_getting_up", null, 3000),
-            ("14_road_standing", null, 0),
+            ("18_road_lying", GetUp, 700),
+            ("19_road_getting_up", null, 3000),
+            ("20_road_standing", null, 0),
         };
         if (_creatorStep >= steps.Length)
         {

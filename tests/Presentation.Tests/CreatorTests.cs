@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using UNNAMED.Domain.Character;
 using UNNAMED.Presentation.Art;
@@ -8,7 +9,7 @@ namespace UNNAMED.Presentation.Tests;
 
 /// <summary>
 /// The character creator (WP2's local part): the draft it holds becomes the spec a new game starts from, the name rules are the domain's,
-/// worded for the player, and the bodies it offers are read from the bindings' <c>player_bodies</c>.
+/// worded for the player, and the bodies it offers (content <c>body.*</c>) are drawn with the bindings' <c>player_bodies</c>.
 /// </summary>
 public class CreatorTests
 {
@@ -84,14 +85,10 @@ public class CreatorTests
     private const string Bindings = """
         {
           "default": "body.veth_m.average",
+          "base_build": "average",
           "types": [
-            { "id": "veth_m", "label": "Masculine", "models": { "production": [ "pc_veth_m_body_c" ], "metahuman": [ "mh_veth_m" ] } },
-            { "id": "veth_f", "label": "Feminine", "models": { "production": [ "pc_veth_f_new", "pc_veth_f" ], "metahuman": [ "mh_veth_f" ] } }
-          ],
-          "builds": [
-            { "id": "lean", "label": "Lean", "girth": 0.93 },
-            { "id": "average", "label": "Average", "girth": 1.0 },
-            { "id": "heavy", "label": "Heavy", "girth": 3.0 }
+            { "id": "veth_m", "models": { "production": [ "pc_veth_m_body_c" ], "metahuman": [ "mh_veth_m" ] } },
+            { "id": "veth_f", "models": { "production": [ "pc_veth_f_new", "pc_veth_f" ], "metahuman": [ "mh_veth_f" ] } }
           ]
         }
         """;
@@ -102,31 +99,21 @@ public class CreatorTests
         return PlayerBodies.Read(document.RootElement);
     }
 
+    private static BodyPreset Body(string type, string build) => new($"body.{type}.{build}", "people.veth", type, type, build, build, 1, true, 0,
+        ImmutableSortedDictionary<string, int>.Empty, ImmutableSortedDictionary<string, BoneOffset>.Empty);
+
     [Fact]
-    public void Bodies_AreATypeAndABuild_AndBodyDefaultIsTheDefault()
+    public void ABuildIsItsOwnModel_TheBaseBuildTheTypesModelItself_TheFirstInstalledDrawn()
     {
         var bodies = Read(Bindings);
 
-        Assert.Equal(("veth_f", "lean"), bodies.Parse("body.veth_f.lean") is { } p ? (p.Type.Id, p.Build.Id) : default);
-        Assert.Equal(("veth_m", "average"), bodies.Parse(CharacterSpec.DefaultBodyPreset) is { } d ? (d.Type.Id, d.Build.Id) : default);
-        Assert.Null(bodies.Parse("body.veth_x.lean"));
-        Assert.Null(bodies.Parse("body.veth_f"));
-        Assert.Null(bodies.Parse("people.veth"));
-        // An older save's preset this build does not offer is drawn as the default, so it still loads and plays.
-        Assert.Equal("veth_m", bodies.Resolve("body.build_slender")!.Value.Type.Id);
-        Assert.Equal(1.15f, bodies.Builds.Single(b => b.Id == "heavy").Girth);   // a build's girth is bounded (PJ04 §5.2)
-        Assert.Equal("body.veth_f.heavy", PlayerBodies.Id(bodies.Types[1], bodies.Builds[2]));
-    }
-
-    [Fact]
-    public void ABodysModel_IsTheFirstOfItsFamilysModelsThatIsInstalled()
-    {
-        var female = Read(Bindings).Types[1];
-
-        Assert.Equal("pc_veth_f", PlayerBodies.Model(female, "production", m => m == "pc_veth_f"));
-        Assert.Equal("pc_veth_f_new", PlayerBodies.Model(female, "production", _ => true));
-        Assert.Null(PlayerBodies.Model(female, "production", _ => false));
-        Assert.Equal("mh_veth_f", PlayerBodies.Model(female, PlayerBodies.Family("metahuman_m"), _ => true));
+        Assert.Equal("pc_veth_f", bodies.Model(Body("veth_f", "average"), "production", m => m == "pc_veth_f"));
+        Assert.Equal("pc_veth_f_new", bodies.Model(Body("veth_f", "average"), "production", _ => true));
+        Assert.Equal("pc_veth_f_heavy", bodies.Model(Body("veth_f", "heavy"), "production", m => m == "pc_veth_f_heavy"));
+        Assert.Equal("mh_veth_m_very_lean", bodies.Model(Body("veth_m", "very_lean"), PlayerBodies.Family("metahuman_m"), _ => true));
+        // A build whose model is not installed is not drawn at all: there is no stand-in shape any more.
+        Assert.Null(bodies.Model(Body("veth_m", "very_heavy"), "production", m => m == "pc_veth_m_body_c"));
+        Assert.Null(bodies.Model(Body("veth_x", "average"), "production", _ => true));
         Assert.Equal("production", PlayerBodies.Family("production"));
         Assert.Equal("production", PlayerBodies.Family(null));
     }
@@ -134,29 +121,35 @@ public class CreatorTests
     [Fact]
     public void NoBodiesBound_MeansTheDomainsDefault()
     {
-        var none = Read("""{ "types": [ { "id": "veth_m" } ] }""");
+        var none = Read("{}");
 
-        Assert.True(none.IsEmpty);
+        Assert.Empty(none.Types);
         Assert.Equal(CharacterSpec.DefaultBodyPreset, none.Default);
-        Assert.Null(none.Resolve("body.veth_m.average"));
+        Assert.Null(none.Model(Body("veth_m", "average"), "production", _ => true));
     }
 
     [Fact]
-    public void TheShippedBindings_OfferTwoTypesAndThreeBuilds_EachAPresetTheDomainAccepts()
+    public void AGarment_IsWornAsItsVariantBakedForTheBody()
     {
-        string path = Path.Combine(Root(), "src", "Presentation", "Art", "art_bindings.json");
-        using var document = JsonDocument.Parse(File.ReadAllText(path));
-        var bodies = PlayerBodies.Read(document.RootElement.GetProperty("player_bodies"));
+        Assert.Equal("player_shirt_m__mh_veth_m_heavy", PlayerBodies.Garment("player_shirt_m__mh_veth_m", "mh_veth_m_heavy"));
+        Assert.Equal("player_shirt_m__mh_veth_m", PlayerBodies.Garment("player_shirt_m__mh_veth_m", "mh_veth_m"));
+        Assert.Equal("loose_cape", PlayerBodies.Garment("loose_cape", "mh_veth_m_heavy"));
+    }
 
-        Assert.Equal(new[] { "veth_m", "veth_f" }, bodies.Types.Select(t => t.Id));
-        Assert.Equal(new[] { "lean", "average", "heavy" }, bodies.Builds.Select(b => b.Id));
+    [Fact]
+    public void TheShippedBindings_DrawEveryBodyContentOffers_OnEitherFamily()
+    {
+        string root = Root();
+        using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "src", "Presentation", "Art", "art_bindings.json")));
+        var bodies = PlayerBodies.Read(document.RootElement.GetProperty("player_bodies"));
+        var types = Directory.GetFiles(Path.Combine(root, "content", "bodies"), "*.yaml")
+            .Select(f => File.ReadAllLines(f).Single(l => l.StartsWith("type: ", StringComparison.Ordinal))[6..]).Distinct().ToList();
+
+        Assert.Equal(new[] { "veth_m", "veth_f" }, bodies.Types.Select(t => t.Type));
+        Assert.Equal(types.OrderBy(t => t), bodies.Types.Select(t => t.Type).OrderBy(t => t));
         foreach (var type in bodies.Types)
-        {
-            Assert.Contains("production", type.Models.Keys);
-            foreach (var build in bodies.Builds)
-                Assert.Equal(PlayerBodies.Id(type, build), (Draft("Wenna Lind") with { BodyPresetId = PlayerBodies.Id(type, build) }).Spec().BodyPresetId);
-        }
-        Assert.NotNull(bodies.Parse(bodies.Default));
+            Assert.Equal(new[] { "metahuman", "production" }, type.Models.Keys.OrderBy(k => k));
+        Assert.True(File.Exists(Path.Combine(root, "content", "bodies", bodies.Default["body.".Length..].Replace('.', '_') + ".yaml")));
     }
 
     [Fact]

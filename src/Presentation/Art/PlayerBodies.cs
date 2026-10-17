@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the creator's bodies: a body type and a build, and the model each one is drawn with (WP2; owner D3, OD15:20-21)
+// UNNAMED Presentation - the creator's bodies drawn: each body preset's model per player family (WP2, WP17; owner D3, OD15:20-21)
 // Godot presentation only, and free of Godot itself so the tests can read it: the domain keeps only the preset ID (D-11)
 
 using System.Text.Json;
@@ -6,80 +6,63 @@ using UNNAMED.Domain.Character;
 
 namespace UNNAMED.Presentation.Art;
 
-/// <summary>A body type the creator offers: its words, and its models by the player's model family, the first one installed drawn.</summary>
-public sealed record BodyType(string Id, string Label, IReadOnlyDictionary<string, IReadOnlyList<string>> Models);
-
-/// <summary>A build the creator offers: its words and how much broader (over 1) or narrower (under 1) the limbs and trunk are drawn.</summary>
-public sealed record BodyBuild(string Id, string Label, float Girth);
+/// <summary>A body type's models by the player's model family (content's <c>body.*</c> type: veth_m, veth_f), the first one installed drawn.</summary>
+public sealed record BodyModels(string Type, IReadOnlyDictionary<string, IReadOnlyList<string>> Models);
 
 /// <summary>
-/// The bindings' <c>player_bodies</c>: the body types and builds the creator offers, whose pair is the body preset a character keeps
-/// (<c>body.&lt;type&gt;.&lt;build&gt;</c>, e.g. <c>body.veth_f.lean</c>). <c>body.default</c> - every character made before the creator - is
-/// <see cref="Default"/>. A type names its models per family: <c>production</c> is the cast the player plays (MPFB), <c>metahuman</c> the
-/// <c>--visual player=metahuman_*</c> bodies. A build is drawn as a girth on its type's body (<c>Art/BuildShape.cs</c>).
+/// The bindings' <c>player_bodies</c>: what each body preset (content kind <c>body.*</c>, WP17) is drawn with. A type names its models per
+/// family - <c>production</c> the cast the player plays (MPFB), <c>metahuman</c> the <c>--visual player=metahuman_*</c> bodies - and a build
+/// is its own model, baked with its garments (tools/character_build): <c>&lt;model&gt;_&lt;build&gt;</c>, the base build drawn by the model
+/// itself. A body whose model is not installed is not drawn: there is no stand-in.
 /// </summary>
 public sealed class PlayerBodies
 {
-    public const string Prefix = "body.";
+    public static PlayerBodies None { get; } = new(Array.Empty<BodyModels>(), null, "average");
 
-    public static PlayerBodies None { get; } = new(Array.Empty<BodyType>(), Array.Empty<BodyBuild>(), null);
-
-    public PlayerBodies(IReadOnlyList<BodyType> types, IReadOnlyList<BodyBuild> builds, string? fallback)
+    public PlayerBodies(IReadOnlyList<BodyModels> types, string? fallback, string baseBuild)
     {
         Types = types;
-        Builds = builds;
-        Default = fallback is not null && Parse(fallback) is not null ? fallback
-            : types.Count > 0 && builds.Count > 0 ? Id(types[0], builds[builds.Count / 2]) : CharacterSpec.DefaultBodyPreset;
+        Default = fallback ?? CharacterSpec.DefaultBodyPreset;
+        BaseBuild = baseBuild;
     }
 
-    public IReadOnlyList<BodyType> Types { get; }
-
-    public IReadOnlyList<BodyBuild> Builds { get; }
+    /// <summary>The types, in the order the bindings list them (the order the creator shows them).</summary>
+    public IReadOnlyList<BodyModels> Types { get; }
 
     /// <summary>The preset a character with no choice is drawn with, and the creator starts from.</summary>
     public string Default { get; }
 
-    public bool IsEmpty => Types.Count == 0 || Builds.Count == 0;
+    /// <summary>The build each type's own model is (every other build's model carries its build ID).</summary>
+    public string BaseBuild { get; }
 
-    public static string Id(BodyType type, BodyBuild build) => $"{Prefix}{type.Id}.{build.Id}";
+    /// <summary>The model a body is drawn with in a family: the first of its type's models whose build model is installed, or null.</summary>
+    public string? Model(BodyPreset body, string family, Func<string, bool> installed) =>
+        Types.FirstOrDefault(t => t.Type == body.Type) is { } type && type.Models.TryGetValue(family, out var models)
+            ? models.Select(m => body.Build == BaseBuild ? m : $"{m}_{body.Build}").FirstOrDefault(installed)
+            : null;
 
-    /// <summary>The type and build a preset names, or null when it names none this file offers; <c>body.default</c> is <see cref="Default"/>.</summary>
-    public (BodyType Type, BodyBuild Build)? Parse(string? presetId)
-    {
-        if (presetId == CharacterSpec.DefaultBodyPreset && Default != CharacterSpec.DefaultBodyPreset)
-            presetId = Default;
-        if (presetId is null || !presetId.StartsWith(Prefix, StringComparison.Ordinal))
-            return null;
-        string[] parts = presetId[Prefix.Length..].Split('.');
-        if (parts.Length != 2)
-            return null;
-        var type = Types.FirstOrDefault(t => t.Id == parts[0]);
-        var build = Builds.FirstOrDefault(b => b.Id == parts[1]);
-        return type is null || build is null ? null : (type, build);
-    }
-
-    /// <summary>The type and build a preset is drawn with: its own, or the default's when this file does not offer it (an older save).</summary>
-    public (BodyType Type, BodyBuild Build)? Resolve(string? presetId) => Parse(presetId) ?? Parse(Default);
-
-    /// <summary>The model a type is drawn with in a family: the first of its models <paramref name="installed"/> says is there, or null.</summary>
-    public static string? Model(BodyType type, string family, Func<string, bool> installed) =>
-        type.Models.TryGetValue(family, out var models) ? models.FirstOrDefault(installed) : null;
+    /// <summary>
+    /// A garment's variant baked for <paramref name="body"/> (tools/character_build: authored once, baked per body as
+    /// <c>&lt;garment&gt;__&lt;body&gt;</c>): <c>shirt__mh_veth_m</c> on mh_veth_m_heavy is <c>shirt__mh_veth_m_heavy</c>.
+    /// </summary>
+    public static string Garment(string garment, string body) =>
+        garment.IndexOf("__", StringComparison.Ordinal) is var at && at > 0 ? $"{garment[..at]}__{body}" : garment;
 
     /// <summary>The model family a run's <c>--visual player=</c> value draws the player from.</summary>
     public static string Family(string? playerOption) =>
         playerOption is not null && playerOption.StartsWith("metahuman", StringComparison.Ordinal) ? "metahuman" : "production";
 
-    /// <summary>The bindings' <c>player_bodies</c> object; <see cref="None"/> when it is missing or malformed, so the creator offers the default body only.</summary>
+    /// <summary>The bindings' <c>player_bodies</c> object; <see cref="None"/> when it is missing or malformed.</summary>
     public static PlayerBodies Read(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object)
             return None;
-        var types = new List<BodyType>();
+        var types = new List<BodyModels>();
         if (element.TryGetProperty("types", out var t) && t.ValueKind == JsonValueKind.Array)
         {
             foreach (var type in t.EnumerateArray())
             {
-                if (Text(type, "id") is not { } id || Text(type, "label") is not { } label)
+                if (Text(type, "id") is not { } id)
                     continue;
                 var models = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
                 if (type.TryGetProperty("models", out var m) && m.ValueKind == JsonValueKind.Object)
@@ -87,21 +70,10 @@ public sealed class PlayerBodies
                     foreach (var family in m.EnumerateObject().Where(f => f.Value.ValueKind == JsonValueKind.Array))
                         models[family.Name] = family.Value.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String).Select(v => v.GetString()!).ToList();
                 }
-                types.Add(new BodyType(id, label, models));
+                types.Add(new BodyModels(id, models));
             }
         }
-        var builds = new List<BodyBuild>();
-        if (element.TryGetProperty("builds", out var b) && b.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var build in b.EnumerateArray())
-            {
-                if (Text(build, "id") is not { } id || Text(build, "label") is not { } label)
-                    continue;
-                float girth = build.TryGetProperty("girth", out var g) && g.ValueKind == JsonValueKind.Number ? (float)g.GetDouble() : 1f;
-                builds.Add(new BodyBuild(id, label, Math.Clamp(girth, 0.85f, 1.15f)));
-            }
-        }
-        return new PlayerBodies(types, builds, Text(element, "default"));
+        return new PlayerBodies(types, Text(element, "default"), Text(element, "base_build") ?? "average");
     }
 
     private static string? Text(JsonElement element, string key) =>

@@ -180,7 +180,30 @@ public sealed class NameSource
     }
 }
 
-/// <summary>The peoples and Calls content defines: what the creator offers.</summary>
+/// <summary>A joint's rest-pose offset for a body, in millimetres in the joint's parent space.</summary>
+public sealed record BoneOffset(int X, int Y, int Z);
+
+/// <summary>
+/// A body a character can be made with (content kind <c>body.*</c>, WP17): its people, its type (the creator's Masculine / Feminine, independent
+/// of pronouns) and build, the tape measurements of its model and how its skeleton differs from the shared one - rest offsets per joint,
+/// and the arm splay its build plays every clip with so the arms swing clear of its own sides. A character's body is fixed at creation
+/// (PJ04:259-260); the models are baked per body, so nothing about it changes at runtime. <see cref="Offered"/> is false for a build the
+/// clipping gate has not passed: content keeps it, the creator does not offer it.
+/// </summary>
+public sealed record BodyPreset(
+    string Id,
+    string PeopleId,
+    string Type,
+    string TypeLabel,
+    string Build,
+    string BuildLabel,
+    int Order,
+    bool Offered,
+    int ArmSplayDegrees,
+    ImmutableSortedDictionary<string, int> MeasurementsMm,
+    ImmutableSortedDictionary<string, BoneOffset> RestOffsetsMm);
+
+/// <summary>The peoples, Calls and bodies content defines: what the creator offers.</summary>
 public sealed record CharacterSetup(
     ImmutableSortedDictionary<string, PeopleDefinition> Peoples,
     ImmutableSortedDictionary<string, CallDefinition> Calls)
@@ -189,15 +212,28 @@ public sealed record CharacterSetup(
         ImmutableSortedDictionary.Create<string, PeopleDefinition>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, CallDefinition>(StringComparer.Ordinal));
 
+    /// <summary>Every body preset by ID; empty for a pack with none (test fixtures), where any <c>body.*</c> ID is accepted.</summary>
+    public ImmutableSortedDictionary<string, BodyPreset> Bodies { get; init; } = ImmutableSortedDictionary.Create<string, BodyPreset>(StringComparer.Ordinal);
+
     /// <summary>The peoples a player may choose, in ID order.</summary>
     public ImmutableArray<PeopleDefinition> PlayablePeoples => Peoples.Values.Where(p => p.Playable).ToImmutableArray();
 
-    /// <summary>Throws when the spec names a people or Call this content does not define, or a people the player cannot choose.</summary>
+    /// <summary>The bodies the creator offers for a people, by type and then build order.</summary>
+    public ImmutableArray<BodyPreset> OfferedBodies(string peopleId) =>
+        Bodies.Values.Where(b => b.Offered && b.PeopleId == peopleId).OrderBy(b => b.Type, StringComparer.Ordinal).ThenBy(b => b.Order).ToImmutableArray();
+
+    /// <summary>
+    /// Throws when the spec names a people or Call this content does not define, a people the player cannot choose, or a body this content
+    /// does not offer that people. <see cref="CharacterSpec.DefaultBodyPreset"/> is always accepted.
+    /// </summary>
     public void Check(CharacterSpec spec)
     {
         if (!Peoples.TryGetValue(spec.PeopleId, out var people) || !people.Playable)
             throw new ArgumentException($"{spec.PeopleId} is not a people a character can be made from", nameof(spec));
         if (spec.CallId is { } call && !Calls.ContainsKey(call))
             throw new ArgumentException($"{call} is not a defined Call", nameof(spec));
+        if (Bodies.Count > 0 && spec.BodyPresetId != CharacterSpec.DefaultBodyPreset
+            && (!Bodies.TryGetValue(spec.BodyPresetId, out var body) || !body.Offered || body.PeopleId != spec.PeopleId))
+            throw new ArgumentException($"{spec.BodyPresetId} is not a body a {spec.PeopleId} character can be made with", nameof(spec));
     }
 }
