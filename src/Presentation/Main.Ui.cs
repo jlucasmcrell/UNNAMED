@@ -297,7 +297,8 @@ public partial class Main
 
     /// <summary>
     /// A screen opened by name, for the harnesses that picture them (the UI shots, the playthrough): Escape is pressed on whatever is open;
-    /// every other name opens its screen in place of the last, and "" closes them.
+    /// every other name opens its screen in place of the last, and "" closes them. A bare "large_" or "text_" enlarges what is up (a
+    /// conversation stays open).
     /// </summary>
     private void ScreenByName(string name)
     {
@@ -368,6 +369,10 @@ public partial class Main
                 break;
             case "chat_groups":
                 _chat.Open(ChatTab.Groups);
+                break;
+            case { } hire when hire.StartsWith("hire:", StringComparison.Ordinal):
+                // The hiring sheet on someone in reach, as interacting with them opens it.
+                ShowHire(hire[5..]);
                 break;
             case "reputation":
                 Show(_reputation);

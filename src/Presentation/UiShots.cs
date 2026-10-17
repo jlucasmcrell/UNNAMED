@@ -96,6 +96,9 @@ public sealed class UiShots
     private string? _made;
     private bool _sold;
     private bool _bought;
+    private int _people;
+    private string? _hireKey;
+    private int _learnSizes;
 
     /// <summary>
     /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
@@ -200,6 +203,8 @@ public sealed class UiShots
         }
         var simulation = _session.Simulation!;
         var magic = _session.Setup.Magic;
+        if (_step == 4 && _screen is not null && _people < 2 * PeopleShots)
+            return People(simulation);
         switch (_step)
         {
             case 0 when _frame > 30:
@@ -527,6 +532,18 @@ public sealed class UiShots
                 }
                 return Stalled(1_200, "the character never reached Kera");
             case 26:
+                // Her Learn column beside the conversation at text 2x, then at the largest interface, then back to as it was.
+                if (_screen is not null && _learnSizes < 3)
+                {
+                    string size = new[] { "text_", "large_", "" }[_learnSizes++];
+                    _screen(size);
+                    if (size.Length > 0)
+                    {
+                        _pending = $"kera_{size.TrimEnd('_')}";
+                        _wait = 12;
+                    }
+                    break;
+                }
                 _dialogue.Answer("teach");
                 Then("lesson");
                 break;
@@ -743,6 +760,58 @@ public sealed class UiShots
             case 46:
                 return "done";
         }
+        return null;
+    }
+
+    /// <summary>Per person hired: the prompt on them, the hiring sheet at standard size, at text 2x, at the largest interface, then closed.</summary>
+    private const int PeopleShots = 5;
+
+    /// <summary>
+    /// The hiring sheet (PR #24), opened as interacting opens it: at the nearest resident who hires on, then at the nearest adventurer in
+    /// town, each with the prompt and its context line on them first. Someone the world does not hold is left out of the pictures, not the run.
+    /// </summary>
+    private string? People(Simulation simulation)
+    {
+        if (_dialogue.Visible)
+            _dialogue.Leave();
+        int phase = _people % PeopleShots;
+        string who = _people < PeopleShots ? "resident" : "adventurer";
+        if (phase == 0)
+        {
+            var adventurers = simulation.Adventurers.Select(a => a.Key).ToHashSet(StringComparer.Ordinal);
+            var body = _controller.Authoritative;
+            _hireKey ??= simulation.Npcs
+                .Where(n => adventurers.Contains(n.Id) == (who == "adventurer") && simulation.Hiring.Hireability(n.Id) is { } hire
+                    && (hire.Hireable || who == "adventurer"))
+                .OrderByDescending(n => simulation.Hiring.Hireability(n.Id)!.Hireable)
+                .ThenBy(n => Math.Pow(n.Body.XMm - body.XMm, 2) + Math.Pow(n.Body.ZMm - body.ZMm, 2))
+                .FirstOrDefault()?.Id;
+            if (_hireKey is null)
+            {
+                GD.PushWarning($"UNNAMED ui shots: no {who} to hire; no picture of hiring one");
+                _people += PeopleShots;
+                _stepTick = simulation.WorldTick;
+                return null;
+            }
+            if (!Approach(_hireKey))
+                return Stalled(2_400, $"the character never reached {_hireKey} to hire");
+            _pending = $"hire_{who}_prompt";
+        }
+        else if (phase < 4)
+        {
+            string size = new[] { "", "", "text_", "large_" }[phase];
+            _screen!(size + "hire:" + _hireKey);
+            _pending = $"hire_{who}{(size.Length > 0 ? "_" + size.TrimEnd('_') : "")}";
+        }
+        else
+        {
+            _screen!("");
+            _hireKey = null;
+            _waypoint = 0;
+            _stepTick = simulation.WorldTick;
+        }
+        _wait = _pending is null ? 0 : 12;
+        _people++;
         return null;
     }
 
