@@ -136,13 +136,6 @@ internal sealed class ClockSystem : IAbstractAdvance
             log.Add(new AdvanceLine(toTick, AdvanceKinds.DaysPassed, string.Empty, days));
         _context.Events.Publish(new WorldTimeAdvanced(fromTick, toTick, days));
     }
-
-    /// <summary>World time passing at once - a journey by the stones (S-38). Nothing is simulated through it: what was due falls due on the next tick.</summary>
-    public string? Handle(AdvanceTime command)
-    {
-        _context.State.AdvanceClock(_owner, command.Ticks);
-        return null;
-    }
 }
 
 /// <summary>

@@ -43,6 +43,8 @@ public static class WorldContent
             TryBuild(() => BuildTiers(loader), "config.simulation_tiers", loader, errors);
             TryBuild(() => BuildTravel(loader), "config.travel", loader, errors);
             TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
+            TryBuild(() => BuildCalendar(loader), "config.time", loader, errors);
+            TryBuild(() => BuildWeather(loader), "config.weather", loader, errors);
         }
         return errors;
     }
@@ -147,7 +149,46 @@ public static class WorldContent
         long ticksPerDay = (long)Math.Round(ticksPerHour * hoursPerDay, MidpointRounding.AwayFromZero);
         if (ticksPerDay <= 0)
             throw new FormatException("config.time gives a world day of no ticks");
-        return new WorldClock(ticksPerDay, (long)Math.Round(ClockAtWorldStartHours(loader) * ticksPerHour, MidpointRounding.AwayFromZero));
+        if (hoursPerDay < 1 || hoursPerDay != Math.Floor(hoursPerDay))
+            throw new FormatException($"config.time game_hours_per_day {hoursPerDay} must be a whole number of hours");
+        return new WorldClock(ticksPerDay, (long)Math.Round(ClockAtWorldStartHours(loader) * ticksPerHour, MidpointRounding.AwayFromZero))
+        {
+            HoursPerDay = (int)hoursPerDay,
+        };
+    }
+
+    /// <summary>
+    /// The calendar (<c>config.time</c>'s <c>days_per_tally</c>, <c>tallies_per_reckoning</c> and <c>hollow_days_per_reckoning</c>; WP7). A
+    /// pack that declares none counts the canon Reckoning.
+    /// </summary>
+    public static CalendarRules BuildCalendar(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.time"))
+            return CalendarRules.Default;
+        var map = Config(loader, "config.time");
+        if (!map.ContainsKey("days_per_tally") && !map.ContainsKey("tallies_per_reckoning") && !map.ContainsKey("hollow_days_per_reckoning"))
+            return CalendarRules.Default;
+        return new CalendarRules(Int(map, "days_per_tally"), Int(map, "tallies_per_reckoning"), Int(map, "hollow_days_per_reckoning")).Validated();
+    }
+
+    /// <summary>
+    /// How the weather's fronts are laid out and drawn (<c>config.weather</c>; WP7). A pack without it has D6's weather. Every state named
+    /// in <c>weights</c> must be one the simulation knows.
+    /// </summary>
+    public static WeatherRules BuildWeather(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.weather"))
+            return WeatherRules.Default;
+        var map = Config(loader, "config.weather");
+        var weights = new Dictionary<WeatherState, int>();
+        foreach (var (key, _) in Map(map, "weights"))
+        {
+            string name = key as string ?? throw new FormatException("a weather weight is named by its state");
+            weights[WeatherStates.Parse(name) ?? throw new FormatException($"config.weather weights '{name}', which is not a weather state")] =
+                Int(Map(map, "weights"), name);
+        }
+        return new WeatherRules(Int(map, "front_hours_min"), Int(map, "front_hours_max"), Int(map, "span_hours"),
+            weights.ToImmutableSortedDictionary()).Validated();
     }
 
     /// <summary>

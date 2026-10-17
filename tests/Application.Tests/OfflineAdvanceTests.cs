@@ -51,9 +51,9 @@ public class OfflineAdvanceTests
         });
     }
 
-    /// <summary>Everything a player could see of the world, beyond the persistent digest: creatures, effects, nodes, the clock.</summary>
+    /// <summary>Everything a player could see of the world, beyond the persistent digest: creatures, effects, nodes, the clock and the sky.</summary>
     private static object Seen(Simulation simulation) => (
-        simulation.WorldTick,
+        (simulation.WorldTick, simulation.Calendar, simulation.Weather, simulation.WeatherCursor),
         simulation.StateDigest(),
         string.Join(";", simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal)
             .Select(c => $"{c.Key}:{c.Condition}:{c.Generation}:{c.Health}:{c.Body}:{c.Mind}:{c.Awareness}")),

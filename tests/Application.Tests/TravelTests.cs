@@ -174,7 +174,7 @@ public class TravelTests
     // ── travel and its cost ─────────────────────────────────────────────────
 
     [Fact]
-    public void TheJourney_CostsAQuarterOfTheRoadsWalk_InWorldTime_ShownBeforeItIsTaken()
+    public void TheJourney_IsPricedByTheRoadsWalk_ShownBeforeItIsTaken_AndLetsNoWorldTimePass()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -187,7 +187,6 @@ public class TravelTests
         Assert.InRange(option.Cost.RoadMm, 520_000, 600_000);
         double walkMmPerSecond = session.Setup.Movement.SpeedMmPerSecond(Domain.Spatial.Gait.Walk);
         Assert.Equal((long)Math.Ceiling(option.Cost.RoadMm / walkMmPerSecond * 1000 / session.Setup.TickMilliseconds), option.Cost.WalkTicks);
-        Assert.Equal(option.Cost.WalkTicks / 4, option.Cost.WorldTicks);
         // The other way round costs the same.
         var rim = At(session, AtRim, r => Knowing(r, null, Ashen, Rim));
         Assert.Equal(option.Cost, Assert.Single(rim.Simulation.TravelOptions(Rim)).Cost);
@@ -197,11 +196,12 @@ public class TravelTests
         Assert.Null(arena.Submit(new TravelCommand(arena.Player, Ashen, Rim)));
         var journey = Assert.Single(travelled);
         Assert.Equal((Ashen, Rim, option.Cost), (journey.FromKey, journey.ToKey, journey.Cost));
-        Assert.Equal(before + option.Cost.WorldTicks, arena.Simulation.WorldTick);
+        // DN8 (accepted 2026-10-17): the stones skip no time - in a living world that would fast-forward everyone else.
+        Assert.Equal(before, arena.Simulation.WorldTick);
         var stone = session.Setup.Layout.FindWaystone(Rim)!;
         Assert.Equal((stone.ArrivalXMm, stone.ArrivalZMm), (arena.Simulation.Player.Body.XMm, arena.Simulation.Player.Body.ZMm));
         arena.Tick(5);   // the world goes on from the far stone
-        Assert.Equal(before + option.Cost.WorldTicks + 5, arena.Simulation.WorldTick);
+        Assert.Equal(before + 5, arena.Simulation.WorldTick);
     }
 
     [Fact]

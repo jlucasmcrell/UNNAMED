@@ -79,6 +79,12 @@ public enum StateSlice
 
     /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
     Deeds,
+
+    /// <summary>
+    /// The weather's seed cursor: the game hour the front last announced began (WP7). The weather itself is derived from the world seed, the
+    /// region and the hour, so nothing else of it is state.
+    /// </summary>
+    Weather,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -154,6 +160,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
+    public long? WeatherCursor { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -235,7 +242,13 @@ internal sealed class RuntimeState
         ReturnPoint = KnownStones.ContainsKey(stoneKey) ? stoneKey : throw new InvalidOperationException($"{stoneKey} is not a known stone");
     }
 
-    /// <summary>World time passing at once (Waystone travel): the clock moves on by whole ticks.</summary>
+    public void SetWeatherCursor(SliceOwner owner, long? startHour)
+    {
+        Require(owner, StateSlice.Weather);
+        WeatherCursor = startHour;
+    }
+
+    /// <summary>World time passing at once (the offline catch-up): the clock moves on by whole ticks.</summary>
     public void AdvanceClock(SliceOwner owner, long ticks)
     {
         Require(owner, StateSlice.Clock);
