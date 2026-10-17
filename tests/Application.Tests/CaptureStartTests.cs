@@ -27,7 +27,7 @@ public class CaptureStartTests
     {
         using var profile = new TempProfile();
         using var session = Boot(profile, "region.starting_frontier");
-        var simulation = session.NewGame("Tester", seed: 0x5eed_1234);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 0x5eed_1234);
 
         var spawn = session.Setup.Layout.Spawn;
         Assert.Equal(spawn.XMm, simulation.Player.Body.XMm);
@@ -39,7 +39,7 @@ public class CaptureStartTests
     {
         using var profile = new TempProfile();
         using var session = Boot(profile, Barrowworks, startX: 50_000, startZ: 28_000);
-        var simulation = session.NewGame("Tester", seed: 0x5eed_1234);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 0x5eed_1234);
 
         Assert.Equal(50_000, simulation.Player.Body.XMm);
         Assert.Equal(28_000, simulation.Player.Body.ZMm);
@@ -55,7 +55,7 @@ public class CaptureStartTests
     {
         using var profile = new TempProfile();
         using var session = Boot(profile, Barrowworks, startX: 50_000, startZ: 28_000);
-        var simulation = session.NewGame("Tester", seed: 0x5eed_1234);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 0x5eed_1234);
 
         Assert.False(simulation.PlayerInExterior);
         Assert.False(session.Setup.Layout.SpaceId.IsExterior);
@@ -70,7 +70,7 @@ public class CaptureStartTests
     {
         using var profile = new TempProfile();
         using var session = Boot(profile, "region.starting_frontier");
-        var simulation = session.NewGame("Tester", seed: 0x5eed_1234);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 0x5eed_1234);
 
         Assert.True(simulation.PlayerInExterior);
         Assert.Equal(SpaceId.Exterior, session.Setup.Layout.SpaceId);

@@ -46,7 +46,7 @@ public class BarrowworksPersistenceTests
     private static void SaveInsideTheRing(TempProfile profile)
     {
         using var session = GameSession.Boot(Options(profile, atThreshold: true));
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(session.Simulation!.PlayerInExterior);
         session.Submit(new EnterSpaceCommand(session.Simulation.PlayerId, Threshold));
         session.Frame(session.TickSeconds);
@@ -90,7 +90,7 @@ public class BarrowworksPersistenceTests
         using var profile = new TempProfile();
         using (var session = Harness.Boot(profile))
         {
-            session.NewGame("Wanderer", seed: 42);
+            session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
             // No portals exist, so the ring is unreachable and the space is never anything but the exterior - which
             // is what keeps the option-off playtest the playtest it was.

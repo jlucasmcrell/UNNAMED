@@ -9,4 +9,4 @@ category: tool
 stack_max: 1
 weight: 0.3
 value_base: 14
-rarity: uncommon
+rarity: common   # derived from item_class; an omitted class is ordinary
