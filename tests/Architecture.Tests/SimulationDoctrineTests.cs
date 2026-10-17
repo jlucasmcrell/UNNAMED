@@ -21,6 +21,7 @@ public class SimulationDoctrineTests
         (@"\bRandom\.Shared\b", "the shared System.Random"),
         (@"\bSystem\.Random\b", "System.Random"),
         (@":\s*(System\.)?Random\b", "a type deriving from System.Random"),
+        (@"(?<![\w.])Random\??\s+[A-Za-z_]\w*\s*[=;,)]", "a System.Random declared or passed in"),
         (@"\bRandomNumberGenerator\b", "the OS random source"),
         (@"\bGuid\.NewGuid\b", "a random GUID"),
     };
@@ -90,6 +91,34 @@ public class SimulationDoctrineTests
     /// Every command names who acts (D-11): it is a <see cref="GameCommand"/>, whose actor comes from the command's own constructor - never
     /// a fixed or default ID - and nothing in the runtime is called a command without being one.
     /// </summary>
+    /// <summary>
+    /// Every event goes through the bus as <c>Publish(new X(...))</c>, so <see cref="SimulationEvents_CarryOnlyPlainData"/> sees its type: an
+    /// event built elsewhere and published by variable, or by an explicit type argument, would slip past it.
+    /// </summary>
+    [Fact]
+    public void EveryPublishedEvent_IsBuiltWhereItIsPublished()
+    {
+        string src = Path.Combine(RepositoryRoot(), "src");
+        // The bus hands each event it was given on to the views; that is the one forwarding call.
+        string bus = Path.Combine("World", "Runtime", "Events.cs");
+        var offenders = new List<string>();
+        foreach (string file in SimulationSources(src))
+        {
+            string relative = Path.GetRelativePath(src, file);
+            string[] lines = File.ReadAllLines(file);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string code = lines[i].Split("//")[0];
+                if (!Regex.IsMatch(code, @"\.Publish(<[^>]*>)?\(\s*(?!new\s)"))
+                    continue;
+                if (relative == bus && code.Trim() == "_views.Publish(@event);")
+                    continue;
+                offenders.Add($"{relative}:{i + 1}: {lines[i].Trim()}");
+            }
+        }
+        Assert.True(offenders.Count == 0, "Publish events as Publish(new X(...)), so the plain-data check reaches them:\n" + string.Join("\n", offenders));
+    }
+
     [Fact]
     public void EverySimulationCommand_NamesItsActor()
     {
@@ -103,6 +132,15 @@ public class SimulationDoctrineTests
                 .Any(p => p.ParameterType == typeof(EntityId) && string.Equals(p.Name, "Actor", StringComparison.Ordinal)));
             if (!takesActor)
                 offenders.Add($"{type.Name}: its constructor takes no EntityId Actor");
+        }
+        // ...and that parameter is the one handed to GameCommand: a command built on another ID, or on a default, acts for the wrong one.
+        foreach (string file in SimulationSources(Path.Combine(RepositoryRoot(), "src")))
+        {
+            foreach (Match match in Regex.Matches(File.ReadAllText(file), @"(\w+)\s*\([^)]*\)\s*:\s*GameCommand\(\s*([^)]*?)\s*\)"))
+            {
+                if (match.Groups[2].Value != "Actor")
+                    offenders.Add($"{match.Groups[1].Value}: gives GameCommand '{match.Groups[2].Value}', not its own Actor");
+            }
         }
 
         // LoggedCommand is the log's record of a command as applied (it wraps one); it is not a command itself.
