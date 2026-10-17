@@ -36,11 +36,13 @@ public static class LearnModel
     /// <summary>
     /// The column from a teacher's view. <paramref name="coin"/> is what the character carries (a fee they cannot pay blocks the lesson);
     /// <paramref name="name"/> names a definition, a skill or a quest. A teacher who does not teach now offers nothing to learn, but every
-    /// lesson is still listed, so the player sees what will be on offer.
+    /// lesson is still listed, so the player sees what will be on offer - except one still waiting on the world (an unmet flag), which the
+    /// player has no way to ask after yet (the Barrowworks wedge where the ring cannot be reached).
     /// </summary>
     public static LearnColumn Column(TeachingView view, string teacher, long coin, Func<string, string> name)
     {
-        var rows = view.Lessons.Select(lesson => Row(lesson, view.Unavailable, teacher, coin, name))
+        var rows = view.Lessons.Where(lesson => lesson.Known || !lesson.Requirements.Any(r => r is { Requirement: FlagRequirement, Met: false }))
+            .Select(lesson => Row(lesson, view.Unavailable, teacher, coin, name))
             .OrderBy(r => r.State switch { LearnState.Ready => 0, LearnState.InConversation => 1, LearnState.Blocked => 2, _ => 3 })
             .ThenBy(r => r.Name, StringComparer.Ordinal)
             .ToImmutableArray();

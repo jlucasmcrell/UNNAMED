@@ -69,6 +69,17 @@ public class LearnModelTests
     }
 
     [Fact]
+    public void ALessonWaitingOnTheWorld_IsNotListed_UntilTheWorldIsSo()
+    {
+        var flag = new FlagRequirement(new WorldStateCondition("world.ring_accessible", 1, long.MaxValue));
+        var waiting = new TeachingView("npc.kera", null, ImmutableArray.Create(Lesson("recipe.iron_nails", 0),
+            Lesson("recipe.hinge", 0, byDialogue: true, requirements: new RequirementCheck(flag, false, 0))));
+        Assert.Equal(new[] { "recipe.iron_nails" }, LearnModel.Column(waiting, "Kera Voss", 0, Name).Rows.Select(r => r.DefinitionId));
+        var so = waiting with { Lessons = waiting.Lessons.SetItem(1, waiting.Lessons[1] with { Requirements = ImmutableArray.Create(new RequirementCheck(flag, true, 1)) }) };
+        Assert.Equal(2, LearnModel.Column(so, "Kera Voss", 0, Name).Rows.Length);
+    }
+
+    [Fact]
     public void TheColumn_ListsReadyFirst_ThenWhatTheConversationGives_ThenBlocked_ThenKnown()
     {
         var view = new TeachingView("npc.kera", null, ImmutableArray.Create(
