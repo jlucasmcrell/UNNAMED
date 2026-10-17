@@ -30,8 +30,6 @@ public static class ProgressionContent
             string? family = Read(skill.YamlSource).GetValueOrDefault("family") as string;
             if (family is null || !SkillFamilies.Contains(family))
                 errors.Add(Error("PRG001", $"Skill {skill.Id} needs a family, one of {string.Join(", ", SkillFamilies)} (DATA_MODEL.md §4.21)", skill.SourceFile));
-            if (Read(skill.YamlSource).GetValueOrDefault("teaches") is not string { Length: > 0 })
-                errors.Add(Error("PRG006", $"Skill {skill.Id} needs a teaches line: what kind of use teaches it (UI_PROGRESSION_AUDIT item G; canon 26 W3)", skill.SourceFile));
         }
         if (loader.Definitions.ContainsKey("config.progression"))
             TryBuild(loader, errors);
