@@ -79,6 +79,7 @@ public sealed record NpcTrip(
         ChancePercent is < 0 or > 100 ? "a trip's chance_percent is 0 to 100"
         : FromHour is < 1 or > 23 || ToHour < FromHour || ToHour > 23 ? "a trip leaves within [from, to] of one day, from 01:00 (its wait is the hour before)"
         : AwayHours is < 1 or > MaxAwayHours ? $"a trip keeps them away 1 to {MaxAwayHours} hours"
+        : ToHour + AwayHours > 24 + FromHour - 1 ? "a trip comes back before the next day's trip could wait to leave"
         : null;
 }
 

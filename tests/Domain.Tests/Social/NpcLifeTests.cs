@@ -225,6 +225,9 @@ public class NpcLifeTests
         Assert.Null(NpcTrips.Covering(routine, 3 * 24 + 15, 24, _ => 12345));
         Assert.NotNull(new NpcTrip("hunt", "x", "m", "M", new NpcAnchor(0, 0, 0), "D", new NpcAnchor(0, 0, 0), 50, 0, 3, 2).Problem());   // no hour to wait in
         Assert.NotNull(Tripper(away: NpcTrip.MaxAwayHours + 1).Trip!.Problem());
+        // A trip back after the next day's earliest wait would overlap that day's trip: leaving at 23:00 for 12 hours, with trips from 02:00.
+        Assert.NotNull(Tripper(from: 2, to: 23, away: 12).Trip!.Problem());
+        Assert.Null(Tripper(from: 8, to: 16, away: 12).Trip!.Problem());
     }
 
     [Fact]
