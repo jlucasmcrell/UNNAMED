@@ -319,8 +319,6 @@ public partial class SoundEvents : Node
         SubscribeMissing();
     }
 
-    private readonly Dictionary<string, int> _skillLevels = new(StringComparer.Ordinal);
-
     /// <summary>
     /// The hooks the audio recovery found missing (AUDIO_RECOVERY:45; WP10 A2): a quest begun, a skill's level, the respawn, downed and
     /// helped up, the party's moments - joined, told, hurt, downed, helped up, fallen - and the Waystones. Each asks for its own family
@@ -335,9 +333,7 @@ public partial class SoundEvents : Node
         s.Subscribe<SkillPracticed>(e =>
         {
             // Every use of a skill is practice; only a level gained is heard.
-            int was = _skillLevels.GetValueOrDefault(e.SkillId, e.Level);
-            _skillLevels[e.SkillId] = e.Level;
-            if (e.Level > was)
+            if (e.LevelsGained > 0)
                 _bank.Play(Own("sfx.ui.skill_up"));
         });
         s.Subscribe<PlayerRespawned>(e => _bank.Play("sfx.player.respawn", Chest(Feet(e.Body))));

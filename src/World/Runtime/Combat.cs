@@ -114,8 +114,8 @@ public sealed record PlayerDowned(string KillerDefId, string Cause, string HandN
 /// <summary>A companion or hireling helped the downed player up, with <see cref="Health"/>.</summary>
 public sealed record PlayerRevived(string NpcId, int Health, long Tick);
 
-/// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2).</summary>
-public sealed record SkillPracticed(string SkillId, long Xp, int Level, long Tick);
+/// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2), and the levels it gained.</summary>
+public sealed record SkillPracticed(string SkillId, long Xp, int Level, int LevelsGained, long Tick);
 
 /// <summary>A carried item was used: a consumable's effect (the salve's mending), or none for a book that taught.</summary>
 public sealed record ItemUsed(EntityId Actor, string DefId, string? EffectId, long Tick);

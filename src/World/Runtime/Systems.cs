@@ -447,7 +447,7 @@ internal sealed class ProgressionSystem
         var result = ProgressionEngine.Practice(_context.State.Progression, command.Practice, _context.Setup.Progression);
         _context.State.SetProgression(_owner, result.Progression);
         _context.Events.Publish(new SkillPracticed(command.Practice.SkillId, result.XpGained,
-            ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), command.Practice.Tick));
+            ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), result.LevelsGained, command.Practice.Tick));
         return null;
     }
 
