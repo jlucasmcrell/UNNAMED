@@ -28,6 +28,8 @@ public partial class HollowView : Node3D
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
     private List<(WorldEnvironment Node, Godot.Environment Environment)>? _environments;
 
+    public Godot.Environment? SpaceEnvironment => _environments?.FirstOrDefault().Environment;
+
     public void SetSpaceActive(bool active)
     {
         Visible = active;
@@ -227,6 +229,9 @@ public partial class HollowView : Node3D
         }
     }
 
+    public bool? DoorShownOpen(string key) => _doors.TryGetValue(key, out var door)
+        ? !Mathf.IsZeroApprox(door.Hinge.RotationDegrees.Y) : null;
+
     /// <summary>
     /// Show which switches are set and which barriers still stand (M6), as the simulation says. <paramref name="inPlay"/>: the change just
     /// happened in play, so the Foldscar's register plays it (a stone turning, the heart's release); otherwise it is put as it stands.
@@ -331,7 +336,8 @@ public partial class HollowView : Node3D
         for (int s = 0; s < materials.Count; s++)
             node.SetSurfaceOverrideMaterial(s, materials[s]);
         var body = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
-        body.AddChild(new CollisionShape3D { Shape = mesh.CreateTrimeshShape() });
+        using var cameraShape = mesh.CreateTrimeshShape();
+        body.AddChild(new CollisionShape3D { Shape = cameraShape });
         node.AddChild(body);
         return node;
     }
@@ -910,7 +916,7 @@ public partial class HollowView : Node3D
             // AO-mapped surface toward black.
             SsaoLightAffect = 0.0f, SsaoAOChannelAffect = 0.0f,
             SsilEnabled = true, SsilRadius = 4f, SsilIntensity = 0.9f, SsilSharpness = 0.98f, SsilNormalRejection = 1f,
-            SdfgiEnabled = true, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = false, SdfgiReadSkyLight = true, SdfgiBounceFeedback = 0.5f,
+            SdfgiEnabled = exterior, SdfgiCascades = 6, SdfgiMinCellSize = 0.2f, SdfgiUseOcclusion = false, SdfgiReadSkyLight = true, SdfgiBounceFeedback = 0.5f,
             // 50 percent, not 75: the docs say 50 "is usually the best choice for scenes that don't feature much
             // verticality", and a village on a moor is exactly that. Free quality.
             SdfgiEnergy = 0.55f, SdfgiNormalBias = 1.1f, SdfgiProbeBias = 1.1f, SdfgiYScale = Godot.Environment.SdfgiyScale.Scale50Percent,
@@ -1051,6 +1057,7 @@ void sky() {
         var node = new MeshInstance3D { Name = name, Mesh = mesh, MaterialOverride = material };
         var body = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
         body.AddChild(new CollisionShape3D { Shape = shape });
+        shape.Dispose(); // The CollisionShape owns the native resource; do not retain the temporary managed reference.
         node.AddChild(body);
         return node;
     }

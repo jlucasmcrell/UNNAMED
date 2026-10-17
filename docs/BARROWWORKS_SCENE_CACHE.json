@@ -1,0 +1,439 @@
+{
+  "raw_sources_committed": false,
+  "outputs": [
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_codex_fragment\\bw_codex_codex_fragment.glb.scn",
+      "bytes": 220984,
+      "sha256": "23274a18e05cbc778a428de00a13b84a334b9799ebff0565bc7a8a1041139384",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_codex_fragment\\bw_codex_codex_fragment.glb",
+      "stamp": "v1 4.7.2-stable (official) F54562CC811DDB9C5A1AEED957052E1AAB9788EAFEB71C9FE35F36A5815FEC4C"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_corridors\\bw_codex_corridors.glb.scn",
+      "bytes": 11089454,
+      "sha256": "fe0ef0095954bf06fdbbc456cc132622b4acb4a0ee4d5cbbeddfa3bdaa01064b",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_corridors\\bw_codex_corridors.glb",
+      "stamp": "v1 4.7.2-stable (official) D7E1747F37504BF5C4866E3842B8A1757B5506C81AA6B0F4AE94FC4A0AFC5749"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_counterweight\\bw_codex_counterweight.glb.scn",
+      "bytes": 7479156,
+      "sha256": "c14e40b45bdab08387fa0edb95a68988218a887199dff2600226c5680e128c40",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_counterweight\\bw_codex_counterweight.glb",
+      "stamp": "v1 4.7.2-stable (official) D223CC14C56B1661906E3E3DD46E39F57D1763AEFEDB23261FF8A05C97C202AD"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_diagram\\bw_codex_diagram.glb.scn",
+      "bytes": 3427264,
+      "sha256": "87d92358f4fcea392d1e3ebf15655738e13debaa3ea8fd14e9e3ce8dad630565",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_diagram\\bw_codex_diagram.glb",
+      "stamp": "v1 4.7.2-stable (official) E961FA623FB16154C2F7D04BB1C83E003EBC3F6C686CC93FDAC8FECDCBCB7351"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_dismantle_control\\bw_codex_dismantle_control.glb.scn",
+      "bytes": 4712376,
+      "sha256": "8a2aab3b44636700d35200457f0d47cc6c3f60101a25c5b60495ede2231fc0a4",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_dismantle_control\\bw_codex_dismantle_control.glb",
+      "stamp": "v1 4.7.2-stable (official) 04DA2995EC743601489ACF8B694BE4F7889696F79E02C94B4A67897830B45CDB"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_drain_valve\\bw_codex_drain_valve.glb.scn",
+      "bytes": 4768051,
+      "sha256": "10240b3f6c2cd4035fa9027bb23e1d9ac32853fa2c5731308e1fa17744a6f88d",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_drain_valve\\bw_codex_drain_valve.glb",
+      "stamp": "v1 4.7.2-stable (official) DA62B3396B803F4EC77CDF205D2AE2A194D04AF0224317422B09C02B4E018659"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_entrance_drain\\bw_codex_entrance_drain.glb.scn",
+      "bytes": 12062529,
+      "sha256": "55a681d0088fe3f6272caadf7e6248f8c577509f678f3798b790b47603c1af6f",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_entrance_drain\\bw_codex_entrance_drain.glb",
+      "stamp": "v1 4.7.2-stable (official) 9ED0072C60297F2596FD18DCF926B60FEBCE2755D1FA118A45CF6C954F2FC05A"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_entrance_threshold\\bw_codex_entrance_threshold.glb.scn",
+      "bytes": 9742817,
+      "sha256": "bbb27ad0b4a871d570c40c9ba2eadb55e60f0dc85f0bc889ab003518b662ae64",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_entrance_threshold\\bw_codex_entrance_threshold.glb",
+      "stamp": "v1 4.7.2-stable (official) 5FABCFD4DB08C2E1BDD023D09593B5A7E91AE1DFFEAD9F6B206DF99FEFD087C3"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_fitting_note\\bw_codex_fitting_note.glb.scn",
+      "bytes": 1142374,
+      "sha256": "66455723f47c9a886319385f4429670599eb1a683932a657527eb10f2d223f76",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_fitting_note\\bw_codex_fitting_note.glb",
+      "stamp": "v1 4.7.2-stable (official) B3CDBB1918150ACB97663EFA435A1E55C2E728930A4EDC84E124F8FB2D430053"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_1\\bw_codex_gate_1.glb.scn",
+      "bytes": 4789049,
+      "sha256": "e0fae0d65e73c3cf64c3c0b334cf7bc9f02f52d8ee54a22d989f86bf5572857b",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_1\\bw_codex_gate_1.glb",
+      "stamp": "v1 4.7.2-stable (official) A26D8FF0BFA013D47E0DDF6B7CF6CB969C9CA406A03954F6F7B9EE6DA949DEDA"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_2\\bw_codex_gate_2.glb.scn",
+      "bytes": 4789048,
+      "sha256": "514b8a8f025d34983044a4a3ab9177d72eb315e0933275e46b9dd7c604245c97",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_2\\bw_codex_gate_2.glb",
+      "stamp": "v1 4.7.2-stable (official) 82B46B4B12A60EB128FE2DEDD53DB3214F835C33018861CA7BF93BDA0D356134"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_3\\bw_codex_gate_3.glb.scn",
+      "bytes": 4789045,
+      "sha256": "ac9bed96d7e9ad59d523c268618640a7f5e35993b982472a952cb79f1e360d63",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_gate_3\\bw_codex_gate_3.glb",
+      "stamp": "v1 4.7.2-stable (official) B85B6C26B63BE60F87D29FB4651CB25670B00B2B19C23F2DDE53DC82DACFC38B"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_inspection_gauge\\bw_codex_inspection_gauge.glb.scn",
+      "bytes": 4768228,
+      "sha256": "b6c4dc2878555587da009bca5161d696d1398b530f0265283d707c3895650858",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_inspection_gauge\\bw_codex_inspection_gauge.glb",
+      "stamp": "v1 4.7.2-stable (official) AEC918E1DB36A6B0DAD54A410C67F7C0AF5E4B7C92CF3ABFC5B1864E846A8005"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_lantern_foot\\bw_codex_lantern_foot.glb.scn",
+      "bytes": 2383664,
+      "sha256": "e5b2a2920d892b198ecccae3c16dbb52d70cca09b61cfd527cf51d9f2f50aceb",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_lantern_foot\\bw_codex_lantern_foot.glb",
+      "stamp": "v1 4.7.2-stable (official) B47626235782A7064E6F7DE61CE9554B1B2BF136E674E890F27389395E59BAC6"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_ledger\\bw_codex_ledger.glb.scn",
+      "bytes": 1092825,
+      "sha256": "8921df33d029c9b3f8038295944083fc0749a6064bcfc09a248dc5b1470ae82c",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_ledger\\bw_codex_ledger.glb",
+      "stamp": "v1 4.7.2-stable (official) 7739C1A0FF010AFE7F7F49EE68C2D67BB5050BBBC2FF1601264FB301AE5FADEC"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_measure_running\\bw_codex_measure_running.glb.scn",
+      "bytes": 12263895,
+      "sha256": "0797c7646443980e410a845cf414b5276951fcfb5dd0b3d1423bfbee8a284e78",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_measure_running\\bw_codex_measure_running.glb",
+      "stamp": "v1 4.7.2-stable (official) 982202AC45520345DBEC3594E37228BD866299A77681D778250094FE03B1ABD2"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_notice\\bw_codex_notice.glb.scn",
+      "bytes": 3473150,
+      "sha256": "5a2acb0c5c7e15368444e8a370485931c9e0e2158c0620eaf4c5cf0773a97fcd",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_notice\\bw_codex_notice.glb",
+      "stamp": "v1 4.7.2-stable (official) 11FB89D71FC8E393E891B3927CD7E9D68AB22796FEA14D3E966ECDCE5D3812CD"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_preserve_control\\bw_codex_preserve_control.glb.scn",
+      "bytes": 4712136,
+      "sha256": "33c40e74b11471cab492df838d2997836d2f4500c01db55e0920a0148d4268bc",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_preserve_control\\bw_codex_preserve_control.glb",
+      "stamp": "v1 4.7.2-stable (official) 2E4CC6EA79C2207F05C30D79C7A329093AFE0D2D57A93D7DE867F1BD7319A405"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_rock_mass\\bw_codex_rock_mass.glb.scn",
+      "bytes": 1925632,
+      "sha256": "1279047985995d90010826eb6967fee52d4f6be2c62de34e490ad102a8d9704a",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_rock_mass\\bw_codex_rock_mass.glb",
+      "stamp": "v1 4.7.2-stable (official) 3DD0208B90D2E03AA79873BE81A53557D589C57A11050614F977E50ED38895EE"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01.glb.scn",
+      "bytes": 16211939,
+      "sha256": "e5ef7335336d10726edebfa3191ee201f7f332c3a1ccc02931f97e77572cf711",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01.glb",
+      "stamp": "v1 4.7.2-stable (official) 8ACD192B7F13BF6A28383D8955225C7156A2E238302F0513E47B8A8D7E1C0A24"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01_lod1.glb.scn",
+      "bytes": 4530419,
+      "sha256": "80ac4e2675855a95c3675f7b1201216cedb1fc70bbd9d1835b58119bb050a7a5",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 281453141B1B0893B3F53F630A70C9BC46A2017D96BCF9A6423B42B554BCB3B0"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01_lod2.glb.scn",
+      "bytes": 1334573,
+      "sha256": "aa5c3ed140b8916ff716ec058c7087b74b683221bdcce1907fff33f4c36f8c31",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_01\\bw_codex_room_01_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) A53E9A80ED6E9BE09EBF59868802193FBDDD8CAFED82643DF7A8E72B7E1C6E6A"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02.glb.scn",
+      "bytes": 17284172,
+      "sha256": "e3d21e42cc1fdf4a6f77efdeb300a244e0fe3a0f481cdfe9a441799420082975",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02.glb",
+      "stamp": "v1 4.7.2-stable (official) 6C2D56170741927F97051496306343054F2781AEAF4E23640914F10BAC56CA11"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02_lod1.glb.scn",
+      "bytes": 5161170,
+      "sha256": "0231d762d2fe8c31541971365259dfb7af00f5e8cfce65a007176744380b868a",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 282AEB8C2902D02DA97020F537345F98DB4D64E7EA846B9CD1D89E519B224AB7"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02_lod2.glb.scn",
+      "bytes": 1636983,
+      "sha256": "819c83ac913c407ac24579045a3afab3978d809f02137efe5374684644207978",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_02\\bw_codex_room_02_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) EC307183A32CFBD47B55F0DC76F1824BE2B845DA6BEB01EE313F3F17AD3814CB"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03.glb.scn",
+      "bytes": 22023500,
+      "sha256": "1966920680cb72f8a868db6fdafe3e117c4e88dd17a15193bcb627ed7e2534bd",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03.glb",
+      "stamp": "v1 4.7.2-stable (official) 8952EF7F2CA895C78BD9B6EDE8F5E75564E30105C9087FC5A89BEC11134DB419"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03_lod1.glb.scn",
+      "bytes": 5927230,
+      "sha256": "5e0b5fbbc64cd3edd58d115c960008a7c796f870353041dbf1f05ce429fab6d6",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 30956DEB1FC6E7F6C18E2C75BE0496013827144B66A1682B069D37C447006CB2"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03_lod2.glb.scn",
+      "bytes": 1663736,
+      "sha256": "bb114c5cc0dea3a0c8d2b804fc07b3e0151a73816e5ca1f38cc70544edf3293a",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_03\\bw_codex_room_03_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 8C7582BB9762A6B3837FEDB08619D5FCDE6947903D836334EDCE307D5708EDEB"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04.glb.scn",
+      "bytes": 11662459,
+      "sha256": "960802622d53a63e2d98b17ab82bc0857940b2129672132b542e5099d8ad7213",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04.glb",
+      "stamp": "v1 4.7.2-stable (official) E982CF3620CCC11E8E528AE52011640D4F15C0DC95F8887F4554FE1EAC6BA444"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04_lod1.glb.scn",
+      "bytes": 3472339,
+      "sha256": "48125289e1c003d80358f812e0069e5ff7579b744dae432dae2220bcdce6028e",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 352D46D017145CCD7A8B4CD940406CB92940DF55A90A66C005E84510CC448C03"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04_lod2.glb.scn",
+      "bytes": 1098830,
+      "sha256": "eac47f2bc3186dc6c5f387c26be2a57343e4f9fc8eb437134c50f68dfdc4b8fc",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_04\\bw_codex_room_04_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 48C0A595E99A0C0628E4FB3130B9CB597BD21599E9504D3C2392E78C072B6BD6"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05.glb.scn",
+      "bytes": 23288725,
+      "sha256": "8e5d5af20b2bce650d6fccb3d660bfeab48c2bc081d22770d031281813e726c1",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05.glb",
+      "stamp": "v1 4.7.2-stable (official) 95F2CA300FF2FC6D0A20BA300FD00C845E82FF7A8F8182C93F3A197F8EA59FCF"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05_lod1.glb.scn",
+      "bytes": 6670467,
+      "sha256": "2e7f0cdf0966b5600c464cb5fadc3b396de2a7af212ac04fbc76d8733a6f9c37",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 976235DE1890421DE9222E022E08CB4F556D6F16F60175CBA20E6313353A1ECB"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05_lod2.glb.scn",
+      "bytes": 2006240,
+      "sha256": "cfee0ed5aede70f536e0e30ceb244fa515fe4d20daec402dacfb5cbaf527671f",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_05\\bw_codex_room_05_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) E8138E93B660D4DAFCBA795556E819ACAD02C38EC210CDE8336EEF16AD9C3489"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06.glb.scn",
+      "bytes": 26782941,
+      "sha256": "d530ffee01366e3640b6b6b5bf1fd5d797a6ed8ac195d8ffaa3987c281e2bd4d",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06.glb",
+      "stamp": "v1 4.7.2-stable (official) B690F1F2EDF71E057B89DDC4CDA8E14467975D8DFC152EB20A2B68B2CC5E0276"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06_lod1.glb.scn",
+      "bytes": 7492540,
+      "sha256": "6dea9973def9b9019c2f5b7e74c9efb422736305da47a98c25b79a00da52c3ab",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) F5314B81C8F989130516D2DBC9B77978D46E9B4539C5792FC3981B8460A8D3A2"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06_lod2.glb.scn",
+      "bytes": 2216810,
+      "sha256": "c6514298b4b64f8c74efdd9154d50d808b3c834217c3801b64019e28d6430c69",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_06\\bw_codex_room_06_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 63369056D2E62276A1E8E3EF323E93F6501A66D58FED6125E03B90E751E74ED4"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07.glb.scn",
+      "bytes": 25137552,
+      "sha256": "a0d1d2259b568a4fdf02e21c1baf3f7262b392e0932b263ad465f98e0e22a7ab",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07.glb",
+      "stamp": "v1 4.7.2-stable (official) 92AB95E8F31E37C7BC1C34421026B203490A03556C166469E2EB6E3409806273"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07_lod1.glb.scn",
+      "bytes": 6989549,
+      "sha256": "efb27290c235ea8ec70c1478ec9e3d7d2f13c6f016573c082c6dd25f56405be1",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 5C31A21942BDD885E7BDBBD9ACA6324FEFC46C902E7F11AA791491EB7C98E49D"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07_lod2.glb.scn",
+      "bytes": 1871411,
+      "sha256": "d719d5c4750e886d2769c61140d63683229cfb5fa913245fe993116f0570f790",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_07\\bw_codex_room_07_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 2B0ADC882A986C46AD37903B7CA6FB75EADC6ACC0479C29F13A638C5D7F9B8D1"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08.glb.scn",
+      "bytes": 16434757,
+      "sha256": "343c17125da1a222eb8129e09a726e7315beca59ecdb23e3962b979acf99fda7",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08.glb",
+      "stamp": "v1 4.7.2-stable (official) 6286FBF2119B85C76F538E2E52FDF3684018021D7A4B40209851999629A84FEB"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08_lod1.glb.scn",
+      "bytes": 4630785,
+      "sha256": "d7ce7553feaa56493c4a34bb51eb96f156bf7a59820bd234f52310edcb625688",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) C5315B6A5088B2C380ABB5A1020E9D18597F0EE016FC79CD8D306FCDB3B07E00"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08_lod2.glb.scn",
+      "bytes": 1377523,
+      "sha256": "24a01ee73fdf28a7a5c8ecabaed13d68514bc77df82f58476ccd7fc40f210522",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_08\\bw_codex_room_08_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 3555DAC01BB996748120F78A43B81421AFD545E7D318E037B51379C25C21A318"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09.glb.scn",
+      "bytes": 24539069,
+      "sha256": "b7b9e34232c5e287a4cc785a86ddc683e8085291ff3a35fecbfa1167261692a5",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09.glb",
+      "stamp": "v1 4.7.2-stable (official) 0022E25E08CAD6B8E97CD46BD74D38889EAD7B933482CA26BA1528D87B9B587E"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09_lod1.glb.scn",
+      "bytes": 6644190,
+      "sha256": "6c05be432afef52b95b167f3add96c47cc9aa92b2be3b04f5274224cb6c61a16",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) D09717365DFC9709DBCFF170F1190277E17AFCFCF6ACFA976A2C1FA366182AB3"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09_lod2.glb.scn",
+      "bytes": 1713485,
+      "sha256": "f43a3b4a06541acf454e67ef37b7a1288c21d0e90887ffe6e0b02599a07fffdf",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_09\\bw_codex_room_09_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 562200676D1AA7B6F25BFB76F5482ACACFD79D34742432820A36DAB20883A19A"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10.glb.scn",
+      "bytes": 22336451,
+      "sha256": "a41c19c6a3f179ded43b02dc1dbbaac1ccb8ac4a4d5741ef47eae62310933cb8",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10.glb",
+      "stamp": "v1 4.7.2-stable (official) 2E61D7353D1488DC6224959197AB32D1768BF3D143B89CEE4C0A581721B5A023"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10_lod1.glb.scn",
+      "bytes": 6109400,
+      "sha256": "899a3630a3d14f0bd7d87e4daac05fec62370d8e28aeb8443c76835d3b7031d3",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) CA8BEF196D4D1D645AC29F2213C7085AA195B792D510B50387AB5A4FE291A610"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10_lod2.glb.scn",
+      "bytes": 1755365,
+      "sha256": "6b7a28fe1a6349058da5fb960ba926f7f184c2b9f3bd6658d9c21208d3871d69",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_10\\bw_codex_room_10_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) 8999147BF67EF4ADA29E7B603AC5E3DF2AAA73257611F988FBFA68F542A56AE5"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11.glb.scn",
+      "bytes": 20533016,
+      "sha256": "6caa5f4e4ca56fbaf3b6433fffc6812d57e9db0c621380b5ed8514e13330ea1d",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11.glb",
+      "stamp": "v1 4.7.2-stable (official) 92805B6BEB71F76702842803036AB2E9BD43AAC4D95E6B41025B2FB8972B166C"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11_lod1.glb.scn",
+      "bytes": 7046214,
+      "sha256": "56a8744dbe7cfbb047156cd620de83bcf500acba2c456599e8798857eccc6efa",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 6E549287836E61698C6E9E0A31BDA1356408A3D3D3A2C28DAE1086203E480046"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11_lod2.glb.scn",
+      "bytes": 2524862,
+      "sha256": "d1ed61cf81c9cceb9a91c5e3aa7970d526fe0be5f13be5e7188a8983015d4824",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_11\\bw_codex_room_11_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) C3BD286AF6213661285D6FC6B073F91DA8F4039371C1D5AD66A54A368B063981"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12.glb.scn",
+      "bytes": 22350931,
+      "sha256": "5316412f5cb05865ac4bc108cd68ff982d484098eae69ff79f8d7cc4234494bf",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12.glb",
+      "stamp": "v1 4.7.2-stable (official) EC75F58671775AC1D51FABBDDBCE228252DA6CB9DEEA1234640CDBDAC5E00CA9"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12_lod1.glb.scn",
+      "bytes": 6114123,
+      "sha256": "3ae77166d468e34a9402bd1d31dfde58cd65600288a361bb130421b86f8cbe83",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) D9311A2FC166254157BD07A55EA47C51FF97F23A9DCB55B24FEDF945DC3669FD"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12_lod2.glb.scn",
+      "bytes": 1756454,
+      "sha256": "d6f46b34d5d887bb6e9f5b8ea77854bebd39fff3d9fc70b2aa446a65d1bc2019",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_12\\bw_codex_room_12_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) B9C41ED0562BF79D35F27912776339004DAD8C75A54B315A7FD3C7B746F77E07"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13.glb.scn",
+      "bytes": 11551940,
+      "sha256": "8ad9c05d64577432a1f79bb047e1ac7bbaffa14af4ccff77fd1ee4980cb57c5f",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13.glb",
+      "stamp": "v1 4.7.2-stable (official) 1EE4F18DA215925439C326B22DF2E73FCC1610E8D22A8061FF25ECBDCADCC6C2"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13_lod1.glb.scn",
+      "bytes": 3408214,
+      "sha256": "e437b8e1ad0fdecd2cd21506c563426ae9c2e553311da63aed56e23621097c08",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13_lod1.glb",
+      "stamp": "v1 4.7.2-stable (official) 851D9FDA42D42C5FEBD81645D984B932EB7A506A9ECE9E12F5E6125C2B06D18F"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13_lod2.glb.scn",
+      "bytes": 1067313,
+      "sha256": "c4a14f2ff5a9909745feee8289dbfa0438b8604d9d42137dec92c2d8ef9a56f2",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_room_13\\bw_codex_room_13_lod2.glb",
+      "stamp": "v1 4.7.2-stable (official) A8CC8B5D9F882237FEEABE67689254E62A4DB228FA6143B5B45DC5A5EC52B167"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_sorting_rack\\bw_codex_sorting_rack.glb.scn",
+      "bytes": 5110559,
+      "sha256": "13c13941a50001f2c4ba73ecac134fd61bfd0ee066c187f88beea624c99145da",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_sorting_rack\\bw_codex_sorting_rack.glb",
+      "stamp": "v1 4.7.2-stable (official) 6D23D986534FBB4E479E1B9D3C0149FF31C4D066A995FE4891A4ABDEF3BD2F6B"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_wash_pipe\\bw_codex_wash_pipe.glb.scn",
+      "bytes": 4768018,
+      "sha256": "d6bad0c592e45b1bde8cd80c5c4972db105210544e5f245a2217cca755215015",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_wash_pipe\\bw_codex_wash_pipe.glb",
+      "stamp": "v1 4.7.2-stable (official) DF4EDC88BEEF29507BDB6F0F839F3A592BA81328BCACF3475988079E69106CA6"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_work_seat\\bw_codex_work_seat.glb.scn",
+      "bytes": 5094687,
+      "sha256": "40c495cd0552cd679d74438102835a9cf084b16df6bdaf0da5845f0590670a0b",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_work_seat\\bw_codex_work_seat.glb",
+      "stamp": "v1 4.7.2-stable (official) 4AEE10A35B41345278A8440BB5F852CAC25BC396825F37C85EDC0146F3B4102C"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\rigged\\bw_codex_custodian\\bw_codex_custodian_rigged.glb.scn",
+      "bytes": 80655670,
+      "sha256": "ca3ba4133f93e06d15aab47b7d929e94d29678995f58fda2e544919722711525",
+      "source": "D:\\Otherreach_Depot\\barrowworks_codex\\rigged\\bw_codex_custodian\\bw_codex_custodian_rigged.glb",
+      "stamp": "v1 4.7.2-stable (official) D5CAA39E17BB8428C13D2DA5C04480D2C7696356B79F46686CEEABB435393E15"
+    }
+  ]
+}

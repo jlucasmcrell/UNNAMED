@@ -394,14 +394,24 @@ public partial class Hud : CanvasLayer
     /// <summary>Add what the moment brought to its announcement while it still shows.</summary>
     public void AnnounceMore(string kind, string title, string text) => _view?.AnnounceMore(kind, title, text);
 
-    public void Toast(string text, double seconds = 4)
+    private Label? _reading;
+
+    public void Reading(string text) => Toast(text, 12, reading: true);
+
+    public void Toast(string text, double seconds = 4, bool reading = false)
     {
         // Settings' notice duration (Interface): short, normal, long or longer.
         seconds *= Settings.SettingsStore.Current.Profile.Interface.NoticeDuration;
         if (_view is not null)
         {
-            _view.Toast(text, seconds);
+            _view.Toast(text, seconds, reading);
             return;
+        }
+        if (reading && _reading is not null)
+        {
+            _live.RemoveAll(t => t.Label == _reading);
+            if (GodotObject.IsInstanceValid(_reading)) _reading.QueueFree();
+            _reading = null;
         }
         // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
         int live = _live.FindIndex(t => t.Label.Text == text);
@@ -412,9 +422,15 @@ public partial class Hud : CanvasLayer
         }
         var label = Text(20);
         label.Text = text;
+        if (reading)
+        {
+            label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            label.CustomMinimumSize = new Vector2(Math.Clamp(GetViewport().GetVisibleRect().Size.X - 80, 1, 600), 0);
+        }
         label.HorizontalAlignment = HorizontalAlignment.Center;
         _toasts.AddChild(label);
         _live.Add((label, _clock + seconds));
+        if (reading) _reading = label;
     }
 
     public override void _Process(double delta)

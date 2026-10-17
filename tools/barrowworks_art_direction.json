@@ -1,7 +1,7 @@
 {
   "1": {
     "identity": "threshold",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "stone_ribs",
     "lights": [
       [
@@ -20,7 +20,7 @@
   },
   "2": {
     "identity": "intake",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "coffer_beams",
     "lights": [
       [
@@ -113,7 +113,7 @@
   },
   "5": {
     "identity": "sorting",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "timber_grid",
     "lights": [
       [
@@ -163,7 +163,7 @@
   },
   "7": {
     "identity": "archive",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "archive_ribs",
     "lights": [
       [
@@ -194,7 +194,7 @@
   },
   "8": {
     "identity": "return",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "cross_pipes",
     "lights": [
       [
@@ -213,7 +213,7 @@
   },
   "9": {
     "identity": "blind_store",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "broken_slab",
     "lights": [
       [
@@ -263,50 +263,38 @@
   },
   "11": {
     "identity": "court",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "court_trusses",
     "lights": [
       [
-        -10,
-        3.1,
-        -8,
+        2,
+        3.0,
+        -6,
         [
-          0.66,
-          0.77,
-          0.87
+          0.94,
+          0.81,
+          0.65
         ],
-        4.5,
-        19
+        2.8,
+        16
       ],
       [
-        10,
-        3.1,
-        -8,
+        -5,
+        2.8,
+        5,
         [
-          0.66,
-          0.77,
-          0.87
+          0.58,
+          0.73,
+          0.85
         ],
-        4.5,
-        19
-      ],
-      [
-        0,
-        3.4,
-        6,
-        [
-          0.92,
-          0.76,
-          0.52
-        ],
-        4.5,
-        20
+        2.6,
+        14
       ]
     ]
   },
   "12": {
     "identity": "headworks",
-    "wall": "masonry",
+    "wall": "rock",
     "ceiling": "machine_rails",
     "lights": [
       [

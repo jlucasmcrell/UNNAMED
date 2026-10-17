@@ -56,6 +56,7 @@ public partial class Main : Node3D
     private Hud _hud = null!;
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
+    private CreaturesView _exteriorCreatures = null!;
     private CraftingView _crafting = null!;
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
@@ -359,7 +360,9 @@ public partial class Main : Node3D
             GD.PushWarning($"UNNAMED assets: --asset-fallback {fallback} does not exist; ignored");
             Art.ArtLibrary.FallbackRoot = null;
         }
-        _art = new Art.ArtLibrary(_assets.Root);
+        // The opt-in co-loaded ring uses the existing signed BC7 cache; off retains the original upload path.
+        _art = new Art.ArtLibrary(_assets.Root, useTextureCache: VisualOptions.Barrowworks,
+            sceneCachePrefix: VisualOptions.Barrowworks ? "bw_codex_" : null, buildSceneCache: _flags.Contains("--build-scene-cache"));
         if (Art.ArtLibrary.FallbackRoot is { } second)
             GD.Print($"UNNAMED assets: falling back to {second} for anything {_assets.Root ?? "the region"} does not hold");
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
@@ -613,7 +616,7 @@ public partial class Main : Node3D
 
 
     /// <summary>
-    /// The ring, built once from the interior layout with the ring's own bindings overlay, and hidden. Sharing the
+    /// The held ring's bindings. Its GPU resources are loaded at entry and released on departure. Sharing the
     /// frontier's overlay would draw the Ashen Hollow's props in the ring's rooms; sharing the frontier's view would
     /// put the ring at the frontier's metres, which is where the body used to stand after a portal (review 3, B6).
     /// </summary>
@@ -625,28 +628,29 @@ public partial class Main : Node3D
         var bindings = Art.ArtBindings.LoadWithOverlay(
             Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
         _interiorBindings = bindings;
+        BuildPortalEntrances(_session.Setup.Layout);
+    }
+
+    private void LoadInterior()
+    {
+        if (_interior is not null || _session.Setup.Interior is not { } ring || _interiorBindings is not { } bindings)
+            return;
         _interior = new HollowView { Name = "Barrowworks" };
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
-        // The held interior's resource work belongs to startup, not a synchronous first portal entry.
-        // This method is never reached with the option off. Reuse the library caches that normal views consume.
-        foreach (var id in ring.Containers.Select(s => bindings.Containers.GetValueOrDefault(s.Key)?.Model)
-                     .Concat(ring.Nodes.Select(s => bindings.Nodes.GetValueOrDefault(s.NodeDefId)?.Model))
-                     .OfType<string>().Distinct(StringComparer.Ordinal))
-            _art.ModelWithLods(id)?.Free();
-        foreach (var creature in _session.Setup.Combat.Spawns.Where(s => s.Space == ring.SpaceId)
-                     .SelectMany(s => s.Members).Select(m => m.CreatureId).Distinct(StringComparer.Ordinal))
+        _interior.SetFlags(_session.Simulation!.Switches, _session.Simulation.Barriers, inPlay: false);
+        foreach (var site in ring.Doors)
         {
-            if (!bindings.Creatures.TryGetValue(creature, out var look)) continue;
-            _art.Rigged(look.Model)?.Free();
-            foreach (var clip in look.Clips.Values.Distinct(StringComparer.Ordinal))
-                _art.Clip(clip);
+            bool open = _session.Simulation.Doors.Single(d => d.Site == site).Open;
+            _interior.SetDoor(site.Key, open);
+            if (_barrowworksReview is not null)
+            {
+                if (_interior.DoorShownOpen(site.Key) != open)
+                    throw new InvalidOperationException($"Door projection differs from the world: {site.Key}");
+                GD.Print($"BARROWWORKS door projection: {site.Key} open={open}");
+            }
         }
-        _interior.SetSpaceActive(false);
-        _hollow.SetSpaceActive(true);
-        BuildPortalEntrances(_session.Setup.Layout);
-        GD.Print($"UNNAMED barrowworks: the ring is built at {ring.SpaceId} and hidden until the body goes in");
     }
 
     /// <summary>
@@ -663,6 +667,7 @@ public partial class Main : Node3D
     /// </summary>
     private void ShowSpace(bool outside)
     {
+        if (!outside) LoadInterior();
         _hollow.SetSpaceActive(outside);
         if (_scatter is not null)
             _scatter.Visible = outside;
@@ -675,8 +680,105 @@ public partial class Main : Node3D
         _crafting.Bind(_art, bindings);
         _crafting.Build(_session.Simulation!.ActiveLayout);
         _crafting.Refresh(_session.Simulation!.Nodes);
-        _creatures.Bind(_art, bindings);
-        _creatures.Reset();
+        _exteriorCreatures.SetSpaceActive(outside);
+        if (outside)
+        {
+            _creatures = _exteriorCreatures;
+            _creatures.ResyncPositions(_session.Simulation!);
+        }
+        else
+        {
+            if (_creatures != _exteriorCreatures) _creatures.Free();
+            _creatures = new CreaturesView { Name = "InteriorCreatures" };
+            _creatures.Bind(_art, bindings);
+            _interior!.AddChild(_creatures);
+            PrewarmPortal();
+        }
+        if (outside && _interior is not null)
+        {
+            _interior.Free();
+            _interior = null;
+            int released = _art.ReleaseModels("bw_codex_");
+            GD.Print($"UNNAMED interior release: {released} cached models; scene and creature instances freed");
+        }
+    }
+
+    private void PrewarmPortal()
+    {
+        if (_interior is null || DisplayServer.GetName() == "headless" || GetViewport().GetCamera3D() is not { } camera) return;
+        // Real draws in the actual High viewport prime its AA, skin, shadow and GI variants. Nothing is presented
+        // to the window during these draws. Only presentation transforms change; no commands or state are written.
+        ulong started = Time.GetTicksMsec();
+        double draws = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw);
+        double surfaces = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsSurface);
+        var transform = camera.GlobalTransform;
+        var environment = camera.Environment;
+        var bodyPosition = _avatar.Position;
+        var bursts = new Node3D { Name = "PreparedImpactResources" };
+        _interior.AddChild(bursts);
+        void Draw(Vector3 at, Vector3 target, Godot.Environment? light)
+        {
+            camera.Environment = light;
+            camera.GlobalPosition = at;
+            camera.LookAt(target);
+            for (int i = 0; i < 3; i++) RenderingServer.ForceDraw(false, 1.0 / 60);
+        }
+        try
+        {
+            // Reuse the main viewport's existing outdoor GI allocation before the first indoor draw; an auxiliary
+            // viewport would allocate another volume and compile different shadow/AA specializations.
+            _interior.Visible = false;
+            _hollow.Visible = true;
+            if (_scatter is not null) _scatter.Visible = true;
+            _exteriorCreatures.Visible = true;
+            _creatures.Visible = false;
+            foreach (var portal in _session.Setup.Layout.Portals.Portals)
+            {
+                float x = portal.ExteriorXMm / 1000f, z = portal.ExteriorZMm / 1000f;
+                float y = _ground.Height(x, z);
+                _avatar.Position = new Vector3(x, y, z);
+                _exteriorCreatures.PrewarmCached(() =>
+                    Draw(new Vector3(x, y + 2, z + 5), new Vector3(x, y + 1.5f, z), _hollow.SpaceEnvironment));
+            }
+            _hollow.Visible = false;
+            _exteriorCreatures.Visible = false;
+            _creatures.Visible = true;
+            if (_scatter is not null) _scatter.Visible = false;
+            _interior.Visible = true;
+            _avatar.Position = new Vector3(50, 0, 106);
+            _creatures.Draw(_session.Simulation!, 0, 0);
+            foreach (var room in _session.Setup.Interior!.Space.Blockers.OfType<BoxBlocker>()
+                         .Where(b => b.Id.Length > 4 && b.Id[0] == 'r' && b.Id.Contains("_wall", StringComparison.Ordinal))
+                         .GroupBy(b => b.Id[..3]))
+            {
+                float x = (room.Min(b => b.MinXMm) + room.Max(b => b.MaxXMm)) / 2000f;
+                float z = (room.Min(b => b.MinZMm) + room.Max(b => b.MaxZMm)) / 2000f;
+                Draw(new Vector3(x, 2, z + 3), new Vector3(x, 1.5f, z), _interior.SpaceEnvironment);
+            }
+            foreach (var at in new[] { new Vector3(40, 2, 101), new Vector3(60, 2, 114), new Vector3(50, 2, 119) })
+                Draw(at, new Vector3(50, 1.5f, 108), _interior.SpaceEnvironment);
+            void CourtDraw() => Draw(new Vector3(50, 2, 101), new Vector3(50, 1.5f, 106), _interior.SpaceEnvironment);
+            _creatures.PrewarmMarks(CourtDraw);
+            if (VisualOptions.Recipes)
+            {
+                _hits.Prepare(bursts, new Vector3(50, 1, 106));
+                CourtDraw();
+            }
+        }
+        finally
+        {
+            camera.GlobalTransform = transform;
+            camera.Environment = environment;
+            _avatar.Position = bodyPosition;
+            _hollow.Visible = false;
+            _interior.Visible = true;
+            _exteriorCreatures.Visible = false;
+            _creatures.Visible = true;
+            if (_scatter is not null) _scatter.Visible = false;
+        }
+        GD.Print($"UNNAMED portal prewarm: {Time.GetTicksMsec() - started} ms; court and exterior-return draws; "
+                 + $"draw pipelines +{Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - draws}, "
+                 + $"surfaces +{Performance.GetMonitor(Performance.Monitor.PipelineCompilationsSurface) - surfaces}");
     }
 
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
@@ -732,6 +834,7 @@ public partial class Main : Node3D
         _creatures = new CreaturesView { Name = "Creatures" };
         _creatures.Bind(_art, _bindings);
         AddChild(_creatures);
+        _exteriorCreatures = _creatures;
         _crafting = new CraftingView { Name = "Crafting" };
         _crafting.Bind(_art, _bindings);
         AddChild(_crafting);

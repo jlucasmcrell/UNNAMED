@@ -61,7 +61,10 @@ public partial class Main
         _session.Subscribe<SwitchSet>(e =>
         {
             if (_session.Simulation!.ActiveLayout.FindSwitch(e.SwitchKey) is { } site)
-                _hud.Toast(site.DoneText, 6);
+            {
+                if (_session.Simulation.PlayerInExterior) _hud.Toast(site.DoneText, 6);
+                else _hud.Reading(site.DoneText);
+            }
         });
         _session.Subscribe<WorldFlagChanged>(_ =>
         {

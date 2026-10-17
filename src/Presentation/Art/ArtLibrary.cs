@@ -80,10 +80,17 @@ public sealed class ArtLibrary
     private SemaphoreSlim? _window;
     private readonly CancellationTokenSource _prefetchEnded = new();
 
-    public ArtLibrary(string? root)
+    private readonly string? _sceneCachePrefix;
+    private readonly bool _buildSceneCache;
+
+    public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
     {
         Root = root;
-        Cache = new TextureCache(VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache);
+        _sceneCachePrefix = sceneCachePrefix;
+        _buildSceneCache = buildSceneCache;
+        Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache);
+        PackedTerrainCache = useTextureCache && FallbackRoot is not null
+            ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_terrain"), false) : null;
     }
 
     /// <summary>Set by <c>--texture-cache</c> (editor binary): every texture this run loads is compressed into the cache (Phase B, B1).</summary>
@@ -146,6 +153,9 @@ public sealed class ArtLibrary
 
     /// <summary>The compressed, shared copies of the textures (Phase B, B1), used when the run asks for them (<c>--visual textures=cache</c>).</summary>
     public TextureCache Cache { get; }
+
+    /// <summary>Offline-compressed packed terrain maps for the opt-in space budget; source dimensions stay unchanged.</summary>
+    public TextureCache? PackedTerrainCache { get; }
 
     /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
     public ArtCoverage Coverage { get; } = new();
@@ -543,6 +553,21 @@ public sealed class ArtLibrary
         return node;
     }
 
+    /// <summary>Release a departed space's cached model resources after its scene instances have been freed.</summary>
+    public int ReleaseModels(string prefix)
+    {
+        int count = 0;
+        foreach (string path in _scenes.Keys.Where(p => Path.GetFileName(p).StartsWith(prefix, StringComparison.Ordinal)).ToArray())
+        {
+            _scenes[path]?.Dispose();
+            _scenes.Remove(path);
+            count++;
+        }
+        foreach (string id in _vertices.Keys.Where(id => id.StartsWith(prefix, StringComparison.Ordinal)).ToArray())
+            _vertices.Remove(id);
+        return count;
+    }
+
     /// <summary>Records that no workspace holds <paramref name="relative"/> (what the greybox stands in for), and returns nothing.</summary>
     private PackedScene? Miss(string id, string relative)
     {
@@ -558,6 +583,19 @@ public sealed class ArtLibrary
             return null;
         }
         ulong started = Time.GetTicksUsec();
+        string? stamp = _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal)
+            ? "v1 " + Engine.GetVersionInfo()["string"].AsString() + " "
+              + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) : null;
+        string native = path + ".scn";
+        if (stamp is not null && !_buildSceneCache && File.Exists(native) && File.Exists(native + ".sha256")
+            && File.ReadAllText(native + ".sha256") == stamp
+            && ResourceLoader.Load<PackedScene>(native, cacheMode: ResourceLoader.CacheMode.IgnoreDeep) is { } cached)
+        {
+            _sceneCount++;
+            _sceneMs += (Time.GetTicksUsec() - started) / 1000.0;
+            GD.Print($"UNNAMED native scene: {Path.GetFileName(path)} {(Time.GetTicksUsec() - started) / 1000.0:0} ms");
+            return cached;
+        }
         _loadOrder.Add(path);
         // Disposed on return: the state holds every decoded source image, which otherwise stays in memory until the .NET collector
         // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way). Parsed ahead on a worker when it was prefetched.
@@ -596,6 +634,13 @@ public sealed class ArtLibrary
         {
             Problem(id, $"the loaded scene would not pack ({error})");
             return null;
+        }
+        if (stamp is not null && _buildSceneCache)
+        {
+            var saved = ResourceSaver.Save(packed, native, ResourceSaver.SaverFlags.BundleResources | ResourceSaver.SaverFlags.Compress);
+            if (saved != Error.Ok) throw new IOException($"Could not build native scene {native}: {saved}");
+            File.WriteAllText(native + ".sha256", stamp);
+            GD.Print($"UNNAMED native scene built: {native}");
         }
         return packed;
     }

@@ -30,6 +30,20 @@ public partial class HitImpacts : Node3D
         }
     }
 
+    /// <summary>Prepare these same recipes/textures at portal entry, owned by the interior's lifetime.</summary>
+    public void Prepare(Node3D parent, Vector3 at)
+    {
+        if (_recipes is null) return;
+        foreach (string effect in new[] { "hit.flesh", "hit.metal", "hit.blocked" })
+            foreach (string name in _recipes.For(effect))
+                if (_recipes.Build(name) is { } burst)
+                {
+                    parent.AddChild(burst);
+                    burst.GlobalPosition = at;
+                    ParticleRecipes.Fire(burst);
+                }
+    }
+
     /// <summary>A blow on <paramref name="defId"/> (null: the character) at <paramref name="at"/>, from <paramref name="from"/>.</summary>
     public void Hit(string? defId, Vector3 at, Vector3 from, bool blocked)
     {

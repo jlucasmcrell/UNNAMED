@@ -5,11 +5,19 @@ ROOT=Path(__file__).resolve().parents[1]
 DEPOT=Path(r'D:\Otherreach_Depot\barrowworks_codex')
 PRIMARY=Path(r'C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary')
 records=json.loads((DEPOT/'room_manifest.json').read_text())
+boiler=json.loads((DEPOT/'ready/bw_codex_boiler/bw_codex_boiler_meta.json').read_text())
+for record in records:
+    if record['asset_id']=='bw_codex_room_06':record['boiler_source']=boiler
 for record in json.loads((DEPOT/'props_manifest.json').read_text()):
     asset=record['asset_id'];path=DEPOT/'ready'/asset/(asset+'.glb')
     record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
     record['source_urls']=['https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e','https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4']
-    if 'entrance' in asset:record['source_urls'].append('https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5')
+    if 'entrance' in asset:
+        record['source_urls'].append('https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5')
+        record['berm_surface_source']=json.loads((PRIMARY/'materials/cw_rock_ground/cw_rock_ground_provenance.json').read_text())
+    if 'measure' in asset:record['boiler_source']=boiler
+    record['rough_wood_source']=json.loads((PRIMARY/'materials/cw_timber_beam/cw_timber_beam_provenance.json').read_text())
+    record['first_party_surface']='Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry.'
     records.append(record)
 record=json.loads((DEPOT/'rigged/bw_codex_custodian/bw_codex_custodian_meta.json').read_text())
 record['sha256']=hashlib.sha256((DEPOT/'rigged/bw_codex_custodian/bw_codex_custodian_rigged.glb').read_bytes()).hexdigest();records.append(record)
@@ -20,3 +28,22 @@ for asset in ['prop_ph_wooden_crate_01','cw_woodpile_a','prop_bp_beam_mossy','pr
 out=ROOT/'docs/BARROWWORKS_ASSET_MANIFEST.json'
 out.write_text(json.dumps({'asset_root':str(DEPOT),'raw_sources_committed':False,'assets':records},indent=2)+'\n')
 print('Recorded',len(records),'assets')
+
+# Native scenes are optional, engine-version/source-digest checked derivatives; GLBs remain authoritative.
+scenes=[]
+for path in sorted(DEPOT.rglob('bw_codex_*.glb.scn')):
+    source=Path(str(path)[:-4])
+    stamp=Path(str(path)+'.sha256')
+    assert stamp.exists() and stamp.read_text().endswith(hashlib.sha256(source.read_bytes()).hexdigest().upper()),source
+    scenes.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+                   'source':str(source),'stamp':stamp.read_text()})
+(ROOT/'docs/BARROWWORKS_SCENE_CACHE.json').write_text(json.dumps({'raw_sources_committed':False,'outputs':scenes},indent=2)+'\n')
+# Terrain cache is deliberately separate from the shared primary texture-cache junction.
+terrain=[]
+for path in sorted((DEPOT/'barrowworks_terrain/texture_cache').glob('*.dds')):
+    terrain.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+                    'size_px':[4096,4096],'format':'BC7 RGBA, full mip chain'})
+assert len(terrain)==18,'Rebuild all nine packed terrain pairs before publishing a cache manifest'
+(ROOT/'docs/BARROWWORKS_TERRAIN_CACHE.json').write_text(json.dumps({'cache_root':str(DEPOT/'barrowworks_terrain/texture_cache'),
+    'licence':'CC0 1.0; existing Poly Haven packed terrain maps','raw_sources_committed':False,'outputs':terrain},indent=2)+'\n')
+print('Recorded',len(scenes),'native scenes and',len(terrain),'packed terrain maps')

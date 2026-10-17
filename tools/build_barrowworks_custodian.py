@@ -31,9 +31,10 @@ for v in bm.verts:
 bmesh.ops.delete(bm,geom=removed,context='VERTS');bm.to_mesh(data);bm.free()
 for obj in list(bpy.data.objects):bpy.data.objects.remove(obj,do_unlink=True)
 material=bpy.data.materials.new('piacenti_ancient_iron');material.use_nodes=True
-nodes=material.node_tree.nodes;bsdf=nodes.get('Principled BSDF');bsdf.inputs['Metallic'].default_value=.35;bsdf.inputs['Roughness'].default_value=.68
+nodes=material.node_tree.nodes;bsdf=nodes.get('Principled BSDF');bsdf.inputs['Metallic'].default_value=.12;bsdf.inputs['Roughness'].default_value=.78
 for filename,socket in [('ancient color.png','Base Color'),('normal.png','Normal')]:
-    image=bpy.data.images.load(str(source/filename));image.scale(2048,2048);image.pack()
+    image=bpy.data.images.load(str(source/filename));image.scale(1024,1024)
+    image.pack()
     tex=nodes.new('ShaderNodeTexImage');tex.image=image
     if socket=='Normal':
         image.colorspace_settings.name='Non-Color';normal=nodes.new('ShaderNodeNormalMap');material.node_tree.links.new(tex.outputs['Color'],normal.inputs['Color']);material.node_tree.links.new(normal.outputs['Normal'],bsdf.inputs[socket])
@@ -92,6 +93,24 @@ for kind in ('elbow','valve'):
   o=bpy.data.objects.new('index' if kind=='valve' else 'caliper_jaw',mesh.copy());bpy.context.collection.objects.link(o);o.location=at;o.scale=tuple(dimensions[i]/(hi-lo)[i] for i in range(3))
   bpy.ops.object.select_all(action='DESELECT');o.select_set(True);bpy.context.view_layer.objects.active=o;bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
   g=o.vertex_groups.new(name=bone);g.add(list(range(len(o.data.vertices))),1,'REPLACE');pieces.append(o)
+# A cast register, brass scale and exposed measuring jaws pull the source toward the works' vocabulary.
+brass=bpy.data.materials.new('worn_register_brass');brass.use_nodes=True
+bsdf=brass.node_tree.nodes.get('Principled BSDF');bsdf.inputs['Base Color'].default_value=(.32,.20,.07,1);bsdf.inputs['Metallic'].default_value=.5;bsdf.inputs['Roughness'].default_value=.65
+details=[]
+for radius,depth,y in ((.18,.10,-.82),(.145,.018,-.88)):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=32,radius=radius,depth=depth,location=(0,y,1.7),rotation=(math.pi/2,0,0))
+    obj=bpy.context.object;obj.data.materials.append(brass);details.append(obj)
+for step in range(13):
+    angle=step*math.pi/8
+    bpy.ops.mesh.primitive_cube_add(size=1,location=(.11*math.cos(angle),-.898,1.7+.11*math.sin(angle)))
+    obj=bpy.context.object;obj.scale=(.018,.018,.055);obj.rotation_euler.y=-angle;obj.data.materials.append(material);details.append(obj)
+bpy.ops.mesh.primitive_cube_add(size=1,location=(.025,-.915,1.725))
+obj=bpy.context.object;obj.scale=(.10,.018,.018);obj.rotation_euler.y=-.6;obj.data.materials.append(material);details.append(obj)
+for obj in details:
+    bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+    bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
+    group=obj.vertex_groups.new(name='housing');group.add(list(range(len(obj.data.vertices))),1,'REPLACE')
+pieces+=details
 bpy.ops.object.select_all(action='DESELECT')
 for obj in pieces: obj.select_set(True)
 bpy.context.view_layer.objects.active = pieces[0]
@@ -111,13 +130,18 @@ rigged.mkdir(parents=True, exist_ok=True)
 def export(path, animation):
     bpy.ops.object.select_all(action='DESELECT')
     rig.select_set(True)
-    body.select_set(True)
+    (carrier if animation else body).select_set(True)
     bpy.context.view_layer.objects.active = rig
     bpy.ops.export_scene.gltf(filepath=str(path), export_format='GLB', use_selection=True, export_yup=True,
         export_apply=False, export_animations=animation, export_animation_mode='ACTIVE_ACTIONS',
         export_force_sampling=True, export_lights=False)
 
+# Brass register plate/ticks and measuring jaws are connected rigidly to the existing housing bones.
 export(rigged/'bw_codex_custodian_rigged.glb', False)
+bpy.ops.mesh.primitive_plane_add(size=.001);carrier=bpy.context.object;carrier.name='clip_skeleton_carrier'
+carrier.parent=rig;group=carrier.vertex_groups.new(name='root');group.add(list(range(4)),1,'REPLACE')
+modifier=carrier.modifiers.new('clip_rig','ARMATURE');modifier.object=rig
+
 output = []
 for state, frames, loop in (('idle',120,True), ('walk',18,True), ('run',16,True),
                             ('sweep',90,False), ('fall',100,False), ('grasp',75,False),

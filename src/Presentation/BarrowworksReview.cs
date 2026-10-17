@@ -20,6 +20,7 @@ public sealed class BarrowworksReview
     private int _settle, _frames;
     private double _frameSeconds, _settleSeconds;
     private double _captureSeconds;
+    private ulong _lastFrameUsec;
     private readonly bool _realtime;
     private readonly Performance.Monitor[] PipelineMonitors =
     {
@@ -29,7 +30,7 @@ public sealed class BarrowworksReview
     };
     private readonly long[] _pipelines;
     private readonly int[] _collections = new int[3];
-    private bool _entered, _arrived, _thresholdShot, _leaving;
+    private bool _entered, _arrived, _thresholdShot, _leaving, _memoryReported, _reentered;
     private double _exteriorSettle;
     private long _lastProgress;
     private readonly int _roomLimit;
@@ -38,10 +39,16 @@ public sealed class BarrowworksReview
     private readonly HashSet<string> _attackShots = new(StringComparer.Ordinal);
     public void RecordFrame(double seconds)
     {
+        // Diagnostic only: engine process delta can clamp long stalls. Never feed this interval to GameSession.
+        ulong now = Time.GetTicksUsec();
+        double measured = _lastFrameUsec == 0 ? seconds : (now - _lastFrameUsec) / 1_000_000.0;
+        _lastFrameUsec = now;
         _frameSeconds = seconds;
-        if (_entered && double.IsFinite(seconds) && seconds > 0)
+        // Start immediately after the threshold photo so its exclusion is consumed BEFORE portal loading.
+        // Starting only after EnterSpace masked the entry stall as if it were screenshot readback.
+        if (_thresholdShot && double.IsFinite(seconds) && seconds > 0)
         {
-            _captureSeconds += seconds;
+            _captureSeconds += measured;
             for (int i=0;i<PipelineMonitors.Length;i++)
             {
                 long count=(long)Performance.GetMonitor(PipelineMonitors[i]);
@@ -54,15 +61,22 @@ public sealed class BarrowworksReview
                 if (count!=_collections[i]) _stats.Mark($"managed GC gen{i} +{count-_collections[i]}");
                 _collections[i]=count;
             }
-            _stats.Record(seconds);
+            _stats.Record(measured);
+            if (!_memoryReported && _stats.Count >= 120)
+            {
+                _memoryReported = true;
+                GD.Print($"BARROWWORKS memory MB: total={Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576:0.0}; "
+                    + $"textures={Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576:0.0}; "
+                    + $"buffers={Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576:0.0}");
+            }
         }
     }
     public void Screenshot() => _stats.SkipNext();
     public void WriteTiming() => _stats.Write(Directory, new Dictionary<string, string>
     {
         ["route"] = "Frontier threshold -> all thirteen Barrowworks rooms -> solo Custodian -> headworks",
-        ["clock"] = _realtime ? "Normal fixed 20 Hz simulation through GameSession.Frame(delta); capture stalls and initial loading excluded"
-            : "One ordinary simulation tick per rendered frame; capture stalls and initial loading excluded",
+        ["clock"] = _realtime ? "Normal fixed 20 Hz through GameSession.Frame(delta); monotonic frame timing; boot/screenshot readback excluded, portal entry/return included"
+            : "One ordinary simulation tick per rendered frame; monotonic frame timing; boot/screenshot readback excluded, portal entry/return included",
         ["tier"] = VisualOptions.Tier,
     });
     public string Directory { get; }
@@ -138,10 +152,13 @@ public sealed class BarrowworksReview
             {
                 if ((_exteriorSettle+=_frameSeconds)<1) return null;
                 _thresholdShot=true;
+                for (int i = 0; i < PipelineMonitors.Length; i++) _pipelines[i] = (long)Performance.GetMonitor(PipelineMonitors[i]);
+                for (int i = 0; i < _collections.Length; i++) _collections[i] = GC.CollectionCount(i);
                 return "entrance_threshold";
             }
             _camera.TargetDistance=3.5f;
             _entered=true;
+            _stats.Mark("portal entry submitted");
             _session.Submit(new EnterSpaceCommand(sim.PlayerId,"portal.barrowworks.threshold"));
             _lastProgress=sim.WorldTick;
             return null;
@@ -153,6 +170,15 @@ public sealed class BarrowworksReview
             _camera.Yaw=0;_camera.Pitch=-.08f;_camera.TargetDistance=6;
             if ((_exteriorSettle+=_frameSeconds)<1.2) return null;
             if (_exteriorSettle<100) {_exteriorSettle=100;return "entrance_drain";}
+            if (!_reentered && OS.GetEnvironment("BARROWWORKS_REVIEW_REENTER") == "1")
+            {
+                _reentered = true;
+                _leaving = false;
+                Add("reentered_drain", 8, 38);
+                Note("reenter drain after interior resource release");
+                _session.Submit(new EnterSpaceCommand(sim.PlayerId, "portal.barrowworks.drain"));
+                return null;
+            }
             return "done";
         }
         if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian") is
@@ -196,7 +222,7 @@ public sealed class BarrowworksReview
             _path.Clear();
             _arrived = true;
             _settle = 25;
-            _settleSeconds = .35; // Let the gameplay camera and animation blend settle even when review mode is uncapped.
+            _settleSeconds = stop.Name == "custodian" ? 4 : .35; // Include the whole death clip before the corpse portrait.
             var look = stop.LookAt;
             if (stop.Interact is { } key)
             {
@@ -208,6 +234,8 @@ public sealed class BarrowworksReview
             }
             _camera.Yaw = look is { } aim ? Mathf.Atan2(-(aim.X-body.XMm/1000f), -(aim.Y-body.ZMm/1000f)) : Mathf.Pi;
             _camera.Pitch = -.06f;
+            _camera.TargetDistance = stop.Name == "custodian" ? 6.5f : 3.5f;
+            if (stop.Name == "custodian") _camera.Pitch = -.22f;
             return null;
         }
         if (_path.Count == 0)

@@ -147721,7 +147721,7 @@ barriers:
 # The Barrowworks' two entrances (M8 D10, P2). Both lead into the one interior, and each remembers which was
 # used, so leaving returns a body to the anchor it came in by rather than to a single shared vector.
 #
-# PROVISIONAL PLACEMENT - the owner should move these (OPEN_QUESTIONS OQ-11). The two anchors are the canon
+# PROVISIONAL PLACEMENT - the owner should move these (docs/BARROWWORKS_CODEX_HANDOFF.md OQ-11). The two anchors are the canon
 # features the phase brief names: entrance A beside Blackvein's spoil heaps (the nodes blackvein_spoil_1 and
 # _2, at 440,662 and 436,665), entrance B at The Sinking Moss (location.cairnwold.the_bog, anchored at
 # 1050,770). Those two places are about 610 m apart, which is where the canon features are rather than a

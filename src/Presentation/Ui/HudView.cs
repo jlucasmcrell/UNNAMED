@@ -1007,8 +1007,16 @@ public partial class HudView : Control
         }
     }
 
-    public void Toast(string text, double seconds)
+    private PanelContainer? _reading;
+
+    public void Toast(string text, double seconds, bool reading = false)
     {
+        if (reading && _reading is not null)
+        {
+            _live.RemoveAll(t => t.Box == _reading);
+            if (GodotObject.IsInstanceValid(_reading)) _reading.QueueFree();
+            _reading = null;
+        }
         // The same notice again while it still shows is the same notice: it stays up longer rather than stacking.
         int live = _live.FindIndex(t => t.Text == text);
         if (live >= 0)
@@ -1016,17 +1024,18 @@ public partial class HudView : Control
             _live[live] = (_live[live].Box, text, Math.Max(_live[live].Expires, _clock + seconds));
             return;
         }
-        var box = ToastBox(text);
+        var box = ToastBox(text, reading);
         _toasts.AddChild(box);
         Quiet(box);
         _live.Add((box, text, _clock + seconds));
+        if (reading) _reading = box;
     }
 
     /// <summary>
     /// A notice in its panel. Its words are the classic HUD's; a leading kind ("Quest complete:", "Learned", "Discovered:", "Done:")
     /// is set as a small capital label before the rest, and experience in brass.
     /// </summary>
-    private PanelContainer ToastBox(string text)
+    private PanelContainer ToastBox(string text, bool reading)
     {
         var box = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkEnd };
         box.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 4));
@@ -1047,7 +1056,13 @@ public partial class HudView : Control
             row.AddChild(label);
         }
         bool xp = rest.StartsWith('+') && rest.Contains(" XP", StringComparison.Ordinal);
-        row.AddChild(HudStyle.Text(HudStyle.Strong, 18, xp ? HudStyle.Brass : HudStyle.Bone).Say(rest));
+        var words = HudStyle.Text(HudStyle.Strong, 18, xp ? HudStyle.Brass : HudStyle.Bone).Say(rest);
+        if (reading)
+        {
+            words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            words.CustomMinimumSize = new Vector2(Math.Clamp(GetViewportRect().Size.X - 120, 1, 560), 0);
+        }
+        row.AddChild(words);
         box.AddChild(row);
         return box;
     }

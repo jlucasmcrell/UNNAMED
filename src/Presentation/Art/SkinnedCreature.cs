@@ -60,6 +60,20 @@ public sealed partial class SkinnedCreature : CreatureBody
         _current = Feet(body);
     }
 
+    internal void PrewarmMarks(Action draw)
+    {
+        string text = _mark.Text;
+        bool visible = _mark.Visible;
+        foreach (string mark in new[] { "!", "?" })
+        {
+            _mark.Text = mark;
+            _mark.Visible = true;
+            draw();
+        }
+        _mark.Text = text;
+        _mark.Visible = visible;
+    }
+
     public override void Pose(CreatureView creature, float alpha, double delta)
     {
         if (creature.Condition == CreatureCondition.Gone)

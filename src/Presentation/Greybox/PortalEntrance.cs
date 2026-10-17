@@ -18,8 +18,10 @@ public static class PortalEntrance
         float y = layout.Space.Terrain.HeightAtMm(xMm, zMm) / 1000f;
         root.Position = new Vector3(xMm / 1000f, y, zMm / 1000f);
         if (bindings.Structure(portal.Key) is { Model: not null } look
-            && Art.Fitting.Site(art, look, Vector3.Zero) is { } model)
+            && art.ModelWithLods(look.Model) is { } model)
         {
+            // The authored origin is the mouth. Recentering an asymmetric berm moves it off the real portal.
+            model.Position = look.Offset;
             root.AddChild(model);
             return root;
         }

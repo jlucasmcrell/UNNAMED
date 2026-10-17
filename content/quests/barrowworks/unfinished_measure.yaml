@@ -50,7 +50,7 @@ objectives:
     description: Put down the Ring Custodian.
     # WP4's defeat_boss writes the flag from the creature's death, in the measuring court's cell, and a death
     # before the quest was offered still counts - which is the durable-fact reading the design asks for. This was a
-    # bare world_state while nothing in the engine wrote a flag on a kill (OQ-17).
+    # bare world_state while nothing in the engine wrote a flag on a kill (handoff OQ-17).
     params: { creature_ref: creature.construct.ring_custodian, flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }
     all_of: [o_read_fitting, o_read_diagram]
     next: [o_haft]

@@ -1,8 +1,93 @@
 # Barrowworks: current implementation, art and verification
 
 The dungeon remains opt-in (`--visual barrowworks=1`). Run from `region.starting_frontier` through
-the real portal. No schema number, historical fixture, audio source or audio manifest changed in review 4.
+the real portal. No schema number, historical fixture, audio source or audio manifest changed in this revision.
 Claude owns schema renumbering and integration conflicts against the advancing base.
+
+## Review 5 rendering and art
+
+Interior geometry/textures are loaded on portal entry and its cached model resources are released after
+leaving, after views/creatures/items have switched back. No simulation state or save schema is changed.
+The enabled run uses the existing signed BC7 cache in the primary asset package; distribute its
+`texture_cache/` manifest and DDS files with the package. Missing/stale cache entries retain the normal
+fallback and are reported; budget evidence must identify the actual package/cache hits. Option off keeps
+its original upload path. Indoor SDFGI is disabled: local lights and contact shading light a closed hill.
+Only the court rim has a shadowed room light; the other pools and corridor lights are unshadowed.
+
+Portal-entry prewarm issues real material/skin/shadow/GI draws in the actual High viewport from the
+court, every room and the two exterior-return views, including the alarm glyphs and impact effects.
+Draws do not swap to the window; camera/body presentation transforms restore in a finally block.
+It reuses the existing outdoor GI allocation before the first indoor draw and allocates no auxiliary
+viewport. No commands or authoritative state change. Entry and return stalls remain visible in raw
+timing data: the threshold screenshot exclusion is consumed before entry, fixing an earlier harness
+bug that masked the loading frame. No exclusion or timing threshold was broadened.
+
+The native terrain path also uses signed BC7 copies from the owned depot's
+`barrowworks_terrain/texture_cache/`. All eighteen maps retain 4096-square resolution, RGBA packed
+channels and full mip chains (384 MB). Source PNGs remain untouched. If any entry is stale/missing, all layers use the
+original RGBA8 path so one native array never mixes formats; that fallback does not meet the compressed
+budget. Build with the installed editor binary, CPU-only (PowerShell, from the repository root):
+`godot --headless --editor --path src/Presentation --script (Resolve-Path tools/build_barrowworks_terrain_cache.gd)`.
+`BARROWWORKS_TERRAIN_CACHE.json` records derived hashes. Native Terrain3D remains enabled, including its
+zero-mm agreement with domain ground; this optimization does not select the terrain fallback.
+
+Native scene derivatives avoid decoding the same embedded GLB images on every entry. Build them with
+`--build-scene-cache` added to the headless real-portal review command below, then omit that flag for
+play. The depot holds adjacent `.glb.scn` files with bundled resources, plus `.scn.sha256` stamps containing
+the source digest, Godot version and cache-format revision. Missing/stale scenes use their source GLB;
+no native scenes or source binaries are committed. Rebuild after an art export or engine upgrade, then
+run `python tools/manifest_barrowworks_assets.py` to refresh `BARROWWORKS_SCENE_CACHE.json` and the terrain
+manifest. This cache revision is unrelated to the save schema. Only enabled Barrowworks IDs opt in.
+Exterior creature figures are retained, hidden and stopped while indoors, then their interpolation is
+placed at the current authoritative bodies on return. Loading/new game resets both projections. Interior
+figures belong to the interior scene and are freed with it. This preserves exterior rendering resources
+across the transition without retaining interior models after exit.
+
+All eight former masonry-grid rooms now use the approved rock relief. Wash/drain troughs contain water;
+sorting bins, chutes and tables, the Still Bay's real scanned boiler/condenser, and dense ledger shelves
+make the functions visible. The headworks is one cast bed, drive/flywheel, boiler housing, sliding gauge
+and register assembly. Reading papers carry worn raster writing from the existing copy; boards use
+Poly Haven Rough Wood (CC0). Roof materials are rough dielectrics, closing the metallic white streaks;
+solid backing closes R09. The lantern glass has a real GLB tint/alpha and no emission.
+
+Blackvein spoil and Sinking Moss mouths are inset into textured sloping berms, with different rubble,
+soil and drain water/reeds. Their model origin is the real portal mouth, not the asymmetric berm centre.
+These art landforms do not decide OQ-11's provisional overland placements. The Custodian has a cast
+register/brass graduations, measuring jaws, rusted iron and a front key plus rim. Its review portrait
+waits for the whole death clip, from outside the body. Readings wrap within the screen and replace the
+previous reading; ordinary exterior notices keep their existing behavior.
+
+Room LOD maps are 512/256/128; fixture maps are capped at 512, the authored body at 1024. Clip GLBs now
+carry only their skeleton and keyed tracks (11–20 KB each), retaining all eleven joints instead of
+embedding another 20 MB armored mesh/atlas in each of eight animation files.
+
+Additional CC0 reuse: ScottishMaritimeMuseum, *Boiler from the puffer VIC 32*,
+https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d . Source archive/licence and derived
+provenance remain in the external depot; this is the Still Bay vessel/headworks housing, not the
+rejected boiler-as-Custodian. Poly Haven Rough Wood: https://polyhaven.com/a/rough_wood .
+No generative model or service was used.
+
+## Review 5 verification status
+
+All 1,361 tests passed with zero skipped (`review5_all_tests.log`); after the final presentation
+changes, Release and the focused Presentation 127 / Architecture 18 suites passed again. Content lint
+loads 339 definitions with zero errors; xref exits 0. No timing assertion or test was weakened.
+The scene-cache check reloads all 62 scenes / 383 mesh nodes and verifies the Custodian's eleven joints.
+All 76 GLB outputs and 80 cache derivatives match their manifest hashes. The final room/detail sheets
+were inspected, including all thirteen rooms, both mouths, the readings, three attack poses and corpse
+camera. The later cached normal capture must retain these same visuals.
+
+**Idle option-off A/B is pending, explicitly deferred by the owner on 2026-10-17** while the priority body
+Unreal chain and wave-5 integration tests run. No quiet machine is available. Three pairs remain queued
+outside the GPU lock via `D:\Otherreach_Scratch\barrowworks\codex\review5_off_all.ps1` (CPU-idle gate,
+short individual GPU leases, sixty-second cooldowns). Pair order is A/B, B/A, A/B, where A=23d75688 and
+B=db4df5e4. Both archived fixtures include the same native terrain dependencies, primary/fallback assets
+and matching frontier overlay; neither uses the cheaper terrain fallback. High, 1920x1050, barrowworks=0,
+three twenty-second camera segments plus the existing five-second warmup. The report includes FPS,
+1% low and frame mean for every run, and retains all-frame/warmup-inclusive rows separately:
+`review5_idle_off_report.md`, with raw `review5_idle_off_{pair}_{revision}/frames.csv`, pair logs and
+`review5_idle_cpu_samples.csv`. Confirm no other heavy work overlaps the timed samples before accepting
+these as idle controls. Contended or aborted attempts are not substituted as idle evidence.
 
 ## Review 4 regressions and cleanup
 
@@ -76,7 +161,7 @@ and inaccessible Sketchfab candidate are not the final character. Review 4 does 
 `tools/barrowworks_art_direction.json` gives each room its wall, roof and light recipe. Stone ribs,
 timber grids, exposed rock, pipe runs and machine rails replace the repeated temple lid. Each light has
 a physical lantern at its position; scanned slab seams are closed by solid rock above their relief.
-LOD texture dimensions remain bounded at 1024/512/256. Physical readings are pinned curled papers,
+LOD texture dimensions are now bounded at 512/256/128 (review 5). Physical readings are pinned curled papers,
 a filing shelf, drawing easel and open bound folio. Their set-state glow is disabled through local
 bindings; exterior switch marks retain their behavior. The headworks has twin supported rails, a
 sliding carriage, opposed jaws, graduations and an animated drive wheel. Both exterior entrances use
@@ -92,9 +177,11 @@ the third-party source blend; the supplied script explicitly uses `use_scripts=F
 
 1. `tools/convert_barrowworks_kit.ps1`, `tools/convert_barrowworks_metal.ps1` prepare licensed local sources.
 2. `python tools/gen_barrowworks_blockout.py` and `python tools/gen_barrowworks_bindings.py` regenerate content.
-3. Blender `-b --threads 4 --python-exit-code 1 --python SCRIPT`: run `build_barrowworks_rooms.py`,
+3. `python tools/build_barrowworks_paper.py` requires Pillow and the local Windows Segoe Print font
+   (only raster output is shipped). Blender `-b --threads 4 --python-exit-code 1 --python SCRIPT`: run `build_barrowworks_rooms.py`,
    `build_barrowworks_props.py` and `build_barrowworks_custodian.py`. `--rooms 3,8,12` supports a targeted
-   room iteration; a complete build omits it. Then refresh the manifest. `link_barrowworks_fallback.ps1`
+   room iteration; a complete build omits it. Run `python tools/finalize_barrowworks_surfaces.py`
+   after room exports, then refresh the manifest. `link_barrowworks_fallback.ps1`
    makes the existing shared fallback available alongside additions without editing it.
 4. Build `src/UNNAMED.sln -c Release`; build Presentation in Debug for the installed Godot editor runtime.
 5. Under the shared GPU lock, run Godot with `--path src/Presentation`, then these game arguments after `--`:
@@ -119,7 +206,7 @@ headless traversal. `BARROWWORKS_REVIEW_LIMIT` supports a short preview.
 pipeline compilations and managed collections with frames; screenshots use the existing exclusion of
 only the next sample. Initial loading is separate. Timing claims must state whether the 1% low passes.
 
-## Verification
+## Review 4 baseline verification (historical)
 
 Evidence root: `D:\Otherreach_Scratch\barrowworks\codex`.
 
@@ -144,12 +231,16 @@ This measurement precedes the final two task lamps and rust-material adjustment.
 does not replace it. See `BARROWWORKS_HITCH_PROFILE.md`: two court stalls correlate with first-use
 pipeline compilation; one 107 ms sample remains unattributed; the exterior return has a separate burst.
 
-The final presentation change preloads held-interior item models, creature rig and clips at startup,
-using existing caches, only when the option is enabled. `review4_prewarm_check.log` confirms all eight
-Custodian clips loaded before the review fixture began; no Barrowworks model/clip file loaded at portal
-entry through R01. This moves file decoding out of first entry, without claiming to eliminate first-draw
-shader compilation. That headless first-entry check completed successfully. Its 22 unrelated exterior
-fallbacks are enumerated in `review4_prewarm_check/art_coverage.md`; no Barrowworks asset is missing.
+The historical `review4_prewarm_check` validated the earlier startup preload. Review 5 supersedes
+that residency policy with entry loading and departure release; it does not claim these old measurements
+as the current result.
 
 Final asset manifest: 42 records, with local source archives, licence evidence, attribution and derived
 hashes. Distribution credit is also in the external depot's `CREDITS.txt`.
+
+
+## Owner decisions still needed (review 5)
+
+- **OQ-11, portal placement:** threshold (438, 663) at Blackvein spoil and drain (1050, 770) at Sinking Moss remain about 610 m apart. The approximately 137 m interior route therefore makes a substantial overland shortcut. These anchors are provisional. Recommendation: owner chooses whether to move the drain closer; keep current anchors until that decision. The art berms dress these placements and do not settle this map question.
+- **OQ-16, wedge and G3:** the original design couples crafting/fitting the wedge to the headworks door. The quest orders those deeds, but current G3's physical interlock is the durable Custodian defeat, not possession or consumption of a wedge. Recommendation: owner confirms whether the wedge must also physically gate G3, and whether it is consumed. Do not silently substitute quest order for an item requirement; shared door/item policy belongs with the integration owner.
+- **OQ-17, defeat semantics:** durable `world.barrowworks.ring_custodian_defeated` is now written in the ring's own cell and survives quest activation order; the former missing-writer engine gap is fixed. Keep the fact rather than a while-active kill counter. Owner/integration review still needs to ratify encounter retreat/reset/death policy against S35 and the advancing WP4 implementation; do not reintroduce the old missing-writer claim.

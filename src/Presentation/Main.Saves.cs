@@ -25,6 +25,7 @@ public partial class Main
     {
         _controller.Resync();
         _creatures.Reset();
+        if (_creatures != _exteriorCreatures) _exteriorCreatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
         {
             _hollow.SetDoor(door.Site.Key, door.Open);

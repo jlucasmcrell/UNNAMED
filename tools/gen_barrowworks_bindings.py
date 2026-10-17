@@ -171,10 +171,10 @@ def main():
     # and a barrow cut into a hill has no fire in it. The lamp sits high (the walls are 4 m) and carries a long
     # range, because one lamp per room has to reach the corners of a 24 m chamber rather than pool round a fire.
     hall_light = {"at": [0.0, 3.2, 0.0], "colour": [0.62, 0.66, 0.72], "energy": 1.9, "range": 26,
-                  "shadows": True, "size": 0.6, "fog_energy": 0.35, "attenuation": 0.85}
+                  "shadows": False, "size": 0.6, "fog_energy": 0.35, "attenuation": 0.85}
     # The deep rooms get a little less: further from the door is darker, and it is where the minerals are.
     deep_light = {"at": [0.0, 3.2, 0.0], "colour": [0.55, 0.60, 0.70], "energy": 1.5, "range": 24,
-                  "shadows": True, "size": 0.6, "fog_energy": 0.3, "attenuation": 0.9}
+                  "shadows": False, "size": 0.6, "fog_energy": 0.3, "attenuation": 0.9}
     walls = doc.setdefault("building_walls", {})
     lit = 0
     for group in room_groups:
@@ -189,10 +189,10 @@ def main():
         x1, z1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
         cx, cz = (x0+x1)/2, (z0+z1)/2
         recipe=json.load(open(os.path.join(os.path.dirname(__file__), 'barrowworks_art_direction.json'),encoding='utf-8'))[str(number)]
-        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=energy,range=distance,size=.35)
+        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=energy,range=distance,size=.35,shadows=(number==11 and x<0))
                 for x,h,z,colour,energy,distance in recipe['lights']]
         # A broad soft bounce keeps grounded limbs readable without making the unlit edges flat.
-        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.8 if number!=11 else 1.8,
+        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.65 if number!=11 else 1.0,
                            range=max(x1-x0,z1-z0),shadows=False,size=1.5))
         walls[group + "_wall"] = {"model": f"bw_codex_room_{number:02d}", "interior_light": lights}
         lit += 1

@@ -106,7 +106,7 @@ public class BarrowworksEntranceTests
     public void TheTwoEntrances_AreNotAtTheSamePlace()
     {
         // Recorded rather than assumed: the canon anchors these are placed on are far apart, which is a
-        // design question for the owner (OQ-11) and not something to discover later.
+        // design question for the owner (handoff OQ-11) and not something to discover later.
         using var profile = new TempProfile();
         var session = Boot(profile, gated: true);
 

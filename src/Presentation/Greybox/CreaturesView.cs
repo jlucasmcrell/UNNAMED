@@ -30,6 +30,13 @@ public partial class CreaturesView : Node3D
         _bindings = bindings;
     }
 
+    /// <summary>Cull the inactive space's figures; its authoritative creatures continue in Simulation.</summary>
+    public void SetSpaceActive(bool active)
+    {
+        Visible = active;
+        ProcessMode = active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
+    }
+
     public void Draw(Simulation simulation, double alpha, double delta)
     {
         bool advanced = simulation.WorldTick != _tick;
@@ -89,6 +96,35 @@ public partial class CreaturesView : Node3D
         var figure = new CreatureFigure();
         figure.Build(definition);
         return figure;
+    }
+
+    /// <summary>Draw the alarm glyph variants while portal resources are prepared.</summary>
+    public void PrewarmMarks(Action draw)
+    {
+        foreach (var creature in _figures.Values.OfType<Art.SkinnedCreature>()) creature.PrewarmMarks(draw);
+    }
+
+    /// <summary>Returning to a retained space snaps interpolation to the authoritative bodies.</summary>
+    public void ResyncPositions(Simulation simulation)
+    {
+        foreach (var creature in simulation.Creatures)
+            if (_figures.TryGetValue(creature.Id, out var figure)) figure.Place(creature.Body);
+        _tick = -1;
+    }
+
+    /// <summary>Prepare the existing exterior figures, including ones culled at the entry camera.</summary>
+    public void PrewarmCached(Action draw)
+    {
+        var visibility = _figures.Values.Select(f => (Figure: f, f.Visible)).ToArray();
+        try
+        {
+            foreach (var (figure, _) in visibility) figure.Visible = true;
+            draw();
+        }
+        finally
+        {
+            foreach (var (figure, visible) in visibility) figure.Visible = visible;
+        }
     }
 
     /// <summary>After a load or a new game, every creature is placed afresh.</summary>
