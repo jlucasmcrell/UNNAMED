@@ -18,7 +18,7 @@ namespace UNNAMED.Presentation;
 /// then talks with Sel until she lends the primer; (M3e) reads it and works a ward, its tell and then its Strain on screen;
 /// (M3d) looks at each creature
 /// archetype where it lives; walks out to the boar's wallow through the real command path until the boar notices, throws
-/// a bolt at it, fights it to its death, mends, searches the carcass and takes what it holds; (M3f) walks up to the iron
+/// a bolt at it if the character knows one, fights it to its death, mends, searches the carcass and takes what it holds; (M3f) walks up to the iron
 /// seam and strikes it until it is worked out, crosses to the ash stand and cuts a haft - fighting whatever hunts the
 /// character on the way - comes home to the forge shed, (M4) asks Kera to teach the forge - (M5) which starts Iron Under Ash:
 /// the journal and the quest debugger on screen - smelts a billet at the hearth, makes the spear at the anvil and takes it in
@@ -344,7 +344,13 @@ public sealed class UiShots
                 return Stalled(1_200, "the boar never noticed the character");
             case 13:
             {
-                // A bolt at the boar before it closes: face it, and work the projectile the book taught.
+                // A bolt at the boar before it closes: face it, and work a projectile the character knows. Sel's notes teach only a ward,
+                // so a character who knows none opens the fight with the blade.
+                if (!_controller.Formulas().Any(f => magic.Formulas[f].Targeting == Targeting.Projectile))
+                {
+                    Next();
+                    break;
+                }
                 var target = ToCreature(Boarish()!);
                 _camera.Yaw = Mathf.Atan2(-target.X, -target.Z);
                 _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
@@ -382,7 +388,8 @@ public sealed class UiShots
                 }
                 return Stalled(1_600, "the boar did not die");
             case 15:
-                // Mend after the fight: the last self formula the book taught.
+            {
+                // Mend after the fight: a self formula that lifts an effect when the character knows one, or else what the kit carries to use.
                 if (_released is not null)
                 {
                     Then("mending");
@@ -390,12 +397,22 @@ public sealed class UiShots
                     _released = null;
                     break;
                 }
+                string? mending = _controller.Formulas().LastOrDefault(f => magic.Formulas[f].Targeting == Targeting.Self && !magic.Formulas[f].Removes.IsEmpty);
+                if (mending is null && !_casting)
+                {
+                    if (_controller.UseConsumable())
+                        Then("mending");
+                    else
+                        Next();
+                    break;
+                }
                 if (!_casting && simulation.Combat.Phase == CombatPhase.Idle)
                 {
-                    _controller.Cast(_controller.Formulas().Last(f => magic.Formulas[f].Targeting == Targeting.Self));
+                    _controller.Cast(mending!);
                     _casting = true;
                 }
                 return Stalled(400, "the mending was never worked");
+            }
             case 16:
                 // Up to the carcass; facing it, the prompt offers to search it.
                 var carcass = Boarish()!;
