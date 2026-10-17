@@ -44,9 +44,14 @@ public sealed partial class SkinnedFigure : Figure
     public override string? ClipState => _model.Current;
 
     /// <summary>The bound person's skinned figure (<c>player</c> or an NPC's ID), or null when the bindings or the asset lack it.</summary>
-    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId)
+    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? body = null)
     {
-        if (!bindings.People.TryGetValue(personId, out var person) || SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
+        if (!bindings.People.TryGetValue(personId, out var person))
+            return null;
+        // Another body on the same binding (the creator's, WP2): the same rig family, so the clips, hands and grips hold.
+        if (body is not null)
+            person = person with { Model = body };
+        if (SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
         var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases };
         figure.AddChild(model);
@@ -147,6 +152,21 @@ public sealed partial class SkinnedFigure : Figure
         _downed = downed;
         return true;
     }
+
+    /// <summary>
+    /// Lying, or getting up (the opening): its <c>get_up</c> clip where the bindings give one, held at the point; until the animation lane
+    /// delivers it, the <c>death</c> clip run backwards from where it lies. Null is on one's feet.
+    /// </summary>
+    public override bool SetWaking(float? through)
+    {
+        _waking = through;
+        return _model.Has("get_up") || _model.Has("death");
+    }
+
+    /// <summary>How long getting up takes on this body, in seconds.</summary>
+    public override double GetUpSeconds => _model.Has("get_up") ? _model.Length("get_up") : _model.Has("death") ? Math.Min(2.0, _model.Length("death")) : 0;
+
+    private float? _waking;
 
     public override void Strike() => _striking = 0.001;
 
@@ -355,6 +375,14 @@ public sealed partial class SkinnedFigure : Figure
     private void Animate(float speed, double delta)
     {
         var m = _model;
+        if (_waking is { } waking)
+        {
+            if (m.Has("get_up"))
+                m.Hold("get_up", waking, 0.05f);
+            else
+                m.Hold("death", 1f - waking, 0.05f);
+            return;
+        }
         if (_downed)
         {
             m.Play("death", 0.25f);

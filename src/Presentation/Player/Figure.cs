@@ -34,6 +34,15 @@ public abstract partial class Figure : Node3D
     /// <summary>Downed (a companion). False when this figure cannot show it itself (the greybox is laid down by its owner).</summary>
     public virtual bool SetDowned(bool downed) => false;
 
+    /// <summary>
+    /// The opening's waking (WP2): lying at 0, getting up through 1, on one's feet at null. False when this figure cannot show it (the
+    /// greybox stands from the first frame).
+    /// </summary>
+    public virtual bool SetWaking(float? through) => false;
+
+    /// <summary>How long this figure takes to get up, in seconds (0 when it cannot lie down).</summary>
+    public virtual double GetUpSeconds => 0;
+
     /// <summary>The clip state being drawn (a skinned body's), for the state log; null for a figure without clips.</summary>
     public virtual string? ClipState => null;
 
