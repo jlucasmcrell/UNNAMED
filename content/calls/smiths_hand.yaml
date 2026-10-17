@@ -4,6 +4,9 @@ schema: 1
 display_key: call.smiths_hand.name
 tags: [call]
 name: Smith's hand
+tagline: "Your master's forge went cold."
+description: "Your master's forge went cold, and you are looking for one that hasn't. You know bog iron from grey iron and what a forge needs before it will work, and the burns and calluses are proof."
+recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "You've held a hammer. Good. Then you know the fire doesn't care about excuses." }
 notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98). Built only from existing items, skills and NPCs; the contact is the waystation's smith (content bible §9). The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo. It knows no recipe and carries no ore or billet, so Kera's lesson and Iron Under Ash are walked as before.
 attribute_bias: { might: 2, endurance: 2 }
 skills: { skill.smithing: 15, skill.polearm: 15 }

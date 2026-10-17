@@ -4,6 +4,9 @@ schema: 1
 display_key: call.scholar.name
 tags: [call]
 name: Scholar
+tagline: "You came to see the stone for yourself."
+description: "The books disagree about the old stones out here, so you came to see one for yourself. You read old hands, and you know the Pacha account and the Other account for what they are: two vocabularies for one strangeness."
+recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "You read. Thank the quiet for that. Most people who come off that road can't." }
 notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98). Built only from existing items, skills and NPCs; the contact is the waystation's archivist (content bible §9). The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo. It teaches no formula - Sel's notes and the primer stay the ways in.
 attribute_bias: { will: 2, insight: 2 }
 skills: { skill.force: 15, skill.warding: 15 }

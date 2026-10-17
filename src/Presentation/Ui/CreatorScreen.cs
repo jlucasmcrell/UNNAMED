@@ -541,7 +541,8 @@ public partial class CreatorScreen : CanvasLayer
 
     private Control Package(CallDefinition call)
     {
-        var section = UiKit.Section(Names.Of(_session, call.Id), call.Id == CreatorDraft.FirstCall ? "A little of everything; a good first choice." : "");
+        var section = UiKit.Section(Names.Of(_session, call.Id), call.Tagline);
+        section.AddChild(UiKit.Words(call.Description, 17, HudStyle.Ash));
         section.AddChild(Line("Leans", Leaning(call)));
         section.AddChild(Line("Starts", string.Join(", ", call.Package.Skills.Select(s => $"{Names.Of(_session, s.Key)} {s.Value}"))));
         section.AddChild(Line("Contact", $"{Names.Of(_session, call.Contact.NpcId)}, who already trusts you a little"));
