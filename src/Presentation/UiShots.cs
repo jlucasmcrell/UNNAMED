@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
@@ -756,9 +757,17 @@ public sealed class UiShots
     private const string OldSword = "item.weapon.rusted_sword";
     private const string Arrows = "item.ammo.arrow_rough";
 
-    /// <summary>Walk up to within a hand's reach of an NPC, from wherever the character stands, and face them.</summary>
+    /// <summary>
+    /// Walk up to within a hand's reach of an NPC, from wherever the character stands, and face them. Someone away from their post to eat,
+    /// visit or shop (WP12) is waited for, not followed into a crowd.
+    /// </summary>
     private bool Approach(string npcId)
     {
+        if (_session.Simulation!.Lives.FirstOrDefault(l => l.Key == npcId) is { Activity: NpcActivities.Eat or NpcActivities.Socialise or NpcActivities.Shop })
+        {
+            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+            return false;
+        }
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
         var away = new Vector3(body.XMm - npc.Body.XMm, 0, body.ZMm - npc.Body.ZMm).Normalized() * 1.3f;
