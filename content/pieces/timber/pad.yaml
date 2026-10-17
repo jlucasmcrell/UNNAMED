@@ -1,0 +1,7 @@
+id: piece.pad.timber
+kind: piece
+schema: 1
+display_key: piece.pad.timber.name
+tags: [piece]
+name: Timber Pad
+notes: A building piece of the m7 kit (SYSTEMS_COMPLETENESS_PLAN §2.9), held here as its identity only so a teacher can teach it (WP9; Berrin, by owner decision). WP8 ports the piece itself - footprint, sockets, cost - into this definition.

@@ -117,13 +117,17 @@ internal sealed class DialogueSystem : IDialogueFacts
         if (choice is null || !DialogueRules.Offered(choice, dialogue.Id, this))
             return $"'{command.ReplyId}' is not a reply here";
 
-        // An item changing hands and a hire are the consequences that can be refused (a full pack, a purse short of the first wage): one
-        // goes first, and a refusal refuses the reply before anything else happens. The content lint allows one a reply.
+        // An item changing hands, a hire and a lesson are the consequences that can be refused (a full pack, a purse short of the first
+        // wage or the fee, a requirement unmet): one goes first, and a refusal refuses the reply before anything else happens. The content
+        // lint allows one a reply.
         if (choice.Consequences.OfType<TransferItemConsequence>().FirstOrDefault() is { } transfer && Transfer(open.NpcId, transfer, tick) is { } refused)
             return refused;
         if (choice.Consequences.OfType<HireHirelingConsequence>().FirstOrDefault() is { } hire
             && _context.Dispatch(new Hire(open.NpcId, hire.Role, hire.Days)) is { } refusedHire)
             return refusedHire;
+        if (choice.Consequences.OfType<TeachConsequence>().FirstOrDefault() is { } teach
+            && _context.Dispatch(new Teach(open.NpcId, teach.DefinitionIds)) is { } refusedLesson)
+            return refusedLesson;
         foreach (var consequence in choice.Consequences)
             Apply(open, consequence, tick);
         _context.Events.Publish(new ReplyChosen(open.NpcId, open.DialogueId, open.NodeId, choice.Id, tick));
@@ -219,10 +223,6 @@ internal sealed class DialogueSystem : IDialogueFacts
     {
         switch (consequence)
         {
-            case GiveRecipeConsequence recipe:
-                // Already known - from another teacher, say - is no failure: there is simply nothing new to learn.
-                _context.Dispatch(new LearnTechnique(new TechniqueLearning(recipe.RecipeId, LearningSource.Teacher, tick) { SourceRef = open.NpcId }));
-                break;
             case SetWorldFlagConsequence flag:
                 _context.Dispatch(new SetWorldFlag(SpeakerCell(open.NpcId), flag.FlagId, flag.Value));
                 break;
@@ -321,6 +321,9 @@ internal sealed class DialogueSystem : IDialogueFacts
         return dialogue.Barks.Select((b, i) => (Bark: b, Line: new SpokenLine(LineIds.Bark(npcId, i + 1), b.Text)))
             .Where(b => b.Bark.Conditions.All(c => DialogueRules.Holds(c, dialogueId, facts))).Select(b => b.Line).ToImmutableArray();
     }
+
+    /// <summary>What a conversation with <paramref name="npcId"/> would see: what a teacher's requirements are asked of (WP9).</summary>
+    public IDialogueFacts FactsOf(string npcId) => new SpeakerFacts(this, npcId);
 
     /// <summary>What a conversation with one NPC would see, without one open: flags in that NPC's cell.</summary>
     private sealed class SpeakerFacts : IDialogueFacts

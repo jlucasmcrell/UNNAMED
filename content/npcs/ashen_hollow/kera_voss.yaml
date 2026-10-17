@@ -11,3 +11,15 @@ merchant_ref: merchant.ashen_hollow.kera_voss
 dialogue_ref: dialogue.ashen_hollow.kera_voss
 unique: true
 faction_ref: faction.ashen_hollow.wayhold
+# What she teaches (WP9, C10): the forge and the fletching bench by her own lines, free, as she always has; the blade's technique to
+# anyone familiar with a blade, for a fee into her purse. Fees are provisional.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.smithing.iron_billet, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.march_spear, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.fletching.arrows, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow_silk, by_dialogue: true }
+  - kind: technique
+    ability_ref: ability.blade.power_strike
+    fee: 25
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }

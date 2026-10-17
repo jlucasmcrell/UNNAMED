@@ -206,7 +206,7 @@ public partial class DialoguePanel : CanvasLayer
                 case DismissCompanionConsequence:
                     tags.Add(("Leaves you", HudStyle.Brass));
                     break;
-                case GiveRecipeConsequence:
+                case TeachConsequence:
                     tags.Add(("Learn", HudStyle.Lichen));
                     break;
             }

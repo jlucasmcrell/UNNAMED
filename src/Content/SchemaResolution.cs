@@ -317,6 +317,14 @@ public static class ContentKindRegistry
             IdPrefix: "market"
         );
 
+        // 32. piece - a building piece the character can learn and place (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.9; taught since WP9, built by WP8)
+        kinds["piece"] = new ContentKindDefinition(
+            Kind: "piece",
+            FullKind: "piece",
+            Directory: "pieces",
+            IdPrefix: "piece"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

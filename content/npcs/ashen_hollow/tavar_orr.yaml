@@ -13,3 +13,9 @@ companion:
   health: 100
   weapon_item_ref: item.weapon.march_spear
   armor: { head: 0, torso: 3, limbs: 1 }
+# What he teaches (WP9, C10): the bow's technique to anyone familiar with a bow, for a fee. Fees are provisional.
+teaches:
+  - kind: technique
+    ability_ref: ability.bow.aimed_shot
+    fee: 25
+    requires: { skill: { skill_ref: skill.bow, band: familiar } }

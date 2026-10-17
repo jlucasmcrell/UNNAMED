@@ -288,6 +288,9 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     /// <summary>The last working begun or released: Focus and Strain return only after a pause from it.</summary>
     public long LastCast { get; init; } = -1_000_000;
+
+    /// <summary>The tick each technique used comes ready again (WP9). Transient, as cooldowns are (SYSTEMS.md S-10): a load starts them ready.</summary>
+    public ImmutableSortedDictionary<string, long> TechniquesReadyAt { get; init; } = ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal);
 }
 
 // ── internal commands ───────────────────────────────────────────────────────

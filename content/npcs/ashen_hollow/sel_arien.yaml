@@ -9,3 +9,7 @@ role: scholar
 dialogue_ref: dialogue.ashen_hollow.sel_arien
 unique: true
 faction_ref: faction.ashen_hollow.long_survey
+# What she teaches (WP9, C10): the salves, by her own lines, free, as she always has.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.herbal.salve_minor, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.herbal.salve_ember, by_dialogue: true }

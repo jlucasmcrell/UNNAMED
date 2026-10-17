@@ -215,6 +215,11 @@ public class ContentLoader
             var factionErrors = FactionContent.Validate(this);
             _errors.AddRange(factionErrors);
             success &= factionErrors.Count == 0;
+
+            // Techniques, skill bands, and a findable source for everything learnable (TCH001; WP9)
+            var teachingErrors = TeachingContent.Validate(this);
+            _errors.AddRange(teachingErrors);
+            success &= teachingErrors.Count == 0;
         }
         
         return success;

@@ -15,8 +15,7 @@ nodes:
       - id: teach
         text: "Teach me the forge."
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
-          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
           - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.cairnwold.iron_from_the_moor }
         next: lesson
@@ -32,8 +31,7 @@ nodes:
         text: "Teach me the forge."
         conditions: [{ kind: visited, node: lesson, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.smithing.iron_billet }
-          - { command: give_recipe, recipe_ref: recipe.smithing.march_spear }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
           - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.cairnwold.iron_from_the_moor }
         next: lesson
@@ -143,8 +141,7 @@ nodes:
         text: "Show me how to work hides."
         conditions: [{ kind: visited, node: hide_lesson, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_cap }
-          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_vest }
+          - { command: teach, refs: [recipe.leatherwork.hide_cap, recipe.leatherwork.hide_vest] }
         next: hide_lesson
       - id: heavy_hides
         text: "What about the heavy hides? Fellhorn. Barrowback."
@@ -152,8 +149,7 @@ nodes:
           - { kind: visited, node: hide_lesson }
           - { kind: visited, node: heavy_hide_lesson, not: true }
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_vest_barrowback }
-          - { command: give_recipe, recipe_ref: recipe.leatherwork.hide_cap_fellhorn }
+          - { command: teach, refs: [recipe.leatherwork.hide_vest_barrowback, recipe.leatherwork.hide_cap_fellhorn] }
         next: heavy_hide_lesson
       - id: back
         text: "Not now."

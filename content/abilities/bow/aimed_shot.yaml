@@ -1,0 +1,14 @@
+id: ability.bow.aimed_shot
+kind: ability
+schema: 1
+display_key: ability.bow.aimed_shot.name
+tags: [ability]
+name: Aimed Shot
+notes: The bow's active technique (D11). The bow's own shot, held at full draw longer and loosed harder; it spends an arrow like any shot. Tavar teaches it. Every number is provisional.
+class: active
+discipline: skill.bow
+cost: { stamina: 15 }
+cooldown_s: 6
+windup_multiplier: 1.6
+payload:
+  - { type: damage, multiplier_of_weapon: 1.8 }

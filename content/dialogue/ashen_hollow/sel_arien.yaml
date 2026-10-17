@@ -173,7 +173,7 @@ nodes:
         text: "Can you teach me to make a salve?"
         conditions: [{ kind: visited, node: salve_lesson, not: true }]
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.herbal.salve_minor }
+          - { command: teach, refs: [recipe.herbal.salve_minor] }
         next: salve_lesson
       - id: cinder
         text: "What do you want the cinder sacs for?"
@@ -181,7 +181,7 @@ nodes:
           - { kind: visited, node: salve_lesson }
           - { kind: visited, node: ember_lesson, not: true }
         consequences:
-          - { command: give_recipe, recipe_ref: recipe.herbal.salve_ember }
+          - { command: teach, refs: [recipe.herbal.salve_ember] }
         next: ember_lesson
       - id: back
         text: "Not today."
