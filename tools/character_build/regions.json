@@ -1,0 +1,10 @@
+{
+ "note": "Body/garment region IDs (memo 4.3 rule 6). Written into UV2.x of every body and head vertex by bl_assemble.py; a garment declares hides: [names] and the skin/cloth shaders collapse those regions from one uniform bitmask. IDs are bit positions: never renumber, only append. 19-22 (2026-10-16) split the bands a neckline or sleeve stops inside off upper_chest, back and the upper arms, so those can be hidden under a shirt; 23-24 the ankle a boot shaft encloses.",
+ "regions": {
+  "head": 0, "neck": 1, "upper_chest": 2, "belly": 3, "back": 4, "pelvis": 5, "glutes": 6,
+  "upperarm_l": 7, "upperarm_r": 8, "forearm_l": 9, "forearm_r": 10, "hand_l": 11, "hand_r": 12,
+  "thigh_l": 13, "thigh_r": 14, "calf_l": 15, "calf_r": 16, "foot_l": 17, "foot_r": 18,
+  "upper_chest_top": 19, "back_top": 20, "armpit_l": 21, "armpit_r": 22,
+  "ankle_l": 23, "ankle_r": 24
+ }
+}
