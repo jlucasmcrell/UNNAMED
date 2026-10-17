@@ -120,6 +120,5 @@ for body, s in table.items():
                      + " ".join(f"{k} {n}" for k, n in sorted(c["layers"].items())))
     lines += [f"    ! {f}" for f in v["faults"][:12]] + ([f"    ! ... {len(v['faults']) - 12} more"] if len(v["faults"]) > 12 else [])
 open(os.path.join(a.out, f"INTERSECTIONS_{stamp}.txt"), "w").write("\n".join(lines) + "\n")
-print("
-".join(f"{b}: build {'PASS' if v['pass'] else 'FAIL'} ({len(v['faults'])} faults), outfit {'PASS' if v['outfit_pass'] else 'FAIL'}"
+print("\n".join(f"{b}: build {'PASS' if v['pass'] else 'FAIL'} ({len(v['faults'])} faults), outfit {'PASS' if v['outfit_pass'] else 'FAIL'}"
                 for b, v in verdict.items()))
