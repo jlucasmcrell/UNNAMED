@@ -365,6 +365,17 @@ public static class M2Fixtures
                         Cell = TenCells[0].ToString(), Name = "Aldo Renning", Generation = 1, ArrivedDay = 2, With = null,
                         Condition = NpcCondition.Injured, ConditionUntil = 6_000,
                     }),
+                    // Schema 28 (WP12b): the vale's hunter hired by the party, their routine suspended; the trapper away on a trip.
+                    KeyValuePair.Create("routine.fixture.hunter", new NpcLifeRecord("routine.fixture.hunter", "routine.fixture.hunter", new NpcNeeds(500, 200, 0, 0),
+                        NpcActivities.Idle, 150_000, -40_500, 90_000)
+                    {
+                        Cell = TenCells[0].ToString(), Name = "Mira Tolle", Condition = NpcCondition.Hired,
+                    }),
+                    KeyValuePair.Create("routine.fixture.trapper", new NpcLifeRecord("routine.fixture.trapper", "routine.fixture.trapper", new NpcNeeds(800, 300, 100, 0),
+                        NpcActivities.Away, 20_000, 30_000, 270_000)
+                    {
+                        Cell = TenCells[0].ToString(), Name = "Oswin Hale",
+                    }),
                 }),
                 ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
                 {

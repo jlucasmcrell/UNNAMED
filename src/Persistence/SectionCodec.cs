@@ -1144,7 +1144,7 @@ public static class SectionCodec
         {
             Key = n.Key, RoutineId = n.RoutineId, Cell = n.Cell, Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay,
             Hunger = n.Needs.Hunger, Rest = n.Needs.Rest, Social = n.Needs.Social, Coin = n.Needs.Coin, Activity = n.Activity, With = n.With,
-            Condition = n.Condition == NpcCondition.Injured ? "injured" : "living", ConditionUntil = n.ConditionUntil,
+            Condition = n.Condition switch { NpcCondition.Injured => "injured", NpcCondition.Hired => "hired", _ => "living" }, ConditionUntil = n.ConditionUntil,
             XMm = n.XMm, ZMm = n.ZMm, FacingMdeg = n.FacingMdeg, StuckTicks = n.StuckTicks,
             Route = new NavRouteDto
             {
@@ -1262,6 +1262,7 @@ public static class SectionCodec
             {
                 "living" => NpcCondition.Living,
                 "injured" => NpcCondition.Injured,
+                "hired" => NpcCondition.Hired,   // schema 28 (WP12b): the party's, their routine suspended
                 _ => throw new FormatException($"npc life {n.Key} has an unknown condition '{n.Condition}'"),
             };
             var record = new NpcLifeRecord(n.Key, n.RoutineId, new NpcNeeds(n.Hunger, n.Rest, n.Social, n.Coin), n.Activity, n.XMm, n.ZMm, n.FacingMdeg)

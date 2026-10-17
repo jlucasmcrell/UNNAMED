@@ -142,7 +142,7 @@ public class NpcLifeLinksTests
     }
 
     /// <summary>
-    /// A world that starts with someone already in the party - a save from before schema 27, whose lives never heard of the hired state -
+    /// A world that starts with someone already in the party - a save from before schema 28, whose lives never heard of the hired state -
     /// hands them to the party at once: their routine is suspended, not run on beside the character.
     /// </summary>
     [Fact]

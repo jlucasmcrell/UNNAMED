@@ -106,7 +106,8 @@ public static class SchemaMigrations
         new SchemaV23ToV24(),
         new SchemaV24ToV25(),
         new SchemaV25ToV26(),
-        new SchemaV26ToV27());
+        new SchemaV26ToV27(),
+        new SchemaV27ToV28());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1492,6 +1493,24 @@ public sealed class SchemaV26ToV27 : SchemaMigration
                 Attack = null,
             }, options);
         }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 27 to 28 (WP12b, NPC life's ties): an NPC life may be <c>hired</c> - the party's, their routine suspended - or doing a trip's
+/// <c>set_out</c> or <c>away</c>, and the party's records may name a role resident by their slot's key (<c>routine.</c>). No section's
+/// shape changes and no older save held any of them, so the step only moves the version.
+/// </summary>
+public sealed class SchemaV27ToV28 : SchemaMigration
+{
+    public override int From => 27;
+
+    public override string Summary => "schema 27 -> 28: lives may be hired or on a trip, and residents may be in the party (no change to older data)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

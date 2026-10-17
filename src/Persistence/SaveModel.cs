@@ -18,7 +18,7 @@ public static class SaveFormat
     /// GAMEPLAY STATE schema (§6.1). Every older version back to <see cref="OldestSupportedSchema"/>
     /// migrates step by step (<see cref="SchemaMigrations"/>), and every one has a committed fixture.
     /// </summary>
-    public const int SchemaVersion = 27;
+    public const int SchemaVersion = 28;
 
     public const int OldestSupportedSchema = 1;
 

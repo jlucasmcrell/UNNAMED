@@ -351,6 +351,17 @@ public class HistoricalFixtureTests
             Assert.Equal(("Aldo Renning", 1, NpcCondition.Injured, 6_000L), (porter.Name, porter.Generation, porter.Condition, porter.ConditionUntil));
             Assert.Equal(new NpcVacancy("routine.fixture.carter", 1, 5, 1), Assert.Single(life.Vacancies).Value);
             Assert.Equal(70, life.PairsLastMet["npc.fixture.warden|routine.fixture.porter"]);
+            // Schema 28 (WP12b): a resident hired by the party, their routine suspended, and one away on a trip. Before it, neither existed.
+            if (schema >= 28)
+            {
+                var hunter = life.Npcs["routine.fixture.hunter"];
+                Assert.Equal(("Mira Tolle", NpcCondition.Hired, 0L, NpcActivities.Idle), (hunter.Name, hunter.Condition, hunter.ConditionUntil, hunter.Activity));
+                Assert.Equal(NpcActivities.Away, life.Npcs["routine.fixture.trapper"].Activity);
+            }
+            else
+            {
+                Assert.Equal(2, life.Npcs.Count);
+            }
         }
         else
         {

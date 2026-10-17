@@ -78,4 +78,4 @@ Schema 23 (the next free version after 22; the integrator renumbers): the entiti
 
 ## Persistence
 
-Schema 27 (one final commit; the integrator renumbers): an NPC life's condition may be `hired`, a life's activity `set_out` or `away`, and the party's records (relationships, the party, its ledger, its sheets) may name a role resident by their slot key (`routine.`). The section shapes are unchanged, so 26 -> 27 only moves the version.
+Schema 28 (one final commit, renumbered from 27 at the wave 4 integration; the soak took 27): an NPC life's condition may be `hired`, a life's activity `set_out` or `away`, and the party's records (relationships, the party, its ledger, its sheets) may name a role resident by their slot key (`routine.`). The section shapes are unchanged, so 26 -> 27 only moves the version.

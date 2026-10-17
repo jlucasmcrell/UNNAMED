@@ -255,7 +255,7 @@ public sealed record PlayerRecord
             .OrderBy(r => r.NpcId, StringComparer.Ordinal).ThenBy(r => r.Dimension, StringComparer.Ordinal).ToImmutableArray();
         foreach (var r in Relationships)
         {
-            if (!DefinitionId.IsValid(r.NpcId) || !r.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Domain.Social.Relationships.IsDimension(r.Dimension)
+            if (!DefinitionId.IsValid(r.NpcId) || !PartyMemberKeys.IsMember(r.NpcId) || !Domain.Social.Relationships.IsDimension(r.Dimension)
                 || r.Value == 0 || r.Value != Domain.Social.Relationships.Clamp(r.Value))
                 throw new ArgumentException($"Invalid relationship value {r}", nameof(relationships));
         }
@@ -298,7 +298,7 @@ public sealed record PlayerRecord
         foreach (var c in Companions)
         {
             bool down = c.Condition == CompanionCondition.Downed;
-            if (!DefinitionId.IsValid(c.NpcId) || !c.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Enum.IsDefined(c.Order) || !Enum.IsDefined(c.Condition)
+            if (!DefinitionId.IsValid(c.NpcId) || !PartyMemberKeys.IsMember(c.NpcId) || !Enum.IsDefined(c.Order) || !Enum.IsDefined(c.Condition)
                 || c.FacingMdeg is < 0 or >= 360_000 || c.Health < 0 || down != (c.Health == 0) || c.DownedTick < 0 || (!down && c.DownedTick != 0)
                 || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault || !Enum.IsDefined(c.Membership) || !Enum.IsDefined(c.Stance)
                 || c.Tactics is null || (c.Membership == PartyMembership.Hireling) != (c.Contract is not null) || c.Contract is { } k && !ValidContract(k))
@@ -323,7 +323,7 @@ public sealed record PlayerRecord
         {
             var party = (value ?? throw new ArgumentNullException(nameof(Party))).Sorted();
             var ids = party.Recovering.Select(r => r.NpcId).Concat(party.Fallen).ToList();
-            if (ids.Any(id => !DefinitionId.IsValid(id) || !id.StartsWith("npc.", StringComparison.Ordinal)) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Count
+            if (ids.Any(id => !DefinitionId.IsValid(id) || !PartyMemberKeys.IsMember(id)) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Count
                 || party.Recovering.Any(r => r.UntilTick < 0) || ids.Any(id => Companions.Any(c => c.NpcId == id)))
                 throw new ArgumentException("Invalid party ledger: each NPC recovering or fallen once, and not in the party", nameof(Party));
             _party = party;
@@ -378,7 +378,7 @@ public sealed record PlayerRecord
             foreach (var sheet in sheets)
             {
                 sheet.Progression.Validate();
-                if (!DefinitionId.IsValid(sheet.NpcId) || !sheet.NpcId.StartsWith("npc.", StringComparison.Ordinal) || sheet.Gear.Values.Any(g => g is null)
+                if (!DefinitionId.IsValid(sheet.NpcId) || !PartyMemberKeys.IsMember(sheet.NpcId) || sheet.Gear.Values.Any(g => g is null)
                     || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1)))
                     throw new ArgumentException($"Invalid party sheet for {sheet.NpcId}", nameof(PartySheets));
             }
@@ -799,4 +799,14 @@ public static class StanceKeys
         "crouched" => Stance.Crouched,
         _ => throw new FormatException($"Unknown stance '{key}'"),
     };
+}
+
+/// <summary>
+/// Who can stand in the party's records (relationships, the party, its ledger, its sheets): a named NPC (<c>npc.</c>), or - schema 28,
+/// WP12b - a role resident, known by their slot's key (<c>routine.</c>), since residents have no NPC file of their own.
+/// </summary>
+public static class PartyMemberKeys
+{
+    public static bool IsMember(string id) =>
+        DefinitionId.IsValid(id) && (id.StartsWith("npc.", StringComparison.Ordinal) || id.StartsWith("routine.", StringComparison.Ordinal));
 }
