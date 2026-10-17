@@ -557,7 +557,7 @@ public class ContentLoaderTests
                 "quest.ashen_hollow.end_of_playtest", "quest.ashen_hollow.haldas_tally", "quest.ashen_hollow.iron_under_ash", "quest.ashen_hollow.three_quiet_stones", "quest.bounty.crag_walker",
                 "quest.bounty.crossing_timber", "quest.bounty.lodge_supplies", "quest.bounty.moor_billets", "quest.bounty.road_wolves",
                 "quest.bounty.shelf_iron", "quest.bounty.survey_herbs", "quest.bounty.winter_hides", "quest.bounty.wrong_leaves",
-                "quest.cairnwold.iron_from_the_moor", "quest.cairnwold.what_the_bog_kept",
+                "quest.cairnwold.iron_from_the_moor", "quest.cairnwold.what_the_bog_kept", "quest.main.the_road_in",
                 "recipe.cooking.roast_meat", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
                 "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
                 "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn",
