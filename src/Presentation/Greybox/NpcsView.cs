@@ -51,6 +51,8 @@ public partial class NpcsView : Node3D
         PlayerHead.GlobalPosition = HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm) + new Vector3(0, 1.6f, 0);
         foreach (var npc in simulation.Npcs)
         {
+            if (npc.Space != simulation.ActiveLayout.SpaceId && !_figures.ContainsKey(npc.Id))
+                continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
                 var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id);
@@ -81,6 +83,9 @@ public partial class NpcsView : Node3D
                         _eyes[npc.Id] = eyes;
                 }
             }
+            figure.Visible = npc.Space == simulation.ActiveLayout.SpaceId;
+            if (!figure.Visible)
+                continue;
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
             if (figure is Art.SkinnedFigure skinned)
                 skinned.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);

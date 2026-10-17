@@ -27,6 +27,8 @@ public sealed partial class SkinnedCreature : CreatureBody
     private float _yaw;
     private CombatPhase _phase = CombatPhase.Idle;
     private int _phaseTicks = 1;
+    private string? _attackSource;
+    private HashSet<string> _clips = new(StringComparer.Ordinal);
 
     /// <summary>The bound creature's skinned body, or null when the bindings or the asset lack it (the greybox is drawn instead).</summary>
     public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition, string individual)
@@ -34,10 +36,12 @@ public sealed partial class SkinnedCreature : CreatureBody
         if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
             return null;
         // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
-        float Pace(string state, float measured) => (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
+        float Pace(string state, float measured) => look.Paces.TryGetValue(state, out float pace) && pace > 0
+            ? pace : (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
         // A bigger animal of the kind takes longer strides: its clips' paces grow with it.
         float size = OtherFauna.Apply(model, definition.Id, look.Fauna, individual);
-        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size };
+        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
+            _clips = look.Clips.Keys.ToHashSet(StringComparer.Ordinal) };
         creature.AddChild(model);
         creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y * size + 0.4f, 0);
         creature.AddChild(creature._mark);
@@ -75,22 +79,24 @@ public sealed partial class SkinnedCreature : CreatureBody
             return;
         }
         Mark(creature);
-        if (creature.Phase != _phase)
+        if (creature.Phase != _phase || creature.AttackSource != _attackSource)
         {
             _phase = creature.Phase;
-            _phaseTicks = Math.Max(1, creature.PhaseTicksLeft + 1);
+            _attackSource = creature.AttackSource;
+            _phaseTicks = creature.PhaseDurationTicks > 0 ? creature.PhaseDurationTicks : Math.Max(1, creature.PhaseTicksLeft + 1);
         }
+        string attackClip = creature.AttackSource is { } source && _clips.Contains(source) ? source : "attack";
         float t = 1f - (float)creature.PhaseTicksLeft / _phaseTicks;
         switch (creature.Phase)
         {
             case CombatPhase.Windup:
-                _model.Hold("attack", 0.45f * t);
+                _model.Hold(attackClip, 0.45f * t);
                 return;
             case CombatPhase.Active:
-                _model.Hold("attack", 0.45f + 0.25f * t);
+                _model.Hold(attackClip, 0.45f + 0.25f * t);
                 return;
             case CombatPhase.Recovery:
-                _model.Hold("attack", 0.7f + 0.3f * t);
+                _model.Hold(attackClip, 0.7f + 0.3f * t);
                 return;
             case CombatPhase.Staggered:
                 _model.Play("hit", 0.1f);

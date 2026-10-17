@@ -33,6 +33,8 @@ public sealed record RelationshipChanged(string NpcId, string Dimension, int Fro
 /// <summary>An NPC as presentation draws them: who, where, and whether the character is talking to them.</summary>
 public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body Body, bool Talking)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public SpaceId Space { get; init; }
     /// <summary>A companion lying downed (M6).</summary>
     public bool Downed { get; init; }
 
@@ -49,8 +51,11 @@ public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body B
     public bool Moving { get; init; }
 }
 
-/// <summary>An NPC's body as the simulation holds it: where they stand and which way they face. Saved with their life (WP12).</summary>
-internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, NpcSite Site, Body Body);
+/// <summary>An NPC's body as the simulation holds it: where they stand, which way they face, and the space they stand in. Saved with their life (WP12).</summary>
+internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, NpcSite Site, Body Body)
+{
+    public SpaceId Space { get; init; }
+}
 
 /// <summary>To <see cref="RelationshipSystem"/>: move what an NPC thinks of the player on one dimension, for a reason.</summary>
 internal sealed record ChangeRelationship(string NpcId, string Dimension, int Delta, string EventKey) : InternalCommand;
@@ -102,7 +107,10 @@ internal sealed partial class NpcSystem
 
     public void Populate()
     {
-        foreach (var site in _context.Setup.Layout.Npcs)
+        // Every layout's NPCs, each on its OWN ground. The player's space is wrong here: Populate runs after the
+        // space is adopted from a save, so a save made inside the ring put all eight exterior NPCs on the ring's
+        // floor and buried them under the Ashen Hollow (review 3, B8).
+        foreach (var (home, site) in _context.Setup.Sites(l => l.Npcs))
         {
             // A hireling who died in the character's service stays dead (DN9).
             if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition) || State.Fallen.Contains(site.NpcId))
@@ -110,7 +118,8 @@ internal sealed partial class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            State.SetNpc(_owner, new NpcState(definition, id, site, BodyAt(site.XMm, site.ZMm, site.FacingMdeg)));
+            long y = _context.Setup.SpaceFor(home.SpaceId).Terrain.HeightAtMm(site.XMm, site.ZMm);
+            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)) { Space = home.SpaceId });
         }
         PopulateLives();
     }
@@ -172,7 +181,7 @@ internal sealed partial class NpcSystem
     {
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        State.SetNpc(_owner, npc with { Body = command.Body });
+        State.SetNpc(_owner, npc with { Body = command.Body, Space = command.Space ?? npc.Space });
         return null;
     }
 
@@ -206,6 +215,7 @@ internal sealed partial class NpcSystem
             var life = LifeOf(n.Definition.Id);
             return new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id)
             {
+                Space = n.Space,
                 Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
                 Activity = life?.Activity,
                 Resident = _context.Setup.NpcLife.Routines.TryGetValue(n.Definition.Id, out var slot) && slot.IsSlot,

@@ -155,6 +155,8 @@ public sealed record ExploreLocation(string LocationId, long WithinMm) : Objecti
 /// </summary>
 public sealed record AcquireItem(string ItemId, int Count, int QualityMin) : ObjectiveCondition
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Ever { get; init; }
     public override string Type => "acquire_item";
 
     /// <summary>Items that count as well (<c>or_item_refs</c>): what the item is made into, so work done ahead of the objective still counts.</summary>
@@ -164,6 +166,8 @@ public sealed record AcquireItem(string ItemId, int Count, int QualityMin) : Obj
 /// <summary><c>craft_item</c>: this many made, at least this good, while the objective is active.</summary>
 public sealed record CraftItem(string ItemId, int Count, int QualityMin) : ObjectiveCondition
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Ever { get; init; }
     public override string Type => "craft_item";
     public override bool CountsDeeds => true;
 }
@@ -435,6 +439,9 @@ public interface IQuestFacts
 
     int Carried(string itemId, int qualityMin);
 
+    /// <summary>Lifetime production recorded in the existing deed ledger; quality-sensitive history is unavailable.</summary>
+    int HistoricallyCrafted(string itemId) => 0;
+
     /// <summary>A world flag in the cell that holds the place.</summary>
     long WorldFlag(string flagId, string locationId);
 
@@ -568,11 +575,16 @@ public static class QuestRules
             case AcquireItem a:
             {
                 int carried = facts.Carried(a.ItemId, a.QualityMin) + a.OrItems.Sum(item => facts.Carried(item, a.QualityMin));
+                if (a.Ever)
+                    carried = Math.Max(carried, a.OrItems.Prepend(a.ItemId).Sum(facts.HistoricallyCrafted));
                 string what = a.OrItems.IsEmpty ? a.ItemId : $"{a.ItemId} (or {string.Join(", ", a.OrItems)})";
                 return One(new Term($"{what} carried{QualityNote(a.QualityMin)}", carried.ToString(), $">= {a.Count}", carried >= a.Count));
             }
             case CraftItem c:
-                return One(new Term($"{c.ItemId} made while active{QualityNote(c.QualityMin)}", progress.ToString(), $">= {c.Count}", progress >= c.Count));
+            {
+                int made = c.Ever ? Math.Max(progress, facts.HistoricallyCrafted(c.ItemId)) : progress;
+                return One(new Term($"{c.ItemId} made {(c.Ever ? "at any time" : "while active")}{QualityNote(c.QualityMin)}", made.ToString(), $">= {c.Count}", made >= c.Count));
+            }
             case HarvestResource h:
                 return One(new Term($"{h.ResourceId} gathered while active", progress.ToString(), $">= {h.Count}", progress >= h.Count));
             case KillCreature k:

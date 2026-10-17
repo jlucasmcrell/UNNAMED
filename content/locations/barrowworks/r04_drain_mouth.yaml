@@ -1,0 +1,27 @@
+id: location.barrowworks.r04_drain_mouth
+kind: location
+schema: 1
+display_key: location.barrowworks.r04_drain_mouth.name
+tags:
+- location
+- barrowworks
+notes: >-
+  Drain Mouth (room 04), a chamber of the Barrowworks. Entrance B. A narrow exterior approach that opens inside; the sightline to the wash passage stops before the sorting floor. Placement and radius are the blockout's and provisional.
+name: Drain Mouth
+region_ref: region.barrowworks
+anchor:
+  world:
+  - 8.0
+  - 0.0
+  - 38.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 15
+map:
+  reveals_radius_m: 12
+  marker: none
+fast_travel:
+  node: false

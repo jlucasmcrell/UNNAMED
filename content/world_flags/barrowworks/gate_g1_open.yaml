@@ -1,0 +1,9 @@
+id: world.barrowworks.gate_g1_open
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.gate_g1_open.name
+tags: [world_flag]
+notes: Whether the G1 shortcut between the return gallery and the intake hall stands open. The design calls it the shortcut; it is shut until a character finds it from the gallery side.
+type: bool
+default: 0
+owning_system: S-22

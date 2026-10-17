@@ -327,18 +327,19 @@ internal sealed class QuestDebugger
     {
         var cell = _quests.CellOfLocation(w.LocationId);
         yield return $"{w.FlagId} is read in cell {cell} (the cell of {w.LocationId})";
-        foreach (var other in Setup.Layout.CellKeys.Select(CellKey.Parse).Where(c => c != cell))
+        foreach (var other in Setup.AllLayouts.SelectMany(l => l.CellKeys).Select(CellKey.Parse).Where(c => c != cell))
         {
             if (State.World.GetFlag(other, w.FlagId) is var value && value != 0)
                 yield return $"note: {w.FlagId} = {value} in cell {other}, which this objective does not read";
         }
-        foreach (var door in Setup.Layout.Doors.Where(d => d.FlagId == w.FlagId))
+        foreach (var door in Setup.AllLayouts.SelectMany(l => l.Doors).Where(d => d.FlagId == w.FlagId))
             yield return $"the door {door.Key} sets it when opened or closed";
-        foreach (var site in Setup.Layout.Switches.Where(s => s.FlagId == w.FlagId))
+        foreach (var layout in Setup.AllLayouts)
+        foreach (var site in layout.Switches.Where(s => s.FlagId == w.FlagId))
         {
             var (x, z) = Footprints.Center(site.Body);
-            var missing = site.Requires.Where(f => State.World.GetFlag(Simulation.CellOf(site), f) == 0).ToList();
-            yield return $"{site.Verb.ToLowerInvariant()} the {site.Name} at ({Point(x, z)}): {site.Key}, in cell {Simulation.CellOf(site)}" +
+            var missing = site.Requires.Where(f => State.World.GetFlag(Simulation.CellOf(layout.SpaceId, site), f) == 0).ToList();
+            yield return $"{site.Verb.ToLowerInvariant()} the {site.Name} at ({Point(x, z)}): {site.Key}, in cell {Simulation.CellOf(layout.SpaceId, site)}" +
                 (missing.Count == 0 ? "" : $"; it waits on {string.Join(", ", missing)}");
         }
         foreach (var (dialogue, node, choice) in Replies().Where(r => r.Choice.Consequences.OfType<SetWorldFlagConsequence>().Any(s => s.FlagId == w.FlagId)))
@@ -475,7 +476,7 @@ internal sealed class QuestDebugger
     private string Recipe(RecipeDefinition recipe)
     {
         bool known = Domain.Progression.ProgressionEngine.Knows(State.Progression, recipe.Id);
-        var station = Setup.Layout.Stations.Where(s => s.Kind == recipe.StationKind)
+        var station = Setup.AllLayouts.SelectMany(l => l.Stations).Where(s => s.Kind == recipe.StationKind)
             .OrderBy(s => Math.Pow(s.XMm - State.Body.XMm, 2) + Math.Pow(s.ZMm - State.Body.ZMm, 2)).FirstOrDefault();
         string inputs = string.Join(", ", recipe.Inputs.Select(i => $"{i.Count} {i.ItemId} (carried {_quests.Carried(i.ItemId, Quality.Crude)})"));
         return $"{recipe.Id} at a {recipe.StationKind}" + (station is null ? " (none in this region)" : $" ({Point(station.XMm, station.ZMm)})") +
@@ -490,7 +491,7 @@ internal sealed class QuestDebugger
     }
 
     private LocationSiteRef? Place(string locationId) =>
-        Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } site ? new LocationSiteRef(site.XMm, site.ZMm, site.DiscoveryRadiusMm) : null;
+        Setup.AllLayouts.SelectMany(l => l.Locations).FirstOrDefault(l => l.Id == locationId) is { } site ? new LocationSiteRef(site.XMm, site.ZMm, site.DiscoveryRadiusMm) : null;
 
     private string At(string locationId) => Place(locationId) is { } p ? $"({Point(p.XMm, p.ZMm)})" : "(not in this region)";
 

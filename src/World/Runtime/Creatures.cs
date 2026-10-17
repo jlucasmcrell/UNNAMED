@@ -22,15 +22,31 @@ public sealed record SpawnMember(string CreatureId, string RoleId);
 /// </summary>
 public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, ImmutableArray<SpawnMember> Members)
 {
+    public EncounterRecovery? Recovery { get; init; }
+    /// <summary>
+    /// The space this spawner stands in (M8 D10). Its creatures are in that space and in no other: a view is offered
+    /// to a player standing there, a height comes from that space's ground, and a blow can only reach something that
+    /// shares the attacker's space.
+    /// </summary>
+    public SpaceId Space { get; init; } = SpaceId.Exterior;
+
     /// <summary>Ticks from a death to the return, or 0 when the dead stay dead.</summary>
     public long RespawnTicks { get; init; }
 
     public ImmutableArray<(long XMm, long ZMm)> Route { get; init; } = ImmutableArray<(long XMm, long ZMm)>.Empty;
 }
 
+public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm);
+public sealed record EncounterRestarted(string SpawnKey, bool Loaded, long Tick);
+
 public sealed record CreatureView(EntityId Id, string Key, string DefId, string RoleId, Body Body, int Health, int MaxHealth,
     CombatPhase Phase, int PhaseTicksLeft, CreatureCondition Condition, CreatureMind Mind, int Awareness, bool Asleep)
 {
+    // Presentation's sampled clip, part of the deliberately transient blow (as Phase/PhaseTicksLeft are in StateDump).
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string? AttackSource { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int PhaseDurationTicks { get; init; }
     public bool Alive => Condition == CreatureCondition.Alive;
 
     public bool Hostile => Mind == CreatureMind.Engaged;
@@ -141,6 +157,25 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
     private long _graceUntil;
+    private sealed record TickSpace(Blocker[] Walls, Blocker[] Doors, Blocker[] People,
+        Blocker[] CompanionBodies, NpcState[] Companions);
+    private readonly Dictionary<SpaceId, TickSpace> _tickSpaces = new();
+
+    // Doors and people cannot move during this system's tick. Snapshot each space once, not once per creature/query.
+    private TickSpace Obstacles(SpaceId space)
+    {
+        if (_tickSpaces.TryGetValue(space, out var cached)) return cached;
+        var doors = _context.ClosedDoors(space).ToArray();
+        var people = State.Npcs.Values.Where(n => n.Space == space).ToArray();
+        var companions = people.Where(n => State.Companions.TryGetValue(n.Definition.Id, out var c)
+            && c.Condition == CompanionCondition.Up).ToArray();
+        Blocker BodyOf(NpcState n) => new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm,
+            _context.Setup.Movement.BodyRadiusMm, 0);
+        return _tickSpaces[space] = new TickSpace(
+            _context.Setup.SpaceFor(space).Blockers.Concat(doors).Where(b => space.IsExterior || b.ClearanceMm < 1800).ToArray(),
+            doors, people.Select(BodyOf).ToArray(), companions.Select(BodyOf).ToArray(), companions);
+    }
+    private readonly Dictionary<string, int> _outsideAttemptTicks = new(StringComparer.Ordinal);
 
     public CreatureSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
     {
@@ -175,10 +210,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>World start: every spawner's creatures at their baseline places, then each record's divergence over it.</summary>
     public void Populate()
     {
-        var space = _context.Setup.Layout.Space;
         foreach (var site in Setup.Spawns)
         {
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
+            // The spawner's own ground and space: a ring spawner's creatures stand on the ring's floor, and its cell
+            // is a ring cell. Taking the layout's space gave every co-loaded ring creature an EXTERIOR key, so the
+            // Custodian's defeat flag would have landed in a frontier cell (review 3, B8).
+            var space = _context.Setup.SpaceFor(site.Space);
+            var cell = _context.CellOfSite(site.Space, site.XMm, site.ZMm);
             for (int i = 0; i < site.Members.Length; i++)
             {
                 var member = site.Members[i];
@@ -193,7 +231,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     double angle = channel.UInt64(sample) / SampleScale * 2 * Math.PI;
                     double distance = Math.Sqrt(channel.UInt64(sample + 1) / SampleScale) * site.RadiusMm;
                     long cx = site.XMm + (long)Math.Round(Math.Sin(angle) * distance), cz = site.ZMm + (long)Math.Round(Math.Cos(angle) * distance);
-                    if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others))
+                    if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others, site.Space.IsExterior ? 0 : 1800))
                     {
                         (x, z) = (cx, cz);
                         break;
@@ -248,14 +286,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
-            Save(creature.Alive ? AtHome(creature) : Afterlife(creature, toTick, away: true));
+            if (creature.Site.Space.IsExterior)
+                Save(creature.Alive ? AtHome(creature) : Afterlife(creature, toTick, away: true));
         }
     }
 
     /// <summary>A living creature after an absence: at home as it stood at the start, its fight and its search forgotten. Its wounds stay.</summary>
     private CreatureState AtHome(CreatureState c) => c with
     {
-        Body = new Body(c.HomeXMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
+        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
         Mind = CreatureMind.Unaware,
         Awareness = 0,
         Knows = false,
@@ -269,6 +308,24 @@ internal sealed class CreatureSystem : IAbstractAdvance
         Action = ActionState.Idle,
     };
 
+    // Load is an explicit attempt boundary. Saved player resources and generic effects are untouched.
+    public bool RecoverLoadedAttempt()
+    {
+        bool recovered = false;
+        foreach (var c in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space
+                     && c.Site.Recovery is not null && c.Mind == CreatureMind.Engaged).ToList())
+        {
+            var safe = c.Site.Recovery!;
+            Save(AtHome(c) with { Health = c.Definition.MaxHealth });
+            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
+            _context.Dispatch(new Relocate(arrival));
+            _context.Dispatch(new RestageEncounterParty(arrival, safe));
+            _context.Events.Publish(new EncounterRestarted(c.Site.Key, true, State.WorldTick));
+            recovered = true;
+        }
+        return recovered;
+    }
+
     /// <summary>The login grace: until <paramref name="untilTick"/> no creature sees or hears the character (WP11).</summary>
     public void BeginGrace(long untilTick) => _graceUntil = untilTick;
 
@@ -280,12 +337,33 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     public void Tick(long tick)
     {
+        _tickSpaces.Clear();
         var noises = (InGrace(tick) ? Enumerable.Empty<Noise>() : PlayerNoises()).Concat(State.World.Noises).ToList();
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
-            Save(creature.Alive ? Live(creature, tick, noises) : Afterlife(creature, tick));
+            if (!creature.Site.Space.IsExterior && creature.Site.Space != State.Space)
+                continue;
+            if (creature.Alive && creature.Mind == CreatureMind.Engaged && creature.Site.Recovery is { } court)
+            {
+                var player = State.Body;
+                bool outside = player.XMm < court.MinXMm || player.XMm > court.MaxXMm
+                               || player.ZMm < court.MinZMm || player.ZMm > court.MaxZMm || State.PlayerCombat.Defeated;
+                int count = outside ? _outsideAttemptTicks.GetValueOrDefault(key) + 1 : 0;
+                _outsideAttemptTicks[key] = count;
+                if (count >= 20)
+                {
+                    Save(AtHome(creature) with { Health = creature.Definition.MaxHealth });
+                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
+                    _context.Dispatch(new RestageEncounterParty(arrival, court));
+                    _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
+                    _outsideAttemptTicks.Remove(key);
+                    continue;
+                }
+            }
+            Save(creature.Alive ? Live(creature, tick, creature.Site.Space == State.Space ? noises : new List<Noise>())
+                : Afterlife(creature, tick, timer: _context.SpaceTick(creature.Site.Space, tick)));
         }
     }
 
@@ -316,7 +394,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private CreatureState Live(CreatureState c, long tick, List<Noise> noises)
     {
-        if (TierOf(c.Body) != SimulationTier.A)
+        if (TierOf(c) != SimulationTier.A)
             return c;
         var (phase, _) = c.Action.PhaseAt(tick, C);
         if (c.Action.Kind != ActionKind.Idle && phase == CombatPhase.Idle)
@@ -350,9 +428,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
             ? own with { SightMm = (long)Math.Round(own.SightMm * (1 + penalty)) }
             : c.Definition.Senses;
         var player = State.Body;
-        bool target = !State.PlayerCombat.Defeated && !InGrace(tick);
+        bool target = c.Site.Space == State.Space && !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
-        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls()) : null;
+        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
         var next = c with { Awareness = awareness };
         if (seen is not null)
@@ -393,7 +471,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // A peaceful creature turns on someone only once roused - wounded, or called to its herd's fight - and goes on until it gives up.
         bool roused = !c.Role.Peaceful || mind is CreatureMind.Engaged or CreatureMind.Searching;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (State.PlayerCombat.Defeated)
+        if (State.PlayerCombat.Defeated || c.Site.Space != State.Space)
             mind = mind is CreatureMind.Unaware ? mind : CreatureMind.Returning;
         else if (mind == CreatureMind.Fleeing)
         {
@@ -524,7 +602,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (radius <= 0)
             return c;
         long leg = (tick + Offset(c.Key, WanderLegTicks)) / WanderLegTicks;
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
+        // The creature's own space, not the player's: keyed on the player's, every exterior creature's stream changed
+        // the moment the character walked through a door (review 3, B8).
+        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfInterior(c.Site.Space, aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
         double angle = channel.UInt64(0) / SampleScale * 2 * Math.PI, distance = Math.Sqrt(channel.UInt64(1) / SampleScale) * radius;
         long x = aroundX + (long)Math.Round(Math.Sin(angle) * distance), z = aroundZ + (long)Math.Round(Math.Cos(angle) * distance);
         return Arrived(c, x, z) ? c : c with { Body = Move(c, x, z, Gait.Walk) };
@@ -550,6 +630,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The character is gone after where they were last perceived; a companion who stands nearer is simply there (M6).
         long targetX = foe.Companion is null && c.Knows ? c.KnownXMm : player.XMm, targetZ = foe.Companion is null && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
+            attack = close;
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -571,7 +653,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return c with { Body = backed with { FacingMdeg = Turn(c, facing).FacingMdeg } };
         }
 
-        bool clear = !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
@@ -619,6 +701,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// </summary>
     private CreatureState Aim(CreatureState c)
     {
+        if (c.Action.Attack?.CommitFacing == true)
+            return c;
         var player = c.Action.Kind == ActionKind.Charge ? State.Body : Foe(c).Body;
         var faced = c with
         {
@@ -656,11 +740,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         var rules = new MovementRules(charge.ChargeSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var intent = new MoveIntent(action.DirXPermille, action.DirZPermille, Gait.Run, c.Body.FacingMdeg);
-        var others = new List<Blocker>(_context.ClosedDoors());
+        var others = new List<Blocker>(Obstacles(c.Site.Space).Doors);
         others.AddRange(Herd(c));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
-        others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
-        var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), others, TickMs);
+        others.AddRange(Obstacles(c.Site.Space).People);
+        var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
             // It ran into something solid: rock, wall or tree takes the charge, and the charger reels.
@@ -693,17 +777,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
                 (int)Math.Round(Math.Cos(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000), Gait.Run, c.Body.FacingMdeg);
-            var obstacles = new List<Blocker>(_context.ClosedDoors())
+            var obstacles = new List<Blocker>(Obstacles(c.Site.Space).Doors)
             {
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
             obstacles.AddRange(People(c));
-            c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), obstacles, TickMs) };
+            c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
-            && !Walled(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+            && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         InternalCommand blow = foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
         if (reaches && _context.Dispatch(blow) is null)
         {
@@ -803,7 +887,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (c.Site.RespawnTicks > 0)
         {
             bool saturated = Saturated(c.Site.Key, tick);
-            respawn = tick + c.Site.RespawnTicks * (saturated ? 2 : 1);
+            respawn = _context.SpaceTick(c.Site.Space, tick) + c.Site.RespawnTicks * (saturated ? 2 : 1);
             if (saturated)
                 _context.Events.Publish(new SpawnerSaturated(c.Site.Key, tick));
         }
@@ -815,7 +899,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             Mind = CreatureMind.Unaware,
             Awareness = 0,
             Knows = false,
-            DiedTick = tick,
+            DiedTick = _context.SpaceTick(c.Site.Space, tick),
             RespawnTick = respawn,
         };
     }
@@ -832,16 +916,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// A corpse decays; a spawner with a timer brings its creature back once the player is not standing over the place - or, for an
     /// absence, <paramref name="away"/>, since the player was not there at all.
     /// </summary>
-    private CreatureState Afterlife(CreatureState c, long tick, bool away = false)
+    private CreatureState Afterlife(CreatureState c, long tick, bool away = false, long? timer = null)
     {
-        if (c.Condition == CreatureCondition.Corpse && tick >= c.DiedTick + Setup.CorpseDecayTicks)
+        long elapsed = timer ?? tick;
+        if (c.Condition == CreatureCondition.Corpse && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
         {
             _context.Dispatch(new DiscardContainer(c.CorpseKey));
             _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             c = c with { Condition = CreatureCondition.Gone };
         }
         var player = State.Body;
-        if (c.RespawnTick > 0 && tick >= c.RespawnTick && (away || Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm))
+        if (c.RespawnTick > 0 && elapsed >= c.RespawnTick && (away || Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm))
         {
             if (c.Condition == CreatureCondition.Corpse)
             {
@@ -849,7 +934,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             }
             int generation = c.Generation + 1;
-            var home = new Body(c.HomeXMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
+            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
             c = new CreatureState(Identity(c.Key, generation), c.Key, c.Site, c.Definition, c.Role, c.HomeXMm, c.HomeZMm, c.HomeFacingMdeg,
                 generation, CreatureCondition.Alive, home, c.Definition.MaxHealth, ActionState.Idle, 0);
             _context.Events.Publish(new CreatureRespawned(c.Id, c.Key, generation, tick));
@@ -932,7 +1017,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 State.RemoveCreatureRecord(_owner, c.Key);
             return;
         }
-        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, CellKey.OfWorld(c.Site.XMm / 1000.0, c.Site.ZMm / 1000.0).ToString(), c.Generation,
+        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm).ToString(), c.Generation,
             c.Condition, c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick)
         {
             Mind = c.Mind,
@@ -964,18 +1049,18 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
             Turn(c, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm)).FacingMdeg);
         var rules = new MovementRules(c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
-        var others = new List<Blocker>(_context.ClosedDoors())
+        var others = new List<Blocker>(Obstacles(c.Site.Space).Doors)
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
         others.AddRange(People(c));
         others.AddRange(Herd(c));
-        return Kinematics.Step(from, intent, rules, SpaceNear(from), others, TickMs);
+        return Kinematics.Step(from, intent, rules, SpaceNear(c, from), others, TickMs);
     }
 
     /// <summary>The other living creatures near enough to be in this one's way this tick, as bodies it does not walk through.</summary>
     private IEnumerable<Blocker> Herd(CreatureState c) =>
-        State.Creatures.Values.Where(o => o.Alive && o.Key != c.Key
+        State.Creatures.Values.Where(o => o.Alive && o.Site.Space == c.Site.Space && o.Key != c.Key
                 && Math.Abs(o.Body.XMm - c.Body.XMm) < NearMm && Math.Abs(o.Body.ZMm - c.Body.ZMm) < NearMm)
             .Select(o => (Blocker)new CircleBlocker(o.Key, o.Body.XMm, o.Body.ZMm, o.Definition.RadiusMm, 0));
 
@@ -984,21 +1069,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private const long GridMm = 16_000;
 
-    private Dictionary<(long, long), WalkSpace>? _near;
+    private Dictionary<(SpaceId, long, long), WalkSpace>? _near;
 
     /// <summary>
     /// The walk space round a body, holding only the region's structures within a grid square of it (16 m): what a body that moves at
     /// most half a metre a tick can touch. Gathered once per square - the structures never move - so a step weighs a few dozen
     /// structures rather than the whole region's (the world-life pass more than tripled the creatures that walk).
     /// </summary>
-    private WalkSpace SpaceNear(Body body)
+    private WalkSpace SpaceNear(CreatureState creature, Body body)
     {
-        var space = _context.Setup.Layout.Space;
-        var square = (Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
-        _near ??= new Dictionary<(long, long), WalkSpace>();
+        var space = _context.Setup.SpaceFor(creature.Site.Space);
+        var square = (creature.Site.Space, Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
+        _near ??= new Dictionary<(SpaceId, long, long), WalkSpace>();
         if (_near.TryGetValue(square, out var near))
             return near;
-        long x0 = (square.Item1 - 1) * GridMm, z0 = (square.Item2 - 1) * GridMm, x1 = (square.Item1 + 2) * GridMm, z1 = (square.Item2 + 2) * GridMm;
+        long x0 = (square.Item2 - 1) * GridMm, z0 = (square.Item3 - 1) * GridMm, x1 = (square.Item2 + 2) * GridMm, z1 = (square.Item3 + 2) * GridMm;
         var blockers = space.Blockers.Where(b => b switch
         {
             BoxBlocker box => box.MaxXMm >= x0 && box.MinXMm <= x1 && box.MaxZMm >= z0 && box.MinZMm <= z1,
@@ -1018,13 +1103,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var player = State.Body;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         (Body, EntityId, string?) foe = (player, _player, null);
-        foreach (var companion in State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up))
+        foreach (var npc in Obstacles(c.Site.Space).Companions)
         {
-            if (!State.Npcs.TryGetValue(companion.NpcId, out var npc))
-                continue;
+            if (State.Companions[npc.Definition.Id].Condition != CompanionCondition.Up) continue;
             double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
             if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
-                foe = (npc.Body, npc.InstanceId, companion.NpcId);
+                foe = (npc.Body, npc.InstanceId, npc.Definition.Id);
         }
         return foe;
     }
@@ -1032,9 +1116,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A companion stands nearer than the character by more than this before a creature turns on them.</summary>
     private const long FoeMarginMm = 1_000;
 
-    /// <summary>Everyone standing in the world, as bodies creatures walk round: a creature never shoves a person out of its way (companions included).</summary>
+    /// <summary>Everyone standing near in the creature's space, as bodies creatures walk round: a creature never shoves a person out of its way (companions included).</summary>
     private IEnumerable<Blocker> People(CreatureState c) =>
-        State.Npcs.Values.Where(n => Math.Abs(n.Body.XMm - c.Body.XMm) < NearMm && Math.Abs(n.Body.ZMm - c.Body.ZMm) < NearMm).Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
+        Obstacles(c.Site.Space).People.Where(b => b is CircleBlocker p && Math.Abs(p.CenterXMm - c.Body.XMm) < NearMm && Math.Abs(p.CenterZMm - c.Body.ZMm) < NearMm);
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;
 
@@ -1060,12 +1144,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls() => _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors());
+    private IEnumerable<Blocker> Walls(CreatureState c) => Obstacles(c.Site.Space).Walls;
 
-    private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
+    private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
 
-    private SimulationTier TierOf(Body body) =>
-        State.Tiers.GetValueOrDefault(CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0).ToString(), SimulationTier.D);
+    private SimulationTier TierOf(CreatureState c) =>
+        State.Tiers.GetValueOrDefault(_context.CellOfSite(c.Site.Space, c.Body.XMm, c.Body.ZMm).ToString(), SimulationTier.D);
 
     private static double Distance(long x0, long z0, long x1, long z1)
     {
@@ -1074,10 +1158,22 @@ internal sealed class CreatureSystem : IAbstractAdvance
     }
 
     public ImmutableArray<CreatureView> Views() =>
-        State.Creatures.Values.Select(c =>
+        State.Creatures.Values.Where(c => c.Site.Space == State.Space).Select(c =>
         {
             var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,
-                c.Mind, c.Awareness, Asleep(c, State.WorldTick)) { Generation = c.Generation, Peaceful = c.Role.Peaceful };
+                c.Mind, c.Awareness, Asleep(c, State.WorldTick))
+            {
+                Generation = c.Generation, Peaceful = c.Role.Peaceful,
+                AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
+                PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
+                {
+                    CombatPhase.Windup => attack.WindupTicks,
+                    CombatPhase.Active => c.Action.Kind == ActionKind.Charge
+                        ? Math.Max(1, (int)(attack.ReachMm * 1000 / Math.Max(1, attack.ChargeSpeedMmPerSecond * TickMs))) : attack.ActiveTicks,
+                    CombatPhase.Recovery => attack.RecoveryTicks,
+                    _ => 0,
+                } : 0,
+            };
         }).ToImmutableArray();
 }

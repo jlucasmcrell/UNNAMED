@@ -5,9 +5,10 @@ using System.Collections.Immutable;
 using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
-using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Guidance;
+using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -33,9 +34,19 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     public Action<SaveStep>? SaveStepHook { get; init; }
 
     /// <summary>
-    /// Where the session reads the real time: the wall clock unless a test gives another. The session is the only reader (WP11): it stamps
-    /// <c>saved_utc</c> and measures an absence, and the world only ever receives a tick count.
+    /// Whether this run includes the Barrowworks (M8 D10). Off unless asked for: with it false no portal is
+    /// registered, so the interior cannot be entered and nothing in a normal launch changes. Presentation parses
+    /// <c>--visual barrowworks=1</c> and sets this, because what it gates is content the simulation holds.
     /// </summary>
+    public bool Barrowworks { get; init; }
+
+    /// <summary>Where a capture stands a new character; null uses the region's spawn, as every ordinary run does.</summary>
+    public long? StartXMm { get; init; }
+
+    /// <inheritdoc cref="StartXMm"/>
+    public long? StartZMm { get; init; }
+
+    /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
 }
 
@@ -171,6 +182,20 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
     private const string M3LayoutFingerprint = "sha256:4c97504c3d0db625e2447230087d2eabb56b4427c486a790f541d677a01b9a1b";
 
+/// <summary>
+    /// The region's combat setup, with an interior's spawns added when this run can reach it (B1). A spawn carries the
+    /// space it stands in, so the added creatures are the ring's and are never seen or struck from the exterior.
+    /// </summary>
+    private static CombatSetup CoLoadSpawns(CombatSetup primary, ContentLoader loader, RegionLayout layout, RegionLayout? interior)
+    {
+        if (interior is null)
+            return primary;
+        var inner = CombatContent.Build(loader, "region.barrowworks", interior.SpaceId).Spawns;
+        if (inner.IsEmpty)
+            return primary;
+        return primary with { Spawns = primary.Spawns.AddRange(inner.Where(s => s.Space != layout.SpaceId)) };
+    }
+
     public static GameSession Boot(GameOptions options)
     {
         var loader = new ContentLoader();
@@ -179,14 +204,39 @@ public sealed class GameSession : IDomainEvents, IDisposable
             throw new ContentBootException(loader.Errors.ToList());
 
         var layout = WorldContent.BuildLayout(loader, options.RegionId);
+        // The Barrowworks is gated here (M8 D10). Content may declare its entrances whenever they are
+        // authored; without the gate none of them is registered, so no portal exists, EnterSpaceCommand
+        // cannot succeed, and the interior is unreachable. The default-off guarantee is therefore enforced
+        // in code rather than by content discipline - a forgotten flag cannot leak the interior into a
+        // normal launch, and `--visual phase_a` (which restores every default) closes it too.
+        if (!options.Barrowworks)
+            layout = layout with { Portals = SpacePortalSet.Empty };
         var movement = WorldContent.BuildMovement(loader);
+        // Every space this run holds the ground of. The region's own always; the interior's when the gate is on and
+        // the region declares a way in. Its CONTENT - creatures, nodes, NPCs - is still the region's alone until B1
+        // routes those per space; what this makes possible is a height or a wall test in the interior's own space
+        // rather than the exterior's metres under it.
+        var spaces = ImmutableDictionary<SpaceId, WalkSpace>.Empty.Add(layout.SpaceId, layout.Space);
+        // An interior this run can reach, built once and shared by the ground map and the spawn co-load.
+        var layouts = ImmutableDictionary<SpaceId, RegionLayout>.Empty.Add(layout.SpaceId, layout);
+        RegionLayout? inner = null;
+        if (options.Barrowworks && !layout.Portals.Portals.IsEmpty)
+        {
+            inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+            layouts = layouts.SetItem(inner.SpaceId, inner);
+            foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
+                spaces = spaces.SetItem(portal.Space, inner.Space);
+        }
+
         var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
             WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))
         {
             Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
                 ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
                 ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
-            Combat = CombatContent.Build(loader, options.RegionId),
+            // The region's spawns carry the region's space, and the ring's carry the ring's, so a creature is
+            // only ever seen, struck or advanced in the space it stands in (B1).
+            Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, inner),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))
@@ -208,14 +258,17 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Navigation = NavigationContent.Build(loader),
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),
             Adventurers = AdventurerContent.Build(loader),
+            Spaces = spaces,
+            Layouts = layouts,
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
         var terrain = layout.Generation;
         var terrainRule = new TerrainRule(terrain.TerrainBaseHeightMm, terrain.TerrainAmplitudeMm, terrain.TerrainSamplesPerAxis);
         // The region's authored nodes are part of its baseline (M3f), each where it was put.
-        var fixedNodes = layout.Nodes.Select(site => new FixedNode(site.Name, site.NodeDefId, CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0),
-            (int)WorldMath.FloorMod(site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(site.ZMm / 10, WorldMath.CellSizeCm)));
+        var fixedNodes = setup.Sites(l => l.Nodes).Select(pair => new FixedNode(pair.Site.Name, pair.Site.NodeDefId,
+            CellKey.OfInterior(pair.Layout.SpaceId, pair.Site.XMm / 1000.0, pair.Site.ZMm / 1000.0),
+            (int)WorldMath.FloorMod(pair.Site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(pair.Site.ZMm / 10, WorldMath.CellSizeCm)));
         var generator = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule, fixedNodes));
         // A save from before the region placed its nodes carries onto the baseline that has them: nothing it holds was a node.
         var before = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule));
@@ -301,7 +354,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         while (seed == 0)
             seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         var id = EntityId.NewId(EntityKind.Character);
-        var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id));
+        var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id),
+            Options.StartXMm, Options.StartZMm);
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
@@ -360,8 +414,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _store = store;
         _card = character is null ? null
             : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
-        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds,
+        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus, restoreAttempt: true), result.Manifest.PlaytimeSeconds,
             result.Manifest.WorldTimeAdvancedTicks, result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray());
+        if (_simulation!.Player.Body.XMm != result.Player.XMm || _simulation.Player.Body.ZMm != result.Player.ZMm)
+            NoteAway(_simulation.WorldTick, new[] { "Active boss encounters restart when loaded. You return outside the court with your saved resources." });
         return result;
     }
 

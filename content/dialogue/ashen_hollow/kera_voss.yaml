@@ -99,6 +99,36 @@ nodes:
       - id: work
         text: "Need anything brought in?"
         next: work
+      # The reachable portal seeds this offer flag in the intake hall's cell before entry.
+      # With Barrowworks disabled the run holds no portals, so the offer stays hidden.
+      - id: ring
+        text: "What's the sealed ring under the hill?"
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 }
+          - { kind: visited, node: barrowworks, not: true }
+        next: barrowworks
+      - id: ring_again
+        text: "About the ring under the hill."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 }
+          - { kind: visited, node: barrowworks }
+        next: barrowworks_again
+      # o_done: telling her which way it went. Two replies because the design's choice is two answers and a
+      # condition list is a conjunction, so one reply per ending is the only honest way to gate them.
+      - id: ring_whole
+        text: "I left the mechanism standing."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_told, not: true }
+        next: barrowworks_told
+      - id: ring_broken
+        text: "I dismantled the measure."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_told, not: true }
+        consequences:
+          - { command: report_act, act: switch_set, flag_ref: world.barrowworks.headworks_dismantled }
+        next: barrowworks_told
       - id: leave
         text: "Nothing today."
       - id: story_cut
@@ -118,6 +148,55 @@ nodes:
           quest_ref: quest.main.closed_seam
         - command: start_quest
           quest_ref: quest.story.lantern_ledger
+  # o_offer accepts either of these, so a character who comes back a second time still starts the quest.
+  barrowworks:
+    text: "She puts the hammer down, which she does not often. \"Service ring. Thirteen rooms under the Ashen Hollow, and a sealed door the strata never shut.\" She looks at you the way she looks at a weld. \"They built it to gauge something and never finished the job - the readings are cut into its walls, or so the notice says. I want to know what it measures. And I want to know what you think we should do about the thing that measures it. The way in is under the hill. Go on - I'll want your bones the right shape when you come back out.\""
+    once: true
+    next_if_exhausted: barrowworks_again
+    choices:
+      - id: accept
+        text: "I'll find out what it measures."
+        consequences:
+          - { command: start_quest, quest_ref: quest.barrowworks.unfinished_measure }
+          # The wedge has to be taught somewhere or `o_wedge` can never be crafted: crafting refuses a recipe the
+          # character does not know (Crafting.cs:164) and nothing taught this one (review B3b).
+          - { command: teach, refs: [recipe.smithing.fitting_wedge] }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_about_the_ring }
+        next: again
+  barrowworks_again:
+    text: "\"The ring. Readings on the walls, and a machine at the bottom of it nobody finished.\" She turns a billet over. \"Bring me what it says. And bring me your own mind about it - that's the part I can't do from here.\""
+    choices:
+      # The offer is repeated here because `barrowworks` above is spent once heard: a character who listens and
+      # walks away without answering would otherwise lose the quest for good. SOC001 refused the first version
+      # of this for exactly that reason. Gated on the quest not being started, so it disappears once taken.
+      - id: accept
+        text: "I'll find out what it measures."
+        conditions: [{ kind: quest_state, quest_ref: quest.barrowworks.unfinished_measure, is: not_started }]
+        consequences:
+          - { command: start_quest, quest_ref: quest.barrowworks.unfinished_measure }
+          # The wedge has to be taught somewhere or `o_wedge` can never be crafted: crafting refuses a recipe the
+          # character does not know (Crafting.cs:164) and nothing taught this one (review B3b).
+          - { command: teach, refs: [recipe.smithing.fitting_wedge] }
+          - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_about_the_ring }
+        next: again
+      - id: back
+        text: "I'll come back with it."
+        next: again
+  # o_tell: the character has made the choice and comes back to say which. Kera takes either, which the design
+  # is explicit about - preserve or dismantle, neither is a failure.
+  barrowworks_told:
+    text: "\"So.\" She doesn't ask which way you went; she watches your hands instead, which is how she asks everything. Then she nods, once, and goes back to the fire. \"Right. That's the measure finished, then - one way or the other. Not many people get to say that about a thing that big.\""
+    once: true
+    variants:
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "\"Left it running?\" She turns the billet once. \"All right. Keep the drawings. A machine nobody understands is a fine argument for better drawings.\""
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "\"Two ingots, and the machine's done taking up the room.\" She nods. \"I can work with that. Tell Sel before she goes down there with a notebook and finds a pile of joints.\""
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "It's done."
+        next: again
   lesson:
     text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it; break me some ore out. Ore goes in the hearth and comes out a billet, if you keep the fire honest. A billet and a straight ash haft - Charwood's thick with ash - and the anvil makes you a spear. Make it yourself, bring it here, and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
     once: true

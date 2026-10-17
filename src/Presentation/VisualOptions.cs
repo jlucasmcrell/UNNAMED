@@ -75,6 +75,16 @@ public static class VisualOptions
         ["air"] = new[] { "flat", "sun", "hue" },
         // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
         ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
+        // 1: the Barrowworks is in the run - its two entrances become usable and its interior is loaded.
+        // 0 is the default and the whole of the default-off guarantee: with it off, no portal is registered
+        // anywhere, so EnterSpaceCommand cannot succeed and the playtest is the one it always was.
+        //
+        // This is the switch, but it is NOT where the gating happens. VisualOptions is Presentation and the
+        // content gate is Application's, and Presentation -> Application is the direction the projects
+        // reference, so a simulation could not read this even if it wanted to (D-11). Main passes it into
+        // GameOptions.Barrowworks and that is what content reads. The spelling is --visual because the brief
+        // asks for it; the structure is GameOptions because the layering requires it.
+        ["barrowworks"] = new[] { "0", "1" },
         // How far from Earth the plants, rocks, water and air look (Greybox/Otherworld.cs).
         ["otherworld"] = new[] { "off", "subtle", "bold" },
     };
@@ -117,6 +127,9 @@ public static class VisualOptions
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
         ["celestial"] = "mix",
+        // The Barrowworks is off unless it is asked for. Defaults is also what `--visual phase_a` copies, so a
+        // Phase-A run excludes it too, which is what "invisible in a normal launch" means.
+        ["barrowworks"] = "0",
         // The owner's pick (2026-10-17): subtle, the level of the village wildlife variants. off and bold stay for comparison.
         ["otherworld"] = "subtle",
     };
@@ -166,6 +179,12 @@ public static class VisualOptions
     public static string AntiAliasing => Values["aa"];
     public static string Celestial => Values["celestial"];
     public static string Otherworld => Values["otherworld"];
+
+    /// <summary>
+    /// Whether this run includes the Barrowworks (<c>--visual barrowworks=1</c>). Read once at startup and
+    /// passed into <c>GameOptions.Barrowworks</c>: this is the switch, and that record is the gate.
+    /// </summary>
+    public static bool Barrowworks => Values["barrowworks"] == "1";
 
     /// <summary>One option changed mid-run by a harness (the visual audit's per-shot hour and sky); refused as --visual refuses it.</summary>
     internal static void Pin(string key, string value)

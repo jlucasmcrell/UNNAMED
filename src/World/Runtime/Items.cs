@@ -305,10 +305,13 @@ internal sealed class InventorySystem
         {
             PlaceKind.Container when trading => new NotableOrigin(ProvenanceKind.Bought, command.From.ContainerKey!),
             PlaceKind.Container => new NotableOrigin(ProvenanceKind.Found, command.From.ContainerKey!),
-            PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, CellOf(source.XMm, source.ZMm).ToString()),
+            PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, _context.CellOfSite(source.XMm, source.ZMm).ToString()),
             _ => null,
         };
         Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null);
+        if (command.From.Kind == PlaceKind.Container && _context.FindContainer(command.From.ContainerKey!) is { EmptyFlag: { } flag } emptiedSite
+            && ContentsOf(emptiedSite).Count == 0)
+            _context.Dispatch(new SetWorldFlag(_context.CellOfSite(_context.ContainerSpace(emptiedSite), emptiedSite.XMm, emptiedSite.ZMm), flag, 1));
         _context.Events.Publish(new ItemMoved(_player, definition.Id, command.Count, command.From, command.To, tick));
         return null;
     }
@@ -643,7 +646,7 @@ internal sealed class InventorySystem
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
-        _context.Setup.Layout.CellKeys.Select(CellKey.Parse)
+        _context.Setup.LayoutFor(State.Space).CellKeys.Select(CellKey.Parse)
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
@@ -685,7 +688,8 @@ internal sealed class InventorySystem
                     .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear }).FirstOrDefault();
             case PlaceKind.Ground:
             {
-                if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell))
+                if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell)
+                    || cell.Space != State.Space)
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
                 return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear };
@@ -720,7 +724,7 @@ internal sealed class InventorySystem
     /// </summary>
     private List<(LootDrop Drop, int Quality)> Baseline(ContainerSite site)
     {
-        var cell = CellOf(site.XMm, site.ZMm);
+        var cell = _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm);
         var channel = RngChannel.Open(State.World.WorldSeed, cell, "loot", site.Key);
         // A trader's wares start as their authored stock (M4); every other container as its loot table's result.
         var drops = Items.Merchants.TryGetValue(site.Key, out var merchant)
@@ -751,7 +755,7 @@ internal sealed class InventorySystem
         var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
         var items = Baseline(site).Select(stack => new ContainerItem(NewItem(stack.Drop.ItemId), stack.Drop.ItemId, stack.Drop.Count) { Quality = stack.Quality })
             .ToImmutableArray();
-        var record = new ContainerRecord(site.Key, chest, CellOf(site.XMm, site.ZMm).ToString(), items);
+        var record = new ContainerRecord(site.Key, chest, _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
         return record;
     }
@@ -828,7 +832,7 @@ internal sealed class InventorySystem
             case PlaceKind.Ground:
             {
                 var (x, z) = at ?? (State.Body.XMm, State.Body.ZMm);
-                var cell = CellOf(x, z);
+                var cell = _context.CellOf(new Body(x, 0, z, 0));
                 var (minX, minZ) = CellOrigin(cell);
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
@@ -912,8 +916,6 @@ internal sealed class InventorySystem
         double dx = State.Body.XMm - xMm, dz = State.Body.ZMm - zMm;
         return Math.Sqrt(dx * dx + dz * dz);
     }
-
-    private static CellKey CellOf(long xMm, long zMm) => CellKey.OfWorld(xMm / 1000.0, zMm / 1000.0);
 
     private static (long X, long Z) CellOrigin(CellKey cell) =>
         (((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000,

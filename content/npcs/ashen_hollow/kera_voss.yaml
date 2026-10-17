@@ -19,6 +19,11 @@ teaches:
   - { kind: recipe, recipe_ref: recipe.fletching.arrows, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow_silk, by_dialogue: true }
+  # The Barrowworks wedge: only where the ring can be reached (its portal seeds the flag), as Kera's ring replies are.
+  - kind: recipe
+    recipe_ref: recipe.smithing.fitting_wedge
+    by_dialogue: true
+    requires: { flag: { flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 } }
   - kind: technique
     ability_ref: ability.blade.power_strike
     fee: 25

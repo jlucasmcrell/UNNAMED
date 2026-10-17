@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Perf;
@@ -39,6 +40,13 @@ public partial class Main : Node3D
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
     private HollowView _hollow = null!;
+
+    /// <summary>
+    /// The ring, built from the interior layout with its own bindings overlay and hidden until the body goes in
+    /// (review 3, B6). Null when this run holds no interior, which is every run without the gate.
+    /// </summary>
+    private HollowView? _interior;
+    private Art.ArtBindings? _interiorBindings;
     private Figure _avatar = null!;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -71,6 +79,10 @@ public partial class Main : Node3D
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
     private bool _autorun;
+
+    /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
+    private bool _wasOutside = true;
+
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Art.HitImpacts _hits = null!;
@@ -85,6 +97,7 @@ public partial class Main : Node3D
     private ConnectedCheck? _connectedCheck;
     private InputCheck? _inputCheck;
     private UiShots? _shots;
+    private BarrowworksReview? _barrowworksReview;
     private Showcase? _showcase;
     private Playthrough? _play;
 
@@ -145,6 +158,13 @@ public partial class Main : Node3D
     /// **this ceiling is what suppresses those spikes.** *The eased value then converges on the true speed, which is
     /// what the 1.002 ratio means.* **A teleport, a respawn or a cell transition is still caught by it.**
     /// </summary>
+    /// <summary>
+    /// The ring's region id. A run of it takes the ring's own bindings (<c>content/_art_bindings_barrowworks.json</c>)
+    /// rather than the region overlay the shipped launch passes, because a region's art belongs in the region's file
+    /// (review B4). A normal launch plays <c>region.starting_frontier</c> and never reaches that branch.
+    /// </summary>
+    private const string BarrowworksRegion = "region.barrowworks";
+
     private const float SpeedCeiling = 8f;
     /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
     private const double DeathFadeLeadSeconds = 1.2;
@@ -253,7 +273,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
               || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-              || _options.ContainsKey("--shot")
+              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
@@ -266,15 +286,31 @@ public partial class Main : Node3D
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
+        var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
+        if (VisualOptions.Barrowworks && _options.ContainsKey("--barrowworks-review"))
+            shotStart = (438_000, 664_000);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
-        _session = GameSession.Boot(new GameOptions(contentRoot, profile) { LockProfile = true, RegionId = region });
+        // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
+        // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
+        // unless asked for, so a normal launch is the launch it always was.
+        _session = GameSession.Boot(new GameOptions(contentRoot, profile)
+        {
+            LockProfile = true,
+            RegionId = region,
+            Barrowworks = VisualOptions.Barrowworks,
+            // A --shot names a place to stand, so the session opens the player there instead of making the
+            // capture walk him across the region - which measured about a quarter of an hour per room in the
+            // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
+            StartXMm = shotStart?.X,
+            StartZMm = shotStart?.Z,
+        });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
@@ -299,7 +335,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
@@ -329,8 +365,15 @@ public partial class Main : Node3D
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
         // sheets, the audio beds). The asset workspace carries it, so a region is chosen by --asset-root and
         // --region together and neither half reaches into the other's files.
-        string? regionBindings = _options.GetValueOrDefault("--bindings-overlay")
-            ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
+        // A run of the ring takes the ring's own bindings, because a region's art belongs in the region's file.
+        // The ring's used to live in Cairnwold's overlay, which the shipped PLAY.bat passes on EVERY launch - and
+        // `ArtBindings` replaces a top-level `roof_groups`, so the longhouse's and forge's roofs stopped being
+        // built with the option off (review B4). A normal launch plays region.starting_frontier, so it never
+        // reaches this and its overlay is exactly what it always was.
+        string? regionBindings = region == BarrowworksRegion
+            ? Path.Combine(contentRoot, "_art_bindings_barrowworks.json")
+            : _options.GetValueOrDefault("--bindings-overlay")
+                ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
         if (regionBindings is not null && System.IO.File.Exists(regionBindings))
             GD.Print($"UNNAMED art: regional bindings layered over the shared ones from {regionBindings}");
         _bindings = Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, regionBindings);
@@ -492,6 +535,12 @@ public partial class Main : Node3D
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
         }
+        else if (VisualOptions.Barrowworks && _options.TryGetValue("--barrowworks-review", out string? review))
+        {
+            SizeForCapture();
+            _realtime = _flags.Contains("--realtime");
+            _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
+        }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
             // --shot "<x,z,yaw_deg[,pitch][,seconds]>" is WHERE TO STAND AND LOOK; the frames go to --shot-out.
@@ -562,6 +611,74 @@ public partial class Main : Node3D
         }
     }
 
+
+    /// <summary>
+    /// The ring, built once from the interior layout with the ring's own bindings overlay, and hidden. Sharing the
+    /// frontier's overlay would draw the Ashen Hollow's props in the ring's rooms; sharing the frontier's view would
+    /// put the ring at the frontier's metres, which is where the body used to stand after a portal (review 3, B6).
+    /// </summary>
+    private void BuildInterior()
+    {
+        if (_session.Setup.Interior is not { } ring)
+            return;
+        string? overlay = Path.Combine(_session.Options.ContentRoot, "_art_bindings_barrowworks.json");
+        var bindings = Art.ArtBindings.LoadWithOverlay(
+            Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
+        _interiorBindings = bindings;
+        _interior = new HollowView { Name = "Barrowworks" };
+        _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
+        AddChild(_interior);
+        _interior.Build(ring);
+        // The held interior's resource work belongs to startup, not a synchronous first portal entry.
+        // This method is never reached with the option off. Reuse the library caches that normal views consume.
+        foreach (var id in ring.Containers.Select(s => bindings.Containers.GetValueOrDefault(s.Key)?.Model)
+                     .Concat(ring.Nodes.Select(s => bindings.Nodes.GetValueOrDefault(s.NodeDefId)?.Model))
+                     .OfType<string>().Distinct(StringComparer.Ordinal))
+            _art.ModelWithLods(id)?.Free();
+        foreach (var creature in _session.Setup.Combat.Spawns.Where(s => s.Space == ring.SpaceId)
+                     .SelectMany(s => s.Members).Select(m => m.CreatureId).Distinct(StringComparer.Ordinal))
+        {
+            if (!bindings.Creatures.TryGetValue(creature, out var look)) continue;
+            _art.Rigged(look.Model)?.Free();
+            foreach (var clip in look.Clips.Values.Distinct(StringComparer.Ordinal))
+                _art.Clip(clip);
+        }
+        _interior.SetSpaceActive(false);
+        _hollow.SetSpaceActive(true);
+        BuildPortalEntrances(_session.Setup.Layout);
+        GD.Print($"UNNAMED barrowworks: the ring is built at {ring.SpaceId} and hidden until the body goes in");
+    }
+
+    /// <summary>
+    /// A doorway at each exterior anchor, so the way in is a thing in the world rather than a prompt in mid-air.
+    /// </summary>
+    private void BuildPortalEntrances(RegionLayout layout)
+    {
+        foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
+            _hollow.AddChild(Greybox.PortalEntrance.Build(portal, layout, _art, _interiorBindings ?? _bindings));
+    }
+
+    /// <summary>
+    /// Show the space the body is in and hide the other (review 3, B6). Called on the space change.
+    /// </summary>
+    private void ShowSpace(bool outside)
+    {
+        _hollow.SetSpaceActive(outside);
+        if (_scatter is not null)
+            _scatter.Visible = outside;
+        if (_interior is { } ring)
+            ring.SetSpaceActive(!outside);
+        var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
+        _items.Bind(_art, bindings);
+        _items.BuildContainers(_session.Simulation!.ActiveLayout);
+        _items.Refresh(_session.Simulation!);
+        _crafting.Bind(_art, bindings);
+        _crafting.Build(_session.Simulation!.ActiveLayout);
+        _crafting.Refresh(_session.Simulation!.Nodes);
+        _creatures.Bind(_art, bindings);
+        _creatures.Reset();
+    }
+
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
     private void BuildScene()
     {
@@ -573,6 +690,7 @@ public partial class Main : Node3D
         _hollow.Bind(_art, _bindings, _ground);
         AddChild(_hollow);
         _hollow.Build(layout);
+        BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
         _scatter = new ScatterView { Name = "Scatter" };
         // The card grass is thrown away; --grass=cards restores it for a single comparison run and nothing else.
@@ -620,6 +738,8 @@ public partial class Main : Node3D
         _crafting.Build(_session.Setup.Layout);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
+        if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
+            _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.Terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
         AddChild(_npcs);
         // The character budget's harness (MetaHuman pipeline, Phase 1.4): bound people stood along the camera's view.
         if (OS.GetEnvironment("UNNAMED_PERF_CROWD") is { Length: > 0 } crowd)
@@ -800,6 +920,30 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_barrowworksReview is not null)
+        {
+            _barrowworksReview.RecordFrame(delta);
+            switch (_barrowworksReview.Update())
+            {
+                case "done":
+                    _barrowworksReview.WriteTiming();
+                    WriteReports(_barrowworksReview.Directory, "barrowworks-frontier-review");
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    if (DisplayServer.GetName() != "headless")
+                        SaveScreenshot(_barrowworksReview.Directory, "failed");
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    if (DisplayServer.GetName() != "headless")
+                    {
+                        _barrowworksReview.Screenshot();
+                        SaveScreenshot(_barrowworksReview.Directory, shot);
+                    }
+                    break;
+            }
+        }
         else if (_survey is not null)
         {
             switch (_survey.Update())
@@ -837,9 +981,16 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _ticksLastFrame = frame.TicksRun;
+        bool outside = _session.Simulation!.PlayerInExterior;
+        if (outside != _wasOutside)
+        {
+            _wasOutside = outside;
+            ShowSpace(outside);
+            _autorun = false;
+        }
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -866,6 +1017,25 @@ public partial class Main : Node3D
             SaveScreenshot(_perfOut, _perf.SegmentName);
             _stats!.SkipNext();
         }
+    }
+
+    /// <summary>
+    /// The place a <c>--shot "x,z,..."</c> names, in millimetres, or null when no shot was asked for.
+    /// </summary>
+    /// <remarks>
+    /// Only the first two fields are read here - the place to stand. Everything after them belongs to
+    /// <see cref="SurveyShots.One"/>, which parses the spec again for the yaw, pitch, hold and standoff. Null on
+    /// anything unparseable, so a bad spec falls back to the region's spawn and <c>SurveyShots.One</c> is still
+    /// the one place that reports it.
+    /// </remarks>
+    private (long X, long Z)? ShotStart()
+    {
+        if (!_options.TryGetValue("--shot", out string? spec))
+            return null;
+        var parts = spec.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length < 2 || !double.TryParse(parts[0], out double x) || !double.TryParse(parts[1], out double z))
+            return null;
+        return ((long)Math.Round(x * 1000), (long)Math.Round(z * 1000));
     }
 
     /// <summary>
@@ -961,6 +1131,7 @@ public partial class Main : Node3D
         _drawnAlpha = alpha;
 
         var simulation = _session.Simulation!;
+        _interior?.DrawWorld(simulation.ActiveSpaceTick, _session.TickSeconds);
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.SetDowned(combat.Defeated);
@@ -1173,7 +1344,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

@@ -28,6 +28,19 @@ nodes:
         next: tavar_back
       - id: leave
         text: "I'll leave you to it."
+      - id: barrowworks_kept
+        text: "I left the Barrowworks measure intact."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_report, not: true }
+        consequences: [{ command: report_act, act: switch_set, flag_ref: world.barrowworks.headworks_preserved }]
+        next: barrowworks_report
+      - id: barrowworks_taken_apart
+        text: "I dismantled the Barrowworks measure."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_report, not: true }
+        next: barrowworks_report
   again:
     text: "You again. Good. I've been talking to the stones, and they make poor witnesses."
     choices:
@@ -73,6 +86,19 @@ nodes:
       - id: survey
         text: "Does the Survey need anything collected?"
         next: survey
+      - id: barrowworks_kept
+        text: "I left the Barrowworks measure intact."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_report, not: true }
+        consequences: [{ command: report_act, act: switch_set, flag_ref: world.barrowworks.headworks_preserved }]
+        next: barrowworks_report
+      - id: barrowworks_taken_apart
+        text: "I dismantled the Barrowworks measure."
+        conditions:
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
+          - { kind: visited, node: barrowworks_report, not: true }
+        next: barrowworks_report
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -123,6 +149,19 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.story.name_dandelion
+  barrowworks_report:
+    text: "\"That's a reading I didn't have.\" She opens her notebook. \"Start with what you saw. I'll keep what we think in the margin.\""
+    once: true
+    next_if_exhausted: again
+    variants:
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "\"Still moving, then. Good.\" She leaves a line clear beneath her notes. \"We can take another reading. That's one more chance to be wrong in a useful way.\""
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "Her pencil stops. \"All right. Tell me which joints came apart first. We can't take that reading again, but we can keep yours.\""
+    choices:
+      - id: back
+        text: "I'll tell you what I saw."
+        next: again
   notes:
     text: "\"Not the Primer - Berrin keeps that, in Cairnwold, if he can find the shelf. This is mine.\" She takes a gathering of pages from the back of her ledger and tears it free along a line she has clearly folded many times. \"A fair copy of the one working I trust in the field. Brace Ward. It holds the body for a few breaths while the ground decides what it's doing. Read it once and it stays with you. And don't push past what your body can hold. I've seen what that costs; I'll swear to it.\""
     choices:

@@ -1,0 +1,14 @@
+id: item.quest.barrowworks_codex_fragment
+kind: item
+schema: 1
+display_key: item.quest.barrowworks_codex_fragment.name
+tags: [item]
+name: Barrowworks Codex Fragment
+notes: "PROPOSED implementation identifier for the accepted archive fragment (DIRECTION_AND_CONTENT_PLAN C.3 L2). Loose ruled paper compared with the wall notches. No new inscription, author or explanation is supplied. Item and pickup fact only; the Lantern quest belongs to its story port."
+category: quest_item
+stack_max: 1
+weight: 0.05
+value_base: 0
+rarity: common
+no_drop: true
+no_sell: true

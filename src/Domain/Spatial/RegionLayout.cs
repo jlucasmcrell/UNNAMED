@@ -9,7 +9,20 @@ namespace UNNAMED.Domain.Spatial;
 /// A door: an interactable whose open state is a <c>world.*</c> flag in the cell it stands in. Closed, its
 /// footprint blocks movement; open, it does not. The key is what an interaction command names.
 /// </summary>
-public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint);
+public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool StaysOpen { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteFlagRequirement? Requirement { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? LatchSide { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? LockedText { get; init; }
+}
+
+public sealed record SiteFlagRequirement(string FlagId, string LocationId);
+public sealed record SiteItem(string ItemId, int Count);
 
 /// <summary>
 /// A switch (M6): an interactable standing on a structure (<see cref="Body"/>) that sets a <c>world.*</c> flag in its cell to 1 -
@@ -18,7 +31,19 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
 /// <see cref="Name"/>, <see cref="DoneText"/> is what happens, <see cref="LockedText"/> why it will not work yet.
 /// </summary>
 public sealed record SwitchSite(string Key, string FlagId, Blocker Body, ImmutableArray<string> Requires, string Name, string Verb,
-    string DoneText, string? LockedText);
+    string DoneText, string? LockedText)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public ImmutableArray<SiteFlagRequirement> Requirements { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public ImmutableArray<string> Excludes { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteItem? Consume { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteItem? Reward { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? Learn { get; init; }
+}
 
 /// <summary>
 /// A barrier (M6): a footprint that blocks like a closed door while a <c>world.*</c> flag in its cell is 0 - the fold that holds Tavar
@@ -27,7 +52,10 @@ public sealed record SwitchSite(string Key, string FlagId, Blocker Body, Immutab
 /// </summary>
 public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, string Prompt);
 
-/// <summary>A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it.</summary>
+/// <summary>
+/// A named discoverable place (DATA_MODEL.md §4.18): entering its radius discovers it. Its space is the
+/// layout's, which is where an interior's places get theirs (M8 D10, <see cref="RegionLayout.SpaceId"/>).
+/// </summary>
 public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp)
 {
     /// <summary>How much ground round the place the map shows once it is discovered (its <c>map.reveals_radius_m</c>).</summary>
@@ -59,6 +87,9 @@ public sealed record RoadSite(string Id, string Name, ImmutableArray<(long XMm, 
 /// </summary>
 public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
 {
+    /// <summary>An optional durable pickup fact, written when the authored contents have all been taken.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? EmptyFlag { get; init; }
     /// <summary>A body's: the level of the creature it was, which its drops roll their quality by (DCP:662). Null for an authored container.</summary>
     public int? DropLevel { get; init; }
 }
@@ -122,10 +153,38 @@ public sealed record RegionLayout(
     public ImmutableArray<RoadSite> Roads { get; init; } = ImmutableArray<RoadSite>.Empty;
 
     /// <summary>
-    /// Where a new character who walks the road in first stands (PJ06 §5.1, B-min), or null when the region has no opening and every
-    /// character starts at <see cref="Spawn"/>.
+    /// The portals leading out of this region and into an interior space (M8 D10). Empty for every region
+    /// that has no interior, which is all of them until the Barrowworks is gated on; a region's own
+    /// entrances are the exterior anchors of these.
+    /// </summary>
+    public SpacePortalSet Portals { get; init; } = SpacePortalSet.Empty;
+
+    /// <summary>
+    /// The space this layout's own sites stand in (M8 D10). The exterior for every region that is part of
+    /// the world; an interior layout - the Barrowworks' thirteen rooms - sets its own, and then every node,
+    /// spawn, container, station, NPC and place in it resolves to a cell in that space rather than to the
+    /// exterior ground its local metres happen to name.
+    /// </summary>
+    /// <remarks>
+    /// This sits on the layout rather than on each site type because a layout <em>is</em> one space: its
+    /// sites are authored together in one coordinate frame. It was once on the door, the switch and the
+    /// barrier too, and nothing ever set them - so an interior's switches wrote their flags to exterior
+    /// cells while the quest read space-qualified ones and no reading could ever be satisfied (review B2).
+    /// </remarks>
+    public SpaceId SpaceId { get; init; } = SpaceId.Exterior;
+
+    /// <summary>
+    /// Where a new character who walks the road in first stands (PJ06 §5.1, B-min), or null when the region has no
+    /// opening and every character starts at <see cref="Spawn"/>.
     /// </summary>
     public Body? Opening { get; init; }
+
+    /// <summary>
+    /// Whether this layout is the outdoors: a stream, weather in the air, a sky over it, and ground beyond its walls.
+    /// True only for a layout standing in the exterior. An interior is enclosed - presentation builds none of that
+    /// inside the ring, and the rooms are lit by their own ambient (review section 7).
+    /// </summary>
+    public bool IsOutdoors => SpaceId.IsExterior;
 
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 

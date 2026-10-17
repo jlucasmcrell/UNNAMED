@@ -157,7 +157,7 @@ internal sealed partial class CompanionSystem
             return "dead";
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        if (!_context.InTalkReach(npc.Body))
+        if (!_context.InTalkReach(npc))
             return $"{npc.Definition.Name} is out of reach";
         if (!command.AcceptsRisk)
             return "a hireling can die in your service: the hire needs that risk accepted";
@@ -239,7 +239,7 @@ internal sealed partial class CompanionSystem
         State.RemoveCompanion(_owner, c.NpcId);
         // Someone with a life walks home to it (WP12b); someone with none is put back at their place, as before.
         if (State.Npcs.TryGetValue(c.NpcId, out var npc) && !_life.Walks(c.NpcId))
-            Place(npc, Home(npc));
+            Place(npc, Home(npc), _context.Setup.SpaceOfNpc(npc.Definition.Id));
         // A loan comes back when they leave (§2.15); what is theirs goes with them, and so does their sheet, into the life they go back to.
         _context.Dispatch(new ReturnLoans(c.NpcId));
         _life.TakeUp(new PartyLifeEntry(c.NpcId, c.Membership, reason, State.PartySheets.GetValueOrDefault(c.NpcId), tick));
@@ -249,7 +249,7 @@ internal sealed partial class CompanionSystem
 
     /// <summary>Where someone lives: their place in the region's layout.</summary>
     private Body Home(NpcState npc) =>
-        new(npc.Site.XMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
+        new(npc.Site.XMm, _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(npc.Site.NpcId)).Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
 
     /// <summary>How many days a grave wound keeps a companion at home: rolled from the world, who and when, so a replay or a load agrees.</summary>
     private long WoundDays(string npcId, long tick)
@@ -323,7 +323,7 @@ internal sealed partial class CompanionSystem
                 site = (node.Site.XMm, node.Site.ZMm);
                 break;
             case HirelingRole.Crafter:
-                if (_context.Setup.Layout.Stations.FirstOrDefault(s => s.Key == command.SiteKey) is not { } station)
+                if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Site.Key == command.SiteKey) is not { Site: { } station })
                     return $"there is no station '{command.SiteKey}'";
                 if (command.RecipeId is null || !_context.Setup.Crafting.Recipes.TryGetValue(command.RecipeId, out var recipe))
                     return "a crafter needs a recipe to work";
@@ -340,7 +340,7 @@ internal sealed partial class CompanionSystem
         var npc = State.Npcs[c.NpcId];
         var siteBody = new Body(site.X, 0, site.Z, npc.Body.FacingMdeg);
         var at = Ring(siteBody, 0, 1_500, Obstacles(c.NpcId)) ?? site;
-        Place(npc, new Body(at.X, _context.Setup.Layout.Space.Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
+        Place(npc, new Body(at.X, _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(npc.Site.NpcId)).Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
         State.SetCompanion(_owner, c with
         {
             Order = CompanionOrder.Wait,
@@ -359,7 +359,7 @@ internal sealed partial class CompanionSystem
             return $"unknown actor {command.Actor}";
         if (!State.Companions.TryGetValue(command.NpcId, out var c) || c.Contract is not { Role: HirelingRole.Crafter } contract)
             return $"{Name(command.NpcId)} is not a crafter in your hire";
-        if (!_context.InTalkReach(State.Npcs[c.NpcId].Body))
+        if (!_context.InTalkReach(State.Npcs[c.NpcId]))
             return $"{Name(command.NpcId)} is out of reach";
         if (command.Count < 1)
             return "hand over at least one";
@@ -373,9 +373,10 @@ internal sealed partial class CompanionSystem
     }
 
     private (string Key, CellKey Cell, NodeSite Site)? Node(string key) =>
-        _context.Setup.Layout.Nodes.Select(site =>
+        _context.Setup.Sites(l => l.Nodes).Select(pair =>
         {
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
+            var (home, site) = pair;
+            var cell = CellKey.OfInterior(home.SpaceId, site.XMm / 1000.0, site.ZMm / 1000.0);
             return (Key: Keys.NodeKey(cell, site.Name, 0), Cell: cell, Site: site);
         }).Where(n => n.Key == key).Cast<(string, CellKey, NodeSite)?>().FirstOrDefault();
 

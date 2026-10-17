@@ -29,6 +29,9 @@ public partial class Main
         _hud.SetPrompt(focus switch
         {
             null => null,
+            { Kind: FocusKind.Door } door when _controller.IsOpen(door.Key)
+                && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
+                => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
@@ -37,11 +40,12 @@ public partial class Main
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",
-            { Kind: FocusKind.Switch } site => _session.Setup.Layout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Switch } site => simulation.ActiveLayout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Portal } portal => $"[{HelpPanel.Key("interact")}] {(simulation.PlayerInExterior ? "Enter the Barrowworks" : "Return to the frontier")}",
             { Kind: FocusKind.Waystone } stone => simulation.Waystones.First(w => w.Site.Key == stone.Key) is var w && w.Known
                 ? $"[{HelpPanel.Key("interact")}] The {w.Site.Name}: Waystones you know"
                 : $"[{HelpPanel.Key("interact")}] Touch the stone",
-            { Kind: FocusKind.Barrier } barrier => _session.Setup.Layout.Barriers.First(b => b.Key == barrier.Key).Prompt,
+            { Kind: FocusKind.Barrier } barrier => simulation.ActiveLayout.Barriers.First(b => b.Key == barrier.Key).Prompt,
             { } item => $"[{HelpPanel.Key("interact")}] Pick up {Names.Item(_session, item.DefId, item.Quality)}",
         }, focus is null || focus.Kind == FocusKind.Npc && simulation.Conversation?.NpcId == focus.Key ? null : Context(simulation, focus));
 

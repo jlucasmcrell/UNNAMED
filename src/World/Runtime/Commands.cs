@@ -25,5 +25,18 @@ public sealed record CrouchCommand(EntityId Actor, bool Crouched) : GameCommand(
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 
+/// <summary>
+/// Enter the space a portal leads to (M8 D10). The body is placed at the portal's interior anchor and the
+/// portal is remembered, so leaving returns the character to the anchor they actually used. Refused when
+/// the portal is unknown or the actor is not standing at it.
+/// </summary>
+public sealed record EnterSpaceCommand(EntityId Actor, string PortalKey) : GameCommand(Actor);
+
+/// <summary>
+/// Leave the space the character is in (M8 D10), arriving at the exterior anchor of the portal they came in
+/// by. Refused when they are already outside, or when the portal they entered by is not declared.
+/// </summary>
+public sealed record LeaveSpaceCommand(EntityId Actor) : GameCommand(Actor);
+
 /// <summary>A command as the simulation applied it: the tick boundary it applied at, and why it was refused, if it was.</summary>
 public sealed record LoggedCommand(long Tick, long Sequence, GameCommand Command, string? RejectedReason);

@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Globalization;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World;
 
@@ -69,33 +70,65 @@ public readonly record struct RegionKey(int Rx, int Rz) : IComparable<RegionKey>
 }
 
 /// <summary>
-/// A cell address: a region plus <c>(cx, cz)</c> in [0, 19], keyed <c>&lt;region&gt;:c_&lt;cx&gt;_&lt;cz&gt;</c>,
-/// e.g. <c>r_0_0:c_07_11</c>. The canonical key is the identity every stream and delta record uses.
+/// A cell address: a region plus <c>(cx, cz)</c> in [0, 19], keyed
+/// <c>&lt;region&gt;:c_&lt;cx&gt;_&lt;cz&gt;</c>, e.g. <c>r_0_0:c_07_11</c>. The canonical key is the
+/// identity every stream and delta record uses. An interior cell is prefixed with its space, e.g.
+/// <c>space.barrowworks/r_0_0:c_00_00</c>, so it can never collide with the exterior cell of the same
+/// local address.
 /// </summary>
 public readonly record struct CellKey : IComparable<CellKey>
 {
     public CellKey(RegionKey region, int cx, int cz)
+        : this(SpaceId.Exterior, region, cx, cz)
+    {
+    }
+
+    public CellKey(SpaceId space, RegionKey region, int cx, int cz)
     {
         if (cx is < 0 or >= WorldMath.CellsPerRegionAxis)
             throw new ArgumentOutOfRangeException(nameof(cx), cx, "Cell index must be in [0, 19]");
         if (cz is < 0 or >= WorldMath.CellsPerRegionAxis)
             throw new ArgumentOutOfRangeException(nameof(cz), cz, "Cell index must be in [0, 19]");
+        Space = space;
         Region = region;
         Cx = cx;
         Cz = cz;
     }
+
+    /// <summary>The space this cell belongs to. <see cref="SpaceId.Exterior"/> for every existing cell.</summary>
+    public SpaceId Space { get; }
 
     public RegionKey Region { get; }
     public int Cx { get; }
     public int Cz { get; }
 
     /// <summary><c>cellOf(world) = (floormod(floor(x/100), 20), floormod(floor(z/100), 20))</c> (§3.3).</summary>
+    /// <remarks>Exterior only, so every existing call site keeps its meaning. An interior uses
+    /// <see cref="OfInterior"/>, which names its space.</remarks>
     public static CellKey OfWorld(double x, double z) => new(
+        SpaceId.Exterior,
         RegionKey.OfWorld(x, z),
         (int)WorldMath.FloorMod(WorldMath.FloorDiv(x, WorldMath.CellSizeMeters), WorldMath.CellsPerRegionAxis),
         (int)WorldMath.FloorMod(WorldMath.FloorDiv(z, WorldMath.CellSizeMeters), WorldMath.CellsPerRegionAxis));
 
-    public override string ToString() => $"{Region}:c_{Cx:00}_{Cz:00}";
+    /// <summary>
+    /// A cell address inside <paramref name="space"/>, from that space's own local metres. Interiors are
+    /// far smaller than a cell, so every room lands in the same synthetic region and the cell index is
+    /// the space's own; the space name is what keeps the address unique.
+    /// </summary>
+    public static CellKey OfInterior(SpaceId space, double x, double z)
+    {
+        if (space.IsExterior)
+            return OfWorld(x, z);
+        return new CellKey(
+            space,
+            RegionKey.OfWorld(0, 0),
+            (int)WorldMath.FloorMod(WorldMath.FloorDiv(x, WorldMath.CellSizeMeters), WorldMath.CellsPerRegionAxis),
+            (int)WorldMath.FloorMod(WorldMath.FloorDiv(z, WorldMath.CellSizeMeters), WorldMath.CellsPerRegionAxis));
+    }
+
+    public override string ToString() =>
+        Space.IsExterior ? $"{Region}:c_{Cx:00}_{Cz:00}" : $"{Space.Name}/{Region}:c_{Cx:00}_{Cz:00}";
 
     public int CompareTo(CellKey other) => string.CompareOrdinal(ToString(), other.ToString());
 
@@ -104,6 +137,23 @@ public readonly record struct CellKey : IComparable<CellKey>
         key = default;
         if (value is null)
             return false;
+
+        // The space prefix is optional so that every pre-M8 key parses exactly as it always did.
+        SpaceId space = SpaceId.Exterior;
+        int slash = value.IndexOf('/');
+        if (slash >= 0)
+        {
+            try
+            {
+                space = SpaceId.Parse(value[..slash]);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+            value = value[(slash + 1)..];
+        }
+
         int colon = value.IndexOf(':');
         if (colon < 0 || !RegionKey.TryParse(value[..colon], out var region))
             return false;
@@ -113,8 +163,11 @@ public readonly record struct CellKey : IComparable<CellKey>
             || !int.TryParse(cell.AsSpan(5, 2), NumberStyles.None, CultureInfo.InvariantCulture, out int cz)
             || cx >= WorldMath.CellsPerRegionAxis || cz >= WorldMath.CellsPerRegionAxis)
             return false;
-        key = new CellKey(region, cx, cz);
-        return true;
+        key = new CellKey(space, region, cx, cz);
+        // Rejects non-canonical spellings. `value` has already had any space prefix stripped, so the
+        // canonical form is compared against both what arrived and what arrived with the prefix back on.
+        string canonical = key.ToString();
+        return canonical == value || canonical == $"{space.Name}/{value}";
     }
 
     public static CellKey Parse(string value) =>

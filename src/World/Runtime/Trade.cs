@@ -227,6 +227,6 @@ internal sealed class TradeSystem
         merchant = stock;
         if (Closed(npc) is { } closed)
             return closed;
-        return !_context.InTalkReach(npc.Body) ? $"{npc.Definition.Name} is out of reach" : null;
+        return !_context.InTalkReach(npc) ? $"{npc.Definition.Name} is out of reach" : null;
     }
 }

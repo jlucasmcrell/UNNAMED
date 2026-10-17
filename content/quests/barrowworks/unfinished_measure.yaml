@@ -1,0 +1,117 @@
+id: quest.barrowworks.unfinished_measure
+kind: quest
+schema: 1
+display_key: quest.barrowworks.unfinished_measure.name
+tags: [quest]
+notes: "The Barrowworks quest of the frozen M8 design (2026-09-26), ported stage for stage from canon_readonly/implemented/content/quests/barrowworks/unfinished_measure.yaml (P4). Nothing here assumes an order the fiction does not need: a reading done before the quest is offered counts, and so does a wedge made ahead of being asked, because the readings are world flags a cell holds and the craft step reads the durable production record rather than a counter that only runs while the quest is watching (M8 S-34, P8A). The choice is the design's two endings - preserve or dismantle the headworks (M8-D2 option A) - and either completes the quest: neither is a failure. K1 and K2 are the required readings; K3 is optional and no mandatory objective asks for it. The combat stage is the Ring Custodian, whose defeat is read as a durable fact rather than as a kill count. NOT BALANCE-APPROVED: every number below is PROVISIONAL and exists so the graph can be exercised. ONE PORT CHANGE: the source names the Custodian fact 'fact:defeat.creature.boss.ring_custodian', and DefinitionId admits no colon - its pattern is ^[a-z0-9]+(\\.[a-z0-9_]*[a-z_][a-z0-9_]*)+(\\.[0-9]{2})?$ and no id in the content uses one. It is world.barrowworks.ring_custodian_defeated, same meaning, and it stays a durable flag rather than a kill_creature objective so the design's order-independence survives the rename."
+title: "The Unfinished Measure"
+summary: "Under the Ashen Hollow hill, a service ring of thirteen rooms was built to gauge something and never finished the job. The readings are still on the walls. Kera Voss wants to know what they measure. Read the archive, defeat its Custodian, then fit an ash wedge to preserve the measure or release it for salvage. The choice settles the works; reporting it is your decision."
+giver_ref: npc.ashen_hollow.kera_voss
+entry_objective: o_offer
+objectives:
+  # ── research ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  - id: o_offer
+    type: talk_to
+    description: Ask Kera Voss about the sealed service ring under the hill.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [barrowworks, barrowworks_again] }
+    next: [o_read_notice, o_reach]
+  # The one reading the design puts in the first room a body walks into, so it can be satisfied by walking in.
+  - id: o_read_notice
+    type: world_state
+    description: Read the withdrawal notice in the intake hall.
+    params: { flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: location.barrowworks.intake_hall, value: 1 }
+    next: [o_read_fitting, o_read_diagram]
+  # ── locate ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  - id: o_reach
+    type: visit_location
+    description: Find the way into the service ring.
+    params: { location_ref: location.barrowworks.intake_hall }
+    next: [o_read_fitting, o_read_diagram]
+  # ── the two required readings (K1 is above; K2 and P are these) ─────────────────────────────────────────────────────────
+  - id: o_read_fitting
+    type: world_state
+    description: Read the fitting note in the gauge archive.
+    params: { flag_ref: world.barrowworks.fitting_note_read, location_ref: location.barrowworks.gauge_archive, value: 1 }
+    next: [o_custodian]
+  - id: o_read_diagram
+    type: world_state
+    description: Read the diagram rack in the gauge archive.
+    params: { flag_ref: world.barrowworks.diagram_rack_read, location_ref: location.barrowworks.gauge_archive, value: 1 }
+    next: [o_custodian]
+  # ── combat: the Ring Custodian ──────────────────────────────────────────────────────────────────────────────────────────
+  # Read as a durable fact rather than as a kill count, so a defeat that happened before the quest was offered still counts
+  # and the quest cannot be stranded by doing things out of order. The creature and its fight are M8 I4's: what the quest
+  # depends on is the fact's name, and the encounter that owns the thing is what writes it.
+  #
+  # It is the join of the two readings, because they are what a character has to have understood before the court means
+  # anything - and a join is where the objectives it waits on lead to.
+  - id: o_custodian
+    type: defeat_boss
+    description: Put down the Ring Custodian.
+    # WP4's defeat_boss writes the flag from the creature's death, in the measuring court's cell, and a death
+    # before the quest was offered still counts - which is the durable-fact reading the design asks for. This was a
+    # bare world_state while nothing in the engine wrote a flag on a kill (OQ-17).
+    params: { creature_ref: creature.construct.ring_custodian, flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }
+    all_of: [o_read_fitting, o_read_diagram]
+    next: [o_haft]
+  # ── acquire ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  - id: o_haft
+    type: acquire_item
+    description: Take a length of ash haft out of the ring - the archive's stand, or the crate beside it.
+    params: { item_ref: item.material.ash_haft, or_item_refs: [item.tool.fitting_wedge], count: 1, ever: true }
+    next: [o_wedge]
+  # ── craft ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  # The join: a wedge is worth fitting once the readings say what it fits, so it waits on both of them as well as on what a
+  # character came back out of the ring holding.
+  - id: o_wedge
+    type: craft_item
+    description: Fit a wedge to the measure at the waystation's anvil.
+    params: { item_ref: item.tool.fitting_wedge, count: 1, ever: true }
+    all_of: [o_haft]
+    next: [o_open]
+  # ── the door the measuring court is behind ──────────────────────────────────────────────────────────────────────────────
+  - id: o_open
+    type: world_state
+    description: Open the headworks door beyond the measuring court.
+    params: { flag_ref: world.barrowworks.gate_g3_open, location_ref: location.barrowworks.headworks, value: 1 }
+    next: [o_measure]
+  # ── choice ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  - id: o_measure
+    type: explore_location
+    description: See what the headworks measures.
+    params: { location_ref: location.barrowworks.headworks, within_m: 10 }
+    # `branch: first`: answering one way closes the other, so the choice is a choice. Satisfying one of the two
+    # endings closes its alternative (Quests.cs L504-505) rather than leaving both open to be satisfied.
+    branch: first
+    next: [o_preserve, o_dismantle]
+  - id: o_preserve
+    type: world_state
+    description: Fit a wedge into the retaining saddle to preserve the mechanism.
+    params: { flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, value: 1 }
+    # The report is a sibling, not a follower of the close: it must be satisfiable while the quest is still open.
+    next: [o_done, o_report]
+  - id: o_dismantle
+    type: world_state
+    description: Fit a wedge into the release saddle to dismantle the mechanism for two iron ingots.
+    params: { flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, value: 1 }
+    next: [o_done, o_report]
+  # ── close, and the report ──────────────────────────────────────────────────────────────────────────────────────────────
+  # The local physical choice is terminal. Reporting to Kera or Sel is an independent, once-only dialogue act.
+  # Neither faction learns the outcome, or awards standing, until the player reports it.
+  - id: o_done
+    type: explore_location
+    description: Leave the headworks settled. You can report the outcome to Kera or Sel when you choose.
+    params: { location_ref: location.barrowworks.headworks, within_m: 12 }
+    # The design's optional beat: a character who went further than they were asked to. It gates nothing, so a player
+    # who never finds the blind store is never blocked by it. Read it before telling Kera and it counts.
+    #
+    # The engine has no `optional` marker (QuestContent declares it in ObjectiveFieldsNotBuilt), so "optional" here
+    # means "a sibling that no terminal waits on" - and that is what makes it optional rather than required.
+  - id: o_report
+    type: world_state
+    description: Read the optional ledger in the blind store.
+    params: { flag_ref: world.barrowworks.blind_store_read, location_ref: location.barrowworks.blind_store, value: 1 }
+# PROVISIONAL - NOT BALANCE-APPROVED. The graph is what is being proved here; these numbers exist to be exercised.
+rewards:
+  - { kind: xp, amount: 200 }
+  - { kind: currency, amount: 40 }

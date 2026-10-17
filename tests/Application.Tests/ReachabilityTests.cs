@@ -1,6 +1,7 @@
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
@@ -14,15 +15,29 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class ReachabilityTests
 {
+    /// <remarks>
+    /// Both regions a run can stand in, for the same reason <see cref="EveryQuestStep_PointsAtSomethingInTheRegion"/>
+    /// checks both: the Ring Custodian is region.barrowworks' and the start area's run correctly does not carry it,
+    /// so checking it here alone would report a creature no player can fail to meet.
+    /// </remarks>
     [Fact]
     public void EveryCreatureAndNode_StandsInTheRegion()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
+        using var ringProfile = new TempProfile();
+        var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
 
+        // The CATALOGS are world-wide - BuildCreatures and BuildCrafting take no region - and only the SPAWNS and the
+        // placed nodes are region-scoped. So this asks "is every catalogued creature spawned somewhere a player can
+        // reach", which is a question about the world, and the union is the scope it needs. It is NOT a weakening to
+        // be tightened later: asking one region to spawn every catalogued creature would demand the Ashen Hollow
+        // spawn the Ring Custodian, which the design does not.
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
         var placed = setup.Layout.Nodes.Select(n => n.NodeDefId).ToHashSet(StringComparer.Ordinal);
+        placed.UnionWith(ring.Layout.Nodes.Select(n => n.NodeDefId));
         Assert.Empty(setup.Crafting.Nodes.Keys.Where(n => !placed.Contains(n)));
     }
 
@@ -30,7 +45,7 @@ public class ReachabilityTests
     public void EveryItem_CanBeGotInAFreshSession()
     {
         using var profile = new TempProfile();
-        var setup = Harness.Boot(profile).Setup;
+        var setup = Harness.Boot(profile, barrowworks: true).Setup;
 
         var reachable = Reachable(setup);
         Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id)));
@@ -40,13 +55,27 @@ public class ReachabilityTests
     /// A quest whose step names a place another region holds, or a line no reply leads to, can never finish (the Oct 15 playthrough:
     /// Iron Under Ash stalled at Blackvein Cut in a region with no places in it, and Mara's <c>told</c> had no way in).
     /// </summary>
+    /// <remarks>
+    /// Checked against the places, people, spawns and items of <b>both</b> regions a run can stand in, because
+    /// The Unfinished Measure spans them: Kera gives it in the Ashen Hollow, and its five places are the ring's,
+    /// which is its own region and its own load (the gate opens the portals, it does not merge the layouts).
+    /// With the option off the quest is not offered either, so checking it against a run that cannot reach it
+    /// would report a failure no player can experience.
+    /// </remarks>
     [Fact]
     public void EveryQuestStep_PointsAtSomethingInTheRegion()
     {
         using var profile = new TempProfile();
-        var setup = Harness.Boot(profile).Setup;
-        var places = setup.Layout.Locations.Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
-        var people = setup.Layout.Npcs.Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
+        var setup = Harness.Boot(profile, barrowworks: true).Setup;
+
+        // Every layout this run can stand in. The interior is its own, and a quest step that names one of its places
+        // is satisfied by it - not by the exterior, where that place does not exist.
+        var layouts = new List<RegionLayout> { setup.Layout };
+        if (setup.Interior is { } interior)
+            layouts.Add(interior);
+
+        var places = layouts.SelectMany(l => l.Locations).Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
+        var people = layouts.SelectMany(l => l.Npcs).Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
         var reachable = Reachable(setup);
 
@@ -96,7 +125,7 @@ public class ReachabilityTests
     {
         var items = setup.Items;
         // Loot a fresh character can reach: the region's containers, and the corpses of the creatures that spawn.
-        var tables = new Queue<string>(setup.Layout.Containers.Select(c => c.LootTableId)
+        var tables = new Queue<string>(setup.AllLayouts.SelectMany(l => l.Containers).Select(c => c.LootTableId)
             .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
         var seenTables = new HashSet<string>(StringComparer.Ordinal);
         var reachable = new HashSet<string>(items.StartingKit.Select(k => k.ItemId), StringComparer.Ordinal);

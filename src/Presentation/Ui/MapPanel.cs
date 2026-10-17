@@ -57,6 +57,16 @@ public partial class MapPanel : CanvasLayer
     {
         if (!Visible || _session?.Simulation is not { } simulation)
             return;
+        // The sheet draws THIS region, and the body's position is read in the same metres. Inside an interior
+        // neither is true: the layout is the exterior's and the body stands in the interior's own coordinates,
+        // so drawing it would put the character at a point in the overworld they are not standing on. A map
+        // that lies is worse than no map, so under the hill the sheet is blank and says why (M8 D10).
+        if (!simulation.PlayerInExterior)
+        {
+            _canvas.Clear();
+            _known.Text = "You are underground, and this map is of the land above it.";
+            return;
+        }
         var map = simulation.Map;
         _date.Text = CalendarWords.Line(simulation.Calendar, _session.Setup.Calendar, simulation.Weather.State);
         var stones = simulation.Waystones.Where(w => w.Known).ToList();
@@ -79,6 +89,19 @@ public partial class MapPanel : CanvasLayer
         private string _drawn = string.Empty;
 
         public Texture2D? Stone { get; set; }
+
+        /// <summary>Blank the sheet: nothing drawn, and nothing the last frame left behind.</summary>
+        public void Clear()
+        {
+            _layout = null;
+            _map = null;
+            _stones = Array.Empty<(WaystoneSite, bool)>();
+            _places = Array.Empty<(KnownPlace, string)>();
+            _player = null;
+            _drawn = string.Empty;
+            CustomMinimumSize = Vector2.Zero;
+            QueueRedraw();
+        }
 
         public void Show(RegionLayout layout, KnownMap map, IReadOnlyList<(WaystoneSite Site, bool ReturnPoint)> stones,
             IReadOnlyList<(KnownPlace Place, string Name)> places, Body player)

@@ -146,6 +146,23 @@ public partial class Main
             return;
         }
 
+        // ENTERING OR LEAVING A SPACE STOPS IT. A portal puts the body down somewhere it did not walk to, and a
+        // character who keeps going from there walks into whatever happens to be in front of them - the far room's
+        // wall on the way in, or straight back through the door on the way out (M8 D10).
+        bool outside = _session.Simulation?.PlayerInExterior ?? true;
+        if (outside != _wasOutside)
+        {
+            _wasOutside = outside;
+            // The scene follows the body: the ring is shown inside and the frontier's world hidden, and back on the
+            // way out (review 3, B6 - nothing used to react to a space change at all).
+            ShowSpace(outside);
+            if (_autorun)
+            {
+                _autorun = false;
+                _hud.Toast("Autorun off - you went through a door", 2);
+            }
+        }
+
         var stick = new Vector2(
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
@@ -200,6 +217,7 @@ public partial class Main
             switch (focus.Kind)
             {
                 case FocusKind.Door:
+                case FocusKind.Portal:
                     _controller.Interact(focus.Key);
                     break;
                 case FocusKind.Container:

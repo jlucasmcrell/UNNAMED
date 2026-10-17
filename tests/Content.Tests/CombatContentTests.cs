@@ -83,6 +83,8 @@ public class CombatContentTests
         Assert.Equal(60, constants.RegionWeights[BodyRegion.Torso]);
 
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
+        // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
+        // CombatContent correctly does not carry it. A run of the ring has it and not these.
         Assert.Equal(29, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's three camps; one night walker; 13 of wildlife
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
@@ -96,13 +98,13 @@ public class CombatContentTests
         }, setup.Roles.Keys);
 
         // The content bible's five archetypes, each a creature of its own with its own body and blow (§10) - and the start area's wildlife
-        // and its two great grazers.
+        // and its two great grazers. The Ring Custodian is M8 I4's, inside the gated Barrowworks.
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
-                "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.grazer.barrowback", "creature.grazer.fellhorn",
-                "creature.undead.bone_walker_husk",
+                "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.construct.ring_custodian",
+                "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",
             }, setup.Creatures.Keys);
         var barrowback = setup.Creatures["creature.grazer.barrowback"];
         Assert.Equal((5, 220, 1_400L, 16_000L), (barrowback.Level, barrowback.MaxHealth, barrowback.RadiusMm, barrowback.Charge!.ReachMm));

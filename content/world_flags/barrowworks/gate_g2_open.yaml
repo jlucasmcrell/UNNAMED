@@ -1,0 +1,9 @@
+id: world.barrowworks.gate_g2_open
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.gate_g2_open.name
+tags: [world_flag]
+notes: Whether the G2 secret between the gauge archive and the blind store stands open. The design calls it the secret - the blind store is behind it, and the blind store is the optional report, so nothing the quest requires is ever behind this door.
+type: bool
+default: 0
+owning_system: S-22

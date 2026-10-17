@@ -547,7 +547,7 @@ internal sealed partial class CombatSystem
         }
 
         var struck = action.Struck;
-        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && !struck.Contains(c.Id)).ToList())
+        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space && !struck.Contains(c.Id)).ToList())
         {
             if (!CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm,
                     attack.ReachMm + creature.Definition.RadiusMm, C.MeleeArcMdeg)
@@ -605,7 +605,7 @@ internal sealed partial class CombatSystem
         double dx = Math.Sin(facing), dz = Math.Cos(facing);
         CreatureState? best = null;
         double bestAlong = double.MaxValue;
-        foreach (var creature in State.Creatures.Values.Where(c => c.Alive))
+        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space))
         {
             double ox = creature.Body.XMm - from.XMm, oz = creature.Body.ZMm - from.ZMm;
             double along = ox * dx + oz * dz;
@@ -621,7 +621,7 @@ internal sealed partial class CombatSystem
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
@@ -688,6 +688,8 @@ internal sealed partial class CombatSystem
     {
         if (State.Creatures.Values.FirstOrDefault(c => c.Id == command.Attacker) is not { Alive: true } creature)
             return "no such attacker";
+        if (creature.Site.Space != State.Space)
+            return "attacker is in another space";
         var combat = State.PlayerCombat;
         if (combat.Defeated)
             return "dead";
@@ -953,7 +955,7 @@ internal sealed partial class CombatSystem
     /// <summary>The rolls of one blow, keyed by who struck whom on which tick: the same on a replay and after a load.</summary>
     private Func<uint, double> Random(string attacker, string target, Body at, long tick)
     {
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(at.XMm / 1000.0, at.ZMm / 1000.0), "combat", $"{attacker}>{target}@{tick}");
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(at), "combat", $"{attacker}>{target}@{tick}");
         return sample => channel.UInt64(sample) / SampleScale;
     }
 
@@ -1117,12 +1119,14 @@ internal sealed class DeathSystem
     private readonly SystemContext _context;
     private readonly EntityId _player;
     private readonly Func<Body> _returnPoint;
+    private readonly Action _leaveSpace;
 
-    public DeathSystem(SystemContext context, EntityId player, Func<Body> returnPoint)
+    public DeathSystem(SystemContext context, EntityId player, Func<Body> returnPoint, Action leaveSpace)
     {
         _context = context;
         _player = player;
         _returnPoint = returnPoint;
+        _leaveSpace = leaveSpace;
     }
 
     public void Tick(long tick)
@@ -1166,7 +1170,12 @@ internal sealed class DeathSystem
         }
         if (tick < combat.RespawnAt)
             return;
-        // Back at the stone the character chose to return to, or the region's spawn while they have chosen none (S-38).
+        // Back at the stone the character chose to return to, or the region's spawn while they have chosen none
+        // (S-38). OUT OF THE SPACE FIRST: a return point is a place in the REGION's space, so a death inside an
+        // interior has to come out of it, or the body would stand at the stone's metres while the simulation
+        // still called it inside and every cell it touched would be the wrong cell. It belongs here and not on the
+        // death above, because the body does not move until it respawns.
+        _leaveSpace();
         var body = _returnPoint();
         _context.Dispatch(new Relocate(body));
         _context.Dispatch(new EndFight());

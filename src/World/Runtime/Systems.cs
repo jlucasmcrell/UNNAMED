@@ -16,7 +16,10 @@ namespace UNNAMED.World.Runtime;
 internal abstract record InternalCommand;
 
 /// <summary>To <see cref="WorldFlagSystem"/>: set a cell's world flag.</summary>
-internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : InternalCommand;
+internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : InternalCommand
+{
+    public bool Quiet { get; init; }
+}
 
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
@@ -45,25 +48,82 @@ internal sealed class SystemContext
     /// </summary>
     public Func<string, string?> OtherActorName { get; set; } = _ => null;
 
-    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(door), door.FlagId) != 0;
+    /// <summary>
+    /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
+    /// the quest that reads that flag are always the same cell (review B2).
+    /// </summary>
+    private SpaceId SpaceOf<T>(T site, Func<RegionLayout, IEnumerable<T>> sites) =>
+        Setup.Sites(sites).FirstOrDefault(p => EqualityComparer<T>.Default.Equals(p.Site, site)).Layout?.SpaceId ?? Setup.Layout.SpaceId;
 
-    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(site), site.FlagId) != 0;
+    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door, l => l.Doors), door), door.FlagId) != 0;
 
-    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(barrier), barrier.FlagId) != 0;
+    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), site.FlagId) != 0;
+
+    internal const string InteriorTicksFlag = "world.space.elapsed_ticks";
+
+    public CellKey ClockCell(SpaceId space)
+    {
+        var spawn = Setup.LayoutFor(space).Spawn;
+        return CellOfSite(space, spawn.XMm, spawn.ZMm);
+    }
+
+    public long SpaceTick(SpaceId space, long worldTick) =>
+        space.IsExterior ? worldTick : State.World.GetFlag(ClockCell(space), InteriorTicksFlag);
+
+    public bool RequirementMet(SiteFlagRequirement requirement) =>
+        Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == requirement.LocationId) is { Site: { } place, Layout: var home }
+            && State.World.GetFlag(CellOfSite(home.SpaceId, place.XMm, place.ZMm), requirement.FlagId) != 0;
+
+    public bool Excluded(SwitchSite site) => !site.Excludes.IsDefaultOrEmpty
+        && site.Excludes.Any(flag => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), flag) != 0);
+
+    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(SpaceOf(barrier, l => l.Barriers), barrier), barrier.FlagId) != 0;
+
+    /// <summary>
+    /// The cell a body stands in, in the space it is in (M8 D10). A cell is where a flag, a delta and an
+    /// <see cref="RngChannel"/> seed live, so a body's own coordinates are not enough to name one: an
+    /// interior's local metres would otherwise address real exterior ground.
+    /// </summary>
+    /// <remarks>
+    /// This overload is for the player. Entities and authored sites use their own space. Unflagged interiors,
+    /// including Barrowworks, hold their state while absent (systems plan §2.11).
+    /// </remarks>
+    public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
+
+    /// <summary>
+    /// The cell an authored site's coordinates name, in the space the layout itself stands in (M8 D10). An
+    /// interior region's nodes, spawns, containers and named places are authored in its own local metres, so
+    /// their cells must be qualified with the layout's space rather than the exterior.
+    /// </summary>
+    public CellKey CellOfSite(long xMm, long zMm) =>
+        CellOfSite(Setup.Layout.SpaceId, xMm, zMm);
+
+    /// <summary>
+    /// The same, in the space the caller names. A site's space is its OWN layout's, never the player's: a ring place
+    /// and a frontier place authored at the same metres are different cells, and taking the player's space put a
+    /// loaded save's exterior NPCs underground and the ring's flags in the frontier (review 3, B8).
+    /// </summary>
+    public CellKey CellOfSite(SpaceId space, long xMm, long zMm) =>
+        CellKey.OfInterior(space, xMm / 1000.0, zMm / 1000.0);
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
+    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null) => Setup.LayoutFor(space ?? State.Space).ClosedDoors(IsOpen, IsLifted);
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.Layout.FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+        Setup.LayoutFor(State.Space).FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+
+    public SpaceId ContainerSpace(ContainerSite site) =>
+        Setup.Sites(l => l.Containers).FirstOrDefault(p => p.Site.Key == site.Key).Layout?.SpaceId
+        ?? State.Creatures.Values.FirstOrDefault(c => c.CorpseKey == site.Key)?.Site.Space
+        ?? Setup.Layout.SpaceId;
 
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;
 
     /// <summary>Every trader's wares (M4): a container keyed by the merchant, standing at the trader.</summary>
     public IEnumerable<ContainerSite> MerchantSites() =>
-        State.Npcs.Values.Select(WaresOf).OfType<ContainerSite>();
+        State.Npcs.Values.Where(n => n.Space == State.Space).Select(WaresOf).OfType<ContainerSite>();
 
     public ContainerSite? WaresOf(NpcState npc) =>
         npc.Definition.MerchantId is { } merchant && Setup.Items.Merchants.ContainsKey(merchant)
@@ -87,16 +147,19 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.Layout.Space.Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
+    public bool InTalkReach(NpcState npc) =>
+        npc.Space == State.Space && InTalkReach(npc.Body);
+
     public bool InTalkReach(Body npc) =>
         DistanceToPlayer(npc) <= TalkReachMm && !Walled(State.Body.XMm, State.Body.ZMm, npc.XMm, npc.ZMm);
 
     /// <summary>Every corpse that can be searched: its body is still there, and its creature has a loot table.</summary>
     public IEnumerable<ContainerSite> CorpseSites() =>
         State.Creatures.Values
-            .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
+            .Where(c => c.Site.Space == State.Space && c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
             .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots)
             {
                 DropLevel = c.Definition.Level,
@@ -107,9 +170,9 @@ internal sealed class SystemContext
     /// not a companion (M6), who keeps out of the way instead, so a narrow door is never held shut by a friend.
     /// </summary>
     public ImmutableArray<Blocker> Obstacles() =>
-        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive)
+        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
-            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id))
+            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && n.Space == State.Space)
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
@@ -128,7 +191,14 @@ internal sealed class ClockSystem : IAbstractAdvance
         _owner = owner;
     }
 
-    public void Tick() => _context.State.AdvanceClock(_owner);
+    public void Tick()
+    {
+        _context.State.AdvanceClock(_owner);
+        var space = _context.State.Space;
+        if (!space.IsExterior)
+            _context.Dispatch(new SetWorldFlag(_context.ClockCell(space), SystemContext.InteriorTicksFlag,
+                _context.SpaceTick(space, _context.State.WorldTick) + 1) { Quiet = true });
+    }
 
     /// <summary>The world going on while the character was away (WP11): the first system of the advance, so the others see the new tick.</summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
@@ -180,7 +250,7 @@ internal sealed class MovementSystem
         var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
         if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
             return "busy";
-        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
         _context.Events.Publish(new Jumped(_player, tick));
@@ -205,7 +275,7 @@ internal sealed class MovementSystem
             return "in the air";
         if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
             return "mid-dodge";
-        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.Layout.Space))
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
@@ -261,7 +331,7 @@ internal sealed class MovementSystem
         }
 
         var posture = _context.State.Posture;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.Layout.Space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)
             _context.State.SetPosture(_owner, next);
         if (to == from)
@@ -300,11 +370,15 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
-        if (_context.Setup.Layout.FindSwitch(command.TargetKey) is { } site)
-            return Work(site, tick);
-        var door = _context.Setup.Layout.FindDoor(command.TargetKey);
-        if (door is null)
+        // The site's own layout, and only usable from inside its space: local metres overlap between spaces, so a
+        // proximity test without a space test would reach across the hill.
+        if (_context.Setup.Sites(l => l.Switches).FirstOrDefault(p => p.Site.Key == command.TargetKey) is { Site: { } switchSite, Layout: var switchHome })
+            return Work(switchHome, switchSite, tick);
+        var found = _context.Setup.Sites(l => l.Doors).FirstOrDefault(p => p.Site.Key == command.TargetKey);
+        if (found.Site is not { } door)
             return $"nothing to interact with called '{command.TargetKey}'";
+        if (found.Layout.SpaceId != _context.State.Space)
+            return $"{door.Key} is not in this place";
         var body = _context.State.Body;
         var rules = _context.Setup.Movement;
         double distance = door.ClosedFootprint.DistanceTo(body.XMm, body.ZMm);
@@ -312,21 +386,38 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
+        if (open && door.StaysOpen)
+            return null;
+        if (!open)
+        {
+            bool atLatch = door.LatchSide switch
+            {
+                "east" => body.XMm > door.ClosedFootprint.CenterXMm,
+                "west" => body.XMm < door.ClosedFootprint.CenterXMm,
+                "north" => body.ZMm > door.ClosedFootprint.CenterZMm,
+                "south" => body.ZMm < door.ClosedFootprint.CenterZMm,
+                _ => true,
+            };
+            if (!atLatch || (door.Requirement is { } requirement && !_context.RequirementMet(requirement)))
+                return door.LockedText ?? "The door is locked.";
+        }
         // Nor on anyone else standing in it - a creature or an NPC - who would be shut inside the wall (the Phase-1 technical audit, L-16).
         bool blocked = door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null
                        || _context.State.Creatures.Values.Any(c => c.Alive && door.ClosedFootprint.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
                        || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
         if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
-        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, open ? 0 : 1)) is { } refused)
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(found.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
         return null;
     }
 
     /// <summary>A switch sets its flag once, and only when every flag it requires is set in its cell.</summary>
-    private string? Work(SwitchSite site, long tick)
+    private string? Work(RegionLayout home, SwitchSite site, long tick)
     {
+        if (home.SpaceId != _context.State.Space)
+            return $"the {site.Name} is not in this place";
         var body = _context.State.Body;
         long reach = _context.Setup.Movement.InteractReachMm;
         double distance = site.Body.DistanceTo(body.XMm, body.ZMm);
@@ -334,12 +425,22 @@ internal sealed class InteractionSystem
             return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
         if (_context.IsSet(site))
             return $"the {site.Name} is already set";
-        var cell = Simulation.CellOf(site);
+        if (_context.Excluded(site))
+            return "That choice has already been made.";
+        var cell = Simulation.CellOf(home.SpaceId, site);
         if (site.Requires.Any(flag => _context.State.World.GetFlag(cell, flag) == 0))
             return site.LockedText;
+        if (!site.Requirements.IsDefaultOrEmpty && site.Requirements.Any(r => !_context.RequirementMet(r)))
+            return site.LockedText;
+        if (site.Consume is { } cost && _context.Dispatch(new ConsumeItem(cost.ItemId, cost.Count)) is { } missing)
+            return missing;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
             return refused;
         _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.SwitchSet, site.FlagId, body.XMm, body.ZMm));
+        if (site.Learn is { } recipe)
+            _context.Dispatch(new LearnTechnique(new TechniqueLearning(recipe, LearningSource.Discovery, tick) { SourceRef = site.Key }));
+        if (site.Reward is { } reward)
+            _context.Dispatch(new GrantItem(reward.ItemId, reward.Count, Domain.Crafting.Quality.Standard) { SourceRef = site.Key });
         _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }
@@ -357,13 +458,21 @@ internal sealed class WorldFlagSystem
         _owner = owner;
     }
 
+    /// <summary>
+    /// Writes a flag as a FACT OF THE WORLD at creation rather than as something the character did, through the same
+    /// slice this system owns. The ring's withdrawal notice is the case: it is in a hall the character can reach, so
+    /// it is readable before they go anywhere.
+    /// </summary>
+    public void Seed(CellKey cell, string flagId, long value) => _context.State.SetFlag(_owner, cell, flagId, value);
+
     public string? Handle(SetWorldFlag command, long tick)
     {
         long from = _context.State.World.GetFlag(command.Cell, command.FlagId);
         if (from == command.Value)
             return null;
         _context.State.SetFlag(_owner, command.Cell, command.FlagId, command.Value);
-        _context.Events.Publish(new WorldFlagChanged(command.Cell.ToString(), command.FlagId, from, command.Value, tick));
+        if (!command.Quiet)
+            _context.Events.Publish(new WorldFlagChanged(command.Cell.ToString(), command.FlagId, from, command.Value, tick));
         return null;
     }
 }
@@ -486,11 +595,12 @@ internal sealed class DiscoverySystem
     public void Tick(long tick)
     {
         var state = _context.State;
-        foreach (var place in _context.Setup.Layout.Locations)
+        foreach (var (layout, place) in _context.Setup.Sites(l => l.Locations))
         {
             if (state.Discoveries.ContainsKey(place.Id))
                 continue;
-            string cell = CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0).ToString();
+            // The place's own space: its discovery tier, and its distance, are its layout's.
+            string cell = _context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm).ToString();
             if (state.Tiers.GetValueOrDefault(cell, SimulationTier.D) != SimulationTier.A)
                 continue;
             double dx = state.Body.XMm - place.XMm, dz = state.Body.ZMm - place.ZMm;
@@ -597,8 +707,13 @@ internal sealed class TierSystem
     }
 
     /// <summary>A cell's distance to the nearest observer: to the nearest point of the cell, 0 inside it. Far beyond everything with none.</summary>
-    public static long DistanceTo(CellKey cell, IReadOnlyList<TierObserver> observers)
+    public long DistanceTo(CellKey cell, IReadOnlyList<TierObserver> observers)
     {
+        // A cell in another space is not near the body, whatever the local metres say. Without this the ring's cells
+        // would be promoted by a body standing at the same metres in the frontier, and the Custodian's tier would be
+        // decided by someone in a different room entirely (review 3, B8).
+        if (cell.Space != _context.State.Space)
+            return long.MaxValue / 4;
         long minX = ((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000;
         long minZ = ((long)cell.Region.Rz * WorldMath.RegionSizeMeters + (long)cell.Cz * WorldMath.CellSizeMeters) * 1000;
         long size = WorldMath.CellSizeMeters * 1000L;
@@ -610,6 +725,138 @@ internal sealed class TierSystem
             nearest = Math.Min(nearest, (long)Math.Sqrt((double)dx * dx + (double)dz * dz));
         }
         return nearest;
+    }
+}
+
+/// <summary>
+/// Owns: <see cref="StateSlice.PlayerSpace"/>. Moves the player between the exterior and an interior space
+/// through a declared portal (M8 D10), and remembers which portal they came in by so leaving returns them
+/// to the anchor they actually used.
+/// </summary>
+/// <remarks>
+/// It owns only which space the body is in and how it got there; it writes the body itself by dispatching
+/// <see cref="Relocate"/>, because the body is the movement system's. Refusals are returned as a reason and
+/// never as an exception: a command that cannot be honoured leaves the character exactly where they were,
+/// which is the recoverable coherent snapshot the design asks for when a transition cannot complete.
+/// </remarks>
+internal sealed class SpaceSystem
+{
+    private readonly SystemContext _context;
+    private readonly SliceOwner _owner;
+    private readonly EntityId _player;
+
+    public SpaceSystem(SystemContext context, SliceOwner owner, EntityId player)
+    {
+        _context = context;
+        _owner = owner;
+        _player = player;
+    }
+
+    /// <summary>How close the body must stand to a portal's anchor to use it: an arm's reach, as for a door.</summary>
+    private long ReachMm => _context.Setup.Items.Inventory.ReachMm + _context.Setup.Movement.BodyRadiusMm;
+
+    /// <summary>
+    /// Put the body into the space its save recorded (the interior-space save extension), without moving it and without a portal.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A load is the one way a body arrives in a space it did not walk into: the save holds the position and the
+    /// space, and the two are one coordinate between them.
+    /// </para>
+    /// <para>
+    /// An empty name is the exterior's, and the exterior is what a body that never entered the ring is in - so an
+    /// empty name is NOT adopted. A region that is itself an interior (region.barrowworks, opened directly by a
+    /// capture or a survey) starts its bodies in its own space, and overwriting that with the empty exterior name
+    /// would put every such body outside the room it is standing in. Only a save that names a space moves one.
+    /// </para>
+    /// </remarks>
+    public void Adopt(string spaceId, string? traversal)
+    {
+        if (string.IsNullOrEmpty(spaceId))
+            return;
+        _context.State.SetSpace(_owner, new SpaceId(spaceId), traversal is { } key ? new SpaceTraversal(key) : SpaceTraversal.None);
+    }
+
+    /// <summary>Enter the space a portal leads to, placing the body at its interior anchor.</summary>
+    public string? Enter(EnterSpaceCommand command)
+    {
+        if (command.Actor != _player)
+            return "Only the player moves between spaces";
+
+        var portals = _context.Setup.Layout.Portals;
+        var portal = portals.Find(command.PortalKey);
+        if (portal is null)
+            return $"No portal '{command.PortalKey}'";
+
+        if (!_context.State.Space.IsExterior)
+            return $"Already inside {_context.State.Space}";
+
+        var body = _context.State.Body;
+        double away = Math.Sqrt(Math.Pow(portal.ExteriorXMm - body.XMm, 2) + Math.Pow(portal.ExteriorZMm - body.ZMm, 2));
+        if (away > ReachMm)
+            return $"Too far from '{command.PortalKey}' to use it";
+
+        var (x, z, traversal) = portals.Enter(command.PortalKey);
+        _context.State.SetSpace(_owner, portal.Space, traversal);
+        var arrival = new Body(x, _context.Setup.SpaceFor(portal.Space).Terrain.HeightAtMm(x, z), z, body.FacingMdeg);
+        _context.Dispatch(new Relocate(arrival));
+        // The party follows through the door: a follower left behind would be in a space the player has
+        // left, and every rule about who can see and reach whom now depends on sharing it.
+        _context.Dispatch(new ArriveWithParty(arrival));
+        return null;
+    }
+
+    /// <summary>
+    /// Leave the space by the portal the body is standing at, arriving at THAT portal's exterior anchor.
+    /// </summary>
+    /// <remarks>
+    /// The door out is the one underfoot, not the one that was walked in through. The design is explicit that a
+    /// character who came in by the drain mouth must be able to leave by the threshold if they walked to it, and
+    /// the stored traversal is a record of the entry rather than the destination (review B5). Nothing is not a
+    /// crash and not a silent fallback: a body in the middle of a room is simply refused, and the stored portal is
+    /// never looked up - which is what makes a renamed or gated-off portal a refusal rather than an exception.
+    /// </remarks>
+    public string? Leave(LeaveSpaceCommand command)
+    {
+        if (command.Actor != _player)
+            return "Only the player moves between spaces";
+
+        if (_context.State.Space.IsExterior)
+            return "Already outside";
+
+        // Not through a door with something at your back. The same test the rest of the world asks: a creature
+        // whose mind is Engaged is a creature fighting you (Creatures.cs, CreatureView.Hostile).
+        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged))
+            return "Not while something is fighting you";
+
+        var body = _context.State.Body;
+        if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm) is not { } portal)
+            return "There is no way out from here";
+
+        _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
+        var out_ = new Body(portal.ExteriorXMm,
+            _context.Setup.SpaceFor(SpaceId.Exterior).Terrain.HeightAtMm(portal.ExteriorXMm, portal.ExteriorZMm),
+            portal.ExteriorZMm, body.FacingMdeg);
+        _context.Dispatch(new Relocate(out_));
+        _context.Dispatch(new ArriveWithParty(out_));
+        return null;
+    }
+
+    /// <summary>
+    /// Put the player outside whatever space they are in, without needing a portal to leave by.
+    /// </summary>
+    /// <remarks>
+    /// Death is the caller. A return point is a place in the region's own space (S-38), so a character who dies
+    /// inside an interior has to come OUT of it. Leaving them in the interior while moving the body to the
+    /// stone's metres would stand them at the wrong coordinates in the wrong space, and every cell they then
+    /// touched would be the wrong cell. This is deliberately not <see cref="Leave"/>: there is no portal here to
+    /// anchor to and none is wanted - dying is not a door.
+    /// </remarks>
+    public void LeaveForDeath()
+    {
+        if (_context.State.Space.IsExterior)
+            return;
+        _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
     }
 }
 

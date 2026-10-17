@@ -26,8 +26,17 @@ public partial class Main
         _controller.Resync();
         _creatures.Reset();
         foreach (var door in _session.Simulation!.Doors)
+        {
             _hollow.SetDoor(door.Site.Key, door.Open);
+            _interior?.SetDoor(door.Site.Key, door.Open);
+        }
         _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
+        _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
+        if (_session.Setup.Interior is not null)
+        {
+            _wasOutside = _session.Simulation!.PlayerInExterior;
+            ShowSpace(_wasOutside);
+        }
         _items.Refresh(_session.Simulation!);
         // Panels open on the world before are closed on this one: a conversation it does not have, a container, a trader or a station
         // that was the other world's (the Phase-1 technical audit, M-03).

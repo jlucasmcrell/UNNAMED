@@ -190,7 +190,7 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
         foreach (var (flag, location) in flags)
         {
             // A place another region holds is read as unset here, and is not written here either.
-            if (!_context.Setup.Layout.Locations.Any(l => l.Id == location) || WorldFlag(flag, location) != 0)
+            if (!_context.Setup.Sites(l => l.Locations).Any(p => p.Site.Id == location) || WorldFlag(flag, location) != 0)
                 continue;
             _context.Dispatch(new SetWorldFlag(CellOfLocation(location), flag, 1));
         }
@@ -538,10 +538,15 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
         }
     }
 
+    /// <summary>
+    /// A place's cell, in the space the place's OWN layout stands in. Never the player's: the ring and the frontier
+    /// author different places at the same local metres, and taking the player's space put a scene's flag in the
+    /// wrong one (review 3, B6 and B8).
+    /// </summary>
     internal CellKey CellOfLocation(string locationId) =>
-        _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
-            ? CellKey.OfWorld(place.XMm / 1000.0, place.ZMm / 1000.0)
-            : throw new InvalidOperationException($"{locationId} is not a place in this region");
+        _context.Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == locationId) is { Site: { } place, Layout: var layout }
+            ? _context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm)
+            : throw new InvalidOperationException($"{locationId} is not a place in any loaded space");
 
     // ── what predicates may ask ─────────────────────────────────────────────
 
@@ -552,7 +557,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
 
     public long DistanceMm(string locationId)
     {
-        if (_context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is not { } place)
+        if (_context.Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == locationId) is not { Site: { } place, Layout: var home }
+            || home.SpaceId != State.Space)
             return long.MaxValue;
         var body = State.Body;
         return (long)Math.Round(Math.Sqrt(Math.Pow(place.XMm - body.XMm, 2) + Math.Pow(place.ZMm - body.ZMm, 2)));
@@ -561,8 +567,11 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     public int Carried(string itemId, int qualityMin) =>
         State.Inventory.Where(e => e.DefId == itemId && e.Quality >= qualityMin).Sum(e => e.Count);
 
+    public int HistoricallyCrafted(string itemId) =>
+        State.Deeds.Values.Where(d => d.Kind == DeedKind.Crafted && d.SubjectId == itemId).Sum(d => d.Count);
+
     public long WorldFlag(string flagId, string locationId) =>
-        _context.Setup.Layout.Locations.Any(l => l.Id == locationId) ? State.World.GetFlag(CellOfLocation(locationId), flagId) : 0;
+        _context.Setup.Sites(l => l.Locations).Any(p => p.Site.Id == locationId) ? State.World.GetFlag(CellOfLocation(locationId), flagId) : 0;
 
     public int Relationship(string npcId, string dimension) => State.RelationshipOf(npcId, dimension);
 
@@ -571,7 +580,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     public bool KnowsStone(string stoneKey) => State.KnownStones.ContainsKey(stoneKey);
 
     public CompanionOrder? CompanionPresent(string npcId) =>
-        State.Companions.TryGetValue(npcId, out var companion) && companion.Condition == CompanionCondition.Up ? companion.Order : null;
+        State.Companions.TryGetValue(npcId, out var companion) && companion.Condition == CompanionCondition.Up
+            && State.Npcs.TryGetValue(npcId, out var npc) && npc.Space == State.Space ? companion.Order : null;
 }
 
 /// <summary>

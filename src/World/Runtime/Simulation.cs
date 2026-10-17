@@ -24,6 +24,76 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
     public CombatSetup Combat { get; init; } = CombatSetup.Empty;
 
+    /// <summary>
+    /// Every space this simulation holds the ground and walls of, by identity (M8 D10). The region's own is always
+    /// here; an interior reachable from it is added when the gate lets it in. Before this there was one
+    /// <c>WalkSpace</c> - <see cref="RegionLayout.Space"/> - and every height and every wall test came from it, which
+    /// is only correct while one space is loaded.
+    /// </summary>
+    public ImmutableDictionary<SpaceId, WalkSpace> Spaces { get; init; } =
+        ImmutableDictionary<SpaceId, WalkSpace>.Empty;
+
+    /// <summary>
+    /// Every layout this run holds, by the space it stands in (B6). The region's own is always here; an interior
+    /// reachable from it is added when the gate lets it in.
+    /// </summary>
+    /// <remarks>
+    /// A layout is one space: its switches, doors, containers, nodes, stations, places and NPCs are authored together
+    /// in its own metres. So a consumer that wants "every switch" wants every layout's switches, and one that wants
+    /// the cell of a site wants that site's OWN layout's space - never the player's, which is what made the ring's
+    /// switches invisible and, later, buried the exterior's NPCs (review 3, B6 and B8).
+    /// </remarks>
+    public ImmutableDictionary<SpaceId, RegionLayout> Layouts { get; init; } =
+        ImmutableDictionary<SpaceId, RegionLayout>.Empty;
+
+    /// <summary>The interior this run can reach, or null when the gate let none in.</summary>
+    public RegionLayout? Interior =>
+        Layouts.Values.FirstOrDefault(l => l.SpaceId != Layout.SpaceId);
+
+    /// <summary>Every layout held: the region's own first, then any interior.</summary>
+    public IEnumerable<RegionLayout> AllLayouts =>
+        Layouts.Count == 0 ? new[] { Layout } : new[] { Layout }.Concat(Layouts.Values.Where(l => l.SpaceId != Layout.SpaceId));
+
+    /// <summary>
+    /// Every authored site of a kind, each with the layout that stands it. A site has a space only through its
+    /// layout, which is why this pairs them rather than returning the sites alone.
+    /// </summary>
+    public IEnumerable<(RegionLayout Layout, T Site)> Sites<T>(Func<RegionLayout, IEnumerable<T>> pick)
+    {
+        foreach (var layout in AllLayouts)
+        {
+            foreach (var site in pick(layout))
+                yield return (layout, site);
+        }
+    }
+
+    /// <summary>
+    /// The space an NPC's own site stands in, or the exterior when no layout lists it. An entity's space is its own,
+    /// never the player's: the two overlay in local metres, so the player's space is only right by coincidence and
+    /// is wrong on every load and every walk through a door (review 3, B8).
+    /// </summary>
+    public SpaceId SpaceOfNpc(string npcId)
+    {
+        foreach (var (layout, site) in Sites(l => l.Npcs))
+        {
+            if (site.NpcId == npcId)
+                return layout.SpaceId;
+        }
+        return SpaceId.Exterior;
+    }
+
+    /// <summary>The layout that stands in <paramref name="space"/>, or the region's own when none does.</summary>
+    public RegionLayout LayoutFor(SpaceId space) =>
+        space == Layout.SpaceId ? Layout : Layouts.TryGetValue(space, out var held) ? held : Layout;
+
+    /// <summary>
+    /// The ground and walls of <paramref name="space"/>, or the layout's own when it names nothing this holds. The
+    /// fallback is deliberate: a space that is not loaded has no ground, and a caller asking for one is asking where
+    /// something in the loaded region would stand.
+    /// </summary>
+    public WalkSpace SpaceFor(SpaceId space) =>
+        space == Layout.SpaceId ? Layout.Space : Spaces.TryGetValue(space, out var held) ? held : Layout.Space;
+
     /// <summary>The formulas, the tuning of casting, and what books teach (M3e).</summary>
     public MagicSetup Magic { get; init; } = MagicSetup.Empty;
 
@@ -157,6 +227,7 @@ public sealed class Simulation
     private readonly QuestSystem _quests;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
+    private readonly SpaceSystem _spaces;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
     private readonly WeatherSystem _weather;
@@ -180,12 +251,23 @@ public sealed class Simulation
     private bool _stepping;
     private bool _advancing;
 
-    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life)
+    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life, bool restoreAttempt)
     {
         Setup = setup;
         _identity = player;
-        _cells = setup.Layout.CellKeys.Select(CellKey.Parse).OrderBy(c => c).ToImmutableArray();
-        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player);
+        // Every space's cells. A run that holds the ring must hold its cells too: a creature's AI keys on the
+        // tier of the cell it stands in, and a space with no cells has no tiers, so the Custodian was never woken.
+        _cells = setup.AllLayouts
+            .SelectMany(l => l.CellKeys)
+            .Select(CellKey.Parse)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToImmutableArray();
+        // The session opens in the region's own space (M8 D10): the exterior for the world's regions, its own for
+        // an interior. A body placed in an interior's metres while the simulation believes it is outside is the
+        // collision the space identity exists to prevent, in reverse.
+        _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player,
+            setup.Layout.SpaceId);
         var bus = new SimulationEvents(events);
         _context = new SystemContext(_state, setup, bus, Dispatch);
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
@@ -217,7 +299,6 @@ public sealed class Simulation
         _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Effective);
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
-        _death = new DeathSystem(_context, player.Id, _travel.ReturnBody);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id, player.Name);
         _navigation = new WorldNavigation(_context);
@@ -236,6 +317,14 @@ public sealed class Simulation
             new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key) };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
+        _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
+        // A loaded body stands where its save left it, and half of that is the space (the interior-space save extension). Without this the
+        // ring's local coordinates load into the exterior - the Vestibule's (50, 84) would put a body in the Ashen
+        // Hollow - because the space system starts at the exterior and nothing told it otherwise.
+        _spaces.Adopt(player.SpaceId, player.SpaceTraversal);
+        // After `_spaces`, which it captures: a delegate to an instance method taken before the instance exists
+        // throws at construction, and taking it here is what keeps death's space reset honest (M8 D10).
+        _death = new DeathSystem(_context, player.Id, _travel.ReturnBody, _spaces.LeaveForDeath);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
@@ -272,7 +361,24 @@ public sealed class Simulation
         _npcs.SettleParty();
         _creatures.Populate();
         _lfg.Populate();
+        if (restoreAttempt) _creatures.RecoverLoadedAttempt();
         _tiers.Settle();
+        SeedReachableNotices();
+    }
+
+    /// <summary>
+    /// What is readable in a world the character can reach as it starts. Only an interior this run holds contributes:
+    /// with the gate off no interior is loaded, so nothing is seeded and Kera's offer stays closed (B3e).
+    /// </summary>
+    private void SeedReachableNotices()
+    {
+        foreach (var (_, portal) in Setup.Sites(l => l.Portals.Portals))
+        {
+            if (portal.ReachableFlag is not { } flag) continue;
+            foreach (var (layout, place) in Setup.Sites(l => l.Locations))
+                if (layout.SpaceId == portal.Space && place.Id == flag.LocationId)
+                    _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), flag.FlagId, 1);
+        }
     }
 
     /// <summary>
@@ -283,11 +389,12 @@ public sealed class Simulation
     /// Hears party members join and leave (WP15b's <see cref="IPartyLife"/>) besides the NPC life simulation, which always takes them up
     /// (WP12b): a recorder for tests, or null.
     /// </param>
-    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life = null)
+    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life = null,
+        bool restoreAttempt = false)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        return new Simulation(setup, player, world, worldTick, events, life);
+        return new Simulation(setup, player, world, worldTick, events, life, restoreAttempt);
     }
 
     /// <summary>
@@ -295,25 +402,33 @@ public sealed class Simulation
     /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped), and no Call.
     /// </summary>
     public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed) =>
-        NewCharacter(setup, id, name, null, appearanceSeed);
+        NewCharacter(setup, id, name, null, appearanceSeed, null, null);
 
     /// <summary>
     /// A new character made from the creator's spec: the starting package and kit, plus its Call's package, kit and contact (accepted
     /// OD-C03). The spec must name a playable people and, if any, a defined Call.
     /// </summary>
-    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, CharacterSpec spec, ulong appearanceSeed)
+    /// <param name="atXMm">Where a capture stands the character; null uses the region's spawn, as every ordinary run does.</param>
+    /// <param name="atZMm">The other half of <paramref name="atXMm"/>.</param>
+    public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, CharacterSpec spec, ulong appearanceSeed,
+        long? atXMm = null, long? atZMm = null)
     {
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
         var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start) with { Identity = CharacterIdentity.Of(spec) };
+        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
     }
 
     private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
-        Body? start = null)
+        Body? start = null, long? atXMm = null, long? atZMm = null)
     {
         var spawn = start ?? setup.Layout.Spawn;
+        // A capture opens the character where it asked to rather than walking him there, which in the Barrowworks
+        // measured about a quarter of an hour per room (plan P2h). Null is the chosen start, so ordinary runs are
+        // untouched - the road start still decides where a character is made.
+        long xMm = atXMm ?? spawn.XMm;
+        long zMm = atZMm ?? spawn.ZMm;
         var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
         // A notable piece of the kit carries its record from the start (WP3a).
         var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count)
@@ -327,25 +442,29 @@ public sealed class Simulation
         var contact = call is null
             ? Array.Empty<RelationshipValue>()
             : new[] { new RelationshipValue(call.Contact.NpcId, "trust", call.Contact.Trust) };
-        return new PlayerRecord(id, name, spawn.XMm, spawn.YMm, spawn.ZMm, appearanceSeed, kit.Select(k => k.Entry),
+        return new PlayerRecord(id, name, xMm, spawn.YMm, zMm, appearanceSeed, kit.Select(k => k.Entry),
             ProgressionEngine.Create(call is null ? setup.Progression : setup.Progression with { StartingPackage = setup.Progression.StartingPackage.With(call.Package) }),
             spawn.FacingMdeg, equipment: equipment, relationships: contact);
     }
 
-    /// <summary>The cell a door stands in: its flag lives in that cell's delta.</summary>
-    public static CellKey CellOf(DoorSite door) =>
-        CellKey.OfWorld(door.ClosedFootprint.CenterXMm / 1000.0, door.ClosedFootprint.CenterZMm / 1000.0);
+    /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>
+    public static CellKey CellOf(SpaceId space, DoorSite door) => CellOf(space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
-    public static CellKey CellOf(SwitchSite site) => CellOf(site.Body);
+    public static CellKey CellOf(SpaceId space, SwitchSite site) => CellOf(space, site.Body);
 
     /// <summary>The cell a barrier stands in (M6): the flag that lifts it lives in that cell's delta.</summary>
-    public static CellKey CellOf(BarrierSite barrier) => CellOf(barrier.Footprint);
+    public static CellKey CellOf(SpaceId space, BarrierSite barrier) => CellOf(space, barrier.Footprint);
 
-    private static CellKey CellOf(Blocker footprint)
+    /// <summary>
+    /// A site's cell, in the space the site stands in. <see cref="CellKey.OfInterior"/> with the exterior
+    /// space is <see cref="CellKey.OfWorld"/>, so an authored exterior site still resolves to exactly the
+    /// cell it always did (M8 D10).
+    /// </summary>
+    private static CellKey CellOf(SpaceId space, Blocker footprint)
     {
         var (x, z) = Footprints.Center(footprint);
-        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
+        return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
     }
 
     public SimulationSetup Setup { get; }
@@ -371,22 +490,39 @@ public sealed class Simulation
         return (x, z, target is not null);
     }
 
+    /// <summary>
+    /// Whether the player is in the exterior world (M8 D10). Read-only: what presentation needs to know so
+    /// a HUD or a map prompt can say which space the character is in, and so a test can assert a transition
+    /// without reaching into state.
+    /// </summary>
+    /// <summary>Every cell this run holds a tier for, across every space it holds (review 3, B6).</summary>
+    public ImmutableArray<CellKey> HeldCells => _cells;
+
+    public bool PlayerInExterior => _state.Space.IsExterior;
+
+    public RegionLayout ActiveLayout => Setup.LayoutFor(_state.Space);
+    public long ActiveSpaceTick => _context.SpaceTick(_state.Space, _state.WorldTick);
+
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
         _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity };
 
     /// <summary>Every authored container and what it holds now.</summary>
-    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
+    public ImmutableArray<ContainerView> Containers =>
+        Setup.AllLayouts.SelectMany(l => l.Containers).Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
 
-    public ImmutableArray<DoorView> Doors => Setup.Layout.Doors.Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
+    public ImmutableArray<DoorView> Doors =>
+        Setup.AllLayouts.SelectMany(l => l.Doors).Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
 
-    public ImmutableArray<SwitchView> Switches => Setup.Layout.Switches.Select(s => new SwitchView(s, _context.IsSet(s))).ToImmutableArray();
+    public ImmutableArray<SwitchView> Switches =>
+        Setup.AllLayouts.SelectMany(l => l.Switches).Select(s => new SwitchView(s, _context.IsSet(s))).ToImmutableArray();
 
-    public ImmutableArray<BarrierView> Barriers => Setup.Layout.Barriers.Select(b => new BarrierView(b, !_context.IsLifted(b))).ToImmutableArray();
+    public ImmutableArray<BarrierView> Barriers =>
+        Setup.AllLayouts.SelectMany(l => l.Barriers).Select(b => new BarrierView(b, !_context.IsLifted(b))).ToImmutableArray();
 
     /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
     public CombatView Combat => _combat.View();
@@ -606,6 +742,8 @@ public sealed class Simulation
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
+                EnterSpaceCommand enter => _spaces.Enter(enter),
+                LeaveSpaceCommand leave => _spaces.Leave(leave),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
@@ -754,6 +892,10 @@ public sealed class Simulation
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
             Deeds = _state.Deeds.Values.ToImmutableArray(),
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
+            // From LIVE state, not from _identity: a body moves between spaces during a run and its identity does
+            // not, so a save that read these from the identity would record the exterior for a body standing inside.
+            SpaceId = _state.Space.Name ?? "",
+            SpaceTraversal = _state.Traversal.IsNone ? null : _state.Traversal.PortalKey,
             Factions = _state.Factions,
             Party = _companions.Ledger(),
             QuickBar = _state.QuickBar,
@@ -880,6 +1022,7 @@ public sealed class Simulation
         ReceiveStack receive => _inventory.Handle(receive, Now),
         ReleaseItem release => _equipment.Handle(release, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),
+        RestageEncounterParty restage => _companions.Handle(restage),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),
         GrantStanding grant => _factions.Handle(grant, Now),

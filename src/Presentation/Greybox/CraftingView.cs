@@ -30,6 +30,12 @@ public partial class CraftingView : Node3D
 
     public void Build(RegionLayout layout)
     {
+        _nodes.Clear();
+        foreach (var child in GetChildren())
+        {
+            RemoveChild(child);
+            child.QueueFree();
+        }
         var terrain = layout.Space.Terrain;
         var coverage = _art.Coverage;
         foreach (var site in layout.Nodes)

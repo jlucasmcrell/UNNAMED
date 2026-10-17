@@ -16,6 +16,7 @@ public partial class ItemsView : Node3D
     private readonly Node3D _ground = new() { Name = "GroundItems" };
     private readonly Dictionary<string, Node3D> _containers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _items = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _pickups = new(StringComparer.Ordinal);
     private static readonly StandardMaterial3D Crate = new() { AlbedoColor = new Color(0.72f, 0.62f, 0.38f) };
     private static readonly StandardMaterial3D Chest = new() { AlbedoColor = new Color(0.38f, 0.26f, 0.14f) };
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -32,6 +33,12 @@ public partial class ItemsView : Node3D
 
     public void BuildContainers(RegionLayout layout)
     {
+        _pickups.Clear();
+        foreach (var child in GetChildren().Where(child => child != _ground))
+        {
+            RemoveChild(child);
+            child.QueueFree();
+        }
         foreach (var site in layout.Containers)
         {
             var feet = new Vector3(site.XMm / 1000f, layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm) / 1000f, site.ZMm / 1000f);
@@ -48,6 +55,8 @@ public partial class ItemsView : Node3D
                 model.AddChild(body);
                 AddChild(model);
                 _containers[site.Key] = model;
+                if (site.EmptyFlag is not null)
+                    _pickups[site.Key] = model;
                 _art.Coverage.Resolved("container", site.Key, look.Model!);
                 continue;
             }
@@ -58,6 +67,8 @@ public partial class ItemsView : Node3D
             chest.Position = feet + new Vector3(0, size.Y / 2, 0);
             AddChild(chest);
             _containers[site.Key] = chest;
+            if (site.EmptyFlag is not null)
+                _pickups[site.Key] = chest;
         }
     }
 
@@ -66,10 +77,13 @@ public partial class ItemsView : Node3D
 
     public void Refresh(Simulation simulation)
     {
+        foreach (var container in simulation.Containers.Where(c => c.Site.EmptyFlag is not null))
+            if (_pickups.TryGetValue(container.Site.Key, out var model))
+                model.Visible = !container.Items.IsEmpty;
         foreach (var child in _ground.GetChildren())
             child.QueueFree();
         _items.Clear();
-        var terrain = simulation.Setup.Layout.Space.Terrain;
+        var terrain = simulation.ActiveLayout.Space.Terrain;
         foreach (var item in simulation.WorldItems)
         {
             var feet = new Vector3(item.XMm / 1000f, terrain.HeightAtMm(item.XMm, item.ZMm) / 1000f, item.ZMm / 1000f);

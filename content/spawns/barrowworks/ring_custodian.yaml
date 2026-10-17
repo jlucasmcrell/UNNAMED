@@ -1,0 +1,26 @@
+id: spawn.barrowworks.ring_custodian
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.ring_custodian.name
+tags:
+- spawn
+notes: "The Ring Custodian in R11, the measuring court. One, without respawn: its defeat persists. R10 remains the retreat vestibule, beyond the court's dogleg. Fixed level and health; no scaling."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.construct.ring_custodian
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 50
+  - 106
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: B
+encounter_recovery: { min_x_m: 36, min_z_m: 94, max_x_m: 64, max_z_m: 118, safe_x_m: 50, safe_z_m: 84 }

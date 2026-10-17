@@ -21,9 +21,31 @@ public partial class HollowView : Node3D
     private readonly HashSet<string> _artBuildings = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
+    private readonly List<(string Flag, AnimationPlayer Player, string Clip)> _flagAnimations = new();
+    private HashSet<string> _activeFlags = new(StringComparer.Ordinal);
     private Node3D? _debug;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+    private List<(WorldEnvironment Node, Godot.Environment Environment)>? _environments;
+
+    public void SetSpaceActive(bool active)
+    {
+        Visible = active;
+        _environments ??= Environments(this).Select(e => (e, e.Environment)).ToList();
+        foreach (var (node, environment) in _environments)
+            node.Environment = active ? environment : null;
+    }
+
+    private static IEnumerable<WorldEnvironment> Environments(Node root)
+    {
+        foreach (var child in root.GetChildren())
+        {
+            if (child is WorldEnvironment environment)
+                yield return environment;
+            foreach (var nested in Environments(child))
+                yield return nested;
+        }
+    }
 
     public static Vector3 ToGodot(long xMm, long yMm, long zMm) => new(xMm / 1000f, yMm / 1000f, zMm / 1000f);
 
@@ -50,7 +72,7 @@ public partial class HollowView : Node3D
         // The particle recipes, read once here (B0.7): a structure's own emitters (a lantern's flame, in ArtStructure) and a
         // building's (the smithy's chimney smoke, in BuildLighting) both build from this one instance.
         _recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
-        var ground = BuildTerrain(terrain);
+        var ground = BuildTerrain(terrain, layout.SpaceId);
         AddChild(ground);
         foreach (var building in ArtBuildings(layout, terrain))
             AddChild(building);
@@ -101,7 +123,14 @@ public partial class HollowView : Node3D
             AddChild(BuildSetMark(site, terrain, layout.Barriers.Any(b => b.FlagId == site.FlagId), ringCentre));
         foreach (var barrier in layout.Barriers)
             AddChild(BuildBarrier(barrier, terrain));
-        AddChild(BuildWater(layout.Space));
+        // AN INTERIOR IS ENCLOSED. There is no stream running through the ring, no fields beyond its walls, no
+        // weather in its air and no sky over it, so none of that is built here. It used to be: BuildWater laid a
+        // stream plane over the whole walk space at 0.12 m and relied on terrain relief to hide it, which on the
+        // ring's flat floor flooded every room (review section 7).
+        bool exterior = layout.IsOutdoors;
+        if (exterior)
+        {
+            AddChild(BuildWater(layout.Space));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -140,8 +169,10 @@ public partial class HollowView : Node3D
             AmbientLife.Build(life, lifeGround, 0xA3B1E7, indoors);
             PerchedRavens.Build(life, _art, lifeGround);
         }
+        }
+
         AddChild(BuildDebugMarkers(layout));
-        AddChild(BuildLighting(layout, terrain));
+        AddChild(BuildLighting(layout, terrain, exterior));
     }
 
     /// <summary>
@@ -202,6 +233,8 @@ public partial class HollowView : Node3D
     /// </summary>
     public void SetFlags(IEnumerable<SwitchView> switches, IEnumerable<BarrierView> barriers, bool inPlay = false)
     {
+        if (_flagAnimations.Count > 0)
+            _activeFlags = switches.Where(s => s.Set).Select(s => s.Site.FlagId).ToHashSet(StringComparer.Ordinal);
         foreach (var view in switches)
         {
             if (_setMarks.TryGetValue(view.Site.Key, out var mark) && _register?.Owns(view.Site.Key) != true)
@@ -210,9 +243,23 @@ public partial class HollowView : Node3D
         foreach (var view in barriers)
         {
             if (_barriers.TryGetValue(view.Site.Key, out var node) && _register?.OwnsFold(view.Site.Key) != true)
+            {
                 node.Visible = view.Standing;
+                foreach (var collision in node.FindChildren("*", nameof(StaticBody3D), true, false).Cast<StaticBody3D>())
+                    collision.CollisionLayer = view.Standing ? CameraCollisionLayer : 0;
+            }
         }
         _register?.Apply(switches, barriers, inPlay);
+    }
+
+    /// <summary>Fixture animation samples the simulation clock; a saved mechanism has the same phase after a load.</summary>
+    public void DrawWorld(long tick, double tickSeconds)
+    {
+        foreach (var (flag, player, clip) in _flagAnimations)
+        {
+            double length = player.GetAnimation(clip).Length;
+            player.Seek(_activeFlags.Contains(flag) && length > 0 ? tick * tickSeconds % length : 0, update: true);
+        }
     }
 
     private FoldscarRegister? _register;
@@ -231,7 +278,7 @@ public partial class HollowView : Node3D
     /// The ground: the domain's triangles, one surface per cell so each cell can wear its own ground material (the bindings'
     /// <c>terrain</c>); a cell without one, or whose material is unavailable, keeps the greybox colour.
     /// </summary>
-    private Node3D BuildTerrain(TerrainGrid grid)
+    private Node3D BuildTerrain(TerrainGrid grid, SpaceId space)
     {
         var cells = new SortedDictionary<string, SurfaceTool>(StringComparer.Ordinal);
         Vector3 At(int i, int j) => ToGodot(grid.OriginXMm + i * grid.SpacingMm, grid.HeightAt(i, j), grid.OriginZMm + j * grid.SpacingMm);
@@ -240,7 +287,8 @@ public partial class HollowView : Node3D
         for (int i = 0; i < grid.Columns - 1; i++)
         {
             var centre = (At(i, j) + At(i + 1, j + 1)) / 2;
-            string cell = UNNAMED.World.CellKey.OfWorld(centre.X, centre.Z).ToString();
+            string cell = (space.IsExterior ? UNNAMED.World.CellKey.OfWorld(centre.X, centre.Z)
+                : UNNAMED.World.CellKey.OfInterior(space, centre.X, centre.Z)).ToString();
             if (!cells.TryGetValue(cell, out var tool))
             {
                 tool = new SurfaceTool();
@@ -506,9 +554,14 @@ public partial class HollowView : Node3D
     }
 
     /// <summary>Scenery: a roof over each building, the group of structures sharing an id prefix that forms walls.</summary>
-    private static IEnumerable<Node3D> Roofs(RegionLayout layout)
+    /// <remarks>
+    /// The groups are the bindings' (`roof_groups`), so a region can roof its own rooms: the Barrowworks is
+    /// workings cut into a hill and every one of its thirteen rooms wants a lid. The bindings default to the two
+    /// the greybox has always roofed, so a region that names none is unchanged.
+    /// </remarks>
+    private IEnumerable<Node3D> Roofs(RegionLayout layout)
     {
-        foreach (string group in new[] { "longhouse", "forge" })
+        foreach (string group in _bindings.RoofGroups)
         {
             var walls = layout.Space.Blockers.OfType<BoxBlocker>().Where(b => b.Id.StartsWith(group + "_", StringComparison.Ordinal)).ToList();
             if (walls.Count == 0)
@@ -563,7 +616,7 @@ public partial class HollowView : Node3D
         // So a door may also name its building EXACTLY: `door.cw_house_05` finds `cw_house_05`. Strictly additive, so the two doors
         // that already work - `door.smithy` and `door.longhouse` - keep matching through the clauses they always used.
         string named = door.Key["door.".Length..];
-        bool framed = _artBuildings.Any(built =>
+        bool framed = !layout.IsOutdoors || _artBuildings.Any(built =>
         {
             string bare = built.TrimEnd('_');
             return bare.Equals(group, StringComparison.Ordinal)
@@ -622,6 +675,8 @@ public partial class HollowView : Node3D
     /// </summary>
     private Node3D BuildSetMark(SwitchSite site, TerrainGrid terrain, bool liftsABarrier, Vector3 ringCentre)
     {
+        if (_bindings.Structure(site.Body.Id)?.HideSetMark == true)
+            return new Node3D { Name = site.Key + "_read" }; // A read document does not become an illuminated magical stone.
         if (_models.TryGetValue(site.Body.Id, out var model))
         {
             var shell = new Node3D { Name = site.Key + "_set", Visible = false };
@@ -659,6 +714,22 @@ public partial class HollowView : Node3D
     /// <summary>A barrier while it stands: a faint haze over its footprint. Scenery: the camera passes through it.</summary>
     private Node3D BuildBarrier(BarrierSite barrier, TerrainGrid terrain)
     {
+        if (_bindings.Structure(barrier.Key) is { Model: not null } look
+            && Art.Fitting.Structure(_art, look, barrier.Footprint, terrain) is { } model)
+        {
+            model.AddChild(Unseen(BuildStructure(barrier.Footprint, terrain)));
+            _barriers[barrier.Key] = model;
+            if (look.AnimationFlag is { } flag && model.FindChildren("*", nameof(AnimationPlayer), true, false).FirstOrDefault() is AnimationPlayer player
+                && player.GetAnimationList().FirstOrDefault(name => name != "RESET") is { } clip)
+            {
+                player.Play(clip);
+                player.Pause();
+                player.Seek(0, update: true);
+                _flagAnimations.Add((flag, player, clip));
+            }
+            Coverage.Resolved("barrier", barrier.Key, look.Model);
+            return model;
+        }
         Coverage.Resolved("barrier", barrier.Key, "a refractive violet shimmer shader with drifting motes (Palette.FoldscarBarrier); an effect, not a model");
         var (x, z) = Footprints.Center(barrier.Footprint);
         float height = barrier.Footprint.HeightMm / 1000f;
@@ -753,7 +824,7 @@ public partial class HollowView : Node3D
     /// TAA, 16x anisotropy, soft shadow filtering, the 4096 shadow atlas) is in <c>project.godot</c>. Then each building's interior lights,
     /// which are the bindings' data (<c>building_walls.*.interior_light</c>), never coordinates here.
     /// </summary>
-    private Node3D BuildLighting(RegionLayout layout, TerrainGrid terrain)
+    private Node3D BuildLighting(RegionLayout layout, TerrainGrid terrain, bool exterior = true)
     {
         var root = new Node3D { Name = "Lighting" };
         var sun = new DirectionalLight3D
@@ -789,13 +860,17 @@ public partial class HollowView : Node3D
         };
         var environment = new Godot.Environment
         {
-            BackgroundMode = Godot.Environment.BGMode.Sky,
+            // Indoors there is no sky to see: a closed colour behind the walls, lit by its own ambient, so a hole in
+            // the geometry reads as dark rather than as daylight through the hill.
+            BackgroundMode = exterior ? Godot.Environment.BGMode.Sky : Godot.Environment.BGMode.Color,
+            BackgroundColor = new Color(0.03f, 0.03f, 0.035f),
             // Size512, not 256: at 256 the sky IBL is a blurry average, which is precisely the uniform ambient
             // fill that flattens a scene - every surface receives nearly the same sky term whatever way it faces.
             // At 512 the gradient reaches the shading and a north wall genuinely differs from a south one.
-            Sky = new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
-                ProcessMode = Sky.ProcessModeEnum.Automatic },
-            AmbientLightSource = Godot.Environment.AmbientSource.Sky,
+            Sky = exterior ? new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
+                ProcessMode = Sky.ProcessModeEnum.Automatic } : null,
+            AmbientLightSource = exterior ? Godot.Environment.AmbientSource.Sky : Godot.Environment.AmbientSource.Color,
+            AmbientLightColor = exterior ? Colors.Black : new Color(0.16f, 0.15f, 0.13f),
             // DS Phase B (2026-09-27): directionality. Full-strength sky ambient (energy 1, sky contribution 1) lights
             // every surface from every direction at once, which is why the 27-view survey read flat and
             // directionless with no contact shadows - the same failure Digital Foundry describes on Crimson Desert
@@ -815,8 +890,8 @@ public partial class HollowView : Node3D
             // down here, the exposure comes back up to hold the overall level, and the separation is left to the
             // sun. Ambient 0.55 -> 0.30 and sdfgi 1.0 -> 0.55; exposure 0.82 -> 1.02 to keep the frame at the
             // luminance it had, so what changes is CONTRAST rather than brightness.
-            AmbientLightEnergy = 0.30f,
-            ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
+            AmbientLightEnergy = exterior ? 0.30f : 0.55f,
+            ReflectedLightSource = exterior ? Godot.Environment.ReflectionSource.Sky : Godot.Environment.ReflectionSource.Disabled,
             TonemapMode = Godot.Environment.ToneMapper.Agx,
             // DS overnight 2026-09-27: EXPOSURE DOWN, CONTRAST UP. A video review of a walk reported the
             // character's white top "noticeably overexposed/blown out under the direct sunlight, appearing close
@@ -856,17 +931,21 @@ public partial class HollowView : Node3D
         string? skyWhy = null;
         RenderTiers.Apply(environment, sun);
         // The region's air last, so it wins over the built-in numbers and over the tier's own overrides.
-        if (SkyView.ApplyAtmosphere(environment, _art.Root) is { } atmosphere)
+        // No sky over an interior, so no atmosphere model, no Sky3D and no HDRI either.
+        if (exterior && SkyView.ApplyAtmosphere(environment, _art.Root) is { } atmosphere)
             GD.Print($"UNNAMED {atmosphere}");
-        if (VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
+        if (exterior && VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
             Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
         else
         {
-            if (VisualOptions.Sky == "sky3d")
+            if (exterior && VisualOptions.Sky == "sky3d")
                 Coverage.Fallback("sky", "sky3d", skyWhy ?? "Sky3D did not build: the Phase-A sky stands");
-            if (VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
+            if (exterior && VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
                 Coverage.Fallback("sky", "hdri", hdriWhy ?? "the HDRI did not load: the Phase-A sky stands");
-            root.AddChild(sun);
+            if (exterior)
+                root.AddChild(sun);
+            else
+                sun.Free();
             root.AddChild(new WorldEnvironment { Environment = environment });
         }
         // Each building's particle emitters (B11: the smithy's chimney smoke), relative to its footprint's centre on the ground.

@@ -33,6 +33,9 @@ public partial class Main
 
     private void Subscribe()
     {
+        _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
+            ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
+            : "The Custodian disengages. The court falls quiet.", 7));
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
         _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         // Waystones (S-38): what a hand on a stone found, a return point chosen, and a journey's arrival with the time it took.
@@ -52,14 +55,19 @@ public partial class Main
         {
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
+            _interior?.SetDoor(e.DoorKey, e.Open);
         });
         // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
         _session.Subscribe<SwitchSet>(e =>
         {
-            if (_session.Setup.Layout.FindSwitch(e.SwitchKey) is { } site)
+            if (_session.Simulation!.ActiveLayout.FindSwitch(e.SwitchKey) is { } site)
                 _hud.Toast(site.DoneText, 6);
         });
-        _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true));
+        _session.Subscribe<WorldFlagChanged>(_ =>
+        {
+            _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
+            _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
+        });
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {Names.Of(_session, e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} joins you"));
@@ -99,7 +107,8 @@ public partial class Main
         _session.Subscribe<ItemMoved>(e =>
         {
             _inventory.Refresh();
-            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground)
+            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground
+                || _session.Simulation!.ActiveLayout.Containers.Any(c => c.EmptyFlag is not null && c.Key == e.From.ContainerKey))
                 _items.Refresh(_session.Simulation!);
         });
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());

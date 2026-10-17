@@ -1,0 +1,15 @@
+id: item.artefact.lantern_foot
+kind: item
+schema: 1
+display_key: item.artefact.lantern_foot.name
+tags: [item, artefact, incomplete]
+name: Lantern's Foot
+notes: "PROPOSED implementation identifier from story PR 2 at 05737c7, L3. Accepted description: an incomplete Artefact, a cold bronze base which Kera cannot mark with a file. Pickup and provenance only in this dungeon port. The bearing, hum and hidden-site reveals remain with the Lantern feature; this item alone does not implement L3."
+category: quest_item
+item_class: artefact
+stack_max: 1
+weight: 1.2
+value_base: 0
+rarity: artifact
+no_drop: true
+no_sell: true

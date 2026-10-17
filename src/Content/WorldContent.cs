@@ -235,16 +235,29 @@ public static class WorldContent
         {
             var map = Read(region.YamlSource);
             var regionKey = RegionKey.Parse(Text(map, "region_key"));
+            // `space:` is the space this region's coordinates belong to (M8 D10). Absent means the exterior,
+            // which is every region that existed before M8 and every one that is part of the world; an
+            // interior - the Barrowworks' thirteen rooms - names its own. Its cells then have to be written
+            // space-qualified, and CellKey.Parse has read that prefix since P1.
+            var spaceId = map.TryGetValue("space", out var rawSpace) && rawSpace is string spaceName
+                ? SpaceId.Parse(spaceName)
+                : SpaceId.Exterior;
             var cells = List(map, "cells").Select(c => CellKey.Parse(c as string ?? throw new FormatException("a cell key must be text"))).ToList();
             Check(cells.Count > 0, "WLD002", "a region covers at least one cell");
             Check(cells.All(c => c.Region == regionKey), "WLD002", $"every cell must be in {regionKey}");
             Check(cells.Distinct().Count() == cells.Count, "WLD002", "a cell is listed twice");
+            // A region is one space, so a cell in another one is a content error rather than something to
+            // reconcile: the two would share no flags, no deltas and no random streams.
+            Check(cells.All(c => c.Space == spaceId), "WLD002",
+                spaceId.IsExterior
+                    ? "an exterior region must list exterior cells"
+                    : $"every cell must be in {spaceId}");
 
             var bounds = Map(map, "bounds_m");
             var (minX, minZ) = Pair(bounds, "min");
             var (maxX, maxZ) = Pair(bounds, "max");
             Check(minX < maxX && minZ < maxZ, "WLD002", "bounds_m min must be below max");
-            Check(Covered(cells, minX, minZ, maxX, maxZ), "WLD002", "the walkable bounds must lie inside the region's cells");
+            Check(Covered(cells, spaceId, minX, minZ, maxX, maxZ), "WLD002", "the walkable bounds must lie inside the region's cells");
 
             var terrain = BuildTerrain(Map(map, "terrain"));
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
@@ -255,6 +268,20 @@ public static class WorldContent
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");
+            SiteFlagRequirement Requirement(Dictionary<object, object> data)
+            {
+                string flag = Text(data, "flag_ref"), location = Text(data, "location_ref");
+                Check(flags.ContainsKey(flag), "WLD013", $"requirement names undefined world flag '{flag}'");
+                Check(loader.GetByKind("location").ContainsKey(location), "WLD013", $"requirement names undefined location '{location}'");
+                return new SiteFlagRequirement(flag, location);
+            }
+            SiteItem SiteItem(Dictionary<object, object> data)
+            {
+                string item = Text(data, "item_ref");
+                int count = Int(data, "count");
+                Check(loader.GetByKind("item").ContainsKey(item) && count > 0, "WLD013", $"site item '{item}' needs a defined item and positive count");
+                return new SiteItem(item, count);
+            }
             var doors = ImmutableArray.CreateBuilder<DoorSite>();
             foreach (var (entry, i) in List(map, "doors").Select((d, i) => (d, i)))
             {
@@ -265,7 +292,17 @@ public static class WorldContent
                     ?? throw new FormatException($"door {key} needs a box_m footprint");
                 Check(key.StartsWith("door.", StringComparison.Ordinal), "WLD004", $"door key '{key}' must start with 'door.'");
                 Check(flags.ContainsKey(flag), "WLD004", $"door {key} names world flag '{flag}', which is not a declared world_flag");
-                doors.Add(new DoorSite(key, flag, footprint));
+                var locked = door.GetValueOrDefault("locked_text") as string;
+                var latch = door.GetValueOrDefault("latch_side") as string;
+                Check(latch is null or "north" or "south" or "east" or "west", "WLD004", $"{key}: invalid latch_side");
+                Check((latch is null && !door.ContainsKey("requirement")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
+                doors.Add(new DoorSite(key, flag, footprint)
+                {
+                    Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
+                    LatchSide = latch,
+                    LockedText = locked,
+                    StaysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!),
+                });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
             Check(doors.Select(d => d.FlagId).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a world flag");
@@ -300,7 +337,11 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"containers[{i}] must be a map");
                 var (cx, cz) = Pair(site, "position_m");
-                var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"));
+                var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"))
+                {
+                    EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
+                };
+                Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");
                 Check(container.StackSlots >= 1, "WLD009", $"{container.Key} needs at least one stack slot");
                 Check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD009", $"{container.Key} lies outside the walkable bounds");
@@ -366,11 +407,25 @@ public static class WorldContent
                 Check(body is not null, "WLD013", $"{key} stands on structure '{structure}', which the region does not have");
                 var requires = (site.ContainsKey("requires") ? List(site, "requires") : new List<object>()).Select(r => r as string ?? "").ToImmutableArray();
                 var sw = new SwitchSite(key, Text(site, "flag_ref"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), requires, Text(site, "name"),
-                    Text(site, "verb"), Text(site, "done_text"), site.GetValueOrDefault("locked_text") as string);
+                    Text(site, "verb"), Text(site, "done_text"), site.GetValueOrDefault("locked_text") as string)
+                {
+                    Requirements = site.ContainsKey("requirements") ? List(site, "requirements").Select(r => Requirement((Dictionary<object, object>)r)).ToImmutableArray() : default,
+                    Excludes = site.ContainsKey("excludes") ? List(site, "excludes").Select(r => (string)r).ToImmutableArray() : default,
+                    Consume = site.ContainsKey("consume") ? SiteItem(Map(site, "consume")) : null,
+                    Reward = site.ContainsKey("reward") ? SiteItem(Map(site, "reward")) : null,
+                    Learn = site.GetValueOrDefault("recipe_ref") as string,
+                };
                 Check(key.StartsWith("switch.", StringComparison.Ordinal), "WLD013", $"switch key '{key}' must start with 'switch.'");
                 foreach (string flag in requires.Prepend(sw.FlagId))
                     Check(flags.ContainsKey(flag), "WLD013", $"{key} names world flag '{flag}', which is not a declared world_flag");
                 Check(requires.IsEmpty || !string.IsNullOrWhiteSpace(sw.LockedText), "WLD013", $"{key} has requirements, so it says why it will not work (locked_text)");
+                if (!sw.Excludes.IsDefaultOrEmpty)
+                    foreach (var flag in sw.Excludes)
+                        Check(flags.ContainsKey(flag), "WLD013", $"{key}: undefined exclusion '{flag}'");
+                if (sw.Learn is { } learned)
+                    Check(loader.GetByKind("recipe").ContainsKey(learned), "WLD013", $"{key}: recipe_ref must name a recipe");
+                Check((sw.Requirements.IsDefaultOrEmpty && sw.Excludes.IsDefaultOrEmpty && sw.Consume is null) || !string.IsNullOrWhiteSpace(sw.LockedText),
+                    "WLD013", $"{key}: guarded interaction needs locked_text");
                 switches.Add(sw);
             }
             Check(switches.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == switches.Count, "WLD013", "two switches share a key");
@@ -379,7 +434,7 @@ public static class WorldContent
             // A requirement is read in the switch's cell, so something in that cell must set it - or the switch could never work.
             foreach (var sw in switches)
             {
-                foreach (string flag in sw.Requires.Where(f => !switches.Any(o => o.FlagId == f && CellOf(o.Body) == CellOf(sw.Body))))
+                foreach (string flag in sw.Requires.Where(f => !switches.Any(o => o.FlagId == f && CellOf(spaceId, o.Body) == CellOf(spaceId, sw.Body))))
                     Check(false, "WLD013", $"{sw.Key} requires {flag}, which no switch in its cell sets");
             }
 
@@ -392,12 +447,34 @@ public static class WorldContent
                 Check(key.StartsWith("barrier.", StringComparison.Ordinal), "WLD014", $"barrier key '{key}' must start with 'barrier.'");
                 Check(flags.ContainsKey(barrier.FlagId), "WLD014", $"{key} names world flag '{barrier.FlagId}', which is not a declared world_flag");
                 // Only a switch can lift a barrier in Phase 1 - a door is toggled by hand and would lift it both ways.
-                Check(switches.Any(s => s.FlagId == barrier.FlagId && CellOf(s.Body) == CellOf(barrier.Footprint)), "WLD014",
+                Check(switches.Any(s => s.FlagId == barrier.FlagId && CellOf(spaceId, s.Body) == CellOf(spaceId, barrier.Footprint)), "WLD014",
                     $"{key} is lifted by {barrier.FlagId}, which no switch in its cell sets");
                 barriers.Add(barrier);
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Portals (M8 D10): the ways into an interior space. A region may declare them whenever its
+            // entrances are authored; whether they are registered at all is the run's decision, and the gate
+            // that makes it is in GameSession, not here.
+            var portals = ImmutableArray.CreateBuilder<SpacePortal>();
+            foreach (var (entry, i) in (map.ContainsKey("portals") ? List(map, "portals") : new List<object>()).Select((p, i) => (p, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"portals[{i}] must be a map");
+                string key = Text(site, "key");
+                var portalSpace = SpaceId.Parse(Text(site, "space"));
+                var (exteriorX, exteriorZ) = Pair(site, "exterior_m");
+                var (interiorX, interiorZ) = Pair(site, "interior_m");
+                Check(key.StartsWith("portal.", StringComparison.Ordinal), "WLD015", $"portal key '{key}' must start with 'portal.'");
+                Check(!portalSpace.IsExterior, "WLD015", $"{key} leads to the exterior, which is entered through nothing");
+                // The exterior anchor is a place in this region, so it has to be walkable ground in it.
+                Check(exteriorX >= minX && exteriorX <= maxX && exteriorZ >= minZ && exteriorZ <= maxZ, "WLD015",
+                    $"{key}'s exterior anchor is outside the walkable bounds");
+                portals.Add(new SpacePortal(key, portalSpace, exteriorX, exteriorZ, interiorX, interiorZ)
+                {
+                    ReachableFlag = site.ContainsKey("reachable_flag") ? Requirement(Map(site, "reachable_flag")) : null,
+                });
+            }
+            Check(portals.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == portals.Count, "WLD015", "two portals share a key");
             // Waystones (S-38): each stands on a structure, beside a place, with a clear spot to arrive at; a dormant one names the flag
             // that wakes it in its cell and the line of a conversation that holds its rite.
             long bodyRadius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
@@ -414,7 +491,7 @@ public static class WorldContent
                 var stone = new WaystoneSite(key, Text(site, "name"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), place, ax, az);
                 Check(key.StartsWith("waystone.", StringComparison.Ordinal), "WLD015", $"waystone key '{key}' must start with 'waystone.'");
                 Check(locations.Any(l => l.Id == place), "WLD015", $"{key} names place '{place}', which is not a location in this region");
-                Check(Kinematics.IsClear(ax, az, bodyRadius, new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures), ImmutableArray<Blocker>.Empty),
+                Check(Kinematics.IsClear(ax, az, bodyRadius, new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures), ImmutableArray<Blocker>.Empty, spaceId.IsExterior ? 0 : 1800),
                     "WLD015", $"{key}'s arrival_m must be inside the bounds and clear of every structure");
                 if (site.ContainsKey("dormant"))
                 {
@@ -476,6 +553,10 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                // The space this region's coordinates belong to: the exterior for the world's regions, its own
+                // for an interior (M8 D10). Everything derived from a site in this layout follows it.
+                SpaceId = spaceId,
+                Portals = new SpacePortalSet(portals.ToImmutable()).Validate(),
                 Waystones = waystones.ToImmutable(),
                 Roads = roads.ToImmutable(),
                 Opening = opening,
@@ -485,12 +566,12 @@ public static class WorldContent
             // behind a barrier - that is what the fold is for - but not in a wall or a doorway.
             var closed = layout.ClosedDoors(_ => false);
             long radius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
-            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
+            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed, spaceId.IsExterior ? 0 : 1800), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
             if (opening is not null)
-                Check(Kinematics.IsClear(opening.XMm, opening.ZMm, radius, space, closed), "WLD007", "the opening's start must be inside the bounds and clear of every structure, door and barrier");
+                Check(Kinematics.IsClear(opening.XMm, opening.ZMm, radius, space, closed, spaceId.IsExterior ? 0 : 1800), "WLD007", "the opening's start must be inside the bounds and clear of every structure, door and barrier");
             var shut = layout.ClosedDoors(_ => false, _ => true);
             foreach (var npc in layout.Npcs)
-                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
+                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut, spaceId.IsExterior ? 0 : 1800), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
             return errors.Count == before ? layout : null;
         }
         catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
@@ -505,11 +586,12 @@ public static class WorldContent
         loader.Definitions.TryGetValue(dormant.RiteDialogueId, out var dialogue) && dialogue.Kind == "dialogue"
         && Read(dialogue.YamlSource).GetValueOrDefault("nodes") is Dictionary<object, object> nodes && nodes.ContainsKey(dormant.RiteNodeId);
 
-    /// <summary>The cell a footprint stands in: a switch's or a barrier's flag lives in that cell's delta.</summary>
-    private static CellKey CellOf(Blocker blocker)
+    /// <summary>The cell a footprint stands in, in the space the region stands in: a switch's or a barrier's flag
+    /// lives in that cell's delta, and the runtime resolves it the same way (review B2).</summary>
+    private static CellKey CellOf(SpaceId space, Blocker blocker)
     {
         var (x, z) = Footprints.Center(blocker);
-        return CellKey.OfWorld(x / 1000.0, z / 1000.0);
+        return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
     }
 
     private static TerrainGrid BuildTerrain(Dictionary<object, object> terrain)
@@ -570,7 +652,7 @@ public static class WorldContent
             errors.Add(Error("WLD006", $"{flag.Id} must default to 0 (false): the cell delta records divergence from 0", flag.SourceFile));
     }
 
-    private static bool Covered(List<CellKey> cells, long minX, long minZ, long maxX, long maxZ)
+    private static bool Covered(List<CellKey> cells, SpaceId space, long minX, long minZ, long maxX, long maxZ)
     {
         const long size = WorldMath.CellSizeMeters * 1000L;
         // Every 1 mm-inset corner of every cell-sized tile of the bounds must fall in a listed cell.
@@ -579,7 +661,9 @@ public static class WorldContent
         {
             foreach (var (px, pz) in new[] { (x, z), (Math.Min(x + size, maxX) - 1, z), (x, Math.Min(z + size, maxZ) - 1), (Math.Min(x + size, maxX) - 1, Math.Min(z + size, maxZ) - 1) })
             {
-                if (!cells.Contains(CellKey.OfWorld(px / 1000.0, pz / 1000.0)))
+                // In the region's own space: an interior's local metres would otherwise be checked against
+                // the exterior cells those metres happen to name (M8 D10).
+                if (!cells.Contains(CellKey.OfInterior(space, px / 1000.0, pz / 1000.0)))
                     return false;
             }
         }

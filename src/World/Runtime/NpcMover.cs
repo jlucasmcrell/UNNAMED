@@ -291,7 +291,7 @@ internal sealed partial class NpcSystem
             return false;
         if (door.ClosedFootprint.DistanceTo(npc.Body.XMm, npc.Body.ZMm) > _context.Setup.Movement.InteractReachMm)
             return false;
-        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(door), door.FlagId, 1)) is not null)
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(SpaceId.Exterior, door), door.FlagId, 1)) is not null)
             return false;
         _context.Events.Publish(new DoorToggled(npc.InstanceId, door.Key, true, tick));
         return true;
@@ -326,14 +326,18 @@ internal sealed partial class NpcSystem
     private static int DivRound(long numerator, long denominator) =>
         (int)(numerator >= 0 ? (2 * numerator + denominator) / (2 * denominator) : -((-2 * numerator + denominator) / (2 * denominator)));
 
-    /// <summary>What a walking NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people.</summary>
+    /// <summary>
+    /// What a walking NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people - all in the
+    /// exterior, where every life walks; a character in an interior space (the Barrowworks) is not in their way.
+    /// </summary>
     private List<Blocker> Obstacles(string self)
     {
         long r = _context.Setup.Movement.BodyRadiusMm;
-        var obstacles = new List<Blocker>(_context.ClosedDoors());
-        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive)
+        var obstacles = new List<Blocker>(_context.ClosedDoors(SpaceId.Exterior));
+        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space.IsExterior)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
-        obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, r, 0));
+        if (State.Space.IsExterior)
+            obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, r, 0));
         obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, r, 0)));
         return obstacles;
@@ -353,7 +357,7 @@ internal sealed partial class NpcSystem
     private bool StepAside(NpcState npc, NpcLifeRecord life)
     {
         var intent = _playerIntent();
-        if (!intent.IsMoving)
+        if (!intent.IsMoving || !State.Space.IsExterior)
             return false;
         var player = State.Body;
         long r = _context.Setup.Movement.BodyRadiusMm;

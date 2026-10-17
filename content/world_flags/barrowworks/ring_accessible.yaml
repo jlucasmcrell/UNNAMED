@@ -1,0 +1,9 @@
+id: world.barrowworks.ring_accessible
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.ring_accessible.name
+tags: [world_flag]
+notes: That the ring has a way in from the hollow - the fact Kera's offer waits on. Seeded at world creation when an interior is co-loaded, and absent otherwise, which is what keeps the option-off guarantee.
+type: bool
+default: 0
+owning_system: S-22
