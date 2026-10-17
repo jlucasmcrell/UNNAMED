@@ -32,6 +32,10 @@ public class GameSaveTests
         // Schema 15: the player knows no Waystone, has chosen none to return to, and has walked no road.
         (new Regex(@"^\$\.player\.(Waystones|RoadsWalked)$"), "[]"),
         (new Regex(@"^\$\.player\.ReturnPoint$"), "null"),
+        // The player record carries its space from the merge on; schema 19 has no field for it yet, so a
+        // save still loses it. That is what BarrowworksPersistenceTests is waiting on.
+        (new Regex(@"^\$\.player\.SpaceId$"), "\"\""),
+        (new Regex(@"^\$\.player\.SpaceTraversal$"), "null"),
         // Schema 16: the player has counted no deed.
         (new Regex(@"^\$\.player\.Deeds$"), "[]"),
         // Schema 17: the character the game made before the creator - "they", a Veth of the default body, with no Call.
@@ -75,7 +79,7 @@ public class GameSaveTests
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
 // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, and each stack's notable record.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks, differences.Count);
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 2, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

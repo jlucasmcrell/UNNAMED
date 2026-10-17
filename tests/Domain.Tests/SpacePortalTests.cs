@@ -8,6 +8,9 @@ namespace UNNAMED.Domain.Tests;
 /// </summary>
 public class SpacePortalTests
 {
+    /// <summary>The reach the space system uses to decide a body is at a portal.</summary>
+    private const long Reach = 2_000;
+
     // The Barrowworks' two entrances, from the frozen M8 level design: the hill above Blackvein and the
     // Sinking Moss drain mouth. They are the design's own example of why one return vector is not enough.
     private static readonly SpaceId Barrowworks = SpaceId.Parse("space.barrowworks");
@@ -41,19 +44,21 @@ public class SpacePortalTests
         Assert.Equal("portal.barrowworks.drain", viaDrain.Traversal.PortalKey);
     }
 
+    /// <summary>
+    /// The way out is the door underfoot, not the one the body walked in through. The design's named failure is
+    /// the reverse: a character who came in by the drain being snapped to the formal entrance because a single
+    /// global return vector was reused.
+    /// </summary>
     [Fact]
-    public void LeavingReturnsToTheAnchorActuallyUsed_NotTheOtherOne()
+    public void LeavingIsByThePortalTheBodyStandsAt_NotTheOneItCameInThrough()
     {
-        // The design's named failure: a player who came in by the drain must not be snapped to the
-        // formal entrance because a single global return vector was reused.
         var portals = TwoEntrances();
+        var (dx, dz, _) = portals.Enter("portal.barrowworks.drain");
+        var (tx, tz, _) = portals.Enter("portal.barrowworks.threshold");
 
-        var (_, _, viaDrain) = portals.Enter("portal.barrowworks.drain");
-        var (_, _, viaThreshold) = portals.Enter("portal.barrowworks.threshold");
-
-        Assert.Equal((512_000L, 604_000L), portals.Leave(viaDrain));
-        Assert.Equal((438_000L, 648_000L), portals.Leave(viaThreshold));
-        Assert.NotEqual(portals.Leave(viaDrain), portals.Leave(viaThreshold));
+        Assert.Equal("portal.barrowworks.drain", portals.AtInterior(dx, dz, Reach)?.Key);
+        Assert.Equal("portal.barrowworks.threshold", portals.AtInterior(tx, tz, Reach)?.Key);
+        Assert.NotEqual(portals.AtInterior(dx, dz, Reach), portals.AtInterior(tx, tz, Reach));
     }
 
     [Fact]
@@ -63,23 +68,39 @@ public class SpacePortalTests
 
         foreach (var portal in portals.Into(Barrowworks))
         {
-            var (_, _, traversal) = portals.Enter(portal.Key);
-            var (x, z) = portals.Leave(traversal);
+            var portalAt = portals.AtInterior(portal.InteriorXMm, portal.InteriorZMm, Reach);
 
-            Assert.Equal((portal.ExteriorXMm, portal.ExteriorZMm), (x, z));
+            Assert.Equal(portal.Key, portalAt?.Key);
+            Assert.Equal((portal.ExteriorXMm, portal.ExteriorZMm), (portalAt!.ExteriorXMm, portalAt.ExteriorZMm));
         }
     }
 
+    /// <summary>
+    /// Standing nowhere near a portal answers with nothing. It does not throw, because the space system promises
+    /// refusals as reasons and a body in the middle of a room is an ordinary thing to be.
+    /// </summary>
     [Fact]
-    public void LeavingWithoutHavingEntered_IsRefused()
+    public void StandingAtNoPortal_HasNoWayOut()
     {
-        // A refused exit is better than an invented anchor.
-        Assert.Throws<InvalidOperationException>(() => TwoEntrances().Leave(SpaceTraversal.None));
+        // The threshold anchors at the origin in this fixture, so stand clear of both.
+        Assert.Null(TwoEntrances().AtInterior(100_000, 100_000, Reach));
     }
 
+    /// <summary>
+    /// And a portal key that is no longer content cannot crash anything, because nothing looks a portal up BY key
+    /// to leave. This is the shape a renamed portal, or a save loaded with the gate off, used to throw
+    /// <c>KeyNotFoundException</c> on.
+    /// </summary>
     [Fact]
-    public void LeavingByAPortalThatIsNotDeclared_IsRefused() =>
-        Assert.Throws<KeyNotFoundException>(() => TwoEntrances().Leave(new SpaceTraversal("portal.nowhere")));
+    public void AStoredPortalKeyIsNotConsultedToLeave()
+    {
+        var portals = TwoEntrances();
+        var (x, z, _) = portals.Enter("portal.barrowworks.drain");
+        var stale = new SpaceTraversal("portal.nowhere");
+
+        Assert.False(stale.IsNone);
+        Assert.Equal("portal.barrowworks.drain", portals.AtInterior(x, z, Reach)?.Key);
+    }
 
     [Fact]
     public void TwoPortalsSharingAKey_AreRefused()

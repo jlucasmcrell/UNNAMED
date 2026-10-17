@@ -668,7 +668,16 @@ internal sealed class SpaceSystem
         return null;
     }
 
-    /// <summary>Leave the space, arriving at the exterior anchor of the portal that was used to enter it.</summary>
+    /// <summary>
+    /// Leave the space by the portal the body is standing at, arriving at THAT portal's exterior anchor.
+    /// </summary>
+    /// <remarks>
+    /// The door out is the one underfoot, not the one that was walked in through. The design is explicit that a
+    /// character who came in by the drain mouth must be able to leave by the threshold if they walked to it, and
+    /// the stored traversal is a record of the entry rather than the destination (review B5). Nothing is not a
+    /// crash and not a silent fallback: a body in the middle of a room is simply refused, and the stored portal is
+    /// never looked up - which is what makes a renamed or gated-off portal a refusal rather than an exception.
+    /// </remarks>
     public string? Leave(LeaveSpaceCommand command)
     {
         if (command.Actor != _player)
@@ -677,16 +686,19 @@ internal sealed class SpaceSystem
         if (_context.State.Space.IsExterior)
             return "Already outside";
 
-        // A body can be inside without having come in by a portal: a harness or a survey opens an interior
-        // region directly, and an older save's player was written inside without one. There is then no anchor
-        // to leave by, which is a refusal and not an error - leaving has to know where "out" is.
-        if (_context.State.Traversal.IsNone)
+        // Not through a door with something at your back. The same test the rest of the world asks: a creature
+        // whose mind is Engaged is a creature fighting you (Creatures.cs, CreatureView.Hostile).
+        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged))
+            return "Not while something is fighting you";
+
+        var body = _context.State.Body;
+        if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm) is not { } portal)
             return "There is no way out from here";
 
-        var (x, z) = _context.Setup.Layout.Portals.Leave(_context.State.Traversal);
-        var facing = _context.State.Body.FacingMdeg;
         _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
-        _context.Dispatch(new Relocate(new Body(x, _context.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, facing)));
+        _context.Dispatch(new Relocate(new Body(portal.ExteriorXMm,
+            _context.Setup.Layout.Space.Terrain.HeightAtMm(portal.ExteriorXMm, portal.ExteriorZMm),
+            portal.ExteriorZMm, body.FacingMdeg)));
         return null;
     }
 

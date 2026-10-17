@@ -84,15 +84,28 @@ public sealed record SpacePortalSet(ImmutableArray<SpacePortal> Portals)
     }
 
     /// <summary>
-    /// Leaving by <paramref name="traversal"/>: the exterior anchor of the portal that was used. Throws
-    /// rather than falling back to some other anchor, because a wrong exit is worse than a refused one.
+    /// The portal whose <em>interior</em> anchor a body at these metres is standing on, or null. Leaving is
+    /// standing at a portal and using it, so this is what names the way out - and it answers with nothing rather
+    /// than throwing when the body is not at one, because refusing is the caller's job.
     /// </summary>
-    public (long XMm, long ZMm) Leave(SpaceTraversal traversal)
+    /// <remarks>
+    /// Resolved by position and not from <see cref="SpaceTraversal"/>, which is why a save whose portal was
+    /// renamed, or one loaded with the gate off, still leaves by a real door instead of crashing on a key that is
+    /// no longer content.
+    /// </remarks>
+    public SpacePortal? AtInterior(long xMm, long zMm, long reachMm)
     {
-        if (traversal.IsNone)
-            throw new InvalidOperationException("Left a space without having entered through a portal");
-        var portal = Find(traversal.PortalKey)
-            ?? throw new KeyNotFoundException($"No portal '{traversal.PortalKey}' to leave by");
-        return (portal.ExteriorXMm, portal.ExteriorZMm);
+        SpacePortal? nearest = null;
+        double best = double.MaxValue;
+        foreach (var portal in Portals)
+        {
+            double away = Math.Sqrt(Math.Pow(portal.InteriorXMm - xMm, 2) + Math.Pow(portal.InteriorZMm - zMm, 2));
+            if (away <= reachMm && away < best)
+            {
+                best = away;
+                nearest = portal;
+            }
+        }
+        return nearest;
     }
 }
