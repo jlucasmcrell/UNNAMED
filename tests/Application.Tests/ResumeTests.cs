@@ -19,7 +19,6 @@ public class ResumeTests
         var choice = session.StartChoice();
         Assert.Null(choice.Continue);
         Assert.Empty(choice.Saves);
-        Assert.False(choice.NewGameAsksFirst);
     }
 
     [Fact]
@@ -40,7 +39,6 @@ public class ResumeTests
         Assert.Equal(new[] { "auto_02", "quick" }, choice.Saves.Select(s => s.Slot));
         Assert.Equal((SaveSlots.Auto(2), SaveCopy.Current), (choice.Continue!.Slot, choice.Continue.Copy));
         Assert.Empty(choice.PassedOver);
-        Assert.False(choice.NewGameAsksFirst);   // a new character saves in its own folder (OD-14): nothing here is at risk
 
         Assert.True(second.Load(choice.Continue.Slot, choice.Continue.Copy).IsComplete);
         Assert.Equal((tick, digest), (second.Simulation!.WorldTick, second.Simulation.StateDigest()));

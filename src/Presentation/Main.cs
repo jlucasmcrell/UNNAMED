@@ -253,6 +253,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
+              || _options.ContainsKey("--creator-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -435,8 +436,8 @@ public partial class Main : Node3D
                 _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
                     Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
                 AddChild(_startCamera);
-                // The ground's scatter from a preview seed, so the shot is not bare earth; a world places its own on start.
-                _scatter.Build(0x5CE4E5EED);
+                // The ground's scatter of the world a new game will be (Main.Creator), so the shot is not bare earth and Begin finds it placed.
+                _scatter.Build(NextWorldSeed);
             }
             return;
         }
@@ -579,6 +580,7 @@ public partial class Main : Node3D
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
+            _avatarModel = body;
             // Phase B: the feet planted on the ground under them (the ground field the terrain is drawn from).
             if (VisualOptions.BodyModifiers)
                 Art.BodyModifiers.PlantFeet(skinned.Skeleton, skinned, _ground.Height);
@@ -637,6 +639,8 @@ public partial class Main : Node3D
             ResumeShots(resumeShots);
         if (_options.GetValueOrDefault("--front-shots") is { } frontShots && _session is not null)
             FrontShots(frontShots);
+        if (_options.GetValueOrDefault("--creator-shots") is { } creatorShots && _session is not null)
+            CreatorShots(creatorShots);
         if (_session?.Simulation is null)
         {
             ReadFrontInput();
@@ -953,6 +957,7 @@ public partial class Main : Node3D
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.SetDowned(combat.Defeated);
+        DrawOpening(delta);
         _hud.FadeToBlack(combat.Defeated && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
@@ -1160,7 +1165,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--load-order"
+                    or "--front-shots" or "--creator-shots" or "--load-order"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

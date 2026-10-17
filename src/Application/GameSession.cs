@@ -64,12 +64,6 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
 {
     /// <summary>Newer saves that Continue passes over because they cannot be loaded as they are. They are shown, never skipped silently.</summary>
     public ImmutableArray<SaveSummary> PassedOver => Saves.TakeWhile(s => s.Problem is not null).ToImmutableArray();
-
-    /// <summary>
-    /// Never: a new character saves in a folder of its own (OD-14), so starting one cannot replace a save already there. Kept so a start
-    /// screen written before folders asks nothing.
-    /// </summary>
-    public bool NewGameAsksFirst => false;
 }
 
 /// <summary>A character's save folder as the start screen lists it: whose it is, and its saves, newest first.</summary>
