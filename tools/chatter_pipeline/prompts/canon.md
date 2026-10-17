@@ -81,6 +81,25 @@ Say them the way an ordinary person names a neighbour's people, not the way a bo
 Folk say: don't ask what the quarry stone was before; the Kal won't have it in the house; the good stone comes from
 people who don't answer letters. **Nothing here resolves whether the Ondrek's reading is true.**
 
+## Fold bleed: the strangeness that has grown into the ground
+
+The survey's word for it is **fold bleed** - things near the Foldscar that are not from here. Ordinary people use the
+word without being able to define it, and that is the correct level of understanding for a chat line.
+
+- The two great grazers, **Barrowback** and **Fellhorn**, are fold bleed: met near the Foldscar and nowhere else.
+  `content/creatures/grazer/barrowback.yaml:7` (owner ruling 2026-10-06), `content/creatures/grazer/fellhorn.yaml:7`
+- **Boneleaf** grows only round the Foldscar: "A pale, stiff leaf ... Its veins run the wrong way."
+  `content/items/material/boneleaf.yaml:7`
+- **Listening grass** is moss that "bends toward sound rather than light".
+  `direction/extensions/WORLD_MATERIALS.md:240`
+- A crossing leaves an **Otherwake**, "the residue a crossing leaves, like a ship's wake".
+  `direction/extensions/WORLD_MATERIALS.md:201`
+- The **record** is ordinary here: the Veth keep births, burials and who owes who a ewe; the Siann keep testimony, and
+  their Record "begins too late - something is missing from the front of it". `direction/extensions/MYTHOLOGY.md:166-170`
+
+Folk say: nothing grows but boneleaf on that side; the grazers don't come down off the fold ground; the book has it,
+ask the book. **No line may say what the bleed is, where it came from, or why it started.**
+
 ## The Foldscar, as people meet it
 
 - The Foldscar is where this place visibly stops being ordinary frontier country. The weirdness is deliberately

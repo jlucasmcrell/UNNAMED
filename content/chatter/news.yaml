@@ -3,7 +3,7 @@ kind: chatter
 schema: 1
 display_key: chatter.news.name
 tags: [chatter]
-notes: Hand-written (WP16, not AI). Bounty news on World when someone else claims one, and the System channel's plain statements of bounties and offers to set out together.
+notes: Hand-written (WP16). Bounty news on World when someone else claims one, and the System channel's plain statements of bounties and offers to set out together. Extended 2026-10-18 to about forty news and twenty system variants per use, so a player does not read the same sentence twice; every line is a hand-written template, never corpus.
 role: templates
 lines:
   - { key: news.bounty_claimed.01, use: news.bounty_claimed, ai_generated: false, text: "Word is {claimant} has finished the bounty on {bounty}." }
@@ -11,13 +11,128 @@ lines:
   - { key: news.bounty_claimed.03, use: news.bounty_claimed, ai_generated: false, text: "The bounty on {bounty} is taken - {claimant} got there first." }
   - { key: news.bounty_claimed.04, use: news.bounty_claimed, ai_generated: false, text: "Talk on the road: {claimant} has claimed {bounty}." }
   - { key: news.bounty_claimed.05, use: news.bounty_claimed, ai_generated: false, text: "Somebody's purse is heavier tonight. {claimant} settled {bounty}." }
+  - { key: news.bounty_claimed.06, use: news.bounty_claimed, ai_generated: false, text: "{bounty} is closed. {claimant} did the work and took the coin." }
+  - { key: news.bounty_claimed.07, use: news.bounty_claimed, ai_generated: false, text: "Anyone still asking after {bounty} can stop. {claimant} has it." }
+  - { key: news.bounty_claimed.08, use: news.bounty_claimed, ai_generated: false, text: "It was {claimant} who finished {bounty}, and looked pleased about it." }
+  - { key: news.bounty_claimed.09, use: news.bounty_claimed, ai_generated: false, text: "The board's clear of {bounty}. {claimant} saw to it." }
+  - { key: news.bounty_claimed.10, use: news.bounty_claimed, ai_generated: false, text: "{claimant} is drinking on {bounty} tonight. Nobody begrudges it." }
+  - { key: news.bounty_claimed.11, use: news.bounty_claimed, ai_generated: false, text: "So {bounty} is done. {claimant} got there before the rest of us." }
+  - { key: news.bounty_claimed.12, use: news.bounty_claimed, ai_generated: false, text: "News from the road: {claimant}, and {bounty} is off the board." }
+  - { key: news.bounty_claimed.13, use: news.bounty_claimed, ai_generated: false, text: "If you were thinking about {bounty}, think again. {claimant} has claimed it." }
+  - { key: news.bounty_claimed.14, use: news.bounty_claimed, ai_generated: false, text: "{claimant} brought in {bounty} and made it look easy, which it wasn't." }
+  - { key: news.bounty_claimed.15, use: news.bounty_claimed, ai_generated: false, text: "One less thing waiting out there. {claimant} finished {bounty}." }
+  - { key: news.bounty_claimed.16, use: news.bounty_claimed, ai_generated: false, text: "Word came in with the last cart: {bounty} taken, by {claimant}." }
+  - { key: news.bounty_claimed.17, use: news.bounty_claimed, ai_generated: false, text: "They're saying {claimant} claimed {bounty}. They're right." }
+  - { key: news.bounty_claimed.18, use: news.bounty_claimed, ai_generated: false, text: "{bounty} has a name against it now, and the name is {claimant}." }
+  - { key: news.bounty_claimed.19, use: news.bounty_claimed, ai_generated: false, text: "That's {bounty} settled. {claimant} won't say how, exactly." }
+  - { key: news.bounty_claimed.20, use: news.bounty_claimed, ai_generated: false, text: "{claimant}, then. {bounty} is theirs and the road's quieter." }
+  - { key: news.bounty_claimed.21, use: news.bounty_claimed, ai_generated: false, text: "Whatever {bounty} was, it isn't any more. {claimant} has finished it." }
+  - { key: news.bounty_claimed.22, use: news.bounty_claimed, ai_generated: false, text: "Ask about {bounty} and you'll be told to ask {claimant}." }
+  - { key: news.bounty_claimed.23, use: news.bounty_claimed, ai_generated: false, text: "The bounty on {bounty} went to {claimant}, which surprises nobody who was watching." }
+  - { key: news.bounty_claimed.24, use: news.bounty_claimed, ai_generated: false, text: "{claimant} came in off the moor with {bounty} done and the mud still on him." }
+  - { key: news.bounty_claimed.25, use: news.bounty_claimed, ai_generated: false, text: "That's two this tally for {claimant}, with {bounty} finished." }
+  - { key: news.bounty_claimed.26, use: news.bounty_claimed, ai_generated: false, text: "{bounty} is spoken for. {claimant} was quicker about it than anyone expected." }
+  - { key: news.bounty_claimed.27, use: news.bounty_claimed, ai_generated: false, text: "Somebody claimed {bounty} and it was {claimant}, and no one's surprised about that either." }
+  - { key: news.bounty_claimed.28, use: news.bounty_claimed, ai_generated: false, text: "There's a new story about {bounty} and it ends with {claimant} being paid." }
+  - { key: news.bounty_claimed.29, use: news.bounty_claimed, ai_generated: false, text: "{claimant} has closed {bounty}. The notice is coming down." }
+  - { key: news.bounty_claimed.30, use: news.bounty_claimed, ai_generated: false, text: "{bounty}. {claimant}. Done, and paid, and the rest of us can get on." }
+  - { key: news.bounty_claimed.31, use: news.bounty_claimed, ai_generated: false, text: "They tell me {claimant} is the one who settled {bounty}. I'd believe it." }
+  - { key: news.bounty_claimed.32, use: news.bounty_claimed, ai_generated: false, text: "{claimant} got to {bounty} first and the board's better for it." }
+  - { key: news.bounty_claimed.33, use: news.bounty_claimed, ai_generated: false, text: "No more {bounty} to worry at. {claimant} saw to it this morning." }
+  - { key: news.bounty_claimed.34, use: news.bounty_claimed, ai_generated: false, text: "Pass the word: {bounty} is finished, and {claimant} is the reason." }
+  - { key: news.bounty_claimed.35, use: news.bounty_claimed, ai_generated: false, text: "The purse for {bounty} went to {claimant} and the purse wasn't small." }
+  - { key: news.bounty_claimed.36, use: news.bounty_claimed, ai_generated: false, text: "If the tale's true, {claimant} brought in {bounty} alone. If." }
+  - { key: news.bounty_claimed.37, use: news.bounty_claimed, ai_generated: false, text: "It's {claimant} who claims {bounty}, and it's {claimant} who'll be asked about it." }
+  - { key: news.bounty_claimed.38, use: news.bounty_claimed, ai_generated: false, text: "{bounty} off the board and {claimant} on the road back. That's the news." }
+  - { key: news.bounty_claimed.39, use: news.bounty_claimed, ai_generated: false, text: "Settle an argument for me: was it {claimant} who claimed {bounty}, or someone else in the same coat?" }
+  - { key: news.bounty_claimed.40, use: news.bounty_claimed, ai_generated: false, text: "There's coin moving tonight and it's {claimant}'s, for {bounty}." }
   - { key: sys.bounty_claimed.01, use: sys.bounty_claimed, ai_generated: false, text: "Bounty claimed by {claimant}: {bounty}." }
   - { key: sys.bounty_claimed.02, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} is no longer open. {claimant} claimed it." }
+  - { key: sys.bounty_claimed.03, use: sys.bounty_claimed, ai_generated: false, text: "Bounty closed. {claimant} claimed {bounty}." }
+  - { key: sys.bounty_claimed.04, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} has been claimed by {claimant}." }
+  - { key: sys.bounty_claimed.05, use: sys.bounty_claimed, ai_generated: false, text: "Another claimed {bounty}: {claimant}. It is no longer available." }
+  - { key: sys.bounty_claimed.06, use: sys.bounty_claimed, ai_generated: false, text: "{claimant} has taken {bounty}. The contract is closed." }
+  - { key: sys.bounty_claimed.07, use: sys.bounty_claimed, ai_generated: false, text: "Claimed elsewhere: {bounty}, by {claimant}." }
+  - { key: sys.bounty_claimed.08, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} is settled by {claimant}. No action needed." }
+  - { key: sys.bounty_claimed.09, use: sys.bounty_claimed, ai_generated: false, text: "{claimant} finished {bounty} before you did. It is closed." }
+  - { key: sys.bounty_claimed.10, use: sys.bounty_claimed, ai_generated: false, text: "Bounty taken by another: {bounty}, {claimant}." }
+  - { key: sys.bounty_claimed.11, use: sys.bounty_claimed, ai_generated: false, text: "{claimant} has claimed the bounty on {bounty}. It has left the board." }
+  - { key: sys.bounty_claimed.12, use: sys.bounty_claimed, ai_generated: false, text: "Closed: {bounty}. Claimed by {claimant}." }
+  - { key: sys.bounty_claimed.13, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} was claimed by {claimant} a short while ago." }
+  - { key: sys.bounty_claimed.14, use: sys.bounty_claimed, ai_generated: false, text: "Bounty record updated: {bounty}, claimed by {claimant}." }
+  - { key: sys.bounty_claimed.15, use: sys.bounty_claimed, ai_generated: false, text: "{claimant} claimed {bounty}. Nothing further is owed." }
+  - { key: sys.bounty_claimed.16, use: sys.bounty_claimed, ai_generated: false, text: "Another has finished {bounty}: {claimant}." }
+  - { key: sys.bounty_claimed.17, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} is off the board, claimed by {claimant}." }
+  - { key: sys.bounty_claimed.18, use: sys.bounty_claimed, ai_generated: false, text: "No longer open: {bounty}. Claimed by {claimant}." }
+  - { key: sys.bounty_claimed.19, use: sys.bounty_claimed, ai_generated: false, text: "{claimant} took {bounty}. The board has been updated." }
+  - { key: sys.bounty_claimed.20, use: sys.bounty_claimed, ai_generated: false, text: "Claim on {bounty} resolved in favour of {claimant}." }
   - { key: sys.bounty_lost.01, use: sys.bounty_lost, ai_generated: false, text: "You lost {bounty} - {claimant} finished it first." }
   - { key: sys.bounty_lost.02, use: sys.bounty_lost, ai_generated: false, text: "{claimant} claimed {bounty} before you could. It is closed." }
+  - { key: sys.bounty_lost.03, use: sys.bounty_lost, ai_generated: false, text: "{bounty} is gone. {claimant} got there first." }
+  - { key: sys.bounty_lost.04, use: sys.bounty_lost, ai_generated: false, text: "You were beaten to {bounty} by {claimant}." }
+  - { key: sys.bounty_lost.05, use: sys.bounty_lost, ai_generated: false, text: "Lost: {bounty}. Claimed by {claimant} while you were elsewhere." }
+  - { key: sys.bounty_lost.06, use: sys.bounty_lost, ai_generated: false, text: "{claimant} has taken {bounty}. Your claim is void." }
+  - { key: sys.bounty_lost.07, use: sys.bounty_lost, ai_generated: false, text: "{bounty} was claimed by {claimant}. You no longer hold it." }
+  - { key: sys.bounty_lost.08, use: sys.bounty_lost, ai_generated: false, text: "Another finished {bounty}: {claimant}. There is nothing left to claim." }
+  - { key: sys.bounty_lost.09, use: sys.bounty_lost, ai_generated: false, text: "You have lost the bounty on {bounty} to {claimant}." }
+  - { key: sys.bounty_lost.10, use: sys.bounty_lost, ai_generated: false, text: "{bounty} is no longer yours. {claimant} claimed it." }
+  - { key: sys.bounty_lost.11, use: sys.bounty_lost, ai_generated: false, text: "Beaten to it: {bounty}, by {claimant}." }
+  - { key: sys.bounty_lost.12, use: sys.bounty_lost, ai_generated: false, text: "{claimant} finished {bounty} first. The contract has closed." }
+  - { key: sys.bounty_lost.13, use: sys.bounty_lost, ai_generated: false, text: "You no longer hold {bounty}. {claimant} claimed it." }
+  - { key: sys.bounty_lost.14, use: sys.bounty_lost, ai_generated: false, text: "{bounty} passed to {claimant} before you returned." }
+  - { key: sys.bounty_lost.15, use: sys.bounty_lost, ai_generated: false, text: "Someone else settled {bounty}: {claimant}. It is lost to you." }
+  - { key: sys.bounty_lost.16, use: sys.bounty_lost, ai_generated: false, text: "The claim on {bounty} went to {claimant}, not to you." }
+  - { key: sys.bounty_lost.17, use: sys.bounty_lost, ai_generated: false, text: "{claimant} has closed {bounty}. You were not the one who did it." }
+  - { key: sys.bounty_lost.18, use: sys.bounty_lost, ai_generated: false, text: "Lost to another: {bounty}, claimed by {claimant}." }
+  - { key: sys.bounty_lost.19, use: sys.bounty_lost, ai_generated: false, text: "{bounty} is closed. {claimant} took it from under you." }
+  - { key: sys.bounty_lost.20, use: sys.bounty_lost, ai_generated: false, text: "You no longer have a claim on {bounty}. {claimant} finished it." }
   - { key: sys.bounty_completed.01, use: sys.bounty_completed, ai_generated: false, text: "Bounty complete: {bounty}." }
   - { key: sys.bounty_completed.02, use: sys.bounty_completed, ai_generated: false, text: "You claimed {bounty}." }
+  - { key: sys.bounty_completed.03, use: sys.bounty_completed, ai_generated: false, text: "{bounty} is done. The purse is yours." }
+  - { key: sys.bounty_completed.04, use: sys.bounty_completed, ai_generated: false, text: "Finished: {bounty}." }
+  - { key: sys.bounty_completed.05, use: sys.bounty_completed, ai_generated: false, text: "You have completed the bounty on {bounty}." }
+  - { key: sys.bounty_completed.06, use: sys.bounty_completed, ai_generated: false, text: "{bounty}, claimed and paid." }
+  - { key: sys.bounty_completed.07, use: sys.bounty_completed, ai_generated: false, text: "Bounty closed in your favour: {bounty}." }
+  - { key: sys.bounty_completed.08, use: sys.bounty_completed, ai_generated: false, text: "Your claim on {bounty} is settled." }
+  - { key: sys.bounty_completed.09, use: sys.bounty_completed, ai_generated: false, text: "{bounty} has been claimed by you. It is off the board." }
+  - { key: sys.bounty_completed.10, use: sys.bounty_completed, ai_generated: false, text: "Done and recorded: {bounty}." }
+  - { key: sys.bounty_completed.11, use: sys.bounty_completed, ai_generated: false, text: "The bounty on {bounty} is finished, and the coin is yours." }
+  - { key: sys.bounty_completed.12, use: sys.bounty_completed, ai_generated: false, text: "You settled {bounty}. Nothing further is owed either way." }
+  - { key: sys.bounty_completed.13, use: sys.bounty_completed, ai_generated: false, text: "{bounty} complete. Payment has been made." }
+  - { key: sys.bounty_completed.14, use: sys.bounty_completed, ai_generated: false, text: "Bounty satisfied: {bounty}." }
+  - { key: sys.bounty_completed.15, use: sys.bounty_completed, ai_generated: false, text: "You finished {bounty} and the board has been told." }
+  - { key: sys.bounty_completed.16, use: sys.bounty_completed, ai_generated: false, text: "{bounty} is closed at your hand." }
+  - { key: sys.bounty_completed.17, use: sys.bounty_completed, ai_generated: false, text: "Claim recorded: {bounty}." }
+  - { key: sys.bounty_completed.18, use: sys.bounty_completed, ai_generated: false, text: "The work on {bounty} is done and counted." }
+  - { key: sys.bounty_completed.19, use: sys.bounty_completed, ai_generated: false, text: "{bounty}. Complete. Paid." }
+  - { key: sys.bounty_completed.20, use: sys.bounty_completed, ai_generated: false, text: "You have seen {bounty} through. The claim stands." }
   - { key: sys.lfg_joined.01, use: sys.lfg_joined, ai_generated: false, text: "You agreed to set out with {speaker}. Be at {anchor} by {depart_time}." }
   - { key: sys.lfg_joined.02, use: sys.lfg_joined, ai_generated: false, text: "{speaker} expects you at {anchor} by {depart_time}." }
+  - { key: sys.lfg_joined.03, use: sys.lfg_joined, ai_generated: false, text: "Meeting place: {anchor}. Departure: {depart_time}. With {speaker}." }
+  - { key: sys.lfg_joined.04, use: sys.lfg_joined, ai_generated: false, text: "You are to meet {speaker} at {anchor} before {depart_time}." }
+  - { key: sys.lfg_joined.05, use: sys.lfg_joined, ai_generated: false, text: "{speaker} will wait at {anchor} until {depart_time}." }
+  - { key: sys.lfg_joined.06, use: sys.lfg_joined, ai_generated: false, text: "You have joined {speaker}. {anchor} at {depart_time}." }
+  - { key: sys.lfg_joined.07, use: sys.lfg_joined, ai_generated: false, text: "Agreed with {speaker}: {anchor}, {depart_time}." }
+  - { key: sys.lfg_joined.08, use: sys.lfg_joined, ai_generated: false, text: "{anchor}, by {depart_time}, is where {speaker} will be looking for you." }
+  - { key: sys.lfg_joined.09, use: sys.lfg_joined, ai_generated: false, text: "You will travel with {speaker}, leaving {anchor} at {depart_time}." }
+  - { key: sys.lfg_joined.10, use: sys.lfg_joined, ai_generated: false, text: "Be at {anchor} at {depart_time}. {speaker} does not intend to wait." }
+  - { key: sys.lfg_joined.11, use: sys.lfg_joined, ai_generated: false, text: "Arrangement made with {speaker}: {anchor}, {depart_time}. Do not be late." }
+  - { key: sys.lfg_joined.12, use: sys.lfg_joined, ai_generated: false, text: "{speaker} has your word. {anchor}, {depart_time}." }
+  - { key: sys.lfg_joined.13, use: sys.lfg_joined, ai_generated: false, text: "You travel with {speaker}. Meet at {anchor} by {depart_time}." }
+  - { key: sys.lfg_joined.14, use: sys.lfg_joined, ai_generated: false, text: "Departure set: {depart_time}, from {anchor}, with {speaker}." }
+  - { key: sys.lfg_joined.15, use: sys.lfg_joined, ai_generated: false, text: "{anchor} at {depart_time}. {speaker} will be there and you should be too." }
   - { key: sys.lfg_missed.01, use: sys.lfg_missed, ai_generated: false, text: "{speaker} left without you." }
   - { key: sys.lfg_missed.02, use: sys.lfg_missed, ai_generated: false, text: "You were not at the meeting place. {speaker} set out alone." }
+  - { key: sys.lfg_missed.03, use: sys.lfg_missed, ai_generated: false, text: "{speaker} has gone on. You were not there." }
+  - { key: sys.lfg_missed.04, use: sys.lfg_missed, ai_generated: false, text: "The hour passed. {speaker} left without waiting." }
+  - { key: sys.lfg_missed.05, use: sys.lfg_missed, ai_generated: false, text: "Missed: {speaker} set out at the agreed time and you were elsewhere." }
+  - { key: sys.lfg_missed.06, use: sys.lfg_missed, ai_generated: false, text: "{speaker} travelled alone. The arrangement has lapsed." }
+  - { key: sys.lfg_missed.07, use: sys.lfg_missed, ai_generated: false, text: "You did not reach the meeting place in time. {speaker} went on." }
+  - { key: sys.lfg_missed.08, use: sys.lfg_missed, ai_generated: false, text: "{speaker} is gone. The offer is closed." }
+  - { key: sys.lfg_missed.09, use: sys.lfg_missed, ai_generated: false, text: "No one was there to meet {speaker}. They set out alone." }
+  - { key: sys.lfg_missed.10, use: sys.lfg_missed, ai_generated: false, text: "{speaker} waited out the hour and then left." }
+  - { key: sys.lfg_missed.11, use: sys.lfg_missed, ai_generated: false, text: "The departure time passed. {speaker} is on the road without you." }
+  - { key: sys.lfg_missed.12, use: sys.lfg_missed, ai_generated: false, text: "{speaker} set out as agreed, alone. You were not present." }
+  - { key: sys.lfg_missed.13, use: sys.lfg_missed, ai_generated: false, text: "Arrangement with {speaker} broken. They have gone on." }
+  - { key: sys.lfg_missed.14, use: sys.lfg_missed, ai_generated: false, text: "{speaker} left at the agreed hour. You were not at the meeting place." }
+  - { key: sys.lfg_missed.15, use: sys.lfg_missed, ai_generated: false, text: "You have missed {speaker}. They did not wait past the hour." }

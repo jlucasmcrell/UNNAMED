@@ -52,7 +52,7 @@ public class ChatterContentTests : IDisposable
         Assert.Equal(10, schema.SpeakerTypes.Count);
         Assert.Equal(new[] { "ashen_hollow", "cairnwold", "old_east_road", "wilds" }, schema.Places.Keys);
         Assert.Equal(schema.Places, chat.Places);
-        Assert.InRange(chat.Templates.Length, 36, 60);
+        Assert.InRange(chat.Templates.Length, 250, 400);   // every use has room to vary, so no line is read twice in a row
         Assert.All(schema.Uses.Keys, use => Assert.NotEmpty(chat.TemplatesFor(use)));
         Assert.All(chat.Templates, t => Assert.False(t.AiGenerated));
         Assert.All(chat.Templates, t => Assert.Equal(schema.Uses[t.Use!].Channel, t.Channel));

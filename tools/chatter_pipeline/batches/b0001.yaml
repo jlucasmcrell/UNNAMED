@@ -175,7 +175,7 @@ lines:
   - { key: chat.b0001.0157, cell: old_east_road-morning, text: "Lantern's still lit at the shrine. Somebody went down in the dark and saw to it.", speakers: [villager], weather: [overcast], canon: true }
   - { key: chat.b0001.0158, cell: old_east_road-morning, text: "Left a bit of bread under the shrine stone. That's the custom and I'd not be the one to break it.", speakers: [traveller], weather: [wind], canon: true }
   - { key: chat.b0001.0159, cell: old_east_road-morning, text: "Shrine's had offerings in it overnight. If you're carrying anything spare this way, it's the place for it.", speakers: [villager], weather: [fair], channel: world, canon: true }
-  - { key: chat.b0001.0160, cell: old_east_road-morning, text: "Road's holding. I've come up it with half the load. Cairnwold's iron is going and the coast carts come up for it.", speakers: [carter], weather: [overcast], canon: true }
+  - { key: chat.b0001.0160, cell: old_east_road-morning, text: "Road's holding. I've come up it with half the load. Cairnwold's iron is going and the road carts come up for it.", speakers: [carter], weather: [overcast], canon: true }
   - { key: chat.b0001.0161, cell: old_east_road-morning, text: "Road's had the night on it. The stone at the rim is cold and doesn't answer, and a dead stone means a long walk.", weather: [overcast], canon: true }
   - { key: chat.b0001.0162, cell: old_east_road-morning, text: "Road's clear as far as the drop. I'd call that a good morning if it were my road.", speakers: [guard], weather: [fair] }
   - { key: chat.b0001.0163, cell: old_east_road-morning, text: "Patching the culvert again. Water's the one thing on this road you can't argue with.", speakers: [labourer], weather: [rain] }

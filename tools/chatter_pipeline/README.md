@@ -10,14 +10,18 @@ produce, and the WP16 lint in `src/Content/ChatterContent.cs` decides whether it
 |---|---|
 | `prompts/voice.md` | The register every line is written to. Versioned; a change to it is a new corpus generation. |
 | `prompts/facts.md` | The facts a line may stand on, taken from `content/`. The world is not allowed to grow from the corpus. |
+| `prompts/canon.md` | The world's own facts - calendar, peoples, waystones, the Foldscar, Calls, factions, fold bleed - each with its citation, plus what no line may ever settle. |
+| `prompts/canon_source.md` | The extraction the canon sheet was distilled from: 195 quoted facts with `file:line`, the protected-mystery statements, and the glossary candidates. The audit trail, not a prompt. |
 | `prompts/examples.md` | Register examples used in the cell prompts. |
-| `prompts/cell_prompt.md` | The per-cell prompt template: a place, a time band, the trades, the weather mix, the channel. |
-| `make_prompts.py` | Builds the plan (cells, trade rotation, weather mix, event block) and writes one prompt per cell, plus the batch's `prompt_hash`. |
+| `prompts/cell_prompt.md` | The per-cell prompt template: a place, a time band, the trades, the canon quota, the weather mix, the channel. |
+| `make_prompts.py` | Builds the plan (cells, trades, canon quota, weather mix, event block) and writes one prompt per cell, plus the batch's `prompt_hash`. |
+| `check_batch.py` | Checks one batch's source file without writing anything: rules, near-duplicates, keys, coverage, canon share. |
+| `check_all.py` | The same across every batch at once, including near-duplicates **between** batches - the collisions a batch checked alone cannot see. |
 | `assemble.py` | Validates a batch's source file and writes `content/chatter/<batch>.yaml` and its `_provenance.yaml` entry. |
-| `lint.py` | The fast lint: key format, tags, slots, length, raw ids, proper nouns, banned terms, near-duplicates, coverage. |
-| `sample.py` | Draws the review sample (5%, at least 100 lines) into `content/chatter/_review_sample.md`. |
+| `lint.py` | Lints the corpus as it stands in `content/chatter`: the same rules, on what the game will actually load. |
+| `sample.py` | Draws the review sample (5% of every batch) into `content/chatter/_review_sample.md`. |
 | `report.py` | Line counts by cell and by tag, for a batch or for everything. |
-| `chatter_rules.py` | The rules `lint.py` and `assemble.py` share: a deliberate copy of the C# lint's content checks. |
+| `chatter_rules.py` | The rules the checkers share: a deliberate copy of the C# lint's content checks. |
 | `batches/<batch>.yaml` | The authored lines of a batch, with the keys assigned once and never moved. |
 
 ## The loop
@@ -25,8 +29,9 @@ produce, and the WP16 lint in `src/Content/ChatterContent.cs` decides whether it
 ```
 python tools/chatter_pipeline/make_prompts.py b0002     # plan + one prompt per cell + prompt_hash
                                                         # (write lines into batches/b0002.yaml against those prompts)
+python tools/chatter_pipeline/check_batch.py b0002      # rules, near-duplicates, coverage, canon share
 python tools/chatter_pipeline/assemble.py b0002         # validate, write content/chatter/b0002.yaml + provenance
-python tools/chatter_pipeline/lint.py b0002             # fast lint and coverage
+python tools/chatter_pipeline/check_all.py              # every batch together, duplicates across batches included
 dotnet test tests/Content.Tests/Content.Tests.csproj --filter "FullyQualifiedName~ChatterContent"   # the gate
 python tools/chatter_pipeline/sample.py                 # the review sample
 ```
