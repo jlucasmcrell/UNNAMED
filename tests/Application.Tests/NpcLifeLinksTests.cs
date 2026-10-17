@@ -185,13 +185,16 @@ public class NpcLifeLinksTests
     }
 
     [Fact]
-    public void AResidentHirelingWhoDies_LeavesTheirSlotToAnArrival()
+    public void AResidentHirelingWhoDies_LeavesTheirSlotToAnArrival_WhoMeetsTheCharacterAsAStranger()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = Open(session);
         Beside(arena, Porter);
         var first = arena.Simulation.Npcs.Single(n => n.Id == Porter).InstanceId;
+        // The first porter thinks well of the character; the newcomer in the slot knows nothing of them (owner, 2026-10-17: no inheritance).
+        Assert.Null(arena.Simulation.Submit(new ChangeRelationship(Porter, "trust", 20, "hired_on")));
+        Assert.Equal(20, arena.Simulation.CaptureRecord().Relationships.Single(r => r.NpcId == Porter).Value);
         Assert.Null(arena.Submit(new HireCommand(arena.Player, Porter, HirelingRole.Porter, 3, AcceptsRisk: true)));
         Assert.Null(arena.Simulation.Submit(new RemoveNpc(Porter, arena.Simulation.WorldTick)));
         var vacancy = arena.Simulation.World.NpcLife!.Vacancies[Porter];
@@ -205,6 +208,7 @@ public class NpcLifeLinksTests
         Assert.NotNull(next);
         Assert.NotEqual(first, next!.InstanceId);
         Assert.Equal(NpcCondition.Living, LifeOf(arena.Simulation, Porter).Condition);
+        Assert.DoesNotContain(arena.Simulation.CaptureRecord().Relationships, r => r.NpcId == Porter);
     }
 
     [Fact]

@@ -60,6 +60,9 @@ internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, N
 /// <summary>To <see cref="RelationshipSystem"/>: move what an NPC thinks of the player on one dimension, for a reason.</summary>
 internal sealed record ChangeRelationship(string NpcId, string Dimension, int Delta, string EventKey) : InternalCommand;
 
+/// <summary>To <see cref="RelationshipSystem"/>: someone new holds an NPC's place, and thinks nothing of the player yet.</summary>
+internal sealed record ForgetRelationships(string NpcId) : InternalCommand;
+
 /// <summary>
 /// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24) - and <see cref="StateSlice.NpcLife"/> - their lives (WP12). Each named
 /// NPC stands where the region puts them until their routine takes them elsewhere; role residents fill their slots. An NPC with a routine
@@ -267,6 +270,21 @@ internal sealed class RelationshipSystem
         int to = Relationships.Clamp(from + command.Delta);
         _context.State.SetRelationship(_owner, command.NpcId, command.Dimension, to);
         _context.Events.Publish(new RelationshipChanged(command.NpcId, command.Dimension, from, to, command.EventKey, tick));
+        return null;
+    }
+
+    /// <summary>A resident's slot taken by a newcomer (WP12): they meet the character as a stranger, whatever the one before thought (owner, 2026-10-17).</summary>
+    public void Listen(SimulationEvents events) => events.Listen<NpcArrived>(e => _context.Dispatch(new ForgetRelationships(e.Key)));
+
+    public string? Handle(ForgetRelationships command, long tick)
+    {
+        if (_context.State.Relationships.GetValueOrDefault(command.NpcId) is not { } values)
+            return null;
+        foreach (var (dimension, from) in values)
+        {
+            _context.State.SetRelationship(_owner, command.NpcId, dimension, 0);
+            _context.Events.Publish(new RelationshipChanged(command.NpcId, dimension, from, 0, "newcomer", tick));
+        }
         return null;
     }
 }

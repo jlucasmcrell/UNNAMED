@@ -305,6 +305,7 @@ public sealed class Simulation
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
             () => _movement.Effective);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
+        _relationships.Listen(bus);
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
         _merchants = new MerchantSystem(_context, _state.Claim(nameof(MerchantSystem), StateSlice.Merchants), _markets);
@@ -999,6 +1000,7 @@ public sealed class Simulation
         WearEquipped wear => _inventory.Handle(wear, Now),
         RepairItem repair => _inventory.Handle(repair),
         ChangeRelationship change => _relationships.Handle(change, Now),
+        ForgetRelationships forget => _relationships.Handle(forget, Now),
         StartQuest start => _quests.Handle(start, Now),
         RecordDeed deed => _deeds.Handle(deed) ?? _quests.Handle(deed),
         Recruit recruit => _companions.Handle(recruit, Now),
