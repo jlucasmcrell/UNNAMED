@@ -56,8 +56,10 @@ public class ChatterContentTests : IDisposable
         Assert.All(schema.Uses.Keys, use => Assert.NotEmpty(chat.TemplatesFor(use)));
         Assert.All(chat.Templates, t => Assert.False(t.AiGenerated));
         Assert.All(chat.Templates, t => Assert.Equal(schema.Uses[t.Use!].Channel, t.Channel));
-        Assert.Empty(chat.Corpus);   // DeepSeek's batches come later
-        Assert.Equal(240, ChatterContent.Coverage(chat.Corpus, schema).Count);
+        Assert.NotEmpty(chat.Corpus);
+        Assert.All(chat.Corpus, line => Assert.True(line.AiGenerated));   // every corpus line comes from a recorded batch
+        // Every speaker x place x time-band cell can always say something: the corpus is written to leave no cell thin.
+        Assert.Empty(ChatterContent.Coverage(chat.Corpus, schema));
         Assert.Equal(20_000, chat.Rules.LocalRadiusMm);
         Assert.Equal((6, 24), (chat.Rules.SpeakerRepeatHours, chat.Rules.RegionRepeatHours));
     }

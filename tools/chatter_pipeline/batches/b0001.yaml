@@ -1,0 +1,343 @@
+# Batch b0001 - the first corpus batch (WP16). Authored against prompts/cell_prompt.md v1 by the plan in
+# make_prompts.py (python tools/chatter_pipeline/make_prompts.py b0001). Cells are `<place>-<time_band>`; the key is
+# assigned once here and never moves, so a replaced line keeps its key and a retired one keeps its slot.
+id: b0001
+model: deepseek-v4-pro (DSH session; prompts/cell_prompt.md v1 + voice.md v1 + facts.md v1)
+date: 2026-10-18
+prompt_hash: sha256:3c362cf5750463eaa4bcda34933869da717fbff7d9058630addc8ebf2b8f78bf
+notes: AI-generated ambient corpus (batch b0001, 300 lines) - dry frontier small talk across four places and six time bands, with weather and event variants. No named person speaks or is placed anywhere.
+lint: clean - tools/chatter_pipeline/lint.py and the WP16 lint (CHT002-CHT012) in tests/Content.Tests
+review: pending - 100-line sample in content/chatter/_review_sample.md, drawn by seed 20261018
+lines:
+
+  # ---- ashen_hollow ----
+  - { key: chat.b0001.0001, cell: ashen_hollow-dawn, text: "Fire went out in the night. Found that out with my hand on the grate." }
+  - { key: chat.b0001.0002, cell: ashen_hollow-dawn, text: "Fair at first light. It'll be grey by the time the day's decided.", weather: [fair] }
+  - { key: chat.b0001.0003, cell: ashen_hollow-dawn, text: "Nothing's stirring but the smoke and one hen with an opinion.", weather: [overcast] }
+  - { key: chat.b0001.0004, cell: ashen_hollow-dawn, text: "First light, and the garden's full of last night's water. My boots are already wet.", speakers: [villager, farmer], weather: [fair] }
+  - { key: chat.b0001.0005, cell: ashen_hollow-dawn, text: "Ground took the water at last. I can put a fork in it once the light's up.", speakers: [farmer], weather: [overcast] }
+  - { key: chat.b0001.0006, cell: ashen_hollow-dawn, text: "Rain on the roofing and the birds won't come off the perch. So I stand and listen.", speakers: [herder], weather: [rain] }
+  - { key: chat.b0001.0007, cell: ashen_hollow-dawn, text: "Watch change came late. Nobody said why.", speakers: [hunter, guard], weather: [wind] }
+  - { key: chat.b0001.0008, cell: ashen_hollow-dawn, text: "Wind's round to the north. The whole stop smells of cold iron and wet stone.", speakers: [guard], weather: [wind] }
+  - { key: chat.b0001.0009, cell: ashen_hollow-dawn, text: "Fog lying low like this means I stay put. A load's not worth a broken axle.", speakers: [carter], weather: [fog] }
+  - { key: chat.b0001.0010, cell: ashen_hollow-dawn, text: "Walked in before first light with wet boots. Stone's a hard bed when you've no choice.", speakers: [traveller, labourer], channel: world }
+  - { key: chat.b0001.0011, cell: ashen_hollow-dawn, text: "Two hours of light. Then the work wants me.", speakers: [labourer] }
+  - { key: chat.b0001.0012, cell: ashen_hollow-dawn, text: "Dawn's on the bench and I'm already behind on the same four pieces.", speakers: [crafter] }
+  - { key: chat.b0001.0013, cell: ashen_hollow-morning, text: "Every morning the same walk to the well and back, and every morning it's further.", weather: [overcast] }
+  - { key: chat.b0001.0014, cell: ashen_hollow-morning, text: "Grey on grey. Some days the light never really comes up at all.", weather: [overcast] }
+  - { key: chat.b0001.0015, cell: ashen_hollow-morning, text: "Wind's got into the eaves again. I'll be up a ladder before the week's out.", speakers: [hunter, guard], weather: [wind] }
+  - { key: chat.b0001.0016, cell: ashen_hollow-morning, text: "Traps set along the wood edge. Something had at one of them in the night.", speakers: [hunter], weather: [overcast] }
+  - { key: chat.b0001.0017, cell: ashen_hollow-morning, text: "Gate's stood open since the last rain.", speakers: [carter], weather: [rain] }
+  - { key: chat.b0001.0018, cell: ashen_hollow-morning, text: "Load's up and the road's dry.", speakers: [traveller, labourer], weather: [fair] }
+  - { key: chat.b0001.0019, cell: ashen_hollow-morning, text: "Three days walking to get here and the first thing anyone tells me is it rained.", speakers: [labourer] }
+  - { key: chat.b0001.0020, cell: ashen_hollow-morning, text: "Stone at the cut works like bread this week. Cuts too easy, and easy stone fails.", speakers: [crafter] }
+  - { key: chat.b0001.0021, cell: ashen_hollow-morning, text: "Rain, and the shed's got a drip that lands exactly where I'm working. Every time.", speakers: [adventurer, villager], weather: [rain] }
+  - { key: chat.b0001.0022, cell: ashen_hollow-morning, text: "Something went through the woods in the night. Every branch by the path is broke the same way." }
+  - { key: chat.b0001.0023, cell: ashen_hollow-morning, text: "The wall by the stall wants seeing to.", speakers: [farmer], channel: world }
+  - { key: chat.b0001.0024, cell: ashen_hollow-morning, text: "Rain again. The bed's wet through and the seed's sat in it going soft.", speakers: [farmer], weather: [rain] }
+  - { key: chat.b0001.0025, cell: ashen_hollow-afternoon, text: "Sun's over the shoulder now and the flies have found me." }
+  - { key: chat.b0001.0026, cell: ashen_hollow-afternoon, text: "Warm enough to work with your sleeves up, which is a rare thing here.", weather: [fair] }
+  - { key: chat.b0001.0027, cell: ashen_hollow-afternoon, text: "Grey and still. You can hear the whole valley doing nothing.", weather: [overcast] }
+  - { key: chat.b0001.0028, cell: ashen_hollow-afternoon, text: "Caught the rain in the open and there's no drying out before dark.", speakers: [traveller, labourer], weather: [rain] }
+  - { key: chat.b0001.0029, cell: ashen_hollow-afternoon, text: "Two hours on the same stone and the wedge is duller than I am.", speakers: [labourer], weather: [wind] }
+  - { key: chat.b0001.0030, cell: ashen_hollow-afternoon, text: "Wind bangs the shed door and I've stopped getting up to shut it.", speakers: [crafter], weather: [wind] }
+  - { key: chat.b0001.0031, cell: ashen_hollow-afternoon, text: "Somebody's been digging at the old workings. Fresh spoil, and no one about.", speakers: [adventurer, villager], weather: [fog] }
+  - { key: chat.b0001.0032, cell: ashen_hollow-afternoon, text: "Fog's come up the valley from the water side. Sound carries strange in it.", speakers: [villager], weather: [fog] }
+  - { key: chat.b0001.0033, cell: ashen_hollow-afternoon, text: "Half the field done. The rest will wait.", speakers: [farmer] }
+  - { key: chat.b0001.0034, cell: ashen_hollow-afternoon, text: "Something's taking hens and leaving the feathers. A fox, most like, and a lazy one.", speakers: [herder, hunter] }
+  - { key: chat.b0001.0035, cell: ashen_hollow-afternoon, text: "Tracks came in from the west and went back out the same way. Nothing taken.", speakers: [hunter] }
+  - { key: chat.b0001.0036, cell: ashen_hollow-afternoon, text: "Nothing to report and I'll say so plainly. The afternoon's been quiet.", speakers: [guard], channel: world }
+  - { key: chat.b0001.0037, cell: ashen_hollow-dusk, text: "Light's going off the top of the stop and the cold comes down after it." }
+  - { key: chat.b0001.0038, cell: ashen_hollow-dusk, text: "Grey all day and grey now. At least the wind's off.", weather: [overcast] }
+  - { key: chat.b0001.0039, cell: ashen_hollow-dusk, text: "Wind's up with the dark. The roofs will be noisy tonight.", weather: [wind] }
+  - { key: chat.b0001.0040, cell: ashen_hollow-dusk, text: "Most of us are in before dark. The ones who aren't have their reasons.", speakers: [adventurer, villager], weather: [fair] }
+  - { key: chat.b0001.0041, cell: ashen_hollow-dusk, text: "Sunset's gone gold off the wet stone. Worth the walk out to see it and nothing else.", speakers: [villager], weather: [fair] }
+  - { key: chat.b0001.0042, cell: ashen_hollow-dusk, text: "Fences checked, gate tied. Now, food.", speakers: [farmer], weather: [rain] }
+  - { key: chat.b0001.0043, cell: ashen_hollow-dusk, text: "Beasts are all in and counted. One short of last week and I don't like it.", speakers: [herder, hunter] }
+  - { key: chat.b0001.0044, cell: ashen_hollow-dusk, text: "Rain's coming up the valley and I've traps out I'd rather not leave.", speakers: [hunter], weather: [rain] }
+  - { key: chat.b0001.0045, cell: ashen_hollow-dusk, text: "Lamp's lit at the gate and the watch is set. Two of us tonight instead of a sensible number.", speakers: [guard] }
+  - { key: chat.b0001.0046, cell: ashen_hollow-dusk, text: "Wain's under cover and the axles are greased. Morning will be its own argument.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0047, cell: ashen_hollow-dusk, text: "Found a place to sleep here tonight. Warmer than the road, and drier.", speakers: [traveller] }
+  - { key: chat.b0001.0048, cell: ashen_hollow-dusk, text: "Hands are done in. They still want the last barrow moved before we eat.", speakers: [labourer], weather: [fair] }
+  - { key: chat.b0001.0049, cell: ashen_hollow-evening, text: "There's a fire going and someone's got a pot on it. That's the whole plan.", weather: [fair] }
+  - { key: chat.b0001.0050, cell: ashen_hollow-evening, text: "Clear night coming. You'll see every star and feel every one of them.", weather: [fair] }
+  - { key: chat.b0001.0051, cell: ashen_hollow-evening, text: "Fog's taken the road. You hear someone coming long before you see them.", weather: [fog] }
+  - { key: chat.b0001.0052, cell: ashen_hollow-evening, text: "Sat down and my legs informed me they were done. Fine, then. Sit.", speakers: [herder, hunter], weather: [wind] }
+  - { key: chat.b0001.0053, cell: ashen_hollow-evening, text: "Hides stretched and salted. Give them a week and they're worth carrying.", speakers: [hunter], weather: [fog] }
+  - { key: chat.b0001.0054, cell: ashen_hollow-evening, text: "Rain on the gate post and me on the wrong side of it for another four hours.", speakers: [guard], weather: [fair] }
+  - { key: chat.b0001.0055, cell: ashen_hollow-evening, text: "Road's a day's work from here whichever way you go. So I'm going in the morning.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0056, cell: ashen_hollow-evening, text: "Wind's dropped with the light. It was doing its best to take the roof off earlier.", speakers: [traveller] }
+  - { key: chat.b0001.0057, cell: ashen_hollow-evening, text: "Sat down and my back went quiet.", speakers: [labourer] }
+  - { key: chat.b0001.0058, cell: ashen_hollow-evening, text: "Iron's cooling and I'm not starting another piece tonight. It'll be there in the morning.", speakers: [crafter, adventurer] }
+  - { key: chat.b0001.0059, cell: ashen_hollow-evening, text: "Mended the strap I snapped this morning. Everything else got mended at somebody's fire years ago.", speakers: [adventurer] }
+  - { key: chat.b0001.0060, cell: ashen_hollow-evening, text: "Talk's weather and who's owed what.", speakers: [villager], weather: [fair] }
+  - { key: chat.b0001.0061, cell: ashen_hollow-night, text: "Can't sleep, so I'm out here being useful, which is a lie but a warm one." }
+  - { key: chat.b0001.0062, cell: ashen_hollow-night, text: "No stars at all. You could be anywhere under that.", weather: [overcast] }
+  - { key: chat.b0001.0063, cell: ashen_hollow-night, text: "Wind in the shutters, all night. I've counted the same three noises for hours.", weather: [wind] }
+  - { key: chat.b0001.0064, cell: ashen_hollow-night, text: "Axle's squealing again. I'll hear it in my sleep, if I get any.", speakers: [carter, traveller], weather: [fair] }
+  - { key: chat.b0001.0065, cell: ashen_hollow-night, text: "Clear night. You can walk by the stars if you know them, and I know about four.", speakers: [traveller], weather: [fair] }
+  - { key: chat.b0001.0066, cell: ashen_hollow-night, text: "Night work on the seam. You see things in a lamp's worth of light that aren't there.", speakers: [labourer], weather: [rain] }
+  - { key: chat.b0001.0067, cell: ashen_hollow-night, text: "Filled the lamps and put the tools up. Nobody wants to be hunting a wedge in the dark.", speakers: [crafter, adventurer], weather: [wind] }
+  - { key: chat.b0001.0068, cell: ashen_hollow-night, text: "Something was out on the west path a while back. It's gone now. I'm still watching.", speakers: [adventurer], weather: [fair] }
+  - { key: chat.b0001.0069, cell: ashen_hollow-night, text: "Rain on the roof all night. The barrel's full and the gutter's lost its mind.", speakers: [villager], weather: [rain] }
+  - { key: chat.b0001.0070, cell: ashen_hollow-night, text: "Up with the beasts before light. They know what hour it is better than I do.", speakers: [farmer, herder] }
+  - { key: chat.b0001.0071, cell: ashen_hollow-night, text: "One of the birds won't settle. Whatever she's hearing, I'm not.", speakers: [herder] }
+  - { key: chat.b0001.0072, cell: ashen_hollow-night, text: "Set the lamp low and wait. It's most of the work and none of the pleasure.", speakers: [hunter] }
+
+  # ---- cairnwold ----
+  - { key: chat.b0001.0073, cell: cairnwold-dawn, text: "Cold enough in the night that the bucket had a skin on it." }
+  - { key: chat.b0001.0074, cell: cairnwold-dawn, text: "Fair sky and the village coming up grey and gold at the same time.", weather: [fair] }
+  - { key: chat.b0001.0075, cell: cairnwold-dawn, text: "Grey over the basin. The moor will be holding the night's wet for hours yet.", speakers: [crafter, adventurer], weather: [overcast] }
+  - { key: chat.b0001.0076, cell: cairnwold-dawn, text: "Out with the light, back without it.", speakers: [adventurer], weather: [rain] }
+  - { key: chat.b0001.0077, cell: cairnwold-dawn, text: "Rain on drystone. Half of it goes into the wall and comes out somewhere by noon.", speakers: [villager], weather: [rain] }
+  - { key: chat.b0001.0078, cell: cairnwold-dawn, text: "Up the rise to the beasts and every one of them looking at me like I'm late.", speakers: [farmer, herder], weather: [fog] }
+  - { key: chat.b0001.0079, cell: cairnwold-dawn, text: "Wind came off the crags in the night. You can see where it's taken the roof muck.", speakers: [herder], weather: [fair] }
+  - { key: chat.b0001.0080, cell: cairnwold-dawn, text: "Fog in the low end of the basin. Nothing's going to be out in that, me included.", speakers: [hunter] }
+  - { key: chat.b0001.0081, cell: cairnwold-dawn, text: "Gate's open and the first cart's ready. I'd as soon be the second one out of it.", speakers: [guard, carter] }
+  - { key: chat.b0001.0082, cell: cairnwold-dawn, text: "Loading hides this morning. They weigh less than you'd think and they smell worse.", speakers: [carter], channel: world }
+  - { key: chat.b0001.0083, cell: cairnwold-dawn, text: "Came up the rise at first light. Every wall in this place is the same height and none of them level.", speakers: [traveller] }
+  - { key: chat.b0001.0084, cell: cairnwold-dawn, text: "Fire's lit and the kettle's on and I've been up long enough to want both." }
+  - { key: chat.b0001.0085, cell: cairnwold-morning, text: "Morning's half gone and I've done nothing I'd call work.", weather: [overcast] }
+  - { key: chat.b0001.0086, cell: cairnwold-morning, text: "Cloud's down on the moor and the far side's gone.", weather: [overcast] }
+  - { key: chat.b0001.0087, cell: cairnwold-morning, text: "Opened the granary and the grain's dry. Some mornings that's the whole of the good news.", speakers: [farmer, herder], weather: [fair] }
+  - { key: chat.b0001.0088, cell: cairnwold-morning, text: "Wind's pushing the flock about in the wet. They'd rather be in, and so would I.", speakers: [herder], weather: [wind] }
+  - { key: chat.b0001.0089, cell: cairnwold-morning, text: "Tracks all over the moor edge this morning. Nothing's been left alone out there.", speakers: [hunter], weather: [rain] }
+  - { key: chat.b0001.0090, cell: cairnwold-morning, text: "Stepped out to check the road and the mist was lying across it like something put there.", speakers: [guard, carter], weather: [overcast] }
+  - { key: chat.b0001.0091, cell: cairnwold-morning, text: "Rain's got the wheel ruts running. Half the morning gone and quarter of the load moved.", speakers: [carter], weather: [rain] }
+  - { key: chat.b0001.0092, cell: cairnwold-morning, text: "Every errand here is either up or down.", speakers: [traveller] }
+  - { key: chat.b0001.0093, cell: cairnwold-morning, text: "Wall's down at the west end again. Same stretch, same argument about whose.", speakers: [labourer, crafter] }
+  - { key: chat.b0001.0094, cell: cairnwold-morning, text: "Third time through the same strap.", speakers: [crafter] }
+  - { key: chat.b0001.0095, cell: cairnwold-morning, text: "Sat by the smithy and watched a rivet take. Cheap morning, and better than I've had in a while.", speakers: [adventurer] }
+  - { key: chat.b0001.0096, cell: cairnwold-morning, text: "Every morning the same. Someone's always carrying something heavy up the rise.", channel: world }
+  - { key: chat.b0001.0097, cell: cairnwold-afternoon, text: "Long part of the day and everything's gone quiet and slow, me included." }
+  - { key: chat.b0001.0098, cell: cairnwold-afternoon, text: "Sun's over the basin and the crags have gone pale with it.", weather: [fair] }
+  - { key: chat.b0001.0099, cell: cairnwold-afternoon, text: "Brought the cart in through the wet and the gate's a mess for it. Nobody to blame but the sky.", speakers: [guard, carter], weather: [overcast] }
+  - { key: chat.b0001.0100, cell: cairnwold-afternoon, text: "Everything iron's dear here. It comes up the road and I've carried my share of it.", speakers: [carter], weather: [rain] }
+  - { key: chat.b0001.0101, cell: cairnwold-afternoon, text: "Every village I've come to does the same thing - one long hall and a well at the middle of a lot of walking.", speakers: [traveller], weather: [wind] }
+  - { key: chat.b0001.0102, cell: cairnwold-afternoon, text: "Handcart's wheel is going. I'd rather carry the stone in my arms than push that thing.", speakers: [labourer, crafter], weather: [fog] }
+  - { key: chat.b0001.0103, cell: cairnwold-afternoon, text: "Sparks all afternoon off the one piece and it still won't take an edge.", speakers: [crafter], weather: [fair] }
+  - { key: chat.b0001.0104, cell: cairnwold-afternoon, text: "Fog came down off the crags and the whole village went quiet with it.", speakers: [adventurer], weather: [fog] }
+  - { key: chat.b0001.0105, cell: cairnwold-afternoon, text: "Well's clean and the chain holds.", speakers: [villager, farmer] }
+  - { key: chat.b0001.0106, cell: cairnwold-afternoon, text: "Half a bed of roots out. Back's done.", speakers: [farmer] }
+  - { key: chat.b0001.0107, cell: cairnwold-afternoon, text: "Hens are over at the wall side where the ground stays dry. They know the place better than I do.", speakers: [herder] }
+  - { key: chat.b0001.0108, cell: cairnwold-afternoon, text: "Warmest hour of the day and I'm indoors mending a hinge. That's how afternoons go.", channel: world }
+  - { key: chat.b0001.0109, cell: cairnwold-dusk, text: "Light going off the crags and the smoke going straight up. It'll be cold by full dark." }
+  - { key: chat.b0001.0110, cell: cairnwold-dusk, text: "Overcast all day and it never made up its mind to rain. Annoying, that.", weather: [overcast] }
+  - { key: chat.b0001.0111, cell: cairnwold-dusk, text: "Stone's stacked and the tools are dry. That's as good as the day's going to get.", speakers: [labourer, crafter], weather: [wind] }
+  - { key: chat.b0001.0112, cell: cairnwold-dusk, text: "Wind's up the valley and the shed roof's rattling again. I'll see to it in the morning.", speakers: [crafter], weather: [fair] }
+  - { key: chat.b0001.0113, cell: cairnwold-dusk, text: "Came back in through the west gap. Nobody asked my business and I didn't offer.", speakers: [adventurer], weather: [overcast] }
+  - { key: chat.b0001.0114, cell: cairnwold-dusk, text: "Fires lit early all down the row. The walls hold the day's heat for about an hour.", speakers: [villager, farmer], weather: [rain] }
+  - { key: chat.b0001.0115, cell: cairnwold-dusk, text: "Beasts in. Gate tied twice.", speakers: [farmer], weather: [fair] }
+  - { key: chat.b0001.0116, cell: cairnwold-dusk, text: "Rain's coming and the flock's already facing away from it. Wish I knew how they know.", speakers: [herder] }
+  - { key: chat.b0001.0117, cell: cairnwold-dusk, text: "Two of us walked the wall at dark and neither of us saw anything. That's a good walk.", speakers: [hunter, guard] }
+  - { key: chat.b0001.0118, cell: cairnwold-dusk, text: "Watch is set and the fire's banked. The rest of the night is mostly standing still.", speakers: [guard] }
+  - { key: chat.b0001.0119, cell: cairnwold-dusk, text: "Wain's under the lean-to and the load's well tied. Whatever the night does, it can do it.", speakers: [carter] }
+  - { key: chat.b0001.0120, cell: cairnwold-dusk, text: "Someone's got a pot going that you can smell from the middle of the village." }
+  - { key: chat.b0001.0121, cell: cairnwold-evening, text: "Sat down and the day caught up all at once.", weather: [fair] }
+  - { key: chat.b0001.0122, cell: cairnwold-evening, text: "Fog's coming up the low end. By midnight you won't see the well from the hall.", weather: [overcast] }
+  - { key: chat.b0001.0123, cell: cairnwold-evening, text: "Evening's gone gold on the walls. It's the only hour this place gets to look easy.", speakers: [villager, farmer], weather: [fair] }
+  - { key: chat.b0001.0124, cell: cairnwold-evening, text: "Grain's bagged and up on the stones.", speakers: [farmer], weather: [wind] }
+  - { key: chat.b0001.0125, cell: cairnwold-evening, text: "Beasts settled, birds shut up. Makes a change from the rest of the day.", speakers: [herder], weather: [fair] }
+  - { key: chat.b0001.0126, cell: cairnwold-evening, text: "Sat in the dry and listened to the rain on the hall roof. Better than being out in it.", speakers: [hunter, guard], weather: [rain] }
+  - { key: chat.b0001.0127, cell: cairnwold-evening, text: "One round of the wall and I'm in for a while. Wind's got the fire going sideways anyway.", speakers: [guard], weather: [wind] }
+  - { key: chat.b0001.0128, cell: cairnwold-evening, text: "Load's cut down by half and the axle's greased. Half a load all the way beats the whole of one in a ditch.", speakers: [carter] }
+  - { key: chat.b0001.0129, cell: cairnwold-evening, text: "Bed for the night and a bowl of something. I've known worse evenings and slept outside them.", speakers: [traveller, labourer] }
+  - { key: chat.b0001.0130, cell: cairnwold-evening, text: "Barley and mutton. Same as always.", speakers: [labourer] }
+  - { key: chat.b0001.0131, cell: cairnwold-evening, text: "Sorted the day's pieces and only two went in the scrap. Better than yesterday.", speakers: [crafter] }
+  - { key: chat.b0001.0132, cell: cairnwold-evening, text: "Everyone's got a complaint and nobody's getting up about it. That's how an evening goes." }
+  - { key: chat.b0001.0133, cell: cairnwold-night, text: "Nobody's out but me and one dog who's decided I'm his business.", weather: [overcast] }
+  - { key: chat.b0001.0134, cell: cairnwold-night, text: "Black as a bag out there. No moon, no stars, no reason to be up.", weather: [wind] }
+  - { key: chat.b0001.0135, cell: cairnwold-night, text: "Heard something out past the wall and went to look. Wind, and a lot of it.", speakers: [hunter, guard], weather: [wind] }
+  - { key: chat.b0001.0136, cell: cairnwold-night, text: "Gate's shut and barred. Nothing's come up the rise all night and I'd like it to stay that way.", speakers: [guard], weather: [overcast] }
+  - { key: chat.b0001.0137, cell: cairnwold-night, text: "Clear night's good for a morning start. Everything dries and nothing freezes to the load.", speakers: [carter], weather: [fair] }
+  - { key: chat.b0001.0138, cell: cairnwold-night, text: "Feet up in the dry and my boots off for the first time since the road.", speakers: [traveller, labourer], weather: [fair] }
+  - { key: chat.b0001.0139, cell: cairnwold-night, text: "Half the night gone. Wall's two courses up.", speakers: [labourer] }
+  - { key: chat.b0001.0140, cell: cairnwold-night, text: "Rain on the roof and tomorrow's work is indoors whatever happens. A wet night's no loss to me.", speakers: [crafter] }
+  - { key: chat.b0001.0141, cell: cairnwold-night, text: "Clear enough to see the whole basin. You'd nearly think there was nothing in it worth worrying about.", speakers: [adventurer, villager] }
+  - { key: chat.b0001.0142, cell: cairnwold-night, text: "Somebody's got a light on still and I can't think why.", speakers: [villager] }
+  - { key: chat.b0001.0143, cell: cairnwold-night, text: "Woken by the rain on the shutters. The beasts will be in the mud corner and I'll be out at first light.", speakers: [farmer] }
+  - { key: chat.b0001.0144, cell: cairnwold-night, text: "Two more hours of this and I'll go and lie down with my boots on." }
+
+  # ---- old_east_road ----
+  - { key: chat.b0001.0145, cell: old_east_road-dawn, text: "Road's empty and the sky's going grey. Nothing behind me and nothing ahead either.", weather: [fair] }
+  - { key: chat.b0001.0146, cell: old_east_road-dawn, text: "Fair at dawn here, and the road's dry under the mist. That won't last.", weather: [fair] }
+  - { key: chat.b0001.0147, cell: old_east_road-dawn, text: "Walked out at first light to look at the ditches. They're running and the road's taking it.", speakers: [villager, farmer], weather: [rain] }
+  - { key: chat.b0001.0148, cell: old_east_road-dawn, text: "The road drains. Fields don't.", speakers: [farmer], weather: [wind] }
+  - { key: chat.b0001.0149, cell: old_east_road-dawn, text: "Moved the flock across the road before the day got up. Took three of us and a good dog.", speakers: [herder], weather: [fog] }
+  - { key: chat.b0001.0150, cell: old_east_road-dawn, text: "Watch on the Rim gave up trying to see and just listened. In fog that's all you get.", speakers: [hunter, guard], weather: [fair] }
+  - { key: chat.b0001.0151, cell: old_east_road-dawn, text: "Wind comes up the road with nothing to stop it. Coldest spot in the valley and I'm stood on it.", speakers: [guard] }
+  - { key: chat.b0001.0152, cell: old_east_road-dawn, text: "Loaded before light and the wain's running quiet. Quiet wains are the only ones I trust.", speakers: [carter], channel: world }
+  - { key: chat.b0001.0153, cell: old_east_road-dawn, text: "Slept at the shrine and left a bit of bread for the next one. That's the whole of the custom.", speakers: [traveller, labourer] }
+  - { key: chat.b0001.0154, cell: old_east_road-dawn, text: "Mud's winning this week.", speakers: [labourer] }
+  - { key: chat.b0001.0155, cell: old_east_road-dawn, text: "Carry my tools and a bit of stock and hope the road's kind. It usually isn't.", speakers: [crafter] }
+  - { key: chat.b0001.0156, cell: old_east_road-dawn, text: "First light on the wet stone and the whole road shines. It's the prettiest it gets." }
+  - { key: chat.b0001.0157, cell: old_east_road-morning, text: "Road's had the night on it and it shows. Ruts running with water in the low places.", weather: [overcast] }
+  - { key: chat.b0001.0158, cell: old_east_road-morning, text: "Nothing moving on the road but a crow that's decided I'm worth following.", weather: [wind] }
+  - { key: chat.b0001.0159, cell: old_east_road-morning, text: "Tracks on the road and none of them from a cart. Somebody came past in the night on foot.", speakers: [hunter, guard], weather: [fair] }
+  - { key: chat.b0001.0160, cell: old_east_road-morning, text: "Road's clear as far as the drop. I'd call that a good morning if it were my road.", speakers: [guard], weather: [overcast] }
+  - { key: chat.b0001.0161, cell: old_east_road-morning, text: "Road's holding. I've come up it with half the load I wanted and I'm not stopping to argue.", speakers: [carter], weather: [rain] }
+  - { key: chat.b0001.0162, cell: old_east_road-morning, text: "Walked the road at first light for the company and got the weather instead.", speakers: [traveller, labourer], weather: [fair] }
+  - { key: chat.b0001.0163, cell: old_east_road-morning, text: "Patching the culvert. Again.", speakers: [labourer] }
+  - { key: chat.b0001.0164, cell: old_east_road-morning, text: "Passed a wain going the other way with a load of ash. Sniffed of it for a mile after.", speakers: [crafter] }
+  - { key: chat.b0001.0165, cell: old_east_road-morning, text: "The wain's still on its side and its load's spoiling. Somebody's lost a week of work.", speakers: [adventurer, villager] }
+  - { key: chat.b0001.0166, cell: old_east_road-morning, text: "Walked to the shrine and back before the rain. Somebody's been and left a bit of iron there.", speakers: [villager] }
+  - { key: chat.b0001.0167, cell: old_east_road-morning, text: "Took the short way down to the road and back up. Short by walking and long by carrying.", speakers: [farmer], channel: world }
+  - { key: chat.b0001.0168, cell: old_east_road-morning, text: "Road's the same as ever. Gravel in the middle and mud at the edges." }
+  - { key: chat.b0001.0169, cell: old_east_road-afternoon, text: "Sitting on the shrine wall eating what I brought. It's a good wall for that.", weather: [overcast] }
+  - { key: chat.b0001.0170, cell: old_east_road-afternoon, text: "Sun's on the shrine stone and the lantern's burning daylight. Still, it's kept lit.", weather: [fair] }
+  - { key: chat.b0001.0171, cell: old_east_road-afternoon, text: "Caught out in the open when it came down. Barely worth running and I didn't.", speakers: [traveller, labourer], weather: [rain] }
+  - { key: chat.b0001.0172, cell: old_east_road-afternoon, text: "Half a day on the culvert and the water's found a new way round already.", speakers: [labourer], weather: [wind] }
+  - { key: chat.b0001.0173, cell: old_east_road-afternoon, text: "On the road with a bench's worth of tools and no bench. You make do with a rock and a rag.", speakers: [crafter], weather: [fog] }
+  - { key: chat.b0001.0174, cell: old_east_road-afternoon, text: "I'd not be the one to go up to the barrow and shift its stones. Nor would anyone I know.", speakers: [adventurer, villager], weather: [fair] }
+  - { key: chat.b0001.0175, cell: old_east_road-afternoon, text: "Fog on the high ground and the road's swallowed either side. You walk on faith for a mile.", speakers: [villager], weather: [fog] }
+  - { key: chat.b0001.0176, cell: old_east_road-afternoon, text: "Wains come up loaded, go down light.", speakers: [farmer] }
+  - { key: chat.b0001.0177, cell: old_east_road-afternoon, text: "Flock got across the road and one of them stopped in the middle of it. There's always one.", speakers: [herder, hunter] }
+  - { key: chat.b0001.0178, cell: old_east_road-afternoon, text: "Rain's got every track on the road running together. Nothing to read out here now.", speakers: [hunter] }
+  - { key: chat.b0001.0179, cell: old_east_road-afternoon, text: "Watched the road from the Rim all afternoon and it gave me nothing worth standing up for.", speakers: [guard], channel: world }
+  - { key: chat.b0001.0180, cell: old_east_road-afternoon, text: "Road's hot and the stone's hot and the flies are the only company I've had." }
+  - { key: chat.b0001.0181, cell: old_east_road-dusk, text: "Light's off the road and the cold comes up out of the mud.", weather: [overcast] }
+  - { key: chat.b0001.0182, cell: old_east_road-dusk, text: "Grey going to dark grey. The road stops being a road about now.", weather: [wind] }
+  - { key: chat.b0001.0183, cell: old_east_road-dusk, text: "Started the fire on the Rim early. Wind makes you want the fire more than the dark does.", speakers: [adventurer, villager], weather: [wind] }
+  - { key: chat.b0001.0184, cell: old_east_road-dusk, text: "Sunset from the Rim's worth the climb. Then you have to get back down in the dark, which isn't.", speakers: [villager], weather: [overcast] }
+  - { key: chat.b0001.0185, cell: old_east_road-dusk, text: "Drove the beasts back across the road before dark. Took twice as long as it should.", speakers: [farmer], weather: [rain] }
+  - { key: chat.b0001.0186, cell: old_east_road-dusk, text: "Rain's set in for the night and I'm a mile from anywhere dry. So it's the wain's lee side.", speakers: [herder, hunter], weather: [fair] }
+  - { key: chat.b0001.0187, cell: old_east_road-dusk, text: "Last of the light and something's moving in the scrub past the barrow. It can move.", speakers: [hunter] }
+  - { key: chat.b0001.0188, cell: old_east_road-dusk, text: "Lit the watch fire and set myself where I can see the drop. Rest of it's waiting.", speakers: [guard] }
+  - { key: chat.b0001.0189, cell: old_east_road-dusk, text: "Got the wain down to the flat before dark. I'd not take it down the Rim in this.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0190, cell: old_east_road-dusk, text: "Wet through and the shrine's lantern is the only warm thing on this stretch.", speakers: [traveller] }
+  - { key: chat.b0001.0191, cell: old_east_road-dusk, text: "Stretch done. Another past the bend.", speakers: [labourer] }
+  - { key: chat.b0001.0192, cell: old_east_road-dusk, text: "Road's quiet. That's the best you can say about it and the most you can ask." }
+  - { key: chat.b0001.0193, cell: old_east_road-evening, text: "Sat by the fire on the Rim with the whole basin under me going dark.", weather: [fair] }
+  - { key: chat.b0001.0194, cell: old_east_road-evening, text: "Fog's come over the Rim and the village below is a glow and nothing else.", weather: [fog] }
+  - { key: chat.b0001.0195, cell: old_east_road-evening, text: "Somebody keeps this fire. It's banked and it's not my doing, and I'm glad of it.", speakers: [herder, hunter], weather: [rain] }
+  - { key: chat.b0001.0196, cell: old_east_road-evening, text: "Fire's a mistake tonight. Wind takes the smoke down the road and anything downwind knows where I am.", speakers: [hunter], weather: [wind] }
+  - { key: chat.b0001.0197, cell: old_east_road-evening, text: "Watching from the Rim is mostly looking at lights in the basin and wishing I was one of them.", speakers: [guard], weather: [fair] }
+  - { key: chat.b0001.0198, cell: old_east_road-evening, text: "Wain's under a tarp and the fire's going. Morning's a problem for the morning.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0199, cell: old_east_road-evening, text: "Somebody left bread at the shrine and a nail. A nail's a strange thing to leave, unless it wasn't.", speakers: [traveller] }
+  - { key: chat.b0001.0200, cell: old_east_road-evening, text: "Getting a load up the Rim is a day's work. Getting it down again is a short and interesting one.", speakers: [labourer] }
+  - { key: chat.b0001.0201, cell: old_east_road-evening, text: "Fire's going and the whole valley's below. Best view on the road and it costs nothing.", speakers: [crafter, adventurer] }
+  - { key: chat.b0001.0202, cell: old_east_road-evening, text: "Walked in off the road at dark with the rain behind me. Didn't look back at it either.", speakers: [adventurer] }
+  - { key: chat.b0001.0203, cell: old_east_road-evening, text: "Somebody's lit the shrine lantern and you can see it from halfway down. That's the point of it.", speakers: [villager], channel: world }
+  - { key: chat.b0001.0204, cell: old_east_road-evening, text: "Nothing came up the road all evening. That's either peace or trouble coming later." }
+  - { key: chat.b0001.0205, cell: old_east_road-night, text: "Middle of the night on the road and a fire's the only thing I've got.", weather: [overcast] }
+  - { key: chat.b0001.0206, cell: old_east_road-night, text: "No moon at all. The road's a darker line in a dark field.", weather: [wind] }
+  - { key: chat.b0001.0207, cell: old_east_road-night, text: "Wind's got the tarp flapping and there's no sleeping through that. So I'm up.", speakers: [carter, traveller], weather: [wind] }
+  - { key: chat.b0001.0208, cell: old_east_road-night, text: "Clear night and the road's white with frost. Easy walking if you mind your feet.", speakers: [traveller], weather: [fair] }
+  - { key: chat.b0001.0209, cell: old_east_road-night, text: "Working the road at night because the day was too wet. Most of what I do is choosing which wet.", speakers: [labourer], weather: [rain] }
+  - { key: chat.b0001.0210, cell: old_east_road-night, text: "Iron's cold by the fire and I'm keeping my hands off it till morning.", speakers: [crafter, adventurer], weather: [fair] }
+  - { key: chat.b0001.0211, cell: old_east_road-night, text: "Something went past the camp in the rain. Could have been a dog and I'm not going to find out.", speakers: [adventurer] }
+  - { key: chat.b0001.0212, cell: old_east_road-night, text: "Took the lantern down to the shrine at dark and lit it. Wind had it out twice.", speakers: [villager] }
+  - { key: chat.b0001.0213, cell: old_east_road-night, text: "Beasts are loose along the road and I'm going after them in the dark. Which is how it goes.", speakers: [farmer, herder] }
+  - { key: chat.b0001.0214, cell: old_east_road-night, text: "Lost one, found it after dark.", speakers: [herder] }
+  - { key: chat.b0001.0215, cell: old_east_road-night, text: "Best hour for the barrow road is the one before light. Bad hour to be alone on it, mind.", speakers: [hunter] }
+  - { key: chat.b0001.0216, cell: old_east_road-night, text: "Everything's dripping off the trees. You can walk this road by ear tonight.", channel: world }
+
+  # ---- wilds ----
+  - { key: chat.b0001.0217, cell: wilds-dawn, text: "First light out here and everything's wet through and nothing cares." }
+  - { key: chat.b0001.0218, cell: wilds-dawn, text: "Fair sky over the moor and the mist lying in every low place there is.", weather: [fair] }
+  - { key: chat.b0001.0219, cell: wilds-dawn, text: "Out before the light for a thing left out overnight. Cold work, and the thing was ruined.", speakers: [crafter, adventurer], weather: [overcast] }
+  - { key: chat.b0001.0220, cell: wilds-dawn, text: "Fog out here takes your bearings off you. Walk an hour and you find your own tracks.", speakers: [adventurer], weather: [fog] }
+  - { key: chat.b0001.0221, cell: wilds-dawn, text: "Went out with a basket and came back with rain and no basket.", speakers: [villager], weather: [rain] }
+  - { key: chat.b0001.0222, cell: wilds-dawn, text: "Wind off the high ground goes straight through a coat and out the other side.", speakers: [farmer, herder], weather: [fog] }
+  - { key: chat.b0001.0223, cell: wilds-dawn, text: "Flock's out on the dry ground before the wet starts. They'll be off it by noon.", speakers: [herder], weather: [fair] }
+  - { key: chat.b0001.0224, cell: wilds-dawn, text: "Checked the traps and there's one sprung and empty. Something's got clever at my line.", speakers: [hunter] }
+  - { key: chat.b0001.0225, cell: wilds-dawn, text: "Escorting a load through the fog. Slow, but nothing's going to see us coming.", speakers: [guard, carter] }
+  - { key: chat.b0001.0226, cell: wilds-dawn, text: "Track out here goes to mud and the mud goes to axle. Wish I'd come by the road.", speakers: [carter] }
+  - { key: chat.b0001.0227, cell: wilds-dawn, text: "Slept out. It was that or keep walking and I've done both and know which is worse.", speakers: [traveller], channel: world }
+  - { key: chat.b0001.0228, cell: wilds-dawn, text: "Nothing out here this early but wet grass and birds that want to tell me about it." }
+  - { key: chat.b0001.0229, cell: wilds-morning, text: "Morning's the only time out here you can see where the ground lets you walk.", weather: [overcast] }
+  - { key: chat.b0001.0230, cell: wilds-morning, text: "Cloud's down and the far side of the moor has gone off somewhere.", weather: [overcast] }
+  - { key: chat.b0001.0231, cell: wilds-morning, text: "Took the flock out the dry way and it's still ankle deep in one place I'll remember.", speakers: [farmer, herder], weather: [fair] }
+  - { key: chat.b0001.0232, cell: wilds-morning, text: "Wind's come round the hill and the flock's turned into it. Half of them won't face away.", speakers: [herder], weather: [wind] }
+  - { key: chat.b0001.0233, cell: wilds-morning, text: "Found where a boar's been feeding in the night. Fresh, and deeper than I'd like.", speakers: [hunter], weather: [rain] }
+  - { key: chat.b0001.0234, cell: wilds-morning, text: "Cart's stuck at the wet bit and there's two of us to get it out. Which is one short.", speakers: [guard, carter], weather: [fair] }
+  - { key: chat.b0001.0235, cell: wilds-morning, text: "Rain's on and the track's going soft. Gave it up and I'll try again when it stops.", speakers: [carter], weather: [rain] }
+  - { key: chat.b0001.0236, cell: wilds-morning, text: "Moor's easy walking when it's dry, and there's dry for about three hours of the day.", speakers: [traveller] }
+  - { key: chat.b0001.0237, cell: wilds-morning, text: "Cutting's easy. Carrying's the work.", speakers: [labourer, crafter] }
+  - { key: chat.b0001.0238, cell: wilds-morning, text: "Tool's got a burr on it from that wet wood. I'll be at this stone half the morning.", speakers: [crafter] }
+  - { key: chat.b0001.0239, cell: wilds-morning, text: "Water's up in the low ground and the paths that were paths this morning aren't.", speakers: [adventurer], channel: world }
+  - { key: chat.b0001.0240, cell: wilds-morning, text: "Something's been through here and it wasn't bothered about leaving a trail." }
+  - { key: chat.b0001.0241, cell: wilds-afternoon, text: "Long afternoon out here. The ground stops being interesting after the second hour.", weather: [fair] }
+  - { key: chat.b0001.0242, cell: wilds-afternoon, text: "Sun's full on the moor and it's warm standing still and cold the moment you don't.", weather: [fair] }
+  - { key: chat.b0001.0243, cell: wilds-afternoon, text: "Been out in this since noon. There's no shelter out here that isn't a hole.", speakers: [traveller, labourer], weather: [rain] }
+  - { key: chat.b0001.0244, cell: wilds-afternoon, text: "Timber on my back. Barrow's an ornament.", speakers: [labourer], weather: [wind] }
+  - { key: chat.b0001.0245, cell: wilds-afternoon, text: "Wood's got the wet in it. Every cut's rough and the saw's said so twice.", speakers: [crafter], weather: [fog] }
+  - { key: chat.b0001.0246, cell: wilds-afternoon, text: "Wind's took the day's smoke and put it somewhere else. You can't read anything off a fire in this.", speakers: [adventurer, villager], weather: [wind] }
+  - { key: chat.b0001.0247, cell: wilds-afternoon, text: "Went out for woundmoss and found some. Should have come yesterday, from the look of it.", speakers: [villager] }
+  - { key: chat.b0001.0248, cell: wilds-afternoon, text: "Fog on this side of the hill and the beasts won't move in it. So we wait, and I'm patient about it.", speakers: [farmer], weather: [fog] }
+  - { key: chat.b0001.0249, cell: wilds-afternoon, text: "Hound's found something it won't leave. I'd rather not know and I'd rather it left it.", speakers: [herder, hunter] }
+  - { key: chat.b0001.0250, cell: wilds-afternoon, text: "Set the snares along the run and left them. Checking them too often is what spoils them.", speakers: [hunter] }
+  - { key: chat.b0001.0251, cell: wilds-afternoon, text: "Walked the crag side and there's nothing to report. Nothing to report isn't nothing there.", speakers: [guard], channel: world }
+  - { key: chat.b0001.0252, cell: wilds-afternoon, text: "Heat off the rock and no wind to move it. Nice for an hour and then it's just hot." }
+  - { key: chat.b0001.0253, cell: wilds-dusk, text: "Light going off the moor and the whole place turning into something you don't want to be in." }
+  - { key: chat.b0001.0254, cell: wilds-dusk, text: "Wind's up with the dark and it's the only thing out here making noise.", weather: [overcast] }
+  - { key: chat.b0001.0255, cell: wilds-dusk, text: "A mile from anywhere and the light's going. I've done this before and it's a long way short of clever.", speakers: [adventurer, villager], weather: [wind] }
+  - { key: chat.b0001.0256, cell: wilds-dusk, text: "Sunset off the moor's a good half hour and then it's over and you're in the dark.", speakers: [villager], weather: [fair] }
+  - { key: chat.b0001.0257, cell: wilds-dusk, text: "Beasts are down the wet way and I'll be getting them back in the dark. Again.", speakers: [farmer], weather: [overcast] }
+  - { key: chat.b0001.0258, cell: wilds-dusk, text: "Low corner's taking the wet and the flock keeps away from it. They've no argument with it.", speakers: [herder, hunter], weather: [rain] }
+  - { key: chat.b0001.0259, cell: wilds-dusk, text: "Traps are out and I'm leaving them to the night. Rain's not going to lose me much.", speakers: [hunter] }
+  - { key: chat.b0001.0260, cell: wilds-dusk, text: "Watch on the high ground tonight. Nothing to do but listen to wind and watch for a light.", speakers: [guard] }
+  - { key: chat.b0001.0261, cell: wilds-dusk, text: "Got out to the flat before dark and I'd not push a wain further tonight.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0262, cell: wilds-dusk, text: "Rain's come on and the trees are doing their best. It's not shelter, but it's a direction.", speakers: [traveller] }
+  - { key: chat.b0001.0263, cell: wilds-dusk, text: "Dropped the last of the timber at the edge of the wet ground. Morning can have the rest.", speakers: [labourer], channel: world }
+  - { key: chat.b0001.0264, cell: wilds-dusk, text: "Somewhere out there the last of the light is on water and it looks like something it isn't." }
+  - { key: chat.b0001.0265, cell: wilds-evening, text: "Nothing eaten since morning.", weather: [fair] }
+  - { key: chat.b0001.0266, cell: wilds-evening, text: "Rain's turned the ground to a sponge and me to a very patient man.", weather: [rain] }
+  - { key: chat.b0001.0267, cell: wilds-evening, text: "Fog's come up off the low ground. The fire's all I can see and it's lighting the fog.", weather: [fog] }
+  - { key: chat.b0001.0268, cell: wilds-evening, text: "Hound's asleep with his nose in my coat. He's had the better day of the two of us.", speakers: [herder, hunter], weather: [wind] }
+  - { key: chat.b0001.0269, cell: wilds-evening, text: "Skinned out the day's catch and my hands are the wrong side of cold for it.", speakers: [hunter], weather: [fog] }
+  - { key: chat.b0001.0270, cell: wilds-evening, text: "Fire won't take with this wet coming down. So it's a cold watch and a long night about it.", speakers: [guard], weather: [rain] }
+  - { key: chat.b0001.0271, cell: wilds-evening, text: "Made the edge of the moors before dark and that's as far as I'm going.", speakers: [carter, traveller] }
+  - { key: chat.b0001.0272, cell: wilds-evening, text: "Wind dropped with the light. First quiet hour I've had all day.", speakers: [traveller] }
+  - { key: chat.b0001.0273, cell: wilds-evening, text: "Legs are done. The timber isn't.", speakers: [labourer] }
+  - { key: chat.b0001.0274, cell: wilds-evening, text: "Sorting tools by firelight is how you lose them. So they stay in the bag till morning.", speakers: [crafter, adventurer] }
+  - { key: chat.b0001.0275, cell: wilds-evening, text: "Fog out here and every sound's something following you. On a good night it's a dog.", speakers: [adventurer], channel: world }
+  - { key: chat.b0001.0276, cell: wilds-evening, text: "Wandered out to the edge of the wet ground and thought about how far it goes. Then I went home.", speakers: [villager] }
+  - { key: chat.b0001.0277, cell: wilds-night, text: "Night out here and the fire's smaller than the dark is.", weather: [overcast] }
+  - { key: chat.b0001.0278, cell: wilds-night, text: "No stars, no moon, no horizon. Just the fire and about two feet of ground.", weather: [wind] }
+  - { key: chat.b0001.0279, cell: wilds-night, text: "Tarp's fighting the wind and I'm fighting the tarp. Neither of us is winning.", speakers: [carter, traveller], weather: [wind] }
+  - { key: chat.b0001.0280, cell: wilds-night, text: "Clear night out here and there's more sky than I know what to do with.", speakers: [traveller], weather: [fair] }
+  - { key: chat.b0001.0281, cell: wilds-night, text: "Worked till the lantern made me stupid.", speakers: [labourer], weather: [rain] }
+  - { key: chat.b0001.0282, cell: wilds-night, text: "Everything's wet, including the tools, and I've given up on the tools.", speakers: [crafter, adventurer], weather: [rain] }
+  - { key: chat.b0001.0283, cell: wilds-night, text: "Heard something move past the fire once. Not worried enough to go and look, but I heard it.", speakers: [adventurer] }
+  - { key: chat.b0001.0284, cell: wilds-night, text: "Came out here to be alone with a thing and the wind wouldn't let me hear myself think.", speakers: [villager] }
+  - { key: chat.b0001.0285, cell: wilds-night, text: "Out in the dark after the beasts again. They're well pleased with themselves about it.", speakers: [farmer, herder] }
+  - { key: chat.b0001.0286, cell: wilds-night, text: "Birds are asleep and the flock's asleep and I'm sat here for no reason I can point at.", speakers: [herder] }
+  - { key: chat.b0001.0287, cell: wilds-night, text: "Night's the only time the wood's honest. Everything in it stops pretending to be a shape.", speakers: [hunter] }
+  - { key: chat.b0001.0288, cell: wilds-night, text: "Away out here the night's not peaceful, it's busy. It's just busy about other things." }
+
+  # ---- event variants ----
+  - { key: chat.b0001.0289, cell: ashen_hollow-dawn, text: "Weather's turned in the night. You can smell the difference before you can see it.", events: [weather_turned] }
+
+  # ---- cairnwold ----
+  - { key: chat.b0001.0290, cell: cairnwold-afternoon, text: "It came over about noon and changed the whole day. Everyone's gone quiet about it.", events: [weather_turned] }
+
+  # ---- old_east_road ----
+  - { key: chat.b0001.0291, cell: old_east_road-evening, text: "Turned on us an hour back. On this road that's how it goes - one sky, then another.", events: [weather_turned] }
+
+  # ---- ashen_hollow ----
+  - { key: chat.b0001.0292, cell: ashen_hollow-night, text: "There'll be less trouble now the {creature}'s been put down. Nobody's sorry about it.", speakers: [guard, hunter], events: [creature_slain] }
+
+  # ---- old_east_road ----
+  - { key: chat.b0001.0293, cell: old_east_road-morning, text: "The {creature} from out past the wain is dead. Killed in the night and left where it lay.", speakers: [carter], events: [creature_slain] }
+
+  # ---- wilds ----
+  - { key: chat.b0001.0294, cell: wilds-dusk, text: "Came on the {creature} where it had been killed and left. Whatever did it wasn't hungry.", speakers: [hunter, adventurer], events: [creature_slain] }
+
+  # ---- cairnwold ----
+  - { key: chat.b0001.0295, cell: cairnwold-evening, text: "Market's settled and there's coin about all of a sudden. Several people are very pleased with themselves.", speakers: [villager], events: [market_day] }
+
+  # ---- wilds ----
+  - { key: chat.b0001.0296, cell: wilds-dawn, text: "Market settled and I'm out here before anything's open. Bad timing, that.", speakers: [carter], events: [market_day] }
+
+  # ---- ashen_hollow ----
+  - { key: chat.b0001.0297, cell: ashen_hollow-afternoon, text: "They settled the day's trade and now the stall wants seeing to. Always after the fact, that.", speakers: [crafter, villager], events: [market_day] }
+
+  # ---- old_east_road ----
+  - { key: chat.b0001.0298, cell: old_east_road-dusk, text: "{claimant} brought in {bounty} and it's done. Road's quieter for it, and the purse isn't mine.", speakers: [traveller, adventurer], events: [bounty_claimed] }
+
+  # ---- wilds ----
+  - { key: chat.b0001.0299, cell: wilds-night, text: "Word is {claimant} finished {bounty}. Word travels out here quicker than a man on foot, somehow.", speakers: [hunter], events: [bounty_claimed] }
+
+  # ---- cairnwold ----
+  - { key: chat.b0001.0300, cell: cairnwold-morning, text: "Heard {claimant} claimed {bounty}. Fair enough. I'd not have gone after it myself.", speakers: [villager], events: [bounty_claimed] }

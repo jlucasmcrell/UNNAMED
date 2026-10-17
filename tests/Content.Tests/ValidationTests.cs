@@ -522,7 +522,7 @@ public class ContentLoaderTests
                 "ability.creature.peck", "ability.creature.spider_bite", "ability.creature.tusk_sweep", "ability.creature.wolf_bite",
                 "ability.polearm.long_thrust",
                 "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer",
-                "chatter.lfg", "chatter.news",
+                "chatter.b0001", "chatter.lfg", "chatter.news",
                 "config.base_speeds", "config.chat", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
                 "config.economy", "config.factions", "config.inventory", "config.level_cap", "config.magic", "config.navigation", "config.npc_life",
                 "config.party", "config.progression", "config.simulation_tiers", "config.teaching", "config.time", "config.travel", "config.weather",
