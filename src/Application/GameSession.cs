@@ -252,6 +252,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
             Spaces = spaces,
+            Interior = inner,
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

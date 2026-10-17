@@ -1,6 +1,7 @@
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
@@ -61,16 +62,20 @@ public class ReachabilityTests
     /// With the option off the quest is not offered either, so checking it against a run that cannot reach it
     /// would report a failure no player can experience.
     /// </remarks>
-    [Fact(Skip = "pending B1: The Unfinished Measure is given by Kera in the Ashen Hollow and its five places are "
-              + "the ring's, which is its own load. No single loaded region holds both until the interior layout is "
-              + "co-loaded, and unioning the two - which is what this did - hides exactly the defect B1 removes. "
-              + "Full strength restored; un-skip when B1 lands.")]
+    [Fact]
     public void EveryQuestStep_PointsAtSomethingInTheRegion()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
-        var places = setup.Layout.Locations.Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
-        var people = setup.Layout.Npcs.Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
+
+        // Every layout this run can stand in. The interior is its own, and a quest step that names one of its places
+        // is satisfied by it - not by the exterior, where that place does not exist.
+        var layouts = new List<RegionLayout> { setup.Layout };
+        if (setup.Interior is { } interior)
+            layouts.Add(interior);
+
+        var places = layouts.SelectMany(l => l.Locations).Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
+        var people = layouts.SelectMany(l => l.Npcs).Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
         var reachable = Reachable(setup);
 

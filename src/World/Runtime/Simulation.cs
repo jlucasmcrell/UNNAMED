@@ -33,6 +33,14 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
         ImmutableDictionary<SpaceId, WalkSpace>.Empty;
 
     /// <summary>
+    /// The interior layout this run can reach, when the gate lets one in (B1). Null otherwise, which is every run that
+    /// does not open the Barrowworks. Its places, nodes, containers, stations and NPCs are its own: they are authored
+    /// in its local metres and belong to its space, so a caller asking whether a quest step is reachable has to look
+    /// in the layout that holds it.
+    /// </summary>
+    public RegionLayout? Interior { get; init; }
+
+    /// <summary>
     /// The ground and walls of <paramref name="space"/>, or the layout's own when it names nothing this holds. The
     /// fallback is deliberate: a space that is not loaded has no ground, and a caller asking for one is asking where
     /// something in the loaded region would stand.
