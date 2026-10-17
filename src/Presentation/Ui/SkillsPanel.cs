@@ -390,7 +390,7 @@ public partial class SkillsPanel : CanvasLayer
         _panes.Detail.AddChild(list);
     }
 
-    /// <summary>The known techniques (C5), each with where it was learned and its quick slot; the weapon techniques come later.</summary>
+    /// <summary>The known techniques (C5), each with where it was learned and its quick slot.</summary>
     private void DrawTechniques(Simulation simulation)
     {
         var session = _session!;

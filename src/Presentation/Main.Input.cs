@@ -171,10 +171,10 @@ public partial class Main
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
         bool holding = captured && Engaged("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
-        // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula worked where the camera looks, like a swing (M3e).
+        // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula or technique worked where the camera looks, like a swing (M3e).
         int slot = Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
         string? quick = slot >= 0 ? _session.Simulation!.QuickBar[slot] : null;
-        bool working = captured && quick is not null && _session.Setup.Magic.Formulas.ContainsKey(quick);
+        bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
         _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
@@ -251,8 +251,8 @@ public partial class Main
     }
 
     /// <summary>
-    /// What a quick slot's key does: an item is used from its first carried stack, a formula worked (only with the mouse in the game, so
-    /// it goes where the camera looks), and an empty slot, an item none of which is left or a technique says why nothing happened.
+    /// What a quick slot's key does: an item is used from its first carried stack, a formula or technique worked (only with the mouse in
+    /// the game, so it goes where the camera looks), and an empty slot or an item none of which is left says why nothing happened.
     /// </summary>
     private void UseQuickSlot(int slot, string? id, bool captured)
     {
@@ -263,13 +263,13 @@ public partial class Main
             if (captured)
                 _controller.Cast(id);
         }
-        else if (id.StartsWith("item.", StringComparison.Ordinal))
+        else if (_session.Setup.Techniques.ContainsKey(id))
         {
-            if (!_controller.UseItem(id))
-                _hud.Toast($"No {Names.Of(_session, id)} left", 2);
+            if (captured)
+                _controller.Technique(id);
         }
-        else
-            _hud.Toast($"{Names.Of(_session, id)} is not worked from the quick bar yet", 3);
+        else if (id.StartsWith("item.", StringComparison.Ordinal) && !_controller.UseItem(id))
+            _hud.Toast($"No {Names.Of(_session, id)} left", 2);
     }
 
     private static void DefineInput()

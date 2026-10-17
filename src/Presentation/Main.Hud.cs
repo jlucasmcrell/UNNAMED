@@ -183,7 +183,7 @@ public partial class Main
 
     /// <summary>
     /// The eight quick slots on their keys (WP9): what is on each - an item with how many are carried, a formula with its Focus and lit
-    /// while it is worked, a technique - or an empty ID for an empty one.
+    /// while it is worked, a technique with its stamina, or the seconds left and dim while it cools - or an empty ID for an empty one.
     /// </summary>
     private List<HudQuick> QuickSlots(Simulation simulation, string? casting)
     {
@@ -194,6 +194,9 @@ public partial class Main
             null => new HudQuick(HelpPanel.Key(key), string.Empty, string.Empty, false, false),
             var id when _session.Setup.Magic.Formulas.TryGetValue(id, out var formula) =>
                 new HudQuick(HelpPanel.Key(key), id, $"{formula.FocusCost}F", false, id == casting),
+            var id when _session.Setup.Techniques.TryGetValue(id, out var technique) && simulation.TechniqueCooldown(id) is var cooling =>
+                cooling > 0 ? new HudQuick(HelpPanel.Key(key), id, $"{Math.Ceiling(cooling * _session.TickSeconds)}s", true, false)
+                    : new HudQuick(HelpPanel.Key(key), id, $"{technique.StaminaCost}S", false, false),
             var id when id.StartsWith("item.", StringComparison.Ordinal) && inventory.Where(e => e.DefId == id).Sum(e => e.Count) is var count =>
                 new HudQuick(HelpPanel.Key(key), id, $"×{count}", count == 0, false),
             var id => new HudQuick(HelpPanel.Key(key), id, string.Empty, false, false),

@@ -113,6 +113,9 @@ public sealed class PlayerController
     /// <summary>Begin a working (M3e): its tell, then its release.</summary>
     public void Cast(string formulaId) => _session.Submit(new CastCommand(_session.Simulation!.PlayerId, formulaId));
 
+    /// <summary>Begin a technique (WP9, D11): the weapon in hand's own blow, changed.</summary>
+    public void Technique(string techniqueId) => _session.Submit(new TechniqueCommand(_session.Simulation!.PlayerId, techniqueId));
+
     /// <summary>
     /// The formulas the character knows (the harnesses work them by ID; a player works them from the quick bar), in the order they were learned - and formulas learned from
     /// one book in the book's own order. No formula is named here; the knowledge record and the content decide.

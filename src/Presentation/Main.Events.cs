@@ -1,6 +1,7 @@
 // UNNAMED Presentation - Main's event subscriptions: what the simulation's events show (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
+using System.Text.RegularExpressions;
 using Godot;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
@@ -306,9 +307,9 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
-                _hud.Toast(e.Reason, 2);
+                _hud.Toast(e.Command is TechniqueCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
         });
     }
 
