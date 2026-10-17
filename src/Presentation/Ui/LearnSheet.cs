@@ -107,7 +107,7 @@ public partial class LearnSheet : CanvasLayer
         UiKit.Clear(_body);
         string teacher = simulation.Npcs.FirstOrDefault(n => n.Id == npc)?.Name ?? Names.Of(_session, npc);
         if (lessons)
-            Learn(simulation, LearnModel.Column(teaching!, teacher, simulation.Player.Currency, id => Names.Of(_session, id)));
+            Learn(simulation, LearnModel.Column(teaching!, teacher, simulation.Player.Currency, id => Names.Of(_session, id), Teaches));
         if (hires && AskAboutWork is { } ask)
         {
             var work = UiKit.Section("Work");
@@ -116,6 +116,21 @@ public partial class LearnSheet : CanvasLayer
             work.AddChild(UiKit.Action("Ask about work", () => ask(npc), id: "learn/work"));
             _body.AddChild(work);
         }
+    }
+
+    /// <summary>What a lesson teaches, from the definition it names: the same line the Skills page gives the technique, formula or recipe once known.</summary>
+    private string? Teaches(string id)
+    {
+        var setup = _session!.Setup;
+        string Name(string key) => Names.Of(_session, key);
+        if (setup.Techniques.TryGetValue(id, out var technique))
+            return UNNAMED.Domain.Progression.AvailabilityRules.TechniqueSummary(technique, Name);
+        if (setup.Magic.Formulas.TryGetValue(id, out var formula))
+            return $"{Name(formula.DomainSkillId)} · complexity {formula.Complexity} · {formula.FocusCost} Focus";
+        if (setup.Crafting.Recipes.TryGetValue(id, out var recipe))
+            return $"Makes {Name(recipe.OutputItemId)} at {UNNAMED.Domain.Progression.ReasonText.A(Name(recipe.StationKind))} from " +
+                   string.Join(", ", recipe.Inputs.Select(i => $"{i.Count} × {Name(i.ItemId)}"));
+        return null;
     }
 
     private void Learn(Simulation simulation, LearnColumn column)
@@ -130,12 +145,14 @@ public partial class LearnSheet : CanvasLayer
             var head = UiKit.Row(null, row.Name, $"{row.Kind} · {row.Fee}", row.State == LearnState.Known ? HudStyle.Ash : HudStyle.Bone);
             head.Root.AddChild(row.State switch
             {
-                LearnState.Known => UiKit.Chip("Known", HudStyle.Iron, HudStyle.Ash),
-                LearnState.Ready => UiKit.Chip("Ready", HudStyle.Ember),
-                LearnState.InConversation => UiKit.Chip("Ask them", HudStyle.Brass),
-                _ => UiKit.Chip("Not yet", HudStyle.Iron, HudStyle.Muted),
+                LearnState.Known => UiKit.Chip(row.Word, HudStyle.Iron, HudStyle.Ash),
+                LearnState.Ready => UiKit.Chip(row.Word, HudStyle.Ember),
+                LearnState.InConversation => UiKit.Chip(row.Word, HudStyle.Brass),
+                _ => UiKit.Chip(row.Word, HudStyle.Iron, HudStyle.Muted),
             });
             card.AddChild(head.Root);
+            if (row.Teaches is { } teaches && row.State != LearnState.Known)
+                card.AddChild(UiKit.Words(teaches, 16, HudStyle.Ash));
             if (row.State != LearnState.Known && !row.Chips.IsEmpty)
             {
                 var chips = new HFlowContainer();

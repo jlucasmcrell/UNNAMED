@@ -108,4 +108,23 @@ public class LearnModelTests
     [Fact]
     public void AKnownLesson_StaysKnown_WhateverTheRequirementsNow() =>
         Assert.Equal(LearnState.Known, LearnModel.Row(Lesson("recipe.hinge", 99, known: true, requirements: Skill(false, 0)), "away", "Kera", 0, Name).State);
+
+    [Fact]
+    public void EveryRow_CarriesAnAvailabilityWord_BeforeCommitting()
+    {
+        Assert.Equal("Ready", LearnModel.Row(Lesson("recipe.iron_nails", 12, requirements: Skill(true, 5)), null, "Kera Voss", 20, Name).Word);
+        Assert.Equal("Needs skill", LearnModel.Row(Lesson("ability.blade_feint", 0, requirements: Skill(false, 2)), null, "Kera Voss", 20, Name).Word);
+        Assert.Equal("Short of coin", LearnModel.Row(Lesson("recipe.iron_nails", 12), null, "Kera Voss", 5, Name).Word);
+        Assert.Equal("Known", LearnModel.Row(Lesson("recipe.iron_nails", 12, known: true), null, "Kera Voss", 5, Name).Word);
+        Assert.Equal("Not teaching now", LearnModel.Row(Lesson("recipe.iron_nails", 0), "is at the forge", "Kera Voss", 5, Name).Word);
+        Assert.Equal("Ask them", LearnModel.Row(Lesson("recipe.hinge", 0, byDialogue: true), null, "Kera Voss", 5, Name).Word);
+    }
+
+    [Fact]
+    public void ARow_SaysWhatItTeaches_WhenSomethingKnowsHow()
+    {
+        var row = LearnModel.Row(Lesson("ability.blade_feint", 0), null, "Kera Voss", 5, Name, id => id == "ability.blade_feint" ? "Blade · 10 Stamina" : null);
+        Assert.Equal("Blade · 10 Stamina", row.Teaches);
+        Assert.Null(LearnModel.Row(Lesson("recipe.hinge", 0), null, "Kera Voss", 5, Name).Teaches);
+    }
 }
