@@ -25,6 +25,7 @@ ap.add_argument("--textured", action="store_true")
 ap.add_argument("--size", default="360x900")
 ap.add_argument("--spacing", type=float, default=0.9)
 ap.add_argument("--zoom", default="full", choices=["full", "upper", "legs"])
+ap.add_argument("--variant", help="production (charstd) outfit variant to draw, e.g. base: faces of '<variants>::' materials without it go")
 a = ap.parse_args(argv)
 W, H = (int(x) for x in a.size.split("x"))
 VIEW_YAW = {"front": 0.0, "side": 90.0, "back": 180.0, "three": 35.0}
@@ -63,6 +64,16 @@ for k, item in enumerate(items):
     for o in [o for o in new if o.type == "MESH" and ("_LOD" in o.name or o.name.endswith("_shadow") or not o.modifiers)]:
         new.remove(o)
         bpy.data.objects.remove(o, do_unlink=True)
+    if a.variant:
+        import bmesh
+        for o in [o for o in new if o.type == "MESH"]:
+            drop = {i for i, m in enumerate(o.data.materials) if m and "::" in m.name and a.variant not in m.name.split("::")[0].split(",")}
+            if drop:
+                bm = bmesh.new()
+                bm.from_mesh(o.data)
+                bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index in drop], context="FACES")
+                bm.to_mesh(o.data)
+                bm.free()
     arms = [o for o in new if o.type == "ARMATURE"]
     body_arm = arms[0]
     # garments come with their own copy of the skeleton: drive them from the body's

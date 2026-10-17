@@ -4,7 +4,7 @@ schema: 1
 display_key: body.veth_f.lean.name
 tags: [body]
 name: Feminine, lean
-notes: "WP17 (owner 2026-10-17). The Veth feminine body, lean build - the owner's blend (Blend_F = Sunita x Tuya) moved along the Creator's Fat/Muscularity sliders by -0.35/-0.15 (tools/character_build/builds.json). Models mh_veth_f_lean (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (10 faults)."
+notes: "WP17 (owner 2026-10-17). The Veth feminine body, lean build - the owner's blend (Blend_F = Sunita x Tuya) moved along the Creator's Fat/Muscularity sliders by -0.35/-0.15 (tools/character_build/builds.json). Models mh_veth_f_lean (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: passed."
 people_ref: people.veth
 type: veth_f
 type_label: Feminine

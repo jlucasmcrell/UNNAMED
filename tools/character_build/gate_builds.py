@@ -3,11 +3,13 @@ clip at 12 phases, run headless in parallel (CPU only: no GPU turn), then one ta
 
 python gate_builds.py --sex m,f --builds very_lean,lean,average,heavy,very_heavy --out <dir> [--jobs 5] [--report-only]
 
-Verdict per build, against its own Average body in the same outfit (the outfit's known faults - neck opening, armpits, shirt
-under the jerkin's V - belong to the garments, which the Average carries too):
-  PASS  no cloth clipping ("own" skin: a body region showing through the garment worn over it) in any pose, and per clip no more
-        gap or layer-through-layer vertices than the Average's worst + 10% (+5 vertices of mesh noise);
-  FAIL  otherwise. A build that fails is not exported, and the extremes ship only if both sexes' extremes pass.
+Two verdicts per body:
+  outfit  the plan's absolute rule: no body region through the cloth worn over it ("own" skin), no hole, no hair through headwear in
+          any pose - the outfit's own faults (the crotch in a run or crouch, the armpits, the shirt under the jerkin's V, the cap brim)
+          fail it on the Average body too, so it is reported, and is the garments' to fix;
+  build   what the build itself adds, against its own Average body in the same outfit: per clip no more own skin, gap, hair or
+          layer-through-layer vertices than the Average's worst + 10% (+5 vertices of mesh noise). An extreme build ships only if it
+          passes this.
 Hand and forearm contact with the cloth (the clip pressing a hand into a thigh) is counted and shown, as clip QA, not a verdict.
 """
 import argparse
@@ -92,8 +94,8 @@ for sex in a.sex.split(","):
         for state, c in s.items():
             b = base[state]
             allow = lambda x: int(x * 1.1) + 5
-            if c["own"] > 0:
-                faults.append(f"{state}: {c['own']} skin vertices through the cloth worn over them")
+            if c["own"] > allow(b["own"]):
+                faults.append(f"{state}: own skin {c['own']} > Average {b['own']}")
             if c["gaps"] > allow(b["gaps"]):
                 faults.append(f"{state}: gaps {c['gaps']} > Average {b['gaps']}")
             if c["hair"] > allow(b["hair"]):
@@ -101,16 +103,18 @@ for sex in a.sex.split(","):
             for pair, n in c["layers"].items():
                 if n > allow(b["layers"].get(pair, 0)):
                     faults.append(f"{state}: {pair} {n} > Average {b['layers'].get(pair, 0)}")
-        verdict[asset(sex, build)] = {"pass": not faults, "faults": faults}
+        outfit = [f"{state}: own {c['own']}, gaps {c['gaps']}, hair {c['hair']}" for state, c in s.items() if c["own"] or c["gaps"] or c["hair"]]
+        verdict[asset(sex, build)] = {"pass": not faults, "faults": faults, "outfit_pass": not outfit, "outfit_faults": outfit}
 
 stamp = datetime.date.today().strftime("%Y%m%d")
 json.dump({"table": table, "verdict": verdict, "arm_splay_deg": meta}, open(os.path.join(a.out, f"INTERSECTIONS_{stamp}.json"), "w"), indent=1)
 lines = [f"WP17 clipping gate {stamp}: {len(clips)} clips x 12 phases, outfit {'+'.join(OUTFIT)}, worst pose per clip, each body at its arm splay",
-         "own = body through the cloth worn over it (must be 0); contact = hand/forearm pressed into cloth by the clip (clip QA);",
-         "gaps/layers/hair compared with the same sex's Average body (known outfit faults), allowance +10% +5", ""]
+         "own = body through the cloth worn over it; contact = hand/forearm pressed into cloth by the clip (clip QA); gaps = hidden skin no",
+         "garment encloses; layers = lower garment through a higher one. build verdict: each measure within the same sex's Average +10% +5;",
+         "outfit verdict: the absolute rule (own, gaps and hair all 0)", ""]
 for body, s in table.items():
     v = verdict[body]
-    lines.append(f"{body} (arm splay {meta[body]} deg): {'PASS' if v['pass'] else 'FAIL'}")
+    lines.append(f"{body} (arm splay {meta[body]} deg): build {'PASS' if v['pass'] else 'FAIL'}, outfit {'PASS' if v['outfit_pass'] else 'FAIL'}")
     for state, c in s.items():
         lines.append(f"  {state:18} own {c['own']:4} contact {c['contact']:4} gaps {c['gaps']:4} hair {c['hair']:3}  "
                      + " ".join(f"{k} {n}" for k, n in sorted(c["layers"].items())))

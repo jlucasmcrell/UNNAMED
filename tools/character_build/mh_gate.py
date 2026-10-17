@@ -51,6 +51,7 @@ TOL = a.tol_mm / 1000
 COVER = 0.03   # how far inward a covering layer is looked for
 MARGIN = 0.015  # memo 4.3: 15 mm visible margin at a garment border
 REACH = 0.30   # how far outward a hidden body point looks for its garment (loose cloth stands well off)
+MAX_PUSH = 0.008  # --fix: deeper than this the pose, not the cloth's clearance, is at fault (a thigh folded into the belly)
 DEPTH = 0.01   # ...starting this far under the skin
 GETUP = ("getup", "get_up")
 REGION_NAMES = {i: n for n, i in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "regions.json")))["regions"].items()}
@@ -400,7 +401,7 @@ def show_through(points, normals_, shown, cover, flesh, regions=None, tally=None
     """Shown points standing outside the covering surface: a ray inward meets it more than TOL below, away from its border, before it
     meets the body's own surface (a ray through a hand that reaches the trousers beside it is not a hand under the trousers).
     With push (per covering vertex, metres): each point of a region the cover is worn over (own; all when own is None) asks the
-    corners of the triangle it is under to stand out by its depth plus TOL."""
+    corners of the triangle it is under to stand out by its depth plus TOL, up to MAX_PUSH."""
     count = 0
     for i, (p, n, s) in enumerate(zip(points, normals_, shown)):
         if not s:
@@ -414,7 +415,7 @@ def show_through(points, normals_, shown, cover, flesh, regions=None, tally=None
             count += 1
             if tally is not None:
                 tally[int(regions[i])] = tally.get(int(regions[i]), 0) + 1
-            if push is not None and (own is None or int(regions[i]) in own):
+            if push is not None and (own is None or int(regions[i]) in own) and dist + TOL <= MAX_PUSH:
                 corners = cover.tris[cover.bvh.ray_cast(o, d, COVER)[2]]
                 push[corners] = np.maximum(push[corners], dist + TOL)
     return count
