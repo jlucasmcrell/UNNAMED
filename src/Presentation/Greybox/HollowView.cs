@@ -101,7 +101,14 @@ public partial class HollowView : Node3D
             AddChild(BuildSetMark(site, terrain, layout.Barriers.Any(b => b.FlagId == site.FlagId), ringCentre));
         foreach (var barrier in layout.Barriers)
             AddChild(BuildBarrier(barrier, terrain));
-        AddChild(BuildWater(layout.Space));
+        // AN INTERIOR IS ENCLOSED. There is no stream running through the ring, no fields beyond its walls, no
+        // weather in its air and no sky over it, so none of that is built here. It used to be: BuildWater laid a
+        // stream plane over the whole walk space at 0.12 m and relied on terrain relief to hide it, which on the
+        // ring's flat floor flooded every room (review section 7).
+        bool exterior = layout.IsOutdoors;
+        if (exterior)
+        {
+            AddChild(BuildWater(layout.Space));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -140,8 +147,10 @@ public partial class HollowView : Node3D
             AmbientLife.Build(life, lifeGround, 0xA3B1E7, indoors);
             PerchedRavens.Build(life, _art, lifeGround);
         }
+        }
+
         AddChild(BuildDebugMarkers(layout));
-        AddChild(BuildLighting(layout, terrain));
+        AddChild(BuildLighting(layout, terrain, exterior));
     }
 
     /// <summary>
@@ -758,7 +767,7 @@ public partial class HollowView : Node3D
     /// TAA, 16x anisotropy, soft shadow filtering, the 4096 shadow atlas) is in <c>project.godot</c>. Then each building's interior lights,
     /// which are the bindings' data (<c>building_walls.*.interior_light</c>), never coordinates here.
     /// </summary>
-    private Node3D BuildLighting(RegionLayout layout, TerrainGrid terrain)
+    private Node3D BuildLighting(RegionLayout layout, TerrainGrid terrain, bool exterior = true)
     {
         var root = new Node3D { Name = "Lighting" };
         var sun = new DirectionalLight3D
@@ -794,13 +803,17 @@ public partial class HollowView : Node3D
         };
         var environment = new Godot.Environment
         {
-            BackgroundMode = Godot.Environment.BGMode.Sky,
+            // Indoors there is no sky to see: a closed colour behind the walls, lit by its own ambient, so a hole in
+            // the geometry reads as dark rather than as daylight through the hill.
+            BackgroundMode = exterior ? Godot.Environment.BGMode.Sky : Godot.Environment.BGMode.Color,
+            BackgroundColor = new Color(0.03f, 0.03f, 0.035f),
             // Size512, not 256: at 256 the sky IBL is a blurry average, which is precisely the uniform ambient
             // fill that flattens a scene - every surface receives nearly the same sky term whatever way it faces.
             // At 512 the gradient reaches the shading and a north wall genuinely differs from a south one.
-            Sky = new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
-                ProcessMode = Sky.ProcessModeEnum.Automatic },
-            AmbientLightSource = Godot.Environment.AmbientSource.Sky,
+            Sky = exterior ? new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
+                ProcessMode = Sky.ProcessModeEnum.Automatic } : null,
+            AmbientLightSource = exterior ? Godot.Environment.AmbientSource.Sky : Godot.Environment.AmbientSource.Color,
+            AmbientLightColor = new Color(0.16f, 0.15f, 0.13f),
             // DS Phase B (2026-09-27): directionality. Full-strength sky ambient (energy 1, sky contribution 1) lights
             // every surface from every direction at once, which is why the 27-view survey read flat and
             // directionless with no contact shadows - the same failure Digital Foundry describes on Crimson Desert
@@ -820,8 +833,8 @@ public partial class HollowView : Node3D
             // down here, the exposure comes back up to hold the overall level, and the separation is left to the
             // sun. Ambient 0.55 -> 0.30 and sdfgi 1.0 -> 0.55; exposure 0.82 -> 1.02 to keep the frame at the
             // luminance it had, so what changes is CONTRAST rather than brightness.
-            AmbientLightEnergy = 0.30f,
-            ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
+            AmbientLightEnergy = exterior ? 0.30f : 0.55f,
+            ReflectedLightSource = exterior ? Godot.Environment.ReflectionSource.Sky : Godot.Environment.ReflectionSource.Disabled,
             TonemapMode = Godot.Environment.ToneMapper.Agx,
             // DS overnight 2026-09-27: EXPOSURE DOWN, CONTRAST UP. A video review of a walk reported the
             // character's white top "noticeably overexposed/blown out under the direct sunlight, appearing close
@@ -861,15 +874,16 @@ public partial class HollowView : Node3D
         string? skyWhy = null;
         RenderTiers.Apply(environment, sun);
         // The region's air last, so it wins over the built-in numbers and over the tier's own overrides.
-        if (SkyView.ApplyAtmosphere(environment, _art.Root) is { } atmosphere)
+        // No sky over an interior, so no atmosphere model, no Sky3D and no HDRI either.
+        if (exterior && SkyView.ApplyAtmosphere(environment, _art.Root) is { } atmosphere)
             GD.Print($"UNNAMED {atmosphere}");
-        if (VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
+        if (exterior && VisualOptions.Sky == "sky3d" && SkyView.BuildSky3D(root, environment, sun, out skyWhy) is not null)
             Coverage.Resolved("sky", "sky3d", "Sky3D 2.1.0 over the game's environment, at a set hour");
         else
         {
             if (VisualOptions.Sky == "sky3d")
                 Coverage.Fallback("sky", "sky3d", skyWhy ?? "Sky3D did not build: the Phase-A sky stands");
-            if (VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
+            if (exterior && VisualOptions.Sky == "hdri" && !SkyView.ApplyHdri(environment, _art.Root, out string? hdriWhy))
                 Coverage.Fallback("sky", "hdri", hdriWhy ?? "the HDRI did not load: the Phase-A sky stands");
             root.AddChild(sun);
             root.AddChild(new WorldEnvironment { Environment = environment });

@@ -151,6 +151,13 @@ public sealed record RegionLayout(
     /// </summary>
     public Body? Opening { get; init; }
 
+    /// <summary>
+    /// Whether this layout is the outdoors: a stream, weather in the air, a sky over it, and ground beyond its walls.
+    /// True only for a layout standing in the exterior. An interior is enclosed - presentation builds none of that
+    /// inside the ring, and the rooms are lit by their own ambient (review section 7).
+    /// </summary>
+    public bool IsOutdoors => SpaceId.IsExterior;
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 
     public WaystoneSite? FindWaystone(string key) => Waystones.FirstOrDefault(w => w.Key == key);
