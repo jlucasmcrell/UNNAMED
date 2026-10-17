@@ -45,6 +45,10 @@ public static class ContentCliApp
                 Console.WriteLine();
             }
             
+            var gaps = ChatterContent.Lint(loader).Gaps;
+            if (gaps.Count > 0)
+                Console.WriteLine($"Chatter coverage: {gaps.Count} speaker x place x time-band cells are thin (chatter-coverage lists them; not an error)");
+
             if (success)
             {
                 Console.WriteLine("Validation passed");
@@ -60,6 +64,21 @@ public static class ContentCliApp
         return success ? 0 : 1;
     }
     
+    /// <summary>
+    /// chatter-coverage - The corpus's thin cells (WP16): each speaker type, place and time band with fewer always-sayable lines than
+    /// the chatter schema's coverage_min_lines. What the next generated batch should fill. Exit 0 always: coverage is a report.
+    /// </summary>
+    public static int ChatterCoverage(string contentRoot)
+    {
+        var loader = new ContentLoader();
+        loader.LoadAll(contentRoot);
+        var gaps = ChatterContent.Lint(loader).Gaps;
+        Console.WriteLine($"Chatter coverage: {gaps.Count} thin cells");
+        foreach (var gap in gaps)
+            Console.WriteLine($"  {gap.SpeakerType} x {gap.Place} x {gap.TimeBand}: {gap.Lines}");
+        return 0;
+    }
+
     /// <summary>
     /// content:schema-dump - Dump schema information.
     /// </summary>

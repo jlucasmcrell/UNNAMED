@@ -57,6 +57,15 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
     public EconomySetup Economy { get; init; } = EconomySetup.Empty;
+
+    /// <summary>The chatter corpus, the LFG, news and system templates, and chat's tuning (WP16).</summary>
+    public ChatSetup Chat { get; init; } = ChatSetup.Empty;
+
+    /// <summary>Who sets out and will take company (the WP12 contract): nobody, until the NPC life simulation lands.</summary>
+    public ISettingOutSource SettingOuts { get; init; } = Runtime.SettingOuts.None;
+
+    /// <summary>Who may say an ambient line, and where (the WP12 contract): nobody, until the NPC life simulation lands.</summary>
+    public IChatterSpeakers ChatterSpeakers { get; init; } = Runtime.ChatterSpeakers.None;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -130,6 +139,8 @@ public sealed class Simulation
     private readonly FactionSystem _factions;
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
+    private readonly LfgSystem _lfg;
+    private readonly ChatSystem _chat;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -183,10 +194,13 @@ public sealed class Simulation
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
+        _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id);
+        _chat = new ChatSystem(_context, player.Id, new CellKey(_cells[0].Region, 0, 0), _lfg, t => _weather.FrontAt(t).State);
+        _chat.Listen(bus);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets, _lfg);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -194,6 +208,7 @@ public sealed class Simulation
         _merchants.Populate();
         _companions.Populate();
         _creatures.Populate();
+        _lfg.Populate();
         _tiers.Settle();
     }
 
@@ -373,6 +388,18 @@ public sealed class Simulation
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
     public long? Offer(string npcId, string itemId) => _trade.Offer(npcId, itemId);
 
+    /// <summary>What the character heard on chat (WP16), oldest first: World, Local, Party and System. Not saved; a load starts it empty.</summary>
+    public ImmutableArray<ChatMessage> Chat => _chat.Heard;
+
+    /// <summary>A chat message in words, from the content's lines; null when content no longer has its line.</summary>
+    public string? ChatText(ChatMessage message) => Runtime.ChatText.Render(Setup.Chat, message);
+
+    /// <summary>The open offers to set out together (WP16): what the Join action and <c>/join</c> answer.</summary>
+    public ImmutableArray<LfgOfferView> GroupOffers => _lfg.Offers();
+
+    /// <summary>The temporary-ally groups that set out (WP16); WP13 gives them their life.</summary>
+    public ImmutableArray<AllyGroupView> AllyGroups => _lfg.Groups();
+
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
 
@@ -464,6 +491,7 @@ public sealed class Simulation
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
+                JoinGroupCommand join => _lfg.Handle(join, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -477,7 +505,7 @@ public sealed class Simulation
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat,
     /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the markets'
-    /// day, clock.
+    /// day, offers to set out together, chat (which words what all of that did), clock.
     /// </summary>
     public void Step()
     {
@@ -502,6 +530,8 @@ public sealed class Simulation
             _discovery.Tick(tick);
             _quests.Tick(tick);
             _markets.Tick(tick);
+            _lfg.Tick(tick);
+            _chat.Tick(tick);
             _clock.Tick();
         }
         finally
@@ -529,6 +559,7 @@ public sealed class Simulation
         try
         {
             AbstractAdvance.Run(from, to, _advances, log);
+            _chat.AfterAbsence(log);
         }
         finally
         {

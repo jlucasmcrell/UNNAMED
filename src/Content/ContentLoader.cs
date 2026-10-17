@@ -215,6 +215,11 @@ public class ContentLoader
             var factionErrors = FactionContent.Validate(this);
             _errors.AddRange(factionErrors);
             success &= factionErrors.Count == 0;
+
+            // Chatter: the corpus and the templates, their tags, slots, words and provenance (CHT codes; WP16)
+            var chatterErrors = ChatterContent.Validate(this);
+            _errors.AddRange(chatterErrors);
+            success &= chatterErrors.Count == 0;
         }
         
         return success;

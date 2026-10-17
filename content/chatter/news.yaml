@@ -1,0 +1,23 @@
+id: chatter.news
+kind: chatter
+schema: 1
+display_key: chatter.news.name
+tags: [chatter]
+notes: Hand-written (WP16, not AI). Bounty news on World when someone else claims one, and the System channel's plain statements of bounties and offers to set out together.
+role: templates
+lines:
+  - { key: news.bounty_claimed.01, use: news.bounty_claimed, ai_generated: false, text: "Word is {claimant} has finished the bounty on {bounty}." }
+  - { key: news.bounty_claimed.02, use: news.bounty_claimed, ai_generated: false, text: "{claimant} came back with proof. {bounty} is done and paid." }
+  - { key: news.bounty_claimed.03, use: news.bounty_claimed, ai_generated: false, text: "The bounty on {bounty} is taken - {claimant} got there first." }
+  - { key: news.bounty_claimed.04, use: news.bounty_claimed, ai_generated: false, text: "Talk on the road: {claimant} has claimed {bounty}." }
+  - { key: news.bounty_claimed.05, use: news.bounty_claimed, ai_generated: false, text: "Somebody's purse is heavier tonight. {claimant} settled {bounty}." }
+  - { key: sys.bounty_claimed.01, use: sys.bounty_claimed, ai_generated: false, text: "Bounty claimed by {claimant}: {bounty}." }
+  - { key: sys.bounty_claimed.02, use: sys.bounty_claimed, ai_generated: false, text: "{bounty} is no longer open. {claimant} claimed it." }
+  - { key: sys.bounty_lost.01, use: sys.bounty_lost, ai_generated: false, text: "You lost {bounty} - {claimant} finished it first." }
+  - { key: sys.bounty_lost.02, use: sys.bounty_lost, ai_generated: false, text: "{claimant} claimed {bounty} before you could. It is closed." }
+  - { key: sys.bounty_completed.01, use: sys.bounty_completed, ai_generated: false, text: "Bounty complete: {bounty}." }
+  - { key: sys.bounty_completed.02, use: sys.bounty_completed, ai_generated: false, text: "You claimed {bounty}." }
+  - { key: sys.lfg_joined.01, use: sys.lfg_joined, ai_generated: false, text: "You agreed to set out with {speaker}. Be at {anchor} by {depart_time}." }
+  - { key: sys.lfg_joined.02, use: sys.lfg_joined, ai_generated: false, text: "{speaker} expects you at {anchor} by {depart_time}." }
+  - { key: sys.lfg_missed.01, use: sys.lfg_missed, ai_generated: false, text: "{speaker} left without you." }
+  - { key: sys.lfg_missed.02, use: sys.lfg_missed, ai_generated: false, text: "You were not at the meeting place. {speaker} set out alone." }

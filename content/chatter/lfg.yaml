@@ -1,0 +1,33 @@
+id: chatter.lfg
+kind: chatter
+schema: 1
+display_key: chatter.lfg.name
+tags: [chatter]
+notes: Hand-written (WP16, not AI). An NPC setting out asks along on World (SettingOut), answers the character on Party, and leaves alone on Local when nobody came. The slots are the SettingOut's words.
+role: templates
+lines:
+  - { key: lfg.hunt.01, use: lfg.hunt, ai_generated: false, text: "Going after {purpose} out by {destination}. Leaving {anchor} at {depart_time} - another blade would be welcome." }
+  - { key: lfg.hunt.02, use: lfg.hunt, ai_generated: false, text: "Hunting {purpose} near {destination}. I'll wait at {anchor} till {depart_time}. Two of us is safer than one." }
+  - { key: lfg.hunt.03, use: lfg.hunt, ai_generated: false, text: "Anyone for a hunt? {purpose}, at {destination}. Meet me at {anchor}; I go at {depart_time}, with or without." }
+  - { key: lfg.hunt.04, use: lfg.hunt, ai_generated: false, text: "Setting out for {destination} at {depart_time}, after {purpose}. I'm at {anchor} if you want a share." }
+  - { key: lfg.hunt.05, use: lfg.hunt, ai_generated: false, text: "{purpose} has been seen near {destination}. Waiting at {anchor} until {depart_time}. Bring a bow if you have one." }
+  - { key: lfg.bounty.01, use: lfg.bounty, ai_generated: false, text: "Taking the bounty on {purpose}. Leaving {anchor} for {destination} at {depart_time} - the purse splits with whoever comes." }
+  - { key: lfg.bounty.02, use: lfg.bounty, ai_generated: false, text: "Going for {purpose} before someone else does. From {anchor}, at {depart_time}. A second pair of hands is welcome." }
+  - { key: lfg.bounty.03, use: lfg.bounty, ai_generated: false, text: "The board wants {purpose} dealt with. I'm heading to {destination} at {depart_time}. Meet at {anchor}." }
+  - { key: lfg.bounty.04, use: lfg.bounty, ai_generated: false, text: "Anyone after {purpose}? I'll be at {anchor} until {depart_time}, then on to {destination}." }
+  - { key: lfg.bounty.05, use: lfg.bounty, ai_generated: false, text: "Bounty work at {destination}: {purpose}. Waiting by {anchor} till {depart_time}. Fair shares, no arguments." }
+  - { key: lfg.errand.01, use: lfg.errand, ai_generated: false, text: "Walking to {destination} for {purpose}. Leaving {anchor} at {depart_time} if anyone wants the company." }
+  - { key: lfg.errand.02, use: lfg.errand, ai_generated: false, text: "Off to {destination} at {depart_time} - {purpose}. The road's long alone. You'll find me at {anchor}." }
+  - { key: lfg.errand.03, use: lfg.errand, ai_generated: false, text: "Need a walking partner as far as {destination}. {purpose}. From {anchor}, at {depart_time}." }
+  - { key: lfg.errand.04, use: lfg.errand, ai_generated: false, text: "Heading out at {depart_time}: {purpose}, over at {destination}. I'll wait by {anchor} a while." }
+  - { key: lfg.joined.01, use: lfg.joined, ai_generated: false, text: "Good. {anchor}, {depart_time}. Don't be late." }
+  - { key: lfg.joined.02, use: lfg.joined, ai_generated: false, text: "Glad of it. I'll be at {anchor} - we leave at {depart_time}." }
+  - { key: lfg.joined.03, use: lfg.joined, ai_generated: false, text: "That's two of us, then. Meet me at {anchor} before {depart_time}." }
+  - { key: lfg.joined.04, use: lfg.joined, ai_generated: false, text: "Right. Be at {anchor} by {depart_time} and we'll go together." }
+  - { key: lfg.left_alone.01, use: lfg.left_alone, ai_generated: false, text: "No sign of them. I'm off to {destination} alone." }
+  - { key: lfg.left_alone.02, use: lfg.left_alone, ai_generated: false, text: "Can't wait any longer. {destination} won't come to me." }
+  - { key: lfg.left_alone.03, use: lfg.left_alone, ai_generated: false, text: "Well, that's the hour gone. Going on to {destination} by myself." }
+  - { key: party.set_out.01, use: party.set_out, ai_generated: false, text: "{members}. That's everyone - on to {destination}." }
+  - { key: party.set_out.02, use: party.set_out, ai_generated: false, text: "Right, {destination}. Keep close and keep quiet." }
+  - { key: party.set_out.03, use: party.set_out, ai_generated: false, text: "Off we go. {destination}, and back before dark if we're lucky." }
+  - { key: party.set_out.04, use: party.set_out, ai_generated: false, text: "Together, then. Watch the edges of the path on the way to {destination}." }

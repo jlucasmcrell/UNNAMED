@@ -42,6 +42,8 @@ public static class Program
         {
             case "lint":
                 return ContentCliApp.LintContent(contentRoot, format);
+            case "chatter-coverage":
+                return ContentCliApp.ChatterCoverage(contentRoot);
             case "schema-dump":
                 return ContentCliApp.SchemaDump(contentRoot, format);
             case "xref":
@@ -67,6 +69,7 @@ public static class Program
         Console.WriteLine();
         Console.WriteLine("Commands:");
         Console.WriteLine("  lint           Validate all content files");
+        Console.WriteLine("  chatter-coverage  List the chatter corpus's thin speaker x place x time-band cells");
         Console.WriteLine("  schema-dump    Dump schema information for content kinds");
         Console.WriteLine("  xref           Generate cross-reference report");
         Console.WriteLine("  help           Show this help message");

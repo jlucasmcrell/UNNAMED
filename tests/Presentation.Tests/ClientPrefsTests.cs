@@ -164,4 +164,15 @@ public class ClientPrefsTests
         Assert.Equal(0, camera.Bob);
         Assert.True(camera.ReduceFlashes);
     }
+
+    /// <summary>WP16: chat is on unless the player says otherwise, and the setting is kept like any other.</summary>
+    [Fact]
+    public void Chat_IsOnByDefault_AndKeepsWhatThePlayerChose()
+    {
+        Assert.Equal(ChatSetting.On, new ClientPrefs().Profile.Interface.Chat);
+        var quiet = new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { Chat = ChatSetting.PlayRelevantOnly } } };
+        Assert.Equal(ChatSetting.PlayRelevantOnly, ClientPrefs.FromJson(quiet.ToJson()).Profile.Interface.Chat);
+        var odd = new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { Chat = (ChatSetting)9 } } };
+        Assert.Equal(ChatSetting.On, odd.Normalised().Profile.Interface.Chat);
+    }
 }

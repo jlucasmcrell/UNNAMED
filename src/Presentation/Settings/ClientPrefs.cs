@@ -264,9 +264,12 @@ public enum ColourVision { None, Protanopia, Deuteranopia, Tritanopia }
 
 public enum Guidance { Full, Light, Off }
 
+/// <summary>What chat shows (WP16): everything, only what is about play (offers to set out together, bounties, the system), or nothing. The members match World's ChatMode, in order.</summary>
+public enum ChatSetting { On, PlayRelevantOnly, Off }
+
 /// <summary>
 /// The interface: its size, its text's size, contrast and colours, how long notices stay, subtitles (read by dialogue and voice), how
-/// much the game guides (read by the hints), and the hints already learned.
+/// much the game guides (read by the hints), the hints already learned, and what chat shows.
 /// </summary>
 public sealed record InterfacePrefs
 {
@@ -287,6 +290,9 @@ public sealed record InterfacePrefs
     public bool Subtitles { get; init; } = true;
     public Guidance Guidance { get; init; } = Guidance.Full;
 
+    /// <summary>What chat shows (WP16); on by default. Chat itself is never saved: this only filters what is shown.</summary>
+    public ChatSetting Chat { get; init; } = ChatSetting.On;
+
     /// <summary>The hints this player has seen; "Reset hints" empties it so every hint shows again.</summary>
     public string[] SeenHints { get; init; } = Array.Empty<string>();
 
@@ -297,6 +303,7 @@ public sealed record InterfacePrefs
         ColourVision = Enum.IsDefined(ColourVision) ? ColourVision : ColourVision.None,
         NoticeDuration = Array.IndexOf(NoticeSeconds, NoticeDuration) >= 0 ? NoticeDuration : 1,
         Guidance = Enum.IsDefined(Guidance) ? Guidance : Guidance.Full,
+        Chat = Enum.IsDefined(Chat) ? Chat : ChatSetting.On,
         SeenHints = (SeenHints ?? Array.Empty<string>()).Where(h => !string.IsNullOrEmpty(h)).Distinct(StringComparer.Ordinal).ToArray(),
     };
 }

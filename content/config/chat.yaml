@@ -1,0 +1,17 @@
+id: config.chat
+kind: config
+schema: 1
+display_key: config.chat.name
+tags: [config]
+notes: Chat (WP16) - how far a local line carries, how often an ambient speaker talks, how much the World channel takes, how long a line is not said again (no repeat within 6 game hours per speaker or 24 per region), how long an event stays news, and the meeting-place rule for setting out together. Chat is presentation of simulation facts; nothing here changes the world, and nothing of chat is saved.
+local_radius_m: 20                # a Local line is heard this far from its speaker
+local_chance_percent: 25          # each speaker-hour, the chance an ambient speaker says something nearby
+world_chance_percent: 4           # ... and the chance they say something the region hears instead
+world_lines_per_hour: 2           # at most this many ambient World lines a game hour across the region
+speaker_repeat_hours: 6           # a speaker never says a line again within this many game hours
+region_repeat_hours: 24           # nobody in the region says a line again within this many game hours
+recent_event_hours: 6             # an event is news for this long: lines that wait on it can be said
+event_weight: 3                   # a line about recent news is this many times likelier than idle talk
+history_messages: 200             # what the character heard, kept for the chat view (not saved)
+join_radius_m: 15                 # to set out together, the character stands this close to the meeting place at the depart time
+offer_lookback_hours: 24          # at load, offers made this far back that are still open are re-read
