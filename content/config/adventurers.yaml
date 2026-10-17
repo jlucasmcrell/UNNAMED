@@ -45,7 +45,7 @@ settlements:
     location_ref: location.outpost        # where they lodge, by name
     market_ref: market.ashen_hollow
     smith_merchant_ref: merchant.ashen_hollow.kera_voss
-    lodge: { position_m: [452.5, 740], facing_deg: 270 }
+    lodge: { position_m: [460, 752], facing_deg: 0 }   # off the outpost's ways through: the row stood across the path from the spawn to the forge
     grounds:
       - spawn.hollow.valley_strays
       - spawn.hollow.east_pack

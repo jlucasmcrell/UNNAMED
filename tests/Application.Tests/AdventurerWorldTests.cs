@@ -37,8 +37,8 @@ public class AdventurerWorldTests
 
     private const string Wolves = "quest.bounty.road_wolves";
 
-    /// <summary>A place in region metres, a hand's reach from the Ashen lodge's first body (config.adventurers: the lodge at (452.5, 740), facing west).</summary>
-    private static readonly (double X, double Z) AtLodge = (451.4, 738.2);
+    /// <summary>A place in region metres, a hand's reach from the Ashen lodge's first body (config.adventurers: the lodge at (460, 752), facing_deg 0).</summary>
+    private static readonly (double X, double Z) AtLodge = (457.6, 750.8);
 
     internal static Arena AtTheLodge(GameSession session, long coin = 0, ulong seed = 42) =>
         Arena.OpenCreatures(session, session.Setup, AtLodge, 90, Array.Empty<(string, double, double, string)>(),
