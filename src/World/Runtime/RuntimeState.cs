@@ -95,6 +95,9 @@ public enum StateSlice
 
     /// <summary>The merchants' purses and restocks (S-36; WP14). In the world delta.</summary>
     Merchants,
+
+    /// <summary>Each past or present party member's progression, gear and belongings (WP15b). Saved with the player.</summary>
+    PartySheets,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -143,6 +146,7 @@ internal sealed class RuntimeState
         Factions = player.Factions;
         Recovering = player.Party.Recovering.ToImmutableSortedDictionary(r => r.NpcId, r => r.UntilTick, StringComparer.Ordinal);
         Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
+        PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -181,6 +185,9 @@ internal sealed class RuntimeState
 
     /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
     public ImmutableSortedSet<string> Fallen { get; private set; }
+
+    /// <summary>Each past or present party member's progression, gear and belongings, by NPC (WP15b).</summary>
+    public ImmutableSortedDictionary<string, PartySheet> PartySheets { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -449,6 +456,18 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Recovering = untilTick is { } until ? Recovering.SetItem(npcId, until) : Recovering.Remove(npcId);
+    }
+
+    public void SetPartySheet(SliceOwner owner, PartySheet sheet)
+    {
+        Require(owner, StateSlice.PartySheets);
+        PartySheets = PartySheets.SetItem(sheet.NpcId, sheet);
+    }
+
+    public void RemovePartySheet(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.PartySheets);
+        PartySheets = PartySheets.Remove(npcId);
     }
 
     public void AddFallen(SliceOwner owner, string npcId)

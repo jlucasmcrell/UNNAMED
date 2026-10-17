@@ -176,6 +176,8 @@ internal sealed partial class CompanionSystem
             return $"a contract runs {rules.ContractDaysMin} to {rules.ContractDaysMax} days";
         if (Joinable(npc.Definition) is { } refused)
             return refused;
+        if (PartyDisposition.Of(State, rules, npcId) is Disposition.Refuse or Disposition.Leave)
+            return $"{npc.Definition.Name} will not work for you";
         long wage = rules.Roles[role].DailyWage;
         return State.Currency < wage ? $"not enough coin: the first day's wage is {wage}, {State.Currency} carried" : null;
     }
@@ -186,15 +188,17 @@ internal sealed partial class CompanionSystem
             return refused;
         var rules = Rules!;
         var terms = rules.Roles[role];
-        var profile = State.Npcs[npcId].Definition.Hireling!.Body;
+        var body = State.Npcs[npcId].Definition.Hireling!.Body;
         if (_context.Dispatch(new SpendCurrency(terms.DailyWage)) is { } unpaid)
             return unpaid;
-        State.SetCompanion(_owner, new CompanionState(npcId, profile, AttackOf(profile)!, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth)
+        var profile = Fitted(npcId, body)!;
+        State.SetCompanion(_owner, new CompanionState(npcId, profile, AttackOf(profile) ?? AttackOf(body)!, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth)
         {
             Membership = PartyMembership.Hireling,
             Stance = terms.Stance,
             Contract = new HirelingContract(role, days, terms.DailyWage, PartyRules.WageOnly) { Purse = terms.DailyWage },
         });
+        _life.Release(npcId, tick);
         _context.Events.Publish(new HirelingHired(npcId, role, days, terms.DailyWage, CanDie: true, tick));
         _context.Events.Publish(new CompanionRecruited(npcId, tick));
         return null;
@@ -223,6 +227,9 @@ internal sealed partial class CompanionSystem
         State.RemoveCompanion(_owner, c.NpcId);
         if (State.Npcs.TryGetValue(c.NpcId, out var npc))
             Place(npc, Home(npc));
+        // A loan comes back when they leave (§2.15); what is theirs goes with them, and so does their sheet, into the life they go back to.
+        _context.Dispatch(new ReturnLoans(c.NpcId));
+        _life.TakeUp(new PartyLifeEntry(c.NpcId, c.Membership, reason, State.PartySheets.GetValueOrDefault(c.NpcId), tick));
         _context.Events.Publish(new PartyMemberLeft(c.NpcId, reason, tick));
         log?.Add(new AdvanceLine(tick, PartyAdvanceKinds.Left, $"{c.NpcId}|{reason}"));
     }
@@ -252,6 +259,8 @@ internal sealed partial class CompanionSystem
             return "no such stance";
         if (c.Stance == command.Stance)
             return null;
+        if (Willing(command.NpcId, PartyKeys.Key(command.Stance), tick) is { } unwilling)
+            return unwilling;
         State.SetCompanion(_owner, c with { Stance = command.Stance, TargetKey = command.Stance == CompanionStance.Passive ? null : c.TargetKey });
         _context.Events.Publish(new PartyStanceChanged(command.NpcId, command.Stance, tick));
         return null;
@@ -267,6 +276,8 @@ internal sealed partial class CompanionSystem
             return "no tactics given";
         if (c.Tactics == command.Tactics)
             return null;
+        if (Willing(command.NpcId, "tactics", tick) is { } unwilling)
+            return unwilling;
         State.SetCompanion(_owner, c with { Tactics = command.Tactics });
         _context.Events.Publish(new TacticsChanged(command.NpcId, command.Tactics, tick));
         return null;
@@ -280,6 +291,8 @@ internal sealed partial class CompanionSystem
             return $"{Name(command.NpcId)} is not in your hire";
         if (c.Condition == CompanionCondition.Downed)
             return $"{Name(command.NpcId)} is down";
+        if (Willing(command.NpcId, "work", tick) is { } unwilling)
+            return unwilling;
         if (command.SiteKey is null)
         {
             State.SetCompanion(_owner, c with { Contract = contract with { WorkSite = null, RecipeId = null } });
@@ -398,7 +411,11 @@ internal sealed partial class CompanionSystem
                 var channel = RngChannel.Open(State.World.WorldSeed, node.Cell, "party", $"gather:{c.NpcId}@{day}");
                 int count = 0;
                 for (uint i = 0; i < terms.YieldsPerDay; i++)
+                {
                     count += channel.Int(i, definition.YieldMin, definition.YieldMax + 1);
+                    // Their gathering grows with the work, as the character's does with theirs (WP15b).
+                    _context.Dispatch(new PracticePartySkill(c.NpcId, new SkillPractice(definition.SkillId, definition.Difficulty, PracticeOutcome.Success, tick)));
+                }
                 Deliver(c.NpcId, definition.ItemId, count, tick, log);
                 return c;
             }
@@ -414,6 +431,8 @@ internal sealed partial class CompanionSystem
                     supply = left > 0 ? supply.SetItem(input.ItemId, left) : supply.Remove(input.ItemId);
                 }
                 Deliver(c.NpcId, recipe.OutputItemId, recipe.OutputCount * times, tick, log);
+                for (int i = 0; i < times; i++)
+                    _context.Dispatch(new PracticePartySkill(c.NpcId, new SkillPractice(recipe.SkillId, recipe.Complexity, PracticeOutcome.Success, tick)));
                 return c with { Contract = contract with { Supply = supply } };
             }
             default:

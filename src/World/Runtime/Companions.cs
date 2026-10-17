@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
@@ -63,6 +64,12 @@ public sealed record CompanionView(string NpcId, EntityId InstanceId, string Nam
 
     /// <summary>A hireling's contract: role, days left, wage, purse, work (WP15a).</summary>
     public HirelingContract? Contract { get; init; }
+
+    /// <summary>The weapon they fight with: their own, or the melee weapon they were handed (WP15b).</summary>
+    public string WeaponId { get; init; } = "";
+
+    /// <summary>Their armour on each region: their own plus what they wear (WP15b).</summary>
+    public ImmutableSortedDictionary<BodyRegion, int> Armor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
 }
 
 // ── state and internal commands ─────────────────────────────────────────────
@@ -128,13 +135,15 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
     private readonly ImmutableArray<CompanionRecord> _saved;
+    private readonly IPartyLife _life;
 
-    public CompanionSystem(SystemContext context, SliceOwner owner, EntityId player, ImmutableArray<CompanionRecord> saved)
+    public CompanionSystem(SystemContext context, SliceOwner owner, EntityId player, ImmutableArray<CompanionRecord> saved, IPartyLife life)
     {
         _context = context;
         _owner = owner;
         _player = player;
         _saved = saved;
+        _life = life;
     }
 
     private RuntimeState State => _context.State;
@@ -150,12 +159,12 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     {
         foreach (var record in _saved)
         {
-            if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || BodyOf(npc.Definition, record.Membership) is not { } profile || Tuning is null
-                || AttackOf(profile) is not { } attack)
+            if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || BodyOf(npc.Definition, record.Membership) is not { } body || Tuning is null
+                || Fitted(record.NpcId, body) is not { } profile || AttackOf(profile) is not { } attack)
                 continue;
             var terrain = _context.Setup.Layout.Space.Terrain;
             _context.Dispatch(new PlaceNpc(record.NpcId, new Body(record.XMm, terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg)));
-            State.SetCompanion(_owner, new CompanionState(record.NpcId, profile, attack, record.Order, record.Condition, record.Health)
+            State.SetCompanion(_owner, new CompanionState(record.NpcId, profile, attack, record.Order, record.Condition, Math.Min(record.Health, profile.MaxHealth))
             {
                 DownedTick = record.DownedTick,
                 StuckTicks = record.StuckTicks,
@@ -203,14 +212,19 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return null;   // already with the character: nothing to do, and no failure of the reply
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        if (command.As == PartyMembership.Hireling || npc.Definition.Companion is not { } profile || Tuning is null || AttackOf(profile) is not { } attack)
+        if (command.As == PartyMembership.Hireling || npc.Definition.Companion is not { } body || Tuning is null || AttackOf(body) is null)
             return $"{npc.Definition.Name} cannot join you";
         if (Joinable(npc.Definition) is { } refused)
             return refused;
-        State.SetCompanion(_owner, new CompanionState(command.NpcId, profile, attack, CompanionOrder.Follow, CompanionCondition.Up, profile.MaxHealth)
+        if (Willing(command.NpcId, "join", tick) is { } unwilling)
+            return unwilling;
+        var profile = Fitted(command.NpcId, body)!;
+        State.SetCompanion(_owner, new CompanionState(command.NpcId, profile, AttackOf(profile) ?? AttackOf(body)!, CompanionOrder.Follow, CompanionCondition.Up,
+            profile.MaxHealth)
         {
             Membership = command.As,
         });
+        _life.Release(command.NpcId, tick);
         _context.Events.Publish(new CompanionRecruited(command.NpcId, tick));
         return null;
     }
@@ -228,6 +242,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return $"{Name(npcId)} is down";
         if (c.Order == order)
             return null;
+        if (Willing(npcId, CompanionKeys.Key(order), tick) is { } unwilling)
+            return unwilling;
         // Told to follow, they set off from where they stand: the trail walked while they waited is not theirs to retrace. A hireling told
         // to follow leaves the work they were set to.
         State.SetCompanion(_owner, c with
@@ -595,6 +611,9 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             FromXMm = npc.Body.XMm,
             FromZMm = npc.Body.ZMm,
         });
+        // Their weapon skill grows as the character's does, from a blow that wounded something that fights back (WP15b).
+        if (attack.SkillId is { } skill && result.Final > 0)
+            _context.Dispatch(new PracticePartySkill(c.NpcId, new SkillPractice(skill, definition.Level, PracticeOutcome.Success, tick)));
     }
 
     // ── downed, helped up, fallen ───────────────────────────────────────────
@@ -623,6 +642,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         {
             State.AddFallen(_owner, c.NpcId);
             _context.Events.Publish(new CompanionFell(c.NpcId, npc.Body, tick));
+            // What was loaned comes back to the character; what was theirs lies where they fell (§2.15, DN9).
+            _context.Dispatch(new SettleFallen(c.NpcId, npc.Body.XMm, npc.Body.ZMm));
             _context.Dispatch(new RemoveNpc(c.NpcId));
             _context.Events.Publish(new HirelingDied(c.NpcId, tick));
             return;
@@ -632,6 +653,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         _context.Events.Publish(new CompanionFell(c.NpcId, home, tick));
         long until = tick + WoundDays(c.NpcId, tick) * _context.Setup.Clock.TicksPerDay;
         State.SetRecovering(_owner, c.NpcId, until);
+        _context.Dispatch(new ReturnLoans(c.NpcId));
+        _life.TakeUp(new PartyLifeEntry(c.NpcId, c.Membership, "wounded", State.PartySheets.GetValueOrDefault(c.NpcId), tick));
         _context.Events.Publish(new CompanionGravelyWounded(c.NpcId, until, tick));
     }
 
@@ -652,8 +675,79 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
                 Stance = c.Stance,
                 Tactics = c.Tactics,
                 Contract = c.Contract,
+                WeaponId = c.Profile.WeaponId,
+                Armor = c.Profile.Armor,
             };
         }).ToImmutableArray();
+
+    // ── fitting out and going along ─────────────────────────────────────────
+
+    /// <summary>
+    /// The body a member fights with (WP15b): their own, with the health their attributes add, the melee weapon in their main hand if they
+    /// wear one, and the armour they wear on each region - read as the character's is (COMBAT §11, a piece's quality moving its armour).
+    /// </summary>
+    private CompanionProfile? Fitted(string npcId, CompanionProfile body)
+    {
+        if (!State.PartySheets.TryGetValue(npcId, out var sheet))
+            return body;
+        var catalog = _context.Setup.Items.Catalog;
+        string weapon = sheet.Gear.TryGetValue(EquipSlot.MainHand, out var held) && catalog.Find(held.Item.DefId)?.Weapon is { Ranged: false }
+            ? held.Item.DefId
+            : body.WeaponId;
+        int Worn(params EquipSlot[] slots) => slots.Sum(slot =>
+            sheet.Gear.TryGetValue(slot, out var gear) && catalog.Find(gear.Item.DefId) is { } item
+                ? EquipmentRules.ArmorOf(item, gear.Item.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
+                : 0);
+        var worn = new Dictionary<BodyRegion, int>
+        {
+            [BodyRegion.Head] = Worn(EquipSlot.Head),
+            [BodyRegion.Torso] = Worn(EquipSlot.Chest, EquipSlot.Cloak, EquipSlot.OffHand),
+            [BodyRegion.Limbs] = Worn(EquipSlot.Hands, EquipSlot.Legs, EquipSlot.Feet),
+        };
+        var armor = Enum.GetValues<BodyRegion>().Where(r => body.Armor.ContainsKey(r) || worn.GetValueOrDefault(r) > 0)
+            .ToImmutableSortedDictionary(r => r, r => body.Armor.GetValueOrDefault(r) + worn.GetValueOrDefault(r));
+        return new CompanionProfile(Approval.MaxHealth(body.MaxHealth, sheet.Progression, _context.Setup.Progression), weapon, armor);
+    }
+
+    /// <summary>A member's gear or attributes changed: their body is fitted again, their health kept within it.</summary>
+    public string? Handle(RefitMember command)
+    {
+        if (!State.Companions.TryGetValue(command.NpcId, out var c) || !State.Npcs.TryGetValue(command.NpcId, out var npc)
+            || BodyOf(npc.Definition, c.Membership) is not { } body || Fitted(command.NpcId, body) is not { } profile || AttackOf(profile) is not { } attack)
+            return null;
+        int health = c.Condition == CompanionCondition.Downed ? 0
+            : c.Health >= c.Profile.MaxHealth ? profile.MaxHealth
+            : Math.Clamp(c.Health, 1, profile.MaxHealth);
+        State.SetCompanion(_owner, c with { Profile = profile, Attack = attack, Health = health });
+        return null;
+    }
+
+    /// <summary>
+    /// Whether a member goes along with what they are asked (WP15b): past a refuse or leave bound they refuse; past a hesitate bound they go
+    /// along after a moment's doubt, which is said; otherwise they simply do.
+    /// </summary>
+    private string? Willing(string npcId, string asked, long tick)
+    {
+        switch (PartyDisposition.Of(State, Rules, npcId))
+        {
+            case Disposition.Refuse or Disposition.Leave:
+                return $"{Name(npcId)} refuses";
+            case Disposition.Hesitate:
+                _context.Events.Publish(new PartyMemberHesitated(npcId, asked, tick));
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>A member leaves of their own accord (WP15b): past the leave bound. Someone down stays where they lie.</summary>
+    public string? Handle(LeaveParty command, long tick)
+    {
+        if (!State.Companions.TryGetValue(command.NpcId, out var c) || c.Condition == CompanionCondition.Downed)
+            return null;
+        Leave(c, command.Reason, tick, null);
+        return null;
+    }
 
     // ── helpers ─────────────────────────────────────────────────────────────
 

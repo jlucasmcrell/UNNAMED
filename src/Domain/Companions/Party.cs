@@ -67,12 +67,20 @@ public sealed record RoleTerms(long DailyWage, long CarryBonusGrams, int YieldsP
 public sealed record PartyRules(int MaxMembers, int GraceDays, int GraveWoundDaysMin, int GraveWoundDaysMax, int ContractDaysMin, int ContractDaysMax,
     ImmutableSortedDictionary<HirelingRole, RoleTerms> Roles)
 {
+    /// <summary>How party members come to go along with the character, or not (WP15b). None: everyone always complies.</summary>
+    public ApprovalRules Approval { get; init; } = ApprovalRules.None;
+
+    /// <summary>How often the party talks on the road (WP15b). Null: it never does.</summary>
+    public BanterRules? Banter { get; init; }
+
     /// <summary>The loot rule this bar builds (§2.15: wage-only by default): what the party finds is the character's.</summary>
     public const string WageOnly = "wage_only";
 
     /// <summary>A problem with the numbers, or null.</summary>
     public string? Problem() =>
-        MaxMembers < 1 ? "max_members is at least 1"
+        Approval.Problem() is { } approval ? approval
+        : Banter?.Problem() is { } banter ? banter
+        : MaxMembers < 1 ? "max_members is at least 1"
         : GraceDays < 0 ? "grace_days is never negative"
         : GraveWoundDaysMin < 1 || GraveWoundDaysMax < GraveWoundDaysMin ? "the grave wound lasts at least a day, and its longest is at least its shortest"
         : ContractDaysMin < 1 || ContractDaysMax < ContractDaysMin ? "a contract lasts at least a day, and its longest is at least its shortest"
@@ -115,6 +123,20 @@ public sealed record HirelingContract(HirelingRole Role, int Days, long DailyWag
         && RecipeId == other.RecipeId && Supply.SequenceEqual(other.Supply);
 
     public override int GetHashCode() => HashCode.Combine(Role, Days, DailyWage, DaysServed, Purse, WorkSite);
+}
+
+/// <summary>
+/// How often the party talks on the road (WP15b; rate-limited, §2.15): at each boundary of <see cref="EveryTicks"/> - absolute ticks - a party
+/// member with a line to say says one, <see cref="ChancePercent"/> of the time, and a value remark keeps the party quiet for
+/// <see cref="QuietTicks"/> after it.
+/// </summary>
+public sealed record BanterRules(long EveryTicks, int ChancePercent, long QuietTicks)
+{
+    public string? Problem() =>
+        EveryTicks <= 0 ? "banter every_s is positive"
+        : ChancePercent is < 0 or > 100 ? "banter chance_percent is 0 to 100"
+        : QuietTicks < 0 ? "banter quiet_s is never negative"
+        : null;
 }
 
 /// <summary>Pure party rules.</summary>

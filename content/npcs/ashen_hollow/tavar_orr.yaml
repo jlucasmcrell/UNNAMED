@@ -13,3 +13,14 @@ companion:
   health: 100
   weapon_item_ref: item.weapon.march_spear
   armor: { head: 0, torso: 3, limbs: 1 }
+# What he values (WP15b; provisional, and only what his established part already shows - Sel's guide, who keeps the Orenth ledger of what each
+# crossing cost): helping the survey he guides, and putting down what should already have stayed dead.
+values:
+  - deed: delivered
+    npc_ref: npc.ashen_hollow.sel_arien
+    changes: { trust: 2, respect: 1 }
+    remark: "Sel will write that down. So will I - on the good side of the ledger. It's the short side."
+  - deed: killed
+    tag: undead
+    changes: { respect: 2 }
+    remark: "That one was dead already. Now it agrees with us."

@@ -19,6 +19,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>Set for an NPC who can be hired (WP15a): the roles they take on and how they fight. Never on someone who can join as a companion.</summary>
     public HirelingProfile? Hireling { get; init; }
 
+    /// <summary>A party member's values (WP15b): the deeds that move what they think of the character, and what they say of them.</summary>
+    public ImmutableArray<ValueReaction> Values { get; init; } = ImmutableArray<ValueReaction>.Empty;
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -32,14 +35,15 @@ public static class NpcServices
 
 /// <summary>
 /// What one NPC thinks of the player, on named dimensions (SYSTEMS.md S-26): there is no single good-or-evil meter. Each value is
-/// held in [-100, 100]; a value of 0 is not stored.
+/// held in [-100, 100]; a value of 0 is not stored. <c>loyalty</c> (WP15b; canon EXT/COMPANIONS :38-52) is what keeps a party member
+/// at the character's side; attraction and ideology come only with romance (DN10).
 /// </summary>
 public static class Relationships
 {
     public const int Min = -100;
     public const int Max = 100;
 
-    public static readonly ImmutableArray<string> Dimensions = ImmutableArray.Create("affection", "fear", "grudge", "respect", "trust");
+    public static readonly ImmutableArray<string> Dimensions = ImmutableArray.Create("affection", "fear", "grudge", "loyalty", "respect", "trust");
 
     public static bool IsDimension(string dimension) => Dimensions.Contains(dimension);
 
@@ -53,6 +57,13 @@ public sealed record DialogueDefinition(string Id, ImmutableArray<string> Partic
 {
     /// <summary>Lines said aloud, unprompted, to a character passing by: each one sayable while its conditions hold.</summary>
     public ImmutableArray<DialogueBark> Barks { get; init; } = ImmutableArray<DialogueBark>.Empty;
+
+    /// <summary>
+    /// Party banter (WP15b): lines a party member says on the road, unprompted, while their conditions hold - who else travels with them
+    /// (<c>companion_present</c>), where they are (<c>near</c>), what the character did lately (<c>deed</c> with <c>within_s</c>). The
+    /// party's voice says at most one line in a while (<c>config.party</c>'s <c>banter</c>).
+    /// </summary>
+    public ImmutableArray<DialogueBark> Banter { get; init; } = ImmutableArray<DialogueBark>.Empty;
 }
 
 /// <summary>A bark: a line with no replies, said in passing while its conditions hold (the same conditions a reply takes).</summary>
@@ -88,15 +99,22 @@ public static class LineIds
     public static string Node(string dialogueId, string nodeId, int variant = 0) =>
         variant == 0 ? $"{dialogueId}/{nodeId}" : $"{dialogueId}/{nodeId}.{variant}";
 
-    public static string Bark(string npcId, int number) =>
-        $"bark.{(npcId.StartsWith("npc.", StringComparison.Ordinal) ? npcId["npc.".Length..] : npcId)}.{number}";
+    public static string Bark(string npcId, int number) => $"bark.{Short(npcId)}.{number}";
+
+    /// <summary>The n-th banter line of an NPC's conversation (WP15b), counting from 1: <c>banter.&lt;npc&gt;.&lt;n&gt;</c>.</summary>
+    public static string Banter(string npcId, int number) => $"banter.{Short(npcId)}.{number}";
+
+    /// <summary>The n-th value reaction of an NPC (WP15b), counting from 1: <c>reaction.&lt;npc&gt;.&lt;n&gt;</c>.</summary>
+    public static string Reaction(string npcId, int number) => $"reaction.{Short(npcId)}.{number}";
+
+    private static string Short(string npcId) => npcId.StartsWith("npc.", StringComparison.Ordinal) ? npcId["npc.".Length..] : npcId;
 }
 
 /// <summary>A reply: offered while its conditions hold; choosing it runs its consequences, then goes to <see cref="Next"/> (none ends).</summary>
 public sealed record DialogueChoice(string Id, string Text, ImmutableArray<DialogueCondition> Conditions,
     ImmutableArray<DialogueConsequence> Consequences, string? Next);
 
-/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds, M5 and M6 two more, E-7 <c>deed</c>, WP6 <c>standing</c> and <c>act_done</c>).</summary>
+/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds, M5 and M6 two more, E-7 <c>deed</c>, WP6 <c>standing</c> and <c>act_done</c>, WP15b <c>near</c>).</summary>
 public abstract record DialogueCondition;
 
 /// <summary>
@@ -148,7 +166,16 @@ public sealed record CompanionPresentCondition(string NpcId, CompanionOrder? Ord
 public sealed record DeedCondition(DeedKind Kind, string SubjectId, int Count, bool Negated) : DialogueCondition
 {
     public string? NpcId { get; init; }
+
+    /// <summary>
+    /// <c>within_s</c> (WP15b, banter's "recent deed"): the deed was last done no longer ago than this many ticks. Null: whenever. The
+    /// count is the tally's as ever; recency asks only when it was last added to.
+    /// </summary>
+    public long? WithinTicks { get; init; }
 }
+
+/// <summary><c>near</c> (WP15b): the character is within <see cref="RadiusMm"/> of a place's anchor - the place's discovery radius unless named.</summary>
+public sealed record NearCondition(string LocationId, long? RadiusMm) : DialogueCondition;
 
 /// <summary>
 /// <c>standing</c> (WP6): the character's standing with a faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, compared by level.
@@ -268,6 +295,15 @@ public interface IDialogueFacts
 
     /// <summary>Whether the character's act log holds an act of this kind and subject (WP6).</summary>
     bool ActDone(string kind, string subject) => false;
+
+    /// <summary>The tick this deed was last done (WP15b), or null when never: of any NPC when <paramref name="npcId"/> is null.</summary>
+    long? DeedLastTick(DeedKind kind, string subjectId, string? npcId) => null;
+
+    /// <summary>The world tick the facts are read at (WP15b: a recent deed is recent against it).</summary>
+    long Now => 0;
+
+    /// <summary>Whether the character is within a place's radius (WP15b); null radius: the place's own discovery radius.</summary>
+    bool Near(string locationId, long? radiusMm) => false;
 }
 
 public static class DialogueRules
@@ -283,7 +319,10 @@ public static class DialogueRules
         QuestStateCondition { ObjectiveId: null, State: QuestKeys.Available } q => facts.QuestAvailable(q.QuestId) != q.Negated,
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
+        DeedCondition { WithinTicks: { } within } d =>
+            (facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count && facts.DeedLastTick(d.Kind, d.SubjectId, d.NpcId) is { } last && facts.Now - last <= within) != d.Negated,
         DeedCondition d => facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count != d.Negated,
+        NearCondition n => facts.Near(n.LocationId, n.RadiusMm),
         StandingCondition s => facts.StandingLevel(s.FactionId) is var level && level >= s.MinLevel && level <= s.MaxLevel,
         ActDoneCondition a => facts.ActDone(a.Kind, a.Subject),
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),

@@ -15,3 +15,24 @@ roles:
   porter:   { wage_per_day: 4, carry_bonus_kg: 30, stance: passive }      # adds to what the character carries while following
   gatherer: { wage_per_day: 5, yields_per_day: 3, stance: passive }       # harvests their node each day, delivered to the character
   crafter:  { wage_per_day: 7, crafts_per_day: 2, stance: passive }       # works a recipe at a station from what they were handed
+# How the party comes to go along with the character, or not (WP15b; canon EXT/COMPANIONS :38-58). No single approval score: loyalty grows a
+# point for each midnight a companion spends on their feet in the party and for each wage a hireling is paid, and falls for each wage owed;
+# a deed that touches a member's values (their npc file) moves the dimensions it names. Past any one bound a member hesitates (says so, then
+# does it), refuses what they are asked, or leaves. Every number is provisional, for the owner to tune.
+approval:
+  loyalty_per_day: 1
+  loyalty_wage_paid: 1
+  loyalty_wage_unpaid: -5
+  hesitate:
+    - { dimension: loyalty, below: -20 }
+    - { dimension: grudge, above: 40 }
+    - { dimension: fear, above: 60 }
+  refuse:
+    - { dimension: loyalty, below: -50 }
+    - { dimension: grudge, above: 70 }
+  leave:
+    - { dimension: loyalty, below: -80 }
+    - { dimension: grudge, above: 90 }
+# Party banter (WP15b): every every_s, a member following on their feet with a line to say says one, chance_percent of the time; after a
+# line or a value's remark the party keeps quiet for quiet_s.
+banter: { every_s: 120, chance_percent: 35, quiet_s: 45 }

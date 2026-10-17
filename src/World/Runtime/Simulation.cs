@@ -130,13 +130,15 @@ public sealed class Simulation
     private readonly FactionSystem _factions;
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
+    private readonly PartySheetSystem _sheets;
+    private readonly ApprovalSystem _approval;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
     private bool _stepping;
     private bool _advancing;
 
-    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
+    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife life)
     {
         Setup = setup;
         _identity = player;
@@ -149,6 +151,13 @@ public sealed class Simulation
         {
             if (world.Registry.Exists(entry.ItemId))
                 throw new InvalidOperationException($"{entry.ItemId} is carried and also somewhere in the world");
+            world.Registry.CreateEntity(DefinitionId.Parse(entry.DefId), entry.ItemId);
+        }
+        // So is what the party wears and keeps (WP15b): handed over, an item keeps its identity.
+        foreach (var entry in player.PartySheets.SelectMany(p => p.Items))
+        {
+            if (world.Registry.Exists(entry.ItemId))
+                throw new InvalidOperationException($"{entry.ItemId} is held by a party member and also somewhere in the world");
             world.Registry.CreateEntity(DefinitionId.Parse(entry.DefId), entry.ItemId);
         }
 
@@ -178,15 +187,19 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
-        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
+        _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions, life);
+        _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
+        _sheets.Listen(bus);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
+        _approval = new ApprovalSystem(_context, _dialogue.Banter);
+        _approval.Listen(bus);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _sheets, _approval, _markets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -201,11 +214,15 @@ public sealed class Simulation
     /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts
     /// empty, so the first tick announces the front overhead.
     /// </summary>
-    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
+    /// <param name="life">
+    /// The life party members go back to when they leave the party (WP15b): the NPC life simulation once WP12 merges; until then, and when
+    /// none is given, <see cref="HomeLife"/> - they wait at home.
+    /// </param>
+    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, IPartyLife? life = null)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        return new Simulation(setup, player, world, worldTick, events);
+        return new Simulation(setup, player, world, worldTick, events, life ?? new HomeLife());
     }
 
     /// <summary>
@@ -355,6 +372,23 @@ public sealed class Simulation
     /// </summary>
     public HireTerms HireTerms(string npcId, HirelingRole role, int days) => _companions.Terms(npcId, role, days);
 
+    /// <summary>
+    /// A party member's sheet (WP15b), past or present: level and skills, unspent points, health on their feet, gear given or loaned, their
+    /// own things, how they regard the character in words and whether they would go along with what they are asked. Null for someone who
+    /// has never travelled with the character.
+    /// </summary>
+    public PartySheetView? PartySheet(string npcId) => _sheets.View(npcId, id =>
+    {
+        var name = Setup.Social.Npcs.TryGetValue(id, out var definition) ? definition.Name : id;
+        var (regard, disposition) = _approval.Standing(id, name);
+        int health = 0;
+        if (_companions.Views().FirstOrDefault(c => c.NpcId == id) is { } member)
+            health = member.MaxHealth;
+        else if ((definition?.Companion ?? definition?.Hireling?.Body) is { } body && _state.PartySheets.TryGetValue(id, out var sheet))
+            health = Domain.Companions.Approval.MaxHealth(body.MaxHealth, sheet.Progression, Setup.Progression);
+        return (health, regard, disposition);
+    });
+
     /// <summary>Companions gravely wounded and recovering at home (DN9), and when each is well again.</summary>
     public ImmutableArray<RecoveryView> Recovering => _companions.Recoveries();
 
@@ -459,6 +493,9 @@ public sealed class Simulation
                 SetTacticsCommand tactics => _companions.Handle(tactics, WorldTick),
                 AssignWorkCommand work => _companions.Handle(work, WorldTick),
                 SupplyHirelingCommand supply => _companions.Handle(supply, WorldTick),
+                GiveGearCommand give => _sheets.Handle(give, WorldTick),
+                TakeBackGearCommand takeBack => _sheets.Handle(takeBack, WorldTick),
+                SpendPartyAttributeCommand spendParty => _sheets.Handle(spendParty, WorldTick),
                 TouchStoneCommand touch => _travel.Handle(touch, WorldTick),
                 BindStoneCommand bind => _travel.Handle(bind, WorldTick),
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
@@ -476,8 +513,8 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat,
-    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the markets'
-    /// day, clock.
+    /// creatures, companions, the party's regard and banter, NPCs, conversations, status effects, death, discovery, quests (which read what all
+    /// of that did), the markets' day, clock.
     /// </summary>
     public void Step()
     {
@@ -495,6 +532,7 @@ public sealed class Simulation
             _combat.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
+            _approval.Tick(tick);
             _npcs.Tick(tick);
             _dialogue.Tick(tick);
             _effects.Tick(tick);
@@ -569,6 +607,7 @@ public sealed class Simulation
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
             Factions = _state.Factions,
             Party = _companions.Ledger(),
+            PartySheets = _sheets.Records(),
         };
     }
 
@@ -656,6 +695,14 @@ public sealed class Simulation
         RemoveNpc remove => _npcs.Handle(remove),
         Hire hire => _companions.Handle(hire, Now),
         Dismiss dismiss => _companions.Handle(dismiss, Now),
+        RefitMember refit => _companions.Handle(refit),
+        LeaveParty leave => _companions.Handle(leave, Now),
+        PracticePartySkill practice => _sheets.Handle(practice),
+        ReturnLoans loans => _sheets.Handle(loans, Now),
+        SettleFallen fallen => _sheets.Handle(fallen, Now),
+        HandOver hand => _inventory.Handle(hand),
+        ReceiveStack receive => _inventory.Handle(receive, Now),
+        ReleaseItem release => _equipment.Handle(release, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),

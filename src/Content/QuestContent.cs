@@ -28,7 +28,7 @@ public static class QuestContent
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
     private static readonly string[] Fields =
-        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive" };
+        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "companion_ref", "confides_at" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
@@ -92,7 +92,16 @@ public static class QuestContent
             Act = map.ContainsKey("act") ? Positive(map, "act", id) : null,
             OnNewGame = Flag(map, "on_new_game", id),
             Competitive = Flag(map, "competitive", id),
+            CompanionId = map.GetValueOrDefault("companion_ref") is string companion ? Companion(loader, companion, id) : null,
+            ConfidesAt = map.ContainsKey("confides_at") ? (int)LongOf(map, "confides_at", id) : null,
         };
+        // A personal quest (WP15b): a companion's, gated on their trust; and only a personal quest changes its companion's approval.
+        if (quest.ConfidesAt is { } gate && (quest.CompanionId is null || gate is < Relationships.Min or > Relationships.Max))
+            throw new FormatException($"{id}: confides_at gates a personal quest (companion_ref) on trust, from {Relationships.Min} to {Relationships.Max}");
+        if (quest.CompanionId is null && quest.Rewards.OfType<ApprovalChangeReward>().Any())
+            throw new FormatException($"{id}: an approval_change reward moves the personal quest's companion's regard, so the quest names companion_ref");
+        if (quest.CompanionId is not null && (quest.Track == QuestTrack.Bounty || quest.Competitive))
+            throw new FormatException($"{id}: a companion's personal quest is not bounty work");
         if (quest.Track == QuestTrack.Main != quest.Act.HasValue)
             throw new FormatException($"{id}: a main-track quest names its act, and only a main-track quest has one");
         if (quest.Track == QuestTrack.Bounty && quest.RepeatAfterTicks is null)
@@ -103,6 +112,15 @@ public static class QuestContent
             throw new FormatException($"{id}: a quest every new character starts is taken once (no repeat_policy)");
         CheckGraph(quest);
         return quest;
+    }
+
+    /// <summary><c>companion_ref</c> (WP15b): an NPC who can join the character as a companion - a personal quest is a companion's.</summary>
+    private static string Companion(ContentLoader loader, string npcId, string at)
+    {
+        Defined(loader, npcId, "npc", at);
+        return Read(loader.Definitions[npcId].YamlSource).ContainsKey("companion")
+            ? npcId
+            : throw new FormatException($"{at}: companion_ref {npcId} cannot join the character as a companion");
     }
 
     private static bool Flag(Dictionary<object, object> map, string key, string at) =>
@@ -322,6 +340,12 @@ public static class QuestContent
                     : throw new FormatException($"{at}: a relationship reward moves a dimension by 1 to 100 either way")),
             "world_flag" => new WorldFlagReward(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
                 Defined(loader, Text(map, "location_ref"), "location", at), LongOr(map, "value", 1, at)),
+            "approval_change" => Map(map, "changes").ToImmutableSortedDictionary(kv => Dimension(kv.Key as string ?? "", at),
+                kv => LongOf(Map(map, "changes"), kv.Key as string ?? "", at) is var d && d != 0 && Math.Abs(d) <= Relationships.Max
+                    ? (int)d
+                    : throw new FormatException($"{at}: an approval change moves a dimension by 1 to 100 either way"), StringComparer.Ordinal) is { IsEmpty: false } changes
+                ? new ApprovalChangeReward(changes)
+                : throw new FormatException($"{at}: an approval change moves at least one dimension"),
             "reputation" => new ReputationReward(Defined(loader, Text(map, "faction_ref"), "faction", at),
                 LongOf(map, "amount", at) is var points && points != 0 && Math.Abs(points) <= FactionContent.MaxDelta
                     ? (int)points

@@ -252,6 +252,9 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
         // A repeatable quest, once its repeat time has passed since it ended, starts afresh over its last record.
         if (State.Quests.TryGetValue(quest.Id, out var last) && !QuestRules.CanStart(quest, last, tick))
             return $"{quest.Title} is already {QuestKeys.Key(last.Status)}";
+        // A companion's personal quest starts only once they confide it (WP15b: trust decides confiding, canon :189-191).
+        if (!QuestRules.Confides(quest, npc => State.RelationshipOf(npc, "trust")))
+            return $"{quest.CompanionId} does not confide {quest.Title} yet";
         State.SetQuest(_owner, QuestRules.Start(quest, tick));
         _context.Events.Publish(new QuestStarted(quest.Id, command.GiverId, tick));
         _context.Events.Publish(new ObjectiveActivated(quest.Id, quest.Entry, tick));
@@ -355,6 +358,12 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
                 case WorldFlagReward flag:
                     _context.Dispatch(new SetWorldFlag(CellOfLocation(flag.LocationId), flag.FlagId, flag.Value));
                     (what, named, amount) = ($"{flag.FlagId} = {flag.Value} at {flag.LocationId}", flag.FlagId, flag.Value);
+                    break;
+                case ApprovalChangeReward approval:
+                    foreach (var (dimension, delta) in approval.Changes)
+                        _context.Dispatch(new ChangeRelationship(quest.CompanionId!, dimension, delta, quest.Id));
+                    (what, named, amount) = ($"{quest.CompanionId} {string.Join(", ", approval.Changes.Select(c => $"{c.Key} {c.Value:+#;-#}"))}", quest.CompanionId,
+                        approval.Changes.Values.Sum());
                     break;
                 case ReputationReward reputation:
                     _context.Dispatch(new GrantStanding(reputation.FactionId, reputation.Delta, quest.Id));

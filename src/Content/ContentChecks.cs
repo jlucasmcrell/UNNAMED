@@ -53,12 +53,13 @@ public static class ContentChecks
         ["affix_pool"] = new[] { "affix" },
         ["domain"] = new[] { "skill" },   // a formula's magic-domain skill (§4.6)
         ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
+        ["companion_ref"] = new[] { "npc" },  // a personal quest's companion (WP15b): a role name, not a kind
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>
     private static readonly Dictionary<string, string[]?> RewardKinds = new(StringComparer.Ordinal)
     {
-        ["xp"] = null, ["currency"] = null, ["reputation"] = null, ["relationship"] = null, ["title"] = null,
+        ["xp"] = null, ["currency"] = null, ["reputation"] = null, ["relationship"] = null, ["approval_change"] = null, ["title"] = null,
         ["property"] = null, ["permanent_ability"] = null, ["transformation"] = null,
         ["item"] = new[] { "item", "item.weapon", "item.armor" },
         ["spell"] = new[] { "spell" },

@@ -130,6 +130,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
             nameof(UNNAMED.World.Runtime.Simulation.HireTerms),   // what a hire would mean - wage, cost, that they can die - for the hiring sheet (WP15a)
             nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
+            nameof(UNNAMED.World.Runtime.Simulation.PartySheet),   // a party member's level, gear and regard, for the party card (WP15b)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

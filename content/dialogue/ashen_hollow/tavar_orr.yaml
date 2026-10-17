@@ -128,3 +128,14 @@ barks:
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: follow }]
   - text: "Waiting. I'm good at it now. Had practice."
     conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
+# Said on the road while he travels with the character (WP15b party banter): where they are, and what was just done. The party's voice says
+# at most one line in a while (config.party banter).
+banter:
+  - text: "I'd rather not stand here long. Last time, leaving took three days."
+    conditions: [{ kind: near, location_ref: location.foldscar }]
+  - text: "Waystation smoke. Right where I left it. Give or take."
+    conditions: [{ kind: near, location_ref: location.outpost }]
+  - text: "That goes in the ledger. Paid in full, for once."
+    conditions: [{ kind: deed, deed: killed, creature_ref: creature.undead.bone_walker_husk, within_s: 60 }]
+  - text: "If I fall behind, it's the mud. Not the other thing."
+    conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: follow }]

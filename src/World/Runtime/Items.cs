@@ -132,6 +132,25 @@ internal sealed record GrantItem(string ItemId, int Count, int Quality) : Intern
 }
 
 /// <summary>
+/// To <see cref="InventorySystem"/>: a carried stack leaves the character whole, keeping its identity, for a party member to wear (WP15b).
+/// Refused while it is equipped: <see cref="ReleaseItem"/> takes it off first.
+/// </summary>
+internal sealed record HandOver(EntityId ItemId) : InternalCommand;
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: a stack comes back to the character with its identity (WP15b: a loan returned) - into the pack, or
+/// where the character stands when it has no room or would be too heavy. With <see cref="DropAt"/>, it is left on the ground there
+/// instead (a hireling's own things, where they fell).
+/// </summary>
+internal sealed record ReceiveStack(InventoryEntry Entry) : InternalCommand
+{
+    public (long XMm, long ZMm)? DropAt { get; init; }
+}
+
+/// <summary>To <see cref="EquipmentSystem"/>: whatever slot holds this item lets it go (WP15b: it is about to be handed to a party member).</summary>
+internal sealed record ReleaseItem(EntityId ItemId) : InternalCommand;
+
+/// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
 /// through here, and every check happens before anything changes: a refused move leaves every stack as it was.
 /// An authored container holds its loot table's result until the first change, when it and everything in it get
@@ -412,6 +431,32 @@ internal sealed class InventorySystem
         if (State.Currency < command.Amount)
             return $"not enough coin: {command.Amount} asked, {State.Currency} carried";
         State.SetCurrency(_owner, State.Currency - command.Amount);
+        return null;
+    }
+
+    public string? Handle(HandOver command)
+    {
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == command.ItemId) is not { } entry)
+            return $"{command.ItemId} is not carried";
+        if (State.Equipment.ContainsValue(command.ItemId))
+            return $"{entry.DefId} is equipped";
+        State.SetInventory(_owner, State.Inventory.Remove(entry));
+        return null;
+    }
+
+    public string? Handle(ReceiveStack command, long tick)
+    {
+        var entry = command.Entry;
+        if (Items.Catalog.Find(entry.DefId) is not { } definition)
+            return $"{entry.DefId} is not an item this build knows";
+        if (command.DropAt is { } at)
+        {
+            Put(ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, at);
+            return null;
+        }
+        bool fits = Room(State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList(), definition, entry.Quality, entry.Count, Items.Inventory.StackSlots) is null
+                    && CarriedGrams() + definition.WeightGrams * entry.Count <= CarryLimitGrams();
+        Put(fits ? ItemPlace.Carried : ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick);
         return null;
     }
 
@@ -706,7 +751,8 @@ internal sealed class InventorySystem
     /// Add <paramref name="count"/> at the destination, merging into stacks of the same kind and quality first. A notable record travels
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
-    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick)
+    private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
+        (long XMm, long ZMm)? at = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -728,13 +774,13 @@ internal sealed class InventorySystem
             }
             case PlaceKind.Ground:
             {
-                var body = State.Body;
-                var cell = CellOf(body.XMm, body.ZMm);
+                var (x, z) = at ?? (State.Body.XMm, State.Body.ZMm);
+                var cell = CellOf(x, z);
                 var (minX, minZ) = CellOrigin(cell);
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((body.XMm - minX) / 10), (int)((body.ZMm - minZ) / 10), quality, stack == 1 ? notable : null);
+                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null);
                 break;
             }
             default:
@@ -889,6 +935,20 @@ internal sealed class EquipmentSystem
             return busy;
         state.SetEquipment(_owner, state.Equipment.Remove(command.Slot));
         _context.Events.Publish(new ItemUnequipped(_player, command.Slot, item, tick));
+        return null;
+    }
+
+    public string? Handle(ReleaseItem command, long tick)
+    {
+        var state = _context.State;
+        var held = state.Equipment.FirstOrDefault(kv => kv.Value == command.ItemId);
+        var item = held.Value;
+        if (item != command.ItemId)
+            return null;
+        if (InHands(held.Key) && HandsBusy(tick) is { } busy)
+            return busy;
+        state.SetEquipment(_owner, state.Equipment.Remove(held.Key));
+        _context.Events.Publish(new ItemUnequipped(_player, held.Key, item, tick));
         return null;
     }
 
