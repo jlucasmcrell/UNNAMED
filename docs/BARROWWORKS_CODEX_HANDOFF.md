@@ -353,4 +353,3 @@ warnings and the previously observed font/CanvasItem/texture shutdown warnings r
 No save schema was renumbered, no merge performed, and the ring remains disabled by default.
 
 Final rebuild totals: Release solution 49 warnings / zero errors; Debug Presentation with rebuilt dependencies 42 warnings / zero errors (39 Presentation warnings plus three existing Content warnings). Final Presentation 127/127 and Architecture 18/18 pass. Earlier 39-warning totals were incremental builds; logs are retained.
-
