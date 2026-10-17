@@ -21,7 +21,16 @@ public sealed class BarrowworksReview
     private double _frameSeconds, _settleSeconds;
     private double _captureSeconds;
     private readonly bool _realtime;
-    private bool _entered, _arrived;
+    private readonly Performance.Monitor[] PipelineMonitors =
+    {
+        Performance.Monitor.PipelineCompilationsCanvas, Performance.Monitor.PipelineCompilationsMesh,
+        Performance.Monitor.PipelineCompilationsSurface, Performance.Monitor.PipelineCompilationsDraw,
+        Performance.Monitor.PipelineCompilationsSpecialization,
+    };
+    private readonly long[] _pipelines;
+    private readonly int[] _collections = new int[3];
+    private bool _entered, _arrived, _thresholdShot, _leaving;
+    private double _exteriorSettle;
     private long _lastProgress;
     private readonly int _roomLimit;
     private int _roomsDrawn;
@@ -33,6 +42,18 @@ public sealed class BarrowworksReview
         if (_entered && double.IsFinite(seconds) && seconds > 0)
         {
             _captureSeconds += seconds;
+            for (int i=0;i<PipelineMonitors.Length;i++)
+            {
+                long count=(long)Performance.GetMonitor(PipelineMonitors[i]);
+                if (count!=_pipelines[i]) _stats.Mark($"{PipelineMonitors[i]} +{count-_pipelines[i]}");
+                _pipelines[i]=count;
+            }
+            for (int i=0;i<_collections.Length;i++)
+            {
+                int count=GC.CollectionCount(i);
+                if (count!=_collections[i]) _stats.Mark($"managed GC gen{i} +{count-_collections[i]}");
+                _collections[i]=count;
+            }
             _stats.Record(seconds);
         }
     }
@@ -56,6 +77,9 @@ public sealed class BarrowworksReview
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
         Engine.MaxFps = 0; // Capture headroom rather than the window's refresh/cap, as ConnectedCheck does.
         _stats = new FrameStats(camera.GetViewport()) { Segment = "barrowworks-route" };
+        _pipelines = new long[PipelineMonitors.Length];
+        for (int i=0;i<PipelineMonitors.Length;i++) _pipelines[i]=(long)Performance.GetMonitor(PipelineMonitors[i]);
+        for (int i=0;i<_collections.Length;i++) _collections[i]=GC.CollectionCount(i);
         Directory = directory;
         _roomLimit = int.TryParse(OS.GetEnvironment("BARROWWORKS_REVIEW_LIMIT"), out int limit) ? limit : 13;
         System.IO.Directory.CreateDirectory(directory);
@@ -82,6 +106,7 @@ public sealed class BarrowworksReview
         Add("custodian", 50, 106);
         Add("court_interlock", 50, 117, "door.barrowworks.g3");
         Add("R12_headworks", 50, 131, lookAt: new Vector2(42.6f, 131));
+        Add("drain_return",8,38);
         _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}"));
         Note($"region={session.Setup.Layout.Id}; gate={session.Options.Barrowworks}; seed={session.Simulation!.World.WorldSeed}");
     }
@@ -100,20 +125,36 @@ public sealed class BarrowworksReview
     public string? Update()
     {
         var sim = _session.Simulation!;
-        if (++_frames > 500_000 || _captureSeconds > 330 || sim.Combat.Defeated)
+        if (++_frames > 500_000 || _captureSeconds > 420 || sim.Combat.Defeated)
         {
             Note("FAILED: frame budget or defeat");
             return "failed";
         }
         if (!_entered)
         {
-            _entered = true;
-            _session.Submit(new EnterSpaceCommand(sim.PlayerId, "portal.barrowworks.threshold"));
-            _lastProgress = sim.WorldTick;
+            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+            _camera.Yaw=0;_camera.Pitch=-.08f;_camera.TargetDistance=5;
+            if (!_thresholdShot)
+            {
+                if ((_exteriorSettle+=_frameSeconds)<1) return null;
+                _thresholdShot=true;
+                return "entrance_threshold";
+            }
+            _camera.TargetDistance=3.5f;
+            _entered=true;
+            _session.Submit(new EnterSpaceCommand(sim.PlayerId,"portal.barrowworks.threshold"));
+            _lastProgress=sim.WorldTick;
             return null;
         }
         if (sim.PlayerInExterior)
-            return "failed";
+        {
+            if (!_leaving) return "failed";
+            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+            _camera.Yaw=0;_camera.Pitch=-.08f;_camera.TargetDistance=6;
+            if ((_exteriorSettle+=_frameSeconds)<1.2) return null;
+            if (_exteriorSettle<100) {_exteriorSettle=100;return "entrance_drain";}
+            return "done";
+        }
         if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian") is
             { Phase: CombatPhase.Windup, AttackSource: { } source } telling && telling.PhaseTicksLeft < 10 && _attackShots.Add(source))
             return "attack_" + source.Split('.').Last();
@@ -127,9 +168,15 @@ public sealed class BarrowworksReview
                 return null;
             _arrived = false;
             _stops.Dequeue();
+            _stats.Mark("room/interaction " + stop.Name);
             Note("reached " + stop.Name);
+            if (stop.Name=="drain_return")
+            {
+                _session.Submit(new LeaveSpaceCommand(sim.PlayerId));
+                _leaving=true;_exteriorSettle=0;
+            }
             _lastProgress = sim.WorldTick;
-            if (stop.Name.StartsWith("R", StringComparison.Ordinal) && ++_roomsDrawn >= _roomLimit)
+            if (stop.Name.StartsWith("R", StringComparison.Ordinal) && ++_roomsDrawn >= _roomLimit && _roomLimit<13)
                 _stops.Clear();
             return stop.Name;
         }
@@ -163,10 +210,18 @@ public sealed class BarrowworksReview
             _camera.Pitch = -.06f;
             return null;
         }
-        if (_path.Count == 0 && !Plan(stop))
+        if (_path.Count == 0)
         {
-            Note("FAILED: no collision-clear route to " + stop.Name);
-            return "failed";
+            ulong began = Time.GetTicksUsec();
+            bool planned = Plan(stop);
+            double ms = (Time.GetTicksUsec() - began) / 1000.0;
+            _stats.Mark($"review path search {stop.Name}: {ms:0.000} ms");
+            Note($"path search {stop.Name}: {ms:0.000} ms");
+            if (!planned)
+            {
+                Note("FAILED: no collision-clear route to " + stop.Name);
+                return "failed";
+            }
         }
         if (sim.WorldTick - _lastProgress > 500)
         {

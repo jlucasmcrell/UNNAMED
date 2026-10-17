@@ -10,7 +10,7 @@ import numpy as np
 DEPOT = Path(r'D:\Otherreach_Depot\barrowworks_codex')
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sources = {}
-for kind in ('masonry', 'pipe', 'valve', 'elbow', 'pillar'):
+for kind in ('masonry', 'pipe', 'valve', 'elbow', 'pillar', 'relief_rock', 'relief_masonry'):
     asset = 'bw_codex_'+kind
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=str(DEPOT/'ready'/asset/(asset+'.glb')))
@@ -39,8 +39,16 @@ def flat_material(name, colour):
     bsdf.inputs['Roughness'].default_value = .87
     return material
 
-paper = flat_material('first_party_aged_paper',(.55,.48,.34,1))
-ink = flat_material('first_party_carbon_ink',(.025,.022,.018,1))
+# Deterministic stained paper with small ink strokes; no luminous stencil labels.
+rng=np.random.default_rng(805)
+paper=flat_material('first_party_aged_paper',(.45,.36,.22,1))
+image=next(n.image for n in paper.node_tree.nodes if n.type=='TEX_IMAGE')
+image.scale(256,256)
+noise=rng.normal(0,.025,(256,256,1));base=np.array([.47,.39,.26])[None,None,:]
+colour=np.clip(base+noise,0,1);pixels=np.concatenate([colour,np.ones((256,256,1))],axis=2)
+image.pixels.foreach_set(pixels.astype(np.float32).ravel());image.pack()
+ink=flat_material('first_party_carbon_ink',(.035,.029,.02,1))
+wood=flat_material('first_party_dark_oiled_frame',(.11,.065,.033,1))
 
 def piece(kind, at, dimensions, rotation=(0,0,0)):
     data,size = sources[kind]
@@ -51,29 +59,44 @@ def piece(kind, at, dimensions, rotation=(0,0,0)):
     obj.scale = tuple(dimensions[i]/size[i] for i in range(3))
     return obj
 
+def box(name,at,size,material):
+    bpy.ops.mesh.primitive_cube_add(size=1,location=at)
+    obj=bpy.context.object;obj.name=name;obj.scale=size;obj.data.materials.append(material)
+    bevel=obj.modifiers.new('worn_edges','BEVEL');bevel.width=.012;bevel.segments=2
+    bpy.context.view_layer.objects.active=obj;bpy.ops.object.modifier_apply(modifier=bevel.name)
+    return obj
+
+def page(at,width=.4,height=.55,front=-1,diagram=False):
+    x,y,z=at
+    # Curl the outer edges and preserve a physical page thickness/shadow.
+    verts=[]
+    for row in range(6):
+        for col in range(6):
+            u,v=col/5,row/5
+            curl=.015*abs(u-.5)**2+.004*math.sin(v*5+u*4)
+            verts.append((x+front*curl,y+(u-.5)*width,z+v*height))
+    faces=[(r*6+c,r*6+c+1,(r+1)*6+c+1,(r+1)*6+c) for r in range(5) for c in range(5)]
+    mesh=bpy.data.meshes.new('creased_paper');mesh.from_pydata(verts,[],faces);mesh.materials.append(paper)
+    obj=bpy.data.objects.new('curled_document',mesh);bpy.context.collection.objects.link(obj)
+    uv=mesh.uv_layers.new()
+    for poly in mesh.polygons:
+        for loop in poly.loop_indices:
+            index=mesh.loops[loop].vertex_index;uv.data[loop].uv=(index%6/5,index//6/5)
+    solid=obj.modifiers.new('paper_edge','SOLIDIFY');solid.thickness=.001
+    pieces=[obj]
+    # Small uneven ruled strokes read as writing at close range, not a billboard heading.
+    for row in range(9):
+        w=width*(.55+.25*float(rng.random()));yy=y-width*.38+w/2
+        pieces.append(box('ink_hand', (x+front*.009,yy,z+height*.15+row*height*.075),(.001,w,.002),ink))
+    if diagram:
+        for dy,angle in ((-.07,.12),(.08,-.12)):
+            line=box('drawn_taper',(x+front*.012,y+dy,z+height*.52),(.002,.003,height*.60),ink)
+            line.rotation_euler.x=angle;pieces.append(line)
+    return pieces
+
 def label(text,width,height,front=-1,at=(0,0,0)):
-    x,y,z = at
-    mesh = bpy.data.meshes.new('paper_mesh')
-    mesh.from_pydata([(x,y-width/2,z), (x,y+width/2,z), (x,y+width/2,z+height), (x,y-width/2,z+height)],[],
-                     [(3,2,1,0) if front<0 else (0,1,2,3)])
-    uv = mesh.uv_layers.new()
-    for loop in mesh.loops: uv.data[loop.index].uv = ((0,0),(1,0),(1,1),(0,1))[loop.vertex_index]
-    page = bpy.data.objects.new('ruled_paper',mesh)
-    bpy.context.collection.objects.link(page)
-    page.data.materials.append(paper)
-    curve = bpy.data.curves.new('inscription','FONT')
-    curve.body = text
-    curve.size = min(width/max(8,max(map(len,text.splitlines())))*1.4,height/max(4,len(text.splitlines())+1))
-    curve.space_line = 1.35
-    curve.extrude = .0005
-    curve.resolution_u = 2
-    obj = bpy.data.objects.new('printed_heading',curve)
-    bpy.context.collection.objects.link(obj)
-    obj.location = (x+front*.003,y-front*(width/2-.08),z+height-.13)
-    # Local text X runs horizontally on the paper, local Y is vertical, its front faces the room.
-    obj.rotation_euler = Matrix(((0,0,front),(front,0,0),(0,1,0))).to_euler()
-    obj.data.materials.append(ink)
-    return page,obj
+    # Pickup fragment: retain the folded paper shape, with its reading supplied by the live interaction text.
+    return page(at,min(width,.45),min(height,.55),front)
 
 manifest=[]
 def export(asset_id, pieces, animation=False):
@@ -93,47 +116,63 @@ def export(asset_id, pieces, animation=False):
     manifest.append(metadata)
     for obj in pieces: bpy.data.objects.remove(obj,do_unlink=True)
 
-for asset,width,height,front,text in [
-    ('notice',2,1.6,-1,'SERVICE RING\nWITHDRAWAL NOTICE\n\nMEASUREMENT\nUNFINISHED'),
-    ('fitting_note',3.2,1.4,1,'FITTING NOTE\nASH TAPER\n\nUNFINISHED'),
-    ('diagram',3.2,1.8,-1,'FITTING PATTERN\nASH WEDGE\n\nCOMPARE THE CUTS'),
-    ('ledger',5.2,1.5,-1,'BLIND STORE\nMEASUREMENTS\n\nLAST READING')]:
-    pieces=[piece('masonry',(0,0,height/2),(.4,width,height))]
-    # The source masonry frame supports distinct paper/board layouts, rather than another unmarked rock slab.
-    pages=3 if asset=='fitting_note' else 2 if asset=='ledger' else 1
-    for i in range(pages):
-        y=(i-(pages-1)/2)*(width-.2)/pages
-        pieces.extend(label(text if i==0 else 'FITTING\n\nMEASURE\n\nUNFINISHED', (width-.25)/pages,height-.3,front,
-                            (front*.225,y,.15)))
-    if asset=='diagram':
-        # A visible taper assembled from the same physical iron rail: a pattern comparison, not a deciphering minigame.
-        pieces.append(piece('pipe',(-.26,.2,.65),(.045,.045,1.1),(math.pi/2,0,.12)))
+# The four readings have different physical forms: pinned notice, filing shelf, drawing easel and bound ledger.
+for asset,width,height,front in [('notice',2,1.6,-1),('fitting_note',3.2,1.4,1),('diagram',3.2,1.8,-1),('ledger',5.2,1.5,-1)]:
+    pieces=[]
+    if asset=='notice':
+        for y in (-.65,0,.65):pieces.append(box('notice_plank',(0,y,.8),(.18,.6,1.6),wood))
+        for y,z in ((-.55,.25),(.08,.55),(.53,.22)):
+            pieces+=page((-.105,y,z),.43,.63,-1)
+            pieces.append(piece('pipe',(-.13,y,z+.59),(.025,.025,.05)))
+    elif asset=='fitting_note':
+        for y in (-1.4,1.4):pieces.append(box('shelf_upright',(0,y,.7),(.38,.12,1.4),wood))
+        for z in (.1,.7,1.35):pieces.append(box('filing_shelf',(0,0,z),(.4,3.2,.10),wood))
+        for y in (-1,-.5,0,.5,1):
+            pieces+=page((.215,y,.74),.32,.46,1)
+            pieces.append(box('folder_spine',(.08,y,.4),(.35,.11,.50),paper))
+    elif asset=='diagram':
+        for y in (-1.35,1.35):pieces.append(box('easel_leg',(0,y,.9),(.25,.18,1.8),wood))
+        pieces.append(box('drawing_table',(0,0,1.12),(.4,3.2,.13),wood))
+        # Roll ends and a hanging drawing, plus a physical comparison taper beside it.
+        pieces+=page((-.22,-.4,.60),.8,.85,-1,True)
+        for y in (-1.1,.7):pieces.append(piece('pipe',(-.19,y,.74),(.07,.07,.95)))
+        pieces.append(piece('pipe',(-.22,.7,1.38),(.05,.05,.8),(math.pi/2,0,.08)))
+    else:
+        for y in (-2.45,0,2.45):pieces.append(box('archive_leg',(0,y,.7),(.35,.17,1.4),wood))
+        pieces.append(box('ledger_counter',(0,0,1.43),(.4,5.2,.14),wood))
+        # Open folio at the counter's front: a leather binding and fanned paper leaves, no giant text board.
+        for y in (-.25,.25):
+            cover=box('leather_folio',(-.22,y,1.20),(.08,.46,.50),wood);cover.rotation_euler.z=.12 if y<0 else -.12
+            pieces+=page((-.27,y,.96),.40,.43,-1)
+        for y in (-1.7,-1.1,1.2,1.8):pieces.append(box('bound_volume',(0,y,.76),(.33,.21,.60),wood))
     export('bw_codex_'+asset,pieces)
 
-pieces=[]
-for y in (-2.4,2.4):
-    pieces.append(piece('pipe',(0,y,1.1),(.25,.25,2.2)))
-    pieces.append(piece('valve',(0,y,.2),(.4,.35,.4)))
-pieces.append(piece('pipe',(0,0,1.25),(.2,.2,5.2),(math.pi/2,0,0)))
-pieces.append(piece('pipe',(0,0,1.65),(.12,.12,4.8),(math.pi/2,0,0)))
-pieces.append(piece('valve',(.1,0,1.45),(.22,1.0,1.0),(0,math.pi/2,0)))
-parts=list(pieces)
-export('bw_codex_measure',parts)
-# Rebuild the moving outcome as a visibly whole beam; the offset index rotates on the game tick.
-pieces=[]
-for y in (-2.4,2.4): pieces.append(piece('pipe',(0,y,1.1),(.25,.25,2.2)))
-pieces.append(piece('pipe',(0,0,1.25),(.2,.2,5.2),(math.pi/2,0,0)))
-index=piece('valve',(.1,0,1.45),(.22,1.0,1.0),(0,math.pi/2,0))
-pieces.append(index)
-for frame,turn in ((1,0),(121,2*math.pi)):
-    index.rotation_euler.x=turn
-    index.keyframe_insert('rotation_euler',frame=frame)
-bpy.context.scene.frame_start,bpy.context.scene.frame_end=1,121
-bpy.context.scene.render.fps=30
-export('bw_codex_measure_running',pieces,True)
-export('bw_codex_measure_dismantled',[
-    piece('pipe',(0,-1.8,.35),(.2,.2,.7)), piece('pipe',(0,1.8,.35),(.2,.2,.7)),
-    piece('pipe',(0,0,.2),(.15,.15,4.0),(math.pi/2,0,0)), piece('valve',(0,-.5,.25),(.35,.6,.4))])
+def headworks(moving=False):
+    pieces=[]
+    for y in (-2.35,2.35):
+        pieces.append(piece('masonry',(0,y,.18),(.95,.65,.36)))
+        for x in (-.31,.31):pieces.append(piece('pipe',(x,y,1.27),(.20,.20,2.2)))
+        pieces.append(piece('elbow',(0,y,2.06),(.85,.42,.38)))
+        pieces.append(piece('valve',(-.23,y,1.1),(.32,.65,.65),(0,math.pi/2,0)))
+    for x,z in ((-.30,1.75),(.30,1.75),(0,.52)):
+        pieces.append(piece('pipe',(x,0,z),(.16,.16,5.1),(math.pi/2,0,0)))
+    # Sliding gauge carriage and opposed measuring jaws, physically connected to twin rails.
+    pieces.append(piece('elbow',(0,0,1.78),(.75,.6,.5)))
+    for y in (-.40,.40):pieces.append(piece('pipe',(-.28,y,1.2),(.12,.12,1.25)))
+    for y in (-.38,.38):pieces.append(piece('elbow',(-.26,y,.64),(.3,.4,.3)))
+    wheel=piece('valve',(-.37,0,1.25),(.28,.95,.95),(0,math.pi/2,0));pieces.append(wheel)
+    # A physical scale of alternating riveted graduations below the guide rail.
+    for i in range(31):
+        pieces.append(piece('pipe',(-.34,-2+i*.133,1.58),(.018,.018,.09 if i%5==0 else .045)))
+    if moving:
+        for frame,turn in ((1,0),(121,2*math.pi)):
+            wheel.rotation_euler.x=turn;wheel.keyframe_insert('rotation_euler',frame=frame)
+        bpy.context.scene.frame_start,bpy.context.scene.frame_end=1,121;bpy.context.scene.render.fps=30
+    return pieces
+export('bw_codex_measure',headworks())
+export('bw_codex_measure_running',headworks(True),True)
+export('bw_codex_measure_dismantled',[piece('masonry',(0,y,.18),(.95,.65,.36)) for y in (-2.35,2.35)]+[
+    piece('pipe',(0,0,.2),(.16,.16,4.0),(math.pi/2,0,0)),piece('valve',(0,-.5,.25),(.35,.6,.4))])
 for name in ('preserve_control','dismantle_control'):
     pieces=[piece('pillar',(0,0,.43),(.5,.5,.86)),piece('valve',(0,0,1.0),(.6,.5,.2))]
     export('bw_codex_'+name,pieces)
@@ -177,4 +216,18 @@ export('bw_codex_work_seat',[piece('masonry',(0,0,.47),(1,2.5,.26)),
     piece('pillar',(0,-.9,.22),(.6,.5,.44)),piece('pillar',(0,.9,.22),(.6,.5,.44))])
 export('bw_codex_counterweight',[piece('masonry',(0,0,.5),(1,2,1)),
     piece('pipe',(0,0,1.55),(.2,.2,1.7)),piece('valve',(0,0,2.1),(.6,.8,.25))])
+(DEPOT/'props_manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+
+# Exterior entrances: masonry threshold and a lower rock-cut drain; both retain an actual dark mouth.
+for name,height,width in [('threshold',3.4,3.4),('drain',2.6,3.0)]:
+    pieces=[]
+    for side in (-1,1):
+        pieces.append(piece('relief_rock',(side*(width*.5+.25),0,height*.5),(.9,1.6,height+.35)))
+        pieces.append(piece('relief_masonry',(side*width*.34,0,height*.45),(.5,1.0,height*.9)))
+    pieces.append(piece('relief_masonry',(0,0,height),(width,1.1,.6)))
+    pieces.append(box('shadowed_mouth',(0,.39,height*.46),(width*.57,.045,height*.92),ink))
+    pieces.append(piece('masonry',(0,-.22,.05),(width,1.3,.10)))
+    if name=='drain':
+        for side in (-1,1):pieces.append(piece('pipe',(side*.95,-.48,.75),(.09,.09,1.5)))
+    export('bw_codex_entrance_'+name,pieces)
 (DEPOT/'props_manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')

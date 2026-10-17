@@ -120,8 +120,13 @@ def main():
         "r13_inspection_gauge": "inspection_gauge",
     }.items():
         structures[sid] = {"model": "bw_codex_"+model}
+    for sid in ("r02_notice_board", "r07_fitting_stand", "r07_diagram_rack", "r09_blind_ledger",
+                "r12_preserve_control", "r12_dismantle_control"):
+        structures[sid]["hide_set_mark"] = True
     structures["barrier.barrowworks.measure"] = {
         "model": "bw_codex_measure_running", "animation_flag": "world.barrowworks.headworks_preserved"}
+    for name in ("threshold", "drain"):
+        structures["portal.barrowworks."+name] = {"model": "bw_codex_entrance_"+name}
     doc["containers"] = {
         "container.barrowworks.archive_crate": {"model": "prop_ph_wooden_crate_01"},
         "container.barrowworks.codex_fragment": {"model": "bw_codex_codex_fragment"},
@@ -183,14 +188,12 @@ def main():
         x0, z0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
         x1, z1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
         cx, cz = (x0+x1)/2, (z0+z1)/2
-        positions = [(x0+1.5, z0+1.5), (x1-1.5, z1-1.5)]
-        if number == 11:
-            positions += [(x1-1.5, z0+1.5), (x0+1.5, z1-1.5)]
-        lights = [dict(hall_light, at=[x-cx, 1.0, z-cz], colour=[.70, .77, .80],
-                       energy=3.2, range=16 if number == 11 else 12, size=.2) for x, z in positions]
-        if number == 11:
-            # Corner fixtures rim the housing; a broad overhead fill keeps the scan's dark front and attack arms legible.
-            lights.append(dict(hall_light, at=[0, 3.4, 0], colour=[.72, .79, .84], energy=3.0, range=20, shadows=False, size=1.2))
+        recipe=json.load(open(os.path.join(os.path.dirname(__file__), 'barrowworks_art_direction.json'),encoding='utf-8'))[str(number)]
+        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=energy,range=distance,size=.35)
+                for x,h,z,colour,energy,distance in recipe['lights']]
+        # A broad soft bounce keeps grounded limbs readable without making the unlit edges flat.
+        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.8 if number!=11 else 1.8,
+                           range=max(x1-x0,z1-z0),shadows=False,size=1.5))
         walls[group + "_wall"] = {"model": f"bw_codex_room_{number:02d}", "interior_light": lights}
         lit += 1
     doc["roof_groups"] = [g + "_wall" for g in room_groups] + corridor_groups

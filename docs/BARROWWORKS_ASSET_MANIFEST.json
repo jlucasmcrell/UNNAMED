@@ -7,14 +7,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "threshold",
+        "wall": "masonry",
+        "ceiling": "stone_ribs",
+        "lights": [
+          [
+            -3,
+            2.6,
+            -3,
+            [
+              0.95,
+              0.74,
+              0.48
+            ],
+            3.5,
+            12
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -29,68 +55,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_01.glb",
-          "triangles": 174744,
-          "bytes": 25266204,
-          "sha256": "138519c84977763303c339a14c9cd05e9880e1d91eb3f7ccd06db726270f6c46"
+          "triangles": 185827,
+          "bytes": 29384248,
+          "sha256": "fd995de902fa687aea12cce611fc2c58e8ec397349036645d6174a9474ce77ef"
         },
         {
           "file": "bw_codex_room_01_lod1.glb",
-          "triangles": 87371,
-          "bytes": 9985288,
-          "sha256": "d2d6a9af8ae33d59c53631dfcc72039035b6f605025c01d8c13b43a572887d30"
+          "triangles": 92901,
+          "bytes": 17869740,
+          "sha256": "fc86e170df56f5b75e3bb86b3a152df1d82241fe27896176dded04f61390f2e4"
         },
         {
           "file": "bw_codex_room_01_lod2.glb",
-          "triangles": 34948,
-          "bytes": 3324044,
-          "sha256": "b598ffcc95f839d6fe95e1af047814b7ac299cd48d0ea1bef0f752141b166660"
-        }
-      ],
-      "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_02",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier"
-      ],
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
-      "texture_resolutions": [
-        1024,
-        512,
-        256
-      ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_02.glb",
-          "triangles": 191400,
-          "bytes": 25853324,
-          "sha256": "03e5b519258396bff564fec47a1b30506b42fadfcc7605792f95de4952de4af8"
-        },
-        {
-          "file": "bw_codex_room_02_lod1.glb",
-          "triangles": 95699,
-          "bytes": 10279304,
-          "sha256": "3be14bba45b67c2e204d67d8a18ed6b2870656af765bfbae278618938be4670b"
-        },
-        {
-          "file": "bw_codex_room_02_lod2.glb",
-          "triangles": 38279,
-          "bytes": 3457188,
-          "sha256": "04ab4087eba545700f0e2de0911b8a42ebf48b0d50d02b9df5cb40afdfa25420"
+          "triangles": 37153,
+          "bytes": 5747428,
+          "sha256": "0f495edd6cf3da26090bec69b6e0f6e3c1d15d5f34b0b1042dac425e57846c53"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -101,14 +80,52 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "wash",
+        "wall": "rock",
+        "ceiling": "pipe_runs",
+        "lights": [
+          [
+            -4,
+            2.1,
+            -3,
+            [
+              0.55,
+              0.75,
+              0.78
+            ],
+            3,
+            11
+          ],
+          [
+            4,
+            2.8,
+            2,
+            [
+              0.66,
+              0.76,
+              0.78
+            ],
+            1.4,
+            10
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -123,21 +140,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_03.glb",
-          "triangles": 174780,
-          "bytes": 25277864,
-          "sha256": "6534b0c7c91ade11db300bc6f52fa7de05b0b6b6028a49b2936b7a0981896864"
+          "triangles": 109512,
+          "bytes": 22788360,
+          "sha256": "91b1fd7a9fbed0cf0fb30af428df873bb94e543e20d542bf1c70dea594a3b6b1"
         },
         {
           "file": "bw_codex_room_03_lod1.glb",
-          "triangles": 87389,
-          "bytes": 9980828,
-          "sha256": "064bff0ae0826c91da20faae3cb0253c5f5d6d8610fba40d1b34ec3bd3398128"
+          "triangles": 54755,
+          "bytes": 10742632,
+          "sha256": "68f58b2118681d1dc19cd9aad1fad966a31e102b86c3a4f3b5761c9c47cd0de1"
         },
         {
           "file": "bw_codex_room_03_lod2.glb",
-          "triangles": 34956,
-          "bytes": 3326280,
-          "sha256": "5bc904a2f803ed53c42b8c6b37e7d721427791c6d3e8c1a5c78f329b4ef539ab"
+          "triangles": 21886,
+          "bytes": 3463864,
+          "sha256": "aaa422de4773850b37cd1fdc264949a0c4ce98463691bfc5c30977734711d117"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -148,14 +165,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "drain",
+        "wall": "rock",
+        "ceiling": "low_rock",
+        "lights": [
+          [
+            -2,
+            1.1,
+            2,
+            [
+              0.56,
+              0.7,
+              0.57
+            ],
+            2.8,
+            10
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -170,21 +213,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_04.glb",
-          "triangles": 174744,
-          "bytes": 25269584,
-          "sha256": "dde24242663f47d0974494360b074955e50caefe1dccc8dc868bf672bee6c551"
+          "triangles": 114603,
+          "bytes": 15080944,
+          "sha256": "66a7bbeb74bbdb1103ee24a734bbc73602e12852d63a45fe41674ac398b2e90b"
         },
         {
           "file": "bw_codex_room_04_lod1.glb",
-          "triangles": 87372,
-          "bytes": 9984044,
-          "sha256": "219ff44c8ca0fa1177d48a8092e14befc8c507072480674ffde7e5e06b4a17c3"
+          "triangles": 57300,
+          "bytes": 7921224,
+          "sha256": "584c83e82621aca414708cd28110beaba9d9f1e4c3db863ec26559d0b5fcfe30"
         },
         {
           "file": "bw_codex_room_04_lod2.glb",
-          "triangles": 34948,
-          "bytes": 3322952,
-          "sha256": "b354103e576d05d876c9aadb917ec30386dcc680b66881db24fd9adf5ea41282"
+          "triangles": 22910,
+          "bytes": 2723696,
+          "sha256": "596ebbbf4069c4b5c1275aefd9999a07c86ebfd716aef7553717aa4f207b8b5d"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -195,14 +238,52 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "sorting",
+        "wall": "masonry",
+        "ceiling": "timber_grid",
+        "lights": [
+          [
+            -5,
+            3.2,
+            -4,
+            [
+              0.92,
+              0.7,
+              0.4
+            ],
+            4.5,
+            15
+          ],
+          [
+            5,
+            3.2,
+            4,
+            [
+              0.84,
+              0.66,
+              0.44
+            ],
+            3,
+            13
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -217,21 +298,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_05.glb",
-          "triangles": 241946,
-          "bytes": 28392136,
-          "sha256": "9d2bda6b6cd6aa7031e7c1b1933e694aac3dbb7af72e1f26251ad1d608a045c6"
+          "triangles": 290818,
+          "bytes": 48117340,
+          "sha256": "6e577042e750534de0db84a37c51571668592fbb416319450ab5f2935b560667"
         },
         {
           "file": "bw_codex_room_05_lod1.glb",
-          "triangles": 120972,
-          "bytes": 11258052,
-          "sha256": "dbbd6ee3c2b0fd5819a687ac2f4a7a44e7071a7275704fa7b54a6f4db5910f8c"
+          "triangles": 145395,
+          "bytes": 26860808,
+          "sha256": "c269d9f7c071717bd081eb4565428a7f41b5e12afee7db4b39453ffe8dc70ab4"
         },
         {
           "file": "bw_codex_room_05_lod2.glb",
-          "triangles": 48389,
-          "bytes": 3913992,
-          "sha256": "2b6d10016fda20c7a49f31089e45eca4aeb02632c3284cc74a0b445c54127de0"
+          "triangles": 58149,
+          "bytes": 8475364,
+          "sha256": "00de88f1dd055fcb9a68794dab980a94cd42982fee1f28a6a4cff02885ed3d7b"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -242,14 +323,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "still",
+        "wall": "rock",
+        "ceiling": "timber_cross",
+        "lights": [
+          [
+            -4,
+            1.6,
+            3,
+            [
+              0.96,
+              0.75,
+              0.46
+            ],
+            3.4,
+            12
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -264,21 +371,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_06.glb",
-          "triangles": 197070,
-          "bytes": 26058908,
-          "sha256": "32b2074ae590e74d51becfaf9482b2b5385b88e1109c60d2a76538b55f407371"
+          "triangles": 133619,
+          "bytes": 30838920,
+          "sha256": "afb08cee67537d348d36ecb68ab6d7a9b4ed7b79f9e3da8e482c6d8cf6067ae1"
         },
         {
           "file": "bw_codex_room_06_lod1.glb",
-          "triangles": 98534,
-          "bytes": 10397200,
-          "sha256": "2b128649c2f290661c13b461c47d2e294029bb4470c3252aa12129ab069550d6"
+          "triangles": 66809,
+          "bytes": 14862144,
+          "sha256": "58201853cac6e215f52a029d61f9da2f1ca40221912f915c5fac150cb314ccf1"
         },
         {
           "file": "bw_codex_room_06_lod2.glb",
-          "triangles": 39414,
-          "bytes": 3510540,
-          "sha256": "380077bec0e91a77265ead882a2f3d587c9e4fb26146745596caff9b0a4848af"
+          "triangles": 26707,
+          "bytes": 4675288,
+          "sha256": "bc472823a0334fc65daea5d14260138fb3708592cdc117a513834001d165f7a5"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -289,14 +396,52 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "archive",
+        "wall": "masonry",
+        "ceiling": "archive_ribs",
+        "lights": [
+          [
+            -5,
+            2.3,
+            -3,
+            [
+              0.95,
+              0.82,
+              0.61
+            ],
+            4,
+            13
+          ],
+          [
+            5,
+            2.3,
+            3,
+            [
+              0.86,
+              0.78,
+              0.65
+            ],
+            3.5,
+            12
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -311,21 +456,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_07.glb",
-          "triangles": 191400,
-          "bytes": 25853324,
-          "sha256": "47592c6c9f669ee30355c0ff23b324c5669d5234076cd26db1ecac9ce3d64820"
+          "triangles": 247908,
+          "bytes": 33654328,
+          "sha256": "6d2e2e39377d9c106a4580d274e48e64b5f0561f2965be10fafcfd79fcd93fa3"
         },
         {
           "file": "bw_codex_room_07_lod1.glb",
-          "triangles": 95699,
-          "bytes": 10279304,
-          "sha256": "69a1e73bd5c6d8875e46ca3ce2f85d266f572dcd98032716a5a234accffa9552"
+          "triangles": 123938,
+          "bytes": 20847460,
+          "sha256": "0af1f6f9eb0e4985a13da0cff908d0326cc9b1b045a615584ffb2b4fc6da0057"
         },
         {
           "file": "bw_codex_room_07_lod2.glb",
-          "triangles": 38279,
-          "bytes": 3457188,
-          "sha256": "41adf75ea5f42ef46d93bb0bedfaaecec3e78bc30397160881ae75a1b3906ebe"
+          "triangles": 49563,
+          "bytes": 7194992,
+          "sha256": "3819148f6b0de46a44b06831d5a0478be7f4fd2d02ae1d655f298f19c9a9c13e"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -336,14 +481,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "return",
+        "wall": "masonry",
+        "ceiling": "cross_pipes",
+        "lights": [
+          [
+            2,
+            2.8,
+            -4,
+            [
+              0.67,
+              0.78,
+              0.86
+            ],
+            3,
+            13
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -358,68 +529,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_08.glb",
-          "triangles": 197070,
-          "bytes": 26065768,
-          "sha256": "e99fbbfac1e9b7276756f0e56ac624a8230873efd0c54a8040afe33152030dba"
+          "triangles": 219063,
+          "bytes": 35456620,
+          "sha256": "a6823e6bcaf83be2bd0b464faae109cdec878bf0dc33f0b00b8bef0a463834cd"
         },
         {
           "file": "bw_codex_room_08_lod1.glb",
-          "triangles": 98535,
-          "bytes": 10401152,
-          "sha256": "bc2aa50bebbc3140612c6ebf1eeda9d13fa05a1934eb29dcf7ce68d94ad5ef9c"
+          "triangles": 109515,
+          "bytes": 19725448,
+          "sha256": "796502c3ea4440fef573f66de035f3b897b85f26d6809b7796fbc3c90b385898"
         },
         {
           "file": "bw_codex_room_08_lod2.glb",
-          "triangles": 39414,
-          "bytes": 3519688,
-          "sha256": "b2c52af2b4b63ac1c02b724ac63a4c9dee1d4b83f40026eee13c0903240bfca3"
-        }
-      ],
-      "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_09",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier"
-      ],
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
-      "texture_resolutions": [
-        1024,
-        512,
-        256
-      ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_09.glb",
-          "triangles": 174744,
-          "bytes": 25270832,
-          "sha256": "b758f6183731017d50d7cd2f97e9478710dea7465abdde605041b83512fabd0d"
-        },
-        {
-          "file": "bw_codex_room_09_lod1.glb",
-          "triangles": 87371,
-          "bytes": 9984300,
-          "sha256": "5fb84f78c2ce2f27422807993ea861152e74d05f70744a3d48598a618f58ad75"
-        },
-        {
-          "file": "bw_codex_room_09_lod2.glb",
-          "triangles": 34948,
-          "bytes": 3323520,
-          "sha256": "9c24a7d203564c99c098c97e36440e020079c0695e1d597ee9c1f51ea8b4af80"
+          "triangles": 43796,
+          "bytes": 6632996,
+          "sha256": "1ee9c2fb369e1fa73143ec3363e857e9df6dd0c0a7dc5a231df51bba36805b2e"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -430,14 +554,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "vestibule",
+        "wall": "rock",
+        "ceiling": "heavy_timber",
+        "lights": [
+          [
+            4,
+            2.0,
+            3,
+            [
+              0.9,
+              0.71,
+              0.45
+            ],
+            3.3,
+            12
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -452,21 +602,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_10.glb",
-          "triangles": 197070,
-          "bytes": 26063104,
-          "sha256": "f4d70ee63036c62bd3e7426bf7f7b2cf4a7e18796e85492d0b55d0dfe83c80d6"
+          "triangles": 133619,
+          "bytes": 30839856,
+          "sha256": "59ff708d928c1b988dea1d714dae4c3fd7bef8a6390204b694a4552b6a1cdb0d"
         },
         {
           "file": "bw_codex_room_10_lod1.glb",
-          "triangles": 98535,
-          "bytes": 10390180,
-          "sha256": "ce32de2a7bf9abc97b63d5de094db7f31b4e6fdeec8b83a7f27c5acc758478af"
+          "triangles": 66809,
+          "bytes": 14862244,
+          "sha256": "ee8cbb6e336270df22e3f67b521cd3ff8e2410644c6c0091a41a4271664d17d8"
         },
         {
           "file": "bw_codex_room_10_lod2.glb",
-          "triangles": 39413,
-          "bytes": 3508396,
-          "sha256": "ccd1e9fee77af97656f2eb42891a6fb5ea5822103325db25c1712fce0252fa5a"
+          "triangles": 26707,
+          "bytes": 4676228,
+          "sha256": "bb1f98bd3d337921636c89200f05f7c63d89b3f0883aba33360a62d91569b5de"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -477,14 +627,64 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "court",
+        "wall": "masonry",
+        "ceiling": "court_trusses",
+        "lights": [
+          [
+            -10,
+            3.1,
+            -8,
+            [
+              0.66,
+              0.77,
+              0.87
+            ],
+            4.5,
+            19
+          ],
+          [
+            10,
+            3.1,
+            -8,
+            [
+              0.66,
+              0.77,
+              0.87
+            ],
+            4.5,
+            19
+          ],
+          [
+            0,
+            3.4,
+            6,
+            [
+              0.92,
+              0.76,
+              0.52
+            ],
+            4.5,
+            20
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -499,21 +699,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_11.glb",
-          "triangles": 454842,
-          "bytes": 37535244,
-          "sha256": "50462c14798972e0850d1b531769091b447c571467cd05f39b4c7fe8263d2f67"
+          "triangles": 619797,
+          "bytes": 57026588,
+          "sha256": "9c3112f9f00720afd3c5162514fa0d68bc1c3932066e8ab16de177177f5696b9"
         },
         {
           "file": "bw_codex_room_11_lod1.glb",
-          "triangles": 227421,
-          "bytes": 15518808,
-          "sha256": "b033063bae4ac9980af2fa03696d87b53ee48b52c6cd96e83eca17c9565a2bd0"
+          "triangles": 309897,
+          "bytes": 36414288,
+          "sha256": "f2f92894488f0a654fb9cf11c57401d1e369419ffc79d091903d59f943fb8a17"
         },
         {
           "file": "bw_codex_room_11_lod2.glb",
-          "triangles": 90967,
-          "bytes": 5870212,
-          "sha256": "969e4d167b89b3e7ce68ffdf0b9c0c4256b5dec5e51803a3009200a5523205ab"
+          "triangles": 123945,
+          "bytes": 14469348,
+          "sha256": "25b0fb8e12294325d51a9766eed4d22748c3e5662cd64c34795c701cf9ad5b97"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -524,14 +724,52 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "headworks",
+        "wall": "masonry",
+        "ceiling": "machine_rails",
+        "lights": [
+          [
+            -5,
+            2.5,
+            -2,
+            [
+              0.92,
+              0.7,
+              0.4
+            ],
+            4,
+            14
+          ],
+          [
+            5,
+            3.1,
+            2,
+            [
+              0.61,
+              0.76,
+              0.83
+            ],
+            3.5,
+            13
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -546,21 +784,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_12.glb",
-          "triangles": 208410,
-          "bytes": 26477112,
-          "sha256": "72d5fe8d9626fe1a6c5474373c11bdbb7cba4b15dc82a37820db37b0a87d3bab"
+          "triangles": 226470,
+          "bytes": 35884400,
+          "sha256": "105c69cd9e13822373c5e503a82f58085aa66baf0b33b07978f6fb9e56cf4073"
         },
         {
           "file": "bw_codex_room_12_lod1.glb",
-          "triangles": 104205,
-          "bytes": 10620180,
-          "sha256": "e10187f1da9f57f75d1a76a72646a6ee6b636f2ef494a65869ac9797e4ca636f"
+          "triangles": 113223,
+          "bytes": 20049480,
+          "sha256": "876708f7a840d7b5b8b28922cc59b29802168c9918ea72c0863ca805734a369c"
         },
         {
           "file": "bw_codex_room_12_lod2.glb",
-          "triangles": 41681,
-          "bytes": 3619712,
-          "sha256": "08aaecd54d305e2cc1f759ef2d09537424786e5fd7b328772fab74194c471710"
+          "triangles": 45282,
+          "bytes": 6749876,
+          "sha256": "efb19f3369c4c6f314bab5f05c45149494545b8efaa91df3e298963938afdf0a"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -571,14 +809,40 @@
       "category": "building",
       "licence": "Fab Standard Personal",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; room assembly by Codex",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
       "source_modules": [
         "masonry",
         "floor",
         "ceiling",
         "pillar",
-        "brazier"
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
       ],
+      "room_identity": {
+        "identity": "inspection",
+        "wall": "rock",
+        "ceiling": "exposed_rock",
+        "lights": [
+          [
+            3,
+            2.7,
+            3,
+            [
+              0.63,
+              0.76,
+              0.72
+            ],
+            3,
+            12
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
       "backing_material": {
         "creator": "Rob Tuytel / Poly Haven",
         "licence": "CC0 1.0",
@@ -593,21 +857,21 @@
       "outputs": [
         {
           "file": "bw_codex_room_13.glb",
-          "triangles": 174756,
-          "bytes": 25270544,
-          "sha256": "f83a3be3ba88216be169801996ba33e1e42d887ab199c6ccaed1229e2ad6267c"
+          "triangles": 118237,
+          "bytes": 15232024,
+          "sha256": "ab1d5b2d588e1998870e956aa97a50d7116c82e3e2b05802e7d7836c7d845cbd"
         },
         {
           "file": "bw_codex_room_13_lod1.glb",
-          "triangles": 87377,
-          "bytes": 9981120,
-          "sha256": "7cde672fb317411b172c0fd1ed95dc1f4362c8bd7ea6ad190045250d67c401bd"
+          "triangles": 59118,
+          "bytes": 8011376,
+          "sha256": "c3fb48490e1b7fcc971d22ccd4a27d8220fabe7bf8368b712d3b8e5fc39f4a81"
         },
         {
           "file": "bw_codex_room_13_lod2.glb",
-          "triangles": 34951,
-          "bytes": 3323184,
-          "sha256": "2e2bb036362e1a746c6ce9a8c39b784a53f4a64556e1e119b8487f5a543582c6"
+          "triangles": 23632,
+          "bytes": 2764996,
+          "sha256": "97eff5141b2adaa9e70f1b3578d1bc11f66aa8132cab3c98127a4b5eec784104"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -618,7 +882,7 @@
       "licence": "CC0 1.0; first-party enclosure geometry",
       "creator": "Poly Haven; geometry by Codex",
       "source_url": "https://polyhaven.com/a/rock_ground",
-      "sha256": "ce65d6bc6a018382f523ef338d02ecfc42869babac70416deaa527a9cdf060b0",
+      "sha256": "a2ecbd4d80a027b667ed15664c0bc0e6e128f3d252a1dfe728698deb5ec08463",
       "shippable": true,
       "source_provenance": {
         "id": "cw_rock_ground",
@@ -650,7 +914,189 @@
       "licence": "Fab Standard Personal",
       "creator": "DanStudios; manual assembly by Codex",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "sha256": "c6a831960a2b67e0e5a7288ccda487a31c3de3d8d3265da909bed204f0f2b547",
+      "sha256": "23248c90f421afda97469e85f5e95b3c8f6ed73651e19622f58da06bfe6a6f49",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_02",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
+      ],
+      "room_identity": {
+        "identity": "intake",
+        "wall": "masonry",
+        "ceiling": "coffer_beams",
+        "lights": [
+          [
+            -5,
+            2.8,
+            -3,
+            [
+              0.88,
+              0.78,
+              0.6
+            ],
+            4,
+            14
+          ],
+          [
+            5,
+            2.8,
+            3,
+            [
+              0.7,
+              0.78,
+              0.86
+            ],
+            2,
+            12
+          ],
+          [
+            5.5,
+            1.9,
+            -3.5,
+            [
+              0.92,
+              0.8,
+              0.6
+            ],
+            2.5,
+            6
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_02.glb",
+          "triangles": 273483,
+          "bytes": 34825476,
+          "sha256": "0db53a6d05041f7e8197e004fbacfe9ace6b77a95795ced3fba0ac7385b09ec1"
+        },
+        {
+          "file": "bw_codex_room_02_lod1.glb",
+          "triangles": 136725,
+          "bytes": 21711484,
+          "sha256": "f0e43c1ca88e7b9491c7099994c6afd782cd43b8bdd7ebaf1019f551173a6ddc"
+        },
+        {
+          "file": "bw_codex_room_02_lod2.glb",
+          "triangles": 54678,
+          "bytes": 7744796,
+          "sha256": "b66d06ad28fb303c7c951a9d4a9cf9c3cc2e0301f06db9c47f89124d1625f9a3"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_09",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "timber",
+        "lantern"
+      ],
+      "room_identity": {
+        "identity": "blind_store",
+        "wall": "masonry",
+        "ceiling": "broken_slab",
+        "lights": [
+          [
+            -3,
+            1.9,
+            2,
+            [
+              0.91,
+              0.69,
+              0.4
+            ],
+            4,
+            11
+          ],
+          [
+            3,
+            1.8,
+            0,
+            [
+              0.95,
+              0.78,
+              0.52
+            ],
+            3,
+            6
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_09.glb",
+          "triangles": 193826,
+          "bytes": 29855916,
+          "sha256": "b7b9891acac76d2dfe4cd1a8dc45b8545e0e7ea3831c01baf26c68dc5cf2e693"
+        },
+        {
+          "file": "bw_codex_room_09_lod1.glb",
+          "triangles": 96901,
+          "bytes": 18163316,
+          "sha256": "36a25f8149208858eb8cff2aebb15522c73171765716e9ff10b99f1ed0eec252"
+        },
+        {
+          "file": "bw_codex_room_09_lod2.glb",
+          "triangles": 38753,
+          "bytes": 5901600,
+          "sha256": "42784a5cd7d202462ee2900e69f0f9740eb84160f76c273bb9a3a7cbcaeb704c"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
       "shippable": true
     },
     {
@@ -663,7 +1109,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "c55d42f3854f1e0d3a5a6221a0d3ebda99d35a16bd6d3cbfadc3de82568ecf6b",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_fitting_note",
@@ -675,7 +1126,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "27c8feff50d1fd46db24524c115a4b0a7856bee8371aa366850c5a6bbe610baa",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_diagram",
@@ -687,7 +1143,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "247aa4281c8b240bab2f6e598b4256b31952a577861bafa3adb6b2f99dfdc3e0",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_ledger",
@@ -699,7 +1160,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "303a0362c1ef2bad385d67cfdb14bcedbda75879c1f04afe436784683d573743",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_measure",
@@ -711,7 +1177,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "e3d5976cde3bfa19d920392ee438365706d615551c5f9fb5207f4644c239a951",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_measure_running",
@@ -723,7 +1194,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "63216e55369c9c0fc4d41cb4e4aad9024147638cfe91fb3bd296e86016065591",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_measure_dismantled",
@@ -735,7 +1211,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "77e861972dbb7a839b5176fa85268813f6cc928b1df8a4a6450683d72dbd2144",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_preserve_control",
@@ -747,7 +1228,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "45b9b984718669841ccbf8ad2f16d11c40b658993c222f53782e6cf5f6670dd3",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_dismantle_control",
@@ -759,7 +1245,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "e0d9e82e9b3242e5fadd2cc7fc65fc38640ae139452aab83e719d910b9c34bcb",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_codex_fragment",
@@ -771,7 +1262,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "94ce243596bf8538204cb8b18fe5c620a3f52983a659fa1f967e922df8b32a1d",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_lantern_foot",
@@ -783,7 +1279,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "85d56fc36ee225077407fa96bc756544af0ad1193a51b1e0a2c93af9055b7b9d",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_gate_1",
@@ -795,7 +1296,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "f8b29ab4897418d6719416eb4d936af10728a63bebccf7e07828981be5793948",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_gate_2",
@@ -807,7 +1313,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "935ce2adf714646f1cb6a5e157487c57844c6684e86aaa0ec52316cda228d41a",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_gate_3",
@@ -819,7 +1330,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "2bf310b5856e631026656e440f9cedf9dc46a1b71e7615c48094b34426e37289",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_wash_pipe",
@@ -831,7 +1347,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "6467181727728bd67fbee8c22ce4564a64a5bd6b33b2665904f2415f90ad82f0",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_drain_valve",
@@ -843,7 +1364,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "b248457b43d7b1054de66241d8e367fbf2b5f2ee653193a97dbf90e2df1c706a",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_inspection_gauge",
@@ -855,7 +1381,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "06a3d800ee49af74c5bb42a9ff7f9458b89c6d32b402be6d102562f47ef007da",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_sorting_rack",
@@ -867,7 +1398,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "e866a105722c737128872231dcbfa7349534d590a85f0ac8c0ff2f3cc8903a66",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_work_seat",
@@ -879,7 +1415,12 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "c8756c8f3f92b9e083593504c8fddcd749168600c0b0cb2e61564e2428471623",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
     },
     {
       "asset_id": "bw_codex_counterweight",
@@ -891,85 +1432,1161 @@
       ],
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true
+      "shippable": true,
+      "sha256": "4ddd904cf76ffea47281cb558e83c329b1c340997c47b228d32930ce837a1483",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ]
+    },
+    {
+      "asset_id": "bw_codex_entrance_threshold",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "sha256": "eefa515ec9c1f887c6e5e7f2b43356296927ce72039f140b4ac88c45a59c9f01",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
+        "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5"
+      ]
+    },
+    {
+      "asset_id": "bw_codex_entrance_drain",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "sha256": "57e1ade861e79501f7c0ebcb9ac0582102023cd5d4556503230a989f95f4a7ef",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
+        "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5"
+      ]
     },
     {
       "asset_id": "bw_codex_custodian",
       "built_by": "build_barrowworks_custodian.py",
-      "mesh": "Real source parts, manually assembled and rigidly weighted to nine joints.",
+      "mesh": "Authored 2015 Robot by piacenti; firearms and missile/spike components removed, refit to 2.5 m, manually weighted to eleven joints and hand-keyed. Mechanical measuring jaws and exposed rear index added.",
       "sources": [
         {
-          "title": "Boiler from the puffer VIC 32",
-          "author": "Scottish Maritime Museum",
-          "licence": "CC0 1.0",
-          "url": "https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d"
+          "title": "Robot",
+          "author": "piacenti",
+          "licence": "CC BY 3.0",
+          "url": "https://opengameart.org/content/robot-5",
+          "download_url": "https://opengameart.org/sites/default/files/robot%20game.zip",
+          "licence_url": "https://creativecommons.org/licenses/by/3.0/",
+          "archive_sha256": "907bf899b2b845a98feff8d00eab5281143ca548b7bba732f42178bf53303dbc"
         },
         {
           "title": "Old Industrial Pipe Pack PBR",
           "author": "SLASH-RENDAR",
-          "licence": "CC-BY 4.0",
+          "licence": "CC BY 4.0",
           "url": "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
-          "modifications": "Reoriented, resized, decimated, assembled and animated; attribution required."
+          "modifications": "Only opposed caliper jaws and rear index; source parts retained, attribution required."
         }
       ],
       "clips": [
         {
           "clip": "creature.bw_codex_custodian.idle",
-          "sha256": "ed9d438cda7abfb205dd9e738c8fdd4df26cc61a65d0bcb36c0273558ad42578",
+          "sha256": "aaa97ec985cf379af48426b23b40e19880b050d9fb6a18a7327baea83ca3ef48",
           "frames": 120
         },
         {
           "clip": "creature.bw_codex_custodian.walk",
-          "sha256": "99957ee81b2ed47e8e2a6cf11e5450431d0ea43606b21b7e752ce50ebcb4bf88",
+          "sha256": "080da417e7905cde9aead804410f832b35f1b41185972bc192782514c8b0d7d9",
           "frames": 18
         },
         {
           "clip": "creature.bw_codex_custodian.run",
-          "sha256": "03a81485620a74afe717dcd44757706dc6fc9efc408aca94250d060920fef3da",
+          "sha256": "20bcab9465b6cc1b4b09f5a469de0bf9a9f60fa3348a1298261b3461dd11894e",
           "frames": 16
         },
         {
           "clip": "creature.bw_codex_custodian.sweep",
-          "sha256": "b443d5ee5b33fa6b95c67cfb24445e0af591094686bde28f27ab862304ec81b0",
+          "sha256": "a7237a26228d7e2f862031a07d7e737f03fb8c9bfaede9c385afa26699250238",
           "frames": 90
         },
         {
           "clip": "creature.bw_codex_custodian.fall",
-          "sha256": "f6007ad1fb7e497649b12290d25f43c9767fbf585f0da95859f645f0be459ca9",
+          "sha256": "7bc6166c6e5d4eef0a06c277eceaded7754fa7336d908f7926a6bfa225d5a7aa",
           "frames": 100
         },
         {
           "clip": "creature.bw_codex_custodian.grasp",
-          "sha256": "9d190b00dda6e42318cc752d748ef5956efc0d71ce173575dc48970da2aaeadc",
+          "sha256": "357fdfb376f68b896c09831ebd2d457f98372f9afe7e581b67f37f12edabb1c6",
           "frames": 75
         },
         {
           "clip": "creature.bw_codex_custodian.hit",
-          "sha256": "777cb40c956b9a8ba2cc50e1e4fa6723af6cb2e8d0acc1ab704820584d251a15",
+          "sha256": "2dc1788c0a3ec893c82f82c4e41291dd69719b7957839660eaf3e641210c9ee5",
           "frames": 24
         },
         {
           "clip": "creature.bw_codex_custodian.death",
-          "sha256": "ba4b6d8031f6342d0f2773bca08723b120de50885706a023d47fe477f179ccba",
+          "sha256": "cb097289d63f5dd919e94792330fce34982e5337093737e5156c161d29968113",
           "frames": 90
         }
       ],
-      "shippable": true
+      "shippable": true,
+      "sha256": "1fc74ad36939e8837cf8e40bff71030c1421b7231d1c5eeffeb6d7bb18fab3f2"
     },
     {
       "asset_id": "prop_ph_wooden_crate_01",
       "category": "existing_production_reuse",
-      "licence": "CC0 1.0, Poly Haven",
       "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\prop_ph_wooden_crate_01\\prop_ph_wooden_crate_01_meta.json",
+      "source_provenance": {
+        "asset_id": "prop_ph_wooden_crate_01",
+        "name": "prop_ph_wooden_crate_01",
+        "category": "prop",
+        "source": "C:\\Otherreach_External_Assets\\PolyHaven\\models\\wooden_crate_01\\wooden_crate_01_4k.gltf",
+        "source_file": "wooden_crate_01_4k.gltf",
+        "source_sha256": "a8de14190171613e9b17f78b5593bb9b47b9a8b3efb392247f920c1f4e6ae42d",
+        "source_bytes": 5612,
+        "source_files": [
+          {
+            "path": "wooden_crate_01_diff_4k.jpg",
+            "sha256": "1bc2150a731fd37660df301032bef92fc997543a57f9b4ec7287aed3911cfa1f",
+            "bytes": 10325623
+          },
+          {
+            "path": "wooden_crate_01_arm_4k.jpg",
+            "sha256": "a4db1439f5fb66e3f95c4ab010134a1e18708fd6b1929dcfbb6a62d92545aaae",
+            "bytes": 9820044
+          },
+          {
+            "path": "wooden_crate_01_nor_gl_4k.jpg",
+            "sha256": "b82edeae46f4a8a29b05ebe84b790da87464267fff656cbca03f62162a8d41ff",
+            "bytes": 11376579
+          }
+        ],
+        "source_url": "https://polyhaven.com/a/wooden_crate_01",
+        "pack": "Poly Haven",
+        "licence": "CC0 1.0 Universal (Public Domain Dedication) - Poly Haven",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_evidence": "polyhaven.com/license: all Poly Haven assets are CC0",
+        "modification": "permitted (CC0 waives all rights)",
+        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
+        "built": "2026-10-14 19:01:53",
+        "command": "--out C:/Otherreach_Recovery/asset_work/buildings_props/_cand --source C:/Otherreach_External_Assets/PolyHaven/models/wooden_crate_01/wooden_crate_01_4k.gltf --asset-id prop_ph_wooden_crate_01 --res 2048 --category prop --max-tris 8000 --preview --work C:/Otherreach_Recovery/asset_work/buildings_props/_work/conv --source-url https://polyhaven.com/a/wooden_crate_01",
+        "triangles": 6576,
+        "source_triangles": 6576,
+        "transform": {
+          "dimensions_m": {
+            "x": 0.8252,
+            "y": 0.3496,
+            "z": 0.409
+          },
+          "min": [
+            -0.4126,
+            0,
+            -0.2045
+          ],
+          "max": [
+            0.4126,
+            0.3496,
+            0.2045
+          ],
+          "source_dimensions_m": [
+            0.8253,
+            0.409,
+            0.3496
+          ],
+          "scale_factor": 1.0,
+          "rescaled_by": "source units",
+          "yaw_deg": 0.0,
+          "units": "metres, 1 unit = 1 m, no node scale",
+          "glb_up_axis": "+Y",
+          "glb_forward_axis": "+Z (Blender -Y)",
+          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
+          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
+        },
+        "materials": [
+          "MAT_prop_ph_wooden_crate_01_0"
+        ],
+        "material_records": [
+          {
+            "slot": 0,
+            "source_material": "wooden_crate_01",
+            "native_px": 4096,
+            "lod0_px": [
+              2048,
+              2048
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "const",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          }
+        ],
+        "textures": [
+          {
+            "name": "prop_ph_wooden_crate_01_m0_normal",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 830439
+          },
+          {
+            "name": "prop_ph_wooden_crate_01_m0_orm",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1018636
+          },
+          {
+            "name": "prop_ph_wooden_crate_01_m0_basecolor",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1067440
+          }
+        ],
+        "texture_resolution": 2048,
+        "native_texture_resolution": 4096,
+        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
+        "orm_shared": true,
+        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
+        "lod_status": "present",
+        "lods": {
+          "prop_ph_wooden_crate_01_lod1": {
+            "ratio": 0.5,
+            "path": "prop_ph_wooden_crate_01_lod1.glb",
+            "triangles": 3288,
+            "texture_px": [
+              1024,
+              1024
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_ph_wooden_crate_01_0_lod1"
+            ]
+          },
+          "prop_ph_wooden_crate_01_lod2": {
+            "ratio": 0.2,
+            "path": "prop_ph_wooden_crate_01_lod2.glb",
+            "triangles": 1314,
+            "texture_px": [
+              512,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_ph_wooden_crate_01_0_lod2"
+            ]
+          }
+        },
+        "collision_status": "none",
+        "collision": {
+          "mode": "none"
+        },
+        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
+        "rigged": false,
+        "sockets": [],
+        "outputs": [
+          {
+            "file": "prop_ph_wooden_crate_01.glb",
+            "bytes": 3109420,
+            "sha256": "1fc28c43dbcbb28c6c5252052a1cdb51badd1f1bbc3fb896203a669fd51927a4"
+          },
+          {
+            "file": "prop_ph_wooden_crate_01_lod1.glb",
+            "bytes": 879916,
+            "sha256": "771a5c3abcae89f61355e4dfca052f2595da40a21e6ff207879ad623ddff347c"
+          },
+          {
+            "file": "prop_ph_wooden_crate_01_lod2.glb",
+            "bytes": 277448,
+            "sha256": "87a026211b8953c25af768d8322cbe8cfb4204bed0b96d839dd0ca81326d52d2"
+          }
+        ],
+        "status": "export_ready",
+        "game_integration": "NOT PROMOTED",
+        "visual_acceptance": "UNREVIEWED",
+        "notes": ""
+      },
       "sha256": "1fc28c43dbcbb28c6c5252052a1cdb51badd1f1bbc3fb896203a669fd51927a4",
       "shippable": true
     },
     {
       "asset_id": "cw_woodpile_a",
       "category": "existing_production_reuse",
-      "licence": "First-party geometry; first-party/CC0 wood materials",
       "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\cw_woodpile_a\\cw_woodpile_a_meta.json",
+      "source_provenance": {
+        "asset_id": "cw_woodpile_a",
+        "parameters": {
+          "rows": 6,
+          "per_row": 9,
+          "logs": 54,
+          "nominal_radius_m": 0.112,
+          "radius_scale_range": [
+            0.86,
+            1.16
+          ],
+          "taper_range": [
+            0.9,
+            1.02
+          ],
+          "bend_range_m": [
+            0.0035,
+            0.0105
+          ],
+          "lengthwise_wobble_range": [
+            0.03,
+            0.075
+          ],
+          "length_jitter_mm": 16.0,
+          "crown_range_rad": [
+            -0.3,
+            0.3
+          ],
+          "section_harmonics": [
+            [
+              0.1,
+              3.0
+            ],
+            [
+              0.07,
+              4.0
+            ]
+          ],
+          "section_harmonic_scale": [
+            0.55,
+            1.0
+          ],
+          "cut_chamfer_m": 0.006,
+          "cut_recess_m": 0.0006,
+          "brace_radius_m": 0.0225,
+          "bark_tile_m": 0.9,
+          "sawn_tile_m": 0.9,
+          "sawn_atlas": 4,
+          "sawn_fill": 0.94,
+          "timber_tile_m": 1.5,
+          "box": {
+            "x_m": 1.9457,
+            "y_m": 1.2,
+            "z_m": 0.9094
+          },
+          "seeding": "blake2b(asset:parameter) through _procgen_building._param_rng - keyed per parameter, so a parameter added later cannot re-roll what is already placed"
+        },
+        "nodes": [
+          "structure"
+        ],
+        "frame": {
+          "origin": "footprint centre at ground level",
+          "axes": "glTF +X = world +X (east), +Y up, +Z = world +Z (north)"
+        },
+        "triangles": 7268,
+        "materials": {
+          "bark": "cw_dead_wood",
+          "sawn": "cw_log_end"
+        },
+        "category": "prop",
+        "built_for": "CAIRNWOLD",
+        "convention": {
+          "frame": "glTF +Y up, +Z forward, +X right; origin at the footprint centre on the ground",
+          "source": "measured from assets/ready/longhouse, building_well and prop_iron_banded_oak_door, and stated in tools/asset_pipeline/_procgen_building.py's header",
+          "units": "metres, 1 unit = 1 m, no node scale"
+        },
+        "world_truth": {
+          "source": "content/regions/cairnwold.yaml",
+          "note": "19 placements, each `circle_m: [x, z, 0.62]` with `height_m: 1.20`. The model is built to the box the shipped asset occupied - 1.9457 x 1.2000 x 0.9094 m, min [-0.9728, 0.0, -0.4547] - so none of the 19 moves and no content YAML was touched."
+        },
+        "transform": {
+          "dimensions_m": {
+            "x": 1.9446,
+            "y": 1.2042,
+            "z": 0.9094
+          },
+          "min": [
+            -0.9716,
+            0.0,
+            -0.4547
+          ],
+          "max": [
+            0.973,
+            1.2042,
+            0.4547
+          ],
+          "origin_mode": "centre"
+        },
+        "lod_policy": "regrown per level at a coarser tessellation, not decimated off LOD0",
+        "lods": {
+          "cw_woodpile_a_lod1": {
+            "faces": 6052,
+            "triangles": 6052,
+            "ratio": 0.8327,
+            "path": "ready/cw_woodpile_a/cw_woodpile_a_lod1.glb",
+            "sides": 11,
+            "rings": 3,
+            "tex_px": 1024,
+            "glb_bytes": 831400,
+            "materials": [
+              "MAT_cw_woodpile_a_lod1_bark",
+              "MAT_cw_woodpile_a_lod1_sawn"
+            ],
+            "dimensions_m": [
+              1.9435,
+              1.2001,
+              0.9094
+            ],
+            "min": [
+              -0.973,
+              0.0,
+              -0.4547
+            ],
+            "max": [
+              0.9705,
+              1.2001,
+              0.4547
+            ]
+          },
+          "cw_woodpile_a_lod2": {
+            "faces": 3336,
+            "triangles": 3336,
+            "ratio": 0.459,
+            "path": "ready/cw_woodpile_a/cw_woodpile_a_lod2.glb",
+            "sides": 6,
+            "rings": 3,
+            "tex_px": 512,
+            "glb_bytes": 334356,
+            "materials": [
+              "MAT_cw_woodpile_a_lod2_bark",
+              "MAT_cw_woodpile_a_lod2_sawn"
+            ],
+            "dimensions_m": [
+              1.9453,
+              1.2,
+              0.9094
+            ],
+            "min": [
+              -0.9726,
+              0.0,
+              -0.4547
+            ],
+            "max": [
+              0.9726,
+              1.2,
+              0.4547
+            ]
+          }
+        },
+        "material_slots": [
+          "MAT_cw_woodpile_a_bark",
+          "MAT_cw_woodpile_a_sawn",
+          "MAT_cw_woodpile_a_lod1_sawn",
+          "MAT_cw_woodpile_a_lod2_sawn"
+        ],
+        "textures": "embedded in the GLB, resampled from the Cairnwold map sets: bark (cw_dead_wood, 2048 px source) at 2048 px and sawn END GRAIN (cw_log_end, 2048 px source, a 4x4 atlas of distinct cut faces) at 2048 px on LOD0, halved per level",
+        "collision": {
+          "box_dimensions_m": [
+            1.9457,
+            1.2,
+            0.9094
+          ],
+          "mode": "box",
+          "note": "UNCHANGED AND DELIBERATELY SO: the collision hull is not rebuilt, so the 19 instances collide exactly as before"
+        },
+        "gates": {
+          "structure": {
+            "object": "structure",
+            "triangles": 7268,
+            "bowtie_polygons": 0,
+            "flipped_triangles": 0,
+            "inward_triangles": 0,
+            "degenerate_triangles": 0,
+            "uv_degenerate_triangles": 0,
+            "shells": 168,
+            "open_shells": 168,
+            "ok": true
+          },
+          "glb_base": {
+            "glb": "G:\\UNNAMED_DS_PHASEB\\evidence\\woodpile_round2\\_staging_assets\\ready\\cw_woodpile_a\\cw_woodpile_a.glb",
+            "meshes": 1,
+            "triangles": 7268,
+            "normal_disagree_triangles": 0,
+            "degenerate_triangles": 0,
+            "uv_degenerate_triangles": 0,
+            "ok": true
+          },
+          "glb_lod1": {
+            "glb": "G:\\UNNAMED_DS_PHASEB\\evidence\\woodpile_round2\\_staging_assets\\ready\\cw_woodpile_a\\cw_woodpile_a_lod1.glb",
+            "meshes": 1,
+            "triangles": 6052,
+            "normal_disagree_triangles": 0,
+            "degenerate_triangles": 0,
+            "uv_degenerate_triangles": 0,
+            "ok": true
+          },
+          "glb_lod2": {
+            "glb": "G:\\UNNAMED_DS_PHASEB\\evidence\\woodpile_round2\\_staging_assets\\ready\\cw_woodpile_a\\cw_woodpile_a_lod2.glb",
+            "meshes": 1,
+            "triangles": 3336,
+            "normal_disagree_triangles": 0,
+            "degenerate_triangles": 0,
+            "uv_degenerate_triangles": 0,
+            "ok": true
+          }
+        },
+        "gate_examples": [],
+        "tile_length_m": null,
+        "door_openings": null,
+        "note": "Stacked split firewood, 54 logs in six rows, 1.20 m high. Each log is a lobed round section swept along its own bent, tapering centreline with a sawn end at each face, so no two logs share a diameter, a length, a taper or a rotation - built to replace six-sided prisms, which is what the shipped asset was (54 hexagons, 8 distinct face normals in the whole model).",
+        "authored": "parametric, exact dimensions in the world frame; generator tools/asset_pipeline/_procgen_woodpile.py, replacing G:/UNNAMED_DS_ASSETS/cairnwold/_build/build_cairnwold_village.py",
+        "generator": {
+          "script": "tools/asset_pipeline/_procgen_woodpile.py",
+          "script_sha256": "b8d92eec78a27080947ee82b90055e6f8e30a8a70fce87190eb8ebbc2ca020e8",
+          "blender": "5.2.2 LTS",
+          "generated": "2026-09-29 04:39:59",
+          "reuses": [
+            "_procgen_hurdle.tube (the lobed round section swept along a centreline, with cylindrical UVs and chamfered, radially-unwrapped cut ends)",
+            "_procgen_building._param_rng/_pick/_uniform (the keyed, append-only RNG)",
+            "_rebuild_lods.downscaled_materials (sRGB-aware, normal-renormalising texture downscale)",
+            "procgen_lib.export.write_provenance, procgen_lib.validate.geometry_gate/glb_gate"
+          ],
+          "not_reused": {
+            "chamfered_box / chamfer_width": "CHAMFER_SCALE defaults to 0, so chamfer_width returns 0.0 (measured by _procgen_hurdle); the 6 mm cut chamfer carries the number, not the call. A log is roundwood, so a chamfered box would read as sawn timber.",
+            "build_cairnwold_village.woodpile": "the asset being replaced, and it is the fault: six-sided prisms from acc.cyl(..., 6). Its STATUS header says its props are the region's weakest assets and must not be upgraded in that file's style."
+          }
+        },
+        "levels": [
+          {
+            "level": 0,
+            "file": "cw_woodpile_a.glb",
+            "triangles": 7268,
+            "vertices": 4962,
+            "faces": 4242,
+            "dimensions_m_gltf": [
+              1.9446,
+              1.2042,
+              0.9094
+            ],
+            "min_gltf": [
+              -0.9716,
+              0.0,
+              -0.4547
+            ],
+            "max_gltf": [
+              0.973,
+              1.2042,
+              0.4547
+            ],
+            "glb_bytes": 5427560,
+            "materials": [
+              "MAT_cw_woodpile_a_bark",
+              "MAT_cw_woodpile_a_sawn"
+            ],
+            "image_px": 2048,
+            "sides": 11,
+            "rings": 4
+          },
+          {
+            "level": 1,
+            "file": "cw_woodpile_a_lod1.glb",
+            "triangles": 6052,
+            "vertices": 4354,
+            "faces": 3634,
+            "dimensions_m_gltf": [
+              1.9435,
+              1.2001,
+              0.9094
+            ],
+            "min_gltf": [
+              -0.973,
+              0.0,
+              -0.4547
+            ],
+            "max_gltf": [
+              0.9705,
+              1.2001,
+              0.4547
+            ],
+            "glb_bytes": 831400,
+            "materials": [
+              "MAT_cw_woodpile_a_lod1_bark",
+              "MAT_cw_woodpile_a_lod1_sawn"
+            ],
+            "image_px": 1024,
+            "sides": 11,
+            "rings": 3
+          },
+          {
+            "level": 2,
+            "file": "cw_woodpile_a_lod2.glb",
+            "triangles": 3336,
+            "vertices": 2452,
+            "faces": 2004,
+            "dimensions_m_gltf": [
+              1.9453,
+              1.2,
+              0.9094
+            ],
+            "min_gltf": [
+              -0.9726,
+              0.0,
+              -0.4547
+            ],
+            "max_gltf": [
+              0.9726,
+              1.2,
+              0.4547
+            ],
+            "glb_bytes": 334356,
+            "materials": [
+              "MAT_cw_woodpile_a_lod2_bark",
+              "MAT_cw_woodpile_a_lod2_sawn"
+            ],
+            "image_px": 512,
+            "sides": 6,
+            "rings": 3
+          }
+        ],
+        "licence": "first-party, built for CAIRNWOLD",
+        "licence_evidence": "authored parametrically by tools/asset_pipeline/_procgen_woodpile.py. No third-party geometry is imported. Its textures are the Cairnwold material bank - cw_dead_wood is CC0 1.0 (Poly Haven dead_tree_trunk, LICENSE.txt in the pack) and cw_timber_beam is first-party/CC0 per its own record.",
+        "built": "2026-09-29 04:39:59",
+        "rigged": false
+      },
       "sha256": "dce118cf86776142a60c1c80ab062dacf90bf6bbab9f53db25d00602f88c0fa0",
+      "shippable": true
+    },
+    {
+      "asset_id": "prop_bp_beam_mossy",
+      "category": "existing_production_reuse",
+      "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\prop_bp_beam_mossy\\prop_bp_beam_mossy_meta.json",
+      "source_provenance": {
+        "asset_id": "prop_bp_beam_mossy",
+        "name": "prop_bp_beam_mossy",
+        "category": "prop",
+        "source": "C:\\Otherreach_Recovery\\asset_work\\buildings_props\\_work\\props\\prop_bp_beam_mossy.blend",
+        "source_file": "prop_bp_beam_mossy.blend",
+        "source_sha256": "09d793811f205593a503a5a3196ba50676071153bab9922548fe6a4961975470",
+        "source_bytes": 109379,
+        "source_files": [],
+        "pack": "BlenderKit",
+        "licence": "CC0 1.0 (Poly Haven / ambientCG textures and models) + first-party generated geometry (bp_props.py)",
+        "licence_url": "https://www.blenderkit.com/docs/licenses/",
+        "licence_evidence": "see PROPOSALS.csv source column",
+        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
+        "built": "2026-10-14 19:13:02",
+        "command": "--out C:/Otherreach_Recovery/asset_work/buildings_props/ready --source C:/Otherreach_Recovery/asset_work/buildings_props/_work/props\\prop_bp_beam_mossy.blend --asset-id prop_bp_beam_mossy --res 2048 --category prop --max-tris 30000 --preview --work C:/Otherreach_Recovery/asset_work/buildings_props/_work/conv --licence CC0 1.0 (Poly Haven / ambientCG textures and models) + first-party generated geometry (bp_props.py) --licence-evidence see PROPOSALS.csv source column",
+        "triangles": 580,
+        "source_triangles": 580,
+        "transform": {
+          "dimensions_m": {
+            "x": 6.4026,
+            "y": 0.5072,
+            "z": 0.4844
+          },
+          "min": [
+            -3.2013,
+            0,
+            -0.2422
+          ],
+          "max": [
+            3.2013,
+            0.5072,
+            0.2422
+          ],
+          "source_dimensions_m": [
+            6.4025,
+            0.4844,
+            0.5072
+          ],
+          "scale_factor": 1.0,
+          "rescaled_by": "source units",
+          "yaw_deg": 0.0,
+          "units": "metres, 1 unit = 1 m, no node scale",
+          "glb_up_axis": "+Y",
+          "glb_forward_axis": "+Z (Blender -Y)",
+          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
+          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
+        },
+        "materials": [
+          "MAT_prop_bp_beam_mossy_0",
+          "MAT_prop_bp_beam_mossy_1",
+          "MAT_prop_bp_beam_mossy_2"
+        ],
+        "material_records": [
+          {
+            "slot": 0,
+            "source_material": "ah_bark",
+            "native_px": 1024,
+            "lod0_px": [
+              1024,
+              1024
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "const",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          },
+          {
+            "slot": 1,
+            "source_material": "ah_board",
+            "native_px": 2048,
+            "lod0_px": [
+              2048,
+              2048
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "const",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          },
+          {
+            "slot": 2,
+            "source_material": "moss",
+            "native_px": 1024,
+            "lod0_px": [
+              1024,
+              1024
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "const",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          }
+        ],
+        "textures": [
+          {
+            "name": "prop_bp_beam_mossy_m0_normal",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 545426
+          },
+          {
+            "name": "prop_bp_beam_mossy_m0_orm",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 313741
+          },
+          {
+            "name": "prop_bp_beam_mossy_m0_basecolor",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 342647
+          },
+          {
+            "name": "prop_bp_beam_mossy_m1_normal",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1309661
+          },
+          {
+            "name": "prop_bp_beam_mossy_m1_orm",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1218406
+          },
+          {
+            "name": "prop_bp_beam_mossy_m1_basecolor",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 2043797
+          },
+          {
+            "name": "prop_bp_beam_mossy_m2_normal",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 695589
+          },
+          {
+            "name": "prop_bp_beam_mossy_m2_orm",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 573584
+          },
+          {
+            "name": "prop_bp_beam_mossy_m2_basecolor",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 644390
+          }
+        ],
+        "texture_resolution": 2048,
+        "native_texture_resolution": 2048,
+        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
+        "orm_shared": true,
+        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
+        "lod_status": "present",
+        "lods": {
+          "prop_bp_beam_mossy_lod1": {
+            "ratio": 0.5,
+            "path": "prop_bp_beam_mossy_lod1.glb",
+            "triangles": 290,
+            "texture_px": [
+              1024,
+              1024
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_bp_beam_mossy_0_lod1",
+              "MAT_prop_bp_beam_mossy_1_lod1",
+              "MAT_prop_bp_beam_mossy_2_lod1"
+            ]
+          },
+          "prop_bp_beam_mossy_lod2": {
+            "ratio": 0.2,
+            "path": "prop_bp_beam_mossy_lod2.glb",
+            "triangles": 116,
+            "texture_px": [
+              512,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_bp_beam_mossy_0_lod2",
+              "MAT_prop_bp_beam_mossy_1_lod2",
+              "MAT_prop_bp_beam_mossy_2_lod2"
+            ]
+          }
+        },
+        "collision_status": "none",
+        "collision": {
+          "mode": "none"
+        },
+        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
+        "rigged": false,
+        "sockets": [],
+        "outputs": [
+          {
+            "file": "prop_bp_beam_mossy.glb",
+            "bytes": 7731552,
+            "sha256": "35ea99c788d39fb57f604706d3c8c262241d3bec0d84283b984a914ca17bc0fd"
+          },
+          {
+            "file": "prop_bp_beam_mossy_lod1.glb",
+            "bytes": 1942080,
+            "sha256": "c29e57194ae6cf1aa671dee3ea6303f9729b019009cd19ab8adf1d24fe820f49"
+          },
+          {
+            "file": "prop_bp_beam_mossy_lod2.glb",
+            "bytes": 469160,
+            "sha256": "c0f53b79c3a3bcb0c6945b659fcc9d8eb96bdf30e179d0375b8728b8194eb4ea"
+          }
+        ],
+        "status": "export_ready",
+        "game_integration": "NOT PROMOTED",
+        "visual_acceptance": "UNREVIEWED",
+        "notes": ""
+      },
+      "sha256": "35ea99c788d39fb57f604706d3c8c262241d3bec0d84283b984a914ca17bc0fd",
+      "shippable": true
+    },
+    {
+      "asset_id": "prop_ph_wooden_lantern_01",
+      "category": "existing_production_reuse",
+      "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\prop_ph_wooden_lantern_01\\prop_ph_wooden_lantern_01_meta.json",
+      "source_provenance": {
+        "asset_id": "prop_ph_wooden_lantern_01",
+        "name": "prop_ph_wooden_lantern_01",
+        "category": "prop",
+        "source": "C:\\Otherreach_External_Assets\\PolyHaven\\models\\wooden_lantern_01\\wooden_lantern_01_4k.gltf",
+        "source_file": "wooden_lantern_01_4k.gltf",
+        "source_sha256": "24391403b8cdf8b77c301211679b0aa95e421c95ec28c0a52c94477e0c074f7b",
+        "source_bytes": 9540,
+        "source_files": [
+          {
+            "path": "wooden_lantern_01_diff_4k.jpg",
+            "sha256": "3b41612db0690ca385d7e6964df7b20be1a2f98f2c6dab0f0eee99562960bc5f",
+            "bytes": 10750437
+          },
+          {
+            "path": "wooden_lantern_01_glass_diff_4k.jpg",
+            "sha256": "d80d85fbc4f9935f9c89d9d1975b0e08707028b6c775f884c17a92b423c86af3",
+            "bytes": 6096551
+          },
+          {
+            "path": "wooden_lantern_01_glass_arm_4k.jpg",
+            "sha256": "02c3466333cc02d750caaa265cff349f9aa7e17bd6c7813452e225908a9273e7",
+            "bytes": 7985143
+          },
+          {
+            "path": "wooden_lantern_01_glass_nor_gl_4k.jpg",
+            "sha256": "f7994bd7553777ba3a983ccbf1e01d539375c308f600cbb1973301fb3399b57c",
+            "bytes": 5005879
+          },
+          {
+            "path": "wooden_lantern_01_arm_4k.jpg",
+            "sha256": "1eccf3464f84124858215bcf0925a37888eb50f55fbe70f8bd21844d0451ce6f",
+            "bytes": 11478270
+          },
+          {
+            "path": "wooden_lantern_01_nor_gl_4k.jpg",
+            "sha256": "db908b181e160ccf743cc9a547c9a911f3bae097a1d1d81bce88a544c243d8aa",
+            "bytes": 13111111
+          }
+        ],
+        "source_url": "https://polyhaven.com/a/wooden_lantern_01",
+        "pack": "Poly Haven",
+        "licence": "CC0 1.0 Universal (Public Domain Dedication) - Poly Haven",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_evidence": "polyhaven.com/license: all Poly Haven assets are CC0",
+        "modification": "permitted (CC0 waives all rights)",
+        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
+        "built": "2026-10-14 19:01:39",
+        "command": "--out C:/Otherreach_Recovery/asset_work/buildings_props/_cand --source C:/Otherreach_External_Assets/PolyHaven/models/wooden_lantern_01/wooden_lantern_01_4k.gltf --asset-id prop_ph_wooden_lantern_01 --res 1024 --category prop --max-tris 8000 --preview --work C:/Otherreach_Recovery/asset_work/buildings_props/_work/conv --source-url https://polyhaven.com/a/wooden_lantern_01",
+        "triangles": 7999,
+        "source_triangles": 8321,
+        "transform": {
+          "dimensions_m": {
+            "x": 0.221,
+            "y": 0.5301,
+            "z": 0.2348
+          },
+          "min": [
+            -0.1105,
+            0,
+            -0.1174
+          ],
+          "max": [
+            0.1105,
+            0.5301,
+            0.1174
+          ],
+          "source_dimensions_m": [
+            0.221,
+            0.2347,
+            0.5301
+          ],
+          "scale_factor": 1.0,
+          "rescaled_by": "source units",
+          "yaw_deg": 0.0,
+          "units": "metres, 1 unit = 1 m, no node scale",
+          "glb_up_axis": "+Y",
+          "glb_forward_axis": "+Z (Blender -Y)",
+          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
+          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
+        },
+        "materials": [
+          "MAT_prop_ph_wooden_lantern_01_0",
+          "MAT_prop_ph_wooden_lantern_01_1"
+        ],
+        "material_records": [
+          {
+            "slot": 0,
+            "source_material": "wooden_lantern_01",
+            "native_px": 4096,
+            "lod0_px": [
+              1024,
+              1024
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "const",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          },
+          {
+            "slot": 1,
+            "source_material": "wooden_lantern_01_glass",
+            "native_px": 4096,
+            "lod0_px": [
+              1024,
+              1024
+            ],
+            "cutout": false,
+            "channels": {
+              "base": "image",
+              "alpha": "image",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          }
+        ],
+        "textures": [
+          {
+            "name": "prop_ph_wooden_lantern_01_m0_normal",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 263835
+          },
+          {
+            "name": "prop_ph_wooden_lantern_01_m0_orm",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 331910
+          },
+          {
+            "name": "prop_ph_wooden_lantern_01_m0_basecolor",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 285619
+          },
+          {
+            "name": "prop_ph_wooden_lantern_01_m1_normal",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 45457
+          },
+          {
+            "name": "prop_ph_wooden_lantern_01_m1_orm",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 173592
+          },
+          {
+            "name": "prop_ph_wooden_lantern_01_m1_basecolor",
+            "px": [
+              1024,
+              1024
+            ],
+            "format": "jpeg",
+            "bytes": 135925
+          }
+        ],
+        "texture_resolution": 1024,
+        "native_texture_resolution": 4096,
+        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
+        "orm_shared": true,
+        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
+        "lod_status": "present",
+        "lods": {
+          "prop_ph_wooden_lantern_01_lod1": {
+            "ratio": 0.5,
+            "path": "prop_ph_wooden_lantern_01_lod1.glb",
+            "triangles": 3999,
+            "texture_px": [
+              512,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_ph_wooden_lantern_01_0_lod1",
+              "MAT_prop_ph_wooden_lantern_01_1_lod1"
+            ]
+          },
+          "prop_ph_wooden_lantern_01_lod2": {
+            "ratio": 0.2,
+            "path": "prop_ph_wooden_lantern_01_lod2.glb",
+            "triangles": 1599,
+            "texture_px": [
+              256,
+              256
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_prop_ph_wooden_lantern_01_0_lod2",
+              "MAT_prop_ph_wooden_lantern_01_1_lod2"
+            ]
+          }
+        },
+        "collision_status": "none",
+        "collision": {
+          "mode": "none"
+        },
+        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
+        "rigged": false,
+        "sockets": [],
+        "outputs": [
+          {
+            "file": "prop_ph_wooden_lantern_01.glb",
+            "bytes": 1541636,
+            "sha256": "e76d379d6dabedf85be1a7f508d7ea7e133f773e4a3485acb087679efbc25e16"
+          },
+          {
+            "file": "prop_ph_wooden_lantern_01_lod1.glb",
+            "bytes": 519488,
+            "sha256": "bd2a600a7a747f78b3ed2b8f5dbe2211e2aec89029cf972a12959d9dacc5714d"
+          },
+          {
+            "file": "prop_ph_wooden_lantern_01_lod2.glb",
+            "bytes": 191008,
+            "sha256": "0a6a5a7ba7bc0777c81f3437f3db34c847a1b1c00e287eedc97a82c7490175d3"
+          }
+        ],
+        "status": "export_ready",
+        "game_integration": "NOT PROMOTED",
+        "visual_acceptance": "UNREVIEWED",
+        "notes": "",
+        "post_process": "2026-10-15 glass_fix.py: glass material(s) set alphaMode BLEND, baseColorFactor alpha 0.18, doubleSided, roughnessFactor 0.15, renamed *_glass, in every LOD - so the lantern_flame VFX inside shows"
+      },
+      "sha256": "e76d379d6dabedf85be1a7f508d7ea7e133f773e4a3485acb087679efbc25e16",
       "shippable": true
     }
   ]

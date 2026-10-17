@@ -11,12 +11,18 @@ namespace UNNAMED.Presentation.Greybox;
 public static class PortalEntrance
 {
     /// <summary>The frame and its opening, standing at the portal's exterior anchor and facing away from it.</summary>
-    public static Node3D Build(SpacePortal portal, RegionLayout layout)
+    public static Node3D Build(SpacePortal portal, RegionLayout layout, Art.ArtLibrary art, Art.ArtBindings bindings)
     {
         var root = new Node3D { Name = $"Entrance_{portal.Key}" };
         long xMm = portal.ExteriorXMm, zMm = portal.ExteriorZMm;
         float y = layout.Space.Terrain.HeightAtMm(xMm, zMm) / 1000f;
         root.Position = new Vector3(xMm / 1000f, y, zMm / 1000f);
+        if (bindings.Structure(portal.Key) is { Model: not null } look
+            && Art.Fitting.Site(art, look, Vector3.Zero) is { } model)
+        {
+            root.AddChild(model);
+            return root;
+        }
 
         var stone = new StandardMaterial3D { AlbedoColor = new Color(0.34f, 0.32f, 0.29f), Roughness = 0.95f };
         var dark = new StandardMaterial3D { AlbedoColor = new Color(0.02f, 0.02f, 0.025f), Roughness = 1f };

@@ -287,7 +287,7 @@ public partial class Main : Node3D
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
         if (VisualOptions.Barrowworks && _options.ContainsKey("--barrowworks-review"))
-            shotStart = (437_000, 663_000);
+            shotStart = (438_000, 664_000);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -628,6 +628,20 @@ public partial class Main : Node3D
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
+        // The held interior's resource work belongs to startup, not a synchronous first portal entry.
+        // This method is never reached with the option off. Reuse the library caches that normal views consume.
+        foreach (var id in ring.Containers.Select(s => bindings.Containers.GetValueOrDefault(s.Key)?.Model)
+                     .Concat(ring.Nodes.Select(s => bindings.Nodes.GetValueOrDefault(s.NodeDefId)?.Model))
+                     .OfType<string>().Distinct(StringComparer.Ordinal))
+            _art.ModelWithLods(id)?.Free();
+        foreach (var creature in _session.Setup.Combat.Spawns.Where(s => s.Space == ring.SpaceId)
+                     .SelectMany(s => s.Members).Select(m => m.CreatureId).Distinct(StringComparer.Ordinal))
+        {
+            if (!bindings.Creatures.TryGetValue(creature, out var look)) continue;
+            _art.Rigged(look.Model)?.Free();
+            foreach (var clip in look.Clips.Values.Distinct(StringComparer.Ordinal))
+                _art.Clip(clip);
+        }
         _interior.SetSpaceActive(false);
         _hollow.SetSpaceActive(true);
         BuildPortalEntrances(_session.Setup.Layout);
@@ -640,7 +654,7 @@ public partial class Main : Node3D
     private void BuildPortalEntrances(RegionLayout layout)
     {
         foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
-            _hollow.AddChild(Greybox.PortalEntrance.Build(portal, layout));
+            _hollow.AddChild(Greybox.PortalEntrance.Build(portal, layout, _art, _interiorBindings ?? _bindings));
     }
 
     /// <summary>
