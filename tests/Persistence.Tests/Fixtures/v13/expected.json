@@ -475,5 +475,6 @@
   ],
   "noises": [],
   "economy": null,
-  "merchants": []
+  "merchants": [],
+  "npc_life": null
 }

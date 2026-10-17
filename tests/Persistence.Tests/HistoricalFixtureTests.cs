@@ -338,6 +338,25 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.World.Merchants);
         }
 
+        // Schema 26's NPC life (WP12): the warden walking to her work, the porter injured and eating, the carter's slot awaiting its next
+        // resident, a pair's last meeting. Before it, a save held no lives: the NPCs begin their routines when the world starts.
+        var life = loaded.World.NpcLife;
+        if (schema >= 26)
+        {
+            Assert.NotNull(life);
+            Assert.Equal(80, life!.Hour);
+            var warden = life.Npcs["npc.fixture.warden"];
+            Assert.Equal((NpcActivities.Work, 148_750L, -41_500L, NavRouteStatus.Active, 2), (warden.Activity, warden.XMm, warden.ZMm, warden.Route.Status, warden.Route.Corners.Length));
+            var porter = life.Npcs["routine.fixture.porter"];
+            Assert.Equal(("Aldo Renning", 1, NpcCondition.Injured, 6_000L), (porter.Name, porter.Generation, porter.Condition, porter.ConditionUntil));
+            Assert.Equal(new NpcVacancy("routine.fixture.carter", 1, 5, 1), Assert.Single(life.Vacancies).Value);
+            Assert.Equal(70, life.PairsLastMet["npc.fixture.warden|routine.fixture.porter"]);
+        }
+        else
+        {
+            Assert.Null(life);
+        }
+
         // Schema 20's faction ledger (WP6): one ash hound killed at the ridge and told to the warden, so the keepers - the wardens, when it
         // was written - regard Aelin at +100; every name renamed to today's. Before it, no act and every faction neutral.
         Assert.Equal(schema >= 20

@@ -87,6 +87,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | Aelin's quick bar holds `spell.ember.firebolt` on key 4, and she took `item.potion.healing_draught` off key 1 on purpose; the other slots are empty | player quick bar | Schema 23 (the quick bar, WP9). Both are **renamed** by the current pack (`spell.ember.bolt`, `item.potion.minor_healing`): the renames must reach the slots and the cleared record. v1-v22 migrate to an empty bar with nothing cleared, which what the character carries and knows fills once the world runs; a schema-23 player without its bar is corrupt, not defaulted |
 | The carried sword has taken 40 points of wear - not worn out, so still fine (made fine); the chest's masterwork blade 5 (made masterwork) | player inventory, changed container | Schema 24 (WP3b, durability). Wear is optional on a stack, so v1-v23 migrate to none: nothing was worn |
 | The warden's party sheet: level 2 with 40 XP toward 3, `skill.one_hand_blade` 4, wearing an `item.weapon.iron_sword` Aelin loaned her in the main hand, and keeping one `item.potion.healing_draught` of her own | player party sheets | Schema 25 (WP15b, party progression and gear). The warden and the draught are **renamed** to `npc.fixture.warden_sera` and `item.potion.minor_healing`: the renames must reach the sheet. v1-v24 migrate to no sheets; a schema-23 player without its sheets is corrupt, not defaulted |
+| At game hour 80: `npc.fixture.warden` working, needs 1250/400/900/0, at (148.75, -41.5) m facing 45 degrees, walking an active two-corner route planned at tick 4990, two ticks without headway; `routine.fixture.porter`'s second resident "Aldo Renning", arrived on day 2, eating, injured until tick 6000; `routine.fixture.carter` empty since day 1, its next resident due on day 5; the warden and the porter last met at hour 70 | entities `npc_life` | Schema 26 (WP12, NPC life). The fixture pack has no routines: the records are kept as they are in the save, and content reconciles them when a world starts. v1-v25 migrate to no lives (the NPCs begin their routines on load); a malformed route, an unknown condition or a life held twice is corrupt, not defaulted |
 
 ## Provenance
 
@@ -116,6 +117,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v23/` | The WP9 quick-bar schema-23 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v24/` | The WP3b durability schema-24 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v25/` | The WP15b party-sheets schema-25 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v26/` | The WP12 NPC-life schema-26 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

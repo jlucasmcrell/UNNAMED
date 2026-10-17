@@ -690,5 +690,6 @@
       "shelf_day": 1,
       "traded": true
     }
-  ]
+  ],
+  "npc_life": null
 }

@@ -117,6 +117,7 @@ internal static class SemanticRebase
             Noises = delta.Noises,
             Economy = delta.Economy,
             Merchants = delta.Merchants,
+            NpcLife = delta.NpcLife,
         };
     }
 }

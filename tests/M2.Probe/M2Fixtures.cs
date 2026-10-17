@@ -343,6 +343,31 @@ public static class M2Fixtures
                 }),
                 ImmutableArray.Create(new Shipment("road.fixture.track", "market.fixture.ford", "market.fixture.vale", "item.potion.minor_healing", 4, 4))));
             world.SetMerchant(new MerchantState("merchant.fixture.trader", 75, 2, 1, Traded: true));
+            // Schema 26 (WP12): the lives at game hour 80 - the warden walking to her work two corners on, a little hungry; the vale's porter,
+            // the slot's second resident, arrived on day 2, eating with the warden's company remembered; the carter's slot empty since day 1,
+            // its next resident due on day 5; the warden and the porter last met at hour 70.
+            world.SetNpcLife(new NpcLifeState(80,
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("npc.fixture.warden", new NpcLifeRecord("npc.fixture.warden", "routine.fixture.warden", new NpcNeeds(1_250, 400, 900, 0),
+                        NpcActivities.Work, 148_750, -41_500, 45_000)
+                    {
+                        Cell = TenCells[0].ToString(), StuckTicks = 2,
+                        Route = NavRoute.Active(new NavPoint(152_000, -40_000), ImmutableArray.Create(new NavPoint(150_000, -41_000), new NavPoint(152_000, -40_000)),
+                            4_990, 0x1122334455667788UL, new NavRect(128_000, -62_000, 172_999, -20_001), false),
+                    }),
+                    KeyValuePair.Create("routine.fixture.porter", new NpcLifeRecord("routine.fixture.porter", "routine.fixture.porter", new NpcNeeds(2_100, 0, 300, 1_000),
+                        NpcActivities.Eat, 12_000, 34_000, 180_000)
+                    {
+                        Cell = TenCells[0].ToString(), Name = "Aldo Renning", Generation = 1, ArrivedDay = 2, With = null,
+                        Condition = NpcCondition.Injured, ConditionUntil = 6_000,
+                    }),
+                }),
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("routine.fixture.carter", new NpcVacancy("routine.fixture.carter", 1, 5, 1)),
+                }),
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("npc.fixture.warden|routine.fixture.porter", 70L) })));
             return world;
         }
 

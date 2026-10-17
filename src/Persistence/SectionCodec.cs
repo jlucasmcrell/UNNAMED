@@ -459,6 +459,77 @@ public sealed class EntitiesSectionDto
 
     /// <summary>The merchants' purses and restocks (WP14). Required from schema 22.</summary>
     [Key("merchants")] public MerchantDto[]? Merchants { get; set; }
+
+    /// <summary>Every NPC life, the vacancies and the pairs (WP12); null in a save from before lives first ran (schema 26).</summary>
+    [Key("npc_life")] public NpcLifeDto? NpcLife { get; set; }
+}
+
+/// <summary>
+/// NPC life (schema 26; WP12): the last game hour settled, every life - stored sparsely by the cell its body stands in, sorted by
+/// (cell, key), with no limit on how many - the role slots waiting for an arrival, and when each pair last met.
+/// </summary>
+[MessagePackObject]
+public sealed class NpcLifeDto
+{
+    [Key("hour")] public long Hour { get; set; }
+    [Key("npcs")] public NpcLifeRecordDto[] Npcs { get; set; } = Array.Empty<NpcLifeRecordDto>();
+    [Key("vacancies")] public NpcVacancyDto[] Vacancies { get; set; } = Array.Empty<NpcVacancyDto>();
+    [Key("pairs_last_met")] public PairMetDto[] PairsLastMet { get; set; } = Array.Empty<PairMetDto>();
+}
+
+/// <summary>One NPC's life: routine, a resident's name and generation, needs, activity, condition, and the body's pose and route.</summary>
+[MessagePackObject]
+public sealed class NpcLifeRecordDto
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("routine_id")] public string RoutineId { get; set; } = "";
+    [Key("cell")] public string Cell { get; set; } = "";
+    [Key("name")] public string? Name { get; set; }
+    [Key("generation")] public int Generation { get; set; }
+    [Key("arrived_day")] public long ArrivedDay { get; set; }
+    [Key("hunger")] public int Hunger { get; set; }
+    [Key("rest")] public int Rest { get; set; }
+    [Key("social")] public int Social { get; set; }
+    [Key("coin")] public int Coin { get; set; }
+    [Key("activity")] public string Activity { get; set; } = "";
+    [Key("with")] public string? With { get; set; }
+    [Key("condition")] public string Condition { get; set; } = "living";
+    [Key("condition_until")] public long ConditionUntil { get; set; }
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("route")] public NavRouteDto Route { get; set; } = new();
+    [Key("stuck_ticks")] public int StuckTicks { get; set; }
+}
+
+/// <summary>A mover's committed route (the M7 route record, WP12): status, goal, corners, when planned, the window's stamp and rectangle.</summary>
+[MessagePackObject]
+public sealed class NavRouteDto
+{
+    [Key("status")] public string Status { get; set; } = "none";
+    [Key("goal_x_mm")] public long GoalXMm { get; set; }
+    [Key("goal_z_mm")] public long GoalZMm { get; set; }
+    [Key("corners")] public long[] Corners { get; set; } = Array.Empty<long>();
+    [Key("planned_tick")] public long PlannedTick { get; set; }
+    [Key("stamp")] public ulong Stamp { get; set; }
+    [Key("watch")] public long[] Watch { get; set; } = { 0, 0, 0, 0 };
+    [Key("partial")] public bool Partial { get; set; }
+}
+
+[MessagePackObject]
+public sealed class NpcVacancyDto
+{
+    [Key("slot_id")] public string SlotId { get; set; } = "";
+    [Key("left_day")] public long LeftDay { get; set; }
+    [Key("arrival_day")] public long ArrivalDay { get; set; }
+    [Key("next_generation")] public int NextGeneration { get; set; }
+}
+
+[MessagePackObject]
+public sealed class PairMetDto
+{
+    [Key("pair")] public string Pair { get; set; } = "";
+    [Key("hour")] public long Hour { get; set; }
 }
 
 /// <summary>The economy (schema 22; WP14): the last day settled, every market, and what is on the road.</summary>
@@ -1043,8 +1114,30 @@ public static class SectionCodec
             {
                 MerchantId = m.MerchantId, Purse = m.Purse, RestockedDay = m.RestockedDay, ShelfDay = m.ShelfDay, Traded = m.Traded,
             }).ToArray(),
+            NpcLife = snapshot.NpcLife is { } life ? NpcLifeToDto(life) : null,
         }, Options);
     }
+
+    private static NpcLifeDto NpcLifeToDto(NpcLifeState life) => new()
+    {
+        Hour = life.Hour,
+        Npcs = life.Npcs.Values.OrderBy(n => n.Cell, StringComparer.Ordinal).ThenBy(n => n.Key, StringComparer.Ordinal).Select(n => new NpcLifeRecordDto
+        {
+            Key = n.Key, RoutineId = n.RoutineId, Cell = n.Cell, Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay,
+            Hunger = n.Needs.Hunger, Rest = n.Needs.Rest, Social = n.Needs.Social, Coin = n.Needs.Coin, Activity = n.Activity, With = n.With,
+            Condition = n.Condition == NpcCondition.Injured ? "injured" : "living", ConditionUntil = n.ConditionUntil,
+            XMm = n.XMm, ZMm = n.ZMm, FacingMdeg = n.FacingMdeg, StuckTicks = n.StuckTicks,
+            Route = new NavRouteDto
+            {
+                Status = NavRoute.StatusKey(n.Route.Status), GoalXMm = n.Route.GoalXMm, GoalZMm = n.Route.GoalZMm,
+                Corners = n.Route.Corners.SelectMany(c => new[] { c.XMm, c.ZMm }).ToArray(), PlannedTick = n.Route.PlannedTick, Stamp = n.Route.Stamp,
+                Watch = new[] { n.Route.Watch.MinXMm, n.Route.Watch.MinZMm, n.Route.Watch.MaxXMm, n.Route.Watch.MaxZMm }, Partial = n.Route.Partial,
+            },
+        }).ToArray(),
+        Vacancies = life.Vacancies.Values.Select(v => new NpcVacancyDto { SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration })
+            .ToArray(),
+        PairsLastMet = life.PairsLastMet.Select(kv => new PairMetDto { Pair = kv.Key, Hour = kv.Value }).ToArray(),
+    };
 
     /// <summary>
     /// The entities section: slot-keyed records, created instances, changed containers and creature records, each with its
@@ -1126,6 +1219,53 @@ public static class SectionCodec
             throw new FormatException("entities.msgpack names a market twice");
         return (new EconomyState(economy.Day, markets.ToImmutableSortedDictionary(m => m.MarketId, m => m, StringComparer.Ordinal),
             economy.Shipments.Select(s => new Shipment(s.LinkId, s.FromMarket, s.ToMarket, s.ItemId, s.Count, s.ArrivesDay)).ToImmutableArray()), merchants);
+    }
+
+    /// <summary>
+    /// The entities section's NPC life (schema 26; WP12): null in a save from before lives first ran. A malformed life (a route that cannot be
+    /// one, an unknown condition, a key held twice) fails the section; a life content no longer defines is dropped when the world starts.
+    /// </summary>
+    public static NpcLifeState? DecodeNpcLife(byte[] bytes)
+    {
+        var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
+        if (section.NpcLife is not { } life)
+            return null;
+        var npcs = ImmutableSortedDictionary.CreateBuilder<string, NpcLifeRecord>(StringComparer.Ordinal);
+        foreach (var n in life.Npcs)
+        {
+            if (NavRoute.ParseStatus(n.Route.Status) is not { } status || n.Route.Corners.Length % 2 != 0 || n.Route.Watch.Length != 4)
+                throw new FormatException($"npc life {n.Key} has a malformed route");
+            var corners = Enumerable.Range(0, n.Route.Corners.Length / 2).Select(i => new NavPoint(n.Route.Corners[2 * i], n.Route.Corners[2 * i + 1])).ToImmutableArray();
+            var route = NavRoute.TryCreate(status, n.Route.GoalXMm, n.Route.GoalZMm, corners, n.Route.PlannedTick, n.Route.Stamp,
+                new NavRect(n.Route.Watch[0], n.Route.Watch[1], n.Route.Watch[2], n.Route.Watch[3]), n.Route.Partial, out string? problem)
+                ?? throw new FormatException($"npc life {n.Key}: {problem}");
+            var condition = n.Condition switch
+            {
+                "living" => NpcCondition.Living,
+                "injured" => NpcCondition.Injured,
+                _ => throw new FormatException($"npc life {n.Key} has an unknown condition '{n.Condition}'"),
+            };
+            var record = new NpcLifeRecord(n.Key, n.RoutineId, new NpcNeeds(n.Hunger, n.Rest, n.Social, n.Coin), n.Activity, n.XMm, n.ZMm, n.FacingMdeg)
+            {
+                Name = n.Name, Generation = n.Generation, ArrivedDay = n.ArrivedDay, With = n.With, Condition = condition, ConditionUntil = n.ConditionUntil,
+                Route = route, StuckTicks = n.StuckTicks, Cell = n.Cell,
+            };
+            if (!npcs.TryAdd(n.Key, record))
+                throw new FormatException($"entities.msgpack holds npc life {n.Key} twice");
+        }
+        var vacancies = ImmutableSortedDictionary.CreateBuilder<string, NpcVacancy>(StringComparer.Ordinal);
+        foreach (var v in life.Vacancies)
+        {
+            if (!vacancies.TryAdd(v.SlotId, new NpcVacancy(v.SlotId, v.LeftDay, v.ArrivalDay, v.NextGeneration)))
+                throw new FormatException($"entities.msgpack holds the vacancy of {v.SlotId} twice");
+        }
+        var met = ImmutableSortedDictionary.CreateBuilder<string, long>(StringComparer.Ordinal);
+        foreach (var p in life.PairsLastMet)
+        {
+            if (!met.TryAdd(p.Pair, p.Hour))
+                throw new FormatException($"entities.msgpack holds the pair {p.Pair} twice");
+        }
+        return new NpcLifeState(life.Hour, npcs.ToImmutable(), vacancies.ToImmutable(), met.ToImmutable());
     }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>

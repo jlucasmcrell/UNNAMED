@@ -31,6 +31,7 @@ using V21 = UNNAMED.Persistence.Sections.V21;
 using V22 = UNNAMED.Persistence.Sections.V22;
 using V23 = UNNAMED.Persistence.Sections.V23;
 using V24 = UNNAMED.Persistence.Sections.V24;
+using V25 = UNNAMED.Persistence.Sections.V25;
 
 namespace UNNAMED.Persistence;
 
@@ -102,7 +103,8 @@ public static class SchemaMigrations
         new SchemaV21ToV22(),
         new SchemaV22ToV23(),
         new SchemaV23ToV24(),
-        new SchemaV24ToV25());
+        new SchemaV24ToV25(),
+        new SchemaV25ToV26());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1325,7 +1327,7 @@ public sealed class SchemaV23ToV24 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V23.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V25.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created.Select(c => new CreatedDto
@@ -1398,6 +1400,41 @@ public sealed class SchemaV24ToV25 : SchemaMigration
                 Party = old.Party,
                 QuickBar = old.QuickBar,
                 PartySheets = Array.Empty<PartySheetDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 25 to 26 (WP12, NPC life): the entities section gains every NPC's life - needs, activity, condition, the body's pose and route -
+/// the role slots awaiting an arrival, and when each NPC-NPC pair last met. A save from before them held no lives: its NPCs begin their
+/// routines on load, each named NPC from where the region places them.
+/// </summary>
+public sealed class SchemaV25ToV26 : SchemaMigration
+{
+    public override int From => 25;
+
+    public override string Summary => "schema 25 -> 26: the entities section gains the NPCs' lives (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V25.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+                Economy = old.Economy,
+                Merchants = old.Merchants,
+                NpcLife = null,
             }, options);
         }
         document.Manifest["schema_version"] = To;

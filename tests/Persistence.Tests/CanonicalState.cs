@@ -529,6 +529,48 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            // NPC life (schema 26).
+            if (snapshot.NpcLife is { } life)
+            {
+                json.WriteStartObject("npc_life");
+                json.WriteNumber("hour", life.Hour);
+                json.WriteStartArray("npcs");
+                foreach (var npc in life.Npcs.Values)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("key", npc.Key);
+                    json.WriteString("routine_id", npc.RoutineId);
+                    json.WriteString("cell", npc.Cell);
+                    json.WriteString("name", npc.Name);
+                    json.WriteNumber("generation", npc.Generation);
+                    json.WriteNumber("arrived_day", npc.ArrivedDay);
+                    json.WriteString("needs", $"{npc.Needs.Hunger}/{npc.Needs.Rest}/{npc.Needs.Social}/{npc.Needs.Coin}");
+                    json.WriteString("activity", npc.Activity);
+                    json.WriteString("with", npc.With);
+                    json.WriteString("condition", npc.Condition.ToString());
+                    json.WriteNumber("condition_until", npc.ConditionUntil);
+                    json.WriteString("pose", $"{npc.XMm},{npc.ZMm},{npc.FacingMdeg}");
+                    json.WriteString("route", $"{npc.Route.Status} to {npc.Route.GoalXMm},{npc.Route.GoalZMm} via {string.Join(" ", npc.Route.Corners.Select(c => $"{c.XMm},{c.ZMm}"))} "
+                        + $"at {npc.Route.PlannedTick} stamp {npc.Route.Stamp:X16} watch {npc.Route.Watch.MinXMm},{npc.Route.Watch.MinZMm},{npc.Route.Watch.MaxXMm},{npc.Route.Watch.MaxZMm}{(npc.Route.Partial ? " partial" : "")}");
+                    json.WriteNumber("stuck_ticks", npc.StuckTicks);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("vacancies");
+                foreach (var vacancy in life.Vacancies.Values)
+                    json.WriteStringValue($"{vacancy.SlotId} left {vacancy.LeftDay} arrives {vacancy.ArrivalDay} as {vacancy.NextGeneration}");
+                json.WriteEndArray();
+                json.WriteStartObject("pairs_last_met");
+                foreach (var (pair, hour) in life.PairsLastMet)
+                    json.WriteNumber(pair, hour);
+                json.WriteEndObject();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("npc_life");
+            }
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";
