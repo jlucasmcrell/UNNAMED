@@ -11,7 +11,7 @@ type_label: Masculine
 build: heavy
 build_label: Heavy
 order: 4
-offered: true
-arm_splay_deg: 13
+offered: false
+arm_splay_deg: 3
 measurements_mm: { chest: 1098, waist: 1000, hips: 1023, thigh: 600 }
 rest_offsets_mm: {}

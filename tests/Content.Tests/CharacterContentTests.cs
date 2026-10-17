@@ -104,7 +104,7 @@ public class CharacterContentTests
         AssertRefused("people/veth.yaml", "  - Teagan Peel", "  - Teagan Peel\n  - Wenna Lind", "lists a name twice");
 
     [Fact]
-    public void TheVeth_HaveFiveBuildsOfEachBodyType_TheCoreThreeOffered_AsContent()
+    public void TheVeth_HaveFiveBuildsOfEachBodyType_LeanAndAverageOffered_AsContent()
     {
         var setup = CharacterContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
 
@@ -114,7 +114,8 @@ public class CharacterContentTests
             var builds = setup.Bodies.Values.Where(b => b.Type == type.Item1).OrderBy(b => b.Order).ToList();
             Assert.Equal(new[] { "very_lean", "lean", "average", "heavy", "very_heavy" }, builds.Select(b => b.Build));
             Assert.All(builds, b => Assert.Equal(("people.veth", type.Item2, $"body.{type.Item1}.{b.Build}"), (b.PeopleId, b.TypeLabel, b.Id)));
-            Assert.All(builds.Where(b => b.Build is "lean" or "average" or "heavy"), b => Assert.True(b.Offered));
+            // Heavy and the extremes are held until the clipping gate passes them (owner 2026-10-17)
+            Assert.All(builds.Where(b => b.Build is "lean" or "average"), b => Assert.True(b.Offered));
             Assert.All(builds, b => Assert.Equal(new[] { "chest", "hips", "thigh", "waist" }, b.MeasurementsMm.Keys));
             // heavier builds measure more round the waist, and swing their arms wider of their own sides
             Assert.True(builds.Zip(builds.Skip(1)).All(p => p.First.MeasurementsMm["waist"] < p.Second.MeasurementsMm["waist"]

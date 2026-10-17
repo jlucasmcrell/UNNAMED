@@ -74,7 +74,7 @@ public class CharacterCreationTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var spec = new CharacterSpec("Corin Vessmoor", Pronouns.He, "people.veth", "body.veth_m.heavy", callId);
+        var spec = new CharacterSpec("Corin Vessmoor", Pronouns.He, "people.veth", "body.veth_m.lean", callId);
         var simulation = session.NewGame(spec, seed: 42);
         Harness.Ticks(session, 40);
         var before = simulation.CaptureRecord();
@@ -85,7 +85,7 @@ public class CharacterCreationTests
         var loaded = again.Load(SaveSlots.Quick);
 
         Assert.True(loaded.IsComplete);
-        Assert.Equal(new CharacterIdentity(Pronouns.He, "people.veth", "body.veth_m.heavy", callId), loaded.Player.Identity);
+        Assert.Equal(new CharacterIdentity(Pronouns.He, "people.veth", "body.veth_m.lean", callId), loaded.Player.Identity);
         Assert.Equal(before.Digest, loaded.Player.Digest);
         Assert.Equal(digest, again.Simulation!.StateDigest());
         Assert.Equal(new CharacterCard(again.Character!, "Corin Vessmoor", "people.veth", callId), CharacterFolders.ReadCard(again.SaveFolder));

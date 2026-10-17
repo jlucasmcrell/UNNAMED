@@ -177,8 +177,13 @@ class Skinned:
             pos.append(p)
             tri.append(g.accessor(prim["indices"]).astype(np.int64).reshape(-1, 3) + base)
             reg.append(np.rint(g.accessor(at["TEXCOORD_1"])[:, 0]).astype(int) if "TEXCOORD_1" in at else np.full(len(p), -1))
-            jnt.append(g.accessor(at["JOINTS_0"]).astype(int))
-            wgt.append(g.accessor(at["WEIGHTS_0"]))
+            j, w = g.accessor(at["JOINTS_0"]).astype(int), g.accessor(at["WEIGHTS_0"])
+            if "JOINTS_1" in at:  # 8 influences (bl_assemble.py)
+                j, w = np.hstack([j, g.accessor(at["JOINTS_1"]).astype(int)]), np.hstack([w, g.accessor(at["WEIGHTS_1"])])
+            else:
+                j, w = np.hstack([j, np.zeros_like(j)]), np.hstack([w, np.zeros_like(w)])
+            jnt.append(j)
+            wgt.append(w)
             base += len(p)
         self.positions = np.vstack(pos)
         self.triangles = np.vstack(tri)
@@ -192,7 +197,7 @@ class Skinned:
         mats = np.stack([globals_by_name[n] for n in self.joint_names]) @ self.ibm
         homo = np.hstack([self.positions, np.ones((len(self.positions), 1))])
         out = np.zeros((len(self.positions), 3))
-        for k in range(4):
+        for k in range(self.joints.shape[1]):
             m = mats[self.joints[:, k]]
             out += self.weights[:, k:k + 1] * np.einsum("nij,nj->ni", m, homo)[:, :3]
         return out

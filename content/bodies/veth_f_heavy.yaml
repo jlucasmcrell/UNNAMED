@@ -11,7 +11,7 @@ type_label: Feminine
 build: heavy
 build_label: Heavy
 order: 4
-offered: true
-arm_splay_deg: 10
+offered: false
+arm_splay_deg: 3
 measurements_mm: { chest: 936, waist: 872, hips: 968, thigh: 497 }
 rest_offsets_mm: {}

@@ -27,7 +27,7 @@ public sealed partial class CreatorPreview : TextureRect
     };
 
     private readonly Node3D _turntable = new() { Name = "Turntable" };
-    private readonly Camera3D _camera = new() { Name = "Camera", Fov = 30, Near = 0.05f };
+    private readonly Camera3D _camera = new() { Name = "Camera", Projection = Camera3D.ProjectionType.Frustum, KeepAspect = Camera3D.KeepAspectEnum.Height, Near = 0.05f };
     private readonly DirectionalLight3D _key = new() { Name = "Key", ShadowEnabled = true };
     private readonly OmniLight3D _rim = new() { Name = "Rim", OmniRange = 8 };
     private readonly OmniLight3D _lamp = new() { Name = "Lamp", OmniRange = 5, ShadowEnabled = true };
@@ -220,12 +220,17 @@ public sealed partial class CreatorPreview : TextureRect
         float scale = _eyes / Avatar.EyeHeight;
         float t = _shownZoom;
         float height = t < 0.55f ? Mathf.Lerp(0.95f, 1.38f, t / 0.55f) * scale : Mathf.Lerp(1.38f * scale, _eyes, (t - 0.55f) / 0.45f);
-        float distance = t < 0.55f ? Mathf.Lerp(5.1f, 2.1f, t / 0.55f) : Mathf.Lerp(2.1f, 0.85f, (t - 0.55f) / 0.45f);
+        // The face is framed from 1.6 m with a longer lens: at 0.85 m the perspective swelled the nose 13 % against the ears.
+        float distance = t < 0.55f ? Mathf.Lerp(5.1f, 2.1f, t / 0.55f) : Mathf.Lerp(2.1f, 1.6f, (t - 0.55f) / 0.45f);
+        float fov = t < 0.55f ? 30f : Mathf.Lerp(30f, 16f, (t - 0.55f) / 0.45f);
         _camera.Position = new Vector3(0, height + 0.04f * distance, distance);
         _camera.LookAt(new Vector3(0, height, 0), Vector3.Up);
-        // The body stands right of the panel: the camera moved left of it by a share of what it sees across.
-        float across = 2f * distance * Mathf.Tan(Mathf.DegToRad(_camera.Fov) / 2f) * (float)window.X / Math.Max(1, window.Y);
-        _camera.HOffset = -across * 0.17f;
+        // The body stands right of the panel: the lens is shifted (the view stays square on the body), not the camera moved left of
+        // it - that showed the figure from 9.5 degrees to its right, narrowing its shoulders.
+        float aspect = (float)window.X / Math.Max(1, window.Y);
+        float half = _camera.Near * Mathf.Tan(Mathf.DegToRad(fov) / 2f);
+        _camera.Size = 2f * half;
+        _camera.FrustumOffset = new Vector2(-2f * half * aspect * 0.17f, 0);
     }
 
     public override void _GuiInput(InputEvent @event)

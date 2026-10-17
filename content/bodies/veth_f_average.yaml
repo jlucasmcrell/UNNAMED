@@ -12,6 +12,6 @@ build: average
 build_label: Average
 order: 3
 offered: true
-arm_splay_deg: 4
+arm_splay_deg: 0
 measurements_mm: { chest: 881, waist: 713, hips: 894, thigh: 456 }
 rest_offsets_mm: {}

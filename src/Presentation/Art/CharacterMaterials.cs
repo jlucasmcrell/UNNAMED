@@ -190,6 +190,15 @@ public static class CharacterMaterials
             ? new Color((float)v[0].GetDouble(), (float)v[1].GetDouble(), (float)v[2].GetDouble())
             : fallback;
         m.MetallicSpecular = Num("specular", m.MetallicSpecular);
+        // A MetaHuman groom's cards carry one- or two-texel strands (its atlas's coverage is 4-10 %, made for UE's dithered, temporally
+        // resolved hair). Cut per pixel they drew as broken strands, blended as a thin grey film (WP17, owner 2026-10-17). Cut per MSAA
+        // sample (alpha to coverage) a strand keeps the part of a pixel it covers, and the texture cache's mip chain keeps the cards'
+        // coverage with distance: dense, dark, solid strands, as the Blender reference draws them.
+        if (spec.TryGetProperty("alpha_coverage", out var coverage) && coverage.ValueKind == JsonValueKind.True && m.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
+            m.AlphaAntialiasingMode = BaseMaterial3D.AlphaAntiAliasing.AlphaToCoverageAndToOne;
+        // A MetaHuman's lash strips are a translucent dark fringe (bl_assemble.py LASH_ALPHA): blended, not cut.
+        if (spec.TryGetProperty("alpha_blend", out var blend) && blend.ValueKind == JsonValueKind.True)
+            m.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
         if (spec.TryGetProperty("sss", out _))
         {
             m.SubsurfScatterEnabled = true;

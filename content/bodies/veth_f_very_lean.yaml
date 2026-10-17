@@ -11,7 +11,7 @@ type_label: Feminine
 build: very_lean
 build_label: Very lean
 order: 1
-offered: true
-arm_splay_deg: 3
+offered: false
+arm_splay_deg: 0
 measurements_mm: { chest: 833, waist: 585, hips: 839, thigh: 508 }
 rest_offsets_mm: {}

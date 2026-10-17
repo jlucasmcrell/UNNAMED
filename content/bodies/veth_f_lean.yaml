@@ -12,6 +12,6 @@ build: lean
 build_label: Lean
 order: 2
 offered: true
-arm_splay_deg: 3
+arm_splay_deg: 0
 measurements_mm: { chest: 855, waist: 643, hips: 867, thigh: 441 }
 rest_offsets_mm: {}

@@ -259,13 +259,22 @@ public partial class Main
         }
         string shown = "default";
         var list = new List<(string Shot, Action? Then, int NextMs)> { ("01_people", () => _creator.Go(CreatorStep.Body), 2000) };
-        // each body full length, then at the upper-body and face framings (the clipping QA's contact sheet)
+        // each body full length from the front, three-quarter and side, then at the upper-body and face framings (the clipping QA's
+        // contact sheet), the face again in the overcast light (the side-by-side with the Blender renders: soft light, no warm low sun)
         foreach (var body in walk)
         {
-            list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Frame(CreatorPreview.Framings[1].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_body_{shown}_upper", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_body_{shown}_face", () =>
+            list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Turn(-0.61f), 1500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_three", () => _creator.Turn(-0.96f), 1500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_side", () =>
             {
+                _creator.Turn(1.57f);
+                _creator.Frame(CreatorPreview.Framings[1].Zoom);
+            }, 2500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_upper", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_face", () => _creator.Light(1), 1500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_face_overcast", () =>
+            {
+                _creator.Light(0);
                 _creator.Frame(CreatorPreview.Framings[0].Zoom);
                 _creator.Use(_creator.Draft with { BodyPresetId = body.Id });
             }, 6000));

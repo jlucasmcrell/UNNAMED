@@ -194,6 +194,16 @@ public partial class CreatorScreen : CanvasLayer
     /// <summary>Stand the preview camera at a framing, as the framing buttons do (the creator shots).</summary>
     public void Frame(float zoom) => _preview.Frame(zoom);
 
+    /// <summary>Turn the body, as the turn buttons do (the creator shots).</summary>
+    public void Turn(float radians) => _preview.Turn(radians);
+
+    /// <summary>Light the preview with one of <see cref="CreatorPreview.Lights"/>, as the Light button does (the creator shots).</summary>
+    public void Light(int index)
+    {
+        _preview.UseLight(index);
+        _lightName.Text = CreatorPreview.Lights[_preview.Light];
+    }
+
     /// <summary>Press Begin as a click would (the creator shots). False when the draft cannot begin.</summary>
     public bool PressBegin()
     {
