@@ -479,7 +479,7 @@ public sealed class Simulation
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
-    public long? Offer(string npcId, string itemId) => _trade.Offer(npcId, itemId);
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null) => _trade.Offer(npcId, itemId, wear);
 
     /// <summary>What a trader would charge to mend a carried piece now (WP3b); null when they do not repair, or it needs none.</summary>
     public RepairQuote? RepairQuote(string npcId, EntityId item) => _trade.RepairQuote(npcId, item);
