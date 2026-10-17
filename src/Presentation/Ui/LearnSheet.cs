@@ -27,6 +27,9 @@ public partial class LearnSheet : CanvasLayer
     /// <summary>Leave the conversation for the hiring sheet, on someone.</summary>
     public Action<string>? AskAboutWork { get; set; }
 
+    /// <summary>Where the conversation stands, or null: the column ends above it where they would meet.</summary>
+    public Func<Rect2?>? Conversation { get; set; }
+
     public void Bind(GameSession session) => _session = session;
 
     public override void _Ready()
@@ -37,8 +40,8 @@ public partial class LearnSheet : CanvasLayer
         root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         _panel = new PanelContainer
         {
-            AnchorLeft = 0, AnchorRight = 0, AnchorTop = 0.5f, AnchorBottom = 0.5f,
-            OffsetLeft = HudView.Margin, OffsetRight = HudView.Margin + Width, OffsetTop = -300, OffsetBottom = 300,
+            AnchorLeft = 0, AnchorRight = 0, AnchorTop = 0, AnchorBottom = 0,
+            OffsetLeft = HudView.Margin, OffsetRight = HudView.Margin + Width,
             CustomMinimumSize = new Vector2(Width, 0),
         };
         _panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(18, 14));
@@ -52,7 +55,26 @@ public partial class LearnSheet : CanvasLayer
         AddChild(root);
     }
 
-    public override void _Process(double delta) => Refresh();
+    public override void _Process(double delta)
+    {
+        Refresh();
+        if (Visible)
+            Place();
+    }
+
+    /// <summary>
+    /// Vertically centred on 600 px of the screen, and ending above the conversation where an enlarged interface brings the two together
+    /// (the column scrolls).
+    /// </summary>
+    private void Place()
+    {
+        var canvas = _panel.GetParentControl().Size;
+        float top = Math.Max(16, canvas.Y / 2 - 300), bottom = Math.Min(canvas.Y - 16, canvas.Y / 2 + 300);
+        if (Conversation?.Invoke() is { } talk && talk.Position.X < _panel.OffsetRight)
+            bottom = Math.Min(bottom, talk.Position.Y - 12);
+        _panel.OffsetTop = top;
+        _panel.OffsetBottom = Math.Max(top + 120, bottom);
+    }
 
     /// <summary>Shown while a conversation is open with someone who teaches or hires on; redrawn when what it shows changed.</summary>
     public void Refresh()

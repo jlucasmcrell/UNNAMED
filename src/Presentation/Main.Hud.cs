@@ -26,6 +26,7 @@ public partial class Main
         GuidanceFrame(simulation, combat, focus is not null);
         DrawOutlines(simulation, focus);
         DrawChatFeed(simulation);
+        _hud.SetConversing(_dialogue.Visible);
         // No prompt under a screen: nothing behind a sheet can be worked, and the hint line sits where the prompt was.
         _hud.SetPrompt(Screen is not null ? null : focus switch
         {

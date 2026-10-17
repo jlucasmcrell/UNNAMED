@@ -755,7 +755,7 @@ public sealed class Sheet
         if (Hud() is { } hud)
         {
             // Enlarged (a canvas under the reference's 1080 lines, or larger text), the HUD steps aside rather than the sheet shrinking round it.
-            hud.StepAside(canvas.Y < 1079 || HudStyle.TextScale > 1);
+            hud.StepAside(hud.Crowded);
             float centre = Root.Size.X / 2;
             foreach (var rect in hud.Intrusions())
             {

@@ -34,7 +34,7 @@ public partial class Main
         _hire = new HirePanel { Name = "Hire", ShowParty = ShowParty };
         _hire.Bind(_session);
         AddChild(_hire);
-        _learn = new LearnSheet { Name = "Learn", AskAboutWork = AskAboutWork };
+        _learn = new LearnSheet { Name = "Learn", AskAboutWork = AskAboutWork, Conversation = () => _dialogue.PanelRect };
         _learn.Bind(_session);
         AddChild(_learn);
     }

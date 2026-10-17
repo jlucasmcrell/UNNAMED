@@ -35,11 +35,16 @@ public partial class DialoguePanel : CanvasLayer
     /// <summary>The replies on screen, in order: what keys 1 to 9 answer.</summary>
     public IReadOnlyList<string> Replies { get; private set; } = Array.Empty<string>();
 
+    private PanelContainer _panel = null!;
+
+    /// <summary>Where the conversation stands while it is open, or null: the Learn column keeps clear of it.</summary>
+    public Rect2? PanelRect => Visible ? _panel.GetGlobalRect() : null;
+
     public override void _Ready()
     {
         Visible = false;
         // Held to the bottom of the screen and grown upwards, so a long line or a long list of replies never runs off it (M-06).
-        var panel = new PanelContainer
+        var panel = _panel = new PanelContainer
         {
             CustomMinimumSize = new Vector2(800, 0),
             AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 1, AnchorBottom = 1,
@@ -126,10 +131,13 @@ public partial class DialoguePanel : CanvasLayer
         column.AddThemeConstantOverride("separation", 9);
         _speaker.Uppercase = true;
         _speaker.AddThemeFontOverride("font", HudStyle.Caps);
-        _speaker.AddThemeFontSizeOverride("font_size", 21);
+        // At their designed sizes times Settings' text size, and kept so a change of text size reaches them (UiKit.Restyle).
+        _speaker.SetMeta(HudStyle.DesignedSize, 21);
+        _speaker.AddThemeFontSizeOverride("font_size", HudStyle.Sized(21));
         _speaker.AddThemeColorOverride("font_color", HudStyle.Ember);
         _line.AddThemeFontOverride("font", HudStyle.Body);
-        _line.AddThemeFontSizeOverride("font_size", 19);
+        _line.SetMeta(HudStyle.DesignedSize, 19);
+        _line.AddThemeFontSizeOverride("font_size", HudStyle.Sized(19));
         _line.AddThemeConstantOverride("line_spacing", 4);
         _line.CustomMinimumSize = new Vector2(776, 0);
         _replies.AddThemeConstantOverride("separation", 4);
@@ -140,7 +148,7 @@ public partial class DialoguePanel : CanvasLayer
     private static void StyleReply(Button button, int number)
     {
         button.AddThemeFontOverride("font", HudStyle.Body);
-        button.AddThemeFontSizeOverride("font_size", 18);
+        button.AddThemeFontSizeOverride("font_size", HudStyle.Sized(18));
         foreach (string state in new[] { "font_color", "font_hover_color", "font_focus_color", "font_hover_pressed_color" })
             button.AddThemeColorOverride(state, HudStyle.Bone);
         button.AddThemeColorOverride("font_pressed_color", HudStyle.Ember);

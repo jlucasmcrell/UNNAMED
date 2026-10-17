@@ -56,6 +56,8 @@ public partial class HudView : Control
     private readonly Label _vitalHealthValue = PoolValue();
     private readonly Label _vitalStaminaValue = PoolValue();
     private bool _aside;
+    private bool _sheetOpen;
+    private bool _conversing;
     private bool _trackerWanted;
 
     // Top left: the character plate.
@@ -347,12 +349,32 @@ public partial class HudView : Control
         AddChild(_vitals);
     }
 
+    /// <summary>An enlarged interface: a canvas under the reference's 1080 lines, or text set larger. The HUD then steps aside for screens.</summary>
+    public bool Crowded => Size.Y < 1079 || HudStyle.TextScale > 1;
+
+    /// <summary>Whether the HUD has stepped aside for a sheet or a conversation (the hint line waits meanwhile).</summary>
+    public bool Aside => _aside;
+
     /// <summary>
-    /// While a sheet is open at a large interface or text size, the HUD steps aside for it rather than the sheet shrinking round it: the
-    /// plate, the companions, the bottom-left panel, the log and the tracked quest go, and health and stamina stay at the bottom left.
+    /// While a sheet is open at an enlarged interface, the HUD steps aside for it rather than the sheet shrinking round it: the plate, the
+    /// companions, the bottom-left panel, the log and the tracked quest go, and health and stamina stay at the bottom left.
     /// </summary>
     public void StepAside(bool aside)
     {
+        _sheetOpen = aside;
+        Apply();
+    }
+
+    /// <summary>A conversation is open: at an enlarged interface the HUD steps aside for it and its Learn column, as for a sheet.</summary>
+    public void SetConversing(bool conversing)
+    {
+        _conversing = conversing;
+        Apply();
+    }
+
+    private void Apply()
+    {
+        bool aside = _sheetOpen || _conversing && Crowded;
         if (aside == _aside)
             return;
         _aside = aside;

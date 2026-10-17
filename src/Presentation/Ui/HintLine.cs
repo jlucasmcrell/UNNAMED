@@ -85,6 +85,12 @@ public partial class HintLine : CanvasLayer
     {
         if (!_panel.Visible)
             return;
+        // While the HUD has stepped aside for a screen at an enlarged interface there is no room for the line: it waits, its time held.
+        if (GetTree().Root.FindChild("HudView", true, false) is HudView { Aside: true })
+        {
+            _panel.Modulate = Colors.Transparent;
+            return;
+        }
         Place();
         _left -= delta;
         _panel.Modulate = new Color(1, 1, 1, (float)Math.Clamp(_left / FadeSeconds, 0, 1));

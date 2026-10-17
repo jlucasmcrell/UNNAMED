@@ -327,6 +327,9 @@ public partial class Hud : CanvasLayer
     }
 
     /// <summary>The last few lines of chat (WP16), oldest first: the production HUD's feed over the pools; the classic HUD has none.</summary>
+    /// <summary>A conversation is open (the production HUD steps aside for it at an enlarged interface).</summary>
+    public void SetConversing(bool conversing) => _view?.SetConversing(conversing);
+
     public void SetChat(IReadOnlyList<string> lines) => _view?.SetChat(lines);
 
     public void SetCrosshair(bool visible)
