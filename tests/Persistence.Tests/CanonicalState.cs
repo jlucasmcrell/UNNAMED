@@ -575,7 +575,8 @@ internal static class CanonicalState
                 json.WriteEndArray();
                 json.WriteStartArray("vacancies");
                 foreach (var vacancy in life.Vacancies.Values)
-                    json.WriteStringValue($"{vacancy.SlotId} left {vacancy.LeftDay} arrives {vacancy.ArrivalDay} as {vacancy.NextGeneration}");
+                    json.WriteStringValue($"{vacancy.SlotId} left {vacancy.LeftDay} arrives {vacancy.ArrivalDay} as {vacancy.NextGeneration}"
+                        + (vacancy.ArrivingName is { } arriving ? $" ({arriving})" : ""));
                 json.WriteEndArray();
                 json.WriteStartObject("pairs_last_met");
                 foreach (var (pair, hour) in life.PairsLastMet)
@@ -586,6 +587,57 @@ internal static class CanonicalState
             else
             {
                 json.WriteNull("npc_life");
+            }
+
+            // Adventurers (schema 29).
+            if (snapshot.Adventurers is { } adventurers)
+            {
+                json.WriteStartObject("adventurers");
+                json.WriteNumber("day", adventurers.Day);
+                json.WriteStartArray("agents");
+                foreach (var a in adventurers.Agents.Values)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("key", a.Key);
+                    json.WriteString("slot", a.Slot);
+                    json.WriteNumber("generation", a.Generation);
+                    json.WriteString("name", a.Name);
+                    json.WriteString("people_id", a.PeopleId);
+                    json.WriteString("settlement", a.Settlement);
+                    json.WriteString("at", a.At);
+                    WriteProgression(json, a.Progression);
+                    json.WriteNumber("coin", a.Coin);
+                    json.WriteNumber("risk_percent", a.RiskPercent);
+                    json.WriteNumber("arrived_day", a.ArrivedDay);
+                    json.WriteStartArray("gear");
+                    foreach (var (slot, gear) in a.Gear)
+                        json.WriteStringValue($"{UNNAMED.Domain.Items.EquipSlots.Key(slot)}: {gear.DefId} {gear.ItemId} quality {gear.Quality}");
+                    json.WriteEndArray();
+                    json.WriteStartObject("pack");
+                    foreach (var (item, count) in a.Pack)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteString("condition", a.Condition.ToString());
+                    json.WriteNumber("injured_until_day", a.InjuredUntilDay);
+                    json.WriteString("plan", $"day {a.Plan.Day} {a.Plan.Goal} {a.Plan.Ref ?? "-"} with {string.Join(" ", a.Plan.Group)} post {a.Plan.PostTick} depart {a.Plan.DepartTick}");
+                    json.WriteString("party", a.Party);
+                    json.WriteString("counts", $"acquired {a.Acquired} kills {a.Kills} bounties {a.BountiesClaimed}");
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("vacancies");
+                foreach (var v in adventurers.Vacancies.Values)
+                    json.WriteStringValue($"{v.Slot} of {v.Settlement} left {v.LeftDay} arrives {v.ArrivalDay} as {v.NextGeneration}");
+                json.WriteEndArray();
+                json.WriteStartArray("bodies");
+                foreach (var (key, body) in adventurers.Bodies)
+                    json.WriteStringValue($"{key} {body.Name} at {body.XMm},{body.ZMm} facing {body.FacingMdeg}");
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("adventurers");
             }
             json.WriteEndObject();
         }

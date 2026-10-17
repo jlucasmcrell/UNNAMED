@@ -227,12 +227,25 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             return;
         }
         long today = Clock.Day(State.WorldTick);
+        bool saved = Current is not null;
         var (state, _) = AdventurerEngine.Reconcile(Current, setup.Rules, Day(Current?.Day ?? today));
         // A hireling who died in the character's service stays dead (DN9); the slot waits for its arrival.
         foreach (var fallen in state.Agents.Keys.Where(State.Fallen.Contains).ToList())
             state = AdventurerEngine.Remove(state, fallen, setup.Rules, Day(state.Day));
         State.SetAdventurers(_owner, state);
-        Bodies(State.WorldTick, force: true);
+        if (!saved)
+        {
+            Bodies(State.WorldTick, force: true);
+            return;
+        }
+        // A saved world stands exactly the bodies it saved, where they stood; those with the party come back with it.
+        foreach (var (key, body) in state.Bodies.Where(b => !State.Fallen.Contains(b.Key)))
+        {
+            var definition = state.Agents.TryGetValue(key, out var a) ? Definition(a) : new NpcDefinition(key, body.Name, Role, ImmutableArray<string>.Empty, null, null);
+            _context.Dispatch(new EmbodyNpc(definition, InstanceIdOf(key), new NpcSite(key, body.XMm, body.ZMm, body.FacingMdeg)));
+        }
+        foreach (var a in state.Agents.Values.Where(a => a.Party is not null && !State.Npcs.ContainsKey(a.Key) && setup.Settlements.ContainsKey(a.At)))
+            _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteOf(a, setup.Settlements[a.At])));
     }
 
     /// <summary>One tick: a midnight crossed lives the day; then bodies come and go at the lodge, out of sight only.</summary>
@@ -520,6 +533,11 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             if (TierAt(npc.Body.XMm, npc.Body.ZMm) != SimulationTier.A)
                 _context.Dispatch(new RemoveNpc(npc.Definition.Id, tick));
         }
+        // What stands now, for a save to stand again.
+        var standing = State.Npcs.Values.Where(n => n.Definition.Role == Role && !State.Companions.ContainsKey(n.Definition.Id))
+            .ToImmutableSortedDictionary(n => n.Definition.Id, n => new AdventurerBody(n.Definition.Name, n.Body.XMm, n.Body.ZMm, n.Body.FacingMdeg), StringComparer.Ordinal);
+        if (Current is { } now && !now.Bodies.SequenceEqual(standing))
+            State.SetAdventurers(_owner, now with { Bodies = standing });
     }
 
     public const string Role = "adventurer";
@@ -619,7 +637,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         : null;
 
     /// <summary>Why an adventurer cannot be hired now, for the party's hire (as <see cref="NpcSystem.HireRefusal"/> is); null for anyone else.</summary>
-    public string? HireRefusal(string key) => Agent(key) is { } a ? Refusal(a) : null;
+    public string? HireRefusal(string key) =>
+        Agent(key) is { } a ? Refusal(a)
+        : State.Npcs.TryGetValue(key, out var body) && body.Definition.Role == Role ? "is leaving"   // a body whose life is gone
+        : null;
 
     public bool IsHireable(string key) => Agent(key) is { } a && Refusal(a) is null;
 

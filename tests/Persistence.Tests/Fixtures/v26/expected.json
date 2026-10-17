@@ -734,5 +734,6 @@
     "pairs_last_met": {
       "npc.fixture.warden|routine.fixture.porter": 70
     }
-  }
+  },
+  "adventurers": null
 }

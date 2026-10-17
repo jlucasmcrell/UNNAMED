@@ -156,10 +156,13 @@ internal static class SaveLoader
         // takes no part in the definition-ID pass either.
         var npcLife = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
             SaveFormat.Entities, SectionCodec.DecodeNpcLife, quarantined, report, (NpcLifeState?)null);
+        // Adventurers (schema 29): reconciled against config.adventurers when the world starts, outside the definition-ID pass too.
+        var adventurers = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
+            SaveFormat.Entities, SectionCodec.DecodeAdventurers, quarantined, report, (AdventurerState?)null);
         var delta = new DeltaSnapshot(cells, entities)
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = noises, Economy = economy, Merchants = merchants,
-            NpcLife = npcLife,
+            NpcLife = npcLife, Adventurers = adventurers,
         };
         PlayerRecord player;
         try
@@ -508,7 +511,7 @@ internal static class SaveLoader
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
-                Economy = delta.Economy, Merchants = delta.Merchants, NpcLife = delta.NpcLife,
+                Economy = delta.Economy, Merchants = delta.Merchants, NpcLife = delta.NpcLife, Adventurers = delta.Adventurers,
             });
     }
 

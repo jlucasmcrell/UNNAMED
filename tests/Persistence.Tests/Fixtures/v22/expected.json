@@ -626,5 +626,6 @@
       "traded": true
     }
   ],
-  "npc_life": null
+  "npc_life": null,
+  "adventurers": null
 }

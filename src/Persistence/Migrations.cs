@@ -33,6 +33,7 @@ using V23 = UNNAMED.Persistence.Sections.V23;
 using V24 = UNNAMED.Persistence.Sections.V24;
 using V25 = UNNAMED.Persistence.Sections.V25;
 using V26 = UNNAMED.Persistence.Sections.V26;
+using V28 = UNNAMED.Persistence.Sections.V28;
 
 namespace UNNAMED.Persistence;
 
@@ -107,7 +108,8 @@ public static class SchemaMigrations
         new SchemaV24ToV25(),
         new SchemaV25ToV26(),
         new SchemaV26ToV27(),
-        new SchemaV27ToV28());
+        new SchemaV27ToV28(),
+        new SchemaV28ToV29());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1427,7 +1429,7 @@ public sealed class SchemaV25ToV26 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V25.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V28.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
@@ -1511,6 +1513,53 @@ public sealed class SchemaV27ToV28 : SchemaMigration
 
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 28 to 29 (WP13, NPC adventurers): the entities section gains every adventurer and the slots awaiting arrivals, and a role slot's
+/// vacancy may name the retiring adventurer promised it. A save from before them held no adventurers: each settlement's slots fill on load,
+/// and no vacancy was promised to anyone.
+/// </summary>
+public sealed class SchemaV28ToV29 : SchemaMigration
+{
+    public override int From => 28;
+
+    public override string Summary => "schema 28 -> 29: the entities section gains the adventurers (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V28.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created,
+                Baselines = old.Baselines,
+                Containers = old.Containers,
+                Creatures = old.Creatures,
+                Noises = old.Noises,
+                Economy = old.Economy,
+                Merchants = old.Merchants,
+                NpcLife = old.NpcLife is { } life
+                    ? new NpcLifeDto
+                    {
+                        Hour = life.Hour,
+                        Npcs = life.Npcs,
+                        Vacancies = life.Vacancies.Select(v => new NpcVacancyDto
+                        {
+                            SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration,
+                        }).ToArray(),
+                        PairsLastMet = life.PairsLastMet,
+                    }
+                    : null,
+                Adventurers = null,
+            }, options);
+        }
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

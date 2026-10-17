@@ -61,6 +61,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.world\.NpcLife$"), "null"),
         // Schema 27: no attack was kept under way - a load started every attack over.
         (new Regex(@"^\$\.player\.Attack$"), "null"),
+        // Schema 29: no adventurers were kept, so each settlement's slots fill when the world starts (WP13): newcomers drawn from the world.
+        (new Regex(@"^\$\.world\.Adventurers$"), null),
     };
 
     [Fact]
@@ -102,8 +104,8 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; and, schema 27, no attack under way.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1, differences.Count);
+        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; and, schema 29, the adventurers.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

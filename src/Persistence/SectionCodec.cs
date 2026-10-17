@@ -477,6 +477,89 @@ public sealed class EntitiesSectionDto
 
     /// <summary>Every NPC life, the vacancies and the pairs (WP12); null in a save from before lives first ran (schema 26).</summary>
     [Key("npc_life")] public NpcLifeDto? NpcLife { get; set; }
+
+    /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null in a save from before adventurers first lived (schema 29).</summary>
+    [Key("adventurers")] public AdventurersDto? Adventurers { get; set; }
+}
+
+/// <summary>
+/// The NPC adventurers (schema 29; WP13): the last day lived, every adventurer - keyed with no limit on how many (DN5) - and the slots waiting
+/// for an arrival.
+/// </summary>
+[MessagePackObject]
+public sealed class AdventurersDto
+{
+    [Key("day")] public long Day { get; set; }
+    [Key("agents")] public AdventurerDto[] Agents { get; set; } = Array.Empty<AdventurerDto>();
+    [Key("vacancies")] public AdventurerVacancyDto[] Vacancies { get; set; } = Array.Empty<AdventurerVacancyDto>();
+    [Key("bodies")] public AdventurerBodyDto[] Bodies { get; set; } = Array.Empty<AdventurerBodyDto>();
+}
+
+/// <summary>An adventurer's body standing outside the party: whose, by name, and where - a load stands exactly these.</summary>
+[MessagePackObject]
+public sealed class AdventurerBodyDto
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+}
+
+/// <summary>One adventurer: who, where, their progression on the character's rules, gear as real items, coin, pack, condition, plan and party.</summary>
+[MessagePackObject]
+public sealed class AdventurerDto
+{
+    [Key("key")] public string Key { get; set; } = "";
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("generation")] public int Generation { get; set; }
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("people_id")] public string? PeopleId { get; set; }
+    [Key("settlement")] public string Settlement { get; set; } = "";
+    [Key("at")] public string At { get; set; } = "";
+    [Key("progression")] public ProgressionDto Progression { get; set; } = new();
+    [Key("coin")] public long Coin { get; set; }
+    [Key("risk_percent")] public int RiskPercent { get; set; }
+    [Key("arrived_day")] public long ArrivedDay { get; set; }
+    [Key("gear")] public AdventurerGearDto[] Gear { get; set; } = Array.Empty<AdventurerGearDto>();
+    [Key("pack")] public GoodCountDto[] Pack { get; set; } = Array.Empty<GoodCountDto>();
+    [Key("condition")] public string Condition { get; set; } = "active";
+    [Key("injured_until_day")] public long InjuredUntilDay { get; set; }
+    [Key("plan")] public AdventurerPlanDto Plan { get; set; } = new();
+    [Key("party")] public string? Party { get; set; }
+    [Key("acquired")] public int Acquired { get; set; }
+    [Key("kills")] public long Kills { get; set; }
+    [Key("bounties_claimed")] public int BountiesClaimed { get; set; }
+}
+
+[MessagePackObject]
+public sealed class AdventurerGearDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("quality")] public int Quality { get; set; }
+}
+
+[MessagePackObject]
+public sealed class AdventurerPlanDto
+{
+    [Key("day")] public long Day { get; set; }
+    [Key("goal")] public string Goal { get; set; } = "rest";
+    [Key("ref")] public string? Ref { get; set; }
+    [Key("group")] public string[] Group { get; set; } = Array.Empty<string>();
+    [Key("post_tick")] public long PostTick { get; set; }
+    [Key("depart_tick")] public long DepartTick { get; set; }
+}
+
+[MessagePackObject]
+public sealed class AdventurerVacancyDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("settlement")] public string Settlement { get; set; } = "";
+    [Key("left_day")] public long LeftDay { get; set; }
+    [Key("arrival_day")] public long ArrivalDay { get; set; }
+    [Key("next_generation")] public int NextGeneration { get; set; }
 }
 
 /// <summary>
@@ -538,6 +621,9 @@ public sealed class NpcVacancyDto
     [Key("left_day")] public long LeftDay { get; set; }
     [Key("arrival_day")] public long ArrivalDay { get; set; }
     [Key("next_generation")] public int NextGeneration { get; set; }
+
+    /// <summary>From schema 29: the retiring adventurer promised the slot (WP13), or null for a newcomer named from their people.</summary>
+    [Key("arriving_name")] public string? ArrivingName { get; set; }
 }
 
 [MessagePackObject]
@@ -1134,8 +1220,34 @@ public static class SectionCodec
                 MerchantId = m.MerchantId, Purse = m.Purse, RestockedDay = m.RestockedDay, ShelfDay = m.ShelfDay, Traded = m.Traded,
             }).ToArray(),
             NpcLife = snapshot.NpcLife is { } life ? NpcLifeToDto(life) : null,
+            Adventurers = snapshot.Adventurers is { } adventurers ? AdventurersToDto(adventurers) : null,
         }, Options);
     }
+
+    private static AdventurersDto AdventurersToDto(AdventurerState state) => new()
+    {
+        Day = state.Day,
+        Agents = state.Agents.Values.Select(a => new AdventurerDto
+        {
+            Key = a.Key, Slot = a.Slot, Generation = a.Generation, Name = a.Name, PeopleId = a.PeopleId, Settlement = a.Settlement, At = a.At,
+            Progression = ProgressionCodec.ToDto(a.Progression), Coin = a.Coin, RiskPercent = a.RiskPercent, ArrivedDay = a.ArrivedDay,
+            Gear = a.Gear.Select(g => new AdventurerGearDto { Slot = EquipSlots.Key(g.Key), ItemId = g.Value.ItemId.Value, DefId = g.Value.DefId, Quality = g.Value.Quality })
+                .ToArray(),
+            Pack = a.Pack.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+            Condition = a.Condition == AdventurerCondition.Injured ? "injured" : "active", InjuredUntilDay = a.InjuredUntilDay,
+            Plan = new AdventurerPlanDto
+            {
+                Day = a.Plan.Day, Goal = a.Plan.Goal, Ref = a.Plan.Ref, Group = a.Plan.Group.ToArray(), PostTick = a.Plan.PostTick, DepartTick = a.Plan.DepartTick,
+            },
+            Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed,
+        }).ToArray(),
+        Vacancies = state.Vacancies.Values.Select(v => new AdventurerVacancyDto
+        {
+            Slot = v.Slot, Settlement = v.Settlement, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration,
+        }).ToArray(),
+        Bodies = state.Bodies.Select(b => new AdventurerBodyDto { Key = b.Key, Name = b.Value.Name, XMm = b.Value.XMm, ZMm = b.Value.ZMm, FacingMdeg = b.Value.FacingMdeg })
+            .ToArray(),
+    };
 
     private static NpcLifeDto NpcLifeToDto(NpcLifeState life) => new()
     {
@@ -1153,7 +1265,10 @@ public static class SectionCodec
                 Watch = new[] { n.Route.Watch.MinXMm, n.Route.Watch.MinZMm, n.Route.Watch.MaxXMm, n.Route.Watch.MaxZMm }, Partial = n.Route.Partial,
             },
         }).ToArray(),
-        Vacancies = life.Vacancies.Values.Select(v => new NpcVacancyDto { SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration })
+        Vacancies = life.Vacancies.Values.Select(v => new NpcVacancyDto
+            {
+                SlotId = v.SlotId, LeftDay = v.LeftDay, ArrivalDay = v.ArrivalDay, NextGeneration = v.NextGeneration, ArrivingName = v.ArrivingName,
+            })
             .ToArray(),
         PairsLastMet = life.PairsLastMet.Select(kv => new PairMetDto { Pair = kv.Key, Hour = kv.Value }).ToArray(),
     };
@@ -1276,7 +1391,7 @@ public static class SectionCodec
         var vacancies = ImmutableSortedDictionary.CreateBuilder<string, NpcVacancy>(StringComparer.Ordinal);
         foreach (var v in life.Vacancies)
         {
-            if (!vacancies.TryAdd(v.SlotId, new NpcVacancy(v.SlotId, v.LeftDay, v.ArrivalDay, v.NextGeneration)))
+            if (!vacancies.TryAdd(v.SlotId, new NpcVacancy(v.SlotId, v.LeftDay, v.ArrivalDay, v.NextGeneration) { ArrivingName = v.ArrivingName }))
                 throw new FormatException($"entities.msgpack holds the vacancy of {v.SlotId} twice");
         }
         var met = ImmutableSortedDictionary.CreateBuilder<string, long>(StringComparer.Ordinal);
@@ -1286,6 +1401,63 @@ public static class SectionCodec
                 throw new FormatException($"entities.msgpack holds the pair {p.Pair} twice");
         }
         return new NpcLifeState(life.Hour, npcs.ToImmutable(), vacancies.ToImmutable(), met.ToImmutable());
+    }
+
+    /// <summary>
+    /// The entities section's adventurers (schema 29; WP13): null in a save from before adventurers first lived. A malformed adventurer (an
+    /// unknown condition, slot or gear ID, a key held twice) fails the section; one content no longer places is dropped when the world starts.
+    /// </summary>
+    public static AdventurerState? DecodeAdventurers(byte[] bytes)
+    {
+        var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
+        if (section.Adventurers is not { } dto)
+            return null;
+        var agents = ImmutableSortedDictionary.CreateBuilder<string, AdventurerRecord>(StringComparer.Ordinal);
+        foreach (var a in dto.Agents)
+        {
+            var condition = a.Condition switch
+            {
+                "active" => AdventurerCondition.Active,
+                "injured" => AdventurerCondition.Injured,
+                _ => throw new FormatException($"adventurer {a.Key} has an unknown condition '{a.Condition}'"),
+            };
+            var gear = ImmutableSortedDictionary.CreateBuilder<EquipSlot, AdventurerGear>();
+            foreach (var g in a.Gear)
+            {
+                if (!EntityId.TryParse(g.ItemId, out var id) || id.Kind != EntityKind.Item || !DefinitionId.IsValid(g.DefId) || !gear.TryAdd(EquipSlots.Parse(g.Slot), new AdventurerGear(id, g.DefId, g.Quality)))
+                    throw new FormatException($"adventurer {a.Key} has a malformed or doubled gear piece in {g.Slot}");
+            }
+            var pack = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
+            foreach (var item in a.Pack)
+            {
+                if (item.Count > int.MaxValue || !pack.TryAdd(item.ItemId, (int)item.Count))
+                    throw new FormatException($"adventurer {a.Key} carries {item.ItemId} twice");
+            }
+            var record = new AdventurerRecord(a.Key, a.Slot, a.Generation, a.Name, a.Settlement, a.At, ProgressionCodec.FromDto(a.Progression), a.Coin, a.RiskPercent)
+            {
+                PeopleId = a.PeopleId, ArrivedDay = a.ArrivedDay, Gear = gear.ToImmutable(), Pack = pack.ToImmutable(), Condition = condition,
+                InjuredUntilDay = a.InjuredUntilDay, Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed,
+                Plan = new AdventurerPlan(a.Plan.Day, a.Plan.Goal, a.Plan.Ref)
+                {
+                    Group = a.Plan.Group.ToImmutableArray(), PostTick = a.Plan.PostTick, DepartTick = a.Plan.DepartTick,
+                },
+            };
+            if (!agents.TryAdd(a.Key, record))
+                throw new FormatException($"entities.msgpack holds adventurer {a.Key} twice");
+        }
+        var vacancies = ImmutableSortedDictionary.CreateBuilder<string, AdventurerVacancy>(StringComparer.Ordinal);
+        foreach (var v in dto.Vacancies)
+        {
+            if (!vacancies.TryAdd(v.Slot, new AdventurerVacancy(v.Slot, v.Settlement, v.LeftDay, v.ArrivalDay, v.NextGeneration)))
+                throw new FormatException($"entities.msgpack holds the adventurer slot {v.Slot} twice");
+        }
+        var bodies = ImmutableSortedDictionary.CreateBuilder<string, AdventurerBody>(StringComparer.Ordinal);
+        foreach (var b in dto.Bodies)
+        {
+            if (!DefinitionId.IsValid(b.Key) || !bodies.TryAdd(b.Key, new AdventurerBody(b.Name, b.XMm, b.ZMm, b.FacingMdeg)))
+                throw new FormatException($"entities.msgpack holds the adventurer body {b.Key} twice, or under a malformed key");
+        }
+        return new AdventurerState(dto.Day, agents.ToImmutable(), vacancies.ToImmutable()) { Bodies = bodies.ToImmutable() };
     }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>

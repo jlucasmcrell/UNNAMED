@@ -349,7 +349,8 @@ public class HistoricalFixtureTests
             Assert.Equal((NpcActivities.Work, 148_750L, -41_500L, NavRouteStatus.Active, 2), (warden.Activity, warden.XMm, warden.ZMm, warden.Route.Status, warden.Route.Corners.Length));
             var porter = life.Npcs["routine.fixture.porter"];
             Assert.Equal(("Aldo Renning", 1, NpcCondition.Injured, 6_000L), (porter.Name, porter.Generation, porter.Condition, porter.ConditionUntil));
-            Assert.Equal(new NpcVacancy("routine.fixture.carter", 1, 5, 1), Assert.Single(life.Vacancies).Value);
+            // Schema 29 (WP13): the carter's slot is promised to a retiring adventurer.
+            Assert.Equal(new NpcVacancy("routine.fixture.carter", 1, 5, 1) { ArrivingName = schema >= 29 ? "Wyn Carrow" : null }, Assert.Single(life.Vacancies).Value);
             Assert.Equal(70, life.PairsLastMet["npc.fixture.warden|routine.fixture.porter"]);
             // Schema 28 (WP12b): a resident hired by the party, their routine suspended, and one away on a trip. Before it, neither existed.
             if (schema >= 28)
@@ -366,6 +367,28 @@ public class HistoricalFixtureTests
         else
         {
             Assert.Null(life);
+        }
+
+        // Schema 29's adventurers (WP13): Bram out after the den's wolves with Kester, asking for company; Kester injured; the third slot
+        // awaiting someone new; both bodies standing at the lodge. Before it, a save held none: each settlement's slots fill when the world starts.
+        var adventurers = loaded.World.Adventurers;
+        if (schema >= 29)
+        {
+            Assert.NotNull(adventurers);
+            Assert.Equal(3, adventurers!.Day);
+            var bram = adventurers.Agents["npc.adventurer.fixture_vale.slot_1_g0"];
+            Assert.Equal(("Bram Hallow", 3, 42L, AdventurerGoals.Hunt, 2, 5_000L), (bram.Name, bram.Level, bram.Coin, bram.Plan.Goal, bram.Plan.Group.Length, bram.Plan.PostTick));
+            Assert.Equal(("item.weapon.iron_sword", 1), (bram.Gear[UNNAMED.Domain.Items.EquipSlot.MainHand].DefId, bram.Gear[UNNAMED.Domain.Items.EquipSlot.MainHand].Quality));
+            Assert.Equal(2, bram.Pack["item.potion.minor_healing"]);
+            Assert.Equal((AdventurerCondition.Injured, 5L), (adventurers.Agents["npc.adventurer.fixture_vale.slot_2_g0"].Condition, adventurers.Agents["npc.adventurer.fixture_vale.slot_2_g0"].InjuredUntilDay));
+            Assert.Equal(new AdventurerVacancy("fixture_vale.slot_3", "fixture_vale", 2, 6, 1), Assert.Single(adventurers.Vacancies).Value);
+            // Bram's body lingers at the lodge in sight though he is out; a load stands it there again.
+            Assert.Equal(new AdventurerBody("Bram Hallow", 150_000, -38_000, 270_000), adventurers.Bodies["npc.adventurer.fixture_vale.slot_1_g0"]);
+            Assert.Equal(2, adventurers.Bodies.Count);
+        }
+        else
+        {
+            Assert.Null(adventurers);
         }
 
         // Schema 20's faction ledger (WP6): one ash hound killed at the ridge and told to the warden, so the keepers - the wardens, when it

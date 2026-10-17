@@ -448,5 +448,6 @@
   "noises": [],
   "economy": null,
   "merchants": [],
-  "npc_life": null
+  "npc_life": null,
+  "adventurers": null
 }

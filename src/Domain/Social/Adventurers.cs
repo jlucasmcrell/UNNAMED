@@ -108,6 +108,12 @@ public sealed record AdventurerVacancy(string Slot, string Settlement, long Left
 /// <summary>Every adventurer, keyed with no limit (DN5: a target, not a cap), the slots awaiting an arrival, and the last day settled.</summary>
 public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string, AdventurerRecord> Agents, ImmutableSortedDictionary<string, AdventurerVacancy> Vacancies)
 {
+    /// <summary>
+    /// Every adventurer's body standing in the world outside the party, by key - at a lodge, or lingering there in the character's sight after
+    /// its life went out, died or retired - saved so a load stands exactly these where they stood. Bodies come and go only out of sight.
+    /// </summary>
+    public ImmutableSortedDictionary<string, AdventurerBody> Bodies { get; init; } = ImmutableSortedDictionary.Create<string, AdventurerBody>(StringComparer.Ordinal);
+
     public static AdventurerState Empty(long day) => new(day,
         ImmutableSortedDictionary.Create<string, AdventurerRecord>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, AdventurerVacancy>(StringComparer.Ordinal));
@@ -133,8 +139,14 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
         h.Add(Vacancies.Count);
         foreach (var v in Vacancies.Values)
             h.Add(v.Slot).Add(v.Settlement).Add(v.LeftDay).Add(v.ArrivalDay).Add(v.NextGeneration);
+        h.Add(Bodies.Count);
+        foreach (var (key, body) in Bodies)
+            h.Add(key).Add(body.Name).Add(body.XMm).Add(body.ZMm).Add(body.FacingMdeg);
     }
 }
+
+/// <summary>An adventurer's body standing in the world: whose (by name - their life may be gone), and where.</summary>
+public sealed record AdventurerBody(string Name, long XMm, long ZMm, int FacingMdeg);
 
 /// <summary>One row of the outcome table (DN2): from a margin of power over danger up to the next row's, the chance in percent of each end.</summary>
 public sealed record OutcomeRow(int MarginAtLeast, int DeathPercent, int InjuryPercent, int SuccessPercent);
@@ -425,7 +437,7 @@ public static class AdventurerEngine
             agents[key] = Plan(a, rules, day, claimed, planned, happenings);
         }
         Group(agents, rules, day);
-        return (new AdventurerState(day.Day, agents.ToImmutable(), vacancies.ToImmutable()), happenings.ToImmutable());
+        return (state with { Day = day.Day, Agents = agents.ToImmutable(), Vacancies = vacancies.ToImmutable() }, happenings.ToImmutable());
     }
 
     /// <summary>An adventurer's power: their level, the ladder pieces they own, and their group.</summary>

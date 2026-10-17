@@ -118,6 +118,7 @@ internal static class SemanticRebase
             Economy = delta.Economy,
             Merchants = delta.Merchants,
             NpcLife = delta.NpcLife,
+            Adventurers = delta.Adventurers,
         };
     }
 }

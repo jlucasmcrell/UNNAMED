@@ -379,9 +379,51 @@ public static class M2Fixtures
                 }),
                 ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
                 {
-                    KeyValuePair.Create("routine.fixture.carter", new NpcVacancy("routine.fixture.carter", 1, 5, 1)),
+                    // Schema 29 (WP13): the carter's slot is promised to a retiring adventurer.
+                    KeyValuePair.Create("routine.fixture.carter", new NpcVacancy("routine.fixture.carter", 1, 5, 1) { ArrivingName = "Wyn Carrow" }),
                 }),
                 ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("npc.fixture.warden|routine.fixture.porter", 70L) })));
+            // Schema 29 (WP13): the vale's adventurers on day 3 - Bram Hallow, level 3, an iron sword of fine make, 42 coin and two draughts in
+            // his pack, out after the den's wolves with Kester and asking for company; Kester, injured until day 5; the vale's third slot empty
+            // since day 2, someone new due on day 6. Kester's body stands at the lodge, and so does Bram's, lingering in sight though he is out.
+            var bram = CharacterProgression.Empty with
+            {
+                Level = 3, LevelProgressXp = 40,
+                Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 1), KeyValuePair.Create(CharacterAttribute.Endurance, 1) }),
+                Skills = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("skill.one_hand_blade", new SkillState(4, 10)) }),
+            };
+            world.SetAdventurers(new AdventurerState(3,
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("npc.adventurer.fixture_vale.slot_1_g0", new AdventurerRecord("npc.adventurer.fixture_vale.slot_1_g0", "fixture_vale.slot_1", 0,
+                        "Bram Hallow", "fixture_vale", "fixture_vale", bram, 42, 55)
+                    {
+                        PeopleId = "people.fixture", ArrivedDay = 0, Acquired = 1, Kills = 7, BountiesClaimed = 2,
+                        Gear = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(EquipSlot.MainHand,
+                            new AdventurerGear(EntityId.Create(EntityKind.Item, 1_700_000_000_300, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }), "item.weapon.iron_sword", 1)) }),
+                        Pack = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("item.potion.minor_healing", 2) }),
+                        Plan = new AdventurerPlan(3, AdventurerGoals.Hunt, "spawn.fixture.den")
+                        {
+                            Group = ImmutableArray.Create("npc.adventurer.fixture_vale.slot_1_g0", "npc.adventurer.fixture_vale.slot_2_g0"), PostTick = 5_000, DepartTick = 5_100,
+                        },
+                    }),
+                    KeyValuePair.Create("npc.adventurer.fixture_vale.slot_2_g0", new AdventurerRecord("npc.adventurer.fixture_vale.slot_2_g0", "fixture_vale.slot_2", 0,
+                        "Kester Vale-of-Stones", "fixture_vale", "fixture_vale", CharacterProgression.Empty, 8, 30)
+                    {
+                        Condition = AdventurerCondition.Injured, InjuredUntilDay = 5, Plan = AdventurerPlan.Resting(3),
+                    }),
+                }),
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("fixture_vale.slot_3", new AdventurerVacancy("fixture_vale.slot_3", "fixture_vale", 2, 6, 1)),
+                }))
+            {
+                Bodies = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("npc.adventurer.fixture_vale.slot_1_g0", new AdventurerBody("Bram Hallow", 150_000, -38_000, 270_000)),
+                    KeyValuePair.Create("npc.adventurer.fixture_vale.slot_2_g0", new AdventurerBody("Kester Vale-of-Stones", 150_000, -39_200, 270_000)),
+                }),
+            });
             return world;
         }
 
