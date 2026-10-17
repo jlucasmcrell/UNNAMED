@@ -1,0 +1,8 @@
+# Terms no chat line may use (WP16; CHT009), matched whole-word and case-insensitive; a phrase matches across spaces or hyphens.
+categories:
+  modern_slang: [ok, okay, cool, dude, lol, lmao, omg, awesome, gonna, wanna, gotta, bro, guys, vibe, vibes, epic, legit, noob, sus, yeet, "no worries", "my bad", selfie, weekend, online, offline]
+  brands: [coca-cola, pepsi, google, amazon, apple, microsoft, nike, starbucks, disney, netflix, facebook, twitter, mcdonald]
+  explicit: [fuck, fucking, shit, cunt, bitch, whore, slut, rape, porn, sex, sexy, naked, nude, orgasm]
+  ui_words: [press, click, button, menu, hud, tooltip, cooldown, "level up", "levelled up", xp, hp, mana bar, respawn, reload, quicksave, quickload, "save game", "load game", "quest log", "quest marker", npc]
+  # The eight named NPCs' signature lines: never in anyone else's mouth.
+  named_npc_tics: ["new iron", "talking to the hinge", "wings are quicker", "in ink", "you're in the book", "don't improve it", "exactly that", "still on time", "give or take", "anvil is mine", "of course it is", "everyone's wrong", "the other rope", "is the number", "counted twice", "now then", "the fire likes a story"]

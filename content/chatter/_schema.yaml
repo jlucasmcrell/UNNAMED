@@ -1,0 +1,120 @@
+# The chatter schema (WP16): what a chat line may be tagged with, how its key is written, and which placeholder slots it may use.
+#
+# The content linter reads this file (codes CHT001-CHT012) and so does the runtime: a tag or slot not named here is an error, never a
+# guess. DeepSeek generates the ambient corpus against it (about 3000 lines); the LFG, news and system templates are hand-written.
+# Mechanics only - no new lore. Proper nouns come only from _glossary.yaml; banned terms are in _banned.yaml; who generated which
+# batch is in _provenance.yaml.
+#
+# A chatter file is a content definition like any other:
+#
+#   id: chatter.<file_name>            # one per file; the file name without .yaml
+#   kind: chatter
+#   schema: 1
+#   display_key: chatter.<file_name>.name
+#   tags: [chatter]
+#   role: corpus                       # corpus (ambient, AI-generated) or templates (LFG/news/system, hand-written)
+#   batch: b0001                       # corpus only: the _provenance.yaml batch every line of the file came from
+#   lines:
+#     - key: chat.b0001.0001
+#       text: "Rain's set in over {place}. The ditches will run by dusk."
+#       speakers: [farmer, herder]     # any omitted dimension, or an empty list, matches everything
+#       places: [cairnwold]
+#       times: [afternoon, dusk]
+#       weather: [rain]
+#       events: []                     # the line is said only while one of these happened recently in the region
+#       channel: local                 # local (heard near the speaker; the default) or world (the whole region)
+#       ai_generated: true             # required, and true, on every corpus line
+#
+# A template line has the same shape but names its use instead of tags (see templates below) and carries ai_generated: false.
+
+schema: 1
+
+limits:
+  max_chars: 140                       # the raw text, placeholders as written
+  near_duplicate_jaccard: 0.8          # word-bigram Jaccard at or above this between two lines is a near-duplicate (CHT009)
+  coverage_min_lines: 3                # a speaker x place x time-band cell with fewer corpus lines is reported (CHT010, a warning)
+
+# Line keys. Corpus keys name their batch, so two batches never collide; template keys name their use.
+line_key:
+  corpus: '^chat\.[a-z0-9_]+\.[0-9]{4}$'                         # chat.<batch>.<nnnn>, e.g. chat.b0001.0042
+  template: '^(lfg|news|sys|party)\.[a-z0-9_]+\.[0-9]{2}$'       # <use family>.<use>.<nn>, e.g. lfg.hunt.03
+
+# Who may say a corpus line. Named NPCs never speak corpus lines: they have their own barks and dialogue.
+speaker_types:
+  villager: someone who lives in a settlement and keeps no particular trade
+  farmer: works fields, gardens or a granary
+  herder: keeps animals - flocks, hens, a cow
+  hunter: traps and hunts the moors and woods
+  guard: keeps a watch, a gate or a wall
+  carter: drives goods along the road between the towns
+  traveller: passing through, on foot
+  labourer: digs, hauls, cuts timber, works a seam
+  crafter: works at a bench, a forge or a loom for someone else
+  adventurer: takes bounties and goes where others will not
+
+# Where a speaker stands. The wilds are everywhere outside the settlements and off the road.
+places:
+  ashen_hollow: Ashen Hollow
+  cairnwold: Cairnwold
+  old_east_road: the Old East Road
+  wilds: the wilds
+
+# Game hours, from the world clock (config.time). Each band holds [from, to); night wraps midnight.
+time_bands:
+  dawn: [5, 7]
+  morning: [7, 12]
+  afternoon: [12, 17]
+  dusk: [17, 20]
+  evening: [20, 23]
+  night: [23, 5]
+
+# The region's weather (config.weather). The reserved fold state is never drawn, so no line may name it.
+weather: [fair, overcast, rain, fog, wind]
+
+# Recent world events a line may wait on: a fact the simulation published in the region within config.chat's recent_event_hours.
+# Reserved events are named so lines can be written for them now; nothing raises them until their package lands.
+events:
+  weather_turned: a new weather front reached the region (WeatherChanged)
+  bounty_claimed: someone other than the character claimed a bounty (BountyClaimed)
+  bounty_completed: the character finished a bounty (QuestCompleted on a bounty)
+  quest_completed: the character finished a quest that is not a bounty (QuestCompleted)
+  creature_slain: something was killed in the region (CreatureKilled)
+  hireling_died: a hireling died in the character's service (HirelingDied)
+  market_day: the town markets settled a day's trade (MarketsSettled)
+  setting_out: someone set out on an errand or a hunt (SettingOut; WP12)
+  party_set_out: a group formed at a meeting place and left together (AllyGroupFormed)
+  long_absence: the character was away a day or more and the world went on (the offline catch-up's log)
+  traveller_arrived: a newcomer arrived in a settlement (reserved; WP12 arrivals)
+  resident_left: a resident left a settlement for good (reserved; WP12 arrivals and replacement)
+
+channels: [local, world]
+
+# Placeholder slots, written {slot}. A slot that needs an event's facts is allowed only on a line that waits on that event.
+placeholders:
+  place: { means: the display name of the speaker's place, corpus: true }
+  weather: { means: the weather now, as a word (rain, fog), corpus: true }
+  time_band: { means: the time of day, as a word (dusk, morning), corpus: true }
+  creature: { means: what was slain, as its common name, corpus: true, requires_event: creature_slain }
+  claimant: { means: who claimed the bounty, corpus: true, requires_event: bounty_claimed }
+  bounty: { means: the bounty's title, corpus: true, requires_event: [bounty_claimed, bounty_completed] }
+  speaker: { means: the speaker's name, corpus: false }
+  purpose: { means: what the speaker is setting out to do (a hunt, a bounty's title), corpus: false }
+  destination: { means: where the speaker is going, a place or location name, corpus: false }
+  anchor: { means: the meeting place, a location name, corpus: false }
+  depart_time: { means: the clock time the speaker leaves, as hh:mm, corpus: false }
+  members: { means: who set out together, as a list of names, corpus: false }
+
+# Template uses: which simulation fact each template family words, and the slots its fact supplies.
+templates:
+  lfg.hunt: { fact: SettingOut purpose hunt, channel: world, slots: [speaker, purpose, destination, anchor, depart_time] }
+  lfg.bounty: { fact: SettingOut purpose bounty, channel: world, slots: [speaker, purpose, destination, anchor, depart_time] }
+  lfg.errand: { fact: SettingOut purpose errand, channel: world, slots: [speaker, purpose, destination, anchor, depart_time] }
+  lfg.joined: { fact: the character joined an LFG offer, channel: party, slots: [speaker, anchor, depart_time] }
+  lfg.left_alone: { fact: the offer's depart tick passed and the character was not at the meeting place, channel: local, slots: [speaker, destination] }
+  party.set_out: { fact: AllyGroupFormed, channel: party, slots: [speaker, destination, members] }
+  news.bounty_claimed: { fact: BountyClaimed by someone other than the character, channel: world, slots: [claimant, bounty] }
+  sys.bounty_claimed: { fact: BountyClaimed by someone other than the character, channel: system, slots: [claimant, bounty] }
+  sys.bounty_lost: { fact: BountyClaimed on a bounty the character held, channel: system, slots: [claimant, bounty] }
+  sys.bounty_completed: { fact: the character finished a bounty, channel: system, slots: [bounty] }
+  sys.lfg_joined: { fact: the character joined an LFG offer, channel: system, slots: [speaker, anchor, depart_time] }
+  sys.lfg_missed: { fact: the offer left without the character, channel: system, slots: [speaker] }

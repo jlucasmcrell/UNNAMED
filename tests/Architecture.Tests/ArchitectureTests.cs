@@ -134,6 +134,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.TechniqueCooldown),   // ticks until a technique is ready, for the quick bar (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.RepairQuote),   // what a trader would charge to mend a piece, for the repair button (WP3b)
             nameof(UNNAMED.World.Runtime.Simulation.PartySheet),   // a party member's level, gear and regard, for the party card (WP15b)
+            nameof(UNNAMED.World.Runtime.Simulation.ChatText),   // a chat message in words, from content's lines, for the chat view (WP16)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

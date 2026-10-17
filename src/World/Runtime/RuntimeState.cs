@@ -100,6 +100,9 @@ public enum StateSlice
 
     /// <summary>Each past or present party member's progression, gear and belongings (WP15b). Saved with the player.</summary>
     PartySheets,
+
+    /// <summary>Open offers to set out together and the temporary-ally groups that formed (WP16). Transient: never saved.</summary>
+    Lfg,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -182,6 +185,7 @@ internal sealed class RuntimeState
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public long? WeatherCursor { get; private set; }
+    public LfgState Lfg { get; private set; } = LfgState.Empty;
     public FactionLedger Factions { get; private set; }
 
     /// <summary>Companions gravely wounded, recovering at home, and the tick they are well again (WP15a; part of the companions' slice).</summary>
@@ -298,6 +302,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Waystones);
         ReturnPoint = KnownStones.ContainsKey(stoneKey) ? stoneKey : throw new InvalidOperationException($"{stoneKey} is not a known stone");
+    }
+
+    public void SetLfg(SliceOwner owner, LfgState lfg)
+    {
+        Require(owner, StateSlice.Lfg);
+        Lfg = lfg ?? throw new ArgumentNullException(nameof(lfg));
     }
 
     public void SetWeatherCursor(SliceOwner owner, long? startHour)

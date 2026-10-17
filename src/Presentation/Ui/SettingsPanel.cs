@@ -546,6 +546,10 @@ public partial class SettingsPanel : CanvasLayer
         reading.AddChild(Choice("interface.guidance", "Guidance", "Full shows every hint; Light only the first of each kind; Off none.",
             new[] { "Full", "Light", "Off" }, Array.IndexOf(guidance, ui.Guidance),
             i => Profile(p => p with { Interface = p.Interface with { Guidance = guidance[i] } })));
+        var chat = Enum.GetValues<ChatSetting>();
+        reading.AddChild(Choice("interface.chat", "Chat", "On shows all chat; Play-relevant only keeps offers to set out together, bounties and system lines; Off none.",
+            new[] { "On", "Play-relevant only", "Off" }, Array.IndexOf(chat, ui.Chat),
+            i => Profile(p => p with { Interface = p.Interface with { Chat = chat[i] } })));
         var hints = UiKit.Action(ui.SeenHints.Length == 0 ? "No hints learned yet" : $"Show my {ui.SeenHints.Length} learned hints again", () =>
         {
             Profile(p => p with { Interface = p.Interface with { SeenHints = Array.Empty<string>() } });

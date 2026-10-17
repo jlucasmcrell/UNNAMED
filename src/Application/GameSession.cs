@@ -204,6 +204,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
             Techniques = TeachingContent.BuildTechniques(loader),
+            Chat = ChatterContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

@@ -325,6 +325,14 @@ public static class ContentKindRegistry
             IdPrefix: "piece"
         );
 
+        // 33. chatter - a file of chat lines: the ambient corpus or the LFG, news and system templates (WP16)
+        kinds["chatter"] = new ContentKindDefinition(
+            Kind: "chatter",
+            FullKind: "chatter",
+            Directory: "chatter",
+            IdPrefix: "chatter"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

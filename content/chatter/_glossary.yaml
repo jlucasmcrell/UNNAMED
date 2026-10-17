@@ -1,0 +1,48 @@
+# The proper nouns a chat line may use (WP16; CHT008). Built from the content's place, faction, people and NPC names; a term with a ref
+# is checked against that definition's name (CHT012). Canon's ENTITY_INDEX lives in a separate repository, so this file is the allow-list
+# the linter reads: add a term here, from content, before a line may name it. No new lore - a name that content does not have stays out.
+terms:
+  # places
+  - { term: Ashen Hollow, ref: location.outpost }
+  - { term: Waystation, ref: location.outpost }
+  - { term: Cairnwold, ref: location.cairnwold.village }
+  - { term: Old East Road, note: the road stretch between the towns (region.starting_frontier) }
+  - { term: Long Lodge, ref: location.cairnwold.lodge }
+  - { term: North Ash Stand, ref: location.cairnwold.ash_stand }
+  - { term: Sinking Moss, ref: location.cairnwold.the_bog }
+  - { term: Outfall, ref: location.cairnwold.the_gorge }
+  - { term: South Crags, ref: location.cairnwold.the_crags }
+  - { term: South Crag Seam, ref: location.cairnwold.iron_seam }
+  - { term: Foldscar, ref: location.foldscar }
+  - { term: Blackvein Cut, ref: location.blackvein_cut }
+  - { term: Lantern Shrine, ref: location.road.lantern_shrine }
+  - { term: Rim, ref: location.road.basin_rim }
+  - { term: Overturned Wain, ref: location.road.overturned_wain }
+  - { term: Sunk Barrow, ref: location.road.sunk_barrow }
+  - { term: Wolves' Den, ref: location.den_mouth }
+  - { term: Ruined Cart, ref: location.ruined_cart }
+  - { term: Woundmoss Patch, ref: location.herb_patch }
+  - { term: Ashen Waystone, note: the return stone of Ashen Hollow (region.starting_frontier) }
+  - { term: Rim Stone, note: a Waystone on the Rim (region.starting_frontier) }
+  - { term: Quiet Stones, note: the three stones of the Foldscar (region.starting_frontier) }
+  - { term: Waystone, note: the stones travellers touch (S-38) }
+  # factions and peoples
+  - { term: Wayhold, ref: faction.ashen_hollow.wayhold }
+  - { term: Long Survey, ref: faction.ashen_hollow.long_survey }
+  - { term: Veth, ref: people.veth }
+  # the named NPCs: others may speak of them, never as them
+  - { term: Kera Voss, ref: npc.ashen_hollow.kera_voss }
+  - { term: Renn Vale, ref: npc.ashen_hollow.renn_vale }
+  - { term: Sel Arien, ref: npc.ashen_hollow.sel_arien }
+  - { term: Tavar Orr, ref: npc.ashen_hollow.tavar_orr }
+  - { term: Berrin Garth, ref: npc.cairnwold.berrin_garth }
+  - { term: Durn Skell, ref: npc.cairnwold.durn_skell }
+  - { term: Mara Ling, ref: npc.cairnwold.mara_ling }
+  - { term: Tam Crowden, ref: npc.cairnwold.tam_crowden }
+  # creatures by their names
+  - { term: Barrowback, ref: creature.grazer.barrowback }
+  - { term: Fellhorn, ref: creature.grazer.fellhorn }
+  - { term: Ashcomb, ref: creature.beast.chicken }
+  # the calendar (WP7)
+  - { term: Reckoning, note: the calendar's year (config.time) }
+  - { term: Hollow Day, note: the day at a Reckoning's end that belongs to no tally (config.time) }

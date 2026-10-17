@@ -220,6 +220,11 @@ public class ContentLoader
             var teachingErrors = TeachingContent.Validate(this);
             _errors.AddRange(teachingErrors);
             success &= teachingErrors.Count == 0;
+
+            // Chatter: the corpus and the templates, their tags, slots, words and provenance (CHT codes; WP16)
+            var chatterErrors = ChatterContent.Validate(this);
+            _errors.AddRange(chatterErrors);
+            success &= chatterErrors.Count == 0;
         }
         
         return success;
