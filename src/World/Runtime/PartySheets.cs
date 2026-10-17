@@ -54,6 +54,9 @@ public sealed record PartySheetView(string NpcId, string Name, int Level, long L
 /// <summary>To <see cref="PartySheetSystem"/>: a party member used a discipline (a blow that wounded, a day's work).</summary>
 internal sealed record PracticePartySkill(string NpcId, SkillPractice Practice) : InternalCommand;
 
+/// <summary>To <see cref="PartySheetSystem"/>: a creature was killed (its <see cref="CreatureKilled"/>); the party may share it.</summary>
+internal sealed record ShareKill(CreatureKilled Killed) : InternalCommand;
+
 /// <summary>To <see cref="PartySheetSystem"/>: someone left the party alive; what they were only loaned comes back to the character.</summary>
 internal sealed record ReturnLoans(string NpcId) : InternalCommand;
 
@@ -94,7 +97,7 @@ internal sealed class PartySheetSystem : IAbstractAdvance
     private ProgressionRules Rules => _context.Setup.Progression;
 
     /// <summary>A kill shared: every party member on their feet within the leash of it gains its XP through their own guards.</summary>
-    public void Listen(SimulationEvents events) => events.Listen<CreatureKilled>(Shared);
+    public void Listen(SimulationEvents events) => events.Listen<CreatureKilled>(e => _context.Dispatch(new ShareKill(e)));
 
     /// <summary>Nothing of a sheet goes on while the character is away: a hireling's day of work comes through the companion system's advance.</summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
@@ -252,15 +255,16 @@ internal sealed class PartySheetSystem : IAbstractAdvance
     /// A kill by the character or a party member: each member on their feet within the leash of the body gains its XP through their own
     /// anti-farm guards, as the character would (AG-1..AG-3, the spawner as the cluster). Someone else's kill shares nothing.
     /// </summary>
-    private void Shared(CreatureKilled killed)
+    public string? Handle(ShareKill command)
     {
+        var killed = command.Killed;
         var party = State.Companions.Values.Where(c => State.Npcs.ContainsKey(c.NpcId)).ToList();
         if (party.Count == 0 || _context.Setup.Social.Companions is not { } tuning)
-            return;
+            return null;
         if (killed.Killer != _player && !party.Any(c => State.Npcs[c.NpcId].InstanceId == killed.Killer))
-            return;
+            return null;
         if (State.Creatures.Values.FirstOrDefault(c => c.Id == killed.Creature) is not { } creature || creature.Definition.XpValue <= 0)
-            return;
+            return null;
         var at = creature.Body;
         foreach (var member in party.Where(c => c.Condition == CompanionCondition.Up).OrderBy(c => c.NpcId, StringComparer.Ordinal))
         {
@@ -277,6 +281,7 @@ internal sealed class PartySheetSystem : IAbstractAdvance
             if (result.Awarded > 0)
                 _context.Events.Publish(new PartyExperienceGained(member.NpcId, result.Awarded, result.LevelsGained, result.Progression.Level, killed.Tick));
         }
+        return null;
     }
 
     // ── views ───────────────────────────────────────────────────────────────

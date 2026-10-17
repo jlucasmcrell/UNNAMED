@@ -739,6 +739,7 @@ public sealed class Simulation
         RefitMember refit => _companions.Handle(refit),
         LeaveParty leave => _companions.Handle(leave, Now),
         PracticePartySkill practice => _sheets.Handle(practice),
+        ShareKill share => _sheets.Handle(share),
         ReturnLoans loans => _sheets.Handle(loans, Now),
         SettleFallen fallen => _sheets.Handle(fallen, Now),
         HandOver hand => _inventory.Handle(hand),
