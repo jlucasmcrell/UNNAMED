@@ -33,7 +33,7 @@ public partial class SettingsPanel : CanvasLayer
         ["use"] = "Use a salve", ["quick_1"] = "Quick slot 1", ["quick_2"] = "Quick slot 2", ["quick_3"] = "Quick slot 3", ["quick_4"] = "Quick slot 4",
         ["quick_5"] = "Quick slot 5", ["quick_6"] = "Quick slot 6", ["quick_7"] = "Quick slot 7", ["quick_8"] = "Quick slot 8", ["take_all"] = "Take all",
         ["companion_order"] = "Companions: follow or wait", ["first_person"] = "First person, and back", ["shoulder_swap"] = "Change shoulder",
-        ["inventory"] = "Inventory", ["character"] = "Character", ["skills"] = "Skills", ["journal"] = "Journal", ["map"] = "Map", ["help"] = "Controls and help",
+        ["inventory"] = "Inventory", ["character"] = "Character", ["skills"] = "Skills", ["journal"] = "Journal", ["map"] = "Map", ["party"] = "Party", ["chat"] = "Chat", ["help"] = "Controls and help",
         ["saves"] = "Saves", ["quicksave"] = "Save now",
         ["reply_1"] = "Answer 1", ["reply_2"] = "Answer 2", ["reply_3"] = "Answer 3", ["reply_4"] = "Answer 4", ["reply_5"] = "Answer 5",
         ["reply_6"] = "Answer 6", ["reply_7"] = "Answer 7", ["reply_8"] = "Answer 8", ["reply_9"] = "Answer 9",

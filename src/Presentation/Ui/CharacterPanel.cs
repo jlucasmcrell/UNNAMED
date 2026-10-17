@@ -74,6 +74,7 @@ public partial class CharacterPanel : CanvasLayer
                            string.Join(",", progression.Skills.Select(s => $"{s.Key}:{s.Value.Level}:{s.Value.ProgressXp}")) + $"|{progression.Known.Count}|" +
                            $"{view.Name}|{view.Stats}|{view.Armor}|{view.CarriedGrams}|{view.CarryLimitGrams}|" +
                            string.Join(",", view.Equipment.Select(kv => $"{kv.Key}:{kv.Value}")) + "|" +
+                           string.Join(",", view.Inventory.Where(e => e.Wear is not null).Select(e => $"{e.ItemId}:{e.Wear!.Points}")) + "|" +
                            string.Join(",", simulation.Combat.Effects.Select(e => $"{e.EffectId}x{e.Stacks}")) + $"|{simulation.Combat.Strained}|" +
                            string.Join(",", _weighing.Select(kv => $"{kv.Key}{kv.Value}"));
         if (signature == _drawn)
@@ -236,6 +237,14 @@ public partial class CharacterPanel : CanvasLayer
         var load = UiKit.Gauge(HudStyle.Ash, Column);
         load.Set(view.CarriedGrams, view.CarryLimitGrams + carryGain);
         column.AddChild(load);
+        // The laden band (D4): the band and what it costs now, or how much more goes in before it.
+        var laden = _session.Setup.Items.Inventory.Laden;
+        var band = new HBoxContainer();
+        band.AddThemeConstantOverride("separation", 8);
+        if (LoadWords.Chip(view.CarriedGrams, view.CarryLimitGrams, laden) is { } chip)
+            band.AddChild(UiKit.Chip(chip));
+        band.AddChild(UiKit.Words(LoadWords.Sentence(view.CarriedGrams, view.CarryLimitGrams, laden), 16, HudStyle.Muted));
+        column.AddChild(band);
 
         var on = UiKit.Section("On you");
         on.AddThemeConstantOverride("separation", 6);
@@ -275,6 +284,9 @@ public partial class CharacterPanel : CanvasLayer
             label.CustomMinimumSize = new Vector2(96, 0);
             row.AddChild(label);
             row.AddChild(UiKit.Words(Names.Item(session, entry.DefId, entry.Quality)));
+            // Durability (WP3b, D5): a worn piece says how worn; a sound one says nothing more.
+            if (session.Setup.Items.Catalog.Find(entry.DefId) is { } definition && WearWords.Chip(entry.Wear, definition.DurabilityMax) is { } wear)
+                row.AddChild(UiKit.Chip(wear));
             worn.AddChild(row);
         }
         if (view.Equipment.IsEmpty)

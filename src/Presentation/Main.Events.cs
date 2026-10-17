@@ -119,6 +119,7 @@ public partial class Main
             _hud.Toast($"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         SubscribeSocial();
+        SubscribeParty();
         SubscribeQuests();
         SubscribeCombat();
         SubscribeGuidance();

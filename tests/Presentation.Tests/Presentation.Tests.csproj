@@ -39,9 +39,16 @@
     <Compile Include="..\..\src\Presentation\Ui\CreatorDraft.cs" Link="Linked\CreatorDraft.cs" />
   </ItemGroup>
 
-  <!-- The creator's draft and bodies (WP2) speak the domain's CharacterSpec. -->
+  <!-- The player-facing screens' view models (chat, party, hiring, the Learn column, wear and load words, the context line and outline
+       rules): Godot-free, mapping the world's views to what the screens say. -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Presentation\Ui\Models\*.cs" LinkBase="Linked\Models" />
+  </ItemGroup>
+
+  <!-- The creator's draft and bodies (WP2) speak the domain's CharacterSpec; the screens' view models read the world's views. -->
   <ItemGroup>
     <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\src\World\World.csproj" />
   </ItemGroup>
 
   <ItemGroup>

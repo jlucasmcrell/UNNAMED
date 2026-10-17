@@ -17,6 +17,7 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class CraftingView : Node3D
 {
     private readonly Dictionary<string, (Node3D Ready, Node3D Spent)> _nodes = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _stations = new(StringComparer.Ordinal);
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
 
@@ -113,8 +114,15 @@ public partial class CraftingView : Node3D
             root.Name = station.Key;
             root.Position = new Vector3(station.XMm / 1000f, terrain.HeightAtMm(station.XMm, station.ZMm) / 1000f, station.ZMm / 1000f);
             AddChild(root);
+            _stations[station.Key] = root;
         }
     }
+
+    /// <summary>What is drawn for a node (by its site's name) as it stands now - its ready look - for the outline; null when none is.</summary>
+    public Node3D? Node(string name) => _nodes.TryGetValue(name, out var look) ? look.Ready : null;
+
+    /// <summary>What is drawn for a station, by its key; null when none is.</summary>
+    public Node3D? Station(string key) => _stations.GetValueOrDefault(key);
 
     /// <summary>Show each node as the simulation has it now.</summary>
     public void Refresh(IEnumerable<NodeView> nodes)

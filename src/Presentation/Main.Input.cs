@@ -113,6 +113,10 @@ public partial class Main
                 Toggle(_journal, () => Show(_journal));
             if (Input.IsActionJustPressed("map"))
                 Toggle(_map, () => Show(_map));
+            if (Input.IsActionJustPressed("chat"))
+                Toggle(_chat, () => _chat.Open());
+            if (Input.IsActionJustPressed("party"))
+                Toggle(_companionsPanel, () => ShowParty(null));
             if (Input.IsActionJustPressed("help"))
                 Toggle(_help, _help.Toggle);
             if (Input.IsActionJustPressed("saves"))
@@ -211,10 +215,7 @@ public partial class Main
                     OpenStation(focus.Key);
                     break;
                 case FocusKind.Npc:
-                    if (DownedCompanion(focus.Key) is not null)
-                        _controller.Revive(focus.Key);
-                    else
-                        _controller.Talk(focus.Key);
+                    Approach(focus.Key);
                     break;
                 case FocusKind.Switch:
                     _controller.Interact(focus.Key);
@@ -300,6 +301,8 @@ public partial class Main
         Bind("quest_debug", Key.F4);
         Bind("journal", Key.J);
         Bind("map", Key.M);
+        Bind("chat", Key.T);
+        Bind("party", Key.O);
         Bind("autorun", Key.Quoteleft);   // the owner's second-play brief §23: autorun on tilde
         Bind("quicksave", Key.F5);
         Bind("saves", Key.L);

@@ -41,6 +41,9 @@ public partial class NpcsView : Node3D
     public IEnumerable<(string Id, float Speed, string? State)> States() =>
         _figures.Select(f => (f.Key, _gaits.TryGetValue(f.Key, out var g) ? g.Speed : 0f, f.Value.ClipState));
 
+    /// <summary>The figure drawn for a person, by their ID; null when none is (for the outline).</summary>
+    public Node3D? FigureOf(string id) => _figures.GetValueOrDefault(id);
+
     public void Draw(Simulation simulation, double delta, double tickSeconds)
     {
         if (PlayerHead.GetParent() is null)

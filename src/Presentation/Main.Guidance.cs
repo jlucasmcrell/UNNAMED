@@ -101,7 +101,7 @@ public partial class Main
             if (e.Service == Domain.Social.NpcServices.Trade)
                 Hint(HintTriggers.TradeOpened);
         });
-        // Still to come: hire_offered (WP15a's hiring sheet) and price_changed (WP14's markets) are named by those systems when they land.
+        // hire_offered is named when the hiring sheet opens (Main.Party.cs). Still to come: price_changed (WP14's markets), when it lands.
     }
 
     /// <summary>The moments a frame shows rather than an event: a prompt up, health low, the pack full, a station open.</summary>

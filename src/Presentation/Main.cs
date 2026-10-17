@@ -827,6 +827,7 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED watch shot {_watchTick / WatchEvery:0000} at frame {_watchTick} written");
         }
         KeepContainerInReach();
+        KeepHireInReach();
         // THE SKY RUNS ON THE WORLD CLOCK. content/config/time.yaml: 20 ticks a second, 1 game minute = 2 real
         // seconds, 1440 game minutes a day - so 57,600 ticks is one full day and night, 48 real minutes. Before
         // this the sun was set once at build time and never moved, which is the owner's "lighting in general is

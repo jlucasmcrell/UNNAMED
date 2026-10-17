@@ -50,7 +50,7 @@ public partial class HelpPanel : CanvasLayer
             ("Screens", new[]
             {
                 ("System menu, or close a screen", new[] { "release_mouse" }), ("Inventory", new[] { "inventory" }), ("Journal", new[] { "journal" }),
-                ("Map", new[] { "map" }),
+                ("Map", new[] { "map" }), ("Party: orders, wages, gear", new[] { "party" }), ("Chat, and who is asking for company", new[] { "chat" }),
                 ("Character", new[] { "character" }), ("Skills, and what you know", new[] { "skills" }), ("These controls", new[] { "help" }),
             }),
         },

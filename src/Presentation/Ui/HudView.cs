@@ -114,9 +114,15 @@ public partial class HudView : Control
     private readonly PanelContainer _prompt = new();
     private readonly KeyCap _promptKey = new();
     private readonly Label _promptText = HudStyle.Text(HudStyle.Strong, 19, HudStyle.Bone);
+    private readonly Label _promptContext = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash);
     private readonly PanelContainer _log = new();
     private readonly Label[] _logLines = new Label[7];
     private readonly Queue<string> _logQueue = new();
+
+    // Bottom left, over the pools: the last few lines of chat (WP16), quiet; the Chat screen (T) holds the rest.
+    private readonly PanelContainer _chat = new();
+    private readonly Label[] _chatLines = new Label[4];
+    private string _chatText = string.Empty;
 
     // Top centre, under the target: what just happened that the player should not miss - a level gained, a quest finished.
     private readonly PanelContainer _banner = new();
@@ -253,6 +259,23 @@ public partial class HudView : Control
             GrowVertical = GrowDirection.Begin,
         };
         AddChild(column);
+
+        _chat.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6, quiet: true));
+        _chat.CustomMinimumSize = new Vector2(420, 0);
+        _chat.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        var said = new VBoxContainer();
+        said.AddThemeConstantOverride("separation", 1);
+        for (int i = 0; i < _chatLines.Length; i++)
+        {
+            _chatLines[i] = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash);
+            _chatLines[i].AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            _chatLines[i].CustomMinimumSize = new Vector2(396, 0);
+            _chatLines[i].Visible = false;
+            said.AddChild(_chatLines[i]);
+        }
+        _chat.AddChild(said);
+        _chat.Visible = false;
+        column.AddChild(_chat);
 
         var panel = _lowerLeft;
         panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6));
@@ -531,7 +554,14 @@ public partial class HudView : Control
         row.AddChild(_promptKey);
         _promptText.VerticalAlignment = VerticalAlignment.Center;
         row.AddChild(_promptText);
-        _prompt.AddChild(row);
+        // Under it, one quiet line of context: what a node gives, whether someone hires on, what a thing weighs.
+        var stack = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        stack.AddThemeConstantOverride("separation", 2);
+        stack.AddChild(row);
+        _promptContext.HorizontalAlignment = HorizontalAlignment.Center;
+        _promptContext.Visible = false;
+        stack.AddChild(_promptContext);
+        _prompt.AddChild(stack);
         _prompt.Visible = false;
         AddChild(_prompt);
 
@@ -804,7 +834,7 @@ public partial class HudView : Control
         _deathUntil = _clock + seconds;
     }
 
-    public void SetPrompt(string? text)
+    public void SetPrompt(string? text, string? context = null)
     {
         _prompt.Visible = !string.IsNullOrEmpty(text);
         if (text is null)
@@ -813,6 +843,24 @@ public partial class HudView : Control
         _promptKey.Visible = keyed.Success;
         _promptKey.Key = keyed.Success ? keyed.Groups[1].Value : string.Empty;
         _promptText.Text = keyed.Success ? keyed.Groups[2].Value : text;
+        _promptContext.Visible = !string.IsNullOrEmpty(context);
+        _promptContext.Text = context ?? string.Empty;
+    }
+
+    /// <summary>The chat feed's lines, oldest first (at most four); none hides it.</summary>
+    public void SetChat(IReadOnlyList<string> lines)
+    {
+        string text = string.Join("\n", lines);
+        if (text == _chatText)
+            return;
+        _chatText = text;
+        var shown = lines.Skip(Math.Max(0, lines.Count - _chatLines.Length)).ToList();
+        for (int i = 0; i < _chatLines.Length; i++)
+        {
+            _chatLines[i].Visible = i < shown.Count;
+            _chatLines[i].Text = i < shown.Count ? shown[i] : string.Empty;
+        }
+        _chat.Visible = shown.Count > 0;
     }
 
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;

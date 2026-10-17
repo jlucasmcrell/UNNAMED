@@ -14,6 +14,8 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class ItemsView : Node3D
 {
     private readonly Node3D _ground = new() { Name = "GroundItems" };
+    private readonly Dictionary<string, Node3D> _containers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _items = new(StringComparer.Ordinal);
     private static readonly StandardMaterial3D Crate = new() { AlbedoColor = new Color(0.72f, 0.62f, 0.38f) };
     private static readonly StandardMaterial3D Chest = new() { AlbedoColor = new Color(0.38f, 0.26f, 0.14f) };
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -45,6 +47,7 @@ public partial class ItemsView : Node3D
                 model.Name = site.Key;
                 model.AddChild(body);
                 AddChild(model);
+                _containers[site.Key] = model;
                 _art.Coverage.Resolved("container", site.Key, look.Model!);
                 continue;
             }
@@ -54,13 +57,18 @@ public partial class ItemsView : Node3D
             chest.AddChild(body);
             chest.Position = feet + new Vector3(0, size.Y / 2, 0);
             AddChild(chest);
+            _containers[site.Key] = chest;
         }
     }
+
+    /// <summary>What is drawn for a container, by its key, or for a thing on the ground, by its instance; null when none is (for the outline).</summary>
+    public Node3D? Shown(string key) => _containers.GetValueOrDefault(key) ?? _items.GetValueOrDefault(key);
 
     public void Refresh(Simulation simulation)
     {
         foreach (var child in _ground.GetChildren())
             child.QueueFree();
+        _items.Clear();
         var terrain = simulation.Setup.Layout.Space.Terrain;
         foreach (var item in simulation.WorldItems)
         {
@@ -69,18 +77,21 @@ public partial class ItemsView : Node3D
             {
                 model.Name = item.Id.Value;
                 _ground.AddChild(model);
+                _items[item.Id.Value] = model;
                 _art.Coverage.Resolved("ground_item", item.DefId, look.Model!);
                 continue;
             }
             _art.Coverage.Fallback("ground_item", item.DefId, _bindings.GroundItem?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: a small crate" : "no binding: a small crate",
                 _bindings.GroundItem?.Model);
-            _ground.AddChild(new MeshInstance3D
+            var crate = new MeshInstance3D
             {
                 Name = item.Id.Value,
                 Mesh = new BoxMesh { Size = new Vector3(0.3f, 0.2f, 0.3f) },
                 MaterialOverride = Crate,
                 Position = feet + new Vector3(0, 0.1f, 0),
-            });
+            };
+            _ground.AddChild(crate);
+            _items[item.Id.Value] = crate;
         }
     }
 }

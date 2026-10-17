@@ -318,13 +318,16 @@ public partial class Hud : CanvasLayer
     /// <summary>The status as values (the same moment's <see cref="SetStatus"/>): what the production HUD lays out; classic prints the text.</summary>
     public void SetSheet(HudSheet sheet) => _view?.SetSheet(sheet);
 
-    public void SetPrompt(string? text)
+    public void SetPrompt(string? text, string? context = null)
     {
         if (_view is not null)
-            _view.SetPrompt(text);
+            _view.SetPrompt(text, context);
         else
-            _prompt.Text = text ?? string.Empty;
+            _prompt.Text = text is null ? string.Empty : context is null ? text : $"{text}\n{context}";
     }
+
+    /// <summary>The last few lines of chat (WP16), oldest first: the production HUD's feed over the pools; the classic HUD has none.</summary>
+    public void SetChat(IReadOnlyList<string> lines) => _view?.SetChat(lines);
 
     public void SetCrosshair(bool visible)
     {

@@ -50,7 +50,7 @@ public partial class Main
         AddChild(_reputation);
         _awaySheet = new AwaySheet { Name = "Away", Dismissed = CloseScreens };
         AddChild(_awaySheet);
-        _companionsPanel = new CompanionsPanel { Name = "Companions" };
+        _companionsPanel = new CompanionsPanel { Name = "Party" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
         _waystones = new WaystonePanel { Name = "Waystones" };
@@ -63,6 +63,7 @@ public partial class Main
         AddChild(_settings);
         _credits = new CreditsPanel { Name = "Credits", Folder = NoticesFolder() };
         AddChild(_credits);
+        BuildPlayerScreens();
         _menu = new SystemMenuPanel
         {
             Name = "SystemMenu",
@@ -256,7 +257,8 @@ public partial class Main
         new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
         new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
         new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
-        new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
+        new("The world", "Party", "party", "panel.companions", FromMenu(() => ShowParty(null))),
+        new("The world", "Chat", "chat", null, FromMenu(() => _chat.Open())),
         new("The world", "Reputation", null, null, FromMenu(() => Show(_reputation))),
         new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
         new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
@@ -265,15 +267,16 @@ public partial class Main
 
     /// <summary>
     /// A panel that takes the keys and the mouse is open: a conversation, or a management screen - the System Menu, the inventory (on the
-    /// character, a container, a trader or a station), the character sheet, the journal, effects, companions, the controls or the saves
-    /// list (the Phase-1 technical audit, L-27; the Field Instrument UI). While one is, no gameplay key reaches the world, and the world
-    /// runs on (the owner's ruling: nothing pauses for a panel). The quest debugger is an overlay: it takes no keys.
+    /// character, a container, a trader or a station), the character sheet, the journal, effects, the party, chat, a hiring sheet, the
+    /// controls or the saves list (the Phase-1 technical audit, L-27; the Field Instrument UI). While one is, no gameplay key reaches the
+    /// world, and the world runs on (the owner's ruling: nothing pauses for a panel). The quest debugger is an overlay: it takes no keys.
     /// </summary>
     public bool Modal => _dialogue.Visible || Screen is not null;
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
+            .FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -287,7 +290,8 @@ public partial class Main
             _help.Toggle();
         _waystones.Close();
         _settings.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits })
+        _hire.Close();
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits, _chat })
             screen.Visible = false;
     }
 
@@ -356,7 +360,14 @@ public partial class Main
                 Show(_effectsPanel);
                 break;
             case "companions":
-                Show(_companionsPanel);
+            case "party":
+                ShowParty(null);
+                break;
+            case "chat":
+                _chat.Open(ChatTab.All);
+                break;
+            case "chat_groups":
+                _chat.Open(ChatTab.Groups);
                 break;
             case "reputation":
                 Show(_reputation);
@@ -393,7 +404,7 @@ public partial class Main
 
     /// <summary>Every management screen, as the smoke opens them to prove the world runs under each.</summary>
     private static readonly string[] EveryScreen =
-        { "menu", "character", "skills", "skills_formulas", "inventory", "journal", "effects", "companions", "reputation", "away", "map", "help", "saves",
+        { "menu", "character", "skills", "skills_formulas", "inventory", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map", "help", "saves",
           "settings", "settings_controls", "credits" };
 
     private int _noPauseScreen;

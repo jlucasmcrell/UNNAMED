@@ -31,6 +31,8 @@ public partial class InventoryPanel : CanvasLayer
     private readonly ScrollContainer _carriedScroll = UiKit.Scroll();
     private readonly ScrollContainer _containerScroll = UiKit.Scroll();
     private readonly HBoxContainer _totals = new();
+    /// <summary>What the laden band means now, under the totals while laden or at the limit (D4).</summary>
+    private readonly Label _laden = UiKit.Words(string.Empty, 16, HudStyle.Brass);
     private readonly VBoxContainer _details = new();
     private Sheet _sheet = null!;
     private GameSession _session = null!;
@@ -80,6 +82,8 @@ public partial class InventoryPanel : CanvasLayer
         _sheet = UiKit.Sheet(this, "Inventory", "inventory", UiKit.Standard, scrolls: false);
         _totals.AddThemeConstantOverride("separation", 24);
         _sheet.Body.AddChild(_totals);
+        _laden.Visible = false;
+        _sheet.Body.AddChild(_laden);
 
         var columns = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         columns.AddThemeConstantOverride("separation", 24);
@@ -192,6 +196,14 @@ public partial class InventoryPanel : CanvasLayer
         var load = UiKit.Gauge(HudStyle.Ash, 120);
         load.Set(player.CarriedGrams, player.CarryLimitGrams);
         carried.AddChild(load);
+        // The laden band (D4): a chip beside the load while laden or at the limit, and what it means now under the totals.
+        var laden = simulation.Setup.Items.Inventory.Laden;
+        var band = LoadWords.Chip(player.CarriedGrams, player.CarryLimitGrams, laden);
+        if (band is { } chip)
+            carried.AddChild(UiKit.Chip(chip));
+        _laden.Visible = band is not null;
+        _laden.Text = LoadWords.Sentence(player.CarriedGrams, player.CarryLimitGrams, laden);
+        _laden.AddThemeColorOverride("font_color", band is { Tone: WordTone.Refusal } ? HudStyle.Wound : HudStyle.Brass);
         _totals.AddChild(carried);
         _totals.AddChild(UiKit.Stat("Stacks", $"{player.Inventory.Length} / {simulation.Setup.Items.Inventory.StackSlots}", null, 18));
         _totals.AddChild(UiKit.Stat("Coin", $"{player.Currency}", HudStyle.Brass, 18));
@@ -213,6 +225,9 @@ public partial class InventoryPanel : CanvasLayer
             var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, "");
             if (equipped)
                 row.Root.AddChild(UiKit.Chip(Names.Slot(slot.Key), HudStyle.Iron, HudStyle.Bone));
+            // Durability (WP3b, D5): a worn piece says so on its row; a sound one keeps the row quiet.
+            if (definition is not null && WearWords.Chip(entry.Wear, definition.DurabilityMax) is { } wear)
+                row.Root.AddChild(UiKit.Chip(wear));
             bool usable = simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId);
             int q = quick.IndexOf(entry.DefId);
             if (q >= 0)
