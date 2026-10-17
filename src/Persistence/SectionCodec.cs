@@ -99,6 +99,16 @@ public sealed class PlayerDto
     /// saves an empty bar with nothing taken off, which what they carry and know fills on load.
     /// </summary>
     [Key("quick_bar")] public QuickBarDto? QuickBar { get; set; }
+
+    /// <summary>
+    /// Required from schema 24. The space the body stands in, and the portal it came in through. Empty means the
+    /// exterior, which is where every character was before the Barrowworks existed - the same empty-name convention
+    /// <c>SpaceId</c> uses everywhere else, so a save from before schema 24 reads as the exterior.
+    /// </summary>
+    [Key("space_id")] public string? SpaceId { get; set; }
+
+    /// <summary>The portal the body came into its space through, or null in the exterior (schema 24).</summary>
+    [Key("space_traversal")] public string? SpaceTraversal { get; set; }
 }
 
 /// <summary>
@@ -712,6 +722,8 @@ public static class SectionCodec
             Fallen = player.Party.Fallen.ToArray(),
         },
         QuickBar = new QuickBarDto { Slots = player.QuickBar.ToArray(), Cleared = player.QuickBarCleared.ToArray() },
+        SpaceId = player.SpaceId,
+        SpaceTraversal = player.SpaceTraversal,
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -768,6 +780,7 @@ public static class SectionCodec
         var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
         var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
         var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
+        var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 24)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -807,6 +820,8 @@ public static class SectionCodec
             Party = new PartyLedger(party.Recovering.Select(r => new RecoveryRecord(r.NpcId, r.UntilTick)).ToImmutableArray(), party.Fallen.ToImmutableArray()),
             QuickBar = quickBar.Slots.ToImmutableArray(),
             QuickBarCleared = quickBar.Cleared.ToImmutableArray(),
+            SpaceId = spaceId,
+            SpaceTraversal = dto.SpaceTraversal,
         };
     }
 

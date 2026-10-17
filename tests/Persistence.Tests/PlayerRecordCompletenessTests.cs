@@ -97,7 +97,7 @@ Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "
         Assert.True(empty.Count == 0, "the sample leaves these fields at their defaults - fill them, so the tests below reach them:\n" + string.Join("\n", empty));
     }
 
-    [Fact(Skip = "pending the Barrowworks schema number: the record carries its space but schema 19 has no field for it, so the codec cannot bring those two back yet.")]
+    [Fact]
     public void TheCodec_BringsEveryFieldBack()
     {
         var full = Full();

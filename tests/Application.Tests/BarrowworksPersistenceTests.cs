@@ -54,7 +54,7 @@ public class BarrowworksPersistenceTests
         session.Save(SaveSlots.Quick);
     }
 
-    [Fact(Skip = "pending the Barrowworks schema number: the space and the return anchor are not in schema 19, so a save taken inside the ring still loads outside it. Claude is holding the re-cut until wave 2 lands.")]
+    [Fact]
     public void ASaveTakenInsideTheRing_LoadsBackInsideIt()
     {
         using var profile = new TempProfile();
@@ -69,7 +69,7 @@ public class BarrowworksPersistenceTests
         Assert.False(loaded.Simulation!.PlayerInExterior);
     }
 
-    [Fact(Skip = "pending the Barrowworks schema number: the space and the return anchor are not in schema 19, so a save taken inside the ring still loads outside it. Claude is holding the re-cut until wave 2 lands.")]
+    [Fact]
     public void TheSpaceIsInTheRecordNotOnlyInTheCoordinates()
     {
         using var profile = new TempProfile();

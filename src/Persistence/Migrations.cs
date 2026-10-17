@@ -29,6 +29,7 @@ using V19 = UNNAMED.Persistence.Sections.V19;
 using V20 = UNNAMED.Persistence.Sections.V20;
 using V21 = UNNAMED.Persistence.Sections.V21;
 using V22 = UNNAMED.Persistence.Sections.V22;
+using V23 = UNNAMED.Persistence.Sections.V23;
 
 namespace UNNAMED.Persistence;
 
@@ -98,7 +99,8 @@ public static class SchemaMigrations
         new SchemaV19ToV20(),
         new SchemaV20ToV21(),
         new SchemaV21ToV22(),
-        new SchemaV22ToV23());
+        new SchemaV22ToV23(),
+        new SchemaV23ToV24());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1235,7 +1237,7 @@ public sealed class SchemaV22ToV23 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V22.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V23.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1264,6 +1266,65 @@ public sealed class SchemaV22ToV23 : SchemaMigration
                 Party = old.Party,
                 // Literal, not QuickBar.Empty: a step is a fixed function of the schema it reads.
                 QuickBar = new QuickBarDto { Slots = new string?[8], Cleared = Array.Empty<string>() },
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 23 -> 24: the space a body stands in, and the portal it came into it through (the Barrowworks).
+/// </summary>
+/// <remarks>
+/// Both start empty, which is the exterior - where every save written before the Barrowworks was, and where most
+/// still are. Every field before them is copied one by one rather than by a with-expression, because the frozen type
+/// and the live DTO are different types; a field this copy forgets would be silently dropped from every save that
+/// migrates, so <c>Migrations_CopyEveryFieldTheFrozenShapeHas</c> fails if one is missed.
+/// </remarks>
+public sealed class SchemaV23ToV24 : SchemaMigration
+{
+    public override int From => 23;
+
+    public override string Summary => "schema 23 -> 24: the player records the space it stands in and the portal it entered by (exterior before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V23.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                // Empty is the exterior, and every save before this one was written there.
+                SpaceId = "",
+                SpaceTraversal = null,
             }, options);
         }
         document.Manifest["schema_version"] = To;
