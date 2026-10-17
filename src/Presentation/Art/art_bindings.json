@@ -228,9 +228,9 @@
       0
      ],
      "primary": [
-      0,
-      1,
-      0
+      -0.26,
+      0.87,
+      -0.42
      ],
      "secondary": [
       0,
@@ -270,9 +270,9 @@
       0
      ],
      "primary": [
-      0,
-      1,
-      0
+      -0.26,
+      0.87,
+      -0.42
      ],
      "secondary": [
       0,
@@ -564,19 +564,19 @@
      "turn": "player.mh.idle",
      "talk": "player.mh.talk",
      "sword_ready": "player.mh.sword_ready",
-     "sword_attack": "player.mh.sword_attack",
-     "sword_attack_1": "player.mh.sword_attack_1",
-     "sword_attack_2": "player.mh.sword_attack_2",
-     "sword_attack_3": "player.mh.sword_attack_3",
-     "sword_attack_4": "player.mh.sword_attack_4",
-     "sword_block": "player.mh.sword_block",
-     "bow_ready": "player.mh.bow_ready",
-     "bow_draw": "player.mh.bow_draw",
+     "sword_attack": "player.mh.sword_attack_1_mc",
+     "sword_attack_1": "player.mh.sword_attack_1_mc",
+     "sword_attack_2": "player.mh.sword_attack_2_mc",
+     "sword_attack_3": "player.mh.sword_attack_3_mc",
+     "sword_attack_4": "player.mh.sword_attack_4_mc",
+     "sword_block": "player.mh.sword_block_mc",
+     "bow_ready": "player.mh.bow_ready_mc",
+     "bow_draw": "player.mh.bow_draw_mc",
      "spear_ready": "player.mh.spear_ready",
      "spear_thrust": "player.mh.spear_thrust",
      "cast": "player.mh.cast",
-     "hit": "player.mh.hit",
-     "death": "player.mh.death"
+     "hit": "player.mh.hit_mc",
+     "death": "player.mh.death_mc"
     },
     "paces": {
      "walk": 1.2956,
@@ -604,19 +604,19 @@
      "turn": "player.mh.idle",
      "talk": "player.mh.talk",
      "sword_ready": "player.mh.sword_ready",
-     "sword_attack": "player.mh.sword_attack",
-     "sword_attack_1": "player.mh.sword_attack_1",
-     "sword_attack_2": "player.mh.sword_attack_2",
-     "sword_attack_3": "player.mh.sword_attack_3",
-     "sword_attack_4": "player.mh.sword_attack_4",
-     "sword_block": "player.mh.sword_block",
-     "bow_ready": "player.mh.bow_ready",
-     "bow_draw": "player.mh.bow_draw",
+     "sword_attack": "player.mh.sword_attack_1_mc",
+     "sword_attack_1": "player.mh.sword_attack_1_mc",
+     "sword_attack_2": "player.mh.sword_attack_2_mc",
+     "sword_attack_3": "player.mh.sword_attack_3_mc",
+     "sword_attack_4": "player.mh.sword_attack_4_mc",
+     "sword_block": "player.mh.sword_block_mc",
+     "bow_ready": "player.mh.bow_ready_mc",
+     "bow_draw": "player.mh.bow_draw_mc",
      "spear_ready": "player.mh.spear_ready",
      "spear_thrust": "player.mh.spear_thrust",
      "cast": "player.mh.cast",
-     "hit": "player.mh.hit",
-     "death": "player.mh.death"
+     "hit": "player.mh.hit_mc",
+     "death": "player.mh.death_mc"
     },
     "paces": {
      "walk": 1.2098,

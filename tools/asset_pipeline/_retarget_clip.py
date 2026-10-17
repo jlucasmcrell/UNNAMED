@@ -279,7 +279,7 @@ class Scene:
 # the retarget
 
 class Retarget:
-    def __init__(self, source, target, bmap, scale_mode="legs", stance="rest"):
+    def __init__(self, source, target, bmap, scale_mode="legs", stance="rest", narrow=1.0):
         self.src, self.tgt, self.map = source, target, bmap
         self.S0 = source.world(source.local())
         self.T0 = target.world(target.local())
@@ -361,8 +361,10 @@ class Retarget:
         # --stance source: a constant sideways shift per ankle that turns rest-relative travel into the source's
         # stance about the thigh midpoint (mid_t0 + k.Q.(ankle_s - mid_s0), lateral part); zero for --stance rest
         self.stance = stance
+        self.narrow = narrow                      # --stance-narrow: the ankles' sideways separation scaled (floor: the hip width)
         self.stance_shift = {}
         lat_t = np.array([lt[0], 0.0, lt[2]]) / np.linalg.norm([lt[0], lt[2]])
+        self.lat_t_axis = lat_t
         for thigh, _shin, foot in legs:
             shift = np.zeros(3)
             if stance == "source":
@@ -455,19 +457,57 @@ class Retarget:
         """Source worlds with the root's motion removed, and that motion (rotation, translation)."""
         W = self.src.world(self.src.local(tracks, time))
         if not self.root_src:
-            return W, np.eye(3), np.zeros(3)
+            return self._pinned(W), np.eye(3), np.zeros(3)
         r = self.src.index[self.root_src]
         R0, Rt = self.S0[r], W[r]
         undo = R0 @ np.linalg.inv(Rt)
         body = [undo @ m for m in W]
         dR = ortho(Rt[:3, :3]) @ ortho(R0[:3, :3]).T
         dp = Rt[:3, 3] - R0[:3, 3]
-        return body, dR, dp
+        return self._pinned(body), dR, dp
 
-    def _ankle_goal(self, body, foot):
+    pin_hips = 0.0
+    _pin_ref = None
+
+    def _pinned(self, W):
+        """--pin-hips F: the take's walk-off removed. F times the thigh midpoint's sideways and fore-aft travel from the clip's first frame
+        is taken off every joint (its height is kept), so a stepping strike steps in place - feet and hips keep their positions relative
+        to each other."""
+        if not self.pin_hips:
+            return W
+        mid = np.mean([W[self.src.index[n]][:3, 3] for n in self.mid_src], axis=0)
+        if self._pin_ref is None:
+            self._pin_ref = mid
+        d = (mid - self._pin_ref) * self.pin_hips
+        d[1] = 0.0
+        out = []
+        for m in W:
+            m = m.copy()
+            m[:3, 3] -= d
+            out.append(m)
+        return out
+
+    def _raw_ankle_goal(self, body, foot):
         s_ankle = self.entry[foot]["source"]
         return self.tgt.pos(self.T0, foot) + self.stance_shift[foot] + self.k * (
             self.Q @ (self.src.pos(body, s_ankle) - self._pos0(s_ankle)))
+
+    def _ankle_goal(self, body, foot):
+        g = self._raw_ankle_goal(body, foot)
+        if self.narrow >= 1.0:
+            return g
+        # --stance-narrow: a source whose guard stands wider than the owner's brief (a spear guard 0.66 m across) keeps its
+        # fore-aft step and its weight shift, but the two ankles come together sideways by (1 - narrow), never inside the hip width
+        legs = self.map["target_legs"]
+        feet = [c[2] for c in legs]
+        lat = self.lat_t_axis
+        a = {f: float(np.dot(self._raw_ankle_goal(body, f), lat)) for f in feet}
+        sep = abs(a[feet[0]] - a[feet[1]])
+        hip_w = abs(float(np.dot(self.tgt.pos(self.T0, legs[0][0]) - self.tgt.pos(self.T0, legs[1][0]), lat)))
+        want = min(sep, max(sep * self.narrow, hip_w))
+        mid = 0.5 * (a[feet[0]] + a[feet[1]])
+        sign = 1.0 if a[foot] >= mid else -1.0
+        return g - sign * 0.5 * (sep - want) * lat
 
     def _two_bone(self, world, thigh, shin, foot, goal):
         """Put the ankle on `goal` by turning thigh and shin in the plane of the FK knee; the foot
@@ -579,10 +619,12 @@ class Retarget:
     def run(self, tracks, fps, root_mode="keep", feet="ik"):
         duration = Scene.duration(tracks)
         n = int(round(duration * fps)) + 1
-        times = [min(i / fps, duration) for i in range(n)]
+        # key times on the export's own grid (i / fps): a take whose length is not a whole number of output frames (a 29-frame cut at
+        # 24 fps against 60 fps keys) used to end on an off-grid time, which the exported GLB could not hold exactly
+        times = [i / fps for i in range(n)]
         frames, travel, short, drop = [], [], [], []
         for t in times:
-            locals_, tr, _turn, facts = self.frame(tracks, t, root_mode, feet)
+            locals_, tr, _turn, facts = self.frame(tracks, min(t, duration), root_mode, feet)
             frames.append(locals_)
             travel.append(tr)
             drop.append(facts.pop("hips_drop"))
@@ -685,6 +727,11 @@ def parse_args():
                    help="ik: ankles follow the source ankles' scaled travel (no slide); fk: rotations only")
     p.add_argument("--stance", choices=("rest", "source"), default="rest",
                    help="rest: ankles travel from the target's rest stance; source: the source's step width (feet=ik)")
+    p.add_argument("--pin-hips", type=float, default=0.0,
+                   help="fraction (0-1) of the hips' sideways and fore-aft walk-off from the first frame taken off the whole body "
+                        "(a stepping strike steps in place)")
+    p.add_argument("--stance-narrow", type=float, default=1.0,
+                   help="scale the ankles' sideways separation (floor: hip width); 1 keeps the source's step width")
     p.add_argument("--loop-blend", type=float, default=0.0,
                    help="seconds at the end eased into the first frame (a take that does not loop by itself; needs --loop)")
     p.add_argument("--fps", type=float, default=60.0,
@@ -759,15 +806,18 @@ def verify_export(out_path, bones, times, frames):
     anim = s.doc["animations"][0]["name"]
     tracks = s.tracks(anim)
     worst_rot = worst_pos = 0.0
+    worst_at = None
     for t, locals_ in zip(times, frames):
         got = s.local(tracks, t)
         for b in bones:
             g, w = got[s.index[b]], locals_[b]
-            worst_rot = max(worst_rot, rot_angle_deg(ortho(g[:3, :3]).T @ ortho(w[:3, :3])))
+            e = rot_angle_deg(ortho(g[:3, :3]).T @ ortho(w[:3, :3]))
+            if e > worst_rot:
+                worst_rot, worst_at = e, (b, round(t, 4))
             worst_pos = max(worst_pos, float(np.linalg.norm(g[:3, 3] - w[:3, 3])))
     meshes = len(s.doc.get("meshes", []))
     return {"max_rotation_error_deg": round(worst_rot, 5), "max_translation_error_m": round(worst_pos, 6),
-            "duration_s": round(Scene.duration(tracks), 4), "meshes": meshes}
+            "duration_s": round(Scene.duration(tracks), 4), "meshes": meshes, "worst_rotation_at": worst_at}
 
 
 def main():
@@ -785,7 +835,8 @@ def main():
         source, target = Scene(src_path), Scene(args.target)
         tracks = source.tracks(args.clip)
         fps = args.fps or round(Scene.key_rate(tracks))
-        rt = Retarget(source, target, bmap, args.scale, args.stance)
+        rt = Retarget(source, target, bmap, args.scale, args.stance, args.stance_narrow)
+        rt.pin_hips = args.pin_hips
         times, frames, travel = rt.run(tracks, fps, args.root, args.feet)
         loop_closure_deg = close_loop(frames, times, args.loop_blend) if args.loop and args.loop_blend > 0 else 0.0
 
@@ -858,6 +909,8 @@ def main():
                 "facing_yaw_measured_deg": round(rt.yaw_measured_deg, 3),
                 **rt.ik_facts,
                 "stance": args.stance,
+        "stance_narrow": args.stance_narrow,
+        "pin_hips": args.pin_hips,
                 "loop_blend_s": args.loop_blend if args.loop else 0.0,
                 "loop_closure_max_deg": round(loop_closure_deg, 2),
                 "stance_shift_m": {f: [round(float(x), 4) for x in v] for f, v in rt.stance_shift.items()},
