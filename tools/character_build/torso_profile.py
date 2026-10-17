@@ -9,7 +9,7 @@ python torso_profile.py --plot <png> --json <out json> <label>=<glb>[@<pose json
   @<posed obj>          mh_gate.py --dump's posed body (the game's own posing: the clip, correctives and splay)
 
 Torso vertices are those whose skin weight on the arm chains (clavicle outward) is under 0.5. The profile is taken square to the
-hips (the thigh joints' axis), from the shoulder (the torso's highest vertex under the neck band) down to the hip joints.
+hips (the pelvis band's left-right axis), from the shoulder (the torso's highest vertex under the neck band) down to the pelvis band.
 """
 import argparse
 import json
@@ -99,22 +99,6 @@ def arm_weight(J, W, skin, g):
     return (W * arm[J]).sum(1)
 
 
-def joint_world(g, name):
-    d = g.doc
-    parent = {c: i for i, n in enumerate(d["nodes"]) for c in n.get("children", [])}
-    i = next(k for k, n in enumerate(d["nodes"]) if n.get("name") == name)
-    m = np.eye(4)
-    while True:
-        n = d["nodes"][i]
-        l = np.eye(4)
-        l[:3, :3] = quat_matrix(n.get("rotation", [0, 0, 0, 1])) * np.array(n.get("scale", [1, 1, 1]))
-        l[:3, 3] = n.get("translation", [0, 0, 0])
-        m = l @ m
-        if i not in parent:
-            return m[:3, 3]
-        i = parent[i]
-
-
 def profile(P, torso, thighs):
     """Width every STEP down from the shoulder line to the hips, square to the hips; glTF frame (Y up). Returns (widths, shoulder)."""
     across = thighs[0] - thighs[1]
@@ -149,19 +133,15 @@ def main():
         label, rest = item.split("=", 1)
         path, _, pose = rest.partition("@")
         g, P, J, W, skin = body(path)
-        scale = 1.0
         if pose.endswith(".json"):
             P, J, W, skin, g = posed_by_record(path, pose)
         elif pose.endswith(".obj"):
             P = np.array([[float(x) for x in l.split()[1:4]] for l in open(pose) if l.startswith("v ")])[:len(P)]
-        thighs = [joint_world(g, f"thigh_{s}") for s in "lr"]
-        if pose.endswith(".obj"):   # the game's posed dump: the hips' joints are not in it; square by the posed pelvis band
-            band = P[(P[:, 1] > 0.85) & (P[:, 1] < 1.0)]
-            left = band[band[:, 0] > band[:, 0].mean()].mean(0)
-            right = band[band[:, 0] <= band[:, 0].mean()].mean(0)
-            thighs = [left, right]
+        # squared by the posed pelvis band on every body alike (the game's posed dump has no joints)
+        band = P[(P[:, 1] > 0.85) & (P[:, 1] < 1.0)]
+        thighs = [band[band[:, 0] > band[:, 0].mean()].mean(0), band[band[:, 0] <= band[:, 0].mean()].mean(0)]
         torso = arm_weight(J, W, skin, g) < 0.5
-        rows, norm = profile(P * scale, torso, [t * scale for t in thighs])
+        rows, norm = profile(P, torso, thighs)
         out[label] = {"rows_m": rows, "normalised": [round(float(x), 4) for x in norm], "shoulder_width_cm": round(rows[0][1] * 100, 1),
                       "widest_below_shoulder_at_cm": round(float(rows[int(np.nanargmax([w for _, w in rows[1:]])) + 1][0]) * 100, 1)}
         lines.append((f"{label} (shoulder {rows[0][1] * 100:.1f} cm)", norm, [r[0] * 100 for r in rows]))
