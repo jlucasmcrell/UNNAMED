@@ -293,8 +293,12 @@ public class QuestContentTests
     {
         var quests = QuestContent.BuildQuests(Game.Value);
         Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Bounty, q.Track));
-        Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Side, q.Track));
-        Assert.All(quests.Values, q => Assert.False(q.OnNewGame || q.Competitive));
+        Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.main.", StringComparison.Ordinal)), q => Assert.Equal((QuestTrack.Main, (int?)1), (q.Track, q.Act)));
+        Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal) && !q.Id.StartsWith("quest.main.", StringComparison.Ordinal)),
+            q => Assert.Equal(QuestTrack.Side, q.Track));
+        // The opening (WP2) is the one quest every new character starts; no bounty is competitive yet.
+        Assert.Equal(new[] { "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
+        Assert.All(quests.Values, q => Assert.False(q.Competitive));
     }
 
     [Fact]

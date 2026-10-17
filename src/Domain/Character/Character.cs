@@ -31,11 +31,20 @@ public static class PronounKeys
 }
 
 /// <summary>
+/// Where a new character first stands (PJ06 §8): on the road below the north-west crest, walking in ("The Road In", the opening), or at
+/// the Ashen Waystone, the veteran's skip. The world is the same either way: the road holds no required content.
+/// </summary>
+public enum StartPoint { Waystone, Road }
+
+/// <summary>
 /// Everything the creator decides about a new character. There are no World Rules or difficulty fields: every world runs on the same
 /// rules (owner ruling 2026-10-17). <see cref="CallId"/> is null only for a character made before Calls existed.
 /// </summary>
 public sealed record CharacterSpec(string Name, Pronouns Pronouns, string PeopleId, string BodyPresetId, string? CallId)
 {
+    /// <summary>Where the character first stands. Not kept: once the world runs, the character is wherever they walked.</summary>
+    public StartPoint Start { get; init; } = StartPoint.Waystone;
+
     public const int MaxNameLength = 24;
 
     /// <summary>The people every character belongs to until the creator offers another (only the Veth are in the slice).</summary>
@@ -79,6 +88,8 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
             throw new ArgumentException($"'{BodyPresetId}' is not a body preset ID", nameof(BodyPresetId));
         if (CallId is not null && !IsIdOf(CallId, "call"))
             throw new ArgumentException($"'{CallId}' is not a Call ID", nameof(CallId));
+        if (!Enum.IsDefined(Start))
+            throw new ArgumentException($"Unknown start {Start}", nameof(Start));
         return this with { Name = Normalize(Name) };
     }
 

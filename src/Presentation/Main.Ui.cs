@@ -100,13 +100,7 @@ public partial class Main
             Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
             CrashNotice = _crashNotice, OpenLogs = OpenCrashFolder,
             Continue = _ => Continue(),
-            NewGame = () =>
-            {
-                _session.NewGame(DefaultCharacter);
-                Started();
-                // A new game happens once: every hint waiting on it is queued now, not one.
-                while (Hint(Domain.Guidance.HintTriggers.NewGame)) { }
-            },
+            NewGame = OpenCreator,
             Load = () => FromTitle(_saves.OpenStart),
             Settings = () => FromTitle(() => _settings.Open()),
             Credits = () => FromTitle(() => _credits.Visible = true),
@@ -114,6 +108,7 @@ public partial class Main
         };
         _title.Bind(_session);
         AddChild(_title);
+        BuildCreator(icons);
         _firstLaunch = new FirstLaunchPanel { Name = "FirstLaunch", Done = () => _title.Open() };
         AddChild(_firstLaunch);
     }
@@ -182,6 +177,7 @@ public partial class Main
         _saves.Close();
         _settings.Visible = false;
         _credits.Visible = false;
+        CloseCreator();
     }
 
     /// <summary>A screen opened from the title: the title steps aside for it, and comes back when it closes.</summary>
@@ -210,6 +206,8 @@ public partial class Main
             BackToTitle(() => _credits.Visible = false);
         else if (_saves.Visible)
             BackToTitle(_saves.Close);
+        else if (_creator.Visible)
+            BackToTitle(CloseCreator);
     }
 
     /// <summary>

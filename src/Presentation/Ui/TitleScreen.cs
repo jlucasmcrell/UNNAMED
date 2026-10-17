@@ -9,9 +9,9 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// At launch, over the start camera's slow drift across the hollow: a dark panel down the left third with the wordmark and one column
-/// of entries - Continue (the newest save that loads, named, with the focus), New game (asked first when saves exist, since its saves
-/// take the same slots), Load (every save and its kept copies, to restore one), Settings, Credits and Quit (no question: nothing is
-/// unsaved here). A save passed over by Continue is said, never silently skipped. The version and the maker sit at its foot.
+/// of entries - Continue (the newest save that loads, named, with the focus), New game (the creator: a new character saves in a folder of
+/// its own, so nothing is asked), Load (every save and its kept copies, to restore one), Settings, Credits and Quit (no question: nothing
+/// is unsaved here). A save passed over by Continue is said, never silently skipped. The version and the maker sit at its foot.
 /// </summary>
 public partial class TitleScreen : CanvasLayer
 {
@@ -23,7 +23,6 @@ public partial class TitleScreen : CanvasLayer
     private GameSession _session = null!;
     private VBoxContainer _column = null!;
     private Label _version = null!;
-    private bool _confirming;
     private string? _failure;
 
     public void Bind(GameSession session) => _session = session;
@@ -80,7 +79,6 @@ public partial class TitleScreen : CanvasLayer
     public void Open(string? failure = null)
     {
         _failure = failure;
-        _confirming = false;
         Visible = true;
         if (DisplayServer.GetName() != "headless")
             Input.MouseMode = Input.MouseModeEnum.Visible;
@@ -136,38 +134,8 @@ public partial class TitleScreen : CanvasLayer
                 $"{SavesPanel.Describe(next.Slot, next.Copy)} · {SavesPanel.When(next)} · {SavesPanel.Played(next)}");
             focus = resume;
         }
-        if (_confirming)
-        {
-            _column.AddChild(UiKit.Callout(HudStyle.Ember,
-                "A new game uses the same save slots: its saves will replace these over time. Start a new game?"));
-            var answers = new HBoxContainer();
-            answers.AddThemeConstantOverride("separation", 8);
-            answers.AddChild(UiKit.Action("Yes, start a new game", Deferred(() => NewGame?.Invoke()), UiKit.Kind.Destructive, id: "title.new.yes"));
-            var no = UiKit.Action("No", Deferred(() =>
-            {
-                _confirming = false;
-                Render();
-            }), id: "title.new.no");
-            answers.AddChild(no);
-            _column.AddChild(answers);
-            focus = no;
-        }
-        else
-        {
-            var fresh = Entry("New game", () =>
-            {
-                if (choice.NewGameAsksFirst)
-                {
-                    _confirming = true;
-                    Render();
-                }
-                else
-                {
-                    NewGame?.Invoke();
-                }
-            }, choice.Continue is null ? UiKit.Kind.Primary : UiKit.Kind.Normal);
-            focus ??= fresh;
-        }
+        var fresh = Entry("New game", () => NewGame?.Invoke(), choice.Continue is null ? UiKit.Kind.Primary : UiKit.Kind.Normal);
+        focus ??= fresh;
         if (!choice.Saves.IsEmpty)
             Entry("Load", () => Load?.Invoke());
         Entry("Settings", () => Settings?.Invoke());

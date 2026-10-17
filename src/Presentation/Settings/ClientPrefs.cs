@@ -173,6 +173,12 @@ public sealed record ProfilePrefs
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
 
+    /// <summary>Whether a character of this profile has walked the road in to the waystation: only then is the skip offered (PJ06 §8).</summary>
+    public bool RoadWalked { get; init; }
+
+    /// <summary>The skip as last chosen, "Start at the Waystone": once offered it defaults on, and is remembered (PJ06 §8).</summary>
+    public bool SkipRoad { get; init; } = true;
+
     public ProfilePrefs Normalised() => this with
     {
         Audio = (Audio ?? new AudioPrefs()).Normalised(),

@@ -80,6 +80,7 @@ public partial class Main
 
     private void Started()
     {
+        UseBody();
         if (_startCamera is not null)
         {
             _startCamera.QueueFree();

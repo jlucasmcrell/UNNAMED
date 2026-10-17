@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Progression;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -141,6 +142,24 @@ public class QuickBarTests
         relaunched.Submit(new AssignQuickSlotCommand(simulation.PlayerId, 2, Salve));
         Harness.Ticks(relaunched, 2);
         Assert.Equal(Salve, simulation.QuickBar[2]);
+        Assert.Empty(simulation.CaptureRecord().QuickBarCleared);
+    }
+
+    /// <summary>A character from the creator (WP2's opening) starts with the bar's defaults: every usable thing in the kit on keys from 1.</summary>
+    [Theory]
+    [MemberData(nameof(CharacterCreationTests.Calls), MemberType = typeof(CharacterCreationTests))]
+    public void ACharacterFromTheCreator_FindsTheKitOnTheQuickBar_FromKeyOne(string call)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var simulation = session.NewGame(
+            new CharacterSpec("Wenna Lind", Pronouns.She, CharacterSpec.DefaultPeople, "body.veth_f.lean", call) { Start = StartPoint.Road }, seed: 42);
+        Harness.Ticks(session, 1);
+
+        var usable = simulation.Player.Inventory.Select(e => e.DefId).Where(session.Setup.Combat.UseEffects.ContainsKey)
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
+        Assert.NotEmpty(usable);
+        Assert.Equal(usable.Concat(Enumerable.Repeat<string?>(null, QuickBar.Slots - usable.Count)), simulation.QuickBar);
         Assert.Empty(simulation.CaptureRecord().QuickBarCleared);
     }
 }

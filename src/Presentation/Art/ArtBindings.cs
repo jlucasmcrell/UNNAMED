@@ -149,6 +149,9 @@ public sealed class ArtBindings
     public Placement? GroundItem { get; private init; }
     public IReadOnlyDictionary<string, CreatureArt> Creatures { get; private init; } = new Dictionary<string, CreatureArt>();
     public IReadOnlyDictionary<string, PersonArt> People { get; private init; } = new Dictionary<string, PersonArt>();
+
+    /// <summary>The bodies the character creator offers (<c>player_bodies</c>, WP2), each drawn on the player's binding.</summary>
+    public PlayerBodies Bodies { get; private init; } = PlayerBodies.None;
     public IReadOnlyDictionary<string, WeaponArt> Weapons { get; private init; } = new Dictionary<string, WeaponArt>();
     public WeaponArt? CompanionWeapon { get; private init; }
     /// <summary>A shot's model by its kind ("arrow"), for <see cref="Greybox.ProjectilesView"/>; no entry, no entry loaded, greybox.</summary>
@@ -357,6 +360,7 @@ public sealed class ArtBindings
                         { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>() }),
                         StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
+                Bodies = root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None,
                 Weapons = root.TryGetProperty("weapons", out var weapons)
                     ? weapons.EnumerateObject().ToDictionary(w => w.Name, w => Weapon(w.Value), StringComparer.Ordinal)
                     : new Dictionary<string, WeaponArt>(),

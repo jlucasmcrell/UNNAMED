@@ -146,6 +146,11 @@ public partial class Main
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = ReadGait();
+        if (HeldByTheOpening(stick))
+        {
+            _controller.Steer(_camera, Vector2.Zero, gait);
+            return;
+        }
         // A sprint pressed on ends where the running does.
         if (stick == Vector2.Zero && !_autorun)
             _toggled["sprint"] = false;
