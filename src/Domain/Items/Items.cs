@@ -165,6 +165,94 @@ public sealed record NotableRecord(string Name, ProvenanceKind Provenance, strin
     }
 }
 
+/// <summary>
+/// The wear a stack with durability has taken (WP3b, D5): points of wear against its definition's <see cref="ItemDefinition.DurabilityMax"/>,
+/// and the quality it was made at - what a repair is capped by (C13:226). Worn out, the stack's own quality reads crude, so everything
+/// that reads quality treats it as crude; its made quality waits here for the repair. A stack that is unworn and at its made quality
+/// carries none.
+/// </summary>
+public sealed record ItemWear(int Points, int MadeQuality)
+{
+    public bool IsValid => Points >= 0 && Crafting.Quality.IsValid(MadeQuality);
+}
+
+/// <summary>Where and how a piece is repaired at a station (WP3b): the station kind, the skill and its least level, and the one material spent.</summary>
+public sealed record RepairSpec(string StationKind, string SkillId, int SkillMin, string MaterialId);
+
+/// <summary>
+/// The tuning of wear and repair (<c>config.inventory durability</c>; D5): the wear one use takes - a blow landed, a blow taken, a harvest -
+/// and a trader's repair: its fee, as a share of the piece's value at full wear, and the best quality a trader's hand gives back.
+/// </summary>
+public sealed record DurabilityRules(int WearPerHit, int WearPerHitTaken, int WearPerGather, int MerchantFeePercent, int MerchantQualityCap)
+{
+    public static readonly DurabilityRules Default = new(1, 1, 1, 50, Crafting.Quality.Standard);
+}
+
+/// <summary>
+/// The laden band (<c>config.inventory laden</c>; D4): above this share of the carry limit the character is laden - a sprint drains this
+/// share of its usual stamina and a dodge costs this share of its usual. The limit itself still refuses anything heavier (the 100% refusal).
+/// </summary>
+public sealed record LadenRules(int BandPercent, int SprintDrainPercent, int DodgeCostPercent)
+{
+    public static readonly LadenRules Default = new(80, 150, 125);
+
+    /// <summary>Above the band: what is carried exceeds <see cref="BandPercent"/> of the limit.</summary>
+    public bool IsLaden(long carriedGrams, long limitGrams) => limitGrams > 0 && carriedGrams * 100 > limitGrams * BandPercent;
+}
+
+/// <summary>Wear and repair (WP3b, D5): pure functions of a stack's quality and wear. Nothing here ever destroys an item.</summary>
+public static class Durability
+{
+    /// <summary>The quality the stack was made at: its wear's, or its own when it carries none.</summary>
+    public static int MadeQuality(int quality, ItemWear? wear) => wear?.MadeQuality ?? quality;
+
+    public static bool IsWornOut(ItemWear? wear, int durabilityMax) => durabilityMax > 0 && wear is not null && wear.Points >= durabilityMax;
+
+    /// <summary>What is left of its durability, 0..max; 0 for an item with none.</summary>
+    public static int Remaining(ItemWear? wear, int durabilityMax) => durabilityMax <= 0 ? 0 : Math.Max(0, durabilityMax - (wear?.Points ?? 0));
+
+    /// <summary>
+    /// A stack after <paramref name="points"/> more wear: wear counts up to the item's durability and no further; at it the stack is worn
+    /// out and its quality reads crude (D5), never lower and never gone. An item with no durability takes none.
+    /// </summary>
+    public static (int Quality, ItemWear? Wear) Worn(int quality, ItemWear? wear, int durabilityMax, int points)
+    {
+        if (durabilityMax <= 0 || points <= 0)
+            return (quality, wear);
+        int made = MadeQuality(quality, wear);
+        int worn = Math.Min(durabilityMax, (wear?.Points ?? 0) + points);
+        return Normal(worn >= durabilityMax ? Crafting.Quality.Crude : quality, new ItemWear(worn, made));
+    }
+
+    /// <summary>Whether a repair would change anything: some wear taken, or its quality below what it was made at.</summary>
+    public static bool NeedsRepair(int quality, ItemWear? wear) => wear is not null && (wear.Points > 0 || quality < wear.MadeQuality);
+
+    /// <summary>
+    /// A stack repaired: no wear, and the quality the repair gave - re-rolled, capped at the quality it was made at (C13:226), so a repair
+    /// never makes a piece better than its maker did.
+    /// </summary>
+    public static (int Quality, ItemWear? Wear) Repaired(int quality, ItemWear? wear, int rolled)
+    {
+        int made = MadeQuality(quality, wear);
+        return Normal(Math.Clamp(rolled, Crafting.Quality.Crude, made), new ItemWear(0, made));
+    }
+
+    /// <summary>
+    /// A trader's fee for a repair: the share of the piece's value <see cref="DurabilityRules.MerchantFeePercent"/> gives at full wear,
+    /// scaled by the wear taken, and at least 1 coin.
+    /// </summary>
+    public static long MerchantFee(ItemDefinition item, ItemWear? wear, DurabilityRules rules)
+    {
+        int points = wear?.Points ?? 0;
+        if (item.DurabilityMax <= 0)
+            return 0;
+        long fee = (item.ValueBase * rules.MerchantFeePercent * Math.Max(points, 1) + 100L * item.DurabilityMax - 1) / (100L * item.DurabilityMax);
+        return Math.Max(1, fee);
+    }
+
+    private static (int, ItemWear?) Normal(int quality, ItemWear wear) => (quality, wear.Points == 0 && quality == wear.MadeQuality ? null : wear);
+}
+
 /// <summary>What equipping an item takes: attribute and skill minima, never a level minimum (PROGRESSION.md §11.1).</summary>
 public sealed record Requirements(
     ImmutableSortedDictionary<CharacterAttribute, int> Attributes,
@@ -223,6 +311,12 @@ public sealed record ItemDefinition(
     /// <c>stealth_penalty</c>; a lit torch, ORR:1333).
     /// </summary>
     public double StealthPenalty { get; init; }
+
+    /// <summary>How much wear it takes before it is worn out (WP3b, D5): weapons, armour and tools only; 0 for none.</summary>
+    public int DurabilityMax { get; init; }
+
+    /// <summary>How it is repaired at a station (WP3b); null when no station repairs it.</summary>
+    public RepairSpec? Repair { get; init; }
 }
 
 /// <summary>The item definitions content defines, by ID.</summary>
@@ -249,6 +343,12 @@ public sealed record InventoryRules(int StackSlots, long CarryBaseGrams, long Ca
 {
     /// <summary>How many uses raise a notable instance's familiarity from each step to the next (<c>familiarity_uses_per_step</c>).</summary>
     public ImmutableArray<int> FamiliarityUsesPerStep { get; init; } = ImmutableArray.Create(3, 6, 10, 15, 25);
+
+    /// <summary>Wear and a trader's repair (WP3b, D5).</summary>
+    public DurabilityRules Durability { get; init; } = DurabilityRules.Default;
+
+    /// <summary>The laden band (WP3b, D4).</summary>
+    public LadenRules Laden { get; init; } = LadenRules.Default;
 
     public long CarryLimitGrams(CharacterProgression progression, ProgressionRules rules) =>
         CarryBaseGrams + CarryGramsPerMight * ProgressionEngine.AttributeValue(progression, CharacterAttribute.Might, rules);

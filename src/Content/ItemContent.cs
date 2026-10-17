@@ -27,6 +27,7 @@ public static class ItemContent
         Try(() => CheckLootRecursion(BuildLootTables(loader)), "loot", errors);
         Try(() => BuildMerchants(loader), "merchants", errors);
         Try(() => CheckCraftOnly(BuildCatalog(loader), BuildLootTables(loader), BuildMerchants(loader)), "masterwork", errors);
+        Try(() => CheckRepairStations(BuildCatalog(loader), loader), "repair", errors);
         if (loader.Definitions.ContainsKey("config.inventory"))
         {
             Try(() => BuildStartingKit(loader), "config.inventory", errors);
@@ -52,6 +53,23 @@ public static class ItemContent
         var rules = new InventoryRules(Int(map, "stack_slots"), Grams(map, "carry_base_kg"), Grams(map, "carry_kg_per_might"), reachMm);
         if (map.ContainsKey("familiarity_uses_per_step"))
             rules = rules with { FamiliarityUsesPerStep = List(map, "familiarity_uses_per_step").Select((v, i) => ParseInt(v, $"familiarity_uses_per_step[{i}]")).ToImmutableArray() };
+        if (map.GetValueOrDefault("durability") is Dictionary<object, object> durability)
+        {
+            rules = rules with
+            {
+                Durability = new DurabilityRules(Int(durability, "wear_per_hit"), Int(durability, "wear_per_hit_taken"), Int(durability, "wear_per_gather"),
+                    Int(durability, "merchant_fee_percent"), Domain.Crafting.Quality.Parse(Text(durability, "merchant_quality_cap"))),
+            };
+            var d = rules.Durability;
+            if (d.WearPerHit < 0 || d.WearPerHitTaken < 0 || d.WearPerGather < 0 || d.MerchantFeePercent < 0 || d.MerchantQualityCap == Domain.Crafting.Quality.Masterwork)
+                throw new FormatException("config.inventory durability: wear and the fee are not below 0, and no trader's repair gives masterwork");
+        }
+        if (map.GetValueOrDefault("laden") is Dictionary<object, object> laden)
+        {
+            rules = rules with { Laden = new LadenRules(Int(laden, "band_percent"), Int(laden, "sprint_drain_percent"), Int(laden, "dodge_cost_percent")) };
+            if (rules.Laden.BandPercent is < 1 or > 99 || rules.Laden.SprintDrainPercent < 100 || rules.Laden.DodgeCostPercent < 100)
+                throw new FormatException("config.inventory laden: band_percent in [1, 99], and the sprint drain and dodge cost at least 100 (percent of usual)");
+        }
         if (rules.StackSlots < 1 || rules.CarryBaseGrams < 0 || rules.CarryGramsPerMight < 0)
             throw new FormatException("config.inventory needs at least one stack slot and non-negative carry weights");
         if (rules.FamiliarityUsesPerStep.Length != NotableRecord.MaxFamiliarity || rules.FamiliarityUsesPerStep.Any(n => n < 1))
@@ -133,7 +151,24 @@ public static class ItemContent
         double stealth = map.ContainsKey("stealth_penalty") ? Number(map, "stealth_penalty") : 0;
         if (light < 0 || stealth is < 0 or > 1 || ((light > 0 || stealth > 0) && slot is null))
             throw new FormatException($"{id}: light_radius (m, not below 0) and stealth_penalty ([0, 1]) belong to something equipped");
-        return new ItemDefinition(id, Text(map, "category"), stackMax, Grams(map, "weight"), Long(map, "value_base"),
+        // Durability (WP3b, D5): weapons, armour and tools only, one to a stack, since wear is the instance's.
+        string category = Text(map, "category");
+        int durability = map.ContainsKey("durability_max") ? Int(map, "durability_max") : 0;
+        if (durability < 0 || (durability > 0 && (category is not ("weapon" or "armor" or "tool") || stackMax != 1)))
+            throw new FormatException($"{id}: durability_max belongs to a weapon, armour or a tool that does not stack");
+        RepairSpec? repair = null;
+        if (map.GetValueOrDefault("repair") is Dictionary<object, object> repairMap)
+        {
+            repair = new RepairSpec(Text(repairMap, "station"), Text(repairMap, "skill_ref"), repairMap.ContainsKey("skill_min") ? Int(repairMap, "skill_min") : 0,
+                Text(repairMap, "item_ref"));
+            if (durability == 0 || repair.SkillMin < 0)
+                throw new FormatException($"{id}: repair belongs to something with durability_max, and its skill_min is not below 0");
+        }
+        else if (durability > 0)
+        {
+            throw new FormatException($"{id}: something that wears gives its repair (station, skill_ref, item_ref): a worn-out piece is never lost for want of one");
+        }
+        return new ItemDefinition(id, category, stackMax, Grams(map, "weight"), Long(map, "value_base"),
             rarity, Flag(map, "no_drop"), Flag(map, "no_sell"), slot, Requirements(id, map), weapon,
             map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
         {
@@ -141,6 +176,8 @@ public static class ItemContent
             Class = itemClass,
             LightRadiusMm = light,
             StealthPenalty = stealth,
+            DurabilityMax = durability,
+            Repair = repair,
         };
     }
 
@@ -160,6 +197,19 @@ public static class ItemContent
         {
             if (merchant.Stock.FirstOrDefault(s => Masterwork(s.ItemId)) is { } line)
                 throw new FormatException($"{merchant.Id} stocks {line.ItemId}, a masterwork: masterwork is craft-only");
+        }
+        return true;
+    }
+
+    /// <summary>A piece is repaired at a kind of station something is worked at (WP3b): a station kind no recipe names is one no world builds.</summary>
+    private static bool CheckRepairStations(ItemCatalog catalog, ContentLoader loader)
+    {
+        var kinds = loader.GetByKind("recipe").Values.Select(r => Read(r.YamlSource).GetValueOrDefault("station") as string).OfType<string>()
+            .ToHashSet(StringComparer.Ordinal);
+        foreach (var item in catalog.Definitions.Values)
+        {
+            if (item.Repair is { } repair && !kinds.Contains(repair.StationKind))
+                throw new FormatException($"{item.Id}: repair station {repair.StationKind} is no kind of station any recipe is worked at ({string.Join(", ", kinds.Order(StringComparer.Ordinal))})");
         }
         return true;
     }

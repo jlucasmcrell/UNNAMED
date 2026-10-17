@@ -21,6 +21,12 @@ public sealed record BuyCommand(EntityId Actor, string NpcId, string Ware, int C
 /// <summary>Sell a carried stack to a trader within reach who buys that kind of thing.</summary>
 public sealed record SellCommand(EntityId Actor, string NpcId, EntityId Item, int Count) : GameCommand(Actor);
 
+/// <summary>Have a trader within reach who repairs (WP3b) mend a carried piece, for their fee (<see cref="TradeSystem.RepairQuote"/>).</summary>
+public sealed record MerchantRepairCommand(EntityId Actor, string NpcId, EntityId Item) : GameCommand(Actor);
+
+/// <summary>What a trader would charge to mend a carried piece, and the quality it would come back at.</summary>
+public sealed record RepairQuote(string NpcId, EntityId Item, long Fee, int Quality);
+
 public sealed record ItemBought(string NpcId, string ItemId, int Count, long Price, long Tick);
 
 public sealed record ItemSold(string NpcId, string ItemId, int Count, long Price, long Tick);
@@ -41,6 +47,9 @@ public sealed record WareView(string Ref, string ItemId, int Count, int Quality,
 {
     /// <summary>Where its price stands against base in the trader's town: 1 dearer, -1 cheaper, 0 at base (WP14's trend arrow).</summary>
     public int Trend { get; init; }
+
+    /// <summary>Its wear (WP3b): a worn piece sold to a trader is as worn on their shelf.</summary>
+    public ItemWear? Wear { get; init; }
 }
 
 /// <summary>
@@ -116,6 +125,48 @@ internal sealed class TradeSystem
         return null;
     }
 
+    /// <summary>
+    /// A trader's repair (WP3b; C12:427, the first coin sink): no wear, and the piece back at the quality it has - or, worn out, at the quality it
+    /// was made at but no better than a trader's hand gives (<c>config.inventory durability merchant_quality_cap</c>). The fee goes into their purse.
+    /// </summary>
+    public string? Handle(MerchantRepairCommand command, long tick)
+    {
+        if (Trader(command.Actor, command.NpcId, out var npc, out var merchant) is { } refused)
+            return refused;
+        if (Quote(npc, command.Item) is not { } quote)
+            return Unrepairable(npc, command.Item);
+        if (quote.Fee > State.Currency)
+            return $"not enough coin: {quote.Fee} asked, {State.Currency} carried";
+        if (_context.Dispatch(new RepairItem(command.Item, quote.Quality)) is { } failed)
+            return failed;
+        _context.Dispatch(new SpendCurrency(quote.Fee));
+        _context.Dispatch(new PayMerchant(merchant.Id, quote.Fee, ByCharacter: true));
+        var entry = State.Inventory.Single(e => e.ItemId == command.Item);
+        _context.Events.Publish(new ItemRepaired(entry.ItemId, entry.DefId, entry.Quality, npc.Definition.Id, quote.Fee, tick));
+        return null;
+    }
+
+    /// <summary>What a trader would charge to mend a carried piece now; null when they do not repair, or it needs none.</summary>
+    public RepairQuote? RepairQuote(string npcId, EntityId item) =>
+        State.Npcs.TryGetValue(npcId, out var npc) ? Quote(npc, item) : null;
+
+    private RepairQuote? Quote(NpcState npc, EntityId item)
+    {
+        if (!npc.Definition.Offers(NpcServices.Repair) || State.Inventory.FirstOrDefault(e => e.ItemId == item) is not { } entry
+            || Items.Catalog.Find(entry.DefId) is not { DurabilityMax: > 0 } definition || !Durability.NeedsRepair(entry.Quality, entry.Wear))
+            return null;
+        var rules = Items.Inventory.Durability;
+        // A piece not yet worn out keeps the quality it has; a worn-out one comes back no finer than a trader's hand gives.
+        int quality = Math.Min(Durability.MadeQuality(entry.Quality, entry.Wear), Math.Max(entry.Quality, rules.MerchantQualityCap));
+        return new RepairQuote(npc.Definition.Id, item, Durability.MerchantFee(definition, entry.Wear, rules), quality);
+    }
+
+    private string Unrepairable(NpcState npc, EntityId item) =>
+        !npc.Definition.Offers(NpcServices.Repair) ? $"{npc.Definition.Name} does not repair"
+        : State.Inventory.FirstOrDefault(e => e.ItemId == item) is not { } entry ? $"{item} is not carried"
+        : Items.Catalog.Find(entry.DefId) is not { DurabilityMax: > 0 } ? $"{entry.DefId} does not wear"
+        : $"{entry.DefId} needs no repair";
+
     /// <summary>A trader's wares as they stand, at their price; null when this NPC does not trade.</summary>
     public WaresView? View(string npcId)
     {
@@ -123,7 +174,7 @@ internal sealed class TradeSystem
             return null;
         string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
-            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000) })
+            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
             .ToImmutableArray())
         {
             Purse = _merchants.Purse(merchant.Id),

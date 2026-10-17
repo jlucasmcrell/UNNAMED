@@ -13,3 +13,5 @@ value_base: 10
 slot: legs
 armor_value: 1
 material_class: cloth
+durability_max: 150       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 1, item_ref: item.material.bog_cotton }

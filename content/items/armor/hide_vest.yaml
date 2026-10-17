@@ -13,3 +13,5 @@ rarity: common
 slot: chest
 armor_value: 6
 material_class: leather
+durability_max: 150       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 4, item_ref: item.material.small_hide }

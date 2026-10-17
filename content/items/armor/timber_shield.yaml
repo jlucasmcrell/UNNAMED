@@ -12,3 +12,5 @@ weight: 3.0
 value_base: 18
 slot: off_hand
 armor_value: 2
+durability_max: 120       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.timber }

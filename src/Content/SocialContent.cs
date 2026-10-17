@@ -113,6 +113,8 @@ public static class SocialContent
             string? merchant = map.GetValueOrDefault("merchant_ref") as string;
             if (services.Contains(NpcServices.Trade) != merchant is not null)
                 throw new FormatException($"{id}: a trader names its merchant_ref, and only a trader does");
+            if (services.Contains(NpcServices.Repair) && !services.Contains(NpcServices.Trade))
+                throw new FormatException($"{id}: a repairer is a trader too: the fee goes into their purse (WP3b)");
             if (map.GetValueOrDefault("unique") as string != "true")
                 throw new FormatException($"{id}: Phase 1 builds named NPCs only (unique: true)");
             foreach (string field in new[] { "schedule_ref", "anchors", "combat_profile", "relationships_init", "name_pool" })

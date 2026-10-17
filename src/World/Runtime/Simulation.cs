@@ -136,6 +136,8 @@ public sealed class Simulation
     private readonly MerchantSystem _merchants;
     private readonly QuickBarSystem _quickBar;
     private readonly TeachingSystem _teaching;
+    private readonly DurabilitySystem _durability;
+    private readonly LadenSystem _laden;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -191,10 +193,13 @@ public sealed class Simulation
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, new AnyHourTeaching());
+        _durability = new DurabilitySystem(_context, player.Id);
+        _durability.Listen(bus);
+        _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets, _teaching);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets, _teaching, _durability, _laden);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -392,6 +397,12 @@ public sealed class Simulation
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
     public long? Offer(string npcId, string itemId) => _trade.Offer(npcId, itemId);
 
+    /// <summary>What a trader would charge to mend a carried piece now (WP3b); null when they do not repair, or it needs none.</summary>
+    public RepairQuote? RepairQuote(string npcId, EntityId item) => _trade.RepairQuote(npcId, item);
+
+    /// <summary>Above the laden band now (WP3b, D4): sprinting and dodging cost more stamina. The HUD's weight chip reads it.</summary>
+    public bool Laden => _laden.Laden;
+
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
 
@@ -459,7 +470,7 @@ public sealed class Simulation
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
-                DodgeCommand dodge => _combat.Handle(dodge, WorldTick),
+                DodgeCommand dodge => _combat.Handle(dodge, WorldTick) ?? _laden.Dodged(),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
                 TechniqueCommand technique => _combat.Handle(technique, WorldTick),
                 LearnFromTeacherCommand learn => _teaching.Handle(learn, WorldTick),
@@ -486,6 +497,8 @@ public sealed class Simulation
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
                 AssignQuickSlotCommand assign => _quickBar.Handle(assign, WorldTick),
+                RepairCommand repair => _durability.Handle(repair, WorldTick),
+                MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -497,9 +510,9 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat,
-    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the markets'
-    /// day, the quick bar (which offers a slot to what came to hand), clock.
+    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat and
+    /// the laden band's extra drain, creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what
+    /// all of that did), the markets' day, the quick bar (which offers a slot to what came to hand), clock.
     /// </summary>
     public void Step()
     {
@@ -515,6 +528,7 @@ public sealed class Simulation
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
+            _laden.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
             _npcs.Tick(tick);
@@ -671,6 +685,8 @@ public sealed class Simulation
         SpendCurrency spend => _inventory.Handle(spend),
         GrantItem grant => _inventory.Handle(grant, Now),
         CountUse use => _inventory.Handle(use),
+        WearEquipped wear => _inventory.Handle(wear, Now),
+        RepairItem repair => _inventory.Handle(repair),
         ChangeRelationship change => _relationships.Handle(change, Now),
         StartQuest start => _quests.Handle(start, Now),
         RecordDeed deed => _deeds.Handle(deed) ?? _quests.Handle(deed),

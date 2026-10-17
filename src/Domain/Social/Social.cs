@@ -30,7 +30,10 @@ public static class NpcServices
 {
     public const string Trade = "trade";
 
-    public static readonly ImmutableArray<string> Built = ImmutableArray.Create(Trade);
+    /// <summary>A trader who mends gear for coin (WP3b): the repair service, out of the same purse as their trade.</summary>
+    public const string Repair = "repair";
+
+    public static readonly ImmutableArray<string> Built = ImmutableArray.Create(Trade, Repair);
 }
 
 /// <summary>

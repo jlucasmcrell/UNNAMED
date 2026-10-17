@@ -132,6 +132,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
             nameof(UNNAMED.World.Runtime.Simulation.Teaching),   // what a teacher offers and on what terms, for the Learn column (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.TechniqueCooldown),   // ticks until a technique is ready, for the quick bar (WP9)
+            nameof(UNNAMED.World.Runtime.Simulation.RepairQuote),   // what a trader would charge to mend a piece, for the repair button (WP3b)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
