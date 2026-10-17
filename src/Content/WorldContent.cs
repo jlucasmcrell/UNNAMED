@@ -294,6 +294,7 @@ public static class WorldContent
                     Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
                     LatchSide = latch,
                     LockedText = locked,
+                    StaysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!),
                 });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
@@ -480,7 +481,7 @@ public static class WorldContent
                 var stone = new WaystoneSite(key, Text(site, "name"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), place, ax, az);
                 Check(key.StartsWith("waystone.", StringComparison.Ordinal), "WLD015", $"waystone key '{key}' must start with 'waystone.'");
                 Check(locations.Any(l => l.Id == place), "WLD015", $"{key} names place '{place}', which is not a location in this region");
-                Check(Kinematics.IsClear(ax, az, bodyRadius, new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures), ImmutableArray<Blocker>.Empty),
+                Check(Kinematics.IsClear(ax, az, bodyRadius, new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures), ImmutableArray<Blocker>.Empty, spaceId.IsExterior ? 0 : 1800),
                     "WLD015", $"{key}'s arrival_m must be inside the bounds and clear of every structure");
                 if (site.ContainsKey("dormant"))
                 {
@@ -555,12 +556,12 @@ public static class WorldContent
             // behind a barrier - that is what the fold is for - but not in a wall or a doorway.
             var closed = layout.ClosedDoors(_ => false);
             long radius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
-            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
+            Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed, spaceId.IsExterior ? 0 : 1800), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
             if (opening is not null)
-                Check(Kinematics.IsClear(opening.XMm, opening.ZMm, radius, space, closed), "WLD007", "the opening's start must be inside the bounds and clear of every structure, door and barrier");
+                Check(Kinematics.IsClear(opening.XMm, opening.ZMm, radius, space, closed, spaceId.IsExterior ? 0 : 1800), "WLD007", "the opening's start must be inside the bounds and clear of every structure, door and barrier");
             var shut = layout.ClosedDoors(_ => false, _ => true);
             foreach (var npc in layout.Npcs)
-                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
+                Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut, spaceId.IsExterior ? 0 : 1800), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");
             return errors.Count == before ? layout : null;
         }
         catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)

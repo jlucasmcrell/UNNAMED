@@ -237,11 +237,11 @@ structures:
   - { id: corr_r10_r11_turn_b_ceiling, box_m: [30, 104, 34, 108], height_m: 4.3, clearance_m: 4.0 }
   - { id: corr_r11_r12_a_z_ceiling, box_m: [48.5, 118.0, 51.5, 126.0], height_m: 4.3, clearance_m: 4.0 }
 
-# G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).
+# G1-G3 remain open once earned. G3 requires the Custodian defeat; the wedge belongs at the headworks saddles.
 doors:
-  - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [66.0, 36.5, 66.8, 39.5], height_m: 2.4, latch_side: east, locked_text: 'The latch is on the gallery side.' }
-  - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [79.2, 58.5, 80.0, 61.5], height_m: 2.4 }
-  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.5, 118.2, 51.5, 119.0], height_m: 2.4, requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, locked_text: 'The court interlock still holds. The Custodian must be stopped.' }
+  - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [66.0, 36.5, 66.8, 39.5], height_m: 2.4, stays_open: true, latch_side: east, locked_text: 'The latch is on the gallery side.' }
+  - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [79.2, 58.5, 80.0, 61.5], height_m: 2.4, stays_open: true }
+  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.5, 118.2, 51.5, 119.0], height_m: 2.4, stays_open: true, requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, locked_text: 'The court interlock still holds. The Custodian must be stopped.' }
 containers:
   - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }
   - { key: container.barrowworks.codex_fragment, loot_ref: loot.barrowworks.codex_fragment, position_m: [69.0, 63.0], stack_slots: 1, flag_ref: world.barrowworks.codex_fragment_taken }

@@ -125,7 +125,7 @@ public class BarrowworksBlockoutTests
         long radius = session.Setup.Movement.BodyRadiusMm;
         const long step = 1_000;
 
-        bool Clear(long x, long z) => Kinematics.IsClear(x, z, radius, space, shut);
+        bool Clear(long x, long z) => Kinematics.IsClear(x, z, radius, space, shut, 1800);
 
         var spawn = layout.Spawn;
         long sx = spawn.XMm, sz = spawn.ZMm;

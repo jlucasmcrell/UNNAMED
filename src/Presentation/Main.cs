@@ -537,7 +537,8 @@ public partial class Main : Node3D
         else if (VisualOptions.Barrowworks && _options.TryGetValue("--barrowworks-review", out string? review))
         {
             SizeForCapture();
-            _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review));
+            _realtime = _flags.Contains("--realtime");
+            _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
@@ -921,7 +922,10 @@ public partial class Main : Node3D
                     return;
                 case { } shot:
                     if (DisplayServer.GetName() != "headless")
+                    {
+                        _barrowworksReview.Screenshot();
                         SaveScreenshot(_barrowworksReview.Directory, shot);
+                    }
                     break;
             }
         }
@@ -961,7 +965,7 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || _barrowworksReview is not null || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _ticksLastFrame = frame.TicksRun;
         bool outside = _session.Simulation!.PlayerInExterior;

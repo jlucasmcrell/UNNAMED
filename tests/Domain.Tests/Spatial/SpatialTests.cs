@@ -42,11 +42,12 @@ public class KinematicsTests
         var roof = new BoxBlocker("roof", 0, 0, 100_000, 100_000, 4300) { ClearanceMm = 4000 };
         var space = Space with { Blockers = ImmutableArray.Create<Blocker>(roof) };
         var body = new Body(50_000, 1000, 50_000, 0);
-        Assert.True(Kinematics.IsClear(body.XMm, body.ZMm, 350, space, None));
+        Assert.False(Kinematics.IsClear(body.XMm, body.ZMm, 350, space, None));
+        Assert.True(Kinematics.IsClear(body.XMm, body.ZMm, 350, space, None, 1800));
         var stepped = Kinematics.Step(body, Posture.Grounded, new MoveIntent(0, 1000, Gait.Walk, 0), Rules, space, None, 50);
         Assert.True(stepped.Body.ZMm > body.ZMm);
         Assert.False(Kinematics.IsClear(body.XMm, body.ZMm, 350, space with
-            { Blockers = ImmutableArray.Create<Blocker>(roof with { ClearanceMm = 1600 }) }, None));
+            { Blockers = ImmutableArray.Create<Blocker>(roof with { ClearanceMm = 1600 }) }, None, 1800));
     }
     private static readonly MovementRules Rules = new(3_200, 50, 160, 350, 1_600);
     private static readonly TerrainGrid Flat = new(0, 0, 100_000, 2, 2, new long[] { 1_000, 1_000, 1_000, 1_000 });

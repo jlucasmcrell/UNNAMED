@@ -489,7 +489,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         {
             var mark = c.Trail[i];
             double d = Distance(mark.XMm, mark.ZMm, player.XMm, player.ZMm);
-            if (d >= CatchUpNearMm && d <= CatchUpFarMm && Kinematics.IsClear(mark.XMm, mark.ZMm, radius, space, obstacles)
+            if (d >= CatchUpNearMm && d <= CatchUpFarMm && Kinematics.IsClear(mark.XMm, mark.ZMm, radius, space, obstacles, State.Space.IsExterior ? 0 : 1800)
                 && !Walled(mark.XMm, mark.ZMm, player.XMm, player.ZMm))
             {
                 spot = (mark.XMm, mark.ZMm);
@@ -514,7 +514,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         {
             double angle = (startMdeg + i * 45_000L) / 1000.0 * Math.PI / 180;
             long x = around.XMm + (long)Math.Round(Math.Sin(angle) * radiusMm), z = around.ZMm + (long)Math.Round(Math.Cos(angle) * radiusMm);
-            if (Kinematics.IsClear(x, z, body, space, obstacles) && !Walled(x, z, around.XMm, around.ZMm))
+            if (Kinematics.IsClear(x, z, body, space, obstacles, State.Space.IsExterior ? 0 : 1800) && !Walled(x, z, around.XMm, around.ZMm))
                 return (x, z);
         }
         return null;
@@ -739,7 +739,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as NPCs turn.</summary>
     private Body Turn(Body body, int towardMdeg)

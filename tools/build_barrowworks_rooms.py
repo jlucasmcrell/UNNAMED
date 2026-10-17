@@ -93,6 +93,30 @@ def backing(at, dimensions, rock=False):
                 obj.data.uv_layers.active.data[loop].uv=tuple((at[i]+vertex[i]*dimensions[i])/2 for i in axes)
     return obj
 
+def texture_level(obj, originals, resolution):
+    """Each GLB owns its textures at runtime, including unused LODs. Keep that resident cost bounded."""
+    materials, images = [], []
+    for index, original in enumerate(originals):
+        if original is None: continue
+        material = original.copy()
+        materials.append(material)
+        for node in material.node_tree.nodes:
+            if node.type != 'TEX_IMAGE' or node.image is None: continue
+            image = node.image.copy()
+            image.name = node.image.name + f'_{resolution}'
+            ratio = min(1, resolution / max(image.size))
+            if ratio < 1: image.scale(max(1, round(image.size[0]*ratio)), max(1, round(image.size[1]*ratio)))
+            image.pack()
+            node.image = image
+            images.append(image)
+        obj.data.materials[index] = material
+    return materials, images
+
+def release_texture_level(obj, originals, temporary):
+    for index, material in enumerate(originals): obj.data.materials[index] = material
+    for material in temporary[0]: bpy.data.materials.remove(material)
+    for image in temporary[1]: bpy.data.images.remove(image)
+
 for number in ([] if args.enclosure_only else range(1, 14)):
     prefix = f'r{number:02d}_wall'
     walls = [(box, height) for name, box, height in structures if name.startswith(prefix)]
@@ -103,7 +127,7 @@ for number in ([] if args.enclosure_only else range(1, 14)):
     _, size = sources['masonry']
     module_run = size.x * 4 / size.z
     for (ax, az, bx, bz), height in walls:
-        pieces.append(backing(((ax+bx)/2-cx,-((az+bz)/2-cz),height/2), (bx-ax,bz-az,height)))
+        pieces.append(backing(((ax+bx)/2-cx,-((az+bz)/2-cz),height/2), (bx-ax,bz-az,height), rock=True))
         along_x = bx-ax >= bz-az
         length, thickness = (bx-ax, bz-az) if along_x else (bz-az, bx-ax)
         count = math.ceil(length/module_run)
@@ -142,6 +166,7 @@ for number in ([] if args.enclosure_only else range(1, 14)):
     output = depot / 'ready' / asset_id
     output.mkdir(parents=True, exist_ok=True)
     files = []
+    originals = list(room.data.materials)
     for level, ratio in enumerate((1, .5, .2)):
         obj = room if level == 0 else room.copy()
         if level:
@@ -155,15 +180,19 @@ for number in ([] if args.enclosure_only else range(1, 14)):
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
         name = asset_id + (f'_lod{level}' if level else '') + '.glb'
+        temporary = texture_level(obj, originals, (1024, 512, 256)[level])
         bpy.ops.export_scene.gltf(filepath=str(output/name), export_format='GLB', use_selection=True,
                                   export_yup=True, export_apply=True, export_lights=False)
         files.append({'file': name, 'triangles': sum(len(p.vertices)-2 for p in obj.data.polygons),
                       'bytes': (output/name).stat().st_size, 'sha256': hashlib.sha256((output/name).read_bytes()).hexdigest()})
+        release_texture_level(obj, originals, temporary)
         if level:
             bpy.data.objects.remove(obj, do_unlink=True)
     record = {'asset_id': asset_id, 'category': 'building', 'licence': 'Fab Standard Personal',
               'source_url': 'https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e',
               'creator': 'DanStudios; room assembly by Codex', 'source_modules': list(sources),
+              'backing_material': {'creator': 'Rob Tuytel / Poly Haven', 'licence': 'CC0 1.0', 'source_url': 'https://polyhaven.com/a/rock_ground'},
+              'texture_resolutions': [1024,512,256],
               'licence_evidence': r'C:\Otherreach_Recovery\ASSET_REBUILD\FAB_LICENCES.md',
               'outputs': files, 'collision': 'authoritative region footprint; camera proxy only', 'shippable': True}
     (output/(asset_id+'_meta.json')).write_text(json.dumps(record, indent=2)+'\n', encoding='utf-8')
@@ -202,8 +231,11 @@ for asset_id, boxes in [('bw_codex_rock_mass', [(b,h) for n,b,h in structures if
     obj.name=asset_id
     output=depot/'ready'/asset_id
     output.mkdir(parents=True,exist_ok=True)
+    originals=list(obj.data.materials)
+    temporary=texture_level(obj,originals,1024)
     bpy.ops.export_scene.gltf(filepath=str(output/(asset_id+'.glb')),export_format='GLB',use_selection=True,
                               export_yup=True,export_apply=True,export_lights=False)
+    release_texture_level(obj,originals,temporary)
     record={'asset_id':asset_id,'licence':'Fab Standard Personal','creator':'DanStudios; manual assembly by Codex',
             'source_url':'https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e',
             'sha256':hashlib.sha256((output/(asset_id+'.glb')).read_bytes()).hexdigest(),'shippable':True}

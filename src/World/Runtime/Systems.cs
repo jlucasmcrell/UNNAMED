@@ -141,7 +141,7 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Where(b => b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
+        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(NpcState npc) =>
@@ -380,6 +380,8 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
+        if (open && door.StaysOpen)
+            return null;
         if (!open)
         {
             bool atLatch = door.LatchSide switch

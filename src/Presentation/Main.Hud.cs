@@ -27,6 +27,9 @@ public partial class Main
         _hud.SetPrompt(focus switch
         {
             null => null,
+            { Kind: FocusKind.Door } door when _controller.IsOpen(door.Key)
+                && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
+                => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"

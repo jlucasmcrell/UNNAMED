@@ -868,7 +868,7 @@ public partial class HollowView : Node3D
             Sky = exterior ? new Sky { SkyMaterial = new ShaderMaterial { Shader = new Shader { Code = SkyShader } }, RadianceSize = Sky.RadianceSizeEnum.Size512,
                 ProcessMode = Sky.ProcessModeEnum.Automatic } : null,
             AmbientLightSource = exterior ? Godot.Environment.AmbientSource.Sky : Godot.Environment.AmbientSource.Color,
-            AmbientLightColor = exterior ? Colors.Black : new Color(0.16f, 0.15f, 0.13f),
+            AmbientLightColor = exterior && VisualOptions.Barrowworks ? Colors.Black : new Color(0.16f, 0.15f, 0.13f),
             // DS Phase B (2026-09-27): directionality. Full-strength sky ambient (energy 1, sky contribution 1) lights
             // every surface from every direction at once, which is why the 27-view survey read flat and
             // directionless with no contact shadows - the same failure Digital Foundry describes on Crimson Desert

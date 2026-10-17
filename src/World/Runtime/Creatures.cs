@@ -213,7 +213,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     double angle = channel.UInt64(sample) / SampleScale * 2 * Math.PI;
                     double distance = Math.Sqrt(channel.UInt64(sample + 1) / SampleScale) * site.RadiusMm;
                     long cx = site.XMm + (long)Math.Round(Math.Sin(angle) * distance), cz = site.ZMm + (long)Math.Round(Math.Cos(angle) * distance);
-                    if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others))
+                    if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others, site.Space.IsExterior ? 0 : 1800))
                     {
                         (x, z) = (cx, cz);
                         break;
@@ -1093,7 +1093,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space)).Where(b => b.ClearanceMm < 1800);
+    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space)).Where(b => c.Site.Space.IsExterior || b.ClearanceMm < 1800);
 
     private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
 

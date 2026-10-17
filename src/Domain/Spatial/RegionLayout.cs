@@ -11,6 +11,8 @@ namespace UNNAMED.Domain.Spatial;
 /// </summary>
 public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool StaysOpen { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SiteFlagRequirement? Requirement { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

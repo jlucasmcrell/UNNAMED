@@ -366,13 +366,13 @@ for sid, entry in structures:
 w("")
 # The three gates the design's own edge list names (04_LEVEL_MAPS.md): G1 is the R08-R02 shortcut, G2 the
 # R07-R09 secret, G3 the R11-R12 aftermath. Each is a door in the edge's opening, shut until its flag is set.
-w("# G1, G2 and G3, from the design's edge list. G3 is the one the quest opens with a fitting wedge (o_open).")
+w("# G1-G3 remain open once earned. G3 requires the Custodian defeat; the wedge belongs at the headworks saddles.")
 w("doors:")
 for gate, (x0, z0, x1, z1) in doors:
     lock = (", latch_side: east, locked_text: 'The latch is on the gallery side.'" if gate == "g1" else
             ", requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, locked_text: 'The court interlock still holds. The Custodian must be stopped.'" if gate == "g3" else "")
     w(f"  - {{ key: door.barrowworks.{gate}, flag_ref: world.barrowworks.gate_{gate}_open, "
-      f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4{lock} }}")
+      f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4, stays_open: true{lock} }}")
 w("containers:")
 w("  - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }")
 w("  - { key: container.barrowworks.codex_fragment, loot_ref: loot.barrowworks.codex_fragment, position_m: [69.0, 63.0], stack_slots: 1, flag_ref: world.barrowworks.codex_fragment_taken }")

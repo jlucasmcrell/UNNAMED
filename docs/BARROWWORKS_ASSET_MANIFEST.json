@@ -15,25 +15,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_01.glb",
           "triangles": 174744,
-          "bytes": 18969012,
-          "sha256": "f9ee3f3ea89fe7ad086ea86a4c6599e2c650b448c4a99960c2d2027c699167ac"
+          "bytes": 25266204,
+          "sha256": "138519c84977763303c339a14c9cd05e9880e1d91eb3f7ccd06db726270f6c46"
         },
         {
           "file": "bw_codex_room_01_lod1.glb",
           "triangles": 87371,
-          "bytes": 15935616,
-          "sha256": "edb8b9eb82b9f6158f9ebb2e8ff35f450eaba7b8a150d85cced324497b67e6b8"
+          "bytes": 9985288,
+          "sha256": "d2d6a9af8ae33d59c53631dfcc72039035b6f605025c01d8c13b43a572887d30"
         },
         {
           "file": "bw_codex_room_01_lod2.glb",
           "triangles": 34948,
-          "bytes": 14024756,
-          "sha256": "9c1d70d64b4163ce70d5362860dbc0b3fae40398c50bf0b3c5244a56f09b11e8"
+          "bytes": 3324044,
+          "sha256": "b598ffcc95f839d6fe95e1af047814b7ac299cd48d0ea1bef0f752141b166660"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -52,25 +62,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_02.glb",
           "triangles": 191400,
-          "bytes": 19556108,
-          "sha256": "3f792ea341bcc76bbf9bb961648719310fa616e5519c25262872d6cb4abc84dd"
+          "bytes": 25853324,
+          "sha256": "03e5b519258396bff564fec47a1b30506b42fadfcc7605792f95de4952de4af8"
         },
         {
           "file": "bw_codex_room_02_lod1.glb",
           "triangles": 95699,
-          "bytes": 16229624,
-          "sha256": "84d94a3713d9ab88adea66b7685a759ef77875fffc9eb2701324f128fb81564b"
+          "bytes": 10279304,
+          "sha256": "3be14bba45b67c2e204d67d8a18ed6b2870656af765bfbae278618938be4670b"
         },
         {
           "file": "bw_codex_room_02_lod2.glb",
           "triangles": 38279,
-          "bytes": 14157896,
-          "sha256": "f7a8fd3f9aba0336c8a25398e5dc73375564079be7819af0a2dd255a7b8145a7"
+          "bytes": 3457188,
+          "sha256": "04ab4087eba545700f0e2de0911b8a42ebf48b0d50d02b9df5cb40afdfa25420"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -89,25 +109,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_03.glb",
           "triangles": 174780,
-          "bytes": 18980668,
-          "sha256": "62346bde5332390fd06397945f678c2ff8c5ad9e0b04d0136f65167e37bd024a"
+          "bytes": 25277864,
+          "sha256": "6534b0c7c91ade11db300bc6f52fa7de05b0b6b6028a49b2936b7a0981896864"
         },
         {
           "file": "bw_codex_room_03_lod1.glb",
           "triangles": 87389,
-          "bytes": 15931148,
-          "sha256": "5cace5d50bff8e015616e4d69e451cc1be5cc338da8f9b0f505b132032d2411a"
+          "bytes": 9980828,
+          "sha256": "064bff0ae0826c91da20faae3cb0253c5f5d6d8610fba40d1b34ec3bd3398128"
         },
         {
           "file": "bw_codex_room_03_lod2.glb",
           "triangles": 34956,
-          "bytes": 14026988,
-          "sha256": "cb18d970f8b49e43cad0a5bb565279a8ae227c5d4c713a95d20d344b49b54c60"
+          "bytes": 3326280,
+          "sha256": "5bc904a2f803ed53c42b8c6b37e7d721427791c6d3e8c1a5c78f329b4ef539ab"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -126,25 +156,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_04.glb",
           "triangles": 174744,
-          "bytes": 18972392,
-          "sha256": "ce3d33fce650a662970006d23fb30da2f599102d799c1ea80e604450effbf0f1"
+          "bytes": 25269584,
+          "sha256": "dde24242663f47d0974494360b074955e50caefe1dccc8dc868bf672bee6c551"
         },
         {
           "file": "bw_codex_room_04_lod1.glb",
           "triangles": 87372,
-          "bytes": 15934372,
-          "sha256": "e7c4ea30cacad8d1fe2a8a0584ee5e47e0022f7d87769441f8a7bffe7a1eb9df"
+          "bytes": 9984044,
+          "sha256": "219ff44c8ca0fa1177d48a8092e14befc8c507072480674ffde7e5e06b4a17c3"
         },
         {
           "file": "bw_codex_room_04_lod2.glb",
           "triangles": 34948,
-          "bytes": 14023664,
-          "sha256": "4745f45f2162b14fc9a41c3dcf51a21c9cc10484fb58d98086c26befaae26d4e"
+          "bytes": 3322952,
+          "sha256": "b354103e576d05d876c9aadb917ec30386dcc680b66881db24fd9adf5ea41282"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -163,25 +203,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_05.glb",
           "triangles": 241946,
-          "bytes": 22095360,
-          "sha256": "9ea0f904b677b48aef3363436d7ff379559063c23f559b4060f8b2a052890a46"
+          "bytes": 28392136,
+          "sha256": "9d2bda6b6cd6aa7031e7c1b1933e694aac3dbb7af72e1f26251ad1d608a045c6"
         },
         {
           "file": "bw_codex_room_05_lod1.glb",
           "triangles": 120972,
-          "bytes": 17208376,
-          "sha256": "990d77d77a0bcd713cd2f86bffe5982f620dc6e62a510e087c1702ac79719ffc"
+          "bytes": 11258052,
+          "sha256": "dbbd6ee3c2b0fd5819a687ac2f4a7a44e7071a7275704fa7b54a6f4db5910f8c"
         },
         {
           "file": "bw_codex_room_05_lod2.glb",
           "triangles": 48389,
-          "bytes": 14614700,
-          "sha256": "11d527c8c19b531343b0eb216932baa507107acde2f0aa3c56d8660a64466177"
+          "bytes": 3913992,
+          "sha256": "2b6d10016fda20c7a49f31089e45eca4aeb02632c3284cc74a0b445c54127de0"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -200,25 +250,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_06.glb",
           "triangles": 197070,
-          "bytes": 19761716,
-          "sha256": "89252ca475523f8d014f00fe07b9487420a5be83416598c288cd9ff88dba5f41"
+          "bytes": 26058908,
+          "sha256": "32b2074ae590e74d51becfaf9482b2b5385b88e1109c60d2a76538b55f407371"
         },
         {
           "file": "bw_codex_room_06_lod1.glb",
           "triangles": 98534,
-          "bytes": 16347520,
-          "sha256": "7ede144bd5187365cf6449019f9d4b0ea52cdc4f04786e12d086eff31b889e44"
+          "bytes": 10397200,
+          "sha256": "2b128649c2f290661c13b461c47d2e294029bb4470c3252aa12129ab069550d6"
         },
         {
           "file": "bw_codex_room_06_lod2.glb",
           "triangles": 39414,
-          "bytes": 14211248,
-          "sha256": "0dfec7f4a67f35ca274a146cf4f5dfe4008613de677134fda977eb766d7c9f4e"
+          "bytes": 3510540,
+          "sha256": "380077bec0e91a77265ead882a2f3d587c9e4fb26146745596caff9b0a4848af"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -237,25 +297,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_07.glb",
           "triangles": 191400,
-          "bytes": 19556108,
-          "sha256": "6a21f586a8a8e7a4fadf89aebd88fa5c3b65ba79c545d2cae5299b286b90a7fd"
+          "bytes": 25853324,
+          "sha256": "47592c6c9f669ee30355c0ff23b324c5669d5234076cd26db1ecac9ce3d64820"
         },
         {
           "file": "bw_codex_room_07_lod1.glb",
           "triangles": 95699,
-          "bytes": 16229624,
-          "sha256": "08ffc1c4d5c097f9cee2c9ddf957690da1fee7de09b9f84085dadec4319afb20"
+          "bytes": 10279304,
+          "sha256": "69a1e73bd5c6d8875e46ca3ce2f85d266f572dcd98032716a5a234accffa9552"
         },
         {
           "file": "bw_codex_room_07_lod2.glb",
           "triangles": 38279,
-          "bytes": 14157896,
-          "sha256": "e2d6553e0b9462dec212224360784e975e54948428af8fc09edec592150e53cc"
+          "bytes": 3457188,
+          "sha256": "41adf75ea5f42ef46d93bb0bedfaaecec3e78bc30397160881ae75a1b3906ebe"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -274,25 +344,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_08.glb",
           "triangles": 197070,
-          "bytes": 19768576,
-          "sha256": "fa92c3c2d5ff8261f2389534b19288ef465fbb6a632e2c0c370e8693b344447c"
+          "bytes": 26065768,
+          "sha256": "e99fbbfac1e9b7276756f0e56ac624a8230873efd0c54a8040afe33152030dba"
         },
         {
           "file": "bw_codex_room_08_lod1.glb",
           "triangles": 98535,
-          "bytes": 16351472,
-          "sha256": "457c49e970a9fff4326401fc5fe3d74ce44eba3eff919613afdce1b24ed7b698"
+          "bytes": 10401152,
+          "sha256": "bc2aa50bebbc3140612c6ebf1eeda9d13fa05a1934eb29dcf7ce68d94ad5ef9c"
         },
         {
           "file": "bw_codex_room_08_lod2.glb",
           "triangles": 39414,
-          "bytes": 14220396,
-          "sha256": "94fdd23ae25a29b8ecaeb9174b996d03b51434fc39213a8105e16ab7b27d113b"
+          "bytes": 3519688,
+          "sha256": "b2c52af2b4b63ac1c02b724ac63a4c9dee1d4b83f40026eee13c0903240bfca3"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -311,25 +391,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_09.glb",
           "triangles": 174744,
-          "bytes": 18973640,
-          "sha256": "3b6a2de0408cb3a73d1fbdb7feba4d6fdd8a35889218d96eb636bbd159aeb11b"
+          "bytes": 25270832,
+          "sha256": "b758f6183731017d50d7cd2f97e9478710dea7465abdde605041b83512fabd0d"
         },
         {
           "file": "bw_codex_room_09_lod1.glb",
           "triangles": 87371,
-          "bytes": 15934628,
-          "sha256": "2e009559cbb764b162d7f525737acd2617623d8b417682f9a3c2870c5d80fa09"
+          "bytes": 9984300,
+          "sha256": "5fb84f78c2ce2f27422807993ea861152e74d05f70744a3d48598a618f58ad75"
         },
         {
           "file": "bw_codex_room_09_lod2.glb",
           "triangles": 34948,
-          "bytes": 14024232,
-          "sha256": "5b03dd80f1d04d54b76d6cf37856cf192397821d17bb211ef8e63f48cb74b68b"
+          "bytes": 3323520,
+          "sha256": "9c24a7d203564c99c098c97e36440e020079c0695e1d597ee9c1f51ea8b4af80"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -348,25 +438,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_10.glb",
           "triangles": 197070,
-          "bytes": 19765892,
-          "sha256": "3a317e22067c0ad21da264ce82af7de729a018bddd7ccd6cc2ea3e8d2b95f9e6"
+          "bytes": 26063104,
+          "sha256": "f4d70ee63036c62bd3e7426bf7f7b2cf4a7e18796e85492d0b55d0dfe83c80d6"
         },
         {
           "file": "bw_codex_room_10_lod1.glb",
           "triangles": 98535,
-          "bytes": 16340504,
-          "sha256": "bbb8121e19fef25e1e1a6f1f0a682a43a9f8cd76687375b33279bfac052d7b44"
+          "bytes": 10390180,
+          "sha256": "ce32de2a7bf9abc97b63d5de094db7f31b4e6fdeec8b83a7f27c5acc758478af"
         },
         {
           "file": "bw_codex_room_10_lod2.glb",
           "triangles": 39413,
-          "bytes": 14209104,
-          "sha256": "6c2873a452d049396789d7dc149a2cab9c987d1fdf2f15eae2270275df3e585c"
+          "bytes": 3508396,
+          "sha256": "ccd1e9fee77af97656f2eb42891a6fb5ea5822103325db25c1712fce0252fa5a"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -385,25 +485,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_11.glb",
           "triangles": 454842,
-          "bytes": 31238488,
-          "sha256": "92795c474a49d8e8df34ccabe4e62be30ef80a65e66730604fe0680484a87147"
+          "bytes": 37535244,
+          "sha256": "50462c14798972e0850d1b531769091b447c571467cd05f39b4c7fe8263d2f67"
         },
         {
           "file": "bw_codex_room_11_lod1.glb",
           "triangles": 227421,
-          "bytes": 21469124,
-          "sha256": "97d133d51fb1eb1e2e58abbe64fb1b5c6b6a2bbdc77166250d4c2774f18c8528"
+          "bytes": 15518808,
+          "sha256": "b033063bae4ac9980af2fa03696d87b53ee48b52c6cd96e83eca17c9565a2bd0"
         },
         {
           "file": "bw_codex_room_11_lod2.glb",
           "triangles": 90967,
-          "bytes": 16570916,
-          "sha256": "7283119b7618a6ebf17f9b15b28193027e95d7388f244548b178e052203b5908"
+          "bytes": 5870212,
+          "sha256": "969e4d167b89b3e7ce68ffdf0b9c0c4256b5dec5e51803a3009200a5523205ab"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -422,25 +532,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_12.glb",
           "triangles": 208410,
-          "bytes": 20179924,
-          "sha256": "205f3e6cc3fb8d7eb566155832b98df73b58b45f72e650c405b2cb362201b5e8"
+          "bytes": 26477112,
+          "sha256": "72d5fe8d9626fe1a6c5474373c11bdbb7cba4b15dc82a37820db37b0a87d3bab"
         },
         {
           "file": "bw_codex_room_12_lod1.glb",
           "triangles": 104205,
-          "bytes": 16570508,
-          "sha256": "21723fc11604a3043974177114168c5746c50dabe610f9acd0f83834112335ea"
+          "bytes": 10620180,
+          "sha256": "e10187f1da9f57f75d1a76a72646a6ee6b636f2ef494a65869ac9797e4ca636f"
         },
         {
           "file": "bw_codex_room_12_lod2.glb",
           "triangles": 41681,
-          "bytes": 14320420,
-          "sha256": "5490007f59111626c4f6da03975d749e3c701bc7557aa6a54703ebc1a9bea305"
+          "bytes": 3619712,
+          "sha256": "08aaecd54d305e2cc1f759ef2d09537424786e5fd7b328772fab74194c471710"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -459,25 +579,35 @@
         "pillar",
         "brazier"
       ],
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        1024,
+        512,
+        256
+      ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_13.glb",
           "triangles": 174756,
-          "bytes": 18973348,
-          "sha256": "abfcdf185a3f14c5a2d50400e39a2ccf16e555d2207d3693603627a71dfdda12"
+          "bytes": 25270544,
+          "sha256": "f83a3be3ba88216be169801996ba33e1e42d887ab199c6ccaed1229e2ad6267c"
         },
         {
           "file": "bw_codex_room_13_lod1.glb",
           "triangles": 87377,
-          "bytes": 15931444,
-          "sha256": "94b80ee6c2f843dd5c1605ddd5209180c6ac09f3d21778af7338bbc48d510656"
+          "bytes": 9981120,
+          "sha256": "7cde672fb317411b172c0fd1ed95dc1f4362c8bd7ea6ad190045250d67c401bd"
         },
         {
           "file": "bw_codex_room_13_lod2.glb",
           "triangles": 34951,
-          "bytes": 14023892,
-          "sha256": "b140bff69d47378ed6c7e6b65f944fcbb4686b8fdafba0f4f56ccee6602fc8ef"
+          "bytes": 3323184,
+          "sha256": "2e2bb036362e1a746c6ce9a8c39b784a53f4a64556e1e119b8487f5a543582c6"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -488,7 +618,7 @@
       "licence": "CC0 1.0; first-party enclosure geometry",
       "creator": "Poly Haven; geometry by Codex",
       "source_url": "https://polyhaven.com/a/rock_ground",
-      "sha256": "0a056c78fb3a28e051c341ef36f1ce42ed0981a8518f0ad9f1175f65bdfd287e",
+      "sha256": "ce65d6bc6a018382f523ef338d02ecfc42869babac70416deaa527a9cdf060b0",
       "shippable": true,
       "source_provenance": {
         "id": "cw_rock_ground",
@@ -520,7 +650,7 @@
       "licence": "Fab Standard Personal",
       "creator": "DanStudios; manual assembly by Codex",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "sha256": "059071831af8dfff4b42b724cb97869c0bfb5f73212c0778b0cb0cfbb46d4351",
+      "sha256": "c6a831960a2b67e0e5a7288ccda487a31c3de3d8d3265da909bed204f0f2b547",
       "shippable": true
     },
     {
@@ -824,6 +954,22 @@
           "frames": 90
         }
       ],
+      "shippable": true
+    },
+    {
+      "asset_id": "prop_ph_wooden_crate_01",
+      "category": "existing_production_reuse",
+      "licence": "CC0 1.0, Poly Haven",
+      "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\prop_ph_wooden_crate_01\\prop_ph_wooden_crate_01_meta.json",
+      "sha256": "1fc28c43dbcbb28c6c5252052a1cdb51badd1f1bbc3fb896203a669fd51927a4",
+      "shippable": true
+    },
+    {
+      "asset_id": "cw_woodpile_a",
+      "category": "existing_production_reuse",
+      "licence": "First-party geometry; first-party/CC0 wood materials",
+      "source_metadata": "C:\\Otherreach_Recovery\\Otherreach_Playtest_RESTORE_20261015b\\primary\\ready\\cw_woodpile_a\\cw_woodpile_a_meta.json",
+      "sha256": "dce118cf86776142a60c1c80ab062dacf90bf6bbab9f53db25d00602f88c0fa0",
       "shippable": true
     }
   ]

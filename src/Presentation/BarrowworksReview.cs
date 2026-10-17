@@ -4,74 +4,90 @@ using UNNAMED.Application;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
+using UNNAMED.Presentation.Perf;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
 
 public sealed class BarrowworksReview
 {
-    private sealed record Stop(string Name, long X, long Z, string? Interact = null);
+    private sealed record Stop(string Name, long X, long Z, string? Interact = null, Vector2? LookAt = null);
     private readonly GameSession _session;
     private readonly PlayerController _controller;
     private readonly CameraRig _camera;
     private readonly Queue<Stop> _stops = new();
     private readonly Queue<(long X, long Z)> _path = new();
     private int _settle, _frames;
+    private double _frameSeconds, _settleSeconds;
+    private double _captureSeconds;
+    private readonly bool _realtime;
     private bool _entered, _arrived;
     private long _lastProgress;
     private readonly int _roomLimit;
     private int _roomsDrawn;
-    private readonly List<double> _frameMs = new();
+    private readonly FrameStats _stats;
     private readonly HashSet<string> _attackShots = new(StringComparer.Ordinal);
     public void RecordFrame(double seconds)
     {
-        if (_entered && double.IsFinite(seconds) && seconds > 0) _frameMs.Add(seconds * 1000);
+        _frameSeconds = seconds;
+        if (_entered && double.IsFinite(seconds) && seconds > 0)
+        {
+            _captureSeconds += seconds;
+            _stats.Record(seconds);
+        }
     }
-    public void WriteTiming()
+    public void Screenshot() => _stats.SkipNext();
+    public void WriteTiming() => _stats.Write(Directory, new Dictionary<string, string>
     {
-        var samples = _frameMs.OrderBy(x => x).ToArray();
-        if (samples.Length == 0) return;
-        File.WriteAllText(Path.Combine(Directory, "frame_timing.txt"),
-            $"samples={samples.Length}; median_ms={samples[samples.Length/2]:F2}; p95_ms={samples[(int)((samples.Length-1)*.95)]:F2}; max_ms={samples[^1]:F2}; renderer={DisplayServer.GetName()}; tier={VisualOptions.Tier}\n");
-    }
+        ["route"] = "Frontier threshold -> all thirteen Barrowworks rooms -> solo Custodian -> headworks",
+        ["clock"] = _realtime ? "Normal fixed 20 Hz simulation through GameSession.Frame(delta); capture stalls and initial loading excluded"
+            : "One ordinary simulation tick per rendered frame; capture stalls and initial loading excluded",
+        ["tier"] = VisualOptions.Tier,
+    });
     public string Directory { get; }
 
-    public BarrowworksReview(GameSession session, PlayerController controller, CameraRig camera, string directory)
+    public BarrowworksReview(GameSession session, PlayerController controller, CameraRig camera, string directory, bool realtime = false)
     {
         _session = session;
         _controller = controller;
         _camera = camera;
+        _realtime = realtime;
+        if (DisplayServer.GetName() != "headless")
+            DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
+        Engine.MaxFps = 0; // Capture headroom rather than the window's refresh/cap, as ConnectedCheck does.
+        _stats = new FrameStats(camera.GetViewport()) { Segment = "barrowworks-route" };
         Directory = directory;
         _roomLimit = int.TryParse(OS.GetEnvironment("BARROWWORKS_REVIEW_LIMIT"), out int limit) ? limit : 13;
         System.IO.Directory.CreateDirectory(directory);
         Add("R01_threshold", 50, 10);
         Add("R02_intake_hall", 50, 28);
         Add("notice", 55, 24, "switch.barrowworks.notice");
-        Add("R03_wash_passage", 28, 38);
-        Add("R04_drain_mouth", 8, 38);
-        Add("R05_sorting_floor", 28, 60);
+        Add("R03_wash_passage", 28, 38, lookAt: new Vector2(22.9f, 36.5f));
+        Add("R04_drain_mouth", 8, 38, lookAt: new Vector2(5.5f, 41.6f));
+        Add("R05_sorting_floor", 28, 60, lookAt: new Vector2(24, 54.5f));
         Add("R06_still_bay", 50, 60);
         Add("R07_gauge_archive", 72, 60);
         Add("fitting_note", 67, 59, "switch.barrowworks.fitting_note");
         Add("diagram_rack", 77, 59, "switch.barrowworks.diagram_rack");
-        Add("R08_return_gallery", 72, 38);
+        Add("archive_supplies", 70, 62, lookAt: new Vector2(74, 64));
+        Add("R08_return_gallery", 72, 38, lookAt: new Vector2(76, 41));
         Add("gallery_latch", 68, 38, "door.barrowworks.g1");
         Add("archive_cover", 78, 62, "door.barrowworks.g2");
-        Add("R09_blind_store", 92, 60);
+        Add("R09_blind_store", 92, 60, lookAt: new Vector2(95, 61));
         Add("blind_ledger", 95, 60, "switch.barrowworks.blind_ledger");
-        Add("R13_inspection_bay", 72, 84);
-        Add("R10_service_vestibule", 50, 84);
+        Add("R13_inspection_bay", 72, 84, lookAt: new Vector2(76.5f, 86.5f));
+        Add("R10_service_vestibule", 50, 84, lookAt: new Vector2(54, 88.5f));
         Add("R11_measuring_court", 50, 100);
         // Combat and the earned interlock remain ordinary gameplay; no flag or position is written by this driver.
         Add("custodian", 50, 106);
         Add("court_interlock", 50, 117, "door.barrowworks.g3");
-        Add("R12_headworks", 50, 131);
+        Add("R12_headworks", 50, 131, lookAt: new Vector2(42.6f, 131));
         _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}"));
         Note($"region={session.Setup.Layout.Id}; gate={session.Options.Barrowworks}; seed={session.Simulation!.World.WorldSeed}");
     }
 
-    private void Add(string name, double x, double z, string? interact = null) =>
-        _stops.Enqueue(new Stop(name, (long)(x*1000), (long)(z*1000), interact));
+    private void Add(string name, double x, double z, string? interact = null, Vector2? lookAt = null) =>
+        _stops.Enqueue(new Stop(name, (long)(x*1000), (long)(z*1000), interact, lookAt));
 
     private void Note(string text)
     {
@@ -84,7 +100,7 @@ public sealed class BarrowworksReview
     public string? Update()
     {
         var sim = _session.Simulation!;
-        if (++_frames > 100_000 || sim.Combat.Defeated)
+        if (++_frames > 500_000 || _captureSeconds > 330 || sim.Combat.Defeated)
         {
             Note("FAILED: frame budget or defeat");
             return "failed";
@@ -106,12 +122,11 @@ public sealed class BarrowworksReview
         if (_arrived)
         {
             _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-            if (--_settle > 0)
+            _settleSeconds -= _frameSeconds;
+            if (--_settle > 0 || _settleSeconds > 0)
                 return null;
             _arrived = false;
             _stops.Dequeue();
-            if (stop.Interact is { } key)
-                _session.Submit(new InteractCommand(sim.PlayerId, key));
             Note("reached " + stop.Name);
             _lastProgress = sim.WorldTick;
             if (stop.Name.StartsWith("R", StringComparison.Ordinal) && ++_roomsDrawn >= _roomLimit)
@@ -134,7 +149,17 @@ public sealed class BarrowworksReview
             _path.Clear();
             _arrived = true;
             _settle = 25;
-            _camera.Yaw = Mathf.Pi;
+            _settleSeconds = .35; // Let the gameplay camera and animation blend settle even when review mode is uncapped.
+            var look = stop.LookAt;
+            if (stop.Interact is { } key)
+            {
+                var switchSite = sim.ActiveLayout.Switches.FirstOrDefault(s => s.Key == key);
+                var door = sim.ActiveLayout.Doors.FirstOrDefault(d => d.Key == key);
+                if ((switchSite?.Body ?? door?.ClosedFootprint) is BoxBlocker target)
+                    look = new Vector2(target.CenterXMm/1000f, target.CenterZMm/1000f);
+                _session.Submit(new InteractCommand(sim.PlayerId, key));
+            }
+            _camera.Yaw = look is { } aim ? Mathf.Atan2(-(aim.X-body.XMm/1000f), -(aim.Y-body.ZMm/1000f)) : Mathf.Pi;
             _camera.Pitch = -.06f;
             return null;
         }
@@ -155,9 +180,12 @@ public sealed class BarrowworksReview
         return null;
     }
 
+    private long _fightInputTick = -1;
     private void Fight(CreatureView boss)
     {
         var sim = _session.Simulation!;
+        if (_fightInputTick == sim.WorldTick) return;
+        _fightInputTick = sim.WorldTick;
         if (sim.WorldTick % 200 == 0) Note($"fight player_hp={sim.Combat.Health} boss_hp={boss.Health} attack={boss.AttackSource}");
         var body = sim.Player.Body;
         var towards = new Vector3(boss.Body.XMm-body.XMm, 0, boss.Body.ZMm-body.ZMm);
@@ -203,7 +231,7 @@ public sealed class BarrowworksReview
             {
                 var next = (at.X+dx, at.Z+dz);
                 if (parents.ContainsKey(next) || !Kinematics.IsClear(next.Item1*1000L, next.Item2*1000L,
-                        sim.Setup.Movement.BodyRadiusMm, layout.Space, closed)) continue;
+                        sim.Setup.Movement.BodyRadiusMm, layout.Space, closed, 1800)) continue;
                 parents[next] = at;
                 queue.Enqueue(next);
             }

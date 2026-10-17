@@ -32,7 +32,7 @@ public class BarrowworksFrontierTests
             {
                 var next = (point.X + dx, point.Z + dz);
                 if (parents.ContainsKey(next) || !Kinematics.IsClear(next.Item1 * 1000L, next.Item2 * 1000L,
-                        simulation.Setup.Movement.BodyRadiusMm, layout.Space, closed))
+                        simulation.Setup.Movement.BodyRadiusMm, layout.Space, closed, 1800))
                     continue;
                 parents[next] = point;
                 queue.Enqueue(next);
@@ -90,6 +90,9 @@ public class BarrowworksFrontierTests
         Assert.Equal(gallery.LockedText, arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
         Walk(arena, (x, z) => x > gallery.ClosedFootprint.CenterXMm
             && gallery.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
+        Assert.True(arena.Simulation.Doors.Single(d => d.Site == gallery).Open);
+        Assert.All(arena.Simulation.ActiveLayout.Doors, d => Assert.True(d.StaysOpen));
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
         Assert.True(arena.Simulation.Doors.Single(d => d.Site == gallery).Open);
         var headworks = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.g3");

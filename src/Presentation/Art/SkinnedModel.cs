@@ -77,8 +77,7 @@ public sealed partial class SkinnedModel : Node3D
         }
         player.AddAnimationLibrary("", library);
         figure._player = player;
-        // The opt-in interior keeps the local player animated continuously: the exterior visibility notifier
-        // can miss a space transition and leave this always-visible body in its bind pose.
+        // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
         if (levels >= 4 && !(VisualOptions.Barrowworks && owner == "player"))
             figure.Throttle();
         figure.FindOutfits(model);
